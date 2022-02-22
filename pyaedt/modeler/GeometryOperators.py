@@ -1451,76 +1451,76 @@ class GeometryOperators(object):
 
     @staticmethod
     @aedt_exception_handler
-    def degrees_over_rounded(numb, digits):
+    def degrees_over_rounded(angle, digits):
         """
 
         Parameters
         ----------
-        numb : float
-            In radians which will be converted to degrees and will over-rounded to the "digits"th decimal
+        angle : float
+            Angle in radians which will be converted to degrees and will be over-rounded to the next "digits" decimal.
         digits : int
-            Integer number which is the number of decimals
+            Integer number which is the number of decimals.
 
         Returns
         -------
         float
 
         """
-        return math.ceil(math.degrees(numb) * 10 ** digits) / (10 ** digits)
+        return math.ceil(math.degrees(angle) * 10 ** digits) / (10 ** digits)
 
     @staticmethod
     @aedt_exception_handler
-    def radians_over_rounded(numb, digits):
+    def radians_over_rounded(angle, digits):
         """
 
         Parameters
         ----------
-        numb : float
-            In degrees which will be converted to radians and will over-rounded to the "digits"th decimal
+        angle : float
+            Angle in degrees which will be converted to radians and will be over-rounded to the  next "digits" decimal.
         digits : int
-            Integer number which is the number of decimals
+            Integer number which is the number of decimals.
 
         Returns
         -------
         float
 
         """
-        return math.ceil(math.radians(numb) * 10 ** digits) / (10 ** digits)
+        return math.ceil(math.radians(angle) * 10 ** digits) / (10 ** digits)
 
     @staticmethod
     @aedt_exception_handler
-    def degrees_default_rounded(numb, digits):
+    def degrees_default_rounded(angle, digits):
         """
 
         Parameters
         ----------
-        numb : float
-            In radians which will be converted to degrees and will rounded by default to the "digits"th decimal
+        angle : float
+            Angle in radians which will be converted to degrees and will be under-rounded to the next "digits" decimal.
         digits : int
-            Integer number which is the number of decimals
+            Integer number which is the number of decimals.
 
         Returns
         -------
         float
 
         """
-        return math.floor(math.degrees(numb) * 10 ** digits) / (10 ** digits)
+        return math.floor(math.degrees(angle) * 10 ** digits) / (10 ** digits)
 
     @staticmethod
     @aedt_exception_handler
-    def radians_default_rounded(numb, digits):
+    def radians_default_rounded(angle, digits):
         """
 
         Parameters
         ----------
-        numb : float
-            In degrees which will be converted to radians and will rounded by default to the "digits"th decimal
+        angle : float
+            Angle in degrees which will be converted to radians and will be under-rounded to the next "digits" decimal.
         digits : int
-            Integer number which is the number of decimals
+            Integer number which is the number of decimals.
 
         Returns
         -------
         float
 
         """
-        return math.floor(math.radians(numb) * 10 ** digits) / (10 ** digits)
+        return math.floor(math.radians(angle) * 10 ** digits) / (10 ** digits)

@@ -2550,8 +2550,8 @@ class Primitives3D(Primitives, object):
         return [are_inequations_checkable, values]
 
     @aedt_exception_handler
-    def _make_winding_follow_chamfer(self, chamfer, security_factor, wire_diameter, numb):
+    def _make_winding_follow_chamfer(self, chamfer, security_factor, wire_diameter, layer_number):
         sr = security_factor
-        w_rad_inc = numb * sr * wire_diameter / 2
+        w_rad_inc = layer_number * sr * wire_diameter / 2
         distance = sqrt(2 * w_rad_inc ** 2) - w_rad_inc + sqrt(2 * chamfer ** 2) / 2
         return sqrt(2) * distance
