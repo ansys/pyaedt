@@ -4832,8 +4832,17 @@ class Hfss(FieldAnalysis3D, object):
         return True
 
     @aedt_exception_handler
-    def set_differential_pair(self, positive_terminal, negative_terminal, common_name=None, diff_name=None,
-                               common_ref_z=25, diff_ref_z=100, active=True, matched=False):
+    def set_differential_pair(
+        self,
+        positive_terminal,
+        negative_terminal,
+        common_name=None,
+        diff_name=None,
+        common_ref_z=25,
+        diff_ref_z=100,
+        active=True,
+        matched=False,
+    ):
         """Add a differential pair definition
 
         Parameters
