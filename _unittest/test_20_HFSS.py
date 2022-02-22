@@ -171,6 +171,22 @@ class TestClass:
         assert sweep.props["RangeEnd"] == str(freq_stop) + units
         assert sweep.props["Type"] == "Discrete"
 
+        # Create a linear count sweep with the incorrect sweep type.
+        try:
+            sweep = self.aedtapp.create_linear_count_sweep(
+                setupname="MySetup",
+                sweepname="IncorrectStep",
+                unit="MHz",
+                freqstart=1.1e3,
+                freqstop=1200.1,
+                num_of_freq_points=1234,
+                sweep_type="Incorrect",
+            )
+        except AttributeError as e:
+            exception_raised = True
+            assert e.args[0] == "Invalid `sweep_type`. It must be 'Discrete', 'Interpolating', or 'Fast'."
+        assert exception_raised
+
     def test_06b_setup_exists(self):
         assert self.aedtapp.analysis_setup is not None
         assert self.aedtapp.nominal_sweep is not None
