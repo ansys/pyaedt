@@ -97,13 +97,13 @@ class GeometryOperators(object):
         if type(string) is not str:
             try:
                 return float(string)
-            except ValueError:
+            except ValueError:  # pragma: no cover
                 raise TypeError("Input argument is not string nor number")
 
         if scale_to_unit:
             try:
                 sunit = scaling[scale_to_unit]
-            except KeyError as e:
+            except KeyError as e:  # pragma: no cover
                 raise e
         else:
             sunit = 1.0
@@ -128,11 +128,11 @@ class GeometryOperators(object):
             else:
                 try:
                     scaling_factor = scaling[m.group("unit")]
-                except KeyError as e:
+                except KeyError as e:  # pragma: no cover
                     raise e
                 else:
                     return float(m.group("number")) * scaling_factor / sunit
-        else:
+        else:  # pragma: no cover
             raise TypeError("String is no number")
 
     @staticmethod
@@ -423,7 +423,6 @@ class GeometryOperators(object):
             Evaluated norm in the same unit as the coordinates for the input vector.
 
         """
-        # m = (a[0] ** 2 + a[1] ** 2 + a[2] ** 2) ** 0.5
         t = 0
         for i in a:
             t += i ** 2
@@ -490,11 +489,9 @@ class GeometryOperators(object):
         """
         # fmt: off
         if len(p1) == 3:
-            d = math.sqrt((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2 + (p2[2]-p1[2])**2)
-            return d
+            return math.sqrt((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2 + (p2[2]-p1[2])**2)
         elif len(p1) == 2:
-            d = math.sqrt((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)
-            return d
+            return math.sqrt((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)
         return False
         # fmt: on
 
@@ -1281,7 +1278,7 @@ class GeometryOperators(object):
             List of [x,y,z] coordinates for the centroid of the polygon.
 
         """
-        if len(pts) == 0:
+        if len(pts) == 0:  # pragma: no cover
             raise ValueError("pts must contain at list one point")
         sx = sy = sz = sl = sl2 = 0
         x1, y1, z1 = pts[0]
@@ -1417,9 +1414,9 @@ class GeometryOperators(object):
             Lists of oriented vertices
         """
         # select a vertex on the hull
-        if len(x) < 3:
+        if len(x) < 3:  # pragma: no cover
             raise ValueError("x length must be >= 3")
-        if len(y) != len(x):
+        if len(y) != len(x):  # pragma: no cover
             raise ValueError("y must be same length as x.")
         # fmt: off
         xmin = min(x)

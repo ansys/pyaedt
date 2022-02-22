@@ -917,11 +917,11 @@ class EdbLayout(object):
             return False
         try:
             padstack = self._pedb.core_padstack.padstacks[padstack_name]
-        except KeyError:
+        except KeyError:  # pragma: no cover
             return False
         try:
             padstack_pad = padstack.pad_by_layer[layer_name]
-        except KeyError:
+        except KeyError:  # pragma: no cover
             return False
 
         pad_shape = padstack_pad.geometry_type

@@ -151,6 +151,12 @@ class TestClass:
         p1 = [1.0, 0.0, 1.0]
         p2 = [0.0, 1.0, 1.0]
         assert abs(go.points_distance(p1, p2) - math.sqrt(2)) < tol
+        p1 = [1.0, 0.0]
+        p2 = [0.0, 1.0]
+        assert abs(go.points_distance(p1, p2) - math.sqrt(2)) < tol
+        p1 = [1.0, 0.0, 0.0, 0.0]
+        p2 = [0.0, 1.0, 0.0, 0.0]
+        assert not go.points_distance(p1, p2)
 
     def test_find_point_on_plane(self):
         assert go.find_point_on_plane([[1, 0, 0]], 0) == 1
