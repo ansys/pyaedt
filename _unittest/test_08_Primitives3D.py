@@ -980,7 +980,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_73_make_winding(self):
         chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
-        winding_list = self.aedtapp.modeler._make_widning("Winding", "", "", 29.9, 52.1, 22.2, 2, 5, 15, chamfer, True)
+        winding_list = self.aedtapp.modeler._make_winding("Winding", "", "", 29.9, 52.1, 22.2, 2, 5, 15, chamfer, True)
         assert isinstance(winding_list, list)
         assert isinstance(winding_list[0], Object3d)
         assert isinstance(winding_list[1], list)
