@@ -1282,7 +1282,7 @@ class GeometryOperators(object):
 
         """
         if len(pts) == 0:
-            raise AttributeError("pts must contain at list one point")
+            raise ValueError("pts must contain at list one point")
         sx = sy = sz = sl = sl2 = 0
         x1, y1, z1 = pts[0]
         for i in range(len(pts)):  # counts from 0 to len(points)-1
@@ -1418,9 +1418,9 @@ class GeometryOperators(object):
         """
         # select a vertex on the hull
         if len(x) < 3:
-            raise AttributeError("x length must be >= 3")
+            raise ValueError("x length must be >= 3")
         if len(y) != len(x):
-            raise AttributeError("y must be same length as x.")
+            raise ValueError("y must be same length as x.")
         # fmt: off
         xmin = min(x)
         ixmin = [i for i, el in enumerate(x) if xmin == el]
@@ -1467,6 +1467,7 @@ class GeometryOperators(object):
     @aedt_exception_handler
     def v_angle_sign(va, vb, vn, righthanded=True):
         """Evaluate the signed angle between two geometry vectors.
+
         The sign is evaluated respect to the normal to the plane containing the two vector as per the following rule.
         In case of opposite vectors, it returns an angle equal to 180deg (always positive).
         Assuming that the plane normal is normalized (|Vn| == 1), the signed angle is simply:
@@ -1546,8 +1547,8 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def point_in_polygon(point, polygon):
-        """
-        Determine if a point is inside or outside a polyogn, both located on the same plane.
+        """Determine if a point is inside or outside a polyogn, both located on the same plane.
+
         The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
 
         point : list
@@ -1558,15 +1559,17 @@ class GeometryOperators(object):
         Returns
         -------
         int
-            -1 When the point is outside the polygon.
-            0 When the point is exactly on one of the sides of the polygon.
-            1 When the point is inside the polygon.
+            - ``-1`` When the point is outside the polygon.
+            - ``0`` When the point is exactly on one of the sides of the polygon.
+            - ``1`` When the point is inside the polygon.
         """
         # fmt: off
         tol = 1e-8
-        assert len(point) == 2, "point must be a list in the form [x, y]"  # pragma: no cover
+        if len(point) != 2:  # pragma: no cover
+            raise ValueError("point must be a list in the form [x, y]")
         pl = len(polygon[0])
-        assert len(polygon[1]) == pl, "Polygon x and y lists must be the same length"  # pragma: no cover
+        if len(polygon[1]) != pl:  # pragma: no cover
+            raise ValueError("Polygon x and y lists must be the same length")
         asum = 0
         for i in range(pl):
             vj = [polygon[0][i-1], polygon[1][i-1]]
@@ -1590,8 +1593,8 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def is_point_in_polygon(point, polygon):
-        """
-        Determine if a point is inside or outside a polyogn, both located on the same plane.
+        """Determine if a point is inside or outside a polyogn, both located on the same plane.
+
         The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
 
         point : list
@@ -1817,6 +1820,28 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def find_largest_rectangle_inside_polygon(polygon, partition_max_order=16):
+        """Find the largest area rectangles of arbitrary orientation in a polygon.
+
+        Implements the algorithm described by Rubén Molano, et al.
+        *"Finding the largest area rectangle of arbitrary orientation in a closed contour"*, published in
+        *Applied Mathematics and Computation*.
+        https://doi.org/10.1016/j.amc.2012.03.063.
+        (https://www.sciencedirect.com/science/article/pii/S0096300312003207)
+
+        Parameters
+        ----------
+        polygon : list
+            [[x1, x2, ..., xn],[y1, y2, ..., yn]]
+        partition_max_order : float, optional
+            Order of the lattice partition used to find the quasi-lattice polygon that approximates ``polygon``.
+            Default is ``16``.
+
+        Returns
+        -------
+        list of list
+            List containing the rectangles points. Return all rectangles found.
+            List is in the form: [[[x1, y1],[x2, y2],...],[[x1, y1],[x2, y2],...],...]
+        """
 
         # fmt: off
         def evaluate_partition_size(polygon, partition_max_order):
@@ -1830,10 +1855,10 @@ class GeometryOperators(object):
 
             # build the lattice
             xmin = min(x)
-            r = math.ceil(float(max(x)-xmin)/L)
+            r = int(math.ceil(float(max(x)-xmin)/L))
             xmax = xmin + L*r
             ymin = min(y)
-            s = math.ceil(float(max(y)-ymin)/L)
+            s = int(math.ceil(float(max(y)-ymin)/L))
             ymax = ymin + L*s
 
             # get the lattice points S inside the polygon
