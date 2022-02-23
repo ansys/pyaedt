@@ -301,7 +301,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         pos_z = self._arg_with_dim(pos_z)
         rotation = self._arg_with_dim(rotation, "deg")
         self.change_property(property_object=comp_name, property_name="Location", property_value=[pos_x, pos_y, pos_z])
-        self.change_property(property_object=comp_name, property_name="Angle", property_value=rotation)
+        self.change_property(property_object=comp_name, property_name="Rotation Angle", property_value=rotation)
         return True
 
     @aedt_exception_handler

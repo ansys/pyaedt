@@ -35,7 +35,11 @@ class TestClass:
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
-        self.aedtapp.close_project(test_project_name, saveproject=False)
+        for proj in self.aedtapp.project_list:
+            try:
+                self.aedtapp.close_project(proj, False)
+            except:
+                pass
         self.local_scratch.remove()
         gc.collect()
 
@@ -104,4 +108,3 @@ class TestClass:
     def test_08_merge(self):
         hfss3d = Hfss3dLayout(os.path.join(self.local_scratch.path, "Package.aedb", "edb.def"))
         assert hfss3d.modeler.merge_design(self.aedtapp)
-        hfss3d.close_project(saveproject=False)
