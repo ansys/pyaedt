@@ -272,19 +272,21 @@ class EdbStackup(object):
     def get_top_bottom_elevation_between_designs(
         self, hosting_layout=None, merged_layout=None, place_on_top=True, merged_component=None
     ):
-        """Returns the elevation needed to align 2 designs.
+        """Return the elevation needed to align 2 designs.
 
         Parameters
         ----------
-        hosting_layout
-        merged_layout
-        place_on_top
-        merged_component
+        hosting_layout : object
+            Edb Layout hosting object for merge.
+        merged_layout : object
+            Edb target layout.
+        place_on_top : bool
+        merged_component : str, optional
+            Name of the component to find and use for getting info.
 
         Returns
         -------
         float
-
         """
         stackup_target = hosting_layout.GetLayerCollection()
         stackup_source = merged_layout.GetLayerCollection()
