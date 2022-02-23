@@ -302,3 +302,12 @@ class TestClass:
         myres = self.aedtapp.modeler.components.create_resistor("R100", 50)
         mycap = self.aedtapp.modeler.components.create_capacitor("C100", 1e-12)
         self.aedtapp.modeler.zoom_to_fit()
+
+    def test_26_component_catalog(self):
+        comp_catalog = self.aedtapp.modeler.components.components_catalog
+        assert comp_catalog["Capacitors:Cap_"]
+        assert comp_catalog["capacitors:cAp_"]
+        assert isinstance(comp_catalog.find_components("cap"), list)
+        assert comp_catalog["LISN:CISPR25_LISN"].place("Lisn1")
+        assert not comp_catalog["Capacitors"]
+        assert comp_catalog["LISN:CISPR25_LISN"].props

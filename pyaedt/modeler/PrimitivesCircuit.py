@@ -3,10 +3,18 @@ import warnings
 import os
 import math
 
-from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes, generate_unique_name
+
+from pyaedt.generic.general_methods import (
+    aedt_exception_handler,
+    _retry_ntimes,
+    generate_unique_name,
+    recursive_glob,
+    filter_string,
+)
 from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.TouchstoneParser import _parse_ports_name
+from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 
 
 class CircuitComponents(object):
@@ -1229,3 +1237,134 @@ class CircuitComponents(object):
             val = "{0}{1}".format(Value, sUnits)
 
         return val
+
+
+class ComponentInfo(object):
+    """Class that manage Circuit Catalog info."""
+
+    def __init__(self, name, component_manager, file_name, component_library):
+        self._component_manager = component_manager
+        self.file_name = file_name
+        self.name = name
+        self.component_library = component_library
+        self._props = None
+
+    @property
+    def props(self):
+        """Retrieve the component properties."""
+        if not self._props:
+            self._props = load_keyword_in_aedt_file(self.file_name, self.name)
+        return self._props
+
+    @aedt_exception_handler
+    def place(self, inst_name, location=[], angle=0, use_instance_id_netlist=False):
+        """Create a component from a library.
+
+        Parameters
+        ----------
+        inst_name : str, optional
+            Name of the instance. The default is ``None.``
+        location : list of float, optional
+            Position on the X axis and Y axis.
+        angle : optional
+            Angle rotation in degrees. The default is ``0``.
+        use_instance_id_netlist : bool, optional
+            Whether to enable the instance ID in the net list.
+            The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
+        """
+        return self._component_manager.create_component(
+            inst_name=inst_name,
+            component_library=self.component_library,
+            component_name=self.name,
+            location=location,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
+
+
+class ComponentCatalog(object):
+    """Class that indexes Circuit Sys Catalog."""
+
+    @aedt_exception_handler
+    def __getitem__(self, compname):
+        """Get component from name.
+
+        Parameters
+        ----------
+        compname : str
+            ID or name of the object.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.PrimitivesCircuit.ComponentInfo`
+            Circuit Component Info.
+
+        """
+        items = self.find_components("*" + compname)
+        if items and len(items) == 1:
+            return self.components[items[0]]
+        elif len(items) > 1:
+            self._component_manager._logger.warning("Multiple components found.")
+            return None
+        else:
+            self._component_manager._logger.warning("Component not found.")
+            return None
+
+    def __init__(self, component_manager):
+        self._component_manager = component_manager
+        self._app = self._component_manager._app
+        self.components = {}
+        self._index_components()
+
+    @aedt_exception_handler
+    def _index_components(self, library_path=None):
+        if library_path:
+            sys_files = recursive_glob(library_path, "*.aclb")
+            root = os.path.normpath(library_path).split(os.path.sep)[-1]
+        else:
+            sys_files = recursive_glob(os.path.join(self._app.syslib, self._component_manager.design_libray), "*.aclb")
+            root = os.path.normpath(self._app.syslib).split(os.path.sep)[-1]
+        for file in sys_files:
+            comps1 = load_keyword_in_aedt_file(file, "DefInfo")
+            comps2 = load_keyword_in_aedt_file(file, "CompInfo")
+            comps = comps1.get("DefInfo", {})
+            comps.update(comps2.get("CompInfo", {}))
+            for compname, comp_value in comps.items():
+                root_name, ext = os.path.splitext(os.path.normpath(file))
+                full_path = root_name.split(os.path.sep)
+                id = full_path.index(root) + 1
+                if self._component_manager.design_libray in full_path[id:]:
+                    id += 1
+                comp_lib = "\\".join(full_path[id:]) + ":" + compname
+                self.components[comp_lib] = ComponentInfo(
+                    compname, self._component_manager, file, comp_lib.split(":")[0]
+                )
+
+    @aedt_exception_handler
+    def find_components(self, filter_str="*"):
+        """Find all components with given filter wildcards.
+
+        Parameters
+        ----------
+        filter_str : str
+            Filter String to search.
+
+        Returns
+        list
+            List of matching component names.
+        """
+        c = []
+        for el in list(self.components.keys()):
+            if filter_string(el, filter_str):
+                c.append(el)
+        return c

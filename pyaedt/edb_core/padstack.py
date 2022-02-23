@@ -78,7 +78,7 @@ class EdbPadstacks(object):
 
         Returns
         -------
-        dict of :class:`pyaedt.edb_core.Edb_Data.EdbPadstack`
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EdbPadstack`]
             List of padstacks via padstack definitions.
 
         """

@@ -10,7 +10,7 @@ from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "Galileo_edb"
 bom_example = "bom_example.csv"
-from _unittest.conftest import config, desktop_version, local_path, scratch_path, is_ironpython
+from _unittest.conftest import config, desktop_version, local_path, scratch_path, is_ironpython, settings
 
 try:
     import pytest
@@ -40,6 +40,10 @@ class TestClass:
     def test_00_export_ipc2581(self):
         ipc_path = os.path.join(self.local_scratch.path, "test.xml")
         self.edbapp.export_to_ipc2581(ipc_path)
+        assert os.path.exists(ipc_path)
+
+        # Export should be made with units set to default -millimeter-.
+        self.edbapp.export_to_ipc2581(ipc_path, "mm")
         assert os.path.exists(ipc_path)
 
     def test_01_find_by_name(self):
@@ -153,6 +157,7 @@ class TestClass:
     def test_10_add_layer(self):
         layers = self.edbapp.core_stackup.stackup_layers
         assert layers.add_layer("NewLayer", "TOP", "copper", "air", "10um", 0)
+        assert layers.add_layer("NewLayer2", None, "pec", "air", "0um", 0)
 
     def test_11_add_dielectric(self):
         diel = self.edbapp.core_stackup.create_dielectric("MyDiel", 3.3, 0.02)
@@ -168,6 +173,13 @@ class TestClass:
 
     def test_14_add_debye(self):
         diel = self.edbapp.core_stackup.create_debye_material("My_Debye", 3, 2.5, 0.02, 0.04, 1e6, 1e9)
+        assert diel
+
+    def test_14b_add_multipole_debye(self):
+        freq = [0, 2, 3, 4, 5, 6]
+        rel_perm = [1e9, 1.1e9, 1.2e9, 1.3e9, 1.5e9, 1.6e9]
+        loss_tan = [0.025, 0.026, 0.027, 0.028, 0.029, 0.030]
+        diel = self.edbapp.core_stackup.create_multipole_debye_material("My_MP_Debye", freq, rel_perm, loss_tan)
         assert diel
 
     def test_15_update_layer(self):
@@ -326,12 +338,12 @@ class TestClass:
         assert self.edbapp.core_siwave.add_siwave_ac_analysis()
 
     def test_41_create_siwave_dc_analsyis(self):
-        settings = self.edbapp.core_siwave.get_siwave_dc_setup_template()
-        settings.accuracy_level = 0
-        settings.use_dc_custom_settings = True
-        settings.name = "myDCIR_3"
-        settings.pos_term_to_ground = "I1"
-        assert self.edbapp.core_siwave.add_siwave_dc_analysis(settings)
+        settings_dc = self.edbapp.core_siwave.get_siwave_dc_setup_template()
+        settings_dc.accuracy_level = 0
+        settings_dc.use_dc_custom_settings = True
+        settings_dc.name = "myDCIR_3"
+        settings_dc.pos_term_to_ground = "I1"
+        assert self.edbapp.core_siwave.add_siwave_dc_analysis(settings_dc)
 
     def test_42_get_nets_from_pin_list(self):
         cmp_pinlist = self.edbapp.core_padstack.get_pinlist_from_component_and_net("U2A5", "GND")
@@ -464,7 +476,25 @@ class TestClass:
 
     def test_55b_create_cutout(self):
         output = os.path.join(self.local_scratch.path, "cutout.aedb")
-        assert self.edbapp.create_cutout(["A0_N", "A0_P"], ["GND"], output_aedb_path=output)
+        assert self.edbapp.create_cutout(["A0_N", "A0_P"], ["GND"], output_aedb_path=output, open_cutout_at_end=False)
+        assert os.path.exists(os.path.join(output, "edb.def"))
+        bounding = self.edbapp.get_bounding_box()
+
+        points = [[bounding[0][0], bounding[0][1]]]
+        points.append([bounding[0][0], bounding[0][1] + (bounding[1][1] - bounding[0][1]) / 10])
+        points.append(
+            [
+                bounding[0][0] + (bounding[0][1] - bounding[0][0]) / 10,
+                bounding[0][1] + (bounding[1][1] - bounding[0][1]) / 10,
+            ]
+        )
+        points.append([bounding[0][0] + (bounding[0][1] - bounding[0][0]) / 10, bounding[0][1]])
+        points.append([bounding[0][0], bounding[0][1]])
+        output = os.path.join(self.local_scratch.path, "cutout2.aedb")
+
+        assert self.edbapp.create_cutout_on_point_list(
+            points, nets_to_include=["GND"], output_aedb_path=output, open_cutout_at_end=False
+        )
         assert os.path.exists(os.path.join(output, "edb.def"))
 
     def test_56_rvalue(self):
@@ -474,7 +504,7 @@ class TestClass:
         assert self.edbapp.core_stackup.stackup_limits()
 
     def test_58_create_polygon(self):
-        os.environ["PYAEDT_ERROR_HANDLER"] = "True"
+        settings.enable_error_handler = True
         points = [[-0.025, -0.02], [0.025, -0.02], [0.025, 0.02], [-0.025, 0.02], [-0.025, -0.02]]
         plane = self.edbapp.core_primitives.Shape("polygon", points=points)
         points = [
@@ -500,7 +530,7 @@ class TestClass:
         points = [[0.001, -0.001, "ccn", 0.0, -0.0012]]
         plane = self.edbapp.core_primitives.Shape("polygon", points=points)
         assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
-        os.environ["PYAEDT_ERROR_HANDLER"] = "False"
+        settings.enable_error_handler = False
 
     def test_59_create_path(self):
         points = [
@@ -552,7 +582,7 @@ class TestClass:
         edb.close_edb()
 
     def test_65_flatten_planes(self):
-        assert self.edbapp.core_primitives.unite_polygons_on_layer()
+        assert self.edbapp.core_primitives.unite_polygons_on_layer("TOP")
 
     def test_66_create_solder_ball_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U1A1")

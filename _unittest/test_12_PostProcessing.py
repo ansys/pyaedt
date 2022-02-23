@@ -51,6 +51,10 @@ class TestClass:
         plot1 = self.aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
         plot1.IsoVal = "Tone"
         assert plot1.change_plot_scale(min_value, "30000")
+        assert self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
+        assert self.aedtapp.post.create_fieldplot_surface(
+            self.aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic
+        )
 
     @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
     def test_01_Animate_plt(self):
@@ -144,6 +148,32 @@ class TestClass:
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "Efield.fld"))
 
+        self.aedtapp.post.export_field_file_on_grid(
+            "Mag_E",
+            "Setup1 : LastAdaptive",
+            self.aedtapp.available_variations.nominal_w_values,
+            os.path.join(self.local_scratch.path, "MagEfieldSph.fld"),
+            gridtype="Spherical",
+            grid_stop=[5, 300, 300],
+            grid_step=[5, 50, 50],
+            isvector=False,
+            intrinsics="5GHz",
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldSph.fld"))
+
+        self.aedtapp.post.export_field_file_on_grid(
+            "Mag_E",
+            "Setup1 : LastAdaptive",
+            self.aedtapp.available_variations.nominal_w_values,
+            os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"),
+            gridtype="Cylindrical",
+            grid_stop=[5, 300, 5],
+            grid_step=[5, 50, 5],
+            isvector=False,
+            intrinsics="5GHz",
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"))
+
     @pytest.mark.skipif(
         config["build_machine"], reason="Skipped because it cannot run on build machine in non-graphical mode"
     )
@@ -216,7 +246,6 @@ class TestClass:
             quantityName="Mag_E",
             setup_name=self.aedtapp.nominal_adaptive,
             intrinsincList={"Freq": "5GHz", "Phase": "0deg"},
-            objtype="Surface",
             listtype="CutPlane",
         )
         assert plot
@@ -236,3 +265,16 @@ class TestClass:
     def test_52_display(self):
         img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
         assert isinstance(img, Image)
+
+    def test_53_line_plot(self):
+        udp1 = [0, 0, 0]
+        udp2 = [1, 0, 0]
+        setup_name = "Setup1 : LastAdaptive"
+        intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
+        self.aedtapp.modeler.create_polyline([udp1, udp2], name="Poly1")
+        assert self.aedtapp.post.create_fieldplot_line("Poly1", "Mag_E", setup_name, intrinsic)
+
+    def test_54_reload(self):
+        self.aedtapp.save_project()
+        app2 = Hfss(self.aedtapp.project_name)
+        assert len(app2.post.field_plots) == len(self.aedtapp.post.field_plots)

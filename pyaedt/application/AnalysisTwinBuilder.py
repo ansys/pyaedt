@@ -83,9 +83,10 @@ class AnalysisTwinBuilder(Analysis):
         Parameters
         ----------
         setupname : str, optional
-            Name of the new setup.  Default is ``"MySetupAuto"``.
+            Name of the setup. The default is ``"MySetupAuto"``.
         setuptype : str
-            Setup type. If ``None``, default type will be applied.
+            Type of the setup. The default is ``None``, in which case the default
+            type is applied.
         props : dict
             Dictionary of properties with values.
 

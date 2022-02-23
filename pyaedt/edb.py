@@ -15,13 +15,14 @@ import logging
 import re
 import os
 
+
 try:
     import clr
     from System.Collections.Generic import List
 except ImportError:
     if os.name != "posix":
         warnings.warn("Pythonnet is needed to run pyaedt")
-from pyaedt.application.MessageManager import AEDTMessageManager
+from pyaedt import settings
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt.generic.general_methods import (
@@ -112,19 +113,20 @@ class Edb(object):
         if edb_initialized:
             self.oproject = oproject
             self._main = sys.modules["__main__"]
-            if isaedtowned and "oMessenger" in dir(sys.modules["__main__"]):
-                _messenger = self._main.oMessenger
+            if isaedtowned and "aedt_logger" in dir(sys.modules["__main__"]):
                 self._logger = self._main.aedt_logger
             else:
                 if not edbpath or not os.path.exists(os.path.dirname(edbpath)):
                     project_dir = tempfile.gettempdir()
                 else:
                     project_dir = os.path.dirname(edbpath)
-                logfile = os.path.join(
-                    project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
-                )
-                self._main.oMessenger = AEDTMessageManager()
-                self._logger = AedtLogger(self._main.oMessenger, filename=logfile, level=logging.DEBUG)
+                if settings.logger_file_path:
+                    logfile = settings.logger_file_path
+                else:
+                    logfile = os.path.join(
+                        project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+                    )
+                self._logger = AedtLogger(filename=logfile, level=logging.DEBUG)
                 self._logger.info("Logger Started on %s", logfile)
                 self._main.aedt_logger = self._logger
 
@@ -525,7 +527,7 @@ class Edb(object):
         end = time.time() - start
         if result:
             self.logger.info("Export IPC 2581 completed in %s sec.", end)
-            self.logger.info("File saved in %s", ipc_path)
+            self.logger.info("File saved as %s", ipc_path)
             return ipc_path
         self.logger.info("Error Exporting IPC 2581.")
         return False
@@ -757,7 +759,6 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        time.sleep(2)
         self._db.Close()
         time.sleep(2)
         start_time = time.time()
@@ -766,6 +767,7 @@ class Edb(object):
         self.logger.info("EDB file release time: {0:.2f}ms".format(elapsed_time * 1000.0))
         self._clean_variables()
         timeout = 4
+        time.sleep(2)
         while gc.collect() != 0 and timeout > 0:
             time.sleep(1)
             timeout -= 1
@@ -967,8 +969,10 @@ class Edb(object):
             _dbCells = convert_py_list_to_net_list(_dbCells)
             db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
             _success = db2.Save()
-
-            if open_cutout_at_end:
+            for c in list(self.db.TopCircuitCells):
+                if c.GetName() == _cutout.GetName():
+                    c.Delete()
+            if open_cutout_at_end:  # pragma: no cover
                 self._db = db2
                 self.edbpath = output_aedb_path
                 self._active_cell = list(self._db.TopCircuitCells)[0]
@@ -1022,8 +1026,9 @@ class Edb(object):
         units="mm",
         output_aedb_path=None,
         open_cutout_at_end=True,
+        nets_to_include=None,
     ):
-        """Create a cutout and save it to a new AEDB file.
+        """Create a cutout on a specified shape and save it to a new .aedb file.
 
         Parameters
         ----------
@@ -1034,8 +1039,9 @@ class Edb(object):
         output_aedb_path : str, optional
             Full path and name for the new AEDB file.
         open_cutout_at_end : bool, optional
-            Whether to open the Cutout at the end. The default
-            is ``True``.
+            Whether to open the Cutout at the end. The default value is ``True``.
+        nets_to_include : list, optional
+            List of nets to include in the cutout. If `None` all the nets will be included.
 
         Returns
         -------
@@ -1049,14 +1055,48 @@ class Edb(object):
         point_list = [[self.arg_with_dim(i[0], units), self.arg_with_dim(i[1], units)] for i in point_list]
         plane = self.core_primitives.Shape("polygon", points=point_list)
         polygonData = self.core_primitives.shape_to_polygon_data(plane)
+
         _ref_nets = []
+        if nets_to_include:
+            self.logger.info("Creating cutout on {} nets".format(len(nets_to_include)))
+        else:
+            self.logger.info("Creating cutout on all nets")  # pragma: no cover
+
         # validate references in layout
         for _ref in self.core_nets.nets:
-            _ref_nets.append(self.core_nets.nets[_ref].net_object)
+            if nets_to_include:
+                if _ref in nets_to_include:
+                    _ref_nets.append(self.core_nets.nets[_ref].net_object)
+            else:
+                _ref_nets.append(self.core_nets.nets[_ref].net_object)  # pragma: no cover
+        # TODO check and insert via check on polygon intersection
+        circle_voids = [void_circle for void_circle in self.core_primitives.circles if void_circle.is_void]
+        voids_to_add = []
+        for circle in circle_voids:
+            if polygonData.GetIntersectionType(circle.primitive_object.GetPolygonData()) >= 3:
+                voids_to_add.append(circle)
+
         _netsClip = convert_py_list_to_net_list(_ref_nets)
         net_signals = List[type(_ref_nets[0])]()
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
+
+        for void_circle in voids_to_add:
+            layout = _cutout.GetLayout()
+            if is_ironpython:  # pragma: no cover
+                res, center_x, center_y, radius = void_circle.primitive_object.GetParameters()
+            else:
+                res, center_x, center_y, radius = void_circle.primitive_object.GetParameters(0.0, 0.0, 0.0)
+            cloned_circle = self.edb.Cell.Primitive.Circle.Create(
+                layout,
+                void_circle.layer_name,
+                void_circle.net,
+                self.edb_value(center_x),
+                self.edb_value(center_y),
+                self.edb_value(radius),
+            )
+            cloned_circle.SetIsNegative(True)
+
         layers = self.core_stackup.stackup_layers.signal_layers
         for layer in list(layers.keys()):
             layer_primitves = self.core_primitives.get_primitives(layer_name=layer)
@@ -1090,7 +1130,7 @@ class Edb(object):
             for c in list(self.db.TopCircuitCells):
                 if c.GetName() == _cutout.GetName():
                     c.Delete()
-            if open_cutout_at_end:
+            if open_cutout_at_end:  # pragma: no cover
                 _success = db2.Save()
                 self._db = db2
                 self.edbpath = output_aedb_path
@@ -1161,7 +1201,7 @@ class Edb(object):
         num_cores : int, optional
             Define number of cores to use during export
         aedt_file_name : str, optional
-            Output  aedt file name (without .aedt extension). If `` then default naming is used
+            Output aedt file name (without .aedt extension). If `None` then default naming is used.
         Returns
         -------
         str
@@ -1195,9 +1235,9 @@ class Edb(object):
             List of nets only if certain ones are to be
             exported.
         num_cores : int, optional
-            Define number of cores to use during export
+            Define number of cores to use during export.
         aedt_file_name : str, optional
-            Output  aedt file name (without .aedt extension). If `` then default naming is used
+            Output  aedt file name (without .aedt extension). If `None` then default naming is used.
 
         Returns
         -------
@@ -1237,7 +1277,7 @@ class Edb(object):
         num_cores : int, optional
             Define number of cores to use during export
         aedt_file_name : str, optional
-            Output  aedt file name (without .aedt extension). If `` then default naming is used
+            Output  aedt file name (without .aedt extension). If `None` then default naming is used.
 
         Returns
         -------
@@ -1311,7 +1351,7 @@ class Edb(object):
 
     @aedt_exception_handler
     def get_bounding_box(self):
-        """Returng the Layout bounding box.
+        """Return the Layout bounding box.
 
         Returns
         -------
