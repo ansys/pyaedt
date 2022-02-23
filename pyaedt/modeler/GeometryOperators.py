@@ -1465,7 +1465,7 @@ class GeometryOperators(object):
     def v_angle_sign(va, vb, vn, righthanded=True):
         """Evaluate the signed angle between two geometry vectors.
 
-        The sign is evaluated respect to the normal to the plane containing the two vector as per the following rule.
+        The sign is evaluated respect to the normal to the plane containing the two vectors as per the following rule.
         In case of opposite vectors, it returns an angle equal to 180deg (always positive).
         Assuming that the plane normal is normalized (|Vn| == 1), the signed angle is simply:
 
