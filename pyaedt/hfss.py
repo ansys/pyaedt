@@ -4843,7 +4843,9 @@ class Hfss(FieldAnalysis3D, object):
         active=True,
         matched=False,
     ):
-        """Add a differential pair definition
+        """Add a differential pair definition.
+
+        Differential pairs can be defined only in Terminal and Transient solution types.
 
         Parameters
         ----------
@@ -4873,6 +4875,9 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         >>> oModule.EditDiffPairs
         """
+
+        if self.solution_type not in ["Transient Network", "Terminal"]:  # pragma: no cover
+            raise AttributeError("Differential pairs can be defined only in Terminal and Transient solution types.")
 
         props = OrderedDict()
         props["PosBoundary"] = positive_terminal
