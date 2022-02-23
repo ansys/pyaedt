@@ -60,7 +60,7 @@ class TestClass:
         msg.add_info_message("Test Info project level", "Project")
         msg.add_info_message("Test Info", "Global")
         assert len(msg.messages.global_level) >= 1
-        assert len(msg.messages.project_level) >= 2
+        assert len(msg.messages.project_level) >= 1
         assert len(msg.messages.design_level) >= 1
         pass
 
@@ -81,5 +81,5 @@ class TestClass:
         msg.add_info_message("Test Debug", "Project")
         msg.add_info_message("Test Debug", "Global")
         assert len(msg.messages.global_level) >= 5
-        assert len(msg.messages.project_level) >= 6
+        assert len(msg.messages.project_level) >= 5
         assert len(msg.messages.design_level) >= 4
