@@ -2137,16 +2137,19 @@ class EDBComponent(object):
 
     @property
     def component_property(self):
+        """Component Property Object."""
         return self.edbcomponent.GetComponentProperty().Clone()
 
     @property
     def solder_ball_height(self):
+        """Solder ball height if available.."""
         if "GetSolderBallProperty" in dir(self.component_property):
             return self.component_property.GetSolderBallProperty().GetHeight()
         return None
 
     @property
     def solder_ball_placement(self):
+        """Solder ball placement if available.."""
         if "GetSolderBallProperty" in dir(self.component_property):
             return int(self.component_property.GetSolderBallProperty().GetPlacement())
         return 2

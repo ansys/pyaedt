@@ -285,13 +285,17 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         bool
             `True` if successful.
         """
+        des_name = merged_design.design_name
         merged_design.oproject.CopyDesign(merged_design.design_name)
         self._app.odesign.PasteDesign(1)
         comp_name = ""
         for i in range(1, 1000):
-            cmp_info = self.oeditor.GetComponentInfo(str(i))
-            if cmp_info and cmp_info[0] == "ComponentName={}".format(merged_design.design_name):
-                comp_name = str(i)
+            try:
+                cmp_info = self.oeditor.GetComponentInfo(str(i))
+                if cmp_info and cmp_info[0] == "ComponentName={}".format(des_name):
+                    comp_name = str(i)
+            except:
+                pass
         if not comp_name:
             return False
         self.change_property(property_object=comp_name, property_name="3D Placement", property_value=True)

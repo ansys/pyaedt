@@ -272,6 +272,20 @@ class EdbStackup(object):
     def get_top_bottom_elevation_between_designs(
         self, hosting_layout=None, merged_layout=None, place_on_top=True, merged_component=None
     ):
+        """Returns the elevation needed to align 2 designs.
+
+        Parameters
+        ----------
+        hosting_layout
+        merged_layout
+        place_on_top
+        merged_component
+
+        Returns
+        -------
+        float
+
+        """
         stackup_target = hosting_layout.GetLayerCollection()
         stackup_source = merged_layout.GetLayerCollection()
         input_layers = self._edb.Cell.LayerTypeSet.SignalLayerSet
@@ -582,8 +596,8 @@ class EdbStackup(object):
 
     @aedt_exception_handler
     def flip_design(self):
-        """
-        Flip the current design of a layout.
+        """Flip the current design of a layout.
+
         Returns
         -------
         bool
