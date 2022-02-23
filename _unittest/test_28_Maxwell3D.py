@@ -111,7 +111,7 @@ class TestClass:
         Setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
 
         temp_file = tmpdir.mkdir("sub").join("testCurrentTicketCount.txt")
-        assert self.aedtapp.setup_ctrlprog(Setup.name, file_str=temp_file)      
+        assert self.aedtapp.setup_ctrlprog(Setup.name, file_str=temp_file)
 
     def test_22_create_length_mesh(self):
         assert self.aedtapp.mesh.assign_length_mesh(["Plate"])
