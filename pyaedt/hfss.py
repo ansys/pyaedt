@@ -4854,9 +4854,9 @@ class Hfss(FieldAnalysis3D, object):
         negative_terminal : str
             Name of the terminal to use as the negative terminal.
         common_name : str, optional
-            Name for the common mode. Default is ``None`` in which case a unique name is chosed.
+            Name for the common mode. Default is ``None`` in which case a unique name is chosen.
         diff_name : str, optional
-            Name for the differential mode. Default is ``None`` in which case a unique name is chosed.
+            Name for the differential mode. Default is ``None`` in which case a unique name is chosen.
         common_ref_z : float, optional
             Reference impedance for the common mode. Units are Ohm. Default is ``25``.
         diff_ref_z : float, optional
