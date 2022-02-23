@@ -817,5 +817,11 @@ class TestClass:
         # should not be possible.
         assert not self.aedtapp.set_sbr_txrx_settings({"TX1": "RX1"})
 
-        # SBR linked antenna can only be created within a SBR+ solution.
+        # SBR linked antenna can only be created within an SBR+ solution.
         assert not self.aedtapp.create_sbr_linked_antenna(self.aedtapp, fieldtype="farfield")
+
+        # Chirp I doppler setup only works within an SBR+ solution.
+        assert self.aedtapp.create_sbr_chirp_i_doppler_setup(sweep_time_duration=20) == (False, False)
+
+        # Chirp IQ doppler setup only works within an SBR+ solution.
+        assert self.aedtapp.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=10) == (False, False)
