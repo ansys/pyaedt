@@ -795,3 +795,25 @@ class TestClass:
     def test_48_traces(self):
         assert len(self.aedtapp.excitations) > 0
         assert len(self.aedtapp.get_traces_for_plot()) > 0
+
+    def test_49_port_creation_exception(self):
+        box1 = self.aedtapp.modeler.create_box([-400, -40, -20], [80, 80, 10], name="gnd49", matname="copper")
+        box2 = self.aedtapp.modeler.create_box([-400, -40, 10], [80, 80, 10], name="sig49", matname="copper")
+
+        self.aedtapp.solution_type = "Modal"
+        # Spiral lumped port can only be created in a 'Terminal' solution.
+        try:
+            self.aedtapp.create_spiral_lumped_port(box1, box2)
+        except Exception as e:
+            exception_raised = True
+            assert e.args[0] == "This method can be used only in Terminal solutions."
+        assert exception_raised
+        self.aedtapp.solution_type = "Terminal"
+
+        # Try to modify SBR+ TX RX antenna settings in a solution that is different from SBR+
+        # should not be possible.
+        assert not self.aedtapp.set_sbr_txrx_settings({"TX1": "RX1"})
+
+        # SBR linked antenna can only be created within a SBR+ solution.
+        assert not self.aedtapp.create_sbr_linked_antenna(self.aedtapp, fieldtype="farfield")
+
