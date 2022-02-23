@@ -88,7 +88,7 @@ class EdbStackup(object):
 
     @property
     def signal_layers(self):
-        """List of all signal layers.
+        """Dictionary of all signal layers.
 
         Returns
         -------
@@ -312,6 +312,60 @@ class EdbStackup(object):
         return solder_ball_height
 
     @aedt_exception_handler
+    def adjust_solder_dielectrics(self):
+        """Adject the stackup by adding or modifying dielectric layers that contains Solder Balls."""
+        for el, val in self._pedb.core_components.components.items():
+            if val.solder_ball_height:
+                layer = val.placement_layer
+                if layer == list(self.signal_layers.keys())[0]:
+                    elevation = 0
+                    layer1 = layer
+                    last_layer_thickess = 0
+                    for el in list(self.stackup_layers.layers.keys()):
+                        if el == layer:
+                            break
+                        elevation += self.stackup_layers.layers[el].thickness_value
+                        last_layer_thickess = self.stackup_layers.layers[el].thickness_value
+                        layer1 = el
+
+                    if layer1 != layer:
+                        self.stackup_layers.layers[layer1].thickness_value = (
+                            val.solder_ball_height - elevation + last_layer_thickess
+                        )
+                    elif val.solder_ball_height > elevation:
+                        self.stackup_layers.add_layer(
+                            "Top_Air",
+                            start_layer=layer1,
+                            material="air",
+                            thickness=val.solder_ball_height - elevation,
+                            layerType=1,
+                        )
+                else:
+                    elevation = 0
+                    layer1 = layer
+                    last_layer_thickess = 0
+
+                    for el in list(self.stackup_layers.layers.keys())[::-1]:
+                        if el == layer:
+                            break
+                        layer1 = el
+                        elevation += self.stackup_layers.layers[el].thickness_value
+                        last_layer_thickess = self.stackup_layers.layers[el].thickness_value
+
+                    if layer1 != layer:
+                        self.stackup_layers.layers[layer1].thickness_value = (
+                            val.solder_ball_height - elevation + last_layer_thickess
+                        )
+                    elif val.solder_ball_height > elevation:
+                        self.stackup_layers.add_layer(
+                            "Bottom_air",
+                            start_layer=None,
+                            material="air",
+                            thickness=val.solder_ball_height - elevation,
+                            layerType=1,
+                        )
+
+    @aedt_exception_handler
     def place_in_layout(
         self,
         edb=None,
@@ -365,17 +419,18 @@ class EdbStackup(object):
         ...                                   solder_height=solder_ball_height)
         """
         # if flipped_stackup and place_on_top or (not flipped_stackup and not place_on_top):
-        if flipped_stackup:
-            model_flip = True
-        else:
-            model_flip = False
-        if model_flip:
+        self.adjust_solder_dielectrics()
+        if not place_on_top:
+            edb.core_stackup.flip_design()
+            place_on_top = True
+            if not flipped_stackup:
+                self.flip_design()
+        elif flipped_stackup:
             self.flip_design()
         edb_cell = edb.active_cell
         _angle = self._edb_value(angle * math.pi / 180.0)
         _offset_x = self._edb_value(offset_x)
         _offset_y = self._edb_value(offset_y)
-        edb_was_none = False
 
         if edb_cell.GetName() not in self._pedb.cell_names:
             _dbCell = convert_py_list_to_net_list([edb_cell])
@@ -389,7 +444,7 @@ class EdbStackup(object):
         cell_trans.SetRotationValue(_angle)
         cell_trans.SetXOffsetValue(_offset_x)
         cell_trans.SetYOffsetValue(_offset_y)
-        cell_trans.SetMirror(model_flip)
+        cell_trans.SetMirror(flipped_stackup)
         cell_inst2.SetTransform(cell_trans)
         cell_inst2.SetSolveIndependentPreference(False)
         stackup_target = edb_cell.GetLayout().GetLayerCollection()
@@ -622,6 +677,7 @@ class EdbStackup(object):
                 layer_map = padstack._edb_padstackinstance.GetLayerMap()
                 layer_map.SetMapping(stop_layer_id[0], start_layer_id[0])
                 padstack._edb_padstackinstance.SetLayerMap(layer_map)
+            self.stackup_layers._update_edb_objects()
             return True
         except:
             return False
