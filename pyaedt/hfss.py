@@ -4324,7 +4324,7 @@ class Hfss(FieldAnalysis3D, object):
         doppler_ad_sampling_rate=20,
         setup_name=None,
     ):
-        """Create an SBR+ Chirp IQ Setup.
+        """Create an SBR+ Chirp I Setup.
 
         Parameters
         ----------
