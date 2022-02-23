@@ -1181,45 +1181,88 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ----------
         >>> oModule.SetDiffPairs
         """
-
         if not diff_name:
             diff_name = generate_unique_name("Diff")
         if not common_name:
             common_name = generate_unique_name("Comm")
 
-        arg = ["Pos:=", positive_terminal,
-                "Neg:=", negative_terminal,
-                "On:=", active,
-                "matched:=", matched,
-                "Dif:=", diff_name,
-                "DfZ:=", [float(diff_ref_z), 0],
-                "Com:=", common_name,
-                "CmZ:=", [float(common_ref_z), 0]
-                ]
+        arg1 = [
+            "Pos:=",
+            positive_terminal,
+            "Neg:=",
+            negative_terminal,
+            "On:=",
+            active,
+            "matched:=",
+            matched,
+            "Dif:=",
+            diff_name,
+            "DfZ:=",
+            [float(diff_ref_z), 0],
+            "Com:=",
+            common_name,
+            "CmZ:=",
+            [float(common_ref_z), 0],
+        ]
 
-        arg2 = ["NAME:DiffPairs"]
-        arg2.append("Pair:=")
-        arg2.append(arg)
+        arg = ["NAME:DiffPairs"]
+        arg.append("Pair:=")
+        arg.append(arg1)
 
+        tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
+        self.oexcitation.SaveLoadDiffPairsToFile(tmpfile1)
+        with open(tmpfile1, "r") as fh:
+            lines = fh.read().splitlines()
+        num_diffs_before = len(lines)
+        old_arg = []
+        for line in lines:
+            data = line.split(",")
+            data_arg = [
+                "Pos:=",
+                data[0],
+                "Neg:=",
+                data[1],
+                "On:=",
+                data[2] == "1",
+                "matched:=",
+                data[3] == "1",
+                "Dif:=",
+                data[4],
+                "DfZ:=",
+                [float(data[5]), 0],
+                "Com:=",
+                data[6],
+                "CmZ:=",
+                [float(data[7]), 0],
+            ]
+            old_arg.append(data_arg)
 
-        existing_pairs = self.oboundary.GetDiffPairs()
-        num_old_pairs = len(existing_pairs)
-        if existing_pairs:
-            for i, p in enumerate(existing_pairs):
-                tmp_p = list(p)
-                tmp_p.insert(0, "NAME:Pair_" + str(i))
-                arg2.append(tmp_p)
+        for arg2 in old_arg:
+            arg.append("Pair:=")
+            arg.append(arg2)
 
-        self.oexcitation.SetDiffPairs(arg2)
+        self.oexcitation.SetDiffPairs(arg)
 
-        if len(self.oboundary.GetDiffPairs()) == num_old_pairs + 1:
+        tmpfile2 = os.path.join(self.working_directory, generate_unique_name("tmp"))
+        self.oexcitation.SaveLoadDiffPairsToFile(tmpfile2)
+        with open(tmpfile2, "r") as fh:
+            lines = fh.readlines()
+        num_diffs_after = len(lines)
+
+        try:
+            os.remove(tmpfile1)
+            os.remove(tmpfile2)
+        except:
+            self.logger.warning("ERROR: Cannot remove temp files.")
+
+        if num_diffs_after == num_diffs_before + 1:
             return True
         else:
             return False
 
     @aedt_exception_handler
     def load_diff_pairs_from_file(self, filename):
-        """Load diff pairs definition from file.
+        """Load differtential pairs definition from file.
 
         File format can be obtained using ``save_diff_pairs_to_file`` method.
         New definitions are added only if compatible with the existing definition already defined in the project.
@@ -1258,12 +1301,43 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             lines = fh.readlines()
         num_diffs_after = len(lines)
 
-        num_diffs_created = num_diffs_after - num_diffs_before
-        if num_diffs_created != num_diffs_expected:
-            self.logger.warning("ERROR: {} out of {} differential pairs have been defined.".format(num_diffs_created, num_diffs_expected))
-
         try:
             os.remove(tmpfile1)
             os.remove(tmpfile2)
         except:
             self.logger.warning("ERROR: Cannot remove temp files.")
+
+        num_diffs_created = num_diffs_after - num_diffs_before
+        if num_diffs_created != num_diffs_expected:
+            self.logger.warning(
+                "ERROR: {} out of {} differential pairs have been defined.".format(
+                    num_diffs_created, num_diffs_expected
+                )
+            )
+            return False
+        else:
+            return True
+
+    @aedt_exception_handler
+    def save_diff_pairs_to_file(self, filename):
+        """Save differtential pairs definition to file.
+
+        If ``filename`` alredy exists, it will be overwritten.
+
+        Parameters
+        ----------
+        filename : str
+            Full qualified name of the file containing the differential pairs definition.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.SaveDiffPairsToFile
+        """
+        self.oexcitation.SaveDiffPairsToFile(filename)
+
+        return os.path.isfile(filename)
