@@ -88,6 +88,10 @@ class TestClass:
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         o5 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1")
         self.aedtapp.solution_type = "Terminal"
+
+        # Wave port cannot be created if the reference conductors are missing.
+        assert not self.aedtapp.create_wave_port_from_sheet(o5)
+
         port = self.aedtapp.create_wave_port_from_sheet(
             o5, 5, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1_Port", renorm=False, terminal_references=["outer"]
         )
@@ -117,7 +121,6 @@ class TestClass:
         rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [20, 25, 20], [2, 10])
         ports = self.aedtapp.create_wave_port_from_sheet(rect, 5, self.aedtapp.AxisDir.ZNeg, 40, 2, "sheet3_Port", True)
         assert ports.name in [i.name for i in self.aedtapp.boundaries]
-        pass
 
     def test_06a_create_linear_count_sweep(self):
         setup = self.aedtapp.create_setup("MySetup")
@@ -816,4 +819,3 @@ class TestClass:
 
         # SBR linked antenna can only be created within a SBR+ solution.
         assert not self.aedtapp.create_sbr_linked_antenna(self.aedtapp, fieldtype="farfield")
-
