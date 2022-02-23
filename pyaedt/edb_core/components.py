@@ -403,7 +403,7 @@ class Components(object):
         mounted_component_pin2=None,
         hosting_component_pin1=None,
         hosting_component_pin2=None,
-        placed_on_top=True
+        placed_on_top=True,
     ):
         """Get the placement vector between 2 components.
 
@@ -468,7 +468,7 @@ class Components(object):
             math.pow(h_pin2_pos[0] - m_pin2_pos[0], 2) + math.pow(h_pin2_pos[1] - m_pin2_pos[1], 2)
         )
 
-        #rotation = math.atan(d_m_pin2_h_pin2 / d_m_pin1_h_pin2)
+        # rotation = math.atan(d_m_pin2_h_pin2 / d_m_pin1_h_pin2)
         ang1 = math.atan((m_pin2_pos[1] - m_pin1_pos[1]) / ((m_pin2_pos[0] - m_pin1_pos[0])))
         ang2 = math.atan((h_pin2_pos[1] - h_pin1_pos[1]) / ((h_pin2_pos[0] - h_pin1_pos[0])))
         rotation = ang1 - ang2

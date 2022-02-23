@@ -125,6 +125,7 @@ def _resolve_unit_system(unit_system_1, unit_system_2, operation):
     except KeyError:
         return ""
 
+
 def unit_converter(value, unit_system="Length", input_units="meter", output_units="mm"):
     if unit_system in AEDT_UNITS:
         if input_units not in AEDT_UNITS[unit_system] or output_units not in AEDT_UNITS[unit_system]:
@@ -134,6 +135,7 @@ def unit_converter(value, unit_system="Length", input_units="meter", output_unit
             return value * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
     warnings.warn("No system unit found")
     return value
+
 
 AEDT_UNITS = {
     "AngularSpeed": {

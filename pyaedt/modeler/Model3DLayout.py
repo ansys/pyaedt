@@ -17,6 +17,7 @@ from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout, Primitives3DLayout
 from pyaedt.generic import constants
 
+
 class Modeler3DLayout(Modeler, Primitives3DLayout):
     """Manages Modeler 3D layouts.
 
@@ -264,15 +265,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return True
 
     @aedt_exception_handler
-    def merge_design(self, merged_design=None, pos_x="0.0", pos_y="0.0",
-                    pos_z="0.0", rotation="0.0"):
+    def merge_design(self, merged_design=None, pos_x="0.0", pos_y="0.0", pos_z="0.0", rotation="0.0"):
         merged_design.oproject.CopyDesign(merged_design.design_name)
         hosting_design.odesktop.SetActiveProject(hosting_design.project_name)
         self._app.odesign.PasteDesign(1)
         self.change_property(property_object="1", property_name="3D Placement", property_value=True)
         self.change_property(property_object="1", property_name="Local Origin", property_value=[0.0, 0.0, 0.0])
         self.change_property(property_object="1", property_name="Location", property_value=[pos_x, pos_y, pos_z])
-        #self.change_property(property_object="1", property_name="Angle", property_value=rotation)
+        # self.change_property(property_object="1", property_name="Angle", property_value=rotation)
 
     @aedt_exception_handler
     def change_clip_plane_position(self, clip_name, position):

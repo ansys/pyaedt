@@ -389,16 +389,16 @@ class Primitives3DLayout(object):
 
     @aedt_exception_handler
     def create_via(
-            self,
-            padstack="PlanarEMVia",
-            x=0,
-            y=0,
-            rotation=0,
-            hole_diam=None,
-            top_layer=None,
-            bot_layer=None,
-            name=None,
-            netname=None,
+        self,
+        padstack="PlanarEMVia",
+        x=0,
+        y=0,
+        rotation=0,
+        hole_diam=None,
+        top_layer=None,
+        bot_layer=None,
+        name=None,
+        netname=None,
     ):
         """Create a via based on an existing padstack.
 

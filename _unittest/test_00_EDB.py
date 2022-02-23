@@ -62,7 +62,17 @@ class TestClass:
         assert not self.edbapp.core_padstack.get_via_instance_from_net(["GND2"])
 
     def test_01_flip_layer_stackup(self):
-        assert self.edbapp.core_stackup.place_in_layout()
+        edb2 = Edb(os.path.join(local_path, "example_models", "Package.aedb"), edbversion=desktop_version)
+        assert edb2.core_stackup.place_in_layout_3d_placement(
+            self.edbapp,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=True,
+            place_on_top=True,
+            solder_height=0.00033,
+        )
+        edb2.close_edb()
 
     def test_02_get_properties(self):
         assert len(self.edbapp.core_components.components) > 0
