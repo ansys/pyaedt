@@ -127,6 +127,24 @@ def _resolve_unit_system(unit_system_1, unit_system_2, operation):
 
 
 def unit_converter(value, unit_system="Length", input_units="meter", output_units="mm"):
+    """Convert Unit in specified Unit System.
+
+    Parameters
+    ----------
+    value : float
+        Value to convert.
+    unit_system : str
+        Unit system. Default is `"Length"`.
+    input_units : str
+        Input units. Default is `"meter"`.
+    output_units : str
+        Output units. Default is `"mm"`.
+
+    Returns
+    -------
+    float
+        Converted value.
+    """
     if unit_system in AEDT_UNITS:
         if input_units not in AEDT_UNITS[unit_system] or output_units not in AEDT_UNITS[unit_system]:
             warnings.warn("No units found")

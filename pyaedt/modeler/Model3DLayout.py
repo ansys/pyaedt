@@ -15,7 +15,6 @@ from pyaedt.generic.general_methods import (
 from pyaedt.modules.LayerStackup import Layers
 from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout, Primitives3DLayout
-from pyaedt.generic import constants
 
 
 class Modeler3DLayout(Modeler, Primitives3DLayout):
@@ -266,13 +265,44 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @aedt_exception_handler
     def merge_design(self, merged_design=None, pos_x="0.0", pos_y="0.0", pos_z="0.0", rotation="0.0"):
+        """Merge a design into another.
+
+        Parameters
+        ----------
+        merged_design : :class:`pyaedt.hfss3dlayout.Hfss3dLayout`
+            Design to merge.
+        pos_x : float, str
+            X Offset.
+        pos_y : float, str
+            Y Offset.
+        pos_z : float, str
+            Z Offset.
+        rotation : float, str
+            Rotation angle in deg.
+
+        Returns
+        -------
+        bool
+            `True` if successful.
+        """
         merged_design.oproject.CopyDesign(merged_design.design_name)
-        hosting_design.odesktop.SetActiveProject(hosting_design.project_name)
         self._app.odesign.PasteDesign(1)
-        self.change_property(property_object="1", property_name="3D Placement", property_value=True)
-        self.change_property(property_object="1", property_name="Local Origin", property_value=[0.0, 0.0, 0.0])
-        self.change_property(property_object="1", property_name="Location", property_value=[pos_x, pos_y, pos_z])
-        # self.change_property(property_object="1", property_name="Angle", property_value=rotation)
+        comp_name = ""
+        for i in range(1, 1000):
+            cmp_info = self.oeditor.GetComponentInfo(str(i))
+            if cmp_info and cmp_info[0] == "ComponentName={}".format(merged_design.design_name):
+                comp_name = str(i)
+        if not comp_name:
+            return False
+        self.change_property(property_object=comp_name, property_name="3D Placement", property_value=True)
+        self.change_property(property_object=comp_name, property_name="Local Origin", property_value=[0.0, 0.0, 0.0])
+        pos_x = self._arg_with_dim(pos_x)
+        pos_y = self._arg_with_dim(pos_y)
+        pos_z = self._arg_with_dim(pos_z)
+        rotation = self._arg_with_dim(rotation, "deg")
+        self.change_property(property_object=comp_name, property_name="Location", property_value=[pos_x, pos_y, pos_z])
+        self.change_property(property_object=comp_name, property_name="Angle", property_value=rotation)
+        return True
 
     @aedt_exception_handler
     def change_clip_plane_position(self, clip_name, position):

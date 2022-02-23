@@ -4,7 +4,7 @@ import clr
 from pyaedt.modeler.GeometryOperators import GeometryOperators as go
 
 clr.AddReference("System.Collections")
-from pyaedt.generic.constants import AXIS, PLANE, SWEEPDRAFT
+from pyaedt.generic.constants import AXIS, PLANE, SWEEPDRAFT, unit_converter
 from System import Double
 from System.Collections.Generic import List
 
@@ -334,3 +334,7 @@ class TestClass:
         assert not go.is_collinear([1, 0, 0], [0, 1, 0])
         assert go.is_collinear([1, 1, 1], [-2, -2, -2])
         assert not go.is_collinear([1, 2, 3], [3.0, 2.0, 1.0])
+
+    def test_unit_converter(self):
+        assert unit_converter(10) == 10000
+        assert unit_converter(10, "Lenghts") == 10

@@ -26,6 +26,10 @@ class TestClass:
                 os.path.join(local_path, "example_models", original_project_name + ".aedb"),
                 os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
             )
+            self.local_scratch.copyfolder(
+                os.path.join(local_path, "example_models", "Package.aedb"),
+                os.path.join(self.local_scratch.path, "Package.aedb"),
+            )
         self.aedtapp = Hfss3dLayout(self.test_project)
         self.aedtapp.modeler.geometries
 
@@ -96,3 +100,8 @@ class TestClass:
         nets = self.aedtapp.modeler.nets
         assert nets["GND"].name == "GND"
         assert len(nets) > 0
+
+    def test_08_merge(self):
+        hfss3d = Hfss3dLayout(os.path.join(self.local_scratch.path, "Package.aedb", "edb.def"))
+        assert hfss3d.modeler.merge_design(self.aedtapp)
+        hfss3d.close_project(saveproject=False)

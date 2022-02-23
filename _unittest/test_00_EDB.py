@@ -29,8 +29,12 @@ class TestClass:
                 os.path.join(local_path, "example_models", test_project_name + ".aedb"),
                 os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
             )
-            self.edbapp = Edb(os.path.join(self.local_scratch.path, test_project_name + ".aedb"), "Galileo_G87173_204",
-                              edbversion=desktop_version, isreadonly=False)
+            self.edbapp = Edb(
+                os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
+                "Galileo_G87173_204",
+                edbversion=desktop_version,
+                isreadonly=False,
+            )
 
     def teardown_class(self):
         self.edbapp.close_edb()
