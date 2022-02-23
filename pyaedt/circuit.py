@@ -9,7 +9,7 @@ import re
 
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from pyaedt.generic import ibis_reader
 
 
@@ -1509,7 +1509,7 @@ class Circuit(FieldAnalysisCircuit, object):
         arg.append(arg1)
 
         tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
-        self.odesign.SaveLoadDiffPairsToFile(tmpfile1)
+        self.odesign.SaveDiffPairsToFile(tmpfile1)
         with open(tmpfile1, "r") as fh:
             lines = fh.read().splitlines()
         num_diffs_before = len(lines)
@@ -1543,7 +1543,7 @@ class Circuit(FieldAnalysisCircuit, object):
         self.odesign.SetDiffPairs(arg)
 
         tmpfile2 = os.path.join(self.working_directory, generate_unique_name("tmp"))
-        self.odesign.SaveLoadDiffPairsToFile(tmpfile2)
+        self.odesign.SaveDiffPairsToFile(tmpfile2)
         with open(tmpfile2, "r") as fh:
             lines = fh.readlines()
         num_diffs_after = len(lines)
@@ -1584,7 +1584,7 @@ class Circuit(FieldAnalysisCircuit, object):
             raise ValueError("{}: unable to find the specified file.".format(filename))
 
         tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
-        self.odesign.SaveLoadDiffPairsToFile(tmpfile1)
+        self.odesign.SaveDiffPairsToFile(tmpfile1)
         with open(tmpfile1, "r") as fh:
             lines = fh.readlines()
         num_diffs_before = len(lines)
@@ -1595,7 +1595,7 @@ class Circuit(FieldAnalysisCircuit, object):
         self.odesign.LoadDiffPairsFromFile(filename)
 
         tmpfile2 = os.path.join(self.working_directory, generate_unique_name("tmp"))
-        self.odesign.SaveLoadDiffPairsToFile(tmpfile2)
+        self.odesign.SaveDiffPairsToFile(tmpfile2)
         with open(tmpfile2, "r") as fh:
             lines = fh.readlines()
         num_diffs_after = len(lines)

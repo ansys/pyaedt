@@ -781,32 +781,34 @@ class TestClass:
         assert len(self.aedtapp.get_traces_for_plot()) > 0
 
     def test_49_set_differential_pair(self):
-        example_project = os.path.join(local_path, 'example_models', 'differential_pairs.aedt')
+        example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
         test_project = self.local_scratch.copyfile(example_project)
         self.local_scratch.copyfolder(
             os.path.join(local_path, "example_models", "differential_pairs.aedb"),
             os.path.join(self.local_scratch.path, "differential_pairs.aedb"),
         )
         hfss1 = Hfss(projectname=test_project, designname="Hfss_Terminal")
-        assert hfss1.set_differential_pair(positive_terminal="P2_T1",
-        negative_terminal="P2_T2",
-        common_name=None,
-        diff_name=None,
-        common_ref_z=34,
-        diff_ref_z=123,
-        active=True,
-        matched=False
+        assert hfss1.set_differential_pair(
+            positive_terminal="P2_T1",
+            negative_terminal="P2_T2",
+            common_name=None,
+            diff_name=None,
+            common_ref_z=34,
+            diff_ref_z=123,
+            active=True,
+            matched=False,
         )
         assert not hfss1.set_differential_pair(positive_terminal="P2_T1", negative_terminal="P2_T3")
         hfss2 = Hfss(designname="Hfss_Transient")
-        assert hfss2.set_differential_pair(positive_terminal="P2_T1",
-        negative_terminal="P2_T2",
-        common_name=None,
-        diff_name=None,
-        common_ref_z=34,
-        diff_ref_z=123,
-        active=True,
-        matched=False
+        assert hfss2.set_differential_pair(
+            positive_terminal="P2_T1",
+            negative_terminal="P2_T2",
+            common_name=None,
+            diff_name=None,
+            common_ref_z=34,
+            diff_ref_z=123,
+            active=True,
+            matched=False,
         )
         assert not hfss2.set_differential_pair(positive_terminal="P2_T1", negative_terminal="P2_T3")
         hfss2.close_project()

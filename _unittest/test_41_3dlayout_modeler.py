@@ -7,7 +7,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import scratch_path
+from _unittest.conftest import scratch_path, local_path
 
 try:
     import pytest  # noqa: F401
@@ -427,3 +427,23 @@ class TestClass:
         setup_name = "LNA"
         setup = self.aedtapp.create_setup(setupname=setup_name, setuptype="LNA3DLayout")
         assert setup_name == setup.name
+
+    def test_35_set_differential_pairs(self):
+        example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
+        test_project = self.local_scratch.copyfile(example_project)
+        self.local_scratch.copyfolder(
+            os.path.join(local_path, "example_models", "differential_pairs.aedb"),
+            os.path.join(self.local_scratch.path, "differential_pairs.aedb"),
+        )
+        hfss3dl = Hfss3dLayout(projectname=test_project, designname="EMDesign1")
+        assert hfss3dl.set_differential_pair(
+            positive_terminal="Port3",
+            negative_terminal="Port4",
+            common_name=None,
+            diff_name=None,
+            common_ref_z=34,
+            diff_ref_z=123,
+            active=True,
+            matched=False,
+        )
+        assert hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
