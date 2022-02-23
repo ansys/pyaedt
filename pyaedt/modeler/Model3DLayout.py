@@ -16,7 +16,7 @@ from pyaedt.generic.general_methods import (
 from pyaedt.modules.LayerStackup import Layers
 from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout, Primitives3DLayout
-
+from pyaedt.generic import constants
 
 class Modeler3DLayout(Modeler, Primitives3DLayout):
     """Manages Modeler 3D layouts.
@@ -245,6 +245,17 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     ],
                 ]
             )
+        elif isinstance(property_value, bool):
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + property_tab,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
+                    ],
+                ]
+            )
         elif isinstance(property_value, (str, float, int)):
             posx = self._arg_with_dim(property_value, self.model_units)
             self.oeditor.ChangeProperty(
@@ -264,14 +275,15 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return True
 
     @aedt_exception_handler
-    def merge_desin(self, hosting_design=None, merged_design=None, pos_x=0.0, pos_y=0.0, pos_z=0.0, rotation=0.0):
+    def merge_design(self, merged_design=None, pos_x="0.0", pos_y="0.0",
+                    pos_z="0.0", rotation="0.0"):
         merged_design.oproject.CopyDesign(merged_design.design_name)
         hosting_design.odesktop.SetActiveProject(hosting_design.project_name)
-        active_design = hosting_design.oproject.SetActiveDesign(hosting_design.design_name)
-        active_design.PasteDesign(1)
+        self._app.odesign.PasteDesign(1)
         self.change_property(property_object="1", property_name="3D Placement", property_value=True)
+        self.change_property(property_object="1", property_name="Local Origin", property_value=[0.0, 0.0, 0.0])
         self.change_property(property_object="1", property_name="Location", property_value=[pos_x, pos_y, pos_z])
-        self.change_property(property_object="1", property_name="Angle", property_value=rotation)
+        #self.change_property(property_object="1", property_name="Angle", property_value=rotation)
 
     @aedt_exception_handler
     def change_clip_plane_position(self, clip_name, position):

@@ -223,9 +223,50 @@ class EdbStackup(object):
         return self._add_dielectric_material_model(name, material_def)
 
     @aedt_exception_handler
+    def get_top_bottom_elevation_between_designs(self, hosting_layout=None, merged_layout=None, place_on_top=True,
+                                                 merged_component=None):
+        stackup_target = hosting_layout.GetLayerCollection()
+        stackup_source = merged_layout.GetLayerCollection()
+        input_layers = self._edb.Cell.LayerTypeSet.SignalLayerSet
+        solder_ball_height = 0.0
+        if is_ironpython:
+            res, topl, topz, bottoml, bottomz = stackup_target.GetTopBottomStackupLayers(input_layers)
+            res_s, topl_s, topz_s, bottoml_s, bottomz_s = stackup_source.GetTopBottomStackupLayers(input_layers)
+        else:
+            topl = None
+            topz = Double(0.0)
+            bottoml = None
+            bottomz = Double(0.0)
+            topl_s = None
+            topz_s = Double(0.0)
+            bottoml_s = None
+            bottomz_s = Double(0.0)
+            res, topl, topz, bottoml, bottomz = stackup_target.GetTopBottomStackupLayers(
+                input_layers, topl, topz, bottoml, bottomz
+            )
+            res_s, topl_s, topz_s, bottoml_s, bottomz_s = stackup_source.GetTopBottomStackupLayers(
+                input_layers, topl_s, topz_s, bottoml_s, bottomz_s
+            )
+            if merged_component:
+                if isinstance(merged_component, str):
+                    merged_component_edb = self._edb.Cell.Hierarchy.Component.FindByName(merged_layout,
+                                                                                          merged_component)
+                    merged_sb = self._pedb.core_components.get_solder_ball_height(merged_component_edb)
+                    if merged_sb != 0:
+                        solder_ball_height = merged_sb
+        if place_on_top:
+            shift = bottoml.GetThickness() - bottoml_s.GetThickness()
+            target_el = topz
+            pos_z = target_el - shift + solder_ball_height
+        else:
+            shift = bottoml.GetThickness() - bottoml_s.GetThickness()
+            pos_z = - shift - topz_s - solder_ball_height
+        return solder_ball_height
+
+    @aedt_exception_handler
     def place_in_layout(
             self,
-            edb_cell=None,
+            edb=None,
             angle=0.0,
             offset_x=0.0,
             offset_y=0.0,
@@ -238,7 +279,7 @@ class EdbStackup(object):
 
         Parameters
         ----------
-        edb_cell : Cell
+        edb : Edb
             Cell on which to place the current layout. If None the Cell will be applied on an empty new Cell.
         angle : double
             The rotation angle applied on the design (not supported for the moment).
@@ -286,35 +327,26 @@ class EdbStackup(object):
             model_flip = False
         if model_flip:
             self.flip_design()
-
+        edb_cell = edb.active_cell
         _angle = self._edb_value(angle * math.pi / 180.0)
         _offset_x = self._edb_value(offset_x)
         _offset_y = self._edb_value(offset_y)
         edb_was_none = False
-        if edb_cell is None:
-            cell_name = self._active_layout.GetCell().GetName()
-            self._active_layout.GetCell().SetName(cell_name + "_Transform")
-            edb_cell = self._edb.Cell.Cell.Create(self._db, self._edb.Cell.CellType.CircuitCell, cell_name)
-            edb_cell.GetLayout().SetLayerCollection(self._active_layout.GetLayerCollection())
-            edb_was_none = True
-            cell_inst2 = self._edb.Cell.Hierarchy.CellInstance.Create(
-                edb_cell.GetLayout(), edb_cell.GetName() + "_Transform", self._active_layout
-            )
-        else:
-            if edb_cell.GetName() not in self._pedb.cell_names:
-                _dbCell = convert_py_list_to_net_list([edb_cell])
-                list_cells = self._pedb.db.CopyCells(_dbCell)
-                edb_cell = list_cells[0]
-            cell_inst2 = self._edb.Cell.Hierarchy.CellInstance.Create(
-                edb_cell.GetLayout(), self._active_layout.GetCell().GetName(), self._active_layout
-            )
+
+        if edb_cell.GetName() not in self._pedb.cell_names:
+            _dbCell = convert_py_list_to_net_list([edb_cell])
+            list_cells = self._pedb.db.CopyCells(_dbCell)
+            edb_cell = list_cells[0]
+        self._active_layout.GetCell().SetBlackBox(True)
+        cell_inst2 = self._edb.Cell.Hierarchy.CellInstance.Create(
+            edb_cell.GetLayout(), self._active_layout.GetCell().GetName(), self._active_layout)
         cell_trans = cell_inst2.GetTransform()
         cell_trans.SetRotationValue(_angle)
         cell_trans.SetXOffsetValue(_offset_x)
         cell_trans.SetYOffsetValue(_offset_y)
         cell_trans.SetMirror(model_flip)
         cell_inst2.SetTransform(cell_trans)
-        cell_inst2.SetSolveIndependentPreference(True)
+        cell_inst2.SetSolveIndependentPreference(False)
         stackup_target = edb_cell.GetLayout().GetLayerCollection()
         stackup_source = self._active_layout.GetLayerCollection()
 
