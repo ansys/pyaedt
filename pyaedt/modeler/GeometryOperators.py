@@ -1415,9 +1415,9 @@ class GeometryOperators(object):
         """
         # select a vertex on the hull
         if len(x) < 3:  # pragma: no cover
-            raise ValueError("x length must be >= 3")
+            raise ValueError("'x' length must be >= 3")
         if len(y) != len(x):  # pragma: no cover
-            raise ValueError("y must be same length as x.")
+            raise ValueError("'y' must be same length as 'x'.")
         # fmt: off
         xmin = min(x)
         ixmin = [i for i, el in enumerate(x) if xmin == el]
@@ -1462,7 +1462,7 @@ class GeometryOperators(object):
 
     @staticmethod
     @aedt_exception_handler
-    def v_angle_sign(va, vb, vn, righthanded=True):
+    def v_angle_sign(va, vb, vn, right_handed=True):
         """Evaluate the signed angle between two geometry vectors.
 
         The sign is evaluated respect to the normal to the plane containing the two vectors as per the following rule.
@@ -1485,7 +1485,7 @@ class GeometryOperators(object):
             List of ``[x, y, z]`` coordinates for the second vector.
         vn : list
             List of ``[x, y, z]`` coordinates for the plane normal.
-        righthanded : bool
+        right_handed : bool
             If ``True`` the right-handed rotation from Va to Vb is considered.
             If ``False`` the left-handed rotation from Va to Vb is considered. The default is ``True`.
 
@@ -1504,7 +1504,7 @@ class GeometryOperators(object):
         )  # pragma: no cover
 
         vnn = GeometryOperators.normalize_vector(vn)
-        if righthanded:
+        if right_handed:
             return math.atan2(GeometryOperators.v_dot(cross, vnn), GeometryOperators.v_dot(va, vb))
         else:
             mcross = GeometryOperators.v_cross(vb, va)
@@ -1512,7 +1512,7 @@ class GeometryOperators(object):
 
     @staticmethod
     @aedt_exception_handler
-    def v_angle_sign_2D(va, vb, righthanded=True):
+    def v_angle_sign_2D(va, vb, right_handed=True):
         """Evaluate the signed angle between two 2D geometry vectors.
         Iit the 2D version of the ``GeometryOperators.v_angle_sign`` considering vn = [0,0,1].
         In case of opposite vectors, it returns an angle equal to 180deg (always positive).
@@ -1524,7 +1524,7 @@ class GeometryOperators(object):
         vb : list
             List of ``[x, y]`` coordinates for the second vector.
 
-        righthanded : bool
+        right_handed : bool
             If ``True`` the right-handed rotation from Va to Vb is considered.
             If ``False`` the left-handed rotation from Va to Vb is considered. The default is ``True`.
 
@@ -1536,7 +1536,7 @@ class GeometryOperators(object):
         """
         c = va[0] * vb[1] - va[1] * vb[0]
 
-        if righthanded:
+        if right_handed:
             return math.atan2(c, GeometryOperators.v_dot(va, vb))
         else:
             return math.atan2(-c, GeometryOperators.v_dot(va, vb))
@@ -1544,7 +1544,7 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def point_in_polygon(point, polygon):
-        """Determine if a point is inside or outside a polyogn, both located on the same plane.
+        """Determine if a point is inside or outside a polygon, both located on the same plane.
 
         The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
 
@@ -1590,7 +1590,7 @@ class GeometryOperators(object):
     @staticmethod
     @aedt_exception_handler
     def is_point_in_polygon(point, polygon):
-        """Determine if a point is inside or outside a polyogn, both located on the same plane.
+        """Determine if a point is inside or outside a polygon, both located on the same plane.
 
         The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
 
@@ -1602,7 +1602,7 @@ class GeometryOperators(object):
         Returns
         -------
         bool
-            ``True`` if the point is inside the polygon or xactly on one of its sides.
+            ``True`` if the point is inside the polygon or exactly on one of its sides.
             ``False`` otherwise.
         """
         r = GeometryOperators.point_in_polygon(point, polygon)
@@ -1747,7 +1747,7 @@ class GeometryOperators(object):
         b : list
             List of ``[x, y, z]`` coordinates for the second vector.
         tol : float
-            Linear tolerance. The default value is ``1e-8``.
+            Linear tolerance. The default value is ``1e-6``.
 
         Returns
         -------

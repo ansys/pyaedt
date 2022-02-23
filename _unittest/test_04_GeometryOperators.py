@@ -397,21 +397,21 @@ class TestClass:
         vb = [0, 1, 0]
         vn = [0, 0, 1]
         vnn = [0, 0, -1]
-        assert go.v_angle_sign(va, vb, vn, righthanded=True) == go.v_angle_sign(vb, va, vn, righthanded=False)
-        assert go.v_angle_sign(va, vb, vn, righthanded=True) == go.v_angle_sign(vb, va, vnn, righthanded=True)
+        assert go.v_angle_sign(va, vb, vn, right_handed=True) == go.v_angle_sign(vb, va, vn, right_handed=False)
+        assert go.v_angle_sign(va, vb, vn, right_handed=True) == go.v_angle_sign(vb, va, vnn, right_handed=True)
         assert go.v_angle_sign([1, 1, 0], [-1, -1, 0], vn) == math.pi
         va = [0, 1, 2]
         vb = [0, -2, 4]
         vn = [1, 0, 0]
         vnn = [-1, 0, 0]
-        assert go.v_angle_sign(va, vb, vn, righthanded=True) == go.v_angle_sign(vb, va, vn, righthanded=False)
-        assert go.v_angle_sign(va, vb, vn, righthanded=True) == go.v_angle_sign(vb, va, vnn, righthanded=True)
+        assert go.v_angle_sign(va, vb, vn, right_handed=True) == go.v_angle_sign(vb, va, vn, right_handed=False)
+        assert go.v_angle_sign(va, vb, vn, right_handed=True) == go.v_angle_sign(vb, va, vnn, right_handed=True)
         assert go.v_angle_sign([0, 1, 1], [0, -1, -1], vn) == math.pi
 
     def test_v_angle_sign_2D(self):
         va = [1, 0]
         vb = [0, 1]
-        assert go.v_angle_sign_2D(va, vb, righthanded=True) == go.v_angle_sign_2D(vb, va, righthanded=False)
+        assert go.v_angle_sign_2D(va, vb, right_handed=True) == go.v_angle_sign_2D(vb, va, right_handed=False)
         assert go.v_angle_sign_2D([1, 1], [-1, -1]) == math.pi
 
     def test_is_segment_intersecting_polygon(self):
