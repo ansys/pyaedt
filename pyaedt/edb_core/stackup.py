@@ -434,7 +434,7 @@ class EdbStackup(object):
         ...                                                     mounted_component=mounted_cmp,
         ...                                                     hosting_component=hosting_cmp,
         ...                                                     mounted_component_pin1="A12",
-        ...                                                     mounted_component_pin2="A14",
+        ...                   a                                  mounted_component_pin2="A14",
         ...                                                     hosting_component_pin1="A12",
         ...                                                     hosting_component_pin2="A14")
         >>> edb2.core_stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x=vector[0],
@@ -447,7 +447,7 @@ class EdbStackup(object):
             edb.core_stackup.flip_design()
             place_on_top = True
             if not flipped_stackup:
-                self.flip_design()
+               self.flip_design()
         elif flipped_stackup:
             self.flip_design()
         edb_cell = edb.active_cell
@@ -538,7 +538,6 @@ class EdbStackup(object):
         """
         # if flipped_stackup and place_on_top or (not flipped_stackup and not place_on_top):
         _angle = angle * math.pi / 180.0
-
         if solder_height <= 0:
             if flipped_stackup and not place_on_top or (place_on_top and not flipped_stackup):
                 solder_height = self._get_solder_height(list(self.signal_layers.keys())[0])
