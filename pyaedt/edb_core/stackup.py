@@ -268,64 +268,64 @@ class EdbStackup(object):
         )
         return self._add_dielectric_material_model(name, material_def)
 
-    @aedt_exception_handler
-    def get_top_bottom_elevation_between_designs(
-        self, hosting_layout=None, merged_layout=None, place_on_top=True, merged_component=None
-    ):
-        """Return the elevation needed to align 2 designs.
-
-        Parameters
-        ----------
-        hosting_layout : object
-            Edb Layout hosting object for merge.
-        merged_layout : object
-            Edb target layout.
-        place_on_top : bool
-        merged_component : str, optional
-            Name of the component to find and use for getting info.
-
-        Returns
-        -------
-        float
-        """
-        stackup_target = hosting_layout.GetLayerCollection()
-        stackup_source = merged_layout.GetLayerCollection()
-        input_layers = self._edb.Cell.LayerTypeSet.SignalLayerSet
-        solder_ball_height = 0.0
-        if is_ironpython:
-            res, topl, topz, bottoml, bottomz = stackup_target.GetTopBottomStackupLayers(input_layers)
-            res_s, topl_s, topz_s, bottoml_s, bottomz_s = stackup_source.GetTopBottomStackupLayers(input_layers)
-        else:
-            topl = None
-            topz = Double(0.0)
-            bottoml = None
-            bottomz = Double(0.0)
-            topl_s = None
-            topz_s = Double(0.0)
-            bottoml_s = None
-            bottomz_s = Double(0.0)
-            res, topl, topz, bottoml, bottomz = stackup_target.GetTopBottomStackupLayers(
-                input_layers, topl, topz, bottoml, bottomz
-            )
-            res_s, topl_s, topz_s, bottoml_s, bottomz_s = stackup_source.GetTopBottomStackupLayers(
-                input_layers, topl_s, topz_s, bottoml_s, bottomz_s
-            )
-            if merged_component:
-                if isinstance(merged_component, str):
-                    merged_component_edb = self._edb.Cell.Hierarchy.Component.FindByName(
-                        merged_layout, merged_component
-                    )
-                    merged_sb = self._pedb.core_components.get_solder_ball_height(merged_component_edb)
-                    if merged_sb != 0:
-                        solder_ball_height = merged_sb
-        if place_on_top:
-            shift = bottoml.GetThickness() - bottoml_s.GetThickness()
-            target_el = topz
-            pos_z = target_el - shift + solder_ball_height
-        else:
-            shift = bottoml.GetThickness() - bottoml_s.GetThickness()
-            pos_z = -shift - topz_s - solder_ball_height
-        return solder_ball_height
+    # @aedt_exception_handler
+    # def get_top_bottom_elevation_between_designs(
+    #     self, hosting_layout=None, merged_layout=None, place_on_top=True, merged_component=None
+    # ):
+    #     """Return the elevation needed to align 2 designs.
+    #
+    #     Parameters
+    #     ----------
+    #     hosting_layout : object
+    #         Edb Layout hosting object for merge.
+    #     merged_layout : object
+    #         Edb target layout.
+    #     place_on_top : bool
+    #     merged_component : str, optional
+    #         Name of the component to find and use for getting info.
+    #
+    #     Returns
+    #     -------
+    #     float
+    #     """
+    #     stackup_target = hosting_layout.GetLayerCollection()
+    #     stackup_source = merged_layout.GetLayerCollection()
+    #     input_layers = self._edb.Cell.LayerTypeSet.SignalLayerSet
+    #     solder_ball_height = 0.0
+    #     if is_ironpython:
+    #         res, topl, topz, bottoml, bottomz = stackup_target.GetTopBottomStackupLayers(input_layers)
+    #         res_s, topl_s, topz_s, bottoml_s, bottomz_s = stackup_source.GetTopBottomStackupLayers(input_layers)
+    #     else:
+    #         topl = None
+    #         topz = Double(0.0)
+    #         bottoml = None
+    #         bottomz = Double(0.0)
+    #         topl_s = None
+    #         topz_s = Double(0.0)
+    #         bottoml_s = None
+    #         bottomz_s = Double(0.0)
+    #         res, topl, topz, bottoml, bottomz = stackup_target.GetTopBottomStackupLayers(
+    #             input_layers, topl, topz, bottoml, bottomz
+    #         )
+    #         res_s, topl_s, topz_s, bottoml_s, bottomz_s = stackup_source.GetTopBottomStackupLayers(
+    #             input_layers, topl_s, topz_s, bottoml_s, bottomz_s
+    #         )
+    #         if merged_component:
+    #             if isinstance(merged_component, str):
+    #                 merged_component_edb = self._edb.Cell.Hierarchy.Component.FindByName(
+    #                     merged_layout, merged_component
+    #                 )
+    #                 merged_sb = self._pedb.core_components.get_solder_ball_height(merged_component_edb)
+    #                 if merged_sb != 0:
+    #                     solder_ball_height = merged_sb
+    #     if place_on_top:
+    #         shift = bottoml.GetThickness() - bottoml_s.GetThickness()
+    #         target_el = topz
+    #         pos_z = target_el - shift + solder_ball_height
+    #     else:
+    #         shift = bottoml.GetThickness() - bottoml_s.GetThickness()
+    #         pos_z = -shift - topz_s - solder_ball_height
+    #     return solder_ball_height
 
     @aedt_exception_handler
     def _get_solder_height(self, layer_name):
