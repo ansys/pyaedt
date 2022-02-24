@@ -28,7 +28,7 @@ class TestClass:
             )
             self.local_scratch.copyfolder(
                 os.path.join(local_path, "example_models", "Package.aedb"),
-                os.path.join(self.local_scratch.path, "Package.aedb"),
+                os.path.join(self.local_scratch.path, "Package2.aedb"),
             )
         self.aedtapp = Hfss3dLayout(self.test_project)
         self.aedtapp.modeler.geometries
@@ -106,5 +106,5 @@ class TestClass:
         assert len(nets) > 0
 
     def test_08_merge(self):
-        hfss3d = Hfss3dLayout(os.path.join(self.local_scratch.path, "Package.aedb", "edb.def"))
+        hfss3d = Hfss3dLayout(os.path.join(self.local_scratch.path, "Package2.aedb", "edb.def"))
         assert hfss3d.modeler.merge_design(self.aedtapp)
