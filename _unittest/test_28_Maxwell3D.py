@@ -101,16 +101,16 @@ class TestClass:
 
     @pytest.fixture
     def test_08_setup_ctrlprog_with_file(self, tmpdir):
-        Setup = self.aedtapp.create_setup()
-        Setup.props["MaximumPasses"] = 12
-        Setup.props["MinimumPasses"] = 2
-        Setup.props["MinimumConvergedPasses"] = 1
-        Setup.props["PercentRefinement"] = 30
-        Setup.props["Frequency"] = "200Hz"
-        Setup.update()
-        Setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
+        transient_setup = self.aedtapp.create_setup()
+        transient_setup.props["MaximumPasses"] = 12
+        transient_setup.props["MinimumPasses"] = 2
+        transient_setup.props["MinimumConvergedPasses"] = 1
+        transient_setup.props["PercentRefinement"] = 30
+        transient_setup.props["Frequency"] = "200Hz"
+        transient_setup.update()
+        transient_setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
         temp_file = tmpdir.mkdir("sub").join("testCurrentTicketCount.txt")
-        assert self.aedtapp.setup_ctrlprog(Setup.name, file_str=temp_file)
+        assert self.aedtapp.setup_ctrlprog(transient_setup.name, file_str=temp_file)
 
     def test_22_create_length_mesh(self):
         assert self.aedtapp.mesh.assign_length_mesh(["Plate"])
