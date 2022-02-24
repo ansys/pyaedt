@@ -448,7 +448,7 @@ class TestClass:
             matched=False,
         )
         assert hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
-        hfss3dl.close_project()
+        self.aedtapp.close_project(hfss3dl.project_name, False)
 
     def test_36_load_and_save_diff_pair_file(self):
         example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
@@ -470,4 +470,4 @@ class TestClass:
         with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
-        hfss3dl.close_project()
+        self.aedtapp.close_project(hfss3dl.project_name, False)

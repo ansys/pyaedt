@@ -331,7 +331,7 @@ class TestClass:
             active=True,
         )
         assert circuit.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
-        circuit.close_project()
+        self.aedtapp.close_project(circuit.project_name, False)
 
     def test_28_load_and_save_diff_pair_file(self):
         example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
@@ -353,4 +353,4 @@ class TestClass:
         with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
-        circuit.close_project()
+        self.aedtapp.close_project(circuit.project_name, False)
