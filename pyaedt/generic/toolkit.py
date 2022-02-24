@@ -569,7 +569,7 @@ class WPFToolkitSettings:
             try:
                 settings_data = json.load(f)
             except ValueError:
-                if self._parent:
+                if "_parent" in dir(self):
                     msg_string = "Invalid json file {0} will be overwritten.".format(filename)
                     self._parent.logger.warning(msg_string)
                 return None
