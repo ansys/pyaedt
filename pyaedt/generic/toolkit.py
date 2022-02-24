@@ -1589,7 +1589,8 @@ class WPFToolkit(Window):
                     try:
                         txt_line = settings_data[wpf_control.Name]
                         wpf_control.SelectedValue = txt_line
-                        self.aedtdesign.logger.info("Trying to set: " + txt_line)
+                        if self.aedtdesign:
+                            self.aedtdesign.logger.info("Trying to set: " + txt_line)
                         if txt_line:
                             wpf_control.BorderBrush = Brushes.Green
                     except KeyError:
