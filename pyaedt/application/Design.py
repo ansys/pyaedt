@@ -687,7 +687,7 @@ class Design(object):
     def project_timestamp_changed(self):
         """Return a bool if time stamp changed or not."""
         old_time = self._mttime
-        return old_time == self.project_time_stamp
+        return old_time != self.project_time_stamp
 
     @property
     def project_file(self):
@@ -2006,7 +2006,7 @@ class Design(object):
 
     @aedt_exception_handler
     def _close_edb(self):
-        if self.design_type == "Circuit Design" or self.design_type == "HFSS 3D Layout Design":
+        if self.design_type == "HFSS 3D Layout Design":
             if self.modeler and self.modeler.edb:
                 self.modeler.edb.close_edb()
 
@@ -2425,6 +2425,8 @@ class Design(object):
         proj_path = oproj.GetPath()
         if saveproject:
             oproj.Save()
+        if name == legacy_name:
+            self._close_edb()
         self.odesktop.CloseProject(name)
         i = 0
         timeout = 10

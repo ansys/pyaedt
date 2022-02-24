@@ -403,7 +403,6 @@ class Components(object):
         mounted_component_pin2=None,
         hosting_component_pin1=None,
         hosting_component_pin2=None,
-        placed_on_top=True,
     ):
         """Get the placement vector between 2 components.
 

@@ -269,65 +269,6 @@ class EdbStackup(object):
         return self._add_dielectric_material_model(name, material_def)
 
     @aedt_exception_handler
-    def get_top_bottom_elevation_between_designs(
-        self, hosting_layout=None, merged_layout=None, place_on_top=True, merged_component=None
-    ):
-        """Return the elevation needed to align 2 designs.
-
-        Parameters
-        ----------
-        hosting_layout : object
-            Edb Layout hosting object for merge.
-        merged_layout : object
-            Edb target layout.
-        place_on_top : bool
-        merged_component : str, optional
-            Name of the component to find and use for getting info.
-
-        Returns
-        -------
-        float
-        """
-        stackup_target = hosting_layout.GetLayerCollection()
-        stackup_source = merged_layout.GetLayerCollection()
-        input_layers = self._edb.Cell.LayerTypeSet.SignalLayerSet
-        solder_ball_height = 0.0
-        if is_ironpython:
-            res, topl, topz, bottoml, bottomz = stackup_target.GetTopBottomStackupLayers(input_layers)
-            res_s, topl_s, topz_s, bottoml_s, bottomz_s = stackup_source.GetTopBottomStackupLayers(input_layers)
-        else:
-            topl = None
-            topz = Double(0.0)
-            bottoml = None
-            bottomz = Double(0.0)
-            topl_s = None
-            topz_s = Double(0.0)
-            bottoml_s = None
-            bottomz_s = Double(0.0)
-            res, topl, topz, bottoml, bottomz = stackup_target.GetTopBottomStackupLayers(
-                input_layers, topl, topz, bottoml, bottomz
-            )
-            res_s, topl_s, topz_s, bottoml_s, bottomz_s = stackup_source.GetTopBottomStackupLayers(
-                input_layers, topl_s, topz_s, bottoml_s, bottomz_s
-            )
-            if merged_component:
-                if isinstance(merged_component, str):
-                    merged_component_edb = self._edb.Cell.Hierarchy.Component.FindByName(
-                        merged_layout, merged_component
-                    )
-                    merged_sb = self._pedb.core_components.get_solder_ball_height(merged_component_edb)
-                    if merged_sb != 0:
-                        solder_ball_height = merged_sb
-        if place_on_top:
-            shift = bottoml.GetThickness() - bottoml_s.GetThickness()
-            target_el = topz
-            pos_z = target_el - shift + solder_ball_height
-        else:
-            shift = bottoml.GetThickness() - bottoml_s.GetThickness()
-            pos_z = -shift - topz_s - solder_ball_height
-        return solder_ball_height
-
-    @aedt_exception_handler
     def _get_solder_height(self, layer_name):
         for el, val in self._pedb.core_components.components.items():
             if val.solder_ball_height and val.placement_layer == layer_name:
@@ -336,7 +277,14 @@ class EdbStackup(object):
 
     @aedt_exception_handler
     def adjust_solder_dielectrics(self):
-        """Adject the stackup by adding or modifying dielectric layers that contains Solder Balls."""
+        """Adjust the stack-up by adding or modifying dielectric layers that contains Solder Balls.
+        This method identifies the solder-ball height and adjust the dielectric thickness on top (or bottom) to fit
+        the thickness in order to merge another layout.
+
+        Returns
+        -------
+        bool
+        """
         for el, val in self._pedb.core_components.components.items():
             if val.solder_ball_height:
                 layer = val.placement_layer
@@ -350,7 +298,6 @@ class EdbStackup(object):
                         elevation += self.stackup_layers.layers[el].thickness_value
                         last_layer_thickess = self.stackup_layers.layers[el].thickness_value
                         layer1 = el
-
                     if layer1 != layer:
                         self.stackup_layers.layers[layer1].thickness_value = (
                             val.solder_ball_height - elevation + last_layer_thickess
@@ -367,14 +314,12 @@ class EdbStackup(object):
                     elevation = 0
                     layer1 = layer
                     last_layer_thickess = 0
-
                     for el in list(self.stackup_layers.layers.keys())[::-1]:
                         if el == layer:
                             break
                         layer1 = el
                         elevation += self.stackup_layers.layers[el].thickness_value
                         last_layer_thickess = self.stackup_layers.layers[el].thickness_value
-
                     if layer1 != layer:
                         self.stackup_layers.layers[layer1].thickness_value = (
                             val.solder_ball_height - elevation + last_layer_thickess
@@ -387,34 +332,35 @@ class EdbStackup(object):
                             thickness=val.solder_ball_height - elevation,
                             layerType=1,
                         )
+        return True
 
     @aedt_exception_handler
     def place_in_layout(
         self,
-        edb=None,
+        edb,
         angle=0.0,
         offset_x=0.0,
         offset_y=0.0,
         flipped_stackup=True,
         place_on_top=True,
     ):
-        """Place current Cell into another cell.
+        """Place current Cell into another cell using layer placement method.
         Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
 
         Parameters
         ----------
         edb : Edb
             Cell on which to place the current layout. If None the Cell will be applied on an empty new Cell.
-        angle : double
-            The rotation angle applied on the design (not supported for the moment).
-        offset_x : double
-            The x offset value (not supported for the moment.
-        offset_y : double
-            The y offset value (not supported for the moment.
-        flipped_stackup : bool
+        angle : double, optional
+            The rotation angle applied on the design.
+        offset_x : double, optional
+            The x offset value.
+        offset_y : double, optional
+            The y offset value.
+        flipped_stackup : bool, optional
             Either if the current layout is inverted.
             If `True` and place_on_top is `True` the stackup will be flipped before the merge.
-        place_on_top : bool
+        place_on_top : bool, optional
             Either if place the current layout on Top or Bottom of destination Layout.
 
         Returns
@@ -434,12 +380,12 @@ class EdbStackup(object):
         ...                                                     mounted_component=mounted_cmp,
         ...                                                     hosting_component=hosting_cmp,
         ...                                                     mounted_component_pin1="A12",
-        ...                   a                                  mounted_component_pin2="A14",
+        ...                                                     mounted_component_pin2="A14",
         ...                                                     hosting_component_pin1="A12",
         ...                                                     hosting_component_pin2="A14")
         >>> edb2.core_stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x=vector[0],
         ...                                   offset_y=vector[1], flipped_stackup=False, place_on_top=True,
-        ...                                   solder_height=solder_ball_height)
+        ...                                   )
         """
         # if flipped_stackup and place_on_top or (not flipped_stackup and not place_on_top):
         self.adjust_solder_dielectrics()
@@ -447,7 +393,7 @@ class EdbStackup(object):
             edb.core_stackup.flip_design()
             place_on_top = True
             if not flipped_stackup:
-               self.flip_design()
+                self.flip_design()
         elif flipped_stackup:
             self.flip_design()
         edb_cell = edb.active_cell
@@ -482,7 +428,7 @@ class EdbStackup(object):
     @aedt_exception_handler
     def place_in_layout_3d_placement(
         self,
-        edb=None,
+        edb,
         angle=0.0,
         offset_x=0.0,
         offset_y=0.0,
@@ -490,25 +436,25 @@ class EdbStackup(object):
         place_on_top=True,
         solder_height=0,
     ):
-        """Place current Cell into another cell.
+        """Place current Cell into another cell using 3d placement method.
         Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
 
         Parameters
         ----------
         edb : Edb
             Cell on which to place the current layout. If None the Cell will be applied on an empty new Cell.
-        angle : double
-            The rotation angle applied on the design (not supported for the moment).
-        offset_x : double
-            The x offset value (not supported for the moment.
-        offset_y : double
-            The y offset value (not supported for the moment.
-        flipped_stackup : bool
+        angle : double, optional
+            The rotation angle applied on the design.
+        offset_x : double, optional
+            The x offset value.
+        offset_y : double, optional
+            The y offset value.
+        flipped_stackup : bool, optional
             Either if the current layout is inverted.
             If `True` and place_on_top is `True` the stackup will be flipped before the merge.
-        place_on_top : bool
+        place_on_top : bool, optional
             Either if place the current layout on Top or Bottom of destination Layout.
-        solder_height : float
+        solder_height : float, optional
             Solder Ball or Bumps eight.
             This value will be added to the elevation to align the two layouts.
 
@@ -521,23 +467,15 @@ class EdbStackup(object):
         --------
         >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
         >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
-
         >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
         >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
-
-        >>> vector, rotation, solder_ball_height = edb1.core_components.get_component_placement_vector(
-        ...                                                     mounted_component=mounted_cmp,
-        ...                                                     hosting_component=hosting_cmp,
-        ...                                                     mounted_component_pin1="A12",
-        ...                                                     mounted_component_pin2="A14",
-        ...                                                     hosting_component_pin1="A12",
-        ...                                                     hosting_component_pin2="A14")
-        >>> edb2.core_stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x=vector[0],
-        ...                                   offset_y=vector[1], flipped_stackup=False, place_on_top=True,
-        ...                                   solder_height=solder_ball_height)
+        >>> edb2.core_stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x="1mm",
+        ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
+        ...                                   )
         """
         # if flipped_stackup and place_on_top or (not flipped_stackup and not place_on_top):
         _angle = angle * math.pi / 180.0
+
         if solder_height <= 0:
             if flipped_stackup and not place_on_top or (place_on_top and not flipped_stackup):
                 solder_height = self._get_solder_height(list(self.signal_layers.keys())[0])
@@ -688,12 +626,20 @@ class EdbStackup(object):
                 cmp_type = cmp.GetComponentType()
                 cmp_prop = cmp.GetComponentProperty().Clone()
                 try:
-                    placement = int(cmp_prop.GetSolderBallProperty().GetPlacement())
-                    if placement == 0:
-                        cmp_prop.GetSolderBallProperty().SetPlacement(self._edb.Definition.SolderballPlacement.BelowPadstack)
-                    elif placement == 1:
-                        cmp_prop.GetSolderBallProperty().SetPlacement(
-                            self._edb.Definition.SolderballPlacement.AbovePadstack)
+                    if (
+                        cmp_prop.GetSolderBallProperty().GetPlacement()
+                        == self._edb.Definition.SolderballPlacement.AbovePadstack
+                    ):
+                        sball_prop = cmp_prop.GetSolderBallProperty().Clone()
+                        sball_prop.SetPlacement(self._edb.Definition.SolderballPlacement.BelowPadstack)
+                        cmp_prop.SetSolderBallProperty(sball_prop)
+                    elif (
+                        cmp_prop.GetSolderBallProperty().GetPlacement()
+                        == self._edb.Definition.SolderballPlacement.BelowPadstack
+                    ):
+                        sball_prop = cmp_prop.GetSolderBallProperty().Clone()
+                        sball_prop.SetPlacement(self._edb.Definition.SolderballPlacement.AbovePadstack)
+                        cmp_prop.SetSolderBallProperty(sball_prop)
                 except:
                     pass
                 if cmp_type == self._edb.Definition.ComponentType.IC:
