@@ -108,3 +108,4 @@ class TestClass:
     def test_08_merge(self):
         hfss3d = Hfss3dLayout(os.path.join(self.local_scratch.path, "Package2.aedb", "edb.def"))
         assert hfss3d.modeler.merge_design(self.aedtapp)
+        self.aedtapp.odesktop.CloseProject(hfss3d.project_name)
