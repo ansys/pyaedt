@@ -306,7 +306,7 @@ class TestClass:
             )
         except AttributeError as e:
             exception_raised = True
-            assert e.args[0] == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
+            assert e.args[0] == "Invalid `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
         assert exception_raised
 
     def test_18c_create_single_point_sweep(self):
