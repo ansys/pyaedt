@@ -99,12 +99,12 @@ class TestClass:
             component_name="C3A3", model_path=model_path, subcircuit_name="GRM32ER72A225KA35_25C_0V"
         )
 
-    def test_07_merge(self):
-        hfss3d = Hfss3dLayout(os.path.join(self.local_scratch.path, "Package2.aedb", "edb.def"))
-        assert hfss3d.modeler.merge_design(self.aedtapp)
-        self.aedtapp.odesktop.CloseProject(hfss3d.project_name)
-
-    def test_08_nets(self):
+    def test_07_nets(self):
         nets = self.aedtapp.modeler.nets
         assert nets["GND"].name == "GND"
         assert len(nets) > 0
+
+    def test_08_merge(self):
+        hfss3d = Hfss3dLayout(os.path.join(self.local_scratch.path, "Package2.aedb", "edb.def"))
+        assert hfss3d.modeler.merge_design(self.aedtapp)
+        hfss3d.close_project(saveproject=False)
