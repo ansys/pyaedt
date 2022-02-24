@@ -880,7 +880,7 @@ class EdbLayout(object):
         return True
 
     @aedt_exception_handler
-    def convert_padstack_pad_to_rectangle(self, padstack_instance, layer_name):
+    def create_reactangle_in_pad(self, padstack_instance, layer_name):
         """Create a rectangle inscribed inside a padstack instance pad. The rectangle is fully inscribed in the
         pad and has the maximum area. It is necessary to specify a padstack instance and a layer to identify the
         padstack instance pad.
@@ -904,7 +904,7 @@ class EdbLayout(object):
         >>> edb_layout = edbapp.core_primitives
         >>> list_of_padstack_instances = list(edbapp.core_padstack.padstack_instances.values())
         >>> padstack_instance = list_of_padstack_instances[0]
-        >>> edb_layout.convert_padstack_pad_to_rectangle(padstack_instance, "TOP")
+        >>> edb_layout.create_reactangle_in_pad(padstack_instance, "TOP")
         """
 
         padstack_name = None
