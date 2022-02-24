@@ -41,7 +41,7 @@ class TestClass:
             except:
                 pass
         self.local_scratch.remove()
-        gc.collect()
+        del self.aedtapp
 
     def test_01_get_components(self):
         comp = self.aedtapp.modeler.components
