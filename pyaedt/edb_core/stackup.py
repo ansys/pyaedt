@@ -688,6 +688,23 @@ class EdbStackup(object):
             for cmp in cmp_list:
                 cmp_type = cmp.GetComponentType()
                 cmp_prop = cmp.GetComponentProperty().Clone()
+                try:
+                    if (
+                        cmp_prop.GetSolderBallProperty().GetPlacement()
+                        == self._edb.Definition.SolderballPlacement.AbovePadstack
+                    ):
+                        sball_prop = cmp_prop.GetSolderBallProperty().Clone()
+                        sball_prop.SetPlacement(self._edb.Definition.SolderballPlacement.BelowPadstack)
+                        cmp_prop.SetSolderBallProperty(sball_prop)
+                    elif (
+                        cmp_prop.GetSolderBallProperty().GetPlacement()
+                        == self._edb.Definition.SolderballPlacement.BelowPadstack
+                    ):
+                        sball_prop = cmp_prop.GetSolderBallProperty().Clone()
+                        sball_prop.SetPlacement(self._edb.Definition.SolderballPlacement.AbovePadstack)
+                        cmp_prop.SetSolderBallProperty(sball_prop)
+                except:
+                    pass
                 if cmp_type == self._edb.Definition.ComponentType.IC:
                     die_prop = cmp_prop.GetDieProperty().Clone()
                     chip_orientation = die_prop.GetOrientation()
