@@ -1,7 +1,8 @@
 import os
+import pytest
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path
+from _unittest.conftest import local_path, scratch_path, is_ironpython
 
 # Import required modules
 from pyaedt import Hfss3dLayout
@@ -104,6 +105,7 @@ class TestClass:
         assert nets["GND"].name == "GND"
         assert len(nets) > 0
 
+    @pytest.mark.skipif(is_ironpython, reason="Crashing in IronPython on build machine but working on Ironpython.")
     def test_08_merge(self):
         hfss3d = Hfss3dLayout(os.path.join(self.local_scratch.path, "Package2.aedb", "edb.def"))
         assert hfss3d.modeler.merge_design(self.aedtapp)
