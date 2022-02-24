@@ -31,8 +31,14 @@ class TestClass:
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
-        self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
-        gc.collect()
+        list_of_projects = list(self.aedtapp._desktop.GetProjectList())
+        for project in list_of_projects:
+            try:
+                self.aedtapp._desktop.CloseProject(project)
+            except:
+                pass
+        self.local_scratch.remove()
+        del self.aedtapp
 
     def test_01_creatematerial(self):
         mymat = self.aedtapp.materials.add_material("myMaterial")
@@ -448,14 +454,16 @@ class TestClass:
             matched=False,
         )
         assert hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
+        time.sleep(2)
         self.aedtapp.close_project(hfss3dl.project_name, False)
 
     def test_36_load_and_save_diff_pair_file(self):
         example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
-        test_project = self.local_scratch.copyfile(example_project)
+        example_project2 = os.path.join(self.local_scratch.path, "differential_pairs2.aedt")
+        test_project = self.local_scratch.copyfile(example_project, example_project2)
         self.local_scratch.copyfolder(
             os.path.join(local_path, "example_models", "differential_pairs.aedb"),
-            os.path.join(self.local_scratch.path, "differential_pairs.aedb"),
+            os.path.join(self.local_scratch.path, "differential_pairs2.aedb"),
         )
         hfss3dl = Hfss3dLayout(projectname=test_project, designname="EMDesign1")
         diff_file = os.path.join(self.local_scratch.path, "diff_file1.txt")
@@ -470,4 +478,5 @@ class TestClass:
         with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
+        time.sleep(2)
         self.aedtapp.close_project(hfss3dl.project_name, False)
