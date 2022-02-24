@@ -110,7 +110,7 @@ class TestClass:
         transient_setup.update()
         transient_setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
         fp = tempfile.TemporaryFile()
-        
+
         with tempfile.TemporaryDirectory() as tmpdirname:
             path = os.path.join(tmpdirname, "test08.txt")
             assert self.aedtapp.setup_ctrlprog(transient_setup.name, file_str=path)
