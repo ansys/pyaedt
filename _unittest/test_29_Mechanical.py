@@ -92,6 +92,7 @@ class TestClass:
 
         mech = Mechanical(solution_type=self.aedtapp.SOLUTIONS.Mechanical.Thermal)
         assert not mech.assign_fixed_support(mech.modeler["MyCylinder"].faces[0].id)
+        assert not mech.assign_frictionless_support(mech.modeler["MyCylinder"].faces[0].id)
 
     def test_08_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings

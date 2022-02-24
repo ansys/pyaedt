@@ -1,6 +1,7 @@
 # Setup paths for module imports
 from _unittest.conftest import scratch_path, local_path
 import os
+import tempfile
 
 # Import required modules
 from pyaedt import Maxwell3d
@@ -99,8 +100,7 @@ class TestClass:
         assert Setup.enable()
         assert self.aedtapp.setup_ctrlprog(Setup.name)
 
-    @pytest.fixture
-    def test_08_setup_ctrlprog_with_file(self, tmpdir):
+    def test_08_setup_ctrlprog_with_file(self):
         transient_setup = self.aedtapp.create_setup()
         transient_setup.props["MaximumPasses"] = 12
         transient_setup.props["MinimumPasses"] = 2
@@ -109,8 +109,11 @@ class TestClass:
         transient_setup.props["Frequency"] = "200Hz"
         transient_setup.update()
         transient_setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
-        temp_file = tmpdir.mkdir("sub").join("testCurrentTicketCount.txt")
-        assert self.aedtapp.setup_ctrlprog(transient_setup.name, file_str=temp_file)
+        fp = tempfile.TemporaryFile()
+        
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            path = os.path.join(tmpdirname, "test08.txt")
+            assert self.aedtapp.setup_ctrlprog(transient_setup.name, file_str=path)
 
     def test_22_create_length_mesh(self):
         assert self.aedtapp.mesh.assign_length_mesh(["Plate"])
