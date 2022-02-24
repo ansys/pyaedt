@@ -1257,6 +1257,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         """Load differtential pairs definition from file.
 
         File format can be obtained using ``save_diff_pairs_to_file`` method.
+        File End Of Line must be UNIX (LF).
         New definitions are added only if compatible with the existing definition already defined in the project.
 
         Parameters

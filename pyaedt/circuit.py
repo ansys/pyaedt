@@ -1448,7 +1448,6 @@ class Circuit(FieldAnalysisCircuit, object):
         common_ref_z=25,
         diff_ref_z=100,
         active=True,
-        matched=False,
     ):
         """Add a differential pair definition.
 
@@ -1468,8 +1467,6 @@ class Circuit(FieldAnalysisCircuit, object):
             Reference impedance for the differential mode. Units are Ohm. Default is ``100``.
         active : bool, optional
             Set the differential pair as active. Default is ``True``.
-        matched : bool, optional
-            Set the differential pair as active. Default is ``False``.
 
         Returns
         -------
@@ -1478,7 +1475,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         References
         ----------
-        >>> oModule.SetDiffPairs
+        >>> oDesign.SetDiffPairs
         """
         if not diff_name:
             diff_name = generate_unique_name("Diff")
@@ -1493,7 +1490,7 @@ class Circuit(FieldAnalysisCircuit, object):
             "On:=",
             active,
             "matched:=",
-            matched,
+            False,
             "Dif:=",
             diff_name,
             "DfZ:=",
@@ -1524,7 +1521,7 @@ class Circuit(FieldAnalysisCircuit, object):
                 "On:=",
                 data[2] == "1",
                 "matched:=",
-                data[3] == "1",
+                False,
                 "Dif:=",
                 data[4],
                 "DfZ:=",
@@ -1540,30 +1537,23 @@ class Circuit(FieldAnalysisCircuit, object):
             arg.append("Pair:=")
             arg.append(arg2)
 
-        self.odesign.SetDiffPairs(arg)
-
-        tmpfile2 = os.path.join(self.working_directory, generate_unique_name("tmp"))
-        self.odesign.SaveDiffPairsToFile(tmpfile2)
-        with open(tmpfile2, "r") as fh:
-            lines = fh.readlines()
-        num_diffs_after = len(lines)
-
         try:
             os.remove(tmpfile1)
-            os.remove(tmpfile2)
-        except:
+        except:  # pragma: no cover
             self.logger.warning("ERROR: Cannot remove temp files.")
 
-        if num_diffs_after == num_diffs_before + 1:
-            return True
-        else:
+        try:
+            self.odesign.SetDiffPairs(arg)
+        except:  # pragma: no cover
             return False
+        return True
 
     @aedt_exception_handler
     def load_diff_pairs_from_file(self, filename):
         """Load differtential pairs definition from file.
 
         File format can be obtained using ``save_diff_pairs_to_file`` method.
+        File End Of Line must be UNIX (LF).
         New definitions are added only if compatible with the existing definition already defined in the project.
 
         Parameters
@@ -1580,42 +1570,14 @@ class Circuit(FieldAnalysisCircuit, object):
         ----------
         >>> oDesign.LoadDiffPairsFromFile
         """
-        if not os.path.isfile(filename):
+        if not os.path.isfile(filename):  # pragma: no cover
             raise ValueError("{}: unable to find the specified file.".format(filename))
 
-        tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
-        self.odesign.SaveDiffPairsToFile(tmpfile1)
-        with open(tmpfile1, "r") as fh:
-            lines = fh.readlines()
-        num_diffs_before = len(lines)
-
-        with open(filename, "r") as fh:
-            lines = fh.readlines()
-        num_diffs_expected = len(lines)
-        self.odesign.LoadDiffPairsFromFile(filename)
-
-        tmpfile2 = os.path.join(self.working_directory, generate_unique_name("tmp"))
-        self.odesign.SaveDiffPairsToFile(tmpfile2)
-        with open(tmpfile2, "r") as fh:
-            lines = fh.readlines()
-        num_diffs_after = len(lines)
-
         try:
-            os.remove(tmpfile1)
-            os.remove(tmpfile2)
-        except:
-            self.logger.warning("ERROR: Cannot remove temp files.")
-
-        num_diffs_created = num_diffs_after - num_diffs_before
-        if num_diffs_created != num_diffs_expected:
-            self.logger.warning(
-                "ERROR: {} out of {} differential pairs have been defined.".format(
-                    num_diffs_created, num_diffs_expected
-                )
-            )
+            self.odesign.LoadDiffPairsFromFile(filename)
+        except:  # pragma: no cover
             return False
-        else:
-            return True
+        return True
 
     @aedt_exception_handler
     def save_diff_pairs_to_file(self, filename):

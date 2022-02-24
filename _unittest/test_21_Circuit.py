@@ -1,6 +1,7 @@
 import gc
 import os
 import time
+import io
 
 # Import required modules
 from pyaedt import Circuit
@@ -311,3 +312,45 @@ class TestClass:
         assert comp_catalog["LISN:CISPR25_LISN"].place("Lisn1")
         assert not comp_catalog["Capacitors"]
         assert comp_catalog["LISN:CISPR25_LISN"].props
+
+    def test_27_set_differential_pairs(self):
+        example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
+        test_project = self.local_scratch.copyfile(example_project)
+        self.local_scratch.copyfolder(
+            os.path.join(local_path, "example_models", "differential_pairs.aedb"),
+            os.path.join(self.local_scratch.path, "differential_pairs.aedb"),
+        )
+        circuit = Circuit(projectname=test_project, designname="Circuit1")
+        assert circuit.set_differential_pair(
+            positive_terminal="Port3",
+            negative_terminal="Port4",
+            common_name=None,
+            diff_name=None,
+            common_ref_z=34,
+            diff_ref_z=123,
+            active=True,
+        )
+        assert circuit.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
+        circuit.close_project()
+
+    def test_28_load_and_save_diff_pair_file(self):
+        example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
+        test_project = self.local_scratch.copyfile(example_project)
+        self.local_scratch.copyfolder(
+            os.path.join(local_path, "example_models", "differential_pairs.aedb"),
+            os.path.join(self.local_scratch.path, "differential_pairs.aedb"),
+        )
+        circuit = Circuit(projectname=test_project, designname="Circuit1")
+        diff_file = os.path.join(self.local_scratch.path, "diff_file1.txt")
+        with io.open(diff_file, "w", newline="\n") as fh:
+            fh.write("Port1,Port2,1,0,Diff1,100,Comm1,25\n")
+            fh.write("Port3,Port4,1,0,Diff2,253,Comm2,78\n")
+            fh.write("Port5,Port6,1,0,Diff3,100,Comm3,25\n")
+        assert circuit.load_diff_pairs_from_file(diff_file)
+
+        diff_file2 = os.path.join(self.local_scratch.path, "diff_file2.txt")
+        assert circuit.save_diff_pairs_to_file(diff_file2)
+        with open(diff_file2, "r") as fh:
+            lines = fh.read().splitlines()
+        assert len(lines) == 3
+        circuit.close_project()
