@@ -1,5 +1,8 @@
 import os
-import pytest
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 
 # Setup paths for module imports
 from _unittest.conftest import local_path, scratch_path, is_ironpython

@@ -277,7 +277,14 @@ class EdbStackup(object):
 
     @aedt_exception_handler
     def adjust_solder_dielectrics(self):
-        """Adject the stackup by adding or modifying dielectric layers that contains Solder Balls."""
+        """Adjust the stack-up by adding or modifying dielectric layers that contains Solder Balls.
+        This method identifies the solder-ball height and adjust the dielectric thickness on top (or bottom) to fit
+        the thickness in order to merge another layout.
+
+        Returns
+        -------
+        bool
+        """
         for el, val in self._pedb.core_components.components.items():
             if val.solder_ball_height:
                 layer = val.placement_layer
@@ -291,7 +298,6 @@ class EdbStackup(object):
                         elevation += self.stackup_layers.layers[el].thickness_value
                         last_layer_thickess = self.stackup_layers.layers[el].thickness_value
                         layer1 = el
-
                     if layer1 != layer:
                         self.stackup_layers.layers[layer1].thickness_value = (
                             val.solder_ball_height - elevation + last_layer_thickess
@@ -308,14 +314,12 @@ class EdbStackup(object):
                     elevation = 0
                     layer1 = layer
                     last_layer_thickess = 0
-
                     for el in list(self.stackup_layers.layers.keys())[::-1]:
                         if el == layer:
                             break
                         layer1 = el
                         elevation += self.stackup_layers.layers[el].thickness_value
                         last_layer_thickess = self.stackup_layers.layers[el].thickness_value
-
                     if layer1 != layer:
                         self.stackup_layers.layers[layer1].thickness_value = (
                             val.solder_ball_height - elevation + last_layer_thickess
@@ -328,34 +332,35 @@ class EdbStackup(object):
                             thickness=val.solder_ball_height - elevation,
                             layerType=1,
                         )
+        return True
 
     @aedt_exception_handler
     def place_in_layout(
         self,
-        edb=None,
+        edb,
         angle=0.0,
         offset_x=0.0,
         offset_y=0.0,
         flipped_stackup=True,
         place_on_top=True,
     ):
-        """Place current Cell into another cell.
+        """Place current Cell into another cell using layer placement method.
         Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
 
         Parameters
         ----------
         edb : Edb
             Cell on which to place the current layout. If None the Cell will be applied on an empty new Cell.
-        angle : double
-            The rotation angle applied on the design (not supported for the moment).
-        offset_x : double
-            The x offset value (not supported for the moment.
-        offset_y : double
-            The y offset value (not supported for the moment.
-        flipped_stackup : bool
+        angle : double, optional
+            The rotation angle applied on the design.
+        offset_x : double, optional
+            The x offset value.
+        offset_y : double, optional
+            The y offset value.
+        flipped_stackup : bool, optional
             Either if the current layout is inverted.
             If `True` and place_on_top is `True` the stackup will be flipped before the merge.
-        place_on_top : bool
+        place_on_top : bool, optional
             Either if place the current layout on Top or Bottom of destination Layout.
 
         Returns
@@ -380,7 +385,7 @@ class EdbStackup(object):
         ...                                                     hosting_component_pin2="A14")
         >>> edb2.core_stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x=vector[0],
         ...                                   offset_y=vector[1], flipped_stackup=False, place_on_top=True,
-        ...                                   solder_height=solder_ball_height)
+        ...                                   )
         """
         # if flipped_stackup and place_on_top or (not flipped_stackup and not place_on_top):
         self.adjust_solder_dielectrics()
@@ -423,7 +428,7 @@ class EdbStackup(object):
     @aedt_exception_handler
     def place_in_layout_3d_placement(
         self,
-        edb=None,
+        edb,
         angle=0.0,
         offset_x=0.0,
         offset_y=0.0,
@@ -431,25 +436,25 @@ class EdbStackup(object):
         place_on_top=True,
         solder_height=0,
     ):
-        """Place current Cell into another cell.
+        """Place current Cell into another cell using 3d placement method.
         Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
 
         Parameters
         ----------
         edb : Edb
             Cell on which to place the current layout. If None the Cell will be applied on an empty new Cell.
-        angle : double
-            The rotation angle applied on the design (not supported for the moment).
-        offset_x : double
-            The x offset value (not supported for the moment.
-        offset_y : double
-            The y offset value (not supported for the moment.
-        flipped_stackup : bool
+        angle : double, optional
+            The rotation angle applied on the design.
+        offset_x : double, optional
+            The x offset value.
+        offset_y : double, optional
+            The y offset value.
+        flipped_stackup : bool, optional
             Either if the current layout is inverted.
             If `True` and place_on_top is `True` the stackup will be flipped before the merge.
-        place_on_top : bool
+        place_on_top : bool, optional
             Either if place the current layout on Top or Bottom of destination Layout.
-        solder_height : float
+        solder_height : float, optional
             Solder Ball or Bumps eight.
             This value will be added to the elevation to align the two layouts.
 
@@ -462,20 +467,11 @@ class EdbStackup(object):
         --------
         >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
         >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
-
         >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
         >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
-
-        >>> vector, rotation, solder_ball_height = edb1.core_components.get_component_placement_vector(
-        ...                                                     mounted_component=mounted_cmp,
-        ...                                                     hosting_component=hosting_cmp,
-        ...                                                     mounted_component_pin1="A12",
-        ...                                                     mounted_component_pin2="A14",
-        ...                                                     hosting_component_pin1="A12",
-        ...                                                     hosting_component_pin2="A14")
-        >>> edb2.core_stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x=vector[0],
-        ...                                   offset_y=vector[1], flipped_stackup=False, place_on_top=True,
-        ...                                   solder_height=solder_ball_height)
+        >>> edb2.core_stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x="1mm",
+        ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
+        ...                                   )
         """
         # if flipped_stackup and place_on_top or (not flipped_stackup and not place_on_top):
         _angle = angle * math.pi / 180.0
