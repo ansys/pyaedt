@@ -87,7 +87,7 @@ h3d.modeler.change_net_visibility(["A0_GPIO", "A0_MUX"], visible=True)
 # ~~~~~~~~~~~~~~~
 # This example shows all layers.
 
-layers = h3d.modeler.layers.all_signal_layers
+layers = _get_solder_height
 for lay in layers:
     layer = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id(lay)]
     layer.IsVisible = True

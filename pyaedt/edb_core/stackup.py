@@ -328,6 +328,13 @@ class EdbStackup(object):
         return solder_ball_height
 
     @aedt_exception_handler
+    def _get_solder_height(self, layer_name):
+        for el, val in self._pedb.core_components.components.items():
+            if val.solder_ball_height and val.placement_layer == layer_name:
+                return val.solder_ball_height
+        return 0
+
+    @aedt_exception_handler
     def adjust_solder_dielectrics(self):
         """Adject the stackup by adding or modifying dielectric layers that contains Solder Balls."""
         for el, val in self._pedb.core_components.components.items():
@@ -532,6 +539,12 @@ class EdbStackup(object):
         # if flipped_stackup and place_on_top or (not flipped_stackup and not place_on_top):
         _angle = angle * math.pi / 180.0
 
+        if solder_height <= 0:
+            if flipped_stackup and not place_on_top or (place_on_top and not flipped_stackup):
+                solder_height = self._get_solder_height(list(self.signal_layers.keys())[0])
+            else:
+                solder_height = self._get_solder_height(list(self.signal_layers.keys())[-1])
+
         if flipped_stackup:
             _angle += math.pi
         _angle = self._edb_value(_angle)
@@ -583,7 +596,7 @@ class EdbStackup(object):
             else:
                 h_stackup = self._edb_value(topz + solder_height - bottomz_s)
         elif flipped_stackup:
-            h_stackup = self._edb_value(bottomz - solder_height - bottomz_s)
+            h_stackup = self._edb_value(bottoml_s.GetThickness() + bottomz - solder_height - bottomz_s)
         else:
             h_stackup = self._edb_value(bottomz - solder_height - topz_s)
 
