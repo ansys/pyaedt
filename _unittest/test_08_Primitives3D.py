@@ -971,7 +971,6 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_72_check_choke_values(self):
-        choke_file = os.path.join(local_path, "example_models", "choke.json")
         choke_file1 = os.path.join(local_path, "example_models", "choke_json_file", "choke_1winding_1Layer.json")
         choke_file2 = os.path.join(local_path, "example_models", "choke_json_file",
                                    "choke_2winding_1Layer_Common.json")
@@ -981,10 +980,6 @@ class TestClass(BasisTest):
                                    "choke_3winding_3Layer_Separate.json")
         choke_file5 = os.path.join(local_path, "example_models", "choke_json_file",
                                    "choke_4winding_3Layer_Linked.json")
-        resolve = self.aedtapp.modeler.check_choke_values(choke_file, create_another_file=True)
-        assert isinstance(resolve, list)
-        assert resolve[0]
-        assert isinstance(resolve[1], dict)
         resolve1 = self.aedtapp.modeler.check_choke_values(choke_file1, create_another_file=True)
         resolve2 = self.aedtapp.modeler.check_choke_values(choke_file2, create_another_file=True)
         resolve3 = self.aedtapp.modeler.check_choke_values(choke_file3, create_another_file=True)
