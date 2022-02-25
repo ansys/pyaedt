@@ -341,7 +341,7 @@ class TestClass:
                 save_fields=False,
             )
         except AttributeError as e:
-            exception_raised = True
+            exception_raised = Truepedb
             assert e.args[0] == "Frequency list is empty. Specify at least one frequency point."
         assert exception_raised
 

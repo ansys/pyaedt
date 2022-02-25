@@ -145,7 +145,6 @@ class TestClass:
         assert setup.props["ChannelConfiguration"] == "IQChannels"
         assert sweep.props["Sim. Setups"] == [setup.name]
 
-
     def test_11_add_sbr_boundaries_in_hfss_solution(self):
         hfss_terminal = Hfss(solution_type="Terminal")
         
