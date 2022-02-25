@@ -468,8 +468,12 @@ class Components(object):
         )
 
         # rotation = math.atan(d_m_pin2_h_pin2 / d_m_pin1_h_pin2)
-        ang1 = math.atan((m_pin2_pos[1] - m_pin1_pos[1]) / ((m_pin2_pos[0] - m_pin1_pos[0])))
-        ang2 = math.atan((h_pin2_pos[1] - h_pin1_pos[1]) / ((h_pin2_pos[0] - h_pin1_pos[0])))
+        try:
+            ang1 = math.atan((m_pin2_pos[1] - m_pin1_pos[1]) / ((m_pin2_pos[0] - m_pin1_pos[0])))
+            ang2 = math.atan((h_pin2_pos[1] - h_pin1_pos[1]) / ((h_pin2_pos[0] - h_pin1_pos[0])))
+        except:
+            ang1 = 0.0
+            ang2 = 0.0
         rotation = ang1 - ang2
         if vector:
             solder_ball_height = self.get_solder_ball_height(mounted_component)

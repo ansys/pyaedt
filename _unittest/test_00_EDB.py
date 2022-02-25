@@ -663,3 +663,16 @@ class TestClass:
             place_on_top=True,
         )
         edb2.close_edb()
+
+    def test_79_get_placement_vector(self):
+        edb2 = Edb(os.path.join(local_path, "example_models", "Package.aedb"), edbversion=desktop_version)
+        mounted_cmp = edb2.core_components.get_component_by_name("BGA")
+        hosting_cmp = self.edbapp.core_components.get_component_by_name("U2A5")
+        assert self.edbapp.core_components.get_component_placement_vector(
+            mounted_component=mounted_cmp,
+            hosting_component=hosting_cmp,
+            mounted_component_pin1="A12",
+            mounted_component_pin2="A14",
+            hosting_component_pin1="A2",
+            hosting_component_pin2="A4")
+        edb2.close_edb()
