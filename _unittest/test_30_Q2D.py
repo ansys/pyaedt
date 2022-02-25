@@ -46,7 +46,9 @@ class TestClass:
         qSweep = mysetup.add_sweep(sweepName)
         assert qSweep.add_subrange("LinearCount", 0.0, 100e6, 10)
         assert qSweep.add_subrange("LinearStep", 100e6, 2e9, 50e6)
-        assert qSweep.add_subrange("LinearCount", 0.0, 100e6, 10, clear=True)
+        assert qSweep.add_subrange("LogScale", 100, 100e6, 10, clear=True)
+        assert qSweep.add_subrange("LinearStep", 100, 100e6, 1e4, clear=True)
+        assert qSweep.add_subrange("LinearCount", 100, 100e6, 10, clear=True)
 
     def test_07_single_signal_line(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
