@@ -11,8 +11,8 @@
     "Triple": false
   },
   "Layer Type": {
-    "Separate": false,
-    "Linked": true
+    "Separate": true,
+    "Linked": false
   },
   "Similar Layer": {
     "Similar": true,
