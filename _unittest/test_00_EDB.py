@@ -666,6 +666,8 @@ class TestClass:
 
     def test_79_get_placement_vector(self):
         edb2 = Edb(os.path.join(local_path, "example_models", "Package.aedb"), edbversion=desktop_version)
+        for cmpname, cmp in edb2.core_components.components.items():
+            assert isinstance(cmp.solder_ball_placement, int)
         mounted_cmp = edb2.core_components.get_component_by_name("BGA")
         hosting_cmp = self.edbapp.core_components.get_component_by_name("U2A5")
         assert self.edbapp.core_components.get_component_placement_vector(

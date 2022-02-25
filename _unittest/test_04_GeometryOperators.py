@@ -338,3 +338,4 @@ class TestClass:
     def test_unit_converter(self):
         assert unit_converter(10) == 10000
         assert unit_converter(10, "Lenghts") == 10
+        assert unit_converter(10, "Lenght", "meters") == 10
