@@ -74,9 +74,9 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
              Whether to exclude the region. The default is ``False``.
         object_list : list, optional
             List of Objects names to export. The default is all objects
-        boundaries_list: list, optional
+        boundaries_list : list, optional
             List of Boundaries names to export. The default is all boundaries
-        excitation_list: list, optional
+        excitation_list : list, optional
             List of Excitation names to export. The default is all excitations
         included_cs : list, optional
             List of Coordinate Systems to export. The default is all coordinate systems
