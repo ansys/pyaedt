@@ -170,7 +170,7 @@ class Polyline(Object3d):
         xsection_height=1,
         xsection_num_seg=0,
         xsection_bend_type=None,
-        non_model=False
+        non_model=False,
     ):
 
         self._primitives = primitives
@@ -1484,7 +1484,7 @@ class Primitives(object):
             xsection_height=xsection_height,
             xsection_num_seg=xsection_num_seg,
             xsection_bend_type=xsection_bend_type,
-            non_model=non_model
+            non_model=non_model,
         )
         return new_polyline
 
