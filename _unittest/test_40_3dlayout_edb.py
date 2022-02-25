@@ -1,8 +1,12 @@
 import os
 
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
+
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path
-import gc
+from _unittest.conftest import local_path, scratch_path, is_ironpython
 
 # Import required modules
 from pyaedt import Hfss3dLayout
@@ -26,14 +30,22 @@ class TestClass:
                 os.path.join(local_path, "example_models", original_project_name + ".aedb"),
                 os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
             )
+            self.local_scratch.copyfolder(
+                os.path.join(local_path, "example_models", "Package.aedb"),
+                os.path.join(self.local_scratch.path, "Package2.aedb"),
+            )
         self.aedtapp = Hfss3dLayout(self.test_project)
         self.aedtapp.modeler.geometries
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
-        self.aedtapp.close_project(test_project_name, saveproject=False)
+        for proj in self.aedtapp.project_list:
+            try:
+                self.aedtapp.close_project(proj, False)
+            except:
+                pass
         self.local_scratch.remove()
-        gc.collect()
+        del self.aedtapp
 
     def test_01_get_components(self):
         comp = self.aedtapp.modeler.components
@@ -96,3 +108,9 @@ class TestClass:
         nets = self.aedtapp.modeler.nets
         assert nets["GND"].name == "GND"
         assert len(nets) > 0
+
+    @pytest.mark.skipif(is_ironpython, reason="Crashing in IronPython on build machine but working on Ironpython.")
+    def test_08_merge(self):
+        hfss3d = Hfss3dLayout(os.path.join(self.local_scratch.path, "Package2.aedb", "edb.def"))
+        assert hfss3d.modeler.merge_design(self.aedtapp)
+        hfss3d.close_project(saveproject=False)

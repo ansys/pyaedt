@@ -234,6 +234,17 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     ],
                 ]
             )
+        elif isinstance(property_value, bool):
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + property_tab,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
+                    ],
+                ]
+            )
         elif isinstance(property_value, (str, float, int)):
             posx = self._arg_with_dim(property_value, self.model_units)
             self.oeditor.ChangeProperty(
@@ -250,6 +261,51 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             self.logger.error("Wrong Property Value")
             return False
         self.logger.info("Property {} Changed correctly.".format(property_name))
+        return True
+
+    @aedt_exception_handler
+    def merge_design(self, merged_design=None, pos_x="0.0", pos_y="0.0", pos_z="0.0", rotation="0.0"):
+        """Merge a design into another.
+
+        Parameters
+        ----------
+        merged_design : :class:`pyaedt.hfss3dlayout.Hfss3dLayout`
+            Design to merge.
+        pos_x : float, str
+            X Offset.
+        pos_y : float, str
+            Y Offset.
+        pos_z : float, str
+            Z Offset.
+        rotation : float, str
+            Rotation angle in deg.
+
+        Returns
+        -------
+        bool
+            `True` if successful.
+        """
+        des_name = merged_design.design_name
+        merged_design.oproject.CopyDesign(merged_design.design_name)
+        self._app.odesign.PasteDesign(1)
+        comp_name = ""
+        for i in range(1, 1000):
+            try:
+                cmp_info = self.oeditor.GetComponentInfo(str(i))
+                if cmp_info and cmp_info[0] == "ComponentName={}".format(des_name):
+                    comp_name = str(i)
+            except:
+                pass
+        if not comp_name:
+            return False
+        self.change_property(property_object=comp_name, property_name="3D Placement", property_value=True)
+        self.change_property(property_object=comp_name, property_name="Local Origin", property_value=[0.0, 0.0, 0.0])
+        pos_x = self._arg_with_dim(pos_x)
+        pos_y = self._arg_with_dim(pos_y)
+        pos_z = self._arg_with_dim(pos_z)
+        rotation = self._arg_with_dim(rotation, "deg")
+        self.change_property(property_object=comp_name, property_name="Location", property_value=[pos_x, pos_y, pos_z])
+        self.change_property(property_object=comp_name, property_name="Rotation Angle", property_value=rotation)
         return True
 
     @aedt_exception_handler
