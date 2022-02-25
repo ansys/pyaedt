@@ -1,15 +1,12 @@
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, desktop_version
+from _unittest.conftest import local_path, BasisTest
 
 # Import required modules
-from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
-from pyaedt import Hfss
 import base64
 import filecmp
 import os
 import sys
-import gc
 
 
 def _write_jpg(design_info, scratch):
@@ -26,14 +23,22 @@ def _write_jpg(design_info, scratch):
     return filename
 
 
-class TestHFSSProjectFile:
+class TestClass(BasisTest):
     def setup_class(self):
-        with Scratch(scratch_path) as self.local_scratch:
-            hfss_file = os.path.join(local_path, "example_models", "Coax_HFSS.aedt")
-            self.project_dict = load_entire_aedt_file(hfss_file)
+        BasisTest.my_setup(self)
+        hfss_file = os.path.join(local_path, "example_models", "Coax_HFSS.aedt")
+        self.project_dict = load_entire_aedt_file(hfss_file)
+        aedt_file = os.path.join(local_path, "example_models", "Coordinate_System.aedt")
+        self.test_project = self.local_scratch.copyfile(aedt_file)
+        aedt_file = os.path.join(local_path, "example_models", "Coordinate_System1.aedt")
+        self.test_project1 = self.local_scratch.copyfile(aedt_file)
+        aedt_file = os.path.join(local_path, "example_models", "Coordinate_System2.aedt")
+        self.test_project2 = self.local_scratch.copyfile(aedt_file)
+        aedt_file = os.path.join(local_path, "example_models", "Coordinate_System3.aedt")
+        self.test_project3 = self.local_scratch.copyfile(aedt_file)
 
     def teardown_class(self):
-        self.local_scratch.remove()
+        BasisTest.my_teardown(self)
 
     def test_01_check_top_level_keys(self):
         assert list(self.project_dict.keys()) == ["AnsoftProject", "AllReferencedFilesForProject", "ProjectPreview"]
@@ -48,60 +53,27 @@ class TestHFSSProjectFile:
         jpg_file = _write_jpg(design_info, self.local_scratch.path)
         assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", "Coax_HFSS.jpg"))
 
-
-class TestProjectFileWithBinaryContent:
-    def test_01_check_can_load_aedt_file_with_binary_content(self):
+    def test_03_check_can_load_aedt_file_with_binary_content(self):
         aedt_file = os.path.join(local_path, "example_models", "assembly.aedt")
         # implicitly this will test to make sure no exception is thrown by load_entire_aedt_file
         self.project_dict = load_entire_aedt_file(aedt_file)
 
-
-class TestProjectFileWithMultipleDesigns:
-    def setup_class(self):
-        with Scratch(scratch_path) as self.local_scratch:
-            aedt_file = os.path.join(local_path, "example_models", "Cassegrain.aedt")
-            self.project_dict = load_entire_aedt_file(aedt_file)
-            self.design_info = self.project_dict["ProjectPreview"]["DesignInfo"]
-
-    def teardown_class(self):
-        self.local_scratch.remove()
-
-    def test_01_check_design_type(self):
+    def test_04_check_design_type_names_jpg(self):
         # there are multiple designs in this aedt file, so DesignInfo will be a list
+        aedt_file = os.path.join(local_path, "example_models", "Cassegrain.aedt")
+        self.project_dict2 = load_entire_aedt_file(aedt_file)
+        self.design_info = self.project_dict2["ProjectPreview"]["DesignInfo"]
         assert isinstance(self.design_info, list)
-
-    def test_02_check_design_names(self):
         design_names = [design["DesignName"] for design in self.design_info]
         assert ["Cassegrain_Hybrid", "feeder", "Cassegrain_"] == design_names
-
-    def test_03_check_first_design_jpg(self):
         jpg_file = _write_jpg(self.design_info[0], self.local_scratch.path)
         assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", "Cassegrain_Hybrid.jpg"))
 
-
-class TestProjectFileWithCoordinateSystems:
-    def setup_class(self):
-        with Scratch(scratch_path) as self.local_scratch:
-            aedt_file = os.path.join(local_path, "example_models", "Coordinate_System.aedt")
-            self.test_project = self.local_scratch.copyfile(aedt_file)
-            aedt_file = os.path.join(local_path, "example_models", "Coordinate_System1.aedt")
-            self.test_project1 = self.local_scratch.copyfile(aedt_file)
-            aedt_file = os.path.join(local_path, "example_models", "Coordinate_System2.aedt")
-            self.test_project2 = self.local_scratch.copyfile(aedt_file)
-            aedt_file = os.path.join(local_path, "example_models", "Coordinate_System3.aedt")
-            self.test_project3 = self.local_scratch.copyfile(aedt_file)
-            self.aedtapp = Hfss(specified_version=desktop_version)
-
-    def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        self.local_scratch.remove()
-        gc.collect()
-
-    def test_01_check_can_load_aedt_file_with_multiple_coord_systems(self):
+    def test_05_check_can_load_aedt_file_with_multiple_coord_systems(self):
         # implicitly this will test to make sure no exception is thrown by load_entire_aedt_file
         assert load_entire_aedt_file(self.test_project)
 
-    def test_02_check_coordinate_system_retrival(self):
+    def test_06_check_coordinate_system_retrival(self):
         self.aedtapp.load_project(self.test_project, close_active_proj=True)
         cs = self.aedtapp.modeler.coordinate_systems
         assert cs
@@ -114,4 +86,3 @@ class TestProjectFileWithCoordinateSystems:
         self.aedtapp.load_project(self.test_project3, close_active_proj=True)
         cs = self.aedtapp.modeler.coordinate_systems
         assert cs
-        self.aedtapp.close_project()

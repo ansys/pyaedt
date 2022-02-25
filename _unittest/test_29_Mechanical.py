@@ -1,12 +1,10 @@
 import os
 
 # Setup paths for module imports
-from _unittest.conftest import scratch_path, config
-import gc
+from _unittest.conftest import desktop_version, config, BasisTest
 
 # Import required modules
 from pyaedt import Hfss, Mechanical, Icepak
-from pyaedt.generic.filesystem import Scratch
 
 try:
     import pytest
@@ -16,17 +14,12 @@ except ImportError:
 test_project_name = "coax_Mech"
 
 
-class TestClass:
+class TestClass(BasisTest):
     def setup_class(self):
-        # set a scratch directory and the environment / test data
-        with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Mechanical(solution_type="Thermal")
+        BasisTest.my_setup(self, application=Mechanical, solution_type="Thermal")
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        assert self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self)
 
     def test_01_save(self):
         test_project = os.path.join(self.local_scratch.path, test_project_name + ".aedt")
@@ -51,7 +44,7 @@ class TestClass:
         assert bound.props["Temperature"] == "35deg"
 
     def test_05_assign_load(self):
-        hfss = Hfss()
+        hfss = Hfss(specified_version=desktop_version)
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
         id1 = hfss.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
@@ -73,19 +66,19 @@ class TestClass:
 
     @pytest.mark.skipif(config["desktopVersion"] < "2021.2", reason="Skipped on versions lower than 2021.2")
     def test_07_assign_thermal_loss(self):
-        ipk = Icepak(solution_type=self.aedtapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow)
+        ipk = Icepak(solution_type=self.aedtapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow, specified_version=desktop_version)
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
         id1 = ipk.modeler.create_cylinder(ipk.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
         setup = ipk.create_setup()
-        mech = Mechanical(solution_type=self.aedtapp.SOLUTIONS.Mechanical.Structural)
+        mech = Mechanical(solution_type=self.aedtapp.SOLUTIONS.Mechanical.Structural, specified_version=desktop_version)
         mech.modeler.create_cylinder(mech.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
         assert mech.assign_thermal_map("MyCylinder", ipk.design_name)
 
     def test_07_assign_mechanical_boundaries(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        mech = Mechanical(solution_type=self.aedtapp.SOLUTIONS.Mechanical.Modal)
+        mech = Mechanical(solution_type=self.aedtapp.SOLUTIONS.Mechanical.Modal, specified_version=desktop_version)
         mech.modeler.create_cylinder(mech.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
         assert mech.assign_fixed_support(mech.modeler["MyCylinder"].faces[0].id)
         assert mech.assign_frictionless_support(mech.modeler["MyCylinder"].faces[1].id)

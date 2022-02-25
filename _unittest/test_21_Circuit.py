@@ -1,4 +1,3 @@
-import gc
 import os
 import time
 import io
@@ -9,7 +8,7 @@ from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.TouchstoneParser import read_touchstone
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, config
+from _unittest.conftest import local_path, scratch_path, config, BasisTest, desktop_version
 
 try:
     import pytest  # noqa: F401
@@ -26,7 +25,7 @@ touchstone2 = "Galileo_V3P3S0.ts"
 ami_project = "AMI_Example"
 
 
-class TestClass:
+class TestClass(BasisTest):
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             time.sleep(2)
@@ -52,17 +51,10 @@ class TestClass:
                 os.path.join(local_path, "example_models", ami_project + ".aedb"),
                 os.path.join(self.local_scratch.path, ami_project + ".aedb"),
             )
-            self.aedtapp = Circuit(self.test_project)
+            self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        for proj in self.aedtapp.project_list:
-            try:
-                self.aedtapp.close_project(proj, saveproject=False)
-            except:
-                pass
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self)
 
     def test_01_create_inductor(self):
         myind = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[0.2, 0.2])
@@ -320,7 +312,7 @@ class TestClass:
             os.path.join(local_path, "example_models", "differential_pairs.aedb"),
             os.path.join(self.local_scratch.path, "differential_pairs.aedb"),
         )
-        circuit = Circuit(projectname=test_project, designname="Circuit1")
+        circuit = Circuit(projectname=test_project, designname="Circuit1", specified_version=desktop_version)
         assert circuit.set_differential_pair(
             positive_terminal="Port3",
             negative_terminal="Port4",
@@ -340,7 +332,7 @@ class TestClass:
             os.path.join(local_path, "example_models", "differential_pairs.aedb"),
             os.path.join(self.local_scratch.path, "differential_pairs.aedb"),
         )
-        circuit = Circuit(projectname=test_project, designname="Circuit1")
+        circuit = Circuit(projectname=test_project, designname="Circuit1", specified_version=desktop_version)
         diff_file = os.path.join(self.local_scratch.path, "diff_file1.txt")
         with io.open(diff_file, "w", newline="\n") as fh:
             fh.write("Port1,Port2,1,0,Diff1,100,Comm1,25\n")

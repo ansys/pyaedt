@@ -1,8 +1,7 @@
 import os
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path
-import gc
+from _unittest.conftest import local_path, scratch_path, BasisTest, desktop_version
 
 # Import required modules
 from pyaedt import Hfss3dLayout
@@ -12,28 +11,22 @@ test_project_name = "Galileo_t23"
 original_project_name = "Galileo_t23"
 
 
-class TestClass:
+class TestClass(BasisTest):
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
-
             example_project = os.path.join(local_path, "example_models", original_project_name + ".aedt")
-
             self.test_project = self.local_scratch.copyfile(
                 example_project, os.path.join(self.local_scratch.path, test_project_name + ".aedt")
             )
-
             self.local_scratch.copyfolder(
                 os.path.join(local_path, "example_models", original_project_name + ".aedb"),
                 os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
             )
-        self.aedtapp = Hfss3dLayout(self.test_project)
-        self.aedtapp.modeler.geometries
+        self.aedtapp = Hfss3dLayout(self.test_project, specified_version=desktop_version)
+        self.tmp = self.aedtapp.modeler.geometries
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        self.aedtapp.close_project(test_project_name, saveproject=False)
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self)
 
     def test_01_get_components(self):
         comp = self.aedtapp.modeler.components

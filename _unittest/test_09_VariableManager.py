@@ -1,16 +1,13 @@
 # Setup paths for module imports
 from __future__ import division
-import gc
 import math
 
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.general_methods import isclose
-from pyaedt.hfss import Hfss
 
 # Import required modules
-from _unittest.conftest import scratch_path
+from _unittest.conftest import BasisTest
 
 try:
     import pytest  # noqa: F401
@@ -18,19 +15,13 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 
-class TestClass:
-    def setup_class(self):
+class TestClass(BasisTest):
 
-        with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss()
-            self._close_on_completion = True
+    def setup_class(self):
+        BasisTest.my_setup(self)
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        if self._close_on_completion:
-            assert self.aedtapp.close_project(saveproject=False)
-            self.local_scratch.remove()
-            gc.collect()
+        BasisTest.my_teardown(self)
 
     def test_01_set_globals(self):
         var = self.aedtapp.variable_manager

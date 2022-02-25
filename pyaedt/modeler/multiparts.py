@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 
 from pyaedt.modeler.parts import Part, Antenna

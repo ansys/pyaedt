@@ -1,4 +1,3 @@
-import gc
 import os
 import time
 import io
@@ -8,7 +7,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import scratch_path, local_path
+from _unittest.conftest import scratch_path, local_path, BasisTest, desktop_version
 
 try:
     import pytest  # noqa: F401
@@ -16,29 +15,17 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 # Input Data and version for the test
-
 test_project_name = "Test_RadioBoard.aedt"
 
 
-class TestClass:
+class TestClass(BasisTest):
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             self.test_project = os.path.join(self.local_scratch.path, test_project_name)
-            try:
-                self.aedtapp = Hfss3dLayout(self.test_project)
-            except:
-                self.aedtapp = None
+            self.aedtapp = Hfss3dLayout(self.test_project, specified_version=desktop_version)
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        list_of_projects = list(self.aedtapp._desktop.GetProjectList())
-        for project in list_of_projects:
-            try:
-                self.aedtapp._desktop.CloseProject(project)
-            except:
-                pass
-        self.local_scratch.remove()
-        del self.aedtapp
+        BasisTest.my_teardown(self)
 
     def test_01_creatematerial(self):
         mymat = self.aedtapp.materials.add_material("myMaterial")
@@ -442,7 +429,7 @@ class TestClass:
             os.path.join(local_path, "example_models", "differential_pairs.aedb"),
             os.path.join(self.local_scratch.path, "differential_pairs.aedb"),
         )
-        hfss3dl = Hfss3dLayout(projectname=test_project, designname="EMDesign1")
+        hfss3dl = Hfss3dLayout(projectname=test_project, designname="EMDesign1", specified_version=desktop_version)
         assert hfss3dl.set_differential_pair(
             positive_terminal="Port3",
             negative_terminal="Port4",
@@ -465,7 +452,7 @@ class TestClass:
             os.path.join(local_path, "example_models", "differential_pairs.aedb"),
             os.path.join(self.local_scratch.path, "differential_pairs2.aedb"),
         )
-        hfss3dl = Hfss3dLayout(projectname=test_project, designname="EMDesign1")
+        hfss3dl = Hfss3dLayout(projectname=test_project, designname="EMDesign1", specified_version=desktop_version)
         diff_file = os.path.join(self.local_scratch.path, "diff_file1.txt")
         with io.open(diff_file, "w", newline="\n") as fh:
             fh.write("Port1,Port2,1,0,Diff1,100,Comm1,25\n")
