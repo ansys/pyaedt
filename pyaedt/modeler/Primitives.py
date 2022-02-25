@@ -170,6 +170,7 @@ class Polyline(Object3d):
         xsection_height=1,
         xsection_num_seg=0,
         xsection_bend_type=None,
+        non_model=False
     ):
 
         self._primitives = primitives
@@ -210,8 +211,11 @@ class Polyline(Object3d):
                     self._segment_types = segment_type
 
             varg1 = self._point_segment_string_array()
-
-            varg2 = self._primitives._default_object_attributes(name=name, matname=matname)
+            if non_model:
+                flag = "NonModel#"
+            else:
+                flag = ""
+            varg2 = self._primitives._default_object_attributes(name=name, matname=matname, flags=flag)
 
             new_object_name = _retry_ntimes(10, self.m_Editor.CreatePolyline, varg1, varg2)
 
@@ -1328,6 +1332,7 @@ class Primitives(object):
         xsection_height=1,
         xsection_num_seg=0,
         xsection_bend_type=None,
+        non_model=False,
     ):
         """Draw a polyline object in the 3D modeler.
 
@@ -1392,6 +1397,8 @@ class Primitives(object):
             ``None``, in which case the bend type is set to
             ``"Corner"``. For the type ``"Circle"``, the bend type
             should be set to ``"Curved"``.
+        non_model : bool, optional
+            Either if the polyline will be created as model or unmodel object.
 
         Returns
         -------
@@ -1477,6 +1484,7 @@ class Primitives(object):
             xsection_height=xsection_height,
             xsection_num_seg=xsection_num_seg,
             xsection_bend_type=xsection_bend_type,
+            non_model=non_model
         )
         return new_polyline
 
@@ -3293,7 +3301,7 @@ class Primitives(object):
                 o._is_updated = True
         return len(self.objects)
 
-    def _default_object_attributes(self, name=None, matname=None):
+    def _default_object_attributes(self, name=None, matname=None, flags=""):
 
         if not matname:
             matname = self.defaultmaterial
@@ -3319,7 +3327,7 @@ class Primitives(object):
             "Name:=",
             name,
             "Flags:=",
-            "",
+            flags,
             "Color:=",
             color,
             "Transparency:=",

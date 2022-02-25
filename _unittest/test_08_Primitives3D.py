@@ -319,6 +319,9 @@ class TestClass(BasisTest):
         assert isinstance(P.color, tuple)
         get_P = self.aedtapp.modeler["Poly1"]
         assert isinstance(get_P, Polyline)
+        P2 = self.aedtapp.modeler.create_polyline(arrofpos, cover_surface=False, name="Poly_nonmodel", matname="Copper",
+                                                  non_model=True)
+        assert P2.model == False
 
     @pyaedt_unittest_check_desktop_error
     def test_20_create_polyline_with_crosssection(self):
