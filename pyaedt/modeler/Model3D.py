@@ -10,7 +10,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
     """Provides the Modeler 3D application interface.
 
     This class is inherited in the caller application and is accessible through the modeler variable
-    object( eg. ``hfss.modeler``).
+    object. For example, ``hfss.modeler``.
 
     Parameters
     ----------
@@ -26,7 +26,6 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         GeometryModeler.__init__(self, application, is3d=True)
         Primitives3D.__init__(self)
         self._primitives = self
-        self._primitivesDes = self._app.project_name + self._app.design_name
 
     def __get__(self, instance, owner):
         self._app = instance
@@ -123,7 +122,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             "ComponentOutline:=",
             "None",
         ]
-        objs = self.primitives.object_names
+        objs = self.object_names
         for el in objs:
             if "Region" in el and exclude_region:
                 objs.remove(el)
@@ -160,7 +159,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 pass
             arg2.append("MeshRegions:="), arg2.append(meshregions)
         else:
-            excitations = self.get_excitations_name()
+            excitations = self._app.excitations
             arg2.append("Excitations:="), arg2.append(excitations)
         meshops = [el.name for el in self._app.mesh.meshoperations]
         arg2.append("MeshOperations:="), arg2.append(meshops)

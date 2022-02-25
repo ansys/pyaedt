@@ -19,7 +19,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     ----------
     projectname : str, optional
         Name of the project to select or the full path to the project
-        or AEDTZ archive to open.  The default is ``None``, in which
+        or AEDTZ archive to open or the path to aedb folder or edb.def file.
+        The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
     designname : str, optional
@@ -454,7 +455,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             msg = "Excitation Messages:"
             validation.writelines(msg + "\n")
             val_list.append(msg)
-            numportsdefined = int(len(self.get_excitations_name))
+            numportsdefined = int(len(self.excitations))
             if ports is not None and ports != numportsdefined:
                 msg = "**** Port Number Error! - Please check model"
                 self.logger.error(msg)
@@ -472,7 +473,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 validation.writelines(msg2 + "\n")
                 val_list.append(msg2)
 
-            excitation_names = self.get_excitations_name
+            excitation_names = self.excitations
             for excitation in excitation_names:
                 msg = "Excitation name: " + str(excitation)
                 self.logger.info(msg)
@@ -518,7 +519,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if not sweep_name:
             sweep_name = self.existing_analysis_sweeps[1]
         if not port_names:
-            port_names = self.get_excitations_name
+            port_names = self.excitations
         if not port_excited:
             port_excited = port_names
         Trace = [

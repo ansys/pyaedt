@@ -12,7 +12,7 @@ import threading
 import warnings
 from collections import OrderedDict
 
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, filter_tuple
 from pyaedt.generic.constants import (
     AXIS,
     PLANE,
@@ -142,7 +142,7 @@ class Analysis(Design, object):
 
     @property
     def ooptimetrics(self):
-        """Optimetrics AEDT Module.
+        """AEDT Optimetrics Module.
 
         References
         ----------
@@ -153,7 +153,7 @@ class Analysis(Design, object):
 
     @property
     def ooutput_variable(self):
-        """Output Variable AEDT Module.
+        """AEDT Output Variable Module.
 
         References
         ----------
@@ -177,7 +177,7 @@ class Analysis(Design, object):
 
     @property
     def output_variables(self):
-        """List of Output variables.
+        """List of output variables.
 
         Returns
         -------
@@ -192,12 +192,12 @@ class Analysis(Design, object):
 
     @property
     def materials(self):
-        """Manages materials in the project.
+        """Materials in the project.
 
         Returns
         -------
         :class:`pyaedt.modules.MaterialLib.Materials`
-            Manages materials in the project.
+           Materials in the project.
 
         """
         return self._materials
@@ -483,8 +483,8 @@ class Analysis(Design, object):
         """
         return SOLUTIONS()
 
-    @aedt_exception_handler
-    def get_excitations_name(self):
+    @property
+    def excitations(self):
         """Get all excitation names.
 
         Returns
@@ -506,6 +506,86 @@ class Analysis(Design, object):
             return []
 
     @aedt_exception_handler
+    def get_excitations_name(self):
+        """Get all excitation names.
+
+        .. deprecated:: 0.4.27
+           Use :func:`excitations` property instead.
+
+        Returns
+        -------
+        list
+            List of excitation names. Excitations with multiple modes will return one
+            excitation for each mode.
+
+        References
+        ----------
+
+        >>> oModule.GetExcitations
+        """
+        warnings.warn("`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning)
+        return self.excitations
+
+    @aedt_exception_handler
+    def get_traces_for_plot(
+        self,
+        get_self_terms=True,
+        get_mutual_terms=True,
+        first_element_filter=None,
+        second_element_filter=None,
+        category="dB(S",
+    ):
+        """Retrieve a list of traces of specified designs ready to use in plot reports.
+
+        Parameters
+        ----------
+        get_self_terms : bool, optional
+            Whether to return self terms. The default is ``True``.
+        get_mutual_terms : bool, optional
+            Whether to return mutual terms. The default is ``True``.
+        first_element_filter : str, optional
+            Filter to apply to the first element of the equation. This parameter accepts ``*``
+            and ``?`` as special characters. The default is ``None``.
+        second_element_filter : str, optional
+            Filter to apply to the second element of the equation. This parameter accepts ``*``
+            and ``?`` as special characters. The default is ``None``.
+        category : str
+            Plot category name as in the report (including operator). The default is ``"dB(S"`,
+            which is the plot category name for capacitance.
+
+        Returns
+        -------
+        list
+            List of traces of specified designs ready to use in plot reports.
+
+        Examples
+        --------
+        >>> from pyaedt import Q3d
+        >>> hfss = hfss(project_path)
+        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1",
+        ...                           second_element_filter="GND*", category="dB(S")
+        """
+        if not first_element_filter:
+            first_element_filter = "*"
+        if not second_element_filter:
+            second_element_filter = "*"
+        list_output = []
+        end_str = ")" * (category.count("(") + 1)
+        if get_self_terms:
+            for el in self.excitations:
+                value = "{}({},{}{}".format(category, el, el, end_str)
+                if filter_tuple(value, first_element_filter, second_element_filter):
+                    list_output.append(value)
+        if get_mutual_terms:
+            for el1 in self.excitations:
+                for el2 in self.excitations:
+                    if el1 != el2:
+                        value = "{}({},{}{}".format(category, el1, el2, end_str)
+                        if filter_tuple(value, first_element_filter, second_element_filter):
+                            list_output.append(value)
+        return list_output
+
+    @aedt_exception_handler
     def analyze_all(self):
         """Analyze all setup in an actual design.
 
@@ -519,18 +599,21 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def list_of_variations(self, setup_name=None, sweep_name=None):
-        """Return list of active variation for input setup.
+        """Retrieve a list of active variations for input setup.
 
         Parameters
         ----------
         setup_name : str, optional
-            Setup name. If ``None`` nominal adaptive will be used.
+            Setup name. The default is ``None``, in which case the nominal adaptive
+            is used.
         sweep_name : str, optional
-            Sweep name. If ``None`` nominal adaptive will be used.
+            Sweep name. The default is``None``, in which case the nominal adaptive
+            is used.
 
         Returns
         -------
         list
+            List of active variations for input setup.
 
         References
         ----------
@@ -561,14 +644,15 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def export_results(self, analyze=False, export_folder=None):
-        """Export all available reports to file, including sNp, profile and convergence.
+        """Export all available reports to a file, including sNp, profile, and convergence.
 
         Parameters
         ----------
         analyze : bool
-            Either to Analyze before export or not. Solutions have to be present for the design.
+            Whether to analyze before export. Solutions must be present for the design.
         export_folder : str, optional
-            Full path to project folder. If `None` working_directory will be used.
+            Full path to the project folder. The default is ``None``, in which case the
+            working directory is used.
 
         Returns
         -------
@@ -592,6 +676,8 @@ class Analysis(Design, object):
         setups = self.oanalysis.GetSetups()
         if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
             excitations = len(self.oexcitation.GetAllPortsList())
+        elif self.design_type == "2D Extractor":
+            excitations = self.oboundary.GetNumExcitations("SignalLine")
         else:
             excitations = self.oboundary.GetNumExcitations()
         reportnames = self.post.oreportsetup.GetAllReportNames()
@@ -691,16 +777,17 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def export_convergence(self, setup_name, variation_string="", file_path=None):
-        """Export a solution convergence to file.
+        """Export a solution convergence to a file.
 
         Parameters
         ----------
         setup_name : str
-            Setup name. Eg ``'Setup1'``
+            Setup name. For example, ``'Setup1'``.
         variation_string : str
-            Variation string with values. Eg ``'radius=3mm'``
+            Variation string with values. For example, ``'radius=3mm'``.
         file_path : str, optional
-            full path to .prof file. If `None` working_directory will be used.
+            Full path to the PROF file. The default is ``None``, in which
+            case the working directory is used.
 
 
         Returns
@@ -945,7 +1032,7 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def get_sweeps(self, name):
-        """Retrieve all sweep for a setup.
+        """Retrieve all sweeps for a setup.
 
         Parameters
         ----------
@@ -1029,13 +1116,13 @@ class Analysis(Design, object):
         Parameters
         ----------
         num_cores : int, optional
-            Number of Simulation cores.
+            Number of simulation cores.
         num_tasks : int, optional
-            Number of Simulation tasks.
+            Number of simulation tasks.
         num_gpu : int, optional
-            Number of Simulation Gpu to use.
+            Number of simulation graphic processing units to use.
         acf_file : str, optional
-            Full path to custom acf_file.
+            Full path to the custom ACF file.
 
         Returns
         -------
@@ -1086,7 +1173,7 @@ class Analysis(Design, object):
             the default type is applied.
         props : dict, optional
             Dictionary of analysis properties appropriate for the design and analysis.
-            If no values are passed, default values will be used.
+            If no values are passed, default values are used.
 
         Returns
         -------
@@ -1123,7 +1210,7 @@ class Analysis(Design, object):
             setuptype = self.design_solutions.default_setup
         name = self.generate_unique_setup_name(setupname)
         setup = Setup(self, setuptype, name)
-        if self.design_type == "HFSS" and not self.get_excitations_name() and "MaxDeltaS" in setup.props:
+        if self.design_type == "HFSS" and not self.excitations and "MaxDeltaS" in setup.props:
             new_dict = OrderedDict()
             for k, v in setup.props.items():
                 if k == "MaxDeltaS":
@@ -1290,17 +1377,17 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def get_object_material_properties(self, object_list=None, prop_names=None):
-        """Retrieve the material properties for a list of given objects and return them in a dictionary.
+        """Retrieve the material properties for a list of objects and return them in a dictionary.
 
         This high-level function ignores objects with no defined material properties.
 
         Parameters
         ----------
         object_list : list, optional
-            List of objects for which to get material_properties. The default is ``None``,
-            in which case all objects are considered.
+            List of objects to get material properties for. The default is ``None``,
+            in which case material properties are retrieved for all objects.
         prop_names : str or list
-            The property or list of properties to export.  The default is ``None``, in
+            Property or list of properties to export. The default is ``None``, in
             which case all properties are exported.
 
         Returns
@@ -1312,7 +1399,7 @@ class Analysis(Design, object):
             if not isinstance(object_list, list):
                 object_list = [object_list]
         else:
-            object_list = self.modeler.primitives.object_names
+            object_list = self.modeler.object_names
 
         if prop_names:
             if not isinstance(prop_names, list):
@@ -1320,7 +1407,7 @@ class Analysis(Design, object):
 
         dict = {}
         for entry in object_list:
-            mat_name = self.modeler.primitives[entry].material_name
+            mat_name = self.modeler[entry].material_name
             mat_props = self._materials[mat_name]
             if prop_names is None:
                 dict[entry] = mat_props._props
@@ -1424,7 +1511,7 @@ class Analysis(Design, object):
         """Analyze a design setup in batch mode.
 
         .. note::
-           To use this function, the AEDT project must be closed.
+           To use this function, the project must be closed.
 
         Parameters
         ----------
@@ -1434,7 +1521,7 @@ class Analysis(Design, object):
         machine : str, optional
             Name of the machine if remote.  The default is ``"local"``.
         run_in_thread : bool, optional
-            Whether the batch command is to be submitted as a thread. The default is
+            Whether to submit the batch command as a thread. The default is
             ``False``.
 
         Returns

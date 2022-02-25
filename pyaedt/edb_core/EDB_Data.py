@@ -2,6 +2,7 @@ import time
 import warnings
 import math
 import os
+from collections import OrderedDict
 
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -164,6 +165,24 @@ class EDBPrimitives(object):
         self._core_stackup = core_app.core_stackup
         self._core_net = core_app.core_nets
         self.primitive_object = raw_primitive
+
+    @aedt_exception_handler
+    def area(self, include_voids=True):
+        """Return the total area.
+
+        Parameters
+        ----------
+        include_voids : bool, optional
+            Either if the voids have to be included in computation.
+        Returns
+        -------
+        float
+        """
+        area = self.primitive_object.GetPolygonData().Area()
+        if include_voids:
+            for el in self.primitive_object.Voids:
+                area -= el.GetPolygonData().Area()
+        return area
 
     @property
     def is_void(self):
@@ -536,11 +555,11 @@ class EDBLayer(object):
 
         Returns
         -------
-        str
+        float
             Thickness value.
         """
         try:
-            self._thickness = self._layer.GetThicknessValue().ToString()
+            self._thickness = self._layer.GetThicknessValue().ToDouble()
         except:
             pass
         return self._thickness
@@ -765,6 +784,7 @@ class EDBLayer(object):
             Layer
 
         """
+
         layer.SetLowerElevation(self._edb_value(elev))
         return layer
 
@@ -921,7 +941,7 @@ class EDBLayers(object):
         dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBLayer`]
             Dictionary of signal layers.
         """
-        self._signal_layers = {}
+        self._signal_layers = OrderedDict({})
         for layer, edblayer in self.layers.items():
             if (
                 edblayer._layer_type == self._edb.Cell.LayerType.SignalLayer
@@ -1025,7 +1045,7 @@ class EDBLayers(object):
 
     @aedt_exception_handler
     def _update_edb_objects(self):
-        self._edb_object = {}
+        self._edb_object = OrderedDict({})
         layers = self.edb_layers
         for i in range(len(layers)):
             self._edb_object[layers[i].GetName()] = EDBLayer(layers[i], self)
@@ -1070,13 +1090,21 @@ class EDBLayers(object):
         thisLC = self._pedbstackup._active_layout.GetLayerCollection()
         layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         layers.reverse()
-        newLayers = List[self._edb.Cell.Layer]()
+        # newLayers = List[self._edb.Cell.Layer]()
         el = 0.0
+        lcNew = self._edb.Cell.LayerCollection()
+
         if not layers or not start_layer:
             if int(layerType) > 2:
                 newLayer = self._edb.Cell.Layer(layerName, self._int_to_layer_types(layerType))
-                newLayers.Add(newLayer)
+                # newLayers.Add(newLayer)
+                lcNew.AddLayerTop(newLayer)
             else:
+                for lyr in layers:
+                    if not lyr.IsStackupLayer():
+                        # newLayers.Add(lyr.Clone())
+                        lcNew.AddLayerTop(lyr.Clone())
+                        continue
                 newLayer = self._edb.Cell.StackupLayer(
                     layerName,
                     self._int_to_layer_types(layerType),
@@ -1084,22 +1112,31 @@ class EDBLayers(object):
                     self._edb_value(0),
                     "",
                 )
-                newLayers.Add(newLayer)
                 self._edb_object[layerName] = EDBLayer(newLayer, self._pedbstackup)
                 newLayer = self._edb_object[layerName].update_layer_vals(
                     layerName, newLayer, etchMap, material, fillMaterial, thickness, self._int_to_layer_types(layerType)
                 )
-                newLayer = self._edb_object[layerName].set_elevation(newLayer, el)
+                newLayer.SetLowerElevation(self._edb_value(el))
+
+                # newLayers.Add(newLayer)
+                lcNew.AddLayerTop(newLayer)
                 el += newLayer.GetThickness()
+            for lyr in layers:
+                if not lyr.IsStackupLayer():
+                    continue
+                newLayer = lyr.Clone()
+                newLayer.SetLowerElevation(self._edb_value(el))
+                el += newLayer.GetThickness()
+                # newLayers.Add(newLayer)
+                lcNew.AddLayerTop(newLayer)
         else:
             for lyr in layers:
                 if not lyr.IsStackupLayer():
-                    newLayers.Add(lyr.Clone())
+                    # newLayers.Add(lyr.Clone())
+                    lcNew.AddLayerTop(lyr.Clone())
                     continue
                 if lyr.GetName() == start_layer:
-                    newLayer = lyr.Clone()
-                    el += newLayer.GetThickness()
-                    newLayers.Add(newLayer)
+                    original_layer = lyr.Clone()
 
                     newLayer = self._edb.Cell.StackupLayer(
                         layerName,
@@ -1119,15 +1156,21 @@ class EDBLayers(object):
                         self._int_to_layer_types(layerType),
                     )
                     newLayer = self._edb_object[layerName].set_elevation(newLayer, el)
+                    lcNew.AddLayerTop(newLayer)
+
                     el += newLayer.GetThickness()
+                    original_layer.SetLowerElevation(self._edb_value(el))
+                    # newLayers.Add(original_layer)
+                    lcNew.AddLayerTop(original_layer)
+                    el += original_layer.GetThickness()
                 else:
                     newLayer = lyr.Clone()
-                    newLayer = self._edb_object[lyr.GetName()].set_elevation(newLayer, el)
+                    newLayer.SetLowerElevation(self._edb_value(el))
                     el += newLayer.GetThickness()
-                newLayers.Add(newLayer)
-        lcNew = self._edb.Cell.LayerCollection()
-        newLayers.Reverse()
-        if not lcNew.AddLayers(newLayers) or not self._active_layout.SetLayerCollection(lcNew):
+                    lcNew.AddLayerTop(newLayer)
+        # lcNew = self._edb.Cell.LayerCollection()
+        # newLayers.Reverse()
+        if not self._active_layout.SetLayerCollection(lcNew):
             self._logger.error("Failed to set new layers when updating the stackup information.")
             return False
         self._update_edb_objects()
@@ -1271,6 +1314,35 @@ class EDBPadProperties(object):
         elif geom_type == 5:
             params = [val, val, val]
         self._update_pad_parameters_parameters(geom_type=geom_type, params=params)
+
+    @property
+    def parameters_values(self):
+        """Parameters.
+
+        Returns
+        -------
+        list
+            List of parameters.
+        """
+        pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
+        return [i.ToDouble() for i in pad_values.Item2]
+
+    @property
+    def polygon_data(self):
+        """Parameters.
+
+        Returns
+        -------
+        list
+            List of parameters.
+        """
+        try:
+            pad_values = self._padstack_methods.GetPolygonalPadParameters(
+                self._edb_padstack, self.layer_name, self.pad_type
+            )
+            return pad_values.Item1
+        except:
+            return
 
     @property
     def parameters(self):
@@ -1773,6 +1845,11 @@ class EDBPadstackInstance(object):
         self._pedb = _pedb
 
     @property
+    def pin(self):
+        """Return Edb padstack object."""
+        return self._edb_padstackinstance
+
+    @property
     def padstack_definition(self):
         """Padstack definition.
 
@@ -1948,7 +2025,7 @@ class EDBPadstackInstance(object):
             pin_name = self._edb_padstackinstance.GetName()
             return "-".join([comp_name, pin_name])
         else:
-            return None
+            return self._edb_padstackinstance.GetName()
 
     @aedt_exception_handler
     def delete_padstack_instance(self):
@@ -1980,38 +2057,6 @@ class EDBPadstackInstance(object):
                 voids.append(prim)
         return voids
 
-
-class EDBPinInstances(object):
-    """Manages EDB functionalities in instances.
-
-
-    Examples
-    --------
-    >>> from pyaedt import Edb
-    >>> edb = Edb(myedb, edbversion="2021.2")
-    >>> edb_pin_instance = edb.core_components.components["R1"].pins[0]
-    """
-
-    def __init__(self, edb_components, pin):
-        self._pedbcomponents = edb_components
-        self.pin = pin
-
-    @property
-    def placement_layer(self):
-        """Placement layer."""
-        return self.pin.GetGroup().GetPlacementLayer().GetName()
-
-    @property
-    def net(self):
-        """Net.
-
-        Returns
-        -------
-        str
-           Name of the net.
-        """
-        return self.pin.GetNet().GetName()
-
     @property
     def pingroups(self):
         """Pin groups that the pin belongs to.
@@ -2021,55 +2066,7 @@ class EDBPinInstances(object):
         list
             List of pin groups that the pin belongs to.
         """
-        return self.pin.GetPinGroups()
-
-    @property
-    def position(self):
-        """Pin position.
-
-        Returns
-        -------
-        list
-            List of ``[x, y]``` coordinates for the pin position.
-        """
-        self._pedbcomponents._edb.Geometry.PointData(
-            self._pedbcomponents._edb_value(0.0), self._pedbcomponents._edb_value(0.0)
-        )
-        if is_ironpython:
-            out = self.pin.GetPositionAndRotationValue()
-        else:
-            out = self.pin.GetPositionAndRotationValue(
-                self._pedbcomponents._edb.Geometry.PointData(
-                    self._pedbcomponents._edb_value(0.0), self._pedbcomponents._edb_value(0.0)
-                ),
-                self._pedbcomponents._edb_value(0.0),
-            )
-        if out[0]:
-            return [out[1].X.ToDouble(), out[1].Y.ToDouble()]
-
-    @property
-    def rotation(self):
-        """Pin rotation.
-
-        Returns
-        -------
-        float
-            Rotatation value for the pin.
-        """
-        self._pedbcomponents._edb.Geometry.PointData(
-            self._pedbcomponents._edb_value(0.0), self._pedbcomponents._edb_value(0.0)
-        )
-        if is_ironpython:
-            out = self.pin.GetPositionAndRotationValue()
-        else:
-            out = self.pin.GetPositionAndRotationValue(
-                self._pedbcomponents._edb.Geometry.PointData(
-                    self._pedbcomponents._edb_value(0.0), self._pedbcomponents._edb_value(0.0)
-                ),
-                self._pedbcomponents._edb_value(0.0),
-            )
-        if out[0]:
-            return out[2].ToDouble()
+        return self._edb_padstackinstance.GetPinGroups()
 
     @property
     def placement_layer(self):
@@ -2080,7 +2077,7 @@ class EDBPinInstances(object):
         str
             Name of the placement layer.
         """
-        return self.pin.GetGroup().GetPlacementLayer().GetName()
+        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetName()
 
     @property
     def lower_elevation(self):
@@ -2091,7 +2088,7 @@ class EDBPinInstances(object):
         float
             Lower elavation of the placement layer.
         """
-        return self.pin.GetGroup().GetPlacementLayer().GetLowerElevation()
+        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetLowerElevation()
 
     @property
     def upper_elevation(self):
@@ -2102,7 +2099,7 @@ class EDBPinInstances(object):
         float
            Upper elevation of the placement layer.
         """
-        return self.pin.GetGroup().GetPlacementLayer().GetUpperElevation()
+        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetUpperElevation()
 
     @property
     def top_bottom_association(self):
@@ -2119,7 +2116,7 @@ class EDBPinInstances(object):
             * 4 Number of top/bottom association type.
             * -1 Undefined.
         """
-        return int(self.pin.GetGroup().GetPlacementLayer().GetTopBottomAssociation())
+        return int(self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetTopBottomAssociation())
 
 
 class EDBComponent(object):
@@ -2137,6 +2134,25 @@ class EDBComponent(object):
     def __init__(self, components, cmp):
         self._pcomponents = components
         self.edbcomponent = cmp
+
+    @property
+    def component_property(self):
+        """Component Property Object."""
+        return self.edbcomponent.GetComponentProperty().Clone()
+
+    @property
+    def solder_ball_height(self):
+        """Solder ball height if available.."""
+        if "GetSolderBallProperty" in dir(self.component_property):
+            return self.component_property.GetSolderBallProperty().GetHeight()
+        return None
+
+    @property
+    def solder_ball_placement(self):
+        """Solder ball placement if available.."""
+        if "GetSolderBallProperty" in dir(self.component_property):
+            return int(self.component_property.GetSolderBallProperty().GetPlacement())
+        return 2
 
     @property
     def refdes(self):
@@ -2226,6 +2242,19 @@ class EDBComponent(object):
         return None
 
     @property
+    def center(self):
+        """Compute the component center.
+
+        Returns
+        -------
+        list
+        """
+        layinst = self.edbcomponent.GetLayout().GetLayoutInstance()
+        cmpinst = layinst.GetLayoutObjInstance(self.edbcomponent, None)
+        center = cmpinst.GetCenter()
+        return [center.X.ToDouble(), center.Y.ToDouble()]
+
+    @property
     def pinlist(self):
         """Pins of Component.
 
@@ -2257,16 +2286,16 @@ class EDBComponent(object):
 
     @property
     def pins(self):
-        """EDBPinInstances of Component.
+        """EDBPadstackInstance of Component.
 
         Returns
         -------
-        list
-            List of EDBPinInstances of Component.
+        dic[str, :class:`pyaedt.edb_core.EDB_Data.EDBPadstackInstance`]
+            Dictionary of EDBPadstackInstance Components.
         """
         pins = {}
         for el in self.pinlist:
-            pins[el.GetName()] = EDBPinInstances(self, el)
+            pins[el.GetName()] = EDBPadstackInstance(el, self._pcomponents._pedb)
         return pins
 
     @property
@@ -2331,7 +2360,7 @@ class EDBComponent(object):
         str
            Name of the placement layer.
         """
-        return self.pinlist[0].GetGroup().GetPlacementLayer().GetName()
+        return self.edbcomponent.GetPlacementLayer().GetName()
 
     @property
     def lower_elevation(self):
@@ -2342,7 +2371,7 @@ class EDBComponent(object):
         float
             Lower elevation of the placement layer.
         """
-        return self.pinlist[0].GetGroup().GetPlacementLayer().GetLowerElevation()
+        return self.edbcomponent.GetPlacementLayer().GetLowerElevation()
 
     @property
     def upper_elevation(self):
@@ -2354,7 +2383,7 @@ class EDBComponent(object):
             Upper elevation of the placement layer.
 
         """
-        return self.pinlist[0].GetGroup().GetPlacementLayer().GetUpperElevation()
+        return self.edbcomponent.GetPlacementLayer().GetUpperElevation()
 
     @property
     def top_bottom_association(self):
@@ -2371,7 +2400,7 @@ class EDBComponent(object):
             * 4 - Number of top/bottom associations.
             * -1 - Undefined
         """
-        return int(self.pinlist[0].GetGroup().GetPlacementLayer().GetTopBottomAssociation())
+        return int(self.edbcomponent.GetPlacementLayer().GetTopBottomAssociation())
 
 
 class EdbBuilder(object):

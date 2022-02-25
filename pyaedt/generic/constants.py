@@ -1,4 +1,5 @@
 import math
+import warnings
 
 RAD2DEG = 180.0 / math.pi
 DEG2RAD = math.pi / 180
@@ -123,6 +124,35 @@ def _resolve_unit_system(unit_system_1, unit_system_2, operation):
         return SI_UNITS[result_unit_system]
     except KeyError:
         return ""
+
+
+def unit_converter(value, unit_system="Length", input_units="meter", output_units="mm"):
+    """Convert Unit in specified Unit System.
+
+    Parameters
+    ----------
+    value : float
+        Value to convert.
+    unit_system : str
+        Unit system. Default is `"Length"`.
+    input_units : str
+        Input units. Default is `"meter"`.
+    output_units : str
+        Output units. Default is `"mm"`.
+
+    Returns
+    -------
+    float
+        Converted value.
+    """
+    if unit_system in AEDT_UNITS:
+        if input_units not in AEDT_UNITS[unit_system] or output_units not in AEDT_UNITS[unit_system]:
+            warnings.warn("No units found")
+            return value
+        else:
+            return value * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
+    warnings.warn("No system unit found")
+    return value
 
 
 AEDT_UNITS = {
@@ -367,6 +397,57 @@ class GLOBALCS(object):
     """GlobalCS Enumerator class."""
 
     (XY, YZ, ZX) = ("Global:XY", "Global:YZ", "Global:XZ")
+
+
+class MATRIXOPERATIONSQ3D(object):
+    """Matrix Reduction types."""
+
+    (JoinSeries, JoinParallel, FloatNet, GroundNet, FloatTerminal, FloatInfinity, ReturnPath, AddSink, MoveSink) = (
+        "JoinSeries",
+        "JoinParallel",
+        "FloatNet",
+        "GroundNet",
+        "FloatTerminal",
+        "FloatInfinity",
+        "ReturnPath",
+        "AddSink",
+        "MoveSink",
+    )
+
+
+class MATRIXOPERATIONSQ2D(object):
+    """Matrix Reduction types."""
+
+    (AddGround, SetReferenceGround, Float, Parallel, DiffPair) = (
+        "AddGround",
+        "SetReferenceGround",
+        "Float",
+        "Parallel",
+        "DiffPair",
+    )
+
+
+class CATEGORIESQ3D(object):
+    """Plot Categories for Q2d and Q3d."""
+
+    class Q2D(object):
+        (
+            CMatrix,
+            GMatrix,
+            RMatrix,
+            LMatrix,
+            LumpedC,
+            LumpedG,
+            LumpedR,
+            LumpedL,
+            CharacteristicImpedance,
+            CrossTalkForward,
+            LumpedCrossTalkForward,
+            CrossTalkBackward,
+        ) = ("C", "G", "R", "L", "lumpC", "lumpG", "lumpR", "lumpL", "Z0", "Kf", "lumpKf", "Kb")
+
+    class Q3D(object):
+        (C, G, DCL, DCR, ACL, ACR) = ("C", "G", "DCL", "DCR", "ACL", "ACR")
 
 
 class CSMODE(object):

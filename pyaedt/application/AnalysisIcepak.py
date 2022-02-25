@@ -290,7 +290,7 @@ class FieldAnalysisIcepak(Analysis, object):
         >>> oEditor.Export
         """
         if not object_list:
-            allObjects = self.modeler.primitives.object_names
+            allObjects = self.modeler.object_names
             if removed_objects:
                 for rem in removed_objects:
                     allObjects.remove(rem)
@@ -426,7 +426,7 @@ class FieldAnalysisIcepak(Analysis, object):
         """
         body_list = design.modeler.solid_bodies
         selection_list = []
-        material_properties = design.modeler.primitives.objects
+        material_properties = design.modeler.objects
         for body in body_list:
             include_object = True
             if object_list:
@@ -478,12 +478,12 @@ class FieldAnalysisIcepak(Analysis, object):
                 Mat.update()
             self.logger.info("Assign Material " + mat + " to object " + str(selections))
             for el in selections:
-                self.modeler.primitives[el].material_name = mat
-                self.modeler.primitives[el].color = self.materials.material_keys[mat].material_appearance
+                self.modeler[el].material_name = mat
+                self.modeler[el].color = self.materials.material_keys[mat].material_appearance
                 if Mat.is_dielectric():
-                    self.modeler.primitives[el].solve_inside = True
+                    self.modeler[el].solve_inside = True
                 else:
-                    self.modeler.primitives[el].solve_inside = False
+                    self.modeler[el].solve_inside = False
             return True
         else:
             self.logger.error("Material does not exist.")
@@ -627,7 +627,7 @@ class FieldAnalysisIcepak(Analysis, object):
             for el in component_header:
                 component_data[el] = [i[k] for i in data]
                 k += 1
-        all_objs = self.modeler.primitives.object_names
+        all_objs = self.modeler.object_names
         i = 0
         for mat in material_data["Name"]:
             list_mat_obj = [
@@ -696,8 +696,8 @@ class FieldAnalysisIcepak(Analysis, object):
                 self.assign_material(list_mat_obj, mat)
 
                 for obj_name in list_mat_obj:
-                    if not self.modeler.primitives[obj_name].surface_material_name:
-                        self.modeler.primitives[obj_name].surface_material_name = "Steel-oxidised-surface"
+                    if not self.modeler[obj_name].surface_material_name:
+                        self.modeler[obj_name].surface_material_name = "Steel-oxidised-surface"
             i += 1
             all_objs = [ao for ao in all_objs if ao not in list_mat_obj]
         return True
@@ -713,7 +713,7 @@ class FieldAnalysisIcepak(Analysis, object):
         """
         cond = [i.lower() for i in list(self.materials.conductors)]
         obj_names = []
-        for el, obj in self.modeler.primitives.objects.items():
+        for el, obj in self.modeler.objects.items():
             if obj.material_name in cond:
                 obj_names.append(obj.name)
         return obj_names
@@ -730,7 +730,7 @@ class FieldAnalysisIcepak(Analysis, object):
         """
         diel = [i.lower() for i in list(self.materials.dielectrics)]
         obj_names = []
-        for el, obj in self.modeler.primitives.objects.items():
+        for el, obj in self.modeler.objects.items():
             if obj.material_name in diel:
                 obj_names.append(obj.name)
         return obj_names

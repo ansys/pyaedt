@@ -17,6 +17,7 @@ import string
 import math
 import os
 import re
+import warnings
 
 from pyaedt import aedt_exception_handler, _retry_ntimes
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -483,6 +484,21 @@ class FacePrimitive(object):
         return center
 
     @property
+    def is_planar(self):
+        """Check if a face is planar or not.
+
+        Returns
+        -------
+        bool
+        """
+
+        try:
+            self._oeditor.GetFaceCenter(self.id)
+            return True
+        except:
+            return False
+
+    @property
     def center(self):
         """Face center in model units.
 
@@ -528,6 +544,33 @@ class FacePrimitive(object):
         """
         area = self._oeditor.GetFaceArea(self.id)
         return area
+
+    @aedt_exception_handler
+    def is_on_bounding(self, tol=1e-9):
+        """Check if the face is on bounding box or Not.
+
+        Parameters
+        ----------
+        tolerance : float, optional
+            Tolerance of check between face center and bounding box.
+
+        Returns
+        -------
+        bool
+            `True` if the face is on bounding box. `False` otherwise.
+        """
+        b = [float(i) for i in list(self._oeditor.GetModelBoundingBox())]
+        c = self.center
+        if (
+            abs(c[0] - b[0]) < tol
+            or abs(c[1] - b[1]) < tol
+            or abs(c[2] - b[2]) < tol
+            or abs(c[0] - b[3]) < tol
+            or abs(c[1] - b[4]) < tol
+            or abs(c[2] - b[5]) < tol
+        ):
+            return True
+        return False
 
     @aedt_exception_handler
     def move_with_offset(self, offset=1.0):
@@ -693,7 +736,7 @@ class Object3d(object):
 
     >>> from pyaedt import Hfss
     >>> aedtapp = Hfss()
-    >>> prim = aedtapp.modeler.primitives
+    >>> prim = aedtapp.modeler
 
     Create a part, such as box, to return an :class:`pyaedt.modeler.Object3d.Object3d`.
 
@@ -728,6 +771,7 @@ class Object3d(object):
         self._part_coordinate_system = None
         self._model = None
 
+    @aedt_exception_handler
     def _bounding_box_unmodel(self):
         """Bounding box of a part, unmodel/undo method.
 
@@ -762,6 +806,7 @@ class Object3d(object):
         )
         return bounding
 
+    @aedt_exception_handler
     def _bounding_box_sat(self):
         """Bounding box of a part.
 
@@ -802,11 +847,11 @@ class Object3d(object):
                     for i in range(1, 7):
                         bb.append(float(m.group(i)))
                 except:
-                    raise Exception("WARNING: Error parsing the SAT file. Object " + str(self.name))
+                    return False
             else:
-                raise Exception("WARNING: Error parsing the SAT file. Object " + str(self.name))
+                return False
         else:
-            raise Exception("WARNING: Error parsing the SAT file. Object " + str(self.name))
+            return False
 
         try:
             os.remove(filename)
@@ -833,9 +878,10 @@ class Object3d(object):
 
         """
         if not self._primitives._app.student_version:
-            try:
-                return self._bounding_box_sat()
-            except:
+            bounding = self._bounding_box_sat()
+            if bounding:
+                return bounding
+            else:
                 return self._bounding_box_unmodel()
         else:
             return self._bounding_box_unmodel()
@@ -943,6 +989,20 @@ class Object3d(object):
             face = int(face)
             faces.append(FacePrimitive(self, face))
         return faces
+
+    @property
+    def faces_on_bounding_box(self):
+        """Return only the face ids of the faces touching the bounding box.
+
+        Returns
+        -------
+        list
+        """
+        f_list = []
+        for face in self.faces:
+            if face.is_on_bounding():
+                f_list.append(face.id)
+        return f_list
 
     @property
     def top_face_z(self):
@@ -1200,6 +1260,7 @@ class Object3d(object):
             if mat:
                 self._material_name = mat.strip('"').lower()
             return self._material_name
+        return ""
 
     @material_name.setter
     def material_name(self, mat):
@@ -1621,6 +1682,56 @@ class Object3d(object):
         self._primitives.modeler.unite(unite_list)
         return self
 
+    @aedt_exception_handler
+    def rotate(self, cs_axis, angle=90.0, unit="deg"):
+        """Rotate the selection.
+
+        Parameters
+        ----------
+        cs_axis
+            Coordinate system axis or the Application.CoordinateSystemAxis object.
+        angle : float, optional
+            Angle of rotation. The units, defined by ``unit``, can be either
+            degrees or radians. The default is ``90.0``.
+        unit : text, optional
+             Units for the angle. Options are ``"deg"`` or ``"rad"``.
+             The default is ``"deg"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Rotate
+        """
+        return self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit)
+
+    @aedt_exception_handler
+    def move(self, vector):
+        """Move objects from a list.
+
+        Parameters
+        ----------
+        objid : list, Position object
+            List of object IDs.
+        vector : list
+            Vector of the direction move. It can be a list of the ``[x, y, z]``
+            coordinates or a Position object.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.Move
+        """
+        return self._primitives.modeler.move(self.id, vector=vector)
+
     def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
         """Duplicate the object around the axis.
 
@@ -1682,6 +1793,9 @@ class Object3d(object):
     def translate(self, vector):
         """Translate the object and return the 3D object.
 
+        .. deprecated:: 0.4.0
+           Use :func:`move` instead.
+
         Returns
         -------
         pyaedt.modeler.Object3d.Object3d
@@ -1693,7 +1807,8 @@ class Object3d(object):
         >>> oEditor.Move
 
         """
-        self._primitives.modeler.translate(self.id, vector)
+        warnings.warn("`translate` is deprecated. Use `move` instead.", DeprecationWarning)
+        self.move(vector)
         return self
 
     @aedt_exception_handler
@@ -2986,9 +3101,10 @@ class Nets3DLayout(Objec3DLayout, object):
 
     """
 
-    def __init__(self, primitives, name=""):
+    def __init__(self, primitives, name="", edb_object=None):
         Objec3DLayout.__init__(self, primitives)
         self.name = name
+        self.edb_object = edb_object
 
 
 class Pins3DLayout(Objec3DLayout, object):

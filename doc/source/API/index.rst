@@ -3,7 +3,7 @@ API Documentation
 =================
 
 Welcome to PyAEDT API documentation.
-Use the search feature or click on the following links to view the API
+Use the search feature or click the following links to view API
 documentation.
 
 .. toctree::

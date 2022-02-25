@@ -200,20 +200,24 @@ class TestClass:
         assert test
 
     def test_13a_assign_openings(self):
-        airfaces = [self.aedtapp.modeler.primitives["Region"].top_face_x.id]
-        assert self.aedtapp.assign_openings(airfaces)
+        airfaces = [self.aedtapp.modeler["Region"].top_face_x.id]
+        openings = self.aedtapp.assign_openings(airfaces)
+        openings.name = "Test_Opening"
+        assert openings.update()
 
     def test_13b_assign_grille(self):
-        airfaces = [self.aedtapp.modeler.primitives["Region"].top_face_y.id]
+        airfaces = [self.aedtapp.modeler["Region"].top_face_y.id]
         grille = self.aedtapp.assign_grille(airfaces)
         grille.props["Free Area Ratio"] = 0.7
         assert grille.update()
-        airfaces = [self.aedtapp.modeler.primitives["Region"].bottom_face_x.id]
+        airfaces = [self.aedtapp.modeler["Region"].bottom_face_x.id]
         grille2 = self.aedtapp.assign_grille(
             airfaces, free_loss_coeff=False, x_curve=["0", "3", "5"], y_curve=["0", "2", "3"]
         )
         assert grille2.props["X"] == ["0", "3", "5"]
         assert grille2.props["Y"] == ["0", "2", "3"]
+        grille2.name = "Grille_test"
+        assert grille2.update()
 
     def test_14_edit_design_settings(self):
         assert self.aedtapp.edit_design_settings(gravityDir=1)
@@ -224,13 +228,13 @@ class TestClass:
         assert self.aedtapp.problem_type == "FlowOnly"
         self.aedtapp.problem_type = "TemperatureAndFlow"
         assert self.aedtapp.problem_type == "TemperatureAndFlow"
-        self.aedtapp.modeler.primitives.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
-        self.aedtapp.modeler.primitives.create_box([9, 9, 9], [5, 5, 5], "box2", "copper")
+        self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
+        self.aedtapp.modeler.create_box([9, 9, 9], [5, 5, 5], "box2", "copper")
         self.aedtapp.create_source_block("box", "1W", False)
         setup = self.aedtapp.create_setup("SetupIPK")
         new_props = {"Convergence Criteria - Max Iterations": 3}
         assert setup.update(update_dictionary=new_props)
-        airfaces = [i.id for i in self.aedtapp.modeler.primitives["Region"].faces]
+        airfaces = [i.id for i in self.aedtapp.modeler["Region"].faces]
         self.aedtapp.assign_openings(airfaces)
 
     def test_16_check_priorities(self):
@@ -253,7 +257,7 @@ class TestClass:
         assert self.aedtapp.export_summary()
 
     def test_19_eval_htc(self):
-        box = [i.id for i in self.aedtapp.modeler.primitives["box"].faces]
+        box = [i.id for i in self.aedtapp.modeler["box"].faces]
         assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
 
     def test_20_eval_tempc(self):
@@ -270,14 +274,14 @@ class TestClass:
         assert os.path.exists(fld_file)
 
     def test_22_create_source_blocks_from_list(self):
-        self.aedtapp.modeler.primitives.create_box([1, 1, 1], [3, 3, 3], "box3", "copper")
+        self.aedtapp.modeler.create_box([1, 1, 1], [3, 3, 3], "box3", "copper")
         result = self.aedtapp.create_source_blocks_from_list([["box2", 2], ["box3", 3]])
         assert result[1].props["Total Power"] == "2W"
         assert result[3].props["Total Power"] == "3W"
 
     def test_23_create_network_blocks(self):
-        self.aedtapp.modeler.primitives.create_box([1, 2, 3], [10, 10, 10], "network_box", "copper")
-        self.aedtapp.modeler.primitives.create_box([4, 5, 6], [5, 5, 5], "network_box2", "copper")
+        self.aedtapp.modeler.create_box([1, 2, 3], [10, 10, 10], "network_box", "copper")
+        self.aedtapp.modeler.create_box([4, 5, 6], [5, 5, 5], "network_box2", "copper")
         result = self.aedtapp.create_network_blocks(
             [["network_box", 20, 10, 3], ["network_box2", 4, 10, 3]], self.aedtapp.GravityDirection.ZNeg, 1.05918, False
         )
@@ -316,10 +320,14 @@ class TestClass:
         self.aedtapp.materials.add_surface_material("my_surface", 0.5)
         obj = ["box2", "box3"]
         assert self.aedtapp.assign_surface_material(obj, "my_surface")
+        mat = self.aedtapp.materials.add_material("test_mat1")
+        mat.thermal_conductivity = 10
+        mat.thermal_conductivity = [20, 20, 10]
+        assert mat.thermal_conductivity.type == "anisotropic"
 
     def test_33_create_region(self):
-        self.aedtapp.modeler.primitives.delete("Region")
-        assert isinstance(self.aedtapp.modeler.primitives.create_region([100, 100, 100, 100, 100, 100]).id, int)
+        self.aedtapp.modeler.delete("Region")
+        assert isinstance(self.aedtapp.modeler.create_region([100, 100, 100, 100, 100, 100]).id, int)
 
     def test_34_automatic_mesh_pcb(self):
         assert self.aedtapp.mesh.automatic_mesh_pcb()
@@ -329,18 +337,16 @@ class TestClass:
         assert self.aedtapp.mesh.automatic_mesh_3D(accuracy2=1)
 
     def test_36_create_source(self):
-        self.aedtapp.modeler.primitives.create_box([0, 0, 0], [20, 20, 20], name="boxSource")
+        self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="boxSource")
+        assert self.aedtapp.create_source_power(self.aedtapp.modeler["boxSource"].top_face_z.id, input_power="2W")
         assert self.aedtapp.create_source_power(
-            self.aedtapp.modeler.primitives["boxSource"].top_face_z.id, input_power="2W"
-        )
-        assert self.aedtapp.create_source_power(
-            self.aedtapp.modeler.primitives["boxSource"].bottom_face_z.id,
+            self.aedtapp.modeler["boxSource"].bottom_face_z.id,
             thermal_condtion="Fixed Temperature",
             temperature="28cel",
         )
 
     def test_37_surface_monitor(self):
-        self.aedtapp.modeler.primitives.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
+        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         assert self.aedtapp.assign_surface_monitor("surf1")
 
     def test_38_point_monitor(self):
@@ -362,6 +368,11 @@ class TestClass:
             high_surface_thick="0.1in",
         )
 
+    def test_40_create_fan(self):
+        fan = self.aedtapp.create_fan(origin=[5, 21, 1])
+        assert fan
+        assert fan.component_name in self.aedtapp.modeler.oeditor.Get3DComponentInstanceNames(fan.component_name)[0]
+
     def test_88_create_heat_sink(self):
         self.aedtapp.insert_design("HS")
         assert self.aedtapp.create_parametric_fin_heat_sink()
@@ -369,9 +380,9 @@ class TestClass:
     def test_89_check_bounding_box(self):
 
         self.aedtapp.insert_design("Bbox")
-        obj_1 = self.aedtapp.modeler.primitives.get_object_from_name("Region")
+        obj_1 = self.aedtapp.modeler.get_object_from_name("Region")
         obj_1_bbox = obj_1.bounding_box
-        obj_2 = self.aedtapp.modeler.primitives.create_box([0.2, 0.2, 0.2], [0.3, 0.4, 0.2], name="Box1")
+        obj_2 = self.aedtapp.modeler.create_box([0.2, 0.2, 0.2], [0.3, 0.4, 0.2], name="Box1")
         obj_2_bbox = obj_2.bounding_box
         count = 0
         tol = 1e-9

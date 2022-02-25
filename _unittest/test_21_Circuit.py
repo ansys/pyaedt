@@ -147,6 +147,7 @@ class TestClass:
         myres = self.aedtapp.modeler.schematic.create_resistor("R100", 50)
         mycap = self.aedtapp.modeler.schematic.create_capacitor("C100", 1e-12)
         portname = self.aedtapp.modeler.schematic.create_interface_port("Port1")
+        assert len(self.aedtapp.excitations) > 0
         assert "Port1" in portname.name
         assert myind.pins[0].connect_to_component(portname.pins[0])
         assert myind.pins[1].connect_to_component(myres.pins[1])
@@ -301,3 +302,12 @@ class TestClass:
         myres = self.aedtapp.modeler.components.create_resistor("R100", 50)
         mycap = self.aedtapp.modeler.components.create_capacitor("C100", 1e-12)
         self.aedtapp.modeler.zoom_to_fit()
+
+    def test_26_component_catalog(self):
+        comp_catalog = self.aedtapp.modeler.components.components_catalog
+        assert comp_catalog["Capacitors:Cap_"]
+        assert comp_catalog["capacitors:cAp_"]
+        assert isinstance(comp_catalog.find_components("cap"), list)
+        assert comp_catalog["LISN:CISPR25_LISN"].place("Lisn1")
+        assert not comp_catalog["Capacitors"]
+        assert comp_catalog["LISN:CISPR25_LISN"].props

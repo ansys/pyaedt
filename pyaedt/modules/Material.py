@@ -819,6 +819,9 @@ class CommonMaterial(object):
         ):
             i = 1
             for val in provpavlue:
+                if not self._props.get(propname, None) or isinstance(self._props[propname], str):
+                    self._props[propname] = OrderedDict({"property_type": "AnisoProperty"})
+                    self._props[propname]["unit"] = ""
                 self._props[propname]["component" + str(i)] = str(val)
                 i += 1
             if update_aedt:
@@ -1131,7 +1134,12 @@ class Material(CommonMaterial, object):
         self._thermal_conductivity.value = value
         self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
         self._props["PhysicsTypes"] = OrderedDict({"set": ["Electromagnetic", "Thermal", "Structural"]})
-        self._update_props("thermal_conductivity", value)
+        if isinstance(value, list):
+            self._thermal_conductivity.type = "anisotropic"
+            self._update_props("thermal_conductivity", value)
+        else:
+            self._thermal_conductivity.type = "simple"
+            self._update_props("thermal_conductivity", value)
 
     @property
     def mass_density(self):

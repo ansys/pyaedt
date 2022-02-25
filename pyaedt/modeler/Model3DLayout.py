@@ -1,5 +1,5 @@
 import os
-import time
+import re
 from warnings import warn
 
 from pyaedt.generic.constants import AEDT_UNITS
@@ -10,6 +10,7 @@ from pyaedt.generic.general_methods import (
     is_ironpython,
     _pythonver,
     inside_desktop,
+    get_filename_without_extension,
 )
 from pyaedt.modules.LayerStackup import Layers
 from pyaedt.modeler.Modeler import Modeler
@@ -20,7 +21,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
     """Manages Modeler 3D layouts.
 
     This class is inherited in the caller application and is accessible through the modeler variable
-    object( eg. ``hfss3dlayout.modeler``).
+    object (for example, ``hfss3dlayout.modeler``).
 
     Parameters
     ----------
@@ -40,16 +41,10 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.logger.info("Loading Modeler.")
         Modeler.__init__(self, app)
         self.logger.info("Modeler loaded.")
-        self._primitivesDes = self._app.project_name + self._app.design_name
         edb_folder = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
         edb_file = os.path.join(edb_folder, "edb.def")
         self._edb = None
         if os.path.exists(edb_file) or (inside_desktop and is_ironpython):
-            if os.path.exists(edb_file):
-                self._mttime = os.path.getmtime(edb_file)
-            else:
-                self._mttime = 0
-            time.sleep(1)
             self._edb = Edb(
                 edb_folder,
                 self._app.design_name,
@@ -58,8 +53,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 isaedtowned=True,
                 oproject=self._app.oproject,
             )
-        else:
-            self._mttime = 0
+
         self.logger.info("EDB loaded.")
         self.layers = Layers(self, roughnessunits="um")
         self.logger.info("Layers loaded.")
@@ -68,7 +62,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         self.logger.info("Primitives loaded.")
         self.layers.refresh_all_layers()
-
+        self.o_def_manager = self._app.odefinition_manager
+        self.o_component_manager = self.o_def_manager.GetManager("Component")
+        self.o_model_manager = self.o_def_manager.GetManager("Model")
         pass
 
     @property
@@ -94,11 +90,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         if not (inside_desktop and is_ironpython):
             edb_folder = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
             edb_file = os.path.join(edb_folder, "edb.def")
-            if os.path.exists(edb_file):
-                _mttime = os.path.getmtime(edb_file)
-            else:
-                _mttime = 0
-            if _mttime != self._mttime:
+            if self._app.project_timestamp_changed:
                 if self._edb:
                     self._edb.close_edb()
                 self._edb = Edb(
@@ -109,7 +101,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     isaedtowned=True,
                     oproject=self._app.oproject,
                 )
-                self._mttime = _mttime
         return self._edb
 
     @property
@@ -147,7 +138,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
     @model_units.setter
     def model_units(self, units):
         assert units in AEDT_UNITS["Length"], "Invalid units string {0}.".format(units)
-        """ Set the model units as a string e.g. "mm" """
+        """Set the model units as a string (for example, "mm")."""
         self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @property
@@ -155,7 +146,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """Primitives.
 
         .. deprecated:: 0.4.15
-            No need to use primitives anymore. You can instantiate primitives methods directly from modeler instead.
+        There is no need to use primitives anymore. You can instantiate methods for
+        primitives directly from the modeler.
 
         Returns
         -------
@@ -209,20 +201,21 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Parameters
         ----------
         property_object : str
-            Property Obcject name. It can be the name of excitation or field reporter. Eg. ``FieldsReporter:Mag_H``,
-            ``Excitations:Port1``.
+            Name of the property object. It can be the name of an excitation or field reporter.
+            For example, ``Excitations:Port1`` or ``FieldsReporter:Mag_H``.
         property_name : str
-            Property name. Eg. ``Rotation Angle``
+            Name of the property. For example, ``Rotation Angle``.
         property_value : str, list
-            Property value. It's a string in case of single value. and a list of 3 elements in case of [X,Y,Z]
+            Value of the property. It is a string for a single value and a list of three elements for
+            ``[x,y,z]`` coordianates.
         property_tab : str
-            Name of the tab to update. Default ``BaseElementTab``. Other options are ``EM Design``,
-            ``FieldsPostProcessorTab``.
+            Name of the tab to update. Options are ``BaseElementTab``, ``EM Design``, and
+            ``FieldsPostProcessorTab``. The default is ``BaseElementTab``.
 
         Returns
         -------
         bool
-            ``True`` if successful.
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
@@ -238,6 +231,17 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                         "NAME:" + property_tab,
                         ["NAME:PropServers", property_object],
                         ["NAME:ChangedProps", ["NAME:" + property_name, "X:=", xpos, "Y:=", ypos, "Z:=", zpos]],
+                    ],
+                ]
+            )
+        elif isinstance(property_value, bool):
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + property_tab,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
                     ],
                 ]
             )
@@ -260,20 +264,65 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return True
 
     @aedt_exception_handler
-    def change_clip_plane_position(self, clip_name, position):
-        """Change the Clip Plane position.
+    def merge_design(self, merged_design=None, pos_x="0.0", pos_y="0.0", pos_z="0.0", rotation="0.0"):
+        """Merge a design into another.
 
         Parameters
         ----------
-        clip_name : str
-            clip plane name.
-        position : list
-            List of [X,Y,Z] position
+        merged_design : :class:`pyaedt.hfss3dlayout.Hfss3dLayout`
+            Design to merge.
+        pos_x : float, str
+            X Offset.
+        pos_y : float, str
+            Y Offset.
+        pos_z : float, str
+            Z Offset.
+        rotation : float, str
+            Rotation angle in deg.
 
         Returns
         -------
         bool
-            ``True`` if successful.
+            `True` if successful.
+        """
+        des_name = merged_design.design_name
+        merged_design.oproject.CopyDesign(merged_design.design_name)
+        self._app.odesign.PasteDesign(1)
+        comp_name = ""
+        for i in range(1, 1000):
+            try:
+                cmp_info = self.oeditor.GetComponentInfo(str(i))
+                if cmp_info and cmp_info[0] == "ComponentName={}".format(des_name):
+                    comp_name = str(i)
+            except:
+                pass
+        if not comp_name:
+            return False
+        self.change_property(property_object=comp_name, property_name="3D Placement", property_value=True)
+        self.change_property(property_object=comp_name, property_name="Local Origin", property_value=[0.0, 0.0, 0.0])
+        pos_x = self._arg_with_dim(pos_x)
+        pos_y = self._arg_with_dim(pos_y)
+        pos_z = self._arg_with_dim(pos_z)
+        rotation = self._arg_with_dim(rotation, "deg")
+        self.change_property(property_object=comp_name, property_name="Location", property_value=[pos_x, pos_y, pos_z])
+        self.change_property(property_object=comp_name, property_name="Rotation Angle", property_value=rotation)
+        return True
+
+    @aedt_exception_handler
+    def change_clip_plane_position(self, clip_name, position):
+        """Change the clip plane position.
+
+        Parameters
+        ----------
+        clip_name : str
+            Name of the clip plane.
+        position : list
+            List of ``[x,y,z]`` coordinates for the new position.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
@@ -296,7 +345,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Returns
         -------
         bool
-             ``True`` when successful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed.
 
 
         References
@@ -310,8 +359,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         >>> from pyaedt import Hfss3dLayout
         >>> h3d=Hfss3dLayout(specified_version="2021.2")
         >>> h3d.modeler.layers.add_layer("TOP")
-        >>> l1=h3d.modeler.primitives.create_line("TOP", [[0,0],[100,0]],  0.5, name="poly_1")
-        >>> l2=h3d.modeler.primitives.create_line("TOP", [[100,0],[120,-35]],  0.5, name="poly_2")
+        >>> l1=h3d.modeler.create_line("TOP", [[0,0],[100,0]],  0.5, name="poly_1")
+        >>> l2=h3d.modeler.create_line("TOP", [[100,0],[120,-35]],  0.5, name="poly_2")
         >>> h3d.modeler.unite([l1,l2])
         >>> h3d.modeler.colinear_heal("poly_2", 0.25)
         True
@@ -326,7 +375,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 "Type:=",
                 "Colinear",
                 "Tol:=",
-                self.primitives.arg_with_dim(tolerance),
+                self.arg_with_dim(tolerance),
             ]
         )
         return True
@@ -338,7 +387,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Parameters
         ----------
         object_to_expand : str
-            Name of the object to expand.
+            Name of the object.
         size : float, optional
             Size of the expansion. The default is ``1``.
         expand_type : str, optional
@@ -364,8 +413,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         >>> from pyaedt import Hfss3dLayout
         >>> h3d=Hfss3dLayout(specified_version="2021.2")
         >>> h3d.modeler.layers.add_layer("TOP")
-        >>> h3d.modeler.primitives.create_rectangle("TOP", [20,20],[50,50], name="rect_1")
-        >>> h3d.modeler.primitives.create_line("TOP",[[25,25],[40,40]], name="line_3")
+        >>> h3d.modeler.create_rectangle("TOP", [20,20],[50,50], name="rect_1")
+        >>> h3d.modeler.create_line("TOP",[[25,25],[40,40]], name="line_3")
         >>> out1 = h3d.modeler.expand("line_3")
         >>> print(out1)
         line_4
@@ -375,23 +424,21 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
         geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
-        self.oeditor.Expand(
-            self.primitives.arg_with_dim(size), expand_type, replace_original, ["NAME:elements", object_to_expand]
-        )
+        self.oeditor.Expand(self.arg_with_dim(size), expand_type, replace_original, ["NAME:elements", object_to_expand])
         if not replace_original:
             new_geom_names = [
                 i
                 for i in self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
                 if i not in geom_names
             ]
-            if self.primitives.is_outside_desktop:
-                self.primitives._geometries[new_geom_names[0]] = Geometries3DLayout(self.primitives, new_geom_names[0])
+            if self.is_outside_desktop:
+                self._geometries[new_geom_names[0]] = Geometries3DLayout(self, new_geom_names[0])
             return new_geom_names[0]
         return object_to_expand
 
     @aedt_exception_handler
     def import_cadence_brd(self, brd_filename, edb_path=None, edb_name=None):
-        """Import a Cadence board.
+        """Import a cadence board.
 
         Parameters
         ----------
@@ -401,7 +448,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             Path where the EDB is to be created. The default is ``None``, in which
             case the project directory is used.
         edb_name : str, optional
-            name of the EDB. The default is ``None``, in which
+            Name of the EDB. The default is ``None``, in which
             case the board name is used.
 
         Returns
@@ -449,7 +496,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         Parameters
         ----------
-        ipc_filename :
+        ipc_filename : str
             Full path and name of the IPC file.
         edb_path : str, optional
             Path where the EDB is to be created. The default is ``None``, in which
@@ -511,11 +558,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             self.oeditor.Subtract(vArg1)
         if isinstance(tool, list):
             for el in tool:
-                if self.primitives.is_outside_desktop:
-                    self.primitives._geometries.pop(el)
+                if self.is_outside_desktop:
+                    self._geometries.pop(el)
         else:
-            if self.primitives.is_outside_desktop:
-                self.primitives._geometries.pop(tool)
+            if self.is_outside_desktop:
+                self._geometries.pop(tool)
         return True
 
     @aedt_exception_handler
@@ -544,8 +591,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             self.oeditor.Unite(vArg1)
             for el in objectlists:
                 if not self.oeditor.FindObjects("Name", el):
-                    if self.primitives.is_outside_desktop:
-                        self.primitives._geometries.pop(el)
+                    if self.is_outside_desktop:
+                        self._geometries.pop(el)
             return True
         else:
             self.logger.error("Input list must contain at least two elements.")
@@ -577,8 +624,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             self.oeditor.Intersect(vArg1)
             for el in objectlists:
                 if not self.oeditor.FindObjects("Name", el):
-                    if self.primitives.is_outside_desktop:
-                        self.primitives._geometries.pop(el)
+                    if self.is_outside_desktop:
+                        self._geometries.pop(el)
             return True
         else:
             self.logger.error("Input list must contain at least two elements.")
@@ -595,7 +642,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         count : int
 
         direction_vector : list
-            List of ``[x, y]`` coordinates for the direction vector.
+            List of ``[x,y]`` coordinates for the direction vector.
 
         Returns
         -------
@@ -627,9 +674,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Parameters
         ----------
         include_temperature_dependence : bool, optional
-            Set the temperature setting for the design. The default is ``True``.
+            Whether to include the temperature setting for the design. The default is ``True``.
         enable_feedback : bool, optional
-            Enable the feedback. The default is ``True``.
+            Whether to enable feedback. The default is ``True``.
         ambient_temp : float, optional
             Ambient temperature. The default is ``22``.
         create_project_var : bool, optional
@@ -669,3 +716,114 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         else:
             self.logger.info("Assigned Objects Temperature")
             return True
+
+    @aedt_exception_handler
+    def set_spice_model(self, component_name, model_path, model_name=None, subcircuit_name=None, pin_map=None):
+        """Assign a Spice model to a component.
+
+        Parameters
+        ----------
+        component_name : str
+            Name of the component.
+        model_path : str, optional
+            Full path to the model file. The default is ``None``.
+        model_name : str, optional
+            Name of the model. The default is ``None``, in which case the model name is the file name without an
+            extension.
+        subcircuit_name : str, optional
+            Name of the subcircuit. The default is ``None``, in which case the subcircuit name is the model name.
+        pin_map : list, optional
+            List of ``[spice_pin_name, aedt_pin_name]`` to customize the pin mapping between Spice pins and
+            AEDT pins.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss3dLayout
+        >>> h3d = Hfss3dLayout("myproject")
+        >>> h3d.modeler.set_spice_model(component_name="A1",
+        ...                             modelpath="pathtospfile",
+        ...                             modelname="spicemodelname",
+        ...                             subcircuit_name="SUBCK1")
+
+        """
+        if not model_name:
+            model_name = get_filename_without_extension(model_path)
+        if model_name not in list(self.o_model_manager.GetNames()):
+            args = [
+                "NAME:" + model_name,
+                "Name:=",
+                model_name,
+                "ModTime:=",
+                1643711258,
+                "Library:=",
+                "",
+                "LibLocation:=",
+                "Project",
+                "ModelType:=",
+                "dcirspice",
+                "Description:=",
+                "",
+                "ImageFile:=",
+                "",
+                "SymbolPinConfiguration:=",
+                0,
+                ["NAME:PortInfoBlk"],
+                ["NAME:PortOrderBlk"],
+                "filename:=",
+                model_path,
+                "modelname:=",
+                model_name,
+            ]
+            self.o_model_manager.Add(args)
+        if not subcircuit_name:
+            subcircuit_name = model_name
+        with open(model_path, "r") as f:
+            for line in f:
+                if "subckt" in line.lower():
+                    pinNames = [i.strip() for i in re.split(" |\t", line) if i]
+                    pinNames.remove(pinNames[0])
+                    pinNames.remove(pinNames[0])
+                    break
+        componentPins = [i.GetName() for i in self.edb.core_components.get_pin_from_component(component_name)]
+        componentPins.reverse()
+        if not pin_map:
+            pin_map = []
+            i = 0
+            if len(componentPins) >= len(pinNames):
+                for pn in pinNames:
+                    pin_map.append(pn + ":=")
+                    pin_map.append(componentPins[i])
+                    i += 1
+        args2 = [
+            "CompPropEnabled:=",
+            True,
+            "Pid:=",
+            -1,
+            "Pmo:=",
+            "0",
+            "CompPropType:=",
+            0,
+            "PinPairRLC:=",
+            [
+                "RLCModelType:=",
+                4,
+                "SPICE_file_path:=",
+                model_path,
+                "SPICE_model_name:=",
+                model_name,
+                "SPICE_subckt:=",
+                subcircuit_name,
+                "terminal_pin_map:=",
+                pin_map,
+            ],
+        ]
+        args = ["NAME:ModelChanges", ["NAME:UpdateModel0", ["NAME:ComponentNames", component_name], "Prop:=", args2]]
+        self.oeditor.UpdateModels(args)
+        self.logger.info("Spice Model Correctly assigned to {}.".format(component_name))
+        return True

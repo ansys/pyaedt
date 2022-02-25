@@ -388,28 +388,28 @@ solutions_types = {
         "HFSS3DLayout": {
             "name": None,
             "options": None,
-            "report_type": None,
+            "report_type": "Standard",
             "default_setup": 29,
             "default_adaptive": None,
         },
         "SiwaveDC3DLayout": {
             "name": None,
             "options": None,
-            "report_type": None,
+            "report_type": "Standard",
             "default_setup": 40,
             "default_adaptive": None,
         },
         "SiwaveAC3DLayout": {
             "name": None,
             "options": None,
-            "report_type": None,
+            "report_type": "Standard",
             "default_setup": 41,
             "default_adaptive": None,
         },
         "LNA3DLayout": {
             "name": None,
             "options": None,
-            "report_type": None,
+            "report_type": "Standard",
             "default_setup": 42,
             "default_adaptive": None,
         },
@@ -608,7 +608,7 @@ class HFSSDesignSolution(DesignSolution, object):
 
     @property
     def hybrid(self):
-        """Get/Set Hfss hybrid mode for the active solution."""
+        """HFSS hybrid mode for the active solution."""
         if self._aedt_version < "2021.2":
             return False
         if self._hybrid is None and self.solution_type is not None:
@@ -633,7 +633,7 @@ class HFSSDesignSolution(DesignSolution, object):
 
     @property
     def composite(self):
-        """Get/Set Hfss composite mode for the active solution."""
+        """HFSS composite mode for the active solution."""
         if self._aedt_version < "2021.2":
             return False
         if self._composite is None and self.solution_type is not None:

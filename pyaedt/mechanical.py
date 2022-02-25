@@ -165,7 +165,7 @@ class Mechanical(FieldAnalysis3D, object):
         # Generate a list of model objects from the lists made previously and use to map the HFSS losses into Icepak.
         #
         if not object_list:
-            allObjects = self.modeler.primitives.object_names
+            allObjects = self.modeler.object_names
         else:
             allObjects = object_list[:]
         surfaces = surface_objects
@@ -262,7 +262,7 @@ class Mechanical(FieldAnalysis3D, object):
         #
         object_list = self.modeler.convert_to_selections(object_list, True)
         if not object_list:
-            allObjects = self.modeler.primitives.object_names
+            allObjects = self.modeler.object_names
         else:
             allObjects = object_list[:]
         argparam = OrderedDict({})
@@ -328,7 +328,7 @@ class Mechanical(FieldAnalysis3D, object):
         assert self.solution_type == "Thermal", "This method works only in a Mechanical structural solution."
 
         props = {}
-        objects_list = self.modeler._convert_list_to_ids(objects_list)
+        objects_list = self.modeler.convert_to_selections(objects_list, True)
 
         if type(objects_list) is list:
             if type(objects_list[0]) is str:
@@ -377,7 +377,7 @@ class Mechanical(FieldAnalysis3D, object):
         assert self.solution_type == "Thermal", "This method works only in a Mechanical structural analysis."
 
         props = {}
-        objects_list = self.modeler._convert_list_to_ids(objects_list)
+        objects_list = self.modeler.convert_to_selections(objects_list, True)
 
         if type(objects_list) is list:
             if type(objects_list[0]) is str:
@@ -424,7 +424,7 @@ class Mechanical(FieldAnalysis3D, object):
             self.logger.error("This method works only in Mechanical Structural Solution")
             return False
         props = {}
-        objects_list = self.modeler._convert_list_to_ids(objects_list)
+        objects_list = self.modeler.convert_to_selections(objects_list, True)
 
         if type(objects_list) is list:
             if type(objects_list[0]) is str:
@@ -468,7 +468,7 @@ class Mechanical(FieldAnalysis3D, object):
             self.logger.error("This method works only in a Mechanical structural solution.")
             return False
         props = {}
-        objects_list = self.modeler._convert_list_to_ids(objects_list)
+        objects_list = self.modeler.convert_to_selections(objects_list, True)
 
         if type(objects_list) is list:
             props["Faces"] = objects_list

@@ -142,26 +142,30 @@ class FieldAnalysis2D(Analysis):
         force_opacity_value=None,
         clean_files=False,
     ):
-        """Plot the model or a substet of objects.
+        """Plot the model or a subset of objects.
 
         Parameters
         ----------
         objects : list, optional
-            Optional list of objects to plot. If `None` all objects will be exported.
+            List of objects to plot. The default is ``None``, in which case all objects
+            are exported.
         show : bool, optional
-            Show the plot after generation or simply return the
-            generated Class for more customization before plot.
+            Whether to show the plot after generation. The default is ``True``. If ``False``,
+            the generated class is returned for more customization before showing the plot.
         export_path : str, optional
-            If available, an image is saved to file. If `None` no image will be saved.
+            Path for the image file to save the plot to. The default is ``None``, in which case
+            no image file is saved.
         plot_as_separate_objects : bool, optional
-            Plot each object separately. It may require more time to export from AEDT.
+            Whether to plot each object separately. The default is ``True``, which may require
+            more time to export from AEDT.
         plot_air_objects : bool, optional
-            Plot also air and vacuum objects.
+            Whether to also plot air and vacuum objects. The default is ``True``.
         force_opacity_value : float, optional
-            Opacity value between 0 and 1 to be applied to all model.
-            If `None` aedt opacity will be applied to each object.
+            Opacity value between 0 and 1 to apply to all of the model. The default is ``None``,
+            in which case the AEDT opacity value is applied to each object.
         clean_files : bool, optional
-            Clean created files after plot. Cache is mainteined into the model object returned.
+            Whether to clean created files after plot generation. The default is ``False``, in
+            which case the cache is maintained into the model object that is returned.
 
         Returns
         -------
@@ -192,14 +196,15 @@ class FieldAnalysis2D(Analysis):
         setup_name :str
             Setup name.
         variation_string : str, optional
-            Variation List.
+            Variation list.
         mesh_path : str, optional
-            Full path to mesh statistics file. If `None` working_directory will be used.
+            Full path to the mesh statistics file. The default is ``None``, in which
+            case the working directory is used.
 
         Returns
         -------
         str
-            File Path.
+            File path.
 
         References
         ----------
@@ -245,12 +250,12 @@ class FieldAnalysis2D(Analysis):
                 Mat.update()
             self.logger.info("Assign Material " + mat + " to object " + str(selections))
             for el in selections:
-                self.modeler.primitives[el].material_name = mat
-                self.modeler.primitives[el].color = self.materials.material_keys[mat].material_appearance
+                self.modeler[el].material_name = mat
+                self.modeler[el].color = self.materials.material_keys[mat].material_appearance
                 if Mat.is_dielectric():
-                    self.modeler.primitives[el].solve_inside = True
+                    self.modeler[el].solve_inside = True
                 else:
-                    self.modeler.primitives[el].solve_inside = False
+                    self.modeler[el].solve_inside = False
             return True
         else:
             self.logger.error("Material does not exist.")

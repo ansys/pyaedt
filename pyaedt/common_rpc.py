@@ -389,7 +389,7 @@ def launch_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_
         str(val),
         str(port1),
     ]
-    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=non_graphical)
+    proc = subprocess.Popen(" ".join(command), shell=True)
     print("Process {} started on {}".format(proc.pid, socket.getfqdn()))
     print("Using Port {}".format(port1))
     print("Warning: Remote CPython to Ironpython may have some limitations.")

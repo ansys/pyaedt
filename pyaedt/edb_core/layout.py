@@ -91,13 +91,15 @@ class EdbLayout(object):
             ``True`` when successful, ``False`` when failed.
         """
         if self._active_layout:
+            self._prims = []
+            self._primitives_by_layer = {}
             layoutInstance = self._active_layout.GetLayoutInstance()
             layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
             for el in layoutObjectInstances.Items:
                 try:
                     self._prims.append(EDBPrimitives(el.GetLayoutObj(), self._pedb))
                 except:
-                    pass
+                    continue
             for lay in self.layers:
                 self._primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
             self._logger.info("Primitives Updated")
@@ -110,7 +112,7 @@ class EdbLayout(object):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
             List of primitives.
         """
         if not self._prims:
@@ -136,18 +138,11 @@ class EdbLayout(object):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
             List of rectangles.
 
         """
-        prims = []
-        for el in self.primitives:
-            try:
-                if "Rectangle" in el.primitive_object.ToString():
-                    prims.append(el)
-            except:
-                pass
-        return prims
+        return [i for i in self.primitives if i.type == "Rectangle"]
 
     @property
     def circles(self):
@@ -155,18 +150,11 @@ class EdbLayout(object):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
             List of circles.
 
         """
-        prims = []
-        for el in self.primitives:
-            try:
-                if "Circle" in el.primitive_object.ToString():
-                    prims.append(el)
-            except:
-                pass
-        return prims
+        return [i for i in self.primitives if i.type == "Circle"]
 
     @property
     def paths(self):
@@ -174,17 +162,10 @@ class EdbLayout(object):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
             List of paths.
         """
-        prims = []
-        for el in self.primitives:
-            try:
-                if "Path" in el.primitive_object.ToString():
-                    prims.append(el)
-            except:
-                pass
-        return prims
+        return [i for i in self.primitives if i.type == "Path"]
 
     @property
     def bondwires(self):
@@ -192,17 +173,10 @@ class EdbLayout(object):
 
         Returns
         -------
-        list
+        list of :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
             List of bondwires.
         """
-        prims = []
-        for el in self.primitives:
-            try:
-                if "Bondwire" in el.primitive_object.ToString():
-                    prims.append(el)
-            except:
-                pass
-        return prims
+        return [i for i in self.primitives if i.type == "Bondwire"]
 
     @property
     def polygons(self):
@@ -213,14 +187,7 @@ class EdbLayout(object):
         list of :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
             List of polygons.
         """
-        prims = []
-        for el in self.primitives:
-            try:
-                if "Polygon" in el.primitive_object.ToString():
-                    prims.append(el)
-            except:
-                pass
-        return prims
+        return [i for i in self.primitives if i.type == "Polygon"]
 
     @aedt_exception_handler
     def get_polygons_by_layer(self, layer_name, net_list=None):
@@ -439,8 +406,8 @@ class EdbLayout(object):
             ``"Extended",`` and ``"Flat"``. The default is
             ``"Round"``.
         corner_style : str, optional
-            Style of the corner. Options are ``"Round"`` and
-            ``"Flat"``. The default is ``"Round"``.
+            Style of the corner. Options are ``"Round"``,
+            ``"Sharp"`` and ``"Mitered"``. The default is ``"Round"``.
 
         Returns
         -------
@@ -449,21 +416,24 @@ class EdbLayout(object):
         """
         net = self._pedb.core_nets.find_or_create_net(net_name)
         if start_cap_style.lower() == "round":
-            start_cap_style = 0
+            start_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Round
         elif start_cap_style.lower() == "extended":
-            start_cap_style = 2
+            start_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Extended  # pragma: no cover
         else:
-            start_cap_style = 1
+            start_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Flat  # pragma: no cover
         if end_cap_style.lower() == "round":
-            end_cap_style = 0
+            end_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Round  # pragma: no cover
         elif end_cap_style.lower() == "extended":
-            end_cap_style = 2
+            end_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Extended  # pragma: no cover
         else:
-            end_cap_style = 1
+            end_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Flat
         if corner_style.lower() == "round":
-            corner_style = 0
+            corner_style = self._edb.Cell.Primitive.PathCornerStyle.RoundCorner
+        elif corner_style.lower() == "sharp":
+            corner_style = self._edb.Cell.Primitive.PathCornerStyle.SharpCorner  # pragma: no cover
         else:
-            corner_style = 1
+            corner_style = self._edb.Cell.Primitive.PathCornerStyle.MiterCorner  # pragma: no cover
+
         pointlists = [
             self._edb.Geometry.PointData(self._edb_value(i[0]), self._edb_value(i[1])) for i in path_list.points
         ]
@@ -485,7 +455,7 @@ class EdbLayout(object):
             if not self._prims:
                 self.update_primitives()
             else:
-                self._prims.append(polygon)
+                self._prims.append(EDBPrimitives(polygon, self._pedb))
                 if layer_name in self._primitives_by_layer:
                     self._primitives_by_layer[layer_name].append(polygon)
                 else:
@@ -531,7 +501,7 @@ class EdbLayout(object):
             if not self._prims:
                 self.update_primitives()
             else:
-                self._prims.append(polygon)
+                self._prims.append(EDBPrimitives(polygon, self._pedb))
                 if layer_name in list(self._primitives_by_layer.keys()):
                     self._primitives_by_layer[layer_name].append(polygon)
                 else:
@@ -584,31 +554,25 @@ class EdbLayout(object):
         bool
             ``True`` when successful, ``False`` when no changes were applied.
         """
-        obj_list = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
-        circle_list = [
-            obj.GetLayoutObj()
-            for obj in list(obj_list.Items)
-            if isinstance(obj.GetLayoutObj(), self._edb.Cell.Primitive.Circle)
-        ]
-
-        void_circles = [circ for circ in circle_list if circ.IsVoid()]
-        if len(void_circles) > 0:
-            for void_circle in void_circles:
-                if is_ironpython:
-                    res, center_x, center_y, radius = void_circle.GetParameters()
-                else:
-                    res, center_x, center_y, radius = void_circle.GetParameters(0.0, 0.0, 0.0)
-                cloned_circle = self._edb.Cell.Primitive.Circle.Create(
-                    self._active_layout,
-                    void_circle.GetLayer().GetName(),
-                    void_circle.GetNet(),
-                    self._edb_value(center_x),
-                    self._edb_value(center_y),
-                    self._edb_value(radius),
-                )
-                if res:
-                    cloned_circle.SetIsNegative(True)
-                    void_circle.Delete()
+        for void_circle in self.circles:
+            if not void_circle.is_void:
+                continue
+            if is_ironpython:  # pragma: no cover
+                res, center_x, center_y, radius = void_circle.primitive_object.GetParameters()
+            else:
+                res, center_x, center_y, radius = void_circle.primitive_object.GetParameters(0.0, 0.0, 0.0)
+            cloned_circle = self._edb.Cell.Primitive.Circle.Create(
+                self._active_layout,
+                void_circle.layer_name,
+                void_circle.net,
+                self._edb_value(center_x),
+                self._edb_value(center_y),
+                self._edb_value(radius),
+            )
+            if res:
+                cloned_circle.SetIsNegative(True)
+                void_circle.Delete()
+        self.update_primitives()
         return True
 
     @aedt_exception_handler
@@ -874,9 +838,11 @@ class EdbLayout(object):
             if lay in list(self.polygons_by_layer.keys()):
                 for poly in self.polygons_by_layer[lay]:
                     if not poly.GetNet().GetName() in list(poly_by_nets.keys()):
-                        poly_by_nets[poly.GetNet().GetName()] = [poly]
+                        if poly.GetNet().GetName():
+                            poly_by_nets[poly.GetNet().GetName()] = [poly]
                     else:
-                        poly_by_nets[poly.GetNet().GetName()].append(poly)
+                        if poly.GetNet().GetName():
+                            poly_by_nets[poly.GetNet().GetName()].append(poly)
             for net in poly_by_nets:
                 list_polygon_data = [i.GetPolygonData() for i in poly_by_nets[net]]
                 all_voids = [i.Voids for i in poly_by_nets[net]]

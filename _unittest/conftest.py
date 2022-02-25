@@ -24,13 +24,18 @@ import json
 import gc
 import sys
 from pyaedt.generic.general_methods import is_ironpython, inside_desktop
+from pyaedt import settings
 
+log_path = os.path.join(tempfile.gettempdir(), "test.log")
+if os.path.exists(os.path.join(tempfile.gettempdir(), "test.log")):
+    os.remove(log_path)
+settings.logger_file_path = log_path
+settings.enable_error_handler = False
 if is_ironpython:
     import _unittest_ironpython.conf_unittest as pytest
 else:
     import pytest
 
-os.environ["PYAEDT_ERROR_HANDLER"] = "False"
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -177,7 +182,7 @@ def pyaedt_unittest_check_desktop_error(func):
         except Exception as e:
             pytest.exit("Desktop Crashed - Aborting the test!")
         args[0].cache.update()
-        # model_report = args[0].aedtapp.modeler.primitives.model_consistency_report
+        # model_report = args[0].aedtapp.modeler.model_consistency_report
         # assert not model_report["Missing Objects"]
         # assert not model_report["Non-Existent Objects"]
         assert args[0].cache.no_new_errors

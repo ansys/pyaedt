@@ -1,4 +1,3 @@
-import gc
 import os
 import time
 
@@ -30,8 +29,13 @@ class TestClass:
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
-        self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
-        gc.collect()
+        for proj in self.aedtapp.project_list:
+            try:
+                self.aedtapp.close_project(proj, False)
+            except:
+                pass
+        self.local_scratch.remove()
+        del self.aedtapp
 
     def test_01_creatematerial(self):
         mymat = self.aedtapp.materials.add_material("myMaterial")
@@ -126,40 +130,40 @@ class TestClass:
         s1.update_stackup_layer()
 
     def test_03_create_circle(self):
-        n1 = self.aedtapp.modeler.primitives.create_circle("Top", 0, 5, 40, "mycircle")
+        n1 = self.aedtapp.modeler.create_circle("Top", 0, 5, 40, "mycircle")
         assert n1 == "mycircle"
 
     def test_04_create_create_rectangle(self):
-        n2 = self.aedtapp.modeler.primitives.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
+        n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
         assert n2 == "myrectangle"
 
     def test_05_subtract(self):
         assert self.aedtapp.modeler.subtract("mycircle", "myrectangle")
 
     def test_06_unite(self):
-        n1 = self.aedtapp.modeler.primitives.create_circle("Top", 0, 5, 8, "mycircle2")
-        n2 = self.aedtapp.modeler.primitives.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle2")
+        n1 = self.aedtapp.modeler.create_circle("Top", 0, 5, 8, "mycircle2")
+        n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle2")
         assert self.aedtapp.modeler.unite([n1, n2])
 
     def test_07_intersect(self):
-        n1 = self.aedtapp.modeler.primitives.create_circle("Top", 0, 5, 8, "mycircle3")
-        n2 = self.aedtapp.modeler.primitives.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle3")
+        n1 = self.aedtapp.modeler.create_circle("Top", 0, 5, 8, "mycircle3")
+        n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle3")
         assert self.aedtapp.modeler.intersect([n1, n2])
 
     def test_08_objectlist(self):
-        a = self.aedtapp.modeler.primitives.geometries
+        a = self.aedtapp.modeler.geometries
         assert len(a) > 0
 
     def test_09_modify_padstack(self):
-        pad_0 = self.aedtapp.modeler.primitives.padstacks["PlanarEMVia"]
-        assert self.aedtapp.modeler.primitives.padstacks["PlanarEMVia"].plating != 55
+        pad_0 = self.aedtapp.modeler.padstacks["PlanarEMVia"]
+        assert self.aedtapp.modeler.padstacks["PlanarEMVia"].plating != 55
         pad_0.plating = 55
         pad_0.update()
-        self.aedtapp.modeler.primitives.init_padstacks()
-        assert self.aedtapp.modeler.primitives.padstacks["PlanarEMVia"].plating == "55"
+        self.aedtapp.modeler.init_padstacks()
+        assert self.aedtapp.modeler.padstacks["PlanarEMVia"].plating == "55"
 
     def test_10_create_padstack(self):
-        pad1 = self.aedtapp.modeler.primitives.new_padstack("My_padstack2")
+        pad1 = self.aedtapp.modeler.new_padstack("My_padstack2")
         hole1 = pad1.add_hole()
         pad1.add_layer("Start", pad_hole=hole1, thermal_hole=hole1)
         hole2 = pad1.add_hole(holetype="Rct", sizes=[0.5, 0.8])
@@ -170,13 +174,13 @@ class TestClass:
         assert pad1.create()
 
     def test_11_create_via(self):
-        via = self.aedtapp.modeler.primitives.create_via("My_padstack2", x=0, y=0)
+        via = self.aedtapp.modeler.create_via("My_padstack2", x=0, y=0)
         assert type(via) is str
-        via = self.aedtapp.modeler.primitives.create_via("My_padstack2", x=10, y=10, name="Via123", netname="VCC")
+        via = self.aedtapp.modeler.create_via("My_padstack2", x=10, y=10, name="Via123", netname="VCC")
         assert via == "Via123"
 
     def test_12_create_line(self):
-        line = self.aedtapp.modeler.primitives.create_line(
+        line = self.aedtapp.modeler.create_line(
             "Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line1", netname="VCC"
         )
         assert line == "line1"
@@ -184,6 +188,7 @@ class TestClass:
     def test_13a_create_edge_port(self):
         assert self.aedtapp.create_edge_port("line1", 3, False)
         assert self.aedtapp.create_edge_port("line1", 0, True)
+        assert len(self.aedtapp.excitations) > 0
 
     def test_14a_create_coaxial_port(self):
         assert self.aedtapp.create_coax_port("Via123", "Bottom", "Top", 10, 10, 10, 10)
@@ -291,6 +296,23 @@ class TestClass:
         )
         assert sweep4.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.12GHz"
 
+        # Create a linear step sweep with the incorrect sweep type.
+        try:
+            sweep_raising_error = self.aedtapp.create_linear_step_sweep(
+                setupname=setup_name,
+                unit="GHz",
+                freqstart=1,
+                freqstop=10,
+                step_size=0.12,
+                sweepname="RFBoardSweep4",
+                sweep_type="Incorrect",
+                save_fields=True,
+            )
+        except AttributeError as e:
+            exception_raised = True
+            assert e.args[0] == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
+        assert exception_raised
+
     def test_18c_create_single_point_sweep(self):
         setup_name = "RFBoardSetup"
         sweep5 = self.aedtapp.create_single_point_sweep(
@@ -383,14 +405,14 @@ class TestClass:
         assert new_material.name == "secondmaterial"
 
     def test30_expand(self):
-        self.aedtapp.modeler.primitives.create_rectangle("Bottom", [20, 20], [50, 50], name="rect_1")
-        self.aedtapp.modeler.primitives.create_line("Bottom", [[25, 25], [40, 40]], name="line_3")
+        self.aedtapp.modeler.create_rectangle("Bottom", [20, 20], [50, 50], name="rect_1")
+        self.aedtapp.modeler.create_line("Bottom", [[25, 25], [40, 40]], name="line_3")
         out1 = self.aedtapp.modeler.expand("line_3", size=1, expand_type="ROUND", replace_original=False)
         assert isinstance(out1, str)
 
     def test31_heal(self):
-        l1 = self.aedtapp.modeler.primitives.create_line("Bottom", [[0, 0], [100, 0]], 0.5, name="poly_1111")
-        l2 = self.aedtapp.modeler.primitives.create_line("Bottom", [[100, 0], [120, -35]], 0.5, name="poly_2222")
+        l1 = self.aedtapp.modeler.create_line("Bottom", [[0, 0], [100, 0]], 0.5, name="poly_1111")
+        l2 = self.aedtapp.modeler.create_line("Bottom", [[100, 0], [120, -35]], 0.5, name="poly_2222")
         self.aedtapp.modeler.unite([l1, l2])
         assert self.aedtapp.modeler.colinear_heal("poly_2222", tolerance=0.25)
 

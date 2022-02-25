@@ -1,13 +1,15 @@
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path
+from _unittest.conftest import local_path, scratch_path, desktop_version
 
 # Import required modules
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+from pyaedt import Hfss
 import base64
 import filecmp
 import os
 import sys
+import gc
 
 
 def _write_jpg(design_info, scratch):
@@ -75,3 +77,41 @@ class TestProjectFileWithMultipleDesigns:
     def test_03_check_first_design_jpg(self):
         jpg_file = _write_jpg(self.design_info[0], self.local_scratch.path)
         assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", "Cassegrain_Hybrid.jpg"))
+
+
+class TestProjectFileWithCoordinateSystems:
+    def setup_class(self):
+        with Scratch(scratch_path) as self.local_scratch:
+            aedt_file = os.path.join(local_path, "example_models", "Coordinate_System.aedt")
+            self.test_project = self.local_scratch.copyfile(aedt_file)
+            aedt_file = os.path.join(local_path, "example_models", "Coordinate_System1.aedt")
+            self.test_project1 = self.local_scratch.copyfile(aedt_file)
+            aedt_file = os.path.join(local_path, "example_models", "Coordinate_System2.aedt")
+            self.test_project2 = self.local_scratch.copyfile(aedt_file)
+            aedt_file = os.path.join(local_path, "example_models", "Coordinate_System3.aedt")
+            self.test_project3 = self.local_scratch.copyfile(aedt_file)
+            self.aedtapp = Hfss(specified_version=desktop_version)
+
+    def teardown_class(self):
+        self.aedtapp._desktop.ClearMessages("", "", 3)
+        self.local_scratch.remove()
+        gc.collect()
+
+    def test_01_check_can_load_aedt_file_with_multiple_coord_systems(self):
+        # implicitly this will test to make sure no exception is thrown by load_entire_aedt_file
+        assert load_entire_aedt_file(self.test_project)
+
+    def test_02_check_coordinate_system_retrival(self):
+        self.aedtapp.load_project(self.test_project, close_active_proj=True)
+        cs = self.aedtapp.modeler.coordinate_systems
+        assert cs
+        self.aedtapp.load_project(self.test_project1, close_active_proj=True)
+        cs = self.aedtapp.modeler.coordinate_systems
+        assert cs
+        self.aedtapp.load_project(self.test_project2, close_active_proj=True)
+        cs = self.aedtapp.modeler.coordinate_systems
+        assert cs
+        self.aedtapp.load_project(self.test_project3, close_active_proj=True)
+        cs = self.aedtapp.modeler.coordinate_systems
+        assert cs
+        self.aedtapp.close_project()

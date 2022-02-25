@@ -156,17 +156,17 @@ class CommonOptimetrics(object):
         inputd = copy.deepcopy(dictinputs)
 
         if optimtype == "OptiParametric":
-            self.props = inputd or defaultparametricSetup
+            self.props = inputd or copy.deepcopy(defaultparametricSetup)
         if optimtype == "OptiDesignExplorer":
-            self.props = inputd or defaultdxSetup
+            self.props = inputd or copy.deepcopy(defaultdxSetup)
         if optimtype == "OptiOptimization":
-            self.props = inputd or defaultoptiSetup
+            self.props = inputd or copy.deepcopy(defaultoptiSetup)
         if optimtype == "OptiSensitivity":
-            self.props = inputd or defaultsensitivitySetup
+            self.props = inputd or copy.deepcopy(defaultsensitivitySetup)
         if optimtype == "OptiStatistical":
-            self.props = inputd or defaultstatisticalSetup
+            self.props = inputd or copy.deepcopy(defaultstatisticalSetup)
         if optimtype == "OptiDXDOE":
-            self.props = inputd or defaultdoeSetup
+            self.props = inputd or copy.deepcopy(defaultdoeSetup)
 
         if inputd:
             self.props.pop("ID", None)
