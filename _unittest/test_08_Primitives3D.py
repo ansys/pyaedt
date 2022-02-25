@@ -985,7 +985,6 @@ class TestClass(BasisTest):
         assert isinstance(resolve, list)
         assert resolve[0]
         assert isinstance(resolve[1], dict)
-        """
         resolve1 = self.aedtapp.modeler.check_choke_values(choke_file1, create_another_file=True)
         resolve2 = self.aedtapp.modeler.check_choke_values(choke_file2, create_another_file=True)
         resolve3 = self.aedtapp.modeler.check_choke_values(choke_file3, create_another_file=True)
@@ -1006,7 +1005,6 @@ class TestClass(BasisTest):
         assert isinstance(resolve5, list)
         assert resolve5[0]
         assert isinstance(resolve5[1], dict)
-        """
 
     @pyaedt_unittest_check_desktop_error
     def test_73_make_winding(self):

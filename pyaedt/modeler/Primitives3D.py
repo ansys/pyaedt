@@ -2256,30 +2256,31 @@ class Primitives3D(Primitives, object):
                                                                      "a strictly positive float"
                                                                      )
 
-        if values["Layer"]["Double"] or values["Layer"]["Triple"]:
-            turns2, are_inequations_checkable = self._check_value_type(values["Mid Winding"]["Turns"], int,
-                                                                       are_inequations_checkable,
-                                                                       "Turns(Mid Winding)",
-                                                                       "a strictly positive integer"
-                                                                       )
-            wind_pit2, are_inequations_checkable = self._check_value_type(values["Mid Winding"]["Coil Pit(deg)"],
-                                                                          float,
-                                                                          are_inequations_checkable,
-                                                                          "Coil Pit(Mid Winding)",
-                                                                          "a strictly positive float"
-                                                                          )
-        if values["Layer"]["Triple"]:
-            turns3, are_inequations_checkable = self._check_value_type(values["Inner Winding"]["Turns"], int,
-                                                                       are_inequations_checkable,
-                                                                       "Turns(Inner Winding)",
-                                                                       "a strictly positive integer"
-                                                                       )
-            wind_pit3, are_inequations_checkable = self._check_value_type(values["Inner Winding"]["Coil Pit(deg)"],
-                                                                          float,
-                                                                          are_inequations_checkable,
-                                                                          "Coil Pit(Inner Winding)",
-                                                                          "a strictly positive float"
-                                                                          )
+        turns2, are_inequations_checkable = self._check_value_type(values["Mid Winding"]["Turns"], int,
+                                                                   are_inequations_checkable,
+                                                                   "Turns(Mid Winding)",
+                                                                   "a strictly positive integer"
+                                                                   )
+
+        wind_pit2, are_inequations_checkable = self._check_value_type(values["Mid Winding"]["Coil Pit(deg)"],
+                                                                      float,
+                                                                      are_inequations_checkable,
+                                                                      "Coil Pit(Mid Winding)",
+                                                                      "a strictly positive float"
+                                                                      )
+
+        turns3, are_inequations_checkable = self._check_value_type(values["Inner Winding"]["Turns"], int,
+                                                                   are_inequations_checkable,
+                                                                   "Turns(Inner Winding)",
+                                                                   "a strictly positive integer"
+                                                                   )
+
+        wind_pit3, are_inequations_checkable = self._check_value_type(values["Inner Winding"]["Coil Pit(deg)"],
+                                                                      float,
+                                                                      are_inequations_checkable,
+                                                                      "Coil Pit(Inner Winding)",
+                                                                      "a strictly positive float"
+                                                                      )
         if are_inequations_checkable:
             teta = radians(wind_pit)
             teta2 = radians(wind_pit2)
