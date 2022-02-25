@@ -2178,7 +2178,7 @@ class Primitives3D(Primitives, object):
             core_name = str(values["Core"]["Name"])
             if len(core_name) > 0:
                 values["Core"]["Name"] = core_name
-        except:
+        except:  # pragma: no cover
             self.logger.warning("Core Name must be a non-null string. A default name Core has been set.")
             values["Core"]["Name"] = "Core"
 
@@ -2186,7 +2186,7 @@ class Primitives3D(Primitives, object):
             winding_name = str(values["Outer Winding"]["Name"])
             if len(winding_name) > 0:
                 values["Outer Winding"]["Name"] = winding_name
-        except:
+        except:  # pragma: no cover
             self.logger.warning("Outer Winding Name must be a non-null string. A default name Winding has been set.")
             values["Outer Winding"]["Name"] = "Winding"
         try:
@@ -2198,7 +2198,7 @@ class Primitives3D(Primitives, object):
                     "It must be changed"
                 )
                 are_inequations_checkable = False
-        except:
+        except:  # pragma: no cover
             self.logger.error(
                 "The character entered is invalid. Inner Radius(Core) must be a strictly positive float. "
                 "It must be changed"
@@ -2212,7 +2212,7 @@ class Primitives3D(Primitives, object):
                     "It must be changed"
                 )
                 are_inequations_checkable = False
-        except:
+        except:  # pragma: no cover
             self.logger.error(
                 "The character entered is invalid. Outer Radius(Core) must be a strictly positive float. "
                 "It must be changed"
@@ -2226,7 +2226,7 @@ class Primitives3D(Primitives, object):
                     "It must be changed"
                 )
                 are_inequations_checkable = False
-        except:
+        except:  # pragma: no cover
             self.logger.error(
                 "The character entered is invalid. Height(Core) must be a strictly positive float. "
                 "It must be changed"
@@ -2239,7 +2239,7 @@ class Primitives3D(Primitives, object):
                     "The character entered is invalid. Chamfer must be a positive float." " It must be changed"
                 )
                 are_inequations_checkable = False
-        except:
+        except:  # pragma: no cover
             self.logger.error(
                 "The character entered is invalid. Chamfer must be a positive float." " It must be changed"
             )
@@ -2252,7 +2252,7 @@ class Primitives3D(Primitives, object):
                     "It must be changed"
                 )
                 are_inequations_checkable = False
-        except:
+        except:  # pragma: no cover
             self.logger.error(
                 "The character entered is invalid. Inner Radius(Coil) must be a strictly positive float. "
                 "It must be changed"
@@ -2266,7 +2266,7 @@ class Primitives3D(Primitives, object):
                     "It must be changed"
                 )
                 are_inequations_checkable = False
-        except:
+        except:  # pragma: no cover
             self.logger.error(
                 "The character entered is invalid. Outer Radius(Coil) must be a strictly positive float. "
                 "It must be changed"
@@ -2280,7 +2280,7 @@ class Primitives3D(Primitives, object):
                     "It must be changed"
                 )
                 are_inequations_checkable = False
-        except:
+        except:  # pragma: no cover
             self.logger.error(
                 "The character entered is invalid. Height(Coil) must be a strictly positive float. "
                 "It must be changed"
@@ -2293,7 +2293,7 @@ class Primitives3D(Primitives, object):
                     "The character entered is invalid. Turns must be a non-zero integer. " "It must be changed"
                 )
                 are_inequations_checkable = False
-        except:
+        except:  # pragma: no cover
             self.logger.error(
                 "The character entered is invalid. Turns must be a non-zero integer. " "It must be changed"
             )
@@ -2305,7 +2305,7 @@ class Primitives3D(Primitives, object):
                     "The character entered is invalid. Turns must be a non-zero integer. " "It must be changed"
                 )
                 are_inequations_checkable = False
-        except:
+        except:  # pragma: no cover
             self.logger.error(
                 "The character entered is invalid. Turns must be a non-zero integer. " "It must be changed"
             )
@@ -2317,7 +2317,7 @@ class Primitives3D(Primitives, object):
                     "The character entered is invalid. Turns must be a non-zero integer. " "It must be changed"
                 )
                 are_inequations_checkable = False
-        except:
+        except:  # pragma: no cover
             self.logger.error(
                 "The character entered is invalid. Turns must be a non-zero integer. " "It must be changed"
             )
@@ -2330,7 +2330,7 @@ class Primitives3D(Primitives, object):
                     "It must be changed"
                 )
                 are_inequations_checkable = False
-        except:
+        except:  # pragma: no cover
             self.logger.error(
                 "The character entered is invalid. Coil Pit must be a strictly positive float. It must be changed"
             )
@@ -2343,7 +2343,7 @@ class Primitives3D(Primitives, object):
                     "It must be changed"
                 )
                 are_inequations_checkable = False
-        except:
+        except:  # pragma: no cover
             self.logger.error(
                 "The character entered is invalid. Coil Pit must be a strictly positive float. " "It must be changed"
             )
@@ -2356,7 +2356,7 @@ class Primitives3D(Primitives, object):
                     "It must be changed"
                 )
                 are_inequations_checkable = False
-        except:
+        except:  # pragma: no cover
             self.logger.error(
                 "The character entered is invalid. Coil Pit must be a strictly positive float. " "It must be changed"
             )
@@ -2369,7 +2369,7 @@ class Primitives3D(Primitives, object):
                     " It must be changed"
                 )
                 are_inequations_checkable = False
-        except:
+        except:  # pragma: no cover
             self.logger.error(
                 "The character entered is invalid. Wire Diameter must be a strictly positive float. "
                 "It must be changed"
