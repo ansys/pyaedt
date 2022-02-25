@@ -49,7 +49,7 @@ if is_ironpython:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
 
     _com = "ironpython"
-elif IsWindows:
+elif IsWindows:  # pragma: no cover
     import pythoncom
 
     modules = [tup[1] for tup in pkgutil.iter_modules()]
