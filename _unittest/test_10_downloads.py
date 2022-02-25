@@ -31,3 +31,6 @@ class TestClass:
 
     def test_download_antenna_sherlock(self):
         assert self.examples.download_sherlock()
+
+    def test_download_wfp(self):
+        assert self.examples.download_edb_merge_utility()

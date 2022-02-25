@@ -1,4 +1,3 @@
-import gc
 import os
 import time
 
@@ -30,8 +29,13 @@ class TestClass:
 
     def teardown_class(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
-        self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
-        gc.collect()
+        for proj in self.aedtapp.project_list:
+            try:
+                self.aedtapp.close_project(proj, False)
+            except:
+                pass
+        self.local_scratch.remove()
+        del self.aedtapp
 
     def test_01_creatematerial(self):
         mymat = self.aedtapp.materials.add_material("myMaterial")
@@ -291,6 +295,23 @@ class TestClass:
             save_fields=True,
         )
         assert sweep4.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.12GHz"
+
+        # Create a linear step sweep with the incorrect sweep type.
+        try:
+            sweep_raising_error = self.aedtapp.create_linear_step_sweep(
+                setupname=setup_name,
+                unit="GHz",
+                freqstart=1,
+                freqstop=10,
+                step_size=0.12,
+                sweepname="RFBoardSweep4",
+                sweep_type="Incorrect",
+                save_fields=True,
+            )
+        except AttributeError as e:
+            exception_raised = True
+            assert e.args[0] == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
+        assert exception_raised
 
     def test_18c_create_single_point_sweep(self):
         setup_name = "RFBoardSetup"

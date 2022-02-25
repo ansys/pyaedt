@@ -1,6 +1,7 @@
 # Setup paths for module imports
 from _unittest.conftest import scratch_path, local_path
 import os
+import tempfile
 
 # Import required modules
 from pyaedt import Maxwell3d
@@ -99,6 +100,20 @@ class TestClass:
         assert Setup.enable()
         assert self.aedtapp.setup_ctrlprog(Setup.name)
 
+    def test_08_setup_ctrlprog_with_file(self):
+        transient_setup = self.aedtapp.create_setup()
+        transient_setup.props["MaximumPasses"] = 12
+        transient_setup.props["MinimumPasses"] = 2
+        transient_setup.props["MinimumConvergedPasses"] = 1
+        transient_setup.props["PercentRefinement"] = 30
+        transient_setup.props["Frequency"] = "200Hz"
+        transient_setup.update()
+        transient_setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
+
+        # Test the creation of the control program file
+        with tempfile.TemporaryFile("w+") as fp:
+            assert self.aedtapp.setup_ctrlprog(transient_setup.name, file_str=fp.name)
+
     def test_22_create_length_mesh(self):
         assert self.aedtapp.mesh.assign_length_mesh(["Plate"])
 
@@ -160,7 +175,7 @@ class TestClass:
             udp_parameters_list=my_udpPairs,
             upd_library="syslib",
             name=my_udpName,
-            udptye="Solid",
+            udp_type="Solid",
         )
 
         assert udp
@@ -184,7 +199,7 @@ class TestClass:
             udp_dll_name="RMxprt/ClawPoleCore",
             udp_parameters_list=my_udpPairs,
             upd_library="syslib",
-            udptye="Solid",
+            udp_type="Solid",
         )
 
         assert second_udp
