@@ -24,7 +24,7 @@ test = sys.modules.keys()
 
 scdoc = "input.scdoc"
 step = "input.stp"
-
+component3d = "new.a3dcomp"
 
 class TestClass(BasisTest):
     def setup_class(self):
@@ -34,6 +34,7 @@ class TestClass(BasisTest):
             scdoc_file = os.path.join(local_path, "example_models", scdoc)
             self.local_scratch.copyfile(scdoc_file)
             self.step_file = os.path.join(local_path, "example_models", step)
+            self.component3d_file = os.path.join(self.local_scratch.path, component3d)
             test_98_project = os.path.join(local_path, "example_models", "assembly2" + ".aedt")
             self.test_98_project = self.local_scratch.copyfile(test_98_project)
             test_99_project = os.path.join(local_path, "example_models", "assembly" + ".aedt")
@@ -844,27 +845,34 @@ class TestClass(BasisTest):
         assert self.aedtapp.modeler.import_3d_cad(self.step_file)
         assert len(self.aedtapp.modeler.object_names) == 1
 
-    def test_64_create_equationbased_curve(self):
+    def test_64_create_3dcomponent(self):
+        assert self.aedtapp.modeler.create_3dcomponent(self.component3d_file)
+        new_obj = self.aedtapp.modeler.duplicate_along_line("Solid", [100, 0, 0])
+        rad = self.aedtapp.assign_radiation_boundary_to_objects("Solid")
+        exc = self.aedtapp.create_wave_port_from_sheet(10)
+        assert self.aedtapp.modeler.create_3dcomponent(self.component3d_file, exclude_region=True,
+                                                       object_list=["Solid", new_obj[1][0]], boundaries_list=[rad.name],
+                                                       excitation_list=[exc.name], included_cs="Global")
+
+    def test_65_create_equationbased_curve(self):
         self.aedtapp.insert_design("Equations")
         eq_line = self.aedtapp.modeler.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points=0)
         assert len(eq_line.edges) == 1
         eq_segmented = self.aedtapp.modeler.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points=5)
         assert len(eq_segmented.edges) == 4
-
         eq_xsection = self.aedtapp.modeler.create_equationbased_curve(x_t="_t", y_t="_t*2", xsection_type="Circle")
         assert eq_xsection.name in self.aedtapp.modeler.solid_names
 
-    def test_65_create_3dcomponent(self):
+    def test_66_insert_3dcomponent(self):
         self.aedtapp.solution_type = "Modal"
         self.aedtapp["l_dipole"] = "13.5cm"
-
         compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]
         geometryparams = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
         geometryparams["dipole_length"] = "l_dipole"
         name = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
         assert isinstance(name, str)
 
-    def test_65b_group_components(self):
+    def test_66b_group_components(self):
         self.aedtapp["l_dipole"] = "13.5cm"
 
         compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]
@@ -874,7 +882,7 @@ class TestClass(BasisTest):
         name2 = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
         assert self.aedtapp.modeler.create_group(components=[name, name2], group_name="test_group") == "test_group"
 
-    def test_66_assign_material(self):
+    def test_67_assign_material(self):
         box1 = self.aedtapp.modeler.create_box([60, 60, 60], [4, 5, 5])
         box2 = self.aedtapp.modeler.create_box([50, 50, 50], [2, 3, 4])
         cyl1 = self.aedtapp.modeler.create_cylinder(cs_axis="X", position=[50, 0, 0], radius=1, height=20)
@@ -894,12 +902,12 @@ class TestClass(BasisTest):
         assert self.aedtapp.modeler[cyl1].material_name == "aluminum"
         assert self.aedtapp.modeler[cyl2].material_name == "aluminum"
 
-    def test_67_cover_lines(self):
+    def test_68_cover_lines(self):
         P1 = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]], close_surface=True)
         assert self.aedtapp.modeler.cover_lines(P1)
 
     @pyaedt_unittest_check_desktop_error
-    def test_68_create_torus(self):
+    def test_69_create_torus(self):
         torus = self.create_copper_torus()
         assert torus.id > 0
         assert torus.name.startswith("MyTorus")
@@ -908,7 +916,7 @@ class TestClass(BasisTest):
 
     @pytest.mark.skipif(is_ironpython, reason="pytest is not supported with IronPython.")
     @pyaedt_unittest_check_desktop_error
-    def test_69_create_torus_exceptions(self):
+    def test_70_create_torus_exceptions(self):
 
         with pytest.raises(ValueError) as excinfo:
             self.aedtapp.modeler.create_torus(
@@ -935,7 +943,7 @@ class TestClass(BasisTest):
         #     assert "Major radius must be greater than minor radius." in str(excinfo.value)
 
     @pyaedt_unittest_check_desktop_error
-    def test_70_create_point(self):
+    def test_71_create_point(self):
         name = "mypoint"
         if self.aedtapp.modeler[name]:
             self.aedtapp.modeler.delete(name)
