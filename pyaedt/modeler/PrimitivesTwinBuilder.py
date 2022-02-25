@@ -2,10 +2,10 @@ from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.PrimitivesCircuit import CircuitComponents, ComponentCatalog
 
 
-class SimplorerComponents(CircuitComponents):
-    """SimplorerComponents class.
+class TwinBuilderComponents(CircuitComponents):
+    """TwinBuilderComponents class.
 
-    This class is for managing all circuit components for Simplorer.
+    This class is for managing all circuit components for Twin Builder.
 
     Parameters
     ----------
@@ -15,10 +15,10 @@ class SimplorerComponents(CircuitComponents):
 
     Examples
     --------
-    Basic usage demonstrated with a Simplorer design:
+    Basic usage demonstrated with a Twin Builder design:
 
-    >>> from pyaedt import Simplorer
-    >>> aedtapp = Simplorer()
+    >>> from pyaedt import Twin Builder
+    >>> aedtapp = TwinBuilder()
     >>> prim = aedtapp.modeler.schematic
     """
 
@@ -201,7 +201,7 @@ class SimplorerComponents(CircuitComponents):
     def create_voltage_source(
         self, compname=None, type="E", amplitude=326, freq=50, location=[], angle=0, use_instance_id_netlist=False
     ):
-        """Create a voltage source.
+        """Create a voltage source (conservative electrical output).
 
         Parameters
         ----------
