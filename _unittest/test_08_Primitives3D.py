@@ -960,6 +960,7 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_71_create_choke(self):
+        """"
         choke_file = os.path.join(local_path, "example_models", "choke.json")
         resolve = self.aedtapp.modeler.create_choke(choke_file)
         assert isinstance(resolve, list)
@@ -968,7 +969,7 @@ class TestClass(BasisTest):
         for i in range(2, len(resolve)):
             assert isinstance(resolve[i][0], Object3d)
             assert isinstance(resolve[i][1], list)
-
+        """
     @pyaedt_unittest_check_desktop_error
     def test_72_check_choke_values(self):
         choke_file1 = os.path.join(local_path, "example_models", "choke_json_file", "choke_1winding_1Layer.json")
