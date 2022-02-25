@@ -219,14 +219,14 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_polyhedron(
-            self,
-            cs_axis=None,
-            center_position=(0.0, 0.0, 0.0),
-            start_position=(0.0, 1.0, 0.0),
-            height=1.0,
-            num_sides=12,
-            name=None,
-            matname=None,
+        self,
+        cs_axis=None,
+        center_position=(0.0, 0.0, 0.0),
+        start_position=(0.0, 1.0, 0.0),
+        height=1.0,
+        num_sides=12,
+        name=None,
+        matname=None,
     ):
         """Create a regular polyhedron.
 
@@ -487,18 +487,18 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_bondwire(
-            self,
-            start_position,
-            end_position,
-            h1=0.2,
-            h2=0,
-            alpha=80,
-            beta=5,
-            bond_type=0,
-            diameter=0.025,
-            facets=6,
-            name=None,
-            matname=None,
+        self,
+        start_position,
+        end_position,
+        h1=0.2,
+        h2=0,
+        alpha=80,
+        beta=5,
+        bond_type=0,
+        diameter=0.025,
+        facets=6,
+        name=None,
+        matname=None,
     ):
         """Create a bondwire.
 
@@ -757,21 +757,21 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_equationbased_curve(
-            self,
-            x_t=0,
-            y_t=0,
-            z_t=0,
-            t_start=0,
-            t_end=1,
-            num_points=0,
-            name=None,
-            xsection_type=None,
-            xsection_orient=None,
-            xsection_width=1,
-            xsection_topwidth=1,
-            xsection_height=1,
-            xsection_num_seg=0,
-            xsection_bend_type=None,
+        self,
+        x_t=0,
+        y_t=0,
+        z_t=0,
+        t_start=0,
+        t_end=1,
+        num_points=0,
+        name=None,
+        xsection_type=None,
+        xsection_orient=None,
+        xsection_width=1,
+        xsection_topwidth=1,
+        xsection_height=1,
+        xsection_num_seg=0,
+        xsection_bend_type=None,
     ):
         """Create an equation-based curve.
 
@@ -1009,16 +1009,16 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def create_spiral(
-            self,
-            internal_radius=10,
-            spacing=1,
-            faces=8,
-            turns=10,
-            width=2,
-            thickness=1,
-            elevation=0,
-            material="copper",
-            name=None,
+        self,
+        internal_radius=10,
+        spacing=1,
+        faces=8,
+        turns=10,
+        width=2,
+        thickness=1,
+        elevation=0,
+        material="copper",
+        name=None,
     ):
         """Create a spiral inductor from a polyline.
 
@@ -1167,7 +1167,7 @@ class Primitives3D(Primitives, object):
             self.logger.error("Folder {} does not exist.".format(actor_folder))
             return False
         if not any(fname.endswith(".json") for fname in os.listdir(actor_folder)) or not any(
-                fname.endswith(".a3dcomp") for fname in os.listdir(actor_folder)
+            fname.endswith(".a3dcomp") for fname in os.listdir(actor_folder)
         ):
             self.logger.error("At least one json and one a3dcomp file is needed.")
             return False
@@ -1182,15 +1182,15 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def add_person(
-            self,
-            actor_folder,
-            speed=0.0,
-            global_offset=[0, 0, 0],
-            yaw=0,
-            pitch=0,
-            roll=0,
-            relative_cs_name=None,
-            actor_name=None,
+        self,
+        actor_folder,
+        speed=0.0,
+        global_offset=[0, 0, 0],
+        yaw=0,
+        pitch=0,
+        roll=0,
+        relative_cs_name=None,
+        actor_name=None,
     ):
         """Add a Walking Person Multipart from 3D Components.
 
@@ -1290,15 +1290,15 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def add_vehicle(
-            self,
-            actor_folder,
-            speed=0,
-            global_offset=[0, 0, 0],
-            yaw=0,
-            pitch=0,
-            roll=0,
-            relative_cs_name=None,
-            actor_name=None,
+        self,
+        actor_folder,
+        speed=0,
+        global_offset=[0, 0, 0],
+        yaw=0,
+        pitch=0,
+        roll=0,
+        relative_cs_name=None,
+        actor_name=None,
     ):
         """Add a Moving Vehicle Multipart from 3D Components.
 
@@ -1380,16 +1380,16 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def add_bird(
-            self,
-            actor_folder,
-            speed=0,
-            global_offset=[0, 0, 0],
-            yaw=0,
-            pitch=0,
-            roll=0,
-            flapping_rate=50,
-            relative_cs_name=None,
-            actor_name=None,
+        self,
+        actor_folder,
+        speed=0,
+        global_offset=[0, 0, 0],
+        yaw=0,
+        pitch=0,
+        roll=0,
+        flapping_rate=50,
+        relative_cs_name=None,
+        actor_name=None,
     ):
         """Add a Bird Multipart from 3D Components.
 
@@ -1496,8 +1496,7 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def add_environment(
-            self, env_folder, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None,
-            environment_name=None
+        self, env_folder, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None, environment_name=None
     ):
         """Add an Environment Multipart Component from Json file.
 
@@ -1822,21 +1821,21 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def _make_double_linked_winding(
-            self,
-            name,
-            color,
-            mat,
-            in_rad,
-            out_rad,
-            height,
-            w_dia,
-            teta,
-            teta_in_wind,
-            turns,
-            turns_in_wind,
-            chamfer,
-            chamf_in_wind,
-            sr,
+        self,
+        name,
+        color,
+        mat,
+        in_rad,
+        out_rad,
+        height,
+        w_dia,
+        teta,
+        teta_in_wind,
+        turns,
+        turns_in_wind,
+        chamfer,
+        chamf_in_wind,
+        sr,
     ):
         list_object = self._make_double_winding(
             name,
@@ -1883,23 +1882,23 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def _make_triple_linked_winding(
-            self,
-            name,
-            color,
-            mat,
-            in_rad,
-            out_rad,
-            height,
-            w_dia,
-            teta,
-            teta_mid_wind,
-            teta_in_wind,
-            turns,
-            turns_mid_wind,
-            turns_in_wind,
-            chamfer,
-            chamf_in_wind,
-            sr,
+        self,
+        name,
+        color,
+        mat,
+        in_rad,
+        out_rad,
+        height,
+        w_dia,
+        teta,
+        teta_mid_wind,
+        teta_in_wind,
+        turns,
+        turns_mid_wind,
+        turns_in_wind,
+        chamfer,
+        chamf_in_wind,
+        sr,
     ):
         list_object = self._make_triple_winding(
             name,
@@ -1960,22 +1959,22 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def _make_double_winding(
-            self,
-            name,
-            color,
-            mat,
-            in_rad,
-            out_rad,
-            height,
-            w_dia,
-            teta,
-            teta_in_wind,
-            turns,
-            turns_in_wind,
-            chamfer,
-            chamf_in_wind,
-            sr,
-            sep_layer,
+        self,
+        name,
+        color,
+        mat,
+        in_rad,
+        out_rad,
+        height,
+        w_dia,
+        teta,
+        teta_in_wind,
+        turns,
+        turns_in_wind,
+        chamfer,
+        chamf_in_wind,
+        sr,
+        sep_layer,
     ):
 
         chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 3)
@@ -2002,24 +2001,24 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def _make_triple_winding(
-            self,
-            name,
-            color,
-            mat,
-            in_rad,
-            out_rad,
-            height,
-            w_dia,
-            teta,
-            teta_mid_wind,
-            teta_in_wind,
-            turns,
-            turns_mid_wind,
-            turns_in_wind,
-            chamfer,
-            chamf_in_wind,
-            sr,
-            sep_layer,
+        self,
+        name,
+        color,
+        mat,
+        in_rad,
+        out_rad,
+        height,
+        w_dia,
+        teta,
+        teta_mid_wind,
+        teta_in_wind,
+        turns,
+        turns_mid_wind,
+        turns_in_wind,
+        chamfer,
+        chamf_in_wind,
+        sr,
+        sep_layer,
     ):
 
         chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 5)
@@ -2156,11 +2155,11 @@ class Primitives3D(Primitives, object):
         for f_key in values.keys():
             count_true = False
             if (
-                    f_key == "Number of Windings"
-                    or f_key == "Layer"
-                    or f_key == "Layer Type"
-                    or f_key == "Similar Layer"
-                    or f_key == "Mode"
+                f_key == "Number of Windings"
+                or f_key == "Layer"
+                or f_key == "Layer Type"
+                or f_key == "Similar Layer"
+                or f_key == "Mode"
             ):
                 for s_key in values[f_key].keys():
                     if type(values[f_key][s_key]) == bool:
@@ -2191,23 +2190,25 @@ class Primitives3D(Primitives, object):
             self.logger.warning("Outer Winding Name must be a non-null string. A default name Winding has been set.")
             values["Outer Winding"]["Name"] = "Winding"
 
-        in_rad_core, are_inequations_checkable = self._check_value_type(values["Core"]["Inner Radius"], float,
-                                                                        are_inequations_checkable,
-                                                                        "Inner Radius(Core)",
-                                                                        "a strictly positive float"
-                                                                        )
+        in_rad_core, are_inequations_checkable = self._check_value_type(
+            values["Core"]["Inner Radius"],
+            float,
+            are_inequations_checkable,
+            "Inner Radius(Core)",
+            "a strictly positive float",
+        )
 
-        out_rad_core, are_inequations_checkable = self._check_value_type(values["Core"]["Outer Radius"], float,
-                                                                         are_inequations_checkable,
-                                                                         "Outer Radius(Core)",
-                                                                         "a strictly positive float"
-                                                                         )
+        out_rad_core, are_inequations_checkable = self._check_value_type(
+            values["Core"]["Outer Radius"],
+            float,
+            are_inequations_checkable,
+            "Outer Radius(Core)",
+            "a strictly positive float",
+        )
 
-        height_core, are_inequations_checkable = self._check_value_type(values["Core"]["Height"], float,
-                                                                        are_inequations_checkable,
-                                                                        "Height(Core)",
-                                                                        "a strictly positive float"
-                                                                        )
+        height_core, are_inequations_checkable = self._check_value_type(
+            values["Core"]["Height"], float, are_inequations_checkable, "Height(Core)", "a strictly positive float"
+        )
         try:
             core_chamfer = float(values["Core"]["Chamfer"])
             if core_chamfer < 0:
@@ -2221,66 +2222,84 @@ class Primitives3D(Primitives, object):
             )
             are_inequations_checkable = False
 
-        in_rad_wind, are_inequations_checkable = self._check_value_type(values["Outer Winding"]["Inner Radius"], float,
-                                                                        are_inequations_checkable,
-                                                                        "Inner Radius(Winding)",
-                                                                        "a strictly positive float"
-                                                                        )
+        in_rad_wind, are_inequations_checkable = self._check_value_type(
+            values["Outer Winding"]["Inner Radius"],
+            float,
+            are_inequations_checkable,
+            "Inner Radius(Winding)",
+            "a strictly positive float",
+        )
 
-        out_rad_wind, are_inequations_checkable = self._check_value_type(values["Outer Winding"]["Outer Radius"], float,
-                                                                         are_inequations_checkable,
-                                                                         "Outer Radius(Winding)",
-                                                                         "a strictly positive float"
-                                                                         )
+        out_rad_wind, are_inequations_checkable = self._check_value_type(
+            values["Outer Winding"]["Outer Radius"],
+            float,
+            are_inequations_checkable,
+            "Outer Radius(Winding)",
+            "a strictly positive float",
+        )
 
-        height_wind, are_inequations_checkable = self._check_value_type(values["Outer Winding"]["Height"], float,
-                                                                        are_inequations_checkable,
-                                                                        "Height(Winding)",
-                                                                        "a strictly positive float"
-                                                                        )
-        turns, are_inequations_checkable = self._check_value_type(values["Outer Winding"]["Turns"], int,
-                                                                  are_inequations_checkable,
-                                                                  "Turns(Outer Winding)",
-                                                                  "a strictly positive integer"
-                                                                  )
+        height_wind, are_inequations_checkable = self._check_value_type(
+            values["Outer Winding"]["Height"],
+            float,
+            are_inequations_checkable,
+            "Height(Winding)",
+            "a strictly positive float",
+        )
+        turns, are_inequations_checkable = self._check_value_type(
+            values["Outer Winding"]["Turns"],
+            int,
+            are_inequations_checkable,
+            "Turns(Outer Winding)",
+            "a strictly positive integer",
+        )
 
-        wind_pit, are_inequations_checkable = self._check_value_type(values["Outer Winding"]["Coil Pit(deg)"], float,
-                                                                     are_inequations_checkable,
-                                                                     "Coil Pit(Outer Winding)",
-                                                                     "a strictly positive float"
-                                                                     )
+        wind_pit, are_inequations_checkable = self._check_value_type(
+            values["Outer Winding"]["Coil Pit(deg)"],
+            float,
+            are_inequations_checkable,
+            "Coil Pit(Outer Winding)",
+            "a strictly positive float",
+        )
 
-        dia_wire, are_inequations_checkable = self._check_value_type(values["Outer Winding"]["Wire Diameter"], float,
-                                                                     are_inequations_checkable,
-                                                                     "Wire Diameter",
-                                                                     "a strictly positive float"
-                                                                     )
+        dia_wire, are_inequations_checkable = self._check_value_type(
+            values["Outer Winding"]["Wire Diameter"],
+            float,
+            are_inequations_checkable,
+            "Wire Diameter",
+            "a strictly positive float",
+        )
 
-        turns2, are_inequations_checkable = self._check_value_type(values["Mid Winding"]["Turns"], int,
-                                                                   are_inequations_checkable,
-                                                                   "Turns(Mid Winding)",
-                                                                   "a strictly positive integer"
-                                                                   )
+        turns2, are_inequations_checkable = self._check_value_type(
+            values["Mid Winding"]["Turns"],
+            int,
+            are_inequations_checkable,
+            "Turns(Mid Winding)",
+            "a strictly positive integer",
+        )
 
-        wind_pit2, are_inequations_checkable = self._check_value_type(values["Mid Winding"]["Coil Pit(deg)"],
-                                                                      float,
-                                                                      are_inequations_checkable,
-                                                                      "Coil Pit(Mid Winding)",
-                                                                      "a strictly positive float"
-                                                                      )
+        wind_pit2, are_inequations_checkable = self._check_value_type(
+            values["Mid Winding"]["Coil Pit(deg)"],
+            float,
+            are_inequations_checkable,
+            "Coil Pit(Mid Winding)",
+            "a strictly positive float",
+        )
 
-        turns3, are_inequations_checkable = self._check_value_type(values["Inner Winding"]["Turns"], int,
-                                                                   are_inequations_checkable,
-                                                                   "Turns(Inner Winding)",
-                                                                   "a strictly positive integer"
-                                                                   )
+        turns3, are_inequations_checkable = self._check_value_type(
+            values["Inner Winding"]["Turns"],
+            int,
+            are_inequations_checkable,
+            "Turns(Inner Winding)",
+            "a strictly positive integer",
+        )
 
-        wind_pit3, are_inequations_checkable = self._check_value_type(values["Inner Winding"]["Coil Pit(deg)"],
-                                                                      float,
-                                                                      are_inequations_checkable,
-                                                                      "Coil Pit(Inner Winding)",
-                                                                      "a strictly positive float"
-                                                                      )
+        wind_pit3, are_inequations_checkable = self._check_value_type(
+            values["Inner Winding"]["Coil Pit(deg)"],
+            float,
+            are_inequations_checkable,
+            "Coil Pit(Inner Winding)",
+            "a strictly positive float",
+        )
         if are_inequations_checkable:
             teta = radians(wind_pit)
             teta2 = radians(wind_pit2)
@@ -2476,24 +2495,44 @@ class Primitives3D(Primitives, object):
             try:
                 receiving_variable = int(taken_value)
                 if receiving_variable <= 0:
-                    self.logger.error("The character entered is invalid. " + part_message1 + "  must be " +
-                                      part_message2 + ".  It must be changed")
+                    self.logger.error(
+                        "The character entered is invalid. "
+                        + part_message1
+                        + "  must be "
+                        + part_message2
+                        + ".  It must be changed"
+                    )
                     are_inequations_checkable = False
             except:
                 receiving_variable = None
-                self.logger.error("The character entered is invalid. " + part_message1 + "  must be " +
-                                  part_message2 + ".  It must be changed")
+                self.logger.error(
+                    "The character entered is invalid. "
+                    + part_message1
+                    + "  must be "
+                    + part_message2
+                    + ".  It must be changed"
+                )
                 are_inequations_checkable = False
         elif value_type == float:
             try:
                 receiving_variable = float(taken_value)
                 if receiving_variable <= 0:
-                    self.logger.error("The character entered is invalid. " + part_message1 + "  must be " +
-                                      part_message2 + ".  It must be changed")
+                    self.logger.error(
+                        "The character entered is invalid. "
+                        + part_message1
+                        + "  must be "
+                        + part_message2
+                        + ".  It must be changed"
+                    )
                     are_inequations_checkable = False
             except:
                 receiving_variable = None
-                self.logger.error("The character entered is invalid. " + part_message1 + "  must be " +
-                                  part_message2 + ".  It must be changed")
+                self.logger.error(
+                    "The character entered is invalid. "
+                    + part_message1
+                    + "  must be "
+                    + part_message2
+                    + ".  It must be changed"
+                )
                 are_inequations_checkable = False
         return receiving_variable, are_inequations_checkable

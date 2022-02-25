@@ -960,16 +960,21 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_71_create_choke(self):
-        choke_file1 = os.path.join(local_path, "example_models", "choke_json_file",
-                                   "choke_1winding_1Layer_Corrected.json")
-        choke_file2 = os.path.join(local_path, "example_models", "choke_json_file",
-                                   "choke_2winding_1Layer_Common_Corrected.json")
-        choke_file3 = os.path.join(local_path, "example_models", "choke_json_file",
-                                   "choke_2winding_2Layer_Linked_Differential_Corrected.json")
-        choke_file4 = os.path.join(local_path, "example_models", "choke_json_file",
-                                   "choke_3winding_3Layer_Separate_Corrected.json")
-        choke_file5 = os.path.join(local_path, "example_models", "choke_json_file",
-                                   "choke_4winding_3Layer_Linked_Corrected.json")
+        choke_file1 = os.path.join(
+            local_path, "example_models", "choke_json_file", "choke_1winding_1Layer_Corrected.json"
+        )
+        choke_file2 = os.path.join(
+            local_path, "example_models", "choke_json_file", "choke_2winding_1Layer_Common_Corrected.json"
+        )
+        choke_file3 = os.path.join(
+            local_path, "example_models", "choke_json_file", "choke_2winding_2Layer_Linked_Differential_Corrected.json"
+        )
+        choke_file4 = os.path.join(
+            local_path, "example_models", "choke_json_file", "choke_3winding_3Layer_Separate_Corrected.json"
+        )
+        choke_file5 = os.path.join(
+            local_path, "example_models", "choke_json_file", "choke_4winding_3Layer_Linked_Corrected.json"
+        )
         resolve1 = self.aedtapp.modeler.create_choke(choke_file1)
         resolve2 = self.aedtapp.modeler.create_choke(choke_file2)
         resolve3 = self.aedtapp.modeler.create_choke(choke_file3)
@@ -1009,14 +1014,14 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_72_check_choke_values(self):
         choke_file1 = os.path.join(local_path, "example_models", "choke_json_file", "choke_1winding_1Layer.json")
-        choke_file2 = os.path.join(local_path, "example_models", "choke_json_file",
-                                   "choke_2winding_1Layer_Common.json")
-        choke_file3 = os.path.join(local_path, "example_models", "choke_json_file",
-                                   "choke_2winding_2Layer_Linked_Differential.json")
-        choke_file4 = os.path.join(local_path, "example_models", "choke_json_file",
-                                   "choke_3winding_3Layer_Separate.json")
-        choke_file5 = os.path.join(local_path, "example_models", "choke_json_file",
-                                   "choke_4winding_3Layer_Linked.json")
+        choke_file2 = os.path.join(local_path, "example_models", "choke_json_file", "choke_2winding_1Layer_Common.json")
+        choke_file3 = os.path.join(
+            local_path, "example_models", "choke_json_file", "choke_2winding_2Layer_Linked_Differential.json"
+        )
+        choke_file4 = os.path.join(
+            local_path, "example_models", "choke_json_file", "choke_3winding_3Layer_Separate.json"
+        )
+        choke_file5 = os.path.join(local_path, "example_models", "choke_json_file", "choke_4winding_3Layer_Linked.json")
         resolve1 = self.aedtapp.modeler.check_choke_values(choke_file1, create_another_file=True)
         resolve2 = self.aedtapp.modeler.check_choke_values(choke_file2, create_another_file=True)
         resolve3 = self.aedtapp.modeler.check_choke_values(choke_file3, create_another_file=True)
