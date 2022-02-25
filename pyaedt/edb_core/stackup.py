@@ -542,8 +542,9 @@ class EdbStackup(object):
         point3d_t = self._edb.Geometry.Point3DData(_offset_x, _offset_y, h_stackup)
         point_loc = self._edb.Geometry.Point3DData(zero_data, zero_data, zero_data)
         point_from = self._edb.Geometry.Point3DData(one_data, zero_data, zero_data)
-        point_to = self._edb.Geometry.Point3DData(self._edb_value(math.cos(_angle)), self._edb_value(math.sin(_angle)),
-                                                  zero_data)
+        point_to = self._edb.Geometry.Point3DData(
+            self._edb_value(math.cos(_angle)), self._edb_value(math.sin(_angle)), zero_data
+        )
         cell_inst2.Set3DTransformation(point_loc, point_from, point_to, rotation, point3d_t)
         return True
 

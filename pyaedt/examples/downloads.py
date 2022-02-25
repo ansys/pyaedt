@@ -122,6 +122,7 @@ def download_aedb():
 
     return _download_file("edb/Galileo.aedb", "edb.def")
 
+
 def download_edb_merge_utility():
     """Download an example of WPF Project which allows to merge 2aedb files.
 
@@ -146,8 +147,6 @@ def download_edb_merge_utility():
     _download_file("wpf_edb_merge", "merge_wizard_settings.json")
 
     return _download_file("wpf_edb_merge", "merge_wizard.py")
-
-
 
 
 def download_netlist():
