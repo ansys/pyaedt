@@ -2457,17 +2457,30 @@ class Primitives3D(Primitives, object):
     @aedt_exception_handler
     def _check_value_type(self, taken_value, value_type, part_message1, part_message2):
         are_inequations_checkable = True
-        try:
-            receiving_variable = value_type(taken_value)
-            if receiving_variable <= 0:
+        if value_type == int:
+            try:
+                receiving_variable = int(taken_value)
+                if receiving_variable <= 0:
+                    self.logger.error("The character entered is invalid. " + part_message1 + "  must be " +
+                                      part_message2 + ".  It must be changed")
+                    are_inequations_checkable = False
+            except:
+                receiving_variable = None
                 self.logger.error("The character entered is invalid. " + part_message1 + "  must be " +
                                   part_message2 + ".  It must be changed")
                 are_inequations_checkable = False
-        except:
-            receiving_variable = None
-            self.logger.error("The character entered is invalid. " + part_message1 + "  must be " +
-                              part_message2 + ".  It must be changed")
-            are_inequations_checkable = False
+        elif value_type == float:
+            try:
+                receiving_variable = float(taken_value)
+                if receiving_variable <= 0:
+                    self.logger.error("The character entered is invalid. " + part_message1 + "  must be " +
+                                      part_message2 + ".  It must be changed")
+                    are_inequations_checkable = False
+            except:
+                receiving_variable = None
+                self.logger.error("The character entered is invalid. " + part_message1 + "  must be " +
+                                  part_message2 + ".  It must be changed")
+                are_inequations_checkable = False
         return receiving_variable, are_inequations_checkable
 
     @aedt_exception_handler
