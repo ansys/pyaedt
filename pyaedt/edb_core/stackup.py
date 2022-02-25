@@ -482,9 +482,9 @@ class EdbStackup(object):
             else:
                 solder_height = self._get_solder_height(list(self.signal_layers.keys())[-1])
 
+        rotation = self._edb_value(0.0)
         if flipped_stackup:
-            _angle += math.pi
-        _angle = self._edb_value(_angle)
+            rotation = self._edb_value(math.pi)
 
         edb_cell = edb.active_cell
         _offset_x = self._edb_value(offset_x)
@@ -541,9 +541,10 @@ class EdbStackup(object):
         one_data = self._edb_value(1.0)
         point3d_t = self._edb.Geometry.Point3DData(_offset_x, _offset_y, h_stackup)
         point_loc = self._edb.Geometry.Point3DData(zero_data, zero_data, zero_data)
-        point_from = self._edb.Geometry.Point3DData(zero_data, one_data, zero_data)
-        point_to = self._edb.Geometry.Point3DData(zero_data, one_data, zero_data)
-        cell_inst2.Set3DTransformation(point_loc, point_from, point_to, _angle, point3d_t)
+        point_from = self._edb.Geometry.Point3DData(one_data, zero_data, zero_data)
+        point_to = self._edb.Geometry.Point3DData(self._edb_value(math.cos(_angle)), self._edb_value(math.sin(_angle)),
+                                                  zero_data)
+        cell_inst2.Set3DTransformation(point_loc, point_from, point_to, rotation, point3d_t)
         return True
 
     @aedt_exception_handler
