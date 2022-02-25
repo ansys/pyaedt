@@ -2137,6 +2137,7 @@ class Primitives3D(Primitives, object):
             "Mid Winding": {"Turns": 8, "Coil Pit(deg)": 0.1, "Occupation(%)": 0},
             "Inner Winding": {"Turns": 12, "Coil Pit(deg)": 0.1, "Occupation(%)": 0},
         }
+        are_inequations_checkable = True
         security_factor = 1.1
         sr = security_factor
         read_file = open(json_file, "r")
