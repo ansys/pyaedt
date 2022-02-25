@@ -377,7 +377,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         """
         self.oimport_export.ImportEDB(edb_full_path)
         self.oproject = self.odesktop.GetActiveProject().GetName()
-        self.odesign = self.odesktop.GetActiveProject().GetActiveDesign().GetName().split(";")[1]
+        self.odesign = self.odesktop.GetActiveProject().GetActiveDesign().GetName().split(";")[-1]
         return True
 
     @aedt_exception_handler
