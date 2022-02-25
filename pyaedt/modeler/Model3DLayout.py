@@ -21,7 +21,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
     """Manages Modeler 3D layouts.
 
     This class is inherited in the caller application and is accessible through the modeler variable
-    object( eg. ``hfss3dlayout.modeler``).
+    object (for example, ``hfss3dlayout.modeler``).
 
     Parameters
     ----------
@@ -138,7 +138,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
     @model_units.setter
     def model_units(self, units):
         assert units in AEDT_UNITS["Length"], "Invalid units string {0}.".format(units)
-        """ Set the model units as a string e.g. "mm" """
+        """Set the model units as a string (for example, "mm")."""
         self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @property
@@ -146,7 +146,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """Primitives.
 
         .. deprecated:: 0.4.15
-            No need to use primitives anymore. You can instantiate primitives methods directly from modeler instead.
+        There is no need to use primitives anymore. You can instantiate methods for
+        primitives directly from the modeler.
 
         Returns
         -------
@@ -200,20 +201,21 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Parameters
         ----------
         property_object : str
-            Property Obcject name. It can be the name of excitation or field reporter. Eg. ``FieldsReporter:Mag_H``,
-            ``Excitations:Port1``.
+            Name of the property object. It can be the name of an excitation or field reporter.
+            For example, ``Excitations:Port1`` or ``FieldsReporter:Mag_H``.
         property_name : str
-            Property name. Eg. ``Rotation Angle``
+            Name of the property. For example, ``Rotation Angle``.
         property_value : str, list
-            Property value. It's a string in case of single value. and a list of 3 elements in case of [X,Y,Z]
+            Value of the property. It is a string for a single value and a list of three elements for
+            ``[x,y,z]`` coordianates.
         property_tab : str
-            Name of the tab to update. Default ``BaseElementTab``. Other options are ``EM Design``,
-            ``FieldsPostProcessorTab``.
+            Name of the tab to update. Options are ``BaseElementTab``, ``EM Design``, and
+            ``FieldsPostProcessorTab``. The default is ``BaseElementTab``.
 
         Returns
         -------
         bool
-            ``True`` if successful.
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
@@ -229,6 +231,17 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                         "NAME:" + property_tab,
                         ["NAME:PropServers", property_object],
                         ["NAME:ChangedProps", ["NAME:" + property_name, "X:=", xpos, "Y:=", ypos, "Z:=", zpos]],
+                    ],
+                ]
+            )
+        elif isinstance(property_value, bool):
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + property_tab,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
                     ],
                 ]
             )
@@ -251,20 +264,65 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return True
 
     @aedt_exception_handler
-    def change_clip_plane_position(self, clip_name, position):
-        """Change the Clip Plane position.
+    def merge_design(self, merged_design=None, pos_x="0.0", pos_y="0.0", pos_z="0.0", rotation="0.0"):
+        """Merge a design into another.
 
         Parameters
         ----------
-        clip_name : str
-            clip plane name.
-        position : list
-            List of [X,Y,Z] position
+        merged_design : :class:`pyaedt.hfss3dlayout.Hfss3dLayout`
+            Design to merge.
+        pos_x : float, str
+            X Offset.
+        pos_y : float, str
+            Y Offset.
+        pos_z : float, str
+            Z Offset.
+        rotation : float, str
+            Rotation angle in deg.
 
         Returns
         -------
         bool
-            ``True`` if successful.
+            `True` if successful.
+        """
+        des_name = merged_design.design_name
+        merged_design.oproject.CopyDesign(merged_design.design_name)
+        self._app.odesign.PasteDesign(1)
+        comp_name = ""
+        for i in range(1, 1000):
+            try:
+                cmp_info = self.oeditor.GetComponentInfo(str(i))
+                if cmp_info and cmp_info[0] == "ComponentName={}".format(des_name):
+                    comp_name = str(i)
+            except:
+                pass
+        if not comp_name:
+            return False
+        self.change_property(property_object=comp_name, property_name="3D Placement", property_value=True)
+        self.change_property(property_object=comp_name, property_name="Local Origin", property_value=[0.0, 0.0, 0.0])
+        pos_x = self._arg_with_dim(pos_x)
+        pos_y = self._arg_with_dim(pos_y)
+        pos_z = self._arg_with_dim(pos_z)
+        rotation = self._arg_with_dim(rotation, "deg")
+        self.change_property(property_object=comp_name, property_name="Location", property_value=[pos_x, pos_y, pos_z])
+        self.change_property(property_object=comp_name, property_name="Rotation Angle", property_value=rotation)
+        return True
+
+    @aedt_exception_handler
+    def change_clip_plane_position(self, clip_name, position):
+        """Change the clip plane position.
+
+        Parameters
+        ----------
+        clip_name : str
+            Name of the clip plane.
+        position : list
+            List of ``[x,y,z]`` coordinates for the new position.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
@@ -287,7 +345,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Returns
         -------
         bool
-             ``True`` when successful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed.
 
 
         References
@@ -329,7 +387,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Parameters
         ----------
         object_to_expand : str
-            Name of the object to expand.
+            Name of the object.
         size : float, optional
             Size of the expansion. The default is ``1``.
         expand_type : str, optional
@@ -380,7 +438,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @aedt_exception_handler
     def import_cadence_brd(self, brd_filename, edb_path=None, edb_name=None):
-        """Import a Cadence board.
+        """Import a cadence board.
 
         Parameters
         ----------
@@ -390,7 +448,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             Path where the EDB is to be created. The default is ``None``, in which
             case the project directory is used.
         edb_name : str, optional
-            name of the EDB. The default is ``None``, in which
+            Name of the EDB. The default is ``None``, in which
             case the board name is used.
 
         Returns
@@ -438,7 +496,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         Parameters
         ----------
-        ipc_filename :
+        ipc_filename : str
             Full path and name of the IPC file.
         edb_path : str, optional
             Path where the EDB is to be created. The default is ``None``, in which
@@ -584,7 +642,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         count : int
 
         direction_vector : list
-            List of ``[x, y]`` coordinates for the direction vector.
+            List of ``[x,y]`` coordinates for the direction vector.
 
         Returns
         -------
@@ -616,9 +674,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Parameters
         ----------
         include_temperature_dependence : bool, optional
-            Set the temperature setting for the design. The default is ``True``.
+            Whether to include the temperature setting for the design. The default is ``True``.
         enable_feedback : bool, optional
-            Enable the feedback. The default is ``True``.
+            Whether to enable feedback. The default is ``True``.
         ambient_temp : float, optional
             Ambient temperature. The default is ``22``.
         create_project_var : bool, optional
@@ -670,12 +728,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         model_path : str, optional
             Full path to the model file. The default is ``None``.
         model_name : str, optional
-            Name of the model. The default is ``None`` which means that model_name is file name without extension.
+            Name of the model. The default is ``None``, in which case the model name is the file name without an
+            extension.
         subcircuit_name : str, optional
-            Name of the subcircuit. The default is ``None`` which means that subcircuit name is the model_name.
+            Name of the subcircuit. The default is ``None``, in which case the subcircuit name is the model name.
         pin_map : list, optional
-            List of [spice_pin_name, aedt_pin_name] to optional
-            customize the pin mapping between Spice Pins and AEDT Pins.
+            List of ``[spice_pin_name, aedt_pin_name]`` to customize the pin mapping between Spice pins and
+            AEDT pins.
+
         Returns
         -------
         bool

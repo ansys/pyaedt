@@ -310,3 +310,4 @@ class TestClass:
         assert isinstance(comp_catalog.find_components("cap"), list)
         assert comp_catalog["LISN:CISPR25_LISN"].place("Lisn1")
         assert not comp_catalog["Capacitors"]
+        assert comp_catalog["LISN:CISPR25_LISN"].props

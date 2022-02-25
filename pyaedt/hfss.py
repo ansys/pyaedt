@@ -17,7 +17,7 @@ from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
 class Hfss(FieldAnalysis3D, object):
     """Provides the HFSS application interface.
 
-    This class allows you to create an interactive instance of HfSS and
+    This class allows you to create an interactive instance of HFSS and
     connect to an existing HFSS design or create a new HFSS design if
     one does not exist.
 
@@ -42,26 +42,25 @@ class Hfss(FieldAnalysis3D, object):
     specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
-        This parameter is ignored when script is launched within AEDT.
-    NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode.
-        This parameter is ignored when script is launched within AEDT.
+        This parameter is ignored when a script is launched within AEDT.
+    non_graphical : bool, optional
+        Whether to run AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored when
-        script is launched within AEDT.
+        machine. The default is ``False``. This parameter is ignored when
+        a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is
-        ``False``. This parameter is ignored when script is launched
+        ``False``. This parameter is ignored when a script is launched
         within AEDT.
 
     Examples
     --------
-
     Create an instance of HFSS and connect to an existing HFSS
     design or create a new HFSS design if one does not exist.
 
@@ -69,6 +68,7 @@ class Hfss(FieldAnalysis3D, object):
     >>> hfss = Hfss()
     pyaedt info: No project is defined...
     pyaedt info: Active design is set to...
+
 
     Create an instance of HFSS and link to a project named
     ``HfssProject``. If this project does not exist, create one with
@@ -79,11 +79,13 @@ class Hfss(FieldAnalysis3D, object):
     pyaedt info: No design is present. Inserting a new design.
     pyaedt info: Added design ...
 
+
     Create an instance of HFSS and link to a design named
     ``HfssDesign1`` in a project named ``HfssProject``.
 
     >>> hfss = Hfss("HfssProject","HfssDesign1")
     pyaedt info: Added design 'HfssDesign1' of type HFSS.
+
 
     Create an instance of HFSS and open the specified project,
     which is named ``"myfile.aedt"``.
@@ -93,6 +95,7 @@ class Hfss(FieldAnalysis3D, object):
     pyaedt info: No design is present. Inserting a new design.
     pyaedt info: Added design...
 
+
     Create an instance of HFSS using the 2021 R1 release and open
     the specified project, which is named ``"myfile2.aedt"``.
 
@@ -100,6 +103,7 @@ class Hfss(FieldAnalysis3D, object):
     pyaedt info: Project myfile2 has been created.
     pyaedt info: No design is present. Inserting a new design.
     pyaedt info: Added design...
+
 
     Create an instance of HFSS using the 2021 R2 student version and open
     the specified project, which is named ``"myfile3.aedt"``.
@@ -182,7 +186,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @property
     def hybrid(self):
-        """Get/Set Hfss hybrid mode for the active solution."""
+        """HFSS hybrid mode for the active solution."""
         return self.design_solutions.hybrid
 
     @hybrid.setter
@@ -192,7 +196,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @property
     def composite(self):
-        """Get/Set Hfss composite mode for the active solution."""
+        """HFSS composite mode for the active solution."""
         return self.design_solutions.composite
 
     @composite.setter
@@ -202,19 +206,20 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def set_auto_open(self, enable=True, boundary_type="Radiation"):
-        """Set Hfss auto open type.
+        """Set HFSS auto open type.
 
         Parameters
         ----------
         enable : bool, optional
-            Either to enable or not auto open. The default is ``True``.
+            Whether to enable the HFSS auto open option. The default is ``True``.
         boundary_type : str, optional
-            Boundary Type to be used with auto open. Default is `"Radiation"`.
-            Other options are `"FEBI"` and `"PML"`.
+            Boundary type to use with auto open. Options are ``"Radiation"``,
+            ``"FEBI"``, and ``"PML"``. The default is ``"Radiation"``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
@@ -253,7 +258,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ---------
         name : str
-            Name of the boundary
+            Name of the boundary.
         props : list
             List of properties for the boundary.
         boundary_type :
@@ -663,14 +668,14 @@ class Hfss(FieldAnalysis3D, object):
         interpolation_tol=0.5,
         interpolation_max_solutions=250,
     ):
-        """Create a sweep with the specified number of points.
+        """Create a sweep with a specified number of points.
 
         Parameters
         ----------
         setupname : str
             Name of the setup.
         unit : str
-            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``.
+            Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
         freqstart : float
             Starting frequency of the sweep, such as ``1``.
         freqstop : float
@@ -768,14 +773,14 @@ class Hfss(FieldAnalysis3D, object):
         save_rad_fields=False,
         sweep_type="Discrete",
     ):
-        """Create a Sweep with a specified frequency step.
+        """Create a sweep with a specified frequency step.
 
         Parameters
         ----------
         setupname : str
             Name of the setup.
         unit : str
-            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``.
+            Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
         freqstart : float
             Starting frequency of the sweep.
         freqstop : float
@@ -789,7 +794,7 @@ class Hfss(FieldAnalysis3D, object):
         save_rad_fields : bool, optional
             Whether to save the radiating fields. The default is ``False``.
         sweep_type : str, optional
-            Whether to create a ``"Discrete"``,``"Interpolating"`` or ``"Fast"`` sweep.
+            Type of the sweep. Options are ``"Discrete"``,``"Interpolating"`` and``"Fast"`` sweep.
             The default is ``"Discrete"``.
 
         Returns
@@ -818,7 +823,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            raise AttributeError("Invalid in `sweep_type`. It has to either 'Discrete', 'Interpolating', or 'Fast'")
+            raise AttributeError("Invalid `sweep_type`. It has to be 'Discrete', 'Interpolating', or 'Fast'.")
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
@@ -850,7 +855,7 @@ class Hfss(FieldAnalysis3D, object):
                     sweepdata.props["InterpMinSolns"] = 0
                     sweepdata.props["InterpMinSubranges"] = 1
                 sweepdata.update()
-                self.logger.info("Linear step sweep {} has been correctly created".format(sweepname))
+                self.logger.info("Linear step sweep {} has been correctly created.".format(sweepname))
                 return sweepdata
         return False
 
@@ -865,23 +870,24 @@ class Hfss(FieldAnalysis3D, object):
         save_fields=False,
         save_rad_fields=False,
     ):
-        """Create a Sweep with a single frequency point.
+        """Create a sweep with a single frequency point.
 
         Parameters
         ----------
         setupname : str
             Name of the setup.
         unit : str
-            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``.
+            Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
         freq : float, list
             Frequency of the single point or list of frequencies to create distinct single points.
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         save_single_field : bool, list, optional
             Whether to save the fields of the single point. The default is ``True``.
-            If a list is specified, the length must be the same as freq length.
+            If a list is specified, the length must be the same as the list of frequencies.
         save_fields : bool, optional
-            Whether to save the fields for all points and subranges defined in the sweep. The default is ``False``.
+            Whether to save the fields for all points and subranges defined in the sweep.
+            The default is ``False``.
         save_rad_fields : bool, optional
             Whether to save only the radiating fields. The default is ``False``.
 
@@ -1272,11 +1278,11 @@ class Hfss(FieldAnalysis3D, object):
             the active coodiantes system is used.
         model_units : str, optional
             Model units to apply to the object. The default is
-            ``None`` in which case the active modeler units are applied.
+            ``None``, in which case the active modeler units are applied.
         parameters_dict : dict, optional
             The default is ``None``.
         use_current_source_representation : bool, optional
-            The default is ``False``.
+            Whether to use the current source representation. The default is ``False``.
         is_array : bool, optional
             The default is ``False``.
         antenna_name : str, optional
@@ -1386,7 +1392,7 @@ class Hfss(FieldAnalysis3D, object):
         antenna_impedance : str, optional
             Antenna impedance with units. The default is ``"50ohm"``.
         representation_type : str, optional
-            Type of the antenna type. Options are ``"Far Field"`` or ``"Near Field"``.
+            Type of the antenna. Options are ``"Far Field"`` and ``"Near Field"``.
             The default is ``"Far Field"``.
         target_cs : str, optional
             Target coordinate system. The default is ``None``, in which case the
@@ -1436,12 +1442,12 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def set_sbr_txrx_settings(self, txrx_settings):
-        """Set Sbr+ TX RX Antenna Settings.
+        """Set SBR+ TX RX antenna settings.
 
         Parameters
         ----------
         txrx_settings : dict
-            Dictionary containing the TX as key and RX as values
+            Dictionary containing the TX as key and RX as values.
 
         Returns
         -------
@@ -1472,9 +1478,9 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         startobj :
-            First (starting) object for the integration line.
+            Starting object for the integration line.
         endobject :
-            Second (ending) object for the integration line.
+            Ending object for the integration line.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
@@ -1537,9 +1543,9 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         startobj :
-            First (starting) object for the integration line.
+            Starting object for the integration line.
         endobject :
-            Second (ending) object for the integration line.
+            Ending object for the integration line.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
@@ -1612,8 +1618,9 @@ class Hfss(FieldAnalysis3D, object):
     @aedt_exception_handler
     def create_spiral_lumped_port(self, start_object, end_object, port_width=None):
         """Create a spiral lumped port between two adjacent objects.
-        The two objects must have two adjacent, parallel and identical faces
-        and the faces must be a polygon (not a circle).
+
+        The two objects must have two adjacent, parallel, and identical faces.
+        The faces must be a polygon (not a circle).
 
         Parameters
         ----------
@@ -1818,9 +1825,9 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         startobj :
-            First (starting) object for the integration line.
+            Starting object for the integration line.
         endobject :
-            Second (ending) object for the integration line.
+            Ending object for the integration line.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for
             ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
@@ -1877,9 +1884,9 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         startobj :
-            First (starting) object for the integration line.
+            Starting object for the integration line.
         endobject :
-            Second (ending) object for the integration line.
+            Ending object for the integration line.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
@@ -1979,9 +1986,9 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         startobj :
-            First (starting) object for the integration line.
+            Starting object for the integration line.
         endobject :
-            Second (ending) object for the integration line.
+            Ending object for the integration line.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
@@ -2070,21 +2077,21 @@ class Hfss(FieldAnalysis3D, object):
         reporter_filter=True,
         lattice_cs="Global",
     ):
-        """Create a Floquet Port on a Face.
+        """Create a floquet port on a face.
 
         Parameters
         ----------
         face :
-            Face or Sheet on which apply the Floquet Port.
+            Face or sheet to apply the floquet port to.
         lattice_origin : list
-            List of `[x,y,z]` coordinates for the lattice A-B origin. If `None` the method will
-            try to compute the A-B automatically.
+            List of ``[x,y,z]`` coordinates for the lattice A-B origin. The default is ``None``,
+            in which case the method tries to compute the A-B automatically.
         lattice_a_end : list
-            List of `[x,y,z]` coordinates for the lattice A end point. If `None` the method will
-            try to compute the A-B automatically.
+            List of ``[x,y,z]`` coordinates for the lattice A end point. The default is ``None``,
+            in which case the method tries to compute the A-B automatically.
         lattice_b_end : list
-            List of `[x,y,z]` coordinates for the lattice B end point. If `None` the method will
-            try to compute the A-B automatically.
+            List of ``[x,y,z]`` coordinates for the lattice B end point. The default is ``None``,
+            in which case the method tries to compute the A-B automatically.
         nummodes : int, optional
             Number of modes. The default is ``2``.
         portname : str, optional
@@ -2095,10 +2102,11 @@ class Hfss(FieldAnalysis3D, object):
             Deembed distance in millimeters. The default is ``0``,
             in which case deembed is disabled.
         reporter_filter : bool, list of bool
-            Whether to include mode into reported. It can be a bool and applies to all modes or list of bools
-            and applies to each mode. List must have `nummodes` elements.
+            Whether to include modes in the report. The default is ``True``. If a single
+            Boolean value is specified, it applies to all modes. If a list of Boolean values is specified, it applies
+            to each mode in the list. A list must have ``nummodes`` elements.
         lattice_cs : str, optional
-            Lattice A-B Vector Coordinate System Reference.
+            Coordinate system for the lattice A-B vector reference. The default is ``Global``.
 
         Returns
         -------
@@ -2164,23 +2172,34 @@ class Hfss(FieldAnalysis3D, object):
         phase_delay_param2="0deg",
         pair_name=None,
     ):
-        """Assign Lattice Pair to a couple of faces.
+        """Assign a lattice pair to a couple of faces.
 
         Parameters
         ----------
         face_couple : list
-            List of 2 faces to assign the lattice pair to.
+            List of two faces to assign the lattice pair to.
         reverse_v : bool, optional
-            Reverse V Vector. Default is `False`.
+            Reverse V vector. The default is `False`.
         phase_delay : str, optional
-            Define the phase delay approach. Default is `"UseScanAngle"`.
-            Options are `"UseScanUV"`, `"InputPhaseDelay"`
+            Phase delay approach. Options are ``"UseScanAngle"``,
+            ``"UseScanUV"``, and ``"InputPhaseDelay"``. The default is
+            ``"UseScanAngle"``.
         phase_delay_param1 : str, optional
-            Phi Angle if "UseScanAngle" is used. U value if "UseScanUV" is used".
-            "Phase" if "InputPhaseDelay". Default is `0deg`.
+            Value for the first phase delay parameter, which depends on the approach:
+
+            - Phi angle if the approach is ``"UseScanAngle"``.
+            - U value if the approach is ``"UseScanUV"``.
+            - Phase if the approach is ``"InputPhaseDelay"``.
+
+            The default is ``0deg``.
+
         phase_delay_param2 :  str, optional
-            Theta Angle if "UseScanAngle" is used. V value if "UseScanUV" is used".
-            Default is `0deg`.
+            Value for the second phase delay parameter, which depends on the approach:
+
+            - Theta angle if the approach is "``UseScanAngle"``.
+            - V value if the approach is ``"UseScanUV"``.
+
+            The default is ``0deg``.
         pair_name : str, optional
             Boundary name.
 
@@ -2214,21 +2233,22 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def auto_assign_lattice_pairs(self, object_to_assign, coordinate_system="Global", coordinate_plane="XY"):
-        """Auto Assign Lattice Pairs to geometry.
+        """Assign lattice pairs to a geometry automatically.
 
         Parameters
         ----------
         object_to_assign : str, Object3d
-            Object to which assign Lattice.
+            Object to which assign a lattice.
         coordinate_system : str, optional
-            Coordinate System on which look for lattice.
+            Coordinate system on which to look for the lattice.
         coordinate_plane : str, optional
-            Plane on which looks for lattice. Default is `"XY"`. Options are`"XZ"` and `"YZ"`.
+            Plane on which to look for the lattice. Options are ``"XY"``, ``"XZ"``, and
+            ``"YZ"``. The default is ``"XY"``.
 
         Returns
         -------
         list of str
-            list of created pair names.
+            List of created pair names.
 
         References
         ----------
@@ -2256,34 +2276,43 @@ class Hfss(FieldAnalysis3D, object):
         coord_name="Global",
         secondary_name=None,
     ):
-        """Assign Secondary Boundary Condition.
+        """Assign the secondary boundary condition.
 
         Parameters
         ----------
         face : int, FacePrimitive
-            Face to assign the lattice pair.
+            Face to assign the lattice pair to.
         primary_name : str
-            Name of the Primary boundary to couple.
+            Name of the primary boundary to couple.
         u_start : list
-            List of [x,y,z] values for start point of U vector.
+            List of [x,y,z] values for the starting point of the U vector.
         u_end : list
-            List of [x,y,z] values for end point of U vector.
+            List of [x,y,z] values for the ending point of the U vector.
         reverse_v : bool, optional
-            Reverse V Vector. Default is `False`.
+            Whether to reverse the V vector. The default is ``False``.
         phase_delay : str, optional
-            Define the phase delay approach. Default is `"UseScanAngle"`.
-            Options are `"UseScanUV"`, `"InputPhaseDelay"`
+            Phase delay approach. Options are ``"UseScanAngle"``,
+            ``"UseScanUV"``, and ``"InputPhaseDelay"``. The default is
+            ``"UseScanAngle"``.
         phase_delay_param1 : str, optional
-            Phi Angle if "UseScanAngle" is used. U value if "UseScanUV" is used".
-            "Phase" if "InputPhaseDelay". Default is `0deg`.
-        phase_delay_param2 :  str, optional
-            Theta Angle if "UseScanAngle" is used. V value if "UseScanUV" is used".
-            Default is `0deg`.
-        coord_name : str, optional
-            Name of the coordinate system for u coordinates.
-        secondary_name : str, optional
-            Boundary name.
+            Value for the first phase delay parameter, which depends on the approach:
 
+            - Phi angle if the approach is ``"UseScanAngle"``.
+            - U value if the approach is ``"UseScanUV"``.
+            - Phase if the approach is ``"InputPhaseDelay"``.
+
+            The default is ``0deg``.
+        phase_delay_param2 :  str, optional
+            Value for the second phase delay parameter, which depends on the approach:
+
+            - Theta angle if the approach is "``UseScanAngle"``.
+            - V value if the approach is ``"UseScanUV"``.
+
+            The default is ``0deg``.
+        coord_name : str, optional
+            Name of the coordinate system for U coordinates.
+        secondary_name : str, optional
+            Boundary name. The default is ``None``.
 
         Returns
         -------
@@ -2325,22 +2354,23 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_primary(self, face, u_start, u_end, reverse_v=False, coord_name="Global", primary_name=None):
-        """Assign Secondary Boundary Condition.
+        """Assign the primary boundary condition.
 
         Parameters
         ----------
         face : int, FacePrimitive
-            Face to assign the lattice pair.
+            Face to assign the lattice pair to.
         u_start : list
-            List of [x,y,z] values for start point of U vector.
+            List of [x,y,z] values for the starting point of the U vector.
         u_end : list
-            List of [x,y,z] values for end point of U vector.
+            List of [x,y,z] values for the ending point of the U vector.
         reverse_v : bool, optional
-            Reverse V Vector. Default is `False`.
+            Whether to reverse the V vector. The default is `False`.
         coord_name : str, optional
-            Name of the coordinate system for u coordinates.
+            Name of the coordinate system for the U coordinates. The
+            default is ``"Global"``.
         primary_name : str, optional
-            Boundary name.
+            Boundary name. The default is ``None``.
 
         Returns
         -------
@@ -2411,9 +2441,9 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         startobj :
-            First (starting) object for the integration line. This is typically the reference plane.
+            Starting object for the integration line. This is typically the reference plane.
         endobject :
-            Second (ending) object for the integration line.
+            Ending object for the integration line.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
@@ -2496,9 +2526,9 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         startobj :
-            First object (starting object for integration line)
+            Starting object for the integration line.
         endobject :
-            Second object (ending object for integration line)
+           Ending object for the integration line.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for
             ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
@@ -2561,9 +2591,9 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         startobj :
-            First (starting) object for the integration line.
+            Starting object for the integration line.
         endobject :
-            Second (ending) object for the integration line.
+            Ending object for the integration line.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
@@ -2709,9 +2739,9 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         startobj :
-            First (starting) object for the integration line.
+            Starting object for the integration line.
         endobject :
-            Second (ending) object for the integration line.
+            Ending object for the integration line.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
@@ -2810,9 +2840,9 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         startobj :
-            First (starting) object for the integration line.
+            Starting object for the integration line.
         endobject :
-            Second (ending) object for the integration line.
+            Ending object for the integration line.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
@@ -3243,7 +3273,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a sheet and assign to it some current.
+        Create a sheet and assign some current to it.
 
         >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY, [0, 0, -50],
         ...                                                  [5, 1], name="CurrentSheet", matname="copper")
@@ -4040,7 +4070,7 @@ class Hfss(FieldAnalysis3D, object):
              Name of the sweep that has been solved.
         filename : str, optional
              Full path and name for the output file.
-             The default is ``None`` which export file in working_directory.
+             The default is ``None``, in which case the file is exported to the working directory.
 
         variation : list, optional
              List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
@@ -4113,7 +4143,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         activate : bool
-            Whether to export the Touchstone file after the simulation finishes.
+            Whether to export the Touchstone file after simulation finishes.
         export_dir : str, optional
             Directory to export the Touchstone file to. The default is ``""``.
 
@@ -4301,34 +4331,34 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         time_var : str, optional
-            Name of the time variable. Default ``None`` which will search for first
-            time variable available.
+            Name of the time variable. The default is ``None``, in which case
+            a search will be performed for the first time variable available.
         sweep_time_duration : float, optional
-            Sweep Time Duration. If greater than 0, a parametric sweep will be
-            created. Default ``0``.
+            Duration for the sweep time. The default is ``0.`` If a value greater
+            than ``0`` is specified, a parametric sweep is created.
         center_freq : float, optional
-            Center frequency in GHz. Default ``76.5``.
+            Center frequency in GHz. The default is ``76.5``.
         resolution : float, optional
-            Doppler resolution in meter. Default ``1``.
+            Doppler resolution in meters. The default is ``1``.
         period : float, optional
-            Period of analysis in meter. Default ``200``.
+            Period of analysis in meters. The default is ``200``.
         velocity_resolution : float, optional
-            Doppler velocity resolution in meters per second. Default ``0.4``.
+            Doppler velocity resolution in meters per second. The default is ``0.4``.
         min_velocity : str, optional
-            Minimum doppler velocity in meters per second. Default ``-20``.
+            Minimum Doppler velocity in meters per second. The default is ``-20``.
         max_velocity : str, optional
-            Maximum doppler velocity in meters per second. Default ``20``.
+            Maximum Doppler velocity in meters per second. The default is ``20``.
         ray_density_per_wavelenght : float, optional
-            Doppler ray density per wavelength. Default ``0.2``.
+            Doppler ray density per wavelength. The default is ``0.2``.
         max_bounces : int, optional
-            Maximum number of Bounces. Default ``5``.
+            Maximum number of bounces. The default is ``5``.
         include_coupling_effects : float, optional
-            Set if coupling effects will be included. Default ``False``.
+            Whether to include coupling effects. The default is ``False``.
         doppler_ad_sampling_rate : float, optional
-            Doppler AD sampling rate. It works only if ``include_coupling_effects``
-            is ``True``. Default ``20``.
+            Doppler AD sampling rate to use if ``include_coupling_effects``
+            is ``True``. The default is ``20``.
         setup_name : str, optional
-            Name of the setup. Default ``None``.
+            Name of the setup. The default is ``None``.
 
         Returns
         -------
@@ -4403,34 +4433,34 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         time_var : str, optional
-            Name of the time variable. Default ``None`` which will search for first
-            time variable available.
+            Name of the time variable. The default is ``None``, in which
+            case a search is performed for the first time variable available.
         sweep_time_duration : float, optional
-            Sweep Time Duration. If greater than 0, a parametric sweep will be
-            created. Default ``0``.
+            Duration of the sweep time. The default is ``0``. If a value greater
+            than ``0`` is specified, a parametric sweep is created.
         center_freq : float, optional
-            Center Frequency in GHz. Default ``76.5``.
+            Center frequency in GHz. The default is ``76.5``.
         resolution : float, optional
-            Doppler Resolution in meter. Default ``1``.
+            Doppler resolution in meters. The default is ``1``.
         period : float, optional
-            Period of Analysis in meter. Default ``200``.
+            Period of analysis in meters. The default is ``200``.
         velocity_resolution : float, optional
-            Doppler Velocity Resolution in meters per second. Default ``0.4``.
+            Doppler velocity resolution in meters per second. The default is ``0.4``.
         min_velocity : str, optional
-            Minimum Doppler Velocity in meters per second. Default ``-20``.
+            Minimum Doppler velocity in meters per second. The default is ``-20``.
         max_velocity : str, optional
-            Maximum Doppler Velocity in meters per second. Default ``20``.
+            Maximum Doppler velocity in meters per second. The default is ``20``.
         ray_density_per_wavelenght : float, optional
-            Doppler Ray Density per wavelength. Default ``0.2``.
+            Doppler ray density per wavelength. The default is ``0.2``.
         max_bounces : int, optional
-            Maximum number of Bounces. Default ``5``.
+            Maximum number of bounces. The default is ``5``.
         include_coupling_effects : float, optional
-            Set if Coupling Effects will be included. Default ``False``.
+            Whether to include coupling effects. The default is ``False``.
         doppler_ad_sampling_rate : float, optional
-            Doppler AD Sampling Rate. It works only if ``include_coupling_effects`` is
-            ``True``. Default ``20``.
+            Doppler AD sampling rate to use if ``include_coupling_effects`` is
+            ``True``. The default is ``20``.
         setup_name : str, optional
-            Name of the Setup. Default ``None``.
+            Name of the setup. The default is ``None``.
 
         Returns
         -------
@@ -4495,7 +4525,7 @@ class Hfss(FieldAnalysis3D, object):
         max_bounces=5,
         setup_name=None,
     ):
-        """Create an SBR+ pulse doppler setup.
+        """Create an SBR+ pulse Doppler setup.
 
         Parameters
         ----------
@@ -4515,10 +4545,10 @@ class Hfss(FieldAnalysis3D, object):
             Doppler velocity resolution in meters per second.
             The default is ``0.4``.
         min_velocity : str, optional
-            Minimum doppler velocity in meters per second. The default
+            Minimum Doppler velocity in meters per second. The default
             is ``-20``.
         max_velocity : str, optional
-            Maximum doppler velocity in meters per second. The default
+            Maximum Doppler velocity in meters per second. The default
             is ``20``.
         ray_density_per_wavelenght : float, optional
             Doppler ray density per wavelength. The default is ``0.2``.
@@ -4677,40 +4707,41 @@ class Hfss(FieldAnalysis3D, object):
         polarization_angle=45,
         name=None,
     ):
-        """Create a new infinite Sphere.
+        """Create an infinite sphere.
 
         .. note::
-           Not supported in all HFSS EigenMode and CharacteristicMode Solution Types.
+           This method is Not supported by all HFSS EigenMode and CharacteristicMode solution types.
 
         Parameters
         ----------
         definition : str
-            Coordinate Definition Type. Default is "Theta-Phi".
-            It can be a ``pyaedt.generic.constants.INFINITE_SPHERE_TYPE`` Enumerator value.
-        x_start : float, str
-            First angle start value.
-        x_stop : float, str
-            First angle stop value.
-        x_step : float, str
-            First angle step value.
-        y_start : float, str
-            Second angle start value.
-        y_stop : float, str
-            Second angle stop value.
-        y_step : float, str
-            Second angle step value.
+            Coordinate definition type. The default is ``"Theta-Phi"``.
+            It can be a ``pyaedt.generic.constants.INFINITE_SPHERE_TYPE`` enumerator value.
+        x_start : float, str, optional
+            First angle start value. The default is ``0``.
+        x_stop : float, str, optional
+            First angle stop value. The default is ``180``.
+        x_step : float, str, optional
+            First angle step value. The default is ``10``.
+        y_start : float, str, optional
+            Second angle start value. The default is ``0``.
+        y_stop : float, str, optional
+            Second angle stop value. The default is ``180``.
+        y_step : float, str, optional
+            Second angle step value. The default is ``10``.
         units : str
-            Angle units. Default is `"deg"`.
-        custom_radiation_faces : str
-            Radiation Face list to be used for far field computation.
-        custom_coordinate_system : str
-            Local Coordinate System to be used for far field computation.
-        use_slant_polarization : bool
-            Define if Slant Polarization will be used. Default is `False`.
-        polarization_angle : float, str
-            Slant angle value.
-        name : str
-            Sphere Name.
+            Angle units. The default is ``"deg"``.
+        custom_radiation_faces : str, optional
+            Radiation face list to use for far field computation. The default is ``None``.
+        custom_coordinate_system : str, optional
+            Local coordinate system to used for far field computation. The default is
+            ``None``.
+        use_slant_polarization : bool, optional
+            Whether to use slant polarization. The default is `False`.
+        polarization_angle : float, str, optional
+            Slant angle value. The default is ``45``.
+        name : str, optional
+            Name of the sphere. The default is ``None``.
 
         Returns
         -------
@@ -4758,20 +4789,21 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def set_sbr_current_sources_options(self, conformance=False, thin_sources=False, power_fraction=0.95):
-        """Set Current Sources SBR+ Setup Options.
+        """Set SBR+ setup options for the current source.
 
         Parameters
         ----------
-        conformance : bool
-            ``True`` to Enable current source conformance. Default is ``False``
-        thin_sources : bool
-            ``True`` to Enable current Thin Sources. Default is ``False``
-        power_fraction : float or str
-            if thin_sources is enabled then sets the power fraction. Default is ``0.95``
+        conformance : bool, optional
+            Whether to enable current source conformance. The default is ``False``.
+        thin_sources : bool, optional
+            Whether to enable thin sources. The default is ``False``.
+        power_fraction : float or str, optional
+            Power fraction to use if ``thin_sources`` is ``True``. The default is ``0.95``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------

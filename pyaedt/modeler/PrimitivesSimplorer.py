@@ -23,6 +23,10 @@ class SimplorerComponents(CircuitComponents):
     """
 
     @property
+    def _logger(self):
+        return self._app.logger
+
+    @property
     def design_libray(self):
         """Design Library."""
         return "Simplorer Elements"
