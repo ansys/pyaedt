@@ -1035,12 +1035,12 @@ class TestClass(BasisTest):
 
     @pyaedt_unittest_check_desktop_error
     def test_76_check_value_type(self):
-        resolve1, boolean1 = self.aedtapp.modeler._check_value_type(2, float, "SUCCESS", "SUCCESS")
-        resolve2, boolean2 = self.aedtapp.modeler._check_value_type(1, int, "SUCCESS", "SUCCESS")
-        resolve3, boolean3 = self.aedtapp.modeler._check_value_type(1.1, float, "SUCCESS", "SUCCESS")
+        resolve1, boolean1 = self.aedtapp.modeler._check_value_type(2, float, True, "SUCCESS", "SUCCESS")
+        resolve2, boolean2 = self.aedtapp.modeler._check_value_type(1, int, True, "SUCCESS", "SUCCESS")
+        resolve3, boolean3 = self.aedtapp.modeler._check_value_type(1.1, float, False, "SUCCESS", "SUCCESS")
         assert isinstance(resolve1, float)
         assert boolean1
         assert isinstance(resolve2, int)
         assert boolean2
         assert isinstance(resolve3, float)
-        assert boolean3
+        assert not boolean3
