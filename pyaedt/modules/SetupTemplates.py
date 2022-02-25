@@ -1677,7 +1677,7 @@ class SweepQ3D(object):
                 self.props["InterpMinSubranges"] = 1
 
     @aedt_exception_handler
-    def add_subrange(self, type, start, end, count):
+    def add_subrange(self, type, start, end, count, unit="GHz", clear=False):
         """Add a subrange to the sweep.
 
         Parameters
@@ -1691,6 +1691,10 @@ class SweepQ3D(object):
             Stopping frequency.
         count : int or float
             Frequency count or frequency step.
+        unit : str, optional
+            Frequency Units.
+        clear : bool, optional
+            Either if the subrange has to be appended to existing ones or replace them.
 
         Returns
         -------
@@ -1698,19 +1702,41 @@ class SweepQ3D(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+        if clear:
+            self.props["RangeType"] = type
+            self.props["RangeStart"] = str(start) + unit
+            if type == "LinearCount":
+                self.props["RangeEnd"] = str(end) + unit
+                self.props["RangeCount"] = count
+            elif type == "LinearStep":
+                self.props["RangeEnd"] = str(end) + unit
+                self.props["RangeStep"] = str(count) + unit
+            elif type == "LogScale":
+                self.props["RangeEnd"] = str(end) + unit
+                self.props["RangeSamples"] = count
+            elif type == "SinglePoints":
+                self.props["RangeEnd"] = str(start) + unit
+            self.props["SweepRanges"] = {"Subrange": []}
+            return self.update()
         range = {}
         range["RangeType"] = type
-        range["RangeStart"] = start
-        range["RangeEnd"] = end
+        range["RangeStart"] = str(start) + unit
         if type == "LinearCount":
+            range["RangeEnd"] = str(end) + unit
             range["RangeCount"] = count
         elif type == "LinearStep":
-            range["RangeStep"] = count
+            range["RangeEnd"] = str(end) + unit
+            range["RangeStep"] = str(count) + unit
         elif type == "LogScale":
+            range["RangeEnd"] = str(end) + unit
             range["RangeCount"] = self.props["RangeCount"]
             range["RangeSamples"] = count
-        self.props["SweepRanges"].append(range)
-        return True
+        elif type == "SinglePoints":
+            range["RangeEnd"] = str(start) + unit
+        if not self.props.get("SweepRanges") or not self.props["SweepRanges"].get("Subrange"):
+            self.props["SweepRanges"] = {"Subrange": []}
+        self.props["SweepRanges"]["Subrange"].append(range)
+        return self.update()
 
     @aedt_exception_handler
     def create(self):
