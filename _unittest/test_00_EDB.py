@@ -674,5 +674,6 @@ class TestClass:
             mounted_component_pin1="A12",
             mounted_component_pin2="A14",
             hosting_component_pin1="A2",
-            hosting_component_pin2="A4")
+            hosting_component_pin2="A4",
+        )
         edb2.close_edb()
