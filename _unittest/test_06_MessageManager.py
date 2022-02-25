@@ -53,7 +53,7 @@ class TestClass:
         pass
 
     @pytest.mark.skipif(config["build_machine"] == True, reason="Issue on Build machine")
-    def test_01_get_messages(self):
+    def test_01_get_messages(self):  # pragma: no cover
         msg = self.aedtapp._messenger
         msg.clear_messages(level=3)
         msg.add_info_message("Test Info design level")
@@ -65,7 +65,7 @@ class TestClass:
         pass
 
     @pytest.mark.skipif(config["build_machine"] == True, reason="Issue on Build machine")
-    def test_02_messaging(self):
+    def test_02_messaging(self):  # pragma: no cover
         msg = self.aedtapp._messenger
         msg.clear_messages(level=3)
         msg.add_info_message("Test Info")

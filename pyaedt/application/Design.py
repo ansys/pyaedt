@@ -2006,7 +2006,7 @@ class Design(object):
 
     @aedt_exception_handler
     def _close_edb(self):
-        if self.design_type == "HFSS 3D Layout Design":
+        if self.design_type == "HFSS 3D Layout Design":  # pragma: no cover
             if self.modeler and self.modeler.edb:
                 self.modeler.edb.close_edb()
 
