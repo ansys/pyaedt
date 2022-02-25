@@ -328,6 +328,19 @@ class TestClass:
         )
         assert sweep6.props["Sweeps"]["Data"] == "1GHz 2GHz 3GHz 4GHz"
 
+        try:
+            sweep7 = self.aedtapp.create_single_point_sweep(
+                setupname=setup_name,
+                unit="GHz",
+                freq=[],
+                sweepname="RFBoardSingle",
+                save_fields=False,
+            )
+        except AttributeError as e:
+            exception_raised = True
+            assert e.args[0] == "Frequency list is empty. Specify at least one frequency point."
+        assert exception_raised
+
     def test_18d_delete_setup(self):
         setup_name = "SetupToDelete"
         setuptd = self.aedtapp.create_setup(setupname=setup_name)
