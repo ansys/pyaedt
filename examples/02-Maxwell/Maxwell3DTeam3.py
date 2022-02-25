@@ -1,7 +1,7 @@
 """
-Maxwell 3D TEAM3 Bath Plate
----------------------------
-This example uses PyAEDT to setup the TEAM3 problem set by COMPUMAG.
+Maxwell 3D Bath Plate
+---------------------
+This example uses PyAEDT to setup the TEAM3 problem.
 This is solved using the Maxwell 3D Eddy Current solver
 """
 

@@ -1,8 +1,8 @@
 """
-Maxwell 3D TEAM 7 Asymmetrical Conductor with a Hole
-----------------------------------------------------
-This example uses PyAEDT to setup the TEAM 7 problem set by COMPUMAG.
-This is solved using the Maxwell 3D Eddy Current solver
+Maxwell 3D symmetrical Conductor with a Hole
+--------------------------------------------
+This example uses PyAEDT to setup the TEAM 7 problem.
+This is solved using the Maxwell 3D Eddy Current solver.
 """
 from pyaedt import Maxwell3d
 import numpy as np
@@ -163,7 +163,7 @@ L1Mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 
 line_points_2 = [["0mm", "144mm", "34mm"], ["288mm", "144mm", "34mm"]]
 polyline2 = primitives.create_polyline(line_points_2, name=lines[1])
-polyline2_mesh= primitives.create_polyline(line_points_2, name=lines[1] + "mesh")
+polyline2_mesh = primitives.create_polyline(line_points_2, name=lines[1] + "mesh")
 polyline2_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 
 ###############################################################################
@@ -377,4 +377,4 @@ M3D.analyze_all()
 ####################################################################################################
 # The electronics desktop is released from the PyAEDT scripting
 # We can leave the 'desktop' and 'project' open after the above script has run by setting (False, False) below.
-M3D.release_desktop(False, False)
+M3D.release_desktop(True, True)
