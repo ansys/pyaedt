@@ -569,9 +569,11 @@ class WPFToolkitSettings:
             try:
                 settings_data = json.load(f)
             except ValueError:
-                if "_parent" in dir(self):
+                try:
                     msg_string = "Invalid json file {0} will be overwritten.".format(filename)
                     self._parent.logger.warning(msg_string)
+                except:
+                    pass
                 return None
         return settings_data
 
@@ -1589,8 +1591,10 @@ class WPFToolkit(Window):
                     try:
                         txt_line = settings_data[wpf_control.Name]
                         wpf_control.SelectedValue = txt_line
-                        if self.aedtdesign:
+                        try:
                             self.aedtdesign.logger.info("Trying to set: " + txt_line)
+                        except:
+                            pass
                         if txt_line:
                             wpf_control.BorderBrush = Brushes.Green
                     except KeyError:
