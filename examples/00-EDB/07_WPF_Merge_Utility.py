@@ -22,5 +22,16 @@ python_file = download_edb_merge_utility()
 # Python Script execution
 # ~~~~~~~~~~~~~~~~~~~~~~~
 #
-# # Python file can be launched in AEDT or from CPython.
+# Python file can be launched in Aedt or from CPython.
 # This can be run from command line or from Run Script.
+# The example downloads 4 files:
+#  - `package.aedb` folder containing a package example
+#  - `board.aedb` folder containing a board example
+#  - `merge_wizard.py` The python script to run
+#  - `merge_wizard_settings.json` json file containing settings
+#
+# User can launch `merge_wizard.py` from Aedt (Tools->Run Script) or from CPython.
+# The script works only on windows with UI.
+#
+# The json file contains default settings that can be used in any other project to automatically
+# load all settings.
