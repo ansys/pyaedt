@@ -144,3 +144,12 @@ class TestClass:
         assert setup.props["SbrRangeDopplerWaveformType"] == "ChirpSeqFmcw"
         assert setup.props["ChannelConfiguration"] == "IQChannels"
         assert sweep.props["Sim. Setups"] == [setup.name]
+
+
+    def test_11_add_sbr_boundaries_in_hfss_solution(self):
+        hfss_terminal = Hfss(solution_type="Terminal")
+        
+        # sbr file based antenna should only work for SBR+ solution.
+        assert not hfss_terminal.create_sbr_file_based_antenna(
+            ffd_full_path=os.path.join(local_path, "example_models", "test.ffd")
+        )
