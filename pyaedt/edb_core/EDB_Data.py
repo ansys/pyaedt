@@ -2,6 +2,7 @@ import time
 import warnings
 import math
 import os
+from collections import OrderedDict
 
 from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -554,11 +555,11 @@ class EDBLayer(object):
 
         Returns
         -------
-        str
+        float
             Thickness value.
         """
         try:
-            self._thickness = self._layer.GetThicknessValue().ToString()
+            self._thickness = self._layer.GetThicknessValue().ToDouble()
         except:
             pass
         return self._thickness
@@ -783,6 +784,7 @@ class EDBLayer(object):
             Layer
 
         """
+
         layer.SetLowerElevation(self._edb_value(elev))
         return layer
 
@@ -939,7 +941,7 @@ class EDBLayers(object):
         dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBLayer`]
             Dictionary of signal layers.
         """
-        self._signal_layers = {}
+        self._signal_layers = OrderedDict({})
         for layer, edblayer in self.layers.items():
             if (
                 edblayer._layer_type == self._edb.Cell.LayerType.SignalLayer
@@ -1043,7 +1045,7 @@ class EDBLayers(object):
 
     @aedt_exception_handler
     def _update_edb_objects(self):
-        self._edb_object = {}
+        self._edb_object = OrderedDict({})
         layers = self.edb_layers
         for i in range(len(layers)):
             self._edb_object[layers[i].GetName()] = EDBLayer(layers[i], self)
@@ -1088,13 +1090,21 @@ class EDBLayers(object):
         thisLC = self._pedbstackup._active_layout.GetLayerCollection()
         layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         layers.reverse()
-        newLayers = List[self._edb.Cell.Layer]()
+        # newLayers = List[self._edb.Cell.Layer]()
         el = 0.0
+        lcNew = self._edb.Cell.LayerCollection()
+
         if not layers or not start_layer:
             if int(layerType) > 2:
                 newLayer = self._edb.Cell.Layer(layerName, self._int_to_layer_types(layerType))
-                newLayers.Add(newLayer)
+                # newLayers.Add(newLayer)
+                lcNew.AddLayerTop(newLayer)
             else:
+                for lyr in layers:
+                    if not lyr.IsStackupLayer():
+                        # newLayers.Add(lyr.Clone())
+                        lcNew.AddLayerTop(lyr.Clone())
+                        continue
                 newLayer = self._edb.Cell.StackupLayer(
                     layerName,
                     self._int_to_layer_types(layerType),
@@ -1102,30 +1112,31 @@ class EDBLayers(object):
                     self._edb_value(0),
                     "",
                 )
-                newLayers.Add(newLayer)
                 self._edb_object[layerName] = EDBLayer(newLayer, self._pedbstackup)
                 newLayer = self._edb_object[layerName].update_layer_vals(
                     layerName, newLayer, etchMap, material, fillMaterial, thickness, self._int_to_layer_types(layerType)
                 )
-                newLayer = self._edb_object[layerName].set_elevation(newLayer, el)
+                newLayer.SetLowerElevation(self._edb_value(el))
+
+                # newLayers.Add(newLayer)
+                lcNew.AddLayerTop(newLayer)
                 el += newLayer.GetThickness()
             for lyr in layers:
                 if not lyr.IsStackupLayer():
-                    newLayers.Add(lyr.Clone())
                     continue
                 newLayer = lyr.Clone()
-                newLayer = self._edb_object[lyr.GetName()].set_elevation(newLayer, el)
+                newLayer.SetLowerElevation(self._edb_value(el))
                 el += newLayer.GetThickness()
-                newLayers.Add(newLayer)
+                # newLayers.Add(newLayer)
+                lcNew.AddLayerTop(newLayer)
         else:
             for lyr in layers:
                 if not lyr.IsStackupLayer():
-                    newLayers.Add(lyr.Clone())
+                    # newLayers.Add(lyr.Clone())
+                    lcNew.AddLayerTop(lyr.Clone())
                     continue
                 if lyr.GetName() == start_layer:
-                    newLayer = lyr.Clone()
-                    el += newLayer.GetThickness()
-                    newLayers.Add(newLayer)
+                    original_layer = lyr.Clone()
 
                     newLayer = self._edb.Cell.StackupLayer(
                         layerName,
@@ -1145,15 +1156,21 @@ class EDBLayers(object):
                         self._int_to_layer_types(layerType),
                     )
                     newLayer = self._edb_object[layerName].set_elevation(newLayer, el)
+                    lcNew.AddLayerTop(newLayer)
+
                     el += newLayer.GetThickness()
+                    original_layer.SetLowerElevation(self._edb_value(el))
+                    # newLayers.Add(original_layer)
+                    lcNew.AddLayerTop(original_layer)
+                    el += original_layer.GetThickness()
                 else:
                     newLayer = lyr.Clone()
-                    newLayer = self._edb_object[lyr.GetName()].set_elevation(newLayer, el)
+                    newLayer.SetLowerElevation(self._edb_value(el))
                     el += newLayer.GetThickness()
-                newLayers.Add(newLayer)
-        lcNew = self._edb.Cell.LayerCollection()
-        newLayers.Reverse()
-        if not lcNew.AddLayers(newLayers) or not self._active_layout.SetLayerCollection(lcNew):
+                    lcNew.AddLayerTop(newLayer)
+        # lcNew = self._edb.Cell.LayerCollection()
+        # newLayers.Reverse()
+        if not self._active_layout.SetLayerCollection(lcNew):
             self._logger.error("Failed to set new layers when updating the stackup information.")
             return False
         self._update_edb_objects()
@@ -2119,6 +2136,25 @@ class EDBComponent(object):
         self.edbcomponent = cmp
 
     @property
+    def component_property(self):
+        """Component Property Object."""
+        return self.edbcomponent.GetComponentProperty().Clone()
+
+    @property
+    def solder_ball_height(self):
+        """Solder ball height if available.."""
+        if "GetSolderBallProperty" in dir(self.component_property):
+            return self.component_property.GetSolderBallProperty().GetHeight()
+        return None
+
+    @property
+    def solder_ball_placement(self):
+        """Solder ball placement if available.."""
+        if "GetSolderBallProperty" in dir(self.component_property):
+            return int(self.component_property.GetSolderBallProperty().GetPlacement())
+        return 2
+
+    @property
     def refdes(self):
         """Reference Designator Name.
 
@@ -2324,7 +2360,7 @@ class EDBComponent(object):
         str
            Name of the placement layer.
         """
-        return self.pinlist[0].GetGroup().GetPlacementLayer().GetName()
+        return self.edbcomponent.GetPlacementLayer().GetName()
 
     @property
     def lower_elevation(self):
@@ -2335,7 +2371,7 @@ class EDBComponent(object):
         float
             Lower elevation of the placement layer.
         """
-        return self.pinlist[0].GetGroup().GetPlacementLayer().GetLowerElevation()
+        return self.edbcomponent.GetPlacementLayer().GetLowerElevation()
 
     @property
     def upper_elevation(self):
@@ -2347,7 +2383,7 @@ class EDBComponent(object):
             Upper elevation of the placement layer.
 
         """
-        return self.pinlist[0].GetGroup().GetPlacementLayer().GetUpperElevation()
+        return self.edbcomponent.GetPlacementLayer().GetUpperElevation()
 
     @property
     def top_bottom_association(self):
@@ -2364,7 +2400,7 @@ class EDBComponent(object):
             * 4 - Number of top/bottom associations.
             * -1 - Undefined
         """
-        return int(self.pinlist[0].GetGroup().GetPlacementLayer().GetTopBottomAssociation())
+        return int(self.edbcomponent.GetPlacementLayer().GetTopBottomAssociation())
 
 
 class EdbBuilder(object):

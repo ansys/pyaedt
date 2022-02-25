@@ -46,6 +46,9 @@ class TestClass(BasisTest):
         assert sweep
         assert sweep.props["RangeStart"] == "1GHz"
 
+        # Create a discrete sweep with the same name of an existing sweep is not possible.
+        assert not self.aedtapp.create_discrete_sweep(mysetup.name, sweepname="mysweep", freqstart=1, units="GHz")
+
     def test_06b_create_setup(self):
         mysetup = self.aedtapp.create_setup()
         mysetup.props["SaveFields"] = True

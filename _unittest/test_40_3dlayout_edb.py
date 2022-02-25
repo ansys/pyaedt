@@ -1,7 +1,12 @@
 import os
 
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
+
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, BasisTest, desktop_version
+from _unittest.conftest import local_path, scratch_path, BasisTest, desktop_version, is_ironpython
 
 # Import required modules
 from pyaedt import Hfss3dLayout
@@ -21,6 +26,10 @@ class TestClass(BasisTest):
             self.local_scratch.copyfolder(
                 os.path.join(local_path, "example_models", original_project_name + ".aedb"),
                 os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
+            )
+            self.local_scratch.copyfolder(
+                os.path.join(local_path, "example_models", "Package.aedb"),
+                os.path.join(self.local_scratch.path, "Package2.aedb"),
             )
         self.aedtapp = Hfss3dLayout(self.test_project, specified_version=desktop_version)
         self.tmp = self.aedtapp.modeler.geometries
@@ -89,3 +98,9 @@ class TestClass(BasisTest):
         nets = self.aedtapp.modeler.nets
         assert nets["GND"].name == "GND"
         assert len(nets) > 0
+
+    # @pytest.mark.skipif(is_ironpython, reason="Crashing in IronPython on build machine but working on Ironpython.")
+    def test_08_merge(self):
+        hfss3d = Hfss3dLayout(os.path.join(self.local_scratch.path, "Package2.aedb", "edb.def"))
+        assert hfss3d.modeler.merge_design(self.aedtapp)
+        hfss3d.close_project(saveproject=False)
