@@ -16,7 +16,6 @@ except ImportError:
 
 
 class TestClass(BasisTest):
-
     def setup_class(self):
         BasisTest.my_setup(self)
 

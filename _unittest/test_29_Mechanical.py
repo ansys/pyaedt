@@ -66,7 +66,9 @@ class TestClass(BasisTest):
 
     @pytest.mark.skipif(config["desktopVersion"] < "2021.2", reason="Skipped on versions lower than 2021.2")
     def test_07_assign_thermal_loss(self):
-        ipk = Icepak(solution_type=self.aedtapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow, specified_version=desktop_version)
+        ipk = Icepak(
+            solution_type=self.aedtapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow, specified_version=desktop_version
+        )
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
         id1 = ipk.modeler.create_cylinder(ipk.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")

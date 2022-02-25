@@ -20,7 +20,9 @@ class TestClass(BasisTest):
                 os.path.join(local_path, "example_models", test_project_name + ".aedb"),
                 os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
             )
-            self.aedtapp = Hfss(os.path.join(self.local_scratch.path, test_project_name + ".aedt"), specified_version=desktop_version)
+            self.aedtapp = Hfss(
+                os.path.join(self.local_scratch.path, test_project_name + ".aedt"), specified_version=desktop_version
+            )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

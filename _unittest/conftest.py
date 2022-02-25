@@ -114,7 +114,6 @@ class BasisTest(object):
         except:
             pass
         del self.aedtapp
-        print('--> DONE TEARDOWN <--')
 
     def teardown(self):
         """
@@ -127,6 +126,7 @@ class BasisTest(object):
         Could be redefined
         """
         pass
+
 
 # Define desktopVersion explicitly since this is imported by other modules
 desktop_version = config["desktopVersion"]
