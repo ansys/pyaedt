@@ -2425,8 +2425,8 @@ class Design(object):
         proj_path = oproj.GetPath()
         if saveproject:
             oproj.Save()
-        if name == legacy_name:
-            self._close_edb()
+        #if name == legacy_name:
+        #    self._close_edb()
         self.odesktop.CloseProject(name)
         i = 0
         timeout = 10
