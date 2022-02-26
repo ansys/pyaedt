@@ -1042,12 +1042,14 @@ class TestClass(BasisTest):
         )
         choke_file5 = os.path.join(local_path, "example_models", "choke_json_file", "choke_4winding_3Layer_Linked.json")
         choke_file6 = os.path.join(local_path, "example_models", "choke_json_file", "choke_1winding_3Layer_Linked.json")
+        choke_file7 = os.path.join(local_path, "example_models", "choke_json_file", "choke_2winding_2Layer_Common.json")
         resolve1 = self.aedtapp.modeler.check_choke_values(choke_file1, create_another_file=True)
         resolve2 = self.aedtapp.modeler.check_choke_values(choke_file2, create_another_file=True)
         resolve3 = self.aedtapp.modeler.check_choke_values(choke_file3, create_another_file=True)
         resolve4 = self.aedtapp.modeler.check_choke_values(choke_file4, create_another_file=True)
         resolve5 = self.aedtapp.modeler.check_choke_values(choke_file5, create_another_file=True)
         resolve6 = self.aedtapp.modeler.check_choke_values(choke_file6, create_another_file=True)
+        resolve7 = self.aedtapp.modeler.check_choke_values(choke_file7, create_another_file=True)
         assert isinstance(resolve1, list)
         assert resolve1[0]
         assert isinstance(resolve1[1], dict)
@@ -1066,6 +1068,9 @@ class TestClass(BasisTest):
         assert isinstance(resolve6, list)
         assert resolve6[0]
         assert isinstance(resolve6[1], dict)
+        assert isinstance(resolve7, list)
+        assert resolve7[0]
+        assert isinstance(resolve7[1], dict)
 
     @pyaedt_unittest_check_desktop_error
     def test_73_make_winding(self):
