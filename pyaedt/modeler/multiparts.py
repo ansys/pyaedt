@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import time
 
 from pyaedt.modeler.parts import Part, Antenna
 from pyaedt.generic.DataHandlers import json_to_dict
