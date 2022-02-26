@@ -25,8 +25,8 @@
   "Wire Section": {
     "None": false,
     "Hexagon": true,
-    "Octagon": true,
-    "Circle": true
+    "Octagon": false,
+    "Circle": false
   },
   "Core": {
     "Name": "Core",
