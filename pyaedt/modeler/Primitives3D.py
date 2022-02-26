@@ -2316,7 +2316,7 @@ class Primitives3D(Primitives, object):
             if values["Layer"]["Double"]:
                 nb_lay = 2
             if values["Layer"]["Triple"]:
-                nb_lay = 0
+                nb_lay = 4
 
             if in_rad_wind > in_rad_core - (nb_lay + 1) * sr * dia_wire / 2:
                 in_rad_wind = in_rad_core - (nb_lay + 1) * sr * dia_wire / 2
