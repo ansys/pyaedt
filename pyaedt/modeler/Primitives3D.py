@@ -2160,6 +2160,7 @@ class Primitives3D(Primitives, object):
                 or f_key == "Layer Type"
                 or f_key == "Similar Layer"
                 or f_key == "Mode"
+                or f_key == "Wire Section"
             ):
                 for s_key in values[f_key].keys():
                     if type(values[f_key][s_key]) == bool:
