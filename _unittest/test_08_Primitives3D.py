@@ -1047,7 +1047,7 @@ class TestClass(BasisTest):
         resolve3 = self.aedtapp.modeler.check_choke_values(choke_file3, create_another_file=True)
         resolve4 = self.aedtapp.modeler.check_choke_values(choke_file4, create_another_file=True)
         resolve5 = self.aedtapp.modeler.check_choke_values(choke_file5, create_another_file=True)
-        resolve6 = self.aedtapp.modeler.check_choke_values(choke_file5, create_another_file=False)
+        resolve6 = self.aedtapp.modeler.check_choke_values(choke_file5, create_another_file=True)
         assert isinstance(resolve1, list)
         assert resolve1[0]
         assert isinstance(resolve1[1], dict)
