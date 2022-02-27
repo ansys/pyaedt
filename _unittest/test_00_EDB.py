@@ -4,6 +4,7 @@ import os
 import gc
 
 # Import required modules
+import pyaedt
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.generic.filesystem import Scratch
@@ -684,3 +685,9 @@ class TestClass:
         edbapp_without_path = Edb(edbversion=desktop_version, isreadonly=False)
         edbapp_without_path.close_edb()
         edbapp_without_path = None
+
+    def test_81_edb_not_initialized(self):
+        pyaedt.edb.edb_initialized = False
+        edb_not_initialized = Edb(os.path.join(local_path, "example_models", "Package.aedb"), edbversion=desktop_version)
+        assert edb_not_initialized._db is None
+        pyaedt.edb.edb_initialized = True

@@ -152,7 +152,7 @@ def release_desktop(close_projects=True, close_desktop=True):
                 os.kill(pid, 9)
                 _delete_objects()
                 return True
-            except:
+            except:  # pragma: no cover
                 warnings.warn("Something went wrong in closing AEDT.")
                 return False
     return True
