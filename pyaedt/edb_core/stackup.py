@@ -533,7 +533,7 @@ class EdbStackup(object):
             else:
                 h_stackup = self._edb_value(topz + solder_height - bottomz_s)
         elif flipped_stackup:
-            h_stackup = self._edb_value(bottoml.GetThickness() + bottomz - solder_height - bottomz_s)
+            h_stackup = self._edb_value(topl.GetThickness() + bottomz - solder_height - bottomz_s)
         else:
             h_stackup = self._edb_value(bottomz - solder_height - topz_s)
 
