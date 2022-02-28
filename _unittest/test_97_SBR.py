@@ -15,7 +15,6 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 test_project_name = "Cassegrain"
-test_target_project_name = "Cassegrain2"
 
 
 class TestClass(BasisTest):
@@ -23,8 +22,8 @@ class TestClass(BasisTest):
         time.sleep(2)
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
-            new_name = os.path.join(self.local_scratch.path, test_target_project_name + ".aedt")
+            example_project = os.path.join(local_path, "example_models", test_project_name + ".aedtz")
+            new_name = os.path.join(self.local_scratch.path, test_project_name + ".aedtz")
             self.test_project = self.local_scratch.copyfile(example_project, new_name)
             self.aedtapp = Hfss(
                 projectname=self.test_project,
@@ -33,7 +32,7 @@ class TestClass(BasisTest):
                 specified_version=desktop_version,
             )
             self.source = Hfss(
-                projectname=test_target_project_name, designname="feeder", specified_version=desktop_version
+                projectname=self.aedtapp.project_name, designname="feeder", specified_version=desktop_version
             )
 
     def teardown_class(self):

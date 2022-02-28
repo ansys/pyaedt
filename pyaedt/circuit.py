@@ -6,6 +6,7 @@ from __future__ import absolute_import
 import math
 import os
 import re
+import io
 
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
@@ -1553,7 +1554,6 @@ class Circuit(FieldAnalysisCircuit, object):
         """Load differtential pairs definition from file.
 
         File format can be obtained using ``save_diff_pairs_to_file`` method.
-        File End Of Line must be UNIX (LF).
         New definitions are added only if compatible with the existing definition already defined in the project.
 
         Parameters
@@ -1574,7 +1574,15 @@ class Circuit(FieldAnalysisCircuit, object):
             raise ValueError("{}: unable to find the specified file.".format(filename))
 
         try:
-            self.odesign.LoadDiffPairsFromFile(filename)
+            new_file = os.path.join(os.path.dirname(filename), generate_unique_name("temp") + ".txt")
+            with open(filename, "r") as file:
+                filedata = file.read().splitlines()
+            with io.open(new_file, "w", newline="\n") as fh:
+                for line in filedata:
+                    fh.write(line + "\n")
+
+            self.odesign.LoadDiffPairsFromFile(new_file)
+            os.remove(new_file)
         except:  # pragma: no cover
             return False
         return True

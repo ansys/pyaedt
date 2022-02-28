@@ -1277,7 +1277,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             raise ValueError("{}: unable to find the specified file.".format(filename))
 
         try:
-            self.oexcitation.LoadDiffPairsFromFile(filename)
+            new_file = os.path.join(os.path.dirname(filename), generate_unique_name("temp") + ".txt")
+            with open(filename, "r") as file:
+                filedata = file.read().splitlines()
+            with io.open(new_file, "w", newline="\n") as fh:
+                for line in filedata:
+                    fh.write(line + "\n")
+
+            self.oexcitation.LoadDiffPairsFromFile(new_file)
+            os.remove(new_file)
         except:  # pragma: no cover
             return False
         return True
