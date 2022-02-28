@@ -6,7 +6,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import scratch_path, local_path, BasisTest, desktop_version   #, is_ironpython
+from _unittest.conftest import scratch_path, local_path, BasisTest, desktop_version  # , is_ironpython
 
 try:
     import pytest  # noqa: F401

@@ -32,7 +32,9 @@ class TestClass(BasisTest):
                 solution_type="SBR+",
                 specified_version=desktop_version,
             )
-            self.source = Hfss(projectname=test_target_project_name, designname="feeder", specified_version=desktop_version)
+            self.source = Hfss(
+                projectname=test_target_project_name, designname="feeder", specified_version=desktop_version
+            )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
