@@ -65,7 +65,7 @@ class TestClass(BasisTest):
         self.design_info = self.project_dict2["ProjectPreview"]["DesignInfo"]
         assert isinstance(self.design_info, list)
         design_names = [design["DesignName"] for design in self.design_info]
-        assert ["Cassegrain_Hybrid", "feeder", "Cassegrain_"] == design_names
+        assert ["feeder", "Cassegrain_reflectors"] == design_names
 
     def test_05_check_can_load_aedt_file_with_multiple_coord_systems(self):
         # implicitly this will test to make sure no exception is thrown by load_entire_aedt_file

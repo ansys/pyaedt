@@ -26,7 +26,7 @@ class TestClass(BasisTest):
             self.test_project = self.local_scratch.copyfile(example_project, new_name)
             self.aedtapp = Hfss(
                 projectname=self.test_project,
-                designname="Cassegrain_",
+                designname="Cassegrain_reflectors",
                 solution_type="SBR+",
                 specified_version=desktop_version,
             )
@@ -151,3 +151,6 @@ class TestClass(BasisTest):
         assert setup.props["SbrRangeDopplerWaveformType"] == "ChirpSeqFmcw"
         assert setup.props["ChannelConfiguration"] == "IQChannels"
         assert sweep.props["Sim. Setups"] == [setup.name]
+
+    def test_11_dummy_test(self):
+        assert True
