@@ -4302,9 +4302,9 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def _create_sbr_doppler_sweep(self, setupname, time_var, tstart, tstop, tsweep, parametric_name):
-        time_start = self.modeler.primitives._arg_with_dim(tstart, "s")
-        time_sweep = self.modeler.primitives._arg_with_dim(tsweep, "s")
-        time_stop = self.modeler.primitives._arg_with_dim(tstop, "s")
+        time_start = self.modeler._arg_with_dim(tstart, "s")
+        time_sweep = self.modeler._arg_with_dim(tsweep, "s")
+        time_stop = self.modeler._arg_with_dim(tstop, "s")
         sweep_range = "LIN {} {} {}".format(time_start, time_stop, time_sweep)
         return self.opti_parametric.add_parametric_setup(
             time_var, sweep_range, setupname, parametricname=parametric_name
@@ -4674,7 +4674,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> oModule.SetSBRTxRxSettings
         >>> oEditor.CreateGroup
         """
-        self.modeler.primitives._initialize_multipart()
+        self.modeler._initialize_multipart()
         if self.solution_type != "SBR+":
             self.logger.error("Method Applies only to SBR+ Solution.")
             return False

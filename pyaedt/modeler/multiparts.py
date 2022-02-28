@@ -400,50 +400,22 @@ class MultiPartComponent(object):
             xyz = ["x", "y", "z"]
             for m in range(3):
                 # app[self.offset_names[m]] = self.offset[m]
-                var_name = self.offset_names[m]
-                var_expr = self.offset[m]
-                app[var_name] = var_expr
-                try:
-                    test_var = app[var_name]
-                except:
-                    app[var_name] = var_expr
-                # app.variable_manager.set_variable(
-                #     variable_name=self.offset_names[m],
-                #     expression=self.offset[m],
-                #     description=self.name + " " + xyz[m] + "-position",
-                # )
-            var_name = self.yaw_name
-            var_expr = self.yaw
-            app[var_name] = var_expr
-            try:
-                test_var = app[var_name]
-            except:
-                app[var_name] = var_expr
-            # app.variable_manager.set_variable(
-            #     variable_name=self.yaw_name, expression=self.yaw, description=self.name + " yaw"
-            # )
+                app.variable_manager.set_variable(
+                    variable_name=self.offset_names[m],
+                    expression=self.offset[m],
+                    description=self.name + " " + xyz[m] + "-position",
+                )
+            app.variable_manager.set_variable(
+                variable_name=self.yaw_name, expression=self.yaw, description=self.name + " yaw"
+            )
 
-            var_name = self.pitch_name
-            var_expr = self.pitch
-            app[var_name] = var_expr
-            try:
-                test_var = app[var_name]
-            except:
-                app[var_name] = var_expr
-            # app.variable_manager.set_variable(
-            #     variable_name=self.pitch_name, expression=self.pitch, description=self.name + " pitch"
-            # )
+            app.variable_manager.set_variable(
+                variable_name=self.pitch_name, expression=self.pitch, description=self.name + " pitch"
+            )
 
-            var_name = self.roll_name
-            var_expr = self.roll
-            app[var_name] = var_expr
-            try:
-                test_var = app[var_name]
-            except:
-                app[var_name] = var_expr
-            # app.variable_manager.set_variable(
-            #     variable_name=self.roll_name, expression=self.roll, description=self.name + " roll"
-            # )
+            app.variable_manager.set_variable(
+                variable_name=self.roll_name, expression=self.roll, description=self.name + " roll"
+            )
 
             cs_origin = self.offset_names
         else:
