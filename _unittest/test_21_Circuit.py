@@ -334,10 +334,14 @@ class TestClass(BasisTest):
         )
         circuit = Circuit(projectname=test_project, designname="Circuit1", specified_version=desktop_version)
         diff_file = os.path.join(self.local_scratch.path, "diff_file1.txt")
-        with io.open(diff_file, "w", newline="\n") as fh:
-            fh.write("Port1,Port2,1,0,Diff1,100,Comm1,25\n")
-            fh.write("Port3,Port4,1,0,Diff2,253,Comm2,78\n")
-            fh.write("Port5,Port6,1,0,Diff3,100,Comm3,25\n")
+        # diff_file = os.path.join(self.local_scratch.path, "diff_file1.txt")
+        # with io.open(diff_file, "w", newline="\n") as fh:
+        #     fh.write("Port1,Port2,1,0,Diff1,100,Comm1,25\n")
+        #     fh.write("Port3,Port4,1,0,Diff2,253,Comm2,78\n")
+        #     fh.write("Port5,Port6,1,0,Diff3,100,Comm3,25\n")
+
+        diff_def_file = os.path.join(local_path, "example_models", "differential_pairs_definition.txt")
+        diff_file = self.local_scratch.copyfile(diff_def_file)
         assert circuit.load_diff_pairs_from_file(diff_file)
 
         diff_file2 = os.path.join(self.local_scratch.path, "diff_file2.txt")

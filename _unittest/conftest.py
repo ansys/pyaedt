@@ -107,11 +107,11 @@ class BasisTest(object):
         for project in list_of_projects:
             try:
                 self.aedtapp._desktop.CloseProject(project)
-            except:
+            except:  # pragma: no cover
                 pass
         try:
             self.local_scratch.remove()
-        except:
+        except:  # pragma: no cover
             pass
         del self.aedtapp
 
