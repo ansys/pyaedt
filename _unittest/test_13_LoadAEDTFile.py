@@ -41,11 +41,7 @@ class TestClass(BasisTest):
         BasisTest.my_teardown(self)
 
     def test_01_check_top_level_keys(self):
-        assert (
-            "AnsoftProject"
-            in list(self.project_dict.keys())
-            == ["AnsoftProject", "AllReferencedFilesForProject", "ProjectPreview"]
-        )
+        assert "AnsoftProject" in list(self.project_dict.keys())
         assert "AllReferencedFilesForProject" in list(self.project_dict.keys())
         assert "ProjectPreview" in list(self.project_dict.keys())
 
