@@ -64,7 +64,7 @@ $begin 'AnsoftProject'
 	ReadVersion=9
 	$begin 'EDB'
 		Path=''
-		LastUpdateTimeStamp=1645636045
+		LastUpdateTimeStamp=1646067615
 	$end 'EDB'
 	$begin 'DesignMgrEnvironment'
 		CompInstCounter=9
@@ -95,6 +95,33 @@ $begin 'AnsoftProject'
 			Packages(1604, 9005, 33502, 107, 1, false, false)
 		$end 'Folders'
 		$begin 'Materials'
+			$begin 'copper'
+				CoordinateSystemType='Cartesian'
+				BulkOrSurfaceType=1
+				$begin 'PhysicsTypes'
+					set('Electromagnetic', 'Thermal', 'Structural')
+				$end 'PhysicsTypes'
+				$begin 'AttachedData'
+					$begin 'MatAppearanceData'
+						property_data='appearance_data'
+						Red=242
+						Green=140
+						Blue=102
+					$end 'MatAppearanceData'
+				$end 'AttachedData'
+				permeability='0.999991'
+				conductivity='58000000'
+				thermal_conductivity='400'
+				mass_density='8933'
+				specific_heat='385'
+				youngs_modulus='120000000000'
+				poissons_ratio='0.38'
+				thermal_expansion_coefficient='1.77e-05'
+				ModTime=1499970477
+				Library='Materials'
+				LibLocation='Project'
+				ModSinceLib=true
+			$end 'copper'
 			$begin 'FR4'
 				CoordinateSystemType='Cartesian'
 				BulkOrSurfaceType=1
@@ -135,33 +162,6 @@ $begin 'AnsoftProject'
 				LibLocation='Project'
 				ModSinceLib=true
 			$end 'FR4_epoxy'
-			$begin 'copper'
-				CoordinateSystemType='Cartesian'
-				BulkOrSurfaceType=1
-				$begin 'PhysicsTypes'
-					set('Electromagnetic', 'Thermal', 'Structural')
-				$end 'PhysicsTypes'
-				$begin 'AttachedData'
-					$begin 'MatAppearanceData'
-						property_data='appearance_data'
-						Red=242
-						Green=140
-						Blue=102
-					$end 'MatAppearanceData'
-				$end 'AttachedData'
-				permeability='0.999991'
-				conductivity='58000000'
-				thermal_conductivity='400'
-				mass_density='8933'
-				specific_heat='385'
-				youngs_modulus='120000000000'
-				poissons_ratio='0.38'
-				thermal_expansion_coefficient='1.77e-05'
-				ModTime=1499970477
-				Library='Materials'
-				LibLocation='Project'
-				ModSinceLib=true
-			$end 'copper'
 			$begin 'pec'
 				CoordinateSystemType='Cartesian'
 				BulkOrSurfaceType=1
@@ -527,1322 +527,6 @@ $begin 'AnsoftProject'
 	$end 'Definitions'
 	DesignIDServer=12
 	MoveBackwards=false
-	$begin 'NexximCircuit'
-		RepRewriteV2=true
-		Name='Circuit1'
-		DesignID=1
-		$begin 'Circuit'
-			ComponentName='Circuit1'
-			AutoFP=''
-			$begin 'DesignDatasets'
-				NextUniqueID=0
-				MoveBackwards=false
-				DatasetType='DesignDatasetType'
-				$begin 'DatasetDefinitions'
-				$end 'DatasetDefinitions'
-			$end 'DesignDatasets'
-			VariableOrders[0:]
-			$begin 'Compinst'
-				ID='2'
-				Status='Status'
-				CompName='Nexxim Circuit Elements\\Capacitors:CAP_'
-				$begin 'Properties'
-					TextProp('ID', 'SRID', '', '2')
-				$end 'Properties'
-				$begin 'Parameters'
-					TextProp('InstanceName', 'HID', '', 'C2')
-					ButtonProp('CosimDefinition', 'OHD', '', '', 'Edit', 40501, ButtonPropClientData())
-					MenuProp('CoSimulator', 'OHD', '', 'DefaultNetlist', 0)
-				$end 'Parameters'
-			$end 'Compinst'
-			$begin 'Compinst'
-				ID='3'
-				Status='Status'
-				CompName='Nexxim Circuit Elements\\Capacitors:CAP_'
-				$begin 'Properties'
-					TextProp('ID', 'SRID', '', '3')
-				$end 'Properties'
-				$begin 'Parameters'
-					TextProp('InstanceName', 'HID', '', 'C3')
-					ButtonProp('CosimDefinition', 'OHD', '', '', 'Edit', 40501, ButtonPropClientData())
-					MenuProp('CoSimulator', 'OHD', '', 'DefaultNetlist', 0)
-				$end 'Parameters'
-			$end 'Compinst'
-			$begin 'Compinst'
-				ID='4'
-				Status='Status'
-				CompName='Nexxim Circuit Elements\\Capacitors:CAP_'
-				$begin 'Properties'
-					TextProp('ID', 'SRID', '', '4')
-				$end 'Properties'
-				$begin 'Parameters'
-					TextProp('InstanceName', 'HID', '', 'C4')
-					ButtonProp('CosimDefinition', 'OHD', '', '', 'Edit', 40501, ButtonPropClientData())
-					MenuProp('CoSimulator', 'OHD', '', 'DefaultNetlist', 0)
-				$end 'Parameters'
-			$end 'Compinst'
-			$begin 'IPort'
-				PortName='Port1'
-				Public=true
-				Connectible=true
-				UnconnectedAction=1
-				PortValue=''
-				Domain(0, -1, 2, '')
-				$begin 'Properties'
-					TextProp('pnum', 'ORHD', '', '1')
-					ValueProp('rz', 'OD', '', '50ohm', 0)
-					ValueProp('iz', 'OD', '', '0ohm', 0)
-					CheckboxProp('EnableNoise', 'OD', '', false)
-					ValueProp('noisetemp', 'OD', '', '16.85cel', 0)
-					ButtonProp('EditPort', 'D', '', 'Edit', '', 0, ButtonPropClientData())
-				$end 'Properties'
-			$end 'IPort'
-			$begin 'IPort'
-				PortName='Port2'
-				Public=true
-				Connectible=true
-				UnconnectedAction=1
-				PortValue=''
-				Domain(0, -1, 2, '')
-				$begin 'Properties'
-					TextProp('pnum', 'ORHD', '', '2')
-					ValueProp('rz', 'OD', '', '50ohm', 0)
-					ValueProp('iz', 'OD', '', '0ohm', 0)
-					CheckboxProp('EnableNoise', 'OD', '', false)
-					ValueProp('noisetemp', 'OD', '', '16.85cel', 0)
-					ButtonProp('EditPort', 'D', '', 'Edit', '', 0, ButtonPropClientData())
-				$end 'Properties'
-			$end 'IPort'
-			$begin 'IPort'
-				PortName='Port3'
-				Public=true
-				Connectible=true
-				UnconnectedAction=1
-				PortValue=''
-				Domain(0, -1, 2, '')
-				$begin 'Properties'
-					TextProp('pnum', 'ORHD', '', '3')
-					ValueProp('rz', 'OD', '', '50ohm', 0)
-					ValueProp('iz', 'OD', '', '0ohm', 0)
-					CheckboxProp('EnableNoise', 'OD', '', false)
-					ValueProp('noisetemp', 'OD', '', '16.85cel', 0)
-					ButtonProp('EditPort', 'D', '', 'Edit', '', 0, ButtonPropClientData())
-				$end 'Properties'
-			$end 'IPort'
-			$begin 'IPort'
-				PortName='Port4'
-				Public=true
-				Connectible=true
-				UnconnectedAction=1
-				PortValue=''
-				Domain(0, -1, 2, '')
-				$begin 'Properties'
-					TextProp('pnum', 'ORHD', '', '4')
-					ValueProp('rz', 'OD', '', '50ohm', 0)
-					ValueProp('iz', 'OD', '', '0ohm', 0)
-					CheckboxProp('EnableNoise', 'OD', '', false)
-					ValueProp('noisetemp', 'OD', '', '16.85cel', 0)
-					ButtonProp('EditPort', 'D', '', 'Edit', '', 0, ButtonPropClientData())
-				$end 'Properties'
-			$end 'IPort'
-			$begin 'IPort'
-				PortName='Port5'
-				Public=true
-				Connectible=true
-				UnconnectedAction=1
-				PortValue=''
-				Domain(0, -1, 2, '')
-				$begin 'Properties'
-					TextProp('pnum', 'ORHD', '', '5')
-					ValueProp('rz', 'OD', '', '50ohm', 0)
-					ValueProp('iz', 'OD', '', '0ohm', 0)
-					CheckboxProp('EnableNoise', 'OD', '', false)
-					ValueProp('noisetemp', 'OD', '', '16.85cel', 0)
-					ButtonProp('EditPort', 'D', '', 'Edit', '', 0, ButtonPropClientData())
-				$end 'Properties'
-			$end 'IPort'
-			$begin 'IPort'
-				PortName='Port6'
-				Public=true
-				Connectible=true
-				UnconnectedAction=1
-				PortValue=''
-				Domain(0, -1, 2, '')
-				$begin 'Properties'
-					TextProp('pnum', 'ORHD', '', '6')
-					ValueProp('rz', 'OD', '', '50ohm', 0)
-					ValueProp('iz', 'OD', '', '0ohm', 0)
-					CheckboxProp('EnableNoise', 'OD', '', false)
-					ValueProp('noisetemp', 'OD', '', '16.85cel', 0)
-					ButtonProp('EditPort', 'D', '', 'Edit', '', 0, ButtonPropClientData())
-				$end 'Properties'
-			$end 'IPort'
-			$begin 'Net'
-				NetName='Port1'
-				$begin 'Properties'
-					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
-				$end 'Properties'
-				NetInterfacePorts='Port1'
-				NetPin('2', 0)
-			$end 'Net'
-			$begin 'Net'
-				NetName='Port2'
-				$begin 'Properties'
-					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
-				$end 'Properties'
-				NetInterfacePorts='Port2'
-				NetPin('2', 1)
-			$end 'Net'
-			$begin 'Net'
-				NetName='Port3'
-				$begin 'Properties'
-					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
-				$end 'Properties'
-				NetInterfacePorts='Port3'
-				NetPin('3', 0)
-			$end 'Net'
-			$begin 'Net'
-				NetName='Port4'
-				$begin 'Properties'
-					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
-				$end 'Properties'
-				NetInterfacePorts='Port4'
-				NetPin('3', 1)
-			$end 'Net'
-			$begin 'Net'
-				NetName='Port5'
-				$begin 'Properties'
-					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
-				$end 'Properties'
-				NetInterfacePorts='Port5'
-				NetPin('4', 0)
-			$end 'Net'
-			$begin 'Net'
-				NetName='Port6'
-				$begin 'Properties'
-					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
-				$end 'Properties'
-				NetInterfacePorts='Port6'
-				NetPin('4', 1)
-			$end 'Net'
-		$end 'Circuit'
-		$begin 'Schematic'
-			PPortCounter=0
-			BusEntryCounter=0
-			ShowVariableBlock=true
-			$begin 'Page'
-				PageSize('A')
-				PageData(Origin(x='0mm', y='0mm'), PageSize(x='0', y='0'), Margins(x='0', y='0'), 0, 0, 0)
-				PageNumber=1
-				$begin 'SchIPort'
-					SchPortInst('defaultinterfaceport', '12', 'Port1', 7, 0.00508, 0.04826, 0, false, 'defaultinterfaceport', 4294967295)
-					$begin 'PropDisplayMap'
-						PortName(2, 5, 0, Text(0.00508, 0.04826, 0, 1, 5, false, 'Arial', 0, 'Port1', false, false, ExtentRect(0, 0, 0, 0, 0.00694245999531384, 0.0488268356507477, 0.00372491999062769, 0.00178148347377846, 0, 0, 0)))
-					$end 'PropDisplayMap'
-				$end 'SchIPort'
-				$begin 'SchIPort'
-					SchPortInst('defaultinterfaceport', '14', 'Port2', 11, 0.01524, 0.04826, 0, false, 'defaultinterfaceport', 4294967295)
-					$begin 'PropDisplayMap'
-						PortName(2, 5, 0, Text(0.01524, 0.04826, 0, 1, 5, false, 'Arial', 0, 'Port2', false, false, ExtentRect(0, 0, 0, 0, 0.0171024599953138, 0.0488268356507477, 0.00372491999062769, 0.00178148347377846, 0, 0, 0)))
-					$end 'PropDisplayMap'
-				$end 'SchIPort'
-				$begin 'SchIPort'
-					SchPortInst('defaultinterfaceport', '16', 'Port3', 16, 0.03048, 0.04826, 0, false, 'defaultinterfaceport', 4294967295)
-					$begin 'PropDisplayMap'
-						PortName(2, 5, 0, Text(0.03048, 0.04826, 0, 1, 5, false, 'Arial', 0, 'Port3', false, false, ExtentRect(0, 0, 0, 0, 0.0323424599953138, 0.0488268356507477, 0.00372491999062769, 0.00178148347377846, 0, 0, 0)))
-					$end 'PropDisplayMap'
-				$end 'SchIPort'
-				$begin 'SchIPort'
-					SchPortInst('defaultinterfaceport', '18', 'Port4', 21, 0.04064, 0.04826, 0, false, 'defaultinterfaceport', 4294967295)
-					$begin 'PropDisplayMap'
-						PortName(2, 5, 0, Text(0.04064, 0.04826, 0, 1, 5, false, 'Arial', 0, 'Port4', false, false, ExtentRect(0, 0, 0, 0, 0.0425024599953138, 0.0488268356507477, 0.00372491999062769, 0.00178148347377846, 0, 0, 0)))
-					$end 'PropDisplayMap'
-				$end 'SchIPort'
-				$begin 'SchIPort'
-					SchPortInst('defaultinterfaceport', '20', 'Port5', 26, 0.05588, 0.04826, 0, false, 'defaultinterfaceport', 4294967295)
-					$begin 'PropDisplayMap'
-						PortName(2, 5, 0, Text(0.05588, 0.04826, 0, 1, 5, false, 'Arial', 0, 'Port5', false, false, ExtentRect(0, 0, 0, 0, 0.0577424599953138, 0.0488268356507477, 0.00372491999062769, 0.00178148347377846, 0, 0, 0)))
-					$end 'PropDisplayMap'
-				$end 'SchIPort'
-				$begin 'SchIPort'
-					SchPortInst('defaultinterfaceport', '22', 'Port6', 31, 0.06604, 0.04826, 0, false, 'defaultinterfaceport', 4294967295)
-					$begin 'PropDisplayMap'
-						PortName(2, 5, 0, Text(0.06604, 0.04826, 0, 1, 5, false, 'Arial', 0, 'Port6', false, false, ExtentRect(0, 0, 0, 0, 0.0679024599953138, 0.0488268356507477, 0.00372491999062769, 0.00178148347377846, 0, 0, 0)))
-					$end 'PropDisplayMap'
-				$end 'SchIPort'
-				$begin 'SchCompDef'
-					SchCompInst('Nexxim Circuit Elements\\Capacitors:CAP_', 'A', '2', 1, '2', 'normal', 0.01016, 0.04826, 0, false, 4294967295, true)
-					Levels(0, 1)
-					$begin 'PropDisplayMap'
-						C(2, 5, 0, Text(0.01016, 0.04447469, 0, 4, 5, false, 'Arial', 0, '1e-12farad', false, false, ExtentRect(0, 0, 0, 0, 0.01016, 0.0450415256507477, 0.00753081650279076, 0.00178148347377846, 0, 0, 0)))
-						InstanceName(2, 5, 0, Text(0.005588, 0.04930069, 0, 1, 5, false, 'Arial', 0, 'C2', false, false, ExtentRect(0, 0, 0, 0, 0.00660020651919231, 0.0498675256507477, 0.00202441303838461, 0.00178148347377846, 0, 0, 0)))
-					$end 'PropDisplayMap'
-				$end 'SchCompDef'
-				$begin 'SchCompDef'
-					SchCompInst('Nexxim Circuit Elements\\Capacitors:CAP_', 'A', '3', 3, '3', 'normal', 0.03556, 0.04826, 0, false, 4294967295, true)
-					Levels(0, 1)
-					$begin 'PropDisplayMap'
-						C(2, 5, 0, Text(0.03556, 0.04447469, 0, 4, 5, false, 'Arial', 0, '1e-12farad', false, false, ExtentRect(0, 0, 0, 0, 0.03556, 0.0450415256507477, 0.00753081650279076, 0.00178148347377846, 0, 0, 0)))
-						InstanceName(2, 5, 0, Text(0.030988, 0.04930069, 0, 1, 5, false, 'Arial', 0, 'C3', false, false, ExtentRect(0, 0, 0, 0, 0.0320002065191923, 0.0498675256507477, 0.00202441303838461, 0.00178148347377846, 0, 0, 0)))
-					$end 'PropDisplayMap'
-				$end 'SchCompDef'
-				$begin 'SchCompDef'
-					SchCompInst('Nexxim Circuit Elements\\Capacitors:CAP_', 'A', '4', 5, '4', 'normal', 0.06096, 0.04826, 0, false, 4294967295, true)
-					Levels(0, 1)
-					$begin 'PropDisplayMap'
-						C(2, 5, 0, Text(0.06096, 0.04447469, 0, 4, 5, false, 'Arial', 0, '1e-12farad', false, false, ExtentRect(0, 0, 0, 0, 0.06096, 0.0450415256507477, 0.00753081650279076, 0.00178148347377846, 0, 0, 0)))
-						InstanceName(2, 5, 0, Text(0.056388, 0.04930069, 0, 1, 5, false, 'Arial', 0, 'C4', false, false, ExtentRect(0, 0, 0, 0, 0.0574002065191923, 0.0498675256507477, 0.00202441303838461, 0.00178148347377846, 0, 0, 0)))
-					$end 'PropDisplayMap'
-				$end 'SchCompDef'
-				$begin 'PageNet'
-					NetName='Port1'
-					ID=10
-					Interface('Port1', 7)
-					Color=16711680
-				$end 'PageNet'
-				$begin 'PageNet'
-					NetName='Port2'
-					ID=14
-					Interface('Port2', 11)
-					Color=16711680
-				$end 'PageNet'
-				$begin 'PageNet'
-					NetName='Port3'
-					ID=19
-					Interface('Port3', 16)
-					Color=16711680
-				$end 'PageNet'
-				$begin 'PageNet'
-					NetName='Port4'
-					ID=24
-					Interface('Port4', 21)
-					Color=16711680
-				$end 'PageNet'
-				$begin 'PageNet'
-					NetName='Port5'
-					ID=29
-					Interface('Port5', 26)
-					Color=16711680
-				$end 'PageNet'
-				$begin 'PageNet'
-					NetName='Port6'
-					ID=34
-					Interface('Port6', 31)
-					Color=16711680
-				$end 'PageNet'
-				$begin 'Properties'
-					TextProp('Title', 'D', '', '')
-					TextProp('Author', 'D', '', '')
-					TextProp('Number', 'D', '', '1')
-					TextProp('Project', 'D', '', 'Project74')
-					TextProp('ProjectPath', 'D', '', 'C:/Users/adimaria/OneDrive - ANSYS, Inc/Documents/Ansoft/')
-					TextProp('Design', 'D', '', 'Circuit1')
-					TextProp('Date', 'D', '', '6:05:56  feb 23, 2022')
-				$end 'Properties'
-			$end 'Page'
-			GridSetup('1000mil', '100mil', '100mil', 16772075, 16774645, true, true, 16777215, Origin(x='0mm', y='0mm'), PageSize(x='0mm', y='0mm'), Margins(x='0mm', y='0mm'), 0, 0, 0)
-			hasWindowBeenOpened=false
-			NextUniqueID=0
-			MoveBackwards=false
-		$end 'Schematic'
-		$begin 'Layout'
-			BlackBox=false
-			DefUnits='mm'
-			NIdx=15
-			ActLyr='Top'
-			Tol(1e-08, 1e-08, 1e-12)
-			$begin 'HfssExportInfo'
-				ScriptFileName=''
-				HfssFileName=''
-				Version=2
-				ExtentType='BboxExtent'
-				BasePolygon=''
-				BasePolygonEDBUId=-1
-				DielExtentType='BboxExtent'
-				DielBasePolygon=''
-				DielBasePolygonEDBUId=-1
-				DielExt(Ext='0.005', Dim=false)
-				HonorUserDiel=true
-				TruncAtGnd=false
-				AirHorExt(Ext='0.15', Dim=false)
-				AirPosZExt(Ext='2', Dim=false)
-				AirNegZExt(Ext='2', Dim=false)
-				SyncZExt=true
-				OpenRegionType='Radiation'
-				UseRadBound=true
-				PMLVisible=false
-				OperFreq='5GHz'
-				RadLvl=0
-				UseStackupForZExtFact=true
-				Smooth=true
-			$end 'HfssExportInfo'
-		$end 'Layout'
-		$begin 'Rule Set'
-			$begin 'Data'
-			$end 'Data'
-			$begin 'DRCSolutionMgr'
-			$end 'DRCSolutionMgr'
-		$end 'Rule Set'
-		$begin 'Workflow'
-			WorkflowName=''
-			SpecName=''
-			TemplateName=''
-			LibLoc=1357600
-		$end 'Workflow'
-		$begin 'SimSetups'
-		$end 'SimSetups'
-		$begin 'ControlBlocks'
-		$end 'ControlBlocks'
-		$begin 'NexximSources'
-			$begin 'Data'
-			$end 'Data'
-		$end 'NexximSources'
-		$begin 'NexximPorts'
-			$begin 'Data'
-				$begin 'Port1'
-					DataId='Port0'
-					IIPortName='Port1'
-					SymbolType=0
-					DoPostProcess=false
-				$end 'Port1'
-				$begin 'Port2'
-					DataId='Port1'
-					IIPortName='Port2'
-					SymbolType=0
-					DoPostProcess=false
-				$end 'Port2'
-				$begin 'Port3'
-					DataId='Port2'
-					IIPortName='Port3'
-					SymbolType=0
-					DoPostProcess=false
-				$end 'Port3'
-				$begin 'Port4'
-					DataId='Port3'
-					IIPortName='Port4'
-					SymbolType=0
-					DoPostProcess=false
-				$end 'Port4'
-				$begin 'Port5'
-					DataId='Port4'
-					IIPortName='Port5'
-					SymbolType=0
-					DoPostProcess=false
-				$end 'Port5'
-				$begin 'Port6'
-					DataId='Port5'
-					IIPortName='Port6'
-					SymbolType=0
-					DoPostProcess=false
-				$end 'Port6'
-			$end 'Data'
-			$begin 'DiffPairs'
-				Pair(Pos='Port1', Neg='Port2', On=true, matched=false, Dif='Diff1', DfZ(100, 0), Com='Comm1', CmZ(25, 0))
-			$end 'DiffPairs'
-		$end 'NexximPorts'
-		$begin 'NexximMultiComponentContainers'
-			$begin 'Data'
-			$end 'Data'
-		$end 'NexximMultiComponentContainers'
-		$begin 'ComponentConfigurationData'
-			$begin 'EnabledPorts'
-			$end 'EnabledPorts'
-			$begin 'EnabledMultipleComponents'
-			$end 'EnabledMultipleComponents'
-			$begin 'EnabledAnalyses'
-				$begin 'Port1'
-					Port1()
-				$end 'Port1'
-				$begin 'Port2'
-					Port2()
-				$end 'Port2'
-				$begin 'Port3'
-					Port3()
-				$end 'Port3'
-				$begin 'Port4'
-					Port4()
-				$end 'Port4'
-				$begin 'Port5'
-					Port5()
-				$end 'Port5'
-				$begin 'Port6'
-					Port6()
-				$end 'Port6'
-			$end 'EnabledAnalyses'
-		$end 'ComponentConfigurationData'
-		$begin 'Data'
-		$end 'Data'
-		$begin 'OutputVariable'
-			NextUniqueID=0
-			MoveBackwards=false
-		$end 'OutputVariable'
-		$begin 'Optimetrics'
-			$begin 'OptimetricsSetups'
-				NextUniqueID=0
-				MoveBackwards=false
-			$end 'OptimetricsSetups'
-		$end 'Optimetrics'
-		$begin 'SolutionManager'
-			$begin 'SimDataExtractors'
-				$begin 'Version ID Map'
-					V=0
-				$end 'Version ID Map'
-			$end 'SimDataExtractors'
-		$end 'SolutionManager'
-		SParamCircuitDef=true
-		RunERCBeforeSimulation=false
-		IntegrationMethod='FFT'
-		DynLinkOutputVars=false
-		LocalParamScope=true
-		UpdateReportDuringFast=true
-		$begin 'UserDefinedSolutionMgr'
-			NextUniqueID=1000000
-			MoveBackwards=false
-		$end 'UserDefinedSolutionMgr'
-		$begin 'DatasetSolutionMgr'
-			NextUniqueID=2000000
-			MoveBackwards=false
-		$end 'DatasetSolutionMgr'
-		Notes=$begin_cdata$ $end_cdata$
-		$begin 'AnimationSetups'
-		$end 'AnimationSetups'
-		CacheHeaderFile='HDRB643290816456360453.tmp'
-	$end 'NexximCircuit'
-	$begin 'PlanarEMCircuit'
-		RepRewriteV2=true
-		Name='EMDesign1'
-		DesignID=4
-		$begin 'Circuit'
-			ComponentName='EMDesign1'
-			AutoFP=''
-			$begin 'DesignDatasets'
-				NextUniqueID=0
-				MoveBackwards=false
-				DatasetType='DesignDatasetType'
-				$begin 'DatasetDefinitions'
-				$end 'DatasetDefinitions'
-			$end 'DesignDatasets'
-			VariableOrders[0:]
-			$begin 'IPort'
-				PortName='Port1'
-				Public=true
-				Connectible=true
-				UnconnectedAction=1
-				PortValue=''
-				Domain(0, -1, 2, '')
-			$end 'IPort'
-			$begin 'IPort'
-				PortName='Port2'
-				Public=true
-				Connectible=true
-				UnconnectedAction=1
-				PortValue=''
-				Domain(0, -1, 2, '')
-			$end 'IPort'
-			$begin 'IPort'
-				PortName='Port3'
-				Public=true
-				Connectible=true
-				UnconnectedAction=1
-				PortValue=''
-				Domain(0, -1, 2, '')
-			$end 'IPort'
-			$begin 'IPort'
-				PortName='Port4'
-				Public=true
-				Connectible=true
-				UnconnectedAction=1
-				PortValue=''
-				Domain(0, -1, 2, '')
-			$end 'IPort'
-			$begin 'IPort'
-				PortName='Port5'
-				Public=true
-				Connectible=true
-				UnconnectedAction=1
-				PortValue=''
-				Domain(0, -1, 2, '')
-			$end 'IPort'
-			$begin 'IPort'
-				PortName='Port6'
-				Public=true
-				Connectible=true
-				UnconnectedAction=1
-				PortValue=''
-				Domain(0, -1, 2, '')
-			$end 'IPort'
-			$begin 'Net'
-				NetName='Port1'
-				$begin 'Properties'
-					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
-				$end 'Properties'
-				NetInterfacePorts='Port1'
-			$end 'Net'
-			$begin 'Net'
-				NetName='Port2'
-				$begin 'Properties'
-					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
-				$end 'Properties'
-				NetInterfacePorts='Port2'
-			$end 'Net'
-			$begin 'Net'
-				NetName='Port3'
-				$begin 'Properties'
-					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
-				$end 'Properties'
-				NetInterfacePorts='Port3'
-			$end 'Net'
-			$begin 'Net'
-				NetName='Port4'
-				$begin 'Properties'
-					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
-				$end 'Properties'
-				NetInterfacePorts='Port4'
-			$end 'Net'
-			$begin 'Net'
-				NetName='Port5'
-				$begin 'Properties'
-					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
-				$end 'Properties'
-				NetInterfacePorts='Port5'
-			$end 'Net'
-			$begin 'Net'
-				NetName='Port6'
-				$begin 'Properties'
-					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
-				$end 'Properties'
-				NetInterfacePorts='Port6'
-			$end 'Net'
-		$end 'Circuit'
-		$begin 'Schematic'
-			PPortCounter=0
-			BusEntryCounter=0
-			ShowVariableBlock=true
-			$begin 'Page'
-				PageSize('A')
-				PageData(Origin(x='0mm', y='0mm'), PageSize(x='0', y='0'), Margins(x='0', y='0'), 0, 0, 0)
-				PageNumber=1
-				$begin 'SchIPort'
-					SchPortInst('defaultinterfaceport', '31', 'Port1', 1, 0, 0, 0, false, 'defaultinterfaceport', 4294967295)
-					$begin 'PropDisplayMap'
-						PortName(2, 5, 0, Text(0.00127, 0, 0, 1, 5, false, 'Arial', 0, 'Port1', false, false, ExtentRect(0, 0, 0, 0, 0.0030803070175511, 0.000881944444447972, 0.0036206140351022, 0.00176388888889594, 0, 0, 0)))
-					$end 'PropDisplayMap'
-				$end 'SchIPort'
-				$begin 'SchIPort'
-					SchPortInst('defaultinterfaceport', '33', 'Port2', 5, 0, -0.0254, 0, false, 'defaultinterfaceport', 4294967295)
-					$begin 'PropDisplayMap'
-						PortName(2, 5, 0, Text(0.00127, -0.0254, 0, 1, 5, false, 'Arial', 0, 'Port2', false, false, ExtentRect(0, 0, 0, 0, 0.0030803070175511, -0.024518055555552, 0.0036206140351022, 0.00176388888889594, 0, 0, 0)))
-					$end 'PropDisplayMap'
-				$end 'SchIPort'
-				$begin 'SchIPort'
-					SchPortInst('defaultinterfaceport', '35', 'Port3', 9, -0.01524, -0.0254, 0, false, 'defaultinterfaceport', 4294967295)
-					$begin 'PropDisplayMap'
-						PortName(2, 5, 0, Text(-0.01397, -0.0254, 0, 1, 5, false, 'Arial', 0, 'Port3', false, false, ExtentRect(0, 0, 0, 0, -0.0121596929824489, -0.024518055555552, 0.0036206140351022, 0.00176388888889594, 0, 0, 0)))
-					$end 'PropDisplayMap'
-				$end 'SchIPort'
-				$begin 'SchIPort'
-					SchPortInst('defaultinterfaceport', '37', 'Port4', 13, -0.01524, 0, 0, false, 'defaultinterfaceport', 4294967295)
-					$begin 'PropDisplayMap'
-						PortName(2, 5, 0, Text(-0.01397, 0, 0, 1, 5, false, 'Arial', 0, 'Port4', false, false, ExtentRect(0, 0, 0, 0, -0.0121596929824489, 0.000881944444447972, 0.0036206140351022, 0.00176388888889594, 0, 0, 0)))
-					$end 'PropDisplayMap'
-				$end 'SchIPort'
-				$begin 'SchIPort'
-					SchPortInst('defaultinterfaceport', '39', 'Port5', 17, -0.01524, 0.0254, 0, false, 'defaultinterfaceport', 4294967295)
-					$begin 'PropDisplayMap'
-						PortName(2, 5, 0, Text(-0.01397, 0.0254, 0, 1, 5, false, 'Arial', 0, 'Port5', false, false, ExtentRect(0, 0, 0, 0, -0.0121596929824489, 0.026281944444448, 0.0036206140351022, 0.00176388888889594, 0, 0, 0)))
-					$end 'PropDisplayMap'
-				$end 'SchIPort'
-				$begin 'SchIPort'
-					SchPortInst('defaultinterfaceport', '41', 'Port6', 21, 0, 0.0254, 0, false, 'defaultinterfaceport', 4294967295)
-					$begin 'PropDisplayMap'
-						PortName(2, 5, 0, Text(0.00127, 0.0254, 0, 1, 5, false, 'Arial', 0, 'Port6', false, false, ExtentRect(0, 0, 0, 0, 0.0030803070175511, 0.026281944444448, 0.0036206140351022, 0.00176388888889594, 0, 0, 0)))
-					$end 'PropDisplayMap'
-				$end 'SchIPort'
-				$begin 'PageNet'
-					NetName='Port1'
-					ID=7
-					Interface('Port1', 1)
-					Color=16711680
-				$end 'PageNet'
-				$begin 'PageNet'
-					NetName='Port2'
-					ID=11
-					Interface('Port2', 5)
-					Color=16711680
-				$end 'PageNet'
-				$begin 'PageNet'
-					NetName='Port3'
-					ID=15
-					Interface('Port3', 9)
-					Color=16711680
-				$end 'PageNet'
-				$begin 'PageNet'
-					NetName='Port4'
-					ID=19
-					Interface('Port4', 13)
-					Color=16711680
-				$end 'PageNet'
-				$begin 'PageNet'
-					NetName='Port5'
-					ID=23
-					Interface('Port5', 17)
-					Color=16711680
-				$end 'PageNet'
-				$begin 'PageNet'
-					NetName='Port6'
-					ID=26
-					Interface('Port6', 21)
-					Color=16711680
-				$end 'PageNet'
-				$begin 'Properties'
-					TextProp('Title', 'D', '', '')
-					TextProp('Author', 'D', '', '')
-					TextProp('Number', 'D', '', '1')
-					TextProp('Project', 'D', '', 'differential_pairs_example_old')
-					TextProp('ProjectPath', 'D', '', 'D:/temp/')
-					TextProp('Design', 'D', '', 'EMDesign1')
-					TextProp('Date', 'D', '', '6:05:44  feb 23, 2022')
-				$end 'Properties'
-			$end 'Page'
-			GridSetup('1000mil', '100mil', '100mil', 16772075, 16774645, true, true, 16777215, Origin(x='0mm', y='0mm'), PageSize(x='0mm', y='0mm'), Margins(x='0mm', y='0mm'), 0, 0, 0)
-			hasWindowBeenOpened=false
-			NextUniqueID=0
-			MoveBackwards=false
-		$end 'Schematic'
-		$begin 'Layout'
-			BlackBox=false
-			DefUnits='mm'
-			NIdx=9
-			ActLyr='s'
-			Tol(1e-08, 1e-08, 1e-12)
-			$begin 'HfssExportInfo'
-				ScriptFileName=''
-				HfssFileName=''
-				Version=2
-				ExtentType='BboxExtent'
-				BasePolygon=''
-				BasePolygonEDBUId=-1
-				DielExtentType='BboxExtent'
-				DielBasePolygon=''
-				DielBasePolygonEDBUId=-1
-				DielExt(Ext='0.005', Dim=false)
-				HonorUserDiel=true
-				TruncAtGnd=false
-				AirHorExt(Ext='0.15', Dim=false)
-				AirPosZExt(Ext='2', Dim=false)
-				AirNegZExt(Ext='2', Dim=false)
-				SyncZExt=true
-				OpenRegionType='Radiation'
-				UseRadBound=true
-				PMLVisible=false
-				OperFreq='5GHz'
-				RadLvl=0
-				UseStackupForZExtFact=true
-				Smooth=true
-			$end 'HfssExportInfo'
-		$end 'Layout'
-		$begin 'Rule Set'
-			$begin 'Data'
-			$end 'Data'
-			$begin 'DRCSolutionMgr'
-			$end 'DRCSolutionMgr'
-		$end 'Rule Set'
-		$begin 'Workflow'
-			WorkflowName=''
-			SpecName=''
-			TemplateName=''
-			LibLoc=1355952
-		$end 'Workflow'
-		$begin 'Port'
-			$begin 'Data'
-				$begin 'Port1'
-					DataId='Port0'
-					$begin 'Properties'
-						'Boundary Type'='Port'
-						Reference=''
-						'Override Impedance'='false'
-						Impedance='50ohm'
-						Magnitude='1V'
-						Phase='0deg'
-						'Renormalize Impedence'='50ohm + 0i ohm'
-						Renormalize='true'
-						'Deembed Distance'='0mm'
-						Deembed='true'
-						DeembedParasiticPortInductance='false'
-						PlanarEM=''
-						Type='Single Strip Gap Source'
-						PortSolver='true'
-						Theta='0rad'
-						Phi='0rad'
-						MagnitudeV='1V'
-						PhaseV='0deg'
-						'Ignore Reference'='false'
-						HFSS=''
-						'HFSS Type'='Gap'
-						Orientation='Vertical'
-						'Layer Alignment'='Upper'
-						'Horizontal Extent Factor'='5'
-						'Vertical Extent Factor'='3'
-						'PEC Launch Width'='0.5mm'
-						'Radial Extent Factor'='0'
-						Terminated='false'
-						TermResistance='50ohm'
-						TermReactance='0ohm'
-						SIwave=''
-						'Reference Net'=''
-					$end 'Properties'
-					Type='EdgePort'
-					UseRefFromHierarchy=2
-					HFSSPortType='GapV'
-					Arms=1
-					IsGapSource=true
-					HFSSPIType='Default'
-					UpperProbe=false
-					LayoutObject='Port1'
-					Pin=''
-					CircuitPort=false
-					AutoPort=false
-					$begin 'RLCBnd'
-						LoadType='NoLoad'
-						$begin 'Properties'
-							Parallel='true'
-							'R Enabled'='false'
-							'L Enabled'='false'
-							'C Enabled'='false'
-							R='0ohm'
-							L='0nH'
-							C='0pF'
-							Real='0ohm'
-							Imag='0ohm'
-							Magnitude='1V'
-							Phase='0deg'
-							Impedance='50ohm'
-						$end 'Properties'
-					$end 'RLCBnd'
-					ValidateReference=false
-					ZReferences()
-				$end 'Port1'
-				$begin 'Port2'
-					DataId='Port1'
-					$begin 'Properties'
-						'Boundary Type'='Port'
-						Reference=''
-						'Override Impedance'='false'
-						Impedance='50ohm'
-						Magnitude='1V'
-						Phase='0deg'
-						'Renormalize Impedence'='50ohm + 0i ohm'
-						Renormalize='true'
-						'Deembed Distance'='0mm'
-						Deembed='true'
-						DeembedParasiticPortInductance='false'
-						PlanarEM=''
-						Type='Single Strip Gap Source'
-						PortSolver='true'
-						Theta='0rad'
-						Phi='0rad'
-						MagnitudeV='1V'
-						PhaseV='0deg'
-						'Ignore Reference'='false'
-						HFSS=''
-						'HFSS Type'='Gap'
-						Orientation='Vertical'
-						'Layer Alignment'='Upper'
-						'Horizontal Extent Factor'='5'
-						'Vertical Extent Factor'='3'
-						'PEC Launch Width'='0.5mm'
-						'Radial Extent Factor'='0'
-						Terminated='false'
-						TermResistance='50ohm'
-						TermReactance='0ohm'
-						SIwave=''
-						'Reference Net'=''
-					$end 'Properties'
-					Type='EdgePort'
-					UseRefFromHierarchy=2
-					HFSSPortType='GapV'
-					Arms=1
-					IsGapSource=true
-					HFSSPIType='Default'
-					UpperProbe=false
-					LayoutObject='Port2'
-					Pin=''
-					CircuitPort=false
-					AutoPort=false
-					$begin 'RLCBnd'
-						LoadType='NoLoad'
-						$begin 'Properties'
-							Parallel='true'
-							'R Enabled'='false'
-							'L Enabled'='false'
-							'C Enabled'='false'
-							R='0ohm'
-							L='0nH'
-							C='0pF'
-							Real='0ohm'
-							Imag='0ohm'
-							Magnitude='1V'
-							Phase='0deg'
-							Impedance='50ohm'
-						$end 'Properties'
-					$end 'RLCBnd'
-					ValidateReference=false
-					ZReferences()
-				$end 'Port2'
-				$begin 'Port3'
-					DataId='Port2'
-					$begin 'Properties'
-						'Boundary Type'='Port'
-						Reference=''
-						'Override Impedance'='false'
-						Impedance='50ohm'
-						Magnitude='1V'
-						Phase='0deg'
-						'Renormalize Impedence'='50ohm + 0i ohm'
-						Renormalize='true'
-						'Deembed Distance'='0mm'
-						Deembed='true'
-						DeembedParasiticPortInductance='false'
-						PlanarEM=''
-						Type='Single Strip Gap Source'
-						PortSolver='true'
-						Theta='0rad'
-						Phi='0rad'
-						MagnitudeV='1V'
-						PhaseV='0deg'
-						'Ignore Reference'='false'
-						HFSS=''
-						'HFSS Type'='Gap'
-						Orientation='Vertical'
-						'Layer Alignment'='Upper'
-						'Horizontal Extent Factor'='5'
-						'Vertical Extent Factor'='3'
-						'PEC Launch Width'='0.4mm'
-						'Radial Extent Factor'='0'
-						Terminated='false'
-						TermResistance='50ohm'
-						TermReactance='0ohm'
-						SIwave=''
-						'Reference Net'=''
-					$end 'Properties'
-					Type='EdgePort'
-					UseRefFromHierarchy=2
-					HFSSPortType='GapV'
-					Arms=1
-					IsGapSource=true
-					HFSSPIType='Default'
-					UpperProbe=false
-					LayoutObject='Port3'
-					Pin=''
-					CircuitPort=false
-					AutoPort=false
-					$begin 'RLCBnd'
-						LoadType='NoLoad'
-						$begin 'Properties'
-							Parallel='true'
-							'R Enabled'='false'
-							'L Enabled'='false'
-							'C Enabled'='false'
-							R='0ohm'
-							L='0nH'
-							C='0pF'
-							Real='0ohm'
-							Imag='0ohm'
-							Magnitude='1V'
-							Phase='0deg'
-							Impedance='50ohm'
-						$end 'Properties'
-					$end 'RLCBnd'
-					ValidateReference=false
-					ZReferences()
-				$end 'Port3'
-				$begin 'Port4'
-					DataId='Port3'
-					$begin 'Properties'
-						'Boundary Type'='Port'
-						Reference=''
-						'Override Impedance'='false'
-						Impedance='50ohm'
-						Magnitude='1V'
-						Phase='0deg'
-						'Renormalize Impedence'='50ohm + 0i ohm'
-						Renormalize='true'
-						'Deembed Distance'='0mm'
-						Deembed='true'
-						DeembedParasiticPortInductance='false'
-						PlanarEM=''
-						Type='Single Strip Gap Source'
-						PortSolver='true'
-						Theta='0rad'
-						Phi='0rad'
-						MagnitudeV='1V'
-						PhaseV='0deg'
-						'Ignore Reference'='false'
-						HFSS=''
-						'HFSS Type'='Gap'
-						Orientation='Vertical'
-						'Layer Alignment'='Upper'
-						'Horizontal Extent Factor'='5'
-						'Vertical Extent Factor'='3'
-						'PEC Launch Width'='0.4mm'
-						'Radial Extent Factor'='0'
-						Terminated='false'
-						TermResistance='50ohm'
-						TermReactance='0ohm'
-						SIwave=''
-						'Reference Net'=''
-					$end 'Properties'
-					Type='EdgePort'
-					UseRefFromHierarchy=2
-					HFSSPortType='GapV'
-					Arms=1
-					IsGapSource=true
-					HFSSPIType='Default'
-					UpperProbe=false
-					LayoutObject='Port4'
-					Pin=''
-					CircuitPort=false
-					AutoPort=false
-					$begin 'RLCBnd'
-						LoadType='NoLoad'
-						$begin 'Properties'
-							Parallel='true'
-							'R Enabled'='false'
-							'L Enabled'='false'
-							'C Enabled'='false'
-							R='0ohm'
-							L='0nH'
-							C='0pF'
-							Real='0ohm'
-							Imag='0ohm'
-							Magnitude='1V'
-							Phase='0deg'
-							Impedance='50ohm'
-						$end 'Properties'
-					$end 'RLCBnd'
-					ValidateReference=false
-					ZReferences()
-				$end 'Port4'
-				$begin 'Port5'
-					DataId='Port4'
-					$begin 'Properties'
-						'Boundary Type'='Port'
-						Reference=''
-						'Override Impedance'='false'
-						Impedance='50ohm'
-						Magnitude='1V'
-						Phase='0deg'
-						'Renormalize Impedence'='50ohm + 0i ohm'
-						Renormalize='true'
-						'Deembed Distance'='0mm'
-						Deembed='true'
-						DeembedParasiticPortInductance='false'
-						PlanarEM=''
-						Type='Single Strip Gap Source'
-						PortSolver='true'
-						Theta='0rad'
-						Phi='0rad'
-						MagnitudeV='1V'
-						PhaseV='0deg'
-						'Ignore Reference'='false'
-						HFSS=''
-						'HFSS Type'='Gap'
-						Orientation='Vertical'
-						'Layer Alignment'='Upper'
-						'Horizontal Extent Factor'='5'
-						'Vertical Extent Factor'='3'
-						'PEC Launch Width'='0.6mm'
-						'Radial Extent Factor'='0'
-						Terminated='false'
-						TermResistance='50ohm'
-						TermReactance='0ohm'
-						SIwave=''
-						'Reference Net'=''
-					$end 'Properties'
-					Type='EdgePort'
-					UseRefFromHierarchy=2
-					HFSSPortType='GapV'
-					Arms=1
-					IsGapSource=true
-					HFSSPIType='Default'
-					UpperProbe=false
-					LayoutObject='Port5'
-					Pin=''
-					CircuitPort=false
-					AutoPort=false
-					$begin 'RLCBnd'
-						LoadType='NoLoad'
-						$begin 'Properties'
-							Parallel='true'
-							'R Enabled'='false'
-							'L Enabled'='false'
-							'C Enabled'='false'
-							R='0ohm'
-							L='0nH'
-							C='0pF'
-							Real='0ohm'
-							Imag='0ohm'
-							Magnitude='1V'
-							Phase='0deg'
-							Impedance='50ohm'
-						$end 'Properties'
-					$end 'RLCBnd'
-					ValidateReference=false
-					ZReferences()
-				$end 'Port5'
-				$begin 'Port6'
-					DataId='Port5'
-					$begin 'Properties'
-						'Boundary Type'='Port'
-						Reference=''
-						'Override Impedance'='false'
-						Impedance='50ohm'
-						Magnitude='1V'
-						Phase='0deg'
-						'Renormalize Impedence'='50ohm + 0i ohm'
-						Renormalize='true'
-						'Deembed Distance'='0mm'
-						Deembed='true'
-						DeembedParasiticPortInductance='false'
-						PlanarEM=''
-						Type='Single Strip Gap Source'
-						PortSolver='true'
-						Theta='0rad'
-						Phi='0rad'
-						MagnitudeV='1V'
-						PhaseV='0deg'
-						'Ignore Reference'='false'
-						HFSS=''
-						'HFSS Type'='Gap'
-						Orientation='Vertical'
-						'Layer Alignment'='Upper'
-						'Horizontal Extent Factor'='5'
-						'Vertical Extent Factor'='3'
-						'PEC Launch Width'='0.6mm'
-						'Radial Extent Factor'='0'
-						Terminated='false'
-						TermResistance='50ohm'
-						TermReactance='0ohm'
-						SIwave=''
-						'Reference Net'=''
-					$end 'Properties'
-					Type='EdgePort'
-					UseRefFromHierarchy=2
-					HFSSPortType='GapV'
-					Arms=1
-					IsGapSource=true
-					HFSSPIType='Default'
-					UpperProbe=false
-					LayoutObject='Port6'
-					Pin=''
-					CircuitPort=false
-					AutoPort=false
-					$begin 'RLCBnd'
-						LoadType='NoLoad'
-						$begin 'Properties'
-							Parallel='true'
-							'R Enabled'='false'
-							'L Enabled'='false'
-							'C Enabled'='false'
-							R='0ohm'
-							L='0nH'
-							C='0pF'
-							Real='0ohm'
-							Imag='0ohm'
-							Magnitude='1V'
-							Phase='0deg'
-							Impedance='50ohm'
-						$end 'Properties'
-					$end 'RLCBnd'
-					ValidateReference=false
-					ZReferences()
-				$end 'Port6'
-			$end 'Data'
-			$begin 'CoupledPortsList'
-			$end 'CoupledPortsList'
-			$begin 'DiffPairs'
-				Pair(Pos='Port1', Neg='Port2', On=true, matched=false, Dif='Diff1', DfZ(100, 0), Com='Comm1', CmZ(25, 0))
-			$end 'DiffPairs'
-			TotalVoltage=false
-			IncludePortPostProcess=true
-			$begin 'SortOrder'
-			$end 'SortOrder'
-			LegacySolverPinOrdering=false
-		$end 'Port'
-		$begin 'Boundary'
-			$begin 'Data'
-			$end 'Data'
-			$begin 'CoupledPortsList'
-			$end 'CoupledPortsList'
-			$begin 'DiffPairs'
-			$end 'DiffPairs'
-			TotalVoltage=false
-			IncludePortPostProcess=true
-			$begin 'SortOrder'
-			$end 'SortOrder'
-			LegacySolverPinOrdering=false
-		$end 'Boundary'
-		$begin 'Cavity'
-			$begin 'Data'
-			$end 'Data'
-		$end 'Cavity'
-		$begin 'Via'
-			$begin 'Data'
-			$end 'Data'
-		$end 'Via'
-		$begin 'LayoutVia'
-			$begin 'Data'
-			$end 'Data'
-		$end 'LayoutVia'
-		$begin 'Source'
-			$begin 'Data'
-			$end 'Data'
-		$end 'Source'
-		$begin 'Voltage Probe'
-			$begin 'Data'
-			$end 'Data'
-		$end 'Voltage Probe'
-		$begin 'DC Terminal'
-			$begin 'Data'
-			$end 'Data'
-		$end 'DC Terminal'
-		$begin 'CircuitSources'
-			$begin 'Data'
-			$end 'Data'
-		$end 'CircuitSources'
-		$begin 'NexximPorts'
-			$begin 'Data'
-			$end 'Data'
-			$begin 'DiffPairs'
-			$end 'DiffPairs'
-		$end 'NexximPorts'
-		$begin 'SortOrder'
-		$end 'SortOrder'
-		$begin 'NexximMultiComponentContainers'
-			$begin 'Data'
-			$end 'Data'
-		$end 'NexximMultiComponentContainers'
-		$begin 'ComponentConfigurationData'
-			$begin 'EnabledPorts'
-			$end 'EnabledPorts'
-			$begin 'EnabledMultipleComponents'
-			$end 'EnabledMultipleComponents'
-			$begin 'EnabledAnalyses'
-			$end 'EnabledAnalyses'
-		$end 'ComponentConfigurationData'
-		$begin 'Properties'
-		$end 'Properties'
-		$begin 'CustomSimSetups'
-			$begin 'Data'
-			$end 'Data'
-		$end 'CustomSimSetups'
-		$begin 'RadSetup'
-			$begin 'Data'
-			$end 'Data'
-		$end 'RadSetup'
-		$begin 'Setup'
-			$begin 'Data'
-			$end 'Data'
-		$end 'Setup'
-		$begin 'AnalysisOptionBlocks'
-		$end 'AnalysisOptionBlocks'
-		$begin 'EM properties'
-			$begin 'Data'
-			$end 'Data'
-		$end 'EM properties'
-		$begin 'OutputVariable'
-			NextUniqueID=0
-			MoveBackwards=false
-		$end 'OutputVariable'
-		$begin 'Optimetrics'
-			$begin 'OptimetricsSetups'
-				NextUniqueID=0
-				MoveBackwards=false
-			$end 'OptimetricsSetups'
-		$end 'Optimetrics'
-		$begin 'FieldsReporter'
-			$begin 'FieldsCalculator'
-				Line_Discretization=1000
-			$end 'FieldsCalculator'
-			$begin 'PlotDefaults'
-				Default_SolutionId=-1
-				Default_PlotFolder='Automatic'
-			$end 'PlotDefaults'
-			$begin 'FieldsPlotManagerID'
-				NextUniqueID=0
-				MoveBackwards=false
-				NumQuantityType=0
-				NumPlots=0
-			$end 'FieldsPlotManagerID'
-			$begin 'Report3dInGeomWnd'
-				Report3dNum=0
-			$end 'Report3dInGeomWnd'
-			$begin 'Report2dInGeomWnd'
-				Report2dNum=0
-			$end 'Report2dInGeomWnd'
-			$begin 'AntennaParametersInGeomWnd'
-				AntennaParametersNum=0
-			$end 'AntennaParametersInGeomWnd'
-			AntennaParametersPlotTablesOrder()
-		$end 'FieldsReporter'
-		$begin 'SolutionManager'
-			$begin 'SimDataExtractors'
-				$begin 'Version ID Map'
-					V=0
-				$end 'Version ID Map'
-			$end 'SimDataExtractors'
-		$end 'SolutionManager'
-		$begin 'InterfaceOptions'
-			SchematicEnabled=true
-			SaveBeforeSolving=true
-		$end 'InterfaceOptions'
-		$begin 'AdvancedSettings'
-			ComputeBothEvenAndOddCPWModes=false
-			CausalMaterials=true
-			MeshingMethod='Phi'
-			EnableDesignIntersectionCheck=true
-			UseAlternativeMeshMethodsAsFallBack=true
-			CircuitSparamDefinition=false
-			CircuitIntegrationType='FFT'
-			ExportAfterSolve=false
-			ExportDir=''
-			BroadbandFreqOption='AutoMaxFreq'
-			BroadbandMaxNumFreq=5
-			SaveADP=false
-			UseAdvancedDCExtrap=false
-		$end 'AdvancedSettings'
-		$begin 'CoSimOptions'
-			Override=false
-			Setup=''
-			OverrideSweep=false
-			Sweep=''
-			SweepType=4
-			Interpolate=false
-			YMatrix=true
-			AutoAlignPorts=false
-			Simulator=1
-			InterpAlg='auto'
-			Renormalize=false
-			RenormImpedance=50
-		$end 'CoSimOptions'
-		$begin 'TemperatureData'
-			IncludeTempDependence=false
-			EnableFeedback=false
-			Temperature='22cel'
-		$end 'TemperatureData'
-		$begin 'UserDefinedSolutionMgr'
-			NextUniqueID=1000000
-			MoveBackwards=false
-		$end 'UserDefinedSolutionMgr'
-		$begin 'DatasetSolutionMgr'
-			NextUniqueID=2000000
-			MoveBackwards=false
-		$end 'DatasetSolutionMgr'
-		Notes=$begin_cdata$ $end_cdata$
-		$begin 'AnimationSetups'
-		$end 'AnimationSetups'
-		CacheHeaderFile='HDRB643290816456360454.tmp'
-	$end 'PlanarEMCircuit'
 	$begin 'HFSSModel'
 		RepRewriteV2=true
 		Name='Hfss_Terminal'
@@ -3645,7 +2329,7 @@ $begin 'AnsoftProject'
 		Notes=$begin_cdata$ $end_cdata$
 		$begin 'AnimationSetups'
 		$end 'AnimationSetups'
-		CacheHeaderFile='HDRB643290816456360455.tmp'
+		CacheHeaderFile='HDRC923187216460676154.tmp'
 	$end 'HFSSModel'
 	$begin 'HFSSModel'
 		RepRewriteV2=true
@@ -5449,8 +4133,1324 @@ $begin 'AnsoftProject'
 		Notes=$begin_cdata$ $end_cdata$
 		$begin 'AnimationSetups'
 		$end 'AnimationSetups'
-		CacheHeaderFile='HDRB643290816456360456.tmp'
+		CacheHeaderFile='HDRC923187216460676155.tmp'
 	$end 'HFSSModel'
+	$begin 'PlanarEMCircuit'
+		RepRewriteV2=true
+		Name='EMDesign1'
+		DesignID=4
+		$begin 'Circuit'
+			ComponentName='EMDesign1'
+			AutoFP=''
+			$begin 'DesignDatasets'
+				NextUniqueID=0
+				MoveBackwards=false
+				DatasetType='DesignDatasetType'
+				$begin 'DatasetDefinitions'
+				$end 'DatasetDefinitions'
+			$end 'DesignDatasets'
+			VariableOrders[0:]
+			$begin 'IPort'
+				PortName='Port1'
+				Public=true
+				Connectible=true
+				UnconnectedAction=1
+				PortValue=''
+				Domain(0, -1, 2, '')
+			$end 'IPort'
+			$begin 'IPort'
+				PortName='Port2'
+				Public=true
+				Connectible=true
+				UnconnectedAction=1
+				PortValue=''
+				Domain(0, -1, 2, '')
+			$end 'IPort'
+			$begin 'IPort'
+				PortName='Port3'
+				Public=true
+				Connectible=true
+				UnconnectedAction=1
+				PortValue=''
+				Domain(0, -1, 2, '')
+			$end 'IPort'
+			$begin 'IPort'
+				PortName='Port4'
+				Public=true
+				Connectible=true
+				UnconnectedAction=1
+				PortValue=''
+				Domain(0, -1, 2, '')
+			$end 'IPort'
+			$begin 'IPort'
+				PortName='Port5'
+				Public=true
+				Connectible=true
+				UnconnectedAction=1
+				PortValue=''
+				Domain(0, -1, 2, '')
+			$end 'IPort'
+			$begin 'IPort'
+				PortName='Port6'
+				Public=true
+				Connectible=true
+				UnconnectedAction=1
+				PortValue=''
+				Domain(0, -1, 2, '')
+			$end 'IPort'
+			$begin 'Net'
+				NetName='Port1'
+				$begin 'Properties'
+					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
+				$end 'Properties'
+				NetInterfacePorts='Port1'
+			$end 'Net'
+			$begin 'Net'
+				NetName='Port2'
+				$begin 'Properties'
+					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
+				$end 'Properties'
+				NetInterfacePorts='Port2'
+			$end 'Net'
+			$begin 'Net'
+				NetName='Port3'
+				$begin 'Properties'
+					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
+				$end 'Properties'
+				NetInterfacePorts='Port3'
+			$end 'Net'
+			$begin 'Net'
+				NetName='Port4'
+				$begin 'Properties'
+					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
+				$end 'Properties'
+				NetInterfacePorts='Port4'
+			$end 'Net'
+			$begin 'Net'
+				NetName='Port5'
+				$begin 'Properties'
+					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
+				$end 'Properties'
+				NetInterfacePorts='Port5'
+			$end 'Net'
+			$begin 'Net'
+				NetName='Port6'
+				$begin 'Properties'
+					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
+				$end 'Properties'
+				NetInterfacePorts='Port6'
+			$end 'Net'
+		$end 'Circuit'
+		$begin 'Schematic'
+			PPortCounter=0
+			BusEntryCounter=0
+			ShowVariableBlock=true
+			$begin 'Page'
+				PageSize('A')
+				PageData(Origin(x='0mm', y='0mm'), PageSize(x='0', y='0'), Margins(x='0', y='0'), 0, 0, 0)
+				PageNumber=1
+				$begin 'SchIPort'
+					SchPortInst('defaultinterfaceport', '31', 'Port1', 1, 0, 0, 0, false, 'defaultinterfaceport', 4294967295)
+					$begin 'PropDisplayMap'
+						PortName(2, 5, 0, Text(0.00127, 0, 0, 1, 5, false, 'Arial', 0, 'Port1', false, false, ExtentRect(0, 0, 0, 0, 0.0030803070175511, 0.000881944444447972, 0.0036206140351022, 0.00176388888889594, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchIPort'
+				$begin 'SchIPort'
+					SchPortInst('defaultinterfaceport', '33', 'Port2', 5, 0, -0.0254, 0, false, 'defaultinterfaceport', 4294967295)
+					$begin 'PropDisplayMap'
+						PortName(2, 5, 0, Text(0.00127, -0.0254, 0, 1, 5, false, 'Arial', 0, 'Port2', false, false, ExtentRect(0, 0, 0, 0, 0.0030803070175511, -0.024518055555552, 0.0036206140351022, 0.00176388888889594, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchIPort'
+				$begin 'SchIPort'
+					SchPortInst('defaultinterfaceport', '35', 'Port3', 9, -0.01524, -0.0254, 0, false, 'defaultinterfaceport', 4294967295)
+					$begin 'PropDisplayMap'
+						PortName(2, 5, 0, Text(-0.01397, -0.0254, 0, 1, 5, false, 'Arial', 0, 'Port3', false, false, ExtentRect(0, 0, 0, 0, -0.0121596929824489, -0.024518055555552, 0.0036206140351022, 0.00176388888889594, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchIPort'
+				$begin 'SchIPort'
+					SchPortInst('defaultinterfaceport', '37', 'Port4', 13, -0.01524, 0, 0, false, 'defaultinterfaceport', 4294967295)
+					$begin 'PropDisplayMap'
+						PortName(2, 5, 0, Text(-0.01397, 0, 0, 1, 5, false, 'Arial', 0, 'Port4', false, false, ExtentRect(0, 0, 0, 0, -0.0121596929824489, 0.000881944444447972, 0.0036206140351022, 0.00176388888889594, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchIPort'
+				$begin 'SchIPort'
+					SchPortInst('defaultinterfaceport', '39', 'Port5', 17, -0.01524, 0.0254, 0, false, 'defaultinterfaceport', 4294967295)
+					$begin 'PropDisplayMap'
+						PortName(2, 5, 0, Text(-0.01397, 0.0254, 0, 1, 5, false, 'Arial', 0, 'Port5', false, false, ExtentRect(0, 0, 0, 0, -0.0121596929824489, 0.026281944444448, 0.0036206140351022, 0.00176388888889594, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchIPort'
+				$begin 'SchIPort'
+					SchPortInst('defaultinterfaceport', '41', 'Port6', 21, 0, 0.0254, 0, false, 'defaultinterfaceport', 4294967295)
+					$begin 'PropDisplayMap'
+						PortName(2, 5, 0, Text(0.00127, 0.0254, 0, 1, 5, false, 'Arial', 0, 'Port6', false, false, ExtentRect(0, 0, 0, 0, 0.0030803070175511, 0.026281944444448, 0.0036206140351022, 0.00176388888889594, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchIPort'
+				$begin 'PageNet'
+					NetName='Port1'
+					ID=8
+					Interface('Port1', 1)
+					Color=16711680
+				$end 'PageNet'
+				$begin 'PageNet'
+					NetName='Port2'
+					ID=12
+					Interface('Port2', 5)
+					Color=16711680
+				$end 'PageNet'
+				$begin 'PageNet'
+					NetName='Port3'
+					ID=16
+					Interface('Port3', 9)
+					Color=16711680
+				$end 'PageNet'
+				$begin 'PageNet'
+					NetName='Port4'
+					ID=20
+					Interface('Port4', 13)
+					Color=16711680
+				$end 'PageNet'
+				$begin 'PageNet'
+					NetName='Port5'
+					ID=24
+					Interface('Port5', 17)
+					Color=16711680
+				$end 'PageNet'
+				$begin 'PageNet'
+					NetName='Port6'
+					ID=27
+					Interface('Port6', 21)
+					Color=16711680
+				$end 'PageNet'
+				$begin 'Properties'
+					TextProp('Title', 'D', '', '')
+					TextProp('Author', 'D', '', '')
+					TextProp('Number', 'D', '', '1')
+					TextProp('Project', 'D', '', 'differential_pairs_example_old')
+					TextProp('ProjectPath', 'D', '', 'D:/temp/')
+					TextProp('Design', 'D', '', 'EMDesign1')
+					TextProp('Date', 'D', '', '6:05:44  feb 23, 2022')
+				$end 'Properties'
+			$end 'Page'
+			GridSetup('1000mil', '100mil', '100mil', 16772075, 16774645, true, true, 16777215, Origin(x='0mm', y='0mm'), PageSize(x='0mm', y='0mm'), Margins(x='0mm', y='0mm'), 0, 0, 0)
+			hasWindowBeenOpened=false
+			NextUniqueID=0
+			MoveBackwards=false
+		$end 'Schematic'
+		$begin 'Layout'
+			BlackBox=false
+			DefUnits='mm'
+			NIdx=9
+			ActLyr='s'
+			Tol(1e-08, 1e-08, 1e-12)
+			$begin 'HfssExportInfo'
+				ScriptFileName=''
+				HfssFileName=''
+				Version=2
+				ExtentType='BboxExtent'
+				BasePolygon=''
+				BasePolygonEDBUId=-1
+				DielExtentType='BboxExtent'
+				DielBasePolygon=''
+				DielBasePolygonEDBUId=-1
+				DielExt(Ext='0.005', Dim=false)
+				HonorUserDiel=true
+				TruncAtGnd=false
+				AirHorExt(Ext='0.15', Dim=false)
+				AirPosZExt(Ext='2', Dim=false)
+				AirNegZExt(Ext='2', Dim=false)
+				SyncZExt=true
+				OpenRegionType='Radiation'
+				UseRadBound=true
+				PMLVisible=false
+				OperFreq='5GHz'
+				RadLvl=0
+				UseStackupForZExtFact=true
+				Smooth=true
+			$end 'HfssExportInfo'
+		$end 'Layout'
+		$begin 'Rule Set'
+			$begin 'Data'
+			$end 'Data'
+			$begin 'DRCSolutionMgr'
+			$end 'DRCSolutionMgr'
+		$end 'Rule Set'
+		$begin 'Workflow'
+			WorkflowName=''
+			SpecName=''
+			TemplateName=''
+			LibLoc=1355952
+		$end 'Workflow'
+		$begin 'Port'
+			$begin 'Data'
+				$begin 'Port1'
+					DataId='Port0'
+					$begin 'Properties'
+						'Boundary Type'='Port'
+						Reference=''
+						'Override Impedance'='false'
+						Impedance='50ohm'
+						Magnitude='1V'
+						Phase='0deg'
+						'Renormalize Impedence'='50ohm + 0i ohm'
+						Renormalize='true'
+						'Deembed Distance'='0mm'
+						Deembed='true'
+						DeembedParasiticPortInductance='false'
+						PlanarEM=''
+						Type='Single Strip Gap Source'
+						PortSolver='true'
+						Theta='0rad'
+						Phi='0rad'
+						MagnitudeV='1V'
+						PhaseV='0deg'
+						'Ignore Reference'='false'
+						HFSS=''
+						'HFSS Type'='Gap'
+						Orientation='Vertical'
+						'Layer Alignment'='Upper'
+						'Horizontal Extent Factor'='5'
+						'Vertical Extent Factor'='3'
+						'PEC Launch Width'='0.5mm'
+						'Radial Extent Factor'='0'
+						Terminated='false'
+						TermResistance='50ohm'
+						TermReactance='0ohm'
+						SIwave=''
+						'Reference Net'=''
+					$end 'Properties'
+					Type='EdgePort'
+					UseRefFromHierarchy=2
+					HFSSPortType='GapV'
+					Arms=1
+					IsGapSource=true
+					HFSSPIType='Default'
+					UpperProbe=false
+					LayoutObject='Port1'
+					Pin=''
+					CircuitPort=false
+					AutoPort=false
+					$begin 'RLCBnd'
+						LoadType='NoLoad'
+						$begin 'Properties'
+							Parallel='true'
+							'R Enabled'='false'
+							'L Enabled'='false'
+							'C Enabled'='false'
+							R='0ohm'
+							L='0nH'
+							C='0pF'
+							Real='0ohm'
+							Imag='0ohm'
+							Magnitude='1V'
+							Phase='0deg'
+							Impedance='50ohm'
+						$end 'Properties'
+					$end 'RLCBnd'
+					ValidateReference=false
+					ZReferences()
+				$end 'Port1'
+				$begin 'Port2'
+					DataId='Port1'
+					$begin 'Properties'
+						'Boundary Type'='Port'
+						Reference=''
+						'Override Impedance'='false'
+						Impedance='50ohm'
+						Magnitude='1V'
+						Phase='0deg'
+						'Renormalize Impedence'='50ohm + 0i ohm'
+						Renormalize='true'
+						'Deembed Distance'='0mm'
+						Deembed='true'
+						DeembedParasiticPortInductance='false'
+						PlanarEM=''
+						Type='Single Strip Gap Source'
+						PortSolver='true'
+						Theta='0rad'
+						Phi='0rad'
+						MagnitudeV='1V'
+						PhaseV='0deg'
+						'Ignore Reference'='false'
+						HFSS=''
+						'HFSS Type'='Gap'
+						Orientation='Vertical'
+						'Layer Alignment'='Upper'
+						'Horizontal Extent Factor'='5'
+						'Vertical Extent Factor'='3'
+						'PEC Launch Width'='0.5mm'
+						'Radial Extent Factor'='0'
+						Terminated='false'
+						TermResistance='50ohm'
+						TermReactance='0ohm'
+						SIwave=''
+						'Reference Net'=''
+					$end 'Properties'
+					Type='EdgePort'
+					UseRefFromHierarchy=2
+					HFSSPortType='GapV'
+					Arms=1
+					IsGapSource=true
+					HFSSPIType='Default'
+					UpperProbe=false
+					LayoutObject='Port2'
+					Pin=''
+					CircuitPort=false
+					AutoPort=false
+					$begin 'RLCBnd'
+						LoadType='NoLoad'
+						$begin 'Properties'
+							Parallel='true'
+							'R Enabled'='false'
+							'L Enabled'='false'
+							'C Enabled'='false'
+							R='0ohm'
+							L='0nH'
+							C='0pF'
+							Real='0ohm'
+							Imag='0ohm'
+							Magnitude='1V'
+							Phase='0deg'
+							Impedance='50ohm'
+						$end 'Properties'
+					$end 'RLCBnd'
+					ValidateReference=false
+					ZReferences()
+				$end 'Port2'
+				$begin 'Port3'
+					DataId='Port2'
+					$begin 'Properties'
+						'Boundary Type'='Port'
+						Reference=''
+						'Override Impedance'='false'
+						Impedance='50ohm'
+						Magnitude='1V'
+						Phase='0deg'
+						'Renormalize Impedence'='50ohm + 0i ohm'
+						Renormalize='true'
+						'Deembed Distance'='0mm'
+						Deembed='true'
+						DeembedParasiticPortInductance='false'
+						PlanarEM=''
+						Type='Single Strip Gap Source'
+						PortSolver='true'
+						Theta='0rad'
+						Phi='0rad'
+						MagnitudeV='1V'
+						PhaseV='0deg'
+						'Ignore Reference'='false'
+						HFSS=''
+						'HFSS Type'='Gap'
+						Orientation='Vertical'
+						'Layer Alignment'='Upper'
+						'Horizontal Extent Factor'='5'
+						'Vertical Extent Factor'='3'
+						'PEC Launch Width'='0.4mm'
+						'Radial Extent Factor'='0'
+						Terminated='false'
+						TermResistance='50ohm'
+						TermReactance='0ohm'
+						SIwave=''
+						'Reference Net'=''
+					$end 'Properties'
+					Type='EdgePort'
+					UseRefFromHierarchy=2
+					HFSSPortType='GapV'
+					Arms=1
+					IsGapSource=true
+					HFSSPIType='Default'
+					UpperProbe=false
+					LayoutObject='Port3'
+					Pin=''
+					CircuitPort=false
+					AutoPort=false
+					$begin 'RLCBnd'
+						LoadType='NoLoad'
+						$begin 'Properties'
+							Parallel='true'
+							'R Enabled'='false'
+							'L Enabled'='false'
+							'C Enabled'='false'
+							R='0ohm'
+							L='0nH'
+							C='0pF'
+							Real='0ohm'
+							Imag='0ohm'
+							Magnitude='1V'
+							Phase='0deg'
+							Impedance='50ohm'
+						$end 'Properties'
+					$end 'RLCBnd'
+					ValidateReference=false
+					ZReferences()
+				$end 'Port3'
+				$begin 'Port4'
+					DataId='Port3'
+					$begin 'Properties'
+						'Boundary Type'='Port'
+						Reference=''
+						'Override Impedance'='false'
+						Impedance='50ohm'
+						Magnitude='1V'
+						Phase='0deg'
+						'Renormalize Impedence'='50ohm + 0i ohm'
+						Renormalize='true'
+						'Deembed Distance'='0mm'
+						Deembed='true'
+						DeembedParasiticPortInductance='false'
+						PlanarEM=''
+						Type='Single Strip Gap Source'
+						PortSolver='true'
+						Theta='0rad'
+						Phi='0rad'
+						MagnitudeV='1V'
+						PhaseV='0deg'
+						'Ignore Reference'='false'
+						HFSS=''
+						'HFSS Type'='Gap'
+						Orientation='Vertical'
+						'Layer Alignment'='Upper'
+						'Horizontal Extent Factor'='5'
+						'Vertical Extent Factor'='3'
+						'PEC Launch Width'='0.4mm'
+						'Radial Extent Factor'='0'
+						Terminated='false'
+						TermResistance='50ohm'
+						TermReactance='0ohm'
+						SIwave=''
+						'Reference Net'=''
+					$end 'Properties'
+					Type='EdgePort'
+					UseRefFromHierarchy=2
+					HFSSPortType='GapV'
+					Arms=1
+					IsGapSource=true
+					HFSSPIType='Default'
+					UpperProbe=false
+					LayoutObject='Port4'
+					Pin=''
+					CircuitPort=false
+					AutoPort=false
+					$begin 'RLCBnd'
+						LoadType='NoLoad'
+						$begin 'Properties'
+							Parallel='true'
+							'R Enabled'='false'
+							'L Enabled'='false'
+							'C Enabled'='false'
+							R='0ohm'
+							L='0nH'
+							C='0pF'
+							Real='0ohm'
+							Imag='0ohm'
+							Magnitude='1V'
+							Phase='0deg'
+							Impedance='50ohm'
+						$end 'Properties'
+					$end 'RLCBnd'
+					ValidateReference=false
+					ZReferences()
+				$end 'Port4'
+				$begin 'Port5'
+					DataId='Port4'
+					$begin 'Properties'
+						'Boundary Type'='Port'
+						Reference=''
+						'Override Impedance'='false'
+						Impedance='50ohm'
+						Magnitude='1V'
+						Phase='0deg'
+						'Renormalize Impedence'='50ohm + 0i ohm'
+						Renormalize='true'
+						'Deembed Distance'='0mm'
+						Deembed='true'
+						DeembedParasiticPortInductance='false'
+						PlanarEM=''
+						Type='Single Strip Gap Source'
+						PortSolver='true'
+						Theta='0rad'
+						Phi='0rad'
+						MagnitudeV='1V'
+						PhaseV='0deg'
+						'Ignore Reference'='false'
+						HFSS=''
+						'HFSS Type'='Gap'
+						Orientation='Vertical'
+						'Layer Alignment'='Upper'
+						'Horizontal Extent Factor'='5'
+						'Vertical Extent Factor'='3'
+						'PEC Launch Width'='0.6mm'
+						'Radial Extent Factor'='0'
+						Terminated='false'
+						TermResistance='50ohm'
+						TermReactance='0ohm'
+						SIwave=''
+						'Reference Net'=''
+					$end 'Properties'
+					Type='EdgePort'
+					UseRefFromHierarchy=2
+					HFSSPortType='GapV'
+					Arms=1
+					IsGapSource=true
+					HFSSPIType='Default'
+					UpperProbe=false
+					LayoutObject='Port5'
+					Pin=''
+					CircuitPort=false
+					AutoPort=false
+					$begin 'RLCBnd'
+						LoadType='NoLoad'
+						$begin 'Properties'
+							Parallel='true'
+							'R Enabled'='false'
+							'L Enabled'='false'
+							'C Enabled'='false'
+							R='0ohm'
+							L='0nH'
+							C='0pF'
+							Real='0ohm'
+							Imag='0ohm'
+							Magnitude='1V'
+							Phase='0deg'
+							Impedance='50ohm'
+						$end 'Properties'
+					$end 'RLCBnd'
+					ValidateReference=false
+					ZReferences()
+				$end 'Port5'
+				$begin 'Port6'
+					DataId='Port5'
+					$begin 'Properties'
+						'Boundary Type'='Port'
+						Reference=''
+						'Override Impedance'='false'
+						Impedance='50ohm'
+						Magnitude='1V'
+						Phase='0deg'
+						'Renormalize Impedence'='50ohm + 0i ohm'
+						Renormalize='true'
+						'Deembed Distance'='0mm'
+						Deembed='true'
+						DeembedParasiticPortInductance='false'
+						PlanarEM=''
+						Type='Single Strip Gap Source'
+						PortSolver='true'
+						Theta='0rad'
+						Phi='0rad'
+						MagnitudeV='1V'
+						PhaseV='0deg'
+						'Ignore Reference'='false'
+						HFSS=''
+						'HFSS Type'='Gap'
+						Orientation='Vertical'
+						'Layer Alignment'='Upper'
+						'Horizontal Extent Factor'='5'
+						'Vertical Extent Factor'='3'
+						'PEC Launch Width'='0.6mm'
+						'Radial Extent Factor'='0'
+						Terminated='false'
+						TermResistance='50ohm'
+						TermReactance='0ohm'
+						SIwave=''
+						'Reference Net'=''
+					$end 'Properties'
+					Type='EdgePort'
+					UseRefFromHierarchy=2
+					HFSSPortType='GapV'
+					Arms=1
+					IsGapSource=true
+					HFSSPIType='Default'
+					UpperProbe=false
+					LayoutObject='Port6'
+					Pin=''
+					CircuitPort=false
+					AutoPort=false
+					$begin 'RLCBnd'
+						LoadType='NoLoad'
+						$begin 'Properties'
+							Parallel='true'
+							'R Enabled'='false'
+							'L Enabled'='false'
+							'C Enabled'='false'
+							R='0ohm'
+							L='0nH'
+							C='0pF'
+							Real='0ohm'
+							Imag='0ohm'
+							Magnitude='1V'
+							Phase='0deg'
+							Impedance='50ohm'
+						$end 'Properties'
+					$end 'RLCBnd'
+					ValidateReference=false
+					ZReferences()
+				$end 'Port6'
+			$end 'Data'
+			$begin 'CoupledPortsList'
+			$end 'CoupledPortsList'
+			$begin 'DiffPairs'
+				Pair(Pos='Port1', Neg='Port2', On=true, matched=false, Dif='Diff1', DfZ(100, 0), Com='Comm1', CmZ(25, 0))
+			$end 'DiffPairs'
+			TotalVoltage=false
+			IncludePortPostProcess=true
+			$begin 'SortOrder'
+			$end 'SortOrder'
+			LegacySolverPinOrdering=false
+		$end 'Port'
+		$begin 'Boundary'
+			$begin 'Data'
+			$end 'Data'
+			$begin 'CoupledPortsList'
+			$end 'CoupledPortsList'
+			$begin 'DiffPairs'
+			$end 'DiffPairs'
+			TotalVoltage=false
+			IncludePortPostProcess=true
+			$begin 'SortOrder'
+			$end 'SortOrder'
+			LegacySolverPinOrdering=false
+		$end 'Boundary'
+		$begin 'Cavity'
+			$begin 'Data'
+			$end 'Data'
+		$end 'Cavity'
+		$begin 'Via'
+			$begin 'Data'
+			$end 'Data'
+		$end 'Via'
+		$begin 'LayoutVia'
+			$begin 'Data'
+			$end 'Data'
+		$end 'LayoutVia'
+		$begin 'Source'
+			$begin 'Data'
+			$end 'Data'
+		$end 'Source'
+		$begin 'Voltage Probe'
+			$begin 'Data'
+			$end 'Data'
+		$end 'Voltage Probe'
+		$begin 'DC Terminal'
+			$begin 'Data'
+			$end 'Data'
+		$end 'DC Terminal'
+		$begin 'CircuitSources'
+			$begin 'Data'
+			$end 'Data'
+		$end 'CircuitSources'
+		$begin 'NexximPorts'
+			$begin 'Data'
+			$end 'Data'
+			$begin 'DiffPairs'
+			$end 'DiffPairs'
+		$end 'NexximPorts'
+		$begin 'SortOrder'
+		$end 'SortOrder'
+		$begin 'NexximMultiComponentContainers'
+			$begin 'Data'
+			$end 'Data'
+		$end 'NexximMultiComponentContainers'
+		$begin 'ComponentConfigurationData'
+			$begin 'EnabledPorts'
+			$end 'EnabledPorts'
+			$begin 'EnabledMultipleComponents'
+			$end 'EnabledMultipleComponents'
+			$begin 'EnabledAnalyses'
+			$end 'EnabledAnalyses'
+		$end 'ComponentConfigurationData'
+		$begin 'Properties'
+		$end 'Properties'
+		$begin 'CustomSimSetups'
+			$begin 'Data'
+			$end 'Data'
+		$end 'CustomSimSetups'
+		$begin 'RadSetup'
+			$begin 'Data'
+			$end 'Data'
+		$end 'RadSetup'
+		$begin 'Setup'
+			$begin 'Data'
+			$end 'Data'
+		$end 'Setup'
+		$begin 'AnalysisOptionBlocks'
+		$end 'AnalysisOptionBlocks'
+		$begin 'EM properties'
+			$begin 'Data'
+			$end 'Data'
+		$end 'EM properties'
+		$begin 'OutputVariable'
+			NextUniqueID=0
+			MoveBackwards=false
+		$end 'OutputVariable'
+		$begin 'Optimetrics'
+			$begin 'OptimetricsSetups'
+				NextUniqueID=0
+				MoveBackwards=false
+			$end 'OptimetricsSetups'
+		$end 'Optimetrics'
+		$begin 'FieldsReporter'
+			$begin 'FieldsCalculator'
+				Line_Discretization=1000
+			$end 'FieldsCalculator'
+			$begin 'PlotDefaults'
+				Default_SolutionId=-1
+				Default_PlotFolder='Automatic'
+			$end 'PlotDefaults'
+			$begin 'FieldsPlotManagerID'
+				NextUniqueID=0
+				MoveBackwards=false
+				NumQuantityType=0
+				NumPlots=0
+			$end 'FieldsPlotManagerID'
+			$begin 'Report3dInGeomWnd'
+				Report3dNum=0
+			$end 'Report3dInGeomWnd'
+			$begin 'Report2dInGeomWnd'
+				Report2dNum=0
+			$end 'Report2dInGeomWnd'
+			$begin 'AntennaParametersInGeomWnd'
+				AntennaParametersNum=0
+			$end 'AntennaParametersInGeomWnd'
+			AntennaParametersPlotTablesOrder()
+		$end 'FieldsReporter'
+		$begin 'SolutionManager'
+			$begin 'SimDataExtractors'
+				$begin 'Version ID Map'
+					V=0
+				$end 'Version ID Map'
+			$end 'SimDataExtractors'
+		$end 'SolutionManager'
+		$begin 'InterfaceOptions'
+			SchematicEnabled=true
+			SaveBeforeSolving=true
+		$end 'InterfaceOptions'
+		$begin 'AdvancedSettings'
+			ComputeBothEvenAndOddCPWModes=false
+			CausalMaterials=true
+			MeshingMethod='Phi'
+			EnableDesignIntersectionCheck=true
+			UseAlternativeMeshMethodsAsFallBack=true
+			CircuitSparamDefinition=false
+			CircuitIntegrationType='FFT'
+			ExportAfterSolve=false
+			ExportDir=''
+			BroadbandFreqOption='AutoMaxFreq'
+			BroadbandMaxNumFreq=5
+			SaveADP=false
+			UseAdvancedDCExtrap=false
+		$end 'AdvancedSettings'
+		$begin 'CoSimOptions'
+			Override=false
+			Setup=''
+			OverrideSweep=false
+			Sweep=''
+			SweepType=4
+			Interpolate=false
+			YMatrix=true
+			AutoAlignPorts=false
+			Simulator=1
+			InterpAlg='auto'
+			Renormalize=false
+			RenormImpedance=50
+		$end 'CoSimOptions'
+		$begin 'TemperatureData'
+			IncludeTempDependence=false
+			EnableFeedback=false
+			Temperature='22cel'
+		$end 'TemperatureData'
+		$begin 'UserDefinedSolutionMgr'
+			NextUniqueID=1000000
+			MoveBackwards=false
+		$end 'UserDefinedSolutionMgr'
+		$begin 'DatasetSolutionMgr'
+			NextUniqueID=2000000
+			MoveBackwards=false
+		$end 'DatasetSolutionMgr'
+		Notes=$begin_cdata$ $end_cdata$
+		$begin 'AnimationSetups'
+		$end 'AnimationSetups'
+		CacheHeaderFile='HDRC923187216460676156.tmp'
+	$end 'PlanarEMCircuit'
+	$begin 'NexximCircuit'
+		RepRewriteV2=true
+		Name='Circuit1'
+		DesignID=1
+		$begin 'Circuit'
+			ComponentName='Circuit1'
+			AutoFP=''
+			$begin 'DesignDatasets'
+				NextUniqueID=0
+				MoveBackwards=false
+				DatasetType='DesignDatasetType'
+				$begin 'DatasetDefinitions'
+				$end 'DatasetDefinitions'
+			$end 'DesignDatasets'
+			VariableOrders[0:]
+			$begin 'Compinst'
+				ID='2'
+				Status='Status'
+				CompName='Nexxim Circuit Elements\\Capacitors:CAP_'
+				$begin 'Properties'
+					TextProp('ID', 'SRID', '', '2')
+				$end 'Properties'
+				$begin 'Parameters'
+					TextProp('InstanceName', 'HID', '', 'C2')
+					ButtonProp('CosimDefinition', 'OHD', '', '', 'Edit', 40501, ButtonPropClientData())
+					MenuProp('CoSimulator', 'OHD', '', 'DefaultNetlist', 0)
+				$end 'Parameters'
+			$end 'Compinst'
+			$begin 'Compinst'
+				ID='3'
+				Status='Status'
+				CompName='Nexxim Circuit Elements\\Capacitors:CAP_'
+				$begin 'Properties'
+					TextProp('ID', 'SRID', '', '3')
+				$end 'Properties'
+				$begin 'Parameters'
+					TextProp('InstanceName', 'HID', '', 'C3')
+					ButtonProp('CosimDefinition', 'OHD', '', '', 'Edit', 40501, ButtonPropClientData())
+					MenuProp('CoSimulator', 'OHD', '', 'DefaultNetlist', 0)
+				$end 'Parameters'
+			$end 'Compinst'
+			$begin 'Compinst'
+				ID='4'
+				Status='Status'
+				CompName='Nexxim Circuit Elements\\Capacitors:CAP_'
+				$begin 'Properties'
+					TextProp('ID', 'SRID', '', '4')
+				$end 'Properties'
+				$begin 'Parameters'
+					TextProp('InstanceName', 'HID', '', 'C4')
+					ButtonProp('CosimDefinition', 'OHD', '', '', 'Edit', 40501, ButtonPropClientData())
+					MenuProp('CoSimulator', 'OHD', '', 'DefaultNetlist', 0)
+				$end 'Parameters'
+			$end 'Compinst'
+			$begin 'IPort'
+				PortName='Port1'
+				Public=true
+				Connectible=true
+				UnconnectedAction=1
+				PortValue=''
+				Domain(0, -1, 2, '')
+				$begin 'Properties'
+					TextProp('pnum', 'ORHD', '', '1')
+					ValueProp('rz', 'OD', '', '50ohm', 0)
+					ValueProp('iz', 'OD', '', '0ohm', 0)
+					CheckboxProp('EnableNoise', 'OD', '', false)
+					ValueProp('noisetemp', 'OD', '', '16.85cel', 0)
+					ButtonProp('EditPort', 'D', '', 'Edit', '', 0, ButtonPropClientData())
+				$end 'Properties'
+			$end 'IPort'
+			$begin 'IPort'
+				PortName='Port2'
+				Public=true
+				Connectible=true
+				UnconnectedAction=1
+				PortValue=''
+				Domain(0, -1, 2, '')
+				$begin 'Properties'
+					TextProp('pnum', 'ORHD', '', '2')
+					ValueProp('rz', 'OD', '', '50ohm', 0)
+					ValueProp('iz', 'OD', '', '0ohm', 0)
+					CheckboxProp('EnableNoise', 'OD', '', false)
+					ValueProp('noisetemp', 'OD', '', '16.85cel', 0)
+					ButtonProp('EditPort', 'D', '', 'Edit', '', 0, ButtonPropClientData())
+				$end 'Properties'
+			$end 'IPort'
+			$begin 'IPort'
+				PortName='Port3'
+				Public=true
+				Connectible=true
+				UnconnectedAction=1
+				PortValue=''
+				Domain(0, -1, 2, '')
+				$begin 'Properties'
+					TextProp('pnum', 'ORHD', '', '3')
+					ValueProp('rz', 'OD', '', '50ohm', 0)
+					ValueProp('iz', 'OD', '', '0ohm', 0)
+					CheckboxProp('EnableNoise', 'OD', '', false)
+					ValueProp('noisetemp', 'OD', '', '16.85cel', 0)
+					ButtonProp('EditPort', 'D', '', 'Edit', '', 0, ButtonPropClientData())
+				$end 'Properties'
+			$end 'IPort'
+			$begin 'IPort'
+				PortName='Port4'
+				Public=true
+				Connectible=true
+				UnconnectedAction=1
+				PortValue=''
+				Domain(0, -1, 2, '')
+				$begin 'Properties'
+					TextProp('pnum', 'ORHD', '', '4')
+					ValueProp('rz', 'OD', '', '50ohm', 0)
+					ValueProp('iz', 'OD', '', '0ohm', 0)
+					CheckboxProp('EnableNoise', 'OD', '', false)
+					ValueProp('noisetemp', 'OD', '', '16.85cel', 0)
+					ButtonProp('EditPort', 'D', '', 'Edit', '', 0, ButtonPropClientData())
+				$end 'Properties'
+			$end 'IPort'
+			$begin 'IPort'
+				PortName='Port5'
+				Public=true
+				Connectible=true
+				UnconnectedAction=1
+				PortValue=''
+				Domain(0, -1, 2, '')
+				$begin 'Properties'
+					TextProp('pnum', 'ORHD', '', '5')
+					ValueProp('rz', 'OD', '', '50ohm', 0)
+					ValueProp('iz', 'OD', '', '0ohm', 0)
+					CheckboxProp('EnableNoise', 'OD', '', false)
+					ValueProp('noisetemp', 'OD', '', '16.85cel', 0)
+					ButtonProp('EditPort', 'D', '', 'Edit', '', 0, ButtonPropClientData())
+				$end 'Properties'
+			$end 'IPort'
+			$begin 'IPort'
+				PortName='Port6'
+				Public=true
+				Connectible=true
+				UnconnectedAction=1
+				PortValue=''
+				Domain(0, -1, 2, '')
+				$begin 'Properties'
+					TextProp('pnum', 'ORHD', '', '6')
+					ValueProp('rz', 'OD', '', '50ohm', 0)
+					ValueProp('iz', 'OD', '', '0ohm', 0)
+					CheckboxProp('EnableNoise', 'OD', '', false)
+					ValueProp('noisetemp', 'OD', '', '16.85cel', 0)
+					ButtonProp('EditPort', 'D', '', 'Edit', '', 0, ButtonPropClientData())
+				$end 'Properties'
+			$end 'IPort'
+			$begin 'Net'
+				NetName='Port1'
+				$begin 'Properties'
+					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
+				$end 'Properties'
+				NetInterfacePorts='Port1'
+				NetPin('2', 0)
+			$end 'Net'
+			$begin 'Net'
+				NetName='Port2'
+				$begin 'Properties'
+					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
+				$end 'Properties'
+				NetInterfacePorts='Port2'
+				NetPin('2', 1)
+			$end 'Net'
+			$begin 'Net'
+				NetName='Port3'
+				$begin 'Properties'
+					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
+				$end 'Properties'
+				NetInterfacePorts='Port3'
+				NetPin('3', 0)
+			$end 'Net'
+			$begin 'Net'
+				NetName='Port4'
+				$begin 'Properties'
+					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
+				$end 'Properties'
+				NetInterfacePorts='Port4'
+				NetPin('3', 1)
+			$end 'Net'
+			$begin 'Net'
+				NetName='Port5'
+				$begin 'Properties'
+					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
+				$end 'Properties'
+				NetInterfacePorts='Port5'
+				NetPin('4', 0)
+			$end 'Net'
+			$begin 'Net'
+				NetName='Port6'
+				$begin 'Properties'
+					CheckboxProp('AlignMicrowavePorts', 'D', '', true)
+				$end 'Properties'
+				NetInterfacePorts='Port6'
+				NetPin('4', 1)
+			$end 'Net'
+		$end 'Circuit'
+		$begin 'Schematic'
+			PPortCounter=0
+			BusEntryCounter=0
+			ShowVariableBlock=true
+			$begin 'Page'
+				PageSize('A')
+				PageData(Origin(x='0mm', y='0mm'), PageSize(x='0', y='0'), Margins(x='0', y='0'), 0, 0, 0)
+				PageNumber=1
+				$begin 'SchIPort'
+					SchPortInst('defaultinterfaceport', '12', 'Port1', 7, 0.00508, 0.04826, 0, false, 'defaultinterfaceport', 4294967295)
+					$begin 'PropDisplayMap'
+						PortName(2, 5, 0, Text(0.00508, 0.04826, 0, 1, 5, false, 'Arial', 0, 'Port1', false, false, ExtentRect(0, 0, 0, 0, 0.00686125472654248, 0.0487624051792812, 0.00356250945308497, 0.00173558152842601, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchIPort'
+				$begin 'SchIPort'
+					SchPortInst('defaultinterfaceport', '14', 'Port2', 11, 0.01524, 0.04826, 0, false, 'defaultinterfaceport', 4294967295)
+					$begin 'PropDisplayMap'
+						PortName(2, 5, 0, Text(0.01524, 0.04826, 0, 1, 5, false, 'Arial', 0, 'Port2', false, false, ExtentRect(0, 0, 0, 0, 0.0170212547265425, 0.0487624051792812, 0.00356250945308497, 0.00173558152842601, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchIPort'
+				$begin 'SchIPort'
+					SchPortInst('defaultinterfaceport', '16', 'Port3', 16, 0.03048, 0.04826, 0, false, 'defaultinterfaceport', 4294967295)
+					$begin 'PropDisplayMap'
+						PortName(2, 5, 0, Text(0.03048, 0.04826, 0, 1, 5, false, 'Arial', 0, 'Port3', false, false, ExtentRect(0, 0, 0, 0, 0.0322612547265425, 0.0487624051792812, 0.00356250945308497, 0.00173558152842601, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchIPort'
+				$begin 'SchIPort'
+					SchPortInst('defaultinterfaceport', '18', 'Port4', 21, 0.04064, 0.04826, 0, false, 'defaultinterfaceport', 4294967295)
+					$begin 'PropDisplayMap'
+						PortName(2, 5, 0, Text(0.04064, 0.04826, 0, 1, 5, false, 'Arial', 0, 'Port4', false, false, ExtentRect(0, 0, 0, 0, 0.0424212547265425, 0.0487624051792812, 0.00356250945308497, 0.00173558152842601, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchIPort'
+				$begin 'SchIPort'
+					SchPortInst('defaultinterfaceport', '20', 'Port5', 26, 0.05588, 0.04826, 0, false, 'defaultinterfaceport', 4294967295)
+					$begin 'PropDisplayMap'
+						PortName(2, 5, 0, Text(0.05588, 0.04826, 0, 1, 5, false, 'Arial', 0, 'Port5', false, false, ExtentRect(0, 0, 0, 0, 0.0576612547265425, 0.0487624051792812, 0.00356250945308497, 0.00173558152842601, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchIPort'
+				$begin 'SchIPort'
+					SchPortInst('defaultinterfaceport', '22', 'Port6', 31, 0.06604, 0.04826, 0, false, 'defaultinterfaceport', 4294967295)
+					$begin 'PropDisplayMap'
+						PortName(2, 5, 0, Text(0.06604, 0.04826, 0, 1, 5, false, 'Arial', 0, 'Port6', false, false, ExtentRect(0, 0, 0, 0, 0.0678212547265425, 0.0487624051792812, 0.00356250945308497, 0.00173558152842601, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchIPort'
+				$begin 'SchCompDef'
+					SchCompInst('Nexxim Circuit Elements\\Capacitors:CAP_', 'A', '2', 1, '2', 'normal', 0.01016, 0.04826, 0, false, 4294967295, true)
+					Levels(0, 1)
+					$begin 'PropDisplayMap'
+						C(2, 5, 0, Text(0.01016, 0.04447469, 0, 4, 5, false, 'Arial', 0, '1e-12farad', false, false, ExtentRect(0, 0, 0, 0, 0.01016, 0.0449770951792812, 0.00730771169863583, 0.00173558152842601, 0, 0, 0)))
+						InstanceName(2, 5, 0, Text(0.005588, 0.04930069, 0, 1, 5, false, 'Arial', 0, 'C2', false, false, ExtentRect(0, 0, 0, 0, 0.00654713716044595, 0.0498030951792812, 0.0019182743208919, 0.00173558152842601, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchCompDef'
+				$begin 'SchCompDef'
+					SchCompInst('Nexxim Circuit Elements\\Capacitors:CAP_', 'A', '3', 3, '3', 'normal', 0.03556, 0.04826, 0, false, 4294967295, true)
+					Levels(0, 1)
+					$begin 'PropDisplayMap'
+						C(2, 5, 0, Text(0.03556, 0.04447469, 0, 4, 5, false, 'Arial', 0, '1e-12farad', false, false, ExtentRect(0, 0, 0, 0, 0.03556, 0.0449770951792812, 0.00730771169863583, 0.00173558152842601, 0, 0, 0)))
+						InstanceName(2, 5, 0, Text(0.030988, 0.04930069, 0, 1, 5, false, 'Arial', 0, 'C3', false, false, ExtentRect(0, 0, 0, 0, 0.031947137160446, 0.0498030951792812, 0.0019182743208919, 0.00173558152842601, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchCompDef'
+				$begin 'SchCompDef'
+					SchCompInst('Nexxim Circuit Elements\\Capacitors:CAP_', 'A', '4', 5, '4', 'normal', 0.06096, 0.04826, 0, false, 4294967295, true)
+					Levels(0, 1)
+					$begin 'PropDisplayMap'
+						C(2, 5, 0, Text(0.06096, 0.04447469, 0, 4, 5, false, 'Arial', 0, '1e-12farad', false, false, ExtentRect(0, 0, 0, 0, 0.06096, 0.0449770951792812, 0.00730771169863583, 0.00173558152842601, 0, 0, 0)))
+						InstanceName(2, 5, 0, Text(0.056388, 0.04930069, 0, 1, 5, false, 'Arial', 0, 'C4', false, false, ExtentRect(0, 0, 0, 0, 0.057347137160446, 0.0498030951792812, 0.0019182743208919, 0.00173558152842601, 0, 0, 0)))
+					$end 'PropDisplayMap'
+				$end 'SchCompDef'
+				$begin 'PageNet'
+					NetName='Port1'
+					ID=12
+					Interface('Port1', 7)
+					Color=16711680
+				$end 'PageNet'
+				$begin 'PageNet'
+					NetName='Port2'
+					ID=15
+					Interface('Port2', 11)
+					Color=16711680
+				$end 'PageNet'
+				$begin 'PageNet'
+					NetName='Port3'
+					ID=20
+					Interface('Port3', 16)
+					Color=16711680
+				$end 'PageNet'
+				$begin 'PageNet'
+					NetName='Port4'
+					ID=25
+					Interface('Port4', 21)
+					Color=16711680
+				$end 'PageNet'
+				$begin 'PageNet'
+					NetName='Port5'
+					ID=30
+					Interface('Port5', 26)
+					Color=16711680
+				$end 'PageNet'
+				$begin 'PageNet'
+					NetName='Port6'
+					ID=35
+					Interface('Port6', 31)
+					Color=16711680
+				$end 'PageNet'
+				$begin 'Properties'
+					TextProp('Title', 'D', '', '')
+					TextProp('Author', 'D', '', '')
+					TextProp('Number', 'D', '', '1')
+					TextProp('Project', 'D', '', 'differential_pairs')
+					TextProp('ProjectPath', 'D', '', 'D:/ANSYSDev/repositories/PyAEDT/_unittest/example_models/')
+					TextProp('Design', 'D', '', 'Circuit1')
+					TextProp('Date', 'D', '', '6:00:05  feb 28, 2022')
+				$end 'Properties'
+			$end 'Page'
+			GridSetup('1000mil', '100mil', '100mil', 16772075, 16774645, true, true, 16777215, Origin(x='0mm', y='0mm'), PageSize(x='0mm', y='0mm'), Margins(x='0mm', y='0mm'), 0, 0, 0)
+			hasWindowBeenOpened=false
+			NextUniqueID=0
+			MoveBackwards=false
+		$end 'Schematic'
+		$begin 'Layout'
+			BlackBox=false
+			DefUnits='mm'
+			NIdx=18
+			ActLyr='Top'
+			Tol(1e-08, 1e-08, 1e-12)
+			$begin 'HfssExportInfo'
+				ScriptFileName=''
+				HfssFileName=''
+				Version=2
+				ExtentType='BboxExtent'
+				BasePolygon=''
+				BasePolygonEDBUId=-1
+				DielExtentType='BboxExtent'
+				DielBasePolygon=''
+				DielBasePolygonEDBUId=-1
+				DielExt(Ext='0.005', Dim=false)
+				HonorUserDiel=true
+				TruncAtGnd=false
+				AirHorExt(Ext='0.15', Dim=false)
+				AirPosZExt(Ext='2', Dim=false)
+				AirNegZExt(Ext='2', Dim=false)
+				SyncZExt=true
+				OpenRegionType='Radiation'
+				UseRadBound=true
+				PMLVisible=false
+				OperFreq='5GHz'
+				RadLvl=0
+				UseStackupForZExtFact=true
+				Smooth=true
+			$end 'HfssExportInfo'
+		$end 'Layout'
+		$begin 'Rule Set'
+			$begin 'Data'
+			$end 'Data'
+			$begin 'DRCSolutionMgr'
+			$end 'DRCSolutionMgr'
+		$end 'Rule Set'
+		$begin 'Workflow'
+			WorkflowName=''
+			SpecName=''
+			TemplateName=''
+			LibLoc=1357600
+		$end 'Workflow'
+		$begin 'SimSetups'
+		$end 'SimSetups'
+		$begin 'ControlBlocks'
+		$end 'ControlBlocks'
+		$begin 'NexximSources'
+			$begin 'Data'
+			$end 'Data'
+		$end 'NexximSources'
+		$begin 'NexximPorts'
+			$begin 'Data'
+				$begin 'Port1'
+					DataId='Port0'
+					IIPortName='Port1'
+					SymbolType=0
+					DoPostProcess=false
+				$end 'Port1'
+				$begin 'Port2'
+					DataId='Port1'
+					IIPortName='Port2'
+					SymbolType=0
+					DoPostProcess=false
+				$end 'Port2'
+				$begin 'Port3'
+					DataId='Port2'
+					IIPortName='Port3'
+					SymbolType=0
+					DoPostProcess=false
+				$end 'Port3'
+				$begin 'Port4'
+					DataId='Port3'
+					IIPortName='Port4'
+					SymbolType=0
+					DoPostProcess=false
+				$end 'Port4'
+				$begin 'Port5'
+					DataId='Port4'
+					IIPortName='Port5'
+					SymbolType=0
+					DoPostProcess=false
+				$end 'Port5'
+				$begin 'Port6'
+					DataId='Port5'
+					IIPortName='Port6'
+					SymbolType=0
+					DoPostProcess=false
+				$end 'Port6'
+			$end 'Data'
+			$begin 'DiffPairs'
+				Pair(Pos='Port1', Neg='Port2', On=true, matched=false, Dif='Diff1', DfZ(100, 0), Com='Comm1', CmZ(25, 0))
+			$end 'DiffPairs'
+		$end 'NexximPorts'
+		$begin 'NexximMultiComponentContainers'
+			$begin 'Data'
+			$end 'Data'
+		$end 'NexximMultiComponentContainers'
+		$begin 'ComponentConfigurationData'
+			$begin 'EnabledPorts'
+			$end 'EnabledPorts'
+			$begin 'EnabledMultipleComponents'
+			$end 'EnabledMultipleComponents'
+			$begin 'EnabledAnalyses'
+				$begin 'Port1'
+					Port1()
+				$end 'Port1'
+				$begin 'Port2'
+					Port2()
+				$end 'Port2'
+				$begin 'Port3'
+					Port3()
+				$end 'Port3'
+				$begin 'Port4'
+					Port4()
+				$end 'Port4'
+				$begin 'Port5'
+					Port5()
+				$end 'Port5'
+				$begin 'Port6'
+					Port6()
+				$end 'Port6'
+			$end 'EnabledAnalyses'
+		$end 'ComponentConfigurationData'
+		$begin 'Data'
+		$end 'Data'
+		$begin 'OutputVariable'
+			NextUniqueID=0
+			MoveBackwards=false
+		$end 'OutputVariable'
+		$begin 'Optimetrics'
+			$begin 'OptimetricsSetups'
+				NextUniqueID=0
+				MoveBackwards=false
+			$end 'OptimetricsSetups'
+		$end 'Optimetrics'
+		$begin 'SolutionManager'
+			$begin 'SimDataExtractors'
+				$begin 'Version ID Map'
+					V=0
+				$end 'Version ID Map'
+			$end 'SimDataExtractors'
+		$end 'SolutionManager'
+		SParamCircuitDef=true
+		RunERCBeforeSimulation=false
+		IntegrationMethod='FFT'
+		DynLinkOutputVars=false
+		LocalParamScope=true
+		UpdateReportDuringFast=true
+		$begin 'UserDefinedSolutionMgr'
+			NextUniqueID=1000000
+			MoveBackwards=false
+		$end 'UserDefinedSolutionMgr'
+		$begin 'DatasetSolutionMgr'
+			NextUniqueID=2000000
+			MoveBackwards=false
+		$end 'DatasetSolutionMgr'
+		Notes=$begin_cdata$ $end_cdata$
+		$begin 'AnimationSetups'
+		$end 'AnimationSetups'
+		CacheHeaderFile='HDRC923187216460676157.tmp'
+	$end 'NexximCircuit'
 	$begin 'DataInstances'
 		DesignEditor='TopLevel'
 		Refdes('5', 'U1')
@@ -5467,8 +5467,8 @@ $begin 'AnsoftProject'
 					TextProp('ID', 'SRID', '', '5')
 				$end 'Properties'
 				$begin 'Parameters'
-					MenuProp('CoSimulator', 'OHD', '', 'DefaultNetlist', 0)
 					ButtonProp('CosimDefinition', 'OHD', '', '', 'Edit', 40501, ButtonPropClientData())
+					MenuProp('CoSimulator', 'OHD', '', 'DefaultNetlist', 0)
 				$end 'Parameters'
 			$end 'Compinst'
 			$begin 'Compinst'
@@ -5493,8 +5493,8 @@ $begin 'AnsoftProject'
 					TextProp('ID', 'SRID', '', '6')
 				$end 'Properties'
 				$begin 'Parameters'
-					MenuProp('CoSimulator', 'OHD', '', 'DefaultNetlist', 0)
 					ButtonProp('CosimDefinition', 'OHD', '', '', 'Edit', 40501, ButtonPropClientData())
+					MenuProp('CoSimulator', 'OHD', '', 'DefaultNetlist', 0)
 				$end 'Parameters'
 			$end 'Compinst'
 			$begin 'Compinst'
@@ -5514,14 +5514,14 @@ $begin 'AnsoftProject'
 		$begin 'Instance'
 			DesignEditor='Circuit1'
 			ID='5'
-			Refdes('4', 'C3')
-			Refdes('2', 'C1')
 			Refdes('3', 'C2')
+			Refdes('2', 'C1')
+			Refdes('4', 'C3')
 			$begin 'NexximCircuit'
 				DesignInstanceID=2
 				$begin 'WindowPosition'
 					$begin 'EditorWindow'
-						Circuit(Schematic(View(WindowPos(5, -1, -1, -10, -33, 0, 0, 1240, 270), Extent(-0.507, -0.507, 1.015, 1.015, 3779.52755904, 3779.52755904, -0.0124046293821442, 0.0576701282576456, 0.0970098727993906, 0.015385539091723, 3.26740798836088), Pages(1, 1, -0.000508000000002035, 0.0324856611028749, 0.0727086140351042, 0.0674690563206933))), Layout())
+						Circuit(Schematic(View(WindowPos(5, -1, -1, -10, -33, 0, 0, 1104, 270), Extent(-0.507, -0.507, 1.015, 1.015, 3779.52755904, 3779.52755904, -0.0124046293821442, 0.0586552663539141, 0.0970098727993906, 0.0173558152842601, 2.89648354226982), Pages(1, 1, -0.0124046293821442, 0.0412994510696541, 0.0846052434172464, 0.0586552663539141))), Layout())
 					$end 'EditorWindow'
 				$end 'WindowPosition'
 				$begin 'ReportSetup'
@@ -5653,7 +5653,7 @@ $begin 'AnsoftProject'
 				DesignInstanceID=8
 				$begin 'WindowPosition'
 					$begin 'EditorWindow'
-						Circuit(Editor3d(View('View Orientation Gadget'=1, WindowPos(5, -1, -1, -8, -31, 52, 52, 1296, 326), OrientationMatrix(-0.134699657559395, -0.216000005602837, 0.341525942087173, 0, 0.404098987579346, -0.0719999969005585, 0.113841973245144, 0, 4.62877292051189e-09, 0.359999924898148, 0.22768397629261, 0, -2.4073295890048e-07, -0.179999962449074, -6.16610383987427, 1, 0, -4.1904764175415, 4.1904764175415, -1, 1, -0.971197605133057, 13.0757217407227), Drawings[5: 'outer', 'left', 'right', 'port1_sheet', 'port2_sheet'], 'View Data'('Render Mode'=1, 'Show Ruler'=1, 'Coordinate Systems View Mode'=1, 'CS Triad View Mode'=0, 'Render Facets'=1, GridVisible=1, GridAutoAdjust=1, GridAutoExtents=1, GridType='Rect', GridStyle='Line', NumPixels=30, dXForGrid=0.5, dYForGrid=0.5, dZForGrid=0.5, dRForGrid=0.5, dThetaForGrid=10), ClipPlanes(ClipPlaneOptions(DisableWhenDrawingNewPlane=true, ForceOpqaueForUnclipped=false, ShowClipped=false, Transparency=0, HandleColor=16776960)))))
+						Circuit(Editor3d(View('View Orientation Gadget'=1, WindowPos(5, -1, -1, -8, -31, 52, 52, 1296, 326), OrientationMatrix(-0.134699657559395, -0.216000005602837, 0.341525942087173, 0, 0.404098987579346, -0.0719999969005585, 0.113841973245144, 0, 4.62877292051189e-09, 0.359999924898148, 0.22768397629261, 0, -2.4073295890048e-07, -0.179999962449074, -6.16610383987427, 1, 0, -4.83549785614014, 4.83549785614014, -1, 1, -0.971197605133057, 13.0757217407227), Drawings[5: 'outer', 'left', 'right', 'port1_sheet', 'port2_sheet'], 'View Data'('Render Mode'=1, 'Show Ruler'=1, 'Coordinate Systems View Mode'=1, 'CS Triad View Mode'=0, 'Render Facets'=1, GridVisible=1, GridAutoAdjust=1, GridAutoExtents=1, GridType='Rect', GridStyle='Line', NumPixels=30, dXForGrid=0.5, dYForGrid=0.5, dZForGrid=0.5, dRForGrid=0.5, dThetaForGrid=10), ClipPlanes(ClipPlaneOptions(DisableWhenDrawingNewPlane=true, ForceOpqaueForUnclipped=false, ShowClipped=false, Transparency=0, HandleColor=16776960)))))
 					$end 'EditorWindow'
 				$end 'WindowPosition'
 				$begin 'ReportSetup'
@@ -5693,7 +5693,7 @@ $begin 'AnsoftProject'
 					DesignInstanceID=5
 					$begin 'WindowPosition'
 						$begin 'EditorWindow'
-							Circuit(Schematic(), Layout(View(WindowPos(5, -1, -1, -8, -31, 26, 26, 1266, 296), Extent(-5.37444877624512, -1, 5.37444877624512, 1, 4050.2472287539, 4035.71262649938, -0.150484636425972, 0.0280000120401382, 0.300969272851944, 0.0560000203549862, 1), ViewingXfm(-5.37444925308228, 5.37444925308228, -1, 1, 88.2856750488281, 266.857025146484, 35.7142715454102, 0, 0, 0, 0, 35.7142715454102, 0, 0, 0, 0, 35.7142715454102, 0, 5.00534547143161e-09, -4.09781932830811e-08, -177.571350097656, 1))))
+							Circuit(Schematic(), Layout(View(WindowPos(5, -1, -1, -8, -31, 26, 26, 1130, 296), Extent(-5.37444877624512, -1, 5.37444877624512, 1, 4049.83058620509, 4035.71262649938, -0.133709296584129, 0.0280000120401382, 0.267418593168259, 0.0560000203549862, 1), ViewingXfm(-4.77533006668091, 4.77533006668091, -1, 1, 88.2856750488281, 266.857025146484, 35.7142715454102, 0, 0, 0, 0, 35.7142715454102, 0, 0, 0, 0, 35.7142715454102, 0, 5.00534547143161e-09, -4.09781932830811e-08, -177.571350097656, 1))))
 						$end 'EditorWindow'
 					$end 'WindowPosition'
 					$begin 'ReportSetup'
@@ -5766,7 +5766,7 @@ $begin 'AnsoftProject'
 				DocVisibilityFlag=962
 				FastViewTransforms=true
 				'show connection points'=false
-				'draw rats'=false
+				'draw rats'=true
 				'display vertex labels'=false
 				ColorByNet=false
 				'display package graphics'=false
@@ -5796,9 +5796,9 @@ $begin 'AnsoftProject'
 				currentTextStyle=0
 				currentTraceStyle=0
 				prevBounds(-5.37444877624512, -1, 5.37444877624512, 1)
-				prevMapFactor(4050.2472287539, 4035.71262649938)
-				prevOrigin(-0.150484636425972, 0.0280000120401382)
-				prevViewExtent(0.300969272851944, 0.0560000203549862)
+				prevMapFactor(4049.83058620509, 4035.71262649938)
+				prevOrigin(-0.133709296584129, 0.0280000120401382)
+				prevViewExtent(0.267418593168259, 0.0560000203549862)
 				prevZoomScale=1
 				$begin 'Animation'
 					LabelColor(R=230, G=230, B=230)
@@ -5815,7 +5815,7 @@ $begin 'AnsoftProject'
 				DesignInstanceID=11
 				$begin 'WindowPosition'
 					$begin 'EditorWindow'
-						Circuit(Editor3d(View('View Orientation Gadget'=1, WindowPos(3, -1, -1, -8, -31, 78, 78, 1322, 352), OrientationMatrix(-0.134699657559395, -0.216000005602837, 0.341525942087173, 0, 0.404098987579346, -0.0719999969005585, 0.113841973245144, 0, 4.62877292051189e-09, 0.359999924898148, 0.22768397629261, 0, -2.4073295890048e-07, -0.179999962449074, -6.16610383987427, 1, 0, -1.95000004768372, 1.95000004768372, -1, 1, -0.971197605133057, 13.0757217407227), Drawings[5: 'outer', 'left', 'right', 'port1_sheet', 'port2_sheet'], 'View Data'('Render Mode'=1, 'Show Ruler'=1, 'Coordinate Systems View Mode'=1, 'CS Triad View Mode'=0, 'Render Facets'=1, GridVisible=1, GridAutoAdjust=1, GridAutoExtents=1, GridType='Rect', GridStyle='Line', NumPixels=30, dXForGrid=0.5, dYForGrid=0.5, dZForGrid=0.5, dRForGrid=0.5, dThetaForGrid=10), ClipPlanes(ClipPlaneOptions(DisableWhenDrawingNewPlane=true, ForceOpqaueForUnclipped=false, ShowClipped=false, Transparency=0, HandleColor=16776960)))))
+						Circuit(Editor3d(View('View Orientation Gadget'=1, WindowPos(3, -1, -1, -8, -31, 78, 78, 1182, 352), OrientationMatrix(-0.134699657559395, -0.216000005602837, 0.341525942087173, 0, 0.404098987579346, -0.0719999969005585, 0.113841973245144, 0, 4.62877292051189e-09, 0.359999924898148, 0.22768397629261, 0, -2.4073295890048e-07, -0.179999962449074, -6.16610383987427, 1, 0, -2.49249982833862, 2.49249982833862, -1, 1, -0.971197605133057, 13.0757217407227), Drawings[5: 'outer', 'left', 'right', 'port1_sheet', 'port2_sheet'], 'View Data'('Render Mode'=1, 'Show Ruler'=1, 'Coordinate Systems View Mode'=1, 'CS Triad View Mode'=0, 'Render Facets'=1, GridVisible=1, GridAutoAdjust=1, GridAutoExtents=1, GridType='Rect', GridStyle='Line', NumPixels=30, dXForGrid=0.5, dYForGrid=0.5, dZForGrid=0.5, dRForGrid=0.5, dThetaForGrid=10), ClipPlanes(ClipPlaneOptions(DisableWhenDrawingNewPlane=true, ForceOpqaueForUnclipped=false, ShowClipped=false, Transparency=0, HandleColor=16776960)))))
 					$end 'EditorWindow'
 				$end 'WindowPosition'
 				$begin 'ReportSetup'
@@ -5905,8 +5905,8 @@ NumFiles= 3
 $begin 'sab'
 Design_10.setup/NativeGeometryFiles/0000006.sab
 BIN000000019157
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTWed Feb 23 18:07:25 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
-MVRWMPGZFT87PWDW_34_773RT84RM6KQH5C9MRE6C39S3PG74YC_VEANHY8SUE67C39PKQ6QDQBJVK	body%      ˇˇˇˇˇˇˇˇˇˇˇˇ       ˇˇˇˇ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTMon Feb 28 18:00:15 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
+MBF7AWAMDZF7A5ZN_N6YV6TMDR54M3KNB_C3CNA6FUASBJC5FUB_MNENEUCR3QV64BCQKJEPW6ASCJ	body%      ˇˇˇˇˇˇˇˇˇˇˇˇ       ˇˇˇˇ   
       ¿      ¸ø#Bí°ú«;      @      ¸?      ?string_attrib%   name_attrib%   gen%   attrib%   ˇˇˇˇˇˇˇˇ   ˇˇˇˇ    ¶Óﬂ ATTRIB_XACIS_NAME%6outer	lump%   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ       
       ¿      ¸ø#Bí°ú«;      @      ¸?      ?transform%   ˇˇˇˇˇˇˇˇ      ?                              ?                              ?                              ?rgb_color%	   st%
    %   ˇˇˇˇˇˇˇˇ          ∆Óﬂ ˇ˛˛˛˛˛Ó?^^^^^^Ó?Ì?
@@ -6056,8 +6056,8 @@ point%   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ     ?      ¯?#Bí°ú«;%   %   %   ˇˇ
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTWed Feb 23 18:07:25 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
-MZ274V9VER44H8MVSAC9EZXESK3VMXJ55WCUKQC6BK8P3MJN8UCNCJ8PXPAV4RCPBFBNKR6NWJ8RCGtransform%      ˇˇˇˇ      ?                              ?                              ?                              ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTMon Feb 28 18:00:15 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
+MZSS6MCE7P4XKXVB_TNNYH6W834VV6B76SB5CKG5AK8TVMJ7DBA_4QX697DAMFG7XE8PKR8QBU8FVJtransform%      ˇˇˇˇ      ?                              ?                              ?                              ?
 point%      ˇˇˇˇˇˇˇˇˇˇˇˇ                        	flag%   ansoft%   attrib%   ˇˇˇˇˇˇˇˇ   ˇˇˇˇ    •Ó€     
 color%   %   %   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ   •Ó€ ˇ ˇÄ
 units%   %   %   ˇˇˇˇˇˇˇˇ          •Ó€ mm     @è@%   %   %   ˇˇˇˇˇˇˇˇˇˇˇˇ       •Ó€ ¿¿¿ÄEnd-of-ACIS-data
@@ -6070,8 +6070,8 @@ $end 'sab'
 $begin 'sab'
 Design_10.setup/NativeGeometryFiles/0000110.sab
 BIN000000026651
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTWed Feb 23 18:07:25 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
-MVRWMPGZFT87PWDW_34_773RT84RM6KQH5C9MRE6C39S3PG74YC_VEANHY8SUE67C39PKQ6QDQBJVK	body%      ˇˇˇˇˇˇˇˇˇˇˇˇ       ˇˇˇˇ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTMon Feb 28 18:00:15 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
+MBF7AWAMDZF7A5ZN_N6YV6TMDR54M3KNB_C3CNA6FUASBJC5FUB_MNENEUCR3QV64BCQKJEPW6ASCJ	body%      ˇˇˇˇˇˇˇˇˇˇˇˇ       ˇˇˇˇ   
 †ﬂÜyfˆøË‰Ÿ~L –øM:y∂Ûæ¿@∆Û3„øÁ‰Ÿ~L –?:y∂ ?string_attrib%   name_attrib%   gen%   attrib%   ˇˇˇˇˇˇˇˇ   ˇˇˇˇ    ¶Óﬂ ATTRIB_XACIS_NAME%6left	lump%   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ       
 †ﬂÜyfˆøË‰Ÿ~L –øM:y∂Ûæ¿@∆Û3„øÁ‰Ÿ~L –?:y∂ ?transform%   ˇˇˇˇˇˇˇˇ      ?                              ?                              ?                              ?rgb_color%	   st%
    %   ˇˇˇˇˇˇˇˇ          ∆Óﬂ ˇ˛˛˛˛˛Ó?^^^^^^Ó?Ì?
@@ -6269,8 +6269,8 @@ point%$   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇffffffˆø∏ÖÎQ∏Œø        %   %   %   ˇˇ
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTWed Feb 23 18:07:25 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
-MZ274V9VER44H8MVSAC9EZXESK3VMXJ55WCUKQC6BK8P3MJN8UCNCJ8PXPAV4RCPBFBNKR6NWJ8RCGtransform%      ˇˇˇˇ      ?                              ?                              ?                              ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTMon Feb 28 18:00:15 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
+MZSS6MCE7P4XKXVB_TNNYH6W834VV6B76SB5CKG5AK8TVMJ7DBA_4QX697DAMFG7XE8PKR8QBU8FVJtransform%      ˇˇˇˇ      ?                              ?                              ?                              ?
 point%      ˇˇˇˇˇˇˇˇˇˇˇˇ                        	flag%   ansoft%   attrib%   ˇˇˇˇˇˇˇˇ   ˇˇˇˇ    •Ó€     
 color%   %   %   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ   •Ó€ ˇ ˇÄ
 units%   %   %   ˇˇˇˇˇˇˇˇ          •Ó€ mm     @è@%   %   %   ˇˇˇˇˇˇˇˇˇˇˇˇ       •Ó€ ¿¿¿ÄEnd-of-ACIS-data
@@ -6283,8 +6283,8 @@ $end 'sab'
 $begin 'sab'
 Design_10.setup/NativeGeometryFiles/0000162.sab
 BIN000000026653
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTWed Feb 23 18:07:25 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
-MVRWMPGZFT87PWDW_34_773RT84RM6KQH5C9MRE6C39S3PG74YC_VEANHY8SUE67C39PKQ6QDQBJVK	body%      ˇˇˇˇˇˇˇˇˇˇˇˇ       ˇˇˇˇ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTMon Feb 28 18:00:15 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
+MBF7AWAMDZF7A5ZN_N6YV6TMDR54M3KNB_C3CNA6FUASBJC5FUB_MNENEUCR3QV64BCQKJEPW6ASCJ	body%      ˇˇˇˇˇˇˇˇˇˇˇˇ       ˇˇˇˇ   
 ¿@∆Û3„?Ë‰Ÿ~L –øM:y∂Ûæ†ﬂÜyfˆ?Á‰Ÿ~L –?:y∂ ?string_attrib%   name_attrib%   gen%   attrib%   ˇˇˇˇˇˇˇˇ   ˇˇˇˇ    ¶Óﬂ ATTRIB_XACIS_NAME%6right	lump%   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ       
 ¿@∆Û3„?Ë‰Ÿ~L –øM:y∂Ûæ†ﬂÜyfˆ?Á‰Ÿ~L –?:y∂ ?transform%   ˇˇˇˇˇˇˇˇ      ?                              ?                              ?                              ?rgb_color%	   st%
    %   ˇˇˇˇˇˇˇˇ          ∆Óﬂ ˇ˛˛˛˛˛Ó?^^^^^^Ó?Ì?
@@ -6482,8 +6482,8 @@ point%$   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ433333„?∏ÖÎQ∏Œø        %   %   %   ˇˇ
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTWed Feb 23 18:07:25 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
-MZ274V9VER44H8MVSAC9EZXESK3VMXJ55WCUKQC6BK8P3MJN8UCNCJ8PXPAV4RCPBFBNKR6NWJ8RCGtransform%      ˇˇˇˇ      ?                              ?                              ?                              ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTMon Feb 28 18:00:15 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
+MZSS6MCE7P4XKXVB_TNNYH6W834VV6B76SB5CKG5AK8TVMJ7DBA_4QX697DAMFG7XE8PKR8QBU8FVJtransform%      ˇˇˇˇ      ?                              ?                              ?                              ?
 point%      ˇˇˇˇˇˇˇˇˇˇˇˇ                        	flag%   ansoft%   attrib%   ˇˇˇˇˇˇˇˇ   ˇˇˇˇ    •Ó€     
 color%   %   %   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ   •Ó€ ˇ ˇÄ
 units%   %   %   ˇˇˇˇˇˇˇˇ          •Ó€ mm     @è@%   %   %   ˇˇˇˇˇˇˇˇˇˇˇˇ       •Ó€ ¿¿¿ÄEnd-of-ACIS-data
@@ -6499,8 +6499,8 @@ NumFiles= 3
 $begin 'sab'
 Design_7.setup/NativeGeometryFiles/0000006.sab
 BIN000000019157
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTWed Feb 23 18:07:25 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
-MVRWMPGZFT87PWDW_34_773RT84RM6KQH5C9MRE6C39S3PG74YC_VEANHY8SUE67C39PKQ6QDQBJVK	body%      ˇˇˇˇˇˇˇˇˇˇˇˇ       ˇˇˇˇ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTMon Feb 28 18:00:15 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
+MBF7AWAMDZF7A5ZN_N6YV6TMDR54M3KNB_C3CNA6FUASBJC5FUB_MNENEUCR3QV64BCQKJEPW6ASCJ	body%      ˇˇˇˇˇˇˇˇˇˇˇˇ       ˇˇˇˇ   
       ¿      ¸ø#Bí°ú«;      @      ¸?      ?string_attrib%   name_attrib%   gen%   attrib%   ˇˇˇˇˇˇˇˇ   ˇˇˇˇ    ¶Óﬂ ATTRIB_XACIS_NAME%6outer	lump%   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ       
       ¿      ¸ø#Bí°ú«;      @      ¸?      ?transform%   ˇˇˇˇˇˇˇˇ      ?                              ?                              ?                              ?rgb_color%	   st%
    %   ˇˇˇˇˇˇˇˇ          ∆Óﬂ ˇ˛˛˛˛˛Ó?^^^^^^Ó?Ì?
@@ -6650,8 +6650,8 @@ point%   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ     ?      ¯?#Bí°ú«;%   %   %   ˇˇ
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTWed Feb 23 18:07:25 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
-MZ274V9VER44H8MVSAC9EZXESK3VMXJ55WCUKQC6BK8P3MJN8UCNCJ8PXPAV4RCPBFBNKR6NWJ8RCGtransform%      ˇˇˇˇ      ?                              ?                              ?                              ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTMon Feb 28 18:00:15 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
+MZSS6MCE7P4XKXVB_TNNYH6W834VV6B76SB5CKG5AK8TVMJ7DBA_4QX697DAMFG7XE8PKR8QBU8FVJtransform%      ˇˇˇˇ      ?                              ?                              ?                              ?
 point%      ˇˇˇˇˇˇˇˇˇˇˇˇ                        	flag%   ansoft%   attrib%   ˇˇˇˇˇˇˇˇ   ˇˇˇˇ    •Ó€     
 color%   %   %   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ   •Ó€ ˇ ˇÄ
 units%   %   %   ˇˇˇˇˇˇˇˇ          •Ó€ mm     @è@%   %   %   ˇˇˇˇˇˇˇˇˇˇˇˇ       •Ó€ ¿¿¿ÄEnd-of-ACIS-data
@@ -6664,8 +6664,8 @@ $end 'sab'
 $begin 'sab'
 Design_7.setup/NativeGeometryFiles/0000110.sab
 BIN000000026651
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTWed Feb 23 18:07:25 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
-MVRWMPGZFT87PWDW_34_773RT84RM6KQH5C9MRE6C39S3PG74YC_VEANHY8SUE67C39PKQ6QDQBJVK	body%      ˇˇˇˇˇˇˇˇˇˇˇˇ       ˇˇˇˇ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTMon Feb 28 18:00:15 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
+MBF7AWAMDZF7A5ZN_N6YV6TMDR54M3KNB_C3CNA6FUASBJC5FUB_MNENEUCR3QV64BCQKJEPW6ASCJ	body%      ˇˇˇˇˇˇˇˇˇˇˇˇ       ˇˇˇˇ   
 †ﬂÜyfˆøË‰Ÿ~L –øM:y∂Ûæ¿@∆Û3„øÁ‰Ÿ~L –?:y∂ ?string_attrib%   name_attrib%   gen%   attrib%   ˇˇˇˇˇˇˇˇ   ˇˇˇˇ    ¶Óﬂ ATTRIB_XACIS_NAME%6left	lump%   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ       
 †ﬂÜyfˆøË‰Ÿ~L –øM:y∂Ûæ¿@∆Û3„øÁ‰Ÿ~L –?:y∂ ?transform%   ˇˇˇˇˇˇˇˇ      ?                              ?                              ?                              ?rgb_color%	   st%
    %   ˇˇˇˇˇˇˇˇ          ∆Óﬂ ˇ˛˛˛˛˛Ó?^^^^^^Ó?Ì?
@@ -6863,8 +6863,8 @@ point%$   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇffffffˆø∏ÖÎQ∏Œø        %   %   %   ˇˇ
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTWed Feb 23 18:07:25 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
-MZ274V9VER44H8MVSAC9EZXESK3VMXJ55WCUKQC6BK8P3MJN8UCNCJ8PXPAV4RCPBFBNKR6NWJ8RCGtransform%      ˇˇˇˇ      ?                              ?                              ?                              ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTMon Feb 28 18:00:15 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
+MZSS6MCE7P4XKXVB_TNNYH6W834VV6B76SB5CKG5AK8TVMJ7DBA_4QX697DAMFG7XE8PKR8QBU8FVJtransform%      ˇˇˇˇ      ?                              ?                              ?                              ?
 point%      ˇˇˇˇˇˇˇˇˇˇˇˇ                        	flag%   ansoft%   attrib%   ˇˇˇˇˇˇˇˇ   ˇˇˇˇ    •Ó€     
 color%   %   %   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ   •Ó€ ˇ ˇÄ
 units%   %   %   ˇˇˇˇˇˇˇˇ          •Ó€ mm     @è@%   %   %   ˇˇˇˇˇˇˇˇˇˇˇˇ       •Ó€ ¿¿¿ÄEnd-of-ACIS-data
@@ -6877,8 +6877,8 @@ $end 'sab'
 $begin 'sab'
 Design_7.setup/NativeGeometryFiles/0000162.sab
 BIN000000026653
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTWed Feb 23 18:07:25 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
-MVRWMPGZFT87PWDW_34_773RT84RM6KQH5C9MRE6C39S3PG74YC_VEANHY8SUE67C39PKQ6QDQBJVK	body%      ˇˇˇˇˇˇˇˇˇˇˇˇ       ˇˇˇˇ   
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTMon Feb 28 18:00:15 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
+MBF7AWAMDZF7A5ZN_N6YV6TMDR54M3KNB_C3CNA6FUASBJC5FUB_MNENEUCR3QV64BCQKJEPW6ASCJ	body%      ˇˇˇˇˇˇˇˇˇˇˇˇ       ˇˇˇˇ   
 ¿@∆Û3„?Ë‰Ÿ~L –øM:y∂Ûæ†ﬂÜyfˆ?Á‰Ÿ~L –?:y∂ ?string_attrib%   name_attrib%   gen%   attrib%   ˇˇˇˇˇˇˇˇ   ˇˇˇˇ    ¶Óﬂ ATTRIB_XACIS_NAME%6right	lump%   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ       
 ¿@∆Û3„?Ë‰Ÿ~L –øM:y∂Ûæ†ﬂÜyfˆ?Á‰Ÿ~L –?:y∂ ?transform%   ˇˇˇˇˇˇˇˇ      ?                              ?                              ?                              ?rgb_color%	   st%
    %   ˇˇˇˇˇˇˇˇ          ∆Óﬂ ˇ˛˛˛˛˛Ó?^^^^^^Ó?Ì?
@@ -7076,8 +7076,8 @@ point%$   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ433333„?∏ÖÎQ∏Œø        %   %   %   ˇˇ
 # Ansoft project setting data. Non-Ansoft programs
 # should not read the rest of this file.
 B_SETNGS 1.03
-ACIS BinaryFileT             SpatialACIS 29.0.1 NTWed Feb 23 18:07:25 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
-MZ274V9VER44H8MVSAC9EZXESK3VMXJ55WCUKQC6BK8P3MJN8UCNCJ8PXPAV4RCPBFBNKR6NWJ8RCGtransform%      ˇˇˇˇ      ?                              ?                              ?                              ?
+ACIS BinaryFileT             SpatialACIS 29.0.1 NTMon Feb 28 18:00:15 2022      ?çÌµ†˜∆∞>ªΩ◊Ÿﬂ|€=
+MZSS6MCE7P4XKXVB_TNNYH6W834VV6B76SB5CKG5AK8TVMJ7DBA_4QX697DAMFG7XE8PKR8QBU8FVJtransform%      ˇˇˇˇ      ?                              ?                              ?                              ?
 point%      ˇˇˇˇˇˇˇˇˇˇˇˇ                        	flag%   ansoft%   attrib%   ˇˇˇˇˇˇˇˇ   ˇˇˇˇ    •Ó€     
 color%   %   %   ˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇˇ   •Ó€ ˇ ˇÄ
 units%   %   %   ˇˇˇˇˇˇˇˇ          •Ó€ mm     @è@%   %   %   ˇˇˇˇˇˇˇˇˇˇˇˇ       •Ó€ ¿¿¿ÄEnd-of-ACIS-data
@@ -7102,45 +7102,47 @@ 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\
-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'
+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\
+AKKKKACiiigAooooA//2Q=='
 	$begin 'DesignInfo'
 		DesignName='Circuit1'
 		Notes=''
@@ -7559,12 +7561,320 @@ KKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoooo\
 AKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooo\
 oAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoo\
 ooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAo\
-oooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigA\
-ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiig\
-AooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiii\
-gAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACii\
-igAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/\
-/Z'
+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\
+8AuONwcHeyu5wk1ZKLUUkf/9k='
 	$end 'DesignInfo'
 	$begin 'DesignInfo'
 		DesignName='Hfss_Transient'
