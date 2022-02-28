@@ -6,7 +6,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import scratch_path, local_path, BasisTest, desktop_version  # , is_ironpython
+from _unittest.conftest import scratch_path, local_path, BasisTest, desktop_version
 
 try:
     import pytest  # noqa: F401
@@ -458,9 +458,10 @@ class TestClass(BasisTest):
             matched=False,
         )
         assert hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
-        time.sleep(2)
+        self.aedtapp.oproject.set_active_design("Circuit1")
+        self.aedtapp.close_project(hfss3dl.project_name, False)
 
-    @pytest.mark.skipif(os.name == "posix", reason="not working on linux")
+    # @pytest.mark.skipif(os.name == "posix", reason="not working on linux")
     def test_36_load_and_save_diff_pair_file(self):
         example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
         example_project2 = os.path.join(self.local_scratch.path, "differential_pairs2.aedt")
@@ -480,4 +481,5 @@ class TestClass(BasisTest):
         with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
-        time.sleep(2)
+        self.aedtapp.oproject.set_active_design("Circuit1")
+        self.aedtapp.close_project(hfss3dl2.project_name, False)
