@@ -72,3 +72,8 @@ class TestClass:
         assert not comp_catalog["Capacitors"]
         assert comp_catalog["Aircraft Electrical VHDLAMS\\Basic:lowpass_filter"].props
         assert comp_catalog["Aircraft Electrical VHDLAMS\\Basic:lowpass_filter"].place("LP1")
+
+    def test_13_create_periodic_pulse_wave(self):
+        id = self.aedtapp.modeler.schematic.create_periodic_waveform_source("P1", "PULSE", 200, 20, 0, 0, [0.75, 0])
+        assert id.parameters["AMPL"] == "200"
+        assert id.parameters["FREQ"] == "20"
