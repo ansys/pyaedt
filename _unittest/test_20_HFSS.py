@@ -767,7 +767,7 @@ class TestClass(BasisTest):
 
     def test_47_convert_near_field(self):
         example_project = os.path.join(local_path, "example_models", "nf_test")
-        assert os.path.exists(convert_nearfield_data(example_project, self.local_scratch.path))
+        assert os.path.exists(convert_nearfield_data(example_project, output_folder=self.local_scratch.path))
 
     def test_48_traces(self):
         assert len(self.aedtapp.excitations) > 0
