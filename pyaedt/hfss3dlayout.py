@@ -1213,7 +1213,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.oexcitation.SaveDiffPairsToFile(tmpfile1)
         with open(tmpfile1, "r") as fh:
             lines = fh.read().splitlines()
-        num_diffs_before = len(lines)
         old_arg = []
         for line in lines:
             data = line.split(",")

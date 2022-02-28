@@ -109,10 +109,10 @@ class BasisTest(object):
                 self.aedtapp._desktop.CloseProject(project)
             except:  # pragma: no cover
                 pass
-        try:
-            self.local_scratch.remove()
-        except:  # pragma: no cover
-            pass
+        # try:
+        #     self.local_scratch.remove()
+        # except:  # pragma: no cover
+        #     pass
         del self.aedtapp
 
     def teardown(self):
