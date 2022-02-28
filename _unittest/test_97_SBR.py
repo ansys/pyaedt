@@ -23,7 +23,8 @@ class TestClass(BasisTest):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
             example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
-            self.test_project = self.local_scratch.copyfile(example_project)
+            new_name = os.path.join(self.local_scratch, "Cassegrain2.aedt")
+            self.test_project = self.local_scratch.copyfile(example_project, new_name)
             self.aedtapp = Hfss(
                 projectname=self.test_project,
                 designname="Cassegrain_",

@@ -66,8 +66,6 @@ class TestClass(BasisTest):
         assert isinstance(self.design_info, list)
         design_names = [design["DesignName"] for design in self.design_info]
         assert ["Cassegrain_Hybrid", "feeder", "Cassegrain_"] == design_names
-        jpg_file = _write_jpg(self.design_info[0], self.local_scratch.path)
-        assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", "Cassegrain_Hybrid.jpg"))
 
     def test_05_check_can_load_aedt_file_with_multiple_coord_systems(self):
         # implicitly this will test to make sure no exception is thrown by load_entire_aedt_file

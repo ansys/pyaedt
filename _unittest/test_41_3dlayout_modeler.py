@@ -7,7 +7,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import scratch_path, local_path, BasisTest, desktop_version
+from _unittest.conftest import scratch_path, local_path, BasisTest, desktop_version, is_ironpython
 
 try:
     import pytest  # noqa: F401
@@ -462,6 +462,7 @@ class TestClass(BasisTest):
         time.sleep(2)
         self.aedtapp.close_project(hfss3dl.project_name, False)
 
+    @pytest.mark.skipif(is_ironpython, "io operation not working")
     def test_36_load_and_save_diff_pair_file(self):
         example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
         example_project2 = os.path.join(self.local_scratch.path, "differential_pairs2.aedt")
@@ -470,18 +471,18 @@ class TestClass(BasisTest):
             os.path.join(local_path, "example_models", "differential_pairs.aedb"),
             os.path.join(self.local_scratch.path, "differential_pairs2.aedb"),
         )
-        hfss3dl = Hfss3dLayout(projectname=test_project, designname="EMDesign1", specified_version=desktop_version)
+        hfss3dl2 = Hfss3dLayout(projectname=test_project, designname="EMDesign1", specified_version=desktop_version)
         diff_file = os.path.join(self.local_scratch.path, "diff_file1.txt")
         with io.open(diff_file, "w", newline="\n") as fh:
             fh.write("Port1,Port2,1,0,Diff1,100,Comm1,25\n")
             fh.write("Port3,Port4,1,0,Diff2,253,Comm2,78\n")
             fh.write("Port5,Port6,1,0,Diff3,100,Comm3,25\n")
-        assert hfss3dl.load_diff_pairs_from_file(diff_file)
+        assert hfss3dl2.load_diff_pairs_from_file(diff_file)
 
         diff_file2 = os.path.join(self.local_scratch.path, "diff_file2.txt")
-        assert hfss3dl.save_diff_pairs_to_file(diff_file2)
+        assert hfss3dl2.save_diff_pairs_to_file(diff_file2)
         with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
         time.sleep(2)
-        self.aedtapp.close_project(hfss3dl.project_name, False)
+        self.aedtapp.close_project(hfss3dl2.project_name, False)
