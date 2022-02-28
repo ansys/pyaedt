@@ -16,10 +16,10 @@ def _write_jpg(design_info, scratch):
     image_data_str = design_info["Image64"]
     with open(filename, "wb") as f:
         if sys.version_info.major == 2:
-            bytes = bytes(image_data_str).decode("base64")
+            bs = bytes(image_data_str).decode("base64")
         else:
-            bytes = base64.decodebytes(image_data_str.encode("ascii"))
-        f.write(bytes)
+            bs = base64.decodebytes(image_data_str.encode("ascii"))
+        f.write(bs)
     return filename
 
 
@@ -41,7 +41,13 @@ class TestClass(BasisTest):
         BasisTest.my_teardown(self)
 
     def test_01_check_top_level_keys(self):
-        assert list(self.project_dict.keys()) == ["AnsoftProject", "AllReferencedFilesForProject", "ProjectPreview"]
+        assert (
+            "AnsoftProject"
+            in list(self.project_dict.keys())
+            == ["AnsoftProject", "AllReferencedFilesForProject", "ProjectPreview"]
+        )
+        assert "AllReferencedFilesForProject" in list(self.project_dict.keys())
+        assert "ProjectPreview" in list(self.project_dict.keys())
 
     def test_02_check_design_info(self):
         design_info = self.project_dict["ProjectPreview"]["DesignInfo"]

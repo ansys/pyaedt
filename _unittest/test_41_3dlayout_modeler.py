@@ -461,7 +461,7 @@ class TestClass(BasisTest):
         time.sleep(2)
         self.aedtapp.close_project(hfss3dl.project_name, False)
 
-    # @pytest.mark.skipif(is_ironpython, reason="io operation not working")
+    @pytest.mark.skipif(os.name == "posix", reason="not working on linux")
     def test_36_load_and_save_diff_pair_file(self):
         example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
         example_project2 = os.path.join(self.local_scratch.path, "differential_pairs2.aedt")
