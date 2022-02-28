@@ -458,8 +458,8 @@ class TestClass(BasisTest):
             matched=False,
         )
         assert hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
-        self.aedtapp.oproject.set_active_design("Circuit1")
-        self.aedtapp.close_project(hfss3dl.project_name, False)
+        hfss3dl.odesktop.CloseProject(hfss3dl.project_name)
+        # self.aedtapp.close_project(hfss3dl.project_name, False)
 
     # @pytest.mark.skipif(os.name == "posix", reason="not working on linux")
     def test_36_load_and_save_diff_pair_file(self):
@@ -481,5 +481,8 @@ class TestClass(BasisTest):
         with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
-        self.aedtapp.oproject.set_active_design("Circuit1")
-        self.aedtapp.close_project(hfss3dl2.project_name, False)
+        hfss3dl2.odesktop.CloseProject(hfss3dl2.project_name)
+        # self.aedtapp.close_project(hfss3dl2.project_name, False)
+
+    def test_99_dummy_test(self):
+        assert True
