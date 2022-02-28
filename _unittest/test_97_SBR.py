@@ -38,6 +38,7 @@ class TestClass(BasisTest):
     def test_01_open_source(self):
         assert self.aedtapp.create_sbr_linked_antenna(self.source, target_cs="feederPosition", fieldtype="farfield")
         assert len(self.aedtapp.native_components) == 1
+        self.source.close_project(saveproject=False)
 
     def test_02_add_antennas(self):
         dict1 = {"polarization": "Horizontal"}
