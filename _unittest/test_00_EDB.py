@@ -184,7 +184,7 @@ class TestClass:
     def test_15_update_layer(self):
         tol = 1e-12
         assert "LYR_1" in self.edbapp.core_stackup.stackup_layers.layers.keys()
-        self.edbapp.core_stackup.stackup_layers["LYR_1"].name
+        assert self.edbapp.core_stackup.stackup_layers["LYR_1"].name
         self.edbapp.core_stackup.stackup_layers["LYR_1"].thickness_value = "100um"
         assert abs(self.edbapp.core_stackup.stackup_layers["LYR_1"].thickness_value - 10e-5) < tol
         self.edbapp.core_stackup.stackup_layers["LYR_2"].material_name = "MyCond"
@@ -678,13 +678,18 @@ class TestClass:
         edb2.close_edb()
 
     def test_80_create_reactangle_in_pad(self):
-        edb = Edb(
-            edbpath=os.path.join(local_path, "example_models", "padstacks.aedb"),
+        example_model = os.path.join(local_path, "example_models", "padstacks.aedb")
+        self.local_scratch.copyfolder(
+            example_model,
+            os.path.join(self.local_scratch.path, "padstacks2.aedb"),
+        )
+        edb_padstacks = Edb(
+            edbpath=os.path.join(self.local_scratch.path, "padstacks2.aedb"),
             edbversion=desktop_version,
             isreadonly=True,
         )
         for i in range(7):
-            padstack_instance = list(edb.core_padstack.padstack_instances.values())[i]
-            result = edb.core_primitives.create_reactangle_in_pad(padstack_instance, "s")
+            padstack_instance = list(edb_padstacks.core_padstack.padstack_instances.values())[i]
+            result = padstack_instance.create_reactangle_in_pad("s")
             assert result
-        edb.close_edb()
+        edb_padstacks.close_edb()
