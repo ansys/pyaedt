@@ -37,29 +37,16 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     def __init__(self, app):
         self._app = app
+        self._edb = None
         self._oeditor = self._app._odesign.SetActiveEditor("Layout")
         self.logger.info("Loading Modeler.")
         Modeler.__init__(self, app)
         self.logger.info("Modeler loaded.")
-        edb_folder = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
-        edb_file = os.path.join(edb_folder, "edb.def")
-        self._edb = None
-        if os.path.exists(edb_file) or (inside_desktop and is_ironpython):
-            self._edb = Edb(
-                edb_folder,
-                self._app.design_name,
-                True,
-                self._app._aedt_version,
-                isaedtowned=True,
-                oproject=self._app.oproject,
-            )
-
         self.logger.info("EDB loaded.")
         self.layers = Layers(self, roughnessunits="um")
         self.logger.info("Layers loaded.")
         Primitives3DLayout.__init__(self, app)
         self._primitives = self
-
         self.logger.info("Primitives loaded.")
         self.layers.refresh_all_layers()
         self.o_def_manager = self._app.odefinition_manager
@@ -78,6 +65,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return self._oeditor
 
     @property
+    def _edb_folder(self):
+        return os.path.join(self._app.project_path, self._app.project_name + ".aedb")
+
+    @property
+    def _edb_file(self):
+        return os.path.join(self._edb_folder, "edb.def")
+
+    @property
     def edb(self):
         """EBD.
 
@@ -87,14 +82,24 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
              EDB.
 
         """
-        if not (inside_desktop and is_ironpython):
-            edb_folder = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
-            edb_file = os.path.join(edb_folder, "edb.def")
+
+        if not self._edb:
+            self._edb = None
+            if os.path.exists(self._edb_file) or (inside_desktop and is_ironpython):
+                self._edb = Edb(
+                    self._edb_folder,
+                    self._app.design_name,
+                    True,
+                    self._app._aedt_version,
+                    isaedtowned=True,
+                    oproject=self._app.oproject,
+                )
+        elif not (inside_desktop and is_ironpython):
             if self._app.project_timestamp_changed:
                 if self._edb:
                     self._edb.close_edb()
                 self._edb = Edb(
-                    edb_folder,
+                    self._edb_folder,
                     self._app.design_name,
                     True,
                     self._app._aedt_version,
