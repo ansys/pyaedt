@@ -10,7 +10,6 @@ from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.edb_core.EDB_Data import EDBPrimitives
-from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 try:
     from System import Tuple
