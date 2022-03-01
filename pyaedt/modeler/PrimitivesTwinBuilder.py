@@ -356,3 +356,73 @@ class TwinBuilderComponents(CircuitComponents):
         )
 
         return id
+
+    @aedt_exception_handler
+    def create_periodic_waveform_source(
+        self,
+        compname=None,
+        type="SINE",
+        amplitude=100,
+        freq=50,
+        phase=0,
+        offset=0,
+        delay=0,
+        location=[],
+        angle=0,
+        use_instance_id_netlist=False,
+    ):
+        """
+        Create a periodic waveform source (non conservative real output).
+
+        Parameters
+        ----------
+        compname : str, optional
+            Name of the voltage source. The default is ``None``.
+        type  : str, optional
+            Type of the source [SINE, PULSE, TRAING, SAWTOOTH]. The default is ``SINE``.
+        amplitude : float, optional
+            Amplitude of the waveform if periodic. The default is ``100V``
+        freq : float, optional
+            Frequency of the periodic waveform. The default is ``50Hz``.
+        phase : float, optional
+            Phase of the  periodic waveform. The default is ``0deg``.
+        offset : float, optional
+            Offset added to the amplitude of the periodic waveform. The default is ``0``.
+        delay : float, optional
+            Delay before starting of the periodic waveform. The default is ``0``.
+        location : list of float, optional
+            Position on the X axis and Y axis.
+        angle : float, optional
+            Angle of rotation in degrees. The default is ``0``.
+        use_instance_id_netlist : bool, optional
+            Whether to use the instance ID in the net list or not. The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
+        """
+        id = self.create_component(
+            compname,
+            component_library="Basic Elements\\Tools\\Time Functions",
+            component_name=type,
+            location=location,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
+
+        if type in ["SINE", "PULSE", "TRIANG", "SAWTOOTH"]:
+            id.set_property("AMPL", amplitude)
+            id.set_property("FREQ", freq)
+            id.set_property("PHASE", phase)
+            id.set_property("OFF", offset)
+            id.set_property("TDELAY", delay)
+            id.set_property("TPERIO", "Tend+1")
+            id.set_property("PERIO", 1)
+
+        return id
