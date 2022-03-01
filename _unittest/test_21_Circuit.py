@@ -51,6 +51,7 @@ class TestClass(BasisTest):
                 os.path.join(self.local_scratch.path, ami_project + ".aedb"),
             )
             self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
+
             example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
             new_project = os.path.join(self.local_scratch.path, "differential_pairs3.aedt")
             test_project = self.local_scratch.copyfile(example_project, new_project)
