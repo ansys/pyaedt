@@ -798,12 +798,18 @@ class WPFToolkit(Window):
     @property
     def settings_file(self):
         """Settings json file path."""
-        return self.settings_manager.settings_file
+        try:
+            return self.settings_manager.settings_file
+        except:
+            return ""
 
     @property
     def settings_data(self):
         """Settings json file data."""
-        return self.settings_manager.settings_data
+        try:
+            return self.settings_manager.settings_data
+        except:
+            return None
 
     @property
     def local_settings_file(self):
@@ -1626,6 +1632,8 @@ class WPFToolkit(Window):
             Dictionary with arbitrary user data (needs to be json serializable).
         """
         settings_data = self.settings_data
+        if not settings_data:
+            return False
         with open(self.settings_file, "w") as f:
 
             for text_control in self.SetText:

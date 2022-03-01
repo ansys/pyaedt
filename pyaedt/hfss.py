@@ -12,6 +12,7 @@ from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_
 from collections import OrderedDict
 from pyaedt.modeler.actors import Radar
 from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
+from pyaedt.generic.DataHandlers import _dict2arg
 
 
 class Hfss(FieldAnalysis3D, object):
@@ -3084,8 +3085,8 @@ class Hfss(FieldAnalysis3D, object):
                 faces = sheet
             else:
                 faces = self.modeler.get_object_faces(sheet)[0]
-            if not faces:
-                self.logger.error("Wrong input object. It must be a face id or a sheet.")
+            if not faces:  # pragma: no cover
+                self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
                 return False
             if not portname:
                 portname = generate_unique_name("Port")
@@ -4299,9 +4300,9 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def _create_sbr_doppler_sweep(self, setupname, time_var, tstart, tstop, tsweep, parametric_name):
-        time_start = self.modeler.primitives._arg_with_dim(tstart, "s")
-        time_sweep = self.modeler.primitives._arg_with_dim(tsweep, "s")
-        time_stop = self.modeler.primitives._arg_with_dim(tstop, "s")
+        time_start = self.modeler._arg_with_dim(tstart, "s")
+        time_sweep = self.modeler._arg_with_dim(tsweep, "s")
+        time_stop = self.modeler._arg_with_dim(tstop, "s")
         sweep_range = "LIN {} {} {}".format(time_start, time_stop, time_sweep)
         return self.opti_parametric.add_parametric_setup(
             time_var, sweep_range, setupname, parametricname=parametric_name
@@ -4671,7 +4672,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> oModule.SetSBRTxRxSettings
         >>> oEditor.CreateGroup
         """
-        self.modeler.primitives._initialize_multipart()
+        self.modeler._initialize_multipart()
         if self.solution_type != "SBR+":
             self.logger.error("Method Applies only to SBR+ Solution.")
             return False
@@ -4827,3 +4828,84 @@ class Hfss(FieldAnalysis3D, object):
         self.oboundary.EditGlobalCurrentSourcesOption(arg)
         self.logger.info("SBR+ current source options correctly applied.")
         return True
+
+    @aedt_exception_handler
+    def set_differential_pair(
+        self,
+        positive_terminal,
+        negative_terminal,
+        common_name=None,
+        diff_name=None,
+        common_ref_z=25,
+        diff_ref_z=100,
+        active=True,
+        matched=False,
+    ):
+        """Add a differential pair definition.
+
+        Differential pairs can be defined only in Terminal and Transient solution types.
+
+        Parameters
+        ----------
+        positive_terminal : str
+            Name of the terminal to use as the positive terminal.
+        negative_terminal : str
+            Name of the terminal to use as the negative terminal.
+        common_name : str, optional
+            Name for the common mode. Default is ``None`` in which case a unique name is chosen.
+        diff_name : str, optional
+            Name for the differential mode. Default is ``None`` in which case a unique name is chosen.
+        common_ref_z : float, optional
+            Reference impedance for the common mode. Units are Ohm. Default is ``25``.
+        diff_ref_z : float, optional
+            Reference impedance for the differential mode. Units are Ohm. Default is ``100``.
+        active : bool, optional
+            Set the differential pair as active. Default is ``True``.
+        matched : bool, optional
+            Set the differential pair as active. Default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.EditDiffPairs
+        """
+
+        if self.solution_type not in ["Transient Network", "Terminal"]:  # pragma: no cover
+            raise AttributeError("Differential pairs can be defined only in Terminal and Transient solution types.")
+
+        props = OrderedDict()
+        props["PosBoundary"] = positive_terminal
+        props["NegBoundary"] = negative_terminal
+        if not common_name:
+            common_name = generate_unique_name("Comm")
+        props["CommonName"] = common_name
+        props["CommonRefZ"] = str(common_ref_z) + "ohm"
+        if not diff_name:
+            diff_name = generate_unique_name("Diff")
+        props["DiffName"] = diff_name
+        props["DiffRefZ"] = str(diff_ref_z) + "ohm"
+        props["IsActive"] = active
+        props["UseMatched"] = matched
+        arg = ["NAME:" + generate_unique_name("Pair")]
+        _dict2arg(props, arg)
+
+        arg2 = ["NAME:EditDiffPairs", arg]
+
+        existing_pairs = self.oboundary.GetDiffPairs()
+        num_old_pairs = len(existing_pairs)
+        if existing_pairs:
+            for i, p in enumerate(existing_pairs):
+                tmp_p = list(p)
+                tmp_p.insert(0, "NAME:Pair_" + str(i))
+                arg2.append(tmp_p)
+
+        self.oboundary.EditDiffPairs(arg2)
+
+        if len(self.oboundary.GetDiffPairs()) == num_old_pairs + 1:
+            return True
+        else:
+            return False

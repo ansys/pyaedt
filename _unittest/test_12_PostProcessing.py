@@ -1,5 +1,4 @@
 # standard imports
-import gc
 import os
 
 # Import required modules
@@ -8,7 +7,7 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import config, local_path, scratch_path
+from _unittest.conftest import config, local_path, scratch_path, BasisTest, desktop_version
 
 try:
     import pytest
@@ -26,7 +25,7 @@ test_project_name = "coax_setup_solved"
 test_field_name = "Potter_Horn"
 
 
-class TestClass:
+class TestClass(BasisTest):
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
@@ -34,13 +33,10 @@ class TestClass:
             self.test_project = self.local_scratch.copyfile(example_project)
             example_project2 = os.path.join(local_path, "example_models", test_field_name + ".aedtz")
             self.test_project2 = self.local_scratch.copyfile(example_project2)
-            self.aedtapp = Hfss(self.test_project)
+            self.aedtapp = Hfss(self.test_project, specified_version=desktop_version)
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        assert self.aedtapp.close_project(self.aedtapp.project_name, False)
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self)
 
     def test_01B_Field_Plot(self):
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]

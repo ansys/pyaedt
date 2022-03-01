@@ -1,5 +1,4 @@
 # standard imports
-import gc
 import math
 import os
 
@@ -9,22 +8,18 @@ from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.general_methods import isclose, time_fn
 from pyaedt.modeler.Object3d import FacePrimitive, _to_boolean, _uname
 
-from _unittest.conftest import scratch_path
+from _unittest.conftest import scratch_path, BasisTest, desktop_version
 
 
-class TestClass:
+class TestClass(BasisTest):
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             test_projectfile = os.path.join(self.local_scratch.path, "test_object3d" + ".aedt")
-            self.aedtapp = Hfss()
+            self.aedtapp = Hfss(specified_version=desktop_version)
             self.aedtapp.save_project(project_file=test_projectfile)
-            # self.prim = self.aedtapp.modeler
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self)
 
     def create_example_coil(self, name=None):
         if not name:
@@ -358,3 +353,7 @@ class TestClass:
     def test_19_rotate(self):
         o = self.aedtapp.modeler.create_box([-10, 0, 0], [10, 10, 5], "RotateBox", "Copper")
         assert o.rotate(cs_axis="Y", angle=180)
+
+    def test_20_mirror(self):
+        o = self.aedtapp.modeler.create_box([-10, 0, 0], [10, 10, 5], "MirrorBox", "Copper")
+        assert o.mirror(position=[-10, 0, 0], vector=[0, 1, 0])

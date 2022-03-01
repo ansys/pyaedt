@@ -5,7 +5,7 @@ from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
 from pyaedt.modeler.PrimitivesEmit import EmitComponents
 from pyaedt.modeler.PrimitivesNexxim import NexximComponents
-from pyaedt.modeler.PrimitivesSimplorer import SimplorerComponents
+from pyaedt.modeler.PrimitivesTwinBuilder import TwinBuilderComponents
 from pyaedt.modeler.PrimitivesMaxwellCircuit import MaxwellCircuitComponents
 from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.modeler.Object3d import _dim_arg
@@ -314,25 +314,25 @@ class ModelerNexxim(ModelerCircuit):
         return True
 
 
-class ModelerSimplorer(ModelerCircuit):
-    """ModelerSimplorer class.
+class ModelerTwinBuilder(ModelerCircuit):
+    """ModelerTwinBuilder class.
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.AnalysisSimplorer.FieldAnalysisSimplorer`
+    app : :class:`pyaedt.application.AnalysisTwinBuilder.AnalysisTwinBuilder`
 
     """
 
     def __init__(self, app):
         self._app = app
         ModelerCircuit.__init__(self, app)
-        self._components = SimplorerComponents(self)
+        self._components = TwinBuilderComponents(self)
 
     @property
     def components(self):
         """
         .. deprecated:: 0.4.13
-           Use :func:`Simplorer.modeler.schematic` instead.
+           Use :func:`TwinBuilder.modeler.schematic` instead.
 
         """
         return self._components
@@ -343,7 +343,7 @@ class ModelerSimplorer(ModelerCircuit):
 
         Returns
         -------
-        :class:`pyaedt.modeler.PrimitivesSimplorer.SimplorerComponents`
+        :class:`pyaedt.modeler.PrimitivesTwinBuilder.TwinBuilderComponents`
 
         """
         return self._components
@@ -354,7 +354,7 @@ class ModelerEmit(ModelerCircuit):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.AnalysisSimplorer.FieldAnalysisSimplorer`
+    app : :class:`pyaedt.application.AnalysisEmit`
 
     """
 

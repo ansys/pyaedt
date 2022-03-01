@@ -1,7 +1,6 @@
 import os
 
 # Setup paths for module imports
-import gc
 
 # Import required modules
 import pyaedt
@@ -21,7 +20,6 @@ except ImportError:
 
 class TestClass:
     def setup_class(self):
-
         with Scratch(scratch_path) as self.local_scratch:
             # example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
             # self.test_project = self.local_scratch.copyfile(example_project)
@@ -39,9 +37,8 @@ class TestClass:
 
     def teardown_class(self):
         self.edbapp.close_edb()
-        self.edbapp = None
         self.local_scratch.remove()
-        gc.collect()
+        del self.edbapp
 
     def test_00_export_ipc2581(self):
         ipc_path = os.path.join(self.local_scratch.path, "test.xml")
@@ -691,3 +688,7 @@ class TestClass:
         edb_not_initialized = Edb(os.path.join(local_path, "example_models", "Package.aedb"), edbversion=desktop_version)
         assert edb_not_initialized._db is None
         pyaedt.edb.edb_initialized = True
+
+    def test_82_edb_with_dxf(self):
+        edb3 = Edb(os.path.join(local_path, "example_models", "edb_test_82.dxf"), edbversion=desktop_version)
+        edb3.close_edb()
