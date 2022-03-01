@@ -4,7 +4,7 @@ import os
 from _unittest.conftest import local_path, desktop_version, BasisTest
 
 # Import required modules
-from pyaedt import Q3d, Q2d
+from pyaedt import Q3d
 
 test_project_name = "coax_Q3D"
 bondwire_project_name = "bondwireq3d"
@@ -101,12 +101,6 @@ class TestClass(BasisTest):
             "bondwire_example", self.aedtapp.AXIS.Z, min_size=0.2, numberofsegments=8
         )
         assert test
-        pass
-
-    def test_10_q2d(self):
-        q2d = Q2d(specified_version=desktop_version)
-        assert q2d
-        assert q2d.dim == "2D"
         pass
 
     def test_11_assign_net(self):

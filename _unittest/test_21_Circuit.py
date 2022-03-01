@@ -51,6 +51,16 @@ class TestClass(BasisTest):
                 os.path.join(self.local_scratch.path, ami_project + ".aedb"),
             )
             self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
+            example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
+            new_project = os.path.join(self.local_scratch.path, "differential_pairs3.aedt")
+            test_project = self.local_scratch.copyfile(example_project, new_project)
+            self.local_scratch.copyfolder(
+                os.path.join(local_path, "example_models", "differential_pairs.aedb"),
+                os.path.join(self.local_scratch.path, "differential_pairs3.aedb"),
+            )
+            self.circuitprj = Circuit(
+                projectname=test_project, designname="Circuit1", specified_version=desktop_version
+            )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -305,14 +315,7 @@ class TestClass(BasisTest):
         assert comp_catalog["LISN:CISPR25_LISN"].props
 
     def test_27_set_differential_pairs(self):
-        example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
-        test_project = self.local_scratch.copyfile(example_project)
-        self.local_scratch.copyfolder(
-            os.path.join(local_path, "example_models", "differential_pairs.aedb"),
-            os.path.join(self.local_scratch.path, "differential_pairs.aedb"),
-        )
-        circuit = Circuit(projectname=test_project, designname="Circuit1", specified_version=desktop_version)
-        assert circuit.set_differential_pair(
+        assert self.circuitprj.set_differential_pair(
             positive_terminal="Port3",
             negative_terminal="Port4",
             common_name=None,
@@ -321,25 +324,15 @@ class TestClass(BasisTest):
             diff_ref_z=123,
             active=True,
         )
-        assert circuit.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
-        self.aedtapp.close_project(circuit.project_name, False)
+        assert self.circuitprj.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
 
     def test_28_load_and_save_diff_pair_file(self):
-        example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
-        test_project = self.local_scratch.copyfile(example_project)
-        self.local_scratch.copyfolder(
-            os.path.join(local_path, "example_models", "differential_pairs.aedb"),
-            os.path.join(self.local_scratch.path, "differential_pairs.aedb"),
-        )
-        circuit = Circuit(projectname=test_project, designname="Circuit1", specified_version=desktop_version)
-
         diff_def_file = os.path.join(local_path, "example_models", "differential_pairs_definition.txt")
         diff_file = self.local_scratch.copyfile(diff_def_file)
-        assert circuit.load_diff_pairs_from_file(diff_file)
+        assert self.circuitprj.load_diff_pairs_from_file(diff_file)
 
         diff_file2 = os.path.join(self.local_scratch.path, "diff_file2.txt")
-        assert circuit.save_diff_pairs_to_file(diff_file2)
+        assert self.circuitprj.save_diff_pairs_to_file(diff_file2)
         with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
-        self.aedtapp.close_project(circuit.project_name, False)
