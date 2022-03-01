@@ -19,7 +19,7 @@ import os
 try:
     import clr
     from System.Collections.Generic import List
-except ImportError: # pragma: no cover
+except ImportError:  # pragma: no cover
     if os.name != "posix":
         warnings.warn("Pythonnet is needed to run PyAEDT.")
 from pyaedt import settings

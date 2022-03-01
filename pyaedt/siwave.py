@@ -19,7 +19,7 @@ if is_ironpython:
 
     _com = "pythonnet"
     import System
-elif os.name == "nt":   # pragma: no cover
+elif os.name == "nt":  # pragma: no cover
     modules = [tup[1] for tup in pkgutil.iter_modules()]
     if "clr" in modules:
         import clr  # noqa: F401
