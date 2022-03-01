@@ -399,18 +399,18 @@ class Components(object):
         self,
         mounted_component,
         hosting_component,
-        mounted_component_pin1=None,
-        mounted_component_pin2=None,
-        hosting_component_pin1=None,
-        hosting_component_pin2=None,
+        mounted_component_pin1,
+        mounted_component_pin2,
+        hosting_component_pin1,
+        hosting_component_pin2,
     ):
         """Get the placement vector between 2 components.
 
         Parameters
         ----------
-        mounted_component : str
+        mounted_component : `edb.Cell.Hierarchy.Component`
             Mounted component name.
-        hosting_component : str
+        hosting_component : `edb.Cell.Hierarchy.Component`
             Hosting component name.
         mounted_component_pin1 : str
             Mounted component Pin 1 name.
@@ -470,7 +470,10 @@ class Components(object):
         vector = [h_pin1_pos[0] - m_pin1_pos[0], h_pin1_pos[1] - m_pin1_pos[1]]
         vector1 = GeometryOperators.v_points(m_pin1_pos_3d, m_pin2_pos_3d)
         vector2 = GeometryOperators.v_points(h_pin1_pos_3d, h_pin2_pos_3d)
+
         rotation = GeometryOperators.v_angle(vector1, vector2)
+        if abs(rotation - math.pi / 2) < 1e-9 and vector1[0] * vector2[1] + vector1[1] * vector2[0] < 0:
+            rotation = -1 * math.pi / 2
         if rotation != 0.0:
             layinst = mounted_component.GetLayout().GetLayoutInstance()
             cmpinst = layinst.GetLayoutObjInstance(mounted_component, None)
@@ -484,12 +487,10 @@ class Components(object):
 
         if vector:
             solder_ball_height = self.get_solder_ball_height(mounted_component)
-            if solder_ball_height == 0.0:
-                solder_ball_height = 150e-6
-            # mounted_component_name = mounted_component.GetName()
             self.set_solder_ball(component=mounted_component, sball_height=solder_ball_height)
             return True, vector, rotation, solder_ball_height
-        return False
+        self._logger.warning("Failed to compute vector.")
+        return False, [0, 0], 0, 0
 
     @aedt_exception_handler
     def get_solder_ball_height(self, cmp):
@@ -1277,7 +1278,7 @@ class Components(object):
                 for p in list(component.LayoutObjs)
                 if int(p.GetObjType()) == 1
                 and p.IsLayoutPin()
-                and (self.get_aedt_pin_name(p) == str(pinName) or p.GetName() in str(pinName))
+                and (self.get_aedt_pin_name(p) in pinName or p.GetName() in pinName)
             ]
         else:
             pins = [p for p in list(component.LayoutObjs) if int(p.GetObjType()) == 1 and p.IsLayoutPin()]

@@ -1,4 +1,5 @@
 import os
+import math
 
 # Setup paths for module imports
 
@@ -6,6 +7,7 @@ import os
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.generic.filesystem import Scratch
+
 
 test_project_name = "Galileo_edb"
 bom_example = "bom_example.csv"
@@ -667,12 +669,28 @@ class TestClass:
             assert isinstance(cmp.solder_ball_placement, int)
         mounted_cmp = edb2.core_components.get_component_by_name("BGA")
         hosting_cmp = self.edbapp.core_components.get_component_by_name("U2A5")
-        assert self.edbapp.core_components.get_component_placement_vector(
+        result, vector, rotation, solder_ball_height = self.edbapp.core_components.get_component_placement_vector(
             mounted_component=mounted_cmp,
             hosting_component=hosting_cmp,
-            mounted_component_pin1="A12",
-            mounted_component_pin2="A14",
+            mounted_component_pin1="A10",
+            mounted_component_pin2="A12",
             hosting_component_pin1="A2",
             hosting_component_pin2="A4",
         )
+        assert result
+        assert abs(rotation - math.pi / 2) < 1e-9
+        assert solder_ball_height == 0.00033
+        assert len(vector) == 2
+        result, vector, rotation, solder_ball_height = self.edbapp.core_components.get_component_placement_vector(
+            mounted_component=mounted_cmp,
+            hosting_component=hosting_cmp,
+            mounted_component_pin1="A10",
+            mounted_component_pin2="A12",
+            hosting_component_pin1="A4",
+            hosting_component_pin2="A2",
+        )
+        assert result
+        assert abs(rotation + math.pi / 2) < 1e-9
+        assert solder_ball_height == 0.00033
+        assert len(vector) == 2
         edb2.close_edb()
