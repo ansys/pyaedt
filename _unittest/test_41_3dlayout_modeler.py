@@ -474,6 +474,8 @@ class TestClass(BasisTest):
         with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
+        self.hfss3dl.save_project()
+        self.aedtapp.save_project()
 
     def test_99_dummy_test(self):
         assert True
