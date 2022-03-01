@@ -416,7 +416,7 @@ class TwinBuilderComponents(CircuitComponents):
             use_instance_id_netlist=use_instance_id_netlist,
         )
 
-        if type == "SINE" or type == "PULSE" or type == "TRIANG" or type == "SAWTOOTH":
+        if type in ["SINE", "PULSE", "TRIANG", "SAWTOOTH"]:
             id.set_property("AMPL", amplitude)
             id.set_property("FREQ", freq)
             id.set_property("PHASE", phase)
