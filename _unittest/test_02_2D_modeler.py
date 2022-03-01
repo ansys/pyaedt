@@ -6,7 +6,7 @@ from pyaedt.generic.general_methods import isclose, is_ironpython
 from pyaedt.maxwell import Maxwell2d
 
 # Setup paths for module imports
-from _unittest.conftest import BasisTest, desktop_version, config
+from _unittest.conftest import BasisTest, config
 
 try:
     import pytest  # noqa: F401
@@ -16,18 +16,10 @@ except ImportError:
 
 class TestClass(BasisTest):
     def setup_class(self):
-        BasisTest.setup_class(self, design_name="2D_Primitives", application=Maxwell2d)
+        BasisTest.my_setup(self, design_name="2D_Primitives", application=Maxwell2d)
 
-    def setup(self):
-        self.aedtapp = Maxwell2d(
-            projectname=self.test_project,
-            designname="2D_Primitives",
-            solution_type=None,
-            specified_version=desktop_version,
-        )
-
-    def teardown(self):
-        self.aedtapp.close_project(saveproject=False)
+    def teardown_class(self):
+        BasisTest.my_teardown(self)
 
     def test_01_model_units(self):
         model_units = self.aedtapp.modeler.model_units
@@ -108,9 +100,9 @@ class TestClass(BasisTest):
         assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 0.2)
 
     def test_create_regular_polygon(self):
-        pg1 = self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 2, 0])
+        pg1 = self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
         pg2 = self.aedtapp.modeler.create_regular_polygon(
-            position=[0, 0, 0], start_point=[0, 2, 0], num_sides=3, name="MyPolygon", matname="Copper"
+            position=[0, 0, 0], start_point=[0, 0, 2], num_sides=3, name="MyPolygon", matname="Copper"
         )
         assert pg1.solve_inside
         assert pg1.model
@@ -124,9 +116,9 @@ class TestClass(BasisTest):
 
     @pytest.mark.skipif(config["build_machine"] or is_ironpython, reason="Not running in ironpython")
     def test_plot(self):
-        self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 2, 0])
+        self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
         self.aedtapp.modeler.create_regular_polygon(
-            position=[0, 0, 0], start_point=[0, 2, 0], num_sides=3, name="MyPolygon", matname="Copper"
+            position=[0, 0, 0], start_point=[0, 0, 2], num_sides=3, name="MyPolygon", matname="Copper"
         )
         obj = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"))
         assert os.path.exists(obj.image_file)

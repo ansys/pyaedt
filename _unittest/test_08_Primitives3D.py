@@ -2,42 +2,43 @@
 import os
 import sys
 import time
-import gc
 
 try:
     import pytest
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
-from pyaedt.generic.general_methods import is_ironpython
-
 # Setup paths for module imports
-from _unittest.conftest import scratch_path, local_path, BasisTest, pyaedt_unittest_check_desktop_error, config
+from _unittest.conftest import local_path, BasisTest, pyaedt_unittest_check_desktop_error, config
 from pyaedt.generic.general_methods import is_ironpython
-from pyaedt.generic.filesystem import Scratch
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
 from pyaedt.modeler.Object3d import Object3d
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.generic.constants import AXIS
+from pyaedt.application.Design import DesignCache
 
 test = sys.modules.keys()
 
 scdoc = "input.scdoc"
 step = "input.stp"
+component3d = "new.a3dcomp"
 
 
 class TestClass(BasisTest):
     def setup_class(self):
-        gc.collect()
-        BasisTest.setup_class(self, project_name="test_primitives", design_name="3D_Primitives")
-        with Scratch(scratch_path) as self.local_scratch:
-            scdoc_file = os.path.join(local_path, "example_models", scdoc)
-            self.local_scratch.copyfile(scdoc_file)
-            self.step_file = os.path.join(local_path, "example_models", step)
-            test_98_project = os.path.join(local_path, "example_models", "assembly2" + ".aedt")
-            self.test_98_project = self.local_scratch.copyfile(test_98_project)
-            test_99_project = os.path.join(local_path, "example_models", "assembly" + ".aedt")
-            self.test_99_project = self.local_scratch.copyfile(test_99_project)
+        BasisTest.my_setup(self, project_name="test_primitives", design_name="3D_Primitives")
+        self.cache = DesignCache(self.aedtapp)
+        scdoc_file = os.path.join(local_path, "example_models", scdoc)
+        self.local_scratch.copyfile(scdoc_file)
+        self.step_file = os.path.join(local_path, "example_models", step)
+        self.component3d_file = os.path.join(self.local_scratch.path, component3d)
+        test_98_project = os.path.join(local_path, "example_models", "assembly2" + ".aedt")
+        self.test_98_project = self.local_scratch.copyfile(test_98_project)
+        test_99_project = os.path.join(local_path, "example_models", "assembly" + ".aedt")
+        self.test_99_project = self.local_scratch.copyfile(test_99_project)
+
+    def teardown_class(self):
+        BasisTest.my_teardown(self)
 
     def create_copper_box(self, name=None):
         if not name:
@@ -319,6 +320,10 @@ class TestClass(BasisTest):
         assert isinstance(P.color, tuple)
         get_P = self.aedtapp.modeler["Poly1"]
         assert isinstance(get_P, Polyline)
+        P2 = self.aedtapp.modeler.create_polyline(
+            arrofpos, cover_surface=False, name="Poly_nonmodel", matname="Copper", non_model=True
+        )
+        assert P2.model == False
 
     @pyaedt_unittest_check_desktop_error
     def test_20_create_polyline_with_crosssection(self):
@@ -844,27 +849,40 @@ class TestClass(BasisTest):
         assert self.aedtapp.modeler.import_3d_cad(self.step_file)
         assert len(self.aedtapp.modeler.object_names) == 1
 
-    def test_64_create_equationbased_curve(self):
+    def test_64_create_3dcomponent(self):
+        assert self.aedtapp.modeler.create_3dcomponent(self.component3d_file)
+        new_obj = self.aedtapp.modeler.duplicate_along_line("Solid", [100, 0, 0])
+        rad = self.aedtapp.assign_radiation_boundary_to_objects("Solid")
+        obj1 = self.aedtapp.modeler[new_obj[1][0]]
+        exc = self.aedtapp.create_wave_port_from_sheet(obj1.faces[0])
+        assert self.aedtapp.modeler.create_3dcomponent(
+            self.component3d_file,
+            exclude_region=True,
+            object_list=["Solid", new_obj[1][0]],
+            boundaries_list=[rad.name],
+            excitation_list=[exc.name],
+            included_cs="Global",
+        )
+
+    def test_65_create_equationbased_curve(self):
         self.aedtapp.insert_design("Equations")
         eq_line = self.aedtapp.modeler.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points=0)
         assert len(eq_line.edges) == 1
         eq_segmented = self.aedtapp.modeler.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points=5)
         assert len(eq_segmented.edges) == 4
-
         eq_xsection = self.aedtapp.modeler.create_equationbased_curve(x_t="_t", y_t="_t*2", xsection_type="Circle")
         assert eq_xsection.name in self.aedtapp.modeler.solid_names
 
-    def test_65_create_3dcomponent(self):
+    def test_66_insert_3dcomponent(self):
         self.aedtapp.solution_type = "Modal"
         self.aedtapp["l_dipole"] = "13.5cm"
-
         compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]
         geometryparams = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
         geometryparams["dipole_length"] = "l_dipole"
         name = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
         assert isinstance(name, str)
 
-    def test_65b_group_components(self):
+    def test_66b_group_components(self):
         self.aedtapp["l_dipole"] = "13.5cm"
 
         compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]
@@ -874,7 +892,7 @@ class TestClass(BasisTest):
         name2 = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
         assert self.aedtapp.modeler.create_group(components=[name, name2], group_name="test_group") == "test_group"
 
-    def test_66_assign_material(self):
+    def test_67_assign_material(self):
         box1 = self.aedtapp.modeler.create_box([60, 60, 60], [4, 5, 5])
         box2 = self.aedtapp.modeler.create_box([50, 50, 50], [2, 3, 4])
         cyl1 = self.aedtapp.modeler.create_cylinder(cs_axis="X", position=[50, 0, 0], radius=1, height=20)
@@ -894,12 +912,12 @@ class TestClass(BasisTest):
         assert self.aedtapp.modeler[cyl1].material_name == "aluminum"
         assert self.aedtapp.modeler[cyl2].material_name == "aluminum"
 
-    def test_67_cover_lines(self):
+    def test_68_cover_lines(self):
         P1 = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]], close_surface=True)
         assert self.aedtapp.modeler.cover_lines(P1)
 
     @pyaedt_unittest_check_desktop_error
-    def test_68_create_torus(self):
+    def test_69_create_torus(self):
         torus = self.create_copper_torus()
         assert torus.id > 0
         assert torus.name.startswith("MyTorus")
@@ -908,7 +926,7 @@ class TestClass(BasisTest):
 
     @pytest.mark.skipif(is_ironpython, reason="pytest is not supported with IronPython.")
     @pyaedt_unittest_check_desktop_error
-    def test_69_create_torus_exceptions(self):
+    def test_70_create_torus_exceptions(self):
 
         with pytest.raises(ValueError) as excinfo:
             self.aedtapp.modeler.create_torus(
@@ -935,7 +953,7 @@ class TestClass(BasisTest):
         #     assert "Major radius must be greater than minor radius." in str(excinfo.value)
 
     @pyaedt_unittest_check_desktop_error
-    def test_70_create_point(self):
+    def test_71_create_point(self):
         name = "mypoint"
         if self.aedtapp.modeler[name]:
             self.aedtapp.modeler.delete(name)
@@ -957,3 +975,176 @@ class TestClass(BasisTest):
         self.aedtapp.modeler.points_by_name[point.name].delete()
         assert len(self.aedtapp.modeler.points) == 1
         assert self.aedtapp.modeler.points[0].name == "mypoint2"
+
+    @pyaedt_unittest_check_desktop_error
+    def test_71_create_choke(self):
+        choke_file1 = os.path.join(
+            local_path, "example_models", "choke_json_file", "choke_1winding_1Layer_Corrected.json"
+        )
+        choke_file2 = os.path.join(
+            local_path, "example_models", "choke_json_file", "choke_2winding_1Layer_Common_Corrected.json"
+        )
+        choke_file3 = os.path.join(
+            local_path, "example_models", "choke_json_file", "choke_2winding_2Layer_Linked_Differential_Corrected.json"
+        )
+        choke_file4 = os.path.join(
+            local_path, "example_models", "choke_json_file", "choke_3winding_3Layer_Separate_Corrected.json"
+        )
+        choke_file5 = os.path.join(
+            local_path, "example_models", "choke_json_file", "choke_4winding_3Layer_Linked_Corrected.json"
+        )
+        choke_file6 = os.path.join(
+            local_path, "example_models", "choke_json_file", "choke_2winding_2Layer_Common_Corrected.json"
+        )
+        resolve1 = self.aedtapp.modeler.create_choke(choke_file1)
+        resolve2 = self.aedtapp.modeler.create_choke(choke_file2)
+        resolve3 = self.aedtapp.modeler.create_choke(choke_file3)
+        resolve4 = self.aedtapp.modeler.create_choke(choke_file4)
+        resolve5 = self.aedtapp.modeler.create_choke(choke_file5)
+        resolve6 = self.aedtapp.modeler.create_choke(choke_file6)
+        assert isinstance(resolve1, list)
+        assert resolve1[0]
+        assert isinstance(resolve1[1], Object3d)
+        for i in range(2, len(resolve1)):
+            assert isinstance(resolve1[i][0], Object3d)
+            assert isinstance(resolve1[i][1], list)
+        assert isinstance(resolve2, list)
+        assert resolve2[0]
+        assert isinstance(resolve2[1], Object3d)
+        for i in range(2, len(resolve2)):
+            assert isinstance(resolve2[i][0], Object3d)
+            assert isinstance(resolve2[i][1], list)
+        assert isinstance(resolve3, list)
+        assert resolve3[0]
+        assert isinstance(resolve3[1], Object3d)
+        for i in range(2, len(resolve3)):
+            assert isinstance(resolve3[i][0], Object3d)
+            assert isinstance(resolve3[i][1], list)
+        assert isinstance(resolve4, list)
+        assert resolve4[0]
+        assert isinstance(resolve4[1], Object3d)
+        for i in range(2, len(resolve4)):
+            assert isinstance(resolve4[i][0], Object3d)
+            assert isinstance(resolve4[i][1], list)
+        assert isinstance(resolve5, list)
+        assert resolve5[0]
+        assert isinstance(resolve5[1], Object3d)
+        for i in range(2, len(resolve5)):
+            assert isinstance(resolve5[i][0], Object3d)
+            assert isinstance(resolve5[i][1], list)
+        assert isinstance(resolve6, list)
+        assert resolve6[0]
+        assert isinstance(resolve6[1], Object3d)
+        for i in range(2, len(resolve6)):
+            assert isinstance(resolve6[i][0], Object3d)
+            assert isinstance(resolve6[i][1], list)
+
+    @pyaedt_unittest_check_desktop_error
+    def test_72_check_choke_values(self):
+        choke_file1 = os.path.join(local_path, "example_models", "choke_json_file", "choke_1winding_1Layer.json")
+        choke_file2 = os.path.join(local_path, "example_models", "choke_json_file", "choke_2winding_1Layer_Common.json")
+        choke_file3 = os.path.join(
+            local_path, "example_models", "choke_json_file", "choke_2winding_2Layer_Linked_Differential.json"
+        )
+        choke_file4 = os.path.join(
+            local_path, "example_models", "choke_json_file", "choke_3winding_3Layer_Separate.json"
+        )
+        choke_file5 = os.path.join(local_path, "example_models", "choke_json_file", "choke_4winding_3Layer_Linked.json")
+        choke_file6 = os.path.join(local_path, "example_models", "choke_json_file", "choke_1winding_3Layer_Linked.json")
+        choke_file7 = os.path.join(local_path, "example_models", "choke_json_file", "choke_2winding_2Layer_Common.json")
+        resolve1 = self.aedtapp.modeler.check_choke_values(choke_file1, create_another_file=True)
+        resolve2 = self.aedtapp.modeler.check_choke_values(choke_file2, create_another_file=True)
+        resolve3 = self.aedtapp.modeler.check_choke_values(choke_file3, create_another_file=True)
+        resolve4 = self.aedtapp.modeler.check_choke_values(choke_file4, create_another_file=True)
+        resolve5 = self.aedtapp.modeler.check_choke_values(choke_file5, create_another_file=True)
+        resolve6 = self.aedtapp.modeler.check_choke_values(choke_file6, create_another_file=True)
+        resolve7 = self.aedtapp.modeler.check_choke_values(choke_file7, create_another_file=True)
+        assert isinstance(resolve1, list)
+        assert resolve1[0]
+        assert isinstance(resolve1[1], dict)
+        assert isinstance(resolve2, list)
+        assert resolve2[0]
+        assert isinstance(resolve2[1], dict)
+        assert isinstance(resolve3, list)
+        assert resolve3[0]
+        assert isinstance(resolve3[1], dict)
+        assert isinstance(resolve4, list)
+        assert resolve4[0]
+        assert isinstance(resolve4[1], dict)
+        assert isinstance(resolve5, list)
+        assert resolve5[0]
+        assert isinstance(resolve5[1], dict)
+        assert isinstance(resolve6, list)
+        assert resolve6[0]
+        assert isinstance(resolve6[1], dict)
+        assert isinstance(resolve7, list)
+        assert resolve7[0]
+        assert isinstance(resolve7[1], dict)
+
+    @pyaedt_unittest_check_desktop_error
+    def test_73_make_winding(self):
+        chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
+        winding_list = self.aedtapp.modeler._make_winding("Winding", "", "", 29.9, 52.1, 22.2, 2, 5, 15, chamfer, True)
+        assert isinstance(winding_list, list)
+        assert isinstance(winding_list[0], Object3d)
+        assert isinstance(winding_list[1], list)
+
+    @pyaedt_unittest_check_desktop_error
+    def test_74_make_double_linked_winding(self):
+        chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
+        winding_list = self.aedtapp.modeler._make_double_linked_winding(
+            "Double_Winding",
+            "",
+            "",
+            27.7,
+            54.3,
+            26.6,
+            2,
+            3,
+            3,
+            15,
+            16,
+            0.8,
+            chamfer,
+            1.1,
+        )
+        assert isinstance(winding_list, list)
+        assert isinstance(winding_list[0], Object3d)
+        assert isinstance(winding_list[1], list)
+
+    @pyaedt_unittest_check_desktop_error
+    def test_75_make_triple_linked_winding(self):
+        chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
+        winding_list = self.aedtapp.modeler._make_triple_linked_winding(
+            "Triple_Winding",
+            "",
+            "",
+            25.5,
+            56.5,
+            31.0,
+            2,
+            2.5,
+            2.5,
+            2.5,
+            10,
+            12,
+            14,
+            0.8,
+            chamfer,
+            1.1,
+        )
+        assert isinstance(winding_list, list)
+        assert isinstance(winding_list[0], Object3d)
+        assert isinstance(winding_list[1], list)
+
+    @pyaedt_unittest_check_desktop_error
+    def test_76_check_value_type(self):
+        resolve1, boolean1 = self.aedtapp.modeler._check_value_type(2, float, True, "SUCCESS", "SUCCESS")
+        resolve2, boolean2 = self.aedtapp.modeler._check_value_type(1, int, True, "SUCCESS", "SUCCESS")
+        resolve3, boolean3 = self.aedtapp.modeler._check_value_type(1.1, float, False, "SUCCESS", "SUCCESS")
+        assert isinstance(resolve1, float)
+        assert boolean1
+        assert isinstance(resolve2, int)
+        assert boolean2
+        assert isinstance(resolve3, float)
+        assert not boolean3

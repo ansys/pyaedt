@@ -31,7 +31,7 @@ from pyaedt.generic.constants import AEDT_UNITS, unit_system
 from pyaedt.desktop import Desktop
 from pyaedt.desktop import exception_to_desktop, release_desktop, get_version_env_variable
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
-from pyaedt.generic.general_methods import aedt_exception_handler, write_csv
+from pyaedt.generic.general_methods import aedt_exception_handler, write_csv, is_ironpython
 from pyaedt.generic.DataHandlers import variation_string_to_dict
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.generic.general_methods import generate_unique_name
@@ -687,7 +687,7 @@ class Design(object):
     def project_timestamp_changed(self):
         """Return a bool if time stamp changed or not."""
         old_time = self._mttime
-        return old_time == self.project_time_stamp
+        return old_time != self.project_time_stamp
 
     @property
     def project_file(self):
@@ -2006,7 +2006,7 @@ class Design(object):
 
     @aedt_exception_handler
     def _close_edb(self):
-        if self.design_type == "Circuit Design" or self.design_type == "HFSS 3D Layout Design":
+        if self.design_type == "HFSS 3D Layout Design":  # pragma: no cover
             if self.modeler and self.modeler.edb:
                 self.modeler.edb.close_edb()
 
@@ -2412,35 +2412,36 @@ class Design(object):
 
         >>> oDesktop.CloseProject
         """
-        msg_txt = ""
         legacy_name = self.project_name
-        if name:
-            assert name in self.project_list, "Invalid project name {}.".format(name)
-            msg_txt = "specified " + name
-        else:
+        if name and name not in self.project_list:
+            self.logger.warning("Project not found. ", name)
+            return False
+        if not name:
             name = self.project_name
-            msg_txt = "active " + self.project_name
-        self.logger.info("Closing the %s AEDT Project", msg_txt)
+        self.logger.info("Closing the AEDT Project {}".format(name))
         oproj = self.odesktop.SetActiveProject(name)
         proj_path = oproj.GetPath()
         if saveproject:
             oproj.Save()
+        # if name == legacy_name:
+        #    self._close_edb()
         self.odesktop.CloseProject(name)
-        i = 0
-        timeout = 10
-        locked = True
         if name == legacy_name:
-            if os.name != "posix":
+            if not is_ironpython:
                 self._init_variables()
             self._oproject = None
             self._odesign = None
-        while locked:
+        else:
+            self.odesktop.SetActiveProject(legacy_name)
+        i = 0
+        timeout = 10
+        while True:
             if not os.path.exists(os.path.join(proj_path, name + ".aedt.lock")):
-                self.logger.info("Project Closed Correctly")
-                locked = False
+                self.logger.info("Project {} closed correctly".format(name))
+                break
             elif i > timeout:
                 self.logger.warning("Lock File still exists.")
-                locked = False
+                break
             else:
                 i += 0.2
                 time.sleep(0.2)

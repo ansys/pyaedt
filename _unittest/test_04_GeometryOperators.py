@@ -4,7 +4,7 @@ import clr
 from pyaedt.modeler.GeometryOperators import GeometryOperators as go
 
 clr.AddReference("System.Collections")
-from pyaedt.generic.constants import AXIS, PLANE, SWEEPDRAFT
+from pyaedt.generic.constants import AXIS, PLANE, SWEEPDRAFT, unit_converter
 from System import Double
 from System.Collections.Generic import List
 
@@ -345,6 +345,23 @@ class TestClass:
         assert not go.is_collinear([1, 0, 0], [0, 1, 0])
         assert go.is_collinear([1, 1, 1], [-2, -2, -2])
         assert not go.is_collinear([1, 2, 3], [3.0, 2.0, 1.0])
+
+    def test_degrees_over_rounded(self):
+        assert go.degrees_over_rounded(math.pi / 10000, 2) == 0.02
+
+    def test_radians_over_rounded(self):
+        assert go.radians_over_rounded(180, 4) == 3.1416
+
+    def test_degrees_default_rounded(self):
+        assert go.degrees_default_rounded(math.pi / 10000, 2) == 0.01
+
+    def test_radians_default_rounded(self):
+        assert go.radians_default_rounded(180, 4) == 3.1415
+
+    def test_unit_converter(self):
+        assert unit_converter(10) == 10000
+        assert unit_converter(10, "Lengths") == 10
+        assert unit_converter(10, "Length", "meters") == 10
 
     def test_are_segments_intersecting(self):
         # crossing

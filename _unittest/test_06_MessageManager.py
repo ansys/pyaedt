@@ -1,5 +1,4 @@
 # Setup paths for module imports
-import gc
 import logging
 
 from pyaedt.application.MessageManager import AEDTMessageManager
@@ -7,7 +6,7 @@ from pyaedt.generic.filesystem import Scratch
 from pyaedt.hfss import Hfss
 
 # Import required modules
-from _unittest.conftest import config, scratch_path
+from _unittest.conftest import config, scratch_path, BasisTest, desktop_version
 
 try:
     import pytest
@@ -17,7 +16,7 @@ except ImportError:
 LOGGER = logging.getLogger(__name__)
 
 
-class TestClass:
+class TestClass(BasisTest):
     def setup_class(self):
 
         with Scratch(scratch_path) as self.local_scratch:
@@ -37,14 +36,11 @@ class TestClass:
             # assert len(msg.messages.design_level) == 0
             msg.clear_messages(level=0)
 
-            self.aedtapp = Hfss()
+            self.aedtapp = Hfss(specified_version=desktop_version)
             msg.clear_messages(level=3)
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        assert self.aedtapp.close_project(saveproject=False)
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self)
 
     def test_00_test_global_messenger(self):
         # TODO: close_project causes a crash ... refactor the project/desktop stuff !
@@ -53,19 +49,19 @@ class TestClass:
         pass
 
     @pytest.mark.skipif(config["build_machine"] == True, reason="Issue on Build machine")
-    def test_01_get_messages(self):
+    def test_01_get_messages(self):  # pragma: no cover
         msg = self.aedtapp._messenger
         msg.clear_messages(level=3)
         msg.add_info_message("Test Info design level")
         msg.add_info_message("Test Info project level", "Project")
         msg.add_info_message("Test Info", "Global")
         assert len(msg.messages.global_level) >= 1
-        assert len(msg.messages.project_level) >= 2
+        assert len(msg.messages.project_level) >= 1
         assert len(msg.messages.design_level) >= 1
         pass
 
     @pytest.mark.skipif(config["build_machine"] == True, reason="Issue on Build machine")
-    def test_02_messaging(self):
+    def test_02_messaging(self):  # pragma: no cover
         msg = self.aedtapp._messenger
         msg.clear_messages(level=3)
         msg.add_info_message("Test Info")
@@ -81,5 +77,5 @@ class TestClass:
         msg.add_info_message("Test Debug", "Project")
         msg.add_info_message("Test Debug", "Global")
         assert len(msg.messages.global_level) >= 5
-        assert len(msg.messages.project_level) >= 6
+        assert len(msg.messages.project_level) >= 5
         assert len(msg.messages.design_level) >= 4

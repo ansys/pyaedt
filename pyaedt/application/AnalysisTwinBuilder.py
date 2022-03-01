@@ -1,5 +1,5 @@
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.modeler.Circuit import ModelerSimplorer
+from pyaedt.modeler.Circuit import ModelerTwinBuilder
 from pyaedt.modules.SolveSetup import SetupCircuit
 from pyaedt.application.Analysis import Analysis
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
@@ -68,7 +68,7 @@ class AnalysisTwinBuilder(Analysis):
             student_version,
         )
         self.solution_type = solution_type
-        self._modeler = ModelerSimplorer(self)
+        self._modeler = ModelerTwinBuilder(self)
         self._post = CircuitPostProcessor(self)
 
     @property

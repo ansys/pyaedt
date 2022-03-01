@@ -49,7 +49,7 @@ modeler, including all primitives methods and properties.
 * Modeler2D for ``Maxwell2D`` ``Q2d``
 * Modeler3DLayout for ``Hfss3dLayout``
 * ModelerNexxim for ``Circuit``
-* ModelerSimplorer for ``Simplorer``
+* ModelerTwinBuilder for ``TwinBuilder``
 * ModelerEmit for ``Emit``
 
 
@@ -63,7 +63,7 @@ modeler, including all primitives methods and properties.
    Model3D.Modeler3D
    Model3DLayout.Modeler3DLayout
    Circuit.ModelerNexxim
-   Circuit.ModelerSimplorer
+   Circuit.ModelerTwinBuilder
    Circuit.ModelerEmit
 
 
@@ -76,7 +76,7 @@ The ``Primitives`` module includes these classes:
 * Primitives2D for ``Maxwell2D`` ``Q2d``
 * Primitives3DLayout for ``Hfss3dLayout``
 * NexximComponents for ``Circuit``
-* SimplorerComponents for ``Simplorer``
+* TwinBuilderComponents for ``TwinBuilder``
 * CircuitComponents for ``Emit``
 Primives objects are accessible through ``modeler`` property for
 EM Solver and ``modeler.components`` for circuit solvers.
@@ -105,7 +105,7 @@ EM Solver and ``modeler.components`` for circuit solvers.
    Primitives3D.Primitives3D
    Primitives3DLayout.Primitives3DLayout
    PrimitivesNexxim.NexximComponents
-   PrimitivesSimplorer.SimplorerComponents
+   PrimitivesTwinBuilder.TwinBuilderComponents
    PrimitivesCircuit.CircuitComponents
 
 
