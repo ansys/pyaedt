@@ -24,7 +24,8 @@ class AppFilter(logging.Filter):
         self._extra = extra
 
     def filter(self, record):
-        """Modify the record sent to the logger.
+        """
+        Modify the record sent to the logger.
 
         Parameters
         ----------
@@ -42,7 +43,8 @@ class AppFilter(logging.Filter):
 
 
 class AedtLogger(object):
-    """Specifies the logger to use for each AEDT logger.
+    """
+    Specifies the logger to use for each AEDT logger.
 
     This class allows you to add a handler to write messages to a file and to indicate
     whether to write mnessages to the standard output (stdout).
@@ -105,7 +107,8 @@ class AedtLogger(object):
         return self._messenger.messages
 
     def add_logger(self, destination, level=logging.DEBUG):
-        """Add a logger for either the active project or active design.
+        """
+        Add a logger for either the active project or active design.
 
         Parameters
         ----------
@@ -177,7 +180,8 @@ class AedtLogger(object):
         return self._messenger.get_messages(self._messenger._project_name, self._messenger._design_name)
 
     def clear_messages(self, project_name=None, design_name=None, level=2):
-        """Clear messages in the design, project, or global logger or in any or all of these loggers.
+        """
+        Clear messages in the design, project, or global logger or in any or all of these loggers.
 
         Parameters
         ----------

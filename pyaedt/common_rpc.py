@@ -169,7 +169,8 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False):
 
 
 def connect(server_name, aedt_client_port):
-    """Connect to an existing AEDT server session.
+    """
+    Connect to an existing AEDT server session.
 
     Parameters
     ----------

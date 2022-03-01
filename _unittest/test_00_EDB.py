@@ -685,7 +685,11 @@ class TestClass:
 
     def test_81_edb_not_initialized(self):
         pyaedt.edb.edb_initialized = False
-        edb_not_initialized = Edb(os.path.join(local_path, "example_models", "Package.aedb"), edbversion=desktop_version)
+        edb_not_initialized = Edb(
+            os.path.join(local_path, "example_models", "Package.aedb"), edbversion=desktop_version
+        )
+        assert edb_not_initialized._db is None
+        pyaedt.edb.edb_initialized = True
         assert edb_not_initialized._db is None
         pyaedt.edb.edb_initialized = True
 

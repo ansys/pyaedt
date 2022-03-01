@@ -835,7 +835,8 @@ class Circuit(FieldAnalysisCircuit, object):
         error=0.5,
         poles=10000,
     ):
-        """Export a full wave HSpice file using NDE.
+        """
+        Export a full wave HSpice file using NDE.
 
         .. warning::
           This method doesn't work.
@@ -957,7 +958,8 @@ class Circuit(FieldAnalysisCircuit, object):
         variation_dict=None,
         subdesign_id=None,
     ):
-        """Create a Touchstone plot.
+        """
+        Create a Touchstone plot.
 
         Parameters
         ----------
@@ -1000,7 +1002,8 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def get_touchstone_data(self, curvenames, solution_name=None, variation_dict=None):
-        """Return a Touchstone data plot.
+        """
+        Return a Touchstone data plot.
 
         Parameters
         ----------

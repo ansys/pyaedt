@@ -17,7 +17,8 @@ class Msg:
 
 
 class MessageList:
-    """Collects and returns messages from the AEDT message manager for a specified project name and design name.
+    """
+    Collects and returns messages from the AEDT message manager for a specified project name and design name.
 
     Parameters
     ---------
@@ -67,7 +68,8 @@ class MessageList:
 
 
 class AEDTMessageManager(object):
-    """Manages AEDT messaging to both the logger and the AEDT message manager.
+    """
+    Manages AEDT messaging to both the logger and the AEDT message manager.
 
     Parameters
     ----------
@@ -161,7 +163,8 @@ class AEDTMessageManager(object):
         return self.get_messages(self._project_name, self._design_name)
 
     def get_messages(self, project_name, design_name):
-        """Retrieve the message manager content for a specified project and design.
+        """
+        Retrieve the message manager content for a specified project and design.
 
         If the specified project and design names are invalid, they are ignored.
 
@@ -185,7 +188,8 @@ class AEDTMessageManager(object):
         return MessageList([], project_name, design_name)
 
     def add_error_message(self, message_text, level=None):
-        """Add a type 2 "Error" message to the message manager tree.
+        """
+        Add a type 2 "Error" message to the message manager tree.
 
         Also add an error message to the logger if the handler is present.
 
@@ -209,7 +213,8 @@ class AEDTMessageManager(object):
         self.add_message(2, message_text, level)
 
     def add_warning_message(self, message_text, level=None):
-        """Add a type 1 "Warning" message to the message manager tree.
+        """
+        Add a type 1 "Warning" message to the message manager tree.
 
         Also add a warning message to the logger if the handler is present.
 
@@ -257,7 +262,8 @@ class AEDTMessageManager(object):
         self.add_message(0, message_text, level)
 
     def add_debug_message(self, type, message_text):
-        """Parameterized message to the message manager to specify the type and project or design level.
+        """
+        Parameterized message to the message manager to specify the type and project or design level.
 
         Parameters
         ----------
@@ -286,7 +292,8 @@ class AEDTMessageManager(object):
                 self.logger.error(message_text)
 
     def add_message(self, type, message_text, level=None, proj_name=None, des_name=None):
-        """Pass a parameterized message to the message manager to specify the type and project or design level.
+        """
+        Pass a parameterized message to the message manager to specify the type and project or design level.
 
         Parameters
         ----------
