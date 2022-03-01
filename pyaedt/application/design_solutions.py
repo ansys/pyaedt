@@ -705,8 +705,11 @@ class Maxwell2DDesignSolution(DesignSolution, object):
     @property
     def solution_type(self):
         """Get/Set the Solution Type of the active Design."""
-        if self._odesign and "GetSolutionType" in dir(self._odesign):
-            self._solution_type = self._odesign.GetSolutionType()
+        if self._odesign and "GetSolutionType":
+            try:
+                self._solution_type = self._odesign.GetSolutionType()
+            except:
+                self._solution_type = solutions_defaults[self._design_type]
         return self._solution_type
 
     @solution_type.setter
@@ -786,8 +789,11 @@ class IcepakDesignSolution(DesignSolution, object):
     @property
     def solution_type(self):
         """Get/Set the Solution Type of the active Design."""
-        if self._odesign and "GetSolutionType" in dir(self._odesign):
-            self._solution_type = self._odesign.GetSolutionType()
+        if self._odesign:
+            try:
+                self._solution_type = self._odesign.GetSolutionType()
+            except:
+                self._solution_type = solutions_defaults[self._design_type]
         return self._solution_type
 
     @solution_type.setter

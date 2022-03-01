@@ -237,7 +237,8 @@ class TestClass(BasisTest):
         assert setup4.enable()
 
     def test_18a_create_linear_count_sweep(self):
-        setup_name = "RFBoardSetup"
+        setup_name = "RF_create_linear_count"
+        self.aedtapp.create_setup(setupname=setup_name)
         sweep1 = self.aedtapp.create_linear_count_sweep(
             setupname=setup_name,
             unit="GHz",
@@ -269,7 +270,8 @@ class TestClass(BasisTest):
         assert sweep2.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 12"
 
     def test_18b_create_linear_step_sweep(self):
-        setup_name = "RFBoardSetup"
+        setup_name = "RF_create_linear_step"
+        self.aedtapp.create_setup(setupname=setup_name)
         sweep3 = self.aedtapp.create_linear_step_sweep(
             setupname=setup_name,
             unit="GHz",
@@ -316,7 +318,8 @@ class TestClass(BasisTest):
         assert exception_raised
 
     def test_18c_create_single_point_sweep(self):
-        setup_name = "RFBoardSetup"
+        setup_name = "RF_create_single_point"
+        self.aedtapp.create_setup(setupname=setup_name)
         sweep5 = self.aedtapp.create_single_point_sweep(
             setupname=setup_name,
             unit="MHz",
@@ -347,7 +350,9 @@ class TestClass(BasisTest):
         assert self.aedtapp.validate_full_design(ports=3)
 
     def test_19B_analyze_setup(self):
+        self.aedtapp.save_project()
         assert self.aedtapp.analyze_setup("RFBoardSetup3")
+        self.aedtapp.save_project()
         assert os.path.exists(self.aedtapp.export_profile("RFBoardSetup3"))
         assert os.path.exists(self.aedtapp.export_mesh_stats("RFBoardSetup3"))
 
