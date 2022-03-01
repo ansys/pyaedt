@@ -449,6 +449,7 @@ class TestClass(BasisTest):
         setup = self.aedtapp.create_setup(setupname=setup_name, setuptype="LNA3DLayout")
         assert setup_name == setup.name
 
+    @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
     def test_35_set_differential_pairs(self):
         assert self.hfss3dl.set_differential_pair(
             positive_terminal="Port3",
@@ -462,9 +463,8 @@ class TestClass(BasisTest):
         )
         assert self.hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
 
-    # @pytest.mark.skipif(os.name == "posix", reason="not working on linux")
+    @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
     def test_36_load_and_save_diff_pair_file(self):
-
         diff_def_file = os.path.join(local_path, "example_models", "differential_pairs_definition.txt")
         diff_file = self.local_scratch.copyfile(diff_def_file)
         assert self.hfss3dl.load_diff_pairs_from_file(diff_file)
@@ -474,8 +474,3 @@ class TestClass(BasisTest):
         with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
-        self.hfss3dl.save_project()
-        self.aedtapp.save_project()
-
-    def test_99_dummy_test(self):
-        assert True

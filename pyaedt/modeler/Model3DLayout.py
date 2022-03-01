@@ -82,7 +82,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
              EDB.
 
         """
-
         if not self._edb:
             self._edb = None
             if os.path.exists(self._edb_file) or (inside_desktop and is_ironpython):
