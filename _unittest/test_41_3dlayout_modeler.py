@@ -22,6 +22,16 @@ class TestClass(BasisTest):
         with Scratch(scratch_path) as self.local_scratch:
             self.test_project = os.path.join(self.local_scratch.path, test_project_name)
             self.aedtapp = Hfss3dLayout(self.test_project, specified_version=desktop_version)
+            example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
+            new_project = os.path.join(self.local_scratch.path, "differential_pairs2.aedt")
+            test_project = self.local_scratch.copyfile(example_project, new_project)
+            self.local_scratch.copyfolder(
+                os.path.join(local_path, "example_models", "differential_pairs.aedb"),
+                os.path.join(self.local_scratch.path, "differential_pairs2.aedb"),
+            )
+            self.hfss3dl = Hfss3dLayout(
+                projectname=test_project, designname="EMDesign1", specified_version=desktop_version
+            )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -440,14 +450,7 @@ class TestClass(BasisTest):
         assert setup_name == setup.name
 
     def test_35_set_differential_pairs(self):
-        example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
-        test_project = self.local_scratch.copyfile(example_project)
-        self.local_scratch.copyfolder(
-            os.path.join(local_path, "example_models", "differential_pairs.aedb"),
-            os.path.join(self.local_scratch.path, "differential_pairs.aedb"),
-        )
-        hfss3dl = Hfss3dLayout(projectname=test_project, designname="EMDesign1", specified_version=desktop_version)
-        assert hfss3dl.set_differential_pair(
+        assert self.hfss3dl.set_differential_pair(
             positive_terminal="Port3",
             negative_terminal="Port4",
             common_name=None,
@@ -457,32 +460,20 @@ class TestClass(BasisTest):
             active=True,
             matched=False,
         )
-        assert hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
-        hfss3dl.odesktop.CloseProject(hfss3dl.project_name)
-        # self.aedtapp.close_project(hfss3dl.project_name, False)
+        assert self.hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
 
     # @pytest.mark.skipif(os.name == "posix", reason="not working on linux")
     def test_36_load_and_save_diff_pair_file(self):
-        example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
-        example_project2 = os.path.join(self.local_scratch.path, "differential_pairs2.aedt")
-        test_project2 = self.local_scratch.copyfile(example_project, example_project2)
-        self.local_scratch.copyfolder(
-            os.path.join(local_path, "example_models", "differential_pairs.aedb"),
-            os.path.join(self.local_scratch.path, "differential_pairs2.aedb"),
-        )
-        hfss3dl2 = Hfss3dLayout(projectname=test_project2, designname="EMDesign1", specified_version=desktop_version)
 
         diff_def_file = os.path.join(local_path, "example_models", "differential_pairs_definition.txt")
         diff_file = self.local_scratch.copyfile(diff_def_file)
-        assert hfss3dl2.load_diff_pairs_from_file(diff_file)
+        assert self.hfss3dl.load_diff_pairs_from_file(diff_file)
 
         diff_file2 = os.path.join(self.local_scratch.path, "diff_file2.txt")
-        assert hfss3dl2.save_diff_pairs_to_file(diff_file2)
+        assert self.hfss3dl.save_diff_pairs_to_file(diff_file2)
         with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
-        hfss3dl2.odesktop.CloseProject(hfss3dl2.project_name)
-        # self.aedtapp.close_project(hfss3dl2.project_name, False)
 
     def test_99_dummy_test(self):
         assert True
