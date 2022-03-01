@@ -4,7 +4,6 @@ import math
 # Setup paths for module imports
 
 # Import required modules
-import pyaedt
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.generic.filesystem import Scratch
