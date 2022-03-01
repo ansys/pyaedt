@@ -741,8 +741,10 @@ class GeometryOperators(object):
         d = GeometryOperators.v_dot(a, b)
         an = GeometryOperators.v_norm(a)
         bn = GeometryOperators.v_norm(b)
-        theta = math.acos(d / (an * bn))
-        return theta
+        if (an * bn) == 0.0:
+            return 0.0
+        else:
+            return math.acos(d / (an * bn))
 
     @staticmethod
     @aedt_exception_handler
