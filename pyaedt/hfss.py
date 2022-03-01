@@ -3086,7 +3086,7 @@ class Hfss(FieldAnalysis3D, object):
                 faces = sheet
             else:
                 faces = self.modeler.get_object_faces(sheet)[0]
-            if not faces:
+            if not faces:  # pragma: no cover
                 self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
                 return False
             if not portname:

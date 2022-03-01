@@ -693,3 +693,7 @@ class TestClass:
             result = padstack_instance.create_reactangle_in_pad("s")
             assert result
         edb_padstacks.close_edb()
+
+    def test_81_edb_with_dxf(self):
+        edb3 = Edb(os.path.join(local_path, "example_models", "edb_test_82.dxf"), edbversion=desktop_version)
+        edb3.close_edb()
