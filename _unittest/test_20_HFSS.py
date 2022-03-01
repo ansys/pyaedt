@@ -755,11 +755,21 @@ class TestClass(BasisTest):
         )
         assert port3.name + "_T1" in self.aedtapp.excitations
 
-        box1 = self.aedtapp.modeler.create_box([-40, -40, -20], [80, 80, 10], name="gnd", matname="copper")
-        box2 = self.aedtapp.modeler.create_box([-40, -40, 10], [80, 80, 10], name="sig", matname="copper")
+        box3 = self.aedtapp.modeler.create_box([-40, -40, -20], [80, 80, 10], name="box3", matname="copper")
+        box4 = self.aedtapp.modeler.create_box([-40, -40, 10], [80, 80, 10], name="box4", matname="copper")
         boundaries = len(self.aedtapp.boundaries)
         assert self.aedtapp.create_spiral_lumped_port(box1, box2)
         assert len(self.aedtapp.boundaries) - boundaries == 3
+
+        # Rotate box2 so that, box3 and box4 are not collinear anymore.
+        # Spiral lumped port can only be created based on 2 collinear objects.
+        box3.rotate(cs_axis="X", angle=90)
+        try:
+            self.aedtapp.create_spiral_lumped_port(box3, box4)
+        except AttributeError as e:
+            exception_raised = True
+            assert e.args[0] == "The two object must have parallel adjacent faces."
+        assert exception_raised
 
     def test_46_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings

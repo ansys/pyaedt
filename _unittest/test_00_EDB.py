@@ -676,3 +676,7 @@ class TestClass:
             hosting_component_pin2="A4",
         )
         edb2.close_edb()
+
+    def test_82_edb_with_dxf(self):
+        edb3 = Edb(os.path.join(local_path, "example_models", "edb_test_82.dxf"), edbversion=desktop_version)
+        edb3.close_edb()
