@@ -825,7 +825,7 @@ class Object3d(object):
         >>> oEditor.GetModelBoundingBox
 
         """
-        tmp_path = os.path.expandvars("%temp%")
+        tmp_path = self._primitives._app.working_directory
         filename = os.path.join(tmp_path, self.name + ".sat")
 
         self._primitives._app.export_3d_model(self.name, tmp_path, ".sat", [self.name])
@@ -1681,6 +1681,31 @@ class Object3d(object):
         unite_list = [self.name] + self._primitives.modeler.convert_to_selections(object_list, return_list=True)
         self._primitives.modeler.unite(unite_list)
         return self
+
+    @aedt_exception_handler
+    def mirror(self, position, vector):
+        """Mirror a selection.
+
+        Parameters
+        ----------
+        position : int or float
+            List of the ``[x, y, z]`` coordinates or
+            the Application.Position object for the selection.
+        vector : float
+            List of the ``[x1, y1, z1]`` coordinates or
+            the Application.Position object for the vector.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Mirror
+        """
+        return self._primitives.modeler.mirror(self.id, position=position, vector=vector)
 
     @aedt_exception_handler
     def rotate(self, cs_axis, angle=90.0, unit="deg"):

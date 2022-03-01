@@ -1,12 +1,7 @@
 import os
 
-try:
-    import pytest
-except ImportError:
-    import _unittest_ironpython.conf_unittest as pytest
-
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, is_ironpython
+from _unittest.conftest import local_path, scratch_path, BasisTest, desktop_version
 
 # Import required modules
 from pyaedt import Hfss3dLayout
@@ -16,16 +11,13 @@ test_project_name = "Galileo_t23"
 original_project_name = "Galileo_t23"
 
 
-class TestClass:
+class TestClass(BasisTest):
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
-
             example_project = os.path.join(local_path, "example_models", original_project_name + ".aedt")
-
             self.test_project = self.local_scratch.copyfile(
                 example_project, os.path.join(self.local_scratch.path, test_project_name + ".aedt")
             )
-
             self.local_scratch.copyfolder(
                 os.path.join(local_path, "example_models", original_project_name + ".aedb"),
                 os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
@@ -34,18 +26,11 @@ class TestClass:
                 os.path.join(local_path, "example_models", "Package.aedb"),
                 os.path.join(self.local_scratch.path, "Package2.aedb"),
             )
-        self.aedtapp = Hfss3dLayout(self.test_project)
-        self.aedtapp.modeler.geometries
+        self.aedtapp = Hfss3dLayout(self.test_project, specified_version=desktop_version)
+        self.tmp = self.aedtapp.modeler.geometries
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        for proj in self.aedtapp.project_list:
-            try:
-                self.aedtapp.close_project(proj, False)
-            except:
-                pass
-        self.local_scratch.remove()
-        del self.aedtapp
+        BasisTest.my_teardown(self)
 
     def test_01_get_components(self):
         comp = self.aedtapp.modeler.components
@@ -109,8 +94,9 @@ class TestClass:
         assert nets["GND"].name == "GND"
         assert len(nets) > 0
 
-    @pytest.mark.skipif(is_ironpython, reason="Crashing in IronPython on build machine but working on Ironpython.")
     def test_08_merge(self):
-        hfss3d = Hfss3dLayout(os.path.join(self.local_scratch.path, "Package2.aedb", "edb.def"))
+        hfss3d = Hfss3dLayout(
+            os.path.join(self.local_scratch.path, "Package2.aedb", "edb.def"), specified_version=desktop_version
+        )
         assert hfss3d.modeler.merge_design(self.aedtapp)
         hfss3d.close_project(saveproject=False)

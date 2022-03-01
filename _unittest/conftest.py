@@ -43,7 +43,6 @@ from pyaedt import Desktop
 
 # Import required modules
 from pyaedt import Hfss
-from pyaedt.application.Design import DesignCache
 from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "test_primitives"
@@ -79,8 +78,8 @@ else:
     }
 
 
-class BasisTest:
-    def setup_class(self, project_name=None, design_name=None, solution_type=None, application=None):
+class BasisTest(object):
+    def my_setup(self, project_name=None, design_name=None, solution_type=None, application=None):
 
         with Scratch(scratch_path) as self.local_scratch:
             if project_name:
@@ -101,24 +100,28 @@ class BasisTest:
                 specified_version=desktop_version,
             )
             self.project_name = self.aedtapp.project_name
-            self.cache = DesignCache(self.aedtapp)
 
-    def teardown_class(self):
+    def my_teardown(self):
         self.aedtapp._desktop.ClearMessages("", "", 3)
-        if self.project_name in self.aedtapp.project_list:
-            self.aedtapp.close_project(name=self.project_name, saveproject=False)
-        self.local_scratch.remove()
-        gc.collect()
+        list_of_projects = list(self.aedtapp._desktop.GetProjectList())
+        for project in list_of_projects:
+            try:
+                self.aedtapp._desktop.CloseProject(project)
+            except:  # pragma: no cover
+                pass
+        del self.aedtapp
 
     def teardown(self):
         """
         Could be redefined
         """
+        pass
 
     def setup(self):
         """
         Could be redefined
         """
+        pass
 
 
 # Define desktopVersion explicitly since this is imported by other modules

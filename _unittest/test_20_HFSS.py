@@ -5,28 +5,21 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 # Setup paths for module imports
-from _unittest.conftest import scratch_path, local_path, settings
-import gc
+from _unittest.conftest import local_path, settings, BasisTest, desktop_version
 
 # Import required modules
 from pyaedt import Hfss
-from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.near_field_import import convert_nearfield_data
 
 test_project_name = "coax_HFSS"
 
 
-class TestClass:
+class TestClass(BasisTest):
     def setup_class(self):
-        # set a scratch directory and the environment / test data
-        with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss()
+        BasisTest.my_setup(self)
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        assert self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self)
 
     def test_01_save(self):
         project_name = "Test_Exercse201119"
@@ -88,6 +81,10 @@ class TestClass:
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         o5 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1")
         self.aedtapp.solution_type = "Terminal"
+
+        # Wave port cannot be created if the reference conductors are missing.
+        assert not self.aedtapp.create_wave_port_from_sheet(o5)
+
         port = self.aedtapp.create_wave_port_from_sheet(
             o5, 5, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1_Port", renorm=False, terminal_references=["outer"]
         )
@@ -117,7 +114,6 @@ class TestClass:
         rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [20, 25, 20], [2, 10])
         ports = self.aedtapp.create_wave_port_from_sheet(rect, 5, self.aedtapp.AxisDir.ZNeg, 40, 2, "sheet3_Port", True)
         assert ports.name in [i.name for i in self.aedtapp.boundaries]
-        pass
 
     def test_06a_create_linear_count_sweep(self):
         setup = self.aedtapp.create_setup("MySetup")
@@ -170,6 +166,22 @@ class TestClass:
         assert sweep.props["RangeStart"] == str(freq_start) + units
         assert sweep.props["RangeEnd"] == str(freq_stop) + units
         assert sweep.props["Type"] == "Discrete"
+
+        # Create a linear count sweep with the incorrect sweep type.
+        try:
+            sweep = self.aedtapp.create_linear_count_sweep(
+                setupname="MySetup",
+                sweepname="IncorrectStep",
+                unit="MHz",
+                freqstart=1.1e3,
+                freqstop=1200.1,
+                num_of_freq_points=1234,
+                sweep_type="Incorrect",
+            )
+        except AttributeError as e:
+            exception_raised = True
+            assert e.args[0] == "Invalid `sweep_type`. It must be 'Discrete', 'Interpolating', or 'Fast'."
+        assert exception_raised
 
     def test_06b_setup_exists(self):
         assert self.aedtapp.analysis_setup is not None
@@ -620,7 +632,7 @@ class TestClass:
     def test_33_copy_solid_bodies(self):
         project_name = "HfssCopiedProject"
         design_name = "HfssCopiedBodies"
-        new_design = Hfss(projectname=project_name, designname=design_name)
+        new_design = Hfss(projectname=project_name, designname=design_name, specified_version=desktop_version)
         num_orig_bodies = len(self.aedtapp.modeler.solid_names)
         assert new_design.copy_solid_bodies_from(self.aedtapp, no_vacuum=False, no_pec=False)
         assert len(new_design.modeler.solid_bodies) == num_orig_bodies
@@ -762,11 +774,21 @@ class TestClass:
         )
         assert port3.name + "_T1" in self.aedtapp.excitations
 
-        box1 = self.aedtapp.modeler.create_box([-40, -40, -20], [80, 80, 10], name="gnd", matname="copper")
-        box2 = self.aedtapp.modeler.create_box([-40, -40, 10], [80, 80, 10], name="sig", matname="copper")
+        box3 = self.aedtapp.modeler.create_box([-40, -40, -20], [80, 80, 10], name="box3", matname="copper")
+        box4 = self.aedtapp.modeler.create_box([-40, -40, 10], [80, 80, 10], name="box4", matname="copper")
         boundaries = len(self.aedtapp.boundaries)
         assert self.aedtapp.create_spiral_lumped_port(box1, box2)
         assert len(self.aedtapp.boundaries) - boundaries == 3
+
+        # Rotate box2 so that, box3 and box4 are not collinear anymore.
+        # Spiral lumped port can only be created based on 2 collinear objects.
+        box3.rotate(cs_axis="X", angle=90)
+        try:
+            self.aedtapp.create_spiral_lumped_port(box3, box4)
+        except AttributeError as e:
+            exception_raised = True
+            assert e.args[0] == "The two objects must have parallel adjacent faces."
+        assert exception_raised
 
     def test_46_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
@@ -774,8 +796,68 @@ class TestClass:
 
     def test_47_convert_near_field(self):
         example_project = os.path.join(local_path, "example_models", "nf_test")
-        assert os.path.exists(convert_nearfield_data(example_project, self.local_scratch.path))
+        assert os.path.exists(convert_nearfield_data(example_project, output_folder=self.local_scratch.path))
 
     def test_48_traces(self):
         assert len(self.aedtapp.excitations) > 0
         assert len(self.aedtapp.get_traces_for_plot()) > 0
+
+    def test_49_port_creation_exception(self):
+        box1 = self.aedtapp.modeler.create_box([-400, -40, -20], [80, 80, 10], name="gnd49", matname="copper")
+        box2 = self.aedtapp.modeler.create_box([-400, -40, 10], [80, 80, 10], name="sig49", matname="copper")
+
+        self.aedtapp.solution_type = "Modal"
+        # Spiral lumped port can only be created in a 'Terminal' solution.
+        try:
+            self.aedtapp.create_spiral_lumped_port(box1, box2)
+        except Exception as e:
+            exception_raised = True
+            assert e.args[0] == "This method can be used only in Terminal solutions."
+        assert exception_raised
+        self.aedtapp.solution_type = "Terminal"
+
+        # Try to modify SBR+ TX RX antenna settings in a solution that is different from SBR+
+        # should not be possible.
+        assert not self.aedtapp.set_sbr_txrx_settings({"TX1": "RX1"})
+
+        # SBR linked antenna can only be created within an SBR+ solution.
+        assert not self.aedtapp.create_sbr_linked_antenna(self.aedtapp, fieldtype="farfield")
+
+        # Chirp I doppler setup only works within an SBR+ solution.
+        assert self.aedtapp.create_sbr_chirp_i_doppler_setup(sweep_time_duration=20) == (False, False)
+
+        # Chirp IQ doppler setup only works within an SBR+ solution.
+        assert self.aedtapp.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=10) == (False, False)
+
+    def test_50_set_differential_pair(self):
+        example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
+        test_project = self.local_scratch.copyfile(example_project)
+        self.local_scratch.copyfolder(
+            os.path.join(local_path, "example_models", "differential_pairs.aedb"),
+            os.path.join(self.local_scratch.path, "differential_pairs.aedb"),
+        )
+        hfss1 = Hfss(projectname=test_project, designname="Hfss_Terminal", specified_version=desktop_version)
+        assert hfss1.set_differential_pair(
+            positive_terminal="P2_T1",
+            negative_terminal="P2_T2",
+            common_name=None,
+            diff_name=None,
+            common_ref_z=34,
+            diff_ref_z=123,
+            active=True,
+            matched=False,
+        )
+        assert not hfss1.set_differential_pair(positive_terminal="P2_T1", negative_terminal="P2_T3")
+        hfss2 = Hfss(designname="Hfss_Transient", specified_version=desktop_version)
+        assert hfss2.set_differential_pair(
+            positive_terminal="P2_T1",
+            negative_terminal="P2_T2",
+            common_name=None,
+            diff_name=None,
+            common_ref_z=34,
+            diff_ref_z=123,
+            active=True,
+            matched=False,
+        )
+        assert not hfss2.set_differential_pair(positive_terminal="P2_T1", negative_terminal="P2_T3")
+        hfss2.close_project()

@@ -31,7 +31,7 @@ from pyaedt.generic.constants import AEDT_UNITS, unit_system
 from pyaedt.desktop import Desktop
 from pyaedt.desktop import exception_to_desktop, release_desktop, get_version_env_variable
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
-from pyaedt.generic.general_methods import aedt_exception_handler, write_csv
+from pyaedt.generic.general_methods import aedt_exception_handler, write_csv, is_ironpython
 from pyaedt.generic.DataHandlers import variation_string_to_dict
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.generic.general_methods import generate_unique_name
@@ -1065,7 +1065,7 @@ class Design(object):
 
     @aedt_exception_handler
     def add_info_message(self, message_text, message_type=None):
-        """Add a type 0 "Info" message to either the global, active project or the active design
+        """Add a type 0 "Info" message to either the global, active project, or active design
         level of the message manager tree.
 
         Also add an "Info" message to the logger if the handler is present.
@@ -1108,7 +1108,7 @@ class Design(object):
 
     @aedt_exception_handler
     def add_warning_message(self, message_text, message_type=None):
-        """Add a type 0 "Warning" message to either the global, active project or the active design
+        """Add a type 0 "Warning" message to either the global, active project, or active design
         level of the message manager tree.
 
         Also add an "Warning" message to the logger if the handler is present.
@@ -1152,7 +1152,7 @@ class Design(object):
 
     @aedt_exception_handler
     def add_error_message(self, message_text, message_type=None):
-        """Add a type 0 "Error" message to either the global, active project or the active design
+        """Add a type 0 "Error" message to either the global, active project, or active design
         level of the message mmanager tree.
 
         Also add an "Error" message to the logger if the handler is present.
@@ -1300,7 +1300,7 @@ class Design(object):
                 self.logger.warning("Error setting up Key %s.", key_full_name)
                 return False
         else:
-            self.logger.warning("Key Value must be an int or str.")
+            self.logger.warning("Key value must be an integer or string.")
             return False
 
     @aedt_exception_handler
@@ -2412,15 +2412,13 @@ class Design(object):
 
         >>> oDesktop.CloseProject
         """
-        msg_txt = ""
         legacy_name = self.project_name
-        if name:
-            assert name in self.project_list, "Invalid project name {}.".format(name)
-            msg_txt = "specified " + name
-        else:
+        if name and name not in self.project_list:
+            self.logger.warning("Project not found. ", name)
+            return False
+        if not name:
             name = self.project_name
-            msg_txt = "active " + self.project_name
-        self.logger.info("Closing the %s AEDT Project", msg_txt)
+        self.logger.info("Closing the AEDT Project {}".format(name))
         oproj = self.odesktop.SetActiveProject(name)
         proj_path = oproj.GetPath()
         if saveproject:
@@ -2428,21 +2426,22 @@ class Design(object):
         # if name == legacy_name:
         #    self._close_edb()
         self.odesktop.CloseProject(name)
-        i = 0
-        timeout = 10
-        locked = True
         if name == legacy_name:
-            if os.name != "posix":
+            if not is_ironpython:
                 self._init_variables()
             self._oproject = None
             self._odesign = None
-        while locked:
+        else:
+            self.odesktop.SetActiveProject(legacy_name)
+        i = 0
+        timeout = 10
+        while True:
             if not os.path.exists(os.path.join(proj_path, name + ".aedt.lock")):
-                self.logger.info("Project Closed Correctly")
-                locked = False
+                self.logger.info("Project {} closed correctly".format(name))
+                break
             elif i > timeout:
                 self.logger.warning("Lock File still exists.")
-                locked = False
+                break
             else:
                 i += 0.2
                 time.sleep(0.2)

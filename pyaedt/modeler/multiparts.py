@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 
 from pyaedt.modeler.parts import Part, Antenna
@@ -404,7 +405,6 @@ class MultiPartComponent(object):
                     expression=self.offset[m],
                     description=self.name + " " + xyz[m] + "-position",
                 )
-
             app.variable_manager.set_variable(
                 variable_name=self.yaw_name, expression=self.yaw, description=self.name + " yaw"
             )

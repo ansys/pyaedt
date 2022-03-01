@@ -1,14 +1,12 @@
 # standard imports
-import gc
 import os
 
 # Import required modules
-from pyaedt import Hfss, Icepak, Maxwell3d
-from pyaedt.generic.filesystem import Scratch
+from pyaedt import Icepak, Maxwell3d
 from pyaedt.modules.Material import MatProperties, SurfMatProperties
 
 # Setup paths for module imports
-from _unittest.conftest import desktop_version, local_path, scratch_path
+from _unittest.conftest import desktop_version, local_path, BasisTest
 
 try:
     import pytest  # noqa: F401
@@ -16,16 +14,12 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 
-class TestClass:
+class TestClass(BasisTest):
     def setup_class(self):
-        with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss(specified_version=desktop_version)
+        BasisTest.my_setup(self)
 
     def teardown_class(self):
-        self.messages = self.aedtapp._desktop.ClearMessages("", "", 3)
-        assert self.aedtapp.close_project(self.aedtapp.project_name, False)
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self)
 
     def test_01_vaacum(self):
         assert "vacuum" in list(self.aedtapp.materials.material_keys.keys())
@@ -122,7 +116,7 @@ class TestClass:
         assert not self.aedtapp.materials.remove_material("copper4")
 
     def test_06_surface_material(self):
-        ipk = Icepak()
+        ipk = Icepak(specified_version=desktop_version)
         mat2 = ipk.materials.add_surface_material("Steel")
         mat2.emissivity.value = SurfMatProperties.get_defaultvalue(aedtname="surface_emissivity")
         mat2.surface_diffuse_absorptance.value = SurfMatProperties.get_defaultvalue(
@@ -153,7 +147,7 @@ class TestClass:
         assert self.aedtapp.materials["al-extruded1"].thermal_conductivity.thermalmodifier
 
     def test_09_non_linear_materials(self):
-        app = Maxwell3d()
+        app = Maxwell3d(specified_version=desktop_version)
         mat1 = app.materials.add_material("myMat")
         assert mat1.permeability.set_non_linear([[0, 0], [1, 12], [10, 30]])
         assert mat1.permittivity.set_non_linear([[0, 0], [2, 12], [10, 30]])

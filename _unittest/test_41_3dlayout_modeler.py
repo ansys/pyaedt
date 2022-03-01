@@ -6,7 +6,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import scratch_path
+from _unittest.conftest import scratch_path, local_path, BasisTest, desktop_version
 
 try:
     import pytest  # noqa: F401
@@ -14,28 +14,29 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 # Input Data and version for the test
-
 test_project_name = "Test_RadioBoard.aedt"
 
 
-class TestClass:
+class TestClass(BasisTest):
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             self.test_project = os.path.join(self.local_scratch.path, test_project_name)
-            try:
-                self.aedtapp = Hfss3dLayout(self.test_project)
-            except:
-                self.aedtapp = None
+            self.aedtapp = Hfss3dLayout(self.test_project, specified_version=desktop_version)
+
+            if os.name != "posix":
+                example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
+                new_project = os.path.join(self.local_scratch.path, "differential_pairs2.aedt")
+                test_project = self.local_scratch.copyfile(example_project, new_project)
+                self.local_scratch.copyfolder(
+                    os.path.join(local_path, "example_models", "differential_pairs.aedb"),
+                    os.path.join(self.local_scratch.path, "differential_pairs2.aedb"),
+                )
+                self.hfss3dl = Hfss3dLayout(
+                    projectname=test_project, designname="EMDesign1", specified_version=desktop_version
+                )
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        for proj in self.aedtapp.project_list:
-            try:
-                self.aedtapp.close_project(proj, False)
-            except:
-                pass
-        self.local_scratch.remove()
-        del self.aedtapp
+        BasisTest.my_teardown(self)
 
     def test_01_creatematerial(self):
         mymat = self.aedtapp.materials.add_material("myMaterial")
@@ -236,7 +237,8 @@ class TestClass:
         assert setup4.enable()
 
     def test_18a_create_linear_count_sweep(self):
-        setup_name = "RFBoardSetup"
+        setup_name = "RF_create_linear_count"
+        self.aedtapp.create_setup(setupname=setup_name)
         sweep1 = self.aedtapp.create_linear_count_sweep(
             setupname=setup_name,
             unit="GHz",
@@ -268,7 +270,8 @@ class TestClass:
         assert sweep2.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 12"
 
     def test_18b_create_linear_step_sweep(self):
-        setup_name = "RFBoardSetup"
+        setup_name = "RF_create_linear_step"
+        self.aedtapp.create_setup(setupname=setup_name)
         sweep3 = self.aedtapp.create_linear_step_sweep(
             setupname=setup_name,
             unit="GHz",
@@ -297,6 +300,7 @@ class TestClass:
         assert sweep4.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.12GHz"
 
         # Create a linear step sweep with the incorrect sweep type.
+        exception_raised = False
         try:
             sweep_raising_error = self.aedtapp.create_linear_step_sweep(
                 setupname=setup_name,
@@ -310,11 +314,12 @@ class TestClass:
             )
         except AttributeError as e:
             exception_raised = True
-            assert e.args[0] == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
+            assert e.args[0] == "Invalid `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
         assert exception_raised
 
     def test_18c_create_single_point_sweep(self):
-        setup_name = "RFBoardSetup"
+        setup_name = "RF_create_single_point"
+        self.aedtapp.create_setup(setupname=setup_name)
         sweep5 = self.aedtapp.create_single_point_sweep(
             setupname=setup_name,
             unit="MHz",
@@ -332,6 +337,19 @@ class TestClass:
         )
         assert sweep6.props["Sweeps"]["Data"] == "1GHz 2GHz 3GHz 4GHz"
 
+        try:
+            sweep7 = self.aedtapp.create_single_point_sweep(
+                setupname=setup_name,
+                unit="GHz",
+                freq=[],
+                sweepname="RFBoardSingle",
+                save_fields=False,
+            )
+        except AttributeError as e:
+            exception_raised = True
+            assert e.args[0] == "Frequency list is empty. Specify at least one frequency point."
+        assert exception_raised
+
     def test_18d_delete_setup(self):
         setup_name = "SetupToDelete"
         setuptd = self.aedtapp.create_setup(setupname=setup_name)
@@ -345,7 +363,9 @@ class TestClass:
         assert self.aedtapp.validate_full_design(ports=3)
 
     def test_19B_analyze_setup(self):
+        self.aedtapp.save_project()
         assert self.aedtapp.analyze_setup("RFBoardSetup3")
+        self.aedtapp.save_project()
         assert os.path.exists(self.aedtapp.export_profile("RFBoardSetup3"))
         assert os.path.exists(self.aedtapp.export_mesh_stats("RFBoardSetup3"))
 
@@ -448,3 +468,29 @@ class TestClass:
         setup_name = "LNA"
         setup = self.aedtapp.create_setup(setupname=setup_name, setuptype="LNA3DLayout")
         assert setup_name == setup.name
+
+    @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
+    def test_35_set_differential_pairs(self):
+        assert self.hfss3dl.set_differential_pair(
+            positive_terminal="Port3",
+            negative_terminal="Port4",
+            common_name=None,
+            diff_name=None,
+            common_ref_z=34,
+            diff_ref_z=123,
+            active=True,
+            matched=False,
+        )
+        assert self.hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
+
+    @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
+    def test_36_load_and_save_diff_pair_file(self):
+        diff_def_file = os.path.join(local_path, "example_models", "differential_pairs_definition.txt")
+        diff_file = self.local_scratch.copyfile(diff_def_file)
+        assert self.hfss3dl.load_diff_pairs_from_file(diff_file)
+
+        diff_file2 = os.path.join(self.local_scratch.path, "diff_file2.txt")
+        assert self.hfss3dl.save_diff_pairs_to_file(diff_file2)
+        with open(diff_file2, "r") as fh:
+            lines = fh.read().splitlines()
+        assert len(lines) == 3

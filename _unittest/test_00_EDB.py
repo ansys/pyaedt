@@ -1,12 +1,14 @@
 import os
+import math
+import time
 
 # Setup paths for module imports
-import gc
 
 # Import required modules
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.generic.filesystem import Scratch
+
 
 test_project_name = "Galileo_edb"
 bom_example = "bom_example.csv"
@@ -20,7 +22,6 @@ except ImportError:
 
 class TestClass:
     def setup_class(self):
-
         with Scratch(scratch_path) as self.local_scratch:
             # example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
             # self.test_project = self.local_scratch.copyfile(example_project)
@@ -38,9 +39,8 @@ class TestClass:
 
     def teardown_class(self):
         self.edbapp.close_edb()
-        self.edbapp = None
         self.local_scratch.remove()
-        gc.collect()
+        del self.edbapp
 
     def test_00_export_ipc2581(self):
         ipc_path = os.path.join(self.local_scratch.path, "test.xml")
@@ -670,12 +670,41 @@ class TestClass:
             assert isinstance(cmp.solder_ball_placement, int)
         mounted_cmp = edb2.core_components.get_component_by_name("BGA")
         hosting_cmp = self.edbapp.core_components.get_component_by_name("U2A5")
-        assert self.edbapp.core_components.get_component_placement_vector(
+        result, vector, rotation, solder_ball_height = self.edbapp.core_components.get_component_placement_vector(
             mounted_component=mounted_cmp,
             hosting_component=hosting_cmp,
-            mounted_component_pin1="A12",
-            mounted_component_pin2="A14",
+            mounted_component_pin1="A10",
+            mounted_component_pin2="A12",
             hosting_component_pin1="A2",
             hosting_component_pin2="A4",
         )
+        assert result
+        assert abs(rotation - math.pi / 2) < 1e-9
+        assert solder_ball_height == 0.00033
+        assert len(vector) == 2
+        result, vector, rotation, solder_ball_height = self.edbapp.core_components.get_component_placement_vector(
+            mounted_component=mounted_cmp,
+            hosting_component=hosting_cmp,
+            mounted_component_pin1="A10",
+            mounted_component_pin2="A12",
+            hosting_component_pin1="A4",
+            hosting_component_pin2="A2",
+        )
+        assert result
+        assert abs(rotation + math.pi / 2) < 1e-9
+        assert solder_ball_height == 0.00033
+        assert len(vector) == 2
         edb2.close_edb()
+        del edb2
+
+    def test_80_edb_without_path(self):
+        edbapp_without_path = Edb(edbversion=desktop_version, isreadonly=False)
+        time.sleep(2)
+        edbapp_without_path.close_edb()
+        edbapp_without_path = None
+        del edbapp_without_path
+
+    def test_82_edb_with_dxf(self):
+        edb3 = Edb(os.path.join(local_path, "example_models", "edb_test_82.dxf"), edbversion=desktop_version)
+        edb3.close_edb()
+        del edb3

@@ -1,4 +1,4 @@
-"""This module contains these classes: `Q2d`, `Q3d`, and `QExtractor`."""
+"""This module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor`."""
 from __future__ import absolute_import
 import os
 import warnings
@@ -100,11 +100,12 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         Parameters
         ----------
         operation_name : str
-            Name of the Operation to create.
+            Name of the operation to create.
         source_names : list, str, optional
-            List of sources or nets or arguments needed for specific operation.
+            List of sources or nets or arguments needed for the operation. The default
+            is ``None``.
         rm_name : str, optional
-            Name of the reduced matrix, optional.
+            Name of the reduced matrix The default is ``None``.
 
         Returns
         -------
@@ -147,10 +148,10 @@ class Q3d(QExtractor, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when Script is launched within AEDT.
-    NG : bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode.
-        This parameter is ignored when Script is launched within AEDT.
+    non_graphical : bool, optional
+        Whether to launch AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -200,7 +201,7 @@ class Q3d(QExtractor, object):
 
     @property
     def nets(self):
-        """Return the list of available nets in actual Q3d Project.
+        """Return the list of available nets in a Q3D project.
 
         Returns
         -------
@@ -220,7 +221,7 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def net_sources(self, net_name):
-        """Check if a net has sources and returns the list of names.
+        """Check if a net has sources and return a list of source names.
 
         Parameters
         ----------
@@ -230,7 +231,7 @@ class Q3d(QExtractor, object):
         Returns
         -------
         List
-            List of Source names.
+            List of source names.
 
         Examples
         --------
@@ -253,7 +254,7 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def net_sinks(self, net_name):
-        """Check if a net has sinks and returns the list of them.
+        """Check if a net has sinks and returns a list of sink names.
 
         Parameters
         ----------
@@ -263,7 +264,7 @@ class Q3d(QExtractor, object):
         Returns
         -------
         List
-            List of Sink names.
+            List of sink names.
 
         Examples
         --------
@@ -318,12 +319,14 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        objects : List, str
-            List of objects to assign net. Can be a single object.
+        objects : list, str
+            List of objects to assign the net to. It can be a single object.
         net_name : str, optional
-            Name of the net. If `None`, default net name will be provided.
-        net_type : str, boolean
-            Type of net to create. Can be `Signal`, `Ground` or `Floating`.
+            Name of the net. The default is ```None``, in which case the
+            default name is used.
+        net_type : str, bool
+            Type of net to create. Options are ``"Signal"``, ``"Ground"`` and ``"Floating"``.
+            The default is ``"Signal"``.
 
         Returns
         -------
@@ -364,16 +367,15 @@ class Q3d(QExtractor, object):
     def assign_source_to_objectface(self, object_name, axisdir=0, source_name=None, net_name=None):
         """Generate a source on a face of an object.
 
-        The face ID is selected based on ``axisdir``. It is the face that
+        The face ID is selected based on the axis direction. It is the face that
         has the maximum/minimum in this axis direction.
 
         Parameters
         ----------
         object_name : str, int
             Name of the object or face id.
-            Name of the object.
-        axisdir : optional
-            Initial axis direction. Options are ``0`` through ``5``. The default is ``0``.
+        axisdir : int, optional
+            Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
         source_name : str, optional
             Name of the source. The default is ``None``.
         net_name : str, optional
@@ -453,7 +455,7 @@ class Q3d(QExtractor, object):
     def assign_sink_to_objectface(self, object_name, axisdir=0, sink_name=None, net_name=None):
         """Generate a sink on a face of an object.
 
-        The face ID is selected based on ``axisdir``. It is the face that has
+        The face ID is selected based on the axis direction. It is the face that has
         the maximum/minimum in this axis direction.
 
         Parameters
@@ -461,7 +463,7 @@ class Q3d(QExtractor, object):
         object_name : str, int
             Name of the object or face id.
         axisdir : int, optional
-            Initial axis direction. Options are ``0`` through ``5``. The default is ``0``.
+            Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
         sink_name : str, optional
             Name of the sink. The default is ``None``.
         net_name : str, optional
@@ -548,7 +550,7 @@ class Q3d(QExtractor, object):
         setupname : str
             Name of the setup that is attached to the sweep.
         units : str
-            Unit of the frequency. For example, ``"MHz"`` or
+            Units of the frequency. For example, ``"MHz"`` or
             ``"GHz"``. The default is ``"GHz"``.
         freqstart :
             Starting frequency of the sweep.
@@ -613,13 +615,13 @@ class Q3d(QExtractor, object):
             Starting point for the discrete frequency.
         freqstop : float, optional
             Stopping point for the discrete frequency. If ``None``,
-            a single-point sweep is to be performed.
+            a single-point sweep is performed.
         freqstep : float, optional
             Step point for the discrete frequency. If ``None``,
-            11 points will be created.
+            11 points are created.
         units : str, optional
-            Unit of the discrete frequency. For example, ``"MHz"`` or
-            ``"GHz"``.The default is ``"GHz"``.
+            Units of the discrete frequency. For example, ``"MHz"`` or
+            ``"GHz"``. The default is ``"GHz"``.
         sweepname : str, optional
             Name of the sweep.
         savefields : bool, optional
@@ -645,7 +647,7 @@ class Q3d(QExtractor, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.logger.warning("Sweep %s already present. Please rename and retry", sweepname)
+                        self.logger.warning("Sweep %s already present. Rename and retry.", sweepname)
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart) + "GHz"
@@ -694,10 +696,10 @@ class Q2d(QExtractor, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.  This
         parameter is ignored when Script is launched within AEDT.
-    NG : bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode.
-        This parameter is ignored when Script is launched within AEDT.
+    non_graphical : bool, optional
+        Whether to launch AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -770,15 +772,16 @@ class Q2d(QExtractor, object):
         Parameters
         ----------
         position : list
-            List of [x, y] coordinates for the starting point of the rectangle.
+            List of ``[x, y]`` coordinates for the starting point of the rectangle.
         dimension_list : list
-            List of [width, height] dimensions.
+            List of ``[width, height]`` dimensions.
         name : str, optional
             Name of the rectangle. The default is ``None``, in which case
             the default name is assigned.
         matname : str, optional
             Name of the material. The default is ``None``, in which case
             the default material is assigned.
+
         Returns
         -------
         pyaedt.modeler.Object3d.Object3d
@@ -793,21 +796,21 @@ class Q2d(QExtractor, object):
 
     @aedt_exception_handler
     def assign_single_signal_line(self, target_objects, name="", solve_option="SolveInside", thickness=None, unit="um"):
-        """Assign conductor type to sheets.
+        """Assign the conductor type to sheets.
 
         Parameters
         ----------
         target_objects : list
             List of Object3D.
-        name : str
-            Name of the conductor.
+        name : str, optional
+            Name of the conductor. The default is ``""``.
         solve_option : str, optional
-            Method for solving. Options are ``"SolveInside"``, ``"SolveOnBoundary"`` or ``"Automatic"``. The default is
-            ``"SolveInside"``.
+            Method for solving. Options are ``"SolveInside"``, ``"SolveOnBoundary"``, and ``"Automatic"``.
+            The default is ``"SolveInside"``.
         thickness : float, optional
-            Conductor thickness. The default is ``None``, in which case the conductor thickness is obtained by dividing
-            the conductor's area by its perimeter (A/p). If multiple conductors are selected, the average conductor
-            thickness is used.
+            Conductor thickness. The default is ``None``, in which case the conductor thickness
+            is obtained by dividing the conductor's area by its perimeter (A/p). If multiple
+            conductors are selected, the average conductor thickness is used.
         unit : str, optional
             Thickness unit. The default is ``"um"``.
 
@@ -834,19 +837,20 @@ class Q2d(QExtractor, object):
         unit="um",
     ):
         """
-        Assign conductor type to sheets.
+        Assign the conductor type to sheets.
 
         Parameters
         ----------
         target_objects : list
             List of Object3D.
-        name : str
-            Name of the conductor.
+        name : str, optional
+            Name of the conductor. The default is ``""``.
         conductor_type : str
-            Type of conductor. Options are ``"SignalLine"``, ``"ReferenceGround"``. The default is SignalLine.
+            Type of the conductor. Options are ``"SignalLine"`` and ``"ReferenceGround"``. The default is
+            ``"SignalLine"``.
         solve_option : str, optional
-            Method for solving. Options are ``"SolveInside"``, ``"SolveOnBoundary"`` or ``"Automatic"``. The default is
-            ``"SolveInside"``.
+            Method for solving. Options are ``"SolveInside"``, ``"SolveOnBoundary"``, and ``"Automatic"``.
+            The default is ``"SolveInside"``.
         thickness : float, optional
             Conductor thickness. The default is ``None``, in which case the conductor thickness is obtained by dividing
             the conductor's area by its perimeter (A/p). If multiple conductors are selected, the average conductor
@@ -895,16 +899,17 @@ class Q2d(QExtractor, object):
     @aedt_exception_handler
     def assign_huray_finitecond_to_edges(self, edges, radius, ratio, unit="um", name=""):
         """
-        Assign Huray surface roughness model to edges.
+        Assign the Huray surface roughness model to edges.
 
         Parameters
         ----------
+        edges :
         radius :
         ratio :
-        unit :
-        edges :
-        name :
-        model_type :
+        unit : str, optional
+            The default is ``"um"``.
+        name : str, optional
+            The default is ``""``.
 
         Returns
         -------
@@ -936,11 +941,12 @@ class Q2d(QExtractor, object):
 
     @aedt_exception_handler
     def auto_assign_conductors(self):
-        """Auto Assign Conductors to Signal Lines.
+        """Automatically assign conductors to signal lines.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         original_nets = list(self.oboundary.GetExcitations())
         self.oboundary.AutoAssignSignals()
@@ -974,6 +980,7 @@ class Q2d(QExtractor, object):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         try:
             self.oboundary.ToggleConductor(conductor_name, new_type)
