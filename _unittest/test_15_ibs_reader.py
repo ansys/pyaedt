@@ -2,15 +2,15 @@ import os
 
 from pyaedt.generic import ibis_reader
 from pyaedt import Circuit
-from _unittest.conftest import local_path
+from _unittest.conftest import local_path, BasisTest
 
 
-class TestClass:
+class TestClass(BasisTest):
     def setup_class(self):
-        self.aedtapp = Circuit()
+        BasisTest.my_setup(self, application=Circuit)
 
     def teardown_class(self):
-        self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
+        BasisTest.my_teardown(self)
 
     def test_01_read_ibis(self):
         reader = ibis_reader.IbisReader(

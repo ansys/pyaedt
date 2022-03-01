@@ -40,9 +40,9 @@
 #
 # image files are treated as binary by default.
 ###############################################################################
-#*.jpg   binary
-#*.png   binary
-#*.gif   binary
+*.jpg   binary
+*.png   binary
+*.gif   binary
 
 ###############################################################################
 # diff behavior for common document formats
@@ -61,3 +61,19 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+###############################################################################
+# behavior for Ansys files
+#
+# Ansys files are treated as binary by default.
+###############################################################################
+*.aedt   binary
+*.aedtz   binary
+edb.def   binary
+*.a3dcomp   binary
+*.emn   binary
+*.emp   binary
+*.acf   text eol=lf
+*.dat   text eol=lf
+*.stp   binary
+*.step  binary

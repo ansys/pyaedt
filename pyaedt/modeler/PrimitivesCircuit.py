@@ -20,7 +20,7 @@ from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 class CircuitComponents(object):
     """CircutComponents class.
 
-    Manages all circuit components for Nexxim and Simplorer.
+    Manages all circuit components for Nexxim and Twin Builder.
 
     Examples
     --------

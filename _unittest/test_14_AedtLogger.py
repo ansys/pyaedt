@@ -16,18 +16,17 @@ from pyaedt.generic.general_methods import is_ironpython
 
 # Import required modules
 from pyaedt.aedt_logger import AedtLogger
-from pyaedt import Hfss, settings
+from pyaedt import settings
+from _unittest.conftest import BasisTest
 
 
-class TestClass:
+class TestClass(BasisTest):
     def setup_class(self):
-        self.aedtapp = Hfss()
-        pass
+        BasisTest.my_setup(self)
 
     def teardown_class(self):
-        self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
+        BasisTest.my_teardown(self)
         shutil.rmtree(os.path.join(tempfile.gettempdir(), "log_testing"))
-        pass
 
     # @pytest.mark.xfail
     # def test_01_global(self, clean_desktop_messages, clean_desktop, hfss):

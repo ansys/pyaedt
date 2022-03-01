@@ -2,6 +2,7 @@
 # Import required modules
 from pyaedt import Maxwell2d
 from pyaedt.modeler.Primitives import Polyline
+from pyaedt.application.Design import DesignCache
 
 # Setup paths for module imports
 from _unittest.conftest import BasisTest, pyaedt_unittest_check_desktop_error
@@ -14,7 +15,11 @@ except ImportError:
 
 class TestClass(BasisTest):
     def setup_class(self):
-        BasisTest.setup_class(self, design_name="2D_Primitives", solution_type="TransientXY", application=Maxwell2d)
+        BasisTest.my_setup(self, design_name="2D_Primitives", solution_type="TransientXY", application=Maxwell2d)
+        self.cache = DesignCache(self.aedtapp)
+
+    def teardown_class(self):
+        BasisTest.my_teardown(self)
 
     def create_rectangle(self, name=None):
         if not name:

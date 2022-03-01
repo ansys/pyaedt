@@ -6,10 +6,11 @@ from __future__ import absolute_import
 import math
 import os
 import re
+import io
 
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
 from pyaedt.generic import ibis_reader
 
 
@@ -1437,3 +1438,175 @@ class Circuit(FieldAnalysisCircuit, object):
         self.logger.info("Power Source updated correctly.")
 
         return True
+
+    @aedt_exception_handler
+    def set_differential_pair(
+        self,
+        positive_terminal,
+        negative_terminal,
+        common_name=None,
+        diff_name=None,
+        common_ref_z=25,
+        diff_ref_z=100,
+        active=True,
+    ):
+        """Add a differential pair definition.
+
+        Parameters
+        ----------
+        positive_terminal : str
+            Name of the terminal to use as the positive terminal.
+        negative_terminal : str
+            Name of the terminal to use as the negative terminal.
+        common_name : str, optional
+            Name for the common mode. Default is ``None`` in which case a unique name is chosen.
+        diff_name : str, optional
+            Name for the differential mode. Default is ``None`` in which case a unique name is chosen.
+        common_ref_z : float, optional
+            Reference impedance for the common mode. Units are Ohm. Default is ``25``.
+        diff_ref_z : float, optional
+            Reference impedance for the differential mode. Units are Ohm. Default is ``100``.
+        active : bool, optional
+            Set the differential pair as active. Default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oDesign.SetDiffPairs
+        """
+        if not diff_name:
+            diff_name = generate_unique_name("Diff")
+        if not common_name:
+            common_name = generate_unique_name("Comm")
+
+        arg1 = [
+            "Pos:=",
+            positive_terminal,
+            "Neg:=",
+            negative_terminal,
+            "On:=",
+            active,
+            "matched:=",
+            False,
+            "Dif:=",
+            diff_name,
+            "DfZ:=",
+            [float(diff_ref_z), 0],
+            "Com:=",
+            common_name,
+            "CmZ:=",
+            [float(common_ref_z), 0],
+        ]
+
+        arg = ["NAME:DiffPairs"]
+        arg.append("Pair:=")
+        arg.append(arg1)
+
+        tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
+        self.odesign.SaveDiffPairsToFile(tmpfile1)
+        with open(tmpfile1, "r") as fh:
+            lines = fh.read().splitlines()
+        num_diffs_before = len(lines)
+        old_arg = []
+        for line in lines:
+            data = line.split(",")
+            data_arg = [
+                "Pos:=",
+                data[0],
+                "Neg:=",
+                data[1],
+                "On:=",
+                data[2] == "1",
+                "matched:=",
+                False,
+                "Dif:=",
+                data[4],
+                "DfZ:=",
+                [float(data[5]), 0],
+                "Com:=",
+                data[6],
+                "CmZ:=",
+                [float(data[7]), 0],
+            ]
+            old_arg.append(data_arg)
+
+        for arg2 in old_arg:
+            arg.append("Pair:=")
+            arg.append(arg2)
+
+        try:
+            os.remove(tmpfile1)
+        except:  # pragma: no cover
+            self.logger.warning("ERROR: Cannot remove temp files.")
+
+        try:
+            self.odesign.SetDiffPairs(arg)
+        except:  # pragma: no cover
+            return False
+        return True
+
+    @aedt_exception_handler
+    def load_diff_pairs_from_file(self, filename):
+        """Load differtential pairs definition from file.
+
+        File format can be obtained using ``save_diff_pairs_to_file`` method.
+        New definitions are added only if compatible with the existing definition already defined in the project.
+
+        Parameters
+        ----------
+        filename : str
+            Full qualified name of the file containing the differential pairs definition.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oDesign.LoadDiffPairsFromFile
+        """
+        if not os.path.isfile(filename):  # pragma: no cover
+            raise ValueError("{}: unable to find the specified file.".format(filename))
+
+        try:
+            new_file = os.path.join(os.path.dirname(filename), generate_unique_name("temp") + ".txt")
+            with open(filename, "r") as file:
+                filedata = file.read().splitlines()
+            with io.open(new_file, "w", newline="\n") as fh:
+                for line in filedata:
+                    fh.write(line + "\n")
+
+            self.odesign.LoadDiffPairsFromFile(new_file)
+            os.remove(new_file)
+        except:  # pragma: no cover
+            return False
+        return True
+
+    @aedt_exception_handler
+    def save_diff_pairs_to_file(self, filename):
+        """Save differtential pairs definition to file.
+
+        If ``filename`` already exists, it will be overwritten.
+
+        Parameters
+        ----------
+        filename : str
+            Full qualified name of the file containing the differential pairs definition.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oDesign.SaveDiffPairsToFile
+        """
+        self.odesign.SaveDiffPairsToFile(filename)
+
+        return os.path.isfile(filename)

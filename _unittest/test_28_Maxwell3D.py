@@ -1,13 +1,11 @@
 # Setup paths for module imports
-from _unittest.conftest import scratch_path, local_path
+from _unittest.conftest import desktop_version, local_path, BasisTest
 import os
 import tempfile
 
 # Import required modules
 from pyaedt import Maxwell3d
-from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.constants import SOLUTIONS
-import gc
 
 try:
     import pytest
@@ -17,20 +15,15 @@ except ImportError:
 test_project_name = "eddy"
 
 
-class TestClass:
+class TestClass(BasisTest):
     def setup_class(self):
-        # set a scratch directory and the environment / test data
-        with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Maxwell3d(solution_type="EddyCurrent")
-            core_loss_file = "PlanarTransformer.aedt"
-            example_project = os.path.join(local_path, "example_models", core_loss_file)
-            self.file_path = self.local_scratch.copyfile(example_project)
+        BasisTest.my_setup(self, application=Maxwell3d, solution_type="EddyCurrent")
+        core_loss_file = "PlanarTransformer.aedt"
+        example_project = os.path.join(local_path, "example_models", core_loss_file)
+        self.file_path = self.local_scratch.copyfile(example_project)
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        assert self.aedtapp.close_project(self.aedtapp.project_name, False)
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self)
 
     def test_01_create_primitive(self):
         self.aedtapp.modeler.model_units = "mm"
@@ -265,13 +258,13 @@ class TestClass:
 
     def test_31_core_losses(self):
 
-        m3d1 = Maxwell3d(self.file_path)
+        m3d1 = Maxwell3d(self.file_path, specified_version=desktop_version)
         assert m3d1.set_core_losses(["PQ_Core_Bottom", "PQ_Core_Top"])
         assert m3d1.set_core_losses(["PQ_Core_Bottom"], False)
         self.aedtapp.close_project(m3d1.project_name, False)
 
     def test_32_matrix(self):
-        m3d1 = Maxwell3d(self.file_path)
+        m3d1 = Maxwell3d(self.file_path, specified_version=desktop_version)
         assert m3d1.assign_matrix("pri", "mymatrix") == "mymatrix"
         self.aedtapp.close_project(m3d1.project_name, False)
 

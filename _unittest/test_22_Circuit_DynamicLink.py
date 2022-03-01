@@ -1,10 +1,9 @@
 # standard imports
 import os
-from _unittest.conftest import local_path, scratch_path, config, desktop_version
+from _unittest.conftest import local_path, scratch_path, config, desktop_version, BasisTest
 
 from pyaedt import Circuit, Q2d, Q3d, Hfss
 from pyaedt.generic.filesystem import Scratch
-import gc
 
 try:
     import pytest
@@ -20,55 +19,45 @@ source_project = os.path.join(local_path, "example_models", src_project_name + "
 linked_project_name = "Filter_Board"
 
 
-class TestClass:
+class TestClass(BasisTest):
     def setup_class(self):
         # set a scratch directory and the environment / test data
         with Scratch(scratch_path) as self.local_scratch:
-            try:
-                time.sleep(2)
-                example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
-                source_project = os.path.join(local_path, "example_models", src_project_name + ".aedt")
-                linked_project = os.path.join(local_path, "example_models", linked_project_name + ".aedt")
+            time.sleep(2)
+            example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
+            source_project = os.path.join(local_path, "example_models", src_project_name + ".aedt")
+            linked_project = os.path.join(local_path, "example_models", linked_project_name + ".aedt")
 
-                self.q3d = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))
-                self.test_project = self.local_scratch.copyfile(example_project)
-                self.test_src_project = self.local_scratch.copyfile(source_project)
-                self.test_lkd_project = self.local_scratch.copyfile(linked_project)
+            self.q3d = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))
+            self.test_project = self.local_scratch.copyfile(example_project)
+            self.test_src_project = self.local_scratch.copyfile(source_project)
+            self.test_lkd_project = self.local_scratch.copyfile(linked_project)
 
-                self.local_scratch.copyfolder(
-                    os.path.join(local_path, "example_models", test_project_name + ".aedb"),
-                    os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
-                )
-                self.local_scratch.copyfolder(
-                    os.path.join(local_path, "example_models", linked_project_name + ".aedb"),
-                    os.path.join(self.local_scratch.path, linked_project_name + ".aedb"),
-                )
-                temp = open(example_project, "rb").read().splitlines()
+            self.local_scratch.copyfolder(
+                os.path.join(local_path, "example_models", test_project_name + ".aedb"),
+                os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
+            )
+            self.local_scratch.copyfolder(
+                os.path.join(local_path, "example_models", linked_project_name + ".aedb"),
+                os.path.join(self.local_scratch.path, linked_project_name + ".aedb"),
+            )
+            temp = open(example_project, "rb").read().splitlines()
 
-                outf = open(os.path.join(self.local_scratch.path, test_project_name + ".aedt"), "wb")
-                found = False
-                for line in temp:
-                    if not found:
-                        if "Filter_Board.aedt" in line.decode("utf-8"):
-                            line = "\t\t\t\tfilename='{}/Filter_Board.aedt'\n".format(
-                                self.local_scratch.path.replace("\\", "/")
-                            ).encode()
-                            found = True
-                    outf.write(line + b"\n")
-                outf.close()
-                self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
-            except:
-                pass
+            outf = open(os.path.join(self.local_scratch.path, test_project_name + ".aedt"), "wb")
+            found = False
+            for line in temp:
+                if not found:
+                    if "Filter_Board.aedt" in line.decode("utf-8"):
+                        line = "\t\t\t\tfilename='{}/Filter_Board.aedt'\n".format(
+                            self.local_scratch.path.replace("\\", "/")
+                        ).encode()
+                        found = True
+                outf.write(line + b"\n")
+            outf.close()
+            self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        for proj in self.aedtapp.project_list:
-            try:
-                self.aedtapp.close_project(proj, False)
-            except:
-                pass
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self)
 
     def test_01_save(self):
         assert os.path.exists(self.aedtapp.project_path)
@@ -190,19 +179,19 @@ class TestClass:
 
     def test_10_q3d_link(self):
         self.aedtapp.insert_design("test_link")
-        q2d = Q2d(self.q3d)
+        q2d = Q2d(self.q3d, specified_version=desktop_version)
         proj_path = self.q3d
         proj_name = q2d.project_name
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d, extrusion_length=25)
         if proj_name in self.aedtapp.project_list:
             proj_path = proj_name
-        q3d = Q3d(proj_path)
+        q3d = Q3d(proj_path, specified_version=desktop_version)
 
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q3d, solution_name="Setup1 : LastAdaptive")
-        hfss = Hfss(proj_path)
+        hfss = Hfss(proj_path, specified_version=desktop_version)
 
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup1 : Sweep")
-        hfss = Hfss(proj_path)
+        hfss = Hfss(proj_path, specified_version=desktop_version)
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
             hfss, solution_name="Setup2 : Sweep", tline_port="1"
         )
