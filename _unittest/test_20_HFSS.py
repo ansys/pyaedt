@@ -787,7 +787,7 @@ class TestClass(BasisTest):
             self.aedtapp.create_spiral_lumped_port(box3, box4)
         except AttributeError as e:
             exception_raised = True
-            assert e.args[0] == "The two object must have parallel adjacent faces."
+            assert e.args[0] == "The two objects must have parallel adjacent faces."
         assert exception_raised
 
     def test_46_mesh_settings(self):
