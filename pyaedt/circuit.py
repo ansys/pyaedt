@@ -39,10 +39,10 @@ class Circuit(FieldAnalysisCircuit, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
-    NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
-        is``False``, in which case AEDT is launched in the graphical mode.
-        This parameter is ignored when Script is launched within AEDT.
+    non_graphical : bool, optional
+        Whether to run AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -149,7 +149,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Returns
         -------
         bool
-             ``True`` when successful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed.
 
         """
         xpos = 0
@@ -364,17 +364,17 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def read_ibis(self, path):
-        """Create an IBIS model based on the data contained in an IBS file.
+        """Create an IBIS model based on the data contained in an IBIS file.
 
         Parameters
         ----------
         path : str
-            Path of the ibis file.
+            Path of the IBIS file.
 
         Returns
         ----------
         :class:`pyaedt.generic.ibis_reader.Ibis`
-            Ibis object exposing all data from the ibis file.
+            IBIS object exposing all data from the IBIS file.
         """
 
         reader = ibis_reader.IbisReader()
@@ -551,7 +551,7 @@ class Circuit(FieldAnalysisCircuit, object):
     def get_source_pin_names(
         self, source_design_name, source_project_name=None, source_project_path=None, port_selector=3
     ):
-        """List the pin names.
+        """Retrieve pin names.
 
         Parameters
         ----------
@@ -562,9 +562,8 @@ class Circuit(FieldAnalysisCircuit, object):
         source_project_path : str, optional
             Path to the source project if different than the existing path. The default is ``None``.
         port_selector : int, optional
-             Type of the port. Options are ``1``, ``2``, or ``3``, corresponding respectively to ``"Wave Port"``,
-             ``"Terminal"``, or ``"Circuit Port"``.
-             The default is ``3``, which is a circuit port.
+            Type of the port. Options are ``1``, ``2``, and ``3``, corresponding respectively to ``"Wave Port"``,
+            ``"Terminal"``, or ``"Circuit Port"``. The default is ``3``, which is a circuit port.
 
         Returns
         -------
@@ -578,11 +577,11 @@ class Circuit(FieldAnalysisCircuit, object):
         """
         if source_project_name and self.project_name != source_project_name and not source_project_path:
             raise AttributeError(
-                "If source project is different than the current one, " "``source_project_path`` must be also provided."
+                "If source project is different than the current one, " "``source_project_path`` must also be provided."
             )
         if source_project_path and not source_project_name:
             raise AttributeError(
-                "When ``source_project_path`` is specified, " "``source_project_name`` must be also provided."
+                "When ``source_project_path`` is specified, " "``source_project_name`` must also be provided."
             )
         if not source_project_name or self.project_name == source_project_name:
             oSrcProject = self._desktop.GetActiveProject()
@@ -747,18 +746,18 @@ class Circuit(FieldAnalysisCircuit, object):
         Parameters
         ----------
         solutionname : str
-             Name of the solution that has been solved.
+            Name of the solution that has been solved.
         sweepname : str
-             Name of the sweep that has been solved.
+            Name of the sweep that has been solved.
         filename : str, optional
-             Full path and name for the Touchstone file.
-             The default is ``None`` which export file in working_directory.
+            Full path and name for the Touchstone file. The default is ``None``,
+            which exports the file to the working directory.
         variation : list, optional
-             List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
-             The default is ``[]``.
+            List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
+            The default is ``[]``.
         variations_value : list, optional
-             List of all parameter variation values. For example, ``["22cel", "100"]``.
-             The default is ``[]``.
+            List of all parameter variation values. For example, ``["22cel", "100"]``.
+            The default is ``[]``.
 
         Returns
         -------
@@ -853,7 +852,7 @@ class Circuit(FieldAnalysisCircuit, object):
             Whether it is an imported solution file. The default is ``False``.
         filename : str, optional
             Full path and name for exporting the HSpice file.
-            The default is ``None`` which export file in working_directory.
+            The default is ``None``, in which case the file is exported to the working directory.
         passivity : bool, optional
             Whether to compute the passivity. The default is ``False``.
         causality : bool, optional
@@ -973,7 +972,7 @@ class Circuit(FieldAnalysisCircuit, object):
         variation_dict : dict, optional
             Dictionary of variation names. The default value is ``None``.
         subdesign_id : int, optional
-            Specify a SubDesign ID to export a touchstone of this Subdesign. The default value is ``None``.
+            Specify a subdesign ID to export a Touchstone file of this subdesign. The default value is ``None``.
 
         Returns
         -------
@@ -1003,7 +1002,8 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def get_touchstone_data(self, curvenames, solution_name=None, variation_dict=None):
-        """Return Touchstone Data plot.
+        """
+        Return a Touchstone data plot.
 
         Parameters
         ----------
@@ -1043,8 +1043,8 @@ class Circuit(FieldAnalysisCircuit, object):
             Name of the instance.
         thevenin_calculation : bool, optional
             Whether to perform the Thevenin equivalent calculation. The default is ``False``.
-        setup_name : str
-            Name of the solution setup to push.
+        setup_name : str, optional
+            Name of the solution setup to push. The default is ``"LinearFrequency"``.
 
         Returns
         -------
@@ -1070,22 +1070,22 @@ class Circuit(FieldAnalysisCircuit, object):
         ports : list
             List of circuit ports to assign to the sinusoidal excitation.
         settings : list
-            List of parameter values to use in voltage sinusoidal excitation creation.
-            All settings must be provided as strings.
-            An empty string (``""``) sets the parameter to its default.
+            List of parameter values to use to create the voltage sinusoidal excitation.
+            All settings must be provided as strings. An empty string (``""``) sets the
+            parameter to its default.
 
             Values are given in this order:
 
-            * 0: AC magnitude for small-signal analysis. For example ``"33V"``. Default = "nan V".
-            * 1: AC phase for small-signal analysis. For example ``"44deg"``. Default = "0deg".
-            * 2: DC voltage. For example ``"1V"``. Default = "0V"
-            * 3: Voltage offset from zero. For example ``"1V"``. Default = "0V".
-            * 4: Voltage amplitude. For example ``"3V"``. Default = "0V".
-            * 5: Frequency. For example ``"15GHz"``. Default = "1GHz".
-            * 6: Delay to start of sine wave. For example ``"16s"``. Default = "0s".
-            * 7: Damping factor (1/seconds). For example ``"2"``. Default = "0".
-            * 8: Phase delay. For example ``"18deg"``. Default = "0deg".
-            * 9: Frequency to use for harmonic balance analysis. For example ``"20Hz"``. Default = "0Hz".
+            * 0: AC magnitude for small-signal analysis. For example, ``"33V"``. The default is ``"nan V"``.
+            * 1: AC phase for small-signal analysis. For example, ``"44deg"``. The default is ``"0deg"``.
+            * 2: DC voltage. For example, ``"1V"``. The default is ``"0V"``.
+            * 3: Voltage offset from zero. For example, ``"1V"``. The default is ``"0V"``.
+            * 4: Voltage amplitude. For example, ``"3V"``. The default is ``"0V"``.
+            * 5: Frequency. For example, ``"15GHz"``. The default is ``"1GHz"``.
+            * 6: Delay to start of sine wave. For example, ``"16s"``. The default is ``"0s"``.
+            * 7: Damping factor (1/seconds). For example, ``"2"``. The default is ``"0"``.
+            * 8: Phase delay. For example, ``"18deg"``. The default is ``"0deg"``.
+            * 9: Frequency to use for harmonic balance analysis. For example, ``"20Hz"``. The default is ``"0Hz"``.
 
         Returns
         -------
@@ -1195,23 +1195,25 @@ class Circuit(FieldAnalysisCircuit, object):
         ports : list
             List of circuit ports to assign to the sinusoidal excitation.
         settings : list
-            List of parameter values to use in voltage sinusoidal excitation creation.
-            All settings must be provided as strings.
-            An empty string (``""``) sets the parameter to its default.
+            List of parameter values to use to create the voltage sinusoidal excitation.
+            All settings must be provided as strings. An empty string (``""``) sets the
+            parameter to its default.
 
             Values are given in this order:
 
-            * 0: AC magnitude for small-signal analysis. For example ``"33A"``. Default = "nan A".
-            * 1: AC phase for small-signal analysis. For example ``"44deg"``. Default = "0deg".
-            * 2: DC voltage. For example ``"1A"``. Default = "0A"
-            * 3: Current offset from zero. For example ``"1A"``. Default = "0A".
-            * 4: Current amplitude. For example ``"3A"``. Default = "0A".
-            * 5: Frequency. For example ``"15GHz"``. Default = "1GHz".
-            * 6: Delay to start of sine wave. For example ``"16s"``. Default = "0s".
-            * 7: Damping factor (1/seconds). For example ``"2"``. Default = "0".
-            * 8: Phase delay. For example ``"18deg"``. Default = "0deg".
-            * 9: Multiplier for simulating multiple parallel current sources. For example ``"4"``. Default = "1".
-            * 10: Frequency to use for harmonic balance analysis. For example ``"20Hz"``. Default = "0Hz".
+            * 0: AC magnitude for small-signal analysis. For example, ``"33A"``. The default is ``"nan A"``.
+            * 1: AC phase for small-signal analysis. For example, ``"44deg"``. The default is ``"0deg"``.
+            * 2: DC voltage. For example, ``"1A"``. The default is ``"0A"``.
+            * 3: Current offset from zero. For example, ``"1A"``. The default is ``"0A"``.
+            * 4: Current amplitude. For example, ``"3A"``. The default is ``"0A"``.
+            * 5: Frequency. For example, ``"15GHz"``. The default is ``"1GHz"``.
+            * 6: Delay to start of sine wave. For example, ``"16s"``. The default is ``"0s"``.
+            * 7: Damping factor (1/seconds). For example, ``"2"``. The default is ``"0"``.
+            * 8: Phase delay. For example, ``"18deg"``. The default is ``"0deg"``.
+            * 9: Multiplier for simulating multiple parallel current sources. For example, ``"4"``.
+              The default is ``"1"``.
+            * 10: Frequency to use for harmonic balance analysis. For example, ``"20Hz"``.
+              The default is ``"0Hz".``
 
         Returns
         -------
@@ -1322,22 +1324,22 @@ class Circuit(FieldAnalysisCircuit, object):
         ports : list
             List of circuit ports to assign to the sinusoidal excitation.
         settings : list
-            List of parameter values to use in power sinusoidal excitation creation.
-            All settings must be provided as strings.
-            An empty string (``""``) sets the parameter to its default.
+            List of parameter values to use to create the power sinusoidal excitation.
+            All settings must be provided as strings. An empty string (``""``) sets the
+            parameter to its default.
 
             Values are given in this order:
 
-            * 0: AC magnitude for small-signal analysis. For example ``"33V"``. Default = "nan V".
-            * 1: AC phase for small-signal analysis. For example ``"44deg"``. Default = "0deg".
-            * 2: DC voltage. For example ``"1V"``. Default = "0V"
-            * 3: Power offset from zero watts. For example ``"1W"``. Default = "0W".
-            * 4: Available power of the source above VO. For example ``"3W"``. Default = "0W".
-            * 5: Frequency. For example ``"15GHz"``. Default = "1GHz".
-            * 6: Delay to start of sine wave. For example ``"16s"``. Default = "0s".
-            * 7: Damping factor (1/seconds). For example ``"2"``. Default = "0".
-            * 8: Phase delay. For example ``"18deg"``. Default = "0deg".
-            * 9: Frequency to use for harmonic balance analysis. For example ``"20Hz"``. Default = "0Hz".
+            * 0: AC magnitude for small-signal analysis. For example, ``"33V"``. The default is ``"nan V"``.
+            * 1: AC phase for small-signal analysis. For example, ``"44deg"``. The default is ``"0deg"``.
+            * 2: DC voltage. For example, ``"1V"``. The default is ``"0V"``.
+            * 3: Power offset from zero watts. For example, ``"1W"``. The default is ``"0W"``.
+            * 4: Available power of the source above VO. For example, ``"3W"``. The default is ``"0W"``.
+            * 5: Frequency. For example, ``"15GHz"``. The default is ``"1GHz"``.
+            * 6: Delay to start of sine wave. For example, ``"16s"``. The default is ``"0s"``.
+            * 7: Damping factor (1/seconds). For example, ``"2"``. The default is ``"0"``.
+            * 8: Phase delay. For example, ``"18deg"``. The default is ``"0deg"``.
+            * 9: Frequency to use for harmonic balance analysis. For example, ``"20Hz"``. The default is ``"0Hz"``.
 
         Returns
         -------

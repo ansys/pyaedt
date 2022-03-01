@@ -4,6 +4,7 @@ import math
 # Setup paths for module imports
 
 # Import required modules
+import pyaedt
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.generic.filesystem import Scratch
@@ -694,6 +695,21 @@ class TestClass:
         assert solder_ball_height == 0.00033
         assert len(vector) == 2
         edb2.close_edb()
+
+    def test_80_edb_without_path(self):
+        edbapp_without_path = Edb(edbversion=desktop_version, isreadonly=False)
+        edbapp_without_path.close_edb()
+        edbapp_without_path = None
+
+    def test_81_edb_not_initialized(self):
+        pyaedt.edb.edb_initialized = False
+        edb_not_initialized = Edb(
+            os.path.join(local_path, "example_models", "Package.aedb"), edbversion=desktop_version
+        )
+        assert edb_not_initialized._db is None
+        pyaedt.edb.edb_initialized = True
+        assert edb_not_initialized._db is None
+        pyaedt.edb.edb_initialized = True
 
     def test_82_edb_with_dxf(self):
         edb3 = Edb(os.path.join(local_path, "example_models", "edb_test_82.dxf"), edbversion=desktop_version)

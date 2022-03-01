@@ -240,3 +240,9 @@ class TestClass(BasisTest):
     def test_28_get_pyaedt_app(self):
         app = get_pyaedt_app(self.aedtapp.project_name, self.aedtapp.design_name)
         assert app.design_type == "HFSS"
+
+    def test_29_change_registry_key(self):
+        desktop = Desktop(desktop_version, new_desktop_session=False)
+        assert not desktop.change_registry_key("test_key_string", "test_string")
+        assert not desktop.change_registry_key("test_key_int", 2)
+        assert not desktop.change_registry_key("test_key", 2.0)

@@ -314,7 +314,7 @@ class TestClass(BasisTest):
             )
         except AttributeError as e:
             exception_raised = True
-            assert e.args[0] == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
+            assert e.args[0] == "Invalid `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
         assert exception_raised
 
     def test_18c_create_single_point_sweep(self):
@@ -336,6 +336,19 @@ class TestClass(BasisTest):
             save_fields=False,
         )
         assert sweep6.props["Sweeps"]["Data"] == "1GHz 2GHz 3GHz 4GHz"
+
+        try:
+            sweep7 = self.aedtapp.create_single_point_sweep(
+                setupname=setup_name,
+                unit="GHz",
+                freq=[],
+                sweepname="RFBoardSingle",
+                save_fields=False,
+            )
+        except AttributeError as e:
+            exception_raised = True
+            assert e.args[0] == "Frequency list is empty. Specify at least one frequency point."
+        assert exception_raised
 
     def test_18d_delete_setup(self):
         setup_name = "SetupToDelete"

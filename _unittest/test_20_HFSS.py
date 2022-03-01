@@ -81,6 +81,10 @@ class TestClass(BasisTest):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         o5 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1")
         self.aedtapp.solution_type = "Terminal"
+
+        # Wave port cannot be created if the reference conductors are missing.
+        assert not self.aedtapp.create_wave_port_from_sheet(o5)
+
         port = self.aedtapp.create_wave_port_from_sheet(
             o5, 5, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1_Port", renorm=False, terminal_references=["outer"]
         )
@@ -110,7 +114,6 @@ class TestClass(BasisTest):
         rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [20, 25, 20], [2, 10])
         ports = self.aedtapp.create_wave_port_from_sheet(rect, 5, self.aedtapp.AxisDir.ZNeg, 40, 2, "sheet3_Port", True)
         assert ports.name in [i.name for i in self.aedtapp.boundaries]
-        pass
 
     def test_06a_create_linear_count_sweep(self):
         setup = self.aedtapp.create_setup("MySetup")
@@ -163,6 +166,22 @@ class TestClass(BasisTest):
         assert sweep.props["RangeStart"] == str(freq_start) + units
         assert sweep.props["RangeEnd"] == str(freq_stop) + units
         assert sweep.props["Type"] == "Discrete"
+
+        # Create a linear count sweep with the incorrect sweep type.
+        try:
+            sweep = self.aedtapp.create_linear_count_sweep(
+                setupname="MySetup",
+                sweepname="IncorrectStep",
+                unit="MHz",
+                freqstart=1.1e3,
+                freqstop=1200.1,
+                num_of_freq_points=1234,
+                sweep_type="Incorrect",
+            )
+        except AttributeError as e:
+            exception_raised = True
+            assert e.args[0] == "Invalid `sweep_type`. It must be 'Discrete', 'Interpolating', or 'Fast'."
+        assert exception_raised
 
     def test_06b_setup_exists(self):
         assert self.aedtapp.analysis_setup is not None
@@ -768,7 +787,7 @@ class TestClass(BasisTest):
             self.aedtapp.create_spiral_lumped_port(box3, box4)
         except AttributeError as e:
             exception_raised = True
-            assert e.args[0] == "The two object must have parallel adjacent faces."
+            assert e.args[0] == "The two objects must have parallel adjacent faces."
         assert exception_raised
 
     def test_46_mesh_settings(self):
@@ -783,7 +802,34 @@ class TestClass(BasisTest):
         assert len(self.aedtapp.excitations) > 0
         assert len(self.aedtapp.get_traces_for_plot()) > 0
 
-    def test_49_set_differential_pair(self):
+    def test_49_port_creation_exception(self):
+        box1 = self.aedtapp.modeler.create_box([-400, -40, -20], [80, 80, 10], name="gnd49", matname="copper")
+        box2 = self.aedtapp.modeler.create_box([-400, -40, 10], [80, 80, 10], name="sig49", matname="copper")
+
+        self.aedtapp.solution_type = "Modal"
+        # Spiral lumped port can only be created in a 'Terminal' solution.
+        try:
+            self.aedtapp.create_spiral_lumped_port(box1, box2)
+        except Exception as e:
+            exception_raised = True
+            assert e.args[0] == "This method can be used only in Terminal solutions."
+        assert exception_raised
+        self.aedtapp.solution_type = "Terminal"
+
+        # Try to modify SBR+ TX RX antenna settings in a solution that is different from SBR+
+        # should not be possible.
+        assert not self.aedtapp.set_sbr_txrx_settings({"TX1": "RX1"})
+
+        # SBR linked antenna can only be created within an SBR+ solution.
+        assert not self.aedtapp.create_sbr_linked_antenna(self.aedtapp, fieldtype="farfield")
+
+        # Chirp I doppler setup only works within an SBR+ solution.
+        assert self.aedtapp.create_sbr_chirp_i_doppler_setup(sweep_time_duration=20) == (False, False)
+
+        # Chirp IQ doppler setup only works within an SBR+ solution.
+        assert self.aedtapp.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=10) == (False, False)
+
+    def test_50_set_differential_pair(self):
         example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
         test_project = self.local_scratch.copyfile(example_project)
         self.local_scratch.copyfolder(

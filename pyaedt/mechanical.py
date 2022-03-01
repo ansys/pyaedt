@@ -1,4 +1,4 @@
-"""This module contains the `Mechanical` class."""
+"""This module contains the ``Mechanical`` class."""
 
 from __future__ import absolute_import
 
@@ -33,10 +33,10 @@ class Mechanical(FieldAnalysis3D, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when Script is launched within AEDT.
-    NG : bool, optional
+    non_graphical : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
-        is``False``, in which case AEDT is launched in the graphical mode.
-        This parameter is ignored when Script is launched within AEDT.
+        is ``False``, in which case AEDT is launched in the graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -153,7 +153,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignEMLoss
         """
-        assert self.solution_type == "Thermal", "This Method works only in Mechanical Structural Solution"
+        assert self.solution_type == "Thermal", "This method works only in a Mechanical structural analysis."
 
         self.logger.info("Mapping HFSS EM Lossess")
         oName = self.project_name
@@ -249,7 +249,7 @@ class Mechanical(FieldAnalysis3D, object):
         >>> oModule.AssignThermalCondition
         """
 
-        assert self.solution_type == "Structural", "This method works only in a Mechanical structural solution."
+        assert self.solution_type == "Structural", "This method works only in a Mechanical structural analysis."
 
         self.logger.info("Mapping HFSS EM Lossess")
         oName = self.project_name
@@ -325,7 +325,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignConvection
         """
-        assert self.solution_type == "Thermal", "This method works only in a Mechanical structural solution."
+        assert self.solution_type == "Thermal", "This method works only in a Mechanical structural analysis."
 
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
@@ -421,7 +421,7 @@ class Mechanical(FieldAnalysis3D, object):
         """
 
         if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
-            self.logger.error("This method works only in Mechanical Structural Solution")
+            self.logger.error("This method works only in Mechanical atructural analysis.")
             return False
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
@@ -465,7 +465,7 @@ class Mechanical(FieldAnalysis3D, object):
         >>> oModule.AssignFixedSupport
         """
         if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
-            self.logger.error("This method works only in a Mechanical structural solution.")
+            self.logger.error("This method works only in a Mechanical structural analysis.")
             return False
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
