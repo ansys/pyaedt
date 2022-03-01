@@ -1,6 +1,7 @@
 # Setup paths for module imports
 from _unittest.conftest import BasisTest, pyaedt_unittest_check_desktop_error
 from pyaedt.modeler.Modeler import FaceCoordinateSystem
+from pyaedt.application.Design import DesignCache
 
 try:
     import pytest  # noqa: F401
@@ -10,7 +11,11 @@ except ImportError:
 
 class TestClass(BasisTest):
     def setup_class(self):
-        BasisTest.setup_class(self, project_name="Coax_HFSS")
+        BasisTest.my_setup(self, project_name="Coax_HFSS")
+        self.cache = DesignCache(self.aedtapp)
+
+    def teardown_class(self):
+        BasisTest.my_teardown(self)
 
     def restore_model(self):
         for name in self.aedtapp.modeler.get_matched_object_name("outer*"):

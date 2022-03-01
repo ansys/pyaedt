@@ -2,23 +2,20 @@
 import os
 import sys
 import time
-import gc
 
 try:
     import pytest
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
-from pyaedt.generic.general_methods import is_ironpython
-
 # Setup paths for module imports
-from _unittest.conftest import scratch_path, local_path, BasisTest, pyaedt_unittest_check_desktop_error, config
+from _unittest.conftest import local_path, BasisTest, pyaedt_unittest_check_desktop_error, config
 from pyaedt.generic.general_methods import is_ironpython
-from pyaedt.generic.filesystem import Scratch
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
 from pyaedt.modeler.Object3d import Object3d
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.generic.constants import AXIS
+from pyaedt.application.Design import DesignCache
 
 test = sys.modules.keys()
 
@@ -29,17 +26,19 @@ component3d = "new.a3dcomp"
 
 class TestClass(BasisTest):
     def setup_class(self):
-        gc.collect()
-        BasisTest.setup_class(self, project_name="test_primitives", design_name="3D_Primitives")
-        with Scratch(scratch_path) as self.local_scratch:
-            scdoc_file = os.path.join(local_path, "example_models", scdoc)
-            self.local_scratch.copyfile(scdoc_file)
-            self.step_file = os.path.join(local_path, "example_models", step)
-            self.component3d_file = os.path.join(self.local_scratch.path, component3d)
-            test_98_project = os.path.join(local_path, "example_models", "assembly2" + ".aedt")
-            self.test_98_project = self.local_scratch.copyfile(test_98_project)
-            test_99_project = os.path.join(local_path, "example_models", "assembly" + ".aedt")
-            self.test_99_project = self.local_scratch.copyfile(test_99_project)
+        BasisTest.my_setup(self, project_name="test_primitives", design_name="3D_Primitives")
+        self.cache = DesignCache(self.aedtapp)
+        scdoc_file = os.path.join(local_path, "example_models", scdoc)
+        self.local_scratch.copyfile(scdoc_file)
+        self.step_file = os.path.join(local_path, "example_models", step)
+        self.component3d_file = os.path.join(self.local_scratch.path, component3d)
+        test_98_project = os.path.join(local_path, "example_models", "assembly2" + ".aedt")
+        self.test_98_project = self.local_scratch.copyfile(test_98_project)
+        test_99_project = os.path.join(local_path, "example_models", "assembly" + ".aedt")
+        self.test_99_project = self.local_scratch.copyfile(test_99_project)
+
+    def teardown_class(self):
+        BasisTest.my_teardown(self)
 
     def create_copper_box(self, name=None):
         if not name:

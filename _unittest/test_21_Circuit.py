@@ -1,4 +1,3 @@
-import gc
 import os
 import time
 
@@ -8,7 +7,7 @@ from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.TouchstoneParser import read_touchstone
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, config
+from _unittest.conftest import local_path, scratch_path, config, BasisTest, desktop_version
 
 try:
     import pytest  # noqa: F401
@@ -25,7 +24,7 @@ touchstone2 = "Galileo_V3P3S0.ts"
 ami_project = "AMI_Example"
 
 
-class TestClass:
+class TestClass(BasisTest):
     def setup_class(self):
         with Scratch(scratch_path) as self.local_scratch:
             time.sleep(2)
@@ -51,17 +50,21 @@ class TestClass:
                 os.path.join(local_path, "example_models", ami_project + ".aedb"),
                 os.path.join(self.local_scratch.path, ami_project + ".aedb"),
             )
-            self.aedtapp = Circuit(self.test_project)
+            self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
+
+            example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
+            new_project = os.path.join(self.local_scratch.path, "differential_pairs3.aedt")
+            test_project = self.local_scratch.copyfile(example_project, new_project)
+            self.local_scratch.copyfolder(
+                os.path.join(local_path, "example_models", "differential_pairs.aedb"),
+                os.path.join(self.local_scratch.path, "differential_pairs3.aedb"),
+            )
+            self.circuitprj = Circuit(
+                projectname=test_project, designname="Circuit1", specified_version=desktop_version
+            )
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        for proj in self.aedtapp.project_list:
-            try:
-                self.aedtapp.close_project(proj, saveproject=False)
-            except:
-                pass
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self)
 
     def test_01_create_inductor(self):
         myind = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[0.2, 0.2])
@@ -311,3 +314,26 @@ class TestClass:
         assert comp_catalog["LISN:CISPR25_LISN"].place("Lisn1")
         assert not comp_catalog["Capacitors"]
         assert comp_catalog["LISN:CISPR25_LISN"].props
+
+    def test_27_set_differential_pairs(self):
+        assert self.circuitprj.set_differential_pair(
+            positive_terminal="Port3",
+            negative_terminal="Port4",
+            common_name=None,
+            diff_name=None,
+            common_ref_z=34,
+            diff_ref_z=123,
+            active=True,
+        )
+        assert self.circuitprj.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
+
+    def test_28_load_and_save_diff_pair_file(self):
+        diff_def_file = os.path.join(local_path, "example_models", "differential_pairs_definition.txt")
+        diff_file = self.local_scratch.copyfile(diff_def_file)
+        assert self.circuitprj.load_diff_pairs_from_file(diff_file)
+
+        diff_file2 = os.path.join(self.local_scratch.path, "diff_file2.txt")
+        assert self.circuitprj.save_diff_pairs_to_file(diff_file2)
+        with open(diff_file2, "r") as fh:
+            lines = fh.read().splitlines()
+        assert len(lines) == 3
