@@ -1853,10 +1853,8 @@ class GeometryOperators(object):
             # build the lattice
             xmin = min(x)
             r = int(math.ceil(float(max(x)-xmin)/L))
-            xmax = xmin + L*r
             ymin = min(y)
             s = int(math.ceil(float(max(y)-ymin)/L))
-            ymax = ymin + L*s
 
             # get the lattice points S inside the polygon
             Spoints = []
