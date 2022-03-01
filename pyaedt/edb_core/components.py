@@ -447,34 +447,41 @@ class Components(object):
             return False
         if not isinstance(hosting_component, self._edb.Cell.Hierarchy.Component):
             return False
+
         if mounted_component_pin1:
             m_pin1 = self._get_edb_pin_from_pin_name(mounted_component, mounted_component_pin1)
             m_pin1_pos = self.get_pin_position(m_pin1)
+            m_pin1_pos_3d = [m_pin1_pos[0], m_pin1_pos[1], 0]
         if mounted_component_pin2:
             m_pin2 = self._get_edb_pin_from_pin_name(mounted_component, mounted_component_pin2)
             m_pin2_pos = self.get_pin_position(m_pin2)
+            m_pin2_pos_3d = [m_pin2_pos[0], m_pin2_pos[1], 0]
+
         if hosting_component_pin1:
             h_pin1 = self._get_edb_pin_from_pin_name(hosting_component, hosting_component_pin1)
             h_pin1_pos = self.get_pin_position(h_pin1)
+            h_pin1_pos_3d = [h_pin1_pos[0], h_pin1_pos[1], 0]
+
         if hosting_component_pin2:
             h_pin2 = self._get_edb_pin_from_pin_name(hosting_component, hosting_component_pin2)
             h_pin2_pos = self.get_pin_position(h_pin2)
+            h_pin2_pos_3d = [h_pin2_pos[0], h_pin2_pos[1], 0]
+        #
         vector = [h_pin1_pos[0] - m_pin1_pos[0], h_pin1_pos[1] - m_pin1_pos[1]]
-        d_m_pin1_h_pin2 = math.sqrt(
-            math.pow(h_pin2_pos[0] - m_pin1_pos[0], 2) + math.pow(h_pin2_pos[1] - m_pin1_pos[1], 2)
-        )
-        d_m_pin2_h_pin2 = math.sqrt(
-            math.pow(h_pin2_pos[0] - m_pin2_pos[0], 2) + math.pow(h_pin2_pos[1] - m_pin2_pos[1], 2)
-        )
+        vector1 = GeometryOperators.v_points(m_pin1_pos_3d, m_pin2_pos_3d)
+        vector2 = GeometryOperators.v_points(h_pin1_pos_3d, h_pin2_pos_3d)
+        rotation = GeometryOperators.v_angle(vector1, vector2)
+        if rotation != 0.0:
+            layinst = mounted_component.GetLayout().GetLayoutInstance()
+            cmpinst = layinst.GetLayoutObjInstance(mounted_component, None)
+            center = cmpinst.GetCenter()
+            center_double = [center.X.ToDouble(), center.Y.ToDouble(), 0]
+            vector_center = GeometryOperators.v_points(center_double, m_pin1_pos_3d)
+            x_v2 = vector_center[0] * math.cos(rotation) + vector_center[1] * math.sin(rotation)
+            y_v2 = -1 * vector_center[0] * math.sin(rotation) + vector_center[1] * math.cos(rotation)
+            new_vector = [x_v2 + center_double[0], y_v2 + center_double[1], 0]
+            vector = [h_pin1_pos[0] - new_vector[0], h_pin1_pos[1] - new_vector[1]]
 
-        # rotation = math.atan(d_m_pin2_h_pin2 / d_m_pin1_h_pin2)
-        try:
-            ang1 = math.atan((m_pin2_pos[1] - m_pin1_pos[1]) / ((m_pin2_pos[0] - m_pin1_pos[0])))
-            ang2 = math.atan((h_pin2_pos[1] - h_pin1_pos[1]) / ((h_pin2_pos[0] - h_pin1_pos[0])))
-        except:
-            ang1 = 0.0
-            ang2 = 0.0
-        rotation = ang1 - ang2
         if vector:
             solder_ball_height = self.get_solder_ball_height(mounted_component)
             if solder_ball_height == 0.0:
