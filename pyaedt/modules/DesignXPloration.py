@@ -9,17 +9,11 @@ from pyaedt.generic.general_methods import generate_unique_name
 defaultparametricSetup = OrderedDict(
     {
         "IsEnabled": True,
-        "ProdOptiSetupDataV2": OrderedDict(
-            {"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}
-        ),
+        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
         "StartingPoint": OrderedDict(),
         "Sim. Setups": [],
         "Sweeps": OrderedDict(
-            {
-                "SweepDefinition": OrderedDict(
-                    {"Variable": "", "Data": "", "OffsetF1": False, "Synchronize": 0}
-                )
-            }
+            {"SweepDefinition": OrderedDict({"Variable": "", "Data": "", "OffsetF1": False, "Synchronize": 0})}
         ),
         "Sweep Operations": OrderedDict(),
         "Goals": OrderedDict(),
@@ -30,17 +24,11 @@ defaultparametricSetup = OrderedDict(
 defaultdxSetup = OrderedDict(
     {
         "IsEnabled": True,
-        "ProdOptiSetupDataV2": OrderedDict(
-            {"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}
-        ),
+        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
         "StartingPoint": OrderedDict(),
         "Sim. Setups": [],
         "Sweeps": OrderedDict(
-            {
-                "SweepDefinition": OrderedDict(
-                    {"Variable": "", "Data": "", "OffsetF1": False, "Synchronize": 0}
-                )
-            }
+            {"SweepDefinition": OrderedDict({"Variable": "", "Data": "", "OffsetF1": False, "Synchronize": 0})}
         ),
         "Sweep Operations": OrderedDict(),
         "CostFunctionName": "Cost",
@@ -54,9 +42,7 @@ defaultdxSetup = OrderedDict(
 defaultoptiSetup = OrderedDict(
     {
         "IsEnabled": True,
-        "ProdOptiSetupDataV2": OrderedDict(
-            {"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}
-        ),
+        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
         "StartingPoint": OrderedDict(),
         "Optimizer": "Quasi Newton",
         "AnalysisStopOptions": OrderedDict(
@@ -89,9 +75,7 @@ defaultoptiSetup = OrderedDict(
 defaultsensitivitySetup = OrderedDict(
     {
         "IsEnabled": True,
-        "ProdOptiSetupDataV2": OrderedDict(
-            {"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}
-        ),
+        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
         "StartingPoint": OrderedDict(),
         "MaxIterations": 10,
         "PriorPSetup": "",
@@ -108,9 +92,7 @@ defaultsensitivitySetup = OrderedDict(
 defaultstatisticalSetup = OrderedDict(
     {
         "IsEnabled": True,
-        "ProdOptiSetupDataV2": OrderedDict(
-            {"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}
-        ),
+        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
         "StartingPoint": OrderedDict(),
         "MaxIterations": 50,
         "SeedValue": 0,
@@ -123,9 +105,7 @@ defaultstatisticalSetup = OrderedDict(
 defaultdoeSetup = OrderedDict(
     {
         "IsEnabled": True,
-        "ProdOptiSetupDataV2": OrderedDict(
-            {"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}
-        ),
+        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
         "StartingPoint": OrderedDict(),
         "Sim. Setups": [],
         "CostFunctionName": "Cost",
@@ -145,9 +125,7 @@ defaultdoeSetup = OrderedDict(
                 "MaxCydes": 10,
             }
         ),
-        "RespSurfaceSetupData": OrderedDict(
-            {"Type": "kGenAggr", "RefineType": "kManual"}
-        ),
+        "RespSurfaceSetupData": OrderedDict({"Type": "kGenAggr", "RefineType": "kManual"}),
         "ResponsePoints": OrderedDict({"NumOfStrs": 0}),
         "ManualRefinePoints": OrderedDict({"NumOfStrs": 0}),
         "CustomVerifyPoints": OrderedDict({"NumOfStrs": 0}),
@@ -203,36 +181,20 @@ class CommonOptimetrics(object):
             if inputd.get("Sim. Setups"):
                 setups = inputd["Sim. Setups"]
                 for el in setups:
-                    if (
-                        type(
-                            self._app.design_properties["SolutionManager"]["ID Map"][
-                                "Setup"
-                            ]
-                        )
-                        is list
-                    ):
-                        for setup in self._app.design_properties["SolutionManager"][
-                            "ID Map"
-                        ]["Setup"]:
+                    if type(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]) is list:
+                        for setup in self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]:
                             if setup["I"] == el:
                                 setups[setups.index(el)] = setup["I"]
                                 break
                     else:
-                        if (
-                            self._app.design_properties["SolutionManager"]["ID Map"][
+                        if self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]["I"] == el:
+                            setups[setups.index(el)] = self._app.design_properties["SolutionManager"]["ID Map"][
                                 "Setup"
-                            ]["I"]
-                            == el
-                        ):
-                            setups[setups.index(el)] = self._app.design_properties[
-                                "SolutionManager"
-                            ]["ID Map"]["Setup"]["N"]
+                            ]["N"]
                             break
             if inputd.get("Goals", None):
                 if self._app._is_object_oriented_enabled():
-                    oparams = self.omodule.GetChildObject(
-                        self.name
-                    ).GetCalculationInfo()
+                    oparams = self.omodule.GetChildObject(self.name).GetCalculationInfo()
                     oparam = [i for i in oparams[0]]
                     calculation = ["NAME:Goal"]
                     calculation.extend(oparam)
@@ -432,9 +394,7 @@ class CommonOptimetrics(object):
                 dr = ",".join(calc_val1)
             else:
                 dr = calc_val1
-            sweepdefinition["Ranges"] = OrderedDict(
-                {"Range": ["Var:=", var, "Type:=", "d", "DiscreteValues:=", dr]}
-            )
+            sweepdefinition["Ranges"] = OrderedDict({"Range": ["Var:=", var, "Type:=", "d", "DiscreteValues:=", dr]})
         else:
             sweepdefinition["Ranges"] = OrderedDict(
                 {
@@ -499,9 +459,7 @@ class DXSetups(object):
         """
 
         def __init__(self, app, name, dictinputs=None):
-            CommonOptimetrics.__init__(
-                self, app, name, dictinputs=dictinputs, optimtype="OptiDesignExplorer"
-            )
+            CommonOptimetrics.__init__(self, app, name, dictinputs=dictinputs, optimtype="OptiDesignExplorer")
 
         @aedt_exception_handler
         def add_calculation(
@@ -645,9 +603,7 @@ class DXSetups(object):
         self.setups = []
         if self._app.design_properties:
             try:
-                setups_data = self._app.design_properties["Optimetrics"][
-                    "OptimetricsSetups"
-                ]
+                setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
                     if (
                         type(setups_data[data]) is OrderedDict
@@ -752,9 +708,7 @@ class ParametericsSetups(object):
         """
 
         def __init__(self, p_app, name, dictinputs=None):
-            CommonOptimetrics.__init__(
-                self, p_app, name, dictinputs=dictinputs, optimtype="OptiParametric"
-            )
+            CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype="OptiParametric")
             pass
 
         @aedt_exception_handler
@@ -779,9 +733,7 @@ class ParametericsSetups(object):
             >>> oModule.EditSetup
             """
             if type(self.props["Sweeps"]["SweepDefinition"]) is not list:
-                self.props["Sweeps"]["SweepDefinition"] = [
-                    self.props["Sweeps"]["SweepDefinition"]
-                ]
+                self.props["Sweeps"]["SweepDefinition"] = [self.props["Sweeps"]["SweepDefinition"]]
             sweepdefinition = OrderedDict()
             sweepdefinition["Variable"] = sweep_var
             sweepdefinition["Data"] = datarange
@@ -861,9 +813,7 @@ class ParametericsSetups(object):
         self.setups = []
         if self._app.design_properties:
             try:
-                setups_data = self._app.design_properties["Optimetrics"][
-                    "OptimetricsSetups"
-                ]
+                setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
 
                 for data in setups_data:
                     if (
@@ -875,9 +825,7 @@ class ParametericsSetups(object):
                 pass
 
     @aedt_exception_handler
-    def add_parametric_setup(
-        self, sweep_var, datarange, setupname=None, parametricname=None
-    ):
+    def add_parametric_setup(self, sweep_var, datarange, setupname=None, parametricname=None):
         """Add a basic parametric setup.
 
         You can customize all options after the parametric setup is added.
@@ -950,9 +898,7 @@ class SensitivitySetups(object):
         """
 
         def __init__(self, p_app, name, dictinputs=None):
-            CommonOptimetrics.__init__(
-                self, p_app, name, dictinputs=dictinputs, optimtype="OptiSensitivity"
-            )
+            CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype="OptiSensitivity")
 
         @aedt_exception_handler
         def add_calculation(
@@ -1024,9 +970,7 @@ class SensitivitySetups(object):
         self.setups = []
         if self._app.design_properties:
             try:
-                setups_data = self._app.design_properties["Optimetrics"][
-                    "OptimetricsSetups"
-                ]
+                setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
                     if (
                         isinstance(setups_data[data], (OrderedDict, dict))
@@ -1136,9 +1080,7 @@ class StatisticalSetups(object):
         """
 
         def __init__(self, p_app, name, dictinputs=None):
-            CommonOptimetrics.__init__(
-                self, p_app, name, dictinputs=dictinputs, optimtype="OptiStatistical"
-            )
+            CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype="OptiStatistical")
             pass
 
         @aedt_exception_handler
@@ -1211,9 +1153,7 @@ class StatisticalSetups(object):
         self.setups = []
         if self._app.design_properties:
             try:
-                setups_data = self._app.design_properties["Optimetrics"][
-                    "OptimetricsSetups"
-                ]
+                setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
                     if (
                         isinstance(setups_data[data], (OrderedDict, dict))
@@ -1324,9 +1264,7 @@ class DOESetups(object):
         """
 
         def __init__(self, p_app, name, dictinputs=None):
-            CommonOptimetrics.__init__(
-                self, p_app, name, dictinputs=dictinputs, optimtype="OptiDXDOE"
-            )
+            CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype="OptiDXDOE")
             pass
 
         @aedt_exception_handler
@@ -1471,9 +1409,7 @@ class DOESetups(object):
         self.setups = []
         if self._app.design_properties:
             try:
-                setups_data = self._app.design_properties["Optimetrics"][
-                    "OptimetricsSetups"
-                ]
+                setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
                     if (
                         isinstance(setups_data[data], (OrderedDict, dict))
@@ -1605,9 +1541,7 @@ class OptimizationSetups(object):
         """
 
         def __init__(self, p_app, name, dictinputs=None):
-            CommonOptimetrics.__init__(
-                self, p_app, name, dictinputs=dictinputs, optimtype="OptiOptimization"
-            )
+            CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype="OptiOptimization")
             pass
 
         @aedt_exception_handler
@@ -1703,9 +1637,7 @@ class OptimizationSetups(object):
         self.setups = []
         if self._app.design_properties:
             try:
-                setups_data = self._app.design_properties["Optimetrics"][
-                    "OptimetricsSetups"
-                ]
+                setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
                     if (
                         isinstance(setups_data[data], (OrderedDict, dict))

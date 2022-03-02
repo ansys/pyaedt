@@ -81,9 +81,7 @@ class EdbHfss(object):
             return {}
 
     @aedt_exception_handler
-    def create_circuit_port_on_pin(
-        self, pos_pin, neg_pin, impedance=50, port_name=None
-    ):
+    def create_circuit_port_on_pin(self, pos_pin, neg_pin, impedance=50, port_name=None):
         """Create Circuit Port on Pin.
 
         Parameters
@@ -108,14 +106,10 @@ class EdbHfss(object):
             Port Name.
 
         """
-        return self._pedb.core_siwave.create_circuit_port_on_pin(
-            pos_pin, neg_pin, impedance, port_name
-        )
+        return self._pedb.core_siwave.create_circuit_port_on_pin(pos_pin, neg_pin, impedance, port_name)
 
     @aedt_exception_handler
-    def create_voltage_source_on_pin(
-        self, pos_pin, neg_pin, voltage_value=3.3, phase_value=0, source_name=""
-    ):
+    def create_voltage_source_on_pin(self, pos_pin, neg_pin, voltage_value=3.3, phase_value=0, source_name=""):
         """Create a voltage source.
 
         Parameters
@@ -149,9 +143,7 @@ class EdbHfss(object):
         )
 
     @aedt_exception_handler
-    def create_current_source_on_pin(
-        self, pos_pin, neg_pin, current_value=0.1, phase_value=0, source_name=""
-    ):
+    def create_current_source_on_pin(self, pos_pin, neg_pin, current_value=0.1, phase_value=0, source_name=""):
         """Create a current source.
 
         Parameters
@@ -213,9 +205,7 @@ class EdbHfss(object):
         >>> pins =edbapp.core_components.get_pin_from_component("U2A5")
         >>> edbapp.core_hfss.create_resistor_on_pin(pins[0], pins[1],50,"res_name")
         """
-        return self._pedb.core_siwave.create_resistor_on_pin(
-            pos_pin, neg_pin, rvalue, resistor_name
-        )
+        return self._pedb.core_siwave.create_resistor_on_pin(pos_pin, neg_pin, rvalue, resistor_name)
 
     @aedt_exception_handler
     def create_circuit_port_on_net(
@@ -458,9 +448,7 @@ class EdbHfss(object):
                             toLayer_pos,
                         ) = pin.pin.GetLayerRange()  # pragma: no cover
                     else:
-                        res, fromLayer_pos, toLayer_pos = pin.pin.GetLayerRange(
-                            None, None
-                        )
+                        res, fromLayer_pos, toLayer_pos = pin.pin.GetLayerRange(None, None)
                     if self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
                         self._active_layout,
                         pin.pin.GetNet(),
@@ -547,18 +535,14 @@ class EdbHfss(object):
             temp_nets = []
             for nn in nets:
                 if isinstance(nn, str):
-                    temp_nets.append(
-                        self._edb.Cell.Net.FindByName(self._active_layout, nn)
-                    )
+                    temp_nets.append(self._edb.Cell.Net.FindByName(self._active_layout, nn))
                 elif isinstance(nn, self._edb.Cell.Net):
                     temp_nets.append(nn)
             nets = temp_nets
         edges_pts = []
         if nets:
             if isinstance(reference_layer, str):
-                reference_layer = self._pedb.core_stackup.signal_layers[
-                    reference_layer
-                ]._layer
+                reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
             if not isinstance(reference_layer, self._edb.Cell.ILayerReadOnly):
                 return False
             layout = nets[0].GetLayout()
@@ -566,16 +550,12 @@ class EdbHfss(object):
             for net in nets:
                 net_primitives = list(net.Primitives)
                 net_paths = [
-                    pp
-                    for pp in net_primitives
-                    if pp.GetPrimitiveType()
-                    == self._edb.Cell.Primitive.PrimitiveType.Path
+                    pp for pp in net_primitives if pp.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Path
                 ]
                 net_poly = [
                     pp
                     for pp in net_primitives
-                    if pp.GetPrimitiveType()
-                    == self._edb.Cell.Primitive.PrimitiveType.Polygon
+                    if pp.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Polygon
                 ]
                 for path in net_paths:
                     trace_path_pts = list(path.GetCenterLine().Points)
@@ -589,13 +569,9 @@ class EdbHfss(object):
                                 edges_pts.append(_pt)
                             else:
                                 port_name = generate_unique_name("port")
-                                if not self._hfss_terminals.CreateEdgePort(
-                                    path, pt, reference_layer, port_name
-                                ):
+                                if not self._hfss_terminals.CreateEdgePort(path, pt, reference_layer, port_name):
                                     aedt_exception_handler(
-                                        "edge port creation failed on point {}, {}".format(
-                                            str(pt[0]), str(_pt[1])
-                                        )
+                                        "edge port creation failed on point {}, {}".format(str(pt[0]), str(_pt[1]))
                                     )
                 for poly in net_poly:
                     pt_list = list(poly.GetPolygonData().Points)
@@ -606,15 +582,11 @@ class EdbHfss(object):
                         or round(pt.Y.ToDouble(), digit_resolution) in layout_bbox
                     ]
                     pt_at_left = [
-                        pt
-                        for pt in points_at_border
-                        if round(pt.X.ToDouble(), digit_resolution) == layout_bbox[0]
+                        pt for pt in points_at_border if round(pt.X.ToDouble(), digit_resolution) == layout_bbox[0]
                     ]
                     pt_at_left_values = [pt.Y.ToDouble() for pt in pt_at_left]
                     if pt_at_left_values:
-                        left_edge_length = abs(
-                            max(pt_at_left_values) - min(pt_at_left_values)
-                        )
+                        left_edge_length = abs(max(pt_at_left_values) - min(pt_at_left_values))
                         if polygon_trace_threshhold >= left_edge_length > 0:
                             if return_points_only:
                                 edges_pts.append(pt_at_left)
@@ -626,22 +598,14 @@ class EdbHfss(object):
                                     reference_layer,
                                     port_name,
                                 ):
-                                    aedt_exception_handler(
-                                        "Failed to create port on polygon {}".format(
-                                            poly.GetName()
-                                        )
-                                    )
+                                    aedt_exception_handler("Failed to create port on polygon {}".format(poly.GetName()))
 
                     pt_at_bottom = [
-                        pt
-                        for pt in points_at_border
-                        if round(pt.Y.ToDouble(), digit_resolution) == layout_bbox[1]
+                        pt for pt in points_at_border if round(pt.Y.ToDouble(), digit_resolution) == layout_bbox[1]
                     ]
                     pt_at_bottom_values = [pt.X.ToDouble() for pt in pt_at_bottom]
                     if pt_at_bottom_values:
-                        bot_edge_length = abs(
-                            max(pt_at_bottom_values) - min(pt_at_bottom_values)
-                        )
+                        bot_edge_length = abs(max(pt_at_bottom_values) - min(pt_at_bottom_values))
                         if polygon_trace_threshhold >= bot_edge_length > 0:
                             if return_points_only:
                                 edges_pts.append(pt_at_bottom)
@@ -653,22 +617,14 @@ class EdbHfss(object):
                                     reference_layer,
                                     port_name,
                                 ):
-                                    aedt_exception_handler(
-                                        "Failed to create port on polygon {}".format(
-                                            poly.GetName()
-                                        )
-                                    )
+                                    aedt_exception_handler("Failed to create port on polygon {}".format(poly.GetName()))
 
                     pt_at_right = [
-                        pt
-                        for pt in points_at_border
-                        if round(pt.X.ToDouble(), digit_resolution) == layout_bbox[2]
+                        pt for pt in points_at_border if round(pt.X.ToDouble(), digit_resolution) == layout_bbox[2]
                     ]
                     pt_at_right_values = [pt.Y.ToDouble() for pt in pt_at_right]
                     if pt_at_right_values:
-                        right_edge_length = abs(
-                            max(pt_at_right_values) - min(pt_at_right_values)
-                        )
+                        right_edge_length = abs(max(pt_at_right_values) - min(pt_at_right_values))
                         if polygon_trace_threshhold >= right_edge_length > 0:
                             if return_points_only:
                                 edges_pts.append(pt_at_right)
@@ -680,22 +636,14 @@ class EdbHfss(object):
                                     reference_layer,
                                     port_name,
                                 ):
-                                    aedt_exception_handler(
-                                        "Failed to create port on polygon {}".format(
-                                            poly.GetName()
-                                        )
-                                    )
+                                    aedt_exception_handler("Failed to create port on polygon {}".format(poly.GetName()))
 
                     pt_at_top = [
-                        pt
-                        for pt in points_at_border
-                        if round(pt.Y.ToDouble(), digit_resolution) == layout_bbox[3]
+                        pt for pt in points_at_border if round(pt.Y.ToDouble(), digit_resolution) == layout_bbox[3]
                     ]
                     pt_at_top_values = [pt.X.ToDouble() for pt in pt_at_top]
                     if pt_at_top_values:
-                        top_edge_length = abs(
-                            max(pt_at_top_values) - min(pt_at_top_values)
-                        )
+                        top_edge_length = abs(max(pt_at_top_values) - min(pt_at_top_values))
                         if polygon_trace_threshhold >= top_edge_length > 0:
                             if return_points_only:
                                 edges_pts.append(pt - pt_at_top)
@@ -707,11 +655,7 @@ class EdbHfss(object):
                                     reference_layer,
                                     port_name,
                                 ):
-                                    aedt_exception_handler(
-                                        "Failed to create port on polygon {}".format(
-                                            poly.GetName()
-                                        )
-                                    )
+                                    aedt_exception_handler("Failed to create port on polygon {}".format(poly.GetName()))
             if return_points_only:
                 return edges_pts
         return True
@@ -739,9 +683,7 @@ class EdbHfss(object):
         for lobj in layout_obj_instances.Items:
             lobj_bbox = lobj.GetLayoutInstanceContext().GetBBox(False)
             tuple_list.append(lobj_bbox)
-        _bbox = self._edb.Geometry.PolygonData.GetBBoxOfBoxes(
-            convert_py_list_to_net_list(tuple_list)
-        )
+        _bbox = self._edb.Geometry.PolygonData.GetBBoxOfBoxes(convert_py_list_to_net_list(tuple_list))
         layout_bbox = [
             round(_bbox.Item1.X.ToDouble(), digit_resolution),
             round(_bbox.Item1.Y.ToDouble(), digit_resolution),

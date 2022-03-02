@@ -152,9 +152,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignEMLoss
         """
-        assert (
-            self.solution_type == "Thermal"
-        ), "This Method works only in Mechanical Structural Solution"
+        assert self.solution_type == "Thermal", "This Method works only in Mechanical Structural Solution"
 
         self.logger.info("Mapping HFSS EM Lossess")
         oName = self.project_name
@@ -250,9 +248,7 @@ class Mechanical(FieldAnalysis3D, object):
         >>> oModule.AssignThermalCondition
         """
 
-        assert (
-            self.solution_type == "Structural"
-        ), "This method works only in a Mechanical structural solution."
+        assert self.solution_type == "Structural", "This method works only in a Mechanical structural solution."
 
         self.logger.info("Mapping HFSS EM Lossess")
         oName = self.project_name
@@ -294,9 +290,7 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "ThermalCondition")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.info(
-                "Thermal conditions are mapped from design %s.", designname
-            )
+            self.logger.info("Thermal conditions are mapped from design %s.", designname)
             return bound
 
         return True
@@ -335,9 +329,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignConvection
         """
-        assert (
-            self.solution_type == "Thermal"
-        ), "This method works only in a Mechanical structural solution."
+        assert self.solution_type == "Thermal", "This method works only in a Mechanical structural solution."
 
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
@@ -361,9 +353,7 @@ class Mechanical(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def assign_uniform_temperature(
-        self, objects_list, temperature="AmbientTemp", boundary_name=""
-    ):
+    def assign_uniform_temperature(self, objects_list, temperature="AmbientTemp", boundary_name=""):
         """Assign a uniform temperature boundary.
 
         .. note::
@@ -388,9 +378,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignTemperature
         """
-        assert (
-            self.solution_type == "Thermal"
-        ), "This method works only in a Mechanical structural analysis."
+        assert self.solution_type == "Thermal", "This method works only in a Mechanical structural analysis."
 
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
@@ -437,9 +425,7 @@ class Mechanical(FieldAnalysis3D, object):
         """
 
         if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
-            self.logger.error(
-                "This method works only in Mechanical Structural Solution"
-            )
+            self.logger.error("This method works only in Mechanical Structural Solution")
             return False
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
@@ -483,9 +469,7 @@ class Mechanical(FieldAnalysis3D, object):
         >>> oModule.AssignFixedSupport
         """
         if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
-            self.logger.error(
-                "This method works only in a Mechanical structural solution."
-            )
+            self.logger.error("This method works only in a Mechanical structural solution.")
             return False
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)

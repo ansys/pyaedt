@@ -94,9 +94,7 @@ class Primitives3D(Primitives, object):
         x_position, y_position, z_position = self._pos_with_arg(position)
 
         if not name:
-            unique_name = "".join(
-                random.sample(string.ascii_uppercase + string.digits, 6)
-            )
+            unique_name = "".join(random.sample(string.ascii_uppercase + string.digits, 6))
             name = "NewPoint_" + unique_name
 
         parameters = ["NAME:PointParameters"]
@@ -151,9 +149,7 @@ class Primitives3D(Primitives, object):
 
         """
         assert len(position) == 3, "Position Argument must be a valid 3 Element List"
-        assert (
-            len(dimensions_list) == 3
-        ), "Dimension Argument must be a valid 3 Element List"
+        assert len(dimensions_list) == 3, "Dimension Argument must be a valid 3 Element List"
         XPosition, YPosition, ZPosition = self._pos_with_arg(position)
         XSize, YSize, ZSize = self._pos_with_arg(dimensions_list)
         vArg1 = ["NAME:BoxParameters"]
@@ -168,9 +164,7 @@ class Primitives3D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_cylinder(
-        self, cs_axis, position, radius, height, numSides=0, name=None, matname=None
-    ):
+    def create_cylinder(self, cs_axis, position, radius, height, numSides=0, name=None, matname=None):
         """Create a cylinder.
 
         Parameters
@@ -515,12 +509,8 @@ class Primitives3D(Primitives, object):
         first_argument.append("MajorRadius:="), first_argument.append(major_radius)
         first_argument.append("MinorRadius:="), first_argument.append(minor_radius)
         first_argument.append("WhichAxis:="), first_argument.append(axis)
-        second_argument = self._default_object_attributes(
-            name=name, matname=material_name
-        )
-        new_object_name = _retry_ntimes(
-            10, self._oeditor.CreateTorus, first_argument, second_argument
-        )
+        second_argument = self._default_object_attributes(name=name, matname=material_name)
+        new_object_name = _retry_ntimes(10, self._oeditor.CreateTorus, first_argument, second_argument)
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
@@ -603,9 +593,7 @@ class Primitives3D(Primitives, object):
         x_position, y_position, z_position = self._pos_with_arg(start_position)
         if x_position is None or y_position is None or z_position is None:
             raise AttributeError("Position Argument must be a valid 3 Element List")
-        x_length, y_length, z_length = self._pos_with_arg(
-            [n - m for m, n in zip(start_position, end_position)]
-        )
+        x_length, y_length, z_length = self._pos_with_arg([n - m for m, n in zip(start_position, end_position)])
         if x_length is None or y_length is None or z_length is None:
             raise AttributeError("Dimension Argument must be a valid 3 Element List")
         if bond_type == 0:
@@ -619,9 +607,7 @@ class Primitives3D(Primitives, object):
             return False
         first_argument = ["NAME:BondwireParameters"]
         first_argument.append("WireType:="), first_argument.append(bondwire)
-        first_argument.append("WireDiameter:="), first_argument.append(
-            self._arg_with_dim(diameter)
-        )
+        first_argument.append("WireDiameter:="), first_argument.append(self._arg_with_dim(diameter))
         first_argument.append("NumSides:="), first_argument.append(str(facets))
         first_argument.append("XPadPos:="), first_argument.append(x_position)
         first_argument.append("YPadPos:="), first_argument.append(y_position)
@@ -630,18 +616,12 @@ class Primitives3D(Primitives, object):
         first_argument.append("YDir:="), first_argument.append(y_length)
         first_argument.append("ZDir:="), first_argument.append(z_length)
         first_argument.append("Distance:="), first_argument.append(
-            self._arg_with_dim(
-                GeometryOperators.points_distance(start_position, end_position)
-            )
+            self._arg_with_dim(GeometryOperators.points_distance(start_position, end_position))
         )
         first_argument.append("h1:="), first_argument.append(self._arg_with_dim(h1))
         first_argument.append("h2:="), first_argument.append(self._arg_with_dim(h2))
-        first_argument.append("alpha:="), first_argument.append(
-            self._arg_with_dim(alpha, "deg")
-        )
-        first_argument.append("beta:="), first_argument.append(
-            self._arg_with_dim(beta, "deg")
-        )
+        first_argument.append("alpha:="), first_argument.append(self._arg_with_dim(alpha, "deg"))
+        first_argument.append("beta:="), first_argument.append(self._arg_with_dim(beta, "deg"))
         first_argument.append("WhichAxis:="), first_argument.append("Z")
         first_argument.append("ReverseDirection:="), first_argument.append(False)
         second_argument = self._default_object_attributes(name=name, matname=matname)
@@ -1227,9 +1207,7 @@ class Primitives3D(Primitives, object):
                 geoParams = geometryparams
 
         if geoParams:
-            sz_geo_params = "".join(
-                ["{0}='{1}' ".format(par, val) for par, val in geoParams.items()]
-            )
+            sz_geo_params = "".join(["{0}='{1}' ".format(par, val) for par, val in geoParams.items()])
         vArg1.append("TargetCS:=")
         vArg1.append(targetCS)
         vArg1.append("ComponentFile:=")
@@ -1275,9 +1253,7 @@ class Primitives3D(Primitives, object):
             if compobj:
                 return list(compobj.GetChildNames())
         else:
-            self.logger.warning(
-                "Object Oriented Beta Option is not enabled in this Desktop."
-            )
+            self.logger.warning("Object Oriented Beta Option is not enabled in this Desktop.")
         return []
 
     @aedt_exception_handler
@@ -1285,19 +1261,16 @@ class Primitives3D(Primitives, object):
         if not os.path.exists(actor_folder):
             self.logger.error("Folder {} does not exist.".format(actor_folder))
             return False
-        if not any(
-            fname.endswith(".json") for fname in os.listdir(actor_folder)
-        ) or not any(fname.endswith(".a3dcomp") for fname in os.listdir(actor_folder)):
+        if not any(fname.endswith(".json") for fname in os.listdir(actor_folder)) or not any(
+            fname.endswith(".a3dcomp") for fname in os.listdir(actor_folder)
+        ):
             self.logger.error("At least one json and one a3dcomp file is needed.")
             return False
         return True
 
     @aedt_exception_handler
     def _initialize_multipart(self):
-        if (
-            MultiPartComponent._t
-            in self._app._variable_manager.independent_variable_names
-        ):
+        if MultiPartComponent._t in self._app._variable_manager.independent_variable_names:
             return True
         else:
             return MultiPartComponent.start(self._app)
@@ -1876,9 +1849,7 @@ class Primitives3D(Primitives, object):
                 )
             returned_list = returned_list + list_object
         else:
-            success = list_object[0].set_crosssection_properties(
-                type=section, width=w_dia, num_seg=segment_number
-            )
+            success = list_object[0].set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
             returned_list.append(list_object)
 
         for key in values["Number of Windings"].keys():
@@ -1888,9 +1859,7 @@ class Primitives3D(Primitives, object):
             if values["Mode"]["Common"] and number_duplication == 2:
                 if type(list_object[0]) == list:
                     for i in range(len(list_object)):
-                        duplication = self.create_polyline(
-                            position_list=list_object[i][1], name=name_wind
-                        )
+                        duplication = self.create_polyline(position_list=list_object[i][1], name=name_wind)
                         duplication.mirror([0, 0, 0], [-1, 0, 0])
                         duplication_points = self.get_vertices_of_line(duplication.name)
                         success = duplication.set_crosssection_properties(
@@ -1899,37 +1868,25 @@ class Primitives3D(Primitives, object):
                         list_duplicated_object.append([duplication, duplication_points])
 
                 else:
-                    duplication = self.create_polyline(
-                        position_list=list_object[1], name=name_wind
-                    )
+                    duplication = self.create_polyline(position_list=list_object[1], name=name_wind)
                     duplication.mirror([0, 0, 0], [-1, 0, 0])
                     duplication_points = self.get_vertices_of_line(duplication.name)
-                    success = duplication.set_crosssection_properties(
-                        type=section, width=w_dia, num_seg=segment_number
-                    )
+                    success = duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
                     list_duplicated_object.append([duplication, duplication_points])
             else:
                 if type(list_object[0]) == list:
                     for j in range(number_duplication - 1):
                         for i in range(len(list_object)):
-                            duplication = self.create_polyline(
-                                position_list=list_object[i][1], name=name_wind
-                            )
+                            duplication = self.create_polyline(position_list=list_object[i][1], name=name_wind)
                             duplication.rotate("Z", (j + 1) * 360 / number_duplication)
-                            duplication_points = self.get_vertices_of_line(
-                                duplication.name
-                            )
+                            duplication_points = self.get_vertices_of_line(duplication.name)
                             success = duplication.set_crosssection_properties(
                                 type=section, width=w_dia, num_seg=segment_number
                             )
-                            list_duplicated_object.append(
-                                [duplication, duplication_points]
-                            )
+                            list_duplicated_object.append([duplication, duplication_points])
                 else:
                     for j in range(number_duplication - 1):
-                        duplication = self.create_polyline(
-                            position_list=list_object[1], name=name_wind
-                        )
+                        duplication = self.create_polyline(position_list=list_object[1], name=name_wind)
                         duplication.rotate("Z", (j + 1) * 360 / number_duplication)
                         duplication_points = self.get_vertices_of_line(duplication.name)
                         success = duplication.set_crosssection_properties(
@@ -1988,23 +1945,15 @@ class Primitives3D(Primitives, object):
         union_polyline = union_polyline1 + union_polyline2
         list_positions = []
         for i in range(len(union_polyline)):
-            list_positions = list_positions + self.get_vertices_of_line(
-                union_polyline[i]
-            )
+            list_positions = list_positions + self.get_vertices_of_line(union_polyline[i])
         self.delete(union_polyline)
 
         if sep_layer:
             for i in range(4):
                 list_positions.pop()
-            list_positions.insert(
-                0, [list_positions[0][0], list_positions[0][1], -height]
-            )
-            list_positions.append(
-                [list_positions[-1][0], list_positions[-1][1], -height]
-            )
-            true_polyline = self.create_polyline(
-                position_list=list_positions, name=name
-            )
+            list_positions.insert(0, [list_positions[0][0], list_positions[0][1], -height])
+            list_positions.append([list_positions[-1][0], list_positions[-1][1], -height])
+            true_polyline = self.create_polyline(position_list=list_positions, name=name)
             true_polyline.rotate("Z", 180 - (turns - 1) * teta)
             list_positions = self.get_vertices_of_line(true_polyline.name)
             return [true_polyline, list_positions]
@@ -2059,17 +2008,11 @@ class Primitives3D(Primitives, object):
             points_in_wind[-2][1],
             points_out_wind[1][2],
         ]
-        points_in_wind.append(
-            [points_in_wind[-3][0], points_in_wind[-3][1], points_out_wind[0][2]]
-        )
+        points_in_wind.append([points_in_wind[-3][0], points_in_wind[-3][1], points_out_wind[0][2]])
 
-        outer_polyline = self.create_polyline(
-            position_list=points_out_wind, name="Winding"
-        )
+        outer_polyline = self.create_polyline(position_list=points_out_wind, name="Winding")
         outer_polyline.rotate("Z", 180 - (turns - 1) * teta)
-        inner_polyline = self.create_polyline(
-            position_list=points_in_wind, name="Winding2"
-        )
+        inner_polyline = self.create_polyline(position_list=points_in_wind, name="Winding2")
         inner_polyline.rotate("Z", 180 - (turns_in_wind - 1) * teta_in_wind)
         outer_polyline.mirror([0, 0, 0], [0, -1, 0])
         outer_polyline.rotate("Z", turns_in_wind * teta_in_wind - turns * teta)
@@ -2077,13 +2020,9 @@ class Primitives3D(Primitives, object):
         list_polyline = [inner_polyline.name, outer_polyline.name]
         list_positions = []
         for i in range(len(list_polyline)):
-            list_positions = list_positions + self.get_vertices_of_line(
-                list_polyline[i]
-            )
+            list_positions = list_positions + self.get_vertices_of_line(list_polyline[i])
         self.delete(list_polyline)
-        true_polyline = self.create_polyline(
-            position_list=list_positions, name="Final_Winding"
-        )
+        true_polyline = self.create_polyline(position_list=list_positions, name="Final_Winding")
         return [true_polyline, list_positions]
 
     @aedt_exception_handler
@@ -2142,51 +2081,33 @@ class Primitives3D(Primitives, object):
             points_mid_wind[-2][1],
             points_out_wind[1][2],
         ]
-        points_mid_wind.append(
-            [points_mid_wind[-4][0], points_mid_wind[-4][1], points_out_wind[0][2]]
-        )
+        points_mid_wind.append([points_mid_wind[-4][0], points_mid_wind[-4][1], points_out_wind[0][2]])
         points_in_wind.insert(0, [points_in_wind[0][0], points_in_wind[0][1], -height])
         points_in_wind[-1] = [
             points_in_wind[-2][0],
             points_in_wind[-2][1],
             points_mid_wind[1][2],
         ]
-        points_in_wind.append(
-            [points_in_wind[-3][0], points_in_wind[-3][1], points_mid_wind[0][2]]
-        )
+        points_in_wind.append([points_in_wind[-3][0], points_in_wind[-3][1], points_mid_wind[0][2]])
 
-        outer_polyline = self.create_polyline(
-            position_list=points_out_wind, name="Winding"
-        )
+        outer_polyline = self.create_polyline(position_list=points_out_wind, name="Winding")
         outer_polyline.rotate("Z", 180 - (turns - 1) * teta)
-        mid_polyline = self.create_polyline(
-            position_list=points_mid_wind, name="Winding2"
-        )
+        mid_polyline = self.create_polyline(position_list=points_mid_wind, name="Winding2")
         mid_polyline.rotate("Z", 180 - (turns_mid_wind - 1) * teta_mid_wind)
-        inner_polyline = self.create_polyline(
-            position_list=points_in_wind, name="Winding3"
-        )
+        inner_polyline = self.create_polyline(position_list=points_in_wind, name="Winding3")
 
         inner_polyline.rotate("Z", 180 - (turns_in_wind - 1) * teta_in_wind)
         mid_polyline.mirror([0, 0, 0], [0, -1, 0])
         outer_polyline.rotate("Z", turns * teta - turns_mid_wind * teta_mid_wind)
-        mid_polyline.rotate(
-            "Z", turns_in_wind * teta_in_wind - turns_mid_wind * teta_mid_wind
-        )
-        outer_polyline.rotate(
-            "Z", turns_in_wind * teta_in_wind - turns_mid_wind * teta_mid_wind
-        )
+        mid_polyline.rotate("Z", turns_in_wind * teta_in_wind - turns_mid_wind * teta_mid_wind)
+        outer_polyline.rotate("Z", turns_in_wind * teta_in_wind - turns_mid_wind * teta_mid_wind)
 
         list_polyline = [inner_polyline.name, mid_polyline.name, outer_polyline.name]
         list_positions = []
         for i in range(len(list_polyline)):
-            list_positions = list_positions + self.get_vertices_of_line(
-                list_polyline[i]
-            )
+            list_positions = list_positions + self.get_vertices_of_line(list_polyline[i])
         self.primitives.delete(list_polyline)
-        true_polyline = self.create_polyline(
-            position_list=list_positions, name="Final_Winding"
-        )
+        true_polyline = self.create_polyline(position_list=list_positions, name="Final_Winding")
         return [true_polyline, list_positions]
 
     @aedt_exception_handler
@@ -2437,8 +2358,7 @@ class Primitives3D(Primitives, object):
                             count_true = True
                     else:
                         self.logger.error(
-                            "A character entered is invalid. The values of the dictionary %s must be boolean"
-                            % f_key
+                            "A character entered is invalid. The values of the dictionary %s must be boolean" % f_key
                         )
                         are_inequations_checkable = False
                         break
@@ -2448,9 +2368,7 @@ class Primitives3D(Primitives, object):
             if len(core_name) > 0:
                 values["Core"]["Name"] = core_name
         except:
-            self.logger.warning(
-                "Core Name must be a non-null string. A default name Core has been set."
-            )
+            self.logger.warning("Core Name must be a non-null string. A default name Core has been set.")
             values["Core"]["Name"] = "Core"
 
         try:
@@ -2458,9 +2376,7 @@ class Primitives3D(Primitives, object):
             if len(winding_name) > 0:
                 values["Outer Winding"]["Name"] = winding_name
         except:
-            self.logger.warning(
-                "Outer Winding Name must be a non-null string. A default name Winding has been set."
-            )
+            self.logger.warning("Outer Winding Name must be a non-null string. A default name Winding has been set.")
             values["Outer Winding"]["Name"] = "Winding"
 
         in_rad_core, are_inequations_checkable = self._check_value_type(
@@ -2490,14 +2406,12 @@ class Primitives3D(Primitives, object):
             core_chamfer = float(values["Core"]["Chamfer"])
             if core_chamfer < 0:
                 self.logger.error(
-                    "The character entered is invalid. Chamfer must be a positive float."
-                    " It must be changed"
+                    "The character entered is invalid. Chamfer must be a positive float." " It must be changed"
                 )
                 are_inequations_checkable = False
         except:
             self.logger.error(
-                "The character entered is invalid. Chamfer must be a positive float."
-                " It must be changed"
+                "The character entered is invalid. Chamfer must be a positive float." " It must be changed"
             )
             are_inequations_checkable = False
 
@@ -2600,21 +2514,15 @@ class Primitives3D(Primitives, object):
             if in_rad_wind > in_rad_core - (nb_lay + 1) * sr * dia_wire / 2:
                 in_rad_wind = in_rad_core - (nb_lay + 1) * sr * dia_wire / 2
                 values["Outer Winding"]["Inner Radius"] = in_rad_wind
-                self.logger.warning(
-                    "Inner Radius of the winding is too high. The maximum value has been set instead."
-                )
+                self.logger.warning("Inner Radius of the winding is too high. The maximum value has been set instead.")
             if out_rad_wind < out_rad_core + (nb_lay + 1) * sr * dia_wire / 2:
                 out_rad_wind = out_rad_core + (nb_lay + 1) * sr * dia_wire / 2
                 values["Outer Winding"]["Outer Radius"] = out_rad_wind
-                self.logger.warning(
-                    "Outer Radius of the winding is too low. The minimum value has been set instead."
-                )
+                self.logger.warning("Outer Radius of the winding is too low. The minimum value has been set instead.")
             if height_wind < height_core + (nb_lay + 1) * sr * dia_wire:
                 height_wind = height_core + (nb_lay + 1) * sr * dia_wire
                 values["Outer Winding"]["Height"] = height_wind
-                self.logger.warning(
-                    "Height of the winding is too low. The minimum value has been set instead."
-                )
+                self.logger.warning("Height of the winding is too low. The minimum value has been set instead.")
 
             if asin((sr * dia_wire / 2) / in_rad_wind) > pi / nb_wind / turns:
                 turns = int(pi / nb_wind / asin((sr * dia_wire / 2) / in_rad_wind))
@@ -2624,22 +2532,14 @@ class Primitives3D(Primitives, object):
                 )
 
             if teta > pi / nb_wind / turns:
-                teta = GeometryOperators.degrees_default_rounded(
-                    pi / nb_wind / turns, 3
-                )
+                teta = GeometryOperators.degrees_default_rounded(pi / nb_wind / turns, 3)
                 values["Outer Winding"]["Coil Pit(deg)"] = teta
-                self.logger.warning(
-                    "Winding Pit is too high. The maximum value has been set instead."
-                )
+                self.logger.warning("Winding Pit is too high. The maximum value has been set instead.")
 
             elif teta < asin((sr * dia_wire / 2) / in_rad_wind):
-                teta = GeometryOperators.degrees_over_rounded(
-                    asin((sr * dia_wire / 2) / in_rad_wind), 3
-                )
+                teta = GeometryOperators.degrees_over_rounded(asin((sr * dia_wire / 2) / in_rad_wind), 3)
                 values["Outer Winding"]["Coil Pit(deg)"] = teta
-                self.logger.warning(
-                    "Winding Pit is too low. The minimum value has been set instead."
-                )
+                self.logger.warning("Winding Pit is too low. The minimum value has been set instead.")
 
             else:
                 teta = degrees(teta)
@@ -2656,15 +2556,8 @@ class Primitives3D(Primitives, object):
             if values["Similar Layer"]["Different"]:
                 if values["Layer"]["Double"] or values["Layer"]["Triple"]:
 
-                    if (
-                        asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire))
-                        > pi / nb_wind / turns2
-                    ):
-                        turns2 = int(
-                            pi
-                            / nb_wind
-                            / asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire))
-                        )
+                    if asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)) > pi / nb_wind / turns2:
+                        turns2 = int(pi / nb_wind / asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)))
                         values["Mid Winding"]["Turns"] = turns2
                         self.logger.warning(
                             "Number of turns of the winding of the second layer is too high. "
@@ -2680,17 +2573,13 @@ class Primitives3D(Primitives, object):
                         )
 
                     if teta2 > pi / nb_wind / turns2:
-                        teta2 = GeometryOperators.degrees_default_rounded(
-                            pi / nb_wind / turns2, 3
-                        )
+                        teta2 = GeometryOperators.degrees_default_rounded(pi / nb_wind / turns2, 3)
                         values["Mid Winding"]["Coil Pit(deg)"] = teta2
                         self.logger.warning(
                             "Winding Pit of the second layer is too high. The maximum value has been set instead."
                         )
 
-                    elif teta2 < asin(
-                        (sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)
-                    ):
+                    elif teta2 < asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)):
                         teta2 = GeometryOperators.degrees_over_rounded(
                             asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)), 3
                         )
@@ -2720,17 +2609,8 @@ class Primitives3D(Primitives, object):
 
                 if values["Layer"]["Triple"]:
 
-                    if (
-                        asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire))
-                        > pi / nb_wind / turns3
-                    ):
-                        turns3 = int(
-                            pi
-                            / nb_wind
-                            / asin(
-                                (sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)
-                            )
-                        )
+                    if asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)) > pi / nb_wind / turns3:
+                        turns3 = int(pi / nb_wind / asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)))
                         values["Inner Winding"]["Turns"] = turns3
                         self.logger.warning(
                             "Number of turns of the winding of the third layer is too high. "
@@ -2746,21 +2626,15 @@ class Primitives3D(Primitives, object):
                         )
 
                     if teta3 > pi / nb_wind / turns3:
-                        teta3 = GeometryOperators.degrees_default_rounded(
-                            pi / nb_wind / turns3, 3
-                        )
+                        teta3 = GeometryOperators.degrees_default_rounded(pi / nb_wind / turns3, 3)
                         values["Inner Winding"]["Coil Pit(deg)"] = teta3
                         self.logger.warning(
                             "Winding Pit of the third layer is too high. The maximum value has been set instead."
                         )
 
-                    elif teta3 < asin(
-                        (sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)
-                    ):
+                    elif teta3 < asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)):
                         teta3 = GeometryOperators.degrees_over_rounded(
-                            asin(
-                                (sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)
-                            ),
+                            asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)),
                             3,
                         )
                         values["Inner Winding"]["Coil Pit(deg)"] = teta3
@@ -2802,9 +2676,7 @@ class Primitives3D(Primitives, object):
         return [are_inequations_checkable, values]
 
     @aedt_exception_handler
-    def _make_winding_follow_chamfer(
-        self, chamfer, security_factor, wire_diameter, layer_number
-    ):
+    def _make_winding_follow_chamfer(self, chamfer, security_factor, wire_diameter, layer_number):
         sr = security_factor
         w_rad_inc = layer_number * sr * wire_diameter / 2
         distance = sqrt(2 * w_rad_inc ** 2) - w_rad_inc + sqrt(2 * chamfer ** 2) / 2

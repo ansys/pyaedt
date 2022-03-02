@@ -84,9 +84,7 @@ class MatProperties(object):
         if aedtname:
             return cls.defaultunit[cls.aedtname.index(aedtname)]
         else:
-            raise TypeError(
-                "get_defaultunit: Either the full name or category name must be defined."
-            )
+            raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
 
     @classmethod
     def get_defaultvalue(cls, aedtname):
@@ -106,9 +104,7 @@ class MatProperties(object):
         if aedtname:
             return cls.defaultvalue[cls.aedtname.index(aedtname)]
         else:
-            raise TypeError(
-                "get_defaultunit: Either the full name or category name must be defined."
-            )
+            raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
 
 
 class SurfMatProperties(object):
@@ -146,9 +142,7 @@ class SurfMatProperties(object):
         if aedtname:
             return cls.defaultunit[cls.aedtname.index(aedtname)]
         else:
-            raise TypeError(
-                "get_defaultunit: either fullname or catname MUST be defined"
-            )
+            raise TypeError("get_defaultunit: either fullname or catname MUST be defined")
 
     @classmethod
     def get_defaultvalue(cls, aedtname=None):
@@ -168,9 +162,7 @@ class SurfMatProperties(object):
         if aedtname:
             return cls.defaultvalue[cls.aedtname.index(aedtname)]
         else:
-            raise TypeError(
-                "get_defaultunit: Either the full name or category name must be defined."
-            )
+            raise TypeError("get_defaultunit: Either the full name or category name must be defined.")
 
 
 class ClosedFormTM(object):
@@ -261,9 +253,7 @@ class MatProperty(object):
         for tm in thermalmodifier:
             if tm:
                 if tm["use_free_form"]:
-                    self._property_value[tm["Index:"]].thermalmodifier = tm[
-                        "free_form_value"
-                    ]
+                    self._property_value[tm["Index:"]].thermalmodifier = tm["free_form_value"]
                 else:
                     self._property_value[tm["Index:"]].thermalmodifier = ClosedFormTM()
                     self._property_value[tm["Index:"]].thermalmodifier.Tref = tm["Tref"]
@@ -271,9 +261,7 @@ class MatProperty(object):
                     self._property_value[tm["Index:"]].thermalmodifier.C2 = tm["C2"]
                     self._property_value[tm["Index:"]].thermalmodifier.TL = tm["TL"]
                     self._property_value[tm["Index:"]].thermalmodifier.TU = tm["TU"]
-                    self._property_value[
-                        tm["Index:"]
-                    ].thermalmodifier.autocalculation = tm["auto_calculation"]
+                    self._property_value[tm["Index:"]].thermalmodifier.autocalculation = tm["auto_calculation"]
 
     @property
     def type(self):
@@ -392,27 +380,21 @@ class MatProperty(object):
                     "ThermalModifierData": OrderedDict(
                         {
                             "modifier_data": "thermal_modifier_data",
-                            "all_thermal_modifiers": OrderedDict(
-                                {"one_thermal_modifier": tm}
-                            ),
+                            "all_thermal_modifiers": OrderedDict({"one_thermal_modifier": tm}),
                         }
                     )
                 }
             )
         else:
-            for tmname in self._material._props["ModifierData"]["ThermalModifierData"][
-                "all_thermal_modifiers"
-            ]:
+            for tmname in self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
                 if isinstance(
-                    self._material._props["ModifierData"]["ThermalModifierData"][
-                        "all_thermal_modifiers"
-                    ][tmname],
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname],
                     list,
                 ):
                     found = False
-                    for tm in self._material._props["ModifierData"][
-                        "ThermalModifierData"
-                    ]["all_thermal_modifiers"][tmname]:
+                    for tm in self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
+                        tmname
+                    ]:
                         if self.name == tm["Property:"] and index == tm["Index:"]:
                             found = True
                             tm["use_free_form"] = True
@@ -432,48 +414,44 @@ class MatProperty(object):
                                 "free_form_value": formula,
                             }
                         )
-                        self._material._props["ModifierData"]["ThermalModifierData"][
-                            "all_thermal_modifiers"
-                        ][tmname].append(tm)
+                        self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
+                            tmname
+                        ].append(tm)
                 elif (
                     self.name
-                    == self._material._props["ModifierData"]["ThermalModifierData"][
-                        "all_thermal_modifiers"
-                    ][tmname]["Property:"]
+                    == self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
+                        "Property:"
+                    ]
                     and index
-                    == self._material._props["ModifierData"]["ThermalModifierData"][
-                        "all_thermal_modifiers"
-                    ][tmname]["Index:"]
+                    == self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
+                        "Index:"
+                    ]
                 ):
-                    self._material._props["ModifierData"]["ThermalModifierData"][
-                        "all_thermal_modifiers"
-                    ][tmname]["use_free_form"] = True
-                    self._material._props["ModifierData"]["ThermalModifierData"][
-                        "all_thermal_modifiers"
-                    ][tmname]["free_form_value"] = formula
-                    self._material._props["ModifierData"]["ThermalModifierData"][
-                        "all_thermal_modifiers"
-                    ][tmname].pop("Tref", None)
-                    self._material._props["ModifierData"]["ThermalModifierData"][
-                        "all_thermal_modifiers"
-                    ][tmname].pop("C1", None)
-                    self._material._props["ModifierData"]["ThermalModifierData"][
-                        "all_thermal_modifiers"
-                    ][tmname].pop("C2", None)
-                    self._material._props["ModifierData"]["ThermalModifierData"][
-                        "all_thermal_modifiers"
-                    ][tmname].pop("TL", None)
-                    self._material._props["ModifierData"]["ThermalModifierData"][
-                        "all_thermal_modifiers"
-                    ][tmname].pop("TU", None)
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
+                        "use_free_form"
+                    ] = True
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname][
+                        "free_form_value"
+                    ] = formula
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                        "Tref", None
+                    )
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                        "C1", None
+                    )
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                        "C2", None
+                    )
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                        "TL", None
+                    )
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname].pop(
+                        "TU", None
+                    )
 
                 else:
-                    self._material._props["ModifierData"]["ThermalModifierData"][
-                        "all_thermal_modifiers"
-                    ][tmname] = [
-                        self._material._props["ModifierData"]["ThermalModifierData"][
-                            "all_thermal_modifiers"
-                        ][tmname]
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname] = [
+                        self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]
                     ]
                     tm = OrderedDict(
                         {
@@ -484,9 +462,9 @@ class MatProperty(object):
                             "free_form_value": formula,
                         }
                     )
-                    self._material._props["ModifierData"]["ThermalModifierData"][
-                        "all_thermal_modifiers"
-                    ][tmname].append(tm)
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
+                        tmname
+                    ].append(tm)
         return self._material.update()
 
     @aedt_exception_handler
@@ -673,20 +651,14 @@ class MatProperty(object):
                     "ThermalModifierData": OrderedDict(
                         {
                             "modifier_data": "thermal_modifier_data",
-                            "all_thermal_modifiers": OrderedDict(
-                                {"one_thermal_modifier": tm_new}
-                            ),
+                            "all_thermal_modifiers": OrderedDict({"one_thermal_modifier": tm_new}),
                         }
                     )
                 }
             )
         else:
-            for tmname in self._material._props["ModifierData"]["ThermalModifierData"][
-                "all_thermal_modifiers"
-            ]:
-                tml = self._material._props["ModifierData"]["ThermalModifierData"][
-                    "all_thermal_modifiers"
-                ][tmname]
+            for tmname in self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
+                tml = self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]
                 if isinstance(tml, list):
                     found = False
                     for tm in tml:
@@ -859,12 +831,8 @@ class CommonMaterial(object):
         ):
             i = 1
             for val in provpavlue:
-                if not self._props.get(propname, None) or isinstance(
-                    self._props[propname], str
-                ):
-                    self._props[propname] = OrderedDict(
-                        {"property_type": "AnisoProperty"}
-                    )
+                if not self._props.get(propname, None) or isinstance(self._props[propname], str):
+                    self._props[propname] = OrderedDict({"property_type": "AnisoProperty"})
                     self._props[propname]["unit"] = ""
                 self._props[propname]["component" + str(i)] = str(val)
                 i += 1
@@ -874,10 +842,7 @@ class CommonMaterial(object):
             self._props[propname] = str(provpavlue)
             if update_aedt:
                 return self.update()
-        elif (
-            isinstance(provpavlue, list)
-            and self.__dict__["_" + propname].type == "nonlinear"
-        ):
+        elif isinstance(provpavlue, list) and self.__dict__["_" + propname].type == "nonlinear":
             if propname == "permeability":
                 bh = OrderedDict({"DimUnits": ["", ""]})
                 for point in provpavlue:
@@ -886,23 +851,15 @@ class CommonMaterial(object):
                     else:
                         bh["Point"] = [point]
                 self._props[propname] = OrderedDict({"property_type": "nonlinear"})
-                self._props[propname]["BTypeForSingleCurve"] = self.__dict__[
-                    "_" + propname
-                ].btype_for_single_curve
+                self._props[propname]["BTypeForSingleCurve"] = self.__dict__["_" + propname].btype_for_single_curve
                 self._props[propname]["HUnit"] = self.__dict__["_" + propname].hunit
                 self._props[propname]["BUnit"] = self.__dict__["_" + propname].bunit
-                self._props[propname]["IsTemperatureDependent"] = self.__dict__[
-                    "_" + propname
-                ].is_temperature_dependent
+                self._props[propname]["IsTemperatureDependent"] = self.__dict__["_" + propname].is_temperature_dependent
                 self._props[propname]["BHCoordinates"] = bh
                 try:
-                    self._props[propname]["BHCoordinates"][
-                        "Temperatures"
-                    ] = self.__dict__["_" + propname].temperatures
+                    self._props[propname]["BHCoordinates"]["Temperatures"] = self.__dict__["_" + propname].temperatures
                 except:
-                    self._props[propname]["BHCoordinates"][
-                        "Temperatures"
-                    ] = OrderedDict({})
+                    self._props[propname]["BHCoordinates"]["Temperatures"] = OrderedDict({})
             else:
                 bh = OrderedDict({"DimUnits": [self.__dict__["_" + propname]._unit]})
                 for point in provpavlue:
@@ -914,9 +871,7 @@ class CommonMaterial(object):
                     pr_name = "JECoordinates"
                 else:
                     pr_name = "DECoordinates"
-                self._props[propname] = OrderedDict(
-                    {"property_type": "nonlinear", pr_name: bh}
-                )
+                self._props[propname] = OrderedDict({"property_type": "nonlinear", pr_name: bh})
             if update_aedt:
                 return self.update()
         return False
@@ -950,23 +905,12 @@ class Material(CommonMaterial, object):
             self.physics_type = self._props["PhysicsTypes"]["set"]
         else:
             self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
-            self._props["PhysicsTypes"] = OrderedDict(
-                {"set": ["Electromagnetic", "Thermal", "Structural"]}
-            )
-        if (
-            "AttachedData" in self._props
-            and "MatAppearanceData" in self._props["AttachedData"]
-        ):
+            self._props["PhysicsTypes"] = OrderedDict({"set": ["Electromagnetic", "Thermal", "Structural"]})
+        if "AttachedData" in self._props and "MatAppearanceData" in self._props["AttachedData"]:
             self._material_appearance = []
-            self._material_appearance.append(
-                self._props["AttachedData"]["MatAppearanceData"]["Red"]
-            )
-            self._material_appearance.append(
-                self._props["AttachedData"]["MatAppearanceData"]["Green"]
-            )
-            self._material_appearance.append(
-                self._props["AttachedData"]["MatAppearanceData"]["Blue"]
-            )
+            self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Red"])
+            self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Green"])
+            self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Blue"])
         else:
             vals = list(CSS4_COLORS.values())
             if (materiallib._color_id) > len(vals):
@@ -990,9 +934,7 @@ class Material(CommonMaterial, object):
             if property in self._props:
                 mods = None
                 if "ModifierData" in self._props:
-                    modifiers = self._props["ModifierData"]["ThermalModifierData"][
-                        "all_thermal_modifiers"
-                    ]
+                    modifiers = self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]
                     for mod in modifiers:
                         if isinstance(modifiers[mod], list):
                             for one_tm in modifiers[mod]:
@@ -1005,9 +947,7 @@ class Material(CommonMaterial, object):
                         else:
                             if modifiers[mod]["Property:"] == property:
                                 mods = modifiers[mod]
-                self.__dict__["_" + property] = MatProperty(
-                    self, property, self._props[property], mods
-                )
+                self.__dict__["_" + property] = MatProperty(self, property, self._props[property], mods)
             else:
                 self.__dict__["_" + property] = MatProperty(
                     self,
@@ -1208,9 +1148,7 @@ class Material(CommonMaterial, object):
     def thermal_conductivity(self, value):
         self._thermal_conductivity.value = value
         self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
-        self._props["PhysicsTypes"] = OrderedDict(
-            {"set": ["Electromagnetic", "Thermal", "Structural"]}
-        )
+        self._props["PhysicsTypes"] = OrderedDict({"set": ["Electromagnetic", "Thermal", "Structural"]})
         if isinstance(value, list):
             self._thermal_conductivity.type = "anisotropic"
             self._update_props("thermal_conductivity", value)
@@ -1301,9 +1239,7 @@ class Material(CommonMaterial, object):
     def youngs_modulus(self, value):
         self._youngs_modulus.value = value
         self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
-        self._props["PhysicsTypes"] = OrderedDict(
-            {"set": ["Electromagnetic", "Thermal", "Structural"]}
-        )
+        self._props["PhysicsTypes"] = OrderedDict({"set": ["Electromagnetic", "Thermal", "Structural"]})
         self._update_props("youngs_modulus", value)
 
     @property
@@ -1326,9 +1262,7 @@ class Material(CommonMaterial, object):
     def poissons_ratio(self, value):
         self._poissons_ratio.value = value
         self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
-        self._props["PhysicsTypes"] = OrderedDict(
-            {"set": ["Electromagnetic", "Thermal", "Structural"]}
-        )
+        self._props["PhysicsTypes"] = OrderedDict({"set": ["Electromagnetic", "Thermal", "Structural"]})
         self._update_props("poissons_ratio", value)
 
     @property
@@ -1516,9 +1450,7 @@ class Material(CommonMaterial, object):
         bool
         """
         if "core_loss_type" not in self._props:
-            self._props["core_loss_type"] = OrderedDict(
-                {"property_type": "ChoiceProperty", "Choice": "Power Ferrite"}
-            )
+            self._props["core_loss_type"] = OrderedDict({"property_type": "ChoiceProperty", "Choice": "Power Ferrite"})
         else:
             self._props.pop("core_loss_kh", None)
             self._props.pop("core_loss_kc", None)
@@ -1570,9 +1502,7 @@ class Material(CommonMaterial, object):
         bool
         """
         if "core_loss_type" not in self._props:
-            self._props["core_loss_type"] = OrderedDict(
-                {"property_type": "ChoiceProperty", "Choice": "B-P Curve"}
-            )
+            self._props["core_loss_type"] = OrderedDict({"property_type": "ChoiceProperty", "Choice": "B-P Curve"})
         else:
             self._props.pop("core_loss_kh", None)
             self._props.pop("core_loss_kc", None)
@@ -1627,33 +1557,23 @@ class Material(CommonMaterial, object):
                 out["core_loss_kc"] = self._props["core_loss_kc"]
                 out["core_loss_ke"] = self._props["core_loss_ke"]
                 out["core_loss_kdc"] = self._props["core_loss_kdc"]
-                out["core_loss_equiv_cut_depth"] = self._props[
-                    "core_loss_equiv_cut_depth"
-                ]
+                out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
             elif self._props["core_loss_type"].get("Choice", None) == "B-P Curve":
                 out["core_loss_curves"] = self._props["core_loss_curves"]
                 out["core_loss_kdc"] = self._props["core_loss_kdc"]
-                out["core_loss_equiv_cut_depth"] = self._props[
-                    "core_loss_equiv_cut_depth"
-                ]
+                out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
             if self._props["core_loss_type"].get("Choice", None) == "Power Ferrite":
                 out["core_loss_cm"] = self._props["core_loss_cm"]
                 out["core_loss_x"] = self._props["core_loss_x"]
                 out["core_loss_y"] = self._props["core_loss_y"]
                 out["core_loss_kdc"] = self._props["core_loss_kdc"]
-                out["core_loss_equiv_cut_depth"] = self._props[
-                    "core_loss_equiv_cut_depth"
-                ]
-            elif (
-                self._props["core_loss_type"].get("Choice", None) == "Hysteresis Model"
-            ):
+                out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
+            elif self._props["core_loss_type"].get("Choice", None) == "Hysteresis Model":
                 out["core_loss_hci"] = self._props["core_loss_hci"]
                 out["core_loss_br"] = self._props["core_loss_br"]
                 out["core_loss_hkc"] = self._props["core_loss_hkc"]
                 out["core_loss_kdc"] = self._props["core_loss_kdc"]
-                out["core_loss_equiv_cut_depth"] = self._props[
-                    "core_loss_equiv_cut_depth"
-                ]
+                out["core_loss_equiv_cut_depth"] = self._props["core_loss_equiv_cut_depth"]
         return out
 
     @aedt_exception_handler
@@ -1748,9 +1668,7 @@ class Material(CommonMaterial, object):
 
     @aedt_exception_handler
     def _does_material_exists(self, material_name):
-        listmatprj = [
-            i.lower() for i in list(self.odefinition_manager.GetProjectMaterialNames())
-        ]
+        listmatprj = [i.lower() for i in list(self.odefinition_manager.GetProjectMaterialNames())]
         if material_name.lower() in listmatprj:
             return True
         else:
@@ -1783,9 +1701,7 @@ class SurfaceMaterial(CommonMaterial, object):
             if property in self._props:
                 mods = None
                 if "ModifierData" in self._props:
-                    modifiers = self._props["ModifierData"]["ThermalModifierData"][
-                        "all_thermal_modifiers"
-                    ]
+                    modifiers = self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]
                     for mod in modifiers:
                         if isinstance(modifiers[mod], list):
                             for one_tm in modifiers[mod]:
@@ -1798,9 +1714,7 @@ class SurfaceMaterial(CommonMaterial, object):
                         else:
                             if modifiers[mod]["Property:"] == property:
                                 mods = modifiers[mod]
-                self.__dict__["_" + property] = MatProperty(
-                    self, property, self._props[property], mods
-                )
+                self.__dict__["_" + property] = MatProperty(self, property, self._props[property], mods)
             else:
                 self.__dict__["_" + property] = MatProperty(
                     self,

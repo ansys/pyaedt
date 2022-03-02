@@ -48,15 +48,11 @@ def load_keyword_in_aedt_file(filename, keyword):
 # precompile all Regular expressions
 _remove_quotes = re.compile(r"^'(.*?)'$")
 _split_list_elements = re.compile(",(?=(?:[^']*'[^']*')*[^']*$)")
-_round_bracket_list = re.compile(
-    r"^(?P<KEY1>[^\s]+?)\((?P<LIST1>.+)\)|^'(?P<KEY2>.+?\s.+)'(?<=')\((?P<LIST2>.+)\)"
-)
+_round_bracket_list = re.compile(r"^(?P<KEY1>[^\s]+?)\((?P<LIST1>.+)\)|^'(?P<KEY2>.+?\s.+)'(?<=')\((?P<LIST2>.+)\)")
 _square_bracket_list = re.compile(
     r"^(?P<KEY1>[^\s]+?)\[\d+:(?P<LIST1>.+)\]|^'(?P<KEY2>.+?\s.+)'(?<=')\[\d+:(?P<LIST2>.+)\]"
 )
-_key_parse = re.compile(
-    r"(^'(?P<KEY1>.+?)')(?<=')=(?P<VAL1>.+$)|(?P<KEY2>^.+?)=(?P<VAL2>.+$)"
-)
+_key_parse = re.compile(r"(^'(?P<KEY1>.+?)')(?<=')=(?P<VAL1>.+$)|(?P<KEY2>^.+?)=(?P<VAL2>.+$)")
 _value_parse1 = re.compile(r"\s")
 _value_parse2 = re.compile(r"^'([^']*\s[^']*)(?=')")
 _begin_search = re.compile(r"\$begin '(.+)'")
@@ -193,11 +189,7 @@ def _decode_recognized_key(keyword, l, d):
             v3 = _separate_list_elements(v2)
             d[k] = v3
     else:
-        raise AttributeError(
-            "Keyword {} is supposed to be in the recognized_keywords list".format(
-                keyword
-            )
-        )
+        raise AttributeError("Keyword {} is supposed to be in the recognized_keywords list".format(keyword))
 
 
 def _decode_key(l, d):

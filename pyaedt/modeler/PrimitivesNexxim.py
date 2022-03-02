@@ -49,11 +49,7 @@ class NexximComponents(CircuitComponents):
         if type(partname) is int:
             return self.components[partname]
         for el in self.components:
-            if (
-                self.components[el].name == partname
-                or self.components[el].composed_name == partname
-                or el == partname
-            ):
+            if self.components[el].name == partname or self.components[el].composed_name == partname or el == partname:
                 return self.components[el]
 
         return None
@@ -154,9 +150,7 @@ class NexximComponents(CircuitComponents):
         comps[0].pins[0].connect_to_component([i.pins[0] for i in comps[1:]])
         terminal_to_connect = [cmp for cmp in comps if len(cmp.pins) >= 2]
         if len(terminal_to_connect) > 1:
-            terminal_to_connect[0].pins[1].connect_to_component(
-                [i.pins[1] for i in terminal_to_connect[1:]]
-            )
+            terminal_to_connect[0].pins[1].connect_to_component([i.pins[1] for i in terminal_to_connect[1:]])
         return True
 
     @aedt_exception_handler
@@ -216,9 +210,7 @@ class NexximComponents(CircuitComponents):
         return False
 
     @aedt_exception_handler
-    def create_field_model(
-        self, design_name, solution_name, pin_names, model_type="hfss", posx=0, posy=1
-    ):
+    def create_field_model(self, design_name, solution_name, pin_names, model_type="hfss", posx=0, posy=1):
         """Create a field model.
 
         Parameters
@@ -427,9 +419,7 @@ class NexximComponents(CircuitComponents):
             arg.append("Terminal:=")
             arg.append([pn, pn, "A", False, id, 1, "", "Electrical", "0"])
             id += 1
-        arg.append(
-            ["NAME:Properties", "TextProp:=", ["Owner", "RD", "", model_type.upper()]]
-        )
+        arg.append(["NAME:Properties", "TextProp:=", ["Owner", "RD", "", model_type.upper()]])
         arg.append("CompExtID:="), arg.append(5)
         arg.append(
             [
@@ -1385,9 +1375,7 @@ class NexximComponents(CircuitComponents):
                     sinks.append(excts[i])
                 i += 2
             pin_names = sources + sinks
-            matrix = ["NAME:Reduce Matrix Choices"] + list(
-                pyaedt_app.omatrix.ListReduceMatrixes()
-            )
+            matrix = ["NAME:Reduce Matrix Choices"] + list(pyaedt_app.omatrix.ListReduceMatrixes())
         elif pyaedt_app.design_type == "2D Extractor":
             excts = list(pyaedt_app.oboundary.GetExcitations())
             pins = []
@@ -1400,9 +1388,7 @@ class NexximComponents(CircuitComponents):
             pin_names.append("Input_ref")
             pin_names.extend([i + "_out" for i in pins])
             pin_names.append("Output_ref")
-            matrix = ["NAME:Reduce Matrix Choices"] + list(
-                pyaedt_app.omatrix.ListReduceMatrixes()
-            )
+            matrix = ["NAME:Reduce Matrix Choices"] + list(pyaedt_app.omatrix.ListReduceMatrixes())
         variables = {}
         for k, v in pyaedt_app.variable_manager.variables.items():
             variables[k] = v.string_value
@@ -1511,27 +1497,15 @@ class NexximComponents(CircuitComponents):
             model = "2dext"
             owner = "2DExtractor"
             icon_file = "2dextractor.bmp"
-        designer_customization = self.get_comp_custom_settings(
-            1, 0, 0, 1, 0, 0, "False", "", 1
-        )
-        nexxim_customization = self.get_comp_custom_settings(
-            2, 3, 1, 3, 0, 0, "False", "", 2
-        )
-        hspice_customization = self.get_comp_custom_settings(
-            3, 1, 2, 3, 0, 0, "False", "", 3
-        )
+        designer_customization = self.get_comp_custom_settings(1, 0, 0, 1, 0, 0, "False", "", 1)
+        nexxim_customization = self.get_comp_custom_settings(2, 3, 1, 3, 0, 0, "False", "", 2)
+        hspice_customization = self.get_comp_custom_settings(3, 1, 2, 3, 0, 0, "False", "", 3)
 
         if image_subcircuit_path:
             _, file_extension = os.path.splitext(image_subcircuit_path)
-            if (
-                file_extension != ".gif"
-                or file_extension != ".bmp"
-                or file_extension != ".jpg"
-            ):
+            if file_extension != ".gif" or file_extension != ".bmp" or file_extension != ".jpg":
                 image_subcircuit_path = None
-                warnings.warn(
-                    "Image extension is not valid. Use default image instead."
-                )
+                warnings.warn("Image extension is not valid. Use default image instead.")
         if not image_subcircuit_path:
             image_subcircuit_path = os.path.normpath(
                 os.path.join(
@@ -1718,9 +1692,7 @@ class NexximComponents(CircuitComponents):
         ]
         if owner == "2DExtractor":
             variable_args.append("VariableProp:=")
-            variable_args.append(
-                ["Length", "D", "", self.arg_with_dim(extrusion_length_q2d)]
-            )
+            variable_args.append(["Length", "D", "", self.arg_with_dim(extrusion_length_q2d)])
         if variables:
             for k, v in variables.items():
                 variable_args.append("VariableProp:=")
@@ -1809,9 +1781,7 @@ class NexximComponents(CircuitComponents):
         return self._edit_link_definition_hfss_subcircuit(component, arg)
 
     @aedt_exception_handler
-    def set_sim_solution_on_hfss_subcircuit(
-        self, component, solution_name="Setup1 : Sweep"
-    ):
+    def set_sim_solution_on_hfss_subcircuit(self, component, solution_name="Setup1 : Sweep"):
         """Set the simulation solution on the HFSS subcircuit.
 
         Parameters
@@ -1885,22 +1855,17 @@ class NexximComponents(CircuitComponents):
         return True
 
     @aedt_exception_handler
-    def push_excitations(
-        self, instance_name, thevenin_calculation=False, setup_name="LinearFrequency"
-    ):
+    def push_excitations(self, instance_name, thevenin_calculation=False, setup_name="LinearFrequency"):
         """Push excitations.
 
         .. deprecated:: 0.4.0
            Use :func:`Circuit.push_excitations` instead.
         """
         warnings.warn(
-            "`circuit.modeler.schematic.push_excitation` is deprecated. "
-            "Use `circuit.push_excitation` instead.",
+            "`circuit.modeler.schematic.push_excitation` is deprecated. " "Use `circuit.push_excitation` instead.",
             DeprecationWarning,
         )
-        return self._app.push_excitations(
-            instance_name, thevenin_calculation, setup_name
-        )
+        return self._app.push_excitations(instance_name, thevenin_calculation, setup_name)
 
     @aedt_exception_handler
     def assign_sin_excitation2ports(self, ports, settings):

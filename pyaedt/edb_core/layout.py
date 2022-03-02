@@ -290,9 +290,7 @@ class EdbLayout(object):
         return points
 
     @aedt_exception_handler
-    def parametrize_polygon(
-        self, polygon, selection_polygon, offset_name="offsetx", origin=None
-    ):
+    def parametrize_polygon(self, polygon, selection_polygon, offset_name="offsetx", origin=None):
         """Parametrize pieces of a polygon based on another polygon.
 
         Parameters
@@ -358,19 +356,15 @@ class EdbLayout(object):
                 if prev_point != point:
                     check_inside = selection_polygon_data.PointInPolygon(point)
                     if check_inside:
-                        xcoeff, ycoeff = calc_slope(
-                            [point.X.ToDouble(), point.X.ToDouble()], origin
-                        )
+                        xcoeff, ycoeff = calc_slope([point.X.ToDouble(), point.X.ToDouble()], origin)
 
                         new_points = self._edb.Geometry.PointData(
                             self._edb_value(
-                                point.X.ToString()
-                                + "{}*{}".format(xcoeff, offset_name),
+                                point.X.ToString() + "{}*{}".format(xcoeff, offset_name),
                                 var_server,
                             ),
                             self._edb_value(
-                                point.Y.ToString()
-                                + "{}*{}".format(ycoeff, offset_name),
+                                point.Y.ToString() + "{}*{}".format(ycoeff, offset_name),
                                 var_server,
                             ),
                         )
@@ -429,41 +423,26 @@ class EdbLayout(object):
         if start_cap_style.lower() == "round":
             start_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Round
         elif start_cap_style.lower() == "extended":
-            start_cap_style = (
-                self._edb.Cell.Primitive.PathEndCapStyle.Extended
-            )  # pragma: no cover
+            start_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Extended  # pragma: no cover
         else:
-            start_cap_style = (
-                self._edb.Cell.Primitive.PathEndCapStyle.Flat
-            )  # pragma: no cover
+            start_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Flat  # pragma: no cover
         if end_cap_style.lower() == "round":
-            end_cap_style = (
-                self._edb.Cell.Primitive.PathEndCapStyle.Round
-            )  # pragma: no cover
+            end_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Round  # pragma: no cover
         elif end_cap_style.lower() == "extended":
-            end_cap_style = (
-                self._edb.Cell.Primitive.PathEndCapStyle.Extended
-            )  # pragma: no cover
+            end_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Extended  # pragma: no cover
         else:
             end_cap_style = self._edb.Cell.Primitive.PathEndCapStyle.Flat
         if corner_style.lower() == "round":
             corner_style = self._edb.Cell.Primitive.PathCornerStyle.RoundCorner
         elif corner_style.lower() == "sharp":
-            corner_style = (
-                self._edb.Cell.Primitive.PathCornerStyle.SharpCorner
-            )  # pragma: no cover
+            corner_style = self._edb.Cell.Primitive.PathCornerStyle.SharpCorner  # pragma: no cover
         else:
-            corner_style = (
-                self._edb.Cell.Primitive.PathCornerStyle.MiterCorner
-            )  # pragma: no cover
+            corner_style = self._edb.Cell.Primitive.PathCornerStyle.MiterCorner  # pragma: no cover
 
         pointlists = [
-            self._edb.Geometry.PointData(self._edb_value(i[0]), self._edb_value(i[1]))
-            for i in path_list.points
+            self._edb.Geometry.PointData(self._edb_value(i[0]), self._edb_value(i[1])) for i in path_list.points
         ]
-        polygonData = self._edb.Geometry.PolygonData(
-            convert_py_list_to_net_list(pointlists), False
-        )
+        polygonData = self._edb.Geometry.PolygonData(convert_py_list_to_net_list(pointlists), False)
         polygon = self._edb.Cell.Primitive.Path.Create(
             self._active_layout,
             layer_name,
@@ -515,17 +494,11 @@ class EdbLayout(object):
             return False
         for void in voids:
             voidPolygonData = self.shape_to_polygon_data(void)
-            if (
-                voidPolygonData is None
-                or voidPolygonData.IsNull()
-                or polygonData is False
-            ):
+            if voidPolygonData is None or voidPolygonData.IsNull() or polygonData is False:
                 self._logger.error("Failed to create void polygon data")
                 return False
             polygonData.AddHole(voidPolygonData)
-        polygon = self._edb.Cell.Primitive.Polygon.Create(
-            self._active_layout, layer_name, net, polygonData
-        )
+        polygon = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, layer_name, net, polygonData)
         if polygon.IsNull() or polygonData is False:
             self._logger.error("Null polygon created")
             return False
@@ -541,9 +514,7 @@ class EdbLayout(object):
             return polygon
 
     @aedt_exception_handler
-    def get_primitives(
-        self, net_name=None, layer_name=None, prim_type=None, is_void=False
-    ):
+    def get_primitives(self, net_name=None, layer_name=None, prim_type=None, is_void=False):
         """Get primitives by conditions.
 
         Parameters
@@ -714,9 +685,7 @@ class EdbLayout(object):
                 elif endPoint[2].ToString() == "ccw":
                     rotationDirection = self._edb.Geometry.RotationDirection.CCW
                 else:
-                    self._logger.error(
-                        "Invalid rotation direction %s is specified.", endPoint[2]
-                    )
+                    self._logger.error("Invalid rotation direction %s is specified.", endPoint[2])
                     return None
                 arc = self._edb.Geometry.ArcData(
                     self._edb.Geometry.PointData(
@@ -734,9 +703,7 @@ class EdbLayout(object):
                     ),
                 )
                 arcs.append(arc)
-        polygon = self._edb.Geometry.PolygonData.CreateFromArcs(
-            convert_py_list_to_net_list(arcs), True
-        )
+        polygon = self._edb.Geometry.PolygonData.CreateFromArcs(convert_py_list_to_net_list(arcs), True)
         if not is_parametric:
             return polygon
         else:
@@ -762,9 +729,7 @@ class EdbLayout(object):
             return True
         elif len(point) == 5:
             if not allowArcs:
-                self._logger.error(
-                    "Arc found but arcs are not allowed in _validatePoint."
-                )
+                self._logger.error("Arc found but arcs are not allowed in _validatePoint.")
                 return False
             if not isinstance(point[0], (int, float, str)):
                 self._logger.error("Point X value must be a number.")
@@ -783,25 +748,15 @@ class EdbLayout(object):
                 return False
             return True
         else:
-            self._logger.error(
-                "Arc point descriptor has incorrect number of elements (%s)", len(point)
-            )
+            self._logger.error("Arc point descriptor has incorrect number of elements (%s)", len(point))
             return False
 
     def _createPolygonDataFromRectangle(self, shape):
-        if not self._validatePoint(shape.pointA, False) or not self._validatePoint(
-            shape.pointB, False
-        ):
+        if not self._validatePoint(shape.pointA, False) or not self._validatePoint(shape.pointB, False):
             return None
-        pointA = self._edb.Geometry.PointData(
-            self._edb_value(shape.pointA[0]), self._edb_value(shape.pointA[1])
-        )
-        pointB = self._edb.Geometry.PointData(
-            self._edb_value(shape.pointB[0]), self._edb_value(shape.pointB[1])
-        )
-        points = Tuple[self._edb.Geometry.PointData, self._edb.Geometry.PointData](
-            pointA, pointB
-        )
+        pointA = self._edb.Geometry.PointData(self._edb_value(shape.pointA[0]), self._edb_value(shape.pointA[1]))
+        pointB = self._edb.Geometry.PointData(self._edb_value(shape.pointB[0]), self._edb_value(shape.pointB[1]))
+        points = Tuple[self._edb.Geometry.PointData, self._edb.Geometry.PointData](pointA, pointB)
         return self._edb.Geometry.PolygonData.CreateFromBBox(points)
 
     class Shape(object):
@@ -882,24 +837,18 @@ class EdbLayout(object):
                         if not var_server:
                             if not variable_value:
                                 variable_value = p.GetWidth()
-                            result, var_server = self._pedb.add_design_variable(
-                                parameter_name, variable_value
-                            )
+                            result, var_server = self._pedb.add_design_variable(parameter_name, variable_value)
                         p.SetWidth(self._pedb.edb_value(parameter_name))
                     elif p.GetLayer().GetName() in layers_name:
                         if not var_server:
                             if not variable_value:
                                 variable_value = p.GetWidth()
-                            result, var_server = self._pedb.add_design_variable(
-                                parameter_name, variable_value
-                            )
+                            result, var_server = self._pedb.add_design_variable(parameter_name, variable_value)
                         p.SetWidth(self._pedb.edb_value(parameter_name))
         return True
 
     @aedt_exception_handler
-    def unite_polygons_on_layer(
-        self, layer_name=None, delete_padstack_gemometries=False
-    ):
+    def unite_polygons_on_layer(self, layer_name=None, delete_padstack_gemometries=False):
         """Try to unite all Polygons on specified layer.
 
         Parameters
@@ -933,16 +882,11 @@ class EdbLayout(object):
             for net in poly_by_nets:
                 list_polygon_data = [i.GetPolygonData() for i in poly_by_nets[net]]
                 all_voids = [i.Voids for i in poly_by_nets[net]]
-                a = self._edb.Geometry.PolygonData.Unite(
-                    convert_py_list_to_net_list(list_polygon_data)
-                )
+                a = self._edb.Geometry.PolygonData.Unite(convert_py_list_to_net_list(list_polygon_data))
                 for item in a:
                     for v in all_voids:
                         for void in v:
-                            if (
-                                int(item.GetIntersectionType(void.GetPolygonData()))
-                                == 2
-                            ):
+                            if int(item.GetIntersectionType(void.GetPolygonData())) == 2:
                                 item.AddHole(void.GetPolygonData())
                     poly = self._edb.Cell.Primitive.Polygon.Create(
                         self._active_layout,
@@ -954,14 +898,7 @@ class EdbLayout(object):
                 for v in all_voids:
                     for void in v:
                         for poly in poly_by_nets[net]:
-                            if (
-                                int(
-                                    void.GetPolygonData().GetIntersectionType(
-                                        poly.GetPolygonData()
-                                    )
-                                )
-                                >= 2
-                            ):
+                            if int(void.GetPolygonData().GetIntersectionType(poly.GetPolygonData())) >= 2:
                                 try:
                                     id = list_to_delete.index(poly)
                                 except ValueError:

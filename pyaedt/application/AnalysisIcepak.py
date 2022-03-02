@@ -265,9 +265,7 @@ class FieldAnalysisIcepak(Analysis, object):
         return True
 
     @aedt_exception_handler
-    def export_3d_model(
-        self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]
-    ):
+    def export_3d_model(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
         """Export the 3D model.
 
         Parameters
@@ -421,9 +419,7 @@ class FieldAnalysisIcepak(Analysis, object):
         return None
 
     @aedt_exception_handler
-    def copy_solid_bodies_from(
-        self, design, object_list=None, no_vacuum=True, no_pec=True
-    ):
+    def copy_solid_bodies_from(self, design, object_list=None, no_vacuum=True, no_pec=True):
         """Copy a list of objects from one design to the active design.
 
         Parameters
@@ -466,9 +462,7 @@ class FieldAnalysisIcepak(Analysis, object):
                         include_object = False
             if include_object:
                 selection_list.append(body)
-        design.modeler.oeditor.Copy(
-            ["NAME:Selections", "Selections:=", ",".join(selection_list)]
-        )
+        design.modeler.oeditor.Copy(["NAME:Selections", "Selections:=", ",".join(selection_list)])
         self.modeler.oeditor.Paste()
         return True
 
@@ -507,9 +501,7 @@ class FieldAnalysisIcepak(Analysis, object):
             self.logger.info("Assign Material " + mat + " to object " + str(selections))
             for el in selections:
                 self.modeler[el].material_name = mat
-                self.modeler[el].color = self.materials.material_keys[
-                    mat
-                ].material_appearance
+                self.modeler[el].color = self.materials.material_keys[mat].material_appearance
                 if Mat.is_dielectric():
                     self.modeler[el].solve_inside = True
                 else:
@@ -542,9 +534,7 @@ class FieldAnalysisIcepak(Analysis, object):
         """
         mat = mat.lower()
         if mat not in self.materials.surface_material_keys:
-            self.logger.warning(
-                "Warning. The material is not the database. Use add_surface_material."
-            )
+            self.logger.warning("Warning. The material is not the database. Use add_surface_material.")
             return False
         else:
             for el in obj:
@@ -592,11 +582,7 @@ class FieldAnalysisIcepak(Analysis, object):
                 value_splitted = val.split(",")
                 value_list = [
                     [
-                        float(
-                            re.findall(
-                                "[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", a
-                            )[0]
-                        )
+                        float(re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", a)[0])
                         for a in d.split("@")
                     ]
                     for d in value_splitted
@@ -613,9 +599,7 @@ class FieldAnalysisIcepak(Analysis, object):
             return False
 
     @aedt_exception_handler
-    def _create_dataset_from_sherlock(
-        self, material_name, material_string, property_name="Mass_Density"
-    ):
+    def _create_dataset_from_sherlock(self, material_name, material_string, property_name="Mass_Density"):
         mats = material_string.split(",")
         mat_temp = [[i.split("@")[0], i.split("@")[1]] for i in mats]
         nominal_id = int(len(mat_temp) / 2)
@@ -623,10 +607,7 @@ class FieldAnalysisIcepak(Analysis, object):
         ds_name = generate_unique_name(property_name)
         self.create_dataset(
             ds_name,
-            [
-                float(i[1].replace("C", "").replace("K", "").replace("F", ""))
-                for i in mat_temp
-            ],
+            [float(i[1].replace("C", "").replace("K", "").replace("F", "")) for i in mat_temp],
             [float(i[0]) / nominal_val for i in mat_temp],
         )
         return nominal_val, "$" + ds_name
@@ -675,15 +656,9 @@ class FieldAnalysisIcepak(Analysis, object):
         i = 0
         for mat in material_data["Name"]:
             list_mat_obj = [
-                "COMP_" + rd
-                for rd, md in zip(component_data["Ref Des"], component_data["Material"])
-                if md == mat
+                "COMP_" + rd for rd, md in zip(component_data["Ref Des"], component_data["Material"]) if md == mat
             ]
-            list_mat_obj += [
-                rd
-                for rd, md in zip(component_data["Ref Des"], component_data["Material"])
-                if md == mat
-            ]
+            list_mat_obj += [rd for rd, md in zip(component_data["Ref Des"], component_data["Material"]) if md == mat]
             list_mat_obj = [mo for mo in list_mat_obj if mo in all_objs]
             if list_mat_obj:
                 if not self.materials.checkifmaterialexists(mat.lower()):
@@ -691,17 +666,12 @@ class FieldAnalysisIcepak(Analysis, object):
                 else:
                     newmat = self.materials[mat.lower()]
                 if "Material Density" in material_data:
-                    if (
-                        "@" in material_data["Material Density"][i]
-                        and "," in material_data["Material Density"][i]
-                    ):
+                    if "@" in material_data["Material Density"][i] and "," in material_data["Material Density"][i]:
                         nominal_val, dataset_name = self._create_dataset_from_sherlock(
                             mat, material_data["Material Density"][i], "Mass_Density"
                         )
                         newmat.mass_density = nominal_val
-                        newmat.mass_density.thermalmodifier = "pwl({}, Temp)".format(
-                            dataset_name
-                        )
+                        newmat.mass_density.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
                     else:
                         value = material_data["Material Density"][i]
                         newmat.mass_density = value
@@ -716,54 +686,37 @@ class FieldAnalysisIcepak(Analysis, object):
                             "Thermal_Conductivity",
                         )
                         newmat.thermal_conductivity = nominal_val
-                        newmat.thermal_conductivity.thermalmodifier = (
-                            "pwl({}, Temp)".format(dataset_name)
-                        )
+                        newmat.thermal_conductivity.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
                     else:
                         value = material_data["Thermal Conductivity"][i]
                         newmat.thermal_conductivity = value
                 if "Material CTE" in material_data:
-                    if (
-                        "@" in material_data["Material CTE"][i]
-                        and "," in material_data["Material CTE"][i]
-                    ):
+                    if "@" in material_data["Material CTE"][i] and "," in material_data["Material CTE"][i]:
                         nominal_val, dataset_name = self._create_dataset_from_sherlock(
                             mat, material_data["Material CTE"][i], "CTE"
                         )
                         newmat.thermal_expansion_coefficient = nominal_val
-                        newmat.thermal_expansion_coefficient.thermalmodifier = (
-                            "pwl({}, Temp)".format(dataset_name)
-                        )
+                        newmat.thermal_expansion_coefficient.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
                     else:
                         value = material_data["Material CTE"][i]
                         newmat.thermal_expansion_coefficient = value
                 if "Poisson Ratio" in material_data:
-                    if (
-                        "@" in material_data["Poisson Ratio"][i]
-                        and "," in material_data["Poisson Ratio"][i]
-                    ):
+                    if "@" in material_data["Poisson Ratio"][i] and "," in material_data["Poisson Ratio"][i]:
                         nominal_val, dataset_name = self._create_dataset_from_sherlock(
                             mat, material_data["Poisson Ratio"][i], "Poisson_Ratio"
                         )
                         newmat.poissons_ratio = nominal_val
-                        newmat.poissons_ratio.thermalmodifier = "pwl({}, Temp)".format(
-                            dataset_name
-                        )
+                        newmat.poissons_ratio.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
                     else:
                         value = material_data["Poisson Ratio"][i]
                         newmat.poissons_ratio = value
                 if "Elastic Modulus" in material_data:
-                    if (
-                        "@" in material_data["Elastic Modulus"][i]
-                        and "," in material_data["Elastic Modulus"][i]
-                    ):
+                    if "@" in material_data["Elastic Modulus"][i] and "," in material_data["Elastic Modulus"][i]:
                         nominal_val, dataset_name = self._create_dataset_from_sherlock(
                             mat, material_data["Elastic Modulus"][i], "Youngs_Modulus"
                         )
                         newmat.youngs_modulus = nominal_val
-                        newmat.youngs_modulus.thermalmodifier = "pwl({}, Temp)".format(
-                            dataset_name
-                        )
+                        newmat.youngs_modulus.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
                     else:
                         value = material_data["Elastic Modulus"][i]
                         newmat.youngs_modulus = value
@@ -771,9 +724,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
                 for obj_name in list_mat_obj:
                     if not self.modeler[obj_name].surface_material_name:
-                        self.modeler[
-                            obj_name
-                        ].surface_material_name = "Steel-oxidised-surface"
+                        self.modeler[obj_name].surface_material_name = "Steel-oxidised-surface"
             i += 1
             all_objs = [ao for ao in all_objs if ao not in list_mat_obj]
         return True

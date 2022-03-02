@@ -111,9 +111,7 @@ class MultiPartComponent(object):
         self._index = None  # Counter used to assign unique name.
         self._yaw = yaw  # Yaw is the rotation about the z-axis
         self._pitch = pitch  # Pitch is tilt toward the sky (i.e. rotation about y)
-        self._roll = (
-            roll  # Roll is rotation about the x-axis (x is the direction of movement)
-        )
+        self._roll = roll  # Roll is rotation about the x-axis (x is the direction of movement)
         self._relative_cs_name = relative_cs_name
         if relative_cs_name:
             self._reference_cs_name = relative_cs_name
@@ -135,9 +133,7 @@ class MultiPartComponent(object):
                     f = fn
         else:
             f = json_files[0]
-            self._name = os.path.split(f)[1].split(".")[
-                0
-            ]  # Define name from the json file name.
+            self._name = os.path.split(f)[1].split(".")[0]  # Define name from the json file name.
 
         compdef = json_to_dict(f)  # dict defining the 3d component
 
@@ -467,10 +463,7 @@ class MultiPartComponent(object):
         """
         self.motion = True if motion else self.motion
 
-        if (
-            self.use_global_cs
-            or self.cs_name in app.modeler.oeditor.GetCoordinateSystems()
-        ):
+        if self.use_global_cs or self.cs_name in app.modeler.oeditor.GetCoordinateSystems():
             app.modeler.set_working_coordinate_system(self.cs_name)
             if self.use_relative_cs:
                 self._relative_cs_name = self.name + "_cs"
@@ -615,9 +608,7 @@ class Actor(MultiPartComponent, object):
             relative_cs_name=relative_cs_name,
         )
 
-        self._speed_expression = (
-            str(speed) + "m_per_sec"
-        )  # TODO: Need error checking here.
+        self._speed_expression = str(speed) + "m_per_sec"  # TODO: Need error checking here.
 
     @property
     def speed_name(self):
@@ -654,23 +645,9 @@ class Actor(MultiPartComponent, object):
         )
         # Update expressions for x and y position in app:
         app[self.offset_names[0]] = (
-            str(self.offset[0])
-            + "+"
-            + self.speed_name
-            + " * "
-            + MultiPartComponent._t
-            + "* cos("
-            + self.yaw_name
-            + ")"
+            str(self.offset[0]) + "+" + self.speed_name + " * " + MultiPartComponent._t + "* cos(" + self.yaw_name + ")"
         )
 
         app[self.offset_names[1]] = (
-            str(self.offset[1])
-            + "+"
-            + self.speed_name
-            + " * "
-            + MultiPartComponent._t
-            + "* sin("
-            + self.yaw_name
-            + ")"
+            str(self.offset[1]) + "+" + self.speed_name + " * " + MultiPartComponent._t + "* sin(" + self.yaw_name + ")"
         )

@@ -142,9 +142,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
     def model_units(self, units):
         assert units in AEDT_UNITS["Length"], "Invalid units string {0}.".format(units)
         """Set the model units as a string (for example, "mm")."""
-        self.oeditor.SetActivelUnits(
-            ["NAME:Units Parameter", "Units:=", units, "Rescale:=", False]
-        )
+        self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @property
     def primitives(self):
@@ -292,9 +290,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return True
 
     @aedt_exception_handler
-    def merge_design(
-        self, merged_design=None, pos_x="0.0", pos_y="0.0", pos_z="0.0", rotation="0.0"
-    ):
+    def merge_design(self, merged_design=None, pos_x="0.0", pos_y="0.0", pos_z="0.0", rotation="0.0"):
         """Merge a design into another.
 
         Parameters
@@ -328,9 +324,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 pass
         if not comp_name:
             return False
-        self.change_property(
-            property_object=comp_name, property_name="3D Placement", property_value=True
-        )
+        self.change_property(property_object=comp_name, property_name="3D Placement", property_value=True)
         self.change_property(
             property_object=comp_name,
             property_name="Local Origin",
@@ -425,9 +419,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return True
 
     @aedt_exception_handler
-    def expand(
-        self, object_to_expand, size=1, expand_type="ROUND", replace_original=False
-    ):
+    def expand(self, object_to_expand, size=1, expand_type="ROUND", replace_original=False):
         """Expand the object by a specific size.
 
         Parameters
@@ -475,9 +467,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         )
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
-        geom_names = self.oeditor.FindObjectsByPoint(
-            self.oeditor.Point().Set(pos[0], pos[1]), layer
-        )
+        geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
         self.oeditor.Expand(
             self.arg_with_dim(size),
             expand_type,
@@ -487,15 +477,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         if not replace_original:
             new_geom_names = [
                 i
-                for i in self.oeditor.FindObjectsByPoint(
-                    self.oeditor.Point().Set(pos[0], pos[1]), layer
-                )
+                for i in self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
                 if i not in geom_names
             ]
             if self.is_outside_desktop:
-                self._geometries[new_geom_names[0]] = Geometries3DLayout(
-                    self, new_geom_names[0]
-                )
+                self._geometries[new_geom_names[0]] = Geometries3DLayout(self, new_geom_names[0])
             return new_geom_names[0]
         return object_to_expand
 
@@ -866,10 +852,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     pinNames.remove(pinNames[0])
                     pinNames.remove(pinNames[0])
                     break
-        componentPins = [
-            i.GetName()
-            for i in self.edb.core_components.get_pin_from_component(component_name)
-        ]
+        componentPins = [i.GetName() for i in self.edb.core_components.get_pin_from_component(component_name)]
         componentPins.reverse()
         if not pin_map:
             pin_map = []

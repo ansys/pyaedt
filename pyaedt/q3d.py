@@ -243,19 +243,12 @@ class Q3d(QExtractor, object):
         sources = []
         net_id = -1
         for i in self.boundaries:
-            if (
-                i.type == "SignalNet"
-                and i.name == net_name
-                and i.props.get("ID", None) is not None
-            ):
+            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:
                 net_id = i.props.get("ID", None)  # pragma: no cover
                 break  # pragma: no cover
         for i in self.boundaries:
             if i.type == "Source":
-                if (
-                    i.props.get("Net", None) == net_name
-                    or i.props.get("Net", None) == net_id
-                ):
+                if i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
                     sources.append(i.name)
 
         return sources
@@ -283,19 +276,11 @@ class Q3d(QExtractor, object):
         sinks = []
         net_id = -1
         for i in self.boundaries:
-            if (
-                i.type == "SignalNet"
-                and i.name == net_name
-                and i.props.get("ID", None) is not None
-            ):
+            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:
                 net_id = i.props.get("ID", None)  # pragma: no cover
                 break  # pragma: no cover
         for i in self.boundaries:
-            if (
-                i.type == "Sink"
-                and i.props.get("Net", None) == net_name
-                or i.props.get("Net", None) == net_id
-            ):
+            if i.type == "Sink" and i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
                 sinks.append(i.name)
         return sinks
 
@@ -325,11 +310,7 @@ class Q3d(QExtractor, object):
             bound = BoundaryObject(self, net, props, "SignalNet")
             self.boundaries.append(bound)
         if new_nets:
-            self.logger.info(
-                "{} Nets have been identified: {}".format(
-                    len(new_nets), ", ".join(new_nets)
-                )
-            )
+            self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))
         else:
             self.logger.info("No new nets identified")
         return True
@@ -383,9 +364,7 @@ class Q3d(QExtractor, object):
         return False
 
     @aedt_exception_handler
-    def assign_source_to_objectface(
-        self, object_name, axisdir=0, source_name=None, net_name=None
-    ):
+    def assign_source_to_objectface(self, object_name, axisdir=0, source_name=None, net_name=None):
         """Generate a source on a face of an object.
 
         The face ID is selected based on ``axisdir``. It is the face that
@@ -438,9 +417,7 @@ class Q3d(QExtractor, object):
         return False
 
     @aedt_exception_handler
-    def assign_source_to_sheet(
-        self, sheetname, objectname=None, netname=None, sourcename=None
-    ):
+    def assign_source_to_sheet(self, sheetname, objectname=None, netname=None, sourcename=None):
         """Generate a source on a sheet.
 
         Parameters
@@ -473,9 +450,7 @@ class Q3d(QExtractor, object):
         props["TerminalType"] = "ConstantVoltage"
         if netname:
             props["Net"] = netname
-        props = OrderedDict(
-            {"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname}
-        )
+        props = OrderedDict({"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname})
         bound = BoundaryObject(self, sourcename, props, "Source")
         if bound.create():
             self.boundaries.append(bound)
@@ -483,9 +458,7 @@ class Q3d(QExtractor, object):
         return False
 
     @aedt_exception_handler
-    def assign_sink_to_objectface(
-        self, object_name, axisdir=0, sink_name=None, net_name=None
-    ):
+    def assign_sink_to_objectface(self, object_name, axisdir=0, sink_name=None, net_name=None):
         """Generate a sink on a face of an object.
 
         The face ID is selected based on ``axisdir``. It is the face that has
@@ -538,9 +511,7 @@ class Q3d(QExtractor, object):
         return False
 
     @aedt_exception_handler
-    def assign_sink_to_sheet(
-        self, sheetname, objectname=None, netname=None, sinkname=None
-    ):
+    def assign_sink_to_sheet(self, sheetname, objectname=None, netname=None, sinkname=None):
         """Generate a sink on a sheet.
 
         Parameters
@@ -574,9 +545,7 @@ class Q3d(QExtractor, object):
         if netname:
             props["Net"] = netname
 
-        props = OrderedDict(
-            {"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname}
-        )
+        props = OrderedDict({"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname})
         bound = BoundaryObject(self, sinkname, props, "Sink")
         if bound.create():
             self.boundaries.append(bound)
@@ -584,9 +553,7 @@ class Q3d(QExtractor, object):
         return False
 
     @aedt_exception_handler
-    def create_frequency_sweep(
-        self, setupname, units, freqstart, freqstop, freqstep=None, sweepname=None
-    ):
+    def create_frequency_sweep(self, setupname, units, freqstart, freqstop, freqstep=None, sweepname=None):
         """Create a frequency sweep.
 
         Parameters
@@ -625,9 +592,7 @@ class Q3d(QExtractor, object):
                 setupdata = i
                 for sw in setupdata.sweeps:
                     if sweepname == sw.name:
-                        self.logger.warning(
-                            "Sweep %s is already present. Rename and retry.", sweepname
-                        )
+                        self.logger.warning("Sweep %s is already present. Rename and retry.", sweepname)
                         return False
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeStart"] = str(freqstart) + "GHz"
@@ -847,9 +812,7 @@ class Q2d(QExtractor, object):
 
         >>> oEditor.CreateRectangle
         """
-        return self.modeler.create_rectangle(
-            position, dimension_list=dimension_list, name=name, matname=matname
-        )
+        return self.modeler.create_rectangle(position, dimension_list=dimension_list, name=name, matname=matname)
 
     @aedt_exception_handler
     def assign_single_signal_line(
@@ -889,9 +852,7 @@ class Q2d(QExtractor, object):
             "`assign_single_signal_line` is deprecated. Use `assign_single_conductor` instead.",
             DeprecationWarning,
         )
-        self.assign_single_conductor(
-            target_objects, name, "SignalLine", solve_option, thickness, unit
-        )
+        self.assign_single_conductor(target_objects, name, "SignalLine", solve_option, thickness, unit)
 
     @aedt_exception_handler
     def assign_single_conductor(
@@ -969,9 +930,7 @@ class Q2d(QExtractor, object):
         return False
 
     @aedt_exception_handler
-    def assign_huray_finitecond_to_edges(
-        self, edges, radius, ratio, unit="um", name=""
-    ):
+    def assign_huray_finitecond_to_edges(self, edges, radius, ratio, unit="um", name=""):
         """
         Assign Huray surface roughness model to edges.
 
@@ -1004,9 +963,7 @@ class Q2d(QExtractor, object):
 
         a = self.modeler.convert_to_selections(edges, True)
 
-        props = OrderedDict(
-            {"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)}
-        )
+        props = OrderedDict({"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)})
 
         bound = BoundaryObject(self, name, props, "FiniteCond")
         if bound.create():
@@ -1024,16 +981,11 @@ class Q2d(QExtractor, object):
         """
         original_nets = list(self.oboundary.GetExcitations())
         self.oboundary.AutoAssignSignals()
-        new_nets = [
-            i for i in list(self.oboundary.GetExcitations()) if i not in original_nets
-        ]
+        new_nets = [i for i in list(self.oboundary.GetExcitations()) if i not in original_nets]
         i = 0
         while i < len(new_nets):
             objects = self.modeler.convert_to_selections(
-                [
-                    int(k)
-                    for k in list(self.oboundary.GetExcitationAssignment(new_nets[i]))
-                ],
+                [int(k) for k in list(self.oboundary.GetExcitationAssignment(new_nets[i]))],
                 True,
             )
             props = OrderedDict({"Objects": objects})
@@ -1041,11 +993,7 @@ class Q2d(QExtractor, object):
             self.boundaries.append(bound)
             i += 2
         if new_nets:
-            self.logger.info(
-                "{} Nets have been identified: {}".format(
-                    len(new_nets), ", ".join(new_nets)
-                )
-            )
+            self.logger.info("{} Nets have been identified: {}".format(len(new_nets), ", ".join(new_nets)))
         else:
             self.logger.info("No new nets identified")
         return True

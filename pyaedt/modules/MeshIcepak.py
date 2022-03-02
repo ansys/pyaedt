@@ -25,9 +25,7 @@ class IcepakMesh(object):
         self.id = 0
         self._oeditor = self.modeler.oeditor
         self._model_units = self.modeler.model_units
-        self.global_mesh_region = self.MeshRegion(
-            self.omeshmodule, self.boundingdimension, self._model_units
-        )
+        self.global_mesh_region = self.MeshRegion(self.omeshmodule, self.boundingdimension, self._model_units)
         self.meshoperations = self._get_design_mesh_operations()
         self.meshregions = self._get_design_mesh_regions()
         self._priorities_args = []
@@ -215,9 +213,7 @@ class IcepakMesh(object):
 
             >>> oModule.AssignMeshRegion
             """
-            assert (
-                self.name != "Settings"
-            ), "Cannot create a new mesh region with this Name"
+            assert self.name != "Settings", "Cannot create a new mesh region with this Name"
             args = ["NAME:" + self.name, "Enable:=", self.Enable]
             if self.UserSpecifiedSettings:
                 args += self.manualsettings
@@ -236,22 +232,16 @@ class IcepakMesh(object):
         """Retrieve design mesh operations."""
         meshops = []
         try:
-            for ds in self._app.design_properties["MeshRegion"]["MeshSetup"][
-                "MeshOperations"
-            ]:
+            for ds in self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"]:
                 if isinstance(
-                    self._app.design_properties["MeshRegion"]["MeshSetup"][
-                        "MeshOperations"
-                    ][ds],
+                    self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
                     (OrderedDict, dict),
                 ):
                     meshops.append(
                         MeshOperation(
                             self,
                             ds,
-                            self._app.design_properties["MeshRegion"]["MeshSetup"][
-                                "MeshOperations"
-                            ][ds],
+                            self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
                             "Icepak",
                         )
                     )
@@ -264,13 +254,9 @@ class IcepakMesh(object):
         """Retrieve design mesh regions."""
         meshops = []
         try:
-            for ds in self._app.design_properties["MeshRegion"]["MeshSetup"][
-                "MeshRegions"
-            ]:
+            for ds in self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"]:
                 if isinstance(
-                    self._app.design_properties["MeshRegion"]["MeshSetup"][
-                        "MeshRegions"
-                    ][ds],
+                    self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds],
                     (OrderedDict, dict),
                 ):
                     meshop = self.MeshRegion(
@@ -278,9 +264,7 @@ class IcepakMesh(object):
                         self.boundingdimension,
                         self.modeler.model_units,
                     )
-                    dict_prop = self._app.design_properties["MeshRegion"]["MeshSetup"][
-                        "MeshRegions"
-                    ][ds]
+                    dict_prop = self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]
                     self.name = ds
                     for el in dict_prop:
                         if el in meshop.__dict__:
@@ -323,9 +307,7 @@ class IcepakMesh(object):
                 meshop_name = generate_unique_name(meshop_name, "L_" + str(level))
             else:
                 meshop_name = generate_unique_name("Icepak", "L_" + str(level))
-            props = OrderedDict(
-                {"Enable": True, "Level": str(level), "Objects": level_order[level]}
-            )
+            props = OrderedDict({"Enable": True, "Level": str(level), "Objects": level_order[level]})
             mop = MeshOperation(self, meshop_name, props, "Icepak")
             mop.create()
             self.meshoperations.append(mop)
@@ -360,9 +342,7 @@ class IcepakMesh(object):
             meshop_name = generate_unique_name("MeshFile")
         else:
             meshop_name = generate_unique_name("MeshFile")
-        props = OrderedDict(
-            {"Enable": True, "MaxLevel": str(0), "MinLevel": str(0), "Objects": objs}
-        )
+        props = OrderedDict({"Enable": True, "MaxLevel": str(0), "MinLevel": str(0), "Objects": objs})
         props["Local Mesh Parameters Enabled"] = False
         props["Mesh Reuse Enabled"] = True
         props["Mesh Reuse File"] = filename
@@ -542,9 +522,7 @@ class IcepakMesh(object):
         """
         if not name:
             name = generate_unique_name("MeshRegion")
-        meshregion = self.MeshRegion(
-            self.omeshmodule, self.boundingdimension, self.modeler.model_units
-        )
+        meshregion = self.MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units)
         meshregion.UserSpecifiedSettings = False
         meshregion.Level = level
         meshregion.name = name

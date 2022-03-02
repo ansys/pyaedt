@@ -355,29 +355,21 @@ class FieldAnalysis3D(Analysis, object):
         }
         if type == "Boundary":
             propserv = boundary[self._design_type]
-            val = _retry_ntimes(
-                10, self.odesign.GetPropertyValue, propserv, objectname, property
-            )
+            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
         elif type == "Setup":
             propserv = setup[self._design_type]
-            val = _retry_ntimes(
-                10, self.odesign.GetPropertyValue, propserv, objectname, property
-            )
+            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
 
         elif type == "Excitation":
             propserv = excitation[self._design_type]
-            val = _retry_ntimes(
-                10, self.odesign.GetPropertyValue, propserv, objectname, property
-            )
+            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
 
         elif type == "Mesh":
             propserv = mesh[self._design_type]
-            val = _retry_ntimes(
-                10, self.odesign.GetPropertyValue, propserv, objectname, property
-            )
+            val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
             return val
         else:
             propservs = all[self._design_type]
@@ -450,17 +442,13 @@ class FieldAnalysis3D(Analysis, object):
                             include_object = False
                 if include_object:
                     selection_list.append(body)
-        design.modeler.oeditor.Copy(
-            ["NAME:Selections", "Selections:=", ",".join(selection_list)]
-        )
+        design.modeler.oeditor.Copy(["NAME:Selections", "Selections:=", ",".join(selection_list)])
         self.modeler.oeditor.Paste()
         self.modeler.refresh_all_ids()
         return True
 
     @aedt_exception_handler
-    def export3DModel(
-        self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]
-    ):
+    def export3DModel(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
         """Export the 3D model.
 
         .. deprecated:: 0.5.0
@@ -471,14 +459,10 @@ class FieldAnalysis3D(Analysis, object):
             "`export3DModel` is deprecated. Use `export_3d_model` instead.",
             DeprecationWarning,
         )
-        return self.export_3d_model(
-            fileName, filePath, fileFormat, object_list, removed_objects
-        )
+        return self.export_3d_model(fileName, filePath, fileFormat, object_list, removed_objects)
 
     @aedt_exception_handler
-    def export_3d_model(
-        self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]
-    ):
+    def export_3d_model(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
         """Export the 3D model.
 
         Parameters
@@ -582,9 +566,7 @@ class FieldAnalysis3D(Analysis, object):
 
         contexts = []
         for i in range(number_of_modes):
-            contexts.append(
-                [s + ":" + str(i + 1) for s in sources]
-            )  # use one based indexing
+            contexts.append([s + ":" + str(i + 1) for s in sources])  # use one based indexing
         self.osolution.SetSourceContexts(contexts)
         return True
 
@@ -646,9 +628,7 @@ class FieldAnalysis3D(Analysis, object):
             self.logger.info("Assign Material " + mat + " to object " + str(selections))
             for el in selections:
                 self.modeler[el].material_name = mat
-                self.modeler[el].color = self.materials.material_keys[
-                    mat
-                ].material_appearance
+                self.modeler[el].color = self.materials.material_keys[mat].material_appearance
                 if Mat.is_dielectric():
                     self.modeler[el].solve_inside = True
                 else:

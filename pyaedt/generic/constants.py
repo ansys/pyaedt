@@ -146,18 +146,11 @@ def unit_converter(value, unit_system="Length", input_units="meter", output_unit
         Converted value.
     """
     if unit_system in AEDT_UNITS:
-        if (
-            input_units not in AEDT_UNITS[unit_system]
-            or output_units not in AEDT_UNITS[unit_system]
-        ):
+        if input_units not in AEDT_UNITS[unit_system] or output_units not in AEDT_UNITS[unit_system]:
             warnings.warn("No units found")
             return value
         else:
-            return (
-                value
-                * AEDT_UNITS[unit_system][input_units]
-                / AEDT_UNITS[unit_system][output_units]
-            )
+            return value * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
     warnings.warn("No system unit found")
     return value
 
@@ -444,17 +437,7 @@ class GLOBALCS(object):
 class MATRIXOPERATIONSQ3D(object):
     """Matrix Reduction types."""
 
-    (
-        JoinSeries,
-        JoinParallel,
-        FloatNet,
-        GroundNet,
-        FloatTerminal,
-        FloatInfinity,
-        ReturnPath,
-        AddSink,
-        MoveSink,
-    ) = (
+    (JoinSeries, JoinParallel, FloatNet, GroundNet, FloatTerminal, FloatInfinity, ReturnPath, AddSink, MoveSink,) = (
         "JoinSeries",
         "JoinParallel",
         "FloatNet",
@@ -583,14 +566,7 @@ class SOLUTIONS(object):
     class Maxwell3d(object):
         """Provides Maxwell 3D solution types."""
 
-        (
-            Transient,
-            Magnetostatic,
-            EddyCurrent,
-            ElectroStatic,
-            ElectroDCConduction,
-            ElectroDCTransient,
-        ) = (
+        (Transient, Magnetostatic, EddyCurrent, ElectroStatic, ElectroDCConduction, ElectroDCTransient,) = (
             "Transient",
             "Magnetostatic",
             "EddyCurrent",

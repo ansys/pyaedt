@@ -62,9 +62,7 @@ class Setup(object):
         elif isinstance(solutiontype, int):
             self.setuptype = solutiontype
         else:
-            self.setuptype = self.p_app.design_solutions._solution_options[
-                solutiontype
-            ]["default_setup"]
+            self.setuptype = self.p_app.design_solutions._solution_options[solutiontype]["default_setup"]
 
         self.name = setupname
         self.props = {}
@@ -75,9 +73,7 @@ class Setup(object):
                 _tuple2dict(t, self.props)
         else:
             try:
-                setups_data = self.p_app.design_properties["AnalysisSetup"][
-                    "SolveSetups"
-                ]
+                setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
                 if setupname in setups_data:
                     setup_data = setups_data[setupname]
                     if "Sweeps" in setup_data and self.setuptype not in [
@@ -91,21 +87,13 @@ class Setup(object):
                             app.pop("MoveBackwards", None)
                             for el in app:
                                 if isinstance(app[el], (OrderedDict, dict)):
-                                    self.sweeps.append(
-                                        SweepHFSS(
-                                            self.omodule, setupname, el, props=app[el]
-                                        )
-                                    )
+                                    self.sweeps.append(SweepHFSS(self.omodule, setupname, el, props=app[el]))
 
                         else:
                             app = setup_data["Sweeps"]
                             for el in app:
                                 if isinstance(app[el], (OrderedDict, dict)):
-                                    self.sweeps.append(
-                                        SweepQ3D(
-                                            self.omodule, setupname, el, props=app[el]
-                                        )
-                                    )
+                                    self.sweeps.append(SweepQ3D(self.omodule, setupname, el, props=app[el]))
                         setup_data.pop("Sweeps", None)
                     self.props = OrderedDict(setup_data)
             except:
@@ -439,9 +427,7 @@ class Setup(object):
         return sweep_n
 
     @aedt_exception_handler
-    def add_mesh_link(
-        self, design_name, solution_name, parameters_dict, project_name="This Project*"
-    ):
+    def add_mesh_link(self, design_name, solution_name, parameters_dict, project_name="This Project*"):
         """Add a mesh link to another design.
 
         Parameters
@@ -516,9 +502,7 @@ class SetupCircuit(object):
         elif isinstance(solutiontype, int):
             self.setuptype = solutiontype
         else:
-            self.setuptype = self.p_app.design_solutions._solution_options[
-                solutiontype
-            ]["default_setup"]
+            self.setuptype = self.p_app.design_solutions._solution_options[solutiontype]["default_setup"]
         self._Name = "LinearFrequency"
         self.props = {}
         if isnewsetup:
@@ -644,9 +628,7 @@ class SetupCircuit(object):
                 self.omodule.EditAMIAnalysis(self.name, arg)
 
             else:
-                raise NotImplementedError(
-                    "Solution type '{}' is not implemented yet".format(soltype)
-                )
+                raise NotImplementedError("Solution type '{}' is not implemented yet".format(soltype))
         return True
 
     @aedt_exception_handler
@@ -1149,9 +1131,7 @@ class Setup3DLayout(object):
         elif isinstance(solutiontype, int):
             self._solutiontype = solutiontype
         else:
-            self._solutiontype = self._app.design_solutions._solution_options[
-                solutiontype
-            ]["default_setup"]
+            self._solutiontype = self._app.design_solutions._solution_options[solutiontype]["default_setup"]
         self.name = setupname
         self.props = OrderedDict()
         self.sweeps = []
@@ -1168,11 +1148,7 @@ class Setup3DLayout(object):
                         app = setup_data["Data"]
                         for el in app:
                             if isinstance(app[el], (OrderedDict, dict)):
-                                self.sweeps.append(
-                                    SweepHFSS3DLayout(
-                                        self.omodule, setupname, el, props=app[el]
-                                    )
-                                )
+                                self.sweeps.append(SweepHFSS3DLayout(self.omodule, setupname, el, props=app[el]))
 
                     self.props = OrderedDict(setup_data)
             except:
@@ -1433,9 +1409,7 @@ class SetupHFSS(Setup, object):
 
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            raise AttributeError(
-                "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
-            )
+            raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
 
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
@@ -1464,9 +1438,7 @@ class SetupHFSS(Setup, object):
         sweepdata.props["SaveFields"] = save_fields
         sweepdata.props["SaveRadFields"] = save_rad_fields
         sweepdata.update()
-        self.logger.info(
-            "Linear count sweep {} has been correctly created".format(sweepname)
-        )
+        self.logger.info("Linear count sweep {} has been correctly created".format(sweepname))
         return sweepdata
 
     @aedt_exception_handler
@@ -1532,9 +1504,7 @@ class SetupHFSS(Setup, object):
 
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            raise AttributeError(
-                "Invalid in `sweep_type`. It has to either 'Discrete', 'Interpolating', or 'Fast'"
-            )
+            raise AttributeError("Invalid in `sweep_type`. It has to either 'Discrete', 'Interpolating', or 'Fast'")
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
@@ -1568,9 +1538,7 @@ class SetupHFSS(Setup, object):
                     sweepdata.props["InterpMinSolns"] = 0
                     sweepdata.props["InterpMinSubranges"] = 1
                 sweepdata.update()
-                self.logger.info(
-                    "Linear step sweep {} has been correctly created".format(sweepname)
-                )
+                self.logger.info("Linear step sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
 
@@ -1634,16 +1602,12 @@ class SetupHFSS(Setup, object):
 
         if isinstance(save_single_field, list):
             if not isinstance(freq, list) or len(save_single_field) != len(freq):
-                raise AttributeError(
-                    "The length of save_single_field must be the same as freq length."
-                )
+                raise AttributeError("The length of save_single_field must be the same as freq length.")
 
         add_subranges = False
         if isinstance(freq, list):
             if not freq:
-                raise AttributeError(
-                    "Frequency list is empty! Specify at least one frequency point."
-                )
+                raise AttributeError("Frequency list is empty! Specify at least one frequency point.")
             freq0 = freq.pop(0)
             if freq:
                 add_subranges = True
@@ -1687,8 +1651,6 @@ class SetupHFSS(Setup, object):
                             save_single_fields=s,
                         )
                 sweepdata.update()
-                self.logger.info(
-                    "Single point sweep {} has been correctly created".format(sweepname)
-                )
+                self.logger.info("Single point sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False

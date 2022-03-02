@@ -74,9 +74,7 @@ class MeshOperation(object):
         elif self.type == "SkinDepthBased":
             self._meshicepak.omeshmodule.AssignSkinDepthOp(self._get_args())
         elif self.type == "Curvilinear":
-            self._meshicepak.omeshmodule.AssignApplyCurvlinearElementsOp(
-                self._get_args()
-            )
+            self._meshicepak.omeshmodule.AssignApplyCurvlinearElementsOp(self._get_args())
         elif self.type == "RotationalLayerMesh":
             self._meshicepak.omeshmodule.AssignRotationalLayerOp(self._get_args())
         elif self.type == "DensityControlBased":
@@ -114,35 +112,23 @@ class MeshOperation(object):
         if self.type == "SurfApproxBased":
             self._meshicepak.omeshmodule.EditTrueSurfOp(self.name, self._get_args())
         elif self.type == "DefeatureBased":
-            self._meshicepak.omeshmodule.EditModelResolutionOp(
-                self.name, self._get_args()
-            )
+            self._meshicepak.omeshmodule.EditModelResolutionOp(self.name, self._get_args())
         elif self.type == "SurfaceRepPriority":
-            self._meshicepak.omeshmodule.EditSurfPriorityForTauOp(
-                self.name, self._get_args()
-            )
+            self._meshicepak.omeshmodule.EditSurfPriorityForTauOp(self.name, self._get_args())
         elif self.type == "LengthBased":
             self._meshicepak.omeshmodule.EditLengthOp(self.name, self._get_args())
         elif self.type == "SkinDepthBased":
             self._meshicepak.omeshmodule.EditSkinDepthOp(self.name, self._get_args())
         elif self.type == "Curvilinear":
-            self._meshicepak.omeshmodule.EditApplyCurvlinearElementsOp(
-                self.name, self._get_args()
-            )
+            self._meshicepak.omeshmodule.EditApplyCurvlinearElementsOp(self.name, self._get_args())
         elif self.type == "RotationalLayerMesh":
-            self._meshicepak.omeshmodule.EditRotationalLayerOp(
-                self.name, self._get_args()
-            )
+            self._meshicepak.omeshmodule.EditRotationalLayerOp(self.name, self._get_args())
         elif self.type == "DensityControlBased":
-            self._meshicepak.omeshmodule.EditDensityControlOp(
-                self.name, self._get_args()
-            )
+            self._meshicepak.omeshmodule.EditDensityControlOp(self.name, self._get_args())
         elif self.type == "Icepak":
             self._meshicepak.omeshmodule.EditMeshOperation(self.name, self._get_args())
         elif self.type == "CurvatureExtraction":
-            self._meshicepak.omeshmodule.EditSBRCurvatureExtractionOp(
-                self.name, self._get_args()
-            )
+            self._meshicepak.omeshmodule.EditSBRCurvatureExtractionOp(self.name, self._get_args())
         elif self.type == "InitialMeshSettings":
             self._meshicepak.omeshmodule.InitialMeshSettings(self._get_args())
 
@@ -234,16 +220,14 @@ class Mesh(object):
             temp_name = generate_unique_name("temp_prj")
             temp_proj = os.path.join(self._app.working_directory, temp_name + ".aedt")
             oproject_target = self._app.odesktop.NewProject(temp_name)
-            des_target = oproject_target.InsertDesign(
-                self._app.design_type, temp_name, self._app.solution_type, ""
-            )
+            des_target = oproject_target.InsertDesign(self._app.design_type, temp_name, self._app.solution_type, "")
             oproject_target.SaveAs(temp_proj, True)
             self._app.odesktop.CloseProject(temp_name)
             _project_dictionary = load_entire_aedt_file(temp_proj)
             try:
-                props = _project_dictionary["AnsoftProject"][
-                    model_names[self._app.design_type]
-                ]["MeshSetup"]["MeshSettings"]
+                props = _project_dictionary["AnsoftProject"][model_names[self._app.design_type]]["MeshSetup"][
+                    "MeshSettings"
+                ]
             except:
                 pass
             if os.path.exists(temp_proj):
@@ -269,12 +253,8 @@ class Mesh(object):
                         MeshOperation(
                             self,
                             ds,
-                            self._app.design_properties["MeshSetup"]["MeshOperations"][
-                                ds
-                            ],
-                            self._app.design_properties["MeshSetup"]["MeshOperations"][
-                                ds
-                            ]["Type"],
+                            self._app.design_properties["MeshSetup"]["MeshOperations"][ds],
+                            self._app.design_properties["MeshSetup"]["MeshOperations"][ds]["Type"],
                         )
                     )
         except:
@@ -332,9 +312,7 @@ class Mesh(object):
         return mop
 
     @aedt_exception_handler
-    def assign_surface_mesh_manual(
-        self, names, surf_dev=None, normal_dev=None, aspect_ratio=None, meshop_name=None
-    ):
+    def assign_surface_mesh_manual(self, names, surf_dev=None, normal_dev=None, aspect_ratio=None, meshop_name=None):
         """Assign a surface mesh to a list of faces.
 
         Parameters
@@ -506,10 +484,7 @@ class Mesh(object):
 
         >>> oModule.InitialMeshSettings
         """
-        if (
-            self._app.design_type == "2D Extractor"
-            or self._app.design_type == "Maxwell 2D"
-        ):
+        if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
             mesh_methods = ["Auto", "AnsoftClassic"]
         else:
             mesh_methods = ["Auto", "AnsoftTAU", "AnsoftClassic"]
@@ -526,10 +501,7 @@ class Mesh(object):
             "SliderMeshSettings:=",
             level,
         ]
-        if (
-            self._app.design_type == "2D Extractor"
-            or self._app.design_type == "Maxwell 2D"
-        ):
+        if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
             args = ["NAME:MeshSettings", surface_appr, modelres, "MeshMethod:=", method]
         else:
             args = [
@@ -650,9 +622,7 @@ class Mesh(object):
         return True
 
     @aedt_exception_handler
-    def assign_length_mesh(
-        self, names, isinside=True, maxlength=1, maxel=1000, meshop_name=None
-    ):
+    def assign_length_mesh(self, names, isinside=True, maxlength=1, maxel=1000, meshop_name=None):
         """Assign a length for the model resolution.
 
         Parameters
@@ -866,9 +836,7 @@ class Mesh(object):
         return mop
 
     @aedt_exception_handler
-    def assign_curvature_extraction(
-        self, names, disable_for_faceted_surf=True, meshop_name=None
-    ):
+    def assign_curvature_extraction(self, names, disable_for_faceted_surf=True, meshop_name=None):
         """Assign curvature extraction.
 
          Parameters
@@ -924,9 +892,7 @@ class Mesh(object):
         return mop
 
     @aedt_exception_handler
-    def assign_rotational_layer(
-        self, names, num_layers=3, total_thickness="1mm", meshop_name=None
-    ):
+    def assign_rotational_layer(self, names, num_layers=3, total_thickness="1mm", meshop_name=None):
         """Assign a rotational layer mesh.
 
         Parameters

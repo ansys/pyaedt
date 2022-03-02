@@ -157,10 +157,7 @@ class Components(object):
         self._logger.info("Refreshing the Components dictionary.")
         if self._active_layout:
             for cmp in self._active_layout.Groups:
-                if (
-                    cmp.GetType().ToString()
-                    == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component"
-                ):
+                if cmp.GetType().ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component":
                     self._cmp[cmp.GetName()] = EDBComponent(self, cmp)
 
     @property
@@ -337,9 +334,7 @@ class Components(object):
             List of component setup information.
 
         """
-        cmp_setup_info_list = self._edbutils.ComponentSetupInfo.GetFromLayout(
-            self._active_layout
-        )
+        cmp_setup_info_list = self._edbutils.ComponentSetupInfo.GetFromLayout(self._active_layout)
         cmp_list = []
         for comp in cmp_setup_info_list:
             cmp_list.append(comp)
@@ -360,9 +355,7 @@ class Components(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        edbcmp = self._edb.Cell.Hierarchy.Component.FindByName(
-            self._active_layout, name
-        )
+        edbcmp = self._edb.Cell.Hierarchy.Component.FindByName(self._active_layout, name)
         if edbcmp is not None:
             return edbcmp
         else:
@@ -458,43 +451,29 @@ class Components(object):
         if not isinstance(hosting_component, self._edb.Cell.Hierarchy.Component):
             return False
         if mounted_component_pin1:
-            m_pin1 = self._get_edb_pin_from_pin_name(
-                mounted_component, mounted_component_pin1
-            )
+            m_pin1 = self._get_edb_pin_from_pin_name(mounted_component, mounted_component_pin1)
             m_pin1_pos = self.get_pin_position(m_pin1)
         if mounted_component_pin2:
-            m_pin2 = self._get_edb_pin_from_pin_name(
-                mounted_component, mounted_component_pin2
-            )
+            m_pin2 = self._get_edb_pin_from_pin_name(mounted_component, mounted_component_pin2)
             m_pin2_pos = self.get_pin_position(m_pin2)
         if hosting_component_pin1:
-            h_pin1 = self._get_edb_pin_from_pin_name(
-                hosting_component, hosting_component_pin1
-            )
+            h_pin1 = self._get_edb_pin_from_pin_name(hosting_component, hosting_component_pin1)
             h_pin1_pos = self.get_pin_position(h_pin1)
         if hosting_component_pin2:
-            h_pin2 = self._get_edb_pin_from_pin_name(
-                hosting_component, hosting_component_pin2
-            )
+            h_pin2 = self._get_edb_pin_from_pin_name(hosting_component, hosting_component_pin2)
             h_pin2_pos = self.get_pin_position(h_pin2)
         vector = [h_pin1_pos[0] - m_pin1_pos[0], h_pin1_pos[1] - m_pin1_pos[1]]
         d_m_pin1_h_pin2 = math.sqrt(
-            math.pow(h_pin2_pos[0] - m_pin1_pos[0], 2)
-            + math.pow(h_pin2_pos[1] - m_pin1_pos[1], 2)
+            math.pow(h_pin2_pos[0] - m_pin1_pos[0], 2) + math.pow(h_pin2_pos[1] - m_pin1_pos[1], 2)
         )
         d_m_pin2_h_pin2 = math.sqrt(
-            math.pow(h_pin2_pos[0] - m_pin2_pos[0], 2)
-            + math.pow(h_pin2_pos[1] - m_pin2_pos[1], 2)
+            math.pow(h_pin2_pos[0] - m_pin2_pos[0], 2) + math.pow(h_pin2_pos[1] - m_pin2_pos[1], 2)
         )
 
         # rotation = math.atan(d_m_pin2_h_pin2 / d_m_pin1_h_pin2)
         try:
-            ang1 = math.atan(
-                (m_pin2_pos[1] - m_pin1_pos[1]) / ((m_pin2_pos[0] - m_pin1_pos[0]))
-            )
-            ang2 = math.atan(
-                (h_pin2_pos[1] - h_pin1_pos[1]) / ((h_pin2_pos[0] - h_pin1_pos[0]))
-            )
+            ang1 = math.atan((m_pin2_pos[1] - m_pin1_pos[1]) / ((m_pin2_pos[0] - m_pin1_pos[0])))
+            ang2 = math.atan((h_pin2_pos[1] - h_pin1_pos[1]) / ((h_pin2_pos[0] - h_pin1_pos[0])))
         except:
             ang1 = 0.0
             ang2 = 0.0
@@ -504,9 +483,7 @@ class Components(object):
             if solder_ball_height == 0.0:
                 solder_ball_height = 150e-6
             # mounted_component_name = mounted_component.GetName()
-            self.set_solder_ball(
-                component=mounted_component, sball_height=solder_ball_height
-            )
+            self.set_solder_ball(component=mounted_component, sball_height=solder_ball_height)
             return True, vector, rotation, solder_ball_height
         return False
 
@@ -598,9 +575,7 @@ class Components(object):
         pin_layers = cmp_pins[0].GetPadstackDef().GetData().GetLayerNames()
 
         if port_type == SourceType.CoaxPort:
-            pad_params = self._padstack.get_pad_parameters(
-                pin=cmp_pins[0], layername=pin_layers[0], pad_type=0
-            )
+            pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
             sball_diam = min([self._edb_value(val).ToDouble() for val in pad_params[1]])
             sb_height = sball_diam
             self.set_solder_ball(component, sb_height, sball_diam)
@@ -615,14 +590,10 @@ class Components(object):
                     ref_pin_group_term = self._create_terminal(ref_pins[0])
                 else:
                     ref_pin_group = self.create_pingroup_from_pins(ref_pins)
-                    ref_pin_group_term = self._create_pin_group_terminal(
-                        ref_pin_group[1]
-                    )
+                    ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group[1])
                     if not ref_pin_group[0]:
                         return False
-                ref_pin_group_term.SetBoundaryType(
-                    self._edb.Cell.Terminal.BoundaryType.PortBoundary
-                )
+                ref_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
                 ref_pin_group_term.SetIsCircuitPort(True)
                 for net in net_list:
                     pins = [pin for pin in cmp_pins if pin.GetNet().GetName() == net]
@@ -634,27 +605,19 @@ class Components(object):
                     pg_term = self._create_pin_group_terminal(pg)
                     pg_terminal.append(pg_term)
                 for term in pg_terminal:
-                    term.SetBoundaryType(
-                        self._edb.Cell.Terminal.BoundaryType.PortBoundary
-                    )
+                    term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
                     term.SetIsCircuitPort(True)
                     term.SetReferenceTerminal(ref_pin_group_term)
             else:
                 for net in net_list:
-                    pins = [
-                        pin for pin in cmp_pins if pin.GetNet().GetName().lower() == net
-                    ]
+                    pins = [pin for pin in cmp_pins if pin.GetNet().GetName().lower() == net]
                     for pin in pins:
                         ref_pin = self._get_closest_pin_from(pin, ref_pins)
                         ref_pin_term = self._create_terminal(ref_pin)
                         term = self._create_terminal(pin)
-                        ref_pin_term.SetBoundaryType(
-                            self._edb.Cell.Terminal.BoundaryType.PortBoundary
-                        )
+                        ref_pin_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
                         ref_pin_term.SetIsCircuitPort(True)
-                        term.SetBoundaryType(
-                            self._edb.Cell.Terminal.BoundaryType.PortBoundary
-                        )
+                        term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
                         term.SetIsCircuitPort(True)
                         term.SetReferenceTerminal(ref_pin_term)
         return True
@@ -712,9 +675,7 @@ class Components(object):
         closest_pin = ref_pinlist[0]
         for ref_pin in ref_pinlist:
             res, ref_pin_position, ref_pin_rot = ref_pin.GetPositionAndRotation(
-                self._edb.Geometry.PointData(
-                    self._edb_value(0.0), self._edb_value(0.0)
-                ),
+                self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)),
                 0.0,
             )
             temp_distance = pin_position.Distance(ref_pin_position)
@@ -741,9 +702,7 @@ class Components(object):
         layout = pingroup.GetLayout()
         cmp_name = pingroup.GetComponent().GetName()
         net_name = pingroup.GetNet().GetName()
-        term_name = pingroup.GetUniqueName(
-            layout, "Pingroup_{0}_{1}".format(cmp_name, net_name)
-        )
+        term_name = pingroup.GetUniqueName(layout, "Pingroup_{0}_{1}".format(cmp_name, net_name))
         pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
             self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
         )
@@ -765,11 +724,7 @@ class Components(object):
 
 
         """
-        signal_layers = (
-            cmp.GetLayout()
-            .GetLayerCollection()
-            .Layers(self._edb.Cell.LayerTypeSet.SignalLayerSet)
-        )
+        signal_layers = cmp.GetLayout().GetLayerCollection().Layers(self._edb.Cell.LayerTypeSet.SignalLayerSet)
         if cmp.GetPlacementLayer() == signal_layers[0]:
             return True
         else:
@@ -803,12 +758,8 @@ class Components(object):
 
         """
         # try:
-        new_cmp = self._edb.Cell.Hierarchy.Component.Create(
-            self._active_layout, component_name, component_name
-        )
-        new_group = self._edb.Cell.Hierarchy.Group.Create(
-            self._active_layout, component_name
-        )
+        new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, component_name)
+        new_group = self._edb.Cell.Hierarchy.Group.Create(self._active_layout, component_name)
         new_cmp.SetGroup(new_group)
         for pin in pins:
             pin.SetIsLayoutPin(True)
@@ -817,9 +768,7 @@ class Components(object):
             else:
                 if not self._components_methods.AddPinToGroup(new_group, pin):
                     aedt_exception_handler(
-                        "Failed to add pin {} to the group {}".format(
-                            pin.GetName(), new_group.GetName()
-                        )
+                        "Failed to add pin {} to the group {}".format(pin.GetName(), new_group.GetName())
                     )
         if not placement_layer:
             new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
@@ -836,9 +785,7 @@ class Components(object):
         #    return (False, None)
 
     @aedt_exception_handler
-    def set_component_model(
-        self, componentname, model_type="Spice", modelpath=None, modelname=None
-    ):
+    def set_component_model(self, componentname, model_type="Spice", modelpath=None, modelname=None):
         """Assign a Spice or Touchstone model to a component.
 
         Parameters
@@ -907,13 +854,9 @@ class Components(object):
 
             nPortModelName = modelname
             edbComponentDef = edbComponent.GetComponentDef()
-            nPortModel = self._edb.Definition.NPortComponentModel.FindByName(
-                edbComponentDef, nPortModelName
-            )
+            nPortModel = self._edb.Definition.NPortComponentModel.FindByName(edbComponentDef, nPortModelName)
             if nPortModel.IsNull():
-                nPortModel = self._edb.Definition.NPortComponentModel.Create(
-                    nPortModelName
-                )
+                nPortModel = self._edb.Definition.NPortComponentModel.Create(nPortModelName)
                 nPortModel.SetReferenceFile(modelpath)
                 edbComponentDef.AddComponentModel(nPortModel)
 
@@ -997,11 +940,7 @@ class Components(object):
         """
         deleted_comps = []
         for comp, val in self.components.items():
-            if val.numpins < 2 and (
-                val.type == "Resistor"
-                or val.type == "Capacitor"
-                or val.type == "Inductor"
-            ):
+            if val.numpins < 2 and (val.type == "Resistor" or val.type == "Capacitor" or val.type == "Inductor"):
                 edb_cmp = self.get_component_by_name(comp)
                 if edb_cmp is not None:
                     edb_cmp.Delete()
@@ -1119,13 +1058,9 @@ class Components(object):
                 ic_cmp_property.SetDieProperty(ic_die_prop)
 
                 ic_solder_ball_prop = ic_cmp_property.GetSolderBallProperty().Clone()
-                ic_solder_ball_prop.SetDiameter(
-                    self._edb_value(sball_diam), self._edb_value(sball_diam)
-                )
+                ic_solder_ball_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam))
                 ic_solder_ball_prop.SetHeight(self._edb_value(sball_height))
-                ic_solder_ball_prop.SetShape(
-                    self._edb.Definition.SolderballShape.Cylinder
-                )
+                ic_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
                 ic_cmp_property.SetSolderBallProperty(ic_solder_ball_prop)
 
                 ic_port_prop = ic_cmp_property.GetPortProperty().Clone()
@@ -1137,13 +1072,9 @@ class Components(object):
             elif cmp_type == self._edb.Definition.ComponentType.IO:
                 io_cmp_prop = edb_cmp.GetComponentProperty().Clone()
                 io_solder_ball_prop = io_cmp_prop.GetSolderBallProperty().Clone()
-                io_solder_ball_prop.SetDiameter(
-                    self._edb_value(sball_diam), self._edb_value(sball_diam)
-                )
+                io_solder_ball_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam))
                 io_solder_ball_prop.SetHeight(self._edb_value(sball_height))
-                io_solder_ball_prop.SetShape(
-                    self._edb.Definition.SolderballShape.Cylinder
-                )
+                io_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
                 io_cmp_prop.SetSolderBallProperty(io_solder_ball_prop)
                 io_port_prop = io_cmp_prop.GetPortProperty().Clone()
                 io_port_prop.SetReferenceSizeAuto(True)
@@ -1153,13 +1084,9 @@ class Components(object):
             elif cmp_type == self._edb.Definition.ComponentType.Other:
                 other_cmp_prop = edb_cmp.GetComponentProperty().Clone()
                 other_solder_ball_prop = other_cmp_prop.GetSolderBallProperty().Clone()
-                other_solder_ball_prop.SetDiameter(
-                    self._edb_value(sball_diam), self._edb_value(sball_diam)
-                )
+                other_solder_ball_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam))
                 other_solder_ball_prop.SetHeight(self._edb_value(sball_height))
-                other_solder_ball_prop.SetShape(
-                    self._edb.Definition.SolderballShape.Cylinder
-                )
+                other_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
                 other_cmp_prop.SetSolderBallProperty(other_solder_ball_prop)
                 other_port_prop = other_cmp_prop.GetPortProperty().Clone()
                 other_port_prop.SetReferenceSizeAuto(True)
@@ -1233,9 +1160,9 @@ class Components(object):
             pinPair = self._edb.Utility.PinPair(fromPin.GetName(), toPin.GetName())
             rlcModel = self._edb.Cell.Hierarchy.PinPairModel()
             rlcModel.SetPinPairRlc(pinPair, rlc)
-            if not edbRlcComponentProperty.SetModel(
-                rlcModel
-            ) or not edbComponent.SetComponentProperty(edbRlcComponentProperty):
+            if not edbRlcComponentProperty.SetModel(rlcModel) or not edbComponent.SetComponentProperty(
+                edbRlcComponentProperty
+            ):
                 self._logger.error("Failed to set RLC model on component")
                 return False
         else:
@@ -1245,9 +1172,7 @@ class Components(object):
                 componentname,
             )
             return False
-        self._logger.warning(
-            "RLC properties for Component %s has been assigned.", componentname
-        )
+        self._logger.warning("RLC properties for Component %s has been assigned.", componentname)
         return True
 
     @aedt_exception_handler
@@ -1343,9 +1268,7 @@ class Components(object):
 
         """
         if not isinstance(component, self._edb.Cell.Hierarchy.Component):
-            component = self._edb.Cell.Hierarchy.Component.FindByName(
-                self._active_layout, component
-            )
+            component = self._edb.Cell.Hierarchy.Component.FindByName(self._active_layout, component)
         if netName:
             if not isinstance(netName, list):
                 netName = [netName]
@@ -1360,9 +1283,7 @@ class Components(object):
             pins = [
                 p
                 for p in list(component.LayoutObjs)
-                if int(p.GetObjType()) == 1
-                and p.IsLayoutPin()
-                and p.GetNet().GetName() in netName
+                if int(p.GetObjType()) == 1 and p.IsLayoutPin() and p.GetNet().GetName() in netName
             ]
         elif pinName:
             if not isinstance(pinName, list):
@@ -1372,17 +1293,10 @@ class Components(object):
                 for p in list(component.LayoutObjs)
                 if int(p.GetObjType()) == 1
                 and p.IsLayoutPin()
-                and (
-                    self.get_aedt_pin_name(p) == str(pinName)
-                    or p.GetName() in str(pinName)
-                )
+                and (self.get_aedt_pin_name(p) == str(pinName) or p.GetName() in str(pinName))
             ]
         else:
-            pins = [
-                p
-                for p in list(component.LayoutObjs)
-                if int(p.GetObjType()) == 1 and p.IsLayoutPin()
-            ]
+            pins = [p for p in list(component.LayoutObjs) if int(p.GetObjType()) == 1 and p.IsLayoutPin()]
         return pins
 
     @aedt_exception_handler
@@ -1445,17 +1359,13 @@ class Components(object):
             res, pt_pos, rot_pos = pin.GetPositionAndRotation()
         else:
             res, pt_pos, rot_pos = pin.GetPositionAndRotation(
-                self._edb.Geometry.PointData(
-                    self._edb_value(0.0), self._edb_value(0.0)
-                ),
+                self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)),
                 0.0,
             )
         if pin.GetComponent().IsNull():
             transformed_pt_pos = pt_pos
         else:
-            transformed_pt_pos = (
-                pin.GetComponent().GetTransform().TransformPoint(pt_pos)
-            )
+            transformed_pt_pos = pin.GetComponent().GetTransform().TransformPoint(pt_pos)
         pin_xy = self._edb.Geometry.PointData(
             self._edb_value(str(transformed_pt_pos.X.ToDouble())),
             self._edb_value(str(transformed_pt_pos.Y.ToDouble())),
@@ -1656,24 +1566,15 @@ class Components(object):
         for pin in pins_list:
             placement_layer = pin.placement_layer
             positions_to_short.append(pin.position)
-            if (
-                placement_layer
-                in self._pedb.core_padstack.padstacks[
-                    pin.pin.GetPadstackDef().GetName()
-                ].pad_by_layer
-            ):
-                pad = self._pedb.core_padstack.padstacks[
-                    pin.pin.GetPadstackDef().GetName()
-                ].pad_by_layer[placement_layer]
+            if placement_layer in self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer:
+                pad = self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer[
+                    placement_layer
+                ]
             else:
                 layer = list(
-                    self._pedb.core_padstack.padstacks[
-                        pin.pin.GetPadstackDef().GetName()
-                    ].pad_by_layer.keys()
+                    self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer.keys()
                 )[0]
-                pad = self._pedb.core_padstack.padstacks[
-                    pin.pin.GetPadstackDef().GetName()
-                ].pad_by_layer[layer]
+                pad = self._pedb.core_padstack.padstacks[pin.pin.GetPadstackDef().GetName()].pad_by_layer[layer]
             pars = pad.parameters_values
             geom = pad.geometry_type
             if geom < 6 and pars:
@@ -1695,18 +1596,10 @@ class Components(object):
 
         while i < len(positions_to_short) - 1:
             p0 = []
-            p0.append(
-                [positions_to_short[i][0] - delta_pins[i], positions_to_short[i][1], 0]
-            )
-            p0.append(
-                [positions_to_short[i][0] + delta_pins[i], positions_to_short[i][1], 0]
-            )
-            p0.append(
-                [positions_to_short[i][0], positions_to_short[i][1] - delta_pins[i], 0]
-            )
-            p0.append(
-                [positions_to_short[i][0], positions_to_short[i][1] + delta_pins[i], 0]
-            )
+            p0.append([positions_to_short[i][0] - delta_pins[i], positions_to_short[i][1], 0])
+            p0.append([positions_to_short[i][0] + delta_pins[i], positions_to_short[i][1], 0])
+            p0.append([positions_to_short[i][0], positions_to_short[i][1] - delta_pins[i], 0])
+            p0.append([positions_to_short[i][0], positions_to_short[i][1] + delta_pins[i], 0])
             p0.append([positions_to_short[i][0], positions_to_short[i][1], 0])
             l0 = [
                 GeometryOperators.points_distance(p0[0], c),

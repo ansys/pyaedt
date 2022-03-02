@@ -28,9 +28,7 @@ class RMXprtModule(object):
             if parameter_name in parameter_list:
                 prop_server = key
                 break
-        assert (
-            prop_server is not None
-        ), "Unknown parameter name {0} exists in component {1}.".format(
+        assert prop_server is not None, "Unknown parameter name {0} exists in component {1}.".format(
             prop_server, self.component
         )
         return prop_server
@@ -203,12 +201,8 @@ class Rmxprt(FieldAnalysisRMxprt):
         if not model_units or model_units == "mm":
             model_units = "mm"
         else:
-            assert model_units == "in", "Invalid model units string {}".format(
-                model_units
-            )
-        self.modeler.oeditor.SetMachineUnits(
-            ["NAME:Units Parameter", "Units:=", model_units, "Rescale:=", False]
-        )
+            assert model_units == "in", "Invalid model units string {}".format(model_units)
+        self.modeler.oeditor.SetMachineUnits(["NAME:Units Parameter", "Units:=", model_units, "Rescale:=", False])
         self.stator = Stator(self.modeler.oeditor)
         self.rotor = Rotor(self.modeler.oeditor)
 

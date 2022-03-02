@@ -286,9 +286,7 @@ class AEDTMessageManager(object):
             elif type == 2 and self.logger:
                 self.logger.error(message_text)
 
-    def add_message(
-        self, type, message_text, level=None, proj_name=None, des_name=None
-    ):
+    def add_message(self, type, message_text, level=None, proj_name=None, des_name=None):
         """Pass a parameterized message to the Message Manager to specify the type and project or design level.
 
         Parameters
@@ -322,9 +320,7 @@ class AEDTMessageManager(object):
         if not level:
             level = "Design"
 
-        assert (
-            level in message_levels
-        ), "Message level must be `Design', 'Project', or 'Global'."
+        assert level in message_levels, "Message level must be `Design', 'Project', or 'Global'."
 
         if self._log_on_desktop and self._desktop:
             if not proj_name and message_levels[level] > 0:

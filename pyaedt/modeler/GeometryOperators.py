@@ -111,9 +111,7 @@ class GeometryOperators(object):
         else:
             sunit = 1.0
 
-        pattern = (
-            r"(?P<number>[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)\s*(?P<unit>[a-zA-Z]*)"
-        )
+        pattern = r"(?P<number>[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)\s*(?P<unit>[a-zA-Z]*)"
         m = re.search(pattern, string)
         if m:
             if m.group(0) != string:
@@ -1328,9 +1326,7 @@ class GeometryOperators(object):
         yy = "sin(" + roll + ")*sin(" + yaw + ")*sin(" + pitch + ") + "
         yy += "cos(" + roll + ")*cos(" + yaw + ")"
 
-        yz = (
-            "sin(" + roll + " + pi)*cos(" + pitch + ")"
-        )  # use pi to avoid negative sign.
+        yz = "sin(" + roll + " + pi)*cos(" + pitch + ")"  # use pi to avoid negative sign.
 
         # x, y pointing vectors for CS
         x_pointing = [xx, xy, xz]
@@ -1387,10 +1383,7 @@ class GeometryOperators(object):
                 return None
         elif type(cs_in) is list:
             if len(cs_in) == 3:
-                return [
-                    GeometryOperators.get_numeric(s) if type(s) is str else s
-                    for s in cs_in
-                ]
+                return [GeometryOperators.get_numeric(s) if type(s) is str else s for s in cs_in]
             else:
                 return [0, 0, 0]
 

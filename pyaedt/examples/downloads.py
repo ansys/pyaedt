@@ -56,9 +56,7 @@ def _retrieve_file(url, filename, directory):
     elif is_ironpython:
         versions = list_installed_ansysem()
         if versions:
-            cpython = os.listdir(
-                os.path.join(os.getenv(versions[0]), "commonfiles", "CPython")
-            )
+            cpython = os.listdir(os.path.join(os.getenv(versions[0]), "commonfiles", "CPython"))
             command = (
                 '"'
                 + os.path.join(
@@ -75,9 +73,7 @@ def _retrieve_file(url, filename, directory):
             )
             commandargs = os.path.join(os.path.dirname(local_path), "download.py")
             command += ' "' + commandargs + '"'
-            with open(
-                os.path.join(os.path.dirname(local_path), "download.py"), "w"
-            ) as f:
+            with open(os.path.join(os.path.dirname(local_path), "download.py"), "w") as f:
                 f.write("import urllib.request\n")
                 f.write("urlretrieve = urllib.request.urlretrieve\n")
                 f.write("import urllib.request\n")

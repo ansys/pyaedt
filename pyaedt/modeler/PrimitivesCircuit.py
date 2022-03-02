@@ -44,11 +44,7 @@ class CircuitComponents(object):
         if isinstance(partname, int):
             return self.components[partname]
         for el in self.components:
-            if (
-                self.components[el].name == partname
-                or self.components[el].composed_name == partname
-                or el == partname
-            ):
+            if self.components[el].name == partname or self.components[el].composed_name == partname or el == partname:
                 return self.components[el]
 
         return None
@@ -140,14 +136,10 @@ class CircuitComponents(object):
         if not location:
             xpos = self.current_position[0]
             ypos = self.current_position[1]
-            self.current_position[1] += (
-                AEDT_UNITS["Length"]["mil"] * self.increment_mils[1]
-            )
+            self.current_position[1] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[1]
             if self.current_position[1] > self.limits_mils:
                 self.current_position[1] = 0
-                self.current_position[0] += (
-                    AEDT_UNITS["Length"]["mil"] * self.increment_mils[0]
-                )
+                self.current_position[0] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[0]
         else:
             xpos = location[0]
             ypos = location[1]
@@ -394,9 +386,7 @@ class CircuitComponents(object):
         with open(touchstone_full_path, "r") as f:
             port_names = _parse_ports_name(f)
         image_subcircuit_path = os.path.normpath(
-            os.path.join(
-                self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp"
-            )
+            os.path.join(self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp")
         )
         if not port_names:
             port_names = ["Port" + str(i + 1) for i in range(num_terminal)]
@@ -563,9 +553,7 @@ class CircuitComponents(object):
         ]
         for i in range(num_terminal):
             arg.append("Terminal:=")
-            arg.append(
-                [port_names[i], port_names[i], "A", False, i, 1, "", "Electrical", "0"]
-            )
+            arg.append([port_names[i], port_names[i], "A", False, i, 1, "", "Electrical", "0"])
         arg.append("CompExtID:=")
         arg.append(5)
         arg.append(
@@ -922,9 +910,7 @@ class CircuitComponents(object):
             "InitialLevels:=",
             [0, 1],
         ]
-        oDefinitionEditor = self._app._oproject.SetActiveDefinitionEditor(
-            "SymbolEditor", symbol_name
-        )
+        oDefinitionEditor = self._app._oproject.SetActiveDefinitionEditor("SymbolEditor", symbol_name)
         id = 2
         oDefinitionEditor.CreateRectangle(
             [
@@ -1177,9 +1163,7 @@ class CircuitComponents(object):
         return True
 
     @aedt_exception_handler
-    def enable_use_instance_name(
-        self, component_library="Resistors", component_name="RES_"
-    ):
+    def enable_use_instance_name(self, component_library="Resistors", component_name="RES_"):
         """Enable the use of the instance name.
 
         Parameters
@@ -1326,9 +1310,7 @@ class CircuitComponents(object):
         >>> oEditor.GetComponentPins
         """
         if isinstance(partid, CircuitComponent):
-            pins = _retry_ntimes(
-                10, self._oeditor.GetComponentPins, partid.composed_name
-            )
+            pins = _retry_ntimes(10, self._oeditor.GetComponentPins, partid.composed_name)
         elif isinstance(partid, str):
             pins = _retry_ntimes(10, self._oeditor.GetComponentPins, partid)
             # pins = self.oeditor.GetComponentPins(partid)
@@ -1363,12 +1345,8 @@ class CircuitComponents(object):
         >>> oEditor.GetComponentPinLocation
         """
         if isinstance(partid, str):
-            x = _retry_ntimes(
-                30, self._oeditor.GetComponentPinLocation, partid, pinname, True
-            )
-            y = _retry_ntimes(
-                30, self._oeditor.GetComponentPinLocation, partid, pinname, False
-            )
+            x = _retry_ntimes(30, self._oeditor.GetComponentPinLocation, partid, pinname, True)
+            y = _retry_ntimes(30, self._oeditor.GetComponentPinLocation, partid, pinname, False)
         else:
             x = _retry_ntimes(
                 30,

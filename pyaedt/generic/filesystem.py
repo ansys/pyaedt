@@ -52,9 +52,7 @@ class Scratch:
         self._volatile = volatile
         self._cleaned = True
         char_set = string.ascii_uppercase + string.digits
-        self._scratch_path = os.path.normpath(
-            os.path.join(local_path, "scratch" + "".join(random.sample(char_set, 6)))
-        )
+        self._scratch_path = os.path.normpath(os.path.join(local_path, "scratch" + "".join(random.sample(char_set, 6))))
         if os.path.exists(self._scratch_path):
             try:
                 self.remove()
@@ -134,6 +132,4 @@ def get_json_files(start_folder):
     Returns
     -------
     """
-    return [
-        y for x in os.walk(start_folder) for y in glob(os.path.join(x[0], "*.json"))
-    ]
+    return [y for x in os.walk(start_folder) for y in glob(os.path.join(x[0], "*.json"))]

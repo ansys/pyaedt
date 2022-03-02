@@ -252,9 +252,7 @@ class FieldAnalysis2D(Analysis):
             self.logger.info("Assign Material " + mat + " to object " + str(selections))
             for el in selections:
                 self.modeler[el].material_name = mat
-                self.modeler[el].color = self.materials.material_keys[
-                    mat
-                ].material_appearance
+                self.modeler[el].color = self.materials.material_keys[mat].material_appearance
                 if Mat.is_dielectric():
                     self.modeler[el].solve_inside = True
                 else:

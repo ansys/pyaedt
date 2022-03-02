@@ -32,9 +32,7 @@ class Primitives2D(Primitives, object):
         Primitives.__init__(self)
 
     @aedt_exception_handler
-    def create_circle(
-        self, position, radius, num_sides=0, is_covered=True, name=None, matname=None
-    ):
+    def create_circle(self, position, radius, num_sides=0, is_covered=True, name=None, matname=None):
         """Create a circle.
 
         Parameters
@@ -90,9 +88,7 @@ class Primitives2D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_ellipse(
-        self, position, major_radius, ratio, is_covered=True, name=None, matname=None
-    ):
+    def create_ellipse(self, position, major_radius, ratio, is_covered=True, name=None, matname=None):
         """Create an ellipse.
 
         Parameters
@@ -145,9 +141,7 @@ class Primitives2D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_rectangle(
-        self, position, dimension_list, is_covered=True, name=None, matname=None
-    ):
+    def create_rectangle(self, position, dimension_list, is_covered=True, name=None, matname=None):
         """Create a rectangle.
 
         Parameters

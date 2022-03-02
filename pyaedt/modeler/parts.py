@@ -173,11 +173,7 @@ class Part(object):
         str
             Name of the coordinate system.
         """
-        if (
-            self._motion
-            or not self.zero_offset("offset")
-            or not self.zero_offset("rotation_cs")
-        ):
+        if self._motion or not self.zero_offset("offset") or not self.zero_offset("rotation_cs"):
             return self.name + "_cs"
         else:
             return self._multiparts.cs_name
@@ -341,10 +337,7 @@ class Part(object):
         """
         # Set x, y, z offset variables in app. But check first to see if the CS
         # has already been defined.
-        if (
-            self.cs_name not in app.modeler.oeditor.GetCoordinateSystems()
-            and self.cs_name != "Global"
-        ):
+        if self.cs_name not in app.modeler.oeditor.GetCoordinateSystems() and self.cs_name != "Global":
             x_pointing = [1, 0, 0]
             y_pointing = [0, 1, 0]
             app.modeler.create_coordinate_system(
@@ -422,15 +415,9 @@ class Part(object):
         # TODO: Why the inconsistent syntax for cs commands?
         if self._do_offset:
             self.set_relative_cs(app)  # Create coordinate system, if needed.
-            aedt_objects.append(
-                app.modeler.insert_3d_component(self.file_name, targetCS=self.cs_name)
-            )
+            aedt_objects.append(app.modeler.insert_3d_component(self.file_name, targetCS=self.cs_name))
         else:
-            aedt_objects.append(
-                app.modeler.insert_3d_component(
-                    self.file_name, targetCS=self._multiparts.cs_name
-                )
-            )
+            aedt_objects.append(app.modeler.insert_3d_component(self.file_name, targetCS=self._multiparts.cs_name))
         if self._do_rotate:
             self.do_rotate(app, aedt_objects[0])
 
@@ -503,9 +490,7 @@ class Antenna(Part, object):
             else:
                 units = self._multiparts.units
         if self._compdef["ffd_name"]:
-            ffd = os.path.join(
-                self._compdef["part_folder"], self._compdef["ffd_name"] + ".ffd"
-            )
+            ffd = os.path.join(self._compdef["part_folder"], self._compdef["ffd_name"] + ".ffd")
             a = app.create_sbr_file_based_antenna(
                 ffd_full_path=ffd,
                 model_units=units,
@@ -541,9 +526,7 @@ class Antenna(Part, object):
             self.set_relative_cs(app)
             antenna_object = self._insert(app, target_cs=self.cs_name, units=units)
         else:
-            antenna_object = self._insert(
-                app, target_cs=self._multiparts.cs_name, units=units
-            )
+            antenna_object = self._insert(app, target_cs=self._multiparts.cs_name, units=units)
         if self._do_rotate and antenna_object:
             self.do_rotate(app, antenna_object.antennaname)
 

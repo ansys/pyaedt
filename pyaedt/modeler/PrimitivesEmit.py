@@ -220,9 +220,7 @@ class EmitComponent(object):
     def create(cls, components, component_name):
         nodes = components.odesign.GetComponentNodeNames(component_name)
         root_node = nodes[0]
-        prop_list = components.odesign.GetComponentNodeProperties(
-            component_name, root_node
-        )
+        prop_list = components.odesign.GetComponentNodeProperties(component_name, root_node)
         props = dict(p.split("=") for p in prop_list)
         root_node_type = props["Type"]
         if root_node_type.endswith("Node"):
@@ -324,9 +322,7 @@ class EmitComponent(object):
         root_node_name = node_names[0]
         nodes = {}
         for node_name in node_names:
-            new_node = EmitComponentPropNode(
-                self.oeditor, self.odesign, self, node_name
-            )
+            new_node = EmitComponentPropNode(self.oeditor, self.odesign, self, node_name)
             parent_name = node_name.rpartition("-*-")[0]
             if parent_name in nodes:
                 parent_node = nodes[parent_name]
@@ -462,9 +458,7 @@ class EmitRadioComponent(EmitComponent):
         return len(nodes) > 0
 
     def has_rx_channels(self):
-        nodes = self.get_prop_nodes(
-            {"Type": "RxSusceptibilityProfNode", "Enabled": "true"}
-        )
+        nodes = self.get_prop_nodes({"Type": "RxSusceptibilityProfNode", "Enabled": "true"})
         return len(nodes) > 0
 
 
@@ -480,9 +474,7 @@ class EmitComponentPropNode(object):
 
     @property
     def props(self):
-        prop_list = self.odesign.GetComponentNodeProperties(
-            self.parent_component.name, self.node_name
-        )
+        prop_list = self.odesign.GetComponentNodeProperties(self.parent_component.name, self.node_name)
         props = dict(p.split("=") for p in prop_list)
         return props
 

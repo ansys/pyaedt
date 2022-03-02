@@ -95,12 +95,8 @@ if is_ironpython:
     clr.AddReference("System.Drawing")
 else:
     clr.AddReference("System.Xml")
-    clr.AddReference(
-        "PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
-    )
-    clr.AddReference(
-        "PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
-    )
+    clr.AddReference("PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")
+    clr.AddReference("PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")
     clr.AddReference("System.Windows.Forms")
     clr.AddReference("System")
     from System.IO import StreamReader
@@ -364,16 +360,12 @@ class ToolkitBuilder:
         if app_name:
             self.py_name = app_name
         else:
-            self.py_name = os.path.basename(
-                os.path.dirname(os.path.realpath(local_path))
-            )
+            self.py_name = os.path.basename(os.path.dirname(os.path.realpath(local_path)))
 
         self.toolkit_path = os.path.join(self.local_path, "..")
 
         # Extract the commit ID from the global repository
-        self.global_lib_path = os.path.abspath(
-            os.path.join(self.local_path, "..", "..", "..")
-        )
+        self.global_lib_path = os.path.abspath(os.path.join(self.local_path, "..", "..", ".."))
         os.chdir(self.global_lib_path)
         command = ["git", "rev-parse", "HEAD"]
         sh = False
@@ -385,9 +377,7 @@ class ToolkitBuilder:
             os.mkdir(self.build_path)
 
         # Create a drectory named by the datetime (remove contents if already exists)
-        self.build_name = "{0}-{date:%Y%m%d_%H%M}".format(
-            self.py_name, date=datetime.now()
-        )
+        self.build_name = "{0}-{date:%Y%m%d_%H%M}".format(self.py_name, date=datetime.now())
         self.commit_path = os.path.join(self.build_path, self.build_name)
         self.commit_lib_path = os.path.join(self.commit_path, "lib")
         if os.path.isdir(self.commit_path):
@@ -416,9 +406,7 @@ class ToolkitBuilder:
         """
         self.copy_from_repo(self.local_path, extension=extension, ignore_dir=ignore_dir)
 
-    def copy_from_repo(
-        self, root_dir=None, sub_dir=None, extension=None, ignore_dir=None
-    ):
+    def copy_from_repo(self, root_dir=None, sub_dir=None, extension=None, ignore_dir=None):
         """Copies recursively all files from a specified root directory and all subdirectories of a given list of
             extensions
 
@@ -431,17 +419,13 @@ class ToolkitBuilder:
             extension = ["py"]
         elif isinstance(extension, str):
             extension = [extension]
-        assert isinstance(
-            extension, list
-        ), "Extension input parameter must be a string or a list"
+        assert isinstance(extension, list), "Extension input parameter must be a string or a list"
 
         if not ignore_dir:
             ignore_dir = [".", "_"]
         elif isinstance(ignore_dir, str):
             extension = [ignore_dir]
-        assert isinstance(
-            ignore_dir, list
-        ), "Extension input parameter must be a string or a list"
+        assert isinstance(ignore_dir, list), "Extension input parameter must be a string or a list"
 
         if not root_dir:
             root_dir = self.global_lib_path
@@ -560,9 +544,7 @@ class WPFToolkitSettings:
             self._parent = aedtdesign
             self._working = None
         elif working_directory:
-            assert os.path.exists(
-                working_directory
-            ), "Working Directory {} does not exist"
+            assert os.path.exists(working_directory), "Working Directory {} does not exist"
             self._working = working_directory
         else:
             self._parent = None
@@ -600,9 +582,7 @@ class WPFToolkitSettings:
         file for the key "parent" to find the name of the parent design
         """
         my_path = self.local_path
-        my_settings_file = os.path.join(
-            self.local_path, self.toolkit_name + "_Settings.json"
-        )
+        my_settings_file = os.path.join(self.local_path, self.toolkit_name + "_Settings.json")
         if os.path.exists(my_settings_file):
             settings_data = self.read_settings_file(my_settings_file)
             if "parent" in settings_data:
@@ -619,9 +599,7 @@ class WPFToolkitSettings:
                 settings_data = json.load(f)
             except ValueError:
                 try:
-                    msg_string = "Invalid json file {0} will be overwritten.".format(
-                        filename
-                    )
+                    msg_string = "Invalid json file {0} will be overwritten.".format(filename)
                     self._parent.logger.warning(msg_string)
                 except:
                     pass
@@ -798,14 +776,10 @@ class WPFToolkit(Window):
         self._aedtdesign = design
         self.toolkit_name = os.path.basename(self.toolkit_file).replace(".py", "")
         if self._aedtdesign:
-            self.settings_manager = WPFToolkitSettings(
-                aedtdesign=self._aedtdesign, toolkit_name=self.toolkit_name
-            )
+            self.settings_manager = WPFToolkitSettings(aedtdesign=self._aedtdesign, toolkit_name=self.toolkit_name)
             self._parent_design_name = self._aedtdesign.design_name
         else:
-            self.settings_manager = WPFToolkitSettings(
-                working_directory=my_path, toolkit_name=self.toolkit_name
-            )
+            self.settings_manager = WPFToolkitSettings(working_directory=my_path, toolkit_name=self.toolkit_name)
             self._parent_design_name = None
 
     @property
@@ -928,10 +902,8 @@ class WPFToolkit(Window):
         """
         with open(self.xaml_file, "r") as file:
             file = file.readlines()
-        line_to_add = (
-            '        Title="{}" Height="{}" Width="{}" Background="{}">'.format(
-                title, height, width, background
-            )
+        line_to_add = '        Title="{}" Height="{}" Width="{}" Background="{}">'.format(
+            title, height, width, background
         )
 
         with open(self.xaml_file[:-5] + "_tmp.xaml", "w") as f:
@@ -962,9 +934,7 @@ class WPFToolkit(Window):
         -------
         bool
         """
-        new_label = '        <Label x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(
-            name, content
-        )
+        new_label = '        <Label x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(name, content)
         new_label += 'Margin="{},{},0,0" VerticalAlignment="Top"/>'.format(x_pos, y_pos)
         self._add_line_to_xml(new_label)
         return True
@@ -1000,9 +970,7 @@ class WPFToolkit(Window):
         -------
         bool
         """
-        new_label = '        <TextBox x:Name="{}" HorizontalAlignment="Left" Height="23" '.format(
-            name
-        )
+        new_label = '        <TextBox x:Name="{}" HorizontalAlignment="Left" Height="23" '.format(name)
         new_label += 'Margin="{},{},0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="{}"/>'.format(
             x_pos, y_pos, width
         )
@@ -1041,12 +1009,8 @@ class WPFToolkit(Window):
         -------
         bool
         """
-        new_label = '        <ComboBox x:Name="{}" HorizontalAlignment="Left" Height="23" '.format(
-            name
-        )
-        new_label += 'Margin="{},{},0,0" VerticalAlignment="Top" Width="{}"/>'.format(
-            x_pos, y_pos, width
-        )
+        new_label = '        <ComboBox x:Name="{}" HorizontalAlignment="Left" Height="23" '.format(name)
+        new_label += 'Margin="{},{},0,0" VerticalAlignment="Top" Width="{}"/>'.format(x_pos, y_pos, width)
         if callback_method:
             self._callbacks.append([name, callback_action, callback_method])
         self._add_line_to_xml(new_label)
@@ -1082,9 +1046,7 @@ class WPFToolkit(Window):
         -------
         bool
         """
-        new_label = '        <CheckBox x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(
-            name, content
-        )
+        new_label = '        <CheckBox x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(name, content)
         new_label += 'Margin="{},{},0,0" VerticalAlignment="Top"/>'.format(x_pos, y_pos)
         if callback_method:
             self._callbacks.append([name, callback_action, callback_method])
@@ -1125,12 +1087,8 @@ class WPFToolkit(Window):
         -------
         bool
         """
-        new_label = '        <Button x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(
-            name, content
-        )
-        new_label += 'Margin="{},{},0,0" VerticalAlignment="Top" Width="{}"/>'.format(
-            x_pos, y_pos, width
-        )
+        new_label = '        <Button x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(name, content)
+        new_label += 'Margin="{},{},0,0" VerticalAlignment="Top" Width="{}"/>'.format(x_pos, y_pos, width)
         if callback_method:
             self._callbacks.append([name, callback_action, callback_method])
         self._add_line_to_xml(new_label)
@@ -1171,9 +1129,7 @@ class WPFToolkit(Window):
         """Validates the text box with object name prefix."""
         valid = False
         try:
-            object_list = self.aedtdesign.modeler.get_matched_object_name(
-                sender.Text + "*"
-            )
+            object_list = self.aedtdesign.modeler.get_matched_object_name(sender.Text + "*")
             assert object_list
             valid = True
         except AssertionError:
@@ -1677,9 +1633,7 @@ class WPFToolkit(Window):
             Object name.
         """
         wpf_control = LogicalTreeHelper.FindLogicalNode(self.window, control_name)
-        assert wpf_control, "WPF GUI object name {0} does not exist !".format(
-            control_name
-        )
+        assert wpf_control, "WPF GUI object name {0} does not exist !".format(control_name)
         return wpf_control
 
     @aedt_exception_handler

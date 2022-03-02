@@ -150,9 +150,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
 
     @aedt_exception_handler
-    def create_wave_port_from_two_conductors(
-        self, primivitivenames=[""], edgenumbers=[""]
-    ):
+    def create_wave_port_from_two_conductors(self, primivitivenames=[""], edgenumbers=[""]):
         """Create a wave port.
 
         Parameters
@@ -300,9 +298,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
 
     @aedt_exception_handler
-    def create_pin_port(
-        self, name, xpos=0, ypos=0, rotation=0, top_layer=None, bot_layer=None
-    ):
+    def create_pin_port(self, name, xpos=0, ypos=0, rotation=0, top_layer=None, bot_layer=None):
         """Create a pin port.
 
         Parameters
@@ -410,9 +406,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         """
         self.oimport_export.ImportEDB(edb_full_path)
         self.oproject = self.odesktop.GetActiveProject().GetName()
-        self.odesign = (
-            self.odesktop.GetActiveProject().GetActiveDesign().GetName().split(";")[1]
-        )
+        self.odesign = self.odesktop.GetActiveProject().GetActiveDesign().GetName().split(";")[1]
         return True
 
     @aedt_exception_handler
@@ -566,10 +560,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             "X Component:=",
             "Freq",
             "Y Component:=",
-            [
-                "dB(S(" + p + "," + q + "))"
-                for p, q in zip(list(port_names), list(port_excited))
-            ],
+            ["dB(S(" + p + "," + q + "))" for p, q in zip(list(port_names), list(port_excited))],
         ]
         solution_data = ""
         if "Modal" in self.solution_type:
@@ -595,9 +586,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
 
     @aedt_exception_handler
-    def export_touchstone(
-        self, solutionname, sweepname, filename, variation, variations_value
-    ):
+    def export_touchstone(self, solutionname, sweepname, filename, variation, variations_value):
         """Export a Touchstone file.
 
         Parameters
@@ -630,9 +619,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             for v, vv in zip(variation, variations_value):
                 appendix += "_" + v + vv.replace("'", "")
             ext = ".S" + str(len(self.port_list)) + "p"
-            filename = os.path.join(
-                self.working_directory, solutionname + "_" + sweepname + appendix + ext
-            )
+            filename = os.path.join(self.working_directory, solutionname + "_" + sweepname + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         print("Exporting Touchstone " + filename)
@@ -820,9 +807,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         >>> oModule.AddSweep
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            raise AttributeError(
-                "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
-            )
+            raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
@@ -850,9 +835,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 sweep = setupdata.add_sweep(sweepname=sweepname)
                 if not sweep:
                     return False
-                sweep.change_range(
-                    "LinearCount", freqstart, freqstop, num_of_freq_points, unit
-                )
+                sweep.change_range("LinearCount", freqstart, freqstop, num_of_freq_points, unit)
                 sweep.props["GenerateSurfaceCurrent"] = save_fields
                 sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
                 sweep.props["FastSweep"] = interpolation
@@ -861,9 +844,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 sweep.props["UseQ3DForDC"] = use_q3d_for_dc
                 sweep.props["MaxSolutions"] = interpolation_max_solutions
                 sweep.update()
-                self.logger.info(
-                    "Linear count sweep %s has been correctly created", sweepname
-                )
+                self.logger.info("Linear count sweep %s has been correctly created", sweepname)
                 return sweep
         return False
 
@@ -929,9 +910,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         >>> oModule.AddSweep
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            raise AttributeError(
-                "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
-            )
+            raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
@@ -968,9 +947,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 sweep.props["UseQ3DForDC"] = use_q3d_for_dc
                 sweep.props["MaxSolutions"] = interpolation_max_solutions
                 sweep.update()
-                self.logger.info(
-                    "Linear step sweep %s has been correctly created", sweepname
-                )
+                self.logger.info("Linear step sweep %s has been correctly created", sweepname)
                 return sweep
         return False
 
@@ -1017,9 +994,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         add_subranges = False
         if isinstance(freq, list):
             if not freq:
-                raise AttributeError(
-                    "Frequency list is empty! Specify at least one frequency point."
-                )
+                raise AttributeError("Frequency list is empty! Specify at least one frequency point.")
             freq0 = freq.pop(0)
             if freq:
                 add_subranges = True
@@ -1046,12 +1021,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 sweepdata.update()
                 if add_subranges:
                     for f in freq:
-                        sweepdata.add_subrange(
-                            rangetype="SinglePoint", start=f, unit=unit
-                        )
-                self.logger.info(
-                    "Single point sweep %s has been correctly created", sweepname
-                )
+                        sweepdata.add_subrange(rangetype="SinglePoint", start=f, unit=unit)
+                self.logger.info("Single point sweep %s has been correctly created", sweepname)
                 return sweepdata
         return False
 
@@ -1360,9 +1331,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             raise ValueError("{}: unable to find the specified file.".format(filename))
 
         try:
-            new_file = os.path.join(
-                os.path.dirname(filename), generate_unique_name("temp") + ".txt"
-            )
+            new_file = os.path.join(os.path.dirname(filename), generate_unique_name("temp") + ".txt")
             with open(filename, "r") as file:
                 filedata = file.read().splitlines()
             with io.open(new_file, "w", newline="\n") as fh:

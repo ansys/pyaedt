@@ -48,11 +48,7 @@ def parameter(real=None, imag=None, mag=None, db10=None, db20=None, deg=None, ra
         if imag is None:
             imag = 0
     else:  # real is None
-        if (
-            (imag is not None)
-            and (mag and db10 and db20 is not None)
-            and (deg and rad is not None)
-        ):
+        if (imag is not None) and (mag and db10 and db20 is not None) and (deg and rad is not None):
             raise ValueError("Illegal combination of arguments.")
 
         if db10 is not None:
@@ -213,9 +209,7 @@ class TouchstoneData(object):
                 self.expressions.append("S({},{})".format(el, el1))
 
         self._primary_sweep = "Freq"
-        self.solutions_data_real, self.solutions_data_imag = self._solutions_data(
-            matrix
-        )
+        self.solutions_data_real, self.solutions_data_imag = self._solutions_data(matrix)
         self.solutions_data_mag = {}
         self.units_data = {}
         for expr in self.expressions:
@@ -367,9 +361,7 @@ def get_return_losses(excitation_names, excitation_name_prefix=""):
     """
     spar = []
     if excitation_name_prefix:
-        excitation_names = [
-            i for i in excitation_names if excitation_name_prefix.lower() in i.lower()
-        ]
+        excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
     for i in excitation_names:
         spar.append("S({},{})".format(i, i))
     return spar
@@ -501,9 +493,7 @@ def get_fext_xtalk_from_list(trlist, reclist, skip_same_index_couples=True):
 
 
 @aedt_exception_handler
-def get_fext_xtalk_from_prefix(
-    expressions, tx_prefix, rx_prefix, skip_same_index_couples=True
-):
+def get_fext_xtalk_from_prefix(expressions, tx_prefix, rx_prefix, skip_same_index_couples=True):
     """Get the list of all the Far End XTalk from a list of exctitations and a prefix that will
     be used to retrieve driver and receivers names. If skip_same_index_couples is true, the tx and rx with same index
     position will be considered insertion losses and excluded from the list
@@ -577,18 +567,14 @@ def get_worst_curve_from_solution_data(
         if freq_max >= return_loss_freq[-1]:
             higher_id = len(return_loss_freq) - 1
         else:
-            higher_id = next(
-                x[0] for x in enumerate(return_loss_freq) if x[1] >= freq_max
-            )
+            higher_id = next(x[0] for x in enumerate(return_loss_freq) if x[1] >= freq_max)
 
     dict_means = {}
     for el in curve_list:
         data1 = solution_data.data_magnitude(el)[lower_id:higher_id]
         mean1 = sum(data1) / len(data1)
         dict_means[el] = mean1
-    dict_means = dict(
-        sorted(dict_means.items(), key=lambda item: item[1], reverse=worst_is_higher)
-    )
+    dict_means = dict(sorted(dict_means.items(), key=lambda item: item[1], reverse=worst_is_higher))
     worst_el = next(iter(dict_means))
     return worst_el, dict_means
 
@@ -731,9 +717,7 @@ def _get_next_line_data(file):
 
     """
     line = "!"
-    while (
-        _re_comment.search(line) or _re_options.search(line) or _re_empty.search(line)
-    ):
+    while _re_comment.search(line) or _re_options.search(line) or _re_empty.search(line):
         line = file.readline()
         if not line:  # end of data
             raise EOFError

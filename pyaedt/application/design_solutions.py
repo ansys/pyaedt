@@ -771,11 +771,7 @@ class DesignSolution(object):
                     self._solution_type = solutions_defaults[self._design_type]
             else:
                 self._solution_type = solutions_defaults[self._design_type]
-        elif (
-            value
-            and value in self._solution_options
-            and self._solution_options[value]["name"]
-        ):
+        elif value and value in self._solution_options and self._solution_options[value]["name"]:
             self._solution_type = value
             if self._solution_options[value]["options"]:
                 self._odesign.SetSolutionType(
@@ -786,9 +782,7 @@ class DesignSolution(object):
                 try:
                     self._odesign.SetSolutionType(self._solution_options[value]["name"])
                 except:
-                    self._odesign.SetSolutionType(
-                        self._solution_options[value]["name"], ""
-                    )
+                    self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
 
     @property
     def report_type(self):
@@ -855,9 +849,7 @@ class HFSSDesignSolution(DesignSolution, object):
                 try:
                     self._odesign.SetSolutionType(self._solution_options[value]["name"])
                 except:
-                    self._odesign.SetSolutionType(
-                        self._solution_options[value]["name"], ""
-                    )
+                    self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
         elif value is None:
             if self._odesign:
                 try:
@@ -870,11 +862,7 @@ class HFSSDesignSolution(DesignSolution, object):
                     self._solution_type = solutions_defaults[self._design_type]
             else:
                 self._solution_type = solutions_defaults[self._design_type]
-        elif (
-            value
-            and value in self._solution_options
-            and self._solution_options[value]["name"]
-        ):
+        elif value and value in self._solution_options and self._solution_options[value]["name"]:
             if value == "Transient":
                 value = "Transient Network"
                 self._solution_type = "Transient Network"
@@ -895,9 +883,7 @@ class HFSSDesignSolution(DesignSolution, object):
                 try:
                     self._odesign.SetSolutionType(self._solution_options[value]["name"])
                 except:
-                    self._odesign.SetSolutionType(
-                        self._solution_options[value]["name"], ""
-                    )
+                    self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
 
     @property
     def hybrid(self):
@@ -905,9 +891,7 @@ class HFSSDesignSolution(DesignSolution, object):
         if self._aedt_version < "2021.2":
             return False
         if self._hybrid is None and self.solution_type is not None:
-            self._hybrid = (
-                "Hybrid" in self._solution_options[self.solution_type]["name"]
-            )
+            self._hybrid = "Hybrid" in self._solution_options[self.solution_type]["name"]
         return self._hybrid
 
     @hybrid.setter
@@ -916,13 +900,13 @@ class HFSSDesignSolution(DesignSolution, object):
         if self._aedt_version < "2021.2":
             return
         if value and "Hybrid" not in self._solution_options[self.solution_type]["name"]:
-            self._solution_options[self.solution_type]["name"] = self._solution_options[
-                self.solution_type
-            ]["name"].replace("HFSS", "HFSS Hybrid")
+            self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
+                "name"
+            ].replace("HFSS", "HFSS Hybrid")
         else:
-            self._solution_options[self.solution_type]["name"] = self._solution_options[
-                self.solution_type
-            ]["name"].replace("HFSS Hybrid", "HFSS")
+            self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
+                "name"
+            ].replace("HFSS Hybrid", "HFSS")
         self._hybrid = value
         self.solution_type = self.solution_type
 
@@ -932,9 +916,7 @@ class HFSSDesignSolution(DesignSolution, object):
         if self._aedt_version < "2021.2":
             return False
         if self._composite is None and self.solution_type is not None:
-            self._composite = (
-                "Composite" in self._solution_options[self.solution_type]["name"]
-            )
+            self._composite = "Composite" in self._solution_options[self.solution_type]["name"]
         return self._composite
 
     @composite.setter
@@ -943,13 +925,13 @@ class HFSSDesignSolution(DesignSolution, object):
         if self._aedt_version < "2021.2":
             return
         if val:
-            self._solution_options[self.solution_type]["name"] = self._solution_options[
-                self.solution_type
-            ]["name"].replace("Network", "Composite")
+            self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
+                "name"
+            ].replace("Network", "Composite")
         else:
-            self._solution_options[self.solution_type]["name"] = self._solution_options[
-                self.solution_type
-            ]["name"].replace("Composite", "Network")
+            self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
+                "name"
+            ].replace("Composite", "Network")
         self._composite = val
         self.solution_type = self.solution_type
 
@@ -1027,18 +1009,13 @@ class Maxwell2DDesignSolution(DesignSolution, object):
             self._geometry_mode = "XY"
         else:
             self._solution_type = value
-        if (
-            self._solution_type in self._solution_options
-            and self._solution_options[self._solution_type]["name"]
-        ):
+        if self._solution_type in self._solution_options and self._solution_options[self._solution_type]["name"]:
             try:
                 if self._solution_options[self._solution_type]["options"]:
                     opts = self._solution_options[self._solution_type]["options"]
                 else:
                     opts = ""
-                self._odesign.SetSolutionType(
-                    self._solution_options[self._solution_type]["name"], opts
-                )
+                self._odesign.SetSolutionType(self._solution_options[self._solution_type]["name"], opts)
             except:
                 pass
 
@@ -1082,9 +1059,7 @@ class IcepakDesignSolution(DesignSolution, object):
             else:
                 self._solution_options[self.solution_type]["default_setup"] = 38
         else:
-            raise AttributeError(
-                "Wrong input. Expected values are TemperatureAndFlow, TemperatureOnly and FlowOnly."
-            )
+            raise AttributeError("Wrong input. Expected values are TemperatureAndFlow, TemperatureOnly and FlowOnly.")
         self.solution_type = self.solution_type
 
     @property

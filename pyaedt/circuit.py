@@ -119,13 +119,7 @@ class Circuit(FieldAnalysisCircuit, object):
         return self
 
     def _get_number_from_string(self, stringval):
-        value = (
-            stringval[stringval.find("=") + 1 :]
-            .strip()
-            .replace("{", "")
-            .replace("}", "")
-            .replace(",", ".")
-        )
+        value = stringval[stringval.find("=") + 1 :].strip().replace("{", "").replace("}", "").replace(",", ".")
         try:
             float(value)
             return value
@@ -181,9 +175,7 @@ class Circuit(FieldAnalysisCircuit, object):
                     model.append(line)
         if model:
             self.modeler.schematic.create_symbol("Models_Netlist", [])
-            self.modeler.schematic.create_new_component_from_symbol(
-                "Models_Netlist", [], ""
-            )
+            self.modeler.schematic.create_new_component_from_symbol("Models_Netlist", [], "")
             self.modeler.schematic.create_component(
                 None,
                 component_library=None,
@@ -221,19 +213,11 @@ class Circuit(FieldAnalysisCircuit, object):
                         try:
                             float(fields[4])
                         except:
-                            self.logger.warning(
-                                "Component {} Not Imported. Check it and manually import".format(
-                                    name
-                                )
-                            )
+                            self.logger.warning("Component {} Not Imported. Check it and manually import".format(name))
                             continue
                     if "{" in fields[3][0]:
                         value = fields[3].strip()[1:-1]
-                    elif (
-                        "/" in fields[3]
-                        and '"' not in fields[3][0]
-                        and "'" not in fields[3][0]
-                    ):
+                    elif "/" in fields[3] and '"' not in fields[3][0] and "'" not in fields[3][0]:
                         value = self._get_number_from_string(fields[3].split("/")[0])
                     else:
                         value = self._get_number_from_string(fields[3])
@@ -243,11 +227,7 @@ class Circuit(FieldAnalysisCircuit, object):
                 elif fields[0][0] == "C":
                     if "{" in fields[3][0]:
                         value = fields[3].strip()[1:-1]
-                    elif (
-                        "/" in fields[3]
-                        and '"' not in fields[3][0]
-                        and "'" not in fields[3][0]
-                    ):
+                    elif "/" in fields[3] and '"' not in fields[3][0] and "'" not in fields[3][0]:
                         value = self._get_number_from_string(fields[3].split("/")[0])
                     else:
                         value = self._get_number_from_string(fields[3])
@@ -348,9 +328,7 @@ class Circuit(FieldAnalysisCircuit, object):
                             use_instance_id_netlist=use_instance,
                         )
                     else:
-                        value = line[
-                            line.index("PULSE") + 6 : line.index(")") - 1
-                        ].split(" ")
+                        value = line[line.index("PULSE") + 6 : line.index(")") - 1].split(" ")
                         value = [i.replace("{", "").replace("}", "") for i in value]
                         fields[1], fields[2] = fields[2], fields[1]
                         mycomp = self.modeler.schematic.create_voltage_pulse(
@@ -379,9 +357,7 @@ class Circuit(FieldAnalysisCircuit, object):
                             use_instance_id_netlist=use_instance,
                         )
                     else:
-                        value = line[
-                            line.index("PULSE") + 6 : line.index(")") - 1
-                        ].split(" ")
+                        value = line[line.index("PULSE") + 6 : line.index(")") - 1].split(" ")
                         value = [i.replace("{", "").replace("}", "") for i in value]
                         mycomp = self.modeler.schematic.create_current_pulse(
                             name,
@@ -397,9 +373,7 @@ class Circuit(FieldAnalysisCircuit, object):
                             angle = 0.0
                         else:
                             angle = math.pi
-                        self.modeler.schematic.create_page_port(
-                            fields[id], [pos[0], pos[1]], angle
-                        )
+                        self.modeler.schematic.create_page_port(fields[id], [pos[0], pos[1]], angle)
                         id += 1
                     ypos += delta
                     if ypos > 0.254:
@@ -537,11 +511,7 @@ class Circuit(FieldAnalysisCircuit, object):
                             fullnetname = net[2]
                             netnames = fullnetname.split("/")
                             netname = (
-                                netnames[len(netnames) - 1]
-                                .replace(",", "_")
-                                .replace("'", "")
-                                .replace("$", "")
-                                .strip()
+                                netnames[len(netnames) - 1].replace(",", "_").replace("'", "").replace("$", "").strip()
                             )
                     if not netname:
                         prop = props[name]
@@ -550,9 +520,7 @@ class Circuit(FieldAnalysisCircuit, object):
                             netname = netname.replace("$", "")
 
                     if netname:
-                        self.modeler.schematic.create_page_port(
-                            netname, [pos[0], pos[1]], angle
-                        )
+                        self.modeler.schematic.create_page_port(netname, [pos[0], pos[1]], angle)
                     else:
                         self.logger.info("Page Port Not Created")
                     id += 1
@@ -567,9 +535,7 @@ class Circuit(FieldAnalysisCircuit, object):
             if "GND" in netname.upper():
                 self.modeler.schematic.create_gnd([xpos, ypos])
                 page_pos = ypos + 0.00254
-                mod1 = self.modeler.schematic.create_page_port(
-                    netname, [xpos, ypos], 0.0
-                )
+                mod1 = self.modeler.schematic.create_page_port(netname, [xpos, ypos], 0.0)
                 mod1.location = [str(xpos) + "meter", str(page_pos) + "meter"]
                 ypos += delta
                 if ypos > delta * column_number:
@@ -640,19 +606,13 @@ class Circuit(FieldAnalysisCircuit, object):
 
         >>> oModule.GetExcitationsOfType
         """
-        if (
-            source_project_name
-            and self.project_name != source_project_name
-            and not source_project_path
-        ):
+        if source_project_name and self.project_name != source_project_name and not source_project_path:
             raise AttributeError(
-                "If source project is different than the current one, "
-                "``source_project_path`` must be also provided."
+                "If source project is different than the current one, " "``source_project_path`` must be also provided."
             )
         if source_project_path and not source_project_name:
             raise AttributeError(
-                "When ``source_project_path`` is specified, "
-                "``source_project_name`` must be also provided."
+                "When ``source_project_path`` is specified, " "``source_project_name`` must be also provided."
             )
         if not source_project_name or self.project_name == source_project_name:
             oSrcProject = self._desktop.GetActiveProject()
@@ -701,9 +661,7 @@ class Circuit(FieldAnalysisCircuit, object):
                 for i in lines:
                     if "[Number of Ports]" in i:
                         ports = int(i[i.find("]") + 1 :])
-                portnames = [
-                    i.split(" = ")[1].strip() for i in lines if "! Port" in i[:9]
-                ]
+                portnames = [i.split(" = ")[1].strip() for i in lines if "! Port" in i[:9]]
                 if not portnames:
                     portnames = ["Port{}".format(i + 1) for i in range(ports)]
         else:
@@ -813,9 +771,7 @@ class Circuit(FieldAnalysisCircuit, object):
         return portnames
 
     @aedt_exception_handler
-    def export_touchstone(
-        self, solutionname, sweepname, filename=None, variation=[], variations_value=[]
-    ):
+    def export_touchstone(self, solutionname, sweepname, filename=None, variation=[], variations_value=[]):
         """Export the Touchstone file to a local folder.
 
         Parameters
@@ -850,21 +806,14 @@ class Circuit(FieldAnalysisCircuit, object):
             for v, vv in zip(variation, variations_value):
                 appendix += "_" + v + vv.replace("'", "")
             ext = ".S" + str(self.oboundary.GetNumExcitations()) + "p"
-            filename = os.path.join(
-                self.working_directory, solutionname + "_" + sweepname + appendix + ext
-            )
+            filename = os.path.join(self.working_directory, solutionname + "_" + sweepname + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         self.logger.info("Exporting Touchstone " + filename)
         DesignVariations = ""
         i = 0
         for el in variation:
-            DesignVariations += (
-                str(variation[i])
-                + "='"
-                + str(variations_value[i].replace("'", ""))
-                + "' "
-            )
+            DesignVariations += str(variation[i]) + "='" + str(variations_value[i].replace("'", "")) + "' "
             i += 1
             # DesignVariations = "$AmbientTemp=\'22cel\' $PowerIn=\'100\'"
         # array containing "SetupName:SolutionName" pairs (note that setup and solution are separated by a colon)
@@ -1127,14 +1076,10 @@ class Circuit(FieldAnalysisCircuit, object):
             "SimValueContext:=",
             [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0],
         ]
-        return self.post.get_solution_data_per_variation(
-            "Standard", solution_name, ctxt, variations, curvenames
-        )
+        return self.post.get_solution_data_per_variation("Standard", solution_name, ctxt, variations, curvenames)
 
     @aedt_exception_handler
-    def push_excitations(
-        self, instance_name, thevenin_calculation=False, setup_name="LinearFrequency"
-    ):
+    def push_excitations(self, instance_name, thevenin_calculation=False, setup_name="LinearFrequency"):
         """Push excitations.
 
         Parameters
@@ -1828,9 +1773,7 @@ class Circuit(FieldAnalysisCircuit, object):
             raise ValueError("{}: unable to find the specified file.".format(filename))
 
         try:
-            new_file = os.path.join(
-                os.path.dirname(filename), generate_unique_name("temp") + ".txt"
-            )
+            new_file = os.path.join(os.path.dirname(filename), generate_unique_name("temp") + ".txt")
             with open(filename, "r") as file:
                 filedata = file.read().splitlines()
             with io.open(new_file, "w", newline="\n") as fh:

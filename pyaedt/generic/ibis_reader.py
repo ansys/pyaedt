@@ -520,9 +520,7 @@ class IbisReader(object):
         if not os.path.exists(self._filename):
             raise Exception("{} does not exist.".format(self._filename))
 
-        ibis_name = pyaedt.generic.general_methods.get_filename_without_extension(
-            self._filename
-        )
+        ibis_name = pyaedt.generic.general_methods.get_filename_without_extension(self._filename)
         ibis = Ibis(ibis_name, self._circuit)
 
         # Read *.ibis file.
@@ -571,18 +569,14 @@ class IbisReader(object):
             for component in ibis.components:
                 arg_component = ["NAME:{}".format(ibis.components[component].name)]
                 for pin in ibis.components[component].pins:
-                    arg_component.append(
-                        "{}:=".format(ibis.components[component].pins[pin].short_name)
-                    )
+                    arg_component.append("{}:=".format(ibis.components[component].pins[pin].short_name))
                     arg_component.append([True, False])
                 arg_components.append(arg_component)
 
             args.append(arg_buffers)
             args.append(arg_components)
 
-            self._circuit.modeler.schematic.o_component_manager.ImportModelsFromFile(
-                self._filename, args
-            )
+            self._circuit.modeler.schematic.o_component_manager.ImportModelsFromFile(self._filename, args)
 
         self._ibis_model = ibis
 
@@ -661,9 +655,7 @@ class IbisReader(object):
 
         # Model Selector
         while not is_started_with(current_line, "|") and current_line.strip() != "":
-            model_selector.model_selector_items.append(
-                self.make_model(current_line.strip())
-            )
+            model_selector.model_selector_items.append(self.make_model(current_line.strip()))
             current_line = ibis_file.readline()
 
         # ModelSelectorItem

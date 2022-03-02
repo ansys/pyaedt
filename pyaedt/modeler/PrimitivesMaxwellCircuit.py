@@ -44,11 +44,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         if isinstance(partname, int):
             return self.components[partname]
         for el in self.components:
-            if (
-                self.components[el].name == partname
-                or self.components[el].composed_name == partname
-                or el == partname
-            ):
+            if self.components[el].name == partname or self.components[el].composed_name == partname or el == partname:
                 return self.components[el]
 
         return None
@@ -200,9 +196,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_diode(
-        self, compname=None, location=[], angle=0, use_instance_id_netlist=False
-    ):
+    def create_diode(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
         Parameters
@@ -237,9 +231,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_winding(
-        self, compname=None, location=[], angle=0, use_instance_id_netlist=False
-    ):
+    def create_winding(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
         """Create an NPN transistor.
 
         Parameters

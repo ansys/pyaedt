@@ -50,9 +50,7 @@ class Generic(Actor, object):
 
     def __init__(self, actor_folder, speed="0", relative_cs_name=None):
         """Generic class."""
-        super(Generic, self).__init__(
-            actor_folder, speed=speed, relative_cs_name=relative_cs_name
-        )
+        super(Generic, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
 
 class Person(Actor, object):
@@ -80,14 +78,10 @@ class Person(Actor, object):
 
     """
 
-    def __init__(
-        self, actor_folder, speed="0", stride="0.8meters", relative_cs_name=None
-    ):
+    def __init__(self, actor_folder, speed="0", stride="0.8meters", relative_cs_name=None):
         """Initialize person actor."""
 
-        super(Person, self).__init__(
-            actor_folder, speed=speed, relative_cs_name=relative_cs_name
-        )
+        super(Person, self).__init__(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
 
         self._stride = stride
 
@@ -110,9 +104,7 @@ class Person(Actor, object):
         # Update expressions for oscillation of limbs. At this point
         # we could parse p.name to handle motion (arm, leg, ...).
         for k, p in self.parts.items():
-            if any(
-                p.rot_axis
-            ):  # use this key to determine if there is motion of the part.
+            if any(p.rot_axis):  # use this key to determine if there is motion of the part.
                 if p.rot_axis[1]:  # Make sure pitch rotation is True
                     app[p.pitch_name] = (
                         p.pitch
@@ -178,14 +170,10 @@ class Bird(Actor, object):
 
     """
 
-    def __init__(
-        self, bird_folder, speed="2.0", flapping_rate="50Hz", relative_cs_name=None
-    ):
+    def __init__(self, bird_folder, speed="2.0", flapping_rate="50Hz", relative_cs_name=None):
         """Bike class."""
 
-        super(Bird, self).__init__(
-            bird_folder, speed=speed, relative_cs_name=relative_cs_name
-        )
+        super(Bird, self).__init__(bird_folder, speed=speed, relative_cs_name=relative_cs_name)
         self._flapping_rate = flapping_rate
 
     def _add_flying(self, app):
@@ -195,12 +183,7 @@ class Bird(Actor, object):
             if any(p.rot_axis):  # use this key to verify that there is local motion.
                 if p.rot_axis[2]:  # Flapping is roll
                     app[p.roll_name] = (
-                        p["rotation"]
-                        + "* sin(2*pi*"
-                        + str(self._flapping_rate)
-                        + "*"
-                        + MultiPartComponent._t
-                        + ")"
+                        p["rotation"] + "* sin(2*pi*" + str(self._flapping_rate) + "*" + MultiPartComponent._t + ")"
                     )
 
     @aedt_exception_handler
@@ -250,17 +233,13 @@ class Vehicle(Actor, object):
     def __init__(self, car_folder, speed=10.0, relative_cs_name=None):
         """Vehicle class."""
 
-        super(Vehicle, self).__init__(
-            car_folder, speed=speed, relative_cs_name=relative_cs_name
-        )
+        super(Vehicle, self).__init__(car_folder, speed=speed, relative_cs_name=relative_cs_name)
 
     @aedt_exception_handler
     def _add_driving(self, app):
         # Update expressions for wheel motion:
         for k, p in self.parts.items():
-            if any(
-                p.rot_axis
-            ):  # use this key to determine if there is motion of the wheel.
+            if any(p.rot_axis):  # use this key to determine if there is motion of the wheel.
                 if p.rot_axis[1]:  # Make sure pitch rotation is True
                     app[p.pitch_name] = (
                         "("
@@ -391,25 +370,11 @@ class Radar(MultiPartComponent, object):
         )
         # Update expressions for x and y position in app:
         app[self.offset_names[0]] = (
-            str(self.offset[0])
-            + "+"
-            + self.speed_name
-            + " * "
-            + MultiPartComponent._t
-            + "* cos("
-            + self.yaw_name
-            + ")"
+            str(self.offset[0]) + "+" + self.speed_name + " * " + MultiPartComponent._t + "* cos(" + self.yaw_name + ")"
         )
 
         app[self.offset_names[1]] = (
-            str(self.offset[1])
-            + "+"
-            + self.speed_name
-            + " * "
-            + MultiPartComponent._t
-            + "* sin("
-            + self.yaw_name
-            + ")"
+            str(self.offset[1]) + "+" + self.speed_name + " * " + MultiPartComponent._t + "* sin(" + self.yaw_name + ")"
         )
 
     @aedt_exception_handler
@@ -428,10 +393,7 @@ class Radar(MultiPartComponent, object):
             List of antennae that have been placed.
         """
         app.logger.info("Adding radar module:  " + self.name)
-        if (
-            self.use_global_cs
-            or self.cs_name in app.modeler.oeditor.GetCoordinateSystems()
-        ):
+        if self.use_global_cs or self.cs_name in app.modeler.oeditor.GetCoordinateSystems():
             app.modeler.set_working_coordinate_system(self.cs_name)
             if self.use_relative_cs:
                 self._relative_cs_name = self.name + "_cs"
