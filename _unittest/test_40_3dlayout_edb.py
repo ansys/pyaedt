@@ -88,3 +88,5 @@ class TestClass(BasisTest, object):
 
     def test_08_merge(self):
         assert self.hfss3d.modeler.merge_design(self.aedtapp)
+        self.hfss3d.save_project()
+        self.aedtapp.save_project()
