@@ -51,9 +51,13 @@ def update_hpc_option(filnename, propertyname, propertyvalue, isvaluestring=True
                 new_line = line
     with open(filnename) as fid:
         if isvaluestring:
-            new_line = fid.read().replace(old_prop, propertyname + "=" + "'" + str(propertyvalue) + "'")
+            new_line = fid.read().replace(
+                old_prop, propertyname + "=" + "'" + str(propertyvalue) + "'"
+            )
         else:
-            new_line = fid.read().replace(old_prop, propertyname + "=" + str(propertyvalue))
+            new_line = fid.read().replace(
+                old_prop, propertyname + "=" + str(propertyvalue)
+            )
 
     with open(filnename, "w") as f:
         f.write(new_line)
@@ -120,7 +124,9 @@ def update_machine_name(name, machinename):
                 old_machine = line.strip()
                 new_line = line
     with open(name) as fid:
-        new_line = fid.read().replace(old_machine, "MachineName='" + str(machinename) + "'")
+        new_line = fid.read().replace(
+            old_machine, "MachineName='" + str(machinename) + "'"
+        )
     with open(name, "w") as f:
         f.write(new_line)
 
@@ -144,7 +150,9 @@ def update_config_name(name, machinename):
     with open(name) as fid:
         if machinename == "localhost":
             machinename = "Local"
-        new_line = fid.read().replace(old_config, "ConfigName='" + str(machinename) + "'")
+        new_line = fid.read().replace(
+            old_config, "ConfigName='" + str(machinename) + "'"
+        )
     with open(name, "w") as f:
         f.write(new_line)
 

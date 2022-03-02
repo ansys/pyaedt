@@ -12,13 +12,14 @@ Examples
 >>> hfss["postd"] = "1W"
 
 """
-from __future__ import absolute_import, division
-
 import os
 import re
 
 from pyaedt import aedt_exception_handler
-from pyaedt.generic.constants import AEDT_UNITS, SI_UNITS, unit_system, _resolve_unit_system
+from pyaedt.generic.constants import _resolve_unit_system
+from pyaedt.generic.constants import AEDT_UNITS
+from pyaedt.generic.constants import SI_UNITS
+from pyaedt.generic.constants import unit_system
 from pyaedt.generic.general_methods import is_number
 
 
@@ -118,7 +119,11 @@ class CSVDataset:
                             for j, value in enumerate(line_data):
                                 var_name = self._header[j]
                                 if var_name in self._unit_dict:
-                                    var_value = Variable(value).rescale_to(self._unit_dict[var_name]).numeric_value
+                                    var_value = (
+                                        Variable(value)
+                                        .rescale_to(self._unit_dict[var_name])
+                                        .numeric_value
+                                    )
                                 else:
                                     var_value = Variable(value).value
                                 self._data[var_name].append(var_value)
@@ -148,14 +153,18 @@ class CSVDataset:
                 if variable in key_string:
                     found_variable = True
                     break
-            assert found_variable, "Input string {} is not a key of the data dictionary.".format(variable)
+            assert (
+                found_variable
+            ), "Input string {} is not a key of the data dictionary.".format(variable)
             data_out._data[variable] = self._data[key_string]
             data_out._header.append(variable)
         return data_out
 
     @aedt_exception_handler
     def __add__(self, other):
-        assert self.number_of_columns == other.number_of_columns, "Inconsistent number of columns"
+        assert (
+            self.number_of_columns == other.number_of_columns
+        ), "Inconsistent number of columns"
         # Create a new object to return, avoiding changing the original inputs
         new_dataset = CSVDataset()
         # Add empty columns to new_dataset
@@ -190,7 +199,9 @@ class CSVDataset:
             for column in other.data:
                 self._data[column] = []
 
-        assert self.number_of_columns == other.number_of_columns, "Inconsistent number of columns"
+        assert (
+            self.number_of_columns == other.number_of_columns
+        ), "Inconsistent number of columns"
 
         # Append the data from 'other'
         for column, row_data in other.data.items():
@@ -234,7 +245,9 @@ def _find_units_in_dependent_variables(variable_value, full_variables={}):
             if unit_system(m2[0]):
                 return SI_UNITS[unit_system(m2[0])]
     else:
-        m1 = re.findall(r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
+        m1 = re.findall(
+            r"(?<=[/+-/*//^/(/[])([a-z_A-Z/$]\w*)", variable_value.replace(" ", "")
+        )
         m2 = re.findall(r"^([a-z_A-Z/$]\w*)", variable_value.replace(" ", ""))
         m = list(set(m1).union(m2))
         for i, v in full_variables.items():
@@ -653,11 +666,15 @@ class VariableManager(object):
                         var_dict[variable_name] = value
                     elif dependent and isinstance(value.value, str):
                         float_value = self._app.get_evaluated_value(variable_name)
-                        var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
+                        var_dict[variable_name] = Expression(
+                            variable_expression, float_value, all_names
+                        )
                 except:
                     if dependent:
                         float_value = self._app.get_evaluated_value(variable_name)
-                        var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
+                        var_dict[variable_name] = Expression(
+                            variable_expression, float_value, all_names
+                        )
         return var_dict
 
     @aedt_exception_handler
@@ -689,7 +706,13 @@ class VariableManager(object):
 
     @aedt_exception_handler
     def set_variable(
-        self, variable_name, expression=None, readonly=False, hidden=False, description=None, overwrite=True
+        self,
+        variable_name,
+        expression=None,
+        readonly=False,
+        hidden=False,
+        description=None,
+        overwrite=True,
     ):
         """Set the value of a design property or project variable.
 
@@ -785,7 +808,9 @@ class VariableManager(object):
             except:
                 pass
         else:
-            raise Exception("Unhandled input type to the design property or project variable.")
+            raise Exception(
+                "Unhandled input type to the design property or project variable."
+            )
 
         if "post" in variable_name.lower()[0:5]:
             prop_type = "PostProcessingVariableProp"
@@ -827,8 +852,13 @@ class VariableManager(object):
                     ]
                 )
             except:
-                if ";" in desktop_object.GetName() and prop_type == "PostProcessingVariableProp":
-                    self._logger.info("PostProcessing Variable exists already. Changing value.")
+                if (
+                    ";" in desktop_object.GetName()
+                    and prop_type == "PostProcessingVariableProp"
+                ):
+                    self._logger.info(
+                        "PostProcessing Variable exists already. Changing value."
+                    )
                     desktop_object.ChangeProperty(
                         [
                             "NAME:AllTabs",
@@ -1010,7 +1040,9 @@ class Variable(object):
 
         # If units have been specified, check for a conflict and otherwise use the specified unit system
         if units:
-            assert not self._units, "The unit specification {} is inconsistent with the identified units {}.".format(
+            assert (
+                not self._units
+            ), "The unit specification {} is inconsistent with the identified units {}.".format(
                 specified_units, self._units
             )
             self._units = specified_units
@@ -1159,7 +1191,9 @@ class Variable(object):
                 >>> assert result_3.unit_system == "Power"
 
         """
-        assert is_number(other) or isinstance(other, Variable), "Multiplier must be a scalar quantity or a variable."
+        assert is_number(other) or isinstance(
+            other, Variable
+        ), "Multiplier must be a scalar quantity or a variable."
         if is_number(other):
             result_value = self.numeric_value * other
             result_units = self.units
@@ -1170,9 +1204,13 @@ class Variable(object):
                 return other.numeric_value * self
             else:
                 result_value = self.value * other.value
-                result_units = _resolve_unit_system(self.unit_system, other.unit_system, "multiply")
+                result_units = _resolve_unit_system(
+                    self.unit_system, other.unit_system, "multiply"
+                )
                 if not result_units:
-                    result_units = _resolve_unit_system(other.unit_system, self.unit_system, "multiply")
+                    result_units = _resolve_unit_system(
+                        other.unit_system, self.unit_system, "multiply"
+                    )
 
         return Variable("{}{}".format(result_value, result_units))
 
@@ -1204,7 +1242,9 @@ class Variable(object):
                 >>> assert result.unit_system == "Current"
 
         """
-        assert isinstance(other, Variable), "You can only add a variable with another variable."
+        assert isinstance(
+            other, Variable
+        ), "You can only add a variable with another variable."
         assert (
             self.unit_system == other.unit_system
         ), "Only ``Variable`` objects with the same unit system can be added."
@@ -1245,7 +1285,9 @@ class Variable(object):
                 >>> assert result_2.unit_system == "Current"
 
         """
-        assert isinstance(other, Variable), "You can only subtract a variable from another variable."
+        assert isinstance(
+            other, Variable
+        ), "You can only subtract a variable from another variable."
         assert (
             self.unit_system == other.unit_system
         ), "Only ``Variable`` objects with the same unit system can be subtracted."
@@ -1290,13 +1332,17 @@ class Variable(object):
                 >>> assert result_1.unit_system == "Current"
 
         """
-        assert is_number(other) or isinstance(other, Variable), "Divisor must be a scalar quantity or a variable."
+        assert is_number(other) or isinstance(
+            other, Variable
+        ), "Divisor must be a scalar quantity or a variable."
         if is_number(other):
             result_value = self.numeric_value / other
             result_units = self.units
         else:
             result_value = self.value / other.value
-            result_units = _resolve_unit_system(self.unit_system, other.unit_system, "divide")
+            result_units = _resolve_unit_system(
+                self.unit_system, other.unit_system, "divide"
+            )
 
         return Variable("{}{}".format(result_value, result_units))
 
@@ -1338,7 +1384,9 @@ class Variable(object):
 
         else:
             result_value = other.numeric_value / self.numeric_value
-            result_units = _resolve_unit_system(other.unit_system, self.unit_system, "divide")
+            result_units = _resolve_unit_system(
+                other.unit_system, self.unit_system, "divide"
+            )
 
         return Variable("{}{}".format(result_value, result_units))
 
@@ -1400,7 +1448,9 @@ class DataSet(object):
 
     """
 
-    def __init__(self, app, name, x, y, z=None, v=None, xunit="", yunit="", zunit="", vunit=""):
+    def __init__(
+        self, app, name, x, y, z=None, v=None, xunit="", yunit="", zunit="", vunit=""
+    ):
         self._app = app
         self.name = name
         self.x = x
@@ -1421,13 +1471,25 @@ class DataSet(object):
         if self.z is None:
             arg2.append(["NAME:DimUnits", self.xunit, self.yunit])
         elif self.v is not None and self.name[0] == "$":
-            arg2.append(["NAME:DimUnits", self.xunit, self.yunit, self.zunit, self.vunit])
+            arg2.append(
+                ["NAME:DimUnits", self.xunit, self.yunit, self.zunit, self.vunit]
+            )
         else:
             return False
         if self.z and self.name[0] == "$":
-            x, y, z, v = (list(t) for t in zip(*sorted(zip(self.x, self.y, self.z, self.v), key=lambda e: float(e[0]))))
+            x, y, z, v = (
+                list(t)
+                for t in zip(
+                    *sorted(
+                        zip(self.x, self.y, self.z, self.v), key=lambda e: float(e[0])
+                    )
+                )
+            )
         else:
-            x, y = (list(t) for t in zip(*sorted(zip(self.x, self.y), key=lambda e: float(e[0]))))
+            x, y = (
+                list(t)
+                for t in zip(*sorted(zip(self.x, self.y), key=lambda e: float(e[0])))
+            )
         for i in range(len(x)):
             arg3 = []
             arg3.append("NAME:Coordinate")

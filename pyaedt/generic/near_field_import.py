@@ -1,7 +1,7 @@
-import os
-import re
 import csv
 import glob
+import os
+import re
 
 
 class BoxFacePointsAndFields(object):
@@ -42,7 +42,9 @@ class BoxFacePointsAndFields(object):
                 self.im[el] = zero_field_z_faces
 
 
-def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces=True, output_folder=None):
+def convert_nearfield_data(
+    dat_folder, frequency=6, invert_phase_for_lower_faces=True, output_folder=None
+):
     """Convert a near field data folder to hfss `nfd` file and link it to `and` file.
 
     Parameters
@@ -98,7 +100,9 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
             components[face].set_xyz_points(x, y, z)
             components[face].fill_empty_data()
         if "min" in face:
-            components[face].set_field_component(field_component, real, imag, invert_phase_for_lower_faces)
+            components[face].set_field_component(
+                field_component, real, imag, invert_phase_for_lower_faces
+            )
         else:
             components[face].set_field_component(field_component, real, imag, False)
 
@@ -128,7 +132,9 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
     nfd_full_file = os.path.join(output_folder, nfd_name)
     and_full_file = os.path.join(output_folder, directory_name + ".and")
 
-    commented_header_line = "#Index, X, Y, Z, Ex(real, imag), Ey(real, imag), Ez(real, imag), "
+    commented_header_line = (
+        "#Index, X, Y, Z, Ex(real, imag), Ey(real, imag), Ez(real, imag), "
+    )
     commented_header_line += "Hx(real, imag), Hy(real, imag), Hz(real, imag)\n"
 
     with open(nfd_full_file, "w") as file:
@@ -138,7 +144,9 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
         file.write("Frequency " + str(frequency) + "GHz\n")
         writer.writerows(full_data)
 
-    print(".nfd file written to %s" % nfd_full_file)  # Prints if running ipy64 through external editor
+    print(
+        ".nfd file written to %s" % nfd_full_file
+    )  # Prints if running ipy64 through external editor
 
     size_x = float(components["xmax"].x[0]) - float(components["xmin"].x[0])
     size_y = float(components["ymax"].y[0]) - float(components["ymin"].y[0])
@@ -161,8 +169,12 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
         file.write("	fields='EH'\n")
         file.write("	fsweep='" + str(frequency) + "GHz'\n")
         file.write("	geometry='box'\n")
-        file.write("	center='" + str(cx_mm) + "mm," + str(cy_mm) + "mm," + str(cz_mm) + "mm'\n")
-        file.write("	size='" + str(sx_mm) + "mm," + str(sy_mm) + "mm," + str(sz_mm) + "mm'\n")
+        file.write(
+            "	center='" + str(cx_mm) + "mm," + str(cy_mm) + "mm," + str(cz_mm) + "mm'\n"
+        )
+        file.write(
+            "	size='" + str(sx_mm) + "mm," + str(sy_mm) + "mm," + str(sz_mm) + "mm'\n"
+        )
         file.write("$end 'NearFieldHeader'\n")
         file.write("$begin 'NearFieldData'\n")
         file.write('	FreqData("' + str(frequency) + 'GHz","' + nfd_name + '")\n')

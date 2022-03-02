@@ -1,4 +1,5 @@
 import copy
+
 from pyaedt.generic.general_methods import aedt_exception_handler
 
 solutions_defaults = {
@@ -115,7 +116,13 @@ solutions_types = {
         },
     },
     "Twin Builder": {
-        "TR": {"name": None, "options": None, "report_type": "Standard", "default_setup": 35, "default_adaptive": None},
+        "TR": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 35,
+            "default_adaptive": None,
+        },
         "AC": {
             "name": None,
             "options": None,
@@ -230,7 +237,13 @@ solutions_types = {
             "default_setup": 28,
             "default_adaptive": None,
         },
-        "TR": {"name": None, "options": None, "report_type": "Standard", "default_setup": 17, "default_adaptive": None},
+        "TR": {
+            "name": None,
+            "options": None,
+            "report_type": "Standard",
+            "default_setup": 17,
+            "default_adaptive": None,
+        },
     },
     "2D Extractor": {
         "Open": {
@@ -339,50 +352,302 @@ solutions_types = {
         },
     },
     "RMxprtSolution": {
-        "GRM": {"name": "GRM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "IRIM": {"name": "IRIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "ORIM": {"name": "ORIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "SRIM": {"name": "SRIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "WRIM": {"name": "WRIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "DFIG": {"name": "DFIG", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "AFIM": {"name": "AFIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "HM": {"name": "HM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "RFSM": {"name": "RFSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "RASM": {"name": "RASM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "RSM": {"name": "RSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "ISM": {"name": "ISM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "APSM": {"name": "APSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "IBDM": {"name": "IBDM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "ABDM": {"name": "ABDM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "TPIM": {"name": "TPIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "SPIM": {"name": "SPIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "TPSM": {"name": "TPSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "BLDC": {"name": "BLDC", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "ASSM": {"name": "ASSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "PMDC": {"name": "PMDC", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "SRM": {"name": "SRM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "LSSM": {"name": "LSSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "UNIM": {"name": "UNIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "DCM": {"name": "DCM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "CPSM": {"name": "CPSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "NSSM": {"name": "NSSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
+        "GRM": {
+            "name": "GRM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "IRIM": {
+            "name": "IRIM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "ORIM": {
+            "name": "ORIM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "SRIM": {
+            "name": "SRIM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "WRIM": {
+            "name": "WRIM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "DFIG": {
+            "name": "DFIG",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "AFIM": {
+            "name": "AFIM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "HM": {
+            "name": "HM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "RFSM": {
+            "name": "RFSM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "RASM": {
+            "name": "RASM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "RSM": {
+            "name": "RSM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "ISM": {
+            "name": "ISM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "APSM": {
+            "name": "APSM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "IBDM": {
+            "name": "IBDM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "ABDM": {
+            "name": "ABDM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "TPIM": {
+            "name": "TPIM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "SPIM": {
+            "name": "SPIM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "TPSM": {
+            "name": "TPSM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "BLDC": {
+            "name": "BLDC",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "ASSM": {
+            "name": "ASSM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "PMDC": {
+            "name": "PMDC",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "SRM": {
+            "name": "SRM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "LSSM": {
+            "name": "LSSM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "UNIM": {
+            "name": "UNIM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "DCM": {
+            "name": "DCM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "CPSM": {
+            "name": "CPSM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "NSSM": {
+            "name": "NSSM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
     },
     "ModelCreation": {
-        "GRM": {"name": "GRM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "IRIM": {"name": "IRIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "ORIM": {"name": "ORIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "SRIM": {"name": "SRIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "WRIM": {"name": "WRIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "DFIG": {"name": "DFIG", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "AFIM": {"name": "AFIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "HM": {"name": "HM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "RFSM": {"name": "RFSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "RASM": {"name": "RASM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "RSM": {"name": "RSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "ISM": {"name": "ISM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "APSM": {"name": "APSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "IBDM": {"name": "IBDM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "ABDM": {"name": "ABDM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
+        "GRM": {
+            "name": "GRM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "IRIM": {
+            "name": "IRIM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "ORIM": {
+            "name": "ORIM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "SRIM": {
+            "name": "SRIM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "WRIM": {
+            "name": "WRIM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "DFIG": {
+            "name": "DFIG",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "AFIM": {
+            "name": "AFIM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "HM": {
+            "name": "HM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "RFSM": {
+            "name": "RFSM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "RASM": {
+            "name": "RASM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "RSM": {
+            "name": "RSM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "ISM": {
+            "name": "ISM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "APSM": {
+            "name": "APSM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "IBDM": {
+            "name": "IBDM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
+        "ABDM": {
+            "name": "ABDM",
+            "options": None,
+            "report_type": None,
+            "default_setup": 34,
+            "default_adaptive": None,
+        },
     },
     "HFSS 3D Layout Design": {
         "HFSS3DLayout": {
@@ -422,7 +687,13 @@ solutions_types = {
             "default_setup": 32,
             "default_adaptive": None,
         },
-        "Modal": {"name": "Modal", "options": None, "report_type": None, "default_setup": 33, "default_adaptive": None},
+        "Modal": {
+            "name": "Modal",
+            "options": None,
+            "report_type": None,
+            "default_setup": 33,
+            "default_adaptive": None,
+        },
         "Structural": {
             "name": "Structural",
             "options": None,
@@ -432,7 +703,13 @@ solutions_types = {
         },
     },
     "EMIT": {
-        "EMIT": {"name": None, "options": None, "report_type": None, "default_setup": None, "default_adaptive": None}
+        "EMIT": {
+            "name": None,
+            "options": None,
+            "report_type": None,
+            "default_setup": None,
+            "default_adaptive": None,
+        }
     },
     # Maxwell Circuit has no solution type
     "Maxwell Circuit": {},
@@ -494,17 +771,24 @@ class DesignSolution(object):
                     self._solution_type = solutions_defaults[self._design_type]
             else:
                 self._solution_type = solutions_defaults[self._design_type]
-        elif value and value in self._solution_options and self._solution_options[value]["name"]:
+        elif (
+            value
+            and value in self._solution_options
+            and self._solution_options[value]["name"]
+        ):
             self._solution_type = value
             if self._solution_options[value]["options"]:
                 self._odesign.SetSolutionType(
-                    self._solution_options[value]["name"], self._solution_options[value]["options"]
+                    self._solution_options[value]["name"],
+                    self._solution_options[value]["options"],
                 )
             else:
                 try:
                     self._odesign.SetSolutionType(self._solution_options[value]["name"])
                 except:
-                    self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
+                    self._odesign.SetSolutionType(
+                        self._solution_options[value]["name"], ""
+                    )
 
     @property
     def report_type(self):
@@ -571,7 +855,9 @@ class HFSSDesignSolution(DesignSolution, object):
                 try:
                     self._odesign.SetSolutionType(self._solution_options[value]["name"])
                 except:
-                    self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
+                    self._odesign.SetSolutionType(
+                        self._solution_options[value]["name"], ""
+                    )
         elif value is None:
             if self._odesign:
                 try:
@@ -584,7 +870,11 @@ class HFSSDesignSolution(DesignSolution, object):
                     self._solution_type = solutions_defaults[self._design_type]
             else:
                 self._solution_type = solutions_defaults[self._design_type]
-        elif value and value in self._solution_options and self._solution_options[value]["name"]:
+        elif (
+            value
+            and value in self._solution_options
+            and self._solution_options[value]["name"]
+        ):
             if value == "Transient":
                 value = "Transient Network"
                 self._solution_type = "Transient Network"
@@ -598,13 +888,16 @@ class HFSSDesignSolution(DesignSolution, object):
                 self._solution_type = value
             if self._solution_options[value]["options"]:
                 self._odesign.SetSolutionType(
-                    self._solution_options[value]["name"], self._solution_options[value]["options"]
+                    self._solution_options[value]["name"],
+                    self._solution_options[value]["options"],
                 )
             else:
                 try:
                     self._odesign.SetSolutionType(self._solution_options[value]["name"])
                 except:
-                    self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
+                    self._odesign.SetSolutionType(
+                        self._solution_options[value]["name"], ""
+                    )
 
     @property
     def hybrid(self):
@@ -612,7 +905,9 @@ class HFSSDesignSolution(DesignSolution, object):
         if self._aedt_version < "2021.2":
             return False
         if self._hybrid is None and self.solution_type is not None:
-            self._hybrid = "Hybrid" in self._solution_options[self.solution_type]["name"]
+            self._hybrid = (
+                "Hybrid" in self._solution_options[self.solution_type]["name"]
+            )
         return self._hybrid
 
     @hybrid.setter
@@ -621,13 +916,13 @@ class HFSSDesignSolution(DesignSolution, object):
         if self._aedt_version < "2021.2":
             return
         if value and "Hybrid" not in self._solution_options[self.solution_type]["name"]:
-            self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
-                "name"
-            ].replace("HFSS", "HFSS Hybrid")
+            self._solution_options[self.solution_type]["name"] = self._solution_options[
+                self.solution_type
+            ]["name"].replace("HFSS", "HFSS Hybrid")
         else:
-            self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
-                "name"
-            ].replace("HFSS Hybrid", "HFSS")
+            self._solution_options[self.solution_type]["name"] = self._solution_options[
+                self.solution_type
+            ]["name"].replace("HFSS Hybrid", "HFSS")
         self._hybrid = value
         self.solution_type = self.solution_type
 
@@ -637,7 +932,9 @@ class HFSSDesignSolution(DesignSolution, object):
         if self._aedt_version < "2021.2":
             return False
         if self._composite is None and self.solution_type is not None:
-            self._composite = "Composite" in self._solution_options[self.solution_type]["name"]
+            self._composite = (
+                "Composite" in self._solution_options[self.solution_type]["name"]
+            )
         return self._composite
 
     @composite.setter
@@ -646,13 +943,13 @@ class HFSSDesignSolution(DesignSolution, object):
         if self._aedt_version < "2021.2":
             return
         if val:
-            self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
-                "name"
-            ].replace("Network", "Composite")
+            self._solution_options[self.solution_type]["name"] = self._solution_options[
+                self.solution_type
+            ]["name"].replace("Network", "Composite")
         else:
-            self._solution_options[self.solution_type]["name"] = self._solution_options[self.solution_type][
-                "name"
-            ].replace("Composite", "Network")
+            self._solution_options[self.solution_type]["name"] = self._solution_options[
+                self.solution_type
+            ]["name"].replace("Composite", "Network")
         self._composite = val
         self.solution_type = self.solution_type
 
@@ -730,13 +1027,18 @@ class Maxwell2DDesignSolution(DesignSolution, object):
             self._geometry_mode = "XY"
         else:
             self._solution_type = value
-        if self._solution_type in self._solution_options and self._solution_options[self._solution_type]["name"]:
+        if (
+            self._solution_type in self._solution_options
+            and self._solution_options[self._solution_type]["name"]
+        ):
             try:
                 if self._solution_options[self._solution_type]["options"]:
                     opts = self._solution_options[self._solution_type]["options"]
                 else:
                     opts = ""
-                self._odesign.SetSolutionType(self._solution_options[self._solution_type]["name"], opts)
+                self._odesign.SetSolutionType(
+                    self._solution_options[self._solution_type]["name"], opts
+                )
             except:
                 pass
 
@@ -780,7 +1082,9 @@ class IcepakDesignSolution(DesignSolution, object):
             else:
                 self._solution_options[self.solution_type]["default_setup"] = 38
         else:
-            raise AttributeError("Wrong input. Expected values are TemperatureAndFlow, TemperatureOnly and FlowOnly.")
+            raise AttributeError(
+                "Wrong input. Expected values are TemperatureAndFlow, TemperatureOnly and FlowOnly."
+            )
         self.solution_type = self.solution_type
 
     @property

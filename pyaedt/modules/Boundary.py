@@ -3,12 +3,16 @@ This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
 """
 from collections import OrderedDict
 
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, filter_tuple
-from pyaedt.generic.DataHandlers import _dict2arg
-from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
-from pyaedt.generic.DataHandlers import random_string
-from pyaedt.modeler.Object3d import _dim_arg
 from pyaedt.generic.constants import CATEGORIESQ3D
+from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.DataHandlers import random_string
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import filter_tuple
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.modeler.Object3d import _dim_arg
+from pyaedt.modeler.Object3d import EdgePrimitive
+from pyaedt.modeler.Object3d import FacePrimitive
+from pyaedt.modeler.Object3d import VertexPrimitive
 
 
 class BoundaryCommon(object):
@@ -92,9 +96,15 @@ class NativeComponentObject(BoundaryCommon, object):
                         "IconType": "",
                     }
                 ),
-                "GeometryDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-                "DesignDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-                "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+                "GeometryDefinitionParameters": OrderedDict(
+                    {"VariableOrders": OrderedDict({})}
+                ),
+                "DesignDefinitionParameters": OrderedDict(
+                    {"VariableOrders": OrderedDict({})}
+                ),
+                "MaterialDefinitionParameters": OrderedDict(
+                    {"VariableOrders": OrderedDict({})}
+                ),
                 "MapInstanceParameters": "DesignVariable",
                 "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
                 + random_string(12, char_set="abcdef0123456789"),
@@ -103,9 +113,15 @@ class NativeComponentObject(BoundaryCommon, object):
                 "ChecksumString": "",
                 "ChecksumHistory": [],
                 "VersionHistory": [],
-                "NativeComponentDefinitionProvider": OrderedDict({"Type": component_type}),
+                "NativeComponentDefinitionProvider": OrderedDict(
+                    {"Type": component_type}
+                ),
                 "InstanceParameters": OrderedDict(
-                    {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""}
+                    {
+                        "GeometryParameters": "",
+                        "MaterialParameters": "",
+                        "DesignParameters": "",
+                    }
                 ),
             }
         )
@@ -164,7 +180,9 @@ class NativeComponentObject(BoundaryCommon, object):
             names = [i for i in self._app.excitations]
         except Exception as e:
             names = []
-        self.antennaname = self._app.modeler.oeditor.InsertNativeComponent(self._get_args())
+        self.antennaname = self._app.modeler.oeditor.InsertNativeComponent(
+            self._get_args()
+        )
         try:
             a = [i for i in self._app.excitations if i not in names]
             self.excitation_name = a[0].split(":")[0]
@@ -186,22 +204,36 @@ class NativeComponentObject(BoundaryCommon, object):
         self.name = "EditNativeComponentDefinitionData"
         self.update_props = OrderedDict({})
         self.update_props["DefinitionName"] = self.props["SubmodelDefinitionName"]
-        self.update_props["GeometryDefinitionParameters"] = self.props["GeometryDefinitionParameters"]
-        self.update_props["DesignDefinitionParameters"] = self.props["DesignDefinitionParameters"]
-        self.update_props["MaterialDefinitionParameters"] = self.props["MaterialDefinitionParameters"]
+        self.update_props["GeometryDefinitionParameters"] = self.props[
+            "GeometryDefinitionParameters"
+        ]
+        self.update_props["DesignDefinitionParameters"] = self.props[
+            "DesignDefinitionParameters"
+        ]
+        self.update_props["MaterialDefinitionParameters"] = self.props[
+            "MaterialDefinitionParameters"
+        ]
         self.update_props["NextUniqueID"] = self.props["NextUniqueID"]
         self.update_props["MoveBackwards"] = self.props["MoveBackwards"]
         self.update_props["DatasetType"] = self.props["DatasetType"]
         self.update_props["DatasetDefinitions"] = self.props["DatasetDefinitions"]
-        self.update_props["NativeComponentDefinitionProvider"] = self.props["NativeComponentDefinitionProvider"]
-        self.update_props["ComponentName"] = self.props["BasicComponentInfo"]["ComponentName"]
+        self.update_props["NativeComponentDefinitionProvider"] = self.props[
+            "NativeComponentDefinitionProvider"
+        ]
+        self.update_props["ComponentName"] = self.props["BasicComponentInfo"][
+            "ComponentName"
+        ]
         self.update_props["Company"] = self.props["BasicComponentInfo"]["Company"]
-        self.update_props["Model Number"] = self.props["BasicComponentInfo"]["Model Number"]
+        self.update_props["Model Number"] = self.props["BasicComponentInfo"][
+            "Model Number"
+        ]
         self.update_props["Help URL"] = self.props["BasicComponentInfo"]["Help URL"]
         self.update_props["Version"] = self.props["BasicComponentInfo"]["Version"]
         self.update_props["Notes"] = self.props["BasicComponentInfo"]["Notes"]
         self.update_props["IconType"] = self.props["BasicComponentInfo"]["IconType"]
-        self._app.modeler.oeditor.EditNativeComponentDefinition(self._get_args(self.update_props))
+        self._app.modeler.oeditor.EditNativeComponentDefinition(
+            self._get_args(self.update_props)
+        )
 
         return True
 
@@ -215,7 +247,9 @@ class NativeComponentObject(BoundaryCommon, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._app.modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.antennaname])
+        self._app.modeler.oeditor.Delete(
+            ["NAME:Selections", "Selections:=", self.antennaname]
+        )
         for el in self._app.native_components:
             if el.component_name == self.component_name:
                 self._app.native_components.remove(el)
@@ -448,49 +482,85 @@ class BoundaryObject(BoundaryCommon, object):
         elif self.type == "HalfSpace":
             self._app.oboundary.EditHalfSpace(self._boundary_name, self._get_args())
         elif self.type == "Multipaction SEE":
-            self._app.oboundary.EditMultipactionSEE(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditMultipactionSEE(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "Fresnel":
-            self._app.oboundary.EditFresnel(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditFresnel(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "Symmetry":
             self._app.oboundary.EditSymmetry(self._boundary_name, self._get_args())
         elif self.type == "Zero Tangential H Field":
-            self._app.oboundary.EditZeroTangentialHField(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditZeroTangentialHField(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "Zero Integrated Tangential H Field":
             self._app.oboundary.EditIntegratedZeroTangentialHField(
                 self._boundary_name, self._get_args()
             )  # pragma: no cover
         elif self.type == "Tangential H Field":
-            self._app.oboundary.EditTangentialHField(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditTangentialHField(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "Insulating":
-            self._app.oboundary.EditInsulating(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditInsulating(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "Independent":
-            self._app.oboundary.EditIndependent(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditIndependent(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "Dependent":
-            self._app.oboundary.EditDependent(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditDependent(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "Band":
-            self._app.omodelsetup.EditMotionSetup(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.omodelsetup.EditMotionSetup(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "InfiniteGround":
-            self._app.oboundary.EditInfiniteGround(self._boundary_name, self._get_args())
+            self._app.oboundary.EditInfiniteGround(
+                self._boundary_name, self._get_args()
+            )
         elif self.type == "ThinConductor":
             self._app.oboundary.EditThinConductor(self._boundary_name, self._get_args())
         elif self.type == "Stationary Wall":
-            self._app.oboundary.EditStationaryWallBoundary(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditStationaryWallBoundary(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "Symmetry Wall":
-            self._app.oboundary.EditSymmetryWallBoundary(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditSymmetryWallBoundary(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "Resistance":
-            self._app.oboundary.EditResistanceBoundary(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditResistanceBoundary(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "Conducting Plate":
-            self._app.oboundary.EditConductingPlateBoundary(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditConductingPlateBoundary(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "Adiabatic Plate":
-            self._app.oboundary.EditAdiabaticPlateBoundary(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditAdiabaticPlateBoundary(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "Network":
-            self._app.oboundary.EditNetworkBoundary(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditNetworkBoundary(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "Grille":
-            self._app.oboundary.EditGrilleBoundary(self._boundary_name, self._get_args())
+            self._app.oboundary.EditGrilleBoundary(
+                self._boundary_name, self._get_args()
+            )
         elif self.type == "Opening":
-            self._app.oboundary.EditOpeningBoundary(self._boundary_name, self._get_args())
+            self._app.oboundary.EditOpeningBoundary(
+                self._boundary_name, self._get_args()
+            )
         elif self.type == "EMLoss":
-            self._app.oboundary.EditEMLoss(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditEMLoss(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "Block":
             self._app.oboundary.EditBlockBoundary(self._boundary_name, self._get_args())
         elif self.type == "SourceIcepak":
@@ -502,18 +572,28 @@ class BoundaryObject(BoundaryCommon, object):
         elif self.type == "Current":
             self._app.oboundary.Current(self._boundary_name, self._get_args())
         elif self.type == "Winding" or self.type == "Winding Group":
-            self._app.oboundary.EditWindingGroup(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditWindingGroup(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "VectorPotential":
-            self._app.oboundary.EditVectorPotential(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditVectorPotential(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "CoilTerminal":
             self._app.oboundary.EditCoilTerminal(self._boundary_name, self._get_args())
         elif self.type == "Coil":
             self._app.oboundary.EditCoil(self._boundary_name, self._get_args())
         elif self.type == "Source":
-            self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditTerminal(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         elif self.type == "Sink":
             self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
-        elif self.type == "SignalNet" or self.type == "GroundNet" or self.type == "FloatingNet":
+        elif (
+            self.type == "SignalNet"
+            or self.type == "GroundNet"
+            or self.type == "FloatingNet"
+        ):
             self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
         elif self.type in ["CircuitPort", "Circuit Port"]:
             self._app.oboundary.EditCircuitPort(self._boundary_name, self._get_args())
@@ -524,7 +604,9 @@ class BoundaryObject(BoundaryCommon, object):
         elif self.type == "SetSBRTxRxSettings":
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())  # pragma: no cover
         elif self.type == "FloquetPort":
-            self._app.oboundary.EditFloquetPort(self._boundary_name, self._get_args())  # pragma: no cover
+            self._app.oboundary.EditFloquetPort(
+                self._boundary_name, self._get_args()
+            )  # pragma: no cover
         else:
             return False  # pragma: no cover
         self._boundary_name = self.name
@@ -546,14 +628,22 @@ class BoundaryObject(BoundaryCommon, object):
             if type(faces) is not list:
                 faces = [faces]
             for f in faces:
-                if type(f) is EdgePrimitive or type(f) is FacePrimitive or type(f) is VertexPrimitive:
+                if (
+                    type(f) is EdgePrimitive
+                    or type(f) is FacePrimitive
+                    or type(f) is VertexPrimitive
+                ):
                     faces_out.append(f.id)
                 else:
                     faces_out.append(f)
-            self._app.oboundary.ReassignBoundary(["Name:" + self.name, "Faces:=", faces_out])
+            self._app.oboundary.ReassignBoundary(
+                ["Name:" + self.name, "Faces:=", faces_out]
+            )
         elif "Objects" in self.props:
 
-            self._app.oboundary.ReassignBoundary(["Name:" + self.name, "Objects:=", self.props["Objects"]])
+            self._app.oboundary.ReassignBoundary(
+                ["Name:" + self.name, "Objects:=", self.props["Objects"]]
+            )
         else:
             return False
         return True
@@ -698,7 +788,14 @@ class FarFieldSetup(FieldSetup, object):
         actual_defs = None
         defs = None
         if actual_value != value and value == "Theta-Phi":
-            defs = ["ThetaStart", "ThetaStop", "ThetaStep", "PhiStart", "PhiStop", "PhiStep"]
+            defs = [
+                "ThetaStart",
+                "ThetaStop",
+                "ThetaStep",
+                "PhiStart",
+                "PhiStop",
+                "PhiStep",
+            ]
             actual_defs = [
                 "AzimuthStart",
                 "AzimuthStop",
@@ -708,9 +805,23 @@ class FarFieldSetup(FieldSetup, object):
                 "ElevationStep",
             ]
         elif actual_value != value and value == "El Over Az":
-            defs = ["AzimuthStart", "AzimuthStop", "AzimuthStep", "ElevationStart", "ElevationStop", "ElevationStep"]
+            defs = [
+                "AzimuthStart",
+                "AzimuthStop",
+                "AzimuthStep",
+                "ElevationStart",
+                "ElevationStop",
+                "ElevationStep",
+            ]
             if actual_value == "Theta-Phi":
-                actual_defs = ["ThetaStart", "ThetaStop", "ThetaStep", "PhiStart", "PhiStop", "PhiStep"]
+                actual_defs = [
+                    "ThetaStart",
+                    "ThetaStop",
+                    "ThetaStep",
+                    "PhiStart",
+                    "PhiStop",
+                    "PhiStep",
+                ]
             else:
                 actual_defs = [
                     "AzimuthStart",
@@ -721,9 +832,23 @@ class FarFieldSetup(FieldSetup, object):
                     "ElevationStep",
                 ]
         elif actual_value != value:
-            defs = ["ElevationStart", "ElevationStop", "ElevationStep", "AzimuthStart", "AzimuthStop", "AzimuthStep"]
+            defs = [
+                "ElevationStart",
+                "ElevationStop",
+                "ElevationStep",
+                "AzimuthStart",
+                "AzimuthStop",
+                "AzimuthStep",
+            ]
             if actual_value == "Theta-Phi":
-                actual_defs = ["ThetaStart", "ThetaStop", "ThetaStep", "PhiStart", "PhiStop", "PhiStep"]
+                actual_defs = [
+                    "ThetaStart",
+                    "ThetaStop",
+                    "ThetaStep",
+                    "PhiStart",
+                    "PhiStop",
+                    "PhiStep",
+                ]
             else:
                 actual_defs = [
                     "ElevationStart",
@@ -1040,9 +1165,15 @@ class Matrix(object):
         """
         if self.name in list(self._app.omatrix.ListReduceMatrixes()):
             if self._app.design_type == "Q3D Extractor":
-                self._sources = list(self._app.omatrix.ListReduceMatrixReducedSources(self.name, is_gc_sources))
+                self._sources = list(
+                    self._app.omatrix.ListReduceMatrixReducedSources(
+                        self.name, is_gc_sources
+                    )
+                )
             else:
-                self._sources = list(self._app.omatrix.ListReduceMatrixReducedSources(self.name))
+                self._sources = list(
+                    self._app.omatrix.ListReduceMatrixReducedSources(self.name)
+                )
         return self._sources
 
     @aedt_exception_handler
@@ -1099,7 +1230,9 @@ class Matrix(object):
                 for el2 in self.sources(is_gc_sources=is_cg):
                     if el1 != el2:
                         value = "{}({},{})".format(category, el1, el2)
-                        if filter_tuple(value, first_element_filter, second_element_filter):
+                        if filter_tuple(
+                            value, first_element_filter, second_element_filter
+                        ):
                             list_output.append(value)
         return list_output
 
@@ -1181,7 +1314,9 @@ class Matrix(object):
             for el in self._app.boundaries:
                 if el.name == source_names[0]:
                     new_name = el.props["Net"]
-            command = "{}('{}', '{}')".format(self._operations[-1], new_name, "', '".join(source_names))
+            command = "{}('{}', '{}')".format(
+                self._operations[-1], new_name, "', '".join(source_names)
+            )
         elif self._operations[-1] == "JoinParallel":
             new_name = generate_unique_name(source_names[0])
             for el in self._app.boundaries:
@@ -1190,10 +1325,16 @@ class Matrix(object):
             new_source = source_names[0]
             new_sink = generate_unique_name("Sink")
             command = "{}('{}', '{}', '{}', '{}')".format(
-                self._operations[-1], new_name, new_source, new_sink, "', '".join(source_names)
+                self._operations[-1],
+                new_name,
+                new_source,
+                new_sink,
+                "', '".join(source_names),
             )
         elif self._operations[-1] == "JoinSelectedTerminals":
-            command = "{}('', '{}')".format(self._operations[-1], "', '".join(source_names))
+            command = "{}('', '{}')".format(
+                self._operations[-1], "', '".join(source_names)
+            )
         elif self._operations[-1] == "FloatInfinity":
             command = "FloatInfinity()"
         elif self._operations[-1] == "AddGround":
@@ -1215,7 +1356,11 @@ class Matrix(object):
                 if el.name == source_names[0]:
                     id = self._app.modeler[el.props["Objects"][0]].id
             command = "{}(SelectionArray[{}: '{}'], OverrideInfo({}, '{}'))".format(
-                self._operations[-1], len(source_names), "', '".join(source_names), id, pair_name
+                self._operations[-1],
+                len(source_names),
+                "', '".join(source_names),
+                id,
+                pair_name,
             )
         else:
             command = "{}('{}')".format(self._operations[-1], "', '".join(source_names))

@@ -1,13 +1,15 @@
 import csv
 import os
+import tempfile
 import time
 import warnings
 from datetime import datetime
 
 from pyaedt import aedt_exception_handler
-from pyaedt.generic.constants import CSS4_COLORS, AEDT_UNITS
-from pyaedt.generic.general_methods import is_ironpython, convert_remote_object
-import tempfile
+from pyaedt.generic.constants import AEDT_UNITS
+from pyaedt.generic.constants import CSS4_COLORS
+from pyaedt.generic.general_methods import convert_remote_object
+from pyaedt.generic.general_methods import is_ironpython
 
 if not is_ironpython:
     try:
@@ -77,7 +79,15 @@ def is_float(istring):
         return 0
 
 
-def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
+def plot_matplotlib(
+    plot_data,
+    size=(2000, 1000),
+    show_legend=True,
+    xlabel="",
+    ylabel="",
+    title="",
+    snapshot_path=None,
+):
     """Create a matplotlib plot based on a list of data.
 
     Parameters
@@ -107,7 +117,9 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
         plot_data = convert_remote_object(plot_data)
     for object in plot_data:
         if object[-1] == "fill":
-            plt.fill(object[0], object[1], c=object[2], label=object[3], alpha=object[4])
+            plt.fill(
+                object[0], object[1], c=object[2], label=object[3], alpha=object[4]
+            )
         elif object[-1] == "path":
             path = Path(object[0], object[1])
             patch = PathPatch(path, color=object[2], alpha=object[4], label=object[3])
@@ -391,7 +403,9 @@ class ModelPlotter(object):
         self._zoom = value
 
     @aedt_exception_handler
-    def set_orientation(self, camera_position="xy", roll_angle=0, azimuth_angle=45, elevation_angle=20):
+    def set_orientation(
+        self, camera_position="xy", roll_angle=0, azimuth_angle=45, elevation_angle=20
+    ):
         """Change the plot default orientation.
 
         Parameters
@@ -633,7 +647,14 @@ class ModelPlotter(object):
         """
         self._fields.append(
             FieldClass(
-                None, log_scale, coordinate_units, opacity, color_map, label_name, surface_mapping_tolerance, show_edges
+                None,
+                log_scale,
+                coordinate_units,
+                opacity,
+                color_map,
+                label_name,
+                surface_mapping_tolerance,
+                show_edges,
             )
         )
         vertices = np.array(coordinates)
@@ -643,7 +664,9 @@ class ModelPlotter(object):
         self.fields[-1]._cached_polydata = filedata
 
     @aedt_exception_handler
-    def _triangle_vertex(self, elements_nodes, num_nodes_per_element, take_all_nodes=True):
+    def _triangle_vertex(
+        self, elements_nodes, num_nodes_per_element, take_all_nodes=True
+    ):
         trg_vertex = []
         if num_nodes_per_element == 10 and take_all_nodes:
             for e in elements_nodes:
@@ -703,7 +726,9 @@ class ModelPlotter(object):
                 filedata = pv.read(cad.path)
                 cad._cached_polydata = filedata
             color_cad = [i / 255 for i in cad.color]
-            cad._cached_mesh = self.pv.add_mesh(cad._cached_polydata, color=color_cad, opacity=cad.opacity)
+            cad._cached_mesh = self.pv.add_mesh(
+                cad._cached_polydata, color=color_cad, opacity=cad.opacity
+            )
         obj_to_iterate = [i for i in self._fields]
         if read_frames:
             for i in self.frames:
@@ -752,12 +777,17 @@ class ModelPlotter(object):
                                 sols = sols[3:]
                                 sols = [
                                     sols[i : i + num_solution_per_element]
-                                    for i in range(0, len(sols), num_solution_per_element)
+                                    for i in range(
+                                        0, len(sols), num_solution_per_element
+                                    )
                                 ]
-                                solution = [sum(i) / num_solution_per_element for i in sols]
+                                solution = [
+                                    sum(i) / num_solution_per_element for i in sols
+                                ]
 
                         nodes = [
-                            [nodes_list[i], nodes_list[i + 1], nodes_list[i + 2]] for i in range(0, len(nodes_list), 3)
+                            [nodes_list[i], nodes_list[i + 1], nodes_list[i + 2]]
+                            for i in range(0, len(nodes_list), 3)
                         ]
                         num_nodes = elements[0]
                         num_elements = elements[1]
@@ -767,14 +797,24 @@ class ModelPlotter(object):
                         hl = 5  # header length
                         elements_nodes = []
                         for i in range(0, len(elements), num_nodes_per_element + hl):
-                            elements_nodes.append([elements[i + hl + n] for n in range(num_nodes_per_element)])
+                            elements_nodes.append(
+                                [
+                                    elements[i + hl + n]
+                                    for n in range(num_nodes_per_element)
+                                ]
+                            )
                         if solution:
                             take_all_nodes = True  # solution case
                         else:
                             take_all_nodes = False  # mesh case
-                        trg_vertex = self._triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes)
+                        trg_vertex = self._triangle_vertex(
+                            elements_nodes, num_nodes_per_element, take_all_nodes
+                        )
                         # remove duplicates
-                        nodup_list = [list(i) for i in list(set([frozenset(t) for t in trg_vertex]))]
+                        nodup_list = [
+                            list(i)
+                            for i in list(set([frozenset(t) for t in trg_vertex]))
+                        ]
                         sols_vertex = []
                         if solution:
                             sv = {}
@@ -829,7 +869,9 @@ class ModelPlotter(object):
                             conv = 1
                         vertices = np.array(nodes) * conv
                         filedata = pv.PolyData(vertices)
-                        filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
+                        filedata = filedata.delaunay_2d(
+                            tol=field.surface_mapping_tolerance
+                        )
                         filedata.point_data[field.label] = np.array(values)
                         field._cached_polydata = filedata
 
@@ -863,7 +905,9 @@ class ModelPlotter(object):
                 self.endpos = 100
                 self.size = int(plot.window_size[1] / 40)
                 self.startpos = plot.window_size[1] - 2 * self.size
-                self.max_elements = (self.startpos - self.endpos) // (self.size + (self.size // 10))
+                self.max_elements = (self.startpos - self.endpos) // (
+                    self.size + (self.size // 10)
+                )
                 self.i = self.max_elements
                 self.axes_color = axes_color
 
@@ -923,7 +967,12 @@ class ModelPlotter(object):
                     )
                 )
                 texts.append(
-                    self.pv.add_text(actor.name, position=(50.0, startpos + 50), font_size=size // 3, color=axes_color)
+                    self.pv.add_text(
+                        actor.name,
+                        position=(50.0, startpos + 50),
+                        font_size=size // 3,
+                        color=axes_color,
+                    )
                 )
                 startpos = startpos - size - (size // 10)
                 el += 1
@@ -943,7 +992,12 @@ class ModelPlotter(object):
                     )
                 )
                 texts.append(
-                    self.pv.add_text(actor.name, position=(50.0, startpos + 50), font_size=size // 3, color=axes_color)
+                    self.pv.add_text(
+                        actor.name,
+                        position=(50.0, startpos + 50),
+                        font_size=size // 3,
+                        color=axes_color,
+                    )
                 )
                 startpos = startpos - size - (size // 10)
                 el += 1
@@ -959,9 +1013,17 @@ class ModelPlotter(object):
                 color_on=axes_color,
                 color_off=axes_color,
             )
-            self.pv.add_text("Next", position=(50.0, self.pv.window_size[1]), font_size=size // 3, color="grey")
+            self.pv.add_text(
+                "Next",
+                position=(50.0, self.pv.window_size[1]),
+                font_size=size // 3,
+                color="grey",
+            )
             self.pv.button_widgets.insert(
-                0, self.pv.button_widgets.pop(self.pv.button_widgets.index(self.pv.button_widgets[-1]))
+                0,
+                self.pv.button_widgets.pop(
+                    self.pv.button_widgets.index(self.pv.button_widgets[-1])
+                ),
             )
 
     @aedt_exception_handler
@@ -979,7 +1041,11 @@ class ModelPlotter(object):
         bool
         """
         start = time.time()
-        self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+        self.pv = pv.Plotter(
+            notebook=self.is_notebook,
+            off_screen=self.off_screen,
+            window_size=self.windows_size,
+        )
         self.pv.background_color = [i / 255 for i in self.background_color]
         self._read_mesh_files()
 
@@ -1055,7 +1121,10 @@ class ModelPlotter(object):
         def s_callback():  # pragma: no cover
             """save screenshots"""
             exp = os.path.join(
-                path_image, "{}{}{}".format(root_name, datetime.now().strftime("%Y_%M_%d_%H-%M-%S"), format)
+                path_image,
+                "{}{}{}".format(
+                    root_name, datetime.now().strftime("%Y_%M_%d_%H-%M-%S"), format
+                ),
             )
             self.pv.screenshot(exp, return_img=False)
 
@@ -1071,7 +1140,9 @@ class ModelPlotter(object):
         return True
 
     @aedt_exception_handler
-    def clean_cache_and_files(self, remove_objs=True, remove_fields=True, clean_cache=False):
+    def clean_cache_and_files(
+        self, remove_objs=True, remove_fields=True, clean_cache=False
+    ):
         """Clean downloaded files, and, on demand, also the cached meshes.
 
         Parameters
@@ -1109,11 +1180,21 @@ class ModelPlotter(object):
         bool
         """
         start = time.time()
-        assert len(self.frames) > 0, "Number of Fields have to be greater than 1 to do an animation."
+        assert (
+            len(self.frames) > 0
+        ), "Number of Fields have to be greater than 1 to do an animation."
         if self.is_notebook:
-            self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)
+            self.pv = pv.Plotter(
+                notebook=self.is_notebook,
+                off_screen=True,
+                window_size=self.windows_size,
+            )
         else:
-            self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+            self.pv = pv.Plotter(
+                notebook=self.is_notebook,
+                off_screen=self.off_screen,
+                window_size=self.windows_size,
+            )
 
         self.pv.background_color = [i / 255 for i in self.background_color]
         self._read_mesh_files(read_frames=True)
@@ -1133,7 +1214,9 @@ class ModelPlotter(object):
                 labels.append([m.name, [i / 255 for i in m.color]])
             for m in self.fields:
                 labels.append([m.name, "red"])
-            self.pv.add_legend(labels=labels, bcolor=None, face="circle", size=[0.15, 0.15])
+            self.pv.add_legend(
+                labels=labels, bcolor=None, face="circle", size=[0.15, 0.15]
+            )
         if not self.isometric_view:
             self.pv.camera_position = self.camera_position
             self.pv.camera.azimuth += self.azimuth_angle
@@ -1158,7 +1241,10 @@ class ModelPlotter(object):
             self._pause = not self._pause
 
         self.pv.add_text(
-            "Press p for Play/Pause, Press q to exit ", font_size=8, position="upper_left", color=tuple(axes_color)
+            "Press p for Play/Pause, Press q to exit ",
+            font_size=8,
+            position="upper_left",
+            color=tuple(axes_color),
         )
         self.pv.add_text(" ", font_size=10, position=[0, 0], color=tuple(axes_color))
         self.pv.add_key_event("q", q_callback)
@@ -1192,7 +1278,9 @@ class ModelPlotter(object):
         if self.pv.mesh:
             self.pv.set_focus(self.pv.mesh.center)
 
-        cpos = self.pv.show(interactive=False, auto_close=False, interactive_update=not self.off_screen)
+        cpos = self.pv.show(
+            interactive=False, auto_close=False, interactive_update=not self.off_screen
+        )
 
         if self.range_min is not None and self.range_max is not None:
             mins = self.range_min

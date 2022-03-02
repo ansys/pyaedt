@@ -3,14 +3,13 @@ This module contains the `PostProcessor` class.
 
 It contains all advanced postprocessing functionalities that require Python 3.x packages like NumPy and Matplotlib.
 """
-from __future__ import absolute_import
-
 import math
 import os
 import time
 import warnings
 
-from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.plot import ModelPlotter
 from pyaedt.modules.PostProcessor import PostProcessor as Post
 
@@ -86,11 +85,15 @@ class PostProcessor(Post):
             Jupyter notebook image.
 
         """
-        file_name = self.export_model_picture(show_axis=show_axis, show_grid=show_grid, show_ruler=show_ruler)
+        file_name = self.export_model_picture(
+            show_axis=show_axis, show_grid=show_grid, show_ruler=show_ruler
+        )
         return Image(file_name, width=500)
 
     @aedt_exception_handler
-    def get_efields_data(self, setup_sweep_name="", ff_setup="Infinite Sphere1", freq="All"):
+    def get_efields_data(
+        self, setup_sweep_name="", ff_setup="Infinite Sphere1", freq="All"
+    ):
         """Compute Etheta and EPhi.
 
         .. warning::
@@ -120,7 +123,9 @@ class PostProcessor(Post):
         all_sources_with_modes = [s + ":1" for s in all_sources]
 
         for n, source in enumerate(all_sources_with_modes):
-            edit_sources_ctxt = [["IncludePortPostProcessing:=", False, "SpecifySystemPower:=", False]]
+            edit_sources_ctxt = [
+                ["IncludePortPostProcessing:=", False, "SpecifySystemPower:=", False]
+            ]
             for m, each in enumerate(all_sources_with_modes):
                 if n == m:  # set only 1 source to 1W, all the rest to 0
                     mag = 1
@@ -128,7 +133,14 @@ class PostProcessor(Post):
                     mag = 0
                 phase = 0
                 edit_sources_ctxt.append(
-                    ["Name:=", "{}".format(each), "Magnitude:=", "{}W".format(mag), "Phase:=", "{}deg".format(phase)]
+                    [
+                        "Name:=",
+                        "{}".format(each),
+                        "Magnitude:=",
+                        "{}W".format(mag),
+                        "Phase:=",
+                        "{}deg".format(phase),
+                    ]
                 )
             self.post_osolution.EditSources(edit_sources_ctxt)
 
@@ -138,7 +150,9 @@ class PostProcessor(Post):
 
             trace_name = "rETheta"
             solnData = self.get_far_field_data(
-                setup_sweep_name=setup_sweep_name, domain=ff_setup, expression=trace_name
+                setup_sweep_name=setup_sweep_name,
+                domain=ff_setup,
+                expression=trace_name,
             )
 
             data = solnData.nominal_variation
@@ -148,14 +162,20 @@ class PostProcessor(Post):
             # phi is outer loop
             theta_unique = np.unique(theta_vals)
             phi_unique = np.unique(phi_vals)
-            theta_range = np.linspace(np.min(theta_vals), np.max(theta_vals), np.size(theta_unique))
-            phi_range = np.linspace(np.min(phi_vals), np.max(phi_vals), np.size(phi_unique))
+            theta_range = np.linspace(
+                np.min(theta_vals), np.max(theta_vals), np.size(theta_unique)
+            )
+            phi_range = np.linspace(
+                np.min(phi_vals), np.max(phi_vals), np.size(phi_unique)
+            )
             real_theta = np.array(data.GetRealDataValues(trace_name))
             imag_theta = np.array(data.GetImagDataValues(trace_name))
 
             trace_name = "rEPhi"
             solnData = self.get_far_field_data(
-                setup_sweep_name=setup_sweep_name, domain=ff_setup, expression=trace_name
+                setup_sweep_name=setup_sweep_name,
+                domain=ff_setup,
+                expression=trace_name,
             )
             data = solnData.nominal_variation
 
@@ -165,7 +185,12 @@ class PostProcessor(Post):
             Etheta = np.vectorize(complex)(real_theta, imag_theta)
             Ephi = np.vectorize(complex)(real_phi, imag_phi)
             source_name_without_mode = source.replace(":1", "")
-            results_dict[source_name_without_mode] = [theta_range, phi_range, Etheta, Ephi]
+            results_dict[source_name_without_mode] = [
+                theta_range,
+                phi_range,
+                Etheta,
+                Ephi,
+            ]
         return results_dict
 
     @aedt_exception_handler
@@ -237,21 +262,27 @@ class PostProcessor(Post):
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
-        assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
+        assert self._app._aedt_version >= "2021.2", self.logger.error(
+            "Object is supported from AEDT 2021 R2."
+        )
         files = self.export_model_obj(
             obj_list=objects,
             export_as_single_objects=plot_as_separate_objects,
             air_objects=plot_air_objects,
         )
         if not files:
-            self.logger.warning("No Objects exported. Try other options or include Air objects.")
+            self.logger.warning(
+                "No Objects exported. Try other options or include Air objects."
+            )
             return False
 
         model = ModelPlotter()
 
         for file in files:
             if force_opacity_value:
-                model.add_object(file[0], file[1], force_opacity_value, self.modeler.model_units)
+                model.add_object(
+                    file[0], file[1], force_opacity_value, self.modeler.model_units
+                )
             else:
                 model.add_object(file[0], file[1], file[2], self.modeler.model_units)
         if not show:
@@ -329,13 +360,19 @@ class PostProcessor(Post):
             return False
         else:
             if self._app._aedt_version >= "2021.2":
-                models = self.export_model_obj(export_as_single_objects=True, air_objects=False)
+                models = self.export_model_obj(
+                    export_as_single_objects=True, air_objects=False
+                )
 
         model = ModelPlotter()
         model.off_screen = not show
 
         if file_to_add:
-            model.add_field_from_file(file_to_add, coordinate_units=self.modeler.model_units, show_edges=meshplot)
+            model.add_field_from_file(
+                file_to_add,
+                coordinate_units=self.modeler.model_units,
+                show_edges=meshplot,
+            )
             if plot_label:
                 model.fields[0].label = plot_label
         if models:
@@ -347,7 +384,9 @@ class PostProcessor(Post):
             model.range_min = scale_min
             model.range_max = scale_max
         if show or project_path:
-            model.plot(os.path.join(project_path, self._app.project_name + "." + imageformat))
+            model.plot(
+                os.path.join(project_path, self._app.project_name + "." + imageformat)
+            )
             model.clean_cache_and_files(clean_cache=False)
 
         return model
@@ -403,7 +442,9 @@ class PostProcessor(Post):
         models_to_add = []
         if meshplot:
             if self._app._aedt_version >= "2021.2":
-                models_to_add = self.export_model_obj(export_as_single_objects=True, air_objects=False)
+                models_to_add = self.export_model_obj(
+                    export_as_single_objects=True, air_objects=False
+                )
         fields_to_add = []
         if not project_path:
             project_path = self._app.working_directory
@@ -414,12 +455,17 @@ class PostProcessor(Post):
                     [
                         "NAME:FieldsPostProcessorTab",
                         ["NAME:PropServers", "FieldsReporter:" + plotname],
-                        ["NAME:ChangedProps", ["NAME:" + variation_variable, "Value:=", el]],
+                        [
+                            "NAME:ChangedProps",
+                            ["NAME:" + variation_variable, "Value:=", el],
+                        ],
                     ],
                 ]
             )
             fields_to_add.append(
-                self.export_field_plot(plotname, project_path, plotname + variation_variable + str(el))
+                self.export_field_plot(
+                    plotname, project_path, plotname + variation_variable + str(el)
+                )
             )
 
         model = ModelPlotter()
@@ -430,7 +476,9 @@ class PostProcessor(Post):
         if fields_to_add:
             model.add_frames_from_file(fields_to_add)
         if export_gif:
-            model.gif_file = os.path.join(self._app.working_directory, self._app.project_name + ".gif")
+            model.gif_file = os.path.join(
+                self._app.working_directory, self._app.project_name + ".gif"
+            )
 
         if show or export_gif:
             model.animate()
@@ -501,19 +549,29 @@ class PostProcessor(Post):
         models_to_add = []
         if meshplot:
             if self._app._aedt_version >= "2021.2":
-                models_to_add = self.export_model_obj(export_as_single_objects=True, air_objects=False)
+                models_to_add = self.export_model_obj(
+                    export_as_single_objects=True, air_objects=False
+                )
         v = 0
         fields_to_add = []
         for el in variation_list:
             intrinsic_dict[variation_variable] = el
             if plottype == "Surface":
-                plotf = self.create_fieldplot_surface(object_list, quantityname, setup_name, intrinsic_dict)
+                plotf = self.create_fieldplot_surface(
+                    object_list, quantityname, setup_name, intrinsic_dict
+                )
             elif plottype == "Volume":
-                plotf = self.create_fieldplot_volume(object_list, quantityname, setup_name, intrinsic_dict)
+                plotf = self.create_fieldplot_volume(
+                    object_list, quantityname, setup_name, intrinsic_dict
+                )
             else:
-                plotf = self.create_fieldplot_cutplane(object_list, quantityname, setup_name, intrinsic_dict)
+                plotf = self.create_fieldplot_cutplane(
+                    object_list, quantityname, setup_name, intrinsic_dict
+                )
             if plotf:
-                file_to_add = self.export_field_plot(plotf.name, project_path, plotf.name + str(v))
+                file_to_add = self.export_field_plot(
+                    plotf.name, project_path, plotf.name + str(v)
+                )
                 if file_to_add:
                     fields_to_add.append(file_to_add)
                 plotf.delete()
@@ -526,7 +584,9 @@ class PostProcessor(Post):
         if fields_to_add:
             model.add_frames_from_file(fields_to_add)
         if export_gif:
-            model.gif_file = os.path.join(self._app.working_directory, self._app.project_name + ".gif")
+            model.gif_file = os.path.join(
+                self._app.working_directory, self._app.project_name + ".gif"
+            )
         if show or export_gif:
             model.animate()
             model.clean_cache_and_files(clean_cache=False)
@@ -534,7 +594,9 @@ class PostProcessor(Post):
         return model
 
     @aedt_exception_handler
-    def far_field_plot(self, ff_data, x=0, y=0, qty="rETotal", dB=True, array_size=[4, 4]):
+    def far_field_plot(
+        self, ff_data, x=0, y=0, qty="rETotal", dB=True, array_size=[4, 4]
+    ):
         """Generate a far field plot.
 
         Parameters
@@ -573,7 +635,9 @@ class PostProcessor(Post):
                 mag_val = mag[m][n]
                 ang = np.radians(xphase * m) + np.radians(yphase * n)
                 weight[m][n] = np.sqrt(mag_val) * np.exp(1j * ang)
-                current_index_str = "[" + str(m + 1 + loc_offset) + "," + str(n + 1 + loc_offset) + "]"
+                current_index_str = (
+                    "[" + str(m + 1 + loc_offset) + "," + str(n + 1 + loc_offset) + "]"
+                )
                 port_name = [y for y in all_ports if current_index_str in y]
                 w_dict[port_name[0]] = weight[m][n]
 
@@ -599,7 +663,11 @@ class PostProcessor(Post):
 
             theta_range = ff_data[port][0]
             phi_range = ff_data[port][1]
-            theta = [int(np.min(theta_range)), int(np.max(theta_range)), np.size(theta_range)]
+            theta = [
+                int(np.min(theta_range)),
+                int(np.max(theta_range)),
+                np.size(theta_range),
+            ]
             phi = [int(np.min(phi_range)), int(np.max(phi_range)), np.size(phi_range)]
             Ntheta = len(theta_range)
             Nphi = len(phi_range)
@@ -613,7 +681,9 @@ class PostProcessor(Post):
         all_qtys = {}
         all_qtys["rEPhi"] = rEphi_fields
         all_qtys["rETheta"] = rEtheta_fields
-        all_qtys["rETotal"] = np.sqrt(np.power(np.abs(rEphi_fields), 2) + np.power(np.abs(rEtheta_fields), 2))
+        all_qtys["rETotal"] = np.sqrt(
+            np.power(np.abs(rEphi_fields), 2) + np.power(np.abs(rEtheta_fields), 2)
+        )
 
         pin = np.sum(w)
         print(str(pin))
@@ -642,7 +712,12 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def create_3d_plot(
-        self, solution_data, nominal_sweep="Freq", nominal_value=1, primary_sweep="Theta", secondary_sweep="Phi"
+        self,
+        solution_data,
+        nominal_sweep="Freq",
+        nominal_value=1,
+        primary_sweep="Theta",
+        secondary_sweep="Phi",
     ):
         """Create a 3D plot using Matplotlib.
 
@@ -689,6 +764,14 @@ class PostProcessor(Post):
         fig1 = plt.figure()
         ax1 = fig1.add_subplot(1, 1, 1, projection="3d")
         plot = ax1.plot_surface(
-            X, Y, Z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.5
+            X,
+            Y,
+            Z,
+            rstride=1,
+            cstride=1,
+            cmap=plt.get_cmap("jet"),
+            linewidth=0,
+            antialiased=True,
+            alpha=0.5,
         )
         fig1.set_size_inches(10, 10)

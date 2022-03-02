@@ -116,10 +116,16 @@ def change_objects_visibility(origfile, solid_list):
 
             # Searching file content for pattern
             pattern = re.compile(
-                r"(\$begin 'EditorWindow'\n.+)(Drawings\[.+\])(.+\n\s*\$end 'EditorWindow')", re.UNICODE
+                r"(\$begin 'EditorWindow'\n.+)(Drawings\[.+\])(.+\n\s*\$end 'EditorWindow')",
+                re.UNICODE,
             )
             # Replacing string
-            ViewStr = u"Drawings[" + unicode(str(len(solid_list))) + u": " + unicode(str(solid_list).strip("["))
+            ViewStr = (
+                u"Drawings["
+                + unicode(str(len(solid_list)))
+                + u": "
+                + unicode(str(solid_list).strip("["))
+            )
             s = pattern.sub(r"\1" + ViewStr + r"\3", content)
 
             # writing file content
@@ -185,7 +191,8 @@ def change_model_orientation(origfile, bottom_dir):
 
             # Searching file content for pattern
             pattern = re.compile(
-                r"(\$begin 'EditorWindow'\n.+?)(OrientationMatrix\(.+?\))(.+\n\s*\$end 'EditorWindow')", re.UNICODE
+                r"(\$begin 'EditorWindow'\n.+?)(OrientationMatrix\(.+?\))(.+\n\s*\$end 'EditorWindow')",
+                re.UNICODE,
             )
             # Replacing string
             OrientStr = unicode(orientation[bottom_dir])

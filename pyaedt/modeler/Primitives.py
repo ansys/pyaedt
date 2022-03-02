@@ -1,18 +1,23 @@
 """
 This module contains these Primitives classes: `Polyline` and `Primitives`.
 """
-from __future__ import absolute_import
-
 import math
 import os
 import time
 from collections import OrderedDict
 
 from pyaedt.application.Variables import Variable
-from pyaedt.generic.general_methods import aedt_exception_handler, is_number, _retry_ntimes
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, Object3d, _dim_arg, _uname, Point
 from pyaedt.generic.constants import PLANE
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import is_number
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.Object3d import _dim_arg
+from pyaedt.modeler.Object3d import _uname
+from pyaedt.modeler.Object3d import EdgePrimitive
+from pyaedt.modeler.Object3d import FacePrimitive
+from pyaedt.modeler.Object3d import Object3d
+from pyaedt.modeler.Object3d import Point
 
 default_materials = {
     "Icepak": "air",
@@ -66,7 +71,15 @@ class PolylineSegment:
     """
 
     @aedt_exception_handler
-    def __init__(self, type, num_seg=0, num_points=0, arc_angle=0, arc_center=None, arc_plane=None):
+    def __init__(
+        self,
+        type,
+        num_seg=0,
+        num_points=0,
+        arc_angle=0,
+        arc_center=None,
+        arc_plane=None,
+    ):
 
         valid_types = ["Line", "Arc", "Spline", "AngularArc"]
         assert type in valid_types, "Segment type must be in {}.".format(valid_types)
@@ -215,9 +228,13 @@ class Polyline(Object3d):
                 flag = "NonModel#"
             else:
                 flag = ""
-            varg2 = self._primitives._default_object_attributes(name=name, matname=matname, flags=flag)
+            varg2 = self._primitives._default_object_attributes(
+                name=name, matname=matname, flags=flag
+            )
 
-            new_object_name = _retry_ntimes(10, self.m_Editor.CreatePolyline, varg1, varg2)
+            new_object_name = _retry_ntimes(
+                10, self.m_Editor.CreatePolyline, varg1, varg2
+            )
 
             Object3d.__init__(self, primitives, name=new_object_name)
             self._primitives.objects[self.id] = self
@@ -312,7 +329,9 @@ class Polyline(Object3d):
         if not segment_types:
             segment_types = [PolylineSegment("Line")] * (len(position_list) - 1)
         elif isinstance(segment_types, str):
-            segment_types = [PolylineSegment(segment_types, num_points=len(position_list))]
+            segment_types = [
+                PolylineSegment(segment_types, num_points=len(position_list))
+            ]
         elif isinstance(segment_types, PolylineSegment):
             segment_types = [segment_types]
         elif isinstance(segment_types, list):
@@ -359,7 +378,9 @@ class Polyline(Object3d):
 
             if current_segment:
                 seg_str = self._segment_array(
-                    current_segment, start_index=index_count, start_point=position_list[pos_count]
+                    current_segment,
+                    start_index=index_count,
+                    start_point=position_list[pos_count],
                 )
                 segment_str.append(seg_str)
 
@@ -367,7 +388,9 @@ class Polyline(Object3d):
                 for i in range(1, current_segment.num_points):
 
                     if current_segment.type == "AngularArc":
-                        points_str.append(self._pl_point(current_segment.extra_points[i - 1]))
+                        points_str.append(
+                            self._pl_point(current_segment.extra_points[i - 1])
+                        )
                         index_count += 1
                     else:
                         if (pos_count + i) == len(position_list):
@@ -450,7 +473,9 @@ class Polyline(Object3d):
                 elif c_xyz[2] == p0_xyz[2]:
                     plane_def = ("XY", plane_axes["XY"])
                 else:
-                    raise ("Start point and arc-center do not lie on a common base plane.")
+                    raise (
+                        "Start point and arc-center do not lie on a common base plane."
+                    )
 
             mod_units = self._primitives.model_units
             seg += [
@@ -475,7 +500,9 @@ class Polyline(Object3d):
             p0_beta = p0_xyz[beta_index] - c_beta
 
             # rotate to generate the new points
-            arc_ang_rad = self._primitives._app.evaluate_expression(segment_data.arc_angle)
+            arc_ang_rad = self._primitives._app.evaluate_expression(
+                segment_data.arc_angle
+            )
             rot_angle = arc_ang_rad * 0.5
             p1_alph = p0_alph * math.cos(rot_angle) + p0_beta * math.sin(rot_angle)
             p1_beta = p0_beta * math.cos(rot_angle) - p0_alph * math.sin(rot_angle)
@@ -575,19 +602,25 @@ class Polyline(Object3d):
         """
         found_vertex = False
         if self._primitives._app._is_object_oriented_enabled():
-            obj = self._primitives._oeditor.GetChildObject(self._m_name).GetChildObject("CreatePolyline:1")
+            obj = self._primitives._oeditor.GetChildObject(self._m_name).GetChildObject(
+                "CreatePolyline:1"
+            )
             segments = obj.GetChildNames()
             seg_id = 0
             for seg in segments:
                 point = obj.GetChildObject(seg).GetPropValue("Point1")
-                p = self._primitives.value_in_object_units([point[1], point[3], point[5]])
+                p = self._primitives.value_in_object_units(
+                    [point[1], point[3], point[5]]
+                )
                 pos_xyz = self._primitives.value_in_object_units(position)
                 found_vertex = GeometryOperators.points_distance(p, pos_xyz) <= abstol
                 if found_vertex:
                     at_start = True
                     break
                 point = obj.GetChildObject(seg).GetPropValue("Point2")
-                p = self._primitives.value_in_object_units([point[1], point[3], point[5]])
+                p = self._primitives.value_in_object_units(
+                    [point[1], point[3], point[5]]
+                )
                 found_vertex = GeometryOperators.points_distance(p, pos_xyz) <= abstol
                 if found_vertex:
                     at_start = False
@@ -598,7 +631,9 @@ class Polyline(Object3d):
             for ind, vertex_pos in enumerate(self.vertex_positions):
                 # compare the specified point with the vertex data using an absolute tolerance
                 # (default of math.isclose is 1e-9 which should be ok in almost all cases)
-                found_vertex = GeometryOperators.points_distance(vertex_pos, pos_xyz) <= abstol
+                found_vertex = (
+                    GeometryOperators.points_distance(vertex_pos, pos_xyz) <= abstol
+                )
                 if found_vertex:
                     if ind == len(self.vertex_positions) - 1:
                         seg_id = ind - 1
@@ -608,7 +643,9 @@ class Polyline(Object3d):
                         at_start = False
                     break
 
-        assert found_vertex, "Specified vertex {} not found in polyline {}.".format(position, self._m_name)
+        assert found_vertex, "Specified vertex {} not found in polyline {}.".format(
+            position, self._m_name
+        )
         self._primitives.oeditor.DeletePolylinePoint(
             [
                 "NAME:Delete Point",
@@ -665,12 +702,23 @@ class Polyline(Object3d):
                 ]
             )
         except:
-            raise ValueError("Invalid edge ID {} is specified on polyline {}.".format(edge_id, self.name))
+            raise ValueError(
+                "Invalid edge ID {} is specified on polyline {}.".format(
+                    edge_id, self.name
+                )
+            )
         return True
 
     @aedt_exception_handler
     def set_crosssection_properties(
-        self, type=None, orient=None, width=0, topwidth=0, height=0, num_seg=0, bend_type=None
+        self,
+        type=None,
+        orient=None,
+        width=0,
+        topwidth=0,
+        height=0,
+        num_seg=0,
+        bend_type=None,
     ):
         """Set the properties of an existing polyline object.
 
@@ -734,12 +782,17 @@ class Polyline(Object3d):
 
         # Ensure number-of segments is valid
         if num_seg:
-            assert num_seg > 2, "Number of segments for a cross-section must be 0 or greater than 2."
+            assert (
+                num_seg > 2
+            ), "Number of segments for a cross-section must be 0 or greater than 2."
 
         model_units = self._primitives.model_units
 
         arg1 = ["NAME:AllTabs"]
-        arg2 = ["NAME:Geometry3DCmdTab", ["NAME:PropServers", self._m_name + ":CreatePolyline:1"]]
+        arg2 = [
+            "NAME:Geometry3DCmdTab",
+            ["NAME:PropServers", self._m_name + ":CreatePolyline:1"],
+        ]
         arg3 = ["NAME:ChangedProps"]
         arg3.append(["NAME:Type", "Value:=", section_type])
         arg3.append(["NAME:Orientation", "Value:=", section_orient])
@@ -807,7 +860,9 @@ class Polyline(Object3d):
 
         # End point does not exist e.g. for an AngularArc
         try:
-            end_point = self._primitives.value_in_object_units(position_list[num_points - 1])
+            end_point = self._primitives.value_in_object_units(
+                position_list[num_points - 1]
+            )
         except:
             end_point = []
 
@@ -1279,7 +1334,9 @@ class Primitives(object):
             varg2 = ["NAME:BodyFromEdgeToParameters"]
             varg2.append("Edges:="), varg2.append([edge_id])
 
-            new_object_name = self._oeditor.CreateObjectFromEdges(varg1, ["NAME:Parameters", varg2])[0]
+            new_object_name = self._oeditor.CreateObjectFromEdges(
+                varg1, ["NAME:Parameters", varg2]
+            )[0]
             return self._create_object(new_object_name)
 
     @aedt_exception_handler
@@ -1313,7 +1370,9 @@ class Primitives(object):
 
             varg2 = ["NAME:BodyFromFaceToParameters"]
             varg2.append("FacesToDetach:="), varg2.append([face_id])
-            new_object_name = self._oeditor.CreateObjectFromFaces(varg1, ["NAME:Parameters", varg2])[0]
+            new_object_name = self._oeditor.CreateObjectFromFaces(
+                varg1, ["NAME:Parameters", varg2]
+            )[0]
             return self._create_object(new_object_name)
 
     @aedt_exception_handler
@@ -1548,7 +1607,9 @@ class Primitives(object):
         del poly_points_list[-1]
 
         # fmt: on
-        return self.create_polyline(poly_points_list, xsection_type="Line", xsection_width=poly_width)
+        return self.create_polyline(
+            poly_points_list, xsection_type="Line", xsection_width=poly_width
+        )
 
     @aedt_exception_handler
     def get_existing_polyline(self, object):
@@ -1566,7 +1627,14 @@ class Primitives(object):
         return Polyline(self, src_object=object)
 
     @aedt_exception_handler
-    def create_udp(self, udp_dll_name, udp_parameters_list, upd_library="syslib", name=None, udp_type="Solid"):
+    def create_udp(
+        self,
+        udp_dll_name,
+        udp_parameters_list,
+        upd_library="syslib",
+        name=None,
+        udp_type="Solid",
+    ):
         """Create a user-defined primitive (UDP).
 
         Parameters
@@ -1610,16 +1678,26 @@ class Primitives(object):
                 upd_library,
             ]
         else:
-            vArg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", udp_dll_name, "Library:=", upd_library]
+            vArg1 = [
+                "NAME:UserDefinedPrimitiveParameters",
+                "DllName:=",
+                udp_dll_name,
+                "Library:=",
+                upd_library,
+            ]
 
         vArgParamVector = ["NAME:ParamVector"]
 
         for pair in udp_parameters_list:
             if isinstance(pair, list):
-                vArgParamVector.append(["NAME:Pair", "Name:=", pair[0], "Value:=", pair[1]])
+                vArgParamVector.append(
+                    ["NAME:Pair", "Name:=", pair[0], "Value:=", pair[1]]
+                )
 
             else:
-                vArgParamVector.append(["NAME:Pair", "Name:=", pair.Name, "Value:=", pair.Value])
+                vArgParamVector.append(
+                    ["NAME:Pair", "Name:=", pair.Name, "Value:=", pair.Value]
+                )
 
         vArg1.append(vArgParamVector)
         if name:
@@ -1709,7 +1787,9 @@ class Primitives(object):
         elif not isinstance(objects, list):
             objects = [objects]
         for el in objects:
-            if el not in self.object_names and not list(self._oeditor.GetObjectsInGroup(el)):
+            if el not in self.object_names and not list(
+                self._oeditor.GetObjectsInGroup(el)
+            ):
                 objects.remove(el)
         if not objects:
             self.logger.warning("No objects to delete")
@@ -2090,14 +2170,20 @@ class Primitives(object):
                         < tol
                     ):
                         continue  # skip perperndicular edges
-                    if GeometryOperators.is_parallel(vertex1_i, vertex2_i, vertex1_j, vertex2_j):
+                    if GeometryOperators.is_parallel(
+                        vertex1_i, vertex2_i, vertex1_j, vertex2_j
+                    ):
                         parallel_edges = True
                     vert_dist_sum = GeometryOperators.arrays_positions_sum(
                         [vertex1_i, vertex2_i], [vertex1_j, vertex2_j]
                     )
-                    vect = GeometryOperators.distance_vector(start_midpoint, vertex1_j, vertex2_j)
+                    vect = GeometryOperators.distance_vector(
+                        start_midpoint, vertex1_j, vertex2_j
+                    )
                 else:
-                    vert_dist_sum = GeometryOperators.arrays_positions_sum([start_midpoint], [end_midpoint])
+                    vert_dist_sum = GeometryOperators.arrays_positions_sum(
+                        [start_midpoint], [end_midpoint]
+                    )
 
                 # dist = abs(_v_norm(vect))
 
@@ -2117,10 +2203,14 @@ class Primitives(object):
                 if actual_point is None:
                     edge_list = [el, el1]
                     is_parallel = parallel_edges
-                    actual_point = GeometryOperators.find_point_on_plane([start_midpoint, end_midpoint], port_direction)
+                    actual_point = GeometryOperators.find_point_on_plane(
+                        [start_midpoint, end_midpoint], port_direction
+                    )
                     mindist = vert_dist_sum
                 else:
-                    new_point = GeometryOperators.find_point_on_plane([start_midpoint, end_midpoint], port_direction)
+                    new_point = GeometryOperators.find_point_on_plane(
+                        [start_midpoint, end_midpoint], port_direction
+                    )
                     if (port_direction <= 2 and new_point - actual_point < 0) or (
                         port_direction > 2 and actual_point - new_point < 0
                     ):
@@ -2128,12 +2218,20 @@ class Primitives(object):
                         is_parallel = parallel_edges
                         actual_point = new_point
                         mindist = vert_dist_sum
-                    elif port_direction <= 2 and new_point - actual_point < tol and vert_dist_sum - mindist < pos_tol:
+                    elif (
+                        port_direction <= 2
+                        and new_point - actual_point < tol
+                        and vert_dist_sum - mindist < pos_tol
+                    ):
                         edge_list = [el, el1]
                         is_parallel = parallel_edges
                         actual_point = new_point
                         mindist = vert_dist_sum
-                    elif port_direction > 2 and actual_point - new_point < tol and vert_dist_sum - mindist < pos_tol:
+                    elif (
+                        port_direction > 2
+                        and actual_point - new_point < tol
+                        and vert_dist_sum - mindist < pos_tol
+                    ):
                         edge_list = [el, el1]
                         is_parallel = parallel_edges
                         actual_point = new_point
@@ -2141,7 +2239,9 @@ class Primitives(object):
         return edge_list, is_parallel
 
     @aedt_exception_handler
-    def get_equivalent_parallel_edges(self, edgelist, portonplane=True, axisdir=0, startobj="", endobject=""):
+    def get_equivalent_parallel_edges(
+        self, edgelist, portonplane=True, axisdir=0, startobj="", endobject=""
+    ):
         """Create two new edges that are parallel and equal to the smallest edge given a parallel couple of edges.
 
         Parameters
@@ -2204,7 +2304,9 @@ class Primitives(object):
         obj_check = self.get_bodynames_from_position(p_check)
         obj_check2 = self.get_bodynames_from_position(p_check2)
         # if (startobj in obj_check and endobject in obj_check2) or (startobj in obj_check2 and endobject in obj_check):
-        if (startobj in obj_check or endobject in obj_check) and (startobj in obj_check2 or endobject in obj_check2):
+        if (startobj in obj_check or endobject in obj_check) and (
+            startobj in obj_check2 or endobject in obj_check2
+        ):
             if l1 < l2:
                 return_edges = [first_edge, second_edge]
             else:
@@ -2521,9 +2623,19 @@ class Primitives(object):
             if not point0:
                 point0 = el
                 point1 = el
-            elif axisdir < 3 and el[id] < point0[id] or axisdir > 2 and el[id] > point0[id]:
+            elif (
+                axisdir < 3
+                and el[id] < point0[id]
+                or axisdir > 2
+                and el[id] > point0[id]
+            ):
                 point0 = el
-            elif axisdir < 3 and el[id] > point1[id] or axisdir > 2 and el[id] < point1[id]:
+            elif (
+                axisdir < 3
+                and el[id] > point1[id]
+                or axisdir > 2
+                and el[id] < point1[id]
+            ):
                 point1 = el
         return point0, point1
 
@@ -2771,7 +2883,9 @@ class Primitives(object):
             midpoint_i = edge_i.midpoint
             for j, edge_j in enumerate(candidate_edges[i + 1 :]):
                 midpoint_j = edge_j.midpoint
-                area = GeometryOperators.get_triangle_area(midpoint_i, midpoint_j, vertex1_i)
+                area = GeometryOperators.get_triangle_area(
+                    midpoint_i, midpoint_j, vertex1_i
+                )
                 if area < tol ** 2:
                     selected_edges.extend([edge_i, edge_j])
                     break
@@ -2785,7 +2899,13 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_edges_for_circuit_port_from_sheet(
-        self, sheet, XY_plane=True, YZ_plane=True, XZ_plane=True, allow_perpendicular=False, tol=1e-6
+        self,
+        sheet,
+        XY_plane=True,
+        YZ_plane=True,
+        XZ_plane=True,
+        allow_perpendicular=False,
+        tol=1e-6,
     ):
         """Retrieve two edge IDs that are suitable for a circuit port from a sheet.
 
@@ -2896,20 +3016,35 @@ class Primitives(object):
                     continue
 
                 normal1 = GeometryOperators.v_cross(
-                    GeometryOperators.v_points(vertex1_i, vertex2_i), GeometryOperators.v_points(vertex1_i, vertex1_j)
+                    GeometryOperators.v_points(vertex1_i, vertex2_i),
+                    GeometryOperators.v_points(vertex1_i, vertex1_j),
                 )
                 normal1_norm = GeometryOperators.v_norm(normal1)
-                if YZ_plane and abs(abs(GeometryOperators._v_dot(normal1, ux)) - normal1_norm) < tol:
+                if (
+                    YZ_plane
+                    and abs(abs(GeometryOperators._v_dot(normal1, ux)) - normal1_norm)
+                    < tol
+                ):
                     pass
-                elif XZ_plane and abs(abs(GeometryOperators._v_dot(normal1, uy)) - normal1_norm) < tol:
+                elif (
+                    XZ_plane
+                    and abs(abs(GeometryOperators._v_dot(normal1, uy)) - normal1_norm)
+                    < tol
+                ):
                     pass
-                elif XY_plane and abs(abs(GeometryOperators._v_dot(normal1, uz)) - normal1_norm) < tol:
+                elif (
+                    XY_plane
+                    and abs(abs(GeometryOperators._v_dot(normal1, uz)) - normal1_norm)
+                    < tol
+                ):
                     pass
                 else:
                     continue
 
                 vec1 = GeometryOperators.v_points(vertex1_i, vertex2_j)
-                if abs(GeometryOperators._v_dot(normal1, vec1)) < tol2:  # the 4th point is coplanar
+                if (
+                    abs(GeometryOperators._v_dot(normal1, vec1)) < tol2
+                ):  # the 4th point is coplanar
                     candidate_edges.append(ej)
 
         minimum_distance = tol ** -1
@@ -2934,7 +3069,13 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_edges_for_circuit_port(
-        self, face_id, XY_plane=True, YZ_plane=True, XZ_plane=True, allow_perpendicular=False, tol=1e-6
+        self,
+        face_id,
+        XY_plane=True,
+        YZ_plane=True,
+        XZ_plane=True,
+        allow_perpendicular=False,
+        tol=1e-6,
     ):
         """Retrieve two edge IDs suitable for the circuit port.
 
@@ -3040,20 +3181,35 @@ class Primitives(object):
                     continue
 
                 normal1 = GeometryOperators.v_cross(
-                    GeometryOperators.v_points(vertex1_i, vertex2_i), GeometryOperators.v_points(vertex1_i, vertex1_j)
+                    GeometryOperators.v_points(vertex1_i, vertex2_i),
+                    GeometryOperators.v_points(vertex1_i, vertex1_j),
                 )
                 normal1_norm = GeometryOperators.v_norm(normal1)
-                if YZ_plane and abs(abs(GeometryOperators._v_dot(normal1, ux)) - normal1_norm) < tol:
+                if (
+                    YZ_plane
+                    and abs(abs(GeometryOperators._v_dot(normal1, ux)) - normal1_norm)
+                    < tol
+                ):
                     pass
-                elif XZ_plane and abs(abs(GeometryOperators._v_dot(normal1, uy)) - normal1_norm) < tol:
+                elif (
+                    XZ_plane
+                    and abs(abs(GeometryOperators._v_dot(normal1, uy)) - normal1_norm)
+                    < tol
+                ):
                     pass
-                elif XY_plane and abs(abs(GeometryOperators._v_dot(normal1, uz)) - normal1_norm) < tol:
+                elif (
+                    XY_plane
+                    and abs(abs(GeometryOperators._v_dot(normal1, uz)) - normal1_norm)
+                    < tol
+                ):
                     pass
                 else:
                     continue
 
                 vec1 = GeometryOperators.v_points(vertex1_i, vertex2_j)
-                if abs(GeometryOperators._v_dot(normal1, vec1)) < tol2:  # the 4th point is coplanar
+                if (
+                    abs(GeometryOperators._v_dot(normal1, vec1)) < tol2
+                ):  # the 4th point is coplanar
                     candidate_edges.append(ej)
 
         minimum_distance = tol ** -1
@@ -3098,7 +3254,9 @@ class Primitives(object):
 
         bodies = self.get_bodynames_from_position(position, units)
         # the function searches in all bodies, not efficient
-        face_id = self.get_faceid_from_position(position, obj_name=bodies[0], units=units)
+        face_id = self.get_faceid_from_position(
+            position, obj_name=bodies[0], units=units
+        )
         edges = self.get_face_edges(face_id)
         distance = 1e6
         selected_edge = None
@@ -3108,7 +3266,9 @@ class Primitives(object):
                 midpoint = [i / 1000 for i in midpoint]
             elif self.model_units == "meter" and units == "mm":
                 midpoint = [i * 1000 for i in midpoint]
-            d = GeometryOperators.points_distance(midpoint, [position.X, position.Y, position.Z])
+            d = GeometryOperators.points_distance(
+                midpoint, [position.X, position.Y, position.Z]
+            )
             if d < distance:
                 selected_edge = int(edge)
                 distance = d
@@ -3164,14 +3324,22 @@ class Primitives(object):
             matname = matname.lower()
             if self._app.materials.checkifmaterialexists(matname):
                 if self._app._design_type == "HFSS":
-                    return matname, self._app.materials.material_keys[matname].is_dielectric()
+                    return (
+                        matname,
+                        self._app.materials.material_keys[matname].is_dielectric(),
+                    )
                 else:
                     return matname, True
 
             else:
-                self.logger.warning("Material %s doesn not exists. Assigning default material", matname)
+                self.logger.warning(
+                    "Material %s doesn not exists. Assigning default material", matname
+                )
         if self._app._design_type == "HFSS":
-            return defaultmatname, self._app.materials.material_keys[defaultmatname].is_dielectric()
+            return (
+                defaultmatname,
+                self._app.materials.material_keys[defaultmatname].is_dielectric(),
+            )
         else:
             return defaultmatname, True
 
@@ -3180,20 +3348,28 @@ class Primitives(object):
         if test is None or test is False:
             assert False, "Get Solids is failing"
         elif test is True:
-            self._solids = []  # In IronPython True is returned when no sheets are present
+            self._solids = (
+                []
+            )  # In IronPython True is returned when no sheets are present
         else:
             self._solids = list(test)
-        self._all_object_names = self._solids + self._sheets + self._lines + self._points
+        self._all_object_names = (
+            self._solids + self._sheets + self._lines + self._points
+        )
 
     def _refresh_sheets(self):
         test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Sheets")
         if test is None or test is False:
             assert False, "Get Sheets is failing"
         elif test is True:
-            self._sheets = []  # In IronPython True is returned when no sheets are present
+            self._sheets = (
+                []
+            )  # In IronPython True is returned when no sheets are present
         else:
             self._sheets = list(test)
-        self._all_object_names = self._solids + self._sheets + self._lines + self._points
+        self._all_object_names = (
+            self._solids + self._sheets + self._lines + self._points
+        )
 
     def _refresh_lines(self):
         test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Lines")
@@ -3203,7 +3379,9 @@ class Primitives(object):
             self._lines = []  # In IronPython True is returned when no lines are present
         else:
             self._lines = list(test)
-        self._all_object_names = self._solids + self._sheets + self._lines + self._points
+        self._all_object_names = (
+            self._solids + self._sheets + self._lines + self._points
+        )
 
     # def _refresh_points(self):
     #     test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Points")
@@ -3221,7 +3399,9 @@ class Primitives(object):
             self._unclassified = []
             self.logger.debug("Unclassified is failing")
         elif test is True:
-            self._unclassified = []  # In IronPython True is returned when no unclassified are present
+            self._unclassified = (
+                []
+            )  # In IronPython True is returned when no unclassified are present
         else:
             self._unclassified = list(test)
 
@@ -3229,7 +3409,9 @@ class Primitives(object):
         self._refresh_solids()
         self._refresh_sheets()
         self._refresh_lines()
-        self._all_object_names = self._solids + self._sheets + self._lines + self._points
+        self._all_object_names = (
+            self._solids + self._sheets + self._lines + self._points
+        )
 
     def _create_object(self, name):
         o = Object3d(self, name)
@@ -3245,30 +3427,35 @@ class Primitives(object):
         return point
 
     def _refresh_all_ids_from_aedt_file(self):
-        if not self._app.design_properties or "ModelSetup" not in self._app.design_properties:
+        if (
+            not self._app.design_properties
+            or "ModelSetup" not in self._app.design_properties
+        ):
             return False
 
         try:
-            groups = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["Groups"]["Group"]
+            groups = self._app.design_properties["ModelSetup"]["GeometryCore"][
+                "GeometryOperations"
+            ]["Groups"]["Group"]
         except KeyError:
             groups = []
         if not isinstance(groups, list):
             groups = [groups]
         try:
-            self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
-                "GeometryPart"
-            ]
+            self._app.design_properties["ModelSetup"]["GeometryCore"][
+                "GeometryOperations"
+            ]["ToplevelParts"]["GeometryPart"]
         except KeyError:
             return 0
-        for el in self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
-            "GeometryPart"
-        ]:
+        for el in self._app.design_properties["ModelSetup"]["GeometryCore"][
+            "GeometryOperations"
+        ]["ToplevelParts"]["GeometryPart"]:
             if isinstance(el, (OrderedDict, dict)):
                 attribs = el["Attributes"]
             else:
-                attribs = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                    "ToplevelParts"
-                ]["GeometryPart"]["Attributes"]
+                attribs = self._app.design_properties["ModelSetup"]["GeometryCore"][
+                    "GeometryOperations"
+                ]["ToplevelParts"]["GeometryPart"]["Attributes"]
             if attribs["Name"] in self._all_object_names:
                 o = self._create_object(name=attribs["Name"])
                 o._part_coordinate_system = attribs["PartCoordinateSystem"]
@@ -3315,10 +3502,19 @@ class Primitives(object):
         if not name:
             name = _uname()
         try:
-            color = str(tuple(self._app.materials.material_keys[material].material_appearance)).replace(",", " ")
+            color = str(
+                tuple(self._app.materials.material_keys[material].material_appearance)
+            ).replace(",", " ")
         except:
             color = "(132 132 193)"
-        if material in ["vacuum", "air", "glass", "water_distilled", "water_fresh", "water_sea"]:
+        if material in [
+            "vacuum",
+            "air",
+            "glass",
+            "water_distilled",
+            "water_fresh",
+            "water_sea",
+        ]:
             transparency = 0.8
         else:
             transparency = 0.2
@@ -3366,7 +3562,9 @@ class Primitives(object):
 
         return args
 
-    def _crosssection_arguments(self, type, orient, width, topwidth, height, num_seg, bend_type=None):
+    def _crosssection_arguments(
+        self, type, orient, width, topwidth, height, num_seg, bend_type=None
+    ):
         """Generate the properties array for the polyline cross-section."""
         arg_str = ["NAME:PolylineXSection"]
 
@@ -3387,7 +3585,9 @@ class Primitives(object):
 
         # Ensure number-of segments is valid
         if num_seg:
-            assert num_seg > 2, "Number of segments for a cross-section must be 0 or greater than 2."
+            assert (
+                num_seg > 2
+            ), "Number of segments for a cross-section must be 0 or greater than 2."
 
         model_units = self.model_units
         arg_str += ["XSectionType:=", section_type]
@@ -3407,7 +3607,9 @@ class Primitives(object):
             if units is None:
                 units = self.model_units
 
-                assert is_number(prop_value), "Argument {} must be a numeric value".format(prop_value)
+                assert is_number(
+                    prop_value
+                ), "Argument {} must be a numeric value".format(prop_value)
             val = "{0}{1}".format(prop_value, units)
         return val
 

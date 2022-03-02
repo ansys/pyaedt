@@ -1,6 +1,7 @@
 import os
 
 import pytest
+
 from pyaedt import Hfss
 from pyaedt import hfss as hfss_module
 
@@ -20,7 +21,9 @@ def create_hfss(request, doctest_namespace):
         return
 
     # Use USB_Connector.aedt project to test
-    project_path = os.path.join(doctest_namespace["projects_path"], "USB_Connector.aedt")
+    project_path = os.path.join(
+        doctest_namespace["projects_path"], "USB_Connector.aedt"
+    )
     doctest_namespace["hfss"] = Hfss(projectname=project_path, designname="HfssDesign1")
 
 

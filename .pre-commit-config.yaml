@@ -1,5 +1,5 @@
 files: ^pyaedt/
-exclude: ^pyaedt/rpc/
+exclude: ^(pyaedt/rpc/|pyaedt/conftest.py)
 repos:
 - repo: https://github.com/psf/black
   rev: 21.12b0

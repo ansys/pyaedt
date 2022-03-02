@@ -4,11 +4,11 @@ This module contains these classes: `Mesh` and `Mesh3DOperation`.
 This module provides all functionalities for creating and editing the mesh in the 3D tools.
 
 """
-from __future__ import absolute_import
-
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
-from pyaedt.generic.DataHandlers import _dict2arg
 from collections import OrderedDict
+
+from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import generate_unique_name
 
 
 class Mesh3DOperation(object):
@@ -69,7 +69,9 @@ class Mesh3DOperation(object):
 
         >>> oModule.AddMeshOperation
         """
-        self._mesh3dlayout.omeshmodule.AddMeshOperation(self.hfss_setup_name, self._get_args())
+        self._mesh3dlayout.omeshmodule.AddMeshOperation(
+            self.hfss_setup_name, self._get_args()
+        )
         return True
 
     @aedt_exception_handler
@@ -86,7 +88,9 @@ class Mesh3DOperation(object):
 
         >>> oModule.EditMeshOperation
         """
-        self._mesh3dlayout.omeshmodule.EditMeshOperation(self.hfss_setup_name, self.name, self._get_args())
+        self._mesh3dlayout.omeshmodule.EditMeshOperation(
+            self.hfss_setup_name, self.name, self._get_args()
+        )
         return True
 
     @aedt_exception_handler
@@ -189,8 +193,12 @@ class Mesh3d(object):
         try:
             for ds in self._app.design_properties["Setup"]["Data"]:
                 if "MeshOps" in self._app.design_properties["Setup"]["Data"][ds]:
-                    for ops in self._app.design_properties["Setup"]["Data"][ds]["MeshOps"]:
-                        props = self._app.design_properties["Setup"]["Data"][ds]["MeshOps"][ops]
+                    for ops in self._app.design_properties["Setup"]["Data"][ds][
+                        "MeshOps"
+                    ]:
+                        props = self._app.design_properties["Setup"]["Data"][ds][
+                            "MeshOps"
+                        ][ops]
                         meshops.append(Mesh3DOperation(self, ds, ops, props))
         except:
             pass
@@ -198,7 +206,14 @@ class Mesh3d(object):
 
     @aedt_exception_handler
     def assign_length_mesh(
-        self, setupname, layer_name, net_name, isinside=True, maxlength=1, maxel=1000, meshop_name=None
+        self,
+        setupname,
+        layer_name,
+        net_name,
+        isinside=True,
+        maxlength=1,
+        maxel=1000,
+        meshop_name=None,
     ):
         """Assign mesh length.
 
@@ -256,16 +271,40 @@ class Mesh3d(object):
         if isinstance(layer_name, list) and isinstance(net_name, list):
             assignment = OrderedDict({"MeshEntityInfo": []})
             for l, n in zip(layer_name, net_name):
-                meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": l, "Net": n, "OrigNet": n})
+                meshbody = OrderedDict(
+                    {"Id": -1, "Nam": "", "Layer": l, "Net": n, "OrigNet": n}
+                )
                 assignment["MeshEntityInfo"].append(
-                    OrderedDict({"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []})
+                    OrderedDict(
+                        {
+                            "IsFcSel": False,
+                            "EntID": -1,
+                            "FcIDs": [],
+                            "MeshBody": meshbody,
+                            "BBox": [],
+                        }
+                    )
                 )
         else:
-            meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": layer_name, "Net": net_name, "OrigNet": net_name})
+            meshbody = OrderedDict(
+                {
+                    "Id": -1,
+                    "Nam": "",
+                    "Layer": layer_name,
+                    "Net": net_name,
+                    "OrigNet": net_name,
+                }
+            )
             assignment = OrderedDict(
                 {
                     "MeshEntityInfo": OrderedDict(
-                        {"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []}
+                        {
+                            "IsFcSel": False,
+                            "EntID": -1,
+                            "FcIDs": [],
+                            "MeshBody": meshbody,
+                            "BBox": [],
+                        }
                     )
                 }
             )
@@ -344,12 +383,28 @@ class Mesh3d(object):
         else:
             restrictlength = True
         skindepth = self.modeler.modeler_variable(skindepth)
-        triangulation_max_length = self.modeler.modeler_variable(triangulation_max_length)
-        meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": layer_name, "Net": net_name, "OrigNet": net_name})
+        triangulation_max_length = self.modeler.modeler_variable(
+            triangulation_max_length
+        )
+        meshbody = OrderedDict(
+            {
+                "Id": -1,
+                "Nam": "",
+                "Layer": layer_name,
+                "Net": net_name,
+                "OrigNet": net_name,
+            }
+        )
         assignment = OrderedDict(
             {
                 "MeshEntityInfo": OrderedDict(
-                    {"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []}
+                    {
+                        "IsFcSel": False,
+                        "EntID": -1,
+                        "FcIDs": [],
+                        "MeshBody": meshbody,
+                        "BBox": [],
+                    }
                 )
             }
         )

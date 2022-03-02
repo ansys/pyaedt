@@ -173,7 +173,11 @@ class Part(object):
         str
             Name of the coordinate system.
         """
-        if self._motion or not self.zero_offset("offset") or not self.zero_offset("rotation_cs"):
+        if (
+            self._motion
+            or not self.zero_offset("offset")
+            or not self.zero_offset("rotation_cs")
+        ):
             return self.name + "_cs"
         else:
             return self._multiparts.cs_name
@@ -255,7 +259,9 @@ class Part(object):
             return [0, 0, 0]
 
     @property
-    def _do_rotate(self):  # True if any rotation angles are non-zero or 'rotation_cs' is defined.
+    def _do_rotate(
+        self,
+    ):  # True if any rotation angles are non-zero or 'rotation_cs' is defined.
         return any(self.rot_axis)
 
     @property
@@ -335,7 +341,10 @@ class Part(object):
         """
         # Set x, y, z offset variables in app. But check first to see if the CS
         # has already been defined.
-        if self.cs_name not in app.modeler.oeditor.GetCoordinateSystems() and self.cs_name != "Global":
+        if (
+            self.cs_name not in app.modeler.oeditor.GetCoordinateSystems()
+            and self.cs_name != "Global"
+        ):
             x_pointing = [1, 0, 0]
             y_pointing = [0, 1, 0]
             app.modeler.create_coordinate_system(
@@ -413,9 +422,15 @@ class Part(object):
         # TODO: Why the inconsistent syntax for cs commands?
         if self._do_offset:
             self.set_relative_cs(app)  # Create coordinate system, if needed.
-            aedt_objects.append(app.modeler.insert_3d_component(self.file_name, targetCS=self.cs_name))
+            aedt_objects.append(
+                app.modeler.insert_3d_component(self.file_name, targetCS=self.cs_name)
+            )
         else:
-            aedt_objects.append(app.modeler.insert_3d_component(self.file_name, targetCS=self._multiparts.cs_name))
+            aedt_objects.append(
+                app.modeler.insert_3d_component(
+                    self.file_name, targetCS=self._multiparts.cs_name
+                )
+            )
         if self._do_rotate:
             self.do_rotate(app, aedt_objects[0])
 
@@ -424,7 +439,10 @@ class Part(object):
         if self["duplicate_vector"]:
             d_vect = [float(i) for i in self["duplicate_vector"]]
             duplicate_result = app.modeler.duplicate_along_line(
-                aedt_objects[0], d_vect, nclones=int(self["duplicate_number"]), is_3d_comp=True
+                aedt_objects[0],
+                d_vect,
+                nclones=int(self["duplicate_number"]),
+                is_3d_comp=True,
             )
             if duplicate_result[0]:
                 for d in duplicate_result[1]:
@@ -485,9 +503,14 @@ class Antenna(Part, object):
             else:
                 units = self._multiparts.units
         if self._compdef["ffd_name"]:
-            ffd = os.path.join(self._compdef["part_folder"], self._compdef["ffd_name"] + ".ffd")
+            ffd = os.path.join(
+                self._compdef["part_folder"], self._compdef["ffd_name"] + ".ffd"
+            )
             a = app.create_sbr_file_based_antenna(
-                ffd_full_path=ffd, model_units=units, target_cs=target_cs, antenna_name=self.name
+                ffd_full_path=ffd,
+                model_units=units,
+                target_cs=target_cs,
+                antenna_name=self.name,
             )
         else:
             a = app.create_sbr_antenna(
@@ -518,7 +541,9 @@ class Antenna(Part, object):
             self.set_relative_cs(app)
             antenna_object = self._insert(app, target_cs=self.cs_name, units=units)
         else:
-            antenna_object = self._insert(app, target_cs=self._multiparts.cs_name, units=units)
+            antenna_object = self._insert(
+                app, target_cs=self._multiparts.cs_name, units=units
+            )
         if self._do_rotate and antenna_object:
             self.do_rotate(app, antenna_object.antennaname)
 

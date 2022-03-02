@@ -1,10 +1,10 @@
 import warnings
 
+from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.Circuit import ModelerNexxim
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 from pyaedt.modules.SolveSetup import SetupCircuit
-from pyaedt.application.Analysis import Analysis
 
 
 class FieldAnalysisCircuit(Analysis):
@@ -112,7 +112,10 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oModule.GetExcitations
         """
-        ports = [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts()]
+        ports = [
+            p.replace("IPort@", "").split(";")[0]
+            for p in self.modeler.oeditor.GetAllPorts()
+        ]
         return ports
 
     @property
@@ -132,7 +135,10 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oEditor.GetAllPorts
         """
-        warnings.warn("`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning)
+        warnings.warn(
+            "`get_excitations_name` is deprecated. Use `excitations` property instead.",
+            DeprecationWarning,
+        )
         return self.excitations
 
     @property
@@ -191,14 +197,20 @@ class FieldAnalysisCircuit(Analysis):
         if not excitation_names:
             excitation_names = self.excitations
         if excitation_name_prefix:
-            excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
+            excitation_names = [
+                i
+                for i in excitation_names
+                if excitation_name_prefix.lower() in i.lower()
+            ]
         spar = []
         for i in excitation_names:
             spar.append("S({},{})".format(i, i))
         return spar
 
     @aedt_exception_handler
-    def get_all_insertion_loss_list(self, trlist=[], reclist=[], tx_prefix="", rx_prefix=""):
+    def get_all_insertion_loss_list(
+        self, trlist=[], reclist=[], tx_prefix="", rx_prefix=""
+    ):
         """Retrieve a list of all insertion losses from two lists of excitations (driver and receiver).
 
         Parameters
@@ -270,7 +282,14 @@ class FieldAnalysisCircuit(Analysis):
         return next
 
     @aedt_exception_handler
-    def get_fext_xtalk_list(self, trlist=[], reclist=[], tx_prefix="", rx_prefix="", skip_same_index_couples=True):
+    def get_fext_xtalk_list(
+        self,
+        trlist=[],
+        reclist=[],
+        tx_prefix="",
+        rx_prefix="",
+        skip_same_index_couples=True,
+    ):
         """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
 
         Parameters

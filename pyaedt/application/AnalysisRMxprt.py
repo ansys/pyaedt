@@ -1,6 +1,6 @@
+from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.modeler.Model2D import ModelerRMxprt
-from pyaedt.application.Analysis import Analysis
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
 
@@ -101,7 +101,9 @@ class FieldAnalysisRMxprt(Analysis):
     def _check_solution_consistency(self):
         """Check solution consistency."""
         if self.design_solutions:
-            return self._odesign.GetSolutionType() == self.design_solutions._solution_type
+            return (
+                self._odesign.GetSolutionType() == self.design_solutions._solution_type
+            )
         else:
             return True
 

@@ -1,5 +1,6 @@
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.modeler.PrimitivesCircuit import CircuitComponents, ComponentCatalog
+from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
+from pyaedt.modeler.PrimitivesCircuit import ComponentCatalog
 
 
 class TwinBuilderComponents(CircuitComponents):
@@ -54,7 +55,11 @@ class TwinBuilderComponents(CircuitComponents):
         if isinstance(partname, int):
             return self.components[partname]
         for el in self.components:
-            if self.components[el].name == partname or self.components[el].composed_name == partname or el == partname:
+            if (
+                self.components[el].name == partname
+                or self.components[el].composed_name == partname
+                or el == partname
+            ):
                 return self.components[el]
 
         return None
@@ -79,7 +84,14 @@ class TwinBuilderComponents(CircuitComponents):
         return self._components_catalog
 
     @aedt_exception_handler
-    def create_resistor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_resistor(
+        self,
+        compname=None,
+        value=50,
+        location=[],
+        angle=0,
+        use_instance_id_netlist=False,
+    ):
         """Create a resistor.
 
         Parameters
@@ -119,7 +131,14 @@ class TwinBuilderComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_inductor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_inductor(
+        self,
+        compname=None,
+        value=50,
+        location=[],
+        angle=0,
+        use_instance_id_netlist=False,
+    ):
         """Create an inductor.
 
         Parameters
@@ -158,7 +177,14 @@ class TwinBuilderComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_capacitor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_capacitor(
+        self,
+        compname=None,
+        value=50,
+        location=[],
+        angle=0,
+        use_instance_id_netlist=False,
+    ):
         """Create a capacitor.
 
         Parameters
@@ -199,7 +225,14 @@ class TwinBuilderComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_voltage_source(
-        self, compname=None, type="E", amplitude=326, freq=50, location=[], angle=0, use_instance_id_netlist=False
+        self,
+        compname=None,
+        type="E",
+        amplitude=326,
+        freq=50,
+        location=[],
+        angle=0,
+        use_instance_id_netlist=False,
     ):
         """Create a voltage source (conservative electrical output).
 
@@ -252,7 +285,9 @@ class TwinBuilderComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_diode(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
+    def create_diode(
+        self, compname=None, location=[], angle=0, use_instance_id_netlist=False
+    ):
         """Create a diode.
 
         Parameters
@@ -287,7 +322,9 @@ class TwinBuilderComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_npn(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
+    def create_npn(
+        self, compname=None, location=[], angle=0, use_instance_id_netlist=False
+    ):
         """Create an NPN transistor.
 
         Parameters
@@ -322,7 +359,9 @@ class TwinBuilderComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_pnp(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
+    def create_pnp(
+        self, compname=None, location=[], angle=0, use_instance_id_netlist=False
+    ):
         """Create a PNP transistor.
 
         Parameters

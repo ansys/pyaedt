@@ -1,8 +1,7 @@
-import os
 import os.path
 
-from pyaedt.generic.general_methods import env_path
 from pyaedt import is_ironpython
+from pyaedt.generic.general_methods import env_path
 
 if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess
@@ -39,7 +38,9 @@ class AedtSolve(object):
             try:
                 self.installer_path = env_path(aedt_version)
             except:
-                raise Exception("Either a valid aedt version or full path has to be provided")
+                raise Exception(
+                    "Either a valid aedt version or full path has to be provided"
+                )
 
     @property
     def projectpath(self):
@@ -134,7 +135,9 @@ class SiwaveSolve(object):
             try:
                 self.installer_path = env_path(aedt_version)
             except:
-                raise Exception("Either a valid aedt version or full path has to be provided")
+                raise Exception(
+                    "Either a valid aedt version or full path has to be provided"
+                )
         if self._ng:
             executable = "siwave_ng"
         else:
@@ -196,11 +199,19 @@ class SiwaveSolve(object):
                 with open(exec_file, "r+") as f:
                     content = f.readlines()
                     if not "SetNumCpus" in content:
-                        f.writelines(str.format("SetNumCpus {}", str(self.nbcores)) + "\n")
+                        f.writelines(
+                            str.format("SetNumCpus {}", str(self.nbcores)) + "\n"
+                        )
                         f.writelines("SaveSiw")
                     else:
-                        fstarts = [i for i in range(len(content)) if content[i].startswith("SetNumCpus")]
-                        content[fstarts[0]] = str.format("SetNumCpus {}", str(self.nbcores))
+                        fstarts = [
+                            i
+                            for i in range(len(content))
+                            if content[i].startswith("SetNumCpus")
+                        ]
+                        content[fstarts[0]] = str.format(
+                            "SetNumCpus {}", str(self.nbcores)
+                        )
                         f.close()
                         os.remove(exec_file)
                         f = open(exec_file, "w")
@@ -212,7 +223,14 @@ class SiwaveSolve(object):
             p = subprocess.Popen(" ".join(command))
             p.wait()
 
-    def export_3d_cad(self, format_3d="Q3D", output_folder=None, net_list=None, num_cores=None, aedt_file_name=None):
+    def export_3d_cad(
+        self,
+        format_3d="Q3D",
+        output_folder=None,
+        net_list=None,
+        num_cores=None,
+        aedt_file_name=None,
+    ):
         """Export edb to Q3D or HFSS
 
         Parameters
@@ -237,9 +255,17 @@ class SiwaveSolve(object):
         with open(scriptname, "w") as f:
             f.write("import os\n")
             f.write("edbpath = r'{}'\n".format(self.projectpath))
-            f.write("exportOptions = os.path.join(r'{}', 'options.config')\n".format(output_folder))
+            f.write(
+                "exportOptions = os.path.join(r'{}', 'options.config')\n".format(
+                    output_folder
+                )
+            )
             f.write("oDoc.ScrImportEDB(edbpath)\n")
-            f.write("oDoc.ScrSaveProjectAs(os.path.join(r'{}','{}'))\n".format(output_folder, "test.siw"))
+            f.write(
+                "oDoc.ScrSaveProjectAs(os.path.join(r'{}','{}'))\n".format(
+                    output_folder, "test.siw"
+                )
+            )
             if net_list:
                 f.write("allnets = []\n")
                 for el in net_list:
@@ -250,7 +276,11 @@ class SiwaveSolve(object):
             f.write("oDoc.ScrSetOptionsFor3DModelExport(exportOptions)\n")
             if not aedt_file_name:
                 aedt_file_name = format_3d + "_siwave.aedt"
-            f.write("q3d_filename = os.path.join(r'{}', '{}')\n".format(output_folder, aedt_file_name))
+            f.write(
+                "q3d_filename = os.path.join(r'{}', '{}')\n".format(
+                    output_folder, aedt_file_name
+                )
+            )
             if num_cores:
                 f.write("oDoc.ScrSetNumCpusToUse('{}')\n".format(num_cores))
                 self.nbcores = num_cores

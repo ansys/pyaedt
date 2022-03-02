@@ -2,11 +2,9 @@
 This module contains EDB general methods and related methods.
 
 """
-from __future__ import absolute_import
-
 import logging
-import warnings
 import os
+import warnings
 
 from pyaedt.generic.general_methods import aedt_exception_handler
 

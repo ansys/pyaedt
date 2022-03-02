@@ -4,7 +4,8 @@ from pathlib import Path
 import pytest
 
 from pyaedt import Desktop
-from pyaedt.doctest_fixtures import icepak_fixtures, hfss_fixtures  # noqa: F401
+from pyaedt.doctest_fixtures import hfss_fixtures
+from pyaedt.doctest_fixtures import icepak_fixtures
 
 # Import fixtures from other files
 pytest_plugins = [
@@ -32,4 +33,6 @@ def get_root_directory(doctest_namespace):
     """
     root = Path(__file__).parent.parent
     doctest_namespace["root_path"] = root
-    doctest_namespace["projects_path"] = os.path.join(root, "_unittest", "example_models")
+    doctest_namespace["projects_path"] = os.path.join(
+        root, "_unittest", "example_models"
+    )

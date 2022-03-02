@@ -1,15 +1,15 @@
 """
 This module contains the `Mesh` class.
 """
-
-from __future__ import absolute_import
 import os
 import shutil
 from collections import OrderedDict
 
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, MethodNotSupportedError
 from pyaedt.application.design_solutions import model_names
 from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import MethodNotSupportedError
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
 meshers = {
@@ -74,7 +74,9 @@ class MeshOperation(object):
         elif self.type == "SkinDepthBased":
             self._meshicepak.omeshmodule.AssignSkinDepthOp(self._get_args())
         elif self.type == "Curvilinear":
-            self._meshicepak.omeshmodule.AssignApplyCurvlinearElementsOp(self._get_args())
+            self._meshicepak.omeshmodule.AssignApplyCurvlinearElementsOp(
+                self._get_args()
+            )
         elif self.type == "RotationalLayerMesh":
             self._meshicepak.omeshmodule.AssignRotationalLayerOp(self._get_args())
         elif self.type == "DensityControlBased":
@@ -112,23 +114,35 @@ class MeshOperation(object):
         if self.type == "SurfApproxBased":
             self._meshicepak.omeshmodule.EditTrueSurfOp(self.name, self._get_args())
         elif self.type == "DefeatureBased":
-            self._meshicepak.omeshmodule.EditModelResolutionOp(self.name, self._get_args())
+            self._meshicepak.omeshmodule.EditModelResolutionOp(
+                self.name, self._get_args()
+            )
         elif self.type == "SurfaceRepPriority":
-            self._meshicepak.omeshmodule.EditSurfPriorityForTauOp(self.name, self._get_args())
+            self._meshicepak.omeshmodule.EditSurfPriorityForTauOp(
+                self.name, self._get_args()
+            )
         elif self.type == "LengthBased":
             self._meshicepak.omeshmodule.EditLengthOp(self.name, self._get_args())
         elif self.type == "SkinDepthBased":
             self._meshicepak.omeshmodule.EditSkinDepthOp(self.name, self._get_args())
         elif self.type == "Curvilinear":
-            self._meshicepak.omeshmodule.EditApplyCurvlinearElementsOp(self.name, self._get_args())
+            self._meshicepak.omeshmodule.EditApplyCurvlinearElementsOp(
+                self.name, self._get_args()
+            )
         elif self.type == "RotationalLayerMesh":
-            self._meshicepak.omeshmodule.EditRotationalLayerOp(self.name, self._get_args())
+            self._meshicepak.omeshmodule.EditRotationalLayerOp(
+                self.name, self._get_args()
+            )
         elif self.type == "DensityControlBased":
-            self._meshicepak.omeshmodule.EditDensityControlOp(self.name, self._get_args())
+            self._meshicepak.omeshmodule.EditDensityControlOp(
+                self.name, self._get_args()
+            )
         elif self.type == "Icepak":
             self._meshicepak.omeshmodule.EditMeshOperation(self.name, self._get_args())
         elif self.type == "CurvatureExtraction":
-            self._meshicepak.omeshmodule.EditSBRCurvatureExtractionOp(self.name, self._get_args())
+            self._meshicepak.omeshmodule.EditSBRCurvatureExtractionOp(
+                self.name, self._get_args()
+            )
         elif self.type == "InitialMeshSettings":
             self._meshicepak.omeshmodule.InitialMeshSettings(self._get_args())
 
@@ -220,14 +234,16 @@ class Mesh(object):
             temp_name = generate_unique_name("temp_prj")
             temp_proj = os.path.join(self._app.working_directory, temp_name + ".aedt")
             oproject_target = self._app.odesktop.NewProject(temp_name)
-            des_target = oproject_target.InsertDesign(self._app.design_type, temp_name, self._app.solution_type, "")
+            des_target = oproject_target.InsertDesign(
+                self._app.design_type, temp_name, self._app.solution_type, ""
+            )
             oproject_target.SaveAs(temp_proj, True)
             self._app.odesktop.CloseProject(temp_name)
             _project_dictionary = load_entire_aedt_file(temp_proj)
             try:
-                props = _project_dictionary["AnsoftProject"][model_names[self._app.design_type]]["MeshSetup"][
-                    "MeshSettings"
-                ]
+                props = _project_dictionary["AnsoftProject"][
+                    model_names[self._app.design_type]
+                ]["MeshSetup"]["MeshSettings"]
             except:
                 pass
             if os.path.exists(temp_proj):
@@ -245,13 +261,20 @@ class Mesh(object):
         meshops = []
         try:
             for ds in self._app.design_properties["MeshSetup"]["MeshOperations"]:
-                if isinstance(self._app.design_properties["MeshSetup"]["MeshOperations"][ds], (OrderedDict, dict)):
+                if isinstance(
+                    self._app.design_properties["MeshSetup"]["MeshOperations"][ds],
+                    (OrderedDict, dict),
+                ):
                     meshops.append(
                         MeshOperation(
                             self,
                             ds,
-                            self._app.design_properties["MeshSetup"]["MeshOperations"][ds],
-                            self._app.design_properties["MeshSetup"]["MeshOperations"][ds]["Type"],
+                            self._app.design_properties["MeshSetup"]["MeshOperations"][
+                                ds
+                            ],
+                            self._app.design_properties["MeshSetup"]["MeshOperations"][
+                                ds
+                            ]["Type"],
                         )
                     )
         except:
@@ -309,7 +332,9 @@ class Mesh(object):
         return mop
 
     @aedt_exception_handler
-    def assign_surface_mesh_manual(self, names, surf_dev=None, normal_dev=None, aspect_ratio=None, meshop_name=None):
+    def assign_surface_mesh_manual(
+        self, names, surf_dev=None, normal_dev=None, aspect_ratio=None, meshop_name=None
+    ):
         """Assign a surface mesh to a list of faces.
 
         Parameters
@@ -481,7 +506,10 @@ class Mesh(object):
 
         >>> oModule.InitialMeshSettings
         """
-        if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
+        if (
+            self._app.design_type == "2D Extractor"
+            or self._app.design_type == "Maxwell 2D"
+        ):
             mesh_methods = ["Auto", "AnsoftClassic"]
         else:
             mesh_methods = ["Auto", "AnsoftTAU", "AnsoftClassic"]
@@ -498,7 +526,10 @@ class Mesh(object):
             "SliderMeshSettings:=",
             level,
         ]
-        if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
+        if (
+            self._app.design_type == "2D Extractor"
+            or self._app.design_type == "Maxwell 2D"
+        ):
             args = ["NAME:MeshSettings", surface_appr, modelres, "MeshMethod:=", method]
         else:
             args = [
@@ -546,7 +577,13 @@ class Mesh(object):
         >>> oModule.AssignSurfPriorityForTauOp
         """
         meshop_name = generate_unique_name("SurfaceRepPriority")
-        props = OrderedDict({"Type": "SurfaceRepPriority", "Objects": object_lists, "SurfaceRepPriority": surfpriority})
+        props = OrderedDict(
+            {
+                "Type": "SurfaceRepPriority",
+                "Objects": object_lists,
+                "SurfaceRepPriority": surfpriority,
+            }
+        )
         mop = MeshOperation(self, meshop_name, props, "SurfaceRepPriority")
         mop.create()
         self.meshoperations.append(mop)
@@ -613,7 +650,9 @@ class Mesh(object):
         return True
 
     @aedt_exception_handler
-    def assign_length_mesh(self, names, isinside=True, maxlength=1, maxel=1000, meshop_name=None):
+    def assign_length_mesh(
+        self, names, isinside=True, maxlength=1, maxel=1000, meshop_name=None
+    ):
         """Assign a length for the model resolution.
 
         Parameters
@@ -695,7 +734,13 @@ class Mesh(object):
 
     @aedt_exception_handler
     def assign_skin_depth(
-        self, names, skindepth, maxelements=None, triangulation_max_length="0.1mm", numlayers="2", meshop_name=None
+        self,
+        names,
+        skindepth,
+        maxelements=None,
+        triangulation_max_length="0.1mm",
+        numlayers="2",
+        meshop_name=None,
     ):
         """Assign a skin depth for the mesh refinement.
 
@@ -821,7 +866,9 @@ class Mesh(object):
         return mop
 
     @aedt_exception_handler
-    def assign_curvature_extraction(self, names, disable_for_faceted_surf=True, meshop_name=None):
+    def assign_curvature_extraction(
+        self, names, disable_for_faceted_surf=True, meshop_name=None
+    ):
         """Assign curvature extraction.
 
          Parameters
@@ -865,7 +912,11 @@ class Mesh(object):
             self.logger.error("Error in Assignment")
             return
         props = OrderedDict(
-            {"Type": "CurvatureExtraction", seltype: names, "DisableForFacetedSurfaces": disable_for_faceted_surf}
+            {
+                "Type": "CurvatureExtraction",
+                seltype: names,
+                "DisableForFacetedSurfaces": disable_for_faceted_surf,
+            }
         )
         mop = MeshOperation(self, meshop_name, props, "CurvatureExtraction")
         mop.create()
@@ -873,7 +924,9 @@ class Mesh(object):
         return mop
 
     @aedt_exception_handler
-    def assign_rotational_layer(self, names, num_layers=3, total_thickness="1mm", meshop_name=None):
+    def assign_rotational_layer(
+        self, names, num_layers=3, total_thickness="1mm", meshop_name=None
+    ):
         """Assign a rotational layer mesh.
 
         Parameters
@@ -957,7 +1010,13 @@ class Mesh(object):
         else:
             meshop_name = generate_unique_name("EdgeCut")
         seltype = "Objects"
-        props = OrderedDict({"Type": "RotationalLayerMesh", seltype: names, "Layer Thickenss": layer_thickness})
+        props = OrderedDict(
+            {
+                "Type": "RotationalLayerMesh",
+                seltype: names,
+                "Layer Thickenss": layer_thickness,
+            }
+        )
 
         mop = MeshOperation(self, meshop_name, props, "RotationalLayerMesh")
         mop.create()
@@ -965,7 +1024,14 @@ class Mesh(object):
         return mop
 
     @aedt_exception_handler
-    def assign_density_control(self, names, refine_inside=True, maxelementlength=None, layerNum=None, meshop_name=None):
+    def assign_density_control(
+        self,
+        names,
+        refine_inside=True,
+        maxelementlength=None,
+        layerNum=None,
+        meshop_name=None,
+    ):
         """Assign density control.
 
         Parameters

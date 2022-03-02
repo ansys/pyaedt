@@ -1,5 +1,6 @@
+from pyaedt.generic.constants import SI_UNITS
+from pyaedt.generic.constants import unit_system
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
-from pyaedt.generic.constants import SI_UNITS, unit_system
 
 
 def parse_rdat_file(file_path):
@@ -30,7 +31,9 @@ def parse_rdat_file(file_path):
                 "curves": {},
             }
             for curve, curve_data in trace_data["CurvesInfo"].items():
-                report_dict[report_name][trace_data["TraceName"]]["curves"][curve_data[1]] = {
+                report_dict[report_name][trace_data["TraceName"]]["curves"][
+                    curve_data[1]
+                ] = {
                     "x_data": all_x_values[0 : curve_data[0]],
                     "y_data": all_y_values[0 : curve_data[0]],
                 }

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
 This module contains these classes: `Components3DLayout`,`CircuitComponent',
 `EdgePrimitive`, `EdgeTypePrimitive`, `FacePrimitive`, `Geometries3DLayout`,
@@ -10,20 +9,20 @@ This module provides methods and data structures for managing all properties of
 objects (points, lines, sheeets, and solids) within the AEDT 3D Modeler.
 
 """
-from __future__ import absolute_import
-
-import random
-import string
 import math
 import os
+import random
 import re
+import string
 import warnings
 
-from pyaedt import aedt_exception_handler, _retry_ntimes
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt import _retry_ntimes
+from pyaedt import aedt_exception_handler
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic.constants import AEDT_UNITS, MILS2METER
+from pyaedt.generic.constants import AEDT_UNITS
+from pyaedt.generic.constants import MILS2METER
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
 
@@ -155,19 +154,35 @@ class EdgeTypePrimitive(object):
             if self._object3d.is3d:
                 edge_id_list = [self.id]
             else:
-                self._object3d.logger.error("Filet is possible only on a vertex in 2D designs.")
+                self._object3d.logger.error(
+                    "Filet is possible only on a vertex in 2D designs."
+                )
                 return False
 
-        vArg1 = ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"]
+        vArg1 = [
+            "NAME:Selections",
+            "Selections:=",
+            self._object3d.name,
+            "NewPartsModelFlag:=",
+            "Model",
+        ]
         vArg2 = ["NAME:FilletParameters"]
         vArg2.append("Edges:="), vArg2.append(edge_id_list)
         vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
-        vArg2.append("Radius:="), vArg2.append(self._object3d._primitives._arg_with_dim(radius))
-        vArg2.append("Setback:="), vArg2.append(self._object3d._primitives._arg_with_dim(setback))
+        vArg2.append("Radius:="), vArg2.append(
+            self._object3d._primitives._arg_with_dim(radius)
+        )
+        vArg2.append("Setback:="), vArg2.append(
+            self._object3d._primitives._arg_with_dim(setback)
+        )
         self._object3d.m_Editor.Fillet(vArg1, ["NAME:Parameters", vArg2])
-        if self._object3d.name in list(self._object3d.m_Editor.GetObjectsInGroup("UnClassified")):
+        if self._object3d.name in list(
+            self._object3d.m_Editor.GetObjectsInGroup("UnClassified")
+        ):
             self._object3d._primitives._odesign.Undo()
-            self._object3d.logger.error("Operation failed, generating an unclassified object. Check and retry.")
+            self._object3d.logger.error(
+                "Operation failed, generating an unclassified object. Check and retry."
+            )
             return False
         return True
 
@@ -212,35 +227,57 @@ class EdgeTypePrimitive(object):
             if self._object3d.is3d:
                 edge_id_list = [self.id]
             else:
-                self._object3d.logger.error("chamfer is possible only on Vertex in 2D Designs ")
+                self._object3d.logger.error(
+                    "chamfer is possible only on Vertex in 2D Designs "
+                )
                 return False
-        vArg1 = ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"]
+        vArg1 = [
+            "NAME:Selections",
+            "Selections:=",
+            self._object3d.name,
+            "NewPartsModelFlag:=",
+            "Model",
+        ]
         vArg2 = ["NAME:ChamferParameters"]
         vArg2.append("Edges:="), vArg2.append(edge_id_list)
         vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
-        vArg2.append("LeftDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(left_distance))
+        vArg2.append("LeftDistance:="), vArg2.append(
+            self._object3d._primitives._arg_with_dim(left_distance)
+        )
         if not right_distance:
             right_distance = left_distance
         if chamfer_type == 0:
-            vArg2.append("RightDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(right_distance))
+            vArg2.append("RightDistance:="), vArg2.append(
+                self._object3d._primitives._arg_with_dim(right_distance)
+            )
             vArg2.append("ChamferType:="), vArg2.append("Symmetric")
         elif chamfer_type == 1:
-            vArg2.append("RightDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(right_distance))
+            vArg2.append("RightDistance:="), vArg2.append(
+                self._object3d._primitives._arg_with_dim(right_distance)
+            )
             vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
         elif chamfer_type == 2:
             vArg2.append("Angle:="), vArg2.append(str(angle) + "deg")
             vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
         elif chamfer_type == 3:
             vArg2.append("LeftDistance:="), vArg2.append(str(angle) + "deg")
-            vArg2.append("RightDistance:="), vArg2.append(self._object3d._primitives._arg_with_dim(right_distance))
+            vArg2.append("RightDistance:="), vArg2.append(
+                self._object3d._primitives._arg_with_dim(right_distance)
+            )
             vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
         else:
-            self._object3d.logger.error("Wrong Type Entered. Type must be integer from 0 to 3")
+            self._object3d.logger.error(
+                "Wrong Type Entered. Type must be integer from 0 to 3"
+            )
             return False
         self._object3d.m_Editor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
-        if self._object3d.name in list(self._object3d.m_Editor.GetObjectsInGroup("UnClassified")):
+        if self._object3d.name in list(
+            self._object3d.m_Editor.GetObjectsInGroup("UnClassified")
+        ):
             self._object3d.odesign.Undo()
-            self._object3d.logger.error("Operation Failed generating Unclassified object. Check and retry")
+            self._object3d.logger.error(
+                "Operation Failed generating Unclassified object. Check and retry"
+            )
             return False
         return True
 
@@ -348,7 +385,9 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         """
 
         if len(self.vertices) == 2:
-            midpoint = GeometryOperators.get_mid_point(self.vertices[0].position, self.vertices[1].position)
+            midpoint = GeometryOperators.get_mid_point(
+                self.vertices[0].position, self.vertices[1].position
+            )
             return list(midpoint)
         elif len(self.vertices) == 1:
             return self.vertices[0].position
@@ -369,7 +408,9 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
         """
         if len(self.vertices) == 2:
-            length = GeometryOperators.points_distance(self.vertices[0].position, self.vertices[1].position)
+            length = GeometryOperators.points_distance(
+                self.vertices[0].position, self.vertices[1].position
+            )
             return float(length)
         else:
             return False
@@ -519,7 +560,9 @@ class FacePrimitive(object):
 
         """
         if len(self.vertices) > 1:
-            return GeometryOperators.get_polygon_centroid([pos.position for pos in self.vertices])
+            return GeometryOperators.get_polygon_centroid(
+                [pos.position for pos in self.vertices]
+            )
         else:
             center = self.center_from_aedt
             if center:
@@ -593,7 +636,13 @@ class FacePrimitive(object):
 
         """
         self._oeditor.MoveFaces(
-            ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"],
+            [
+                "NAME:Selections",
+                "Selections:=",
+                self._object3d.name,
+                "NewPartsModelFlag:=",
+                "Model",
+            ],
             [
                 "NAME:Parameters",
                 [
@@ -636,7 +685,13 @@ class FacePrimitive(object):
 
         """
         self._oeditor.MoveFaces(
-            ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"],
+            [
+                "NAME:Selections",
+                "Selections:=",
+                self._object3d.name,
+                "NewPartsModelFlag:=",
+                "Model",
+            ],
             [
                 "NAME:Parameters",
                 [
@@ -712,7 +767,9 @@ class FacePrimitive(object):
         inv_norm = [-i for i in normal]
         mv1 = GeometryOperators.v_sum(fc, normal)
         mv2 = GeometryOperators.v_sum(fc, inv_norm)
-        bb_center = GeometryOperators.get_mid_point(self._object3d.bounding_box[0:3], self._object3d.bounding_box[3:6])
+        bb_center = GeometryOperators.get_mid_point(
+            self._object3d.bounding_box[0:3], self._object3d.bounding_box[3:6]
+        )
         d1 = GeometryOperators.points_distance(mv1, bb_center)
         d2 = GeometryOperators.points_distance(mv2, bb_center)
         if d1 > d2:
@@ -786,7 +843,9 @@ class Object3d(object):
 
         """
         objs_to_unmodel = [
-            val.name for i, val in self._primitives.objects.items() if val.model and val.name != self.name
+            val.name
+            for i, val in self._primitives.objects.items()
+            if val.model and val.name != self.name
         ]
         if objs_to_unmodel:
             vArg1 = ["NAME:Model", "Value:=", False]
@@ -831,7 +890,9 @@ class Object3d(object):
         self._primitives._app.export_3d_model(self.name, tmp_path, ".sat", [self.name])
 
         if not os.path.isfile(filename):
-            raise Exception("Cannot export the ACIS SAT file for object {}".format(self.name))
+            raise Exception(
+                "Cannot export the ACIS SAT file for object {}".format(self.name)
+            )
 
         with open(filename, "r") as fh:
             temp = fh.read().splitlines()
@@ -958,7 +1019,9 @@ class Object3d(object):
         """
         if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
             if not file_path:
-                file_path = os.path.join(self._primitives._app.working_directory, self.name + ".png")
+                file_path = os.path.join(
+                    self._primitives._app.working_directory, self.name + ".png"
+                )
             model_obj = self._primitives._app.post.plot_model_obj(
                 objects=[self.name],
                 show=False,
@@ -1208,7 +1271,11 @@ class Object3d(object):
             return self._surface_material
         if "Surface Material" in self.valid_properties and self.model:
             self._surface_material = _retry_ntimes(
-                10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Surface Material"
+                10,
+                self.m_Editor.GetPropertyValue,
+                "Geometry3DAttributeTab",
+                self._m_name,
+                "Surface Material",
             )
             return self._surface_material.strip('"')
 
@@ -1232,7 +1299,11 @@ class Object3d(object):
             return self._m_groupName
         if "Group" in self.valid_properties:
             self._m_groupName = _retry_ntimes(
-                10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Group"
+                10,
+                self.m_Editor.GetPropertyValue,
+                "Geometry3DAttributeTab",
+                self._m_name,
+                "Group",
             )
             return self._m_groupName
 
@@ -1255,7 +1326,13 @@ class Object3d(object):
         if self._material_name is not None:
             return self._material_name
         if "Material" in self.valid_properties and self.model:
-            mat = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Material")
+            mat = _retry_ntimes(
+                10,
+                self.m_Editor.GetPropertyValue,
+                "Geometry3DAttributeTab",
+                self._m_name,
+                "Material",
+            )
             self._material_name = ""
             if mat:
                 self._material_name = mat.strip('"').lower()
@@ -1394,7 +1471,9 @@ class Object3d(object):
         >>> oEditor.GetProperties
         """
         if not self._all_props:
-            self._all_props = _retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DAttributeTab", self._m_name)
+            self._all_props = _retry_ntimes(
+                10, self.m_Editor.GetProperties, "Geometry3DAttributeTab", self._m_name
+            )
         return self._all_props
 
     @property
@@ -1417,7 +1496,13 @@ class Object3d(object):
         if self._color is not None:
             return self._color
         if "Color" in self.valid_properties:
-            color = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Color")
+            color = _retry_ntimes(
+                10,
+                self.m_Editor.GetPropertyValue,
+                "Geometry3DAttributeTab",
+                self._m_name,
+                "Color",
+            )
             if color:
                 b = (int(color) >> 16) & 255
                 g = (int(color) >> 8) & 255
@@ -1466,7 +1551,9 @@ class Object3d(object):
             except TypeError:
                 color_tuple = None
         else:
-            msg_text = "Invalid color input {} for object {}.".format(color_value, self._m_name)
+            msg_text = "Invalid color input {} for object {}.".format(
+                color_value, self._m_name
+            )
             self._primitives.logger.warning(msg_text)
 
     @property
@@ -1486,7 +1573,11 @@ class Object3d(object):
             return self._transparency
         if "Transparent" in self.valid_properties:
             transp = _retry_ntimes(
-                10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Transparent"
+                10,
+                self.m_Editor.GetPropertyValue,
+                "Geometry3DAttributeTab",
+                self._m_name,
+                "Transparent",
             )
             try:
                 self._transparency = float(transp)
@@ -1535,7 +1626,11 @@ class Object3d(object):
             return self._part_coordinate_system
         if "Orientation" in self.valid_properties:
             self._part_coordinate_system = _retry_ntimes(
-                10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Orientation"
+                10,
+                self.m_Editor.GetPropertyValue,
+                "Geometry3DAttributeTab",
+                self._m_name,
+                "Orientation",
             )
             return self._part_coordinate_system
 
@@ -1567,7 +1662,11 @@ class Object3d(object):
             return self._solve_inside
         if "Solve Inside" in self.valid_properties and self.model:
             solveinside = _retry_ntimes(
-                10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Solve Inside"
+                10,
+                self.m_Editor.GetPropertyValue,
+                "Geometry3DAttributeTab",
+                self._m_name,
+                "Solve Inside",
             )
             if solveinside == "false" or solveinside == "False":
                 self._solve_inside = False
@@ -1609,7 +1708,11 @@ class Object3d(object):
             return self._wireframe
         if "Display Wireframe" in self.valid_properties:
             wireframe = _retry_ntimes(
-                10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Display Wireframe"
+                10,
+                self.m_Editor.GetPropertyValue,
+                "Geometry3DAttributeTab",
+                self._m_name,
+                "Display Wireframe",
             )
             if wireframe == "true" or wireframe == "True":
                 self._wireframe = True
@@ -1644,7 +1747,13 @@ class Object3d(object):
         if self._model is not None:
             return self._model
         if "Model" in self.valid_properties:
-            mod = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Model")
+            mod = _retry_ntimes(
+                10,
+                self.m_Editor.GetPropertyValue,
+                "Geometry3DAttributeTab",
+                self._m_name,
+                "Model",
+            )
             if mod == "false" or mod == "False":
                 self._model = False
             else:
@@ -1678,7 +1787,9 @@ class Object3d(object):
         >>> oEditor.Unite
 
         """
-        unite_list = [self.name] + self._primitives.modeler.convert_to_selections(object_list, return_list=True)
+        unite_list = [self.name] + self._primitives.modeler.convert_to_selections(
+            object_list, return_list=True
+        )
         self._primitives.modeler.unite(unite_list)
         return self
 
@@ -1705,7 +1816,9 @@ class Object3d(object):
 
         >>> oEditor.Mirror
         """
-        return self._primitives.modeler.mirror(self.id, position=position, vector=vector)
+        return self._primitives.modeler.mirror(
+            self.id, position=position, vector=vector
+        )
 
     @aedt_exception_handler
     def rotate(self, cs_axis, angle=90.0, unit="deg"):
@@ -1732,7 +1845,9 @@ class Object3d(object):
 
         >>> oEditor.Rotate
         """
-        return self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit)
+        return self._primitives.modeler.rotate(
+            self.id, cs_axis=cs_axis, angle=angle, unit=unit
+        )
 
     @aedt_exception_handler
     def move(self, vector):
@@ -1757,7 +1872,9 @@ class Object3d(object):
         """
         return self._primitives.modeler.move(self.id, vector=vector)
 
-    def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
+    def duplicate_around_axis(
+        self, cs_axis, angle=90, nclones=2, create_new_objects=True
+    ):
         """Duplicate the object around the axis.
 
         Parameters
@@ -1811,7 +1928,9 @@ class Object3d(object):
         >>> oEditor.DuplicateAlongLine
 
         """
-        ret, added_objects = self._primitives.modeler.duplicate_along_line(self, vector, nclones, attachObject)
+        ret, added_objects = self._primitives.modeler.duplicate_along_line(
+            self, vector, nclones, attachObject
+        )
         return added_objects
 
     @aedt_exception_handler
@@ -1832,7 +1951,9 @@ class Object3d(object):
         >>> oEditor.Move
 
         """
-        warnings.warn("`translate` is deprecated. Use `move` instead.", DeprecationWarning)
+        warnings.warn(
+            "`translate` is deprecated. Use `move` instead.", DeprecationWarning
+        )
         self.move(vector)
         return self
 
@@ -1861,12 +1982,19 @@ class Object3d(object):
         >>> oEditor.SweepAlongVector
 
         """
-        self._primitives.modeler.sweep_along_vector(self, sweep_vector, draft_angle, draft_type)
+        self._primitives.modeler.sweep_along_vector(
+            self, sweep_vector, draft_angle, draft_type
+        )
         return self
 
     @aedt_exception_handler
     def sweep_along_path(
-        self, sweep_object, draft_angle=0, draft_type="Round", is_check_face_intersection=False, twist_angle=0
+        self,
+        sweep_object,
+        draft_angle=0,
+        draft_type="Round",
+        is_check_face_intersection=False,
+        twist_angle=0,
     ):
         """Sweep the selection along a vector.
 
@@ -1896,7 +2024,12 @@ class Object3d(object):
 
         """
         self._primitives.modeler.sweep_along_path(
-            self, sweep_object, draft_angle, draft_type, is_check_face_intersection, twist_angle
+            self,
+            sweep_object,
+            draft_angle,
+            draft_type,
+            is_check_face_intersection,
+            twist_angle,
         )
         return self
 
@@ -1924,7 +2057,9 @@ class Object3d(object):
         >>> oEditor.SweepAroundAxis
 
         """
-        self._primitives.modeler.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
+        self._primitives.modeler.sweep_around_axis(
+            self, cs_axis, sweep_angle, draft_angle
+        )
         return self
 
     @aedt_exception_handler
@@ -2100,7 +2235,9 @@ class Padstack(object):
 
         """
 
-        def __init__(self, holetype="Cir", sizes=["1mm"], xpos="0mm", ypos="0mm", rot="0deg"):
+        def __init__(
+            self, holetype="Cir", sizes=["1mm"], xpos="0mm", ypos="0mm", rot="0deg"
+        ):
             self.shape = holetype
             self.sizes = sizes
             self.x = xpos
@@ -2180,7 +2317,17 @@ class Padstack(object):
             "LibLocation:=",
             "Project",
         ]
-        arg2 = ["NAME:psd", "nam:=", self.name, "lib:=", "", "mat:=", self.mat, "plt:=", self.plating]
+        arg2 = [
+            "NAME:psd",
+            "nam:=",
+            self.name,
+            "lib:=",
+            "",
+            "mat:=",
+            self.mat,
+            "plt:=",
+            self.plating,
+        ]
         arg3 = ["NAME:pds"]
         for el in self.layers:
             arg4 = []
@@ -2276,7 +2423,14 @@ class Padstack(object):
 
     @aedt_exception_handler
     def add_layer(
-        self, layername="Start", pad_hole=None, antipad_hole=None, thermal_hole=None, connx=0, conny=0, conndir=0
+        self,
+        layername="Start",
+        pad_hole=None,
+        antipad_hole=None,
+        thermal_hole=None,
+        connx=0,
+        conny=0,
+        conndir=0,
     ):
         """Create a layer in the padstack.
 
@@ -2453,9 +2607,19 @@ class CircuitPins(object):
                 return pos1
             return []
         return [
-            _retry_ntimes(30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name, True),
             _retry_ntimes(
-                30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name, False
+                30,
+                self.m_Editor.GetComponentPinLocation,
+                self._circuit_comp.composed_name,
+                self.name,
+                True,
+            ),
+            _retry_ntimes(
+                30,
+                self.m_Editor.GetComponentPinLocation,
+                self._circuit_comp.composed_name,
+                self.name,
+                False,
             ),
         ]
 
@@ -2468,7 +2632,8 @@ class CircuitPins(object):
             conns = self.m_Editor.GetNetConnections(net)
             for conn in conns:
                 if conn.endswith(self.name) and (
-                    ";{};".format(self._circuit_comp.id) in conn or ";{} ".format(self._circuit_comp.id) in conn
+                    ";{};".format(self._circuit_comp.id) in conn
+                    or ";{} ".format(self._circuit_comp.id) in conn
                 ):
                     return net
         return ""
@@ -2498,7 +2663,8 @@ class CircuitPins(object):
         if len(self._circuit_comp.pins) == 2:
             comp_angle += math.pi / 2
         page_name = "{}_{}".format(
-            self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"), self.name
+            self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"),
+            self.name,
         )
 
         if "Port" in self._circuit_comp.composed_name:
@@ -2510,26 +2676,30 @@ class CircuitPins(object):
             for cmp in component_pin:
                 if "Port" in cmp._circuit_comp.composed_name:
                     try:
-                        page_name = cmp._circuit_comp.name.split("@")[1].replace(";", "_")
+                        page_name = cmp._circuit_comp.name.split("@")[1].replace(
+                            ";", "_"
+                        )
                         break
                     except:
                         continue
         try:
-            x_loc = AEDT_UNITS["Length"][decompose_variable_value(self._circuit_comp.location[0])[1]] * float(
-                decompose_variable_value(self._circuit_comp.location[1])[0]
-            )
+            x_loc = AEDT_UNITS["Length"][
+                decompose_variable_value(self._circuit_comp.location[0])[1]
+            ] * float(decompose_variable_value(self._circuit_comp.location[1])[0])
         except:
             x_loc = float(self._circuit_comp.location[0])
         if self.location[0] < x_loc:
             angle = comp_angle
         else:
             angle = math.pi + comp_angle
-        ret1 = self._circuit_comp._circuit_components.create_page_port(page_name, self.location, angle=angle)
+        ret1 = self._circuit_comp._circuit_components.create_page_port(
+            page_name, self.location, angle=angle
+        )
         for cmp in component_pin:
             try:
-                x_loc = AEDT_UNITS["Length"][decompose_variable_value(cmp._circuit_comp.location[0])[1]] * float(
-                    decompose_variable_value(cmp._circuit_comp.location[0])[0]
-                )
+                x_loc = AEDT_UNITS["Length"][
+                    decompose_variable_value(cmp._circuit_comp.location[0])[1]
+                ] * float(decompose_variable_value(cmp._circuit_comp.location[0])[0])
             except:
                 x_loc = float(self._circuit_comp.location[0])
             comp_pin_angle = cmp._circuit_comp.angle * math.pi / 180
@@ -2568,7 +2738,9 @@ class ComponentParameters(object):
             )
             self.parameters[key] = value
         except:
-            self._component._circuit_components.logger.warning("Property %s has not been edited", key)
+            self._component._circuit_components.logger.warning(
+                "Property %s has not been edited", key
+            )
 
     def __repr__(self):
         return str(self.parameters)
@@ -2633,7 +2805,9 @@ class CircuitComponent(object):
         proparray = self.m_Editor.GetProperties(tab, self.composed_name)
 
         for j in proparray:
-            propval = _retry_ntimes(10, self.m_Editor.GetPropertyValue, tab, self.composed_name, j)
+            propval = _retry_ntimes(
+                10, self.m_Editor.GetPropertyValue, tab, self.composed_name, j
+            )
             _parameters[j] = propval
         self._parameters = ComponentParameters(self, tab, _parameters)
         return self._parameters
@@ -2679,7 +2853,11 @@ class CircuitComponent(object):
             return self._location
         try:
             loc = _retry_ntimes(
-                10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name, "Component Location"
+                10,
+                self.m_Editor.GetPropertyValue,
+                "BaseElementTab",
+                self.composed_name,
+                "Component Location",
             )
             self._location = [loc.split(",")[0].strip(), loc.split(",")[1].strip()]
         except:
@@ -2698,7 +2876,12 @@ class CircuitComponent(object):
         decomposed = decompose_variable_value(location_xy[0])
         try:
             if decomposed[1] != "":
-                x_location = round(AEDT_UNITS["Length"][decomposed[1]] * float(decomposed[0]) * MILS2METER, -2)
+                x_location = round(
+                    AEDT_UNITS["Length"][decomposed[1]]
+                    * float(decomposed[0])
+                    * MILS2METER,
+                    -2,
+                )
             else:
                 x_location = round(float(decomposed[0]), -2)
 
@@ -2709,7 +2892,12 @@ class CircuitComponent(object):
         decomposed = decompose_variable_value(location_xy[1])
         try:
             if decomposed[1] != "":
-                y_location = round(AEDT_UNITS["Length"][decomposed[1]] * float(decomposed[0]) * MILS2METER, -2)
+                y_location = round(
+                    AEDT_UNITS["Length"][decomposed[1]]
+                    * float(decomposed[0])
+                    * MILS2METER,
+                    -2,
+                )
             else:
                 y_location = round(float(decomposed[0]), -2)
             y_location = _dim_arg(y_location, "mil")
@@ -2736,7 +2924,11 @@ class CircuitComponent(object):
         try:
             self._angle = float(
                 _retry_ntimes(
-                    10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name, "Component Angle"
+                    10,
+                    self.m_Editor.GetPropertyValue,
+                    "BaseElementTab",
+                    self.composed_name,
+                    "Component Angle",
                 ).replace("°", "")
             )
         except:
@@ -2768,7 +2960,11 @@ class CircuitComponent(object):
         try:
             self._mirror = (
                 _retry_ntimes(
-                    10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name, "Component Mirror"
+                    10,
+                    self.m_Editor.GetPropertyValue,
+                    "BaseElementTab",
+                    self.composed_name,
+                    "Component Mirror",
                 )
                 == "true"
             )
@@ -2925,11 +3121,17 @@ class CircuitComponent(object):
         else:
             vPropServers = ["NAME:PropServers", self.composed_name]
         tabname = None
-        if vPropChange[0][5:] in list(self.m_Editor.GetProperties(self.tabname, self.composed_name)):
+        if vPropChange[0][5:] in list(
+            self.m_Editor.GetProperties(self.tabname, self.composed_name)
+        ):
             tabname = self.tabname
-        elif vPropChange[0][5:] in list(self.m_Editor.GetProperties("PassedParameterTab", self.composed_name)):
+        elif vPropChange[0][5:] in list(
+            self.m_Editor.GetProperties("PassedParameterTab", self.composed_name)
+        ):
             tabname = "PassedParameterTab"
-        elif vPropChange[0][5:] in list(self.m_Editor.GetProperties("BaseElementTab", self.composed_name)):
+        elif vPropChange[0][5:] in list(
+            self.m_Editor.GetProperties("BaseElementTab", self.composed_name)
+        ):
             tabname = "BaseElementTab"
         if tabname:
             vGeo3dlayout = ["NAME:" + tabname, vPropServers, vChangedProps]
@@ -3046,7 +3248,13 @@ class Components3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        location = _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location")
+        location = _retry_ntimes(
+            self._n,
+            self.m_Editor.GetPropertyValue,
+            "BaseElementTab",
+            self.name,
+            "Location",
+        )
         return list(location)
 
     @aedt_exception_handler
@@ -3063,7 +3271,13 @@ class Components3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
+        return _retry_ntimes(
+            self._n,
+            self.m_Editor.GetPropertyValue,
+            "BaseElementTab",
+            self.name,
+            "PlacementLayer",
+        )
 
     @aedt_exception_handler
     def get_part(self):
@@ -3079,7 +3293,9 @@ class Components3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Part")
+        return _retry_ntimes(
+            self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Part"
+        )
 
     @aedt_exception_handler
     def get_part_type(self):
@@ -3095,7 +3311,13 @@ class Components3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Part Type")
+        return _retry_ntimes(
+            self._n,
+            self.m_Editor.GetPropertyValue,
+            "BaseElementTab",
+            self.name,
+            "Part Type",
+        )
 
     @aedt_exception_handler
     def get_angle(self):
@@ -3111,7 +3333,13 @@ class Components3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Angle")
+        return _retry_ntimes(
+            self._n,
+            self.m_Editor.GetPropertyValue,
+            "BaseElementTab",
+            self.name,
+            "Angle",
+        )
 
 
 class Nets3DLayout(Objec3DLayout, object):
@@ -3168,7 +3396,13 @@ class Pins3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        location = _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location")
+        location = _retry_ntimes(
+            self._n,
+            self.m_Editor.GetPropertyValue,
+            "BaseElementTab",
+            self.name,
+            "Location",
+        )
         return location
 
     @aedt_exception_handler
@@ -3185,7 +3419,13 @@ class Pins3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Start Layer")
+        return _retry_ntimes(
+            self._n,
+            self.m_Editor.GetPropertyValue,
+            "BaseElementTab",
+            self.name,
+            "Start Layer",
+        )
 
     @aedt_exception_handler
     def get_stop_layer(self):
@@ -3201,7 +3441,13 @@ class Pins3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Stop Layer")
+        return _retry_ntimes(
+            self._n,
+            self.m_Editor.GetPropertyValue,
+            "BaseElementTab",
+            self.name,
+            "Stop Layer",
+        )
 
     @aedt_exception_handler
     def get_holediam(self):
@@ -3217,7 +3463,13 @@ class Pins3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "HoleDiameter")
+        return _retry_ntimes(
+            self._n,
+            self.m_Editor.GetPropertyValue,
+            "BaseElementTab",
+            self.name,
+            "HoleDiameter",
+        )
 
     @aedt_exception_handler
     def get_angle(self):
@@ -3233,7 +3485,13 @@ class Pins3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Angle")
+        return _retry_ntimes(
+            self._n,
+            self.m_Editor.GetPropertyValue,
+            "BaseElementTab",
+            self.name,
+            "Angle",
+        )
 
 
 class Geometries3DLayout(Objec3DLayout, object):
@@ -3269,7 +3527,13 @@ class Geometries3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
+        return _retry_ntimes(
+            self._n,
+            self.m_Editor.GetPropertyValue,
+            "BaseElementTab",
+            self.name,
+            "PlacementLayer",
+        )
 
     @aedt_exception_handler
     def get_net_name(self):
@@ -3285,7 +3549,9 @@ class Geometries3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Net")
+        return _retry_ntimes(
+            self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Net"
+        )
 
     @aedt_exception_handler
     def get_property_value(self, propertyname):
@@ -3306,7 +3572,13 @@ class Geometries3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, propertyname)
+        return _retry_ntimes(
+            self._n,
+            self.m_Editor.GetPropertyValue,
+            "BaseElementTab",
+            self.name,
+            propertyname,
+        )
 
     @aedt_exception_handler
     def set_layer(self, layer_name):
@@ -3471,7 +3743,11 @@ class Point(object):
                 changed_property = ["NAME:ChangedProps", name_property]
                 property_servers = ["NAME:PropServers"]
                 property_servers.append(self._name)
-                point_tab = ["NAME:Geometry3DPointTab", property_servers, changed_property]
+                point_tab = [
+                    "NAME:Geometry3DPointTab",
+                    property_servers,
+                    changed_property,
+                ]
                 all_tabs = ["NAME:AllTabs", point_tab]
                 _retry_ntimes(10, self._primitives._oeditor.ChangeProperty, all_tabs)
                 self._name = point_name
@@ -3489,7 +3765,9 @@ class Point(object):
         >>> oEditor.GetProperties
         """
         if not self._all_props:
-            self._all_props = _retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DPointTab", self._name)
+            self._all_props = _retry_ntimes(
+                10, self.m_Editor.GetProperties, "Geometry3DPointTab", self._name
+            )
         return self._all_props
 
     # Note: We currently cannot get the color property value because
@@ -3540,7 +3818,9 @@ class Point(object):
             except TypeError:
                 color_tuple = None
         else:
-            msg_text = "Invalid color input {} for object {}.".format(color_value, self._name)
+            msg_text = "Invalid color input {} for object {}.".format(
+                color_value, self._name
+            )
             self._primitives.logger.warning(msg_text)
 
     @property
@@ -3563,7 +3843,11 @@ class Point(object):
             return self._point_coordinate_system
         if "Orientation" in self.valid_properties:
             self._point_coordinate_system = _retry_ntimes(
-                10, self.m_Editor.GetPropertyValue, "Geometry3DPointTab", self._name, "Orientation"
+                10,
+                self.m_Editor.GetPropertyValue,
+                "Geometry3DPointTab",
+                self._name,
+                "Orientation",
             )
             return self._point_coordinate_system
 

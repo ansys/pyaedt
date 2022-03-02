@@ -1,11 +1,10 @@
 """This module contains the `Mechanical` class."""
-
-from __future__ import absolute_import
+from collections import OrderedDict
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
-from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.modules.Boundary import BoundaryObject
-from collections import OrderedDict
 
 
 class Mechanical(FieldAnalysis3D, object):
@@ -153,7 +152,9 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignEMLoss
         """
-        assert self.solution_type == "Thermal", "This Method works only in Mechanical Structural Solution"
+        assert (
+            self.solution_type == "Thermal"
+        ), "This Method works only in Mechanical Structural Solution"
 
         self.logger.info("Mapping HFSS EM Lossess")
         oName = self.project_name
@@ -249,7 +250,9 @@ class Mechanical(FieldAnalysis3D, object):
         >>> oModule.AssignThermalCondition
         """
 
-        assert self.solution_type == "Structural", "This method works only in a Mechanical structural solution."
+        assert (
+            self.solution_type == "Structural"
+        ), "This method works only in a Mechanical structural solution."
 
         self.logger.info("Mapping HFSS EM Lossess")
         oName = self.project_name
@@ -291,14 +294,21 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "ThermalCondition")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.info("Thermal conditions are mapped from design %s.", designname)
+            self.logger.info(
+                "Thermal conditions are mapped from design %s.", designname
+            )
             return bound
 
         return True
 
     @aedt_exception_handler
     def assign_uniform_convection(
-        self, objects_list, convection_value, convection_unit="w_per_m2kel", temperature="AmbientTemp", boundary_name=""
+        self,
+        objects_list,
+        convection_value,
+        convection_unit="w_per_m2kel",
+        temperature="AmbientTemp",
+        boundary_name="",
     ):
         """Assign a uniform convection to the face list.
 
@@ -325,7 +335,9 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignConvection
         """
-        assert self.solution_type == "Thermal", "This method works only in a Mechanical structural solution."
+        assert (
+            self.solution_type == "Thermal"
+        ), "This method works only in a Mechanical structural solution."
 
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
@@ -349,7 +361,9 @@ class Mechanical(FieldAnalysis3D, object):
         return False
 
     @aedt_exception_handler
-    def assign_uniform_temperature(self, objects_list, temperature="AmbientTemp", boundary_name=""):
+    def assign_uniform_temperature(
+        self, objects_list, temperature="AmbientTemp", boundary_name=""
+    ):
         """Assign a uniform temperature boundary.
 
         .. note::
@@ -374,7 +388,9 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignTemperature
         """
-        assert self.solution_type == "Thermal", "This method works only in a Mechanical structural analysis."
+        assert (
+            self.solution_type == "Thermal"
+        ), "This method works only in a Mechanical structural analysis."
 
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
@@ -421,7 +437,9 @@ class Mechanical(FieldAnalysis3D, object):
         """
 
         if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
-            self.logger.error("This method works only in Mechanical Structural Solution")
+            self.logger.error(
+                "This method works only in Mechanical Structural Solution"
+            )
             return False
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
@@ -465,7 +483,9 @@ class Mechanical(FieldAnalysis3D, object):
         >>> oModule.AssignFixedSupport
         """
         if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
-            self.logger.error("This method works only in a Mechanical structural solution.")
+            self.logger.error(
+                "This method works only in a Mechanical structural solution."
+            )
             return False
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)

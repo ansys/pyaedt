@@ -5,13 +5,14 @@ The `Siwave` module can be initialized as standalone before launching an app or
 automatically initialized by an app to the latest installed AEDT version.
 
 """
-from __future__ import absolute_import
-from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython, _pythonver
 import os
-import sys
 import pkgutil
+import sys
 import time
 
+from pyaedt.generic.general_methods import _pythonver
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.misc import list_installed_ansysem
 
 if is_ironpython:
@@ -31,7 +32,9 @@ elif os.name == "nt":
 
         _com = "pywin32"
     else:
-        raise Exception("Error. No win32com.client or Python.NET modules found. They need to be installed.")
+        raise Exception(
+            "Error. No win32com.client or Python.NET modules found. They need to be installed."
+        )
 
 
 class Siwave:
@@ -54,7 +57,9 @@ class Siwave:
 
         version_list = list_installed_ansysem()
         for version_env_var in version_list:
-            current_version_id = version_env_var.replace("ANSYSEM_ROOT", "").replace("ANSYSEMSV_ROOT", "")
+            current_version_id = version_env_var.replace("ANSYSEM_ROOT", "").replace(
+                "ANSYSEMSV_ROOT", ""
+            )
             version = int(current_version_id[0:2])
             release = int(current_version_id[2])
             if version < 20:
@@ -79,15 +84,17 @@ class Siwave:
             self._main.AEDTVersion = self._main.oSiwave.GetVersion()[0:6]
             self._main.oSiwave.RestoreWindow()
             specified_version = self.current_version
-            assert specified_version in self.version_keys, "Specified version {} not known.".format(specified_version)
+            assert (
+                specified_version in self.version_keys
+            ), "Specified version {} not known.".format(specified_version)
             version_key = specified_version
             base_path = os.getenv(self._version_ids[specified_version])
             self._main.sDesktopinstallDirectory = base_path
         else:
             if specified_version:
-                assert specified_version in self.version_keys, "Specified version {} not known.".format(
-                    specified_version
-                )
+                assert (
+                    specified_version in self.version_keys
+                ), "Specified version {} not known.".format(specified_version)
                 version_key = specified_version
             else:
                 version_key = self.current_version
@@ -102,14 +109,18 @@ class Siwave:
                 del self._main.oSiwave
 
             if _com == "pythonnet":
-                self._main.oSiwave = System.Activator.CreateInstance(System.Type.GetTypeFromProgID(version))
+                self._main.oSiwave = System.Activator.CreateInstance(
+                    System.Type.GetTypeFromProgID(version)
+                )
 
             elif _com == "pythonnet_v3":
                 # TODO check if possible to use pythonnet. at the moment the tool open AEDt
                 # but doesn't return the wrapper of oApp
                 print("Launching Siwave with Module win32com")
 
-                self._main.oSiwave = win32com.client.Dispatch("Siwave.Application.2021.2")
+                self._main.oSiwave = win32com.client.Dispatch(
+                    "Siwave.Application.2021.2"
+                )
 
             self._main.AEDTVersion = version_key
             self.oSiwave = self._main.oSiwave
@@ -253,7 +264,9 @@ class Siwave:
 
         """
         if projectName and projectpath:
-            self.oproject.ScrSaveProjectAs(os.path.join(projectpath, projectName + ".siw"))
+            self.oproject.ScrSaveProjectAs(
+                os.path.join(projectpath, projectName + ".siw")
+            )
         else:
             self.oproject.Save()
         return True

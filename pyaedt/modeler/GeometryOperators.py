@@ -2,8 +2,11 @@
 import math
 import re
 import sys
+
+from pyaedt.generic.constants import AXIS
+from pyaedt.generic.constants import PLANE
+from pyaedt.generic.constants import SWEEPDRAFT
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.generic.constants import PLANE, AXIS, SWEEPDRAFT
 
 
 class GeometryOperators(object):
@@ -108,7 +111,9 @@ class GeometryOperators(object):
         else:
             sunit = 1.0
 
-        pattern = r"(?P<number>[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)\s*(?P<unit>[a-zA-Z]*)"
+        pattern = (
+            r"(?P<number>[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)\s*(?P<unit>[a-zA-Z]*)"
+        )
         m = re.search(pattern, string)
         if m:
             if m.group(0) != string:
@@ -295,7 +300,11 @@ class GeometryOperators(object):
             List of ``[x, y, z]`` coordinates for the result vector.
         """
 
-        c = [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
+        c = [
+            a[1] * b[2] - a[2] * b[1],
+            a[2] * b[0] - a[0] * b[2],
+            a[0] * b[1] - a[1] * b[0],
+        ]
         return c
 
     @staticmethod
@@ -1319,7 +1328,9 @@ class GeometryOperators(object):
         yy = "sin(" + roll + ")*sin(" + yaw + ")*sin(" + pitch + ") + "
         yy += "cos(" + roll + ")*cos(" + yaw + ")"
 
-        yz = "sin(" + roll + " + pi)*cos(" + pitch + ")"  # use pi to avoid negative sign.
+        yz = (
+            "sin(" + roll + " + pi)*cos(" + pitch + ")"
+        )  # use pi to avoid negative sign.
 
         # x, y pointing vectors for CS
         x_pointing = [xx, xy, xz]
@@ -1376,7 +1387,10 @@ class GeometryOperators(object):
                 return None
         elif type(cs_in) is list:
             if len(cs_in) == 3:
-                return [GeometryOperators.get_numeric(s) if type(s) is str else s for s in cs_in]
+                return [
+                    GeometryOperators.get_numeric(s) if type(s) is str else s
+                    for s in cs_in
+                ]
             else:
                 return [0, 0, 0]
 

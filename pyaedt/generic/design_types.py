@@ -1,5 +1,5 @@
-import sys
 import re
+import sys
 
 try:
     from pyaedt.hfss3dlayout import Hfss3dLayout
@@ -13,7 +13,9 @@ try:
     from pyaedt.mechanical import Mechanical
     from pyaedt.rmxprt import Rmxprt
     from pyaedt.twinbuilder import TwinBuilder
-    from pyaedt.twinbuilder import TwinBuilder as Simplorer  # noqa: F401 # namespace only for backward compatibility
+    from pyaedt.twinbuilder import (  # noqa: F401 # namespace only for backward compatibility
+        TwinBuilder as Simplorer,
+    )
     from pyaedt.maxwellcircuit import MaxwellCircuit
     from pyaedt.emit import Emit
     from pyaedt.desktop import Desktop
@@ -29,7 +31,6 @@ except ImportError:
     from pyaedt.mechanical import Mechanical
     from pyaedt.rmxprt import Rmxprt
     from pyaedt.twinbuilder import TwinBuilder
-    from pyaedt.twinbuilder import TwinBuilder as Simplorer  # noqa: F401 # namespace only for backward compatibility
     from pyaedt.maxwellcircuit import MaxwellCircuit
     from pyaedt.emit import Emit
     from pyaedt.desktop import Desktop
@@ -72,7 +73,9 @@ def get_pyaedt_app(project_name=None, design_name=None):
     if "oDesktop" in dir(main):
 
         if project_name and project_name not in main.oDesktop.GetProjectList():
-            raise AttributeError("Project  {} doesn't exist in current Desktop.".format(project_name))
+            raise AttributeError(
+                "Project  {} doesn't exist in current Desktop.".format(project_name)
+            )
         if not project_name:
             oProject = main.oDesktop.GetActiveProject()
         else:
@@ -85,7 +88,9 @@ def get_pyaedt_app(project_name=None, design_name=None):
             m = re.search(r"[^;]+$", el)
             design_names.append(m.group(0))
         if design_name and design_name not in design_names:
-            raise AttributeError("Design  {} doesn't exists in current Project.".format(design_name))
+            raise AttributeError(
+                "Design  {} doesn't exists in current Project.".format(design_name)
+            )
         if not design_name:
             oDesign = oProject.GetActiveDesign()
         else:

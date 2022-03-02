@@ -68,15 +68,16 @@ Parallel to this file, an xaml file should be present in the same directory.
 >>> if __name__ == '__main__':
 >>>     launch(__file__, specified_version="2021.2", new_desktop_session=False, autosave=False)
 """
-from __future__ import print_function
-
-import os
 import json
-import sys
-import clr
+import os
 import shutil
+import sys
 from datetime import datetime
-from zipfile import ZipFile, ZIP_DEFLATED
+from zipfile import ZIP_DEFLATED
+from zipfile import ZipFile
+
+import clr
+
 from pyaedt import is_ironpython
 from pyaedt.desktop import Desktop
 from pyaedt.generic.general_methods import aedt_exception_handler
@@ -94,8 +95,12 @@ if is_ironpython:
     clr.AddReference("System.Drawing")
 else:
     clr.AddReference("System.Xml")
-    clr.AddReference("PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")
-    clr.AddReference("PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")
+    clr.AddReference(
+        "PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
+    )
+    clr.AddReference(
+        "PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"
+    )
     clr.AddReference("System.Windows.Forms")
     clr.AddReference("System")
     from System.IO import StreamReader
@@ -106,7 +111,14 @@ else:
 from System.Threading import Thread, ThreadStart, ApartmentState
 from System.Windows import LogicalTreeHelper
 from System.Windows import Window, Application, Visibility, Input, Thickness
-from System.Windows.Forms import Form, ListBox, Button, MessageBox, MessageBoxIcon, MessageBoxButtons
+from System.Windows.Forms import (
+    Form,
+    ListBox,
+    Button,
+    MessageBox,
+    MessageBoxIcon,
+    MessageBoxButtons,
+)
 from System.Windows.Forms import (
     FormBorderStyle,
     StatusBar,
@@ -118,7 +130,11 @@ from System.Windows.Forms import (
 from System.Windows.Media import Brushes
 from System.Drawing import Size, Point
 
-from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption, BitmapCreateOptions
+from System.Windows.Media.Imaging import (
+    BitmapImage,
+    BitmapCacheOption,
+    BitmapCreateOptions,
+)
 from System import Uri, UriKind, Environment
 from System.Windows.Media.Imaging import BitmapImage
 
@@ -209,7 +225,11 @@ def copy_files_mkdir(root, files_in_subdir):
 
 @aedt_exception_handler
 def launch(
-    workflow_module, specified_version=None, new_desktop_session=True, autosave=False, close_desktop_on_exit=False
+    workflow_module,
+    specified_version=None,
+    new_desktop_session=True,
+    autosave=False,
+    close_desktop_on_exit=False,
 ):
     """Launches the ApplicationWindow class for the given module name which must lie within the path scope of
         the calling toolkit. Optionally the version can be specified in the form 20xx.y, e.g. 2021.2,
@@ -231,7 +251,13 @@ def launch(
         Define if Desktop has to be closed on exit.
     """
     sys.path.append(os.path.dirname(workflow_module))
-    app = ApplicationThread(workflow_module, specified_version, new_desktop_session, autosave, close_desktop_on_exit)
+    app = ApplicationThread(
+        workflow_module,
+        specified_version,
+        new_desktop_session,
+        autosave,
+        close_desktop_on_exit,
+    )
 
     if sys.implementation.name != "ironpython":
         thread = Thread(ThreadStart(app.run_application))
@@ -338,12 +364,16 @@ class ToolkitBuilder:
         if app_name:
             self.py_name = app_name
         else:
-            self.py_name = os.path.basename(os.path.dirname(os.path.realpath(local_path)))
+            self.py_name = os.path.basename(
+                os.path.dirname(os.path.realpath(local_path))
+            )
 
         self.toolkit_path = os.path.join(self.local_path, "..")
 
         # Extract the commit ID from the global repository
-        self.global_lib_path = os.path.abspath(os.path.join(self.local_path, "..", "..", ".."))
+        self.global_lib_path = os.path.abspath(
+            os.path.join(self.local_path, "..", "..", "..")
+        )
         os.chdir(self.global_lib_path)
         command = ["git", "rev-parse", "HEAD"]
         sh = False
@@ -355,7 +385,9 @@ class ToolkitBuilder:
             os.mkdir(self.build_path)
 
         # Create a drectory named by the datetime (remove contents if already exists)
-        self.build_name = "{0}-{date:%Y%m%d_%H%M}".format(self.py_name, date=datetime.now())
+        self.build_name = "{0}-{date:%Y%m%d_%H%M}".format(
+            self.py_name, date=datetime.now()
+        )
         self.commit_path = os.path.join(self.build_path, self.build_name)
         self.commit_lib_path = os.path.join(self.commit_path, "lib")
         if os.path.isdir(self.commit_path):
@@ -384,7 +416,9 @@ class ToolkitBuilder:
         """
         self.copy_from_repo(self.local_path, extension=extension, ignore_dir=ignore_dir)
 
-    def copy_from_repo(self, root_dir=None, sub_dir=None, extension=None, ignore_dir=None):
+    def copy_from_repo(
+        self, root_dir=None, sub_dir=None, extension=None, ignore_dir=None
+    ):
         """Copies recursively all files from a specified root directory and all subdirectories of a given list of
             extensions
 
@@ -397,13 +431,17 @@ class ToolkitBuilder:
             extension = ["py"]
         elif isinstance(extension, str):
             extension = [extension]
-        assert isinstance(extension, list), "Extension input parameter must be a string or a list"
+        assert isinstance(
+            extension, list
+        ), "Extension input parameter must be a string or a list"
 
         if not ignore_dir:
             ignore_dir = [".", "_"]
         elif isinstance(ignore_dir, str):
             extension = [ignore_dir]
-        assert isinstance(ignore_dir, list), "Extension input parameter must be a string or a list"
+        assert isinstance(
+            ignore_dir, list
+        ), "Extension input parameter must be a string or a list"
 
         if not root_dir:
             root_dir = self.global_lib_path
@@ -461,7 +499,14 @@ class ApplicationThread:
     object of the calling module
     """
 
-    def __init__(self, workflow_module, version, new_desktop_session=True, autosave=False, close_desktop_on_exit=False):
+    def __init__(
+        self,
+        workflow_module,
+        version,
+        new_desktop_session=True,
+        autosave=False,
+        close_desktop_on_exit=False,
+    ):
         self.workflow_module = os.path.basename(workflow_module).replace(".py", "")
         self.version = version
         self.autosave = autosave
@@ -515,7 +560,9 @@ class WPFToolkitSettings:
             self._parent = aedtdesign
             self._working = None
         elif working_directory:
-            assert os.path.exists(working_directory), "Working Directory {} does not exist"
+            assert os.path.exists(
+                working_directory
+            ), "Working Directory {} does not exist"
             self._working = working_directory
         else:
             self._parent = None
@@ -553,7 +600,9 @@ class WPFToolkitSettings:
         file for the key "parent" to find the name of the parent design
         """
         my_path = self.local_path
-        my_settings_file = os.path.join(self.local_path, self.toolkit_name + "_Settings.json")
+        my_settings_file = os.path.join(
+            self.local_path, self.toolkit_name + "_Settings.json"
+        )
         if os.path.exists(my_settings_file):
             settings_data = self.read_settings_file(my_settings_file)
             if "parent" in settings_data:
@@ -570,7 +619,9 @@ class WPFToolkitSettings:
                 settings_data = json.load(f)
             except ValueError:
                 try:
-                    msg_string = "Invalid json file {0} will be overwritten.".format(filename)
+                    msg_string = "Invalid json file {0} will be overwritten.".format(
+                        filename
+                    )
                     self._parent.logger.warning(msg_string)
                 except:
                     pass
@@ -747,10 +798,14 @@ class WPFToolkit(Window):
         self._aedtdesign = design
         self.toolkit_name = os.path.basename(self.toolkit_file).replace(".py", "")
         if self._aedtdesign:
-            self.settings_manager = WPFToolkitSettings(aedtdesign=self._aedtdesign, toolkit_name=self.toolkit_name)
+            self.settings_manager = WPFToolkitSettings(
+                aedtdesign=self._aedtdesign, toolkit_name=self.toolkit_name
+            )
             self._parent_design_name = self._aedtdesign.design_name
         else:
-            self.settings_manager = WPFToolkitSettings(working_directory=my_path, toolkit_name=self.toolkit_name)
+            self.settings_manager = WPFToolkitSettings(
+                working_directory=my_path, toolkit_name=self.toolkit_name
+            )
             self._parent_design_name = None
 
     @property
@@ -846,7 +901,13 @@ class WPFToolkit(Window):
         shutil.move(self.xaml_file[:-5] + "_tmp.xaml", self.xaml_file)
 
     @aedt_exception_handler
-    def edit_window_size(self, width=800, height=600, title="PyAEDT WPF Application", background="#FFD1CFCF"):
+    def edit_window_size(
+        self,
+        width=800,
+        height=600,
+        title="PyAEDT WPF Application",
+        background="#FFD1CFCF",
+    ):
         """Edit the Wpf windows size.
 
         Parameters
@@ -867,8 +928,10 @@ class WPFToolkit(Window):
         """
         with open(self.xaml_file, "r") as file:
             file = file.readlines()
-        line_to_add = '        Title="{}" Height="{}" Width="{}" Background="{}">'.format(
-            title, height, width, background
+        line_to_add = (
+            '        Title="{}" Height="{}" Width="{}" Background="{}">'.format(
+                title, height, width, background
+            )
         )
 
         with open(self.xaml_file[:-5] + "_tmp.xaml", "w") as f:
@@ -899,13 +962,23 @@ class WPFToolkit(Window):
         -------
         bool
         """
-        new_label = '        <Label x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(name, content)
+        new_label = '        <Label x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(
+            name, content
+        )
         new_label += 'Margin="{},{},0,0" VerticalAlignment="Top"/>'.format(x_pos, y_pos)
         self._add_line_to_xml(new_label)
         return True
 
     @aedt_exception_handler
-    def add_text_box(self, name, x_pos, y_pos, width=120, callback_method=None, callback_action="LostFocus"):
+    def add_text_box(
+        self,
+        name,
+        x_pos,
+        y_pos,
+        width=120,
+        callback_method=None,
+        callback_action="LostFocus",
+    ):
         """Adds a text box to Wpf.
 
         Parameters
@@ -927,7 +1000,9 @@ class WPFToolkit(Window):
         -------
         bool
         """
-        new_label = '        <TextBox x:Name="{}" HorizontalAlignment="Left" Height="23" '.format(name)
+        new_label = '        <TextBox x:Name="{}" HorizontalAlignment="Left" Height="23" '.format(
+            name
+        )
         new_label += 'Margin="{},{},0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="{}"/>'.format(
             x_pos, y_pos, width
         )
@@ -937,7 +1012,15 @@ class WPFToolkit(Window):
         return True
 
     @aedt_exception_handler
-    def add_combo_box(self, name, x_pos, y_pos, width=120, callback_method=None, callback_action="SelectionChanged"):
+    def add_combo_box(
+        self,
+        name,
+        x_pos,
+        y_pos,
+        width=120,
+        callback_method=None,
+        callback_action="SelectionChanged",
+    ):
         """Adds a combo box to Wpf.
 
         Parameters
@@ -958,15 +1041,27 @@ class WPFToolkit(Window):
         -------
         bool
         """
-        new_label = '        <ComboBox x:Name="{}" HorizontalAlignment="Left" Height="23" '.format(name)
-        new_label += 'Margin="{},{},0,0" VerticalAlignment="Top" Width="{}"/>'.format(x_pos, y_pos, width)
+        new_label = '        <ComboBox x:Name="{}" HorizontalAlignment="Left" Height="23" '.format(
+            name
+        )
+        new_label += 'Margin="{},{},0,0" VerticalAlignment="Top" Width="{}"/>'.format(
+            x_pos, y_pos, width
+        )
         if callback_method:
             self._callbacks.append([name, callback_action, callback_method])
         self._add_line_to_xml(new_label)
         return True
 
     @aedt_exception_handler
-    def add_check_box(self, name, content, x_pos, y_pos, callback_method=None, callback_action="Checked"):
+    def add_check_box(
+        self,
+        name,
+        content,
+        x_pos,
+        y_pos,
+        callback_method=None,
+        callback_action="Checked",
+    ):
         """Adds a check box to Wpf.
 
         Parameters
@@ -987,7 +1082,9 @@ class WPFToolkit(Window):
         -------
         bool
         """
-        new_label = '        <CheckBox x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(name, content)
+        new_label = '        <CheckBox x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(
+            name, content
+        )
         new_label += 'Margin="{},{},0,0" VerticalAlignment="Top"/>'.format(x_pos, y_pos)
         if callback_method:
             self._callbacks.append([name, callback_action, callback_method])
@@ -995,7 +1092,16 @@ class WPFToolkit(Window):
         return True
 
     @aedt_exception_handler
-    def add_button(self, name, content, x_pos, y_pos, width=120, callback_method=None, callback_action="Click"):
+    def add_button(
+        self,
+        name,
+        content,
+        x_pos,
+        y_pos,
+        width=120,
+        callback_method=None,
+        callback_action="Click",
+    ):
         """Adds a button to Wpf.
 
         Parameters
@@ -1019,8 +1125,12 @@ class WPFToolkit(Window):
         -------
         bool
         """
-        new_label = '        <Button x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(name, content)
-        new_label += 'Margin="{},{},0,0" VerticalAlignment="Top" Width="{}"/>'.format(x_pos, y_pos, width)
+        new_label = '        <Button x:Name="{}" Content="{}" HorizontalAlignment="Left" '.format(
+            name, content
+        )
+        new_label += 'Margin="{},{},0,0" VerticalAlignment="Top" Width="{}"/>'.format(
+            x_pos, y_pos, width
+        )
         if callback_method:
             self._callbacks.append([name, callback_action, callback_method])
         self._add_line_to_xml(new_label)
@@ -1061,7 +1171,9 @@ class WPFToolkit(Window):
         """Validates the text box with object name prefix."""
         valid = False
         try:
-            object_list = self.aedtdesign.modeler.get_matched_object_name(sender.Text + "*")
+            object_list = self.aedtdesign.modeler.get_matched_object_name(
+                sender.Text + "*"
+            )
             assert object_list
             valid = True
         except AssertionError:
@@ -1565,7 +1677,9 @@ class WPFToolkit(Window):
             Object name.
         """
         wpf_control = LogicalTreeHelper.FindLogicalNode(self.window, control_name)
-        assert wpf_control, "WPF GUI object name {0} does not exist !".format(control_name)
+        assert wpf_control, "WPF GUI object name {0} does not exist !".format(
+            control_name
+        )
         return wpf_control
 
     @aedt_exception_handler

@@ -1,6 +1,7 @@
 import os
 
 import pytest
+
 from pyaedt import Icepak
 from pyaedt import icepak as icepak_module
 
@@ -20,8 +21,12 @@ def create_icepak(request, doctest_namespace):
         return
 
     # Use RadioBoardIcepak.aedt project to test
-    project_path = os.path.join(doctest_namespace["projects_path"], "RadioBoardIcepak.aedt")
-    doctest_namespace["icepak"] = Icepak(projectname=project_path, designname="IcepakDesign1")
+    project_path = os.path.join(
+        doctest_namespace["projects_path"], "RadioBoardIcepak.aedt"
+    )
+    doctest_namespace["icepak"] = Icepak(
+        projectname=project_path, designname="IcepakDesign1"
+    )
 
 
 @pytest.fixture(autouse=True, scope="function")

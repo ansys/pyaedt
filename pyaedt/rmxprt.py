@@ -1,6 +1,4 @@
 """This module contains these classes: `RMXprtModule` and `Rmxprt`."""
-from __future__ import absolute_import
-
 from pyaedt.application.AnalysisRMxprt import FieldAnalysisRMxprt
 from pyaedt.generic.general_methods import aedt_exception_handler
 
@@ -30,7 +28,9 @@ class RMXprtModule(object):
             if parameter_name in parameter_list:
                 prop_server = key
                 break
-        assert prop_server is not None, "Unknown parameter name {0} exists in component {1}.".format(
+        assert (
+            prop_server is not None
+        ), "Unknown parameter name {0} exists in component {1}.".format(
             prop_server, self.component
         )
         return prop_server
@@ -71,7 +71,10 @@ class RMXprtModule(object):
                 "NAME:AllTabs",
                 [
                     "NAME:" + self.component,
-                    ["NAME:PropServers", "{0}{1}{2}".format(self.component, separator, prop_server)],
+                    [
+                        "NAME:PropServers",
+                        "{0}{1}{2}".format(self.component, separator, prop_server),
+                    ],
                     ["NAME:ChangedProps", ["NAME:" + parameter_name, "Value:=", value]],
                 ],
             ]
@@ -200,8 +203,12 @@ class Rmxprt(FieldAnalysisRMxprt):
         if not model_units or model_units == "mm":
             model_units = "mm"
         else:
-            assert model_units == "in", "Invalid model units string {}".format(model_units)
-        self.modeler.oeditor.SetMachineUnits(["NAME:Units Parameter", "Units:=", model_units, "Rescale:=", False])
+            assert model_units == "in", "Invalid model units string {}".format(
+                model_units
+            )
+        self.modeler.oeditor.SetMachineUnits(
+            ["NAME:Units Parameter", "Units:=", model_units, "Rescale:=", False]
+        )
         self.stator = Stator(self.modeler.oeditor)
         self.rotor = Rotor(self.modeler.oeditor)
 

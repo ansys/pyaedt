@@ -1,13 +1,13 @@
-from __future__ import absolute_import
-import time
 import math
+import time
 
-from pyaedt.generic.general_methods import is_ironpython
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.edb_core.EDB_Data import EDBNetsData
+from pyaedt.generic.constants import CSS4_COLORS
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.plot import plot_matplotlib
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
 class EdbNets(object):
@@ -257,16 +257,24 @@ class EdbNets(object):
                     if label not in label_colors:
                         color = path.layer.GetColor()
                         try:
-                            c = (float(color.Item1 / 255), float(color.Item2 / 255), float(color.Item3 / 255))
+                            c = (
+                                float(color.Item1 / 255),
+                                float(color.Item2 / 255),
+                                float(color.Item3 / 255),
+                            )
                             label_colors[label] = c
                         except:
                             label_colors[label] = list(CSS4_COLORS.keys())[color_index]
                             color_index += 1
                             if color_index >= len(CSS4_COLORS):
                                 color_index = 0
-                        objects_lists.append([x, y, label_colors[label], label, 0.4, "fill"])
+                        objects_lists.append(
+                            [x, y, label_colors[label], label, 0.4, "fill"]
+                        )
                     else:
-                        objects_lists.append([x, y, label_colors[label], None, 0.4, "fill"])
+                        objects_lists.append(
+                            [x, y, label_colors[label], None, 0.4, "fill"]
+                        )
 
                 else:
                     label = "Net " + net_name
@@ -275,9 +283,13 @@ class EdbNets(object):
                         color_index += 1
                         if color_index >= len(CSS4_COLORS):
                             color_index = 0
-                        objects_lists.append([x, y, label_colors[label], label, 0.4, "fill"])
+                        objects_lists.append(
+                            [x, y, label_colors[label], label, 0.4, "fill"]
+                        )
                     else:
-                        objects_lists.append([x, y, label_colors[label], None, 0.4, "fill"])
+                        objects_lists.append(
+                            [x, y, label_colors[label], None, 0.4, "fill"]
+                        )
 
         for poly in self._pedb.core_primitives.polygons:
             if poly.is_void:
@@ -298,7 +310,9 @@ class EdbNets(object):
                 for void in poly.voids:
                     xvt, yvt = void.points()
                     if xvt:
-                        xv, yv = GeometryOperators.orient_polygon(xvt, yvt, clockwise=False)
+                        xv, yv = GeometryOperators.orient_polygon(
+                            xvt, yvt, clockwise=False
+                        )
                         tmpV = [(i, j) for i, j in zip(xv, yv)]
                         vertices.extend(tmpV)
                         tmpC = [2 for _ in tmpV]
@@ -312,7 +326,11 @@ class EdbNets(object):
                     if label not in label_colors:
                         color = poly.GetLayer().GetColor()
                         try:
-                            c = (float(color.Item1 / 255), float(color.Item2 / 255), float(color.Item3 / 255))
+                            c = (
+                                float(color.Item1 / 255),
+                                float(color.Item2 / 255),
+                                float(color.Item3 / 255),
+                            )
                             label_colors[label] = c
                         except:
                             label_colors[label] = list(CSS4_COLORS.keys())[color_index]
@@ -320,11 +338,15 @@ class EdbNets(object):
                             if color_index >= len(CSS4_COLORS):
                                 color_index = 0
                         # create patch from path
-                        objects_lists.append([vertices, codes, label_colors[label], label, 0.4, "path"])
+                        objects_lists.append(
+                            [vertices, codes, label_colors[label], label, 0.4, "path"]
+                        )
 
                     else:
                         # create patch from path
-                        objects_lists.append([vertices, codes, label_colors[label], "", 0.4, "path"])
+                        objects_lists.append(
+                            [vertices, codes, label_colors[label], "", 0.4, "path"]
+                        )
 
                 else:
                     label = "Net " + net_name
@@ -334,17 +356,28 @@ class EdbNets(object):
                         if color_index >= len(CSS4_COLORS):
                             color_index = 0
                         # create patch from path
-                        objects_lists.append([vertices, codes, label_colors[label], label, 0.4, "path"])
+                        objects_lists.append(
+                            [vertices, codes, label_colors[label], label, 0.4, "path"]
+                        )
                     else:
                         # create patch from path
-                        objects_lists.append([vertices, codes, label_colors[label], "", 0.4, "path"])
+                        objects_lists.append(
+                            [vertices, codes, label_colors[label], "", 0.4, "path"]
+                        )
         end_time = time.time() - start_time
         self._logger.info("Nets Point Generation time %s seconds", round(end_time, 3))
         return objects_lists
 
     @aedt_exception_handler
     def plot(
-        self, nets, layers=None, color_by_net=False, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)
+        self,
+        nets,
+        layers=None,
+        color_by_net=False,
+        show_legend=True,
+        save_plot=None,
+        outline=None,
+        size=(2000, 1000),
     ):
         """Plot a Net to Matplotlib 2D Chart.
 
@@ -377,7 +410,15 @@ class EdbNets(object):
             color_by_net,
             outline,
         )
-        plot_matplotlib(object_lists, size, show_legend, "X (m)", "Y (m)", self._pedb.active_cell.GetName(), save_plot)
+        plot_matplotlib(
+            object_lists,
+            size,
+            show_legend,
+            "X (m)",
+            "Y (m)",
+            self._pedb.active_cell.GetName(),
+            save_plot,
+        )
 
     @aedt_exception_handler
     def is_power_gound_net(self, netname_list):
@@ -492,10 +533,19 @@ class EdbNets(object):
 
             comp_partname = self._pedb.core_components._cmp[refdes].partname
             el.append(comp_partname)
-            pins = self._pedb.core_components.get_pin_from_component(component=refdes, netName=el[2])
+            pins = self._pedb.core_components.get_pin_from_component(
+                component=refdes, netName=el[2]
+            )
             el.append("-".join([i.GetName() for i in pins]))
 
-        component_list_columns = ["refdes", "pin_name", "net_name", "component_type", "component_partname", "pin_list"]
+        component_list_columns = [
+            "refdes",
+            "pin_name",
+            "net_name",
+            "component_type",
+            "component_partname",
+            "pin_list",
+        ]
         return component_list, component_list_columns, net_group
 
     @aedt_exception_handler

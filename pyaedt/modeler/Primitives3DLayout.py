@@ -1,11 +1,17 @@
+import os
 import sys
 import warnings
-import os
 
-from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
-from pyaedt.modeler.Object3d import Padstack, Components3DLayout, Geometries3DLayout, Pins3DLayout, Nets3DLayout, _uname
-from pyaedt.modeler.Primitives import default_materials
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.Object3d import _uname
+from pyaedt.modeler.Object3d import Components3DLayout
+from pyaedt.modeler.Object3d import Geometries3DLayout
+from pyaedt.modeler.Object3d import Nets3DLayout
+from pyaedt.modeler.Object3d import Padstack
+from pyaedt.modeler.Object3d import Pins3DLayout
+from pyaedt.modeler.Primitives import default_materials
 
 # import pkgutil
 # modules = [tup[1] for tup in pkgutil.iter_modules()]
@@ -62,7 +68,9 @@ class Primitives3DLayout(object):
     def __init__(self, app):
         self.is_outside_desktop = sys.modules["__main__"].isoutsideDesktop
         self._app = app
-        self._opadstackmanager = self._app._oproject.GetDefinitionManager().GetManager("Padstack")
+        self._opadstackmanager = self._app._oproject.GetDefinitionManager().GetManager(
+            "Padstack"
+        )
         self.padstacks = {}
         self._components = {}
         self._geometries = {}
@@ -188,7 +196,9 @@ class Primitives3DLayout(object):
                     name = ""
             if str(name):
                 name = str(name).strip("'")
-                self._pins[name] = Pins3DLayout(self, el.GetComponent().GetName(), el.GetName(), name)
+                self._pins[name] = Pins3DLayout(
+                    self, el.GetComponent().GetName(), el.GetName(), name
+                )
         return self._pins
 
     @property
@@ -270,7 +280,9 @@ class Primitives3DLayout(object):
         if name in self.padstacks:
             return None
         else:
-            self.padstacks[name] = Padstack(name, self.opadstackmanager, self.model_units)
+            self.padstacks[name] = Padstack(
+                name, self.opadstackmanager, self.model_units
+            )
             return self.padstacks[name]
 
     @aedt_exception_handler
@@ -295,7 +307,9 @@ class Primitives3DLayout(object):
                         props = p
                 except:
                     pass
-            self.padstacks[name] = Padstack(name, self.opadstackmanager, self.model_units)
+            self.padstacks[name] = Padstack(
+                name, self.opadstackmanager, self.model_units
+            )
 
             for prop in props:
                 if type(prop) is str:
@@ -308,7 +322,9 @@ class Primitives3DLayout(object):
                     elif prop == "sbsh:=":
                         self.padstacks[name].solder_shape = props[props.index(prop) + 1]
                     elif prop == "sbpl:=":
-                        self.padstacks[name].solder_placement = props[props.index(prop) + 1]
+                        self.padstacks[name].solder_placement = props[
+                            props.index(prop) + 1
+                        ]
                     elif prop == "sbr:=":
                         self.padstacks[name].solder_rad = props[props.index(prop) + 1]
                     elif prop == "sb2:=":
@@ -316,8 +332,12 @@ class Primitives3DLayout(object):
                     elif prop == "sbn:=":
                         self.padstacks[name].solder_mat = props[props.index(prop) + 1]
                     elif prop == "hle:=":
-                        self.padstacks[name].hole.shape = props[props.index(prop) + 1][1]
-                        self.padstacks[name].hole.sizes = props[props.index(prop) + 1][3]
+                        self.padstacks[name].hole.shape = props[props.index(prop) + 1][
+                            1
+                        ]
+                        self.padstacks[name].hole.sizes = props[props.index(prop) + 1][
+                            3
+                        ]
                         self.padstacks[name].hole.x = props[props.index(prop) + 1][5]
                         self.padstacks[name].hole.y = props[props.index(prop) + 1][7]
                         self.padstacks[name].hole.rot = props[props.index(prop) + 1][9]
@@ -332,18 +352,38 @@ class Primitives3DLayout(object):
                             if i != 1:
                                 self.padstacks[name].add_layer(lay_name)
                             self.padstacks[name].layers[lay_name].layername = lay_name
-                            self.padstacks[name].layers[lay_name].pad = self.padstacks[name].add_hole(
-                                lay[6][1], list(lay[6][3]), lay[6][5], lay[6][7], lay[6][9]
+                            self.padstacks[name].layers[lay_name].pad = self.padstacks[
+                                name
+                            ].add_hole(
+                                lay[6][1],
+                                list(lay[6][3]),
+                                lay[6][5],
+                                lay[6][7],
+                                lay[6][9],
                             )
-                            self.padstacks[name].layers[lay_name].antipad = self.padstacks[name].add_hole(
-                                lay[8][1], list(lay[8][3]), lay[8][5], lay[8][7], lay[8][9]
+                            self.padstacks[name].layers[
+                                lay_name
+                            ].antipad = self.padstacks[name].add_hole(
+                                lay[8][1],
+                                list(lay[8][3]),
+                                lay[8][5],
+                                lay[8][7],
+                                lay[8][9],
                             )
-                            self.padstacks[name].layers[lay_name].thermal = self.padstacks[name].add_hole(
-                                lay[10][1], list(lay[10][3]), lay[10][5], lay[10][7], lay[10][9]
+                            self.padstacks[name].layers[
+                                lay_name
+                            ].thermal = self.padstacks[name].add_hole(
+                                lay[10][1],
+                                list(lay[10][3]),
+                                lay[10][5],
+                                lay[10][7],
+                                lay[10][9],
                             )
                             self.padstacks[name].layers[lay_name].connectionx = lay[12]
                             self.padstacks[name].layers[lay_name].connectiony = lay[14]
-                            self.padstacks[name].layers[lay_name].connectiondir = lay[16]
+                            self.padstacks[name].layers[lay_name].connectiondir = lay[
+                                16
+                            ]
                             i += 1
                         pass
                 except:
@@ -526,7 +566,16 @@ class Primitives3DLayout(object):
         return name
 
     @aedt_exception_handler
-    def create_rectangle(self, layername, origin, dimensions, corner_radius=0, angle=0, name=None, netname=None):
+    def create_rectangle(
+        self,
+        layername,
+        origin,
+        dimensions,
+        corner_radius=0,
+        angle=0,
+        name=None,
+        netname=None,
+    ):
         """Create a rectangle on a layer.
 
         Parameters
@@ -585,7 +634,16 @@ class Primitives3DLayout(object):
         return name
 
     @aedt_exception_handler
-    def create_line(self, layername, center_line_list, lw=1, start_style=0, end_style=0, name=None, netname=None):
+    def create_line(
+        self,
+        layername,
+        center_line_list,
+        lw=1,
+        start_style=0,
+        end_style=0,
+        name=None,
+        netname=None,
+    ):
         """Create a line based on a list of points.
 
         Parameters

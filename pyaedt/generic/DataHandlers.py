@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 import json
 import math
+import os
 import random
 import re
 import string
 import warnings
-import os
 from collections import OrderedDict
 from decimal import Decimal
 
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
+from pyaedt.modeler.Object3d import EdgePrimitive
+from pyaedt.modeler.Object3d import FacePrimitive
+from pyaedt.modeler.Object3d import VertexPrimitive
 
 try:
     import clr
@@ -94,7 +96,11 @@ def _dict2arg(d, arg_out):
 
         else:
             arg_out.append(k + ":=")
-            if type(v) is EdgePrimitive or type(v) is FacePrimitive or type(v) is VertexPrimitive:
+            if (
+                type(v) is EdgePrimitive
+                or type(v) is FacePrimitive
+                or type(v) is VertexPrimitive
+            ):
                 arg_out.append(v.id)
             else:
                 arg_out.append(v)
@@ -117,7 +123,8 @@ def _arg2dict(arg, dict_out):
         i = 1
         while i < len(arg):
             if arg[i][0][:5] == "NAME:" and (
-                isinstance(arg[i], (list, tuple)) or str(type(arg[i])) == r"<type 'List'>"
+                isinstance(arg[i], (list, tuple))
+                or str(type(arg[i])) == r"<type 'List'>"
             ):
                 _arg2dict(list(arg[i]), dict_in)
                 i += 1
@@ -281,7 +288,9 @@ def unique_string_list(element_list, only_string=True):
 
         if only_string:
             non_string_entries = [x for x in element_list if type(x) is not str]
-            assert not non_string_entries, "Invalid list entries {} are not a string!".format(non_string_entries)
+            assert (
+                not non_string_entries
+            ), "Invalid list entries {} are not a string!".format(non_string_entries)
 
     return element_list
 

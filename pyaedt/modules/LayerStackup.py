@@ -3,8 +3,6 @@ This module contains these classes: `Layer` and `Layers`.
 
 This module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
 """
-from __future__ import absolute_import
-
 from pyaedt.generic.general_methods import aedt_exception_handler
 
 
@@ -766,7 +764,13 @@ class Layers(object):
 
     @aedt_exception_handler
     def add_layer(
-        self, layername, layertype="signal", thickness="0mm", elevation="0mm", material="copper", isnegative=False
+        self,
+        layername,
+        layertype="signal",
+        thickness="0mm",
+        elevation="0mm",
+        material="copper",
+        isnegative=False,
     ):
         """Add a layer.
 

@@ -1,11 +1,10 @@
 """This module contains the `TwinBuilder` class."""
-
-from __future__ import absolute_import
 import math
 
 from pyaedt.application.AnalysisTwinBuilder import AnalysisTwinBuilder
 from pyaedt.application.Variables import Variable
-from pyaedt.generic.general_methods import aedt_exception_handler, is_number
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import is_number
 
 
 class TwinBuilder(AnalysisTwinBuilder, object):
@@ -150,7 +149,10 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                     if len(fields) == 4 and fields[0][0] == "Q":
                         value = fields[3].strip()
                         mycomp = self.modeler.schematic.create_npn(
-                            fields[0], value, [xpos, ypos], use_instance_id_netlist=use_instance
+                            fields[0],
+                            value,
+                            [xpos, ypos],
+                            use_instance_id_netlist=use_instance,
                         )
                         value = None
                 elif fields[0][0] == "D":
@@ -168,7 +170,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                             angle = 0.0
                         else:
                             angle = math.pi
-                        self.modeler.schematic.create_page_port(fields[id], [pos[0], pos[1]], angle)
+                        self.modeler.schematic.create_page_port(
+                            fields[id], [pos[0], pos[1]], angle
+                        )
                         id += 1
                     ypos += delta
                     if ypos > 0.254:

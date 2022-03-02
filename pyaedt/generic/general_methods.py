@@ -1,18 +1,18 @@
-import os
 import csv
-import string
-import random
-import time
 import datetime
-import sys
-import traceback
-import logging
-from functools import wraps
-from collections import OrderedDict
+import fnmatch
 import inspect
 import itertools
+import logging
+import os
+import random
 import re
-import fnmatch
+import string
+import sys
+import time
+import traceback
+from collections import OrderedDict
+from functools import wraps
 
 try:
     logger = logging.getLogger("Global")
@@ -30,7 +30,11 @@ try:
 except:
     inside_desktop = False
 
-is_remote_server = os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in ("true", "1", "t")
+is_remote_server = os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in (
+    "true",
+    "1",
+    "t",
+)
 
 
 class MethodNotSupportedError(Exception):
@@ -78,18 +82,30 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             messages = []
         if messages and "[error] Script macro error" in messages[-1]:
             message_to_print = messages[-1]
-    _write_mes("Method {} Failed:  {}. Please Check again".format(func.__name__, message))
+    _write_mes(
+        "Method {} Failed:  {}. Please Check again".format(func.__name__, message)
+    )
     _write_mes(ex_info[1])
     if message_to_print:
         _write_mes(message_to_print)
     _write_mes("Arguments Provided: ")
     try:
         if int(sys.version[0]) > 2:
-            args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
-            args_dict = OrderedDict(list(itertools.zip_longest(args_name, args)) + list(kwargs.items()))
+            args_name = list(
+                OrderedDict.fromkeys(
+                    inspect.getfullargspec(func)[0] + list(kwargs.keys())
+                )
+            )
+            args_dict = OrderedDict(
+                list(itertools.zip_longest(args_name, args)) + list(kwargs.items())
+            )
         else:
-            args_name = list(OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys())))
-            args_dict = OrderedDict(list(itertools.izip(args_name, args)) + list(kwargs.iteritems()))
+            args_name = list(
+                OrderedDict.fromkeys(inspect.getargspec(func)[0] + list(kwargs.keys()))
+            )
+            args_dict = OrderedDict(
+                list(itertools.izip(args_name, args)) + list(kwargs.iteritems())
+            )
 
         for el in args_dict:
             if el != "self":
@@ -105,7 +121,11 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     for el in tblist:
         if func.__name__ in el:
             _write_mes("Error in : " + el)
-    _write_mes("Check Online documentation on: https://aedtdocs.pyansys.com/search.html?q={}".format(func.__name__))
+    _write_mes(
+        "Check Online documentation on: https://aedtdocs.pyansys.com/search.html?q={}".format(
+            func.__name__
+        )
+    )
 
 
 def _check_types(arg):
@@ -183,9 +203,15 @@ def _remote_dict_conversion(args):
 def _log_method(func, new_args, new_kwargs):
     if not settings.enable_debug_logger:
         return
-    if not settings.enable_debug_internal_methods_logger and str(func.__name__)[0] == "_":
+    if (
+        not settings.enable_debug_internal_methods_logger
+        and str(func.__name__)[0] == "_"
+    ):
         return
-    if not settings.enable_debug_geometry_operator_logger and "GeometryOperators" in str(func):
+    if (
+        not settings.enable_debug_geometry_operator_logger
+        and "GeometryOperators" in str(func)
+    ):
         return
     if (
         not settings.enable_debug_edb_logger
@@ -201,7 +227,11 @@ def _log_method(func, new_args, new_kwargs):
         id = object_name.find(" object at ")
         if id >= 0:
             object_name = object_name[1:id]
-            message.append(" '{}' has been exectuted.".format(object_name + "." + str(func.__name__)))
+            message.append(
+                " '{}' has been exectuted.".format(
+                    object_name + "." + str(func.__name__)
+                )
+            )
             if new_args[1:]:
                 message.append(line_begin + str(new_args[1:])[1:-1])
             if new_kwargs:
@@ -275,9 +305,17 @@ def aedt_exception_handler(func):
             except MethodNotSupportedError:
                 message = "This Method is not supported in current AEDT Design Type."
                 if settings.enable_screen_logs:
-                    print("**************************************************************")
-                    print("pyaedt error on Method {}:  {}. Please Check again".format(func.__name__, message))
-                    print("**************************************************************")
+                    print(
+                        "**************************************************************"
+                    )
+                    print(
+                        "pyaedt error on Method {}:  {}. Please Check again".format(
+                            func.__name__, message
+                        )
+                    )
+                    print(
+                        "**************************************************************"
+                    )
                     print("")
                 if settings.enable_file_logs:
                     logger.error(message)
@@ -323,7 +361,8 @@ def env_path(input_version):
     """
     return os.getenv(
         "ANSYSEM_ROOT{0}{1}".format(
-            get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
+            get_version_and_release(input_version)[0],
+            get_version_and_release(input_version)[1],
         ),
         "",
     )
@@ -347,7 +386,8 @@ def env_value(input_version):
     "ANSYSEM_ROOT211"
     """
     return "ANSYSEM_ROOT{0}{1}".format(
-        get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
+        get_version_and_release(input_version)[0],
+        get_version_and_release(input_version)[1],
     )
 
 
@@ -370,7 +410,8 @@ def env_path_student(input_version):
     """
     return os.getenv(
         "ANSYSEMSV_ROOT{0}{1}".format(
-            get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
+            get_version_and_release(input_version)[0],
+            get_version_and_release(input_version)[1],
         ),
         "",
     )
@@ -394,7 +435,8 @@ def env_value_student(input_version):
     "ANSYSEMSV_ROOT211"
     """
     return "ANSYSEMSV_ROOT{0}{1}".format(
-        get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
+        get_version_and_release(input_version)[0],
+        get_version_and_release(input_version)[1],
     )
 
 
@@ -472,7 +514,9 @@ def _retry_ntimes(n, function, *args, **kwargs):
             break
     if retry == n:
         if "__name__" in dir(function):
-            raise AttributeError("Error in Executing Method {}.".format(function.__name__))
+            raise AttributeError(
+                "Error in Executing Method {}.".format(function.__name__)
+            )
         else:
             raise AttributeError("Error in Executing Method.")
 
@@ -544,7 +588,9 @@ def remove_project_lock(project_path):
 
 
 @aedt_exception_handler
-def write_csv(output, list_data, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL):
+def write_csv(
+    output, list_data, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL
+):
     if is_ironpython:
         f = open(output, "wb")
     else:
@@ -570,7 +616,9 @@ def filter_tuple(value, search_key1, search_key2):
         return pattern
 
     if ignore_case:
-        compiled_re = re.compile(_create_pattern(search_key1, search_key2), re.IGNORECASE)
+        compiled_re = re.compile(
+            _create_pattern(search_key1, search_key2), re.IGNORECASE
+        )
     else:
         compiled_re = re.compile(_create_pattern(search_key1, search_key2))
 
@@ -628,7 +676,9 @@ class Settings(object):
         self._enable_file_logs = True
         self.pyaedt_server_path = ""
         self._logger_file_path = None
-        self._logger_formatter = "%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s"
+        self._logger_formatter = (
+            "%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s"
+        )
         self._logger_datefmt = "%Y/%m/%d %H.%M.%S"
         self._enable_debug_edb_logger = False
         self._enable_debug_geometry_operator_logger = False

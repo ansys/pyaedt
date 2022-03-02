@@ -1,4 +1,5 @@
-from pyaedt.generic.general_methods import aedt_exception_handler, is_number
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import is_number
 from pyaedt.modeler.Primitives import Primitives
 
 
@@ -31,7 +32,9 @@ class Primitives2D(Primitives, object):
         Primitives.__init__(self)
 
     @aedt_exception_handler
-    def create_circle(self, position, radius, num_sides=0, is_covered=True, name=None, matname=None):
+    def create_circle(
+        self, position, radius, num_sides=0, is_covered=True, name=None, matname=None
+    ):
         """Create a circle.
 
         Parameters
@@ -87,7 +90,9 @@ class Primitives2D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_ellipse(self, position, major_radius, ratio, is_covered=True, name=None, matname=None):
+    def create_ellipse(
+        self, position, major_radius, ratio, is_covered=True, name=None, matname=None
+    ):
         """Create an ellipse.
 
         Parameters
@@ -140,7 +145,9 @@ class Primitives2D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_rectangle(self, position, dimension_list, is_covered=True, name=None, matname=None):
+    def create_rectangle(
+        self, position, dimension_list, is_covered=True, name=None, matname=None
+    ):
         """Create a rectangle.
 
         Parameters
@@ -194,7 +201,15 @@ class Primitives2D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_regular_polygon(self, position, start_point, num_sides=6, is_covered=True, name=None, matname=None):
+    def create_regular_polygon(
+        self,
+        position,
+        start_point,
+        num_sides=6,
+        is_covered=True,
+        name=None,
+        matname=None,
+    ):
         """Create a rectangle.
 
         Parameters
@@ -281,9 +296,23 @@ class Primitives2D(Primitives, object):
 
         else:
             if self._app.xy_plane:
-                pad_percent = [pad_percent[0], pad_percent[1], 0, pad_percent[2], pad_percent[3], 0]
+                pad_percent = [
+                    pad_percent[0],
+                    pad_percent[1],
+                    0,
+                    pad_percent[2],
+                    pad_percent[3],
+                    0,
+                ]
 
             else:
-                pad_percent = [pad_percent[0], 0, pad_percent[1], pad_percent[2], 0, pad_percent[3]]
+                pad_percent = [
+                    pad_percent[0],
+                    0,
+                    pad_percent[1],
+                    pad_percent[2],
+                    0,
+                    pad_percent[3],
+                ]
 
         return Primitives.create_region(self, pad_percent)

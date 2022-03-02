@@ -2,19 +2,18 @@ import os
 import re
 from warnings import warn
 
-from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.edb import Edb
-from pyaedt.generic.general_methods import (
-    aedt_exception_handler,
-    _retry_ntimes,
-    is_ironpython,
-    _pythonver,
-    inside_desktop,
-    get_filename_without_extension,
-)
-from pyaedt.modules.LayerStackup import Layers
+from pyaedt.generic.constants import AEDT_UNITS
+from pyaedt.generic.general_methods import _pythonver
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import get_filename_without_extension
+from pyaedt.generic.general_methods import inside_desktop
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.Modeler import Modeler
-from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout, Primitives3DLayout
+from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout
+from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
+from pyaedt.modules.LayerStackup import Layers
 
 
 class Modeler3DLayout(Modeler, Primitives3DLayout):
@@ -143,7 +142,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
     def model_units(self, units):
         assert units in AEDT_UNITS["Length"], "Invalid units string {0}.".format(units)
         """Set the model units as a string (for example, "mm")."""
-        self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
+        self.oeditor.SetActivelUnits(
+            ["NAME:Units Parameter", "Units:=", units, "Rescale:=", False]
+        )
 
     @property
     def primitives(self):
@@ -199,7 +200,13 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return posx, posy, posz
 
     @aedt_exception_handler
-    def change_property(self, property_object, property_name, property_value, property_tab="BaseElementTab"):
+    def change_property(
+        self,
+        property_object,
+        property_name,
+        property_value,
+        property_tab="BaseElementTab",
+    ):
         """Change an oeditor property.
 
         Parameters
@@ -234,7 +241,18 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     [
                         "NAME:" + property_tab,
                         ["NAME:PropServers", property_object],
-                        ["NAME:ChangedProps", ["NAME:" + property_name, "X:=", xpos, "Y:=", ypos, "Z:=", zpos]],
+                        [
+                            "NAME:ChangedProps",
+                            [
+                                "NAME:" + property_name,
+                                "X:=",
+                                xpos,
+                                "Y:=",
+                                ypos,
+                                "Z:=",
+                                zpos,
+                            ],
+                        ],
                     ],
                 ]
             )
@@ -245,7 +263,10 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     [
                         "NAME:" + property_tab,
                         ["NAME:PropServers", property_object],
-                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
+                        [
+                            "NAME:ChangedProps",
+                            ["NAME:" + property_name, "Value:=", property_value],
+                        ],
                     ],
                 ]
             )
@@ -257,7 +278,10 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     [
                         "NAME:" + property_tab,
                         ["NAME:PropServers", property_object],
-                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", posx]],
+                        [
+                            "NAME:ChangedProps",
+                            ["NAME:" + property_name, "Value:=", posx],
+                        ],
                     ],
                 ]
             )
@@ -268,7 +292,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return True
 
     @aedt_exception_handler
-    def merge_design(self, merged_design=None, pos_x="0.0", pos_y="0.0", pos_z="0.0", rotation="0.0"):
+    def merge_design(
+        self, merged_design=None, pos_x="0.0", pos_y="0.0", pos_z="0.0", rotation="0.0"
+    ):
         """Merge a design into another.
 
         Parameters
@@ -302,14 +328,28 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 pass
         if not comp_name:
             return False
-        self.change_property(property_object=comp_name, property_name="3D Placement", property_value=True)
-        self.change_property(property_object=comp_name, property_name="Local Origin", property_value=[0.0, 0.0, 0.0])
+        self.change_property(
+            property_object=comp_name, property_name="3D Placement", property_value=True
+        )
+        self.change_property(
+            property_object=comp_name,
+            property_name="Local Origin",
+            property_value=[0.0, 0.0, 0.0],
+        )
         pos_x = self._arg_with_dim(pos_x)
         pos_y = self._arg_with_dim(pos_y)
         pos_z = self._arg_with_dim(pos_z)
         rotation = self._arg_with_dim(rotation, "deg")
-        self.change_property(property_object=comp_name, property_name="Location", property_value=[pos_x, pos_y, pos_z])
-        self.change_property(property_object=comp_name, property_name="Rotation Angle", property_value=rotation)
+        self.change_property(
+            property_object=comp_name,
+            property_name="Location",
+            property_value=[pos_x, pos_y, pos_z],
+        )
+        self.change_property(
+            property_object=comp_name,
+            property_name="Rotation Angle",
+            property_value=rotation,
+        )
         return True
 
     @aedt_exception_handler
@@ -385,7 +425,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return True
 
     @aedt_exception_handler
-    def expand(self, object_to_expand, size=1, expand_type="ROUND", replace_original=False):
+    def expand(
+        self, object_to_expand, size=1, expand_type="ROUND", replace_original=False
+    ):
         """Expand the object by a specific size.
 
         Parameters
@@ -424,19 +466,36 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         line_4
 
         """
-        layer = _retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, "PlacementLayer")
+        layer = _retry_ntimes(
+            10,
+            self.oeditor.GetPropertyValue,
+            "BaseElementTab",
+            object_to_expand,
+            "PlacementLayer",
+        )
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
-        geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
-        self.oeditor.Expand(self.arg_with_dim(size), expand_type, replace_original, ["NAME:elements", object_to_expand])
+        geom_names = self.oeditor.FindObjectsByPoint(
+            self.oeditor.Point().Set(pos[0], pos[1]), layer
+        )
+        self.oeditor.Expand(
+            self.arg_with_dim(size),
+            expand_type,
+            replace_original,
+            ["NAME:elements", object_to_expand],
+        )
         if not replace_original:
             new_geom_names = [
                 i
-                for i in self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
+                for i in self.oeditor.FindObjectsByPoint(
+                    self.oeditor.Point().Set(pos[0], pos[1]), layer
+                )
                 if i not in geom_names
             ]
             if self.is_outside_desktop:
-                self._geometries[new_geom_names[0]] = Geometries3DLayout(self, new_geom_names[0])
+                self._geometries[new_geom_names[0]] = Geometries3DLayout(
+                    self, new_geom_names[0]
+                )
             return new_geom_names[0]
         return object_to_expand
 
@@ -472,7 +531,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             edb_name = os.path.splitext(name)[0]
 
         self._oimportexport.ImportExtracta(
-            brd_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
+            brd_filename,
+            os.path.join(edb_path, edb_name + ".aedb"),
+            os.path.join(edb_path, edb_name + ".xml"),
         )
         self._app.__init__(self._app._desktop.GetActiveProject().GetName())
         return True
@@ -526,7 +587,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             edb_name = os.path.splitext(name)[0]
 
         self._oimportexport.ImportIPC(
-            ipc_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
+            ipc_filename,
+            os.path.join(edb_path, edb_name + ".aedb"),
+            os.path.join(edb_path, edb_name + ".xml"),
         )
         self._app.__init__(self._app._desktop.GetActiveProject().GetName())
         return True
@@ -661,7 +724,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         if isinstance(objectlists, str):
             objectlists = [objectlists]
         self.oeditor.Duplicate(
-            ["NAME:options", "count:=", count], ["NAME:elements", ",".join(objectlists)], direction_vector
+            ["NAME:options", "count:=", count],
+            ["NAME:elements", ",".join(objectlists)],
+            direction_vector,
         )
         return True
 
@@ -722,7 +787,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             return True
 
     @aedt_exception_handler
-    def set_spice_model(self, component_name, model_path, model_name=None, subcircuit_name=None, pin_map=None):
+    def set_spice_model(
+        self,
+        component_name,
+        model_path,
+        model_name=None,
+        subcircuit_name=None,
+        pin_map=None,
+    ):
         """Assign a Spice model to a component.
 
         Parameters
@@ -794,7 +866,10 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     pinNames.remove(pinNames[0])
                     pinNames.remove(pinNames[0])
                     break
-        componentPins = [i.GetName() for i in self.edb.core_components.get_pin_from_component(component_name)]
+        componentPins = [
+            i.GetName()
+            for i in self.edb.core_components.get_pin_from_component(component_name)
+        ]
         componentPins.reverse()
         if not pin_map:
             pin_map = []
@@ -827,7 +902,15 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 pin_map,
             ],
         ]
-        args = ["NAME:ModelChanges", ["NAME:UpdateModel0", ["NAME:ComponentNames", component_name], "Prop:=", args2]]
+        args = [
+            "NAME:ModelChanges",
+            [
+                "NAME:UpdateModel0",
+                ["NAME:ComponentNames", component_name],
+                "Prop:=",
+                args2,
+            ],
+        ]
         self.oeditor.UpdateModels(args)
         self.logger.info("Spice Model Correctly assigned to {}.".format(component_name))
         return True

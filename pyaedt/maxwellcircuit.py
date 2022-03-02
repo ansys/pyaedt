@@ -1,6 +1,4 @@
 """This module contains the `MaxwellCircuit` class."""
-
-from __future__ import absolute_import
 import math
 
 from pyaedt.application.AnalysisMaxwellCircuit import AnalysisMaxwellCircuit
@@ -147,7 +145,9 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
                             angle = 0.0
                         else:
                             angle = math.pi
-                        self.modeler.schematic.create_page_port(fields[id], [pos[0], pos[1]], angle)
+                        self.modeler.schematic.create_page_port(
+                            fields[id], [pos[0], pos[1]], angle
+                        )
                         id += 1
                     ypos += delta
                     if ypos > 0.254:

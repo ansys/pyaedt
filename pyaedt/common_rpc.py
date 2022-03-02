@@ -1,5 +1,5 @@
-import socket
 import os
+import socket
 import sys
 import time
 
@@ -178,7 +178,9 @@ def connect(server_name, aedt_client_port):
     rpyc object.
     """
     try:
-        return rpyc.connect(server_name, aedt_client_port, config={"sync_request_timeout": None})
+        return rpyc.connect(
+            server_name, aedt_client_port, config={"sync_request_timeout": None}
+        )
     except:
         return "Error. No connection. Check if AEDT is running and if the port number is correct."
 
@@ -229,7 +231,9 @@ def client(server_name, server_port=18000, beta_options=None):
     t = 60
     while t > 0:
         try:
-            c = rpyc.connect(server_name, server_port, config={"sync_request_timeout": None})
+            c = rpyc.connect(
+                server_name, server_port, config={"sync_request_timeout": None}
+            )
             if c.root:
                 t = 0
         except:
@@ -237,14 +241,22 @@ def client(server_name, server_port=18000, beta_options=None):
             time.sleep(1)
     port = c.root.start_service(server_name, beta_options)
     if not port:
-        return "Error Connecting to the Server. Check the server name and port and retry."
-    print("Connecting to new session of Electronics Desktop on port {}. Please Wait.".format(port))
+        return (
+            "Error Connecting to the Server. Check the server name and port and retry."
+        )
+    print(
+        "Connecting to new session of Electronics Desktop on port {}. Please Wait.".format(
+            port
+        )
+    )
     if port:
         time.sleep(20)
         timeout = 80
         while timeout > 0:
             try:
-                c1 = rpyc.connect(server_name, port, config={"sync_request_timeout": None})
+                c1 = rpyc.connect(
+                    server_name, port, config={"sync_request_timeout": None}
+                )
                 c1.convert_remote_object = convert_remote_object
                 if c1:
                     if beta_options:
@@ -345,7 +357,9 @@ def _download_dir(remotepath, localpath, server_name, server_port=18000):
         _download_file(rfn, lfn, server_name, server_port=18000)
 
 
-def launch_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_client=True):
+def launch_ironpython_server(
+    aedt_path, non_graphical=False, port=18000, launch_client=True
+):
     """Given Linux Aedt Path it will start a process in Ironpython and launch rpc server on specified port.
 
     .. note::

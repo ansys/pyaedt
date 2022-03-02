@@ -4,40 +4,36 @@ This module contains the ``analysis`` class.
 It includes common classes for file management and messaging and all
 calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 """
-from __future__ import absolute_import
-
 import os
 import shutil
 import threading
 import warnings
 from collections import OrderedDict
 
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, filter_tuple
-from pyaedt.generic.constants import (
-    AXIS,
-    PLANE,
-    GRAVITY,
-    VIEW,
-    SOLUTIONS,
-    SETUPS,
-    CoordinateSystemPlane,
-    CoordinateSystemAxis,
-    Plane,
-    GravityDirection,
-)
-from pyaedt.modules.Boundary import NativeComponentObject
-from pyaedt.modules.DesignXPloration import (
-    DOESetups,
-    DXSetups,
-    OptimizationSetups,
-    ParametericsSetups,
-    SensitivitySetups,
-    StatisticalSetups,
-)
-from pyaedt.modules.MaterialLib import Materials
-from pyaedt.modules.SolveSetup import Setup
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
+from pyaedt.generic.constants import AXIS
+from pyaedt.generic.constants import CoordinateSystemAxis
+from pyaedt.generic.constants import CoordinateSystemPlane
+from pyaedt.generic.constants import GRAVITY
+from pyaedt.generic.constants import GravityDirection
+from pyaedt.generic.constants import PLANE
+from pyaedt.generic.constants import Plane
+from pyaedt.generic.constants import SETUPS
+from pyaedt.generic.constants import SOLUTIONS
+from pyaedt.generic.constants import VIEW
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import filter_tuple
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.modules.Boundary import NativeComponentObject
+from pyaedt.modules.DesignXPloration import DOESetups
+from pyaedt.modules.DesignXPloration import DXSetups
+from pyaedt.modules.DesignXPloration import OptimizationSetups
+from pyaedt.modules.DesignXPloration import ParametericsSetups
+from pyaedt.modules.DesignXPloration import SensitivitySetups
+from pyaedt.modules.DesignXPloration import StatisticalSetups
+from pyaedt.modules.MaterialLib import Materials
+from pyaedt.modules.SolveSetup import Setup
 
 
 class Analysis(Design, object):
@@ -124,7 +120,9 @@ class Analysis(Design, object):
         if self.design_type != "Maxwell Circuit":
             self._ooptimetrics = self._odesign.GetModule("Optimetrics")
             self._ooutput_variable = self._odesign.GetModule("OutputVariable")
-            self.setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
+            self.setups = [
+                self.get_setup(setup_name) for setup_name in self.setup_names
+            ]
 
         self.opti_parametric = ParametericsSetups(self)
         self.opti_optimization = OptimizationSetups(self)
@@ -366,13 +364,19 @@ class Analysis(Design, object):
         """
         setup_list = self.existing_analysis_setups
         sweep_list = []
-        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
+        if (
+            self.solution_type == "HFSS3DLayout"
+            or self.solution_type == "HFSS 3D Layout Design"
+        ):
             sweep_list = self.oanalysis.GetAllSolutionNames()
             sweep_list = [i for i in sweep_list if "Adaptive Pass" not in i]
             sweep_list.reverse()
         else:
             for el in setup_list:
-                if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
+                if (
+                    self.solution_type == "HFSS3DLayout"
+                    or self.solution_type == "HFSS 3D Layout Design"
+                ):
                     sweeps = self.oanalysis.GelAllSolutionNames()
                 else:
                     setuptype = self.design_solutions.default_adaptive
@@ -523,7 +527,10 @@ class Analysis(Design, object):
 
         >>> oModule.GetExcitations
         """
-        warnings.warn("`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning)
+        warnings.warn(
+            "`get_excitations_name` is deprecated. Use `excitations` property instead.",
+            DeprecationWarning,
+        )
         return self.excitations
 
     @aedt_exception_handler
@@ -581,7 +588,9 @@ class Analysis(Design, object):
                 for el2 in self.excitations:
                     if el1 != el2:
                         value = "{}({},{}{}".format(category, el1, el2, end_str)
-                        if filter_tuple(value, first_element_filter, second_element_filter):
+                        if filter_tuple(
+                            value, first_element_filter, second_element_filter
+                        ):
                             list_output.append(value)
         return list_output
 
@@ -631,14 +640,25 @@ class Analysis(Design, object):
         elif not sweep_name:
             self.logger.warning("No Sweep defined.")
             return False
-        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
+        if (
+            self.solution_type == "HFSS3DLayout"
+            or self.solution_type == "HFSS 3D Layout Design"
+        ):
             try:
-                return list(self.osolution.ListVariations("{0} : {1}".format(setup_name, sweep_name)))
+                return list(
+                    self.osolution.ListVariations(
+                        "{0} : {1}".format(setup_name, sweep_name)
+                    )
+                )
             except:
                 return [""]
         else:
             try:
-                return list(self.odesign.ListVariations("{0} : {1}".format(setup_name, sweep_name)))
+                return list(
+                    self.odesign.ListVariations(
+                        "{0} : {1}".format(setup_name, sweep_name)
+                    )
+                )
             except:
                 return [""]
 
@@ -674,7 +694,10 @@ class Analysis(Design, object):
         if analyze:
             self.analyze_all()
         setups = self.oanalysis.GetSetups()
-        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
+        if (
+            self.solution_type == "HFSS3DLayout"
+            or self.solution_type == "HFSS 3D Layout Design"
+        ):
             excitations = len(self.oexcitation.GetAllPortsList())
         elif self.design_type == "2D Extractor":
             excitations = self.oboundary.GetNumExcitations("SignalLine")
@@ -685,7 +708,10 @@ class Analysis(Design, object):
             name_no_space = report_name.replace(" ", "_")
             self.post.oreportsetup.UpdateReports([str(report_name)])
             export_path = os.path.join(
-                export_folder, "{0}_{1}_{2}.csv".format(self.project_name, self.design_name, name_no_space)
+                export_folder,
+                "{0}_{1}_{2}.csv".format(
+                    self.project_name, self.design_name, name_no_space
+                ),
             )
             self.post.oreportsetup.ExportToFile(str(report_name), export_path)
             self.logger.info("Export Data: {}".format(export_path))
@@ -700,18 +726,28 @@ class Analysis(Design, object):
             for sweep in sweeps:
                 variation_array = self.list_of_variations(s, sweep)
                 if len(variation_array) == 1:
-                    export_path = os.path.join(export_folder, "{}.prof".format(self.project_name))
+                    export_path = os.path.join(
+                        export_folder, "{}.prof".format(self.project_name)
+                    )
                     result = self.export_profile(s, variation_array[0], export_path)
                     if result:
                         exported_files.append(export_path)
-                    export_path = os.path.join(export_folder, "{}.conv".format(self.project_name))
+                    export_path = os.path.join(
+                        export_folder, "{}.conv".format(self.project_name)
+                    )
                     result = self.export_convergence(s, variation_array[0], export_path)
                     if result:
                         exported_files.append(export_path)
-                    if self.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS", "Circuit"]:
+                    if self.solution_type in [
+                        "HFSS3DLayout",
+                        "HFSS 3D Layout Design",
+                        "HFSS",
+                        "Circuit",
+                    ]:
                         try:
                             export_path = os.path.join(
-                                export_folder, "{0}.s{1}p".format(self.project_name, excitations)
+                                export_folder,
+                                "{0}.s{1}p".format(self.project_name, excitations),
                             )
                             self.osolution.ExportNetworkData(
                                 variation_array[0],
@@ -738,19 +774,33 @@ class Analysis(Design, object):
                     varCount = 0
                     for variation in variation_array:
                         varCount += 1
-                        export_path = os.path.join(export_folder, "{0}_{1}.prof".format(self.project_name, varCount))
+                        export_path = os.path.join(
+                            export_folder,
+                            "{0}_{1}.prof".format(self.project_name, varCount),
+                        )
                         result = self.export_profile(s, variation, export_path)
                         if result:
                             exported_files.append(export_path)
-                        export_path = os.path.join(export_folder, "{0}_{1}.conv".format(self.project_name, varCount))
+                        export_path = os.path.join(
+                            export_folder,
+                            "{0}_{1}.conv".format(self.project_name, varCount),
+                        )
                         self.logger.info("Export Convergence: %s", export_path)
                         result = self.export_convergence(s, variation, export_path)
                         if result:
                             exported_files.append(export_path)
-                        if self.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS", "Circuit"]:
+                        if self.solution_type in [
+                            "HFSS3DLayout",
+                            "HFSS 3D Layout Design",
+                            "HFSS",
+                            "Circuit",
+                        ]:
                             try:
                                 export_path = os.path.join(
-                                    export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, excitations)
+                                    export_folder,
+                                    "{0}_{1}.s{2}p".format(
+                                        self.project_name, varCount, excitations
+                                    ),
                                 )
                                 self.logger.info("Export SnP: {}".format(export_path))
                                 self.osolution.ExportNetworkData(
@@ -772,7 +822,9 @@ class Analysis(Design, object):
                                 exported_files.append(export_path)
                                 self.logger.info("Exported Touchstone: %s", export_path)
                             except:
-                                self.logger.warning("Export SnP failed: no solutions found")
+                                self.logger.warning(
+                                    "Export SnP failed: no solutions found"
+                                )
         return exported_files
 
     @aedt_exception_handler
@@ -801,7 +853,9 @@ class Analysis(Design, object):
         >>> oModule.ExportConvergence
         """
         if not file_path:
-            file_path = os.path.join(self.working_directory, generate_unique_name("Convergence") + ".prop")
+            file_path = os.path.join(
+                self.working_directory, generate_unique_name("Convergence") + ".prop"
+            )
         self.odesign.ExportConvergence(setup_name, variation_string, file_path)
         self.logger.info("Export Convergence to  %s", file_path)
         return file_path
@@ -811,10 +865,12 @@ class Analysis(Design, object):
         """Retrieve Native Components data."""
         boundaries = []
         try:
-            data_vals = self.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                "SubModelDefinitions"
-            ]["NativeComponentDefinition"]
-            if not isinstance(data_vals, list) and isinstance(data_vals, (OrderedDict, dict)):
+            data_vals = self.design_properties["ModelSetup"]["GeometryCore"][
+                "GeometryOperations"
+            ]["SubModelDefinitions"]["NativeComponentDefinition"]
+            if not isinstance(data_vals, list) and isinstance(
+                data_vals, (OrderedDict, dict)
+            ):
                 boundaries.append(
                     NativeComponentObject(
                         self,
@@ -950,7 +1006,9 @@ class Analysis(Design, object):
             families = []
             if self._app.design_type == "HFSS 3D Layout Design":
                 if self._app._is_object_oriented_enabled():
-                    listvar = list(self._app._odesign.GetChildObject("Variables").GetChildNames())
+                    listvar = list(
+                        self._app._odesign.GetChildObject("Variables").GetChildNames()
+                    )
                 else:
                     listvar = list(self._app._odesign.GetVariables())
                 for el in listvar:
@@ -960,7 +1018,9 @@ class Analysis(Design, object):
                 variation = self._app._odesign.GetNominalVariation()
                 for el in self.variables:
                     families.append(el + ":=")
-                    families.append([self._app._odesign.GetVariationVariableValue(variation, el)])
+                    families.append(
+                        [self._app._odesign.GetVariationVariableValue(variation, el)]
+                    )
             return families
 
         @property
@@ -977,7 +1037,9 @@ class Analysis(Design, object):
             families = {}
             if self._app.design_type == "HFSS 3D Layout Design":
                 if self._app._is_object_oriented_enabled():
-                    listvar = list(self._app._odesign.GetChildObject("Variables").GetChildNames())
+                    listvar = list(
+                        self._app._odesign.GetChildObject("Variables").GetChildNames()
+                    )
                 else:
                     listvar = list(self._app._odesign.GetVariables())
                 for el in listvar:
@@ -985,7 +1047,9 @@ class Analysis(Design, object):
             else:
                 variation = self._app._odesign.GetNominalVariation()
                 for el in self.variables:
-                    families[el] = self._app._odesign.GetVariationVariableValue(variation, el)
+                    families[el] = self._app._odesign.GetVariationVariableValue(
+                        variation, el
+                    )
             return families
 
         @property
@@ -1106,11 +1170,16 @@ class Analysis(Design, object):
         .. deprecated:: 0.4.0
            Use :func:`Analysis.analyze_nominal` instead.
         """
-        warnings.warn("`analyse_nominal` is deprecated. Use `analyze_nominal` instead.", DeprecationWarning)
+        warnings.warn(
+            "`analyse_nominal` is deprecated. Use `analyze_nominal` instead.",
+            DeprecationWarning,
+        )
         self.analyze_nominal()
 
     @aedt_exception_handler
-    def analyze_nominal(self, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None):
+    def analyze_nominal(
+        self, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None
+    ):
         """Solve the nominal design.
 
         Parameters
@@ -1135,7 +1204,9 @@ class Analysis(Design, object):
         >>> oDesign.Analyze
         """
 
-        return self.analyze_setup(self.analysis_setup, num_cores, num_tasks, num_gpu, acf_file)
+        return self.analyze_setup(
+            self.analysis_setup, num_cores, num_tasks, num_gpu, acf_file
+        )
 
     @aedt_exception_handler
     def generate_unique_setup_name(self, setup_name=None):
@@ -1210,7 +1281,11 @@ class Analysis(Design, object):
             setuptype = self.design_solutions.default_setup
         name = self.generate_unique_setup_name(setupname)
         setup = Setup(self, setuptype, name)
-        if self.design_type == "HFSS" and not self.excitations and "MaxDeltaS" in setup.props:
+        if (
+            self.design_type == "HFSS"
+            and not self.excitations
+            and "MaxDeltaS" in setup.props
+        ):
             new_dict = OrderedDict()
             for k, v in setup.props.items():
                 if k == "MaxDeltaS":
@@ -1340,10 +1415,21 @@ class Analysis(Design, object):
         oModule = self.ooutput_variable
         if variable in self.output_variables:
             oModule.EditOutputVariable(
-                variable, expression, variable, self.existing_analysis_sweeps[0], self.solution_type, []
+                variable,
+                expression,
+                variable,
+                self.existing_analysis_sweeps[0],
+                self.solution_type,
+                [],
             )
         else:
-            oModule.CreateOutputVariable(variable, expression, self.existing_analysis_sweeps[0], self.solution_type, [])
+            oModule.CreateOutputVariable(
+                variable,
+                expression,
+                self.existing_analysis_sweeps[0],
+                self.solution_type,
+                [],
+            )
         return True
 
     @aedt_exception_handler
@@ -1366,11 +1452,17 @@ class Analysis(Design, object):
         >>> oDesign.GetNominalVariation
         >>> oModule.GetOutputVariableValue
         """
-        assert variable in self.output_variables, "Output variable {} does not exist.".format(variable)
+        assert (
+            variable in self.output_variables
+        ), "Output variable {} does not exist.".format(variable)
         nominal_variation = self.odesign.GetNominalVariation()
         sol_type = self.solution_type
         value = self.ooutput_variable.GetOutputVariableValue(
-            variable, nominal_variation, self.existing_analysis_sweeps[0], self.solution_type, []
+            variable,
+            nominal_variation,
+            self.existing_analysis_sweeps[0],
+            self.solution_type,
+            [],
         )
 
         return value
@@ -1418,7 +1510,9 @@ class Analysis(Design, object):
         return dict
 
     @aedt_exception_handler
-    def analyze_setup(self, name, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None):
+    def analyze_setup(
+        self, name, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None
+    ):
         """Analyze a specific design setup.
 
         Parameters
@@ -1445,7 +1539,9 @@ class Analysis(Design, object):
         >>> oDesign.Analyze
         """
         set_custom_dso = False
-        active_config = self._desktop.GetRegistryString(r"Desktop/ActiveDSOConfigurations/" + self.design_type)
+        active_config = self._desktop.GetRegistryString(
+            r"Desktop/ActiveDSOConfigurations/" + self.design_type
+        )
         if acf_file:
             self._desktop.SetRegistryFromFile(acf_file)
             name = ""
@@ -1457,13 +1553,17 @@ class Analysis(Design, object):
                         break
             if name:
                 try:
-                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, name)
+                    self.set_registry_key(
+                        r"Desktop/ActiveDSOConfigurations/" + self.design_type, name
+                    )
                     set_custom_dso = True
                 except:
                     pass
         elif num_gpu or num_tasks or num_cores:
             config_name = "pyaedt_config"
-            source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
+            source_name = os.path.join(
+                self.pyaedt_dir, "misc", "pyaedt_local_config.acf"
+            )
             target_name = os.path.join(self.working_directory, config_name + ".acf")
             shutil.copy2(source_name, target_name)
             if num_cores:
@@ -1475,10 +1575,14 @@ class Analysis(Design, object):
             update_hpc_option(target_name, "ConfigName", config_name, True)
             update_hpc_option(target_name, "DesignType", self.design_type, True)
             if self.design_type == "Icepak":
-                update_hpc_option(target_name, "UseAutoSettings", self.design_type, False)
+                update_hpc_option(
+                    target_name, "UseAutoSettings", self.design_type, False
+                )
             try:
                 self._desktop.SetRegistryFromFile(target_name)
-                self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name)
+                self.set_registry_key(
+                    r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name
+                )
                 set_custom_dso = True
             except:
                 pass
@@ -1489,7 +1593,10 @@ class Analysis(Design, object):
                 self.odesign.Analyze(name)
             except:
                 if set_custom_dso:
-                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
+                    self.set_registry_key(
+                        r"Desktop/ActiveDSOConfigurations/" + self.design_type,
+                        active_config,
+                    )
                 self.logger.error("Error in Solving Setup %s", name)
                 return False
         else:
@@ -1498,11 +1605,16 @@ class Analysis(Design, object):
                 self.ooptimetrics.SolveSetup(name)
             except:
                 if set_custom_dso:
-                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
+                    self.set_registry_key(
+                        r"Desktop/ActiveDSOConfigurations/" + self.design_type,
+                        active_config,
+                    )
                 self.logger.error("Error in Solving or Missing Setup  %s", name)
                 return False
         if set_custom_dso:
-            self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
+            self.set_registry_key(
+                r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config
+            )
         self.logger.info("Design setup %s solved correctly", name)
         return True
 
@@ -1541,11 +1653,24 @@ class Analysis(Design, object):
         self.logger.info("Batch Solve Options: " + options)
         if os.name == "posix":
             batch_run = os.path.join(
-                self.desktop_install_dir + "/ansysedt" + chr(34) + options + chr(34) + filename + chr(34)
+                self.desktop_install_dir
+                + "/ansysedt"
+                + chr(34)
+                + options
+                + chr(34)
+                + filename
+                + chr(34)
             )
         else:
             batch_run = (
-                chr(34) + self.desktop_install_dir + "/ansysedt.exe" + chr(34) + options + chr(34) + filename + chr(34)
+                chr(34)
+                + self.desktop_install_dir
+                + "/ansysedt.exe"
+                + chr(34)
+                + options
+                + chr(34)
+                + filename
+                + chr(34)
             )
 
         """
@@ -1570,7 +1695,13 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def submit_job(
-        self, clustername, aedt_full_exe_path=None, numnodes=1, numcores=32, wait_for_license=True, setting_file=None
+        self,
+        clustername,
+        aedt_full_exe_path=None,
+        numnodes=1,
+        numcores=32,
+        wait_for_license=True,
+        setting_file=None,
     ):
         """Submit a job to be solved on a cluster.
 
@@ -1604,20 +1735,38 @@ class Analysis(Design, object):
         project_path = self.project_path
         if not aedt_full_exe_path:
             version = self.odesktop.GetVersion()[2:6]
-            if os.path.exists(r"\\" + clustername + r"\AnsysEM\AnsysEM{}\Win64\ansysedt.exe".format(version)):
+            if os.path.exists(
+                r"\\"
+                + clustername
+                + r"\AnsysEM\AnsysEM{}\Win64\ansysedt.exe".format(version)
+            ):
                 aedt_full_exe_path = (
-                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\AnsysEM{}\\\\Win64\\\\ansysedt.exe".format(version)
+                    r"\\\\\\\\"
+                    + clustername
+                    + r"\\\\AnsysEM\\\\AnsysEM{}\\\\Win64\\\\ansysedt.exe".format(
+                        version
+                    )
                 )
-            elif os.path.exists(r"\\" + clustername + r"\AnsysEM\AnsysEM{}\Linux64\ansysedt".format(version)):
+            elif os.path.exists(
+                r"\\"
+                + clustername
+                + r"\AnsysEM\AnsysEM{}\Linux64\ansysedt".format(version)
+            ):
                 aedt_full_exe_path = (
-                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\AnsysEM{}\\\\Linux64\\\\ansysedt".format(version)
+                    r"\\\\\\\\"
+                    + clustername
+                    + r"\\\\AnsysEM\\\\AnsysEM{}\\\\Linux64\\\\ansysedt".format(version)
                 )
             else:
-                self.logger.error("AEDT path does not exist. Please provide a full path.")
+                self.logger.error(
+                    "AEDT path does not exist. Please provide a full path."
+                )
                 return False
         else:
             if not os.path.exists(aedt_full_exe_path):
-                self.logger.error("Aedt Path doesn't exists. Please provide a full path")
+                self.logger.error(
+                    "Aedt Path doesn't exists. Please provide a full path"
+                )
                 return False
             aedt_full_exe_path.replace("\\", "\\\\")
 
@@ -1648,9 +1797,13 @@ class Analysis(Design, object):
                     lin = "\\	\\	ProductPath =\\'{}\\'\\\n".format(aedt_full_exe_path)
                     f1.write(lin)
                 elif "WaitForLicense" in line:
-                    lin = "\\	\\	WaitForLicense={}\\\n".format(str(wait_for_license).lower())
+                    lin = "\\	\\	WaitForLicense={}\\\n".format(
+                        str(wait_for_license).lower()
+                    )
                     f1.write(lin)
                 else:
                     f1.write(line)
         f1.close()
-        return self.odesktop.SubmitJob(os.path.join(project_path, "Job_settings.areg"), project_file)
+        return self.odesktop.SubmitJob(
+            os.path.join(project_path, "Job_settings.areg"), project_file
+        )

@@ -1,9 +1,10 @@
 import os
 
 from pyaedt.application.Analysis import Analysis
+from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.Model2D import Modeler2D
 from pyaedt.modules.Mesh import Mesh
-from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 
 if is_ironpython:
     from pyaedt.modules.PostProcessor import PostProcessor
@@ -251,7 +252,9 @@ class FieldAnalysis2D(Analysis):
             self.logger.info("Assign Material " + mat + " to object " + str(selections))
             for el in selections:
                 self.modeler[el].material_name = mat
-                self.modeler[el].color = self.materials.material_keys[mat].material_appearance
+                self.modeler[el].color = self.materials.material_keys[
+                    mat
+                ].material_appearance
                 if Mat.is_dielectric():
                     self.modeler[el].solve_inside = True
                 else:

@@ -2,7 +2,8 @@ import math
 from warnings import warn
 
 from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.modeler.Modeler import Modeler, GeometryModeler
+from pyaedt.modeler.Modeler import GeometryModeler
+from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.Primitives2D import Primitives2D
 
 
