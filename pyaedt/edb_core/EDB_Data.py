@@ -1137,7 +1137,9 @@ class EDBLayers(object):
                     continue
                 if lyr.GetName() == start_layer:
                     original_layer = lyr.Clone()
-
+                    original_layer.SetLowerElevation(self._edb_value(el))
+                    lcNew.AddLayerTop(original_layer)
+                    el += original_layer.GetThickness()
                     newLayer = self._edb.Cell.StackupLayer(
                         layerName,
                         self._int_to_layer_types(layerType),
@@ -1155,14 +1157,11 @@ class EDBLayers(object):
                         thickness,
                         self._int_to_layer_types(layerType),
                     )
-                    newLayer = self._edb_object[layerName].set_elevation(newLayer, el)
+                    newLayer.SetLowerElevation(self._edb_value(el))
                     lcNew.AddLayerTop(newLayer)
-
                     el += newLayer.GetThickness()
-                    original_layer.SetLowerElevation(self._edb_value(el))
                     # newLayers.Add(original_layer)
-                    lcNew.AddLayerTop(original_layer)
-                    el += original_layer.GetThickness()
+
                 else:
                     newLayer = lyr.Clone()
                     newLayer.SetLowerElevation(self._edb_value(el))

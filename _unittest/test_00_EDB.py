@@ -195,7 +195,7 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_components.components["R1"].placement_layer
         assert isinstance(self.edbapp.core_components.components["R1"].lower_elevation, float)
         assert isinstance(self.edbapp.core_components.components["R1"].upper_elevation, float)
-        assert self.edbapp.core_components.components["R1"].top_bottom_association == 1
+        assert self.edbapp.core_components.components["R1"].top_bottom_association == 0
         assert self.edbapp.core_components.components["R1"].pinlist
         pinname = self.edbapp.core_components.components["R1"].pinlist[0].GetName()
         assert (
