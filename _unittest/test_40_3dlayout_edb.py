@@ -11,23 +11,16 @@ test_project_name = "Galileo_t23"
 original_project_name = "Galileo_t23"
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        with Scratch(scratch_path) as self.local_scratch:
-            example_project = os.path.join(local_path, "example_models", original_project_name + ".aedt")
-            self.test_project = self.local_scratch.copyfile(
-                example_project, os.path.join(self.local_scratch.path, test_project_name + ".aedt")
-            )
-            self.local_scratch.copyfolder(
-                os.path.join(local_path, "example_models", original_project_name + ".aedb"),
-                os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
-            )
-            self.local_scratch.copyfolder(
-                os.path.join(local_path, "example_models", "Package.aedb"),
-                os.path.join(self.local_scratch.path, "Package2.aedb"),
-            )
-        self.aedtapp = Hfss3dLayout(self.test_project, specified_version=desktop_version)
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, project_name=original_project_name, application=Hfss3dLayout)
         self.tmp = self.aedtapp.modeler.geometries
+        example_project = os.path.join(local_path, "example_models", "Package.aedb")
+        target_path = os.path.join(self.local_scratch.path, "Package2.aedb")
+        self.test_project = self.local_scratch.copyfolder(example_project, target_path)
+        self.hfss3d = Hfss3dLayout(target_path, specified_version=desktop_version)
+        self.aedtapps.append(self.hfss3d)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -95,8 +88,4 @@ class TestClass(BasisTest):
         assert len(nets) > 0
 
     def test_08_merge(self):
-        hfss3d = Hfss3dLayout(
-            os.path.join(self.local_scratch.path, "Package2.aedb", "edb.def"), specified_version=desktop_version
-        )
-        assert hfss3d.modeler.merge_design(self.aedtapp)
-        hfss3d.close_project(saveproject=False)
+        assert self.hfss3d.modeler.merge_design(self.aedtapp)

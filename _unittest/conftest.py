@@ -23,7 +23,7 @@ import shutil
 import json
 import gc
 import sys
-from pyaedt.generic.general_methods import is_ironpython, inside_desktop
+from pyaedt.generic.general_methods import is_ironpython, inside_desktop, generate_unique_name
 from pyaedt import settings
 
 log_path = os.path.join(tempfile.gettempdir(), "test.log")
@@ -31,6 +31,7 @@ if os.path.exists(os.path.join(tempfile.gettempdir(), "test.log")):
     os.remove(log_path)
 settings.logger_file_path = log_path
 settings.enable_error_handler = False
+settings.enable_desktop_logs = False
 if is_ironpython:
     import _unittest_ironpython.conf_unittest as pytest
 else:
@@ -42,7 +43,7 @@ local_path = os.path.dirname(os.path.realpath(__file__))
 from pyaedt import Desktop
 
 # Import required modules
-from pyaedt import Hfss
+from pyaedt import Hfss, Edb
 from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "test_primitives"
@@ -79,37 +80,73 @@ else:
 
 
 class BasisTest(object):
-    def my_setup(self, project_name=None, design_name=None, solution_type=None, application=None):
+    def my_setup(self):
+        self.local_scratch = Scratch(scratch_path)
+        self.aedtapps = []
+        self.edbapps = []
 
-        with Scratch(scratch_path) as self.local_scratch:
-            if project_name:
-                example_project = os.path.join(local_path, "example_models", project_name + ".aedt")
-                if os.path.exists(example_project):
-                    self.test_project = self.local_scratch.copyfile(example_project)
-                else:
-                    self.test_project = None
+    def my_teardown(self):
+        try:
+            oDesktop = sys.modules["__main__"].oDesktop
+        except Exception as e:
+            oDesktop = None
+        if oDesktop:
+            oDesktop.ClearMessages("", "", 3)
+        for edbapp in self.edbapps:
+            try:
+                edbapp.close_edb()
+            except:
+                pass
+        del self.edbapps
+        for aedtapp in self.aedtapps:
+            aedtapp.close_project(None, False)
+        del self.aedtapps
+
+    def add_app(self, project_name=None, design_name=None, solution_type=None, application=None):
+        if project_name:
+            example_project = os.path.join(local_path, "example_models", project_name + ".aedt")
+            example_folder = os.path.join(local_path, "example_models", project_name + ".aedb")
+            if os.path.exists(example_project):
+                self.test_project = self.local_scratch.copyfile(example_project)
+            elif os.path.exists(example_project + "z"):
+                example_project = example_project + "z"
+                self.test_project = self.local_scratch.copyfile(example_project)
             else:
                 self.test_project = None
-            if not application:
-                application = Hfss
-
-            self.aedtapp = application(
+            if os.path.exists(example_folder):
+                target_folder = os.path.join(self.local_scratch.path, project_name + ".aedb")
+                self.local_scratch.copyfolder(example_folder, target_folder)
+        else:
+            self.test_project = None
+        if not application:
+            application = Hfss
+        self.aedtapps.append(
+            application(
                 projectname=self.test_project,
                 designname=design_name,
                 solution_type=solution_type,
                 specified_version=desktop_version,
             )
-            self.project_name = self.aedtapp.project_name
+        )
+        return self.aedtapps[-1]
 
-    def my_teardown(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        list_of_projects = list(self.aedtapp._desktop.GetProjectList())
-        for project in list_of_projects:
-            try:
-                self.aedtapp._desktop.CloseProject(project)
-            except:  # pragma: no cover
-                pass
-        del self.aedtapp
+    def add_edb(self, project_name=None):
+        if project_name:
+            example_folder = os.path.join(local_path, "example_models", project_name + ".aedb")
+            if os.path.exists(example_folder):
+                target_folder = os.path.join(self.local_scratch.path, project_name + ".aedb")
+                self.local_scratch.copyfolder(example_folder, target_folder)
+            else:
+                target_folder = os.path.join(self.local_scratch.path, project_name + ".aedb")
+        else:
+            target_folder = os.path.join(self.local_scratch.path, generate_unique_name("TestEdb") + ".aedb")
+        self.edbapps.append(
+            Edb(
+                target_folder,
+                edbversion=desktop_version,
+            )
+        )
+        return self.edbapps[-1]
 
     def teardown(self):
         """

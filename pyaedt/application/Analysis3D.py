@@ -465,7 +465,7 @@ class FieldAnalysis3D(Analysis, object):
         major = -1
         minor = -1
         # actual version supported by AEDT is 29.0
-        if fileFormat in [".step", ".stp", ".sm3", ".sat", ".sab"]:
+        if fileFormat in [".sm3", ".sat", ".sab"]:
             major = 29
             minor = 0
         stringa = ",".join(allObjects)
@@ -478,7 +478,7 @@ class FieldAnalysis3D(Analysis, object):
             "Selections:=",
             stringa,
             "File Name:=",
-            os.path.join(filePath, fileName + fileFormat),
+            os.path.join(filePath, fileName + fileFormat).replace("\\", "/"),
             "Major Version:=",
             major,
             "Minor Version:=",

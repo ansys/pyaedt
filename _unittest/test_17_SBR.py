@@ -17,23 +17,13 @@ except ImportError:
 test_project_name = "Cassegrain"
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        # set a scratch directory and the environment / test data
-        with Scratch(scratch_path) as self.local_scratch:
-            example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
-            new_name = os.path.join(self.local_scratch.path, test_project_name + ".aedt")
-            self.test_project = self.local_scratch.copyfile(example_project, new_name)
-            self.aedtapp = Hfss(
-                projectname=self.test_project,
-                designname="Cassegrain_reflectors",
-                solution_type="SBR+",
-                specified_version=desktop_version,
-            )
-            time.sleep(2)
-            self.source = Hfss(
-                projectname=self.aedtapp.project_name, designname="feeder", specified_version=desktop_version
-            )
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(
+            self, project_name=test_project_name, design_name="Cassegrain_reflectors", solution_type="SBR+"
+        )
+        self.source = Hfss(self.aedtapp.project_name, "feeder", specified_version=desktop_version)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

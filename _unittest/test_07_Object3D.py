@@ -11,12 +11,10 @@ from pyaedt.modeler.Object3d import FacePrimitive, _to_boolean, _uname
 from _unittest.conftest import scratch_path, BasisTest, desktop_version
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        with Scratch(scratch_path) as self.local_scratch:
-            test_projectfile = os.path.join(self.local_scratch.path, "test_object3d" + ".aedt")
-            self.aedtapp = Hfss(specified_version=desktop_version)
-            self.aedtapp.save_project(project_file=test_projectfile)
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, project_name="Test07")
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

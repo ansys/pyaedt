@@ -10,9 +10,10 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        BasisTest.my_setup(self, application=Emit)
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

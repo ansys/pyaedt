@@ -9,9 +9,10 @@ from pyaedt import Rmxprt
 test_project_name = "motor"
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        BasisTest.my_setup(self, application=Rmxprt)
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, application=Rmxprt)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

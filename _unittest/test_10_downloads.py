@@ -3,7 +3,7 @@ from pyaedt.examples import downloads
 from _unittest.conftest import BasisTest
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
         # set a scratch directory and the environment / test data
         self.examples = downloads

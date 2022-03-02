@@ -24,44 +24,19 @@ touchstone2 = "Galileo_V3P3S0.ts"
 ami_project = "AMI_Example"
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        with Scratch(scratch_path) as self.local_scratch:
-            time.sleep(2)
-            example_project = os.path.join(local_path, "example_models", original_project_name + ".aedt")
-            netlist_file1 = os.path.join(local_path, "example_models", netlist1)
-            netlist_file2 = os.path.join(local_path, "example_models", netlist2)
-            touchstone_file = os.path.join(local_path, "example_models", touchstone)
-            touchstone_file2 = os.path.join(local_path, "example_models", touchstone2)
-            self.test_project = self.local_scratch.copyfile(
-                example_project, os.path.join(self.local_scratch.path, test_project_name + ".aedt")
-            )
-            self.local_scratch.copyfile(netlist_file1)
-            self.local_scratch.copyfile(netlist_file2)
-            self.local_scratch.copyfile(touchstone_file)
-            self.local_scratch.copyfile(touchstone_file2)
-            self.local_scratch.copyfolder(
-                os.path.join(local_path, "example_models", original_project_name + ".aedb"),
-                os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
-            )
-            ami_example_project = os.path.join(local_path, "example_models", ami_project + ".aedt")
-            self.ami_example_project = self.local_scratch.copyfile(ami_example_project)
-            self.local_scratch.copyfolder(
-                os.path.join(local_path, "example_models", ami_project + ".aedb"),
-                os.path.join(self.local_scratch.path, ami_project + ".aedb"),
-            )
-            self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
-
-            example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
-            new_project = os.path.join(self.local_scratch.path, "differential_pairs3.aedt")
-            test_project = self.local_scratch.copyfile(example_project, new_project)
-            self.local_scratch.copyfolder(
-                os.path.join(local_path, "example_models", "differential_pairs.aedb"),
-                os.path.join(self.local_scratch.path, "differential_pairs3.aedb"),
-            )
-            self.circuitprj = Circuit(
-                projectname=test_project, designname="Circuit1", specified_version=desktop_version
-            )
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, original_project_name, application=Circuit)
+        self.circuitprj = BasisTest.add_app(self, "differential_pairs", application=Circuit)
+        netlist_file1 = os.path.join(local_path, "example_models", netlist1)
+        netlist_file2 = os.path.join(local_path, "example_models", netlist2)
+        touchstone_file = os.path.join(local_path, "example_models", touchstone)
+        touchstone_file2 = os.path.join(local_path, "example_models", touchstone2)
+        self.local_scratch.copyfile(netlist_file1)
+        self.local_scratch.copyfile(netlist_file2)
+        self.local_scratch.copyfile(touchstone_file)
+        self.local_scratch.copyfile(touchstone_file2)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -219,13 +194,13 @@ class TestClass(BasisTest):
         assert self.aedtapp.create_setup(setup_name, "NexximAMI")
 
     def test_20_create_AMI_plots(self):
-        self.aedtapp.load_project(self.ami_example_project, close_active_proj=True)
+        ami_design = BasisTest.add_app(ami_project, application=Circuit)
         report_name = "MyReport"
         assert (
-            self.aedtapp.post.create_ami_initial_response_plot(
+            ami_design.post.create_ami_initial_response_plot(
                 "AMIAnalysis",
                 "b_input_15",
-                self.aedtapp.available_variations.nominal,
+                ami_design.available_variations.nominal,
                 plot_type="Rectangular Stacked Plot",
                 plot_final_response=True,
                 plot_intermediate_response=True,
@@ -234,20 +209,20 @@ class TestClass(BasisTest):
             == report_name
         )
         setup_name = "Dom_Verify"
-        assert self.aedtapp.create_setup(setup_name, "NexximVerifEye")
+        assert ami_design.create_setup(setup_name, "NexximVerifEye")
         setup_name = "Dom_Quick"
-        assert self.aedtapp.create_setup(setup_name, "NexximQuickEye")
+        assert ami_design.create_setup(setup_name, "NexximQuickEye")
         assert (
-            self.aedtapp.post.create_ami_statistical_eye_plot(
-                "AMIAnalysis", "b_output4_14", self.aedtapp.available_variations.nominal, plotname="MyReport1"
+            ami_design.post.create_ami_statistical_eye_plot(
+                "AMIAnalysis", "b_output4_14", ami_design.available_variations.nominal, plotname="MyReport1"
             )
             == "MyReport1"
         )
         assert (
-            self.aedtapp.post.create_statistical_eye_plot(
+            ami_design.post.create_statistical_eye_plot(
                 "Dom_Quick",
                 "b_input_15.int_ami_rx.eye_probe",
-                self.aedtapp.available_variations.nominal,
+                ami_design.available_variations.nominal,
                 plotname="MyReportQ",
             )
             == "MyReportQ"

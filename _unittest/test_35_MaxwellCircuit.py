@@ -6,13 +6,14 @@ from pyaedt import MaxwellCircuit
 from pyaedt.generic.filesystem import Scratch
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
         project_name = "MaxwellCircuitProject"
         design_name = "MaxwellCircuitDesign1"
-        # set a scratch directory and the environment / test data
-        with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = MaxwellCircuit(project_name, design_name, specified_version=desktop_version)
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(
+            self, project_name=project_name, design_name=design_name, application=MaxwellCircuit
+        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

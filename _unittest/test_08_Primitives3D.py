@@ -24,9 +24,10 @@ step = "input.stp"
 component3d = "new.a3dcomp"
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        BasisTest.my_setup(self, project_name="test_primitives", design_name="3D_Primitives")
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, project_name="test_primitives", design_name="3D_Primitives")
         self.cache = DesignCache(self.aedtapp)
         scdoc_file = os.path.join(local_path, "example_models", scdoc)
         self.local_scratch.copyfile(scdoc_file)

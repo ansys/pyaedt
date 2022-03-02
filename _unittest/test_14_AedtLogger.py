@@ -20,9 +20,10 @@ from pyaedt import settings
 from _unittest.conftest import BasisTest
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, "Test_14")
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

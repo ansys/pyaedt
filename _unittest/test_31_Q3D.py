@@ -10,9 +10,10 @@ test_project_name = "coax_Q3D"
 bondwire_project_name = "bondwireq3d"
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        BasisTest.my_setup(self, application=Q3d)
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, application=Q3d)
         example_project = os.path.join(local_path, "example_models", bondwire_project_name + ".aedt")
         self.test_project = self.local_scratch.copyfile(example_project)
         self.test_matrix = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))

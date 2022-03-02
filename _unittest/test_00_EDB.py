@@ -12,7 +12,7 @@ from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "Galileo_edb"
 bom_example = "bom_example.csv"
-from _unittest.conftest import config, desktop_version, local_path, scratch_path, is_ironpython, settings
+from _unittest.conftest import config, desktop_version, local_path, scratch_path, is_ironpython, settings, BasisTest
 
 try:
     import pytest
@@ -20,22 +20,10 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
 
-class TestClass:
+class TestClass(BasisTest, object):
     def setup_class(self):
-        with Scratch(scratch_path) as self.local_scratch:
-            # example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
-            # self.test_project = self.local_scratch.copyfile(example_project)
-            aedbproject = os.path.join(self.local_scratch.path, test_project_name + ".aedb")
-            self.local_scratch.copyfolder(
-                os.path.join(local_path, "example_models", test_project_name + ".aedb"),
-                os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
-            )
-            self.edbapp = Edb(
-                os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
-                "Galileo_G87173_204",
-                edbversion=desktop_version,
-                isreadonly=False,
-            )
+        BasisTest.my_setup(self)
+        self.edbapp = BasisTest.add_edb(self, test_project_name)
 
     def teardown_class(self):
         self.edbapp.close_edb()

@@ -19,14 +19,10 @@ test_project_name = "Coax_HFSS"
 example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        with Scratch(scratch_path) as self.local_scratch:
-            self.test_project = self.local_scratch.copyfile(example_project)
-            self.aedtapp = Hfss(
-                projectname=self.test_project,
-                specified_version=desktop_version,
-            )
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, test_project_name)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

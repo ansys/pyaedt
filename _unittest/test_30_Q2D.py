@@ -9,9 +9,10 @@ from pyaedt import Q2d
 test_project_name = "coax_Q2D"
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        BasisTest.my_setup(self, application=Q2d)
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, application=Q2d)
         self.test_matrix = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))
 
     def teardown_class(self):
