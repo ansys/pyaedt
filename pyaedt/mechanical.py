@@ -1,4 +1,6 @@
 """This module contains the ``Mechanical`` class."""
+from collections import OrderedDict
+
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic.general_methods import generate_unique_name

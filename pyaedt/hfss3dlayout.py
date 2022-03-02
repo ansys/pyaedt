@@ -1,4 +1,5 @@
 """This module contains these classes: ``Hfss3dLayout``."""
+import io
 import os
 import warnings
 
