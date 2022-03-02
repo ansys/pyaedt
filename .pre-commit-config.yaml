@@ -17,10 +17,10 @@ repos:
   hooks:
   - id: codespell
     args: ["--ignore-words=ignore_words.txt"]
-- repo: https://github.com/pycqa/pydocstyle
-  rev: 6.1.1
-  hooks:
-  - id: pydocstyle
-    files: ^ansys/
-    args: ["--ignore=D205,D100,D213"]
-    additional_dependencies: [toml]
+# - repo: https://github.com/pycqa/pydocstyle
+#   rev: 6.1.1
+#   hooks:
+#   - id: pydocstyle
+#     files: ^ansys/
+#     args: ["--ignore=D205,D100,D213"]
+#     additional_dependencies: [toml]
