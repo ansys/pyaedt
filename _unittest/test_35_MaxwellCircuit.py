@@ -1,9 +1,8 @@
 # Setup paths for module imports
-from _unittest.conftest import scratch_path, BasisTest, desktop_version
+from _unittest.conftest import BasisTest
 
 # Import required modules
 from pyaedt import MaxwellCircuit
-from pyaedt.generic.filesystem import Scratch
 
 
 class TestClass(BasisTest, object):

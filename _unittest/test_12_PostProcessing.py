@@ -4,10 +4,9 @@ import os
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.generic.general_methods import is_ironpython
-from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import config, local_path, scratch_path, BasisTest, desktop_version
+from _unittest.conftest import config, BasisTest
 
 try:
     import pytest

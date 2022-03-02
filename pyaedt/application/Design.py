@@ -2423,8 +2423,6 @@ class Design(object):
         proj_path = oproj.GetPath()
         if saveproject:
             oproj.Save()
-        if name == legacy_name:
-            self._close_edb()
         self.odesktop.CloseProject(name)
         if name == legacy_name:
             if not is_ironpython:

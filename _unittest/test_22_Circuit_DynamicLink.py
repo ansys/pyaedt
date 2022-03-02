@@ -1,15 +1,13 @@
 # standard imports
 import os
-from _unittest.conftest import local_path, scratch_path, config, desktop_version, BasisTest
+from _unittest.conftest import local_path, config, desktop_version, BasisTest
 
 from pyaedt import Circuit, Q2d, Q3d, Hfss
-from pyaedt.generic.filesystem import Scratch
 
 try:
     import pytest
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
-import time
 
 # Access the desktop
 test_project_name = "Dynamic_Link"

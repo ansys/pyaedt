@@ -1,11 +1,10 @@
 import os
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, BasisTest, desktop_version
+from _unittest.conftest import local_path, BasisTest, desktop_version
 
 # Import required modules
 from pyaedt import Hfss3dLayout
-from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "Galileo_t23"
 original_project_name = "Galileo_t23"

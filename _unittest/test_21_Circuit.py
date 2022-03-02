@@ -3,11 +3,10 @@ import time
 
 # Import required modules
 from pyaedt import Circuit
-from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.TouchstoneParser import read_touchstone
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, config, BasisTest, desktop_version
+from _unittest.conftest import local_path, config, BasisTest
 
 try:
     import pytest  # noqa: F401

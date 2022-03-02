@@ -1,11 +1,8 @@
 # standard imports
-import gc
 import os
-import time
 
 # Import required modules
 from pyaedt import Icepak
-from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
 from _unittest.conftest import local_path, scratch_path, desktop_version, config, BasisTest

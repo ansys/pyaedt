@@ -2,11 +2,10 @@
 import os
 
 # Import required modules
-from pyaedt import Hfss, Desktop, get_pyaedt_app
-from pyaedt.generic.filesystem import Scratch
+from pyaedt import Desktop, get_pyaedt_app
 
 # Setup paths for module imports
-from _unittest.conftest import desktop_version, local_path, scratch_path, BasisTest
+from _unittest.conftest import desktop_version, local_path, BasisTest
 
 try:
     import pytest  # noqa: F401

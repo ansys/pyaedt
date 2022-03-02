@@ -7,7 +7,7 @@ from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, BasisTest, desktop_version
+from _unittest.conftest import local_path, BasisTest, desktop_version
 
 try:
     import pytest  # noqa: F401
