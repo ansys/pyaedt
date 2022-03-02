@@ -16,10 +16,8 @@ class TestClass(BasisTest, object):
         self.aedtapp = BasisTest.add_app(self, project_name=original_project_name, application=Hfss3dLayout)
         self.tmp = self.aedtapp.modeler.geometries
         example_project = os.path.join(local_path, "example_models", "Package.aedb")
-        target_path = os.path.join(self.local_scratch.path, "Package_test_40.aedb")
-        self.test_project = self.local_scratch.copyfolder(example_project, target_path)
-        self.hfss3d = Hfss3dLayout(target_path, specified_version=desktop_version)
-        self.aedtapps.append(self.hfss3d)
+        self.target_path = os.path.join(self.local_scratch.path, "Package_test_40.aedb")
+        self.local_scratch.copyfolder(example_project, self.target_path)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -87,4 +85,6 @@ class TestClass(BasisTest, object):
         assert len(nets) > 0
 
     def test_08_merge(self):
-        assert self.hfss3d.modeler.merge_design(self.aedtapp)
+        hfss3d = Hfss3dLayout(self.target_path, specified_version=desktop_version)
+        assert hfss3d.modeler.merge_design(self.aedtapp)
+        hfss3d.close_project(saveproject=False)
