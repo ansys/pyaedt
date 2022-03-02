@@ -81,6 +81,10 @@ class TestClass:
         p2 = [10.0, 10.0, 10.0]
         m = go.get_mid_point(p1, p2)
         assert is_vector_equal(m, [5.0, 5.0, 5.0])
+        p1 = [1.0, 1.0]
+        p2 = [10.0, 10.0]
+        m = go.get_mid_point(p1, p2)
+        assert is_vector_equal(m, [5.5, 5.5])
 
     def test_get_triangle_area(self):
         p1 = [0.0, 0.0, 0.0]
@@ -106,6 +110,7 @@ class TestClass:
         assert go.v_dot(v1, v2) == 0.0
         assert go.v_dot(v1, v3) == 2.0
         assert go.v_dot(v1, v4) == -1.0
+        assert not go.v_dot([1, 2, 3, 4], [5, 6, 7, 8])
 
     def test_v_prod(self):
         v1 = [1, 2, 3]
@@ -146,6 +151,12 @@ class TestClass:
         p1 = [1.0, 0.0, 1.0]
         p2 = [0.0, 1.0, 1.0]
         assert abs(go.points_distance(p1, p2) - math.sqrt(2)) < tol
+        p1 = [1.0, 0.0]
+        p2 = [0.0, 1.0]
+        assert abs(go.points_distance(p1, p2) - math.sqrt(2)) < tol
+        p1 = [1.0, 0.0, 0.0, 0.0]
+        p2 = [0.0, 1.0, 0.0, 0.0]
+        assert not go.points_distance(p1, p2)
 
     def test_find_point_on_plane(self):
         assert go.find_point_on_plane([[1, 0, 0]], 0) == 1
@@ -351,3 +362,127 @@ class TestClass:
         assert unit_converter(10) == 10000
         assert unit_converter(10, "Lengths") == 10
         assert unit_converter(10, "Length", "meters") == 10
+
+    def test_are_segments_intersecting(self):
+        # crossing
+        assert not go.are_segments_intersecting([1, 1], [10, 1], [1, 2], [10, 2])
+        assert go.are_segments_intersecting([10, 0], [0, 10], [0, 0], [10, 10])
+        assert not go.are_segments_intersecting([-5.0, -5.0], [0.0, 0.0], [1.0, 1.0], [10, 10])
+        assert not go.are_segments_intersecting([1, 1], [10, 1], [1, 2], [10, 2], include_collinear=False)
+        assert go.are_segments_intersecting([10, 0], [0, 10], [0, 0], [10, 10], include_collinear=False)
+        assert not go.are_segments_intersecting([-5.0, -5.0], [0.0, 0.0], [1.0, 1.0], [10, 10], include_collinear=False)
+        assert go.are_segments_intersecting([1, 1], [10, 1], [1, 1], [1, 10])
+        assert go.are_segments_intersecting([1, 1], [10, 1], [1, 1], [1, -10])
+        assert go.are_segments_intersecting([1, 1], [10, 1], [10, 1], [10, 10])
+        assert go.are_segments_intersecting([1, 1], [10, 1], [10, 1], [10, -10])
+        assert go.are_segments_intersecting([1, 1], [10, 1], [10, -10], [10, 1])
+        # collinear just one end
+        assert go.are_segments_intersecting([1, 1], [10, 1], [2, 1], [2, 10])
+        assert go.are_segments_intersecting([1, 1], [10, 1], [2, -3], [2, 1])
+        assert go.are_segments_intersecting([1, 1], [1, 10], [1, 3], [5, 3])
+        assert go.are_segments_intersecting([1, 1], [1, 10], [-5, 3], [1, 3])
+        assert not go.are_segments_intersecting([1, 1], [10, 1], [2, 1], [2, 10], include_collinear=False)
+        assert not go.are_segments_intersecting([1, 1], [10, 1], [2, -3], [2, 1], include_collinear=False)
+        assert not go.are_segments_intersecting([1, 1], [1, 10], [1, 3], [5, 3], include_collinear=False)
+        assert not go.are_segments_intersecting([1, 1], [1, 10], [-5, 3], [1, 3], include_collinear=False)
+        # collinear more points
+        assert go.are_segments_intersecting([1, 1], [3, 3], [2, 2], [4, 4])
+        assert go.are_segments_intersecting([1, 1], [3, 3], [4, 4], [2, 2])
+        assert go.are_segments_intersecting([2, 2], [4, 4], [1, 1], [3, 3])
+        assert go.are_segments_intersecting([4, 4], [2, 2], [1, 1], [3, 3])
+        assert not go.are_segments_intersecting([1, 1], [3, 3], [2, 2], [4, 4], include_collinear=False)
+        assert not go.are_segments_intersecting([1, 1], [3, 3], [4, 4], [2, 2], include_collinear=False)
+        assert not go.are_segments_intersecting([2, 2], [4, 4], [1, 1], [3, 3], include_collinear=False)
+        assert not go.are_segments_intersecting([4, 4], [2, 2], [1, 1], [3, 3], include_collinear=False)
+
+    def test_point_in_polygon(self):
+        x = [0, 1, 1, 0]
+        y = [0, 0, 1, 1]
+        assert go.point_in_polygon([0.5, 0.5], [x, y]) == 1
+        assert go.point_in_polygon([0.5, -0.5], [x, y]) == -1
+        assert go.point_in_polygon([0.5, 0], [x, y]) == 0
+        assert go.point_in_polygon([-0.5, 0], [x, y]) == -1
+        assert go.point_in_polygon([0, 0], [x, y]) == 0
+        assert go.is_point_in_polygon([0.5, 0.5], [x, y])
+        assert not go.is_point_in_polygon([0.5, -0.5], [x, y])
+        assert go.is_point_in_polygon([0.5, 0], [x, y])
+        assert not go.is_point_in_polygon([-0.5, 0], [x, y])
+        assert go.is_point_in_polygon([0, 0], [x, y])
+
+    def test_v_angle_sign(self):
+        va = [1, 0, 0]
+        vb = [0, 1, 0]
+        vn = [0, 0, 1]
+        vnn = [0, 0, -1]
+        assert go.v_angle_sign(va, vb, vn, right_handed=True) == go.v_angle_sign(vb, va, vn, right_handed=False)
+        assert go.v_angle_sign(va, vb, vn, right_handed=True) == go.v_angle_sign(vb, va, vnn, right_handed=True)
+        assert go.v_angle_sign([1, 1, 0], [-1, -1, 0], vn) == math.pi
+        va = [0, 1, 2]
+        vb = [0, -2, 4]
+        vn = [1, 0, 0]
+        vnn = [-1, 0, 0]
+        assert go.v_angle_sign(va, vb, vn, right_handed=True) == go.v_angle_sign(vb, va, vn, right_handed=False)
+        assert go.v_angle_sign(va, vb, vn, right_handed=True) == go.v_angle_sign(vb, va, vnn, right_handed=True)
+        assert go.v_angle_sign([0, 1, 1], [0, -1, -1], vn) == math.pi
+
+    def test_v_angle_sign_2D(self):
+        va = [1, 0]
+        vb = [0, 1]
+        assert go.v_angle_sign_2D(va, vb, right_handed=True) == go.v_angle_sign_2D(vb, va, right_handed=False)
+        assert go.v_angle_sign_2D([1, 1], [-1, -1]) == math.pi
+
+    def test_is_segment_intersecting_polygon(self):
+        x = [1, -1.5, 1, 3, 4.5, 5.5]
+        y = [4, +1.0, -2, 1, -1, 1]
+
+        # all in
+        assert not go.is_segment_intersecting_polygon([1, 1], [2, 2], [x, y])
+        # all out
+        assert not go.is_segment_intersecting_polygon([-1, -1], [-2, 1], [x, y])
+        assert not go.is_segment_intersecting_polygon([3, 3.5], [4, 4], [x, y])
+        # one in, one out
+        assert go.is_segment_intersecting_polygon([1, 1], [3, -2], [x, y])
+        assert go.is_segment_intersecting_polygon([1, 1], [-1, -1], [x, y])
+        assert go.is_segment_intersecting_polygon([1, 1], [-2, 2], [x, y])
+        # all out intersecting
+        assert go.is_segment_intersecting_polygon([1, 1], [4.5, 0], [x, y])
+        assert go.is_segment_intersecting_polygon([-1, -1], [3, -0.5], [x, y])
+
+    def test_is_perpendicular(self):
+        a = [1, 1, math.sqrt(2)]
+        b = [-1, -1, math.sqrt(2)]
+        assert go.is_perpendicular(a, b)
+        b = [-1, 1, 0.5]
+        assert not go.is_perpendicular(a, b)
+        a = [1, 1]
+        b = [-1, 1]
+        assert go.is_perpendicular(a, b)
+        b = [-1, 1.1]
+        assert not go.is_perpendicular(a, b)
+
+    def test_is_point_projection_in_segment(self):
+        a = [1, 1]
+        b = [10, 1]
+        p1 = [3, 4]
+        p2 = [0, 2]
+        assert go.is_point_projection_in_segment(p1, a, b)
+        assert not go.is_point_projection_in_segment(p2, a, b)
+
+    def test_point_segment_distance(self):
+        a = [1, 1]
+        b = [10, 1]
+        p1 = [3, 4]
+        d = go.point_segment_distance(p1, a, b)
+        assert abs(3 - d) < tol
+
+    def test_find_largest_rectangle_inside_polygon(self):
+        x = [1, -1, 1, 2, 4, 6, 7, 8, 7, 7, 5, 4, 3, 2]
+        y = [3, 1, -1, -1, 1, -1, 0, 1, 2, 3, 3, 4, 4, 3]
+        order = 9
+        R = go.find_largest_rectangle_inside_polygon([x, y], order)
+        results = [
+            [[0.0, 1.0], [2.0, -1.0], [5.0, 2.0], [3.0, 4.0]],
+            [[1.0, 1.0], [1.0, 3.0], [7.0, 3.0], [7.0, 1.0]],
+        ]
+        assert R[0] in results
+        assert R[1] in results
