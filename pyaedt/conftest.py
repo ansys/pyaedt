@@ -33,6 +33,4 @@ def get_root_directory(doctest_namespace):
     """
     root = Path(__file__).parent.parent
     doctest_namespace["root_path"] = root
-    doctest_namespace["projects_path"] = os.path.join(
-        root, "_unittest", "example_models"
-    )
+    doctest_namespace["projects_path"] = os.path.join(root, "_unittest", "example_models")
