@@ -1,15 +1,17 @@
-files: ^pyaedt/
-exclude: ^pyaedt/rpc/
 repos:
 - repo: https://github.com/psf/black
   rev: 21.12b0
   hooks:
   - id: black
+    files: ^pyaedt/
+    exclude: ^pyaedt/rpc/
 - repo: https://github.com/asottile/reorder_python_imports
   rev: v2.6.0
   hooks:
   - id: reorder-python-imports
     args: ["--py37-plus"]
+    files: ^pyaedt/
+    exclude: ^pyaedt/rpc/
 - repo: https://gitlab.com/PyCQA/flake8
   rev: 3.9.2
   hooks:
@@ -19,6 +21,8 @@ repos:
   hooks:
   - id: codespell
     args: ["--ignore-words=ignore_words.txt"]
+    files: ^pyaedt/
+    exclude: ^pyaedt/rpc/
 # - repo: https://github.com/pycqa/pydocstyle
 #   rev: 6.1.1
 #   hooks:
