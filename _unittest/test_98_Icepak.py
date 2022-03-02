@@ -1,11 +1,8 @@
 # standard imports
-import gc
 import os
-import time
 
 # Import required modules
 from pyaedt import Icepak
-from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
 from _unittest.conftest import local_path, scratch_path, desktop_version, config, BasisTest
@@ -35,23 +32,12 @@ source_project_path = os.path.join(local_path, "example_models", src_project_nam
 source_fluent = os.path.join(local_path, "example_models", "ColdPlateExample.aedt")
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        timeout = 4
-        while gc.collect() != 0 and timeout > 0:
-            time.sleep(0.5)
-            timeout -= 0.5
-        with Scratch(scratch_path) as self.local_scratch:
-            example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
-
-            self.test_project = self.local_scratch.copyfile(example_project)
-            self.test_src_project = self.local_scratch.copyfile(source_project)
-
-            self.local_scratch.copyfolder(
-                os.path.join(local_path, "example_models", test_project_name + ".aedb"),
-                os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
-            )
-            self.aedtapp = Icepak(self.test_project, specified_version=desktop_version)
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Icepak)
+        project_path = os.path.join(local_path, "example_models", src_project_name + ".aedt")
+        self.local_scratch.copyfile(project_path)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

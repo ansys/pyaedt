@@ -68,6 +68,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         self,
         projectname=None,
         designname=None,
+        solution_type=None,
         specified_version=None,
         non_graphical=False,
         new_desktop_session=False,

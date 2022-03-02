@@ -5,7 +5,7 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 # Setup paths for module imports
-from _unittest.conftest import local_path, settings, BasisTest, desktop_version
+from _unittest.conftest import local_path, settings, BasisTest, desktop_version, is_ironpython
 
 # Import required modules
 from pyaedt import Hfss
@@ -14,9 +14,10 @@ from pyaedt.generic.near_field_import import convert_nearfield_data
 test_project_name = "coax_HFSS"
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, "Test_20")
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -671,10 +672,12 @@ class TestClass(BasisTest):
         )
         assert self.aedtapp.assign_current_source_to_sheet(sheet.name)
 
+    @pytest.mark.skipif(is_ironpython, reason="Float overflow in Ironpython")
     def test_41_export_step(self):
-        file_path = self.local_scratch.path
-        file_name = "test_step"
-        assert self.aedtapp.export_3d_model(file_name, file_path, ".step", [], [])
+        file_name = "test"
+        self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10])
+        assert self.aedtapp.export_3d_model(file_name, self.aedtapp.working_directory, ".step", [], [])
+        assert os.path.exists(os.path.join(self.aedtapp.working_directory, file_name + ".step"))
 
     def test_42_floquet_port(self):
         self.aedtapp.insert_design("floquet")

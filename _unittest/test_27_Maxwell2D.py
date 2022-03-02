@@ -17,9 +17,10 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        BasisTest.my_setup(
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(
             self, project_name="Motor_EM_R2019R3", design_name="Basis_Model_For_Test", application=Maxwell2d
         )
         self.cache = DesignCache(self.aedtapp)

@@ -7,12 +7,11 @@ import time
 # Import required modules
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
-from pyaedt.generic.filesystem import Scratch
 
 
 test_project_name = "Galileo_edb"
 bom_example = "bom_example.csv"
-from _unittest.conftest import config, desktop_version, local_path, scratch_path, is_ironpython, settings
+from _unittest.conftest import config, desktop_version, local_path, scratch_path, is_ironpython, settings, BasisTest
 
 try:
     import pytest
@@ -20,22 +19,10 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
 
-class TestClass:
+class TestClass(BasisTest, object):
     def setup_class(self):
-        with Scratch(scratch_path) as self.local_scratch:
-            # example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
-            # self.test_project = self.local_scratch.copyfile(example_project)
-            aedbproject = os.path.join(self.local_scratch.path, test_project_name + ".aedb")
-            self.local_scratch.copyfolder(
-                os.path.join(local_path, "example_models", test_project_name + ".aedb"),
-                os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
-            )
-            self.edbapp = Edb(
-                os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
-                "Galileo_G87173_204",
-                edbversion=desktop_version,
-                isreadonly=False,
-            )
+        BasisTest.my_setup(self)
+        self.edbapp = BasisTest.add_edb(self, test_project_name)
 
     def teardown_class(self):
         self.edbapp.close_edb()
@@ -187,7 +174,7 @@ class TestClass:
     def test_15_update_layer(self):
         tol = 1e-12
         assert "LYR_1" in self.edbapp.core_stackup.stackup_layers.layers.keys()
-        self.edbapp.core_stackup.stackup_layers["LYR_1"].name
+        assert self.edbapp.core_stackup.stackup_layers["LYR_1"].name
         self.edbapp.core_stackup.stackup_layers["LYR_1"].thickness_value = "100um"
         assert abs(self.edbapp.core_stackup.stackup_layers["LYR_1"].thickness_value - 10e-5) < tol
         self.edbapp.core_stackup.stackup_layers["LYR_2"].material_name = "MyCond"
@@ -208,7 +195,7 @@ class TestClass:
         assert self.edbapp.core_components.components["R1"].placement_layer
         assert isinstance(self.edbapp.core_components.components["R1"].lower_elevation, float)
         assert isinstance(self.edbapp.core_components.components["R1"].upper_elevation, float)
-        assert self.edbapp.core_components.components["R1"].top_bottom_association == 1
+        assert self.edbapp.core_components.components["R1"].top_bottom_association == 0
         assert self.edbapp.core_components.components["R1"].pinlist
         pinname = self.edbapp.core_components.components["R1"].pinlist[0].GetName()
         assert (
@@ -704,7 +691,24 @@ class TestClass:
         edbapp_without_path = None
         del edbapp_without_path
 
-    def test_82_edb_with_dxf(self):
+    def test_80_create_reactangle_in_pad(self):
+        example_model = os.path.join(local_path, "example_models", "padstacks.aedb")
+        self.local_scratch.copyfolder(
+            example_model,
+            os.path.join(self.local_scratch.path, "padstacks2.aedb"),
+        )
+        edb_padstacks = Edb(
+            edbpath=os.path.join(self.local_scratch.path, "padstacks2.aedb"),
+            edbversion=desktop_version,
+            isreadonly=True,
+        )
+        for i in range(7):
+            padstack_instance = list(edb_padstacks.core_padstack.padstack_instances.values())[i]
+            result = padstack_instance.create_reactangle_in_pad("s")
+            assert result
+        edb_padstacks.close_edb()
+
+    def test_81_edb_with_dxf(self):
         edb3 = Edb(os.path.join(local_path, "example_models", "edb_test_82.dxf"), edbversion=desktop_version)
         edb3.close_edb()
         del edb3
