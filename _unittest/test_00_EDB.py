@@ -7,7 +7,6 @@ import time
 # Import required modules
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
-from pyaedt.generic.filesystem import Scratch
 
 
 test_project_name = "Galileo_edb"

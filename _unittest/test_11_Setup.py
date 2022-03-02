@@ -2,11 +2,10 @@
 import os
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, BasisTest, desktop_version
+from _unittest.conftest import BasisTest
 
 # Import required modules
-from pyaedt import Hfss, Circuit
-from pyaedt.generic.filesystem import Scratch
+from pyaedt import Circuit
 
 test_project_name = "coax_setup"
 

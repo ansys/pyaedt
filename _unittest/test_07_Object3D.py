@@ -5,7 +5,7 @@ import math
 from pyaedt.generic.general_methods import isclose, time_fn
 from pyaedt.modeler.Object3d import FacePrimitive, _to_boolean, _uname
 
-from _unittest.conftest import  BasisTest
+from _unittest.conftest import BasisTest
 
 
 class TestClass(BasisTest, object):

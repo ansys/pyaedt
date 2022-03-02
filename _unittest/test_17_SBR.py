@@ -1,10 +1,8 @@
 import os
 
 # Import required modules
-import time
 
 from pyaedt import Hfss
-from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
 from _unittest.conftest import local_path, BasisTest, desktop_version
