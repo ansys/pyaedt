@@ -92,13 +92,13 @@ class BasisTest(object):
             oDesktop = None
         if oDesktop:
             oDesktop.ClearMessages("", "", 3)
-        for edbapp in self.edbapps:
+        for edbapp in self.edbapps[::-1]:
             try:
                 edbapp.close_edb()
             except:
                 pass
         del self.edbapps
-        for aedtapp in self.aedtapps:
+        for aedtapp in self.aedtapps[::-1]:
             aedtapp.close_project(None, False)
         del self.aedtapps
 
