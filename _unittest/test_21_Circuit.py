@@ -193,7 +193,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.create_setup(setup_name, "NexximAMI")
 
     def test_20_create_AMI_plots(self):
-        ami_design = BasisTest.add_app(ami_project, application=Circuit)
+        ami_design = BasisTest.add_app(self, ami_project, application=Circuit)
         report_name = "MyReport"
         assert (
             ami_design.post.create_ami_initial_response_plot(

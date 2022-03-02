@@ -112,7 +112,7 @@ class BasisTest(object):
                 example_project = example_project + "z"
                 self.test_project = self.local_scratch.copyfile(example_project)
             else:
-                self.test_project = None
+                self.test_project = project_name
             if os.path.exists(example_folder):
                 target_folder = os.path.join(self.local_scratch.path, project_name + ".aedb")
                 self.local_scratch.copyfolder(example_folder, target_folder)

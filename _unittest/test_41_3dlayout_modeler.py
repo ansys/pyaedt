@@ -14,7 +14,7 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 # Input Data and version for the test
-test_project_name = "Test_RadioBoard.aedt"
+test_project_name = "Test_RadioBoard"
 
 
 class TestClass(BasisTest, object):
