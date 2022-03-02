@@ -7,7 +7,7 @@ import warnings
 import io
 
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
@@ -110,7 +110,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     def __enter__(self):
         return self
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_edge_port(self, primivitivename, edgenumber, iscircuit=True):
         """Create an edge port.
 
@@ -152,7 +152,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_wave_port_from_two_conductors(self, primivitivenames=[""], edgenumbers=[""]):
         """Create a wave port.
 
@@ -200,7 +200,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_coax_port(self, vianame, layer, xstart, xend, ystart, yend, archeight=0, arcrad=0, isexternal=True):
         """Create a new coax port.
 
@@ -275,7 +275,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_pin_port(self, name, xpos=0, ypos=0, rotation=0, top_layer=None, bot_layer=None):
         """Create a pin port.
 
@@ -336,7 +336,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete_port(self, portname):
         """Delete a port.
 
@@ -358,7 +358,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.oexcitation.Delete(portname)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_edb(self, edb_full_path):
         """Import EDB.
 
@@ -382,7 +382,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.odesign = self.odesktop.GetActiveProject().GetActiveDesign().GetName().split(";")[1]
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def validate_full_design(self, name=None, outputdir=None, ports=None):
         """Validate the design based on the expected value and save the information in the log file.
 
@@ -484,7 +484,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         validation.close()
         return val_list, validation_ok  # return all the info in a list for use later
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_scattering(
         self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None, variations=None
     ):
@@ -546,7 +546,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_touchstone(self, solutionname, sweepname, filename, variation, variations_value):
         """Export a Touchstone file.
 
@@ -622,7 +622,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_export_touchstone(self, activate, export_dir=""):
         """Export the Touchstone file automatically if the simulation is successful.
 
@@ -657,7 +657,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.odesign.DesignOptions(settings, 0)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_frequency_sweep(
         self,
         setupname,
@@ -706,7 +706,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             use_q3d_for_dc=use_q3d_for_dc,
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_linear_count_sweep(
         self,
         setupname,
@@ -807,7 +807,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 return sweep
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_linear_step_sweep(
         self,
         setupname,
@@ -908,7 +908,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 return sweep
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_single_point_sweep(
         self,
         setupname,
@@ -981,7 +981,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 return sweepdata
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_gds(self, gds_path, aedb_path=None, xml_path=None, set_as_active=True, close_active_project=False):
         """Import grounds into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1032,7 +1032,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             self.odesktop.CloseProject(active_project)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def edit_cosim_options(
         self,
         simulate_missing_solution=True,
@@ -1142,7 +1142,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.odesign.EditCoSimulationOptions(arg)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_differential_pair(
         self,
         positive_terminal,
@@ -1254,7 +1254,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def load_diff_pairs_from_file(self, filename):
         """Load differtential pairs definition from file.
 
@@ -1293,7 +1293,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def save_diff_pairs_to_file(self, filename):
         """Save differtential pairs definition to file.
 

@@ -9,7 +9,7 @@ import os
 from collections import OrderedDict
 from decimal import Decimal
 
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
 
 try:
@@ -25,7 +25,7 @@ except ImportError:
         warnings.warn("Pythonnet is needed to run pyaedt")
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def _tuple2dict(t, d):
     """
 
@@ -56,7 +56,7 @@ def _tuple2dict(t, d):
         d[k] = v
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def _dict2arg(d, arg_out):
     """
 
@@ -100,7 +100,7 @@ def _dict2arg(d, arg_out):
                 arg_out.append(v)
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def _arg2dict(arg, dict_out):
     if arg[0] == "NAME:DimUnits" or "NAME:Point" in arg[0]:
         if arg[0][5:] in dict_out:
@@ -151,7 +151,7 @@ def _arg2dict(arg, dict_out):
         raise ValueError("Incorrect data argument format")
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def create_list_for_csharp(input_list, return_strings=False):
     """
 
@@ -179,7 +179,7 @@ def create_list_for_csharp(input_list, return_strings=False):
     return col
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def create_table_for_csharp(input_list_of_list, return_strings=True):
     """
 
@@ -201,7 +201,7 @@ def create_table_for_csharp(input_list_of_list, return_strings=True):
     return new_table
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def format_decimals(el):
     """
 
@@ -223,7 +223,7 @@ def format_decimals(el):
     return num
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def random_string(length=6, only_digits=False, char_set=None):
     """Generate a random string
 

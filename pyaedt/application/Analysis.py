@@ -12,7 +12,7 @@ import threading
 import warnings
 from collections import OrderedDict
 
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, filter_tuple
+from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, filter_tuple
 from pyaedt.generic.constants import (
     AXIS,
     PLANE,
@@ -505,7 +505,7 @@ class Analysis(Design, object):
         except:
             return []
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_excitations_name(self):
         """Get all excitation names.
 
@@ -526,7 +526,7 @@ class Analysis(Design, object):
         warnings.warn("`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning)
         return self.excitations
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_traces_for_plot(
         self,
         get_self_terms=True,
@@ -585,7 +585,7 @@ class Analysis(Design, object):
                             list_output.append(value)
         return list_output
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def analyze_all(self):
         """Analyze all setups in a design.
 
@@ -597,7 +597,7 @@ class Analysis(Design, object):
         self.odesign.AnalyzeAll()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def list_of_variations(self, setup_name=None, sweep_name=None):
         """Retrieve a list of active variations for input setup.
 
@@ -642,7 +642,7 @@ class Analysis(Design, object):
             except:
                 return [""]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_results(self, analyze=False, export_folder=None):
         """Export all available reports to a file, including sNp, profile, and convergence.
 
@@ -775,7 +775,7 @@ class Analysis(Design, object):
                                 self.logger.warning("Export SnP failed: no solutions found")
         return exported_files
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_convergence(self, setup_name, variation_string="", file_path=None):
         """Export a solution convergence to a file.
 
@@ -806,7 +806,7 @@ class Analysis(Design, object):
         self.logger.info("Export Convergence to  %s", file_path)
         return file_path
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_native_data(self):
         """Retrieve Native Components data."""
         boundaries = []
@@ -868,7 +868,7 @@ class Analysis(Design, object):
             """
             return [i for i in self._app.variable_manager.independent_variables]
 
-        @aedt_exception_handler
+        @pyaedt_function_handler()
         def variations(self, setup_sweep=None):
             """Variations.
 
@@ -904,7 +904,7 @@ class Analysis(Design, object):
                 families.append(family)
             return families
 
-        @aedt_exception_handler
+        @pyaedt_function_handler()
         def get_variation_strings(self, setup_sweep=None):
             """Return variation strings.
 
@@ -1002,7 +1002,7 @@ class Analysis(Design, object):
 
         (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(0, 6)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_setups(self):
         """Retrieve setups.
 
@@ -1019,7 +1019,7 @@ class Analysis(Design, object):
         setups = self.oanalysis.GetSetups()
         return list(setups)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_nominal_variation(self):
         """Retrieve the nominal variation.
 
@@ -1030,7 +1030,7 @@ class Analysis(Design, object):
         """
         return self.available_variations.nominal
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_sweeps(self, name):
         """Retrieve all sweeps for a setup.
 
@@ -1052,7 +1052,7 @@ class Analysis(Design, object):
         sweeps = self.oanalysis.GetSweeps(name)
         return list(sweeps)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_parametric_results(self, sweepname, filename, exportunits=True):
         """Export a list of all parametric variations solved for a sweep to a CSV file.
 
@@ -1080,7 +1080,7 @@ class Analysis(Design, object):
         self.ooptimetrics.ExportParametricResults(sweepname, filename, exportunits)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def analyze_from_initial_mesh(self):
         """Revert the solution to the initial mesh and re-run the solve.
 
@@ -1099,7 +1099,7 @@ class Analysis(Design, object):
         self.analyze_nominal()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def analyse_nominal(self):
         """Solve the nominal design.
 
@@ -1109,7 +1109,7 @@ class Analysis(Design, object):
         warnings.warn("`analyse_nominal` is deprecated. Use `analyze_nominal` instead.", DeprecationWarning)
         self.analyze_nominal()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def analyze_nominal(self, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None):
         """Solve the nominal design.
 
@@ -1137,7 +1137,7 @@ class Analysis(Design, object):
 
         return self.analyze_setup(self.analysis_setup, num_cores, num_tasks, num_gpu, acf_file)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def generate_unique_setup_name(self, setup_name=None):
         """Generate a new setup with an unique name.
 
@@ -1160,7 +1160,7 @@ class Analysis(Design, object):
             index += 1
         return setup_name
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
         """Create a setup.
 
@@ -1229,7 +1229,7 @@ class Analysis(Design, object):
         self.setups.append(setup)
         return setup
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete_setup(self, setupname):
         """Delete a setup.
 
@@ -1267,7 +1267,7 @@ class Analysis(Design, object):
             return True
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def edit_setup(self, setupname, properties_dict):
         """Modify a setup.
 
@@ -1294,7 +1294,7 @@ class Analysis(Design, object):
         self.analysis_setup = setupname
         return setup
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_setup(self, setupname):
         """Get the setup from the current design.
 
@@ -1315,7 +1315,7 @@ class Analysis(Design, object):
             self.analysis_setup = setupname
         return setup
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_output_variable(self, variable, expression):
         """Create or modify an output variable.
 
@@ -1346,7 +1346,7 @@ class Analysis(Design, object):
             oModule.CreateOutputVariable(variable, expression, self.existing_analysis_sweeps[0], self.solution_type, [])
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_output_variable(self, variable):
         """Retrieve the value of the output variable.
 
@@ -1375,7 +1375,7 @@ class Analysis(Design, object):
 
         return value
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_object_material_properties(self, object_list=None, prop_names=None):
         """Retrieve the material properties for a list of objects and return them in a dictionary.
 
@@ -1417,7 +1417,7 @@ class Analysis(Design, object):
                     dict[entry][prop_name] = mat_props._props[prop_name]
         return dict
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def analyze_setup(self, name, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None):
         """Analyze a design setup.
 
@@ -1506,7 +1506,7 @@ class Analysis(Design, object):
         self.logger.info("Design setup %s solved correctly", name)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def solve_in_batch(self, filename=None, machine="local", run_in_thread=False):
         """Analyze a design setup in batch mode.
 
@@ -1568,7 +1568,7 @@ class Analysis(Design, object):
         self.logger.info("Batch job finished.")
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def submit_job(
         self, clustername, aedt_full_exe_path=None, numnodes=1, numcores=32, wait_for_license=True, setting_file=None
     ):

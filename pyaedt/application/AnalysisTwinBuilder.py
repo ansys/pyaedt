@@ -1,4 +1,4 @@
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Circuit import ModelerTwinBuilder
 from pyaedt.modules.SolveSetup import SetupCircuit
 from pyaedt.application.Analysis import Analysis
@@ -76,7 +76,7 @@ class AnalysisTwinBuilder(Analysis):
         """Design oModeler."""
         return self._modeler
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
         """Create a new setup.
 

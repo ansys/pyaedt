@@ -7,7 +7,7 @@ import datetime
 import sys
 import traceback
 import logging
-from functools import wraps, update_wrapper
+from functools import update_wrapper   #, wraps
 from collections import OrderedDict
 import inspect
 import itertools
@@ -298,80 +298,77 @@ def _function_handler_wrapper(user_function):
     return wrapper
 
 
+# def aedt_exception_handler(func):
+#     """Decorator for pyaedt Exception Management
+#
+#     Parameters
+#     ----------
+#     func :
+#         method to be decorated
+#
+#     Returns
+#     -------
+#     type
+#         function return if correctly executed otherwise it will return False and errors will be plotted
+#
+#     """
+#
+#     @wraps(func)
+#     def inner_function(*args, **kwargs):
+#         if settings.enable_error_handler:
+#             try:
+#                 new_args = _remote_list_conversion(args)
+#                 new_kwargs = _remote_dict_conversion(kwargs)
+#                 out = func(*new_args, **new_kwargs)
+#                 _log_method(func, new_args, new_kwargs)
+#                 return out
+#             except TypeError:
+#                 if not is_remote_server:
+#                     _exception(sys.exc_info(), func, args, kwargs, "Type Error")
+#                 return False
+#             except ValueError:
+#                 _exception(sys.exc_info(), func, args, kwargs, "Value Error")
+#                 return False
+#             except AttributeError:
+#                 _exception(sys.exc_info(), func, args, kwargs, "Attribute Error")
+#                 return False
+#             except KeyError:
+#                 _exception(sys.exc_info(), func, args, kwargs, "Key Error")
+#                 return False
+#             except IndexError:
+#                 if not is_remote_server:
+#                     _exception(sys.exc_info(), func, args, kwargs, "Index Error")
+#                     return False
+#             except AssertionError:
+#                 _exception(sys.exc_info(), func, args, kwargs, "Assertion Error")
+#                 return False
+#             except NameError:
+#                 _exception(sys.exc_info(), func, args, kwargs, "Name Error")
+#                 return False
+#             except IOError:
+#                 _exception(sys.exc_info(), func, args, kwargs, "IO Error")
+#                 return False
+#             except MethodNotSupportedError:
+#                 message = "This Method is not supported in current AEDT Design Type."
+#                 if settings.enable_screen_logs:
+#                     print("**************************************************************")
+#                     print("pyaedt error on Method {}:  {}. Please Check again".format(func.__name__, message))
+#                     print("**************************************************************")
+#                     print("")
+#                 if settings.enable_file_logs:
+#                     logger.error(message)
+#                 return False
+#             except BaseException:
+#                 _exception(sys.exc_info(), func, args, kwargs, "General or AEDT Error")
+#
+#                 return False
+#         else:
+#             return func(*args, **kwargs)
+#
+#     return inner_function
 
 
-
-def aedt_exception_handler(func):
-    """Decorator for pyaedt Exception Management
-
-    Parameters
-    ----------
-    func :
-        method to be decorated
-
-    Returns
-    -------
-    type
-        function return if correctly executed otherwise it will return False and errors will be plotted
-
-    """
-
-    @wraps(func)
-    def inner_function(*args, **kwargs):
-        if settings.enable_error_handler:
-            try:
-                new_args = _remote_list_conversion(args)
-                new_kwargs = _remote_dict_conversion(kwargs)
-                out = func(*new_args, **new_kwargs)
-                _log_method(func, new_args, new_kwargs)
-                return out
-            except TypeError:
-                if not is_remote_server:
-                    _exception(sys.exc_info(), func, args, kwargs, "Type Error")
-                return False
-            except ValueError:
-                _exception(sys.exc_info(), func, args, kwargs, "Value Error")
-                return False
-            except AttributeError:
-                _exception(sys.exc_info(), func, args, kwargs, "Attribute Error")
-                return False
-            except KeyError:
-                _exception(sys.exc_info(), func, args, kwargs, "Key Error")
-                return False
-            except IndexError:
-                if not is_remote_server:
-                    _exception(sys.exc_info(), func, args, kwargs, "Index Error")
-                    return False
-            except AssertionError:
-                _exception(sys.exc_info(), func, args, kwargs, "Assertion Error")
-                return False
-            except NameError:
-                _exception(sys.exc_info(), func, args, kwargs, "Name Error")
-                return False
-            except IOError:
-                _exception(sys.exc_info(), func, args, kwargs, "IO Error")
-                return False
-            except MethodNotSupportedError:
-                message = "This Method is not supported in current AEDT Design Type."
-                if settings.enable_screen_logs:
-                    print("**************************************************************")
-                    print("pyaedt error on Method {}:  {}. Please Check again".format(func.__name__, message))
-                    print("**************************************************************")
-                    print("")
-                if settings.enable_file_logs:
-                    logger.error(message)
-                return False
-            except BaseException:
-                _exception(sys.exc_info(), func, args, kwargs, "General or AEDT Error")
-
-                return False
-        else:
-            return func(*args, **kwargs)
-
-    return inner_function
-
-
-@aedt_exception_handler
+@pyaedt_function_handler()
 def get_version_and_release(input_version):
     version = int(input_version[2:4])
     release = int(input_version[5])
@@ -383,7 +380,7 @@ def get_version_and_release(input_version):
     return (version, release)
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def env_path(input_version):
     """Return the version Environment Variable name based on an input version string.
 
@@ -408,7 +405,7 @@ def env_path(input_version):
     )
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def env_value(input_version):
     """Return the version Environment Variable value based on an input version string.
 
@@ -430,7 +427,7 @@ def env_value(input_version):
     )
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def env_path_student(input_version):
     """Return the Student version Environment Variable value based on an input version string.
 
@@ -455,7 +452,7 @@ def env_path_student(input_version):
     )
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def env_value_student(input_version):
     """Return the Student version Environment Variable name based on an input version string.
 
@@ -477,7 +474,7 @@ def env_value_student(input_version):
     )
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def get_filename_without_extension(path):
     """Get the filename without its extension.
 
@@ -494,7 +491,7 @@ def get_filename_without_extension(path):
     return os.path.splitext(os.path.split(path)[1])[0]
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def generate_unique_name(rootname, suffix="", n=6):
     """Generate a new  name given a rootname and optionally a suffix.
 
@@ -601,7 +598,7 @@ def is_project_locked(project_path):
     return os.path.exists(project_path[:-4] + "lock")
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def remove_project_lock(project_path):
     """Checks if an aedt project exists and try to remove the lock file.
 
@@ -622,7 +619,7 @@ def remove_project_lock(project_path):
     return True
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def write_csv(output, list_data, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL):
     if is_ironpython:
         f = open(output, "wb")
@@ -635,7 +632,7 @@ def write_csv(output, list_data, delimiter=",", quotechar="|", quoting=csv.QUOTE
     return True
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def filter_tuple(value, search_key1, search_key2):
     """Filter a tuple of 2 elements with two search keywords"""
     ignore_case = True
@@ -659,7 +656,7 @@ def filter_tuple(value, search_key1, search_key2):
     return False
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def filter_string(value, search_key1):
     """Filter a string"""
     ignore_case = True
@@ -681,7 +678,7 @@ def filter_string(value, search_key1):
     return False
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def recursive_glob(startpath, filepattern):
     """Return a list of files matching a pattern, searching recursively from a start path.
 

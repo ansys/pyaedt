@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 import warnings
 
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Modeler import GeometryModeler
 from pyaedt.modeler.Primitives3D import Primitives3D
 
@@ -48,7 +48,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         warnings.warn(mess, DeprecationWarning)
         return self._primitives
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_3dcomponent(
         self,
         component_file,
