@@ -6,7 +6,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import scratch_path, local_path, BasisTest, desktop_version
+from _unittest.conftest import scratch_path, local_path, BasisTest
 
 try:
     import pytest  # noqa: F401
@@ -14,26 +14,14 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 # Input Data and version for the test
-test_project_name = "Test_RadioBoard.aedt"
+test_project_name = "Test_RadioBoard"
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        with Scratch(scratch_path) as self.local_scratch:
-            self.test_project = os.path.join(self.local_scratch.path, test_project_name)
-            self.aedtapp = Hfss3dLayout(self.test_project, specified_version=desktop_version)
-
-            if os.name != "posix":
-                example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
-                new_project = os.path.join(self.local_scratch.path, "differential_pairs2.aedt")
-                test_project = self.local_scratch.copyfile(example_project, new_project)
-                self.local_scratch.copyfolder(
-                    os.path.join(local_path, "example_models", "differential_pairs.aedb"),
-                    os.path.join(self.local_scratch.path, "differential_pairs2.aedb"),
-                )
-                self.hfss3dl = Hfss3dLayout(
-                    projectname=test_project, designname="EMDesign1", specified_version=desktop_version
-                )
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Hfss3dLayout)
+        self.hfss3dl = BasisTest.add_app(self, project_name="differential_pairs", application=Hfss3dLayout)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

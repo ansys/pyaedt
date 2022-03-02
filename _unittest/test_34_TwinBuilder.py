@@ -6,11 +6,14 @@ from pyaedt import TwinBuilder
 import os
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
         project_name = "TwinBuilderProject"
         design_name = "TwinBuilderDesign1"
-        BasisTest.my_setup(self, project_name=project_name, design_name=design_name, application=TwinBuilder)
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(
+            self, project_name=project_name, design_name=design_name, application=TwinBuilder
+        )
         netlist1 = os.path.join(local_path, "example_models", "netlist_small.cir")
         self.netlist_file1 = self.local_scratch.copyfile(netlist1)
 

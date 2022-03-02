@@ -23,19 +23,16 @@ def _write_jpg(design_info, scratch):
     return filename
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
+        self.coax = BasisTest.add_app(self, "Coax_HFSS")
+        self.cs = BasisTest.add_app(self, "Coordinate_System")
+        self.cs1 = BasisTest.add_app(self, "Coordinate_System1")
+        self.cs2 = BasisTest.add_app(self, "Coordinate_System2")
+        self.cs3 = BasisTest.add_app(self, "Coordinate_System3")
         hfss_file = os.path.join(local_path, "example_models", "Coax_HFSS.aedt")
         self.project_dict = load_entire_aedt_file(hfss_file)
-        aedt_file = os.path.join(local_path, "example_models", "Coordinate_System.aedt")
-        self.test_project = self.local_scratch.copyfile(aedt_file)
-        aedt_file = os.path.join(local_path, "example_models", "Coordinate_System1.aedt")
-        self.test_project1 = self.local_scratch.copyfile(aedt_file)
-        aedt_file = os.path.join(local_path, "example_models", "Coordinate_System2.aedt")
-        self.test_project2 = self.local_scratch.copyfile(aedt_file)
-        aedt_file = os.path.join(local_path, "example_models", "Coordinate_System3.aedt")
-        self.test_project3 = self.local_scratch.copyfile(aedt_file)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -74,15 +71,11 @@ class TestClass(BasisTest):
         assert load_entire_aedt_file(self.test_project)
 
     def test_06_check_coordinate_system_retrival(self):
-        self.aedtapp.load_project(self.test_project, close_active_proj=True)
-        cs = self.aedtapp.modeler.coordinate_systems
+        cs = self.cs.modeler.coordinate_systems
         assert cs
-        self.aedtapp.load_project(self.test_project1, close_active_proj=True)
-        cs = self.aedtapp.modeler.coordinate_systems
+        cs = self.cs1.modeler.coordinate_systems
         assert cs
-        self.aedtapp.load_project(self.test_project2, close_active_proj=True)
-        cs = self.aedtapp.modeler.coordinate_systems
+        cs = self.cs2.modeler.coordinate_systems
         assert cs
-        self.aedtapp.load_project(self.test_project3, close_active_proj=True)
-        cs = self.aedtapp.modeler.coordinate_systems
+        cs = self.cs3.modeler.coordinate_systems
         assert cs

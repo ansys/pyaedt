@@ -15,9 +15,10 @@ except ImportError:
 test_project_name = "eddy"
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        BasisTest.my_setup(self, application=Maxwell3d, solution_type="EddyCurrent")
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, application=Maxwell3d, solution_type="EddyCurrent")
         core_loss_file = "PlanarTransformer.aedt"
         example_project = os.path.join(local_path, "example_models", core_loss_file)
         self.file_path = self.local_scratch.copyfile(example_project)

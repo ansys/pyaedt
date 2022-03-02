@@ -5,9 +5,10 @@ from pyaedt import Circuit
 from _unittest.conftest import local_path, BasisTest
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        BasisTest.my_setup(self, application=Circuit)
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, application=Circuit)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
