@@ -638,7 +638,10 @@ class Design(object):
         >>> oProject.GetName
         """
         if self._oproject:
-            return self._oproject.GetName()
+            try:
+                return self._oproject.GetName()
+            except:
+                return None
         else:
             return None
 

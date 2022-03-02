@@ -99,7 +99,10 @@ class BasisTest(object):
                 pass
         del self.edbapps
         for aedtapp in self.aedtapps[::-1]:
-            aedtapp.close_project(None, False)
+            try:
+                aedtapp.close_project(None, False)
+            except:
+                pass
         del self.aedtapps
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None):
