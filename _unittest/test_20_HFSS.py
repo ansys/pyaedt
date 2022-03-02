@@ -672,7 +672,7 @@ class TestClass(BasisTest, object):
         )
         assert self.aedtapp.assign_current_source_to_sheet(sheet.name)
 
-    @pytest.mark.skip(is_ironpython, reason="Float overflow in Ironpython")
+    @pytest.mark.skipif(is_ironpython, reason="Float overflow in Ironpython")
     def test_41_export_step(self):
         file_name = "test"
         self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10])

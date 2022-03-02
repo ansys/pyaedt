@@ -1,5 +1,4 @@
 # standard imports
-import os
 
 # Setup paths for module imports
 from _unittest.conftest import BasisTest

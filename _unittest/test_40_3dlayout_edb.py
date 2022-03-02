@@ -16,7 +16,7 @@ class TestClass(BasisTest, object):
         self.aedtapp = BasisTest.add_app(self, project_name=original_project_name, application=Hfss3dLayout)
         self.tmp = self.aedtapp.modeler.geometries
         example_project = os.path.join(local_path, "example_models", "Package.aedb")
-        target_path = os.path.join(self.local_scratch.path, "Package2.aedb")
+        target_path = os.path.join(self.local_scratch.path, "Package_test_40.aedb")
         self.test_project = self.local_scratch.copyfolder(example_project, target_path)
         self.hfss3d = Hfss3dLayout(target_path, specified_version=desktop_version)
         self.aedtapps.append(self.hfss3d)
@@ -89,4 +89,3 @@ class TestClass(BasisTest, object):
     def test_08_merge(self):
         assert self.hfss3d.modeler.merge_design(self.aedtapp)
         self.hfss3d.save_project()
-        self.aedtapp.save_project()
