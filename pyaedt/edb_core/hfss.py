@@ -556,7 +556,9 @@ class EdbHfss(object):
                                 edges_pts.append(_pt)
                             else:
                                 port_name = generate_unique_name("port")
-                                if not self._hfss_terminals.CreateEdgePort(path, pt, reference_layer, port_name):  # pragma: no cover
+                                if not self._hfss_terminals.CreateEdgePort(
+                                    path, pt, reference_layer, port_name
+                                ):  # pragma: no cover
                                     raise Exception(
                                         "edge port creation failed on point {}, {}".format(str(pt[0]), str(_pt[1]))
                                     )

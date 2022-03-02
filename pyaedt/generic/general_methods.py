@@ -7,7 +7,7 @@ import datetime
 import sys
 import traceback
 import logging
-from functools import update_wrapper   #, wraps
+from functools import update_wrapper  # , wraps
 from collections import OrderedDict
 import inspect
 import itertools
@@ -217,11 +217,11 @@ def _log_method(func, new_args, new_kwargs):
 
 def pyaedt_function_handler(direct_func=None):
     """Decorator for pyaedt Exception, Logging, and Conversion management.
-        Provides an exception handler, a logging mechanism and an argument conversion for clien-server
-        communications.
+    Provides an exception handler, a logging mechanism and an argument conversion for clien-server
+    communications.
 
-        It returns the function itself if correctly executed otherwise it will return False and errors
-        will be displayed.
+    It returns the function itself if correctly executed otherwise it will return False and errors
+    will be displayed.
 
     """
 
@@ -230,7 +230,7 @@ def pyaedt_function_handler(direct_func=None):
         wrapper = _function_handler_wrapper(user_function)
         return update_wrapper(wrapper, user_function)
     elif direct_func is not None:
-        raise TypeError('Expected first argument to be a callable, or None')
+        raise TypeError("Expected first argument to be a callable, or None")
 
     def decorating_function(user_function):
         wrapper = _function_handler_wrapper(user_function)
