@@ -199,8 +199,8 @@ class EdbPadstacks(object):
 
         Parameters
         ----------
-        padstackInst : Edb.Cell.Primitive.PadstackInstance,
-            Required.
+        padstackInst : Edb.Cell.Primitive.PadstackInstance or int
+            Padstack instance id or object.
         sballLayer_name : str,
             Name of the layer where the solder ball is placed. No default values.
         isTopPlaced : bool, optional.
@@ -213,7 +213,12 @@ class EdbPadstacks(object):
         bool
 
         """
-        psdef = padstackInst.GetPadstackDef()
+        if isinstance(padstackInst, int):
+            psdef = self.padstacks[self.padstack_instances[padstackInst].padstack_definition].edb_padstack
+            padstackInst = self.padstack_instances[padstackInst]._edb_padstackinstance
+
+        else:
+            psdef = padstackInst.GetPadstackDef()
         newdefdata = self._edb.Definition.PadstackDefData(psdef.GetData())
         newdefdata.SetSolderBallShape(self._edb.Definition.SolderballShape.Cylinder)
         newdefdata.SetSolderBallParameter(self._edb_value(ballDiam), self._edb_value(ballDiam))
@@ -238,7 +243,8 @@ class EdbPadstacks(object):
 
         Parameters
         ----------
-        padstackinstance : Edb.Cell.Primitive.PadstackInstance object.
+        padstackinstance : `Edb.Cell.Primitive.PadstackInstance` or int
+            Padstack instance object.
 
         Returns
         -------
@@ -246,6 +252,8 @@ class EdbPadstacks(object):
             terminal name.
 
         """
+        if isinstance(padstackinstance, int):
+            padstackinstance = self.padstack_instances[padstackinstance]._edb_padstackinstance
         cmp_name = padstackinstance.GetComponent().GetName()
         if cmp_name == "":
             cmp_name = "no_comp"

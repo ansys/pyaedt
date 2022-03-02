@@ -218,7 +218,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def set_auto_open(self, enable=True, boundary_type="Radiation"):
-        """Set HFSS auto open type.
+        """Set the HFSS auto open type.
 
         Parameters
         ----------
@@ -368,7 +368,7 @@ class Hfss(FieldAnalysis3D, object):
                 try:
                     self.odesign.ChangeProperty(properties)
                 except:
-                    self.logger.warning("Failed To rename Terminals")
+                    self.logger.warning("Failed To rename terminals.")
             if iswaveport:
                 boundary.type = "WavePort"
             else:
@@ -724,8 +724,8 @@ class Hfss(FieldAnalysis3D, object):
             Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``,
             and ``"Discrete"``. The default is ``"Discrete"``.
         interpolation_tol : float, optional
-            Error tolerance threshold for the interpolation
-            process. The default is ``0.5``.
+            Error tolerance threshold for the interpolation process. The default
+            is ``0.5``.
         interpolation_max_solutions : int, optional
             Maximum number of solutions evaluated for the interpolation process.
             The default is ``250``.
@@ -756,7 +756,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
+            raise AttributeError("Invalid `sweep_type`. It must be 'Discrete', 'Interpolating', or 'Fast'.")
 
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
@@ -790,7 +790,7 @@ class Hfss(FieldAnalysis3D, object):
                 sweepdata.props["SaveFields"] = save_fields
                 sweepdata.props["SaveRadFields"] = save_rad_fields
                 sweepdata.update()
-                self.logger.info("Linear count sweep {} has been correctly created".format(sweepname))
+                self.logger.info("Linear count sweep {} has been correctly created.".format(sweepname))
                 return sweepdata
         return False
 
@@ -824,12 +824,12 @@ class Hfss(FieldAnalysis3D, object):
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
-            Whether to save the fields. The default is ``True``.
+            Whether to save fields. The default is ``True``.
         save_rad_fields : bool, optional
-            Whether to save the radiating fields. The default is ``False``.
+            Whether to save radiating fields. The default is ``False``.
         sweep_type : str, optional
-            Type of the sweep. Options are ``"Discrete"``,``"Interpolating"`` and``"Fast"`` sweep.
-            The default is ``"Discrete"``.
+            Type of the sweep. Options are ``"Discrete"``,``"Interpolating"`` and
+            ``"Fast"``. The default is ``"Discrete"``.
 
         Returns
         -------
@@ -922,10 +922,10 @@ class Hfss(FieldAnalysis3D, object):
             Whether to save the fields of the single point. The default is ``True``.
             If a list is specified, the length must be the same as the list of frequencies.
         save_fields : bool, optional
-            Whether to save the fields for all points and subranges defined in the sweep.
+            Whether to save fields for all points and subranges defined in the sweep.
             The default is ``False``.
         save_rad_fields : bool, optional
-            Whether to save only the radiating fields. The default is ``False``.
+            Whether to save only radiating fields. The default is ``False``.
 
         Returns
         -------
@@ -1035,11 +1035,11 @@ class Hfss(FieldAnalysis3D, object):
         fieldtype : str, optional
             The default is ``"nearfield"``.
         use_composite_ports : bool, optional
-            Whether to use composite ports. The default is ``True``.
+            Whether to use composite ports. The default is ``False``.
         use_global_current : bool, optional
-            Whether to use global current. The default is ``True``.
+            Whether to use the global current. The default is ``True``.
         current_conformance, str optional
-            The default is ``"Disable'``.
+            The default is ``"Disable"``.
         thin_sources : bool, optional
              The default is ``True``.
         power_fraction : str, optional
@@ -1064,7 +1064,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.logger.error("This Native components only applies to SBR+ Solution")
+            self.logger.error("Native components only apply to the SBR+ solution.")
             return False
         compName = source_object.design_name
         uniquename = generate_unique_name(compName)
@@ -1147,13 +1147,9 @@ class Hfss(FieldAnalysis3D, object):
         native = NativeComponentObject(self, antenna_type, antenna_name, native_props)
         if native.create():
             self.native_components.append(native)
-            self.logger.info(
-                "Native Component %s %s has been correctly created",
-                antenna_type,
-                antenna_name,
-            )
+            self.logger.info("Native component %s %s has been correctly created.", antenna_type, antenna_name)
             return native
-        self.logger.error("Error in Native Component creation for %s %s.", antenna_type, antenna_name)
+        self.logger.error("Error in native component creation for %s %s.", antenna_type, antenna_name)
 
         return None
 
@@ -1334,8 +1330,8 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         antenna_type : str, `SbrAntennas.ConicalHorn`
-            Name of the antenna type. Enumerator SbrAntennas can also be used.
-            The default is ``"Conical Horn"``.
+            Name of the antenna type. The enumerator ``SbrAntennas`` can also be used.
+            The default is ``"SbrAntennas.Conical Horn"``.
         target_cs : str, optional
             Target coordinate system. The default is ``None``, in which case
             the active coodiantes system is used.
@@ -1445,7 +1441,6 @@ class Hfss(FieldAnalysis3D, object):
     ):
         """Create a linked antenna.
 
-
         Parameters
         ----------
         ffd_full_path : str
@@ -1485,7 +1480,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.logger.error("This Native component only applies to a SBR+ Solution.")
+            self.logger.error("This native component only applies to a SBR+ solution.")
             return False
         if target_cs is None:
             target_cs = self.modeler.oeditor.GetActiveCoordinateSystem()
@@ -1523,7 +1518,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> oModule.SetSBRTxRxSettings
         """
         if self.solution_type != "SBR+":
-            self.logger.error("This Boundary only applies to SBR+ Solution")
+            self.logger.error("This boundary only applies to a SBR+ solution.")
             return False
         id = 0
         props = OrderedDict({})
@@ -1728,7 +1723,7 @@ class Hfss(FieldAnalysis3D, object):
         """
         # fmt: off
         if not "Terminal" in self.solution_type:
-            raise Exception("This method can be used only in Terminal Solutions.")
+            raise Exception("This method can be used only in Terminal solutions.")
         start_object = self.modeler.convert_to_selections(start_object)
         end_object = self.modeler.convert_to_selections(end_object)
         closest_distance = 1e9
@@ -1741,7 +1736,7 @@ class Hfss(FieldAnalysis3D, object):
                     closest_faces = [face1, face2]
 
         if not GeometryOperators.is_collinear(closest_faces[0].normal, closest_faces[1].normal):
-            raise AttributeError('The two object must have parallel adjacent faces.')
+            raise AttributeError('The two objects must have parallel adjacent faces.')
         if GeometryOperators.is_collinear(closest_faces[0].normal, [1, 0, 0]):
             plane = 0
         elif GeometryOperators.is_collinear(closest_faces[0].normal, [0, 1, 0]):
@@ -2295,7 +2290,7 @@ class Hfss(FieldAnalysis3D, object):
         face_couple : list
             List of two faces to assign the lattice pair to.
         reverse_v : bool, optional
-            Reverse V vector. The default is `False`.
+            Whether to reverse the V vector. The default is `False`.
         phase_delay : str, optional
             Phase delay approach. Options are ``"UseScanAngle"``,
             ``"UseScanUV"``, and ``"InputPhaseDelay"``. The default is
@@ -2354,11 +2349,11 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         object_to_assign : str, Object3d
-            Object to which assign a lattice.
+            Object to assign a lattice to.
         coordinate_system : str, optional
-            Coordinate system on which to look for the lattice.
+            Coordinate system to look for the lattice on.
         coordinate_plane : str, optional
-            Plane on which to look for the lattice. Options are ``"XY"``, ``"XZ"``, and
+            Plane to look for the lattice on. Options are ``"XY"``, ``"XZ"``, and
             ``"YZ"``. The default is ``"XY"``.
 
         Returns
@@ -2401,9 +2396,9 @@ class Hfss(FieldAnalysis3D, object):
         primary_name : str
             Name of the primary boundary to couple.
         u_start : list
-            List of [x,y,z] values for the starting point of the U vector.
+            List of ``[x,y,z]`` values for the starting point of the U vector.
         u_end : list
-            List of [x,y,z] values for the ending point of the U vector.
+            List of ``[x,y,z]`` values for the ending point of the U vector.
         reverse_v : bool, optional
             Whether to reverse the V vector. The default is ``False``.
         phase_delay : str, optional
@@ -2428,7 +2423,7 @@ class Hfss(FieldAnalysis3D, object):
         coord_name : str, optional
             Name of the coordinate system for U coordinates.
         secondary_name : str, optional
-            Boundary name. The default is ``None``.
+            Name of the boundary. The default is ``None``.
 
         Returns
         -------
@@ -2485,16 +2480,16 @@ class Hfss(FieldAnalysis3D, object):
         face : int, FacePrimitive
             Face to assign the lattice pair to.
         u_start : list
-            List of [x,y,z] values for the starting point of the U vector.
+            List of ``[x,y,z]`` values for the starting point of the U vector.
         u_end : list
-            List of [x,y,z] values for the ending point of the U vector.
+            List of ``[x,y,z]`` values for the ending point of the U vector.
         reverse_v : bool, optional
             Whether to reverse the V vector. The default is `False`.
         coord_name : str, optional
             Name of the coordinate system for the U coordinates. The
             default is ``"Global"``.
         primary_name : str, optional
-            Boundary name. The default is ``None``.
+            Name of the boundary. The default is ``None``.
 
         Returns
         -------
@@ -2612,7 +2607,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> port = hfss.create_wave_port_microstrip_between_objects("GND1", "MS1",
         ...                                                         portname="MS1",
         ...                                                         axisdir=1)
-        pyaedt info: Connection Correctly created
+        pyaedt info: Connection correctly created.
 
         """
         if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
@@ -2866,7 +2861,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         Frequency : str, optional
-            Frequency with units. The  default is ``"1GHz"``.
+            Frequency with units. The default is ``"1GHz"``.
         Boundary : str, optional
             Type of the boundary. The default is ``"Radiation"``.
         ApplyInfiniteGP : bool, optional
@@ -2929,7 +2924,7 @@ class Hfss(FieldAnalysis3D, object):
         sourcename : str, optional
             Perfect H name. The default is ``None``.
         rlctype : str, optional
-            Type of the RLC. Options are ``"Parallel"`` or ``"Series"``.
+            Type of the RLC. Options are ``"Parallel"`` and ``"Series"``.
             The default is ``"Parallel"``.
         Rvalue : optional
             Resistance value in ohms. The default is ``None``,
@@ -3220,7 +3215,7 @@ class Hfss(FieldAnalysis3D, object):
         renorm : bool, optional
             Whether to renormalize the mode. The default is ``True``.
         terminal_references : list, optional
-            In Driven Terminal Simulation it is the list of conductors for Port Terminal Definitions.
+            For a driven-terminal simulation, list of conductors for port terminal definitions.
 
         Returns
         -------
@@ -3294,7 +3289,7 @@ class Hfss(FieldAnalysis3D, object):
                     iswaveport=True,
                 )
             else:
-                self.logger.error("Reference Conductors are missed.")
+                self.logger.error("Reference conductors are missing.")
                 return False
 
     @aedt_exception_handler
@@ -3374,7 +3369,7 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     faces = self.modeler.get_object_faces(sheet_name)[0]
                 if not faces:  # pragma: no cover
-                    self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
+                    self.logger.error("Wrong input object. It must be a face id or a sheet.")
                     return False
                 if deemb:
                     deembed = 0
@@ -3604,7 +3599,7 @@ class Hfss(FieldAnalysis3D, object):
         sourcename : str, optional
             Lumped RLC name. The default is ``None``.
         rlctype : str, optional
-            Type of the RLC. Options are ``"Parallel"`` or ``"Series"``. The default is ``"Parallel"``.
+            Type of the RLC. Options are ``"Parallel"`` and ``"Series"``. The default is ``"Parallel"``.
         Rvalue : float, optional
             Resistance value in ohms. The default is ``None``, in which
             case this parameter is disabled.
@@ -3772,9 +3767,9 @@ class Hfss(FieldAnalysis3D, object):
             Whether to renormalize the mode. The default is ``False``.
             This parameter is ignored for a driven terminal.
         renorm_impedance :  str, optional
-            Impedance. The default is ``50``
-        deembed : bool. optional
-            Whether to deembed the port. The default is ``False``
+            Impedance. The default is ``50``.
+        deembed : bool, optional
+            Whether to deembed the port. The default is ``False``.
 
         Returns
         -------
@@ -3830,9 +3825,9 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         portandmode : str
-            Port name and mode, such as ``"Port1:1"``.
+            Port name and mode. For example, ``"Port1:1"``.
         powerin : str
-            Power in Watts or the project variable to be put as stored energy in the project.
+            Power in Watts or the project variable to put as stored energy in the project.
         phase : str, optional
             The default is ``"0deg"``.
 
@@ -4382,19 +4377,18 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         solutionname : str
-             Name of the solution that has been solved.
+            Name of the solution that has been solved.
         sweepname : str
-             Name of the sweep that has been solved.
+            Name of the sweep that has been solved.
         filename : str, optional
-             Full path and name for the output file.
-             The default is ``None``, in which case the file is exported to the working directory.
-
+            Full path and name for the output file.
+            The default is ``None``, in which case the file is exported to the working directory.
         variation : list, optional
-             List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
-             The default is ``[]``.
+            List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
+            The default is ``[]``.
         variations_value : list, optional
-             List of all parameter variation values. For example, ``["22cel", "100"]``.
-             The default is ``[]``.
+            List of all parameter variation values. For example, ``["22cel", "100"]``.
+            The default is ``[]``.
 
         Returns
         -------
@@ -4495,9 +4489,9 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         obj_names : str or list or int or :class:`pyaedt.modeler.Object3d.Object3d`
-             One or more object names or IDs.
+            One or more object names or IDs.
         boundary_name : str, optional
-             Name of the boundary. The default is ``""``.
+            Name of the boundary. The default is ``""``.
 
         Returns
         -------
@@ -4643,13 +4637,13 @@ class Hfss(FieldAnalysis3D, object):
         doppler_ad_sampling_rate=20,
         setup_name=None,
     ):
-        """Create an SBR+ Chirp IQ Setup.
+        """Create an SBR+ Chirp I Setup.
 
         Parameters
         ----------
         time_var : str, optional
             Name of the time variable. The default is ``None``, in which case
-            a search will be performed for the first time variable available.
+            a search for the first time variable is performed.
         sweep_time_duration : float, optional
             Duration for the sweep time. The default is ``0.`` If a value greater
             than ``0`` is specified, a parametric sweep is created.
@@ -4689,7 +4683,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if self.solution_type != "SBR+":
-            self.logger.error("Method Applies only to SBR+ Solution.")
+            self.logger.error("Method applies only to the SBR+ solution.")
             return False, False
         if not setup_name:
             setup_name = generate_unique_name("ChirpI")
@@ -4703,8 +4697,8 @@ class Hfss(FieldAnalysis3D, object):
                     time_var = var_name
                     break
             if not time_var:
-                self.logger.error("No Time Variable Found. Setup or explicitly assign to the method.")
-                raise ValueError("No Time Variable Found")
+                self.logger.error("No time variable is found. Set up or explicitly assign to the method.")
+                raise ValueError("No time variable is found.")
         setup = self._create_sbr_doppler_setup(
             "ChirpI",
             time_var=time_var,
@@ -4750,8 +4744,8 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         time_var : str, optional
-            Name of the time variable. The default is ``None``, in which
-            case a search is performed for the first time variable available.
+            Name of the time variable. The default is ``None``, in which case
+            a search for the first time variable is performed.
         sweep_time_duration : float, optional
             Duration of the sweep time. The default is ``0``. If a value greater
             than ``0`` is specified, a parametric sweep is created.
@@ -4790,7 +4784,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> oModule.InsertSetup
         """
         if self.solution_type != "SBR+":
-            self.logger.error("Method Applies only to SBR+ Solution.")
+            self.logger.error("Method applies only to the SBR+ solution.")
             return False, False
         if not setup_name:
             setup_name = generate_unique_name("ChirpIQ")
@@ -4848,10 +4842,10 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         time_var : str, optional
             Name of the time variable. The default is ``None``, in which case
-            the first time variable available is used.
+            a search for the first time variable is performed.
         sweep_time_duration : float, optional
-            Sweep time duration. If greater than 0, a parametric sweep is
-            created. The default is ``0``.
+            Duration of the sweep time. The default is ``0``. If a value greater
+            than ``0`` is specified, a parametric sweep is created.
         center_freq : float, optional
             Center frequency in GHz. The default is ``76.5``.
         resolution : float, optional
@@ -4870,7 +4864,7 @@ class Hfss(FieldAnalysis3D, object):
         ray_density_per_wavelenght : float, optional
             Doppler ray density per wavelength. The default is ``0.2``.
         max_bounces : int, optional
-            Maximum number of bBounces. The default is ``5``.
+            Maximum number of bounces. The default is ``5``.
         setup_name : str, optional
             Name of the setup. The default is ``None``.
 
@@ -4978,7 +4972,7 @@ class Hfss(FieldAnalysis3D, object):
         speed : float, optional
             Radar movement speed relative to the global coordinate system if greater than ``0``.
         use_relative_cs : bool, optional
-            Whether the relative coordinate system must be used. The default is ``False``.
+            Whether to use the relative coordinate system. The default is ``False``.
         relative_cs_name : str
             Name of the relative coordinate system to link the radar to.
             The default is ``None``, in which case the global coordinate system is used.
@@ -4986,7 +4980,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modeler.actors.Radar`
-            Radar Class object.
+            Radar  class object.
 
         References
         ----------
@@ -5033,7 +5027,7 @@ class Hfss(FieldAnalysis3D, object):
         """Create an infinite sphere.
 
         .. note::
-           This method is Not supported by all HFSS EigenMode and CharacteristicMode solution types.
+           This method is not supported by all HFSS ``EigenMode`` and ``CharacteristicMode`` solution types.
 
         Parameters
         ----------
@@ -5055,12 +5049,12 @@ class Hfss(FieldAnalysis3D, object):
         units : str
             Angle units. The default is ``"deg"``.
         custom_radiation_faces : str, optional
-            Radiation face list to use for far field computation. The default is ``None``.
+            List of radiation faces to use for far field computation. The default is ``None``.
         custom_coordinate_system : str, optional
             Local coordinate system to used for far field computation. The default is
             ``None``.
         use_slant_polarization : bool, optional
-            Whether to use slant polarization. The default is `False`.
+            Whether to use slant polarization. The default is ``False``.
         polarization_angle : float, str, optional
             Slant angle value. The default is ``45``.
         name : str, optional
@@ -5142,7 +5136,7 @@ class Hfss(FieldAnalysis3D, object):
         thin_sources : bool, optional
             Whether to enable thin sources. The default is ``False``.
         power_fraction : float or str, optional
-            Power fraction to use if ``thin_sources`` is ``True``. The default is ``0.95``.
+            Power fraction to use if ``thin_sources=True``. The default is ``0.95``.
 
         Returns
         -------

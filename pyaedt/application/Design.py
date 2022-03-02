@@ -648,7 +648,10 @@ class Design(object):
         >>> oProject.GetName
         """
         if self._oproject:
-            return self._oproject.GetName()
+            try:
+                return self._oproject.GetName()
+            except:
+                return None
         else:
             return None
 
@@ -1079,7 +1082,7 @@ class Design(object):
 
     @aedt_exception_handler
     def add_info_message(self, message_text, message_type=None):
-        """Add a type 0 "Info" message to either the global, active project or the active design
+        """Add a type 0 "Info" message to either the global, active project, or active design
         level of the message manager tree.
 
         Also add an "Info" message to the logger if the handler is present.
@@ -1122,7 +1125,7 @@ class Design(object):
 
     @aedt_exception_handler
     def add_warning_message(self, message_text, message_type=None):
-        """Add a type 0 "Warning" message to either the global, active project or the active design
+        """Add a type 0 "Warning" message to either the global, active project, or active design
         level of the message manager tree.
 
         Also add an "Warning" message to the logger if the handler is present.
@@ -1166,7 +1169,7 @@ class Design(object):
 
     @aedt_exception_handler
     def add_error_message(self, message_text, message_type=None):
-        """Add a type 0 "Error" message to either the global, active project or the active design
+        """Add a type 0 "Error" message to either the global, active project, or active design
         level of the message mmanager tree.
 
         Also add an "Error" message to the logger if the handler is present.
@@ -1314,7 +1317,7 @@ class Design(object):
                 self.logger.warning("Error setting up Key %s.", key_full_name)
                 return False
         else:
-            self.logger.warning("Key Value must be an int or str.")
+            self.logger.warning("Key value must be an integer or string.")
             return False
 
     @aedt_exception_handler
@@ -2487,8 +2490,6 @@ class Design(object):
         proj_path = oproj.GetPath()
         if saveproject:
             oproj.Save()
-        # if name == legacy_name:
-        #    self._close_edb()
         self.odesktop.CloseProject(name)
         if name == legacy_name:
             if not is_ironpython:

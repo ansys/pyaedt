@@ -1,15 +1,13 @@
 # standard imports
 import os
-from _unittest.conftest import local_path, scratch_path, config, desktop_version, BasisTest
+from _unittest.conftest import local_path, config, desktop_version, BasisTest
 
 from pyaedt import Circuit, Q2d, Q3d, Hfss
-from pyaedt.generic.filesystem import Scratch
 
 try:
     import pytest
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
-import time
 
 # Access the desktop
 test_project_name = "Dynamic_Link"
@@ -19,31 +17,31 @@ source_project = os.path.join(local_path, "example_models", src_project_name + "
 linked_project_name = "Filter_Board"
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
+        BasisTest.my_setup(self)
         # set a scratch directory and the environment / test data
-        with Scratch(scratch_path) as self.local_scratch:
-            time.sleep(2)
-            example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
-            source_project = os.path.join(local_path, "example_models", src_project_name + ".aedt")
-            linked_project = os.path.join(local_path, "example_models", linked_project_name + ".aedt")
+        example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
+        source_project = os.path.join(local_path, "example_models", src_project_name + ".aedt")
+        linked_project = os.path.join(local_path, "example_models", linked_project_name + ".aedt")
 
-            self.q3d = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))
-            self.test_project = self.local_scratch.copyfile(example_project)
-            self.test_src_project = self.local_scratch.copyfile(source_project)
-            self.test_lkd_project = self.local_scratch.copyfile(linked_project)
+        self.q3d = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))
+        self.test_project = self.local_scratch.copyfile(example_project)
+        self.test_src_project = self.local_scratch.copyfile(source_project)
+        self.test_lkd_project = self.local_scratch.copyfile(linked_project)
 
-            self.local_scratch.copyfolder(
-                os.path.join(local_path, "example_models", test_project_name + ".aedb"),
-                os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
-            )
-            self.local_scratch.copyfolder(
-                os.path.join(local_path, "example_models", linked_project_name + ".aedb"),
-                os.path.join(self.local_scratch.path, linked_project_name + ".aedb"),
-            )
-            temp = open(example_project, "rb").read().splitlines()
+        self.local_scratch.copyfolder(
+            os.path.join(local_path, "example_models", test_project_name + ".aedb"),
+            os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
+        )
+        self.local_scratch.copyfolder(
+            os.path.join(local_path, "example_models", linked_project_name + ".aedb"),
+            os.path.join(self.local_scratch.path, linked_project_name + ".aedb"),
+        )
+        with open(example_project, "rb") as fh:
+            temp = fh.read().splitlines()
 
-            outf = open(os.path.join(self.local_scratch.path, test_project_name + ".aedt"), "wb")
+        with open(os.path.join(self.local_scratch.path, test_project_name + ".aedt"), "wb") as outf:
             found = False
             for line in temp:
                 if not found:
@@ -53,8 +51,8 @@ class TestClass(BasisTest):
                         ).encode()
                         found = True
                 outf.write(line + b"\n")
-            outf.close()
-            self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
+        self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
+        self.aedtapps.append(self.aedtapp)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

@@ -2,16 +2,17 @@ import logging
 
 
 class LogHandler(logging.Handler):
-    """Creates a handler to send log messages in AEDT logging stream.
+    """Creates a handler to send log messages to the AEDT logging stream.
 
     Parameters
     ----------
     aedt_app_messenger : class:`pyaedt.application.MessageManager.AEDTMessageManager`
-        AEDT app log manager.
+        Log manager for AEDT.
     log_destination : str
-        AEDT has 3 different logs: `'Global'`, `'Project'`, `'Design'`.
+        Logger to send messages to. AEDT has three different logger options: ``"Global"``,
+        ``'Project"``, and ``"Design"``.
     level : int, optional
-        Threshold for this handler.  For example ``logging.DEBUG``
+        Threshold for this handler. For example, ``logging.DEBUG``.
     """
 
     def __init__(self, aedt_app_messenger, log_destination, level=logging.INFO):

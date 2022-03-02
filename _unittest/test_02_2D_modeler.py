@@ -14,9 +14,10 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        BasisTest.my_setup(self, design_name="2D_Primitives", application=Maxwell2d)
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, design_name="2D_Primitives", application=Maxwell2d)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

@@ -25,7 +25,7 @@ class EdbLayout(object):
     --------
     >>> from pyaedt import Edb
     >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
-    >>> edb_layout = edbapp.core_layout
+    >>> edb_layout = edbapp.core_primitives
     """
 
     def __init__(self, p_edb):
@@ -484,8 +484,8 @@ class EdbLayout(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        bool, :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
+            Polygon when successful, ``False`` when failed.
         """
         net = self._pedb.core_nets.find_or_create_net(net_name)
         polygonData = self.shape_to_polygon_data(main_shape)

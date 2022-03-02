@@ -2,11 +2,10 @@
 import os
 
 # Import required modules
-from pyaedt import Hfss, Desktop, get_pyaedt_app
-from pyaedt.generic.filesystem import Scratch
+from pyaedt import Desktop, get_pyaedt_app
 
 # Setup paths for module imports
-from _unittest.conftest import desktop_version, local_path, scratch_path, BasisTest
+from _unittest.conftest import desktop_version, local_path, BasisTest
 
 try:
     import pytest  # noqa: F401
@@ -19,14 +18,10 @@ test_project_name = "Coax_HFSS"
 example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        with Scratch(scratch_path) as self.local_scratch:
-            self.test_project = self.local_scratch.copyfile(example_project)
-            self.aedtapp = Hfss(
-                projectname=self.test_project,
-                specified_version=desktop_version,
-            )
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, test_project_name)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -240,3 +235,9 @@ class TestClass(BasisTest):
     def test_28_get_pyaedt_app(self):
         app = get_pyaedt_app(self.aedtapp.project_name, self.aedtapp.design_name)
         assert app.design_type == "HFSS"
+
+    def test_29_change_registry_key(self):
+        desktop = Desktop(desktop_version, new_desktop_session=False)
+        assert not desktop.change_registry_key("test_key_string", "test_string")
+        assert not desktop.change_registry_key("test_key_int", 2)
+        assert not desktop.change_registry_key("test_key", 2.0)

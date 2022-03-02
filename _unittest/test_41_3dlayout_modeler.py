@@ -6,7 +6,7 @@ from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import scratch_path, local_path, BasisTest, desktop_version
+from _unittest.conftest import scratch_path, local_path, BasisTest
 
 try:
     import pytest  # noqa: F401
@@ -14,26 +14,14 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 # Input Data and version for the test
-test_project_name = "Test_RadioBoard.aedt"
+test_project_name = "Test_RadioBoard"
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        with Scratch(scratch_path) as self.local_scratch:
-            self.test_project = os.path.join(self.local_scratch.path, test_project_name)
-            self.aedtapp = Hfss3dLayout(self.test_project, specified_version=desktop_version)
-
-            if os.name != "posix":
-                example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
-                new_project = os.path.join(self.local_scratch.path, "differential_pairs2.aedt")
-                test_project = self.local_scratch.copyfile(example_project, new_project)
-                self.local_scratch.copyfolder(
-                    os.path.join(local_path, "example_models", "differential_pairs.aedb"),
-                    os.path.join(self.local_scratch.path, "differential_pairs2.aedb"),
-                )
-                self.hfss3dl = Hfss3dLayout(
-                    projectname=test_project, designname="EMDesign1", specified_version=desktop_version
-                )
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Hfss3dLayout)
+        self.hfss3dl = BasisTest.add_app(self, project_name="differential_pairs", application=Hfss3dLayout)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -237,7 +225,8 @@ class TestClass(BasisTest):
         assert setup4.enable()
 
     def test_18a_create_linear_count_sweep(self):
-        setup_name = "RFBoardSetup"
+        setup_name = "RF_create_linear_count"
+        self.aedtapp.create_setup(setupname=setup_name)
         sweep1 = self.aedtapp.create_linear_count_sweep(
             setupname=setup_name,
             unit="GHz",
@@ -269,7 +258,8 @@ class TestClass(BasisTest):
         assert sweep2.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 12"
 
     def test_18b_create_linear_step_sweep(self):
-        setup_name = "RFBoardSetup"
+        setup_name = "RF_create_linear_step"
+        self.aedtapp.create_setup(setupname=setup_name)
         sweep3 = self.aedtapp.create_linear_step_sweep(
             setupname=setup_name,
             unit="GHz",
@@ -312,11 +302,12 @@ class TestClass(BasisTest):
             )
         except AttributeError as e:
             exception_raised = True
-            assert e.args[0] == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
+            assert e.args[0] == "Invalid `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
         assert exception_raised
 
     def test_18c_create_single_point_sweep(self):
-        setup_name = "RFBoardSetup"
+        setup_name = "RF_create_single_point"
+        self.aedtapp.create_setup(setupname=setup_name)
         sweep5 = self.aedtapp.create_single_point_sweep(
             setupname=setup_name,
             unit="MHz",
@@ -334,6 +325,19 @@ class TestClass(BasisTest):
         )
         assert sweep6.props["Sweeps"]["Data"] == "1GHz 2GHz 3GHz 4GHz"
 
+        try:
+            sweep7 = self.aedtapp.create_single_point_sweep(
+                setupname=setup_name,
+                unit="GHz",
+                freq=[],
+                sweepname="RFBoardSingle",
+                save_fields=False,
+            )
+        except AttributeError as e:
+            exception_raised = True
+            assert e.args[0] == "Frequency list is empty. Specify at least one frequency point."
+        assert exception_raised
+
     def test_18d_delete_setup(self):
         setup_name = "SetupToDelete"
         setuptd = self.aedtapp.create_setup(setupname=setup_name)
@@ -347,7 +351,9 @@ class TestClass(BasisTest):
         assert self.aedtapp.validate_full_design(ports=3)
 
     def test_19B_analyze_setup(self):
+        self.aedtapp.save_project()
         assert self.aedtapp.analyze_setup("RFBoardSetup3")
+        self.aedtapp.save_project()
         assert os.path.exists(self.aedtapp.export_profile("RFBoardSetup3"))
         assert os.path.exists(self.aedtapp.export_mesh_stats("RFBoardSetup3"))
 

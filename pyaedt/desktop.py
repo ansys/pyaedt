@@ -47,7 +47,7 @@ if is_ironpython:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
 
     _com = "ironpython"
-elif IsWindows:
+elif IsWindows:  # pragma: no cover
     import pythoncom
 
     modules = [tup[1] for tup in pkgutil.iter_modules()]
@@ -61,20 +61,20 @@ elif IsWindows:
 
         _com = "pywin32"
     else:
-        raise Exception("Error. No win32com.client or Pythonnet modules found. Please install them.")
+        raise Exception("Error. No win32com.client or Pythonnet modules found. Install them and try again.")
 
 
 def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
-    """Writes the trace stack to the desktop when a Python error occurs.
+    """Writes the trace stack to AEDT when a Python error occurs.
 
-    The message is added to the AEDT global message manager and to the log file (if present).
+    The message is added to the AEDT global logger and to the log file (if present).
 
     Parameters
     ----------
     ex_value : str
-        Type of exception.
+        Type of the exception.
     tb_data : str
-        Traceback information.
+        Traceback data.
 
     """
     if "aedt_logger" in dir(sys.modules["__main__"]):
@@ -150,8 +150,8 @@ def release_desktop(close_projects=True, close_desktop=True):
                 os.kill(pid, 9)
                 _delete_objects()
                 return True
-            except:
-                warnings.warn("Something went wrong in Closing AEDT")
+            except Exception:  # pragma: no cover
+                warnings.warn("Something went wrong in closing AEDT.")
                 return False
     return True
 
@@ -172,7 +172,7 @@ def force_close_desktop():
             for project in projects:
                 Module.oDesktop.CloseProject(project)
         except:
-            logger.warning("No Projects. Closing Desktop Connection")
+            logger.warning("No projects. Closing the AEDT connection.")
         try:
             i = 0
             scopeID = 5
@@ -180,7 +180,7 @@ def force_close_desktop():
                 Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, 0)
                 i += 1
         except:
-            logger.warning("No COM UTIL. Closing the Desktop....")
+            logger.warning("No COM UTIL. Closing AEDT....")
         try:
             del Module.pyaedt_initialized
         except:
@@ -190,7 +190,7 @@ def force_close_desktop():
             del Module.oDesktop
             successfully_closed = True
         except:
-            Module.aedt_logger.error("Something went wrong in Closing AEDT.")
+            Module.aedt_logger.error("Something went wrong in closing AEDT.")
             successfully_closed = False
         finally:
             log = logging.getLogger(__name__)
@@ -202,7 +202,7 @@ def force_close_desktop():
 
 
 def run_process(command, bufsize=None):
-    """Run process with subprocess.
+    """Run process with a subprocess.
 
     Parameters
     ----------
@@ -233,6 +233,7 @@ class Desktop:
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the machine.
@@ -295,11 +296,11 @@ class Desktop:
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
             self._main.student_version, version_key, version = self._set_version(specified_version, student_version)
-            if _com == "ironpython":
-                print("Launching PyAEDT outside Electronics Desktop with IronPython")
+            if _com == "ironpython":  # pragma: no cover
+                print("Launching PyAEDT outside AEDT with IronPython.")
                 self._init_ironpython(non_graphical, new_desktop_session, version)
             elif _com == "pythonnet_v3":
-                print("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
+                print("Launching PyAEDT outside AEDT with CPython and Pythonnet.")
                 self._init_cpython(
                     non_graphical,
                     new_desktop_session,
@@ -489,7 +490,7 @@ class Desktop:
         base_path = self._main.sDesktopinstallDirectory
         sys.path.append(base_path)
         sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
-        launch_msg = "Launching AEDT installation {}".format(base_path)
+        launch_msg = "Launching AEDT installation {}.".format(base_path)
         print(launch_msg)
         print("===================================================================================")
         clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
@@ -538,7 +539,7 @@ class Desktop:
                     break
         else:
             warnings.warn(
-                "PyAEDT is not supported in AEDT versions older than 2021.2. Trying to launch it with PyWin32."
+                "PyAEDT is not supported in AEDT versions older than 2021.2. Trying to launch PyAEDT with PyWin32."
             )
             self._dispatch_win32(version)
 
@@ -560,12 +561,12 @@ class Desktop:
 
     @property
     def messenger(self):
-        """Messenger manager for the AEDT log."""
+        """Messenger manager for the AEDT logger."""
         return self._main.aedt_logger
 
     @property
     def logger(self):
-        """Logger for AEDT."""
+        """AEDT logger."""
         return self._logger
 
     @aedt_exception_handler
@@ -828,7 +829,7 @@ class Desktop:
 
     @property
     def src_dir(self):
-        """Source directory for Python.
+        """Python source directory.
 
         Returns
         -------
@@ -851,7 +852,7 @@ class Desktop:
         return os.path.realpath(os.path.join(self.src_dir, ".."))
 
     def _exception(self, ex_value, tb_data):
-        """Write the trace stack to the desktop when a Python error occurs.
+        """Write the trace stack to AEDT when a Python error occurs.
 
         Parameters
         ----------
@@ -970,20 +971,21 @@ class Desktop:
         self._main.oDesktop.EnableAutoSave(False)
 
     def change_license_type(self, license_type="Pool"):
-        """Change the license type between ``"Pack"`` and ``"Pool"``.
+        """Change the license type.
 
         Parameters
         ----------
         license_type : str, optional
-            Type of license. The options are ``"Pack"`` and ``"Pool"``.
+            Type of the license. The options are ``"Pack"`` and ``"Pool"``.
+            The default is ``"Pool".
 
         Returns
         -------
         bool
            ``True``.
 
-             .. note::
-                Because of an API limitation, this method returns ``True`` even when the key is wrong.
+            .. note::
+               Because of an API limitation, this method returns ``True`` even when the key is wrong.
 
         """
         try:
@@ -1024,7 +1026,7 @@ class Desktop:
                 self.logger.warning("Error setting up Key %s.", key_full_name)
                 return False
         else:
-            self.logger.warning("Key Value must be an int or str.")
+            self.logger.warning("Key value must be an integer or string.")
             return False
 
     def change_active_dso_config_name(self, product_name="HFSS", config_name="Local"):
@@ -1097,7 +1099,7 @@ def get_version_env_variable(version_id):
     Parameters
     ----------
     version_id : str
-        Full AEDT version number, such as ``"2021.2"``.
+        Full AEDT version number. For example, ``"2021.2"``.
 
     Returns
     -------

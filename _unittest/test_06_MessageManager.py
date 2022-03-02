@@ -16,9 +16,9 @@ except ImportError:
 LOGGER = logging.getLogger(__name__)
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-
+        BasisTest.my_setup(self)
         with Scratch(scratch_path) as self.local_scratch:
 
             # Test the global _messenger before opening the desktop

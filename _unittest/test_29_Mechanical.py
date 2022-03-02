@@ -14,9 +14,10 @@ except ImportError:
 test_project_name = "coax_Mech"
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        BasisTest.my_setup(self, application=Mechanical, solution_type="Thermal")
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, application=Mechanical, solution_type="Thermal")
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

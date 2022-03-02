@@ -1,4 +1,4 @@
-"""This module contains the `Icepak` class."""
+"""This module contains the ``Icepak`` class."""
 import csv
 import math
 import os
@@ -48,14 +48,14 @@ class Icepak(FieldAnalysisIcepak):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
-    NG : bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode.
-        This parameter is ignored when Script is launched within AEDT.
+    non-graphical : bool, optional
+        Whether to launch AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine.  The default is ``True``. This parameter is ignored when Script is launched within AEDT.
+        machine.  The default is ``True``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit.
     student_version : bool, optional
@@ -87,7 +87,7 @@ class Icepak(FieldAnalysisIcepak):
     >>> icepak = Icepak("IcepakProject", "IcepakDesign1")
     pyaedt info: Added design 'IcepakDesign1' of type Icepak.
 
-    Create an instance of `Icepak` and open the specified project,
+    Create an instance of Icepak and open the specified project,
     which is ``myipk.aedt``.
 
     >>> icepak = Icepak("myipk.aedt")
@@ -135,8 +135,8 @@ class Icepak(FieldAnalysisIcepak):
 
     @property
     def problem_type(self):
-        """Get/Set the problem type of the icepak Design.
-        It can be any of`"TemperatureAndFlow"`, `"TemperatureOnly"`,`"FlowOnly"`.
+        """Problem type of the Icepak design. Options are ``"TemperatureAndFlow"``, ``"TemperatureOnly"``,
+        and ``"FlowOnly"``.
         """
         return self.design_solutions.problem_type
 
@@ -186,20 +186,25 @@ class Icepak(FieldAnalysisIcepak):
         air_faces : str, list
             List of face names.
         free_loss_coeff : bool
-            ``True`` to Enable Free Loss Coefficient. ``False`` to switch to Free Loss Curve
+            Whether to enable the free loss coefficient. The default is ``True``. If ``False``,
+            free loss coefficient is enabled.
         free_area_ratio : float, str
-            Free Loss Coefficient Value.
-        resistance_type : int
-             ``0`` for ``"Perforated Thin Vent"``, ``1`` for ``"Circular Metal Wire Screen"``,
-              `2`` for ``"Two-Plane Screen Cyl. Bars"``.
+            Free loss coefficient value. The default is ``0.8``.
+        resistance_type : int, optional
+            Type of the resistance. Options are:
+
+            - ``0`` for ``"Perforated Thin Vent"``
+            - ``1`` for ``"Circular Metal Wire Screen"``
+            - ``2`` for ``"Two-Plane Screen Cyl. Bars"``
+
         external_temp : str
-             External Temperature. Default ``AmbientTemp``.
+            External temperature. The default is ``"AmbientTemp"``.
         expternal_pressure : str
-             External Pressure. Default ``AmbientPressure``.
-        x_curve : list
-             X Curve List in m_per_sec.
+            External pressure. The default is ``"AmbientPressure"``.
+        x_curve : list, optional
+            List of X curves in m_per_sec. The default is ``["0", "1", "2"]``.
         y_curve : list
-             Y Curve List in n_per_meter_q.
+            List of Y curves in n_per_meter_q. The default is ``["0", "1", "2"]``.
 
         Returns
         -------
@@ -432,7 +437,7 @@ class Icepak(FieldAnalysisIcepak):
         material_name :
             Material to assign if ``assign_material=True``. The default is ``"Ceramic_material"``.
         use_object_for_name : bool, optional
-             Whether to use the object name for the source block name. The default is ``True``.
+            Whether to use the object name for the source block name. The default is ``True``.
 
         Returns
         -------
@@ -476,7 +481,7 @@ class Icepak(FieldAnalysisIcepak):
         bound = BoundaryObject(self, boundary_name, props, "Block")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.info("Block on {} with {} Power, created correctly.".format(object_name, input_power))
+            self.logger.info("Block on {} with {} power created correctly.".format(object_name, input_power))
             return bound
         return None
 
@@ -502,7 +507,7 @@ class Icepak(FieldAnalysisIcepak):
         thermal_condtion : str, optional
             Thermal condition. The default is ``"Total Power"``.
         surface_heat : str, optional
-            Surface heat.  The default is ``"0irrad_W_per_m2"``.
+            Surface heat. The default is ``"0irrad_W_per_m2"``.
         temperature : str, optional
             Type of the temperature. The default is ``"AmbientTemp"``.
         radiate : bool, optional
@@ -576,7 +581,7 @@ class Icepak(FieldAnalysisIcepak):
         rjb :
             RJB value.
         gravity_dir :
-            Gravity direction from -X to +Z. Options are ``0`` through ``5``.
+            Gravity direction from -X to +Z. Options are ``0`` to ``5``.
         top :
             Board bounding value in millimeters of the top face.
         assign_material : bool, optional
@@ -681,7 +686,7 @@ class Icepak(FieldAnalysisIcepak):
         Parameters
         ----------
         input_list : list
-            List of sources with inputs ``rjc``,  ``rjb``, and ``power``.
+            List of sources with inputs ``rjc``, ``rjb``, and ``power``.
             For example, ``[[Objname1, rjc, rjb, power1, power2, ...], [Objname2, rjc2, rbj2, power1, power2, ...]]``.
         gravity_dir : int
             Gravity direction from -X to +Z. Options are ``0`` to ``5``.
@@ -760,10 +765,10 @@ class Icepak(FieldAnalysisIcepak):
         face_name : str
             Name of the face.
         monitor_type : str, optional
-            Type of the monitor.  The default ``"Temperature"``.
+            Type of the monitor.  The default is ``"Temperature"``.
         monitor_name : str, optional
-            Name of the monitor.  The default is ``None``, in which case
-            the default name is assigned.
+            Name of the monitor. The default is ``None``, in which case
+            the default name is used.
 
         Returns
         -------
@@ -811,7 +816,7 @@ class Icepak(FieldAnalysisIcepak):
             Type of the monitor. The default is ``"Temperature"``.
         monitor_name : str, optional
             Name of the monitor. The default is ``None``, in which case
-            the default name is assigned.
+            the default name is used.
 
         Returns
         -------
@@ -976,7 +981,7 @@ class Icepak(FieldAnalysisIcepak):
         Parameters
         ----------
         gravityDir :
-            Gravity direction from -X to +Z. Choices are ``0`` to ``5``.
+            Gravity direction from -X to +Z. Options are ``0`` to ``5``.
 
         Returns
         -------
@@ -1044,13 +1049,13 @@ class Icepak(FieldAnalysisIcepak):
         thick : optional
             Thickness of the heat sink. The default is ``10``.
         length : optional
-            The default is ``40``.
+            Length of the heat sink. The default is ``40``.
         height : optional
-            The default is ``40``.
+            Height of the heat sink. The default is ``40``.
         draftangle : optional
-            Draft angle in degrees.  The default is ``0``.
+            Draft angle in degrees. The default is ``0``.
         patternangle : optional
-            Pattern angle in degrees.  The default is ``10``.
+            Pattern angle in degrees. The default is ``10``.
         separation : optional
             The default is ``5``.
         symmetric : bool, optional
@@ -1065,7 +1070,7 @@ class Icepak(FieldAnalysisIcepak):
             Name of the material. The default is ``Al-Extruded``.
         center : list, optional
            List of ``[x, y, z]`` coordinates for the center of
-           the heatsink.  The default is ``[0, 0, 0]``.
+           the heatsink. The default is ``[0, 0, 0]``.
         plane_enum : optional
             The default is ``0``.
         rotation : optional
@@ -1248,62 +1253,67 @@ class Icepak(FieldAnalysisIcepak):
         cutoff_height="5mm",
         component_lib="",
     ):
-        """Import an IDF file to Icepak Design.
+        """Import an IDF file into an Icepak design.
 
         Parameters
         ----------
         board_path : str
-            Full path to .emn file.
+            Full path to the EMN file.
         library_path : str
-            Full path to .emp file. If ``None`` emp will be looked in same folder with same name.
+            Full path to the EMP file. The default is ``None``, in which case a search for an EMP file
+            with the same name as the EMN file is performed in the folder with the EMN file.
         control_path : str
-            Full path to .xml file. If ``None`` xml will be looked in same folder with same name.
+            Full path to the XML file. The default is ``None``, in which case a search for an XML file
+            with the same name as the EMN file is performed in the folder with the EMN file.
         filter_cap : bool, optional
-            Either to Filter Capacitor from IDF. Default ``False``.
+            Whether to filter capacitors from the IDF file. The default is ``False``.
         filter_ind : bool, optional
-            Either to Filter Inductors from IDF. Default ``False``.
+            Whether to filter inductors from the IDF file. The default is ``False``.
         filter_res : bool, optional
-            Either to Filter Resistor from IDF. Default ``False``.
-        filter_height_under : float or str optional
-            Height Under components will be filtered. Default ``None``.
+            Whether to filter resistors from the IDF file. The default is ``False``.
+        filter_height_under : float or str, optional
+            Filter components under a given height. The default is ``None``, in which case
+            no components are filtered based on height.
         filter_height_exclude_2d : bool, optional
-            Either to Filter 2D Components from IDF. Default ``False``.
-        power_under : float or str optional
-            Power in "mW" Under components will be filtered. Default ``None``.
+            Whether to filter 2D components from the IDF file. The default is ``False``.
+        power_under : float or str, optional
+            Filter components with power under a given mW. The default is ``None``, in which
+            case no components are filtered based on power.
         create_filtered_as_non_model : bool, optional
-            Either to Import Filtered Components and set as Non-Model. Default ``False``.
+            Whether to set imported filtered components as ``Non-Model``. The default is ``False``.
         high_surface_thick : float or str optional
-            High Surface Thickness. Default ``"0.07mm"``.
-        low_surface_thick : float or str optional
-            Low Surface Thickness. Default ``"0.07mm"``.
-        internal_thick : float or str optional
-            Internal Layer Thickness. Default ``"0.07mm"``.
+            High surface thickness. The default is ``"0.07mm"``.
+        low_surface_thick : float or str, optional
+            Low surface thickness. The default is ``"0.07mm"``.
+        internal_thick : float or str, optional
+            Internal layer thickness. The default is ``"0.07mm"``.
         internal_layer_number : int, optional
-            Internal Layer Number. Default ``2``.
+            Number of internal layers. The default is ``2``.
         high_surface_coverage : float, optional
-            High Surface Material Coverage. Default ``30``.
+            High surface material coverage. The default is ``30``.
         low_surface_coverage : float, optional
-            Low Surface Material Coverage. Default ``30``.
+            Low surface material coverage. The default is ``30``.
         internal_layer_coverage : float, optional
-            Internal Layere Material Coverage. Default ``30``.
+            Internal layer material coverage. The default is ``30``.
         trace_material : str, optional
-            Trace Material Coverage. Default ``"Cu-Pure"``.
+            Trace material. The default is ``"Cu-Pure"``.
         substrate_material : str, optional
-            Substrate Material Coverage. Default ``"FR-4"``.
+            Substrate material. The default is ``"FR-4"``.
         create_board : bool, optional
-            Either to Create the Board or not. Default ``True``.
+            Whether to create the board. The default is ``True``.
         model_board_as_rect : bool, optional
-            Either to Create the Board as rectangle. Default ``False``.
+            Whether to create the board as a rectangle. The default is ``False``.
         model_device_as_rect : bool, optional
-            Either to Create the Components as rectangle. Default ``True``.
+            Whether to create the components as rectangles. The default is ``True``.
         cutoff_height : str or float, optional
-            Cutoff Eight. Default is ``None``.
+            Cutoff height. The default is ``None``.
         component_lib : str, optional
-            If provided, defines the component Library path.
+            Full path to the component library.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
@@ -1414,7 +1424,7 @@ class Icepak(FieldAnalysisIcepak):
         Parameters
         ----------
         gravityDir : int, optional
-            Gravity direction from -X to +Z. Options are ``0`` through ``5``.
+            Gravity direction from -X to +Z. Options are ``0`` to ``5``.
             The default is ``0``.
         ambtemp : optional
             Ambient temperature. The default is ``22``.
@@ -1601,12 +1611,12 @@ class Icepak(FieldAnalysisIcepak):
         quantity_name : str, optional
             Name of the quantity to export. The default is ``"HeatTransCoeff"``.
         savedir : str, optional
-            Directory to save the CSV file to.
-            The default is ``None`` which export file in working_directory.
+            Directory to save the CSV file to. The default is ``None``, in which
+            case the file is exported to the working directory.
         filename : str, optional
             Name of the CSV file. The default is ``None``.
         sweep_name : str, optional
-            Name of the setup and name of the sweep. For example: ``"IcepakSetup1 : SteatyState"``.
+            Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
             The default is ``None``.
         parameter_dict_with_values : dict, optional
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
@@ -1681,12 +1691,12 @@ class Icepak(FieldAnalysisIcepak):
         quantity_name : str, optional
             Name of the quantity to export. The default is ``"HeatTransCoeff"``.
         savedir : str, optional
-            Directory to save the CSV file to.
-            The default is ``None`` which export file in working_directory.
+            Directory to save the CSV file to. The default is ``None``, in which
+            case the file is exported to the working directory.
         filename :  str, optional
             Name of the CSV file. The default is ``None``.
         sweep_name :
-            Name of the setup and name of the sweep. For example: ``"IcepakSetup1 : SteatyState"``.
+            Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
             The default is ``None``.
         parameter_dict_with_values : dict, optional
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``
@@ -1810,20 +1820,21 @@ class Icepak(FieldAnalysisIcepak):
         Parameters
         ----------
         output_dir : str, optional
-             Name of directory for exporting the fields summary.
-             The default is ``None`` which export file in working_directory.
+            Name of directory for exporting the fields summary.
+            The default is ``None``, in which case the fields summary
+            is exported to the working directory.
         solution_name : str, optional
-             Name of the solution. The default is ``None``.
+            Name of the solution. The default is ``None``.
         type : string, optional
-             The default is ``"Object"``.
+            The default is ``"Object"``.
         geometryType : str, optional
-             Type of the geometry. The default is ``"Volume"``.
+            Type of the geometry. The default is ``"Volume"``.
         quantity : str, optional
-             The default is ``"Temperature"``.
+            The default is ``"Temperature"``.
         variation : str, optional
-             The default is ``""``.
+            The default is ``""``.
         variationlist : list, optional
-             The default is ``[]``.
+            The default is ``[]``.
 
         Returns
         -------
@@ -1927,11 +1938,11 @@ class Icepak(FieldAnalysisIcepak):
         linkData : list
             List of the data to retrieve for links. Options are:
 
-            * Project name, if ``None`` use the active project.
+            * Project name, if ``None`` use the active project
             * Design name
             * HFSS solution name, such as ``"HFSS Setup 1 : Last Adaptive"``
-            * Force source design simulation, ``True`` or ``False``.
-            * Preserve source design solution, ``True`` or ``False``.
+            * Force source design simulation, ``True`` or ``False``
+            * Preserve source design solution, ``True`` or ``False``
 
         Returns
         -------
@@ -1981,24 +1992,26 @@ class Icepak(FieldAnalysisIcepak):
         hub_radius="0mm",
         origin=None,
     ):
-        """ "Create a fan component in Icepak that is linked to an HFSS 3D Layout object.
+        """Create a fan component in Icepak that is linked to an HFSS 3D Layout object.
 
         Parameters
         ----------
-        name : str
-            Fan name.
-        is_2d : bool
-            Check if the fan is modeled as 2d or 3d.
-        shape : str
-            Fan Shape. It can be Circular or Rectangular.
-        cross_section : str
-            Fan Cross Section plane.
-        radius : str, float
-            Fan radius in modeler units.
-        hub_radius : str, float
-            Fan hub radius in modeler units.
-        origin : list
-            List of [x,y,z] position of the fan in the modeler.
+        name : str, optional
+            Fan name. The default is ``None``.
+        is_2d : bool, optional
+            Whether the fan is modeled as 2D. The default is ``False``, in which
+            case the fan is modeled as 3D.
+        shape : str, optional
+            Fan shape. Options are ``"Circular"`` and ``"Rectangular"``. The default
+            is ``"Circular"``.
+        cross_section : str, optional
+            Cross section plane of the fan. The default is ``"XY"``.
+        radius : str, float, optional
+            Radius of the fan in modeler units. The default is ``"0.008mm"``.
+        hub_radius : str, float, optional
+            Hub radius of the fan in modeler units. The default is ``"0mm"``,
+        origin : list, optional
+            List of ``[x,y,z]`` coordinates for the position of the fan in the modeler.
 
         Returns
         -------
@@ -2127,7 +2140,7 @@ class Icepak(FieldAnalysisIcepak):
         compName : str
             Name of the new PCB component.
         setupLinkInfo : list
-            List of the five elements needed to set up the link:
+            List of the five elements needed to set up the link in this format:
             ``[projectname, designname, solution name, forcesimulation (bool), preserve results (bool)]``.
         solutionFreq :
             Frequency of the solution if cosimulation is requested.
@@ -2237,15 +2250,16 @@ class Icepak(FieldAnalysisIcepak):
         Parameters
         ----------
         component_name : str
-            Name of the new PCB component to be created in Icepak.
+            Name of the new PCB component to create in Icepak.
         project_name : str
             Name of the project or the full path to the project.
         design_name : str
             Name of the design.
-        resolution : optional
-            Resolution of the mapping. The default is `2`.
+        resolution : int, optional
+            Resolution of the mapping. The default is ``2``.
         extenttype :
-            Type of the extent. Options are ``"Polygon"`` and ``"Bounding Box"``. The default is ``"Bounding Box"``.
+            Type of the extent. Options are ``"Polygon"`` and ``"Bounding Box"``. The default
+            is ``"Bounding Box"``.
         outlinepolygon : str, optional
             Name of the outline polygon if ``extentyype="Polygon"``. The default is ``""``.
         close_linked_project_after_import : bool, optional
@@ -2345,7 +2359,7 @@ class Icepak(FieldAnalysisIcepak):
         ----------
         meshtype : int
             Type of the mesh. Options are ``1``, ``2``, and ``3``, which represent
-            respectively a coarse, standard, or very accurate mesh.
+            respectively a coarse, standard, and very accurate mesh.
         gap_min_elements : str, optional
             The default is ``"1"``.
         noOgrids : bool, optional
@@ -2433,14 +2447,14 @@ class Icepak(FieldAnalysisIcepak):
         name="Component_Region",
         restore_padding_values=[50, 50, 50, 50, 50, 50],
     ):
-        """Create a bounding box to be used as a mesh region in Icepak.
+        """Create a bounding box to use as a mesh region in Icepak.
 
         Parameters
         ----------
         scale_factor : float, optional
             The default is ``1.0``.
         name : str, optional
-            Name of the bounding box. The default is "Component_Region"
+            Name of the bounding box. The default is ``"Component_Region"``.
         restore_padding_values : list, optional
             The default is ``[50,50,50,50,50,50]``.
 
@@ -2502,7 +2516,7 @@ class Icepak(FieldAnalysisIcepak):
         point_name : str
             Name of the temperature monitor.
         point_coord : list, optional
-            Listof ``[x, y, z}"" coordinates for the temperature monitor.
+            List of ``[x, y, z}"" coordinates for the temperature monitor.
             The default is ``[0, 0, 0]``.
 
         Returns
@@ -2603,12 +2617,12 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def get_gas_objects(self):
-        """Return the gas materials objects.
+        """Retrieve gas objects.
 
         Returns
         -------
         list
-            List of all Gas objects.
+            List of all gas objects.
         """
         mats = []
         for el in self.materials.gases:
@@ -2617,12 +2631,13 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def generate_fluent_mesh(self, object_lists=None):
-        """Generate a Fluent Mesh for selected objects list and assign it automatically to the objects.
+        """Generate a Fluent mesh for a list of selected objects and assign the mesh automatically to the objects.
 
         Parameters
         ----------
         object_lists : list, optional
-            Lis of objects on which compute Fluent Mesh. If `None` mesh will be done on fluids objects.
+            List of objects to compute the Fluent mesh on. The default is ``None``, in which case
+            all fluids objects are used to compute the mesh.
 
         Returns
         -------
