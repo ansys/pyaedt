@@ -13,6 +13,10 @@ rpyc >= 5.0.1; python_version > '2.7'
 # https://github.com/tomerfiliba-org/rpyc
 # License: MIT
 
+pre-commit >= ^2.15.0; python_version > '2.7'
+# https://github.com/pre-commit/pre-commit
+# License MIT
+
 # #############################################################################
 # optional
 # #############################################################################
