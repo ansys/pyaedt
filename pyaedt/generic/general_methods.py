@@ -7,7 +7,7 @@ import datetime
 import sys
 import traceback
 import logging
-from functools import wraps
+from functools import wraps, update_wrapper
 from collections import OrderedDict
 import inspect
 import itertools
@@ -158,8 +158,6 @@ def convert_remote_object(arg):
 
 
 def _remote_list_conversion(args):
-    if not is_remote_server:
-        return args
     new_args = []
     if args:
         for arg in args:
@@ -168,9 +166,6 @@ def _remote_list_conversion(args):
 
 
 def _remote_dict_conversion(args):
-    if not is_remote_server:
-        return args
-
     if args:
         new_kwargs = {}
         for arg in args:
@@ -181,8 +176,6 @@ def _remote_dict_conversion(args):
 
 
 def _log_method(func, new_args, new_kwargs):
-    if not settings.enable_debug_logger:
-        return
     if not settings.enable_debug_internal_methods_logger and str(func.__name__)[0] == "_":
         return
     if not settings.enable_debug_geometry_operator_logger and "GeometryOperators" in str(func):
@@ -220,6 +213,92 @@ def _log_method(func, new_args, new_kwargs):
             message.append(line_begin2 + str(new_kwargs)[1:-1])
     for m in message:
         logger.debug(m)
+
+
+def pyaedt_function_handler(direct_func=None):
+    """Decorator for pyaedt Exception, Logging, and Conversion management.
+        Provides an exception handler, a logging mechanism and an argument conversion for clien-server
+        communications.
+
+        It returns the function itself if correctly executed otherwise it will return False and errors
+        will be displayed.
+
+    """
+
+    if callable(direct_func):
+        user_function = direct_func
+        wrapper = _function_handler_wrapper(user_function)
+        return update_wrapper(wrapper, user_function)
+    elif direct_func is not None:
+        raise TypeError('Expected first argument to be a callable, or None')
+
+    def decorating_function(user_function):
+        wrapper = _function_handler_wrapper(user_function)
+        return update_wrapper(wrapper, user_function)
+
+    return decorating_function
+
+
+def _function_handler_wrapper(user_function):
+    def wrapper(*args, **kwargs):
+        if is_remote_server:
+            converted_args = _remote_list_conversion(args)
+            converted_kwargs = _remote_dict_conversion(kwargs)
+            args = converted_args
+            kwargs = converted_kwargs
+        if settings.enable_debug_logger:
+            _log_method(user_function, args, kwargs)
+        if settings.enable_error_handler:
+            try:
+                out = user_function(*args, **kwargs)
+                return out
+            except TypeError:
+                if not is_remote_server:
+                    _exception(sys.exc_info(), user_function, args, kwargs, "Type Error")
+                return False
+            except ValueError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Value Error")
+                return False
+            except AttributeError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Attribute Error")
+                return False
+            except KeyError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Key Error")
+                return False
+            except IndexError:
+                if not is_remote_server:
+                    _exception(sys.exc_info(), user_function, args, kwargs, "Index Error")
+                    return False
+            except AssertionError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Assertion Error")
+                return False
+            except NameError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Name Error")
+                return False
+            except IOError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "IO Error")
+                return False
+            except MethodNotSupportedError:
+                message = "This Method is not supported in current AEDT Design Type."
+                if settings.enable_screen_logs:
+                    print("**************************************************************")
+                    print("pyaedt error on Method {}:  {}. Please Check again".format(user_function.__name__, message))
+                    print("**************************************************************")
+                    print("")
+                if settings.enable_file_logs:
+                    logger.error(message)
+                return False
+            except BaseException:
+                _exception(sys.exc_info(), user_function, args, kwargs, "General or AEDT Error")
+                return False
+
+        result = user_function(*args, **kwargs)
+        return result
+
+    return wrapper
+
+
+
 
 
 def aedt_exception_handler(func):
