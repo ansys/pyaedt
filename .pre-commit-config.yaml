@@ -3,17 +3,20 @@ repos:
   rev: 21.12b0
   hooks:
   - id: black
+    files: ^pyaedt/
     exclude: ^pyaedt/rpc/, ^pyaedt/third_party/
 - repo: https://github.com/asottile/reorder_python_imports
   rev: v2.6.0
   hooks:
   - id: reorder-python-imports
     args: ["--py37-plus"]
+    files: ^pyaedt/
     exclude: ^pyaedt/rpc/, ^pyaedt/third_party/
 - repo: https://gitlab.com/PyCQA/flake8
   rev: 3.9.2
   hooks:
   - id: flake8
+    files: ^pyaedt/
     exclude: ^pyaedt/rpc/, ^pyaedt/third_party/
 - repo: https://github.com/codespell-project/codespell
   rev: v2.1.0
