@@ -3736,7 +3736,7 @@ class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
         if isinstance(angle_val, (int, float)):
             angle_val = "{}deg".format(angle_val)
 
-        if self.is_3d_placement:
+        if not self.is_3d_placement:
             props = ["NAME:Angle", "Value:=", angle_val]
         else:
             props = ["NAME:Rotation Angle", "Value:=", angle_val]
