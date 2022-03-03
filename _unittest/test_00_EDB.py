@@ -23,6 +23,9 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.edbapp = BasisTest.add_edb(self, test_project_name)
+        example_project = os.path.join(local_path, "example_models", "Package.aedb")
+        self.target_path = os.path.join(self.local_scratch.path, "Package_test_00.aedb")
+        self.local_scratch.copyfolder(example_project, self.target_path)
 
     def teardown_class(self):
         self.edbapp.close_edb()
@@ -627,7 +630,8 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_components.short_component_pins("U10", ["2", "5"])
 
     def test_77_flip_layer_stackup(self):
-        edb2 = Edb(os.path.join(local_path, "example_models", "Package.aedb"), edbversion=desktop_version)
+
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
         assert edb2.core_stackup.place_in_layout_3d_placement(
             self.edbapp,
             angle=0.0,
@@ -640,7 +644,7 @@ class TestClass(BasisTest, object):
         edb2.close_edb()
 
     def test_78_flip_layer_stackup_2(self):
-        edb2 = Edb(os.path.join(local_path, "example_models", "Package.aedb"), edbversion=desktop_version)
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
         assert edb2.core_stackup.place_in_layout(
             self.edbapp,
             angle=0.0,
@@ -652,7 +656,7 @@ class TestClass(BasisTest, object):
         edb2.close_edb()
 
     def test_79_get_placement_vector(self):
-        edb2 = Edb(os.path.join(local_path, "example_models", "Package.aedb"), edbversion=desktop_version)
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
         for cmpname, cmp in edb2.core_components.components.items():
             assert isinstance(cmp.solder_ball_placement, int)
         mounted_cmp = edb2.core_components.get_component_by_name("BGA")
@@ -709,6 +713,8 @@ class TestClass(BasisTest, object):
         edb_padstacks.close_edb()
 
     def test_81_edb_with_dxf(self):
-        edb3 = Edb(os.path.join(local_path, "example_models", "edb_test_82.dxf"), edbversion=desktop_version)
+        src = os.path.join(local_path, "example_models", "edb_test_82.dxf")
+        dxf_path = self.local_scratch.copyfile(src)
+        edb3 = Edb(dxf_path, edbversion=desktop_version)
         edb3.close_edb()
         del edb3
