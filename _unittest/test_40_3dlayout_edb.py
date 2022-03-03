@@ -1,4 +1,5 @@
 import os
+
 try:
     import pytest
 except ImportError:

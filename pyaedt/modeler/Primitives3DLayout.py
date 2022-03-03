@@ -715,7 +715,7 @@ class Primitives3DLayout(object):
     def place_3d_component(
         self, component_path, number_of_terminals=1, placement_layer=None, component_name=None, pos_x=0, pos_y=0
     ):
-        """
+        """Place a Hfss 3d Component in Hfss3dLayout.
 
         :param component_path:
         :param number_of_terminals:
