@@ -813,4 +813,4 @@ class Primitives3DLayout(object):
         id = _retry_ntimes(10, self.modeler.oeditor.CreateComponent, args)
         comp = ComponentsSubCircuit3DLayout(self, id.split(";")[-1])
         self.components_3d[id.split(";")[-1]] = comp
-        return comp#
+        return comp  #
