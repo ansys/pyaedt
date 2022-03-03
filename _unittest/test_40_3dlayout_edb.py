@@ -50,6 +50,7 @@ class TestClass(BasisTest, object):
 
     def test_02c_geo_layer(self):
         assert self.aedtapp.modeler.geometries["line_1983"].get_placement_layer()
+        assert len(self.aedtapp.modeler.layers.drawing_layers) > 0
 
     def test_02d_geo_lock(self):
         assert self.aedtapp.modeler.geometries["line_1983"].set_lock_position(True)
