@@ -113,6 +113,6 @@ class TestClass(BasisTest, object):
         assert comp.placement_layer == "TOP"
         comp.placement_layer = "bottom"
         assert comp.placement_layer == "BOTTOM"
-        comp.angle == "10deg"
+        comp.angle = "10deg"
         assert comp.angle == "10deg"
         assert comp.component_name == "connector"

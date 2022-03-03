@@ -297,7 +297,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         comp_name = ""
         for i in range(100, 0, -1):
             try:
-                cmp_info = _retry_ntimes(self.oeditor.GetComponentInfo, str(i))
+                cmp_info = _retry_ntimes(10, self.oeditor.GetComponentInfo, str(i))
                 if cmp_info and des_name in cmp_info[0]:
                     comp_name = str(i)
                     break
