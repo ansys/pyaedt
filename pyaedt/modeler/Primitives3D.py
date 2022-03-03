@@ -2139,8 +2139,8 @@ class Primitives3D(Primitives, object):
         are_inequations_checkable = True
         security_factor = 1.1
         sr = security_factor
-        read_file = open(json_file, "r")
-        values = json.load(read_file)
+        with open(json_file, "r") as read_file:
+            values = json.load(read_file)
 
         for key, value in dictionary_model.items():
             if key not in values:
