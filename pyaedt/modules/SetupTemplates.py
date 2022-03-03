@@ -1,4 +1,4 @@
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.DataHandlers import _dict2arg
 from collections import OrderedDict
 
@@ -1240,7 +1240,7 @@ class SweepHFSS(object):
             self.props["SMatrixOnlySolveAbove"] = "1MHz"
             self.props["SweepRanges"] = {"Subrange": []}
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz", save_single_fields=False, clear=False):
         """Add a subrange to the sweep.
 
@@ -1323,7 +1323,7 @@ class SweepHFSS(object):
 
         return self.update()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create(self):
         """Create a sweep.
 
@@ -1336,7 +1336,7 @@ class SweepHFSS(object):
         self.oanalysis.InsertFrequencySweep(self.setupname, self._get_args())
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update(self):
         """Update a sweep.
 
@@ -1349,7 +1349,7 @@ class SweepHFSS(object):
         self.oanalysis.EditFrequencySweep(self.setupname, self.name, self._get_args())
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_args(self, props=None):
         """Retrieve arguments.
 
@@ -1446,7 +1446,7 @@ class SweepHFSS3DLayout(object):
             self.props["AllOffDiagEntries"] = False
             self.props["MagMinThreshold"] = 0.01
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def change_type(self, sweeptype):
         """Change the type of the sweep.
 
@@ -1469,7 +1469,7 @@ class SweepHFSS3DLayout(object):
             raise AttributeError("Allowed sweeptype options are 'Interpolating' and 'Discrete'.")
         return self.update()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_save_fields(self, save_fields, save_rad_fields=False):
         """Choose whether the fields are saved.
 
@@ -1489,7 +1489,7 @@ class SweepHFSS3DLayout(object):
         self.props["SaveRadFieldsOnly"] = save_rad_fields
         return self.update()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz"):
         """Add a subrange to the sweep.
 
@@ -1533,7 +1533,7 @@ class SweepHFSS3DLayout(object):
         self.props["Sweeps"]["Data"] += sweep_range
         return self.update()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def change_range(self, rangetype, start, end=None, count=None, unit="GHz"):
         """Change the range of the sweep.
 
@@ -1572,7 +1572,7 @@ class SweepHFSS3DLayout(object):
         self.props["Sweeps"]["Data"] = sweep_range
         return self.update()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create(self):
         """Create a sweep.
 
@@ -1585,7 +1585,7 @@ class SweepHFSS3DLayout(object):
         self.oanalysis.AddSweep(self.setupname, self._get_args())
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update(self):
         """Update the sweep.
 
@@ -1598,7 +1598,7 @@ class SweepHFSS3DLayout(object):
         self.oanalysis.EditSweep(self.setupname, self.name, self._get_args())
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_args(self, props=None):
         """Retrieve properties.
 
@@ -1676,7 +1676,7 @@ class SweepQ3D(object):
                 self.props["InterpMinSolns"] = 0
                 self.props["InterpMinSubranges"] = 1
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_subrange(self, type, start, end=None, count=None, unit="GHz", clear=False):
         """Add a subrange to the sweep.
 
@@ -1735,7 +1735,7 @@ class SweepQ3D(object):
         self.props["SweepRanges"]["Subrange"].append(range)
         return self.update()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create(self):
         """Create a sweep.
 
@@ -1748,7 +1748,7 @@ class SweepQ3D(object):
         self.oanalysis.InsertSweep(self.setupname, self._get_args())
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update(self):
         """Update the sweep.
 
@@ -1762,7 +1762,7 @@ class SweepQ3D(object):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_args(self, props=None):
         """Retrieve properties.
 

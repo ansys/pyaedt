@@ -79,7 +79,7 @@ from datetime import datetime
 from zipfile import ZipFile, ZIP_DEFLATED
 from pyaedt import is_ironpython
 from pyaedt.desktop import Desktop
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess
@@ -123,7 +123,7 @@ from System import Uri, UriKind, Environment
 from System.Windows.Media.Imaging import BitmapImage
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def select_file(initial_dir=None, filter=None):
     """Opens File Dialog and select a file.
 
@@ -152,7 +152,7 @@ def select_file(initial_dir=None, filter=None):
         return None
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def select_directory(initial_dir=None, description=None):
     """Opens File Dialog and select a directory.
 
@@ -185,7 +185,7 @@ def select_directory(initial_dir=None, description=None):
         return None
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def copy_files_mkdir(root, files_in_subdir):
     """Copies all files from source to destination in a root path.
 
@@ -207,7 +207,7 @@ def copy_files_mkdir(root, files_in_subdir):
     return True
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def launch(
     workflow_module, specified_version=None, new_desktop_session=True, autosave=False, close_desktop_on_exit=False
 ):
@@ -265,7 +265,7 @@ launch('{}', version=specified_version)
 """
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def message_box(text, caption=None, buttons=None, icon=None):
     """Displays Message Box.
 
@@ -468,7 +468,7 @@ class ApplicationThread:
         self.new_desktop = new_desktop_session
         self.close_desktop_on_exit = close_desktop_on_exit
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def run_application(self):
         """Starts the application and run WPF."""
         d = Desktop(self.version, new_desktop_session=self.new_desktop)
@@ -485,7 +485,7 @@ class ApplicationThread:
             else:
                 d.release_desktop(False, False)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def open_form(self):
         """Opens the Application Windows Form."""
         form_object = __import__(self.workflow_module)
@@ -562,7 +562,7 @@ class WPFToolkitSettings:
                     my_path = my_path.replace(my_dir, settings_data["parent"])
         return my_path
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def read_settings_file(self, filename):
         """Read the json file and returns dictionary."""
         with open(filename, "r") as f:
@@ -586,7 +586,7 @@ class WPFToolkitSettings:
         else:
             return {"parent": None}
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def append_toolkit_dir(self):
         """Appends toolkit directory to sys.path."""
         assert os.path.exists(self.settings_file), "Settings File not defined!"
@@ -672,7 +672,7 @@ class UIObjectGetter:
     def __getitem__(self, ui_object_name):
         return self.parent.get_ui_object(ui_object_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def float_value(self, ui_object_name):
         """Converts the text entry to a float and return the value. If the string is empty, return 0
 
@@ -826,7 +826,7 @@ class WPFToolkit(Window):
         """Wpf xaml file path."""
         return os.path.join(self.toolkit_directory, self.toolkit_name + ".xaml")
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def copy_xaml_template(self):
         """Copies the xaml template to local folder and rename it to be used with current application."""
         local_path = os.path.abspath(os.path.dirname(__file__))
@@ -834,7 +834,7 @@ class WPFToolkit(Window):
         shutil.copy2(os.path.join(local_path, "wpf_template.xaml"), self.xaml_file)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _add_line_to_xml(self, line_to_add):
         with open(self.xaml_file, "r") as file:
             file = file.readlines()
@@ -845,7 +845,7 @@ class WPFToolkit(Window):
                 f.write(line)
         shutil.move(self.xaml_file[:-5] + "_tmp.xaml", self.xaml_file)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def edit_window_size(self, width=800, height=600, title="PyAEDT WPF Application", background="#FFD1CFCF"):
         """Edit the Wpf windows size.
 
@@ -880,7 +880,7 @@ class WPFToolkit(Window):
         shutil.move(self.xaml_file[:-5] + "_tmp.xaml", self.xaml_file)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_label(self, name, content, x_pos, y_pos):
         """Adds a label to Wpf.
 
@@ -904,7 +904,7 @@ class WPFToolkit(Window):
         self._add_line_to_xml(new_label)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_text_box(self, name, x_pos, y_pos, width=120, callback_method=None, callback_action="LostFocus"):
         """Adds a text box to Wpf.
 
@@ -936,7 +936,7 @@ class WPFToolkit(Window):
         self._add_line_to_xml(new_label)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_combo_box(self, name, x_pos, y_pos, width=120, callback_method=None, callback_action="SelectionChanged"):
         """Adds a combo box to Wpf.
 
@@ -965,7 +965,7 @@ class WPFToolkit(Window):
         self._add_line_to_xml(new_label)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_check_box(self, name, content, x_pos, y_pos, callback_method=None, callback_action="Checked"):
         """Adds a check box to Wpf.
 
@@ -994,7 +994,7 @@ class WPFToolkit(Window):
         self._add_line_to_xml(new_label)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_button(self, name, content, x_pos, y_pos, width=120, callback_method=None, callback_action="Click"):
         """Adds a button to Wpf.
 
@@ -1026,7 +1026,7 @@ class WPFToolkit(Window):
         self._add_line_to_xml(new_label)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def launch_gui(self):
         """Shows the Wpf UI."""
         if sys.implementation.name == "ironpython":
@@ -1056,7 +1056,7 @@ class WPFToolkit(Window):
                 self.set_callback(el[0], el[1], el[2])
             self._callbacks = []
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def validate_object_name_prefix(self, sender, e):
         """Validates the text box with object name prefix."""
         valid = False
@@ -1068,7 +1068,7 @@ class WPFToolkit(Window):
             pass
         self.update_textbox_status(sender, valid)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def validate_string_no_spaces(self, sender, e):
         """Validates the text box with no spaces."""
 
@@ -1077,7 +1077,7 @@ class WPFToolkit(Window):
             valid = True
         self.update_textbox_status(sender, valid)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def validate_integer(self, sender, e):
         """Validates the text box with to integer."""
 
@@ -1092,7 +1092,7 @@ class WPFToolkit(Window):
         self.update_textbox_status(sender, valid)
         return value
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def validate_positive_odd_integer(self, sender, e):
         """Validates the text box with to positive odd integer."""
 
@@ -1109,7 +1109,7 @@ class WPFToolkit(Window):
         self.update_textbox_status(sender, valid)
         return value
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def validate_positive_integer(self, sender, e):
         """Validates the text box with to strictly positive integer."""
 
@@ -1142,7 +1142,7 @@ class WPFToolkit(Window):
         self.update_textbox_status(sender, valid)
         return value
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def validate_negative_integer(self, sender, e):
         """Validates the text box with to negative integer."""
         valid = False
@@ -1157,7 +1157,7 @@ class WPFToolkit(Window):
         self.update_textbox_status(sender, valid)
         return value
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def validate_float(self, sender, e):
         """Validates the text box with to float."""
 
@@ -1171,7 +1171,7 @@ class WPFToolkit(Window):
         self.update_textbox_status(sender, valid)
         return value
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def validate_float_variable(self, sender, e):
         """Validates the text box with to float variable."""
         proj_and_des_variables = self.aedtdesign.variable_manager.variable_names
@@ -1180,7 +1180,7 @@ class WPFToolkit(Window):
         else:
             self.validate_float(sender, e)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def validate_positive_float_variable(self, sender, e):
         """Validates the text box with to positive float variable."""
 
@@ -1190,7 +1190,7 @@ class WPFToolkit(Window):
         else:
             self.validate_positive_float(sender, e)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def validate_positive_integer_variable(self, sender, e):
         """Validates the text box with to positive integer variable."""
 
@@ -1200,7 +1200,7 @@ class WPFToolkit(Window):
         else:
             self.validate_positive_integer(sender, e)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def validate_positive_integer_global(self, sender, e):
         """Validates the text box with to positive integer global variable."""
 
@@ -1210,7 +1210,7 @@ class WPFToolkit(Window):
         else:
             self.validate_positive_integer(sender, e)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def validate_positive_float_global(self, sender, e):
         """Validates the text box with to positive float global variable."""
 
@@ -1220,7 +1220,7 @@ class WPFToolkit(Window):
         else:
             self.validate_positive_float(sender, e)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def validate_positive_float(self, sender, e):
         """Validates the text box with to positive float."""
 
@@ -1236,7 +1236,7 @@ class WPFToolkit(Window):
         self.update_textbox_status(sender, valid)
         return value
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def validate_non_negative_float(self, sender, e):
         """Validates the text box with to non-negative float."""
 
@@ -1252,7 +1252,7 @@ class WPFToolkit(Window):
         self.update_textbox_status(sender, valid)
         return value
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_textbox_status_with_default_text(self, sender, valid, default_text):
         """Updates a text box with a default text value."""
 
@@ -1262,7 +1262,7 @@ class WPFToolkit(Window):
         else:
             sender.BorderBrush = Brushes.Green
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_textbox_status(self, sender, valid):
         """Updates a text box status."""
 
@@ -1272,7 +1272,7 @@ class WPFToolkit(Window):
         else:
             sender.BorderBrush = Brushes.Green
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_child_design(self, design_name):
         """Duplicates a design and makes a link to the parent design in the settings file.
 
@@ -1289,7 +1289,7 @@ class WPFToolkit(Window):
         self._write_parent_link()
         bool
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _read_and_synch_settings_file(self):
         """Reads in existing settings data and updates the path of the library directory in case the project was
         moved to a new location, file system or operating system."""
@@ -1301,18 +1301,18 @@ class WPFToolkit(Window):
                 settings_data["_toolkit_dir"] = self.toolkit_directory
                 json.dump(settings_data, f, indent=4)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _write_parent_link(self):
         with open(self.local_settings_file, "w") as f:
             settings_data = {"parent": self.parent_design_name}
             json.dump(settings_data, f, indent=4)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def dummy_callback(self, sender, e):
         """Dummy callback."""
         pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def display(self):
         """Displays the wpf application as a Dialoq (IronPython) or an Application (CPython)."""
         if sys.implementation.name == "ironpython":
@@ -1320,7 +1320,7 @@ class WPFToolkit(Window):
         else:
             Application().Run(self.window)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def open_explorer(self, sender, e):
         """Opens a windows explorer window pointing to the selected path in the sender control."""
         os_type = os.name
@@ -1331,7 +1331,7 @@ class WPFToolkit(Window):
                 subprocess.Popen(os_command_string)
             pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_callback(self, control, callback, function):
         """Sets up the callback functions from the xaml GUI.
 
@@ -1348,7 +1348,7 @@ class WPFToolkit(Window):
         a = getattr(test_control, callback)
         a += function
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_margin(self, object_name, margin):
         """Sets the outer dimensions of the GUI window.
 
@@ -1367,7 +1367,7 @@ class WPFToolkit(Window):
         myThickness.Top = margin[1]
         self.get_ui_object(object_name).Margin = myThickness
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_image(self, ui_object_name, image_file):
         """Assigns an image to an object.
 
@@ -1390,7 +1390,7 @@ class WPFToolkit(Window):
         bi.EndInit()
         self.ui[ui_object_name].Source = bi
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_visible(self, object_list):
         """Defines one or more GUI objects to be visible.
 
@@ -1408,7 +1408,7 @@ class WPFToolkit(Window):
         for object_name in object_list:
             self.get_ui_object(object_name).Visibility = Visibility.Visible
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_hidden(self, object_list):
         """Defines one or more GUI objects to be hidden.
 
@@ -1426,18 +1426,18 @@ class WPFToolkit(Window):
         for object_name in object_list:
             self.get_ui_object(object_name).Visibility = Visibility.Hidden
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def wait_cursor(self):
         """Turns on the "Wait" cursor and stores the current cursor"""
         self.previous_cursor = self.Cursor
         self.Cursor = Input.Cursors.Wait
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def standard_cursor(self):
         """Restores the current cursor"""
         self.Cursor = self.previous_cursor
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_objects_from_xaml_of_type(self, type_list):
         if isinstance(type_list, str):
             type_list = [type_list]
@@ -1453,12 +1453,12 @@ class WPFToolkit(Window):
                     text_list.append(name)
         return text_list
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def message_box(self, text, caption=None, buttons=None, icon=None):
         """Message Box."""
         return message_box(text, caption, buttons, icon)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def ok_cancel_message_box(self, text, caption=None, icon=None):
         response = message_box(text, caption, "OKCancel", icon)
         if response == DialogResult.OK:
@@ -1466,7 +1466,7 @@ class WPFToolkit(Window):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_combo_items(self, combo_box_name, options, default=None):
         """Fills a combo box with a list of options and sets the selected value if nothing is present already.
 
@@ -1491,7 +1491,7 @@ class WPFToolkit(Window):
         if default and not control.SelectedValue:
             control.SelectedValue = default
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_combobox_selection(self, ui_object_name):
         """Returns the selected value from a combobox
         Parameters
@@ -1506,13 +1506,13 @@ class WPFToolkit(Window):
         item_selected = str(control.SelectedItem)
         return item_selected
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def clear_combobox_items(self, ui_object_name):
         """ """
         control = self.get_ui_object(ui_object_name)
         control.Items.Clear()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_text_value(self, ui_object_name, text_val):
         """Sets a text box value.
 
@@ -1526,13 +1526,13 @@ class WPFToolkit(Window):
         control = self.get_ui_object(ui_object_name)
         control.Text = text_val
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_text_value(self, ui_object_name):
         """ """
         control = self.get_ui_object(ui_object_name)
         return control.Text
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_checkbox_status(self, ui_object_name):
         """ """
         control = self.get_ui_object(ui_object_name)
@@ -1541,7 +1541,7 @@ class WPFToolkit(Window):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_chechbox_status(self, ui_object_name, flag=True):
         """Sets a check box value.
 
@@ -1555,7 +1555,7 @@ class WPFToolkit(Window):
         control = self.get_ui_object(ui_object_name)
         control.IsChecked = flag
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_ui_object(self, control_name):
         """Gets a UI object.
 
@@ -1568,7 +1568,7 @@ class WPFToolkit(Window):
         assert wpf_control, "WPF GUI object name {0} does not exist !".format(control_name)
         return wpf_control
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def read_settings(self):
         """Reads the setting data from the toolkit settings file in the parent design
 
@@ -1621,7 +1621,7 @@ class WPFToolkit(Window):
 
         return settings_data
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def write_settings(self, user_defined_data=None):
         """Writes UI settings Textbox, Checkbox, Combobox only at present
             also write any user defined data from a json-serializable dictionary

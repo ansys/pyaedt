@@ -7,7 +7,7 @@ import io
 from pyaedt.application.Analysis2D import FieldAnalysis2D
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import float_units
-from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
+from pyaedt.generic.general_methods import generate_unique_name, pyaedt_function_handler
 from pyaedt.modules.Boundary import BoundaryObject
 from collections import OrderedDict
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -74,7 +74,7 @@ class Maxwell(object):
         design_file = os.path.join(self.working_directory, "design_data.json")
         return design_file
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def change_inductance_computation(self, compute_transient_inductance=True, incremental_matrix=False):
         """Enable the inductance computation for the transient analysis and set the incremental matrix.
 
@@ -108,7 +108,7 @@ class Maxwell(object):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_core_losses(self, objects, value=True):
         """Whether to enable core losses for a set of objects.
 
@@ -149,7 +149,7 @@ class Maxwell(object):
             raise Exception("Core losses is only available with `EddyCurrent` and `Transient` solutions.")
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_matrix(self, objects, matrix_name=None):
         """Assign a matrix to the selection.
 
@@ -189,7 +189,7 @@ class Maxwell(object):
             return matrix_name
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def setup_ctrlprog(
         self, setupname, file_str=None, keep_modifications=False, python_interpreter=None, aedt_lib_dir=None
     ):
@@ -266,7 +266,7 @@ class Maxwell(object):
         return True
 
     # Set eddy effects
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def eddy_effects_on(self, object_list, activate=True):
         """Assign eddy effects on objects.
 
@@ -295,7 +295,7 @@ class Maxwell(object):
         oModule.SetEddyEffect(["NAME:Eddy Effect Setting", EddyVector])
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_current(self, object_list, amplitude=1, phase="0deg", solid=True, swap_direction=False, name=None):
         """Assign the source of the current.
 
@@ -364,7 +364,7 @@ class Maxwell(object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_translate_motion(
         self,
         band_object,
@@ -461,7 +461,7 @@ class Maxwell(object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_rotate_motion(
         self,
         band_object,
@@ -560,7 +560,7 @@ class Maxwell(object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_voltage(self, face_list, amplitude=1, name=None):
         """Assign a voltage source to a list of faces.
 
@@ -599,7 +599,7 @@ class Maxwell(object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_voltage_drop(self, face_list, amplitude=1, swap_direction=False, name=None):
         """Assign a voltage drop to a list of faces.
 
@@ -638,7 +638,7 @@ class Maxwell(object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_winding(
         self,
         coil_terminals=None,
@@ -717,7 +717,7 @@ class Maxwell(object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_winding_coils(self, windingname, coil_names):
         """Add coils to the winding.
 
@@ -745,7 +745,7 @@ class Maxwell(object):
             self.oboundary.AddWindingCoils(windingname, coil_names)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_coil(self, input_object, conductor_number=1, polarity="Positive", name=None):
         """Assign coils to a list of objects or face IDs.
 
@@ -806,7 +806,7 @@ class Maxwell(object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_force(self, input_object, reference_cs="Global", is_virtual=True, force_name=None):
         """Assign a force to one or more objects.
 
@@ -852,7 +852,7 @@ class Maxwell(object):
             )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_torque(
         self, input_object, reference_cs="Global", is_positive=True, is_virtual=True, axis="Z", torque_name=None
     ):
@@ -916,7 +916,7 @@ class Maxwell(object):
             )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def solve_inside(self, name, activate=True):
         """Solve inside.
 
@@ -940,7 +940,7 @@ class Maxwell(object):
         self.modeler[name].solve_inside = activate
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def analyze_from_zero(self):
         """Analyze from zero.
 
@@ -958,7 +958,7 @@ class Maxwell(object):
         self.analyze_nominal()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_initial_angle(self, motion_setup, val):
         """Set the initial angle.
 
@@ -1210,7 +1210,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             return False
 
     @xy_plane.setter
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def xy_plane(self, value=True):
         self.design_solutions.xy_plane = value
 
@@ -1241,7 +1241,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             ]
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def generate_design_data(self, linefilter=None, objectfilter=None):
         """Generate a generic set of design data and store it in the extension directory as ``design_data.json``.
 
@@ -1294,7 +1294,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             json.dump(convert(self.design_data), fps, indent=4)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def read_design_data(self):
         """Read back the design data as a dictionary.
 
@@ -1309,7 +1309,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             design_data = json.load(fps)
         return design_data
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_balloon(self, edge_list, bound_name=None):
         """Assign a balloon boundary to a list of edges.
 
@@ -1343,7 +1343,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_vector_potential(self, input_edge, vectorvalue=0, bound_name=None):
         """Assign a vector to a list of edges.
 
@@ -1381,7 +1381,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_master_slave(
         self, master_edge, slave_edge, reverse_master=False, reverse_slave=False, same_as_master=True, bound_name=None
     ):

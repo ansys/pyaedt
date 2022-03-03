@@ -15,7 +15,7 @@ else:
     import subprocess
 
 from pyaedt.application.AnalysisIcepak import FieldAnalysisIcepak
-from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
+from pyaedt.generic.general_methods import generate_unique_name, pyaedt_function_handler
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.modules.Boundary import BoundaryObject, NativeComponentObject
 from pyaedt.generic.DataHandlers import random_string
@@ -143,7 +143,7 @@ class Icepak(FieldAnalysisIcepak):
         return self.design_solutions.problem_type
 
     @problem_type.setter
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def problem_type(self, value="TemperatureAndFlow"):
         self.design_solutions.problem_type = value
 
@@ -169,7 +169,7 @@ class Icepak(FieldAnalysisIcepak):
             sweep_list.append(el + " : " + s_type)
         return sweep_list
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_grille(
         self,
         air_faces,
@@ -245,7 +245,7 @@ class Icepak(FieldAnalysisIcepak):
             return bound
         return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_openings(self, air_faces):
         """Assign openings to a list of faces.
 
@@ -292,7 +292,7 @@ class Icepak(FieldAnalysisIcepak):
             return bound
         return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_2way_coupling(
         self, setup_name=None, number_of_iterations=2, continue_ipk_iterations=True, ipk_iterations_per_coupling=20
     ):
@@ -346,7 +346,7 @@ class Icepak(FieldAnalysisIcepak):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_source_blocks_from_list(self, list_powers, assign_material=True, default_material="Ceramic_material"):
         """Assign to a box in Icepak the sources that come from the CSV file.
 
@@ -408,7 +408,7 @@ class Icepak(FieldAnalysisIcepak):
 
         return listmcad
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_source_block(
         self, object_name, input_power, assign_material=True, material_name="Ceramic_material", use_object_for_name=True
     ):
@@ -473,7 +473,7 @@ class Icepak(FieldAnalysisIcepak):
             return bound
         return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_source_power(
         self,
         face_id,
@@ -543,7 +543,7 @@ class Icepak(FieldAnalysisIcepak):
             self.boundaries.append(bound)
             return bound
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_network_block(
         self,
         object_name,
@@ -650,7 +650,7 @@ class Icepak(FieldAnalysisIcepak):
                 return bound
             return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_network_blocks(
         self, input_list, gravity_dir, top, assign_material=True, default_material="Ceramic_material"
     ):
@@ -722,7 +722,7 @@ class Icepak(FieldAnalysisIcepak):
                     networks.append(out)
         return networks
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_surface_monitor(self, face_name, monitor_type="Temperature", monitor_name=None):
         """Assign a surface monitor.
 
@@ -762,7 +762,7 @@ class Icepak(FieldAnalysisIcepak):
         oModule.AssignFaceMonitor(["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Objects:=", [face_name]])
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_point_monitor(self, point_position, monitor_type="Temperature", monitor_name=None):
         """Create and assign a point monitor.
 
@@ -814,7 +814,7 @@ class Icepak(FieldAnalysisIcepak):
         oModule.AssignPointMonitor(["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Points:=", [point_name]])
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_block_from_sherlock_file(self, csv_name):
         """Assign block power to components based on a CSV file from Sherlock.
 
@@ -874,7 +874,7 @@ class Icepak(FieldAnalysisIcepak):
         self.logger.info("Blocks inserted with total power %sW.", total_power)
         return total_power
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_priority_on_intersections(self, component_prefix="COMP_"):
         """Validate an Icepak design.
 
@@ -916,7 +916,7 @@ class Icepak(FieldAnalysisIcepak):
                 i += 1
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def find_top(self, gravityDir):
         """Find the top location of the layout given a gravity.
 
@@ -953,7 +953,7 @@ class Icepak(FieldAnalysisIcepak):
         else:
             return oBoundingBox[gravityDir - 3]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_parametric_fin_heat_sink(
         self,
         hs_height=100,
@@ -1157,7 +1157,7 @@ class Icepak(FieldAnalysisIcepak):
         self.modeler[list_to_move[0]].name = "HeatSink1"
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_idf(
         self,
         board_path,
@@ -1341,7 +1341,7 @@ class Icepak(FieldAnalysisIcepak):
         self.modeler.add_new_objects()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def edit_design_settings(
         self,
         gravityDir=0,
@@ -1424,7 +1424,7 @@ class Icepak(FieldAnalysisIcepak):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_em_losses(
         self,
         designname="HFSSDesign1",
@@ -1522,7 +1522,7 @@ class Icepak(FieldAnalysisIcepak):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def eval_surface_quantity_from_field_summary(
         self,
         faces_list,
@@ -1665,7 +1665,7 @@ class Icepak(FieldAnalysisIcepak):
         )
         return filename
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def UniteFieldsSummaryReports(self, savedir, proj_icepak):
         """Unite the files created by a fields summary for the variations.
 
@@ -1810,7 +1810,7 @@ class Icepak(FieldAnalysisIcepak):
             )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_radiation_settings(self, radiation):
         """Retrieve radiation settings.
 
@@ -1842,7 +1842,7 @@ class Icepak(FieldAnalysisIcepak):
             highSideRad = True
         return lowSideRad, highSideRad
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_link_data(self, linkData):
         """Retrieve a list of linked data.
 
@@ -1894,7 +1894,7 @@ class Icepak(FieldAnalysisIcepak):
 
         return arg
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_fan(
         self,
         name=None,
@@ -2023,7 +2023,7 @@ class Icepak(FieldAnalysisIcepak):
             return native
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_ipk_3dcomponent_pcb(
         self,
         compName,
@@ -2134,7 +2134,7 @@ class Icepak(FieldAnalysisIcepak):
             return native
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_pcb_from_3dlayout(
         self,
         component_name,
@@ -2204,7 +2204,7 @@ class Icepak(FieldAnalysisIcepak):
         self.logger.info("PCB component correctly created in Icepak.")
         return status
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def copyGroupFrom(self, groupName, sourceDesign, sourceProject=None, sourceProjectPath=None):
         """Copy a group from another design.
 
@@ -2246,7 +2246,7 @@ class Icepak(FieldAnalysisIcepak):
         self.materials._load_from_project()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def globalMeshSettings(
         self,
         meshtype,
@@ -2345,7 +2345,7 @@ class Icepak(FieldAnalysisIcepak):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_meshregion_component(
         self, scale_factor=1.0, name="Component_Region", restore_padding_values=[50, 50, 50, 50, 50, 50]
     ):
@@ -2409,7 +2409,7 @@ class Icepak(FieldAnalysisIcepak):
         self.modeler.edit_region_dimensions(restore_padding_values)
         return dis_x, dis_y, dis_z
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_temp_point_monitor(self, point_name, point_coord=[0, 0, 0]):
         """Create a temperature monitor for the simulation.
 
@@ -2451,7 +2451,7 @@ class Icepak(FieldAnalysisIcepak):
         monitor.AssignPointMonitor(arg)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete_em_losses(self, bound_name):
         """Delete the EM losses boundary.
 
@@ -2473,7 +2473,7 @@ class Icepak(FieldAnalysisIcepak):
         self.oboundary.DeleteBoundaries([bound_name])
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete_pcb_component(self, comp_name):
         """Delete a PCB component.
 
@@ -2497,7 +2497,7 @@ class Icepak(FieldAnalysisIcepak):
         self.modeler.oeditor.Delete(arg)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_liquid_objects(self):
         """Return the liquid materials objects.
 
@@ -2511,7 +2511,7 @@ class Icepak(FieldAnalysisIcepak):
             mats.extend(self.modeler.convert_to_selections(self.modeler.get_objects_by_material(el), True))
         return mats
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_gas_objects(self):
         """Retrieve gas objects.
 
@@ -2525,7 +2525,7 @@ class Icepak(FieldAnalysisIcepak):
             mats.extend(self.modeler.convert_to_selections(self.modeler.get_objects_by_material(el), True))
         return mats
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def generate_fluent_mesh(self, object_lists=None):
         """Generate a Fluent mesh for a list of selected objects and assign the mesh automatically to the objects.
 

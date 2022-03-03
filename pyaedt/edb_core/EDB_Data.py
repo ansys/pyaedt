@@ -4,7 +4,7 @@ import math
 import os
 from collections import OrderedDict
 
-from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
@@ -109,7 +109,7 @@ class EDBNetsData(object):
                 comps[el] = val
         return comps
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def plot(self, layers=None, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)):
         """Plot a Net to Matplotlib 2D Chart.
 
@@ -166,7 +166,7 @@ class EDBPrimitives(object):
         self._core_net = core_app.core_nets
         self.primitive_object = raw_primitive
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def area(self, include_voids=True):
         """Return the total area.
 
@@ -294,7 +294,7 @@ class EDBPrimitives(object):
         # fmt: on
         return x, y
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def points(self, arc_segments=6):
         """Return the list of points with arcs converted to segments.
 
@@ -333,7 +333,7 @@ class EDBPrimitives(object):
             voids.append(EDBPrimitives(void, self._app))
         return voids
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def points_raw(self):
         """Return a list of Edb points.
 
@@ -351,7 +351,7 @@ class EDBPrimitives(object):
         except:
             return points
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def is_arc(self, point):
         """Either if a point is an arc or not.
 
@@ -432,7 +432,7 @@ class EDBPrimitives(object):
         else:
             raise AttributeError("Value inserted not found. Input has to be layer name or layer object.")
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete(self):
         """Delete this primtive."""
         self.primitive_object.Delete()
@@ -674,7 +674,7 @@ class EDBLayer(object):
             self._etch_factor = value
             self.update_layers()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def plot(self, nets=None, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)):
         """Plot a Layer to Matplotlib 2D Chart.
 
@@ -704,7 +704,7 @@ class EDBLayer(object):
             size=size,
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def init_vals(self):
         """Initialize values."""
         try:
@@ -721,7 +721,7 @@ class EDBLayer(object):
         except:
             pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_layer_vals(self, layerName, newLayer, etchMap, materialMap, fillMaterialMap, thicknessMap, layerTypeMap):
         """Update layer properties.
 
@@ -767,7 +767,7 @@ class EDBLayer(object):
             newLayer.SetEtchFactor(self._edb_value(etchVal))
         return newLayer
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_elevation(self, layer, elev):
         """Update the layer elevation.
 
@@ -788,7 +788,7 @@ class EDBLayer(object):
         layer.SetLowerElevation(self._edb_value(elev))
         return layer
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_layers(self):
         """Update all layers.
 
@@ -998,7 +998,7 @@ class EDBLayers(object):
         """Logger."""
         return self._pedbstackup.logger
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _int_to_layer_types(self, val):
         if int(val) == 0:
             return self.layer_types.SignalLayer
@@ -1043,7 +1043,7 @@ class EDBLayers(object):
         elif value == 2 or value == self.layer_collection_mode.MultiZone:
             self.layer_collection.SetMode(self.layer_collection_mode.MultiZone)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _update_edb_objects(self):
         self._edb_object = OrderedDict({})
         layers = self.edb_layers
@@ -1051,7 +1051,7 @@ class EDBLayers(object):
             self._edb_object[layers[i].GetName()] = EDBLayer(layers[i], self)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_layer(
         self,
         layerName,
@@ -1195,7 +1195,7 @@ class EDBLayers(object):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def remove_layer(self, layername):
         """Remove a layer.
 
@@ -1415,7 +1415,7 @@ class EDBPadProperties(object):
 
         self._update_pad_parameters_parameters(rotation=rotation_value)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def int_to_geometry_type(self, val=0):
         """Convert an integer to an EDB.PadGeometryType.
 
@@ -1455,7 +1455,7 @@ class EDBPadProperties(object):
         elif val == 12:
             return self._edb.Definition.PadGeometryType.InvalidGeometry
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _update_pad_parameters_parameters(
         self, layer_name=None, pad_type=None, geom_type=None, params=None, offsetx=None, offsety=None, rotation=None
     ):
@@ -1620,7 +1620,7 @@ class EDBPadstack(object):
         self._hole_parameters = self._hole_params[2]
         return self._hole_parameters
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _update_hole_parameters(self, hole_type=None, params=None, offsetx=None, offsety=None, rotation=None):
         """Update hole parameters.
 
@@ -2026,12 +2026,12 @@ class EDBPadstackInstance(object):
         else:
             return self._edb_padstackinstance.GetName()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete_padstack_instance(self):
         """Delete this padstack instance."""
         self._edb_padstackinstance.Delete()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def in_voids(self, net_name=None, layer_name=None):
         """Check if this padstack instance is in any void.
 
@@ -2117,7 +2117,7 @@ class EDBPadstackInstance(object):
         """
         return int(self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetTopBottomAssociation())
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_rectangle_in_pad(self, layer_name):
         """Create a rectangle inscribed inside a padstack instance pad. The rectangle is fully inscribed in the
         pad and has the maximum area. It is necessary to specify the layer on which the rectangle will be created.

@@ -7,7 +7,7 @@ import warnings
 import os
 
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.edb_core.EDB_Data import EDBPrimitives
 
@@ -80,7 +80,7 @@ class EdbLayout(object):
         """
         return self._pedb.core_stackup.stackup_layers.layers
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_primitives(self):
         """
         Update a primitives list from the EDB database.
@@ -189,7 +189,7 @@ class EdbLayout(object):
         """
         return [i for i in self.primitives if i.type == "Polygon"]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_polygons_by_layer(self, layer_name, net_list=None):
         """Retrieve polygons by a layer.
 
@@ -214,7 +214,7 @@ class EdbLayout(object):
                     objinst.append(el)
         return objinst
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_polygon_bounding_box(self, polygon):
         """Retrieve a polygon bounding box.
 
@@ -246,7 +246,7 @@ class EdbLayout(object):
             pass
         return bounding
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_polygon_points(self, polygon):
         """Retrieve polygon points.
 
@@ -290,7 +290,7 @@ class EdbLayout(object):
                 continue_iterate = False
         return points
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def parametrize_polygon(self, polygon, selection_polygon, offset_name="offsetx", origin=None):
         """Parametrize pieces of a polygon based on another polygon.
 
@@ -373,7 +373,7 @@ class EdbLayout(object):
         polygon.SetPolygonData(poligon_data)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_path(
         self,
         path_list,
@@ -462,7 +462,7 @@ class EdbLayout(object):
                     self._primitives_by_layer[layer_name] = [polygon]
         return polygon
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_polygon(self, main_shape, layer_name, voids=[], net_name=""):
         """Create a polygon based on a list of points and voids.
 
@@ -508,7 +508,7 @@ class EdbLayout(object):
                     self._primitives_by_layer[layer_name] = [polygon]
             return polygon
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_primitives(self, net_name=None, layer_name=None, prim_type=None, is_void=False):
         """Get primitives by conditions.
 
@@ -545,7 +545,7 @@ class EdbLayout(object):
             prims.append(el)
         return prims
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def fix_circle_void_for_clipping(self):
         """Fix issues when circle void are clipped due to a bug in EDB.
 
@@ -575,7 +575,7 @@ class EdbLayout(object):
         self.update_primitives()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_void(self, shape, void_shape):
         """Add a void into a shape.
 
@@ -595,7 +595,7 @@ class EdbLayout(object):
         else:
             return shape.AddVoid(void_shape)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def shape_to_polygon_data(self, shape):
         """Convert a shape to polygon data.
 
@@ -612,7 +612,7 @@ class EdbLayout(object):
             self._logger.error("Unsupported shape type %s when creating a polygon primitive.", shape.type)
             return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _createPolygonDataFromPolygon(self, shape):
         points = shape.points
         if not self._validatePoint(points[0]):
@@ -694,7 +694,7 @@ class EdbLayout(object):
                 k += 1
         return polygon
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _validatePoint(self, point, allowArcs=True):
         if len(point) == 2:
             if not isinstance(point[0], (int, float, str)):
@@ -769,7 +769,7 @@ class EdbLayout(object):
             self.points = points
             self.properties = properties
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def parametrize_trace_width(self, nets_name, layers_name=None, parameter_name="trace_width", variable_value=None):
         """Parametrize a Trace on specific layer or all stackup.
 
@@ -811,7 +811,7 @@ class EdbLayout(object):
                         p.SetWidth(self._pedb.edb_value(parameter_name))
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def unite_polygons_on_layer(self, layer_name=None, delete_padstack_gemometries=False):
         """Try to unite all Polygons on specified layer.
 

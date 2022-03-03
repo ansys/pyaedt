@@ -6,7 +6,7 @@ import warnings
 import os
 import math
 
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.EDB_Data import EDBPadstack, EDBPadstackInstance
 
@@ -131,7 +131,7 @@ class EdbPadstacks(object):
 
         return PadType
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_padstacks(self):
         """Update Padstack Dictionary.
 
@@ -146,7 +146,7 @@ class EdbPadstacks(object):
             if len(PadStackData.GetLayerNames()) >= 1:
                 self._padstacks[padstackdef.GetName()] = EDBPadstack(padstackdef, self)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_circular_padstack(
         self, padstackname=None, holediam="300um", paddiam="400um", antipaddiam="600um", startlayer=None, endlayer=None
     ):
@@ -179,7 +179,7 @@ class EdbPadstacks(object):
         )
         self.update_padstacks()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_solderball(self, padstackInst, sballLayer_name, isTopPlaced=True, ballDiam=100e-6):
         """Set solderball for the given PadstackInstance.
 
@@ -222,7 +222,7 @@ class EdbPadstacks(object):
 
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_coax_port(self, padstackinstance):
         """Create HFSS 3Dlayout coaxial lumped port on a pastack
         Requires to have solder ball defined before calling this method.
@@ -272,7 +272,7 @@ class EdbPadstacks(object):
                 return port_name
         return ""
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_pinlist_from_component_and_net(self, refdes=None, netname=None):
         """Retrieve pins given a component's reference designator and net name.
 
@@ -295,7 +295,7 @@ class EdbPadstacks(object):
             if pinlist.Item1:
                 return pinlist.Item2
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_pad_parameters(self, pin, layername, pad_type=0):
         """Get Padstack Parameters from Pin or Padstack Definition.
 
@@ -324,7 +324,7 @@ class EdbPadstacks(object):
         rot = padparams.Item5.ToDouble()
         return geom_type, parameters, offset_x, offset_y, rot
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_via_instance_from_net(self, net_list=[]):
         """Get the list for Edb vias from net name list.
 
@@ -354,7 +354,7 @@ class EdbPadstacks(object):
                         via_list.append(lobj)
         return via_list
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_padstack(
         self,
         padstackname=None,
@@ -479,7 +479,7 @@ class EdbPadstacks(object):
         self.update_padstacks()
         return padstackname
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def duplicate_padstack(self, target_padstack_name, new_padstack_name=""):
         """Duplicate a padstack.
 
@@ -506,7 +506,7 @@ class EdbPadstacks(object):
 
         return new_padstack_name
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def place_padstack(
         self,
         position,
@@ -574,7 +574,7 @@ class EdbPadstacks(object):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def remove_pads_from_padstack(self, padstack_name, layer_name=None):
         """Remove the Pad from a padstack on a specific layer by setting it as a 0 thickness circle.
 
@@ -608,7 +608,7 @@ class EdbPadstacks(object):
         self.update_padstacks()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_pad_property(
         self,
         padstack_name,
@@ -697,7 +697,7 @@ class EdbPadstacks(object):
         self.update_padstacks()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_padstack_instances(self):
         """Update Padstack Instance List."""
         layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
@@ -707,7 +707,7 @@ class EdbPadstacks(object):
             if type(lobj) is self._edb.Cell.Primitive.PadstackInstance:
                 self._padstack_instances[lobj.GetId()] = EDBPadstackInstance(lobj, self._pedb)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_padstack_instance_by_net_name(self, net_name):
         """Get a list of padstack instances by net name.
 

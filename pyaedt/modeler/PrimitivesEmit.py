@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from ..generic.general_methods import aedt_exception_handler
+from ..generic.general_methods import pyaedt_function_handler
 
 
 class EmitComponents(object):
@@ -79,7 +79,7 @@ class EmitComponents(object):
         """ """
         return self._parent.design_type
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __getitem__(self, compname):
         """
         Parameters
@@ -111,7 +111,7 @@ class EmitComponents(object):
         self.components = defaultdict(EmitComponent)
         pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_component(self, component_type, name=None, library=None):
         """Create a new component from a library.
 
@@ -149,7 +149,7 @@ class EmitComponents(object):
         self.components[new_comp_name] = o_update
         return o_update
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def refresh_all_ids(self):
         """Refresh all IDs and return the number of components."""
         all_comps = self.oeditor.GetAllComponents()
@@ -160,7 +160,7 @@ class EmitComponents(object):
                 self.components[comp_name] = o_update
         return len(self.components)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_obj_id(self, object_name):
         """
 
@@ -179,7 +179,7 @@ class EmitComponents(object):
                 return el
         return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_object_properties(self, o):
         """Update the properties of an EMIT component.
 
@@ -235,7 +235,7 @@ class EmitComponent(object):
         self.odesign = components.odesign
         self.root_prop_node = None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def move_and_connect_to(self, component):
         """Move and connect this component to another component.
 
@@ -255,7 +255,7 @@ class EmitComponent(object):
         else:
             self.oeditor.PlaceComponent(self.name, component)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def port_names(self):
         """Get the names of the component's ports.
         Returns
@@ -270,7 +270,7 @@ class EmitComponent(object):
         """
         return self.oeditor.GetComponentPorts(self.name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def port_connection(self, port_name):
         """Get the name component and port connected to the given port.
 
@@ -304,7 +304,7 @@ class EmitComponent(object):
                 return wc_comp_name, wc_port_name
         return None, None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_property_tree(self):
         """Update the nodes (property groups) for this component.
 
@@ -332,7 +332,7 @@ class EmitComponent(object):
         self.root_prop_node = nodes[root_node_name]
         return self.root_prop_node
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_node_properties(self, node=None):
         """Return the properties of the given node (property group).
 
@@ -363,7 +363,7 @@ class EmitComponent(object):
         props = dict(p.split("=") for p in props_list)
         return props
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_property(self, property_name, property_value):
         """Set part property
 
@@ -394,7 +394,7 @@ class EmitComponent(object):
             self.__dict__[property_name] = property_value
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _add_property(self, property_name, property_value):
         """Add a property or update existing property value.
 
@@ -482,7 +482,7 @@ class EmitComponentPropNode(object):
     def enabled(self):
         return self.props["Enabled"] == "true"
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _set_prop_value(self, props={}):
         comp_name = self.parent_component.name
         prop_list = ["NAME:properties"]
