@@ -6,7 +6,7 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, BasisTest, desktop_version, config
+from _unittest.conftest import local_path, BasisTest, desktop_version, is_ironpython
 
 # Import required modules
 from pyaedt import Hfss3dLayout
@@ -105,7 +105,7 @@ class TestClass(BasisTest, object):
         assert (comp.location[1] - 0.2) < tol
         hfss3d.close_project(saveproject=False)
 
-    @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(is_ironpython and os.name != "posix", reason="Not running in Ironpython windows")
     def test_09_3dplacement(self):
         assert len(self.aedtapp.modeler.components_3d) == 2
         tol = 1e-12
