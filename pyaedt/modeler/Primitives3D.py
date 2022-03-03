@@ -1593,8 +1593,8 @@ class Primitives3D(Primitives, object):
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
         >>> mychoke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
         """
-        json_file = open(json_file, "r")
-        values = json.load(json_file)
+        with open(json_file, "r") as read_file:
+            values = json.load(read_file)
         self.logger.info("CHOKE INFO" + str(values))
 
         security_factor = 1.1
