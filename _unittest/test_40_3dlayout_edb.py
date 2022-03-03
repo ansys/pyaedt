@@ -29,11 +29,11 @@ class TestClass(BasisTest, object):
         comp = self.aedtapp.modeler.components
         assert len(comp) > 0
         assert comp["L3A1"].object_units == "mm"
-        assert comp["L3A1"].get_angle()
-        assert comp["L3A1"].get_location()
-        assert comp["L3A1"].get_placement_layer()
-        assert comp["L3A1"].get_part()
-        assert comp["L3A1"].get_part_type()
+        assert comp["L3A1"].angle == "0deg"
+        assert comp["L3A1"].location == [0.0, 0.0]
+        assert comp["L3A1"].placement_layer == "TOP"
+        assert comp["L3A1"].part == "A32422-019"
+        assert comp["L3A1"].part_type == "Inductor"
         assert comp["L3A1"].set_property_value("Angle", "0deg")
 
     def test_02a_get_geometries(self):
@@ -58,10 +58,10 @@ class TestClass(BasisTest, object):
         pins = self.aedtapp.modeler.pins
         assert len(pins) > 0
         assert pins["L3A1-1"].object_units == "mm"
-        assert pins["L3A1-1"].get_angle()
-        assert pins["L3A1-1"].get_location()
-        assert pins["L3A1-1"].get_start_layer()
-        assert pins["L3A1-1"].get_stop_layer()
+        assert pins["L3A1-1"].angle == "180deg"
+        assert pins["L3A1-1"].location[0] > 0
+        assert pins["L3A1-1"].start_layer == "TOP"
+        assert pins["L3A1-1"].stop_layer == "TOP"
 
     def test_04_add_mesh_operations(self):
         self.aedtapp.create_setup("HFSS")
