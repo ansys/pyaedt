@@ -4,6 +4,8 @@ This module contains these classes: `Mesh` and `Mesh3DOperation`.
 This module provides all functionalities for creating and editing the mesh in the 3D tools.
 
 """
+from __future__ import absolute_import  # noreorder
+
 from collections import OrderedDict
 
 from pyaedt.generic.DataHandlers import _dict2arg

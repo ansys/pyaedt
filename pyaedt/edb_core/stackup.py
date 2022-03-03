@@ -2,6 +2,9 @@
 This module contains the `EdbStackup` class.
 
 """
+
+from __future__ import absolute_import  # noreorder
+
 import math
 import os
 import warnings

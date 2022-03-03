@@ -1,4 +1,7 @@
 """This module contains these classes: ``Hfss`` and ``BoundaryType``."""
+
+from __future__ import absolute_import  # noreorder
+
 import math
 import os
 import tempfile

@@ -1,4 +1,7 @@
 """This module contains the ``Icepak`` class."""
+
+from __future__ import absolute_import  # noreorder
+
 import csv
 import math
 import os

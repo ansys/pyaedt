@@ -1,4 +1,7 @@
 """This module contains these Maxwell classes: ``Maxwell``, ``Maxwell2d``, and ``Maxwell3d``."""
+
+from __future__ import absolute_import  # noreorder
+
 import io
 import json
 import os

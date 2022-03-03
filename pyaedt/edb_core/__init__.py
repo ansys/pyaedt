@@ -1,3 +1,5 @@
+from __future__ import absolute_import  # noreorder
+
 from pyaedt.edb_core.components import Components
 from pyaedt.edb_core.hfss import EdbHfss
 from pyaedt.edb_core.layout import EdbLayout

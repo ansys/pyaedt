@@ -3,6 +3,7 @@ This module contains these classes: `Layer` and `Layers`.
 
 This module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
 """
+from __future__ import absolute_import  # noreorder
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 

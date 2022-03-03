@@ -5,6 +5,8 @@ This module provides all functionalities for creating and editing setups in AEDT
 It is based on templates to allow for easy creation and modification of setup properties.
 
 """
+from __future__ import absolute_import  # noreorder
+
 import os.path
 import warnings
 from collections import OrderedDict

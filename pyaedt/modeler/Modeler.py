@@ -6,6 +6,9 @@ This module contains these classes: `BaseCoordinateSystem`, `FaceCoordinateSyste
 This modules provides functionalities for the 3D Modeler, 2D Modeler,
 3D Layout Modeler, and Circuit Modeler.
 """
+
+from __future__ import absolute_import  # noreorder
+
 import math
 import os
 import warnings

@@ -2,6 +2,8 @@
 """
 This module contains the `Materials` class.
 """
+from __future__ import absolute_import  # noreorder
+
 import copy
 import json
 import os

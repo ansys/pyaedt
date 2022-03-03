@@ -1,4 +1,6 @@
 """This module contains the ``TwinBuilder`` class."""
+from __future__ import absolute_import  # noreorder
+
 import math
 
 from pyaedt.application.AnalysisTwinBuilder import AnalysisTwinBuilder

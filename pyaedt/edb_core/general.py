@@ -2,6 +2,9 @@
 This module contains EDB general methods and related methods.
 
 """
+
+from __future__ import absolute_import  # noreorder
+
 import logging
 import os
 import warnings

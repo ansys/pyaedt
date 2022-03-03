@@ -1,4 +1,6 @@
 """This module contains the ``Mechanical`` class."""
+from __future__ import absolute_import  # noreorder
+
 from collections import OrderedDict
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D

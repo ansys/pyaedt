@@ -1,3 +1,5 @@
+from __future__ import absolute_import  # noreorder
+
 from pyaedt.application.AnalsyisEmit import FieldAnalysisEmit
 
 

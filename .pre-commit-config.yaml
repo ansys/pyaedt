@@ -18,8 +18,6 @@ repos:
   - id: reorder-python-imports
     args: 
     - --py37-plus
-    - --add-import
-    - 'from __future__ import absolute_import'
 - repo: https://gitlab.com/PyCQA/flake8
   rev: 3.9.2
   hooks:

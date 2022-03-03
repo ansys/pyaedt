@@ -5,6 +5,9 @@ This module provides all functionalities for basic project information and objec
 These classes are inherited in the main tool class.
 
 """
+
+from __future__ import absolute_import  # noreorder
+
 import gc
 import json
 import logging
