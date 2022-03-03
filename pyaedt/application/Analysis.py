@@ -10,6 +10,8 @@ import threading
 import warnings
 from collections import OrderedDict
 
+from pyaedt.application.Design import Design
+from pyaedt.application.JobManager import update_hpc_option
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.constants import CoordinateSystemAxis
 from pyaedt.generic.constants import CoordinateSystemPlane
