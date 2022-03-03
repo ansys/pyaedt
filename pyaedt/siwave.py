@@ -5,6 +5,8 @@ The ``Siwave`` module can be initialized as standalone before launching an app o
 automatically initialized by an app to the latest installed AEDT version.
 
 """
+from __future__ import absolute_import  # noreorder
+
 import os
 import pkgutil
 import sys
