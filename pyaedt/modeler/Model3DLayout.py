@@ -1,6 +1,7 @@
 import os
 import re
 from warnings import warn
+import time
 
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.edb import Edb
@@ -291,16 +292,17 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             Object if successful.
         """
         des_name = merged_design.design_name
-        merged_design.oproject.CopyDesign(merged_design.design_name)
+        merged_design.oproject.CopyDesign(des_name)
         self._app.odesign.PasteDesign(1)
         comp_name = ""
-        for i in range(1, 1000):
+        for i in range(100, 0, -1):
             try:
-                cmp_info = self.oeditor.GetComponentInfo(str(i))
+                cmp_info = _retry_ntimes(self.oeditor.GetComponentInfo, str(i))
                 if cmp_info and des_name in cmp_info[0]:
                     comp_name = str(i)
+                    break
             except:
-                pass
+                continue
         if not comp_name:
             return False
         comp = ComponentsSubCircuit3DLayout(self, comp_name)
