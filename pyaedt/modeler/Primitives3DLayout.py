@@ -714,7 +714,7 @@ class Primitives3DLayout(object):
     @pyaedt_function_handler
     def place_3d_component(
         self, component_path, number_of_terminals=1, placement_layer=None, component_name=None, pos_x=0, pos_y=0
-    ):
+    ):  # pragma: no cover
         """Place a Hfss 3d Component in Hfss3dLayout.
 
         :param component_path:
@@ -813,4 +813,4 @@ class Primitives3DLayout(object):
         id = _retry_ntimes(10, self.modeler.oeditor.CreateComponent, args)
         comp = ComponentsSubCircuit3DLayout(self, id.split(";")[-1])
         self.components_3d[id.split(";")[-1]] = comp
-        return comp
+        return comp#

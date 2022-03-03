@@ -105,8 +105,8 @@ class TestClass(BasisTest, object):
         assert (comp.location[1] - 0.2) < tol
         hfss3d.close_project(saveproject=False)
 
-    @pytest.mark.skipif(is_ironpython and os.name != "posix", reason="Not running in Ironpython windows")
-    def test_09_3dplacement(self):
+    @pytest.mark.skipif(os.name != "posix", reason="Not running in non graphical mode. Tested only in Linux machine")
+    def test_09_3dplacement(self):  # pragma: no cover
         assert len(self.aedtapp.modeler.components_3d) == 2
         tol = 1e-12
         encrypted_model_path = os.path.join(local_path, "example_models", "connector.a3dcomp")
