@@ -7,7 +7,7 @@ import datetime
 import sys
 import traceback
 import logging
-from functools import update_wrapper  # , wraps
+from functools import update_wrapper
 from collections import OrderedDict
 import inspect
 import itertools
@@ -296,76 +296,6 @@ def _function_handler_wrapper(user_function):
         return result
 
     return wrapper
-
-
-# def aedt_exception_handler(func):
-#     """Decorator for pyaedt Exception Management
-#
-#     Parameters
-#     ----------
-#     func :
-#         method to be decorated
-#
-#     Returns
-#     -------
-#     type
-#         function return if correctly executed otherwise it will return False and errors will be plotted
-#
-#     """
-#
-#     @wraps(func)
-#     def inner_function(*args, **kwargs):
-#         if settings.enable_error_handler:
-#             try:
-#                 new_args = _remote_list_conversion(args)
-#                 new_kwargs = _remote_dict_conversion(kwargs)
-#                 out = func(*new_args, **new_kwargs)
-#                 _log_method(func, new_args, new_kwargs)
-#                 return out
-#             except TypeError:
-#                 if not is_remote_server:
-#                     _exception(sys.exc_info(), func, args, kwargs, "Type Error")
-#                 return False
-#             except ValueError:
-#                 _exception(sys.exc_info(), func, args, kwargs, "Value Error")
-#                 return False
-#             except AttributeError:
-#                 _exception(sys.exc_info(), func, args, kwargs, "Attribute Error")
-#                 return False
-#             except KeyError:
-#                 _exception(sys.exc_info(), func, args, kwargs, "Key Error")
-#                 return False
-#             except IndexError:
-#                 if not is_remote_server:
-#                     _exception(sys.exc_info(), func, args, kwargs, "Index Error")
-#                     return False
-#             except AssertionError:
-#                 _exception(sys.exc_info(), func, args, kwargs, "Assertion Error")
-#                 return False
-#             except NameError:
-#                 _exception(sys.exc_info(), func, args, kwargs, "Name Error")
-#                 return False
-#             except IOError:
-#                 _exception(sys.exc_info(), func, args, kwargs, "IO Error")
-#                 return False
-#             except MethodNotSupportedError:
-#                 message = "This Method is not supported in current AEDT Design Type."
-#                 if settings.enable_screen_logs:
-#                     print("**************************************************************")
-#                     print("pyaedt error on Method {}:  {}. Please Check again".format(func.__name__, message))
-#                     print("**************************************************************")
-#                     print("")
-#                 if settings.enable_file_logs:
-#                     logger.error(message)
-#                 return False
-#             except BaseException:
-#                 _exception(sys.exc_info(), func, args, kwargs, "General or AEDT Error")
-#
-#                 return False
-#         else:
-#             return func(*args, **kwargs)
-#
-#     return inner_function
 
 
 @pyaedt_function_handler()
