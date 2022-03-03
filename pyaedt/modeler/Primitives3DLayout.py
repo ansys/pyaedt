@@ -810,7 +810,7 @@ class Primitives3DLayout(object):
             "DrawLayers:=",
             drawing,
         ]
-        id = _retry_ntimes(10, self.modeler.oeditor.CreateComponent, args)
-        comp = ComponentsSubCircuit3DLayout(self, id.split(";")[-1])
-        self.components_3d[id.split(";")[-1]] = comp
+        comp_name = _retry_ntimes(10, self.modeler.oeditor.CreateComponent, args)
+        comp = ComponentsSubCircuit3DLayout(self, comp_name.split(";")[-1])
+        self.components_3d[comp_name.split(";")[-1]] = comp
         return comp  #
