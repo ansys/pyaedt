@@ -3,15 +3,12 @@ import re
 from warnings import warn
 
 from pyaedt.edb import Edb
-from pyaedt.generic.general_methods import (
-    pyaedt_function_handler,
-    _retry_ntimes,
-    is_ironpython,
-    _pythonver,
-    inside_desktop,
-    get_filename_without_extension,
-)
-from pyaedt.modules.LayerStackup import Layers
+from pyaedt.generic.general_methods import _pythonver
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import get_filename_without_extension
+from pyaedt.generic.general_methods import inside_desktop
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout
 from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout

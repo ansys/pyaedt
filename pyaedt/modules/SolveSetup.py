@@ -8,14 +8,11 @@ It is based on templates to allow for easy creation and modification of setup pr
 import os.path
 import warnings
 from collections import OrderedDict
-import os.path
-
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name
 
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import _tuple2dict
-from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SetupTemplates import SweepHFSS
 from pyaedt.modules.SetupTemplates import SweepHFSS3DLayout

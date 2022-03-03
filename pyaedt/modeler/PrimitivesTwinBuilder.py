@@ -1,5 +1,6 @@
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.PrimitivesCircuit import CircuitComponents, ComponentCatalog
+from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
+from pyaedt.modeler.PrimitivesCircuit import ComponentCatalog
 
 
 class TwinBuilderComponents(CircuitComponents):

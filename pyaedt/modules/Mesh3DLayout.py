@@ -6,10 +6,9 @@ This module provides all functionalities for creating and editing the mesh in th
 """
 from collections import OrderedDict
 
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name
 from pyaedt.generic.DataHandlers import _dict2arg
-from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class Mesh3DOperation(object):

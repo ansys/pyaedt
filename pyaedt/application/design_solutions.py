@@ -1,4 +1,5 @@
 import copy
+
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 solutions_defaults = {

@@ -10,19 +10,19 @@ import threading
 import warnings
 from collections import OrderedDict
 
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, filter_tuple
-from pyaedt.generic.constants import (
-    AXIS,
-    PLANE,
-    GRAVITY,
-    VIEW,
-    SOLUTIONS,
-    SETUPS,
-    CoordinateSystemPlane,
-    CoordinateSystemAxis,
-    Plane,
-    GravityDirection,
-)
+from pyaedt.generic.constants import AXIS
+from pyaedt.generic.constants import CoordinateSystemAxis
+from pyaedt.generic.constants import CoordinateSystemPlane
+from pyaedt.generic.constants import GRAVITY
+from pyaedt.generic.constants import GravityDirection
+from pyaedt.generic.constants import PLANE
+from pyaedt.generic.constants import Plane
+from pyaedt.generic.constants import SETUPS
+from pyaedt.generic.constants import SOLUTIONS
+from pyaedt.generic.constants import VIEW
+from pyaedt.generic.general_methods import filter_tuple
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import DOESetups
 from pyaedt.modules.DesignXPloration import DXSetups

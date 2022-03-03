@@ -13,7 +13,6 @@ from math import sqrt
 from math import tan
 
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Primitives import Primitives
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.multiparts import Environment
 from pyaedt.modeler.multiparts import MultiPartComponent

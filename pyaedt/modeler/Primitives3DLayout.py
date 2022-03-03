@@ -2,9 +2,8 @@ import os
 import sys
 import warnings
 
-from pyaedt.generic.general_methods import pyaedt_function_handler, is_ironpython
-from pyaedt.modeler.Object3d import Padstack, Components3DLayout, Geometries3DLayout, Pins3DLayout, Nets3DLayout, _uname
-from pyaedt.modeler.Primitives import default_materials
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import _uname
 from pyaedt.modeler.Object3d import Components3DLayout

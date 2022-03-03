@@ -16,7 +16,10 @@ import os
 import re
 
 from pyaedt import pyaedt_function_handler
-from pyaedt.generic.constants import AEDT_UNITS, SI_UNITS, unit_system, _resolve_unit_system
+from pyaedt.generic.constants import _resolve_unit_system
+from pyaedt.generic.constants import AEDT_UNITS
+from pyaedt.generic.constants import SI_UNITS
+from pyaedt.generic.constants import unit_system
 from pyaedt.generic.general_methods import is_number
 
 

@@ -7,13 +7,10 @@ import time
 from collections import OrderedDict
 
 from pyaedt.application.Variables import Variable
-from pyaedt.generic.general_methods import pyaedt_function_handler, is_number, _retry_ntimes
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, Object3d, _dim_arg, _uname, Point
 from pyaedt.generic.constants import PLANE
 from pyaedt.generic.general_methods import _retry_ntimes
-from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import _dim_arg
 from pyaedt.modeler.Object3d import _uname

@@ -12,13 +12,11 @@ import warnings
 from collections import OrderedDict
 
 from pyaedt.generic.constants import AEDT_UNITS
-from pyaedt.generic.general_methods import generate_unique_name, _retry_ntimes, pyaedt_function_handler, _pythonver
-import math
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
-from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive

@@ -8,7 +8,8 @@ import os
 import time
 import warnings
 
-from pyaedt.generic.general_methods import pyaedt_function_handler, is_ironpython
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.plot import ModelPlotter
 from pyaedt.modules.PostProcessor import PostProcessor as Post
 

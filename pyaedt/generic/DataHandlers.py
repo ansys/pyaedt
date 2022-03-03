@@ -10,7 +10,9 @@ from collections import OrderedDict
 from decimal import Decimal
 
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
+from pyaedt.modeler.Object3d import EdgePrimitive
+from pyaedt.modeler.Object3d import FacePrimitive
+from pyaedt.modeler.Object3d import VertexPrimitive
 
 try:
     import clr

@@ -2,7 +2,9 @@ import ntpath
 import os
 import warnings
 
-from pyaedt.generic.general_methods import pyaedt_function_handler, _retry_ntimes, is_ironpython
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Model3D import Modeler3D
 from pyaedt.modules.Mesh import Mesh
 

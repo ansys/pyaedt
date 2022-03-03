@@ -16,8 +16,8 @@ import re
 import string
 import warnings
 
-from pyaedt import pyaedt_function_handler, _retry_ntimes
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt import _retry_ntimes
+from pyaedt import pyaedt_function_handler
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import MILS2METER

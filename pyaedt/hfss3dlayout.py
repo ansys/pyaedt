@@ -4,7 +4,8 @@ import os
 import warnings
 
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):

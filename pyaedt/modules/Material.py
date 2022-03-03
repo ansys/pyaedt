@@ -13,11 +13,10 @@ This module contains these data classes for creating a material library:
 
 """
 from collections import OrderedDict
-from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.generic.DataHandlers import _dict2arg
+
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.DataHandlers import _dict2arg
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class MatProperties(object):

@@ -3,8 +3,8 @@ import os
 
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.filesystem import get_json_files
-from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
 class MultiPartComponent(object):

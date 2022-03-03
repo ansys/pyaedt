@@ -6,12 +6,10 @@ import os
 import re
 
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
-from pyaedt.generic.DataHandlers import from_rkm_to_aedt
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name
 from pyaedt.generic import ibis_reader
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
-from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class Circuit(FieldAnalysisCircuit, object):

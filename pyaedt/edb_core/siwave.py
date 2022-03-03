@@ -6,7 +6,10 @@ import os
 import time
 import warnings
 
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, _retry_ntimes, is_ironpython
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 try:
     from System import String

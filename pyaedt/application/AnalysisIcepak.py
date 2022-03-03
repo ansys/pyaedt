@@ -2,11 +2,10 @@ import csv
 import os
 import re
 
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, is_ironpython
 from pyaedt.application.Analysis import Analysis
-from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Model3D import Modeler3D
 from pyaedt.modules.MeshIcepak import IcepakMesh
 

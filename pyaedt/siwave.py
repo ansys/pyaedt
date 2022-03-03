@@ -5,16 +5,14 @@ The ``Siwave`` module can be initialized as standalone before launching an app o
 automatically initialized by an app to the latest installed AEDT version.
 
 """
-from __future__ import absolute_import
-from pyaedt.generic.general_methods import pyaedt_function_handler, is_ironpython, _pythonver
 import os
 import pkgutil
 import sys
 import time
 
 from pyaedt.generic.general_methods import _pythonver
-from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.misc import list_installed_ansysem
 
 if is_ironpython:

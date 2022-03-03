@@ -7,8 +7,14 @@ import json
 import os
 
 from pyaedt.generic.DataHandlers import _arg2dict
-from pyaedt.generic.general_methods import pyaedt_function_handler, _retry_ntimes, generate_unique_name, is_ironpython
-from pyaedt.modules.Material import Material, SurfaceMaterial, MatProperties, OrderedDict
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.Material import Material
+from pyaedt.modules.Material import MatProperties
+from pyaedt.modules.Material import OrderedDict
+from pyaedt.modules.Material import SurfaceMaterial
 
 
 class Materials(object):

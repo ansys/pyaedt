@@ -28,13 +28,13 @@ from pyaedt.application.design_solutions import solutions_defaults
 from pyaedt.application.Variables import DataSet
 from pyaedt.application.Variables import VariableManager
 from pyaedt.desktop import Desktop
-from pyaedt.desktop import exception_to_desktop, release_desktop, get_version_env_variable
-from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
-from pyaedt.generic.general_methods import pyaedt_function_handler, write_csv, is_ironpython
+from pyaedt.desktop import exception_to_desktop
+from pyaedt.desktop import get_version_env_variable
+from pyaedt.desktop import release_desktop
 from pyaedt.generic.DataHandlers import variation_string_to_dict
-from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.modules.Boundary import BoundaryObject

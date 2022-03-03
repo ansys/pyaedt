@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from pyaedt.generic.general_methods import pyaedt_function_handler, _retry_ntimes
-from pyaedt.modules.LayerStackup import Layers
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.Object3d import _dim_arg
 from pyaedt.modeler.Object3d import CircuitComponent

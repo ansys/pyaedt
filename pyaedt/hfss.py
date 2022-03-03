@@ -6,15 +6,10 @@ import warnings
 from collections import OrderedDict
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modules.Boundary import BoundaryObject, NativeComponentObject, FarFieldSetup
-from pyaedt.generic.general_methods import generate_unique_name, pyaedt_function_handler
-from collections import OrderedDict
-from pyaedt.modeler.actors import Radar
 from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
 from pyaedt.generic.DataHandlers import _dict2arg
-from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.actors import Radar
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject

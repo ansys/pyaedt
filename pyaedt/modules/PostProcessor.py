@@ -17,7 +17,10 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, _retry_ntimes, write_csv
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import write_csv
 
 
 orientation_to_view = {

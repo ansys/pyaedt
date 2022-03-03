@@ -3,7 +3,8 @@ import math
 
 from pyaedt.application.AnalysisTwinBuilder import AnalysisTwinBuilder
 from pyaedt.application.Variables import Variable
-from pyaedt.generic.general_methods import pyaedt_function_handler, is_number
+from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class TwinBuilder(AnalysisTwinBuilder, object):

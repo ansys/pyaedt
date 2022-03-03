@@ -3,19 +3,11 @@ import os
 import random
 import warnings
 
-from pyaedt.generic.general_methods import (
-    pyaedt_function_handler,
-    _retry_ntimes,
-    generate_unique_name,
-    recursive_glob,
-    filter_string,
-)
-from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _retry_ntimes
-from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic.general_methods import filter_string
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import recursive_glob
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.TouchstoneParser import _parse_ports_name
