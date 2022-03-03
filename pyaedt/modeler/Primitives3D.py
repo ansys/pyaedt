@@ -1595,7 +1595,7 @@ class Primitives3D(Primitives, object):
         """
         with open(json_file, "r") as read_file:
             values = json.load(read_file)
-        self.logger.info("CHOKE INFO" + str(values))
+        self.logger.info("CHOKE INFO: " + str(values))
 
         security_factor = 1.1
         sr = security_factor
