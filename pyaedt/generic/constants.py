@@ -505,6 +505,17 @@ class FlipChipOrientation(object):
 
     (Up, Down) = range(0, 2)
 
+class CutoutSubdesignType(object):
+    (Conformal, BoundingBox) = range(0, 2)
+
+class RadiationBoxType(object):
+    (Conformal, BoundingBox, ConvexHull) = range(0, 3)
+
+class SweepType(object):
+    (Linear, LogCount) = range(0, 2)
+
+class BasisOrder(object):
+    (Mixed, Zero, single, Double) = range(0, 4)
 
 class SourceType(object):
     """Type of excitation enumerator."""
