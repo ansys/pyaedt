@@ -10,6 +10,7 @@ from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Modeler import Modeler
+from pyaedt.modeler.Object3d import ComponentsSubCircuit3DLayout
 from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout
 from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
 from pyaedt.modules.LayerStackup import Layers
@@ -284,22 +285,25 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         Returns
         -------
-        bool
-            `True` if successful.
+        :class:`pyaedt.modeler.Object3d.ComponentsSubCircuit3DLayout`
+            Object if successful.
         """
         des_name = merged_design.design_name
-        merged_design.oproject.CopyDesign(merged_design.design_name)
+        merged_design.oproject.CopyDesign(des_name)
         self._app.odesign.PasteDesign(1)
         comp_name = ""
-        for i in range(1, 1000):
+        for i in range(100, 0, -1):
             try:
-                cmp_info = self.oeditor.GetComponentInfo(str(i))
-                if cmp_info and cmp_info[0] == "ComponentName={}".format(des_name):
+                cmp_info = _retry_ntimes(10, self.oeditor.GetComponentInfo, str(i))
+                if cmp_info and des_name in cmp_info[0]:
                     comp_name = str(i)
+                    break
             except:
-                pass
+                continue
         if not comp_name:
             return False
+        comp = ComponentsSubCircuit3DLayout(self, comp_name)
+        self.components_3d[comp_name] = comp
         self.change_property(property_object=comp_name, property_name="3D Placement", property_value=True)
         self.change_property(property_object=comp_name, property_name="Local Origin", property_value=[0.0, 0.0, 0.0])
         pos_x = self._arg_with_dim(pos_x)
@@ -308,7 +312,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         rotation = self._arg_with_dim(rotation, "deg")
         self.change_property(property_object=comp_name, property_name="Location", property_value=[pos_x, pos_y, pos_z])
         self.change_property(property_object=comp_name, property_name="Rotation Angle", property_value=rotation)
-        return True
+        return comp
 
     @pyaedt_function_handler()
     def change_clip_plane_position(self, clip_name, position):

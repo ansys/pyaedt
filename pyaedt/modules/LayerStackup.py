@@ -617,6 +617,23 @@ class Layers(object):
         return self._oeditor.GetStackupLayerNames()
 
     @property
+    def drawing_layers(self):
+        """All drawing layers.
+
+        Returns
+        -------
+        list
+           List of stackup layers.
+
+        References
+        ----------
+
+        >>> oEditor.GetAllLayerNames()
+        """
+        stackup = self.all_layers
+        return [i for i in list(self._oeditor.GetAllLayerNames()) if i not in stackup]
+
+    @property
     def all_signal_layers(self):
         """All signal layers.
 
