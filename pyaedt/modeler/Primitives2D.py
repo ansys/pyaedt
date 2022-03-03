@@ -195,15 +195,7 @@ class Primitives2D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_regular_polygon(
-        self,
-        position,
-        start_point,
-        num_sides=6,
-        is_covered=True,
-        name=None,
-        matname=None,
-    ):
+    def create_regular_polygon(self, position, start_point, num_sides=6, is_covered=True, name=None, matname=None):
         """Create a rectangle.
 
         Parameters
@@ -290,23 +282,9 @@ class Primitives2D(Primitives, object):
 
         else:
             if self._app.xy_plane:
-                pad_percent = [
-                    pad_percent[0],
-                    pad_percent[1],
-                    0,
-                    pad_percent[2],
-                    pad_percent[3],
-                    0,
-                ]
+                pad_percent = [pad_percent[0], pad_percent[1], 0, pad_percent[2], pad_percent[3], 0]
 
             else:
-                pad_percent = [
-                    pad_percent[0],
-                    0,
-                    pad_percent[1],
-                    pad_percent[2],
-                    0,
-                    pad_percent[3],
-                ]
+                pad_percent = [pad_percent[0], 0, pad_percent[1], pad_percent[2], 0, pad_percent[3]]
 
         return Primitives.create_region(self, pad_percent)

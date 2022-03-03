@@ -191,12 +191,7 @@ class Maxwell(object):
 
     @aedt_exception_handler
     def setup_ctrlprog(
-        self,
-        setupname,
-        file_str=None,
-        keep_modifications=False,
-        python_interpreter=None,
-        aedt_lib_dir=None,
+        self, setupname, file_str=None, keep_modifications=False, python_interpreter=None, aedt_lib_dir=None
     ):
         """Configure the transient design setup to run a specific control program.
 
@@ -301,15 +296,7 @@ class Maxwell(object):
         return True
 
     @aedt_exception_handler
-    def assign_current(
-        self,
-        object_list,
-        amplitude=1,
-        phase="0deg",
-        solid=True,
-        swap_direction=False,
-        name=None,
-    ):
+    def assign_current(self, object_list, amplitude=1, phase="0deg", solid=True, swap_direction=False, name=None):
         """Assign the source of the current.
 
         Parameters
@@ -360,24 +347,14 @@ class Maxwell(object):
                         "Current": amplitude,
                     }
                 )
-            if self.solution_type not in [
-                "Magnetostatic",
-                "DCConduction",
-                "ElectricTransient",
-            ]:
+            if self.solution_type not in ["Magnetostatic", "DCConduction", "ElectricTransient"]:
                 props["Phase"] = phase
                 if self.solution_type not in ["DCConduction", "ElectricTransient"]:
                     props["IsSolid"] = solid
             props["Point out of terminal"] = swap_direction
         else:
             if type(object_list[0]) is str:
-                props = OrderedDict(
-                    {
-                        "Objects": object_list,
-                        "Current": amplitude,
-                        "IsPositive": swap_direction,
-                    }
-                )
+                props = OrderedDict({"Objects": object_list, "Current": amplitude, "IsPositive": swap_direction})
             else:
                 self.logger.warning("Input has to be a 2D Object.")
                 return False
@@ -654,13 +631,7 @@ class Maxwell(object):
             name = generate_unique_name("VoltageDrop")
         face_list = self.modeler.convert_to_selections(face_list, True)
 
-        props = OrderedDict(
-            {
-                "Faces": face_list,
-                "Voltage Drop": amplitude,
-                "Point out of terminal": swap_direction,
-            }
-        )
+        props = OrderedDict({"Faces": face_list, "Voltage Drop": amplitude, "Point out of terminal": swap_direction})
         bound = BoundaryObject(self, name, props, "VoltageDrop")
         if bound.create():
             self.boundaries.append(bound)
@@ -812,30 +783,18 @@ class Maxwell(object):
         if type(input_object[0]) is str:
             if self.modeler._is3d:
                 props2 = OrderedDict(
-                    {
-                        "Objects": input_object,
-                        "Conductor number": str(conductor_number),
-                        "Point out of terminal": point,
-                    }
+                    {"Objects": input_object, "Conductor number": str(conductor_number), "Point out of terminal": point}
                 )
                 bound = BoundaryObject(self, name, props2, "CoilTerminal")
             else:
                 props2 = OrderedDict(
-                    {
-                        "Objects": input_object,
-                        "Conductor number": str(conductor_number),
-                        "PolarityType": polarity,
-                    }
+                    {"Objects": input_object, "Conductor number": str(conductor_number), "PolarityType": polarity}
                 )
                 bound = BoundaryObject(self, name, props2, "Coil")
         else:
             if self.modeler._is3d:
                 props2 = OrderedDict(
-                    {
-                        "Faces": input_object,
-                        "Conductor number": str(conductor_number),
-                        "Point out of terminal": point,
-                    }
+                    {"Faces": input_object, "Conductor number": str(conductor_number), "Point out of terminal": point}
                 )
                 bound = BoundaryObject(self, name, props2, "CoilTerminal")
 
@@ -889,25 +848,13 @@ class Maxwell(object):
             )
         else:
             self.o_maxwell_parameters.AssignForce(
-                [
-                    "NAME:" + force_name,
-                    "Reference CS:=",
-                    reference_cs,
-                    "Objects:=",
-                    input_object,
-                ]
+                ["NAME:" + force_name, "Reference CS:=", reference_cs, "Objects:=", input_object]
             )
         return True
 
     @aedt_exception_handler
     def assign_torque(
-        self,
-        input_object,
-        reference_cs="Global",
-        is_positive=True,
-        is_virtual=True,
-        axis="Z",
-        torque_name=None,
+        self, input_object, reference_cs="Global", is_positive=True, is_virtual=True, axis="Z", torque_name=None
     ):
         """Assign a torque to one or more objects.
 
@@ -1424,13 +1371,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         if not bound_name:
             bound_name = generate_unique_name("Vector")
         if type(input_edge[0]) is str:
-            props2 = OrderedDict(
-                {
-                    "Objects": input_edge,
-                    "Value": str(vectorvalue),
-                    "CoordinateSystem": "",
-                }
-            )
+            props2 = OrderedDict({"Objects": input_edge, "Value": str(vectorvalue), "CoordinateSystem": ""})
         else:
             props2 = OrderedDict({"Edges": input_edge, "Value": str(vectorvalue), "CoordinateSystem": ""})
         bound = BoundaryObject(self, bound_name, props2, "VectorPotential")
@@ -1442,13 +1383,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
     @aedt_exception_handler
     def assign_master_slave(
-        self,
-        master_edge,
-        slave_edge,
-        reverse_master=False,
-        reverse_slave=False,
-        same_as_master=True,
-        bound_name=None,
+        self, master_edge, slave_edge, reverse_master=False, reverse_slave=False, same_as_master=True, bound_name=None
     ):
         """Assign master and slave boundary conditions to two edges of the same object.
 

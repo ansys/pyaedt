@@ -301,23 +301,11 @@ class CommonOptimetrics(object):
         else:
             var = "Time"
         sweepdefinition["Ranges"] = OrderedDict(
-            {
-                "Range": [
-                    "Var:=",
-                    var,
-                    "Type:=",
-                    calculation_type,
-                    "DiscreteValues:=",
-                    calculation_value,
-                ]
-            }
+            {"Range": ["Var:=", var, "Type:=", calculation_type, "DiscreteValues:=", calculation_value]}
         )
         if "Goal" in self.props["Goals"]:
             if type(self.props["Goals"]["Goal"]) is not list:
-                self.props["Goals"]["Goal"] = [
-                    self.props["Goals"]["Goal"],
-                    sweepdefinition,
-                ]
+                self.props["Goals"]["Goal"] = [self.props["Goals"]["Goal"], sweepdefinition]
             else:
                 self.props["Goals"]["Goal"].append(sweepdefinition)
         else:
@@ -414,19 +402,12 @@ class CommonOptimetrics(object):
             )
         sweepdefinition["Condition"] = condition
         sweepdefinition["GoalValue"] = OrderedDict(
-            {
-                "GoalValueType": "Independent",
-                "Format": "Real/Imag",
-                "bG": ["v:=", "[{};]".format(goal_value)],
-            }
+            {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]}
         )
         sweepdefinition["Weight"] = "[{};]".format(goal_weight)
         if "Goal" in self.props[optigoalname]:
             if type(self.props[optigoalname]["Goal"]) is not list:
-                self.props[optigoalname]["Goal"] = [
-                    self.props[optigoalname]["Goal"],
-                    sweepdefinition,
-                ]
+                self.props[optigoalname]["Goal"] = [self.props[optigoalname]["Goal"], sweepdefinition]
             else:
                 self.props[optigoalname]["Goal"].append(sweepdefinition)
         else:
@@ -614,13 +595,7 @@ class DXSetups(object):
                 pass
 
     @aedt_exception_handler
-    def add_dx_setup(
-        self,
-        variables_to_include,
-        defaults_var_values=None,
-        setupname=None,
-        parametricname=None,
-    ):
+    def add_dx_setup(self, variables_to_include, defaults_var_values=None, setupname=None, parametricname=None):
         """Add a basic parametric setup in DesignXplorer.
 
         You can customize all DesignXplorer options after the setup is added.
@@ -1036,16 +1011,7 @@ class SensitivitySetups(object):
         sweepdefinition["Calculation"] = calculation
         sweepdefinition["Name"] = calculation
         sweepdefinition["Ranges"] = OrderedDict(
-            {
-                "Range": [
-                    "Var:=",
-                    calculation_type,
-                    "Type:=",
-                    "d",
-                    "DiscreteValues:=",
-                    calculation_value,
-                ]
-            }
+            {"Range": ["Var:=", calculation_type, "Type:=", "d", "DiscreteValues:=", calculation_value]}
         )
         setup.props["Goals"]["Goal"] = sweepdefinition
         setup.create()
@@ -1220,16 +1186,7 @@ class StatisticalSetups(object):
         sweepdefinition["Calculation"] = calculation_name
         sweepdefinition["Name"] = calculation_name
         sweepdefinition["Ranges"] = OrderedDict(
-            {
-                "Range": [
-                    "Var:=",
-                    calculation_type,
-                    "Type:=",
-                    "d",
-                    "DiscreteValues:=",
-                    calc_variation_value,
-                ]
-            }
+            {"Range": ["Var:=", calculation_type, "Type:=", "d", "DiscreteValues:=", calc_variation_value]}
         )
         setup.props["Goals"]["Goal"] = sweepdefinition
         setup.create()
@@ -1490,24 +1447,11 @@ class DOESetups(object):
         sweepdefinition["Calculation"] = calculation
         sweepdefinition["Name"] = calculation
         sweepdefinition["Ranges"] = OrderedDict(
-            {
-                "Range": [
-                    "Var:=",
-                    calculation_type,
-                    "Type:=",
-                    "d",
-                    "DiscreteValues:=",
-                    calculation_value,
-                ]
-            }
+            {"Range": ["Var:=", calculation_type, "Type:=", "d", "DiscreteValues:=", calculation_value]}
         )
         sweepdefinition["Condition"] = condition
         sweepdefinition["GoalValue"] = OrderedDict(
-            {
-                "GoalValueType": "Independent",
-                "Format": "Real/Imag",
-                "bG": ["v:=", "[{};]".format(goal_value)],
-            }
+            {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]}
         )
         sweepdefinition["Weight"] = "[{};]".format(goal_weight)
         setup.props["CostFunctionGoals"]["Goal"] = sweepdefinition
@@ -1713,24 +1657,11 @@ class OptimizationSetups(object):
         sweepdefinition["Calculation"] = calculation
         sweepdefinition["Name"] = calculation
         sweepdefinition["Ranges"] = OrderedDict(
-            {
-                "Range": [
-                    "Var:=",
-                    calculation_type,
-                    "Type:=",
-                    "d",
-                    "DiscreteValues:=",
-                    calculation_value,
-                ]
-            }
+            {"Range": ["Var:=", calculation_type, "Type:=", "d", "DiscreteValues:=", calculation_value]}
         )
         sweepdefinition["Condition"] = condition
         sweepdefinition["GoalValue"] = OrderedDict(
-            {
-                "GoalValueType": "Independent",
-                "Format": "Real/Imag",
-                "bG": ["v:=", "[{};]".format(goal_value)],
-            }
+            {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]}
         )
         sweepdefinition["Weight"] = "[{};]".format(goal_weight)
 

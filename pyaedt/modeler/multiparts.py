@@ -52,15 +52,7 @@ class MultiPartComponent(object):
 
     """
 
-    _component_classes = [
-        "environment",
-        "rcs_standard",
-        "vehicle",
-        "person",
-        "bike",
-        "bird",
-        "radar",
-    ]
+    _component_classes = ["environment", "rcs_standard", "vehicle", "person", "bike", "bird", "radar"]
 
     # Keep track of all assigned names to the class. Use the
     # properties '.name' and '.index' to ensure unique instance names.
@@ -415,21 +407,15 @@ class MultiPartComponent(object):
                     description=self.name + " " + xyz[m] + "-position",
                 )
             app.variable_manager.set_variable(
-                variable_name=self.yaw_name,
-                expression=self.yaw,
-                description=self.name + " yaw",
+                variable_name=self.yaw_name, expression=self.yaw, description=self.name + " yaw"
             )
 
             app.variable_manager.set_variable(
-                variable_name=self.pitch_name,
-                expression=self.pitch,
-                description=self.name + " pitch",
+                variable_name=self.pitch_name, expression=self.pitch, description=self.name + " pitch"
             )
 
             app.variable_manager.set_variable(
-                variable_name=self.roll_name,
-                expression=self.roll,
-                description=self.name + " roll",
+                variable_name=self.roll_name, expression=self.roll, description=self.name + " roll"
             )
 
             cs_origin = self.offset_names
@@ -601,12 +587,7 @@ class Actor(MultiPartComponent, object):
 
     def __init__(self, actor_folder, speed="0", relative_cs_name=None):
 
-        super(Actor, self).__init__(
-            actor_folder,
-            use_relative_cs=True,
-            motion=True,
-            relative_cs_name=relative_cs_name,
-        )
+        super(Actor, self).__init__(actor_folder, use_relative_cs=True, motion=True, relative_cs_name=relative_cs_name)
 
         self._speed_expression = str(speed) + "m_per_sec"  # TODO: Need error checking here.
 
@@ -639,9 +620,7 @@ class Actor(MultiPartComponent, object):
     @aedt_exception_handler
     def _add_speed(self, app):
         app.variable_manager.set_variable(
-            variable_name=self.speed_name,
-            expression=self.speed_expression,
-            description="object speed",
+            variable_name=self.speed_name, expression=self.speed_expression, description="object speed"
         )
         # Update expressions for x and y position in app:
         app[self.offset_names[0]] = (

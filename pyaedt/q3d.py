@@ -304,8 +304,7 @@ class Q3d(QExtractor, object):
         new_nets = [i for i in self.nets if i not in original_nets]
         for net in new_nets:
             objects = self.modeler.convert_to_selections(
-                [int(i) for i in list(self.oboundary.GetExcitationAssignment(net))],
-                True,
+                [int(i) for i in list(self.oboundary.GetExcitationAssignment(net))], True
             )
             props = OrderedDict({"Objects": objects})
             bound = BoundaryObject(self, net, props, "SignalNet")
@@ -405,12 +404,7 @@ class Q3d(QExtractor, object):
             net_name = object_name
         if a:
             props = OrderedDict(
-                {
-                    "Faces": [a],
-                    "ParentBndID": object_name,
-                    "TerminalType": "ConstantVoltage",
-                    "Net": net_name,
-                }
+                {"Faces": [a], "ParentBndID": object_name, "TerminalType": "ConstantVoltage", "Net": net_name}
             )
             bound = BoundaryObject(self, source_name, props, "Source")
             if bound.create():
@@ -499,12 +493,7 @@ class Q3d(QExtractor, object):
             net_name = object_name
         if a:
             props = OrderedDict(
-                {
-                    "Faces": [a],
-                    "ParentBndID": object_name,
-                    "TerminalType": "ConstantVoltage",
-                    "Net": net_name,
-                }
+                {"Faces": [a], "ParentBndID": object_name, "TerminalType": "ConstantVoltage", "Net": net_name}
             )
             bound = BoundaryObject(self, sink_name, props, "Sink")
             if bound.create():
@@ -616,14 +605,7 @@ class Q3d(QExtractor, object):
 
     @aedt_exception_handler
     def create_discrete_sweep(
-        self,
-        setupname,
-        freqstart,
-        freqstop=None,
-        freqstep=None,
-        units="GHz",
-        sweepname=None,
-        savefields=False,
+        self, setupname, freqstart, freqstop=None, freqstep=None, units="GHz", sweepname=None, savefields=False
     ):
         """Create a discrete sweep with a single frequency value.
 
@@ -842,8 +824,7 @@ class Q2d(QExtractor, object):
         """
 
         warnings.warn(
-            "`assign_single_signal_line` is deprecated. Use `assign_single_conductor` instead.",
-            DeprecationWarning,
+            "`assign_single_signal_line` is deprecated. Use `assign_single_conductor` instead.", DeprecationWarning
         )
         self.assign_single_conductor(target_objects, name, "SignalLine", solve_option, thickness, unit)
 
@@ -909,13 +890,7 @@ class Q2d(QExtractor, object):
                 t_list.append(t_obj.faces[0].area / perimeter)
             thickness = sum(t_list) / len(t_list)
 
-        props = OrderedDict(
-            {
-                "Objects": obj_names,
-                "SolveOption": solve_option,
-                "Thickness": str(thickness) + unit,
-            }
-        )
+        props = OrderedDict({"Objects": obj_names, "SolveOption": solve_option, "Thickness": str(thickness) + unit})
 
         bound = BoundaryObject(self, name, props, conductor_type)
         if bound.create():
@@ -981,8 +956,7 @@ class Q2d(QExtractor, object):
         i = 0
         while i < len(new_nets):
             objects = self.modeler.convert_to_selections(
-                [int(k) for k in list(self.oboundary.GetExcitationAssignment(new_nets[i]))],
-                True,
+                [int(k) for k in list(self.oboundary.GetExcitationAssignment(new_nets[i]))], True
             )
             props = OrderedDict({"Objects": objects})
             bound = BoundaryObject(self, new_nets[i], props, new_nets[i + 1])

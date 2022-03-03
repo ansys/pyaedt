@@ -183,15 +183,7 @@ class CircuitComponents(object):
         """
         pointlist = [str(tuple(i)) for i in points_array]
         self._oeditor.CreateWire(
-            [
-                "NAME:WireData",
-                "Name:=",
-                "",
-                "Id:=",
-                random.randint(20000, 23000),
-                "Points:=",
-                pointlist,
-            ],
+            ["NAME:WireData", "Name:=", "", "Id:=", random.randint(20000, 23000), "Points:=", pointlist],
             ["NAME:Attributes", "Page:=", 1],
         )
         return True
@@ -203,10 +195,7 @@ class CircuitComponents(object):
         .. deprecated:: 0.4.0
            Use :func:`Circuit.modeler.schematic.create_interface_port` instead.
         """
-        warnings.warn(
-            "`create_iport` is deprecated. Use `create_interface_port` instead.",
-            DeprecationWarning,
-        )
+        warnings.warn("`create_iport` is deprecated. Use `create_interface_port` instead.", DeprecationWarning)
         return self.create_interface_port(name, posx, posy, angle)
 
     @aedt_exception_handler
@@ -238,19 +227,7 @@ class CircuitComponents(object):
             posx, posy = self._get_location(location)
         id = self.create_unique_id()
         arg1 = ["NAME:IPortProps", "Name:=", name, "Id:=", id]
-        arg2 = [
-            "NAME:Attributes",
-            "Page:=",
-            1,
-            "X:=",
-            posx,
-            "Y:=",
-            posy,
-            "Angle:=",
-            angle,
-            "Flip:=",
-            False,
-        ]
+        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", angle, "Flip:=", False]
         id = self._oeditor.CreateIPort(arg1, arg2)
 
         id = int(id.split(";")[1])
@@ -292,19 +269,7 @@ class CircuitComponents(object):
         id = self.create_unique_id()
         id = self._oeditor.CreatePagePort(
             ["NAME:PagePortProps", "Name:=", name, "Id:=", id],
-            [
-                "NAME:Attributes",
-                "Page:=",
-                1,
-                "X:=",
-                xpos,
-                "Y:=",
-                ypos,
-                "Angle:=",
-                angle,
-                "Flip:=",
-                False,
-            ],
+            ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
         )
         id = int(id.split(";")[1])
         # self.refresh_all_ids()
@@ -335,19 +300,7 @@ class CircuitComponents(object):
 
         name = self._oeditor.CreateGround(
             ["NAME:GroundProps", "Id:=", id],
-            [
-                "NAME:Attributes",
-                "Page:=",
-                1,
-                "X:=",
-                xpos,
-                "Y:=",
-                ypos,
-                "Angle:=",
-                0,
-                "Flip:=",
-                False,
-            ],
+            ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", 0, "Flip:=", False],
         )
         id = int(name.split(";")[1])
         self.add_id_to_component(id)
@@ -562,16 +515,7 @@ class CircuitComponents(object):
                 "MenuProp:=",
                 ["CoSimulator", "SD", "", "Default", 0],
                 "ButtonProp:=",
-                [
-                    "CosimDefinition",
-                    "SD",
-                    "",
-                    "Edit",
-                    "Edit",
-                    40501,
-                    "ButtonPropClientData:=",
-                    [],
-                ],
+                ["CosimDefinition", "SD", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []],
             ]
         )
         arg.append(
@@ -668,19 +612,7 @@ class CircuitComponents(object):
         if os.path.exists(model_name):
             model_name = self.create_model_from_touchstone(model_name)
         arg1 = ["NAME:ComponentProps", "Name:=", model_name, "Id:=", str(id)]
-        arg2 = [
-            "NAME:Attributes",
-            "Page:=",
-            1,
-            "X:=",
-            xpos,
-            "Y:=",
-            ypos,
-            "Angle:=",
-            angle,
-            "Flip:=",
-            False,
-        ]
+        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         id = _retry_ntimes(10, self._oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])
         self.add_id_to_component(id)
@@ -735,19 +667,7 @@ class CircuitComponents(object):
         arg1 = ["NAME:ComponentProps", "Name:=", name, "Id:=", str(id)]
         xpos, ypos = self._get_location(location)
 
-        arg2 = [
-            "NAME:Attributes",
-            "Page:=",
-            1,
-            "X:=",
-            xpos,
-            "Y:=",
-            ypos,
-            "Angle:=",
-            angle,
-            "Flip:=",
-            False,
-        ]
+        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         id = _retry_ntimes(10, self._oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])
         # self.refresh_all_ids()
@@ -791,11 +711,7 @@ class CircuitComponents(object):
                     nexxim_data[1] = ""
                     nexxim[nexxim.index(el) + 1] = nexxim_data
         self.o_component_manager.Edit(
-            name,
-            [
-                "Name:" + component_name,
-                ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"],
-            ],
+            name, ["Name:" + component_name, ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]]
         )
         return True
 
@@ -835,10 +751,7 @@ class CircuitComponents(object):
             10,
             self.o_component_manager.Edit,
             name,
-            [
-                "Name:" + component_name,
-                ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"],
-            ],
+            ["Name:" + component_name, ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]],
         )
         return True
 
@@ -942,39 +855,13 @@ class CircuitComponents(object):
         for pin in pin_lists:
             oDefinitionEditor.CreatePin(
                 ["NAME:PinData", "Name:=", pin, "Id:=", id],
-                [
-                    "NAME:PinParams",
-                    "X:=",
-                    xp,
-                    "Y:=",
-                    yp,
-                    "Angle:=",
-                    angle,
-                    "Flip:=",
-                    False,
-                ],
+                ["NAME:PinParams", "X:=", xp, "Y:=", yp, "Angle:=", angle, "Flip:=", False],
             )
             arg.append(
                 [
                     "NAME:PinDef",
                     "Pin:=",
-                    [
-                        pin,
-                        xp,
-                        yp,
-                        angle,
-                        "N",
-                        0,
-                        0.00254,
-                        False,
-                        0,
-                        True,
-                        "",
-                        False,
-                        False,
-                        pin,
-                        True,
-                    ],
+                    [pin, xp, yp, angle, "N", 0, 0.00254, False, 0, True, "", False, False, pin, True],
                 ]
             )
             if i == (h + r):
@@ -989,23 +876,7 @@ class CircuitComponents(object):
         arg.append(
             [
                 "NAME:Graphics",
-                [
-                    "NAME:1",
-                    "Rect:=",
-                    [
-                        0,
-                        0,
-                        0,
-                        0,
-                        (x1 + x2) / 2,
-                        (y1 + y2) / 2,
-                        x2 - x1,
-                        y1 - y2,
-                        0,
-                        0,
-                        8192,
-                    ],
-                ],
+                ["NAME:1", "Rect:=", [0, 0, 0, 0, (x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y1 - y2, 0, 0, 8192]],
             ]
         )
         self.o_symbol_manager.EditWithComps(symbol_name, arg, [])
@@ -1114,18 +985,7 @@ class CircuitComponents(object):
                 arg2.append("ValueProp:=")
                 arg2.append([el, "D", "", val, False, ""])
         arg2.append("ButtonProp:=")
-        arg2.append(
-            [
-                "CosimDefinition",
-                "D",
-                "",
-                "Edit",
-                "Edit",
-                40501,
-                "ButtonPropClientData:=",
-                [],
-            ]
-        )
+        arg2.append(["CosimDefinition", "D", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []])
         arg2.append("MenuProp:=")
         arg2.append(["CoSimulator", "D", "", "DefaultNetlist", 0])
 
@@ -1207,10 +1067,7 @@ class CircuitComponents(object):
             10,
             self.o_component_manager.Edit,
             name,
-            [
-                "Name:" + component_name,
-                ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"],
-            ],
+            ["Name:" + component_name, ["NAME:CosimDefinitions", nexxim, "DefaultCosim:=", "DefaultNetlist"]],
         )
         return True
 
@@ -1315,11 +1172,7 @@ class CircuitComponents(object):
             pins = _retry_ntimes(10, self._oeditor.GetComponentPins, partid)
             # pins = self.oeditor.GetComponentPins(partid)
         else:
-            pins = _retry_ntimes(
-                10,
-                self._oeditor.GetComponentPins,
-                self.components[partid].composed_name,
-            )
+            pins = _retry_ntimes(10, self._oeditor.GetComponentPins, self.components[partid].composed_name)
             # pins = self.oeditor.GetComponentPins(self.components[partid].composed_name)
         return list(pins)
 
@@ -1349,18 +1202,10 @@ class CircuitComponents(object):
             y = _retry_ntimes(30, self._oeditor.GetComponentPinLocation, partid, pinname, False)
         else:
             x = _retry_ntimes(
-                30,
-                self._oeditor.GetComponentPinLocation,
-                self.components[partid].composed_name,
-                pinname,
-                True,
+                30, self._oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, True
             )
             y = _retry_ntimes(
-                30,
-                self._oeditor.GetComponentPinLocation,
-                self.components[partid].composed_name,
-                pinname,
-                False,
+                30, self._oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, False
             )
         return [x, y]
 
@@ -1484,10 +1329,7 @@ class ComponentCatalog(object):
             sys_files = recursive_glob(library_path, "*.aclb")
             root = os.path.normpath(library_path).split(os.path.sep)[-1]
         else:
-            sys_files = recursive_glob(
-                os.path.join(self._app.syslib, self._component_manager.design_libray),
-                "*.aclb",
-            )
+            sys_files = recursive_glob(os.path.join(self._app.syslib, self._component_manager.design_libray), "*.aclb")
             root = os.path.normpath(self._app.syslib).split(os.path.sep)[-1]
         for file in sys_files:
             comps1 = load_keyword_in_aedt_file(file, "DefInfo")

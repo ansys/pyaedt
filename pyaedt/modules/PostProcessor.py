@@ -68,9 +68,7 @@ class SolutionData(object):
         data = {}
         for el in self._sweeps:
             data[el] = self._convert_list_to_SI(
-                self._sweeps[el],
-                self._quantity(self.units_sweeps[el]),
-                self.units_sweeps[el],
+                self._sweeps[el], self._quantity(self.units_sweeps[el]), self.units_sweeps[el]
             )
         return data
 
@@ -129,10 +127,7 @@ class SolutionData(object):
             self.units_data[expr] = self.nominal_variation.GetDataUnits(expr)
             for i in self.solutions_data_real[expr]:
                 self.solutions_data_mag[expr][i] = abs(
-                    complex(
-                        self.solutions_data_real[expr][i],
-                        self.solutions_data_imag[expr][i],
-                    )
+                    complex(self.solutions_data_real[expr][i], self.solutions_data_imag[expr][i])
                 )
 
     @aedt_exception_handler
@@ -281,9 +276,7 @@ class SolutionData(object):
                 sol.append(0)
         if convert_to_SI and self._quantity(self.units_data[expression]):
             sol = self._convert_list_to_SI(
-                sol,
-                self._quantity(self.units_data[expression]),
-                self.units_data[expression],
+                sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         return sol
 
@@ -423,9 +416,7 @@ class SolutionData(object):
                 sol.append(0)
         if convert_to_SI and self._quantity(self.units_data[expression]):
             sol = self._convert_list_to_SI(
-                sol,
-                self._quantity(self.units_data[expression]),
-                self.units_data[expression],
+                sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         return sol
 
@@ -468,9 +459,7 @@ class SolutionData(object):
                 sol.append(0)
         if convert_to_SI and self._quantity(self.units_data[expression]):
             sol = self._convert_list_to_SI(
-                sol,
-                self._quantity(self.units_data[expression]),
-                self.units_data[expression],
+                sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         return sol
 
@@ -917,14 +906,7 @@ class FieldPlot:
         return True
 
     @aedt_exception_handler
-    def export_image(
-        self,
-        full_path=None,
-        width=1920,
-        height=1080,
-        orientation="isometric",
-        display_wireframe=True,
-    ):
+    def export_image(self, full_path=None, width=1920, height=1080, orientation="isometric", display_wireframe=True):
         """Export the active plot to an image file.
 
         .. note::
@@ -974,12 +956,7 @@ class FieldPlot:
 
     @aedt_exception_handler
     def export_image_from_aedtplt(
-        self,
-        export_path=None,
-        view="isometric",
-        plot_mesh=False,
-        scale_min=None,
-        scale_max=None,
+        self, export_path=None, view="isometric", plot_mesh=False, scale_min=None, scale_max=None
     ):
         """Save an image of the active plot using PyVista.
 
@@ -1199,12 +1176,7 @@ class PostProcessorCommon(object):
 
     @aedt_exception_handler
     def get_report_data(
-        self,
-        expression="dB(S(1,1))",
-        setup_sweep_name="",
-        domain="Sweep",
-        families_dict=None,
-        report_input_type=None,
+        self, expression="dB(S(1,1))", setup_sweep_name="", domain="Sweep", families_dict=None, report_input_type=None
     ):
         """Generate report data.
 
@@ -1250,14 +1222,7 @@ class PostProcessorCommon(object):
         >>> m3d.post.get_report_data("Wind(LoadA,LaodA)")    # TransientAnalsysis
 
         """
-        if self.post_solution_type in [
-            "HFSS3DLayout",
-            "NexximLNA",
-            "NexximTransient",
-            "TR",
-            "AC",
-            "DC",
-        ]:
+        if self.post_solution_type in ["HFSS3DLayout", "NexximLNA", "NexximTransient", "TR", "AC", "DC"]:
             if domain == "Sweep":
                 did = 3
             else:
@@ -1265,25 +1230,7 @@ class PostProcessorCommon(object):
             ctxt = [
                 "NAME:Context",
                 "SimValueContext:=",
-                [
-                    did,
-                    0,
-                    2,
-                    0,
-                    False,
-                    False,
-                    -1,
-                    1,
-                    0,
-                    1,
-                    1,
-                    "",
-                    0,
-                    0,
-                    "IDIID",
-                    False,
-                    "1",
-                ],
+                [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"],
             ]
         elif isinstance(domain, list):
             ctxt = domain
@@ -1360,14 +1307,7 @@ class PostProcessorCommon(object):
         ctxt = []
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
-        if self.post_solution_type in [
-            "HFSS3DLayout",
-            "NexximLNA",
-            "NexximTransient",
-            "TR",
-            "AC",
-            "DC",
-        ]:
+        if self.post_solution_type in ["HFSS3DLayout", "NexximLNA", "NexximTransient", "TR", "AC", "DC"]:
             if "Freq" == primary_sweep_variable or "Freq" in list(families_dict.keys()):
                 did = 3
             else:
@@ -1375,25 +1315,7 @@ class PostProcessorCommon(object):
             ctxt = [
                 "NAME:Context",
                 "SimValueContext:=",
-                [
-                    did,
-                    0,
-                    2,
-                    0,
-                    False,
-                    False,
-                    -1,
-                    1,
-                    0,
-                    1,
-                    1,
-                    "",
-                    0,
-                    0,
-                    "IDIID",
-                    False,
-                    "1",
-                ],
+                [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"],
             ]
         elif context:
             if type(context) is list:
@@ -1446,12 +1368,7 @@ class PostProcessorCommon(object):
 
     @aedt_exception_handler
     def get_solution_data_per_variation(
-        self,
-        soltype="Far Fields",
-        setup_sweep_name="",
-        ctxt=None,
-        sweeps=None,
-        expression="",
+        self, soltype="Far Fields", setup_sweep_name="", ctxt=None, sweeps=None, expression=""
     ):
         """Retrieve solution data for each variation.
 
@@ -1519,17 +1436,7 @@ class PostProcessorCommon(object):
         >>> oDesktop.RestoreWindow
         """
         self._desktop.RestoreWindow()
-        param = [
-            "NAME:SphereParameters",
-            "XCenter:=",
-            "0mm",
-            "YCenter:=",
-            "0mm",
-            "ZCenter:=",
-            "0mm",
-            "Radius:=",
-            "1mm",
-        ]
+        param = ["NAME:SphereParameters", "XCenter:=", "0mm", "YCenter:=", "0mm", "ZCenter:=", "0mm", "Radius:=", "1mm"]
         attr = ["NAME:Attributes", "Name:=", "DUMMYSPHERE1", "Flags:=", "NonModel#"]
         self._oeditor.CreateSphere(param, attr)
         self._oeditor.Delete(["NAME:Selections", "Selections:=", "DUMMYSPHERE1"])
@@ -1969,10 +1876,7 @@ class PostProcessor(PostProcessorCommon, object):
                 [
                     "NAME:FieldsPostProcessorTab",
                     ["NAME:PropServers", "FieldsReporter:" + plotname],
-                    [
-                        "NAME:ChangedProps",
-                        ["NAME:" + propertyname, "Value:=", propertyval],
-                    ],
+                    ["NAME:ChangedProps", ["NAME:" + propertyname, "Value:=", propertyval]],
                 ],
             ]
         )
@@ -2144,14 +2048,10 @@ class PostProcessor(PostProcessorCommon, object):
             solution = self._app.existing_analysis_sweeps[0]
         if not filename:
             filename = os.path.join(
-                self._app.working_directory,
-                "{}_{}.fld".format(quantity_name, solution.replace(" : ", "_")),
+                self._app.working_directory, "{}_{}.fld".format(quantity_name, solution.replace(" : ", "_"))
             )
         elif os.path.isdir(filename):
-            filename = os.path.join(
-                filename,
-                "{}_{}.fld".format(quantity_name, solution.replace(" : ", "_")),
-            )
+            filename = os.path.join(filename, "{}_{}.fld".format(quantity_name, solution.replace(" : ", "_")))
         self.ofieldsreporter.CalcStack("clear")
         try:
             self.ofieldsreporter.EnterQty(quantity_name)
@@ -2171,38 +2071,14 @@ class PostProcessor(PostProcessorCommon, object):
             grid_step_wu = [str(i) + units for i in grid_step]
         elif gridtype == "Cylindrical":
             grid_center = [str(i) + units for i in grid_center]
-            grid_start_wu = [
-                str(grid_start[0]) + units,
-                str(grid_start[1]) + ang_units,
-                str(grid_start[2]) + units,
-            ]
-            grid_stop_wu = [
-                str(grid_stop[0]) + units,
-                str(grid_stop[1]) + ang_units,
-                str(grid_stop[2]) + units,
-            ]
-            grid_step_wu = [
-                str(grid_step[0]) + units,
-                str(grid_step[1]) + ang_units,
-                str(grid_step[2]) + units,
-            ]
+            grid_start_wu = [str(grid_start[0]) + units, str(grid_start[1]) + ang_units, str(grid_start[2]) + units]
+            grid_stop_wu = [str(grid_stop[0]) + units, str(grid_stop[1]) + ang_units, str(grid_stop[2]) + units]
+            grid_step_wu = [str(grid_step[0]) + units, str(grid_step[1]) + ang_units, str(grid_step[2]) + units]
         elif gridtype == "Spherical":
             grid_center = [str(i) + units for i in grid_center]
-            grid_start_wu = [
-                str(grid_start[0]) + units,
-                str(grid_start[1]) + ang_units,
-                str(grid_start[2]) + ang_units,
-            ]
-            grid_stop_wu = [
-                str(grid_stop[0]) + units,
-                str(grid_stop[1]) + ang_units,
-                str(grid_stop[2]) + ang_units,
-            ]
-            grid_step_wu = [
-                str(grid_step[0]) + units,
-                str(grid_step[1]) + ang_units,
-                str(grid_step[2]) + ang_units,
-            ]
+            grid_start_wu = [str(grid_start[0]) + units, str(grid_start[1]) + ang_units, str(grid_start[2]) + ang_units]
+            grid_stop_wu = [str(grid_stop[0]) + units, str(grid_stop[1]) + ang_units, str(grid_stop[2]) + ang_units]
+            grid_step_wu = [str(grid_step[0]) + units, str(grid_step[1]) + ang_units, str(grid_step[2]) + ang_units]
         else:
             self.logger.error("Error in the type of the grid.")
             return False
@@ -2307,10 +2183,7 @@ class PostProcessor(PostProcessorCommon, object):
         if not filename:
             appendix = ""
             ext = ".fld"
-            filename = os.path.join(
-                self._app.working_directory,
-                solution.replace(" : ", "_") + appendix + ext,
-            )
+            filename = os.path.join(self._app.working_directory, solution.replace(" : ", "_") + appendix + ext)
         else:
             filename = filename.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
@@ -2349,13 +2222,7 @@ class PostProcessor(PostProcessorCommon, object):
                     variation_dict.append("0deg")
         if not sample_points_file and not sample_points_lists:
 
-            _retry_ntimes(
-                10,
-                self.ofieldsreporter.CalculatorWrite,
-                filename,
-                ["Solution:=", solution],
-                variation_dict,
-            )
+            _retry_ntimes(10, self.ofieldsreporter.CalculatorWrite, filename, ["Solution:=", solution], variation_dict)
         elif sample_points_file:
 
             _retry_ntimes(
@@ -2479,15 +2346,7 @@ class PostProcessor(PostProcessorCommon, object):
         return True
 
     @aedt_exception_handler
-    def _create_fieldplot(
-        self,
-        objlist,
-        quantityName,
-        setup_name,
-        intrinsincList,
-        listtype,
-        plot_name=None,
-    ):
+    def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsincList, listtype, plot_name=None):
         if isinstance(objlist, (str, int)):
             objlist = [objlist]
         if not setup_name:
@@ -2521,11 +2380,7 @@ class PostProcessor(PostProcessorCommon, object):
             )
         elif listtype == "ObjList":
             plot = FieldPlot(
-                self,
-                objlist=objlist,
-                solutionName=setup_name,
-                quantityName=quantityName,
-                intrinsincList=intrinsincList,
+                self, objlist=objlist, solutionName=setup_name, quantityName=quantityName, intrinsincList=intrinsincList
             )
         elif listtype == "Line":
             plot = FieldPlot(
@@ -2687,14 +2542,7 @@ class PostProcessor(PostProcessorCommon, object):
 
     @aedt_exception_handler
     def export_field_jpg(
-        self,
-        fileName,
-        plotName,
-        foldername,
-        orientation="isometric",
-        width=1920,
-        height=1080,
-        display_wireframe=True,
+        self, fileName, plotName, foldername, orientation="isometric", width=1920, height=1080, display_wireframe=True
     ):
         """Export a field plot and coordinate system to a JPG file.
 
@@ -2786,11 +2634,7 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.ExportPlotImageWithViewToFile
         """
         return self.export_field_jpg(
-            exportFilePath,
-            plotName,
-            foldername,
-            orientation=view,
-            display_wireframe=wireframe,
+            exportFilePath, plotName, foldername, orientation=view, display_wireframe=wireframe
         )
 
     @aedt_exception_handler
@@ -2818,13 +2662,7 @@ class PostProcessor(PostProcessorCommon, object):
 
     @aedt_exception_handler
     def export_model_picture(
-        self,
-        dir=None,
-        name=None,
-        picturename=None,
-        show_axis=True,
-        show_grid=True,
-        show_ruler=True,
+        self, dir=None, name=None, picturename=None, show_axis=True, show_grid=True, show_ruler=True
     ):
         """Export a snapshot of the model to a JPG file.
 
@@ -2905,11 +2743,7 @@ class PostProcessor(PostProcessorCommon, object):
 
     @aedt_exception_handler
     def get_far_field_data(
-        self,
-        expression="GainTotal",
-        setup_sweep_name="",
-        domain="Infinite Sphere1",
-        families_dict=None,
+        self, expression="GainTotal", setup_sweep_name="", domain="Infinite Sphere1", families_dict=None
     ):
         """Generate far field data using ``GetSolutionDataPerVariation``.
 
@@ -2945,11 +2779,7 @@ class PostProcessor(PostProcessorCommon, object):
         if families_dict is None:
             families_dict = {"Theta": ["All"], "Phi": ["All"], "Freq": ["All"]}
         solution_data = self.get_solution_data_per_variation(
-            "Far Fields",
-            setup_sweep_name,
-            ["Context:=", domain],
-            families_dict,
-            expression,
+            "Far Fields", setup_sweep_name, ["Context:=", domain], families_dict, expression
         )
         if not solution_data:
             print("No Data Available. Check inputs")
@@ -2957,13 +2787,7 @@ class PostProcessor(PostProcessorCommon, object):
         return solution_data
 
     @aedt_exception_handler
-    def export_model_obj(
-        self,
-        obj_list=None,
-        export_path=None,
-        export_as_single_objects=False,
-        air_objects=False,
-    ):
+    def export_model_obj(self, obj_list=None, export_path=None, export_as_single_objects=False, air_objects=False):
         """Export the model.
 
         Parameters
@@ -3005,13 +2829,7 @@ class PostProcessor(PostProcessorCommon, object):
                 fname = os.path.join(export_path, "{}.obj".format(el))
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
                 if not self._app.modeler[el].display_wireframe:
-                    files_exported.append(
-                        [
-                            fname,
-                            self._app.modeler[el].color,
-                            1 - self._app.modeler[el].transparency,
-                        ]
-                    )
+                    files_exported.append([fname, self._app.modeler[el].color, 1 - self._app.modeler[el].transparency])
                 else:
                     files_exported.append([fname, self._app.modeler[el].color, 0.05])
             return files_exported
@@ -3183,12 +3001,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         return plotname
 
     def create_ami_statistical_eye_plot(
-        self,
-        setupname,
-        ami_name,
-        variation_list_w_value,
-        ami_plot_type="InitialEye",
-        plotname=None,
+        self, setupname, ami_name, variation_list_w_value, ami_plot_type="InitialEye", plotname=None
     ):
         """Create an AMI statistical eye plot.
 
@@ -3292,24 +3105,12 @@ class CircuitPostProcessor(PostProcessorCommon, object):
                 ],
             ],
             variations,
-            [
-                "X Component:=",
-                "__UnitInterval",
-                "Y Component:=",
-                "__Amplitude",
-                "Eye Diagram Component:=",
-                ycomponents,
-            ],
+            ["X Component:=", "__UnitInterval", "Y Component:=", "__Amplitude", "Eye Diagram Component:=", ycomponents],
         )
         return plotname
 
     def create_statistical_eye_plot(
-        self,
-        setupname,
-        probe_names,
-        variation_list_w_value,
-        ami_plot_type="InitialEye",
-        plotname=None,
+        self, setupname, probe_names, variation_list_w_value, ami_plot_type="InitialEye", plotname=None
     ):
         """Create a statistical QuickEye, VerifEye, and/or Statistical Eye plot.
 
@@ -3398,13 +3199,6 @@ class CircuitPostProcessor(PostProcessorCommon, object):
                 ],
             ],
             variations,
-            [
-                "X Component:=",
-                "__UnitInterval",
-                "Y Component:=",
-                "__Amplitude",
-                "Eye Diagram Component:=",
-                ycomponents,
-            ],
+            ["X Component:=", "__UnitInterval", "Y Component:=", "__Amplitude", "Eye Diagram Component:=", ycomponents],
         )
         return plotname

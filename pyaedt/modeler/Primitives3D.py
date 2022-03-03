@@ -304,16 +304,7 @@ class Primitives3D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_cone(
-        self,
-        cs_axis,
-        position,
-        bottom_radius,
-        top_radius,
-        height,
-        name=None,
-        matname=None,
-    ):
+    def create_cone(self, cs_axis, position, bottom_radius, top_radius, height, name=None, matname=None):
         """Create a cone.
 
         Parameters
@@ -438,15 +429,7 @@ class Primitives3D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_torus(
-        self,
-        center,
-        major_radius,
-        minor_radius,
-        axis=None,
-        name=None,
-        material_name=None,
-    ):
+    def create_torus(self, center, major_radius, minor_radius, axis=None, name=None, material_name=None):
         """Create a torus.
 
         Parameters
@@ -629,15 +612,7 @@ class Primitives3D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_rectangle(
-        self,
-        csPlane,
-        position,
-        dimension_list,
-        name=None,
-        matname=None,
-        is_covered=True,
-    ):
+    def create_rectangle(self, csPlane, position, dimension_list, name=None, matname=None, is_covered=True):
         """Create a rectangle.
 
         Parameters
@@ -689,16 +664,7 @@ class Primitives3D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_circle(
-        self,
-        cs_plane,
-        position,
-        radius,
-        numSides=0,
-        is_covered=True,
-        name=None,
-        matname=None,
-    ):
+    def create_circle(self, cs_plane, position, radius, numSides=0, is_covered=True, name=None, matname=None):
         """Create a circle.
 
         Parameters
@@ -746,16 +712,7 @@ class Primitives3D(Primitives, object):
         return self._create_object(new_object_name)
 
     @aedt_exception_handler
-    def create_ellipse(
-        self,
-        cs_plane,
-        position,
-        major_radius,
-        ratio,
-        is_covered=True,
-        name=None,
-        matname=None,
-    ):
+    def create_ellipse(self, cs_plane, position, major_radius, ratio, is_covered=True, name=None, matname=None):
         """Create an ellipse.
 
         Parameters
@@ -977,10 +934,7 @@ class Primitives3D(Primitives, object):
                     "NAME:AllTabs",
                     [
                         "NAME:Geometry3DPolylineTab",
-                        [
-                            "NAME:PropServers",
-                            this_object.name + ":CreatePolyline:1:Segment" + str(i),
-                        ],
+                        ["NAME:PropServers", this_object.name + ":CreatePolyline:1:Segment" + str(i)],
                         ["NAME:ChangedProps", ["NAME:Segment Type", "Value:=", "Line"]],
                     ],
                 ]
@@ -1011,11 +965,7 @@ class Primitives3D(Primitives, object):
         >>> oEditor.CreateUserDefinedModel
 
         """
-        vArg1 = [
-            "NAME:UserDefinedModelParameters",
-            ["NAME:Definition"],
-            ["NAME:Options"],
-        ]
+        vArg1 = ["NAME:UserDefinedModelParameters", ["NAME:Definition"], ["NAME:Options"]]
         vArgParamVector = ["NAME:GeometryParams"]
 
         for pair in udm_params_list:
@@ -1027,31 +977,11 @@ class Primitives3D(Primitives, object):
                 val = pair.Value
             if isinstance(val, int):
                 vArgParamVector.append(
-                    [
-                        "NAME:UDMParam",
-                        "Name:=",
-                        name,
-                        "Value:=",
-                        str(val),
-                        "PropType2:=",
-                        3,
-                        "PropFlag2:=",
-                        2,
-                    ]
+                    ["NAME:UDMParam", "Name:=", name, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 2]
                 )
             elif str(val)[0] in "0123456789":
                 vArgParamVector.append(
-                    [
-                        "NAME:UDMParam",
-                        "Name:=",
-                        name,
-                        "Value:=",
-                        str(val),
-                        "PropType2:=",
-                        3,
-                        "PropFlag2:=",
-                        4,
-                    ]
+                    ["NAME:UDMParam", "Name:=", name, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 4]
                 )
             else:
                 vArgParamVector.append(
@@ -1133,10 +1063,7 @@ class Primitives3D(Primitives, object):
         assert faces > 0, "Faces must be greater than 0."
         dtheta = 2 * pi / faces
         theta = pi / 2
-        pts = [
-            (internal_radius, 0, elevation),
-            (internal_radius, internal_radius * tan(dtheta / 2), elevation),
-        ]
+        pts = [(internal_radius, 0, elevation), (internal_radius, internal_radius * tan(dtheta / 2), elevation)]
         rin = internal_radius * tan(dtheta / 2) * 2
         x = rin
         r = rin
@@ -1155,25 +1082,14 @@ class Primitives3D(Primitives, object):
 
         pts.append((x1, 0, elevation))
         p1 = self.create_polyline(
-            pts,
-            xsection_type="Rectangle",
-            xsection_width=width,
-            xsection_height=thickness,
-            matname=material,
+            pts, xsection_type="Rectangle", xsection_width=width, xsection_height=thickness, matname=material
         )
         if name:
             p1.name = name
         return p1
 
     @aedt_exception_handler
-    def insert_3d_component(
-        self,
-        compFile,
-        geoParams=None,
-        szMatParams="",
-        szDesignParams="",
-        targetCS="Global",
-    ):
+    def insert_3d_component(self, compFile, geoParams=None, szMatParams="", szDesignParams="", targetCS="Global"):
         """Insert a new 3D component.
 
         Parameters
@@ -1591,14 +1507,7 @@ class Primitives3D(Primitives, object):
 
     @aedt_exception_handler
     def add_environment(
-        self,
-        env_folder,
-        global_offset=[0, 0, 0],
-        yaw=0,
-        pitch=0,
-        roll=0,
-        relative_cs_name=None,
-        environment_name=None,
+        self, env_folder, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None, environment_name=None
     ):
         """Add an Environment Multipart Component from Json file.
 
@@ -1735,15 +1644,7 @@ class Primitives3D(Primitives, object):
         chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 1)
 
         returned_list = [
-            self._make_core(
-                name_core,
-                "(255 0 0)",
-                "",
-                in_rad_core,
-                out_rad_core,
-                height_core,
-                chamfer,
-            ),
+            self._make_core(name_core, "(255 0 0)", "", in_rad_core, out_rad_core, height_core, chamfer),
         ]
 
         if values["Layer"]["Double"]:
@@ -1828,17 +1729,7 @@ class Primitives3D(Primitives, object):
                 print("make_triple_winding")
         else:
             list_object = self._make_winding(
-                name_wind,
-                "(255 0 0)",
-                "",
-                in_rad_wind,
-                out_rad_wind,
-                height_wind,
-                w_dia,
-                teta,
-                turns,
-                chamf,
-                sep_layer,
+                name_wind, "(255 0 0)", "", in_rad_wind, out_rad_wind, height_wind, w_dia, teta, turns, chamf, sep_layer
             )
             print("make_winding")
         list_duplicated_object = []
@@ -1899,38 +1790,17 @@ class Primitives3D(Primitives, object):
         return returned_list
 
     @aedt_exception_handler
-    def _make_winding(
-        self,
-        name,
-        color,
-        mat,
-        in_rad,
-        out_rad,
-        height,
-        dia,
-        teta,
-        turns,
-        chamf,
-        sep_layer,
-    ):
+    def _make_winding(self, name, color, mat, in_rad, out_rad, height, dia, teta, turns, chamf, sep_layer):
 
         teta_r = radians(teta)
         points_list1 = [
             [in_rad * cos(teta_r), -in_rad * sin(teta_r), height / 2 - chamf],
-            [
-                (in_rad + chamf) * cos(teta_r),
-                -(in_rad + chamf) * sin(teta_r),
-                height / 2,
-            ],
+            [(in_rad + chamf) * cos(teta_r), -(in_rad + chamf) * sin(teta_r), height / 2],
             [out_rad - chamf, 0, height / 2],
             [out_rad, 0, height / 2 - chamf],
             [out_rad, 0, -height / 2 + chamf],
             [out_rad - chamf, 0, -height / 2],
-            [
-                (in_rad + chamf) * cos(teta_r),
-                (in_rad + chamf) * sin(teta_r),
-                -height / 2,
-            ],
+            [(in_rad + chamf) * cos(teta_r), (in_rad + chamf) * sin(teta_r), -height / 2],
             [in_rad * cos(teta_r), in_rad * sin(teta_r), -height / 2 + chamf],
             [in_rad * cos(teta_r), in_rad * sin(teta_r), height / 2 - chamf],
         ]
@@ -2003,11 +1873,7 @@ class Primitives3D(Primitives, object):
         points_out_wind.pop()
         points_out_wind[-1] = [points_out_wind[-2][0], points_out_wind[-2][1], -height]
         points_in_wind.insert(0, [points_in_wind[0][0], points_in_wind[0][1], -height])
-        points_in_wind[-1] = [
-            points_in_wind[-2][0],
-            points_in_wind[-2][1],
-            points_out_wind[1][2],
-        ]
+        points_in_wind[-1] = [points_in_wind[-2][0], points_in_wind[-2][1], points_out_wind[1][2]]
         points_in_wind.append([points_in_wind[-3][0], points_in_wind[-3][1], points_out_wind[0][2]])
 
         outer_polyline = self.create_polyline(position_list=points_out_wind, name="Winding")
@@ -2076,18 +1942,10 @@ class Primitives3D(Primitives, object):
             points_mid_wind.pop(0)
             points_mid_wind.pop()
         points_mid_wind.pop()
-        points_mid_wind[-1] = [
-            points_mid_wind[-2][0],
-            points_mid_wind[-2][1],
-            points_out_wind[1][2],
-        ]
+        points_mid_wind[-1] = [points_mid_wind[-2][0], points_mid_wind[-2][1], points_out_wind[1][2]]
         points_mid_wind.append([points_mid_wind[-4][0], points_mid_wind[-4][1], points_out_wind[0][2]])
         points_in_wind.insert(0, [points_in_wind[0][0], points_in_wind[0][1], -height])
-        points_in_wind[-1] = [
-            points_in_wind[-2][0],
-            points_in_wind[-2][1],
-            points_mid_wind[1][2],
-        ]
+        points_in_wind[-1] = [points_in_wind[-2][0], points_in_wind[-2][1], points_mid_wind[1][2]]
         points_in_wind.append([points_in_wind[-3][0], points_in_wind[-3][1], points_mid_wind[0][2]])
 
         outer_polyline = self.create_polyline(position_list=points_out_wind, name="Winding")
@@ -2135,19 +1993,7 @@ class Primitives3D(Primitives, object):
         out_rad_in_wind = out_rad - sr * w_dia
         height_in_wind = height - 2 * sr * w_dia
         list_object = [
-            self._make_winding(
-                name,
-                color,
-                mat,
-                in_rad,
-                out_rad,
-                height,
-                w_dia,
-                teta,
-                turns,
-                chamf,
-                sep_layer,
-            ),
+            self._make_winding(name, color, mat, in_rad, out_rad, height, w_dia, teta, turns, chamf, sep_layer),
             self._make_winding(
                 name,
                 color,
@@ -2195,19 +2041,7 @@ class Primitives3D(Primitives, object):
         height_in_wind = height - 4 * sr * w_dia
         height_mid_wind = height - 2 * sr * w_dia
         list_object = [
-            self._make_winding(
-                name,
-                color,
-                mat,
-                in_rad,
-                out_rad,
-                height,
-                w_dia,
-                teta,
-                turns,
-                chamf,
-                sep_layer,
-            ),
+            self._make_winding(name, color, mat, in_rad, out_rad, height, w_dia, teta, turns, chamf, sep_layer),
             self._make_winding(
                 name,
                 color,
@@ -2298,19 +2132,8 @@ class Primitives3D(Primitives, object):
             "Layer Type": {"Separate": True, "Linked": False},
             "Similar Layer": {"Similar": True, "Different": False},
             "Mode": {"Differential": True, "Common": False},
-            "Wire Section": {
-                "None": False,
-                "Hexagon": False,
-                "Octagon": True,
-                "Circle": False,
-            },
-            "Core": {
-                "Name": "Core",
-                "Inner Radius": 11,
-                "Outer Radius": 17,
-                "Height": 7,
-                "Chamfer": 0.8,
-            },
+            "Wire Section": {"None": False, "Hexagon": False, "Octagon": True, "Circle": False},
+            "Core": {"Name": "Core", "Inner Radius": 11, "Outer Radius": 17, "Height": 7, "Chamfer": 0.8},
             "Outer Winding": {
                 "Name": "Winding",
                 "Inner Radius": 12,
@@ -2396,11 +2219,7 @@ class Primitives3D(Primitives, object):
         )
 
         height_core, are_inequations_checkable = self._check_value_type(
-            values["Core"]["Height"],
-            float,
-            are_inequations_checkable,
-            "Height(Core)",
-            "a strictly positive float",
+            values["Core"]["Height"], float, are_inequations_checkable, "Height(Core)", "a strictly positive float"
         )
         try:
             core_chamfer = float(values["Core"]["Chamfer"])
@@ -2634,8 +2453,7 @@ class Primitives3D(Primitives, object):
 
                     elif teta3 < asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)):
                         teta3 = GeometryOperators.degrees_over_rounded(
-                            asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)),
-                            3,
+                            asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)), 3
                         )
                         values["Inner Winding"]["Coil Pit(deg)"] = teta3
                         self.logger.warning(
@@ -2683,14 +2501,7 @@ class Primitives3D(Primitives, object):
         return sqrt(2) * distance
 
     @aedt_exception_handler
-    def _check_value_type(
-        self,
-        taken_value,
-        value_type,
-        are_inequations_checkable,
-        part_message1,
-        part_message2,
-    ):
+    def _check_value_type(self, taken_value, value_type, are_inequations_checkable, part_message1, part_message2):
         are_inequations_checkable = are_inequations_checkable
         if value_type == int:
             try:

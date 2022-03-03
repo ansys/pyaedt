@@ -71,15 +71,7 @@ class PolylineSegment:
     """
 
     @aedt_exception_handler
-    def __init__(
-        self,
-        type,
-        num_seg=0,
-        num_points=0,
-        arc_angle=0,
-        arc_center=None,
-        arc_plane=None,
-    ):
+    def __init__(self, type, num_seg=0, num_points=0, arc_angle=0, arc_center=None, arc_plane=None):
 
         valid_types = ["Line", "Arc", "Spline", "AngularArc"]
         assert type in valid_types, "Segment type must be in {}.".format(valid_types)
@@ -372,9 +364,7 @@ class Polyline(Object3d):
 
             if current_segment:
                 seg_str = self._segment_array(
-                    current_segment,
-                    start_index=index_count,
-                    start_point=position_list[pos_count],
+                    current_segment, start_index=index_count, start_point=position_list[pos_count]
                 )
                 segment_str.append(seg_str)
 
@@ -685,14 +675,7 @@ class Polyline(Object3d):
 
     @aedt_exception_handler
     def set_crosssection_properties(
-        self,
-        type=None,
-        orient=None,
-        width=0,
-        topwidth=0,
-        height=0,
-        num_seg=0,
-        bend_type=None,
+        self, type=None, orient=None, width=0, topwidth=0, height=0, num_seg=0, bend_type=None
     ):
         """Set the properties of an existing polyline object.
 
@@ -761,10 +744,7 @@ class Polyline(Object3d):
         model_units = self._primitives.model_units
 
         arg1 = ["NAME:AllTabs"]
-        arg2 = [
-            "NAME:Geometry3DCmdTab",
-            ["NAME:PropServers", self._m_name + ":CreatePolyline:1"],
-        ]
+        arg2 = ["NAME:Geometry3DCmdTab", ["NAME:PropServers", self._m_name + ":CreatePolyline:1"]]
         arg3 = ["NAME:ChangedProps"]
         arg3.append(["NAME:Type", "Value:=", section_type])
         arg3.append(["NAME:Orientation", "Value:=", section_orient])
@@ -1591,14 +1571,7 @@ class Primitives(object):
         return Polyline(self, src_object=object)
 
     @aedt_exception_handler
-    def create_udp(
-        self,
-        udp_dll_name,
-        udp_parameters_list,
-        upd_library="syslib",
-        name=None,
-        udp_type="Solid",
-    ):
+    def create_udp(self, udp_dll_name, udp_parameters_list, upd_library="syslib", name=None, udp_type="Solid"):
         """Create a user-defined primitive (UDP).
 
         Parameters
@@ -1642,13 +1615,7 @@ class Primitives(object):
                 upd_library,
             ]
         else:
-            vArg1 = [
-                "NAME:UserDefinedPrimitiveParameters",
-                "DllName:=",
-                udp_dll_name,
-                "Library:=",
-                upd_library,
-            ]
+            vArg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", udp_dll_name, "Library:=", upd_library]
 
         vArgParamVector = ["NAME:ParamVector"]
 
@@ -2823,13 +2790,7 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_edges_for_circuit_port_from_sheet(
-        self,
-        sheet,
-        XY_plane=True,
-        YZ_plane=True,
-        XZ_plane=True,
-        allow_perpendicular=False,
-        tol=1e-6,
+        self, sheet, XY_plane=True, YZ_plane=True, XZ_plane=True, allow_perpendicular=False, tol=1e-6
     ):
         """Retrieve two edge IDs that are suitable for a circuit port from a sheet.
 
@@ -2940,8 +2901,7 @@ class Primitives(object):
                     continue
 
                 normal1 = GeometryOperators.v_cross(
-                    GeometryOperators.v_points(vertex1_i, vertex2_i),
-                    GeometryOperators.v_points(vertex1_i, vertex1_j),
+                    GeometryOperators.v_points(vertex1_i, vertex2_i), GeometryOperators.v_points(vertex1_i, vertex1_j)
                 )
                 normal1_norm = GeometryOperators.v_norm(normal1)
                 if YZ_plane and abs(abs(GeometryOperators._v_dot(normal1, ux)) - normal1_norm) < tol:
@@ -2979,13 +2939,7 @@ class Primitives(object):
 
     @aedt_exception_handler
     def get_edges_for_circuit_port(
-        self,
-        face_id,
-        XY_plane=True,
-        YZ_plane=True,
-        XZ_plane=True,
-        allow_perpendicular=False,
-        tol=1e-6,
+        self, face_id, XY_plane=True, YZ_plane=True, XZ_plane=True, allow_perpendicular=False, tol=1e-6
     ):
         """Retrieve two edge IDs suitable for the circuit port.
 
@@ -3091,8 +3045,7 @@ class Primitives(object):
                     continue
 
                 normal1 = GeometryOperators.v_cross(
-                    GeometryOperators.v_points(vertex1_i, vertex2_i),
-                    GeometryOperators.v_points(vertex1_i, vertex1_j),
+                    GeometryOperators.v_points(vertex1_i, vertex2_i), GeometryOperators.v_points(vertex1_i, vertex1_j)
                 )
                 normal1_norm = GeometryOperators.v_norm(normal1)
                 if YZ_plane and abs(abs(GeometryOperators._v_dot(normal1, ux)) - normal1_norm) < tol:
@@ -3216,20 +3169,14 @@ class Primitives(object):
             matname = matname.lower()
             if self._app.materials.checkifmaterialexists(matname):
                 if self._app._design_type == "HFSS":
-                    return (
-                        matname,
-                        self._app.materials.material_keys[matname].is_dielectric(),
-                    )
+                    return matname, self._app.materials.material_keys[matname].is_dielectric()
                 else:
                     return matname, True
 
             else:
                 self.logger.warning("Material %s doesn not exists. Assigning default material", matname)
         if self._app._design_type == "HFSS":
-            return (
-                defaultmatname,
-                self._app.materials.material_keys[defaultmatname].is_dielectric(),
-            )
+            return defaultmatname, self._app.materials.material_keys[defaultmatname].is_dielectric()
         else:
             return defaultmatname, True
 
@@ -3376,14 +3323,7 @@ class Primitives(object):
             color = str(tuple(self._app.materials.material_keys[material].material_appearance)).replace(",", " ")
         except:
             color = "(132 132 193)"
-        if material in [
-            "vacuum",
-            "air",
-            "glass",
-            "water_distilled",
-            "water_fresh",
-            "water_sea",
-        ]:
+        if material in ["vacuum", "air", "glass", "water_distilled", "water_fresh", "water_sea"]:
             transparency = 0.8
         else:
             transparency = 0.2

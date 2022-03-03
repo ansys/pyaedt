@@ -255,9 +255,7 @@ class Part(object):
             return [0, 0, 0]
 
     @property
-    def _do_rotate(
-        self,
-    ):  # True if any rotation angles are non-zero or 'rotation_cs' is defined.
+    def _do_rotate(self):  # True if any rotation angles are non-zero or 'rotation_cs' is defined.
         return any(self.rot_axis)
 
     @property
@@ -426,10 +424,7 @@ class Part(object):
         if self["duplicate_vector"]:
             d_vect = [float(i) for i in self["duplicate_vector"]]
             duplicate_result = app.modeler.duplicate_along_line(
-                aedt_objects[0],
-                d_vect,
-                nclones=int(self["duplicate_number"]),
-                is_3d_comp=True,
+                aedt_objects[0], d_vect, nclones=int(self["duplicate_number"]), is_3d_comp=True
             )
             if duplicate_result[0]:
                 for d in duplicate_result[1]:
@@ -492,10 +487,7 @@ class Antenna(Part, object):
         if self._compdef["ffd_name"]:
             ffd = os.path.join(self._compdef["part_folder"], self._compdef["ffd_name"] + ".ffd")
             a = app.create_sbr_file_based_antenna(
-                ffd_full_path=ffd,
-                model_units=units,
-                target_cs=target_cs,
-                antenna_name=self.name,
+                ffd_full_path=ffd, model_units=units, target_cs=target_cs, antenna_name=self.name
             )
         else:
             a = app.create_sbr_antenna(

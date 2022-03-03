@@ -142,12 +142,10 @@ class EdbStackup(object):
         if self._edb.Definition.MaterialDef.FindByName(self._db, name).IsNull():
             material_def = self._edb.Definition.MaterialDef.Create(self._db, name)
             material_def.SetProperty(
-                self._edb.Definition.MaterialPropertyId.Permittivity,
-                self._edb_value(permittivity),
+                self._edb.Definition.MaterialPropertyId.Permittivity, self._edb_value(permittivity)
             )
             material_def.SetProperty(
-                self._edb.Definition.MaterialPropertyId.DielectricLossTangent,
-                self._edb_value(loss_tangent),
+                self._edb.Definition.MaterialPropertyId.DielectricLossTangent, self._edb_value(loss_tangent)
             )
             return material_def
         return False
@@ -171,8 +169,7 @@ class EdbStackup(object):
         if self._edb.Definition.MaterialDef.FindByName(self._db, name).IsNull():
             material_def = self._edb.Definition.MaterialDef.Create(self._db, name)
             material_def.SetProperty(
-                self._edb.Definition.MaterialPropertyId.Conductivity,
-                self._edb_value(conductivity),
+                self._edb.Definition.MaterialPropertyId.Conductivity, self._edb_value(conductivity)
             )
             return material_def
         return False
@@ -220,8 +217,7 @@ class EdbStackup(object):
         material_def.SetFrequencyRange(lower_freqency, higher_frequency)
         material_def.SetLossTangentAtHighLowFrequency(loss_tangent_low, loss_tangent_high)
         material_def.SetRelativePermitivityAtHighLowFrequency(
-            self._edb_value(relative_permittivity_low),
-            self._edb_value(relative_permittivity_high),
+            self._edb_value(relative_permittivity_low), self._edb_value(relative_permittivity_high)
         )
         return self._add_dielectric_material_model(name, material_def)
 
@@ -410,9 +406,7 @@ class EdbStackup(object):
             edb_cell = list_cells[0]
         self._active_layout.GetCell().SetBlackBox(True)
         cell_inst2 = self._edb.Cell.Hierarchy.CellInstance.Create(
-            edb_cell.GetLayout(),
-            self._active_layout.GetCell().GetName(),
-            self._active_layout,
+            edb_cell.GetLayout(), self._active_layout.GetCell().GetName(), self._active_layout
         )
         cell_trans = cell_inst2.GetTransform()
         cell_trans.SetRotationValue(_angle)
@@ -501,9 +495,7 @@ class EdbStackup(object):
             edb_cell = list_cells[0]
         self._active_layout.GetCell().SetBlackBox(True)
         cell_inst2 = self._edb.Cell.Hierarchy.CellInstance.Create(
-            edb_cell.GetLayout(),
-            self._active_layout.GetCell().GetName(),
-            self._active_layout,
+            edb_cell.GetLayout(), self._active_layout.GetCell().GetName(), self._active_layout
         )
 
         stackup_target = edb_cell.GetLayout().GetLayerCollection()
@@ -516,20 +508,8 @@ class EdbStackup(object):
         cell_inst2.SetIs3DPlacement(True)
         input_layers = self._edb.Cell.LayerTypeSet.SignalLayerSet
         if is_ironpython:
-            (
-                res,
-                topl,
-                topz,
-                bottoml,
-                bottomz,
-            ) = stackup_target.GetTopBottomStackupLayers(input_layers)
-            (
-                res_s,
-                topl_s,
-                topz_s,
-                bottoml_s,
-                bottomz_s,
-            ) = stackup_source.GetTopBottomStackupLayers(input_layers)
+            res, topl, topz, bottoml, bottomz = stackup_target.GetTopBottomStackupLayers(input_layers)
+            res_s, topl_s, topz_s, bottoml_s, bottomz_s = stackup_source.GetTopBottomStackupLayers(input_layers)
         else:
             topl = None
             topz = Double(0.0)
@@ -539,20 +519,12 @@ class EdbStackup(object):
             topz_s = Double(0.0)
             bottoml_s = None
             bottomz_s = Double(0.0)
-            (
-                res,
-                topl,
-                topz,
-                bottoml,
-                bottomz,
-            ) = stackup_target.GetTopBottomStackupLayers(input_layers, topl, topz, bottoml, bottomz)
-            (
-                res_s,
-                topl_s,
-                topz_s,
-                bottoml_s,
-                bottomz_s,
-            ) = stackup_source.GetTopBottomStackupLayers(input_layers, topl_s, topz_s, bottoml_s, bottomz_s)
+            res, topl, topz, bottoml, bottomz = stackup_target.GetTopBottomStackupLayers(
+                input_layers, topl, topz, bottoml, bottomz
+            )
+            res_s, topl_s, topz_s, bottoml_s, bottomz_s = stackup_source.GetTopBottomStackupLayers(
+                input_layers, topl_s, topz_s, bottoml_s, bottomz_s
+            )
 
         if place_on_top:
             if flipped_stackup:

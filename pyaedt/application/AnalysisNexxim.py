@@ -132,10 +132,7 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oEditor.GetAllPorts
         """
-        warnings.warn(
-            "`get_excitations_name` is deprecated. Use `excitations` property instead.",
-            DeprecationWarning,
-        )
+        warnings.warn("`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning)
         return self.excitations
 
     @property
@@ -273,14 +270,7 @@ class FieldAnalysisCircuit(Analysis):
         return next
 
     @aedt_exception_handler
-    def get_fext_xtalk_list(
-        self,
-        trlist=[],
-        reclist=[],
-        tx_prefix="",
-        rx_prefix="",
-        skip_same_index_couples=True,
-    ):
+    def get_fext_xtalk_list(self, trlist=[], reclist=[], tx_prefix="", rx_prefix="", skip_same_index_couples=True):
         """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
 
         Parameters

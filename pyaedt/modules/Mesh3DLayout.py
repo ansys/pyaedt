@@ -198,14 +198,7 @@ class Mesh3d(object):
 
     @aedt_exception_handler
     def assign_length_mesh(
-        self,
-        setupname,
-        layer_name,
-        net_name,
-        isinside=True,
-        maxlength=1,
-        maxel=1000,
-        meshop_name=None,
+        self, setupname, layer_name, net_name, isinside=True, maxlength=1, maxel=1000, meshop_name=None
     ):
         """Assign mesh length.
 
@@ -265,36 +258,14 @@ class Mesh3d(object):
             for l, n in zip(layer_name, net_name):
                 meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": l, "Net": n, "OrigNet": n})
                 assignment["MeshEntityInfo"].append(
-                    OrderedDict(
-                        {
-                            "IsFcSel": False,
-                            "EntID": -1,
-                            "FcIDs": [],
-                            "MeshBody": meshbody,
-                            "BBox": [],
-                        }
-                    )
+                    OrderedDict({"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []})
                 )
         else:
-            meshbody = OrderedDict(
-                {
-                    "Id": -1,
-                    "Nam": "",
-                    "Layer": layer_name,
-                    "Net": net_name,
-                    "OrigNet": net_name,
-                }
-            )
+            meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": layer_name, "Net": net_name, "OrigNet": net_name})
             assignment = OrderedDict(
                 {
                     "MeshEntityInfo": OrderedDict(
-                        {
-                            "IsFcSel": False,
-                            "EntID": -1,
-                            "FcIDs": [],
-                            "MeshBody": meshbody,
-                            "BBox": [],
-                        }
+                        {"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []}
                     )
                 }
             )
@@ -374,25 +345,11 @@ class Mesh3d(object):
             restrictlength = True
         skindepth = self.modeler.modeler_variable(skindepth)
         triangulation_max_length = self.modeler.modeler_variable(triangulation_max_length)
-        meshbody = OrderedDict(
-            {
-                "Id": -1,
-                "Nam": "",
-                "Layer": layer_name,
-                "Net": net_name,
-                "OrigNet": net_name,
-            }
-        )
+        meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": layer_name, "Net": net_name, "OrigNet": net_name})
         assignment = OrderedDict(
             {
                 "MeshEntityInfo": OrderedDict(
-                    {
-                        "IsFcSel": False,
-                        "EntID": -1,
-                        "FcIDs": [],
-                        "MeshBody": meshbody,
-                        "BBox": [],
-                    }
+                    {"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []}
                 )
             }
         )

@@ -180,23 +180,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 [
                     "NAME:Contents",
                     "edge:=",
-                    [
-                        "et:=",
-                        "pe",
-                        "prim:=",
-                        primivitivenames[0],
-                        "edge:=",
-                        edgenumbers[0],
-                    ],
+                    ["et:=", "pe", "prim:=", primivitivenames[0], "edge:=", edgenumbers[0]],
                     "edge:=",
-                    [
-                        "et:=",
-                        "pe",
-                        "prim:=",
-                        primivitivenames[1],
-                        "edge:=",
-                        edgenumbers[1],
-                    ],
+                    ["et:=", "pe", "prim:=", primivitivenames[1], "edge:=", edgenumbers[1]],
                     "external:=",
                     True,
                     "btype:=",
@@ -213,18 +199,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
 
     @aedt_exception_handler
-    def create_coax_port(
-        self,
-        vianame,
-        layer,
-        xstart,
-        xend,
-        ystart,
-        yend,
-        archeight=0,
-        arcrad=0,
-        isexternal=True,
-    ):
+    def create_coax_port(self, vianame, layer, xstart, xend, ystart, yend, archeight=0, arcrad=0, isexternal=True):
         """Create a new coax port.
 
         Parameters
@@ -342,12 +317,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 "ReferencedPadstack:=",
                 "Padstacks:NoPad SMT East",
                 "vposition:=",
-                [
-                    "x:=",
-                    str(xpos) + self.modeler.model_units,
-                    "y:=",
-                    str(ypos) + self.modeler.model_units,
-                ],
+                ["x:=", str(xpos) + self.modeler.model_units, "y:=", str(ypos) + self.modeler.model_units],
                 "vrotation:=",
                 [str(rotation) + "deg"],
                 "overrides hole:=",
@@ -514,12 +484,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @aedt_exception_handler
     def create_scattering(
-        self,
-        plot_name="S Parameter Plot Nominal",
-        sweep_name=None,
-        port_names=None,
-        port_excited=None,
-        variations=None,
+        self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None, variations=None
     ):
         """Create a scattering report.
 
@@ -573,14 +538,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if solution_data != "":
             # run CreateReport function
             self.post.oreportsetup.CreateReport(
-                plot_name,
-                solution_data,
-                "Rectangular Plot",
-                sweep_name,
-                ["Domain:=", "Sweep"],
-                Families,
-                Trace,
-                [],
+                plot_name, solution_data, "Rectangular Plot", sweep_name, ["Domain:=", "Sweep"], Families, Trace, []
             )
             return True
         else:
@@ -829,9 +787,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.",
-                        oldname,
-                        sweepname,
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
                     )
                 sweep = setupdata.add_sweep(sweepname=sweepname)
                 if not sweep:
@@ -932,9 +888,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.",
-                        oldname,
-                        sweepname,
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
                     )
                 sweep = setupdata.add_sweep(sweepname=sweepname)
                 if not sweep:
@@ -1011,9 +965,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.",
-                        oldname,
-                        sweepname,
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
                     )
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.change_range("SinglePoint", freq0, unit=unit)

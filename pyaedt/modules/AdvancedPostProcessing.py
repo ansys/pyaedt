@@ -127,14 +127,7 @@ class PostProcessor(Post):
                     mag = 0
                 phase = 0
                 edit_sources_ctxt.append(
-                    [
-                        "Name:=",
-                        "{}".format(each),
-                        "Magnitude:=",
-                        "{}W".format(mag),
-                        "Phase:=",
-                        "{}deg".format(phase),
-                    ]
+                    ["Name:=", "{}".format(each), "Magnitude:=", "{}W".format(mag), "Phase:=", "{}deg".format(phase)]
                 )
             self.post_osolution.EditSources(edit_sources_ctxt)
 
@@ -144,9 +137,7 @@ class PostProcessor(Post):
 
             trace_name = "rETheta"
             solnData = self.get_far_field_data(
-                setup_sweep_name=setup_sweep_name,
-                domain=ff_setup,
-                expression=trace_name,
+                setup_sweep_name=setup_sweep_name, domain=ff_setup, expression=trace_name
             )
 
             data = solnData.nominal_variation
@@ -163,9 +154,7 @@ class PostProcessor(Post):
 
             trace_name = "rEPhi"
             solnData = self.get_far_field_data(
-                setup_sweep_name=setup_sweep_name,
-                domain=ff_setup,
-                expression=trace_name,
+                setup_sweep_name=setup_sweep_name, domain=ff_setup, expression=trace_name
             )
             data = solnData.nominal_variation
 
@@ -175,12 +164,7 @@ class PostProcessor(Post):
             Etheta = np.vectorize(complex)(real_theta, imag_theta)
             Ephi = np.vectorize(complex)(real_phi, imag_phi)
             source_name_without_mode = source.replace(":1", "")
-            results_dict[source_name_without_mode] = [
-                theta_range,
-                phi_range,
-                Etheta,
-                Ephi,
-            ]
+            results_dict[source_name_without_mode] = [theta_range, phi_range, Etheta, Ephi]
         return results_dict
 
     @aedt_exception_handler
@@ -350,11 +334,7 @@ class PostProcessor(Post):
         model.off_screen = not show
 
         if file_to_add:
-            model.add_field_from_file(
-                file_to_add,
-                coordinate_units=self.modeler.model_units,
-                show_edges=meshplot,
-            )
+            model.add_field_from_file(file_to_add, coordinate_units=self.modeler.model_units, show_edges=meshplot)
             if plot_label:
                 model.fields[0].label = plot_label
         if models:
@@ -433,10 +413,7 @@ class PostProcessor(Post):
                     [
                         "NAME:FieldsPostProcessorTab",
                         ["NAME:PropServers", "FieldsReporter:" + plotname],
-                        [
-                            "NAME:ChangedProps",
-                            ["NAME:" + variation_variable, "Value:=", el],
-                        ],
+                        ["NAME:ChangedProps", ["NAME:" + variation_variable, "Value:=", el]],
                     ],
                 ]
             )
@@ -621,11 +598,7 @@ class PostProcessor(Post):
 
             theta_range = ff_data[port][0]
             phi_range = ff_data[port][1]
-            theta = [
-                int(np.min(theta_range)),
-                int(np.max(theta_range)),
-                np.size(theta_range),
-            ]
+            theta = [int(np.min(theta_range)), int(np.max(theta_range)), np.size(theta_range)]
             phi = [int(np.min(phi_range)), int(np.max(phi_range)), np.size(phi_range)]
             Ntheta = len(theta_range)
             Nphi = len(phi_range)
@@ -668,12 +641,7 @@ class PostProcessor(Post):
 
     @aedt_exception_handler
     def create_3d_plot(
-        self,
-        solution_data,
-        nominal_sweep="Freq",
-        nominal_value=1,
-        primary_sweep="Theta",
-        secondary_sweep="Phi",
+        self, solution_data, nominal_sweep="Freq", nominal_value=1, primary_sweep="Theta", secondary_sweep="Phi"
     ):
         """Create a 3D plot using Matplotlib.
 
@@ -720,14 +688,6 @@ class PostProcessor(Post):
         fig1 = plt.figure()
         ax1 = fig1.add_subplot(1, 1, 1, projection="3d")
         plot = ax1.plot_surface(
-            X,
-            Y,
-            Z,
-            rstride=1,
-            cstride=1,
-            cmap=plt.get_cmap("jet"),
-            linewidth=0,
-            antialiased=True,
-            alpha=0.5,
+            X, Y, Z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.5
         )
         fig1.set_size_inches(10, 10)

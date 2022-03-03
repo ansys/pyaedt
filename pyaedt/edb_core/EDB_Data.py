@@ -111,14 +111,7 @@ class EDBNetsData(object):
         return comps
 
     @aedt_exception_handler
-    def plot(
-        self,
-        layers=None,
-        show_legend=True,
-        save_plot=None,
-        outline=None,
-        size=(2000, 1000),
-    ):
+    def plot(self, layers=None, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)):
         """Plot a Net to Matplotlib 2D Chart.
 
         Parameters
@@ -138,12 +131,7 @@ class EDBNetsData(object):
         """
 
         self._app.core_nets.plot(
-            self.name,
-            layers=layers,
-            show_legend=show_legend,
-            save_plot=save_plot,
-            outline=outline,
-            size=size,
+            self.name, layers=layers, show_legend=show_legend, save_plot=save_plot, outline=outline, size=size
         )
 
 
@@ -688,14 +676,7 @@ class EDBLayer(object):
             self.update_layers()
 
     @aedt_exception_handler
-    def plot(
-        self,
-        nets=None,
-        show_legend=True,
-        save_plot=None,
-        outline=None,
-        size=(2000, 1000),
-    ):
+    def plot(self, nets=None, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)):
         """Plot a Layer to Matplotlib 2D Chart.
 
         Parameters
@@ -742,16 +723,7 @@ class EDBLayer(object):
             pass
 
     @aedt_exception_handler
-    def update_layer_vals(
-        self,
-        layerName,
-        newLayer,
-        etchMap,
-        materialMap,
-        fillMaterialMap,
-        thicknessMap,
-        layerTypeMap,
-    ):
+    def update_layer_vals(self, layerName, newLayer, etchMap, materialMap, fillMaterialMap, thicknessMap, layerTypeMap):
         """Update layer properties.
 
         Parameters
@@ -959,10 +931,7 @@ class EDBLayers(object):
             ),
             allLayers,
         )
-        return sorted(
-            allStackuplayers,
-            key=lambda lyr=self._edb.Cell.StackupLayer: lyr.GetLowerElevation(),
-        )
+        return sorted(allStackuplayers, key=lambda lyr=self._edb.Cell.StackupLayer: lyr.GetLowerElevation())
 
     @property
     def signal_layers(self):
@@ -1146,13 +1115,7 @@ class EDBLayers(object):
                 )
                 self._edb_object[layerName] = EDBLayer(newLayer, self._pedbstackup)
                 newLayer = self._edb_object[layerName].update_layer_vals(
-                    layerName,
-                    newLayer,
-                    etchMap,
-                    material,
-                    fillMaterial,
-                    thickness,
-                    self._int_to_layer_types(layerType),
+                    layerName, newLayer, etchMap, material, fillMaterial, thickness, self._int_to_layer_types(layerType)
                 )
                 newLayer.SetLowerElevation(self._edb_value(el))
 
@@ -1495,14 +1458,7 @@ class EDBPadProperties(object):
 
     @aedt_exception_handler
     def _update_pad_parameters_parameters(
-        self,
-        layer_name=None,
-        pad_type=None,
-        geom_type=None,
-        params=None,
-        offsetx=None,
-        offsety=None,
-        rotation=None,
+        self, layer_name=None, pad_type=None, geom_type=None, params=None, offsetx=None, offsety=None, rotation=None
     ):
         """Update padstack parameters.
 
@@ -1701,11 +1657,7 @@ class EDBPadstack(object):
             rotation = self.hole_rotation
         if is_ironpython:
             newPadstackDefinitionData.SetHoleParameters(
-                hole_type,
-                params,
-                self._edb_value(offsetx),
-                self._edb_value(offsety),
-                self._edb_value(rotation),
+                hole_type, params, self._edb_value(offsetx), self._edb_value(offsety), self._edb_value(rotation)
             )
         else:
             newPadstackDefinitionData.SetHoleParameters(

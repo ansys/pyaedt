@@ -167,12 +167,7 @@ AEDT_UNITS = {
         "per_sec": V2PI,
         "rpm": SEC2MIN * V2PI,
     },
-    "Angle": {
-        "deg": DEG2RAD,
-        "rad": 1.0,
-        "degmin": DEG2RAD * SEC2MIN,
-        "degsec": DEG2RAD * SEC2HOUR,
-    },
+    "Angle": {"deg": DEG2RAD, "rad": 1.0, "degmin": DEG2RAD * SEC2MIN, "degsec": DEG2RAD * SEC2HOUR},
     "Current": {
         "fA": 1e-15,
         "pA": 1e-12,
@@ -200,23 +195,8 @@ AEDT_UNITS = {
         "kp": 9.80665,
         "PoundsForce": 4.44822,
     },
-    "Freq": {
-        "Hz": 1.0,
-        "kHz": 1e3,
-        "MHz": 1e6,
-        "GHz": 1e9,
-        "THz": 1e12,
-        "rps": 1.0,
-        "per_sec": 1.0,
-    },
-    "Inductance": {
-        "fH": 1e-15,
-        "pH": 1e-12,
-        "nH": 1e-9,
-        "uH": 1e-6,
-        "mH": 1e-3,
-        "H": 1.0,
-    },
+    "Freq": {"Hz": 1.0, "kHz": 1e3, "MHz": 1e6, "GHz": 1e9, "THz": 1e12, "rps": 1.0, "per_sec": 1.0},
+    "Inductance": {"fH": 1e-15, "pH": 1e-12, "nH": 1e-9, "uH": 1e-6, "mH": 1e-3, "H": 1.0},
     "Length": {
         "fm": 1e-15,
         "pm": 1e-12,
@@ -233,15 +213,7 @@ AEDT_UNITS = {
         "ft": METER2IN * 12,
         "yd": METER2IN * 144,
     },
-    "Mass": {
-        "ug": 1e-9,
-        "mg": 1e-6,
-        "g": 1e-3,
-        "kg": 1.0,
-        "ton": 1000,
-        "oz": 0.0283495,
-        "lb": 0.453592,
-    },
+    "Mass": {"ug": 1e-9, "mg": 1e-6, "g": 1e-3, "kg": 1.0, "ton": 1000, "oz": 0.0283495, "lb": 0.453592},
     "None": {
         "f": 1e-15,
         "p": 1e-12,
@@ -254,14 +226,7 @@ AEDT_UNITS = {
         "g": 1e9,
         "t": 1e12,
     },
-    "Resistance": {
-        "uOhm": 1e-6,
-        "mOhm": 1e-3,
-        "ohm": 1.0,
-        "kOhm": 1e3,
-        "megohm": 1e6,
-        "GOhm": 1e9,
-    },
+    "Resistance": {"uOhm": 1e-6, "mOhm": 1e-3, "ohm": 1.0, "kOhm": 1e3, "megohm": 1e6, "GOhm": 1e9},
     "Speed": {
         "mm_per_sec": 1e-3,
         "cm_per_sec": 1e-2,
@@ -437,7 +402,7 @@ class GLOBALCS(object):
 class MATRIXOPERATIONSQ3D(object):
     """Matrix Reduction types."""
 
-    (JoinSeries, JoinParallel, FloatNet, GroundNet, FloatTerminal, FloatInfinity, ReturnPath, AddSink, MoveSink,) = (
+    (JoinSeries, JoinParallel, FloatNet, GroundNet, FloatTerminal, FloatInfinity, ReturnPath, AddSink, MoveSink) = (
         "JoinSeries",
         "JoinParallel",
         "FloatNet",
@@ -479,20 +444,7 @@ class CATEGORIESQ3D(object):
             CrossTalkForward,
             LumpedCrossTalkForward,
             CrossTalkBackward,
-        ) = (
-            "C",
-            "G",
-            "R",
-            "L",
-            "lumpC",
-            "lumpG",
-            "lumpR",
-            "lumpL",
-            "Z0",
-            "Kf",
-            "lumpKf",
-            "Kb",
-        )
+        ) = ("C", "G", "R", "L", "lumpC", "lumpG", "lumpR", "lumpL", "Z0", "Kf", "lumpKf", "Kb")
 
     class Q3D(object):
         (C, G, DCL, DCR, ACL, ACR) = ("C", "G", "DCL", "DCR", "ACL", "ACR")
@@ -501,13 +453,7 @@ class CATEGORIESQ3D(object):
 class CSMODE(object):
     """COORDINATE SYSTEM MODE Enumerator class."""
 
-    (View, Axis, ZXZ, ZYZ, AXISROTATION) = (
-        "view",
-        "axis",
-        "zxz",
-        "zyz",
-        "axisrotation",
-    )
+    (View, Axis, ZXZ, ZYZ, AXISROTATION) = ("view", "axis", "zxz", "zyz", "axisrotation")
 
 
 class SEGMENTTYPE(object):
@@ -537,16 +483,7 @@ class FlipChipOrientation(object):
 class SourceType(object):
     """Type of excitation enumerator."""
 
-    (
-        CoaxPort,
-        CircPort,
-        LumpedPort,
-        Vsource,
-        Isource,
-        Resistor,
-        Inductor,
-        Capacitor,
-    ) = range(0, 8)
+    (CoaxPort, CircPort, LumpedPort, Vsource, Isource, Resistor, Inductor, Capacitor) = range(0, 8)
 
 
 class SOLUTIONS(object):
@@ -566,7 +503,7 @@ class SOLUTIONS(object):
     class Maxwell3d(object):
         """Provides Maxwell 3D solution types."""
 
-        (Transient, Magnetostatic, EddyCurrent, ElectroStatic, ElectroDCConduction, ElectroDCTransient,) = (
+        (Transient, Magnetostatic, EddyCurrent, ElectroStatic, ElectroDCConduction, ElectroDCTransient) = (
             "Transient",
             "Magnetostatic",
             "EddyCurrent",

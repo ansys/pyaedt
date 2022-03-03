@@ -519,12 +519,7 @@ class Components(object):
 
     @aedt_exception_handler
     def create_port_on_component(
-        self,
-        component,
-        net_list,
-        port_type=SourceType.CoaxPort,
-        do_pingroup=True,
-        reference_net="gnd",
+        self, component, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="gnd"
     ):
         """Create ports on given component.
 
@@ -644,8 +639,7 @@ class Components(object):
         """
 
         res, pin_position, pin_rot = pin.GetPositionAndRotation(
-            self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)),
-            0.0,
+            self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0
         )
         if not is_ironpython:
             res, from_layer, to_layer = pin.GetLayerRange(None, None)
@@ -676,15 +670,13 @@ class Components(object):
 
         """
         res, pin_position, pin_rot = pin.GetPositionAndRotation(
-            self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)),
-            0.0,
+            self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0
         )
         distance = 1e3
         closest_pin = ref_pinlist[0]
         for ref_pin in ref_pinlist:
             res, ref_pin_position, ref_pin_rot = ref_pin.GetPositionAndRotation(
-                self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)),
-                0.0,
+                self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0
             )
             temp_distance = pin_position.Distance(ref_pin_position)
             if temp_distance < distance:
@@ -1106,14 +1098,7 @@ class Components(object):
             return False
 
     @aedt_exception_handler
-    def set_component_rlc(
-        self,
-        componentname,
-        res_value=None,
-        ind_value=None,
-        cap_value=None,
-        isparallel=False,
-    ):
+    def set_component_rlc(self, componentname, res_value=None, ind_value=None, cap_value=None, isparallel=False):
         """Update values for an RLC component.
 
         Parameters
@@ -1185,12 +1170,7 @@ class Components(object):
 
     @aedt_exception_handler
     def update_rlc_from_bom(
-        self,
-        bom_file,
-        delimiter=";",
-        valuefield="Func des",
-        comptype="Prod name",
-        refdes="Pos / Place",
+        self, bom_file, delimiter=";", valuefield="Func des", comptype="Prod name", refdes="Pos / Place"
     ):
         """Update the EDC core component values (RLCs) with values coming from a BOM file.
 
@@ -1367,16 +1347,14 @@ class Components(object):
             res, pt_pos, rot_pos = pin.GetPositionAndRotation()
         else:
             res, pt_pos, rot_pos = pin.GetPositionAndRotation(
-                self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)),
-                0.0,
+                self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0
             )
         if pin.GetComponent().IsNull():
             transformed_pt_pos = pt_pos
         else:
             transformed_pt_pos = pin.GetComponent().GetTransform().TransformPoint(pt_pos)
         pin_xy = self._edb.Geometry.PointData(
-            self._edb_value(str(transformed_pt_pos.X.ToDouble())),
-            self._edb_value(str(transformed_pt_pos.Y.ToDouble())),
+            self._edb_value(str(transformed_pt_pos.X.ToDouble())), self._edb_value(str(transformed_pt_pos.Y.ToDouble()))
         )
         return [pin_xy.X.ToDouble(), pin_xy.Y.ToDouble()]
 
@@ -1618,34 +1596,10 @@ class Components(object):
             ]
             l0_min = l0.index(min(l0))
             p1 = []
-            p1.append(
-                [
-                    positions_to_short[i + 1][0] - delta_pins[i + 1],
-                    positions_to_short[i + 1][1],
-                    0,
-                ]
-            )
-            p1.append(
-                [
-                    positions_to_short[i + 1][0] + delta_pins[i + 1],
-                    positions_to_short[i + 1][1],
-                    0,
-                ]
-            )
-            p1.append(
-                [
-                    positions_to_short[i + 1][0],
-                    positions_to_short[i + 1][1] - delta_pins[i + 1],
-                    0,
-                ]
-            )
-            p1.append(
-                [
-                    positions_to_short[i + 1][0],
-                    positions_to_short[i + 1][1] + delta_pins[i + 1],
-                    0,
-                ]
-            )
+            p1.append([positions_to_short[i + 1][0] - delta_pins[i + 1], positions_to_short[i + 1][1], 0])
+            p1.append([positions_to_short[i + 1][0] + delta_pins[i + 1], positions_to_short[i + 1][1], 0])
+            p1.append([positions_to_short[i + 1][0], positions_to_short[i + 1][1] - delta_pins[i + 1], 0])
+            p1.append([positions_to_short[i + 1][0], positions_to_short[i + 1][1] + delta_pins[i + 1], 0])
             p1.append([positions_to_short[i + 1][0], positions_to_short[i + 1][1], 0])
 
             l1 = [

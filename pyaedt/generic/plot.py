@@ -79,15 +79,7 @@ def is_float(istring):
         return 0
 
 
-def plot_matplotlib(
-    plot_data,
-    size=(2000, 1000),
-    show_legend=True,
-    xlabel="",
-    ylabel="",
-    title="",
-    snapshot_path=None,
-):
+def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
     """Create a matplotlib plot based on a list of data.
 
     Parameters
@@ -643,14 +635,7 @@ class ModelPlotter(object):
         """
         self._fields.append(
             FieldClass(
-                None,
-                log_scale,
-                coordinate_units,
-                opacity,
-                color_map,
-                label_name,
-                surface_mapping_tolerance,
-                show_edges,
+                None, log_scale, coordinate_units, opacity, color_map, label_name, surface_mapping_tolerance, show_edges
             )
         )
         vertices = np.array(coordinates)
@@ -940,12 +925,7 @@ class ModelPlotter(object):
                     )
                 )
                 texts.append(
-                    self.pv.add_text(
-                        actor.name,
-                        position=(50.0, startpos + 50),
-                        font_size=size // 3,
-                        color=axes_color,
-                    )
+                    self.pv.add_text(actor.name, position=(50.0, startpos + 50), font_size=size // 3, color=axes_color)
                 )
                 startpos = startpos - size - (size // 10)
                 el += 1
@@ -965,12 +945,7 @@ class ModelPlotter(object):
                     )
                 )
                 texts.append(
-                    self.pv.add_text(
-                        actor.name,
-                        position=(50.0, startpos + 50),
-                        font_size=size // 3,
-                        color=axes_color,
-                    )
+                    self.pv.add_text(actor.name, position=(50.0, startpos + 50), font_size=size // 3, color=axes_color)
                 )
                 startpos = startpos - size - (size // 10)
                 el += 1
@@ -986,15 +961,9 @@ class ModelPlotter(object):
                 color_on=axes_color,
                 color_off=axes_color,
             )
-            self.pv.add_text(
-                "Next",
-                position=(50.0, self.pv.window_size[1]),
-                font_size=size // 3,
-                color="grey",
-            )
+            self.pv.add_text("Next", position=(50.0, self.pv.window_size[1]), font_size=size // 3, color="grey")
             self.pv.button_widgets.insert(
-                0,
-                self.pv.button_widgets.pop(self.pv.button_widgets.index(self.pv.button_widgets[-1])),
+                0, self.pv.button_widgets.pop(self.pv.button_widgets.index(self.pv.button_widgets[-1]))
             )
 
     @aedt_exception_handler
@@ -1012,11 +981,7 @@ class ModelPlotter(object):
         bool
         """
         start = time.time()
-        self.pv = pv.Plotter(
-            notebook=self.is_notebook,
-            off_screen=self.off_screen,
-            window_size=self.windows_size,
-        )
+        self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
         self.pv.background_color = [i / 255 for i in self.background_color]
         self._read_mesh_files()
 
@@ -1092,8 +1057,7 @@ class ModelPlotter(object):
         def s_callback():  # pragma: no cover
             """save screenshots"""
             exp = os.path.join(
-                path_image,
-                "{}{}{}".format(root_name, datetime.now().strftime("%Y_%M_%d_%H-%M-%S"), format),
+                path_image, "{}{}{}".format(root_name, datetime.now().strftime("%Y_%M_%d_%H-%M-%S"), format)
             )
             self.pv.screenshot(exp, return_img=False)
 
@@ -1149,17 +1113,9 @@ class ModelPlotter(object):
         start = time.time()
         assert len(self.frames) > 0, "Number of Fields have to be greater than 1 to do an animation."
         if self.is_notebook:
-            self.pv = pv.Plotter(
-                notebook=self.is_notebook,
-                off_screen=True,
-                window_size=self.windows_size,
-            )
+            self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)
         else:
-            self.pv = pv.Plotter(
-                notebook=self.is_notebook,
-                off_screen=self.off_screen,
-                window_size=self.windows_size,
-            )
+            self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
 
         self.pv.background_color = [i / 255 for i in self.background_color]
         self._read_mesh_files(read_frames=True)
@@ -1204,10 +1160,7 @@ class ModelPlotter(object):
             self._pause = not self._pause
 
         self.pv.add_text(
-            "Press p for Play/Pause, Press q to exit ",
-            font_size=8,
-            position="upper_left",
-            color=tuple(axes_color),
+            "Press p for Play/Pause, Press q to exit ", font_size=8, position="upper_left", color=tuple(axes_color)
         )
         self.pv.add_text(" ", font_size=10, position=[0, 0], color=tuple(axes_color))
         self.pv.add_key_event("q", q_callback)

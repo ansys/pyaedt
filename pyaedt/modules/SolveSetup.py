@@ -308,12 +308,7 @@ class Setup(object):
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
         expression_cache = self._expression_cache(
-            expressions,
-            report_type,
-            intrinsics,
-            isconvergence,
-            isrelativeconvergence,
-            conv_criteria,
+            expressions, report_type, intrinsics, isconvergence, isrelativeconvergence, conv_criteria
         )
         arg.append(expression_cache)
         self.omodule.EditSetup(self.name, arg)
@@ -665,13 +660,7 @@ class SetupCircuit(object):
         return True
 
     @aedt_exception_handler
-    def add_sweep_points(
-        self,
-        sweep_variable="Freq",
-        sweep_points=1,
-        units="GHz",
-        override_existing_sweep=True,
-    ):
+    def add_sweep_points(self, sweep_variable="Freq", sweep_points=1, units="GHz", override_existing_sweep=True):
         """Add a linear count sweep to existing Circuit Setup.
 
         Parameters
@@ -841,14 +830,7 @@ class SetupCircuit(object):
             return self.update()
         if isinstance(self.props["SweepDefinition"], (OrderedDict, dict)):
             self.props["SweepDefinition"] = [self.props["SweepDefinition"]]
-        prop = OrderedDict(
-            {
-                "Variable": sweep_variable,
-                "Data": equation,
-                "OffsetF1": False,
-                "Synchronize": 0,
-            }
-        )
+        prop = OrderedDict({"Variable": sweep_variable, "Data": equation, "OffsetF1": False, "Synchronize": 0})
         self.props["SweepDefinition"].append(prop)
         return self.update()
 
@@ -1009,12 +991,7 @@ class SetupCircuit(object):
         arg = ["Name:SimSetup"]
         _dict2arg(self.props, arg)
         expression_cache = self._expression_cache(
-            expressions,
-            report_type,
-            intrinsics,
-            isconvergence,
-            isrelativeconvergence,
-            conv_criteria,
+            expressions, report_type, intrinsics, isconvergence, isrelativeconvergence, conv_criteria
         )
         arg.append(expression_cache)
         self.omodule.EditSetup(self.name, arg)
@@ -1417,11 +1394,7 @@ class SetupHFSS(Setup, object):
         if sweepname in [sweep.name for sweep in self.sweeps]:
             oldname = sweepname
             sweepname = generate_unique_name(oldname)
-            self.logger.warning(
-                "Sweep %s is already present. Sweep has been renamed in %s.",
-                oldname,
-                sweepname,
-            )
+            self.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
         sweepdata = self.add_sweep(sweepname, sweep_type)
         if not sweepdata:
             return False
@@ -1517,9 +1490,7 @@ class SetupHFSS(Setup, object):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.",
-                        oldname,
-                        sweepname,
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
                     )
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
                 if not sweepdata:
@@ -1630,9 +1601,7 @@ class SetupHFSS(Setup, object):
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.",
-                        oldname,
-                        sweepname,
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
                     )
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
                 sweepdata.props["RangeType"] = "SinglePoints"
@@ -1644,12 +1613,7 @@ class SetupHFSS(Setup, object):
                 sweepdata.props["SMatrixOnlySolveMode"] = "Auto"
                 if add_subranges:
                     for f, s in zip(freq, save_single_field):
-                        sweepdata.add_subrange(
-                            rangetype="SinglePoints",
-                            start=f,
-                            unit=unit,
-                            save_single_fields=s,
-                        )
+                        sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
                 sweepdata.update()
                 self.logger.info("Single point sweep {} has been correctly created".format(sweepname))
                 return sweepdata

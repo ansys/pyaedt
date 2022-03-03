@@ -4,28 +4,13 @@ from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.general_methods import aedt_exception_handler
 
 meshlink = [("ImportMesh", False)]
-autosweep = [
-    ("RangeType", "LinearStep"),
-    ("RangeStart", "1GHz"),
-    ("RangeEnd", "10GHz"),
-    ("RangeStep", "1GHz"),
-]
+autosweep = [("RangeType", "LinearStep"), ("RangeStart", "1GHz"), ("RangeEnd", "10GHz"), ("RangeStep", "1GHz")]
 autosweeps = [("Sweep", autosweep)]
 multifreq = [("1GHz", [0.02]), ("2GHz", [0.02]), ("5GHz", [0.02])]
-sweepsbr = [
-    ("RangeType", "LinearStep"),
-    ("RangeStart", "1GHz"),
-    ("RangeEnd", "10GHz"),
-    ("RangeStep", "1GHz"),
-]
+sweepsbr = [("RangeType", "LinearStep"), ("RangeStart", "1GHz"), ("RangeEnd", "10GHz"), ("RangeStep", "1GHz")]
 sweepssbr = [("Sweep", sweepsbr)]
 muoption = [("MuNonLinearBH", True)]
-transientelectrostatic = [
-    ("SaveField", True),
-    ("Stop", "100s"),
-    ("InitialStep", "0.01s"),
-    ("MaxStep", "5s"),
-]
+transientelectrostatic = [("SaveField", True), ("Stop", "100s"), ("InitialStep", "0.01s"), ("MaxStep", "5s")]
 transienthfss = [
     ("TimeProfile", "Broadband Pulse"),
     ("HfssFrequency", "5GHz"),
@@ -405,20 +390,8 @@ SteadyFlowOnly = [
 ]
 """Icepack steady flow setup properties and default values."""
 
-Q3DCond = [
-    ("MaxPass", 10),
-    ("MinPass", 1),
-    ("MinConvPass", 1),
-    ("PerError", 1),
-    ("PerRefine", 30),
-]
-Q3DMult = [
-    ("MaxPass", 1),
-    ("MinPass", 1),
-    ("MinConvPass", 1),
-    ("PerError", 1),
-    ("PerRefine", 30),
-]
+Q3DCond = [("MaxPass", 10), ("MinPass", 1), ("MinConvPass", 1), ("PerError", 1), ("PerRefine", 30)]
+Q3DMult = [("MaxPass", 1), ("MinPass", 1), ("MinConvPass", 1), ("PerError", 1), ("PerRefine", 30)]
 Q3DDC = [("SolveResOnly", False), ("Cond", Q3DCond), ("Mult", Q3DMult)]
 Q3DCap = [
     ("MaxPass", 10),
@@ -430,13 +403,7 @@ Q3DCap = [
     ("SolutionOrder", "High"),
     ("Solver Type", "Iterative"),
 ]
-Q3DAC = [
-    ("MaxPass", 10),
-    ("MinPass", 1),
-    ("MinConvPass", 1),
-    ("PerError", 1),
-    ("PerRefine", 30),
-]
+Q3DAC = [("MaxPass", 10), ("MinPass", 1), ("MinConvPass", 1), ("PerError", 1), ("PerRefine", 30)]
 Matrix = [
     ("AdaptiveFreq", "1GHz"),
     ("SaveFields", False),
@@ -449,12 +416,7 @@ Matrix = [
 
 OutputQuantities = []
 NoiseOutputQuantities = []
-SweepDefinition = [
-    ("Variable", "Freq"),
-    ("Data", "LINC 1GHz 5GHz 501"),
-    ("OffsetF1", False),
-    ("Synchronize", 0),
-]
+SweepDefinition = [("Variable", "Freq"), ("Data", "LINC 1GHz 5GHz 501"), ("OffsetF1", False), ("Synchronize", 0)]
 NexximLNA = [
     ("DataBlockID", 16),
     ("OptionName", "(Default Options)"),
@@ -956,12 +918,7 @@ def HFSS3DLayout_AdaptiveFrequencyData(freq):
         List of frequency data.
 
     """
-    value = [
-        ("AdaptiveFrequency", freq),
-        ("MaxDelta", "0.02"),
-        ("MaxPasses", 10),
-        ("Expressions", [], None),
-    ]
+    value = [("AdaptiveFrequency", freq), ("MaxDelta", "0.02"), ("MaxPasses", 10), ("Expressions", [], None)]
     return value
 
 
@@ -982,10 +939,7 @@ HFSS3DLayout_AdaptiveSettings = [
     ("MaxRefinePerPass", 30),
     ("MinPasses", 1),
     ("MinConvergedPasses", 1),
-    (
-        "AdaptType",
-        "kSingle",
-    ),  # possible values are "kSingle", "kMultiFrequencies", "kBroadband"
+    ("AdaptType", "kSingle"),  # possible values are "kSingle", "kMultiFrequencies", "kBroadband"
     ("Basic", True),
     ("SingleFrequencyDataList", HFSS3DLayout_SingleFrequencyDataList),
     ("BroadbandFrequencyDataList", HFSS3DLayout_BroadbandFrequencyDataList),
@@ -1046,11 +1000,7 @@ HFSS3DLayout = [
     ("InclBBoxOption", 1),
     ("AuxBlock", []),
     ("DoAdaptive", True),
-    (
-        "Color",
-        ["R:=", 0, "G:=", 0, "B:=", 0],
-        None,
-    ),  # TODO: create something smart for color arrays, like a class
+    ("Color", ["R:=", 0, "G:=", 0, "B:=", 0], None),  # TODO: create something smart for color arrays, like a class
     ("AdvancedSettings", HFSS3DLayout_AdvancedSettings),
     ("CurveApproximation", HFSS3DLayout_CurveApproximation),
     ("Q3D_DCSettings", HFSS3DLayout_Q3D_DCSettings),
@@ -1292,16 +1242,7 @@ class SweepHFSS(object):
             self.props["SweepRanges"] = {"Subrange": []}
 
     @aedt_exception_handler
-    def add_subrange(
-        self,
-        rangetype,
-        start,
-        end=None,
-        count=None,
-        unit="GHz",
-        save_single_fields=False,
-        clear=False,
-    ):
+    def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz", save_single_fields=False, clear=False):
         """Add a subrange to the sweep.
 
         Parameters
@@ -1474,12 +1415,7 @@ class SweepHFSS3DLayout(object):
 
             self.props["Properties"] = OrderedDict({"Enable": True})
             self.props["Sweeps"] = OrderedDict(
-                {
-                    "Variable": "Sweep 1",
-                    "Data": "LIN 1Hz 20GHz 0.05GHz",
-                    "OffsetF1": False,
-                    "Synchronize": 0,
-                }
+                {"Variable": "Sweep 1", "Data": "LIN 1Hz 20GHz 0.05GHz", "OffsetF1": False, "Synchronize": 0}
             )
             self.props["GenerateSurfaceCurrent"] = save_fields
             self.props["SaveRadFieldsOnly"] = False

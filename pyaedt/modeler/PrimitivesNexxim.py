@@ -161,8 +161,7 @@ class NexximComponents(CircuitComponents):
            Use :func:`Circuit.modeler.schematic.add_subcircuit_3dlayout` instead.
         """
         warnings.warn(
-            "`create_3dlayout_subcircuit` is deprecated. Use `add_subcircuit_3dlayout` instead.",
-            DeprecationWarning,
+            "`create_3dlayout_subcircuit` is deprecated. Use `add_subcircuit_3dlayout` instead.", DeprecationWarning
         )
         return self.add_subcircuit_3dlayout(sourcename)
 
@@ -188,20 +187,7 @@ class NexximComponents(CircuitComponents):
         """
         self._app._oproject.CopyDesign(sourcename)
         self._oeditor.PasteDesign(
-            0,
-            [
-                "NAME:Attributes",
-                "Page:=",
-                1,
-                "X:=",
-                0,
-                "Y:=",
-                0,
-                "Angle:=",
-                0,
-                "Flip:=",
-                False,
-            ],
+            0, ["NAME:Attributes", "Page:=", 1, "X:=", 0, "Y:=", 0, "Angle:=", 0, "Flip:=", False]
         )
         self.refresh_all_ids()
         for el in self.components:
@@ -429,16 +415,7 @@ class NexximComponents(CircuitComponents):
                 "MenuProp:=",
                 ["CoSimulator", "SD", "", "Default", 0],
                 "ButtonProp:=",
-                [
-                    "CosimDefinition",
-                    "SD",
-                    "",
-                    "Edit",
-                    "Edit",
-                    40501,
-                    "ButtonPropClientData:=",
-                    [],
-                ],
+                ["CosimDefinition", "SD", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []],
             ]
         )
         arg.append(
@@ -475,14 +452,7 @@ class NexximComponents(CircuitComponents):
         return False
 
     @aedt_exception_handler
-    def create_resistor(
-        self,
-        compname=None,
-        value=50,
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
-    ):
+    def create_resistor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
         Parameters
@@ -510,24 +480,14 @@ class NexximComponents(CircuitComponents):
         >>> oEditor.CreateComponent
         """
         cmpid = self.create_component(
-            compname,
-            location=location,
-            angle=angle,
-            use_instance_id_netlist=use_instance_id_netlist,
+            compname, location=location, angle=angle, use_instance_id_netlist=use_instance_id_netlist
         )
 
         cmpid.set_property("R", value)
         return cmpid
 
     @aedt_exception_handler
-    def create_inductor(
-        self,
-        compname=None,
-        value=50,
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
-    ):
+    def create_inductor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
         Parameters
@@ -568,14 +528,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_capacitor(
-        self,
-        compname=None,
-        value=50,
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
-    ):
+    def create_capacitor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
         Parameters
@@ -615,14 +568,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_voltage_dc(
-        self,
-        compname=None,
-        value=1,
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
-    ):
+    def create_voltage_dc(self, compname=None, value=1, location=[], angle=0, use_instance_id_netlist=False):
         """Create a voltage DC source.
 
         Parameters
@@ -662,14 +608,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_current_pulse(
-        self,
-        compname=None,
-        value_lists=[],
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
-    ):
+    def create_current_pulse(self, compname=None, value_lists=[], location=[], angle=0, use_instance_id_netlist=False):
         """Create a current pulse.
 
         Parameters
@@ -723,14 +662,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_voltage_pulse(
-        self,
-        compname=None,
-        value_lists=[],
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
-    ):
+    def create_voltage_pulse(self, compname=None, value_lists=[], location=[], angle=0, use_instance_id_netlist=False):
         """Create a voltage pulse.
 
         Parameters
@@ -784,14 +716,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_current_dc(
-        self,
-        compname=None,
-        value=1,
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
-    ):
+    def create_current_dc(self, compname=None, value=1, location=[], angle=0, use_instance_id_netlist=False):
         """Create a current DC source.
 
         Parameters
@@ -830,16 +755,7 @@ class NexximComponents(CircuitComponents):
         cmpid.set_property("DC", value)
         return cmpid
 
-    def create_coupling_inductors(
-        self,
-        compname,
-        l1,
-        l2,
-        value=1,
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
-    ):
+    def create_coupling_inductors(self, compname, l1, l2, value=1, location=[], angle=0, use_instance_id_netlist=False):
         """Create a coupling inductor.
 
         Parameters
@@ -885,14 +801,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_diode(
-        self,
-        compname=None,
-        model_name="required",
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
-    ):
+    def create_diode(self, compname=None, model_name="required", location=[], angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
         Parameters
@@ -932,14 +841,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @aedt_exception_handler
-    def create_npn(
-        self,
-        compname=None,
-        value=None,
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
-    ):
+    def create_npn(self, compname=None, value=None, location=[], angle=0, use_instance_id_netlist=False):
         """Create an NPN transistor.
 
         Parameters
@@ -979,14 +881,7 @@ class NexximComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_pnp(
-        self,
-        compname=None,
-        value=50,
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
-    ):
+    def create_pnp(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a PNP transistor.
 
         Parameters
@@ -1129,18 +1024,7 @@ class NexximComponents(CircuitComponents):
                 arg2.append("ValueProp:=")
                 arg2.append([el, "D", "", val, False, ""])
         arg2.append("ButtonProp:=")
-        arg2.append(
-            [
-                "CosimDefinition",
-                "D",
-                "",
-                "Edit",
-                "Edit",
-                40501,
-                "ButtonPropClientData:=",
-                [],
-            ]
-        )
+        arg2.append(["CosimDefinition", "D", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []])
         arg2.append("MenuProp:=")
         arg2.append(["CoSimulator", "D", "", "DefaultNetlist", 0])
 
@@ -1182,16 +1066,7 @@ class NexximComponents(CircuitComponents):
 
     @aedt_exception_handler
     def get_comp_custom_settings(
-        self,
-        toolNum,
-        dc=0,
-        interp=0,
-        extrap=1,
-        conv=0,
-        passivity=0,
-        reciprocal="False",
-        opt="",
-        data_type=1,
+        self, toolNum, dc=0, interp=0, extrap=1, conv=0, passivity=0, reciprocal="False", opt="", data_type=1
     ):
         """Retrieve custom settings for a resistor.
 
@@ -1508,12 +1383,7 @@ class NexximComponents(CircuitComponents):
                 warnings.warn("Image extension is not valid. Use default image instead.")
         if not image_subcircuit_path:
             image_subcircuit_path = os.path.normpath(
-                os.path.join(
-                    self._modeler._app.desktop_install_dir,
-                    "syslib",
-                    "Bitmaps",
-                    icon_file,
-                )
+                os.path.join(self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", icon_file)
             )
         filename = ""
         comp_name_aux = generate_unique_name(source_design_name)
@@ -1603,15 +1473,7 @@ class NexximComponents(CircuitComponents):
         else:
             if not matrix:
                 matrix = ["NAME:Reduce Matrix Choices", "Original"]
-            compInfo.extend(
-                [
-                    "Reduce Matrix:=",
-                    default_matrix,
-                    matrix,
-                    "EnableCableModeling:=",
-                    enable_cable_modeling,
-                ]
-            )
+            compInfo.extend(["Reduce Matrix:=", default_matrix, matrix, "EnableCableModeling:=", enable_cable_modeling])
 
         self.o_model_manager.Add(compInfo)
 
@@ -1700,18 +1562,7 @@ class NexximComponents(CircuitComponents):
         variable_args.append("MenuProp:=")
         variable_args.append(["CoSimulator", "SD", "", "Default", 0])
         variable_args.append("ButtonProp:=")
-        variable_args.append(
-            [
-                "CosimDefinition",
-                "SD",
-                "",
-                "Edit",
-                "Edit",
-                40501,
-                "ButtonPropClientData:=",
-                [],
-            ]
-        )
+        variable_args.append(["CosimDefinition", "SD", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []])
 
         compInfo2.append(variable_args)
         compInfo2.append(

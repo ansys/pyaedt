@@ -432,16 +432,8 @@ class EdbSiwave(object):
             res, fromLayer_pos, toLayer_pos = pos_pin.GetLayerRange()
             res, fromLayer_neg, toLayer_neg = neg_pin.GetLayerRange()
         else:
-            (
-                res,
-                fromLayer_pos,
-                toLayer_pos,
-            ) = source.positive_node.node_pins.GetLayerRange(None, None)
-            (
-                res,
-                fromLayer_neg,
-                toLayer_neg,
-            ) = source.negative_node.node_pins.GetLayerRange(None, None)
+            res, fromLayer_pos, toLayer_pos = source.positive_node.node_pins.GetLayerRange(None, None)
+            res, fromLayer_neg, toLayer_neg = source.negative_node.node_pins.GetLayerRange(None, None)
         pos_pingroup_terminal = _retry_ntimes(
             10,
             self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,
@@ -782,10 +774,7 @@ class EdbSiwave(object):
         neg_node_pins = self._pedb.core_components.get_pin_from_component(negative_component_name, negative_net_name)
         if port_name == "":
             port_name = "Port_{}_{}_{}_{}".format(
-                positive_component_name,
-                positive_net_name,
-                negative_component_name,
-                negative_net_name,
+                positive_component_name, positive_net_name, negative_component_name, negative_net_name
             )
         circuit_port.name = port_name
         circuit_port.positive_node.component_node = pos_node_cmp
@@ -853,10 +842,7 @@ class EdbSiwave(object):
 
         if source_name == "":
             source_name = "Vsource_{}_{}_{}_{}".format(
-                positive_component_name,
-                positive_net_name,
-                negative_component_name,
-                negative_net_name,
+                positive_component_name, positive_net_name, negative_component_name, negative_net_name
             )
         voltage_source.name = source_name
         voltage_source.positive_node.component_node = pos_node_cmp
@@ -924,10 +910,7 @@ class EdbSiwave(object):
 
         if source_name == "":
             source_name = "Port_{}_{}_{}_{}".format(
-                positive_component_name,
-                positive_net_name,
-                negative_component_name,
-                negative_net_name,
+                positive_component_name, positive_net_name, negative_component_name, negative_net_name
             )
         current_source.name = source_name
         current_source.positive_node.component_node = pos_node_cmp
@@ -990,10 +973,7 @@ class EdbSiwave(object):
 
         if resistor_name == "":
             resistor_name = "Port_{}_{}_{}_{}".format(
-                positive_component_name,
-                positive_net_name,
-                negative_component_name,
-                negative_net_name,
+                positive_component_name, positive_net_name, negative_component_name, negative_net_name
             )
         resistor.name = resistor_name
         resistor.positive_node.component_node = pos_node_cmp

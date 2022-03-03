@@ -109,11 +109,7 @@ class NativeComponentObject(BoundaryCommon, object):
                 "VersionHistory": [],
                 "NativeComponentDefinitionProvider": OrderedDict({"Type": component_type}),
                 "InstanceParameters": OrderedDict(
-                    {
-                        "GeometryParameters": "",
-                        "MaterialParameters": "",
-                        "DesignParameters": "",
-                    }
+                    {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""}
                 ),
             }
         )
@@ -706,14 +702,7 @@ class FarFieldSetup(FieldSetup, object):
         actual_defs = None
         defs = None
         if actual_value != value and value == "Theta-Phi":
-            defs = [
-                "ThetaStart",
-                "ThetaStop",
-                "ThetaStep",
-                "PhiStart",
-                "PhiStop",
-                "PhiStep",
-            ]
+            defs = ["ThetaStart", "ThetaStop", "ThetaStep", "PhiStart", "PhiStop", "PhiStep"]
             actual_defs = [
                 "AzimuthStart",
                 "AzimuthStop",
@@ -723,23 +712,9 @@ class FarFieldSetup(FieldSetup, object):
                 "ElevationStep",
             ]
         elif actual_value != value and value == "El Over Az":
-            defs = [
-                "AzimuthStart",
-                "AzimuthStop",
-                "AzimuthStep",
-                "ElevationStart",
-                "ElevationStop",
-                "ElevationStep",
-            ]
+            defs = ["AzimuthStart", "AzimuthStop", "AzimuthStep", "ElevationStart", "ElevationStop", "ElevationStep"]
             if actual_value == "Theta-Phi":
-                actual_defs = [
-                    "ThetaStart",
-                    "ThetaStop",
-                    "ThetaStep",
-                    "PhiStart",
-                    "PhiStop",
-                    "PhiStep",
-                ]
+                actual_defs = ["ThetaStart", "ThetaStop", "ThetaStep", "PhiStart", "PhiStop", "PhiStep"]
             else:
                 actual_defs = [
                     "AzimuthStart",
@@ -750,23 +725,9 @@ class FarFieldSetup(FieldSetup, object):
                     "ElevationStep",
                 ]
         elif actual_value != value:
-            defs = [
-                "ElevationStart",
-                "ElevationStop",
-                "ElevationStep",
-                "AzimuthStart",
-                "AzimuthStop",
-                "AzimuthStep",
-            ]
+            defs = ["ElevationStart", "ElevationStop", "ElevationStep", "AzimuthStart", "AzimuthStop", "AzimuthStep"]
             if actual_value == "Theta-Phi":
-                actual_defs = [
-                    "ThetaStart",
-                    "ThetaStop",
-                    "ThetaStep",
-                    "PhiStart",
-                    "PhiStop",
-                    "PhiStep",
-                ]
+                actual_defs = ["ThetaStart", "ThetaStop", "ThetaStep", "PhiStart", "PhiStop", "PhiStep"]
             else:
                 actual_defs = [
                     "ElevationStart",
@@ -1233,11 +1194,7 @@ class Matrix(object):
             new_source = source_names[0]
             new_sink = generate_unique_name("Sink")
             command = "{}('{}', '{}', '{}', '{}')".format(
-                self._operations[-1],
-                new_name,
-                new_source,
-                new_sink,
-                "', '".join(source_names),
+                self._operations[-1], new_name, new_source, new_sink, "', '".join(source_names)
             )
         elif self._operations[-1] == "JoinSelectedTerminals":
             command = "{}('', '{}')".format(self._operations[-1], "', '".join(source_names))
@@ -1262,11 +1219,7 @@ class Matrix(object):
                 if el.name == source_names[0]:
                     id = self._app.modeler[el.props["Objects"][0]].id
             command = "{}(SelectionArray[{}: '{}'], OverrideInfo({}, '{}'))".format(
-                self._operations[-1],
-                len(source_names),
-                "', '".join(source_names),
-                id,
-                pair_name,
+                self._operations[-1], len(source_names), "', '".join(source_names), id, pair_name
             )
         else:
             command = "{}('{}')".format(self._operations[-1], "', '".join(source_names))

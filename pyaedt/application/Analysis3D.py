@@ -323,30 +323,10 @@ class FieldAnalysis3D(Analysis, object):
         >>> oDesign.GetPropertyValue
         """
 
-        boundary = {
-            "HFSS": "HfssTab",
-            "Icepak": "Icepak",
-            "Q3D": "Q3D",
-            "Maxwell3D": "Maxwell3D",
-        }
-        excitation = {
-            "HFSS": "HfssTab",
-            "Icepak": "Icepak",
-            "Q3D": "Q3D",
-            "Maxwell3D": "Maxwell3D",
-        }
-        setup = {
-            "HFSS": "HfssTab",
-            "Icepak": "Icepak",
-            "Q3D": "General",
-            "Maxwell3D": "General",
-        }
-        mesh = {
-            "HFSS": "MeshSetupTab",
-            "Icepak": "Icepak",
-            "Q3D": "Q3D",
-            "Maxwell3D": "Maxwell3D",
-        }
+        boundary = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
+        excitation = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
+        setup = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "General", "Maxwell3D": "General"}
+        mesh = {"HFSS": "MeshSetupTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
         all = {
             "HFSS": ["HfssTab", "MeshSetupTab"],
             "Icepak": ["Icepak"],
@@ -376,26 +356,13 @@ class FieldAnalysis3D(Analysis, object):
             for propserv in propservs:
                 properties = list(self.odesign.GetProperties(propserv, objectname))
                 if property in properties:
-                    val = _retry_ntimes(
-                        10,
-                        self.odesign.GetPropertyValue,
-                        propserv,
-                        objectname,
-                        property,
-                    )
+                    val = _retry_ntimes(10, self.odesign.GetPropertyValue, propserv, objectname, property)
                     return val
         return None
 
     # TODO Refactor this
     @aedt_exception_handler
-    def copy_solid_bodies_from(
-        self,
-        design,
-        object_list=None,
-        no_vacuum=True,
-        no_pec=True,
-        include_sheets=False,
-    ):
+    def copy_solid_bodies_from(self, design, object_list=None, no_vacuum=True, no_pec=True, include_sheets=False):
         """Copy a list of objects from one design to the active design.
 
         Parameters
@@ -455,10 +422,7 @@ class FieldAnalysis3D(Analysis, object):
            Use :func:`pyaedt.application.Analysis3D.modeler.export_3d_model` instead.
 
         """
-        warnings.warn(
-            "`export3DModel` is deprecated. Use `export_3d_model` instead.",
-            DeprecationWarning,
-        )
+        warnings.warn("`export3DModel` is deprecated. Use `export_3d_model` instead.", DeprecationWarning)
         return self.export_3d_model(fileName, filePath, fileFormat, object_list, removed_objects)
 
     @aedt_exception_handler

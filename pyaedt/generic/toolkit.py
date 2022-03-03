@@ -107,14 +107,7 @@ else:
 from System.Threading import Thread, ThreadStart, ApartmentState
 from System.Windows import LogicalTreeHelper
 from System.Windows import Window, Application, Visibility, Input, Thickness
-from System.Windows.Forms import (
-    Form,
-    ListBox,
-    Button,
-    MessageBox,
-    MessageBoxIcon,
-    MessageBoxButtons,
-)
+from System.Windows.Forms import Form, ListBox, Button, MessageBox, MessageBoxIcon, MessageBoxButtons
 from System.Windows.Forms import (
     FormBorderStyle,
     StatusBar,
@@ -126,11 +119,7 @@ from System.Windows.Forms import (
 from System.Windows.Media import Brushes
 from System.Drawing import Size, Point
 
-from System.Windows.Media.Imaging import (
-    BitmapImage,
-    BitmapCacheOption,
-    BitmapCreateOptions,
-)
+from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption, BitmapCreateOptions
 from System import Uri, UriKind, Environment
 from System.Windows.Media.Imaging import BitmapImage
 
@@ -221,11 +210,7 @@ def copy_files_mkdir(root, files_in_subdir):
 
 @aedt_exception_handler
 def launch(
-    workflow_module,
-    specified_version=None,
-    new_desktop_session=True,
-    autosave=False,
-    close_desktop_on_exit=False,
+    workflow_module, specified_version=None, new_desktop_session=True, autosave=False, close_desktop_on_exit=False
 ):
     """Launches the ApplicationWindow class for the given module name which must lie within the path scope of
         the calling toolkit. Optionally the version can be specified in the form 20xx.y, e.g. 2021.2,
@@ -247,13 +232,7 @@ def launch(
         Define if Desktop has to be closed on exit.
     """
     sys.path.append(os.path.dirname(workflow_module))
-    app = ApplicationThread(
-        workflow_module,
-        specified_version,
-        new_desktop_session,
-        autosave,
-        close_desktop_on_exit,
-    )
+    app = ApplicationThread(workflow_module, specified_version, new_desktop_session, autosave, close_desktop_on_exit)
 
     if sys.implementation.name != "ironpython":
         thread = Thread(ThreadStart(app.run_application))
@@ -483,14 +462,7 @@ class ApplicationThread:
     object of the calling module
     """
 
-    def __init__(
-        self,
-        workflow_module,
-        version,
-        new_desktop_session=True,
-        autosave=False,
-        close_desktop_on_exit=False,
-    ):
+    def __init__(self, workflow_module, version, new_desktop_session=True, autosave=False, close_desktop_on_exit=False):
         self.workflow_module = os.path.basename(workflow_module).replace(".py", "")
         self.version = version
         self.autosave = autosave
@@ -875,13 +847,7 @@ class WPFToolkit(Window):
         shutil.move(self.xaml_file[:-5] + "_tmp.xaml", self.xaml_file)
 
     @aedt_exception_handler
-    def edit_window_size(
-        self,
-        width=800,
-        height=600,
-        title="PyAEDT WPF Application",
-        background="#FFD1CFCF",
-    ):
+    def edit_window_size(self, width=800, height=600, title="PyAEDT WPF Application", background="#FFD1CFCF"):
         """Edit the Wpf windows size.
 
         Parameters
@@ -940,15 +906,7 @@ class WPFToolkit(Window):
         return True
 
     @aedt_exception_handler
-    def add_text_box(
-        self,
-        name,
-        x_pos,
-        y_pos,
-        width=120,
-        callback_method=None,
-        callback_action="LostFocus",
-    ):
+    def add_text_box(self, name, x_pos, y_pos, width=120, callback_method=None, callback_action="LostFocus"):
         """Adds a text box to Wpf.
 
         Parameters
@@ -980,15 +938,7 @@ class WPFToolkit(Window):
         return True
 
     @aedt_exception_handler
-    def add_combo_box(
-        self,
-        name,
-        x_pos,
-        y_pos,
-        width=120,
-        callback_method=None,
-        callback_action="SelectionChanged",
-    ):
+    def add_combo_box(self, name, x_pos, y_pos, width=120, callback_method=None, callback_action="SelectionChanged"):
         """Adds a combo box to Wpf.
 
         Parameters
@@ -1017,15 +967,7 @@ class WPFToolkit(Window):
         return True
 
     @aedt_exception_handler
-    def add_check_box(
-        self,
-        name,
-        content,
-        x_pos,
-        y_pos,
-        callback_method=None,
-        callback_action="Checked",
-    ):
+    def add_check_box(self, name, content, x_pos, y_pos, callback_method=None, callback_action="Checked"):
         """Adds a check box to Wpf.
 
         Parameters
@@ -1054,16 +996,7 @@ class WPFToolkit(Window):
         return True
 
     @aedt_exception_handler
-    def add_button(
-        self,
-        name,
-        content,
-        x_pos,
-        y_pos,
-        width=120,
-        callback_method=None,
-        callback_action="Click",
-    ):
+    def add_button(self, name, content, x_pos, y_pos, width=120, callback_method=None, callback_action="Click"):
         """Adds a button to Wpf.
 
         Parameters

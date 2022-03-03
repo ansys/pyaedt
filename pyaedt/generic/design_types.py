@@ -13,9 +13,7 @@ try:
     from pyaedt.mechanical import Mechanical
     from pyaedt.rmxprt import Rmxprt
     from pyaedt.twinbuilder import TwinBuilder
-    from pyaedt.twinbuilder import (  # noqa: F401 # namespace only for backward compatibility
-        TwinBuilder as Simplorer,
-    )
+    from pyaedt.twinbuilder import TwinBuilder as Simplorer  # noqa: F401 # namespace only for backward compatibility
     from pyaedt.maxwellcircuit import MaxwellCircuit
     from pyaedt.emit import Emit
     from pyaedt.desktop import Desktop
@@ -31,6 +29,7 @@ except ImportError:
     from pyaedt.mechanical import Mechanical
     from pyaedt.rmxprt import Rmxprt
     from pyaedt.twinbuilder import TwinBuilder
+    from pyaedt.twinbuilder import TwinBuilder as Simplorer  # noqa: F401 # namespace only for backward compatibility
     from pyaedt.maxwellcircuit import MaxwellCircuit
     from pyaedt.emit import Emit
     from pyaedt.desktop import Desktop

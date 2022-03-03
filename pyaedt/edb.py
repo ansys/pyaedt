@@ -23,15 +23,7 @@ except ImportError:  # pragma: no cover
     if os.name != "posix":
         warnings.warn("Pythonnet is needed to run PyAEDT.")
 from pyaedt import settings
-from pyaedt.edb_core import (
-    Components,
-    EdbNets,
-    EdbPadstacks,
-    EdbLayout,
-    EdbHfss,
-    EdbSiwave,
-    EdbStackup,
-)
+from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt.generic.general_methods import (
     aedt_exception_handler,
@@ -132,8 +124,7 @@ class Edb(object):
                     logfile = settings.logger_file_path
                 else:
                     logfile = os.path.join(
-                        project_dir,
-                        "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")),
+                        project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
                     )
                 self._logger = AedtLogger(filename=logfile, level=logging.DEBUG)
                 self._logger.info("Logger started on %s", logfile)
@@ -444,14 +435,7 @@ class Edb(object):
         return None
 
     @aedt_exception_handler
-    def import_layout_pcb(
-        self,
-        input_file,
-        working_dir,
-        init_dlls=False,
-        anstranslator_full_path="",
-        use_ppe=False,
-    ):
+    def import_layout_pcb(self, input_file, working_dir, init_dlls=False, anstranslator_full_path="", use_ppe=False):
         """Import a BRD file and generate an ``edb.def`` file in the working directory.
 
         Parameters
@@ -678,17 +662,7 @@ class Edb(object):
 
         """
 
-        (
-            Port,
-            Pec,
-            RLC,
-            CurrentSource,
-            VoltageSource,
-            NexximGround,
-            NexximPort,
-            DcTerminal,
-            VoltageProbe,
-        ) = range(0, 9)
+        (Port, Pec, RLC, CurrentSource, VoltageSource, NexximGround, NexximPort, DcTerminal, VoltageProbe) = range(0, 9)
 
     @aedt_exception_handler
     def edb_value(self, val):
@@ -867,10 +841,7 @@ class Edb(object):
 
         """
         if self.import_layout_pcb(
-            inputBrd,
-            working_dir=WorkDir,
-            anstranslator_full_path=anstranslator_full_path,
-            use_ppe=use_ppe,
+            inputBrd, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
         ):
             return True
         else:
@@ -899,10 +870,7 @@ class Edb(object):
 
         """
         if self.import_layout_pcb(
-            inputGDS,
-            working_dir=WorkDir,
-            anstranslator_full_path=anstranslator_full_path,
-            use_ppe=use_ppe,
+            inputGDS, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
         ):
             return True
         else:
@@ -964,21 +932,11 @@ class Edb(object):
         net_signals = convert_py_list_to_net_list(_signal_nets)
         if extent_type == "Conforming":
             _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals,
-                self.edb.Geometry.ExtentType.Conforming,
-                expansion_size,
-                False,
-                use_round_corner,
-                1,
+                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
             )
         else:
             _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals,
-                self.edb.Geometry.ExtentType.BoundingBox,
-                expansion_size,
-                False,
-                use_round_corner,
-                1,
+                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
             )
 
         # Create new cutout cell/design
@@ -1124,19 +1082,9 @@ class Edb(object):
         for void_circle in voids_to_add:
             layout = _cutout.GetLayout()
             if is_ironpython:  # pragma: no cover
-                (
-                    res,
-                    center_x,
-                    center_y,
-                    radius,
-                ) = void_circle.primitive_object.GetParameters()
+                res, center_x, center_y, radius = void_circle.primitive_object.GetParameters()
             else:
-                (
-                    res,
-                    center_x,
-                    center_y,
-                    radius,
-                ) = void_circle.primitive_object.GetParameters(0.0, 0.0, 0.0)
+                res, center_x, center_y, radius = void_circle.primitive_object.GetParameters(0.0, 0.0, 0.0)
             cloned_circle = self.edb.Cell.Primitive.Circle.Create(
                 layout,
                 void_circle.layer_name,
@@ -1314,11 +1262,7 @@ class Edb(object):
 
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
         return siwave_s.export_3d_cad(
-            "Q3D",
-            path_to_output,
-            net_list,
-            num_cores=num_cores,
-            aedt_file_name=aedt_file_name,
+            "Q3D", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name
         )
 
     @aedt_exception_handler
@@ -1358,11 +1302,7 @@ class Edb(object):
         """
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
         return siwave_s.export_3d_cad(
-            "Maxwell",
-            path_to_output,
-            net_list,
-            num_cores=num_cores,
-            aedt_file_name=aedt_file_name,
+            "Maxwell", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name
         )
 
     @aedt_exception_handler
@@ -1422,7 +1362,4 @@ class Edb(object):
             Bounding box as a [lower-left X, lower-left Y], [upper-right X, upper-right Y]) pair in meters.
         """
         bbox = self.edbutils.HfssUtilities.GetBBox(self.active_layout)
-        return [
-            [bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()],
-            [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()],
-        ]
+        return [[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()], [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]]

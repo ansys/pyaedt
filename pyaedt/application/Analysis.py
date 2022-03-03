@@ -519,10 +519,7 @@ class Analysis(Design, object):
 
         >>> oModule.GetExcitations
         """
-        warnings.warn(
-            "`get_excitations_name` is deprecated. Use `excitations` property instead.",
-            DeprecationWarning,
-        )
+        warnings.warn("`get_excitations_name` is deprecated. Use `excitations` property instead.", DeprecationWarning)
         return self.excitations
 
     @aedt_exception_handler
@@ -684,8 +681,7 @@ class Analysis(Design, object):
             name_no_space = report_name.replace(" ", "_")
             self.post.oreportsetup.UpdateReports([str(report_name)])
             export_path = os.path.join(
-                export_folder,
-                "{0}_{1}_{2}.csv".format(self.project_name, self.design_name, name_no_space),
+                export_folder, "{0}_{1}_{2}.csv".format(self.project_name, self.design_name, name_no_space)
             )
             self.post.oreportsetup.ExportToFile(str(report_name), export_path)
             self.logger.info("Export Data: {}".format(export_path))
@@ -708,16 +704,10 @@ class Analysis(Design, object):
                     result = self.export_convergence(s, variation_array[0], export_path)
                     if result:
                         exported_files.append(export_path)
-                    if self.solution_type in [
-                        "HFSS3DLayout",
-                        "HFSS 3D Layout Design",
-                        "HFSS",
-                        "Circuit",
-                    ]:
+                    if self.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS", "Circuit"]:
                         try:
                             export_path = os.path.join(
-                                export_folder,
-                                "{0}.s{1}p".format(self.project_name, excitations),
+                                export_folder, "{0}.s{1}p".format(self.project_name, excitations)
                             )
                             self.osolution.ExportNetworkData(
                                 variation_array[0],
@@ -744,31 +734,19 @@ class Analysis(Design, object):
                     varCount = 0
                     for variation in variation_array:
                         varCount += 1
-                        export_path = os.path.join(
-                            export_folder,
-                            "{0}_{1}.prof".format(self.project_name, varCount),
-                        )
+                        export_path = os.path.join(export_folder, "{0}_{1}.prof".format(self.project_name, varCount))
                         result = self.export_profile(s, variation, export_path)
                         if result:
                             exported_files.append(export_path)
-                        export_path = os.path.join(
-                            export_folder,
-                            "{0}_{1}.conv".format(self.project_name, varCount),
-                        )
+                        export_path = os.path.join(export_folder, "{0}_{1}.conv".format(self.project_name, varCount))
                         self.logger.info("Export Convergence: %s", export_path)
                         result = self.export_convergence(s, variation, export_path)
                         if result:
                             exported_files.append(export_path)
-                        if self.solution_type in [
-                            "HFSS3DLayout",
-                            "HFSS 3D Layout Design",
-                            "HFSS",
-                            "Circuit",
-                        ]:
+                        if self.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS", "Circuit"]:
                             try:
                                 export_path = os.path.join(
-                                    export_folder,
-                                    "{0}_{1}.s{2}p".format(self.project_name, varCount, excitations),
+                                    export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, excitations)
                                 )
                                 self.logger.info("Export SnP: {}".format(export_path))
                                 self.osolution.ExportNetworkData(
@@ -1124,10 +1102,7 @@ class Analysis(Design, object):
         .. deprecated:: 0.4.0
            Use :func:`Analysis.analyze_nominal` instead.
         """
-        warnings.warn(
-            "`analyse_nominal` is deprecated. Use `analyze_nominal` instead.",
-            DeprecationWarning,
-        )
+        warnings.warn("`analyse_nominal` is deprecated. Use `analyze_nominal` instead.", DeprecationWarning)
         self.analyze_nominal()
 
     @aedt_exception_handler
@@ -1361,21 +1336,10 @@ class Analysis(Design, object):
         oModule = self.ooutput_variable
         if variable in self.output_variables:
             oModule.EditOutputVariable(
-                variable,
-                expression,
-                variable,
-                self.existing_analysis_sweeps[0],
-                self.solution_type,
-                [],
+                variable, expression, variable, self.existing_analysis_sweeps[0], self.solution_type, []
             )
         else:
-            oModule.CreateOutputVariable(
-                variable,
-                expression,
-                self.existing_analysis_sweeps[0],
-                self.solution_type,
-                [],
-            )
+            oModule.CreateOutputVariable(variable, expression, self.existing_analysis_sweeps[0], self.solution_type, [])
         return True
 
     @aedt_exception_handler
@@ -1402,11 +1366,7 @@ class Analysis(Design, object):
         nominal_variation = self.odesign.GetNominalVariation()
         sol_type = self.solution_type
         value = self.ooutput_variable.GetOutputVariableValue(
-            variable,
-            nominal_variation,
-            self.existing_analysis_sweeps[0],
-            self.solution_type,
-            [],
+            variable, nominal_variation, self.existing_analysis_sweeps[0], self.solution_type, []
         )
 
         return value
@@ -1525,10 +1485,7 @@ class Analysis(Design, object):
                 self.odesign.Analyze(name)
             except:
                 if set_custom_dso:
-                    self.set_registry_key(
-                        r"Desktop/ActiveDSOConfigurations/" + self.design_type,
-                        active_config,
-                    )
+                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in Solving Setup %s", name)
                 return False
         else:
@@ -1537,10 +1494,7 @@ class Analysis(Design, object):
                 self.ooptimetrics.SolveSetup(name)
             except:
                 if set_custom_dso:
-                    self.set_registry_key(
-                        r"Desktop/ActiveDSOConfigurations/" + self.design_type,
-                        active_config,
-                    )
+                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in Solving or Missing Setup  %s", name)
                 return False
         if set_custom_dso:
@@ -1612,13 +1566,7 @@ class Analysis(Design, object):
 
     @aedt_exception_handler
     def submit_job(
-        self,
-        clustername,
-        aedt_full_exe_path=None,
-        numnodes=1,
-        numcores=32,
-        wait_for_license=True,
-        setting_file=None,
+        self, clustername, aedt_full_exe_path=None, numnodes=1, numcores=32, wait_for_license=True, setting_file=None
     ):
         """Submit a job to be solved on a cluster.
 

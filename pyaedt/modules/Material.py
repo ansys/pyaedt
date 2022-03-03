@@ -388,8 +388,7 @@ class MatProperty(object):
         else:
             for tmname in self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
                 if isinstance(
-                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname],
-                    list,
+                    self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname], list
                 ):
                     found = False
                     for tm in self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
@@ -536,17 +535,7 @@ class MatProperty(object):
 
     @aedt_exception_handler
     def add_thermal_modifier_closed_form(
-        self,
-        tref=22,
-        c1=0.0001,
-        c2=1e-6,
-        tl=-273.15,
-        tu=1000,
-        units="cel",
-        auto_calc=True,
-        tml=1000,
-        tmu=1000,
-        index=0,
+        self, tref=22, c1=0.0001, c2=1e-6, tl=-273.15, tu=1000, units="cel", auto_calc=True, tml=1000, tmu=1000, index=0
     ):
         """Add a thermal modifier to a material property using a closed-form formula.
 
@@ -950,10 +939,7 @@ class Material(CommonMaterial, object):
                 self.__dict__["_" + property] = MatProperty(self, property, self._props[property], mods)
             else:
                 self.__dict__["_" + property] = MatProperty(
-                    self,
-                    property,
-                    MatProperties.get_defaultvalue(aedtname=property),
-                    None,
+                    self, property, MatProperties.get_defaultvalue(aedtname=property), None
                 )
         pass
 
@@ -1472,14 +1458,7 @@ class Material(CommonMaterial, object):
 
     @aedt_exception_handler
     def set_bp_curve_coreloss(
-        self,
-        point_list,
-        kdc=0,
-        cut_depth=0.0001,
-        punit="kw/m^3",
-        bunit="tesla",
-        frequency=60,
-        thickness="0.5mm",
+        self, point_list, kdc=0, cut_depth=0.0001, punit="kw/m^3", bunit="tesla", frequency=60, thickness="0.5mm"
     ):
         """Set B-P Type Core Loss.
 
@@ -1717,9 +1696,7 @@ class SurfaceMaterial(CommonMaterial, object):
                 self.__dict__["_" + property] = MatProperty(self, property, self._props[property], mods)
             else:
                 self.__dict__["_" + property] = MatProperty(
-                    self,
-                    property,
-                    SurfMatProperties.get_defaultvalue(aedtname=property),
+                    self, property, SurfMatProperties.get_defaultvalue(aedtname=property)
                 )
         pass
 

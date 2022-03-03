@@ -361,30 +361,10 @@ class FieldAnalysisIcepak(Analysis, object):
         >>> val = ipk.get_property_value('BoundarySetup:Source1', 'Total Power')
 
         """
-        boundary = {
-            "HFSS": "HfssTab",
-            "Icepak": "Icepak",
-            "Q3D": "Q3D",
-            "Maxwell3D": "Maxwell3D",
-        }
-        excitation = {
-            "HFSS": "HfssTab",
-            "Icepak": "Icepak",
-            "Q3D": "Q3D",
-            "Maxwell3D": "Maxwell3D",
-        }
-        setup = {
-            "HFSS": "HfssTab",
-            "Icepak": "Icepak",
-            "Q3D": "General",
-            "Maxwell3D": "General",
-        }
-        mesh = {
-            "HFSS": "MeshSetupTab",
-            "Icepak": "Icepak",
-            "Q3D": "Q3D",
-            "Maxwell3D": "Maxwell3D",
-        }
+        boundary = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
+        excitation = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
+        setup = {"HFSS": "HfssTab", "Icepak": "Icepak", "Q3D": "General", "Maxwell3D": "General"}
+        mesh = {"HFSS": "MeshSetupTab", "Icepak": "Icepak", "Q3D": "Q3D", "Maxwell3D": "Maxwell3D"}
         all = {
             "HFSS": ["HfssTab", "MeshSetupTab"],
             "Icepak": ["Icepak"],
@@ -544,10 +524,7 @@ class FieldAnalysisIcepak(Analysis, object):
                         [
                             "NAME:Geometry3DAttributeTab",
                             ["NAME:PropServers", el],
-                            [
-                                "NAME:ChangedProps",
-                                ["NAME:Surface Material", "Value:=", '"' + mat + '"'],
-                            ],
+                            ["NAME:ChangedProps", ["NAME:Surface Material", "Value:=", '"' + mat + '"']],
                         ],
                     ]
                 )
@@ -681,9 +658,7 @@ class FieldAnalysisIcepak(Analysis, object):
                         and "," in material_data["Thermal Conductivity"][i]
                     ):
                         nominal_val, dataset_name = self._create_dataset_from_sherlock(
-                            mat,
-                            material_data["Thermal Conductivity"][i],
-                            "Thermal_Conductivity",
+                            mat, material_data["Thermal Conductivity"][i], "Thermal_Conductivity"
                         )
                         newmat.thermal_conductivity = nominal_val
                         newmat.thermal_conductivity.thermalmodifier = "pwl({}, Temp)".format(dataset_name)

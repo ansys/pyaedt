@@ -355,13 +355,7 @@ class Design(object):
         self.close_on_exit = close_on_exit
 
         if "pyaedt_initialized" not in dir(main_module):
-            desktop = Desktop(
-                specified_version,
-                non_graphical,
-                new_desktop_session,
-                close_on_exit,
-                student_version,
-            )
+            desktop = Desktop(specified_version, non_graphical, new_desktop_session, close_on_exit, student_version)
             self._logger = desktop.logger
             self.release_on_exit = True
         else:
@@ -1013,11 +1007,7 @@ class Design(object):
                         oTool.ImportEDB(os.path.join(proj_name, "edb.def"))
                     proj = self.odesktop.GetActiveProject()
                     proj.Save()
-                    self.logger.info(
-                        "EDB folder %s has been imported to project %s",
-                        proj_name,
-                        proj.GetName(),
-                    )
+                    self.logger.info("EDB folder %s has been imported to project %s", proj_name, proj.GetName())
                 else:
                     assert not os.path.exists(
                         proj_name + ".lock"
@@ -1429,11 +1419,7 @@ class Design(object):
         """
         try:
             self.set_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
-            self.logger.info(
-                "Configuration Changed correctly to %s for %s.",
-                config_name,
-                product_name,
-            )
+            self.logger.info("Configuration Changed correctly to %s for %s.", config_name, product_name)
             return True
         except:
             self.logger.warning("Error Setting Up Configuration %s for %s.", config_name, product_name)
@@ -1541,22 +1527,12 @@ class Design(object):
         if mean:
             arg2.append("Mean:=")
             arg2.append(mean)
-        arg3 = [
-            tab,
-            ["NAME:PropServers", propserver],
-            ["NAME:ChangedProps", ["NAME:" + variable_name, arg2]],
-        ]
+        arg3 = [tab, ["NAME:PropServers", propserver], ["NAME:ChangedProps", ["NAME:" + variable_name, arg2]]]
         arg.append(arg3)
 
     @aedt_exception_handler
     def activate_variable_statistical(
-        self,
-        variable_name,
-        min_val=None,
-        max_val=None,
-        tolerance=None,
-        probability=None,
-        mean=None,
+        self, variable_name, min_val=None, max_val=None, tolerance=None, probability=None, mean=None
     ):
         """Activate statitistical analysis for a variable and optionally set up ranges.
 
@@ -1587,14 +1563,7 @@ class Design(object):
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(
-            arg,
-            "Statistical",
-            variable_name,
-            min_val,
-            max_val,
-            tolerance,
-            probability,
-            mean,
+            arg, "Statistical", variable_name, min_val, max_val, tolerance, probability, mean
         )
         if "$" in variable_name:
             self.oproject.ChangeProperty(arg)
@@ -1815,10 +1784,7 @@ class Design(object):
         if self.design_properties and "BoundarySetup" in self.design_properties:
             for ds in self.design_properties["BoundarySetup"]["Boundaries"]:
                 try:
-                    if isinstance(
-                        self.design_properties["BoundarySetup"]["Boundaries"][ds],
-                        (OrderedDict, dict),
-                    ):
+                    if isinstance(self.design_properties["BoundarySetup"]["Boundaries"][ds], (OrderedDict, dict)):
                         boundaries.append(
                             BoundaryObject(
                                 self,
@@ -2111,18 +2077,7 @@ class Design(object):
         return self.create_dataset(dsname, xlist, ylist, is_project_dataset=True, xunit=xunit, yunit=yunit)
 
     @aedt_exception_handler
-    def create_dataset3d(
-        self,
-        dsname,
-        xlist,
-        ylist,
-        zlist=None,
-        vlist=None,
-        xunit="",
-        yunit="",
-        zunit="",
-        vunit="",
-    ):
+    def create_dataset3d(self, dsname, xlist, ylist, zlist=None, vlist=None, xunit="", yunit="", zunit="", vunit=""):
         """Create a 3D dataset.
 
         Parameters
@@ -2285,13 +2240,7 @@ class Design(object):
             self.logger.info("Enabling Automatic use of causal materials")
         else:
             self.logger.info("Disabling Automatic use of causal materials")
-        self.odesign.SetDesignSettings(
-            [
-                "NAME:Design Settings Data",
-                "Calculate Lossy Dielectrics:=",
-                lossy_dielectric,
-            ]
-        )
+        self.odesign.SetDesignSettings(["NAME:Design Settings Data", "Calculate Lossy Dielectrics:=", lossy_dielectric])
         return True
 
     @aedt_exception_handler
@@ -2318,21 +2267,12 @@ class Design(object):
             self.logger.info("Enabling Material Override")
         else:
             self.logger.info("Disabling Material Override")
-        self.odesign.SetDesignSettings(
-            [
-                "NAME:Design Settings Data",
-                "Allow Material Override:=",
-                material_override,
-            ]
-        )
+        self.odesign.SetDesignSettings(["NAME:Design Settings Data", "Allow Material Override:=", material_override])
         return True
 
     @aedt_exception_handler
     def change_validation_settings(
-        self,
-        entity_check_level="Strict",
-        ignore_unclassified=False,
-        skip_intersections=False,
+        self, entity_check_level="Strict", ignore_unclassified=False, skip_intersections=False
     ):
         """Update the validation design settings.
 
@@ -2637,10 +2577,7 @@ class Design(object):
             new_design = self._oproject.InsertDesign("RMxprt", unique_design_name, "Inner-Rotor Induction Machine", "")
         elif design_type == "ModelCreation":
             new_design = self._oproject.InsertDesign(
-                "RMxprt",
-                unique_design_name,
-                "Model Creation Inner-Rotor Induction Machine",
-                "",
+                "RMxprt", unique_design_name, "Model Creation Inner-Rotor Induction Machine", ""
             )
         else:
             if design_type == "HFSS" and self._aedt_version < "2021.2":
@@ -2987,11 +2924,7 @@ class Design(object):
             project_file = os.path.join(self.project_path, self.project_name + ".aedtz")
         self.oproject.Save()
         self.oproject.SaveProjectArchive(
-            project_file,
-            include_external_files,
-            include_results_file,
-            additional_file_lists,
-            notes,
+            project_file, include_external_files, include_results_file, additional_file_lists, notes
         )
 
         return True
@@ -3216,13 +3149,7 @@ class Design(object):
     @aedt_exception_handler
     def _check_solution_consistency(self):
         """Check solution consistency."""
-        if self.design_type in [
-            "Circuit Design",
-            "Twin Builder",
-            "HFSS 3D Layout Design",
-            "EMIT",
-            "Q3D Extractor",
-        ]:
+        if self.design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design", "EMIT", "Q3D Extractor"]:
             return True
         if self.design_solutions and self.design_solutions._solution_type:
             return self.design_solutions._solution_type in self._odesign.GetSolutionType()

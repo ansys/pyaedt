@@ -359,14 +359,8 @@ class EdbLayout(object):
                         xcoeff, ycoeff = calc_slope([point.X.ToDouble(), point.X.ToDouble()], origin)
 
                         new_points = self._edb.Geometry.PointData(
-                            self._edb_value(
-                                point.X.ToString() + "{}*{}".format(xcoeff, offset_name),
-                                var_server,
-                            ),
-                            self._edb_value(
-                                point.Y.ToString() + "{}*{}".format(ycoeff, offset_name),
-                                var_server,
-                            ),
+                            self._edb_value(point.X.ToString() + "{}*{}".format(xcoeff, offset_name), var_server),
+                            self._edb_value(point.Y.ToString() + "{}*{}".format(ycoeff, offset_name), var_server),
                         )
                         poligon_data.SetPoint(i, new_points)
                     prev_point = point
@@ -563,19 +557,9 @@ class EdbLayout(object):
             if not void_circle.is_void:
                 continue
             if is_ironpython:  # pragma: no cover
-                (
-                    res,
-                    center_x,
-                    center_y,
-                    radius,
-                ) = void_circle.primitive_object.GetParameters()
+                res, center_x, center_y, radius = void_circle.primitive_object.GetParameters()
             else:
-                (
-                    res,
-                    center_x,
-                    center_y,
-                    radius,
-                ) = void_circle.primitive_object.GetParameters(0.0, 0.0, 0.0)
+                res, center_x, center_y, radius = void_circle.primitive_object.GetParameters(0.0, 0.0, 0.0)
             cloned_circle = self._edb.Cell.Primitive.Circle.Create(
                 self._active_layout,
                 void_circle.layer_name,
@@ -624,10 +608,7 @@ class EdbLayout(object):
         elif shape.type == "rectangle":
             return self._createPolygonDataFromRectangle(shape)
         else:
-            self._logger.error(
-                "Unsupported shape type %s when creating a polygon primitive.",
-                shape.type,
-            )
+            self._logger.error("Unsupported shape type %s when creating a polygon primitive.", shape.type)
             return None
 
     @aedt_exception_handler
@@ -660,12 +641,10 @@ class EdbLayout(object):
                 )
                 arc = self._edb.Geometry.ArcData(
                     self._edb.Geometry.PointData(
-                        self._edb_value(startPoint[0].ToDouble()),
-                        self._edb_value(startPoint[1].ToDouble()),
+                        self._edb_value(startPoint[0].ToDouble()), self._edb_value(startPoint[1].ToDouble())
                     ),
                     self._edb.Geometry.PointData(
-                        self._edb_value(endPoint[0].ToDouble()),
-                        self._edb_value(endPoint[1].ToDouble()),
+                        self._edb_value(endPoint[0].ToDouble()), self._edb_value(endPoint[1].ToDouble())
                     ),
                 )
                 arcs.append(arc)
@@ -689,17 +668,14 @@ class EdbLayout(object):
                     return None
                 arc = self._edb.Geometry.ArcData(
                     self._edb.Geometry.PointData(
-                        self._edb_value(startPoint[0].ToDouble()),
-                        self._edb_value(startPoint[1].ToDouble()),
+                        self._edb_value(startPoint[0].ToDouble()), self._edb_value(startPoint[1].ToDouble())
                     ),
                     self._edb.Geometry.PointData(
-                        self._edb_value(endPoint[0].ToDouble()),
-                        self._edb_value(endPoint[1].ToDouble()),
+                        self._edb_value(endPoint[0].ToDouble()), self._edb_value(endPoint[1].ToDouble())
                     ),
                     rotationDirection,
                     self._edb.Geometry.PointData(
-                        self._edb_value(endPoint[3].ToDouble()),
-                        self._edb_value(endPoint[4].ToDouble()),
+                        self._edb_value(endPoint[3].ToDouble()), self._edb_value(endPoint[4].ToDouble())
                     ),
                 )
                 arcs.append(arc)
@@ -782,14 +758,7 @@ class EdbLayout(object):
         """
 
         def __init__(
-            self,
-            type="unknown",
-            pointA=None,
-            pointB=None,
-            centerPoint=None,
-            radius=None,
-            points=None,
-            properties={},
+            self, type="unknown", pointA=None, pointB=None, centerPoint=None, radius=None, points=None, properties={}
         ):
             self.type = type
             self.pointA = pointA
@@ -800,13 +769,7 @@ class EdbLayout(object):
             self.properties = properties
 
     @aedt_exception_handler
-    def parametrize_trace_width(
-        self,
-        nets_name,
-        layers_name=None,
-        parameter_name="trace_width",
-        variable_value=None,
-    ):
+    def parametrize_trace_width(self, nets_name, layers_name=None, parameter_name="trace_width", variable_value=None):
         """Parametrize a Trace on specific layer or all stackup.
 
         Parameters
@@ -889,10 +852,7 @@ class EdbLayout(object):
                             if int(item.GetIntersectionType(void.GetPolygonData())) == 2:
                                 item.AddHole(void.GetPolygonData())
                     poly = self._edb.Cell.Primitive.Polygon.Create(
-                        self._active_layout,
-                        lay,
-                        self._pedb.core_nets.nets[net].net_object,
-                        item,
+                        self._active_layout, lay, self._pedb.core_nets.nets[net].net_object, item
                     )
                 list_to_delete = [i for i in poly_by_nets[net]]
                 for v in all_voids:

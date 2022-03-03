@@ -96,9 +96,7 @@ class Materials(object):
         try:
             for ds in self._app.project_properies["AnsoftProject"]["Definitions"]["Materials"]:
                 mats[ds.lower()] = Material(
-                    self,
-                    ds.lower(),
-                    self._app.project_properies["AnsoftProject"]["Definitions"]["Materials"][ds],
+                    self, ds.lower(), self._app.project_properies["AnsoftProject"]["Definitions"]["Materials"][ds]
                 )
         except:
             pass
@@ -638,13 +636,7 @@ class Materials(object):
                     zunit = val["Coordinates"]["DimUnits"][2]
                     zval = new_list[2]
                 self._app.create_dataset(
-                    el[1:],
-                    xunit=xunit,
-                    yunit=yunit,
-                    zunit=zunit,
-                    xlist=xval,
-                    ylist=yval,
-                    zlist=zval,
+                    el[1:], xunit=xunit, yunit=yunit, zunit=zunit, xlist=xval, ylist=yval, zlist=zval
                 )
 
         for el, val in data["materials"].items():

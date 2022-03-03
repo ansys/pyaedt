@@ -292,11 +292,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def assign_2way_coupling(
-        self,
-        setup_name=None,
-        number_of_iterations=2,
-        continue_ipk_iterations=True,
-        ipk_iterations_per_coupling=20,
+        self, setup_name=None, number_of_iterations=2, continue_ipk_iterations=True, ipk_iterations_per_coupling=20
     ):
         """Assign two-way coupling to a setup.
 
@@ -401,12 +397,7 @@ class Icepak(FieldAnalysisIcepak):
                 listmcad.append(row)
                 if num_power > 1:
                     self[row[0] + "_P"] = str(row[1:])
-                    out = self.create_source_block(
-                        row[0],
-                        row[0] + "_P[P_index]",
-                        assign_material,
-                        default_material,
-                    )
+                    out = self.create_source_block(row[0], row[0] + "_P[P_index]", assign_material, default_material)
 
                 else:
                     out = self.create_source_block(row[0], str(row[1]) + "W", assign_material, default_material)
@@ -417,12 +408,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def create_source_block(
-        self,
-        object_name,
-        input_power,
-        assign_material=True,
-        material_name="Ceramic_material",
-        use_object_for_name=True,
+        self, object_name, input_power, assign_material=True, material_name="Ceramic_material", use_object_for_name=True
     ):
         """Create a source block for an object.
 
@@ -650,18 +636,8 @@ class Icepak(FieldAnalysisIcepak):
             )
             props["Links"] = OrderedDict(
                 {
-                    "Link1": [
-                        "Face" + str(fcrjc),
-                        "Internal",
-                        "R",
-                        str(rjc) + "cel_per_w",
-                    ],
-                    "Link2": [
-                        "Face" + str(fcrjb),
-                        "Internal",
-                        "R",
-                        str(rjb) + "cel_per_w",
-                    ],
+                    "Link1": ["Face" + str(fcrjc), "Internal", "R", str(rjc) + "cel_per_w"],
+                    "Link2": ["Face" + str(fcrjb), "Internal", "R", str(rjb) + "cel_per_w"],
                 }
             )
             props["SchematicData"] = OrderedDict({})
@@ -674,12 +650,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def create_network_blocks(
-        self,
-        input_list,
-        gravity_dir,
-        top,
-        assign_material=True,
-        default_material="Ceramic_material",
+        self, input_list, gravity_dir, top, assign_material=True, default_material="Ceramic_material"
     ):
         """Create network blocks from CSV files.
 
@@ -743,14 +714,7 @@ class Icepak(FieldAnalysisIcepak):
                     else:
                         pow = str(row[3]) + "W"
                     out = self.create_network_block(
-                        row[0],
-                        pow,
-                        row[1],
-                        row[2],
-                        gravity_dir,
-                        top,
-                        assign_material,
-                        default_material,
+                        row[0], pow, row[1], row[2], gravity_dir, top, assign_material, default_material
                     )
                 if out:
                     networks.append(out)
@@ -793,15 +757,7 @@ class Icepak(FieldAnalysisIcepak):
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
         oModule = self.odesign.GetModule("Monitor")
-        oModule.AssignFaceMonitor(
-            [
-                "NAME:" + monitor_name,
-                "Quantities:=",
-                [monitor_type],
-                "Objects:=",
-                [face_name],
-            ]
-        )
+        oModule.AssignFaceMonitor(["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Objects:=", [face_name]])
         return True
 
     @aedt_exception_handler
@@ -853,15 +809,7 @@ class Icepak(FieldAnalysisIcepak):
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
         oModule = self.odesign.GetModule("Monitor")
-        oModule.AssignPointMonitor(
-            [
-                "NAME:" + monitor_name,
-                "Quantities:=",
-                [monitor_type],
-                "Points:=",
-                [point_name],
-            ]
-        )
+        oModule.AssignPointMonitor(["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Points:=", [point_name]])
         return True
 
     @aedt_exception_handler
@@ -900,29 +848,21 @@ class Icepak(FieldAnalysisIcepak):
                 float(power)
                 if "COMP_" + component_data["Ref Des"][i] in all_objects:
                     status = self.create_source_block(
-                        "COMP_" + component_data["Ref Des"][i],
-                        str(power) + "W",
-                        assign_material=False,
+                        "COMP_" + component_data["Ref Des"][i], str(power) + "W", assign_material=False
                     )
                     if not status:
                         self.logger.warning(
-                            "Warning. Block %s skipped with %sW power.",
-                            component_data["Ref Des"][i],
-                            power,
+                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power
                         )
                     else:
                         total_power += float(power)
                 elif component_data["Ref Des"][i] in all_objects:
                     status = self.create_source_block(
-                        component_data["Ref Des"][i],
-                        str(power) + "W",
-                        assign_material=False,
+                        component_data["Ref Des"][i], str(power) + "W", assign_material=False
                     )
                     if not status:
                         self.logger.warning(
-                            "Warning. Block %s skipped with %sW power.",
-                            component_data["Ref Des"][i],
-                            power,
+                            "Warning. Block %s skipped with %sW power.", component_data["Ref Des"][i], power
                         )
                     else:
                         total_power += float(power)
@@ -1130,9 +1070,7 @@ class Icepak(FieldAnalysisIcepak):
         )
         Fin_Line2.append(
             self.Position(
-                "FinLength",
-                "FinLength*sin(PatternAngle*3.14/180)+sin(DraftAngle*3.14/180)*FinThickness",
-                "FinHeight",
+                "FinLength", "FinLength*sin(PatternAngle*3.14/180)+sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"
             )
         )
         Fin_Line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
@@ -1149,11 +1087,7 @@ class Icepak(FieldAnalysisIcepak):
         if numcolumn_perside > 0:
             self.modeler.duplicate_along_line(
                 list,
-                self.Position(
-                    "FinLength+VerticalSeparation",
-                    "FinLength*sin(PatternAngle*3.14/180)",
-                    0,
-                ),
+                self.Position("FinLength+VerticalSeparation", "FinLength*sin(PatternAngle*3.14/180)", 0),
                 "NumColumnsPerSide",
                 True,
             )
@@ -1199,11 +1133,7 @@ class Icepak(FieldAnalysisIcepak):
             self.modeler.subtract(list, "Center", False)
         else:
             self.modeler.create_coordinate_system(
-                self.Position("HSWidth", 0, 0),
-                mode="view",
-                view="XY",
-                name="BottomRight",
-                reference_cs="TopRight",
+                self.Position("HSWidth", 0, 0), mode="view", view="XY", name="BottomRight", reference_cs="TopRight"
             )
             self.modeler.split(list, self.PLANE.YZ, "NegativeOnly")
         all_objs2 = self.modeler.object_names
@@ -1642,15 +1572,7 @@ class Icepak(FieldAnalysisIcepak):
         self.osolution.EditFieldsSummarySetting(
             [
                 "Calculation:=",
-                [
-                    "Object",
-                    "Surface",
-                    name,
-                    quantity_name,
-                    "",
-                    "Default",
-                    "AmbientTemp",
-                ],
+                ["Object", "Surface", name, quantity_name, "", "Default", "AmbientTemp"],
             ]
         )
         string = ""
@@ -1720,15 +1642,7 @@ class Icepak(FieldAnalysisIcepak):
         self.osolution.EditFieldsSummarySetting(
             [
                 "Calculation:=",
-                [
-                    "Object",
-                    "Volume",
-                    ",".join(object_list),
-                    quantity_name,
-                    "",
-                    "Default",
-                    "AmbientTemp",
-                ],
+                ["Object", "Volume", ",".join(object_list), quantity_name, "", "Default", "AmbientTemp"],
             ]
         )
         string = ""
@@ -1878,10 +1792,7 @@ class Icepak(FieldAnalysisIcepak):
                         "DesignVariationKey:=",
                         variation + "='" + str(l) + "'",
                         "ExportFileName:=",
-                        os.path.join(
-                            output_dir,
-                            "IPKsummaryReport" + quantity + "_" + str(l) + ".csv",
-                        ),
+                        os.path.join(output_dir, "IPKsummaryReport" + quantity + "_" + str(l) + ".csv"),
                     ]
                 )
         else:
@@ -2061,11 +1972,7 @@ class Icepak(FieldAnalysisIcepak):
                 "X": ["0", "0.01"],
                 "Y": ["3", "0"],
                 "Pressure Loss Curve": OrderedDict(
-                    {
-                        "DimUnits": ["m_per_sec", "n_per_meter_sq"],
-                        "X": ["", "", "", "3"],
-                        "Y": ["", "1", "10", "0"],
-                    }
+                    {"DimUnits": ["m_per_sec", "n_per_meter_sq"], "X": ["", "", "", "3"], "Y": ["", "1", "10", "0"]}
                 ),
                 "IntakeTemp": "AmbientTemp",
                 "Swirl": "0",
@@ -2096,11 +2003,7 @@ class Icepak(FieldAnalysisIcepak):
                 "VersionHistory": [],
                 "NativeComponentDefinitionProvider": native_component,
                 "InstanceParameters": OrderedDict(
-                    {
-                        "GeometryParameters": "",
-                        "MaterialParameters": "",
-                        "DesignParameters": "",
-                    }
+                    {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""}
                 ),
             }
         )
@@ -2442,10 +2345,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @aedt_exception_handler
     def create_meshregion_component(
-        self,
-        scale_factor=1.0,
-        name="Component_Region",
-        restore_padding_values=[50, 50, 50, 50, 50, 50],
+        self, scale_factor=1.0, name="Component_Region", restore_padding_values=[50, 50, 50, 50, 50, 50]
     ):
         """Create a bounding box to use as a mesh region in Icepak.
 
@@ -2544,13 +2444,7 @@ class Icepak(FieldAnalysisIcepak):
         self.modeler.oeditor.CreatePoint(arg1, arg2)
         monitor = self._odesign.GetModule("Monitor")
 
-        arg = [
-            "NAME:" + str(point_name),
-            "Quantities:=",
-            ["Temperature"],
-            "Points:=",
-            [str(point_name)],
-        ]
+        arg = ["NAME:" + str(point_name), "Quantities:=", ["Temperature"], "Points:=", [str(point_name)]]
 
         monitor.AssignPointMonitor(arg)
         return True

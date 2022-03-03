@@ -339,25 +339,13 @@ class Primitives3DLayout(object):
                                 self.padstacks[name].add_layer(lay_name)
                             self.padstacks[name].layers[lay_name].layername = lay_name
                             self.padstacks[name].layers[lay_name].pad = self.padstacks[name].add_hole(
-                                lay[6][1],
-                                list(lay[6][3]),
-                                lay[6][5],
-                                lay[6][7],
-                                lay[6][9],
+                                lay[6][1], list(lay[6][3]), lay[6][5], lay[6][7], lay[6][9]
                             )
                             self.padstacks[name].layers[lay_name].antipad = self.padstacks[name].add_hole(
-                                lay[8][1],
-                                list(lay[8][3]),
-                                lay[8][5],
-                                lay[8][7],
-                                lay[8][9],
+                                lay[8][1], list(lay[8][3]), lay[8][5], lay[8][7], lay[8][9]
                             )
                             self.padstacks[name].layers[lay_name].thermal = self.padstacks[name].add_hole(
-                                lay[10][1],
-                                list(lay[10][3]),
-                                lay[10][5],
-                                lay[10][7],
-                                lay[10][9],
+                                lay[10][1], list(lay[10][3]), lay[10][5], lay[10][7], lay[10][9]
                             )
                             self.padstacks[name].layers[lay_name].connectionx = lay[12]
                             self.padstacks[name].layers[lay_name].connectiony = lay[14]
@@ -544,16 +532,7 @@ class Primitives3DLayout(object):
         return name
 
     @aedt_exception_handler
-    def create_rectangle(
-        self,
-        layername,
-        origin,
-        dimensions,
-        corner_radius=0,
-        angle=0,
-        name=None,
-        netname=None,
-    ):
+    def create_rectangle(self, layername, origin, dimensions, corner_radius=0, angle=0, name=None, netname=None):
         """Create a rectangle on a layer.
 
         Parameters
@@ -612,16 +591,7 @@ class Primitives3DLayout(object):
         return name
 
     @aedt_exception_handler
-    def create_line(
-        self,
-        layername,
-        center_line_list,
-        lw=1,
-        start_style=0,
-        end_style=0,
-        name=None,
-        netname=None,
-    ):
+    def create_line(self, layername, center_line_list, lw=1, start_style=0, end_style=0, name=None, netname=None):
         """Create a line based on a list of points.
 
         Parameters

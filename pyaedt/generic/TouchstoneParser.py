@@ -8,11 +8,7 @@ REAL_IMAG = "RI"
 MAG_ANGLE = "MA"
 DB_ANGLE = "DB"
 
-keys = {
-    REAL_IMAG: ("real", "imag"),
-    MAG_ANGLE: ("mag", "deg"),
-    DB_ANGLE: ("db20", "deg"),
-}
+keys = {REAL_IMAG: ("real", "imag"), MAG_ANGLE: ("mag", "deg"), DB_ANGLE: ("db20", "deg")}
 
 
 def parameter(real=None, imag=None, mag=None, db10=None, db20=None, deg=None, rad=None):
@@ -214,12 +210,7 @@ class TouchstoneData(object):
         self.units_data = {}
         for expr in self.expressions:
             self.solutions_data_mag[expr] = [
-                abs(
-                    complex(
-                        self.solutions_data_real[expr][i],
-                        self.solutions_data_imag[expr][i],
-                    )
-                )
+                abs(complex(self.solutions_data_real[expr][i], self.solutions_data_imag[expr][i]))
                 for i in range(len(self.solutions_data_real[expr]))
             ]
 

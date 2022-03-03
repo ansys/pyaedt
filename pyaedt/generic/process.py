@@ -211,14 +211,7 @@ class SiwaveSolve(object):
             p = subprocess.Popen(" ".join(command))
             p.wait()
 
-    def export_3d_cad(
-        self,
-        format_3d="Q3D",
-        output_folder=None,
-        net_list=None,
-        num_cores=None,
-        aedt_file_name=None,
-    ):
+    def export_3d_cad(self, format_3d="Q3D", output_folder=None, net_list=None, num_cores=None, aedt_file_name=None):
         """Export edb to Q3D or HFSS
 
         Parameters

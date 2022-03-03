@@ -71,10 +71,7 @@ class RMXprtModule(object):
                 "NAME:AllTabs",
                 [
                     "NAME:" + self.component,
-                    [
-                        "NAME:PropServers",
-                        "{0}{1}{2}".format(self.component, separator, prop_server),
-                    ],
+                    ["NAME:PropServers", "{0}{1}{2}".format(self.component, separator, prop_server)],
                     ["NAME:ChangedProps", ["NAME:" + parameter_name, "Value:=", value]],
                 ],
             ]

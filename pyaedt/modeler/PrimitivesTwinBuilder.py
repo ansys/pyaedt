@@ -80,14 +80,7 @@ class TwinBuilderComponents(CircuitComponents):
         return self._components_catalog
 
     @aedt_exception_handler
-    def create_resistor(
-        self,
-        compname=None,
-        value=50,
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
-    ):
+    def create_resistor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
         Parameters
@@ -127,14 +120,7 @@ class TwinBuilderComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_inductor(
-        self,
-        compname=None,
-        value=50,
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
-    ):
+    def create_inductor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
         Parameters
@@ -173,14 +159,7 @@ class TwinBuilderComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_capacitor(
-        self,
-        compname=None,
-        value=50,
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
-    ):
+    def create_capacitor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
         Parameters
@@ -221,14 +200,7 @@ class TwinBuilderComponents(CircuitComponents):
 
     @aedt_exception_handler
     def create_voltage_source(
-        self,
-        compname=None,
-        type="E",
-        amplitude=326,
-        freq=50,
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
+        self, compname=None, type="E", amplitude=326, freq=50, location=[], angle=0, use_instance_id_netlist=False
     ):
         """Create a voltage source (conservative electrical output).
 

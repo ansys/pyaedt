@@ -4,8 +4,7 @@ from pathlib import Path
 import pytest
 
 from pyaedt import Desktop
-from pyaedt.doctest_fixtures import hfss_fixtures  # noqa: F401
-from pyaedt.doctest_fixtures import icepak_fixtures  # noqa: F401
+from pyaedt.doctest_fixtures import icepak_fixtures, hfss_fixtures  # noqa: F401
 
 # Import fixtures from other files
 pytest_plugins = [

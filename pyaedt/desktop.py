@@ -301,13 +301,7 @@ class Desktop:
                 self._init_ironpython(non_graphical, new_desktop_session, version)
             elif _com == "pythonnet_v3":
                 print("Launching PyAEDT outside AEDT with CPython and Pythonnet.")
-                self._init_cpython(
-                    non_graphical,
-                    new_desktop_session,
-                    version,
-                    self._main.student_version,
-                    version_key,
-                )
+                self._init_cpython(non_graphical, new_desktop_session, version, self._main.student_version, version_key)
             else:
                 oAnsoftApp = win32com.client.Dispatch(version)
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
@@ -319,13 +313,7 @@ class Desktop:
         self.odesktop = self._main.oDesktop
         if _com == "ironpython":
             sys.path.append(
-                os.path.join(
-                    self._main.sDesktopinstallDirectory,
-                    "common",
-                    "commonfiles",
-                    "IronPython",
-                    "DLLs",
-                )
+                os.path.join(self._main.sDesktopinstallDirectory, "common", "commonfiles", "IronPython", "DLLs")
             )
 
     def __enter__(self):
@@ -476,8 +464,7 @@ class Desktop:
 
         DETACHED_PROCESS = 0x00000008
         pid = subprocess.Popen(
-            [os.path.join(self._main.sDesktopinstallDirectory, "ansysedtsv.exe")],
-            creationflags=DETACHED_PROCESS,
+            [os.path.join(self._main.sDesktopinstallDirectory, "ansysedtsv.exe")], creationflags=DETACHED_PROCESS
         ).pid
         time.sleep(5)
 
@@ -528,10 +515,7 @@ class Desktop:
             running_coms = pythoncom.GetRunningObjectTable()
             monikiers = running_coms.EnumRunning()
             for monikier in monikiers:
-                m = re.search(
-                    version[10:] + r"\.\d:" + str(proc[0]),
-                    monikier.GetDisplayName(context, monikier),
-                )
+                m = re.search(version[10:] + r"\.\d:" + str(proc[0]), monikier.GetDisplayName(context, monikier))
                 if m:
                     obj = running_coms.GetObject(monikier)
                     self._main.isoutsideDesktop = True
@@ -553,8 +537,7 @@ class Desktop:
             self.logfile = settings.logger_file_path
         else:
             self.logfile = os.path.join(
-                project_dir,
-                "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S")),
+                project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
             )
 
         return True
@@ -1048,11 +1031,7 @@ class Desktop:
         """
         try:
             self.change_registry_key("Desktop/ActiveDSOConfigurations/{}".format(product_name), config_name)
-            self.logger.info(
-                "Configuration Changed correctly to %s for %s.",
-                config_name,
-                product_name,
-            )
+            self.logger.info("Configuration Changed correctly to %s for %s.", config_name, product_name)
             return True
         except:
             self.logger.warning("Error Setting Up Configuration %s for %s.", config_name, product_name)

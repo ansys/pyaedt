@@ -245,10 +245,7 @@ class Mesh(object):
         meshops = []
         try:
             for ds in self._app.design_properties["MeshSetup"]["MeshOperations"]:
-                if isinstance(
-                    self._app.design_properties["MeshSetup"]["MeshOperations"][ds],
-                    (OrderedDict, dict),
-                ):
+                if isinstance(self._app.design_properties["MeshSetup"]["MeshOperations"][ds], (OrderedDict, dict)):
                     meshops.append(
                         MeshOperation(
                             self,
@@ -549,13 +546,7 @@ class Mesh(object):
         >>> oModule.AssignSurfPriorityForTauOp
         """
         meshop_name = generate_unique_name("SurfaceRepPriority")
-        props = OrderedDict(
-            {
-                "Type": "SurfaceRepPriority",
-                "Objects": object_lists,
-                "SurfaceRepPriority": surfpriority,
-            }
-        )
+        props = OrderedDict({"Type": "SurfaceRepPriority", "Objects": object_lists, "SurfaceRepPriority": surfpriority})
         mop = MeshOperation(self, meshop_name, props, "SurfaceRepPriority")
         mop.create()
         self.meshoperations.append(mop)
@@ -704,13 +695,7 @@ class Mesh(object):
 
     @aedt_exception_handler
     def assign_skin_depth(
-        self,
-        names,
-        skindepth,
-        maxelements=None,
-        triangulation_max_length="0.1mm",
-        numlayers="2",
-        meshop_name=None,
+        self, names, skindepth, maxelements=None, triangulation_max_length="0.1mm", numlayers="2", meshop_name=None
     ):
         """Assign a skin depth for the mesh refinement.
 
@@ -880,11 +865,7 @@ class Mesh(object):
             self.logger.error("Error in Assignment")
             return
         props = OrderedDict(
-            {
-                "Type": "CurvatureExtraction",
-                seltype: names,
-                "DisableForFacetedSurfaces": disable_for_faceted_surf,
-            }
+            {"Type": "CurvatureExtraction", seltype: names, "DisableForFacetedSurfaces": disable_for_faceted_surf}
         )
         mop = MeshOperation(self, meshop_name, props, "CurvatureExtraction")
         mop.create()
@@ -976,13 +957,7 @@ class Mesh(object):
         else:
             meshop_name = generate_unique_name("EdgeCut")
         seltype = "Objects"
-        props = OrderedDict(
-            {
-                "Type": "RotationalLayerMesh",
-                seltype: names,
-                "Layer Thickenss": layer_thickness,
-            }
-        )
+        props = OrderedDict({"Type": "RotationalLayerMesh", seltype: names, "Layer Thickenss": layer_thickness})
 
         mop = MeshOperation(self, meshop_name, props, "RotationalLayerMesh")
         mop.create()
@@ -990,14 +965,7 @@ class Mesh(object):
         return mop
 
     @aedt_exception_handler
-    def assign_density_control(
-        self,
-        names,
-        refine_inside=True,
-        maxelementlength=None,
-        layerNum=None,
-        meshop_name=None,
-    ):
+    def assign_density_control(self, names, refine_inside=True, maxelementlength=None, layerNum=None, meshop_name=None):
         """Assign density control.
 
         Parameters

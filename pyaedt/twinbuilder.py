@@ -150,10 +150,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                     if len(fields) == 4 and fields[0][0] == "Q":
                         value = fields[3].strip()
                         mycomp = self.modeler.schematic.create_npn(
-                            fields[0],
-                            value,
-                            [xpos, ypos],
-                            use_instance_id_netlist=use_instance,
+                            fields[0], value, [xpos, ypos], use_instance_id_netlist=use_instance
                         )
                         value = None
                 elif fields[0][0] == "D":

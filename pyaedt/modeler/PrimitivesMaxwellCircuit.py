@@ -57,14 +57,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         pass
 
     @aedt_exception_handler
-    def create_resistor(
-        self,
-        compname=None,
-        value=50,
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
-    ):
+    def create_resistor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
         Parameters
@@ -104,14 +97,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_inductor(
-        self,
-        compname=None,
-        value=50,
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
-    ):
+    def create_inductor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
         Parameters
@@ -150,14 +136,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         return id
 
     @aedt_exception_handler
-    def create_capacitor(
-        self,
-        compname=None,
-        value=50,
-        location=[],
-        angle=0,
-        use_instance_id_netlist=False,
-    ):
+    def create_capacitor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
         Parameters

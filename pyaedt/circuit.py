@@ -238,10 +238,7 @@ class Circuit(FieldAnalysisCircuit, object):
                     if len(fields) == 4 and fields[0][0] == "Q":
                         value = fields[3].strip()
                         mycomp = self.modeler.schematic.create_npn(
-                            fields[0],
-                            value,
-                            [xpos, ypos],
-                            use_instance_id_netlist=use_instance,
+                            fields[0], value, [xpos, ypos], use_instance_id_netlist=use_instance
                         )
                     else:
                         numpins = len(fields) - 2
@@ -264,11 +261,7 @@ class Circuit(FieldAnalysisCircuit, object):
                                 already_exist = True
                         if not already_exist:
                             self.modeler.schematic.create_new_component_from_symbol(
-                                parameter,
-                                pins,
-                                fields[0][0],
-                                parameter_list,
-                                parameter_value,
+                                parameter, pins, fields[0][0], parameter_list, parameter_value
                             )
                         mycomp = self.modeler.schematic.create_component(
                             fields[0],
@@ -299,11 +292,7 @@ class Circuit(FieldAnalysisCircuit, object):
                             already_exist = True
                     if not already_exist:
                         self.modeler.schematic.create_new_component_from_symbol(
-                            parameter,
-                            pins,
-                            fields[0][0],
-                            parameter_list,
-                            parameter_value,
+                            parameter, pins, fields[0][0], parameter_list, parameter_value
                         )
                     mycomp = self.modeler.schematic.create_component(
                         fields[0],
@@ -322,48 +311,31 @@ class Circuit(FieldAnalysisCircuit, object):
                     if "PULSE" not in line:
                         value = self._get_number_from_string(fields[3])
                         mycomp = self.modeler.schematic.create_voltage_dc(
-                            name,
-                            value,
-                            [xpos, ypos],
-                            use_instance_id_netlist=use_instance,
+                            name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                         )
                     else:
                         value = line[line.index("PULSE") + 6 : line.index(")") - 1].split(" ")
                         value = [i.replace("{", "").replace("}", "") for i in value]
                         fields[1], fields[2] = fields[2], fields[1]
                         mycomp = self.modeler.schematic.create_voltage_pulse(
-                            name,
-                            value,
-                            [xpos, ypos],
-                            use_instance_id_netlist=use_instance,
+                            name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                         )
                 elif fields[0][0] == "K":
                     value = self._get_number_from_string(fields[3])
                     mycomp = self.modeler.schematic.create_coupling_inductors(
-                        name,
-                        fields[1],
-                        fields[2],
-                        value,
-                        [xpos, ypos],
-                        use_instance_id_netlist=use_instance,
+                        name, fields[1], fields[2], value, [xpos, ypos], use_instance_id_netlist=use_instance
                     )
                 elif fields[0][0] == "I":
                     if "PULSE" not in line:
                         value = self._get_number_from_string(fields[3])
                         mycomp = self.modeler.schematic.create_current_dc(
-                            name,
-                            value,
-                            [xpos, ypos],
-                            use_instance_id_netlist=use_instance,
+                            name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                         )
                     else:
                         value = line[line.index("PULSE") + 6 : line.index(")") - 1].split(" ")
                         value = [i.replace("{", "").replace("}", "") for i in value]
                         mycomp = self.modeler.schematic.create_current_pulse(
-                            name,
-                            value,
-                            [xpos, ypos],
-                            use_instance_id_netlist=use_instance,
+                            name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                         )
                 if mycomp:
                     id = 1
@@ -575,11 +547,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @aedt_exception_handler
     def get_source_pin_names(
-        self,
-        source_design_name,
-        source_project_name=None,
-        source_project_path=None,
-        port_selector=3,
+        self, source_design_name, source_project_name=None, source_project_path=None, port_selector=3
     ):
         """Retrieve pin names.
 
@@ -1020,20 +988,9 @@ class Circuit(FieldAnalysisCircuit, object):
         if variation_dict:
             for el in variation_dict:
                 variations[el] = [variation_dict[el]]
-        ctxt = [
-            "NAME:Context",
-            "SimValueContext:=",
-            [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0],
-        ]
+        ctxt = ["NAME:Context", "SimValueContext:=", [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
         if subdesign_id:
-            ctxt_temp = [
-                "NUMLEVELS",
-                False,
-                "0",
-                "SUBDESIGNID",
-                False,
-                str(subdesign_id),
-            ]
+            ctxt_temp = ["NUMLEVELS", False, "0", "SUBDESIGNID", False, str(subdesign_id)]
             for el in ctxt_temp:
                 ctxt[2].append(el)
 
@@ -1071,11 +1028,7 @@ class Circuit(FieldAnalysisCircuit, object):
         if variation_dict:
             for el in variation_dict:
                 variations[el] = [variation_dict[el]]
-        ctxt = [
-            "NAME:Context",
-            "SimValueContext:=",
-            [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0],
-        ]
+        ctxt = ["NAME:Context", "SimValueContext:=", [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
         return self.post.get_solution_data_per_variation("Standard", solution_name, ctxt, variations, curvenames)
 
     @aedt_exception_handler
@@ -1101,13 +1054,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         >>> oEditor.PushExcitations
         """
-        arg = [
-            "NAME:options",
-            "CalcThevenin:=",
-            thevenin_calculation,
-            "Sol:=",
-            setup_name,
-        ]
+        arg = ["NAME:options", "CalcThevenin:=", thevenin_calculation, "Sol:=", setup_name]
 
         self.modeler.oeditor.PushExcitations(instance_name, arg)
         return True
@@ -1186,52 +1133,21 @@ class Circuit(FieldAnalysisCircuit, object):
                             "TextProp:=",
                             ["LabelID", "HD", "Property string for netlist ID", "V@ID"],
                             "ValueProp:=",
-                            [
-                                "ACMAG",
-                                "OD",
-                                "AC magnitude for small-signal analysis (Volts)",
-                                settings[0],
-                                0,
-                            ],
+                            ["ACMAG", "OD", "AC magnitude for small-signal analysis (Volts)", settings[0], 0],
                             "ValuePropNU:=",
-                            [
-                                "ACPHASE",
-                                "OD",
-                                "AC phase for small-signal analysis",
-                                settings[1],
-                                0,
-                                "deg",
-                            ],
+                            ["ACPHASE", "OD", "AC phase for small-signal analysis", settings[1], 0, "deg"],
                             "ValueProp:=",
                             ["DC", "OD", "DC voltage (Volts)", settings[2], 0],
                             "ValueProp:=",
-                            [
-                                "VO",
-                                "OD",
-                                "Voltage offset from zero (Volts)",
-                                settings[3],
-                                0,
-                            ],
+                            ["VO", "OD", "Voltage offset from zero (Volts)", settings[3], 0],
                             "ValueProp:=",
                             ["VA", "OD", "Voltage amplitude (Volts)", settings[4], 0],
                             "ValueProp:=",
                             ["FREQ", "OD", "Frequency (Hz)", settings[5], 0],
                             "ValueProp:=",
-                            [
-                                "TD",
-                                "OD",
-                                "Delay to start of sine wave (seconds)",
-                                settings[6],
-                                0,
-                            ],
+                            ["TD", "OD", "Delay to start of sine wave (seconds)", settings[6], 0],
                             "ValueProp:=",
-                            [
-                                "ALPHA",
-                                "OD",
-                                "Damping factor (1/seconds)",
-                                settings[7],
-                                0,
-                            ],
+                            ["ALPHA", "OD", "Damping factor (1/seconds)", settings[7], 0],
                             "ValuePropNU:=",
                             ["THETA", "OD", "Phase delay", settings[8], 0, "deg"],
                             "ValueProp:=",
@@ -1251,16 +1167,7 @@ class Circuit(FieldAnalysisCircuit, object):
                             "MenuProp:=",
                             ["CoSimulator", "D", "", "DefaultNetlist", 0],
                             "ButtonProp:=",
-                            [
-                                "CosimDefinition",
-                                "D",
-                                "",
-                                "",
-                                "Edit",
-                                40501,
-                                "ButtonPropClientData:=",
-                                [],
-                            ],
+                            ["CosimDefinition", "D", "", "", "Edit", 40501, "ButtonPropClientData:=", []],
                         ],
                     ],
                 ],
@@ -1269,10 +1176,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         arg2 = ["NAME:ComponentConfigurationData"]
 
-        arg3 = [
-            "NAME:ComponentConfigurationData",
-            ["NAME:EnabledPorts", "VoltageSinusoidal" + str(id) + ":=", ports],
-        ]
+        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "VoltageSinusoidal" + str(id) + ":=", ports]]
 
         arg2.append(arg3)
 
@@ -1320,19 +1224,7 @@ class Circuit(FieldAnalysisCircuit, object):
         >>> oDesign.UpdateSources
         """
         # setting the defaults if no value is provided
-        defaults = [
-            "nan A",
-            "0deg",
-            "0A",
-            "0A",
-            "0A",
-            "1GHz",
-            "0s",
-            "0",
-            "0deg",
-            "1",
-            "0Hz",
-        ]
+        defaults = ["nan A", "0deg", "0A", "0A", "0A", "1GHz", "0s", "0", "0deg", "1", "0Hz"]
         for i in range(len(settings)):
             if settings[i] == "":
                 settings[i] = defaults[i]
@@ -1369,22 +1261,9 @@ class Circuit(FieldAnalysisCircuit, object):
                             "TextProp:=",
                             ["LabelID", "HD", "Property string for netlist ID", "I@ID"],
                             "ValueProp:=",
-                            [
-                                "ACMAG",
-                                "OD",
-                                "AC magnitude for small-signal analysis (Amps)",
-                                settings[0],
-                                0,
-                            ],
+                            ["ACMAG", "OD", "AC magnitude for small-signal analysis (Amps)", settings[0], 0],
                             "ValuePropNU:=",
-                            [
-                                "ACPHASE",
-                                "OD",
-                                "AC phase for small-signal analysis",
-                                settings[1],
-                                0,
-                                "deg",
-                            ],
+                            ["ACPHASE", "OD", "AC phase for small-signal analysis", settings[1], 0, "deg"],
                             "ValueProp:=",
                             ["DC", "OD", "DC current (Amps)", settings[2], 0],
                             "ValueProp:=",
@@ -1394,31 +1273,13 @@ class Circuit(FieldAnalysisCircuit, object):
                             "ValueProp:=",
                             ["FREQ", "OD", "Frequency (Hz)", settings[5], 0],
                             "ValueProp:=",
-                            [
-                                "TD",
-                                "OD",
-                                "Delay to start of sine wave (seconds)",
-                                settings[6],
-                                0,
-                            ],
+                            ["TD", "OD", "Delay to start of sine wave (seconds)", settings[6], 0],
                             "ValueProp:=",
-                            [
-                                "ALPHA",
-                                "OD",
-                                "Damping factor (1/seconds)",
-                                settings[7],
-                                0,
-                            ],
+                            ["ALPHA", "OD", "Damping factor (1/seconds)", settings[7], 0],
                             "ValuePropNU:=",
                             ["THETA", "OD", "Phase delay", settings[8], 0, "deg"],
                             "ValueProp:=",
-                            [
-                                "M",
-                                "OD",
-                                "Multiplier for simulating multiple parallel current sources",
-                                settings[9],
-                                0,
-                            ],
+                            ["M", "OD", "Multiplier for simulating multiple parallel current sources", settings[9], 0],
                             "ValueProp:=",
                             [
                                 "TONE",
@@ -1434,16 +1295,7 @@ class Circuit(FieldAnalysisCircuit, object):
                             "MenuProp:=",
                             ["CoSimulator", "D", "", "DefaultNetlist", 0],
                             "ButtonProp:=",
-                            [
-                                "CosimDefinition",
-                                "D",
-                                "",
-                                "",
-                                "Edit",
-                                40501,
-                                "ButtonPropClientData:=",
-                                [],
-                            ],
+                            ["CosimDefinition", "D", "", "", "Edit", 40501, "ButtonPropClientData:=", []],
                         ],
                     ],
                 ],
@@ -1452,10 +1304,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         arg2 = ["NAME:ComponentConfigurationData"]
 
-        arg3 = [
-            "NAME:ComponentConfigurationData",
-            ["NAME:EnabledPorts", "CurrentSinusoidal" + str(id) + ":=", ports],
-        ]
+        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "CurrentSinusoidal" + str(id) + ":=", ports]]
 
         arg2.append(arg3)
 
@@ -1538,59 +1387,21 @@ class Circuit(FieldAnalysisCircuit, object):
                             "TextProp:=",
                             ["LabelID", "HD", "Property string for netlist ID", "V@ID"],
                             "ValueProp:=",
-                            [
-                                "ACMAG",
-                                "OD",
-                                "AC magnitude for small-signal analysis (Volts)",
-                                settings[0],
-                                0,
-                            ],
+                            ["ACMAG", "OD", "AC magnitude for small-signal analysis (Volts)", settings[0], 0],
                             "ValuePropNU:=",
-                            [
-                                "ACPHASE",
-                                "OD",
-                                "AC phase for small-signal analysis",
-                                settings[1],
-                                0,
-                                "deg",
-                            ],
+                            ["ACPHASE", "OD", "AC phase for small-signal analysis", settings[1], 0, "deg"],
                             "ValueProp:=",
                             ["DC", "OD", "DC voltage (Volts)", settings[2], 0],
                             "ValuePropNU:=",
-                            [
-                                "VO",
-                                "OD",
-                                "Power offset from zero watts",
-                                settings[3],
-                                0,
-                                "W",
-                            ],
+                            ["VO", "OD", "Power offset from zero watts", settings[3], 0, "W"],
                             "ValueProp:=",
-                            [
-                                "POWER",
-                                "OD",
-                                "Available power of the source above VO",
-                                settings[4],
-                                0,
-                            ],
+                            ["POWER", "OD", "Available power of the source above VO", settings[4], 0],
                             "ValueProp:=",
                             ["FREQ", "OD", "Frequency (Hz)", settings[5], 0],
                             "ValueProp:=",
-                            [
-                                "TD",
-                                "OD",
-                                "Delay to start of sine wave (seconds)",
-                                settings[6],
-                                0,
-                            ],
+                            ["TD", "OD", "Delay to start of sine wave (seconds)", settings[6], 0],
                             "ValueProp:=",
-                            [
-                                "ALPHA",
-                                "OD",
-                                "Damping factor (1/seconds)",
-                                settings[7],
-                                0,
-                            ],
+                            ["ALPHA", "OD", "Damping factor (1/seconds)", settings[7], 0],
                             "ValuePropNU:=",
                             ["THETA", "OD", "Phase delay", settings[8], 0, "deg"],
                             "ValueProp:=",
@@ -1608,16 +1419,7 @@ class Circuit(FieldAnalysisCircuit, object):
                             "TextProp:=",
                             ["ModelName", "SHD", "", "P_SIN"],
                             "ButtonProp:=",
-                            [
-                                "CosimDefinition",
-                                "D",
-                                "",
-                                "Edit",
-                                "Edit",
-                                40501,
-                                "ButtonPropClientData:=",
-                                [],
-                            ],
+                            ["CosimDefinition", "D", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []],
                             "MenuProp:=",
                             ["CoSimulator", "D", "", "DefaultNetlist", 0],
                         ],
@@ -1628,10 +1430,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         arg2 = ["NAME:ComponentConfigurationData"]
 
-        arg3 = [
-            "NAME:ComponentConfigurationData",
-            ["NAME:EnabledPorts", "PowerSinusoidal" + str(id) + ":=", ports],
-        ]
+        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "PowerSinusoidal" + str(id) + ":=", ports]]
 
         arg2.append(arg3)
 

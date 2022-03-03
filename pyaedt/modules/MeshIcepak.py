@@ -234,8 +234,7 @@ class IcepakMesh(object):
         try:
             for ds in self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"]:
                 if isinstance(
-                    self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
-                    (OrderedDict, dict),
+                    self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][ds], (OrderedDict, dict)
                 ):
                     meshops.append(
                         MeshOperation(
@@ -256,14 +255,9 @@ class IcepakMesh(object):
         try:
             for ds in self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"]:
                 if isinstance(
-                    self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds],
-                    (OrderedDict, dict),
+                    self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds], (OrderedDict, dict)
                 ):
-                    meshop = self.MeshRegion(
-                        self.omeshmodule,
-                        self.boundingdimension,
-                        self.modeler.model_units,
-                    )
+                    meshop = self.MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units)
                     dict_prop = self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]
                     self.name = ds
                     for el in dict_prop:

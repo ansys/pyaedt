@@ -690,13 +690,7 @@ class VariableManager(object):
 
     @aedt_exception_handler
     def set_variable(
-        self,
-        variable_name,
-        expression=None,
-        readonly=False,
-        hidden=False,
-        description=None,
-        overwrite=True,
+        self, variable_name, expression=None, readonly=False, hidden=False, description=None, overwrite=True
     ):
         """Set the value of a design property or project variable.
 

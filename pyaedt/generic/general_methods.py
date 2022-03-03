@@ -30,11 +30,7 @@ try:
 except:
     inside_desktop = False
 
-is_remote_server = os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in (
-    "true",
-    "1",
-    "t",
-)
+is_remote_server = os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in ("true", "1", "t")
 
 
 class MethodNotSupportedError(Exception):
@@ -327,8 +323,7 @@ def env_path(input_version):
     """
     return os.getenv(
         "ANSYSEM_ROOT{0}{1}".format(
-            get_version_and_release(input_version)[0],
-            get_version_and_release(input_version)[1],
+            get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
         ),
         "",
     )
@@ -352,8 +347,7 @@ def env_value(input_version):
     "ANSYSEM_ROOT211"
     """
     return "ANSYSEM_ROOT{0}{1}".format(
-        get_version_and_release(input_version)[0],
-        get_version_and_release(input_version)[1],
+        get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
     )
 
 
@@ -376,8 +370,7 @@ def env_path_student(input_version):
     """
     return os.getenv(
         "ANSYSEMSV_ROOT{0}{1}".format(
-            get_version_and_release(input_version)[0],
-            get_version_and_release(input_version)[1],
+            get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
         ),
         "",
     )
@@ -401,8 +394,7 @@ def env_value_student(input_version):
     "ANSYSEMSV_ROOT211"
     """
     return "ANSYSEMSV_ROOT{0}{1}".format(
-        get_version_and_release(input_version)[0],
-        get_version_and_release(input_version)[1],
+        get_version_and_release(input_version)[0], get_version_and_release(input_version)[1]
     )
 
 

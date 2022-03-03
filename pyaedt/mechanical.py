@@ -297,12 +297,7 @@ class Mechanical(FieldAnalysis3D, object):
 
     @aedt_exception_handler
     def assign_uniform_convection(
-        self,
-        objects_list,
-        convection_value,
-        convection_unit="w_per_m2kel",
-        temperature="AmbientTemp",
-        boundary_name="",
+        self, objects_list, convection_value, convection_unit="w_per_m2kel", temperature="AmbientTemp", boundary_name=""
     ):
         """Assign a uniform convection to the face list.
 
