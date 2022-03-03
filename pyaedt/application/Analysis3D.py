@@ -2,6 +2,7 @@ import ntpath
 import os
 import warnings
 
+from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
