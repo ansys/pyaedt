@@ -2,8 +2,16 @@ import sys
 import warnings
 import os
 
-from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
-from pyaedt.modeler.Object3d import Padstack, Components3DLayout, Geometries3DLayout, Pins3DLayout, Nets3DLayout, _uname
+from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython, _retry_ntimes
+from pyaedt.modeler.Object3d import (
+    Padstack,
+    Components3DLayout,
+    Geometries3DLayout,
+    Pins3DLayout,
+    Nets3DLayout,
+    _uname,
+    ComponentsSubCircuit3DLayout,
+)
 from pyaedt.modeler.Primitives import default_materials
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
@@ -65,6 +73,7 @@ class Primitives3DLayout(object):
         self._opadstackmanager = self._app._oproject.GetDefinitionManager().GetManager("Padstack")
         self.padstacks = {}
         self._components = {}
+        self._components3d = {}
         self._geometries = {}
         self._pins = {}
         self._nets = {}
@@ -156,6 +165,23 @@ class Primitives3DLayout(object):
                         continue
                 self._geometries[name] = Geometries3DLayout(self, name, elid)
         return self._geometries
+
+    @property
+    def components_3d(self):
+        """Components.
+
+        Returns
+        -------
+        list
+            List of components from EDB. If EDB is not present, ``None`` is returned.
+
+        """
+        if not self._components3d:
+            for i in range(1, 1000):
+                cmp_info = self.oeditor.GetComponentInfo(str(i))
+                if cmp_info and "ComponentName" in cmp_info[0]:
+                    self._components3d[str(i)] = Components3DLayout(self, str(i))
+        return self._components3d
 
     @property
     def pins(self):
@@ -684,3 +710,107 @@ class Primitives3DLayout(object):
             val = "{0}{1}".format(Value, sUnits)
 
         return val
+
+    @aedt_exception_handler
+    def place_3d_component(
+        self, component_path, number_of_terminals=1, placement_layer=None, component_name=None, pos_x=0, pos_y=0
+    ):
+        """
+
+        :param component_path:
+        :param number_of_terminals:
+        :param placement_layer:
+        :return:
+        """
+        if not component_name:
+            component_name = os.path.basename(component_path).split(".")[0]
+        args = ["NAME:" + component_name]
+        infos = [
+            "Type:=",
+            27,
+            "NumTerminals:=",
+            number_of_terminals,
+            "DataSource:=",
+            "",
+            "ModifiedOn:=",
+            1646294080,
+            "Manufacturer:=",
+            "",
+            "Symbol:=",
+            "v1_" + component_name,
+            "ModelNames:=",
+            "",
+            "Footprint:=",
+            "",
+            "Description:=",
+            "",
+            "InfoTopic:=",
+            "",
+            "InfoHelpFile:=",
+            "",
+            "IconFile:=",
+            "BlueDot.bmp",
+            "Library:=",
+            "",
+            "OriginalLocation:=",
+            "Project",
+            "IEEE:=",
+            "",
+            "Author:=",
+            "",
+            "OriginalAuthor:=",
+            "",
+            "CreationDate:=",
+            1646294079,
+            "ExampleFile:=",
+            "",
+            "HiddenComponent:=",
+            0,
+            "CircuitEnv:=",
+            0,
+            "GroupID:=",
+            0,
+        ]
+        args.append("Info:=")
+        args.append(infos)
+        args.append("CircuitEnv:=")
+        args.append(0)
+        args.append("Refbase:=")
+        args.append("U")
+        args.append("NumParts:=")
+        args.append(1)
+        args.append("ModSinceLib:=")
+        args.append(True)
+        args.append("CompExtID:=")
+        args.append(8)
+        args.append("3DCompSourceFileName:=")
+        args.append(component_path)
+
+        self.modeler.o_component_manager.Add(args)
+        stack_layers = ["0:{}".format(i) for i in self.modeler.layers.all_layers]
+        drawing = ["{}:{}".format(i, i) for i in self.modeler.layers.drawing_layers]
+        arg_x = self.modeler._arg_with_dim(pos_x)
+        arg_y = self.modeler._arg_with_dim(pos_y)
+        args = [
+            "NAME:Contents",
+            "definition_name:=",
+            component_name,
+            "placement:=",
+            ["x:=", arg_x, "y:=", arg_y],
+            "layer:=",
+            placement_layer,
+            "isCircuit:=",
+            False,
+            "compInstName:=",
+            "1",
+            "rect_width:=",
+            0.01,
+            "StackupLayers:=",
+            stack_layers,
+            "DrawLayers:=",
+            drawing,
+        ]
+        id = _retry_ntimes(10, self.modeler.oeditor.CreateComponent, args)
+        comp = ComponentsSubCircuit3DLayout(self, id.split(";")[-1])
+        self.components_3d[id.split(";")[-1]] = comp
+        return comp

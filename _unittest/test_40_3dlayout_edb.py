@@ -16,8 +16,11 @@ class TestClass(BasisTest, object):
         self.aedtapp = BasisTest.add_app(self, project_name=original_project_name, application=Hfss3dLayout)
         self.tmp = self.aedtapp.modeler.geometries
         example_project = os.path.join(local_path, "example_models", "Package.aedb")
+        src_file = os.path.join(local_path, "example_models", "Package.aedt")
+        dest_file = os.path.join(self.local_scratch.path, "Package_test_40.aedt")
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_40.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
+        self.package_file = self.local_scratch.copyfile(src_file, dest_file)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -85,6 +88,31 @@ class TestClass(BasisTest, object):
         assert len(nets) > 0
 
     def test_08_merge(self):
-        hfss3d = Hfss3dLayout(self.target_path, specified_version=desktop_version)
-        assert hfss3d.modeler.merge_design(self.aedtapp)
+        tol = 1e-12
+        hfss3d = Hfss3dLayout(self.package_file, "FlipChip_TopBot", specified_version=desktop_version)
+        brd = Hfss3dLayout(hfss3d.project_name, "Dummy_Board", specified_version=desktop_version)
+        comp = brd.modeler.merge_design(hfss3d, rotation=90)
+        assert comp.location[0] == 0.0
+        assert comp.location[1] == 0.0
+        assert comp.angle == "90deg"
+        comp.location = [0.1, 0.2]
+        assert (comp.location[0] - 0.1) < tol
+        assert (comp.location[1] - 0.2) < tol
         hfss3d.close_project(saveproject=False)
+
+    def test_09_3dplacement(self):
+        assert len(self.aedtapp.modeler.components_3d) == 2
+        tol = 1e-12
+        encrypted_model_path = os.path.join(local_path, "example_models", "connector.a3dcomp")
+        comp = self.aedtapp.modeler.place_3d_component(
+            encrypted_model_path, 4, placement_layer="TOP", component_name="my_connector", pos_x=0.001, pos_y=0.002
+        )
+        assert (comp.location[0] - 0.001) < tol
+        assert (comp.location[1] - 0.002) < tol
+        assert comp.angle == "0deg"
+        assert comp.placement_layer == "TOP"
+        comp.placement_layer = "bottom"
+        assert comp.placement_layer == "BOTTOM"
+        comp.angle == "10deg"
+        assert comp.angle == "10deg"
+        assert comp.component_name == "connector"
