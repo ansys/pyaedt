@@ -3176,8 +3176,9 @@ class Pins3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        location = _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name,
-                                 "Location").split(",")
+        location = _retry_ntimes(
+            self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location"
+        ).split(",")
         l = []
         for pos in location:
             try:

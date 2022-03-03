@@ -1,7 +1,6 @@
 import os
 import re
 from warnings import warn
-import time
 
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.edb import Edb
