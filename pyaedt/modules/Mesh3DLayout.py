@@ -6,7 +6,7 @@ This module provides all functionalities for creating and editing the mesh in th
 """
 from __future__ import absolute_import
 
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name
 from pyaedt.generic.DataHandlers import _dict2arg
 from collections import OrderedDict
 
@@ -33,7 +33,7 @@ class Mesh3DOperation(object):
         self.props = props
         self.hfss_setup_name = hfss_setup_name
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_args(self, props=None):
         """Retrieve arguments.
 
@@ -55,7 +55,7 @@ class Mesh3DOperation(object):
         _dict2arg(props, arg)
         return arg
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create(self):
         """Create a mesh.
 
@@ -72,7 +72,7 @@ class Mesh3DOperation(object):
         self._mesh3dlayout.omeshmodule.AddMeshOperation(self.hfss_setup_name, self._get_args())
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update(self):
         """Update the mesh.
 
@@ -89,7 +89,7 @@ class Mesh3DOperation(object):
         self._mesh3dlayout.omeshmodule.EditMeshOperation(self.hfss_setup_name, self.name, self._get_args())
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete(self):
         """Delete the mesh.
 
@@ -147,7 +147,7 @@ class Mesh3d(object):
         """
         return self._omeshmodule
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete_mesh_operations(self, setup_name, mesh_name):
         """Remove mesh operations from a setup.
 
@@ -175,7 +175,7 @@ class Mesh3d(object):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_design_mesh_operations(self):
         """Retrieve design mesh operations.
 
@@ -196,7 +196,7 @@ class Mesh3d(object):
             pass
         return meshops
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_length_mesh(
         self, setupname, layer_name, net_name, isinside=True, maxlength=1, maxel=1000, meshop_name=None
     ):
@@ -288,7 +288,7 @@ class Mesh3d(object):
         self.meshoperations.append(mop)
         return mop
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_skin_depth(
         self,
         setupname,

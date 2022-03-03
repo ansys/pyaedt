@@ -1,5 +1,5 @@
 import copy
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 solutions_defaults = {
     "Maxwell 2D": "Magnetostatic",
@@ -484,7 +484,7 @@ class DesignSolution(object):
         return self._solution_type
 
     @solution_type.setter
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def solution_type(self, value):
         if value is None:
             if self._odesign:
@@ -555,7 +555,7 @@ class HFSSDesignSolution(DesignSolution, object):
         return self._solution_type
 
     @solution_type.setter
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def solution_type(self, value):
         if self._aedt_version < "2021.2":
             if not value:
@@ -616,7 +616,7 @@ class HFSSDesignSolution(DesignSolution, object):
         return self._hybrid
 
     @hybrid.setter
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def hybrid(self, value):
         if self._aedt_version < "2021.2":
             return
@@ -641,7 +641,7 @@ class HFSSDesignSolution(DesignSolution, object):
         return self._composite
 
     @composite.setter
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def composite(self, val):
         if self._aedt_version < "2021.2":
             return
@@ -656,7 +656,7 @@ class HFSSDesignSolution(DesignSolution, object):
         self._composite = val
         self.solution_type = self.solution_type
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_auto_open(self, enable=True, boundary_type="Radiation"):
         """Set Hfss auto open type.
 
@@ -693,7 +693,7 @@ class Maxwell2DDesignSolution(DesignSolution, object):
         return self._geometry_mode == "XY"
 
     @xy_plane.setter
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def xy_plane(self, value=True):
         if value:
             self._geometry_mode = "XY"
@@ -713,7 +713,7 @@ class Maxwell2DDesignSolution(DesignSolution, object):
         return self._solution_type
 
     @solution_type.setter
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def solution_type(self, value):
         if value is None:
             if self._odesign and "GetSolutionType" in dir(self._odesign):
@@ -759,7 +759,7 @@ class IcepakDesignSolution(DesignSolution, object):
         return self._problem_type
 
     @problem_type.setter
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def problem_type(self, value="TemperatureAndFlow"):
         if value == "TemperatureAndFlow":
             self._problem_type = value
@@ -797,7 +797,7 @@ class IcepakDesignSolution(DesignSolution, object):
         return self._solution_type
 
     @solution_type.setter
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def solution_type(self, solution_type):
         if solution_type:
             if "SteadyState" in solution_type:
@@ -836,7 +836,7 @@ class RmXprtDesignSolution(DesignSolution, object):
         return self._solution_type
 
     @solution_type.setter
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def solution_type(self, solution_type):
         if solution_type:
             try:
@@ -851,7 +851,7 @@ class RmXprtDesignSolution(DesignSolution, object):
         return self._design_type
 
     @design_type.setter
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def design_type(self, value):
         if value:
             self._design_type = value

@@ -6,7 +6,7 @@ import time
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.edb import Edb
 from pyaedt.generic.general_methods import (
-    aedt_exception_handler,
+    pyaedt_function_handler,
     _retry_ntimes,
     is_ironpython,
     _pythonver,
@@ -114,7 +114,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """Logger."""
         return self._app.logger
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def fit_all(self):
         """Fit all.
 
@@ -176,7 +176,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """
         return self.oeditor.GetModelBoundingBox()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _arg_with_dim(self, value, units=None):
         if isinstance(value, str):
             val = value
@@ -200,7 +200,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         return posx, posy, posz
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def change_property(self, property_object, property_name, property_value, property_tab="BaseElementTab"):
         """Change an oeditor property.
 
@@ -269,7 +269,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.logger.info("Property {} Changed correctly.".format(property_name))
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def merge_design(self, merged_design=None, pos_x="0.0", pos_y="0.0", pos_z="0.0", rotation="0.0"):
         """Merge a design into another.
 
@@ -317,7 +317,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.change_property(property_object=comp_name, property_name="Rotation Angle", property_value=rotation)
         return comp
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def change_clip_plane_position(self, clip_name, position):
         """Change the clip plane position.
 
@@ -340,7 +340,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """
         return self.change_property(clip_name, "Location", position)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def colinear_heal(self, selection, tolerance=0.1):
         """Remove small edges of one or more primitives.
 
@@ -389,7 +389,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def expand(self, object_to_expand, size=1, expand_type="ROUND", replace_original=False):
         """Expand the object by a specific size.
 
@@ -445,7 +445,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             return new_geom_names[0]
         return object_to_expand
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_cadence_brd(self, brd_filename, edb_path=None, edb_name=None):
         """Import a cadence board.
 
@@ -482,7 +482,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self._app.__init__(self._app._desktop.GetActiveProject().GetName())
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def modeler_variable(self, value):
         """Retrieve a modeler variable.
 
@@ -499,7 +499,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         else:
             return str(value) + self.model_units
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_ipc2581(self, ipc_filename, edb_path=None, edb_name=None):
         """Import an IPC file.
 
@@ -536,7 +536,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self._app.__init__(self._app._desktop.GetActiveProject().GetName())
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def subtract(self, blank, tool):
         """Subtract objects from one or more names.
 
@@ -574,7 +574,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 self._geometries.pop(tool)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def unite(self, objectlists):
         """Unite objects from names.
 
@@ -607,7 +607,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             self.logger.error("Input list must contain at least two elements.")
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def intersect(self, objectlists):
         """Intersect objects from names.
 
@@ -640,7 +640,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             self.logger.error("Input list must contain at least two elements.")
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def duplicate(self, objectlists, count, direction_vector):
         """Duplicate one or more elements along a vector.
 
@@ -670,7 +670,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_temperature_dependence(
         self,
         include_temperature_dependence=True,
@@ -726,7 +726,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             self.logger.info("Assigned Objects Temperature")
             return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_spice_model(self, component_name, model_path, model_name=None, subcircuit_name=None, pin_map=None):
         """Assign a Spice model to a component.
 

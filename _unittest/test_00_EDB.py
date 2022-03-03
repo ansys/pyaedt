@@ -695,7 +695,7 @@ class TestClass(BasisTest, object):
         edbapp_without_path = None
         del edbapp_without_path
 
-    def test_80_create_reactangle_in_pad(self):
+    def test_80_create_rectangle_in_pad(self):
         example_model = os.path.join(local_path, "example_models", "padstacks.aedb")
         self.local_scratch.copyfolder(
             example_model,
@@ -708,7 +708,7 @@ class TestClass(BasisTest, object):
         )
         for i in range(7):
             padstack_instance = list(edb_padstacks.core_padstack.padstack_instances.values())[i]
-            result = padstack_instance.create_reactangle_in_pad("s")
+            result = padstack_instance.create_rectangle_in_pad("s")
             assert result
         edb_padstacks.close_edb()
 

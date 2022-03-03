@@ -3,7 +3,7 @@
 from __future__ import absolute_import
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
-from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
+from pyaedt.generic.general_methods import generate_unique_name, pyaedt_function_handler
 from pyaedt.modules.Boundary import BoundaryObject
 from collections import OrderedDict
 
@@ -109,7 +109,7 @@ class Mechanical(FieldAnalysis3D, object):
     def __enter__(self):
         return self
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_em_losses(
         self,
         designname="HFSSDesign1",
@@ -207,7 +207,7 @@ class Mechanical(FieldAnalysis3D, object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_thermal_map(
         self,
         object_list,
@@ -296,7 +296,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_uniform_convection(
         self, objects_list, convection_value, convection_unit="w_per_m2kel", temperature="AmbientTemp", boundary_name=""
     ):
@@ -348,7 +348,7 @@ class Mechanical(FieldAnalysis3D, object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_uniform_temperature(self, objects_list, temperature="AmbientTemp", boundary_name=""):
         """Assign a uniform temperature boundary.
 
@@ -395,7 +395,7 @@ class Mechanical(FieldAnalysis3D, object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_frictionless_support(self, objects_list, boundary_name=""):
         """Assign a Mechanical frictionless support.
 
@@ -440,7 +440,7 @@ class Mechanical(FieldAnalysis3D, object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_fixed_support(self, objects_list, boundary_name=""):
         """Assign a Mechanical fixed support.
 

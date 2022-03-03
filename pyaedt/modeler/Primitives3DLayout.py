@@ -2,7 +2,7 @@ import sys
 import warnings
 import os
 
-from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython, _retry_ntimes
+from pyaedt.generic.general_methods import pyaedt_function_handler, is_ironpython, _retry_ntimes
 from pyaedt.modeler.Object3d import (
     Padstack,
     Components3DLayout,
@@ -47,7 +47,7 @@ class Primitives3DLayout(object):
     >>> prim = aedtapp.modeler
     """
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __getitem__(self, partname):
         """Retrieve a part.
 
@@ -278,7 +278,7 @@ class Primitives3DLayout(object):
         """Padstack."""
         return Padstack()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def new_padstack(self, name="Padstack"):
         """Create a `Padstack` object that can be used to create a padstack.
 
@@ -299,7 +299,7 @@ class Primitives3DLayout(object):
             self.padstacks[name] = Padstack(name, self.opadstackmanager, self.model_units)
             return self.padstacks[name]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def init_padstacks(self):
         """Read all padstacks from HFSS 3D Layout.
 
@@ -377,7 +377,7 @@ class Primitives3DLayout(object):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def change_net_visibility(self, netlist=None, visible=False):
         """Change the visibility of one or more nets.
 
@@ -413,7 +413,7 @@ class Primitives3DLayout(object):
         self._oeditor.SetNetVisible(args)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_via(
         self,
         padstack="PlanarEMVia",
@@ -497,7 +497,7 @@ class Primitives3DLayout(object):
         #     self.objects[name].set_net_name(netname)
         return name
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_circle(self, layername, x, y, radius, name=None, netname=None):
         """Create a circle on a layer.
 
@@ -551,7 +551,7 @@ class Primitives3DLayout(object):
                 self._geometries[name].set_net_name(netname)
         return name
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_rectangle(self, layername, origin, dimensions, corner_radius=0, angle=0, name=None, netname=None):
         """Create a rectangle on a layer.
 
@@ -610,7 +610,7 @@ class Primitives3DLayout(object):
                 self._geometries[name].set_net_name(netname)
         return name
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_line(self, layername, center_line_list, lw=1, start_style=0, end_style=0, name=None, netname=None):
         """Create a line based on a list of points.
 
@@ -686,7 +686,7 @@ class Primitives3DLayout(object):
                 self._geometries[name].set_net_name(netname)
         return name
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def arg_with_dim(self, Value, sUnits=None):
         """Format arguments with dimensions.
 

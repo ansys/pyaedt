@@ -1,4 +1,4 @@
-from pyaedt import aedt_exception_handler
+from pyaedt import pyaedt_function_handler
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.modeler.multiparts import MultiPartComponent, Actor
 
@@ -98,7 +98,7 @@ class Person(Actor, object):
     def stride(self, s):
         self._stride = s  # TODO: Add validation to allow expressions.
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _add_walking(self, app):
         # Update expressions for oscillation of limbs. At this point
         # we could parse p.name to handle motion (arm, leg, ...).
@@ -120,7 +120,7 @@ class Person(Actor, object):
                         + ")rad"
                     )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def insert(self, app, motion=True):
         """Insert the person in HFSS SBR+.
 
@@ -185,7 +185,7 @@ class Bird(Actor, object):
                         p["rotation"] + "* sin(2*pi*" + str(self._flapping_rate) + "*" + MultiPartComponent._t + ")"
                     )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def insert(self, app, motion=True):
         """Insert the bird in HFSS SBR+.
 
@@ -234,7 +234,7 @@ class Vehicle(Actor, object):
 
         super(Vehicle, self).__init__(car_folder, speed=speed, relative_cs_name=relative_cs_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _add_driving(self, app):
         # Update expressions for wheel motion:
         for k, p in self.parts.items():
@@ -250,7 +250,7 @@ class Vehicle(Actor, object):
                         + "meter)*(180/pi)*1deg"
                     )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def insert(self, app, motion=True):
         """Insert the vehicle in HFSS SBR+.
 
@@ -360,7 +360,7 @@ class Radar(MultiPartComponent, object):
     def speed_expression(self, s):
         self._speed_expression = s
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _add_speed(self, app):
         app.variable_manager.set_variable(
             variable_name=self.speed_name, expression=self.speed_expression, description="radar speed"
@@ -374,7 +374,7 @@ class Radar(MultiPartComponent, object):
             str(self.offset[1]) + "+" + self.speed_name + " * " + MultiPartComponent._t + "* sin(" + self.yaw_name + ")"
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def insert(self, app, motion=False):
         """Insert radar in the HFSS application instance.
 

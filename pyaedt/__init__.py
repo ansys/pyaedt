@@ -11,7 +11,7 @@ if os.path.exists(os.path.join(os.path.dirname(__file__), "version.txt")):
 
 from pyaedt.generic.general_methods import settings
 from pyaedt.generic import constants
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, _retry_ntimes
+from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, _retry_ntimes
 from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop, convert_remote_object
 from pyaedt.aedt_logger import AedtLogger
 
