@@ -786,7 +786,7 @@ class Primitives3DLayout(object):
         args.append("3DCompSourceFileName:=")
         args.append(component_path)
 
-        self.modeler.o_component_manager.Add(args)
+        _retry_ntimes(10, self.modeler.o_component_manager.Add, args)
         stack_layers = ["0:{}".format(i) for i in self.modeler.layers.all_layers]
         drawing = ["{}:{}".format(i, i) for i in self.modeler.layers.drawing_layers]
         arg_x = self.modeler._arg_with_dim(pos_x)
