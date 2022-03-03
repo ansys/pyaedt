@@ -10,7 +10,7 @@ This module contains the configuration and fixture for the pytest-based unit tes
 The default configuration can be changed by placing a file called local_config.json in the same
 directory as this module. An example of the contents of local_config.json
 {
-  "desktopVersion": "2021.2",
+  "desktopVersion": "2022.1",
   "NonGraphical": false,
   "NewThread": false,
   "test_desktops": true
@@ -62,7 +62,7 @@ if os.path.exists(local_config_file):
     with open(local_config_file) as f:
         config = json.load(f)
 else:
-    default_version = "2021.2"
+    default_version = "2022.1"
     if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
         default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
     config = {
