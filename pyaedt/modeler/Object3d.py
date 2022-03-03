@@ -3032,8 +3032,8 @@ class Components3DLayout(Objec3DLayout, object):
         Objec3DLayout.__init__(self, primitives)
         self.name = name
 
-    @pyaedt_function_handler()
-    def get_location(self):
+    @property
+    def location(self):
         """Retrieve the component location.
 
         Returns
@@ -3046,11 +3046,19 @@ class Components3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        location = _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location")
-        return list(location)
+        location = _retry_ntimes(
+            self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location"
+        ).split(",")
+        l = []
+        for i in location:
+            try:
+                l.append(float(i))
+            except ValueError:
+                l.append(i)
+        return l
 
-    @pyaedt_function_handler()
-    def get_placement_layer(self):
+    @property
+    def placement_layer(self):
         """Retrieve the component placement layer.
 
         Returns
@@ -3065,8 +3073,8 @@ class Components3DLayout(Objec3DLayout, object):
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
 
-    @pyaedt_function_handler()
-    def get_part(self):
+    @property
+    def part(self):
         """Retrieve the component part.
 
         Returns
@@ -3081,8 +3089,8 @@ class Components3DLayout(Objec3DLayout, object):
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Part")
 
-    @pyaedt_function_handler()
-    def get_part_type(self):
+    @property
+    def part_type(self):
         """Retrieve the component part type.
 
         Returns
@@ -3097,8 +3105,8 @@ class Components3DLayout(Objec3DLayout, object):
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Part Type")
 
-    @pyaedt_function_handler()
-    def get_angle(self):
+    @property
+    def angle(self):
         """Retrieve the component angle.
 
         Returns
@@ -3154,8 +3162,8 @@ class Pins3DLayout(Objec3DLayout, object):
         self.pinname = pinname
         self.name = name
 
-    @pyaedt_function_handler()
-    def get_location(self):
+    @property
+    def location(self):
         """Retrieve the pin locaton.
 
         Returns
@@ -3168,11 +3176,19 @@ class Pins3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        location = _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location")
-        return location
+        location = _retry_ntimes(
+            self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location"
+        ).split(",")
+        l = []
+        for pos in location:
+            try:
+                l.append(float(pos))
+            except ValueError:
+                l.append(pos)
+        return l
 
-    @pyaedt_function_handler()
-    def get_start_layer(self):
+    @property
+    def start_layer(self):
         """Retrieve the starting layer of the pin.
 
         Returns
@@ -3187,8 +3203,8 @@ class Pins3DLayout(Objec3DLayout, object):
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Start Layer")
 
-    @pyaedt_function_handler()
-    def get_stop_layer(self):
+    @property
+    def stop_layer(self):
         """Retrieve the starting layer of the pin.
 
         Returns
@@ -3203,8 +3219,8 @@ class Pins3DLayout(Objec3DLayout, object):
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Stop Layer")
 
-    @pyaedt_function_handler()
-    def get_holediam(self):
+    @property
+    def holediam(self):
         """Retrieve the hole diameter of the pin.
 
         Returns
@@ -3219,8 +3235,8 @@ class Pins3DLayout(Objec3DLayout, object):
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "HoleDiameter")
 
-    @pyaedt_function_handler()
-    def get_angle(self):
+    @property
+    def angle(self):
         """Retrieve the rotation angle of the pin in degrees.
 
         Returns
@@ -3618,3 +3634,126 @@ class Point(object):
             self.display_wireframe,
             self.part_coordinate_system,
         )
+
+
+class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
+    """Contains 3d Components in HFSS 3D Layout.
+
+    Parameters
+    ----------
+    parent :
+
+    name : string, optional
+        The default is ``""``.
+
+    """
+
+    def __init__(self, primitives, name=""):
+        Objec3DLayout.__init__(self, primitives)
+        self.name = name
+
+    @property
+    def component_info(self):
+        """Retrieve all component info."""
+        return self.m_Editor.GetComponentInfo(self.name)
+
+    @property
+    def component_name(self):
+        """Retrieve the component name."""
+        try:
+            return self.component_info[0].split("=")[1]
+        except IndexError:
+            return ""
+
+    @property
+    def location(self):
+        """Retrieve/Set the component location.
+
+        Returns
+        -------
+        list
+           List of ``(x, y)`` coordinates for the component location.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        location = _retry_ntimes(
+            self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location"
+        ).split(",")
+        l = []
+        for i in location:
+            try:
+                l.append(float(i))
+            except ValueError:
+                l.append(i)
+        return l
+
+    @location.setter
+    def location(self, position):
+        props = ["NAME:Location", "X:=", str(position[0]), "Y:=", str(position[0])]
+        self.change_property(props)
+
+    @property
+    def placement_layer(self):
+        """Retrieve/Set the component placement layer.
+
+        Returns
+        -------
+        str
+            Component placement layer.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
+
+    @placement_layer.setter
+    def placement_layer(self, layer):
+        props = ["NAME:PlacementLayer", "Value:=", layer.lower()]
+        self.change_property(props)
+
+    @property
+    def angle(self):
+        """Retrieve/Set the component angle.
+
+        Returns
+        -------
+        str
+            Component angle.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        if self.is_3d_placement:
+            ang = self.m_Editor.GetPropertyValue("BaseElementTab", self.name, "Rotation Angle")
+        else:
+            ang = self.m_Editor.GetPropertyValue("BaseElementTab", self.name, "Angle")
+        try:
+            return float(ang)
+        except ValueError:
+            return ang
+
+    @angle.setter
+    def angle(self, angle_val):
+        if isinstance(angle_val, (int, float)):
+            angle_val = "{}deg".format(angle_val)
+
+        if not self.is_3d_placement:
+            props = ["NAME:Angle", "Value:=", angle_val]
+        else:
+            props = ["NAME:Rotation Angle", "Value:=", angle_val]
+        self.change_property(props)
+
+    @property
+    def is_3d_placement(self):
+        """Retrieve if the component has 3d placement."""
+        if self.m_Editor.GetPropertyValue("BaseElementTab", self.name, "3D Placement") in ["true", "True"]:
+            return True
+        else:
+            return False
