@@ -12,6 +12,9 @@ Examples
 >>> hfss["postd"] = "1W"
 
 """
+
+from __future__ import absolute_import  # noreorder
+
 import os
 import re
 
