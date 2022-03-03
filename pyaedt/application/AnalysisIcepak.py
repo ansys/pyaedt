@@ -2,6 +2,7 @@ import csv
 import os
 import re
 
+from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, is_ironpython
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic.general_methods import generate_unique_name
@@ -134,7 +135,7 @@ class FieldAnalysisIcepak(Analysis, object):
         """
         return self._mesh
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def plot(
         self,
         objects=None,
@@ -186,7 +187,7 @@ class FieldAnalysisIcepak(Analysis, object):
                 clean_files=clean_files,
             )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def apply_icepak_settings(
         self,
         ambienttemp=20,
@@ -264,7 +265,7 @@ class FieldAnalysisIcepak(Analysis, object):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_3d_model(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
         """Export the 3D model.
 
@@ -329,7 +330,7 @@ class FieldAnalysisIcepak(Analysis, object):
         self.modeler.oeditor.Export(arg)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_property_value(self, objectname, property, type=None):
         """Retrieve a design property value for an object.
 
@@ -398,7 +399,7 @@ class FieldAnalysisIcepak(Analysis, object):
                     return val
         return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def copy_solid_bodies_from(self, design, object_list=None, no_vacuum=True, no_pec=True):
         """Copy a list of objects from one design to the active design.
 
@@ -446,7 +447,7 @@ class FieldAnalysisIcepak(Analysis, object):
         self.modeler.oeditor.Paste()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_material(self, obj, mat):
         """Assign a material to one or more objects.
 
@@ -491,7 +492,7 @@ class FieldAnalysisIcepak(Analysis, object):
             self.logger.error("Material does not exist.")
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_surface_material(self, obj, mat):
         """Assign a surface material to one or more objects.
 
@@ -531,7 +532,7 @@ class FieldAnalysisIcepak(Analysis, object):
 
             return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _assign_property_to_mat(self, newmat, val, property):
         """Assign a property to a new material.
 
@@ -575,7 +576,7 @@ class FieldAnalysisIcepak(Analysis, object):
         except:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _create_dataset_from_sherlock(self, material_name, material_string, property_name="Mass_Density"):
         mats = material_string.split(",")
         mat_temp = [[i.split("@")[0], i.split("@")[1]] for i in mats]
@@ -589,7 +590,7 @@ class FieldAnalysisIcepak(Analysis, object):
         )
         return nominal_val, "$" + ds_name
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assignmaterial_from_sherlock_files(self, csv_component, csv_material):
         """Assign material to objects in a design based on a CSV file obtained from Sherlock.
 
@@ -704,7 +705,7 @@ class FieldAnalysisIcepak(Analysis, object):
             all_objs = [ao for ao in all_objs if ao not in list_mat_obj]
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_all_conductors_names(self):
         """Retrieve all conductors in the active design.
 
@@ -720,7 +721,7 @@ class FieldAnalysisIcepak(Analysis, object):
                 obj_names.append(obj.name)
         return obj_names
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_all_dielectrics_names(self):
         """Retrieve all dielectrics in the active design.
 

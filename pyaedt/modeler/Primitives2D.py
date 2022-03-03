@@ -1,5 +1,4 @@
-from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import pyaedt_function_handler, is_number
 from pyaedt.modeler.Primitives import Primitives
 
 
@@ -31,7 +30,7 @@ class Primitives2D(Primitives, object):
     def __init__(self):
         Primitives.__init__(self)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_circle(self, position, radius, num_sides=0, is_covered=True, name=None, matname=None):
         """Create a circle.
 
@@ -87,7 +86,7 @@ class Primitives2D(Primitives, object):
         new_object_name = self._oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_ellipse(self, position, major_radius, ratio, is_covered=True, name=None, matname=None):
         """Create an ellipse.
 
@@ -140,7 +139,7 @@ class Primitives2D(Primitives, object):
         new_object_name = self._oeditor.CreateEllipse(vArg1, vArg2)
         return self._create_object(new_object_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_rectangle(self, position, dimension_list, is_covered=True, name=None, matname=None):
         """Create a rectangle.
 
@@ -194,7 +193,7 @@ class Primitives2D(Primitives, object):
         new_object_name = self._oeditor.CreateRectangle(vArg1, vArg2)
         return self._create_object(new_object_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_regular_polygon(self, position, start_point, num_sides=6, is_covered=True, name=None, matname=None):
         """Create a rectangle.
 
@@ -253,7 +252,7 @@ class Primitives2D(Primitives, object):
         new_object_name = self._oeditor.CreateRegularPolygon(vArg1, vArg2)
         return self._create_object(new_object_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_region(self, pad_percent=300):
         """Create an air region.
 

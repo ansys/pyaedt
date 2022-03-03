@@ -5,6 +5,7 @@ from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.Model2D import Modeler2D
 from pyaedt.modules.Mesh import Mesh
+from pyaedt.generic.general_methods import pyaedt_function_handler, is_ironpython
 
 if is_ironpython:
     from pyaedt.modules.PostProcessor import PostProcessor
@@ -132,7 +133,7 @@ class FieldAnalysis2D(Analysis):
         """
         return self._mesh
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def plot(
         self,
         objects=None,
@@ -188,7 +189,7 @@ class FieldAnalysis2D(Analysis):
                 clean_files=clean_files,
             )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None):
         """Export mesh statistics to a file.
 
@@ -217,7 +218,7 @@ class FieldAnalysis2D(Analysis):
         self.odesign.ExportMeshStats(setup_name, variation_string, mesh_path)
         return mesh_path
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_material(self, obj, mat):
         """Assign a material to one or more objects.
 

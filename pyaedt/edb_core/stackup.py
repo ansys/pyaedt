@@ -8,8 +8,7 @@ import warnings
 
 from pyaedt.edb_core.EDB_Data import EDBLayers
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler, is_ironpython
 
 try:
     from System import Double
@@ -121,7 +120,7 @@ class EdbStackup(object):
             mats[el.Name] = el
         return mats
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_dielectric(self, name, permittivity=1, loss_tangent=0):
         """Create a dielectric with simple properties.
 
@@ -150,7 +149,7 @@ class EdbStackup(object):
             return material_def
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_conductor(self, name, conductivity=1e6):
         """Create a conductor with simple properties.
 
@@ -174,7 +173,7 @@ class EdbStackup(object):
             return material_def
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_debye_material(
         self,
         name,
@@ -221,7 +220,7 @@ class EdbStackup(object):
         )
         return self._add_dielectric_material_model(name, material_def)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_multipole_debye_material(
         self,
         name,
@@ -267,14 +266,14 @@ class EdbStackup(object):
         )
         return self._add_dielectric_material_model(name, material_def)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_solder_height(self, layer_name):
         for el, val in self._pedb.core_components.components.items():
             if val.solder_ball_height and val.placement_layer == layer_name:
                 return val.solder_ball_height
         return 0
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def adjust_solder_dielectrics(self):
         """Adjust the stack-up by adding or modifying dielectric layers that contains Solder Balls.
         This method identifies the solder-ball height and adjust the dielectric thickness on top (or bottom) to fit
@@ -333,7 +332,7 @@ class EdbStackup(object):
                         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def place_in_layout(
         self,
         edb,
@@ -424,7 +423,7 @@ class EdbStackup(object):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def place_in_layout_3d_placement(
         self,
         edb,
@@ -547,7 +546,7 @@ class EdbStackup(object):
         cell_inst2.Set3DTransformation(point_loc, point_from, point_to, rotation, point3d_t)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def flip_design(self):
         """Flip the current design of a layout.
 
@@ -666,7 +665,7 @@ class EdbStackup(object):
         except:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_djordjevicsarkar_material(self, name, relative_permittivity, loss_tangent, test_frequency):
         """Create a Djordjevic_Sarkar dielectric.
 
@@ -692,7 +691,7 @@ class EdbStackup(object):
         material_def.SetRelativePermitivityAtFrequency(relative_permittivity)
         return self._add_dielectric_material_model(name, material_def)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _add_dielectric_material_model(self, name, material_model):
         if self._edb.Definition.MaterialDef.FindByName(self._db, name).IsNull():
             DieDef = self._edb.Definition.MaterialDef.Create(self._db, name)
@@ -701,7 +700,7 @@ class EdbStackup(object):
                 return DieDef
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def stackup_limits(self, only_metals=False):
         """Retrieve stackup limits.
 

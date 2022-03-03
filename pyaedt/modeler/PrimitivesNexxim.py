@@ -1,8 +1,8 @@
 import os
 import warnings
 
-from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name
+from pyaedt.modeler.PrimitivesCircuit import CircuitComponents, ComponentCatalog
 from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
 from pyaedt.modeler.PrimitivesCircuit import ComponentCatalog
@@ -33,7 +33,7 @@ class NexximComponents(CircuitComponents):
         """Tab name."""
         return "PassedParameterTab"
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __getitem__(self, partname):
         """Get the object ID if the part name is an integer or the object name if it is a string.
         Parameters
@@ -77,7 +77,7 @@ class NexximComponents(CircuitComponents):
             self._components_catalog = ComponentCatalog(self)
         return self._components_catalog
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def connect_components_in_series(self, components_to_connect):
         """Connect schematic components in series.
 
@@ -115,7 +115,7 @@ class NexximComponents(CircuitComponents):
             i += 1
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def connect_components_in_parallel(self, components_to_connect):
         """Connect schematic components in parallel.
 
@@ -153,7 +153,7 @@ class NexximComponents(CircuitComponents):
             terminal_to_connect[0].pins[1].connect_to_component([i.pins[1] for i in terminal_to_connect[1:]])
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_3dlayout_subcircuit(self, sourcename):
         """Add a subcircuit from a HFSS 3DLayout.
 
@@ -165,7 +165,7 @@ class NexximComponents(CircuitComponents):
         )
         return self.add_subcircuit_3dlayout(sourcename)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_subcircuit_3dlayout(self, sourcename):
         """Add a subcircuit from a HFSS 3DLayout.
 
@@ -195,7 +195,7 @@ class NexximComponents(CircuitComponents):
                 return self.components[el]
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_field_model(self, design_name, solution_name, pin_names, model_type="hfss", posx=0, posy=1):
         """Create a field model.
 
@@ -451,7 +451,7 @@ class NexximComponents(CircuitComponents):
                 return el, self.components[el].composed_name
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_resistor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
@@ -486,7 +486,7 @@ class NexximComponents(CircuitComponents):
         cmpid.set_property("R", value)
         return cmpid
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_inductor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
@@ -527,7 +527,7 @@ class NexximComponents(CircuitComponents):
 
         return cmpid
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_capacitor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
@@ -567,7 +567,7 @@ class NexximComponents(CircuitComponents):
         cmpid.set_property("C", value)
         return cmpid
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_voltage_dc(self, compname=None, value=1, location=[], angle=0, use_instance_id_netlist=False):
         """Create a voltage DC source.
 
@@ -607,7 +607,7 @@ class NexximComponents(CircuitComponents):
         cmpid.set_property("DC", value)
         return cmpid
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_current_pulse(self, compname=None, value_lists=[], location=[], angle=0, use_instance_id_netlist=False):
         """Create a current pulse.
 
@@ -661,7 +661,7 @@ class NexximComponents(CircuitComponents):
 
         return cmpid
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_voltage_pulse(self, compname=None, value_lists=[], location=[], angle=0, use_instance_id_netlist=False):
         """Create a voltage pulse.
 
@@ -715,7 +715,7 @@ class NexximComponents(CircuitComponents):
 
         return cmpid
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_current_dc(self, compname=None, value=1, location=[], angle=0, use_instance_id_netlist=False):
         """Create a current DC source.
 
@@ -800,7 +800,7 @@ class NexximComponents(CircuitComponents):
         cmpid.set_property("CouplingFactor", value)
         return cmpid
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_diode(self, compname=None, model_name="required", location=[], angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
@@ -840,7 +840,7 @@ class NexximComponents(CircuitComponents):
         cmpid.set_property("MOD", model_name)
         return cmpid
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_npn(self, compname=None, value=None, location=[], angle=0, use_instance_id_netlist=False):
         """Create an NPN transistor.
 
@@ -880,7 +880,7 @@ class NexximComponents(CircuitComponents):
             id.set_property("MOD", value)
         return id
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_pnp(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a PNP transistor.
 
@@ -921,7 +921,7 @@ class NexximComponents(CircuitComponents):
 
         return id
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_new_component_from_symbol(
         self, symbol_name, pin_lists, Refbase="U", parameter_list=[], parameter_value=[]
     ):
@@ -1064,7 +1064,7 @@ class NexximComponents(CircuitComponents):
         self.o_component_manager.Add(arg)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_comp_custom_settings(
         self, toolNum, dc=0, interp=0, extrap=1, conv=0, passivity=0, reciprocal="False", opt="", data_type=1
     ):
@@ -1126,7 +1126,7 @@ class NexximComponents(CircuitComponents):
 
         return res
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_subcircuit_hfss_link(
         self,
         comp_name,
@@ -1188,7 +1188,7 @@ class NexximComponents(CircuitComponents):
             variables=variables,
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_subcircuit_dynamic_link(
         self,
         pyaedt_app=None,
@@ -1306,7 +1306,7 @@ class NexximComponents(CircuitComponents):
                 return self.components[el]
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _add_subcircuit_link(
         self,
         comp_name,
@@ -1600,7 +1600,7 @@ class NexximComponents(CircuitComponents):
                 return self.components[el]
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_sim_option_on_hfss_subcircuit(self, component, option="simulate"):
         """Set the simulation option on the HFSS subscircuit.
 
@@ -1631,7 +1631,7 @@ class NexximComponents(CircuitComponents):
         arg = ["NAME:Simulation option", "Value:=", setting]
         return self._edit_link_definition_hfss_subcircuit(component, arg)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_sim_solution_on_hfss_subcircuit(self, component, solution_name="Setup1 : Sweep"):
         """Set the simulation solution on the HFSS subcircuit.
 
@@ -1655,7 +1655,7 @@ class NexximComponents(CircuitComponents):
         arg = ["NAME:Solution", "Value:=", solution_name]
         return self._edit_link_definition_hfss_subcircuit(component, arg)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _edit_link_definition_hfss_subcircuit(self, component, edited_prop):
         """Generic function to set the link definition for an hfss subcircuit."""
         if isinstance(component, str):
@@ -1679,7 +1679,7 @@ class NexximComponents(CircuitComponents):
         self._app._oproject.ChangeProperty(arg)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def refresh_dynamic_link(self, component_name):
         """Refresh a dynamic link.
 
@@ -1705,7 +1705,7 @@ class NexximComponents(CircuitComponents):
         self.o_component_manager.UpdateDynamicLink(component_name)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def push_excitations(self, instance_name, thevenin_calculation=False, setup_name="LinearFrequency"):
         """Push excitations.
 
@@ -1718,7 +1718,7 @@ class NexximComponents(CircuitComponents):
         )
         return self._app.push_excitations(instance_name, thevenin_calculation, setup_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_sin_excitation2ports(self, ports, settings):
         """Assign a voltage sinusoidal excitation to circuit ports.
 

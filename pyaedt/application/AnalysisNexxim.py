@@ -1,7 +1,6 @@
 import warnings
 
-from pyaedt.application.Analysis import Analysis
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Circuit import ModelerNexxim
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 from pyaedt.modules.SolveSetup import SetupCircuit
@@ -164,7 +163,7 @@ class FieldAnalysisCircuit(Analysis):
                 k += 1
         return spar
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_all_return_loss_list(self, excitation_names=[], excitation_name_prefix=""):
         """Retrieve a list of all return losses for a list of exctitations.
 
@@ -197,7 +196,7 @@ class FieldAnalysisCircuit(Analysis):
             spar.append("S({},{})".format(i, i))
         return spar
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_all_insertion_loss_list(self, trlist=[], reclist=[], tx_prefix="", rx_prefix=""):
         """Retrieve a list of all insertion losses from two lists of excitations (driver and receiver).
 
@@ -236,7 +235,7 @@ class FieldAnalysisCircuit(Analysis):
             spar.append("S({},{})".format(i, j))
         return spar
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_next_xtalk_list(self, trlist=[], tx_prefix=""):
         """Retrieve a list of all the near end XTalks from a list of excitations (driver and receiver).
 
@@ -269,7 +268,7 @@ class FieldAnalysisCircuit(Analysis):
                 k += 1
         return next
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_fext_xtalk_list(self, trlist=[], reclist=[], tx_prefix="", rx_prefix="", skip_same_index_couples=True):
         """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
 
@@ -313,7 +312,7 @@ class FieldAnalysisCircuit(Analysis):
                     fext.append("S({},{})".format(i, k))
         return fext
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_setup(self, setupname):
         """Retrieve the setup from the current design.
 
@@ -333,7 +332,7 @@ class FieldAnalysisCircuit(Analysis):
             self.analysis_setup = setupname
         return setup
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
         """Create a new setup.
 

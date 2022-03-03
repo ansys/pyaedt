@@ -1,9 +1,7 @@
 from collections import OrderedDict
 
-from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.modules.Mesh import meshers
-from pyaedt.modules.Mesh import MeshOperation
+from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name
+from pyaedt.modules.Mesh import meshers, MeshOperation
 
 
 class IcepakMesh(object):
@@ -72,7 +70,7 @@ class IcepakMesh(object):
             self.SubModels = False
             self.Enable = True
 
-        @aedt_exception_handler
+        @pyaedt_function_handler()
         def _dim_arg(self, value):
             if type(value) is str:
                 try:
@@ -170,7 +168,7 @@ class IcepakMesh(object):
             """Instance of a design in a project."""
             return self._app._odesign
 
-        @aedt_exception_handler
+        @pyaedt_function_handler()
         def update(self):
             """Update mesh region settings with the settings in the object variable.
 
@@ -199,7 +197,7 @@ class IcepakMesh(object):
                 self.meshmodule.EditMeshRegion(self.name, args)
             return True
 
-        @aedt_exception_handler
+        @pyaedt_function_handler()
         def create(self):
             """Create a new mesh region.
 
@@ -227,7 +225,7 @@ class IcepakMesh(object):
         """Bounding dimension."""
         return self.modeler.get_bounding_dimension()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_design_mesh_operations(self):
         """Retrieve design mesh operations."""
         meshops = []
@@ -248,7 +246,7 @@ class IcepakMesh(object):
             pass
         return meshops
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_design_mesh_regions(self):
         """Retrieve design mesh regions."""
         meshops = []
@@ -268,7 +266,7 @@ class IcepakMesh(object):
             pass
         return meshops
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_mesh_level(self, mesh_order, meshop_name=None):
         """Assign a mesh level to objects.
 
@@ -308,7 +306,7 @@ class IcepakMesh(object):
             list_meshops.append(meshop_name)
         return list_meshops
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_mesh_from_file(self, objects, filename, meshop_name=None):
         """Assign a mesh from file to objects.
 
@@ -352,7 +350,7 @@ class IcepakMesh(object):
             return mop
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def automatic_mesh_pcb(self, accuracy=2):
         """Create a custom mesh tailored on a PCB design.
 
@@ -390,7 +388,7 @@ class IcepakMesh(object):
         self.global_mesh_region.update()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def automatic_mesh_3D(self, accuracy2, stairStep=True):
         """Create a generic custom mesh for a custom 3D object.
 
@@ -426,7 +424,7 @@ class IcepakMesh(object):
         self.global_mesh_region.update()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_priority(self, entity_type, obj_list, comp_name=None, priority=3):
         """Add priority to objects.
 
@@ -488,7 +486,7 @@ class IcepakMesh(object):
         self.modeler.oeditor.UpdatePriorityList(args)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_mesh_region(self, objectlist=[], level=5, is_submodel=False, name=None):
         """Assign a predefined surface mesh level to an object.
 
@@ -535,7 +533,7 @@ class IcepakMesh(object):
         self.meshregions.append(meshregion)
         return meshregion
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def generate_mesh(self, name):
         """Generate the mesh for a given setup name.
 
@@ -556,7 +554,7 @@ class IcepakMesh(object):
         """
         return self._odesign.GenerateMesh(name) == 0
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_mesh_level_to_group(
         self,
         mesh_level,

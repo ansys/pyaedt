@@ -17,10 +17,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.general_methods import _retry_ntimes
-from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import write_csv
+from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, _retry_ntimes, write_csv
 
 
 orientation_to_view = {
@@ -116,7 +113,7 @@ class SolutionData(object):
         mydata = [i for i in self._nominal_variation.GetDataExpressions()]
         return list(dict.fromkeys(mydata))
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _init_solutions_data(self):
         self.solutions_data_real = self._solution_data_real()
         self.solutions_data_imag = self._solution_data_imag()
@@ -130,7 +127,7 @@ class SolutionData(object):
                     complex(self.solutions_data_real[expr][i], self.solutions_data_imag[expr][i])
                 )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_sweeps(self):
         """Update sweeps.
 
@@ -147,7 +144,7 @@ class SolutionData(object):
             self._sweeps[el] = list(OrderedDict.fromkeys(self._sweeps[el]))
         return self._sweeps
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _quantity(self, unit):
         """
 
@@ -166,7 +163,7 @@ class SolutionData(object):
                 return el
         return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _solution_data_real(self):
         """ """
         sols_data = {}
@@ -183,7 +180,7 @@ class SolutionData(object):
             sols_data[expression] = solution_Data
         return sols_data
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _solution_data_imag(self):
         """ """
         sols_data = {}
@@ -203,7 +200,7 @@ class SolutionData(object):
             sols_data[expression] = solution_Data
         return sols_data
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def to_degrees(self, input_list):
         """Convert an input list from radians to degrees.
 
@@ -220,7 +217,7 @@ class SolutionData(object):
         """
         return [i * 2 * math.pi / 360 for i in input_list]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def to_radians(self, input_list):
         """Convert an input list from degrees to radians.
 
@@ -280,7 +277,7 @@ class SolutionData(object):
             )
         return sol
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _convert_list_to_SI(self, datalist, dataunits, units):
         """Convert a data list to the SI unit system.
 
@@ -304,7 +301,7 @@ class SolutionData(object):
             sol = [i * AEDT_UNITS[dataunits][units] for i in datalist]
         return sol
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def data_db(self, expression=None, convert_to_SI=False):
         """Retrieve the data in the database for an expression and convert in db10.
 
@@ -463,7 +460,7 @@ class SolutionData(object):
             )
         return sol
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def is_real_only(self, expression=None):
         """Check if the expression has only real values or not.
 
@@ -485,7 +482,7 @@ class SolutionData(object):
                 return False
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_data_to_csv(self, output, delimiter=";"):
         """Save to output csv file the Solution Data.
 
@@ -801,7 +798,7 @@ class FieldPlot:
             ],
         ]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create(self):
         """Create a field plot.
 
@@ -815,7 +812,7 @@ class FieldPlot:
         self.oField.CreateFieldPlot(self.surfacePlotInstruction, "Field")
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update(self):
         """Update the field plot.
 
@@ -830,7 +827,7 @@ class FieldPlot:
         """
         self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstruction)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_field_plot_settings(self):
         """Modify the field plot settings.
 
@@ -842,13 +839,13 @@ class FieldPlot:
         self.oField.SetFieldPlotSettings(self.name, ["NAME:FieldsPlotItemSettings", self.plotsettings])
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete(self):
         """Delete the field plot."""
         self.oField.DeleteFieldPlot([self.name])
         self._postprocessor.field_plots.pop(self.name, None)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def change_plot_scale(self, minimum_value, maximum_value, is_log=False, is_db=False):
         """Change Field Plot Scale.
 
@@ -905,7 +902,7 @@ class FieldPlot:
         self.oField.SetPlotFolderSettings(self.plotFolder, args)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_image(self, full_path=None, width=1920, height=1080, orientation="isometric", display_wireframe=True):
         """Export the active plot to an image file.
 
@@ -954,7 +951,7 @@ class FieldPlot:
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_image_from_aedtplt(
         self, export_path=None, view="isometric", plot_mesh=False, scale_min=None, scale_max=None
     ):
@@ -1104,7 +1101,7 @@ class PostProcessorCommon(object):
         """
         return list(self.oreportsetup.GetAllReportNames())
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def copy_report_data(self, PlotName):
         """Copy report data as static data.
 
@@ -1128,7 +1125,7 @@ class PostProcessorCommon(object):
         self.oreportsetup.PasteReports()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete_report(self, PlotName):
         """Delete a field plot report.
 
@@ -1150,7 +1147,7 @@ class PostProcessorCommon(object):
         self.oreportsetup.DeleteReports([PlotName])
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def rename_report(self, PlotName, newname):
         """Rename a plot.
 
@@ -1174,7 +1171,7 @@ class PostProcessorCommon(object):
         self.oreportsetup.RenameReport(PlotName, newname)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_report_data(
         self, expression="dB(S(1,1))", setup_sweep_name="", domain="Sweep", families_dict=None, report_input_type=None
     ):
@@ -1262,7 +1259,7 @@ class PostProcessorCommon(object):
             return False
         return solution_data
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_rectangular_plot(
         self,
         expression="dB(S(1,1))",
@@ -1366,7 +1363,7 @@ class PostProcessorCommon(object):
         self.logger.info("Report %s correctly created.", plotname)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_solution_data_per_variation(
         self, soltype="Far Fields", setup_sweep_name="", ctxt=None, sweeps=None, expression=""
     ):
@@ -1421,7 +1418,7 @@ class PostProcessorCommon(object):
         self.logger.info("Solution Data Correctly Loaded.")
         return SolutionData(data)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def steal_focus_oneditor(self):
         """Remove the selection of an object that would prevent the image from exporting correctly.
 
@@ -1442,7 +1439,7 @@ class PostProcessorCommon(object):
         self._oeditor.Delete(["NAME:Selections", "Selections:=", "DUMMYSPHERE1"])
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_report_to_file(self, output_dir, plot_name, extension, unique_file=False):
         """Export the 2D Plot data to a file.
 
@@ -1500,7 +1497,7 @@ class PostProcessorCommon(object):
 
         return file_path
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_report_to_csv(self, project_dir, plot_name):
         """Export the 2D Plot data to a CSV file.
 
@@ -1527,7 +1524,7 @@ class PostProcessorCommon(object):
         """
         return self.export_report_to_file(project_dir, plot_name, extension=".csv")
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_report_to_jpg(self, project_dir, plot_name):
         """Export the SParameter plot to a JPG file.
 
@@ -1649,7 +1646,7 @@ class PostProcessor(PostProcessorCommon, object):
         """
         return list(self.oreportsetup.GetAvailableReportTypes())
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def display_types(self, report_type):
         """Retrieve display types for a report type.
 
@@ -1669,7 +1666,7 @@ class PostProcessor(PostProcessorCommon, object):
         """
         return self.oreportsetup.GetAvailableDisplayTypes(report_type)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_base_name(self, setup):
         setups_data = self._app.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
         base_name = ""
@@ -1700,7 +1697,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         return ""
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_intrinsic(self, setup):
         setups_data = self._app.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
         intrinsics = [i.split("=") for i in setups_data[setup]["IntrinsicVar"].split(" ")]
@@ -1711,7 +1708,7 @@ class PostProcessor(PostProcessorCommon, object):
                     intr_dict[intr[0]] = intr[1].replace("\\", "").replace("'", "")
         return intr_dict
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_volume_objects(self, list_objs):
         if self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             obj_list = []
@@ -1723,7 +1720,7 @@ class PostProcessor(PostProcessorCommon, object):
         else:
             return list_objs
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_surface_objects(self, list_objs):
         faces = [int(i) for i in list_objs]
         if self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
@@ -1736,7 +1733,7 @@ class PostProcessor(PostProcessorCommon, object):
                 return "CutPlane", objs
         return "FacesList", faces
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_cs_plane_ids(self):
         name2refid = {-4: "Global:XY", -3: "Global:YZ", -2: "Global:XZ"}
         if self._app.design_properties and "ModelSetup" in self._app.design_properties:
@@ -1760,7 +1757,7 @@ class PostProcessor(PostProcessorCommon, object):
                     pass
         return name2refid
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_fields_plot(self):
         plots = {}
         if (
@@ -1817,7 +1814,7 @@ class PostProcessor(PostProcessorCommon, object):
         return plots
 
     # TODO: define a fields calculator module and make robust !!
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def volumetric_loss(self, object_name):
         """Use the field calculator to create a variable for volumetric losses.
 
@@ -1847,7 +1844,7 @@ class PostProcessor(PostProcessorCommon, object):
         oModule.AddNamedExpression(name, "Fields")
         return name
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def change_field_property(self, plotname, propertyname, propertyval):
         """Modify a field plot property.
 
@@ -1881,7 +1878,7 @@ class PostProcessor(PostProcessorCommon, object):
             ]
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_scalar_field_value(
         self,
         quantity_name,
@@ -1975,7 +1972,7 @@ class PostProcessor(PostProcessorCommon, object):
         self.ofieldsreporter.CalcStack("clear")
         return float(value)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_field_file_on_grid(
         self,
         quantity_name,
@@ -2113,7 +2110,7 @@ class PostProcessor(PostProcessorCommon, object):
             return filename
         return False  # pragma: no cover
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_field_file(
         self,
         quantity_name,
@@ -2253,7 +2250,7 @@ class PostProcessor(PostProcessorCommon, object):
             return filename
         return False  # pragma: no cover
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_field_plot(self, plotname, filepath, filename="", file_format="aedtplt"):
         """Export a field plot.
 
@@ -2286,7 +2283,7 @@ class PostProcessor(PostProcessorCommon, object):
         self.ofieldsreporter.ExportFieldPlot(plotname, False, os.path.join(filepath, filename + "." + file_format))
         return os.path.join(filepath, filename + "." + file_format)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def change_field_plot_scale(self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False):
         """Change Field Plot Scale.
 
@@ -2345,7 +2342,7 @@ class PostProcessor(PostProcessorCommon, object):
         self.ofieldsreporter.SetPlotFolderSettings(plot_name, args)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsincList, listtype, plot_name=None):
         if isinstance(objlist, (str, int)):
             objlist = [objlist]
@@ -2402,7 +2399,7 @@ class PostProcessor(PostProcessorCommon, object):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_fieldplot_line(self, objlist, quantityName, setup_name=None, intrinsincDict={}, plot_name=None):
         """Create a field plot of line.
 
@@ -2436,7 +2433,7 @@ class PostProcessor(PostProcessorCommon, object):
             return self.field_plots[plot_name]
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Line", plot_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_fieldplot_surface(self, objlist, quantityName, setup_name=None, intrinsincDict={}, plot_name=None):
         """Create a field plot of surfaces.
 
@@ -2470,7 +2467,7 @@ class PostProcessor(PostProcessorCommon, object):
             return self.field_plots[plot_name]
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "FacesList", plot_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_fieldplot_cutplane(self, objlist, quantityName, setup_name=None, intrinsincDict={}, plot_name=None):
         """Create a field plot of cut planes.
 
@@ -2505,7 +2502,7 @@ class PostProcessor(PostProcessorCommon, object):
             return self.field_plots[plot_name]
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "CutPlane", plot_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_fieldplot_volume(self, objlist, quantityName, setup_name=None, intrinsincDict={}, plot_name=None):
         """Create a field plot of volumes.
 
@@ -2540,7 +2537,7 @@ class PostProcessor(PostProcessorCommon, object):
             return self.field_plots[plot_name]
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "ObjList", plot_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_field_jpg(
         self, fileName, plotName, foldername, orientation="isometric", width=1920, height=1080, display_wireframe=True
     ):
@@ -2601,7 +2598,7 @@ class PostProcessor(PostProcessorCommon, object):
             self._oeditor.ExportImage(fileName, 1920, 1080)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_field_image_with_view(self, plotName, foldername, exportFilePath, view="isometric", wireframe=True):
         """Export a field plot image with a view.
 
@@ -2637,7 +2634,7 @@ class PostProcessor(PostProcessorCommon, object):
             exportFilePath, plotName, foldername, orientation=view, display_wireframe=wireframe
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete_field_plot(self, name):
         """Delete a field plot.
 
@@ -2660,7 +2657,7 @@ class PostProcessor(PostProcessorCommon, object):
         self.field_plots.pop(name, None)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_model_picture(
         self, dir=None, name=None, picturename=None, show_axis=True, show_grid=True, show_ruler=True
     ):
@@ -2741,7 +2738,7 @@ class PostProcessor(PostProcessorCommon, object):
         self._oeditor.ExportModelImageToFile(file_name, 0, 0, arg)
         return file_name
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_far_field_data(
         self, expression="GainTotal", setup_sweep_name="", domain="Infinite Sphere1", families_dict=None
     ):
@@ -2786,7 +2783,7 @@ class PostProcessor(PostProcessorCommon, object):
             return False
         return solution_data
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_model_obj(self, obj_list=None, export_path=None, export_as_single_objects=False, air_objects=False):
         """Export the model.
 
@@ -2838,7 +2835,7 @@ class PostProcessor(PostProcessorCommon, object):
             self._app.modeler.oeditor.ExportModelMeshToFile(fname, obj_list)
             return [[fname, "grey", 0.6]]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_mesh_obj(self, setup_name=None, intrinsic_dict={}):
         """Export the mesh.
 

@@ -2,10 +2,7 @@ import ntpath
 import os
 import warnings
 
-from pyaedt.application.Analysis import Analysis
-from pyaedt.generic.general_methods import _retry_ntimes
-from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler, _retry_ntimes, is_ironpython
 from pyaedt.modeler.Model3D import Modeler3D
 from pyaedt.modules.Mesh import Mesh
 
@@ -167,7 +164,7 @@ class FieldAnalysis3D(Analysis, object):
                 components_dict[tail[:-8]] = el
         return components_dict
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def plot(
         self,
         objects=None,
@@ -223,7 +220,7 @@ class FieldAnalysis3D(Analysis, object):
                 clean_files=clean_files,
             )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None):
         """Export mesh statistics to a file.
 
@@ -251,7 +248,7 @@ class FieldAnalysis3D(Analysis, object):
         self.odesign.ExportMeshStats(setup_name, variation_string, mesh_path)
         return mesh_path
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_components3d_vars(self, component3dname):
         """Read the A3DCOMP file and check for variables.
 
@@ -298,7 +295,7 @@ class FieldAnalysis3D(Analysis, object):
                 vars[line_list[1]] = line_list[len(line_list) - 2]
         return vars
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_property_value(self, objectname, property, type=None):
         """Retrieve a property value.
 
@@ -361,7 +358,7 @@ class FieldAnalysis3D(Analysis, object):
         return None
 
     # TODO Refactor this
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def copy_solid_bodies_from(self, design, object_list=None, no_vacuum=True, no_pec=True, include_sheets=False):
         """Copy a list of objects from one design to the active design.
 
@@ -414,7 +411,7 @@ class FieldAnalysis3D(Analysis, object):
         self.modeler.refresh_all_ids()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export3DModel(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
         """Export the 3D model.
 
@@ -425,7 +422,7 @@ class FieldAnalysis3D(Analysis, object):
         warnings.warn("`export3DModel` is deprecated. Use `export_3d_model` instead.", DeprecationWarning)
         return self.export_3d_model(fileName, filePath, fileFormat, object_list, removed_objects)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_3d_model(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
         """Export the 3D model.
 
@@ -490,7 +487,7 @@ class FieldAnalysis3D(Analysis, object):
         self.modeler.oeditor.Export(arg)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_all_sources(self):
         """Retrieve all setup sources.
 
@@ -506,7 +503,7 @@ class FieldAnalysis3D(Analysis, object):
         """
         return list(self.osolution.GetAllSources())
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_source_context(self, sources, number_of_modes=1):
         """Set the source context.
 
@@ -534,7 +531,7 @@ class FieldAnalysis3D(Analysis, object):
         self.osolution.SetSourceContexts(contexts)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_material(self, obj, mat):
         """Assign a material to one or more objects.
 
@@ -602,7 +599,7 @@ class FieldAnalysis3D(Analysis, object):
             self.logger.error("Material does not exist.")
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_all_conductors_names(self):
         """Retrieve all conductors in the active design.
 
@@ -623,7 +620,7 @@ class FieldAnalysis3D(Analysis, object):
             obj_names += list(self._modeler.oeditor.GetObjectsByMaterial(el))
         return obj_names
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_all_dielectrics_names(self):
         """Retrieve all dielectrics in the active design.
 

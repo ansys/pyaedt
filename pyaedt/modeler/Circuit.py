@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from pyaedt.generic.constants import AEDT_UNITS
-from pyaedt.generic.general_methods import _retry_ntimes
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler, _retry_ntimes
+from pyaedt.modules.LayerStackup import Layers
 from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.Object3d import _dim_arg
 from pyaedt.modeler.Object3d import CircuitComponent
@@ -56,7 +55,7 @@ class ModelerCircuit(Modeler):
         >>> oEditor.GetModelBoundingBox()"""
         return self.oeditor.GetModelBoundingBox()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def zoom_to_fit(self):
         """Zoom To Fit.
 
@@ -67,7 +66,7 @@ class ModelerCircuit(Modeler):
         """
         self.oeditor.ZoomToFit()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def connect_schematic_components(self, firstcomponent, secondcomponent, pinnum_first=2, pinnum_second=1):
         """Connect schematic components.
 
@@ -218,7 +217,7 @@ class ModelerNexxim(ModelerCircuit):
         """ Set the model units as a string e.g. "mm" """
         self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def move(self, selections, pos, units="meter"):
         """Move the selections by ``[x, y]``.
 
@@ -273,7 +272,7 @@ class ModelerNexxim(ModelerCircuit):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def rotate(self, selections, degrees=90):
         """Rotate the selections by degrees.
 

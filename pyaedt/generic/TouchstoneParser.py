@@ -2,7 +2,7 @@ import math
 import os
 import re
 
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 REAL_IMAG = "RI"
 MAG_ANGLE = "MA"
@@ -328,7 +328,7 @@ class TouchstoneData(object):
         return list(self.solutions_data_imag[expression])
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def get_return_losses(excitation_names, excitation_name_prefix=""):
     """Get the list of all the Returnloss from a list of exctitations.
 
@@ -358,7 +358,7 @@ def get_return_losses(excitation_names, excitation_name_prefix=""):
     return spar
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def get_insertion_losses_from_prefix(expressions, tx_prefix, rx_prefix):
     """Get the list of all the Insertion Losses from prefix.
 
@@ -392,7 +392,7 @@ def get_insertion_losses_from_prefix(expressions, tx_prefix, rx_prefix):
     return spar
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def get_insertion_losses_from_lists(txlist, reclist):
     """Get the list of all the Insertion Losses from two list of exctitations (driver and receiver). Optionally prefix can
     be used to retrieve driver and receiver names.
@@ -420,7 +420,7 @@ def get_insertion_losses_from_lists(txlist, reclist):
     return spar
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def get_next_xtalk(expressions, tx_prefix=""):
     """Get the list of all the Near End XTalk a list of excitation. Optionally prefix can
     be used to retrieve driver names.
@@ -452,7 +452,7 @@ def get_next_xtalk(expressions, tx_prefix=""):
     return next
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def get_fext_xtalk_from_list(trlist, reclist, skip_same_index_couples=True):
     """Get the list of all the Far End XTalk from 2 lists of exctitations.
 
@@ -483,7 +483,7 @@ def get_fext_xtalk_from_list(trlist, reclist, skip_same_index_couples=True):
     return fext
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def get_fext_xtalk_from_prefix(expressions, tx_prefix, rx_prefix, skip_same_index_couples=True):
     """Get the list of all the Far End XTalk from a list of exctitations and a prefix that will
     be used to retrieve driver and receivers names. If skip_same_index_couples is true, the tx and rx with same index
@@ -518,7 +518,7 @@ def get_fext_xtalk_from_prefix(expressions, tx_prefix, rx_prefix, skip_same_inde
     return fext
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def get_worst_curve_from_solution_data(
     solution_data, freq_min=None, freq_max=None, worst_is_higher=True, curve_list=None
 ):

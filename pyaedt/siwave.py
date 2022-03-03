@@ -5,6 +5,8 @@ The ``Siwave`` module can be initialized as standalone before launching an app o
 automatically initialized by an app to the latest installed AEDT version.
 
 """
+from __future__ import absolute_import
+from pyaedt.generic.general_methods import pyaedt_function_handler, is_ironpython, _pythonver
 import os
 import pkgutil
 import sys
@@ -220,7 +222,7 @@ class Siwave:
         """Project."""
         return self._oproject
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def open_project(self, proj_path=None):
         """Open a project.
 
@@ -238,7 +240,7 @@ class Siwave:
             self.oSiwave.OpenProject(proj_path)
             self._oproject = self.oSiwave.GetActiveProject()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def save_project(self, projectpath=None, projectName=None):
         """Save the project.
 
@@ -261,7 +263,7 @@ class Siwave:
             self.oproject.Save()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def close_project(self, save_project=False):
         """Close the project.
 
@@ -282,7 +284,7 @@ class Siwave:
         self._oproject = None
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def quit_application(self):
         """Quit the application.
 
@@ -295,7 +297,7 @@ class Siwave:
         self._main.oSiwave.Quit()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_element_data(self, simulation_name, file_path, data_type="Vias"):
         """Export element data.
 
@@ -317,7 +319,7 @@ class Siwave:
         self.oproject.ScrExportElementData(simulation_name, file_path, data_type)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_siwave_report(self, simulation_name, file_path, bkground_color="White"):
         """Export the SiwaveE report.
 

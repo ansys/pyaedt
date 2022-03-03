@@ -6,6 +6,8 @@ import os
 import re
 
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
+from pyaedt.generic.DataHandlers import from_rkm_to_aedt
+from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name
 from pyaedt.generic import ibis_reader
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
 from pyaedt.generic.general_methods import aedt_exception_handler
@@ -126,7 +128,7 @@ class Circuit(FieldAnalysisCircuit, object):
         except:
             return from_rkm_to_aedt(value)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_schematic_from_netlist(self, file_to_import):
         """Create a circuit schematic from an HSpice net list.
 
@@ -360,7 +362,7 @@ class Circuit(FieldAnalysisCircuit, object):
         self.logger.info("Netlist correctly imported into %s", self.design_name)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def read_ibis(self, path):
         """Create an IBIS model based on the data contained in an IBIS file.
 
@@ -378,7 +380,7 @@ class Circuit(FieldAnalysisCircuit, object):
         reader = ibis_reader.IbisReader()
         return reader.read_project(path, self)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_schematic_from_mentor_netlist(self, file_to_import):
         """Create a circuit schematic from a Mentor net list.
 
@@ -517,7 +519,7 @@ class Circuit(FieldAnalysisCircuit, object):
         self.logger.info("Netlist correctly imported into %s", self.design_name)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def retrieve_mentor_comp(self, refid):
         """Retrieve the type of the Mentor net list component for a given reference ID.
 
@@ -545,7 +547,7 @@ class Circuit(FieldAnalysisCircuit, object):
         else:
             return ""
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_source_pin_names(
         self, source_design_name, source_project_name=None, source_project_path=None, port_selector=3
     ):
@@ -601,7 +603,7 @@ class Circuit(FieldAnalysisCircuit, object):
         self.logger.info("%s Excitations Pins found.", len(pins))
         return pins
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_touchstone_solution(self, filename, solution_name="Imported_Data"):
         """Import a Touchstone file as the solution.
 
@@ -737,7 +739,7 @@ class Circuit(FieldAnalysisCircuit, object):
         self.logger.info("Touchstone correctly imported into %s", self.design_name)
         return portnames
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_touchstone(self, solutionname, sweepname, filename=None, variation=[], variations_value=[]):
         """Export the Touchstone file to a local folder.
 
@@ -819,7 +821,7 @@ class Circuit(FieldAnalysisCircuit, object):
         self.logger.info("Touchstone correctly exported to %s", filename)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_fullwave_spice(
         self,
         designname=None,
@@ -947,7 +949,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         return filename
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_touchstone_report(
         self,
         plot_name,
@@ -998,7 +1000,7 @@ class Circuit(FieldAnalysisCircuit, object):
             curvenames, solution_name, variations, plotname=plot_name, context=ctxt
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_touchstone_data(self, curvenames, solution_name=None, variation_dict=None):
         """
         Return a Touchstone data plot.
@@ -1031,7 +1033,7 @@ class Circuit(FieldAnalysisCircuit, object):
         ctxt = ["NAME:Context", "SimValueContext:=", [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
         return self.post.get_solution_data_per_variation("Standard", solution_name, ctxt, variations, curvenames)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def push_excitations(self, instance_name, thevenin_calculation=False, setup_name="LinearFrequency"):
         """Push excitations.
 
@@ -1059,7 +1061,7 @@ class Circuit(FieldAnalysisCircuit, object):
         self.modeler.oeditor.PushExcitations(instance_name, arg)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_voltage_sinusoidal_excitation_to_ports(self, ports, settings):
         """Assign a voltage sinusoidal excitation to circuit ports.
 
@@ -1184,7 +1186,7 @@ class Circuit(FieldAnalysisCircuit, object):
         self.logger.info("Voltage Source updated correctly.")
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_current_sinusoidal_excitation_to_ports(self, ports, settings):
         """Assign a current sinusoidal excitation to circuit ports.
 
@@ -1313,7 +1315,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_power_sinusoidal_excitation_to_ports(self, ports, settings):
         """Assign a power sinusoidal excitation to circuit ports.
 
@@ -1439,7 +1441,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_differential_pair(
         self,
         positive_terminal,
@@ -1549,7 +1551,7 @@ class Circuit(FieldAnalysisCircuit, object):
             return False
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def load_diff_pairs_from_file(self, filename):
         """Load differtential pairs definition from file.
 
@@ -1587,7 +1589,7 @@ class Circuit(FieldAnalysisCircuit, object):
             return False
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def save_diff_pairs_to_file(self, filename):
         """Save differtential pairs definition to file.
 

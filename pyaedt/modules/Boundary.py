@@ -3,7 +3,7 @@ This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
 """
 from collections import OrderedDict
 
-from pyaedt.generic.constants import CATEGORIESQ3D
+from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, filter_tuple
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.general_methods import aedt_exception_handler
@@ -18,7 +18,7 @@ from pyaedt.modeler.Object3d import VertexPrimitive
 class BoundaryCommon(object):
     """ """
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_args(self, props=None):
         """Retrieve boundary properties.
 
@@ -39,7 +39,7 @@ class BoundaryCommon(object):
         _dict2arg(props, arg)
         return arg
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete(self):
         """Delete the boundary.
 
@@ -145,7 +145,7 @@ class NativeComponentObject(BoundaryCommon, object):
                 d[k] = v
         return d
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_args(self, props=None):
         if props is None:
             props = self.props
@@ -153,7 +153,7 @@ class NativeComponentObject(BoundaryCommon, object):
         _dict2arg(props, arg)
         return arg
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create(self):
         """Create a Native Component in AEDT.
 
@@ -176,7 +176,7 @@ class NativeComponentObject(BoundaryCommon, object):
             self.excitation_name = self.antennaname
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update(self):
         """Update the Native Component in AEDT.
 
@@ -209,7 +209,7 @@ class NativeComponentObject(BoundaryCommon, object):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete(self):
         """Delete the Native Component in AEDT.
 
@@ -250,7 +250,7 @@ class BoundaryObject(BoundaryCommon, object):
         self.type = boundarytype
         self._boundary_name = self.name
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_args(self, props=None):
         """Retrieve arguments.
 
@@ -271,7 +271,7 @@ class BoundaryObject(BoundaryCommon, object):
         _dict2arg(props, arg)
         return arg
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create(self):
         """Create a boundary.
 
@@ -415,7 +415,7 @@ class BoundaryObject(BoundaryCommon, object):
             return False
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update(self):
         """Update the boundary.
 
@@ -534,7 +534,7 @@ class BoundaryObject(BoundaryCommon, object):
         self._boundary_name = self.name
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_assignment(self):
         """Update the boundary assignment.
 
@@ -594,7 +594,7 @@ class FieldSetup(BoundaryCommon, object):
                 d[k] = v
         return d
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_args(self, props=None):
         if props is None:
             props = self.props
@@ -602,7 +602,7 @@ class FieldSetup(BoundaryCommon, object):
         _dict2arg(props, arg)
         return arg
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create(self):
         """Create a Field Setup Component in HFSS.
 
@@ -629,7 +629,7 @@ class FieldSetup(BoundaryCommon, object):
             self._app.oradfield.AddRadFieldSourceGroup(self._get_args())
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update(self):
         """Update the Field Setup in AEDT.
 
@@ -656,7 +656,7 @@ class FieldSetup(BoundaryCommon, object):
             self._app.oradfield.EditRadFieldSourceGroup(self._get_args())
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete(self):
         """Delete the Field Setup in AEDT.
 
@@ -1029,7 +1029,7 @@ class Matrix(object):
                 self._operations = [operations]
         self.CATEGORIES = CATEGORIESQ3D()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def sources(self, is_gc_sources=True):
         """List of matrix sources.
 
@@ -1049,7 +1049,7 @@ class Matrix(object):
                 self._sources = list(self._app.omatrix.ListReduceMatrixReducedSources(self.name))
         return self._sources
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_sources_for_plot(
         self,
         get_self_terms=True,
@@ -1119,7 +1119,7 @@ class Matrix(object):
             self._operations = self._app.omatrix.ListReduceMatrixOperations(self.name)
         return self._operations
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create(self, source_names=None):
         """Create a new matrix.
 
@@ -1139,7 +1139,7 @@ class Matrix(object):
         self.omatrix.InsertRM(self.name, command)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete(self):
         """Delete current matrix.
 
@@ -1154,7 +1154,7 @@ class Matrix(object):
                 self._app.matrices.remove(el)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_operation(self, operation_type, source_names=None):
         """Add a new operation to existing matrix.
 
@@ -1177,7 +1177,7 @@ class Matrix(object):
         self.omatrix.RMAddOp(self.name, command)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _write_command(self, source_names):
         command = ""
         if self._operations[-1] == "JoinSeries":

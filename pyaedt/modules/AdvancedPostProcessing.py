@@ -8,8 +8,7 @@ import os
 import time
 import warnings
 
-from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler, is_ironpython
 from pyaedt.generic.plot import ModelPlotter
 from pyaedt.modules.PostProcessor import PostProcessor as Post
 
@@ -63,7 +62,7 @@ class PostProcessor(Post):
     def __init__(self, app):
         Post.__init__(self, app)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def nb_display(self, show_axis=True, show_grid=True, show_ruler=True):
         """Show the Jupyter Notebook display.
 
@@ -88,7 +87,7 @@ class PostProcessor(Post):
         file_name = self.export_model_picture(show_axis=show_axis, show_grid=show_grid, show_ruler=show_ruler)
         return Image(file_name, width=500)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_efields_data(self, setup_sweep_name="", ff_setup="Infinite Sphere1", freq="All"):
         """Compute Etheta and EPhi.
 
@@ -167,7 +166,7 @@ class PostProcessor(Post):
             results_dict[source_name_without_mode] = [theta_range, phi_range, Etheta, Ephi]
         return results_dict
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def ff_sum_with_delta_phase(self, ff_data, xphase=0, yphase=0):
         """Generate a far field sum with a delta phase.
 
@@ -199,7 +198,7 @@ class PostProcessor(Post):
                 weight[m][n] = np.sqrt(mag) * np.exp(1 * ang)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def plot_model_obj(
         self,
         objects=None,
@@ -263,7 +262,7 @@ class PostProcessor(Post):
             model.clean_cache_and_files(clean_cache=False)
         return model
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def plot_field_from_fieldplot(
         self,
         plotname,
@@ -351,7 +350,7 @@ class PostProcessor(Post):
 
         return model
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def animate_fields_from_aedtplt(
         self,
         plotname,
@@ -436,7 +435,7 @@ class PostProcessor(Post):
             model.clean_cache_and_files(clean_cache=False)
         return model
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def animate_fields_from_aedtplt_2(
         self,
         quantityname,
@@ -532,7 +531,7 @@ class PostProcessor(Post):
 
         return model
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def far_field_plot(self, ff_data, x=0, y=0, qty="rETotal", dB=True, array_size=[4, 4]):
         """Generate a far field plot.
 
@@ -639,7 +638,7 @@ class PostProcessor(Post):
 
         np.max(qty_to_plot)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_3d_plot(
         self, solution_data, nominal_sweep="Freq", nominal_value=1, primary_sweep="Theta", secondary_sweep="Phi"
     ):

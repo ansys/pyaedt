@@ -1,3 +1,6 @@
+from collections import OrderedDict
+from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name
+from pyaedt.generic.DataHandlers import _dict2arg, _arg2dict
 import copy
 from collections import OrderedDict
 
@@ -202,7 +205,7 @@ class CommonOptimetrics(object):
                     _arg2dict(calculation, arg1)
                     self.props["Goals"] = arg1
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update(self, update_dictionary=None):
         """Update the setup based on stored properties.
 
@@ -231,7 +234,7 @@ class CommonOptimetrics(object):
         self.omodule.EditSetup(self.name, arg)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create(self):
         """Create a setup.
 
@@ -250,7 +253,7 @@ class CommonOptimetrics(object):
         self.omodule.InsertSetup(self.soltype, arg)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _add_calculation(
         self,
         reporttype,
@@ -313,7 +316,7 @@ class CommonOptimetrics(object):
 
         return self.update()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _add_goal(
         self,
         optigoalname,
@@ -442,7 +445,7 @@ class DXSetups(object):
         def __init__(self, app, name, dictinputs=None):
             CommonOptimetrics.__init__(self, app, name, dictinputs=dictinputs, optimtype="OptiDesignExplorer")
 
-        @aedt_exception_handler
+        @pyaedt_function_handler()
         def add_calculation(
             self,
             calculation="",
@@ -491,7 +494,7 @@ class DXSetups(object):
                 calculation_name=calculation_name,
             )
 
-        @aedt_exception_handler
+        @pyaedt_function_handler()
         def add_goal(
             self,
             calculation="",
@@ -594,7 +597,7 @@ class DXSetups(object):
             except:
                 pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_dx_setup(self, variables_to_include, defaults_var_values=None, setupname=None, parametricname=None):
         """Add a basic parametric setup in DesignXplorer.
 
@@ -686,7 +689,7 @@ class ParametericsSetups(object):
             CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype="OptiParametric")
             pass
 
-        @aedt_exception_handler
+        @pyaedt_function_handler()
         def add_variation(self, sweep_var, datarange):
             """Add a variation to an existing parametric setup.
 
@@ -718,7 +721,7 @@ class ParametericsSetups(object):
             self.update()
             return True
 
-        @aedt_exception_handler
+        @pyaedt_function_handler()
         def add_calculation(
             self,
             calculation="",
@@ -799,7 +802,7 @@ class ParametericsSetups(object):
             except:
                 pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_parametric_setup(self, sweep_var, datarange, setupname=None, parametricname=None):
         """Add a basic parametric setup.
 
@@ -875,7 +878,7 @@ class SensitivitySetups(object):
         def __init__(self, p_app, name, dictinputs=None):
             CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype="OptiSensitivity")
 
-        @aedt_exception_handler
+        @pyaedt_function_handler()
         def add_calculation(
             self,
             calculation="",
@@ -955,7 +958,7 @@ class SensitivitySetups(object):
             except:
                 pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_sensitivity(
         self,
         calculation,
@@ -1049,7 +1052,7 @@ class StatisticalSetups(object):
             CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype="OptiStatistical")
             pass
 
-        @aedt_exception_handler
+        @pyaedt_function_handler()
         def add_calculation(
             self,
             calculation="",
@@ -1129,7 +1132,7 @@ class StatisticalSetups(object):
             except:
                 pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_statistical(
         self,
         calculation_name,
@@ -1224,7 +1227,7 @@ class DOESetups(object):
             CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype="OptiDXDOE")
             pass
 
-        @aedt_exception_handler
+        @pyaedt_function_handler()
         def add_calculation(
             self,
             calculation="",
@@ -1273,7 +1276,7 @@ class DOESetups(object):
                 calculation_name=calculation_name,
             )
 
-        @aedt_exception_handler
+        @pyaedt_function_handler()
         def add_goal(
             self,
             calculation="",
@@ -1376,7 +1379,7 @@ class DOESetups(object):
             except:
                 pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_doe(
         self,
         calculation,
@@ -1488,7 +1491,7 @@ class OptimizationSetups(object):
             CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype="OptiOptimization")
             pass
 
-        @aedt_exception_handler
+        @pyaedt_function_handler()
         def add_goal(
             self,
             calculation="",
@@ -1591,7 +1594,7 @@ class OptimizationSetups(object):
             except:
                 pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_optimization(
         self,
         calculation,

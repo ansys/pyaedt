@@ -2,7 +2,7 @@
 import math
 
 from pyaedt.application.AnalysisMaxwellCircuit import AnalysisMaxwellCircuit
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class MaxwellCircuit(AnalysisMaxwellCircuit, object):
@@ -86,7 +86,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             student_version,
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_schematic_from_netlist(self, file_to_import):
         """Create a circuit schematic from an HSpice net list.
 

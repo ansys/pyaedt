@@ -3,6 +3,14 @@ import os
 import random
 import warnings
 
+from pyaedt.generic.general_methods import (
+    pyaedt_function_handler,
+    _retry_ntimes,
+    generate_unique_name,
+    recursive_glob,
+    filter_string,
+)
+from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import aedt_exception_handler
@@ -27,7 +35,7 @@ class CircuitComponents(object):
     >>> prim = aedtapp.modeler.schematic
     """
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __getitem__(self, partname):
         """Retrieve a part.
 
@@ -131,7 +139,7 @@ class CircuitComponents(object):
                 nets.append(v[0].replace("Wire@", ""))
         return nets
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_location(self, location=None):
         if not location:
             xpos = self.current_position[0]
@@ -146,7 +154,7 @@ class CircuitComponents(object):
             self.current_position = location
         return xpos, ypos
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_unique_id(self):
         """Create an unique ID.
 
@@ -161,7 +169,7 @@ class CircuitComponents(object):
             id = random.randint(1, 65535)
         return id
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_wire(self, points_array):
         """Create a wire.
 
@@ -188,7 +196,7 @@ class CircuitComponents(object):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_iport(self, name, posx=0.1, posy=0.1, angle=0):
         """Create an interface port.
 
@@ -198,7 +206,7 @@ class CircuitComponents(object):
         warnings.warn("`create_iport` is deprecated. Use `create_interface_port` instead.", DeprecationWarning)
         return self.create_interface_port(name, posx, posy, angle)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_interface_port(self, name, location=[], angle=0):
         """Create an interface port.
 
@@ -238,7 +246,7 @@ class CircuitComponents(object):
                 return self.components[el]
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_page_port(self, name, location=[], angle=0):
         """Create a page port.
 
@@ -276,7 +284,7 @@ class CircuitComponents(object):
         self.add_id_to_component(id)
         return self.components[id]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_gnd(self, location=[]):
         """Create a ground.
 
@@ -309,7 +317,7 @@ class CircuitComponents(object):
             if name in self.components[el].composed_name:
                 return self.components[el]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_model_from_touchstone(self, touchstone_full_path, model_name=None):
         """Create a model from a Touchstone file.
 
@@ -546,7 +554,7 @@ class CircuitComponents(object):
         self.o_component_manager.Add(arg)
         return model_name
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_component_from_touchstonmodel(
         self,
         model_name,
@@ -576,7 +584,7 @@ class CircuitComponents(object):
         """
         return self.create_touchsthone_component(model_name, location, angle)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_touchsthone_component(
         self,
         model_name,
@@ -618,7 +626,7 @@ class CircuitComponents(object):
         self.add_id_to_component(id)
         return self.components[id]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_component(
         self,
         inst_name=None,
@@ -680,7 +688,7 @@ class CircuitComponents(object):
             self.enable_global_netlist(component_name, global_netlist_list)
         return self.components[id]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def disable_data_netlist(self, component_name):
         """Disable the Nexxim global net list.
 
@@ -715,7 +723,7 @@ class CircuitComponents(object):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def enable_global_netlist(self, component_name, global_netlist_list=[]):
         """Enable Nexxim global net list.
 
@@ -755,7 +763,7 @@ class CircuitComponents(object):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_symbol(self, symbol_name, pin_lists):
         """Create a symbol.
 
@@ -883,7 +891,7 @@ class CircuitComponents(object):
         oDefinitionEditor.CloseEditor()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_new_component_from_symbol(
         self, symbol_name, pin_lists, Refbase="U", parameter_list=[], parameter_value=[]
     ):
@@ -1022,7 +1030,7 @@ class CircuitComponents(object):
         self.o_component_manager.Add(arg)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def enable_use_instance_name(self, component_library="Resistors", component_name="RES_"):
         """Enable the use of the instance name.
 
@@ -1071,7 +1079,7 @@ class CircuitComponents(object):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def refresh_all_ids(self):
         """Refresh all IDs and return the number of components.
 
@@ -1096,7 +1104,7 @@ class CircuitComponents(object):
                     self.components[objID] = o
         return len(self.components)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_id_to_component(self, id):
         """Add an ID to a component.
 
@@ -1128,7 +1136,7 @@ class CircuitComponents(object):
 
         return len(self.components)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_obj_id(self, objname):
         """Retrieve the ID of an object.
 
@@ -1147,7 +1155,7 @@ class CircuitComponents(object):
                 return el
         return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_pins(self, partid):
         """Retrieve one or more pins.
 
@@ -1176,7 +1184,7 @@ class CircuitComponents(object):
             # pins = self.oeditor.GetComponentPins(self.components[partid].composed_name)
         return list(pins)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_pin_location(self, partid, pinname):
         """Retrieve the location of a pin.
 
@@ -1209,7 +1217,7 @@ class CircuitComponents(object):
             )
         return [x, y]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def arg_with_dim(self, Value, sUnits=None):
         """Format an argument with dimensions.
 
@@ -1253,7 +1261,7 @@ class ComponentInfo(object):
             self._props = load_keyword_in_aedt_file(self.file_name, self.name)
         return self._props
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def place(self, inst_name, location=[], angle=0, use_instance_id_netlist=False):
         """Create a component from a library.
 
@@ -1292,7 +1300,7 @@ class ComponentInfo(object):
 class ComponentCatalog(object):
     """Class that indexes Circuit Sys Catalog."""
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __getitem__(self, compname):
         """Get component from name.
 
@@ -1323,7 +1331,7 @@ class ComponentCatalog(object):
         self.components = {}
         self._index_components()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _index_components(self, library_path=None):
         if library_path:
             sys_files = recursive_glob(library_path, "*.aclb")
@@ -1347,7 +1355,7 @@ class ComponentCatalog(object):
                     compname, self._component_manager, file, comp_lib.split(":")[0]
                 )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def find_components(self, filter_str="*"):
         """Find all components with given filter wildcards.
 
