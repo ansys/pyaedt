@@ -4,10 +4,13 @@ comment:
 
 coverage:
   status:
+    project:
+      default:
+        informational: true
     patch:
       default:
         # basic
-        target: 90%
+        target: 85%
         if_not_found: success
         if_ci_failed: error
         if_no_uploads: error
