@@ -2118,7 +2118,7 @@ class EDBPadstackInstance(object):
         return int(self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetTopBottomAssociation())
 
     @pyaedt_function_handler()
-    def create_reactangle_in_pad(self, layer_name):
+    def create_rectangle_in_pad(self, layer_name):
         """Create a rectangle inscribed inside a padstack instance pad. The rectangle is fully inscribed in the
         pad and has the maximum area. It is necessary to specify the layer on which the rectangle will be created.
 
@@ -2139,7 +2139,7 @@ class EDBPadstackInstance(object):
         >>> edb_layout = edbapp.core_primitives
         >>> list_of_padstack_instances = list(edbapp.core_padstack.padstack_instances.values())
         >>> padstack_inst = list_of_padstack_instances[0]
-        >>> padstack_inst.create_reactangle_in_pad("TOP")
+        >>> padstack_inst.create_rectangle_in_pad("TOP")
         """
 
         padstack_center = self.position
