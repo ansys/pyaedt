@@ -1,4 +1,8 @@
 import os
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 
 # Setup paths for module imports
 from _unittest.conftest import local_path, BasisTest, desktop_version
@@ -100,6 +104,7 @@ class TestClass(BasisTest, object):
         assert (comp.location[1] - 0.2) < tol
         hfss3d.close_project(saveproject=False)
 
+    @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
     def test_09_3dplacement(self):
         assert len(self.aedtapp.modeler.components_3d) == 2
         tol = 1e-12
