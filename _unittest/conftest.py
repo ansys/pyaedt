@@ -119,6 +119,8 @@ class BasisTest(object):
         if "oDesktop" not in dir(sys.modules["__main__"]):
             desktop = Desktop(desktop_version, non_graphical, new_thread)
             desktop.disable_autosave()
+            os.environ["PYAEDT_DESKTOP_PID"] = str(desktop.odesktop.GetProcessID())
+
         if project_name:
             example_project = os.path.join(local_path, "example_models", project_name + ".aedt")
             example_folder = os.path.join(local_path, "example_models", project_name + ".aedb")
@@ -187,14 +189,15 @@ non_graphical = config["NonGraphical"]
 def desktop_init():
 
     yield
-
+    if not is_ironpython and os.getenv("PYAEDT_DESKTOP_PID", None):
+        pid = int(os.getenv("PYAEDT_DESKTOP_PID", None))
+        os.kill(pid, 9)
     p = [x[0] for x in os.walk(scratch_path) if "scratch" in x[0]]
     for folder in p:
         shutil.rmtree(folder, ignore_errors=True)
 
     if config["test_desktops"]:
         run_desktop_tests()
-
 
 @pytest.fixture
 def clean_desktop_messages(desktop_init):
