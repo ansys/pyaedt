@@ -1,15 +1,26 @@
 import json
 import os
-from math import pi, cos, sin, tan, asin, sqrt, radians, degrees, ceil
 import random
 import string
+from math import asin
+from math import ceil
+from math import cos
+from math import degrees
+from math import pi
+from math import radians
+from math import sin
+from math import sqrt
+from math import tan
 
-from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Primitives import Primitives
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.multiparts import MultiPartComponent, Environment
-from pyaedt.modeler.actors import Person, Bird, Vehicle
 from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.actors import Bird
+from pyaedt.modeler.actors import Person
+from pyaedt.modeler.actors import Vehicle
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.multiparts import Environment
+from pyaedt.modeler.multiparts import MultiPartComponent
+from pyaedt.modeler.Primitives import Primitives
 
 
 class Primitives3D(Primitives, object):

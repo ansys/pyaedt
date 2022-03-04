@@ -1,13 +1,14 @@
 """This module contains these classes: ``Hfss3dLayout``."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import  # noreorder
 
+import io
 import os
 import warnings
-import io
 
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):

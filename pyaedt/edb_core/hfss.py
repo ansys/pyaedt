@@ -3,7 +3,9 @@ This module contains the `EdbHfss` class.
 """
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, is_ironpython
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class EdbHfss(object):

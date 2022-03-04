@@ -1,9 +1,10 @@
 import os
 
 from pyaedt.application.Analysis import Analysis
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Model2D import Modeler2D
 from pyaedt.modules.Mesh import Mesh
-from pyaedt.generic.general_methods import pyaedt_function_handler, is_ironpython
 
 if is_ironpython:
     from pyaedt.modules.PostProcessor import PostProcessor

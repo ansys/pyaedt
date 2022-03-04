@@ -4,7 +4,8 @@ This module contains the ``analysis`` class.
 It includes common classes for file management and messaging and all
 calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 """
-from __future__ import absolute_import
+
+from __future__ import absolute_import  # noreorder
 
 import os
 import shutil
@@ -12,32 +13,30 @@ import threading
 import warnings
 from collections import OrderedDict
 
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, filter_tuple
-from pyaedt.generic.constants import (
-    AXIS,
-    PLANE,
-    GRAVITY,
-    VIEW,
-    SOLUTIONS,
-    SETUPS,
-    CoordinateSystemPlane,
-    CoordinateSystemAxis,
-    Plane,
-    GravityDirection,
-)
-from pyaedt.modules.Boundary import NativeComponentObject
-from pyaedt.modules.DesignXPloration import (
-    DOESetups,
-    DXSetups,
-    OptimizationSetups,
-    ParametericsSetups,
-    SensitivitySetups,
-    StatisticalSetups,
-)
-from pyaedt.modules.MaterialLib import Materials
-from pyaedt.modules.SolveSetup import Setup
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
+from pyaedt.generic.constants import AXIS
+from pyaedt.generic.constants import CoordinateSystemAxis
+from pyaedt.generic.constants import CoordinateSystemPlane
+from pyaedt.generic.constants import GRAVITY
+from pyaedt.generic.constants import GravityDirection
+from pyaedt.generic.constants import PLANE
+from pyaedt.generic.constants import Plane
+from pyaedt.generic.constants import SETUPS
+from pyaedt.generic.constants import SOLUTIONS
+from pyaedt.generic.constants import VIEW
+from pyaedt.generic.general_methods import filter_tuple
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.Boundary import NativeComponentObject
+from pyaedt.modules.DesignXPloration import DOESetups
+from pyaedt.modules.DesignXPloration import DXSetups
+from pyaedt.modules.DesignXPloration import OptimizationSetups
+from pyaedt.modules.DesignXPloration import ParametericsSetups
+from pyaedt.modules.DesignXPloration import SensitivitySetups
+from pyaedt.modules.DesignXPloration import StatisticalSetups
+from pyaedt.modules.MaterialLib import Materials
+from pyaedt.modules.SolveSetup import Setup
 
 
 class Analysis(Design, object):

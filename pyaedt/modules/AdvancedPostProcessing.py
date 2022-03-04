@@ -3,14 +3,15 @@ This module contains the `PostProcessor` class.
 
 It contains all advanced postprocessing functionalities that require Python 3.x packages like NumPy and Matplotlib.
 """
-from __future__ import absolute_import
+from __future__ import absolute_import  # noreorder
 
 import math
 import os
 import time
 import warnings
 
-from pyaedt.generic.general_methods import pyaedt_function_handler, is_ironpython
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.plot import ModelPlotter
 from pyaedt.modules.PostProcessor import PostProcessor as Post
 

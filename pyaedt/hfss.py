@@ -1,18 +1,23 @@
 """This module contains these classes: ``Hfss`` and ``BoundaryType``."""
-from __future__ import absolute_import
-import os
-import warnings
+
+from __future__ import absolute_import  # noreorder
+
 import math
+import os
 import tempfile
+import warnings
+from collections import OrderedDict
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modules.Boundary import BoundaryObject, NativeComponentObject, FarFieldSetup
-from pyaedt.generic.general_methods import generate_unique_name, pyaedt_function_handler
-from collections import OrderedDict
-from pyaedt.modeler.actors import Radar
 from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
 from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.actors import Radar
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.Boundary import FarFieldSetup
+from pyaedt.modules.Boundary import NativeComponentObject
 
 
 class Hfss(FieldAnalysis3D, object):

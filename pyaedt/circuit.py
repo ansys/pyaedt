@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 """This module contains the ``Circuit`` class."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import  # noreorder
 
+import io
 import math
 import os
 import re
-import io
 
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
-from pyaedt.generic.DataHandlers import from_rkm_to_aedt
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name
 from pyaedt.generic import ibis_reader
+from pyaedt.generic.DataHandlers import from_rkm_to_aedt
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class Circuit(FieldAnalysisCircuit, object):

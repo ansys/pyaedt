@@ -1,13 +1,15 @@
 import csv
 import os
+import tempfile
 import time
 import warnings
 from datetime import datetime
 
 from pyaedt import pyaedt_function_handler
-from pyaedt.generic.constants import CSS4_COLORS, AEDT_UNITS
-from pyaedt.generic.general_methods import is_ironpython, convert_remote_object
-import tempfile
+from pyaedt.generic.constants import AEDT_UNITS
+from pyaedt.generic.constants import CSS4_COLORS
+from pyaedt.generic.general_methods import convert_remote_object
+from pyaedt.generic.general_methods import is_ironpython
 
 if not is_ironpython:
     try:

@@ -1,9 +1,10 @@
 import os
-import shutil
-from distutils.dir_util import copy_tree
 import random
+import shutil
 import string
 from glob import glob
+
+from distutils.dir_util import copy_tree
 
 
 def my_location():

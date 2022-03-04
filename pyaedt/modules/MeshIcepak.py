@@ -1,7 +1,9 @@
 from collections import OrderedDict
 
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name
-from pyaedt.modules.Mesh import meshers, MeshOperation
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.Mesh import meshers
+from pyaedt.modules.Mesh import MeshOperation
 
 
 class IcepakMesh(object):

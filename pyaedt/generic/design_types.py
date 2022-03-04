@@ -1,5 +1,5 @@
-import sys
 import re
+import sys
 
 try:
     from pyaedt.hfss3dlayout import Hfss3dLayout
