@@ -1,36 +1,21 @@
 # standard imports
-import os
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path
+from _unittest.conftest import BasisTest
 
 # Import required modules
-from pyaedt import Hfss, Circuit
-from pyaedt.generic.filesystem import Scratch
-import gc
+from pyaedt import Circuit
 
 test_project_name = "coax_setup"
 
 
-class TestClass:
+class TestClass(BasisTest, object):
     def setup_class(self):
-        with Scratch(scratch_path) as self.local_scratch:
-            try:
-                example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
-                self.test_project = self.local_scratch.copyfile(example_project)
-                self.local_scratch.copyfolder(
-                    os.path.join(local_path, "example_models", test_project_name + ".aedb"),
-                    os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
-                )
-                self.aedtapp = Hfss(os.path.join(self.local_scratch.path, test_project_name + ".aedt"))
-            except:
-                pass
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name)
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        assert self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self)
 
     def test_01_create_hfss_setup(self):
         setup1 = self.aedtapp.create_setup("My_HFSS_Setup", self.aedtapp.SETUPS.HFSSDrivenDefault)

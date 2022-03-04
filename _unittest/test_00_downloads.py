@@ -1,18 +1,16 @@
-# standard imports
-import gc
-
 # Import required modules
 from pyaedt.examples import downloads
+from _unittest.conftest import BasisTest
 
 
-class TestClass:
+class TestClass(BasisTest, object):
     def setup_class(self):
         # set a scratch directory and the environment / test data
         self.examples = downloads
         pass
 
     def teardown_class(self):
-        gc.collect()
+        del self.examples
 
     def test_download_edb(self):
         assert self.examples.download_aedb()
@@ -31,3 +29,6 @@ class TestClass:
 
     def test_download_antenna_sherlock(self):
         assert self.examples.download_sherlock()
+
+    def test_download_wfp(self):
+        assert self.examples.download_edb_merge_utility()

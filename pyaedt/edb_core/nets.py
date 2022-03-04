@@ -1,13 +1,15 @@
-from __future__ import absolute_import
-import time
-import math
+from __future__ import absolute_import  # noreorder
 
-from pyaedt.generic.general_methods import is_ironpython
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.generic.constants import CSS4_COLORS
+import math
+import time
+
 from pyaedt.edb_core.EDB_Data import EDBNetsData
+from pyaedt.generic.constants import CSS4_COLORS
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.plot import plot_matplotlib
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
 class EdbNets(object):
@@ -208,7 +210,7 @@ class EdbNets(object):
         # fmt: on
         return x, y
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_plot_data(
         self,
         nets,
@@ -342,7 +344,7 @@ class EdbNets(object):
         self._logger.info("Nets Point Generation time %s seconds", round(end_time, 3))
         return objects_lists
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def plot(
         self, nets, layers=None, color_by_net=False, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)
     ):
@@ -379,7 +381,7 @@ class EdbNets(object):
         )
         plot_matplotlib(object_lists, size, show_legend, "X (m)", "Y (m)", self._pedb.active_cell.GetName(), save_plot)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def is_power_gound_net(self, netname_list):
         """Determine if one of the  nets in a list is power or ground.
 
@@ -401,7 +403,7 @@ class EdbNets(object):
                 return True
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_dcconnected_net_list(self, ground_nets=["GND"]):
         """Retrieve the nets connected to DC through inductors.
 
@@ -445,7 +447,7 @@ class EdbNets(object):
 
         return dcconnected_net_list
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_powertree(self, power_net_name, ground_nets):
         """Retrieve the power tree.
 
@@ -498,14 +500,14 @@ class EdbNets(object):
         component_list_columns = ["refdes", "pin_name", "net_name", "component_type", "component_partname", "pin_list"]
         return component_list, component_list_columns, net_group
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_net_by_name(self, net_name):
         """Find a net by name."""
         edb_net = self._edb.Cell.Net.FindByName(self._active_layout, net_name)
         if edb_net is not None:
             return edb_net
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete_nets(self, netlist):
         """Delete one or more nets from EDB.
 
@@ -539,7 +541,7 @@ class EdbNets(object):
 
         return nets_deleted
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def find_or_create_net(self, net_name=""):
         """Find or create the net with the given name in the layout.
 
@@ -562,7 +564,7 @@ class EdbNets(object):
                 net = self._edb.Cell.Net.Create(self._active_layout, net_name)
         return net
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def is_net_in_component(self, component_name, net_name):
         """Check if a net belongs to a component.
 

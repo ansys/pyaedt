@@ -1,17 +1,20 @@
-"""This module contains these Maxwell classes: `Maxwell`, `Maxwell2d`, and `Maxwell3d`."""
+"""This module contains these Maxwell classes: ``Maxwell``, ``Maxwell2d``, and ``Maxwell3d``."""
 
-from __future__ import absolute_import
-import os
-import json
+from __future__ import absolute_import  # noreorder
+
 import io
+import json
+import os
+from collections import OrderedDict
+
 from pyaedt.application.Analysis2D import FieldAnalysis2D
 from pyaedt.application.Analysis3D import FieldAnalysis3D
-from pyaedt.generic.DataHandlers import float_units
-from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
-from pyaedt.modules.Boundary import BoundaryObject
-from collections import OrderedDict
-from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.generic.constants import SOLUTIONS
+from pyaedt.generic.DataHandlers import float_units
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modules.Boundary import BoundaryObject
 
 
 class Maxwell(object):
@@ -23,7 +26,7 @@ class Maxwell(object):
 
     @property
     def o_maxwell_parameters(self):
-        """AEDT MaxwellParameterSetup Object.
+        """AEDT Maxwel Parameter Setup Object.
 
         References
         ----------
@@ -74,20 +77,23 @@ class Maxwell(object):
         design_file = os.path.join(self.working_directory, "design_data.json")
         return design_file
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def change_inductance_computation(self, compute_transient_inductance=True, incremental_matrix=False):
-        """Enable the inductance computation (for Transient Analysis) and sets the incremental_matrix.
+        """Enable the inductance computation for the transient analysis and set the incremental matrix.
 
         Parameters
         ----------
-        compute_transient_inductance : bool
-            Enable or disable the Inductance Calculation for Transient Analysis.
-        incremental_matrix : bool
-            Set the Inductance Calculation to Incremental if ``True``.
+        compute_transient_inductance : bool, optional
+            Whether to enable the inductance calculation for the transient analysis.
+            The default is ``True``.
+        incremental_matrix : bool, optional
+            Whether to set the inductance calculation to ``Incremental`` if
+            ``compute_transient_inductance=True``. The default is ``False``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
@@ -105,17 +111,19 @@ class Maxwell(object):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_core_losses(self, objects, value=True):
-        """Enable/Disable core losses for a set of objects.
-        It works only on `EddyCurrent` and `Transient` solutions.
+        """Whether to enable core losses for a set of objects.
+
+        This method works only on ``EddyCurrent`` and ``Transient`` solutions.
 
         Parameters
         ----------
         objects : list, str
             List of object to apply core losses to.
-        value : bool
-            Either to enable or disable core losses for given list.
+        value : bool, optional
+            Whether to enable core losses for the given list. The default is
+            ``True``.
 
         Returns
         -------
@@ -129,7 +137,7 @@ class Maxwell(object):
 
         Examples
         --------
-        Set Core Losses in Maxwell 3d.
+        Set core losses in Maxwell 3D.
 
         >>> from pyaedt import Maxwell3d
         >>> maxwell_3d = Maxwell3d()
@@ -144,21 +152,21 @@ class Maxwell(object):
             raise Exception("Core losses is only available with `EddyCurrent` and `Transient` solutions.")
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_matrix(self, objects, matrix_name=None):
-        """Assign a Matrix to the selection.
+        """Assign a matrix to the selection.
 
         Parameters
         ----------
         objects : list, str
-            List of objects to apply core losses.
+            List of objects to assign a matrix to.
         matrix_name : str, optional
-            Boundary condition name.
+            Name of the matrix. The default is ``None``.
 
         Returns
         -------
         str
-            The matrix name when successful, ``False`` when failed.
+            Matrix name when successful, ``False`` when failed.
 
         References
         ----------
@@ -167,7 +175,7 @@ class Maxwell(object):
 
         Examples
         --------
-        Set Matrix in Maxwell 3d analysis.
+        Set matrix in a Maxwell 3D analysis.
 
         >>> from pyaedt import Maxwell3d
         >>> maxwell_3d = Maxwell3d()
@@ -184,7 +192,7 @@ class Maxwell(object):
             return matrix_name
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def setup_ctrlprog(
         self, setupname, file_str=None, keep_modifications=False, python_interpreter=None, aedt_lib_dir=None
     ):
@@ -193,7 +201,7 @@ class Maxwell(object):
         Parameters
         ----------
         setupname : str
-            Name of the setup
+            Name of the setup.
         file_str : str, optional
             Name of the file. The default value is ``None``.
         keep_modifications : bool, optional
@@ -201,7 +209,7 @@ class Maxwell(object):
         python_interpreter : str, optional
              The default value is ``None``.
         aedt_lib_dir : str, optional
-             Full path to the ``PyAEDT`` directory. The default value is ``None``.
+             Full path to the ``pyaedt`` directory. The default value is ``None``.
 
         Returns
         -------
@@ -239,7 +247,7 @@ class Maxwell(object):
             if file_str is not None:
                 with io.open(ctl_file, "w", newline="\n") as fo:
                     fo.write(file_str)
-                assert os.path.exists(ctl_file), "Control Program file could not be created."
+                assert os.path.exists(ctl_file), "Control program file could not be created."
 
         self.oanalysis.EditSetup(
             setupname,
@@ -261,7 +269,7 @@ class Maxwell(object):
         return True
 
     # Set eddy effects
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def eddy_effects_on(self, object_list, activate=True):
         """Assign eddy effects on objects.
 
@@ -290,7 +298,7 @@ class Maxwell(object):
         oModule.SetEddyEffect(["NAME:Eddy Effect Setting", EddyVector])
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_current(self, object_list, amplitude=1, phase="0deg", solid=True, swap_direction=False, name=None):
         """Assign the source of the current.
 
@@ -359,7 +367,7 @@ class Maxwell(object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_translate_motion(
         self,
         band_object,
@@ -377,39 +385,45 @@ class Maxwell(object):
         load_force=0,
         motion_name=None,
     ):
-        """Assign a Translation Motion to an object container.
+        """Assign a translation motion to an object container.
 
         Parameters
         ----------
-        band_object : str,
+        band_object : str
             Object container.
         coordinate_system : str, optional
-            Coordinate System Name. Default is ``"Global``.
+            Coordinate system name. The default is ``"Global"``.
         axis :str or int, optional
-            Coordinate System Axis. Default is ``"Z"``.
-            It can be a ``pyaedt.generic.constants.AXIS`` Enumerator value.
-        positive_movement : bool, Optional
-            Either if movement is Positive or not. Default is ``True``.
+            Coordinate system axis. The default is ``"Z"``.
+            It can be a ``pyaedt.generic.constants.AXIS`` enumerator value.
+        positive_movement : bool, optional
+            Whether movement is positive. The default is ``True``.
         start_position : float or str, optional
-            Movement Start Position. If float, default modeler units will be applied.
-        periodic_translate : bool, Optional
-            Either if Periodic Movement or not. Default is ``False``.
+            Starting position of the movement. The default is ``o``. If a float
+            value is used, default modeler units are applied.
+        periodic_translate : bool, optional
+            Whether movement is periodic. The default is ``False``.
         negative_limit : float or str, optional
-            Movement negative limit. If float, default modeler units will be applied.
+            Negative limit of the movement. The default is ``0``. If a float
+            value is used, the default modeler units are applied.
         positive_limit : float or str, optional
-            Movement positive limit. If float, default modeler units will be applied.
+            Positive limit of the movement. The default is ``0``. If a float
+            value is used, the default modeler units are applied.
         velocity : float or str, optional
-            Movement velocity. If float, "m_per_sec" units will be applied.
-        mechanical_transient : bool, Optional
-            Either to consider or not mechanical movement. Default is ``False``.
+            Movement velocity. The default is ``0``. If a float value
+            is used, "m_per_sec" units are applied.
+        mechanical_transient : bool, optional
+            Whether to consider the mechanical movement. The default is ``False``.
         mass : float or str, optional
-            mechanical mass. If float, "Kg" units will be applied.
+            Mechanical mass. The default is ``1``. If a float value is used, "Kg" units
+            are applied.
         damping : float, optional
-            Damping Factor. Default ``0``.
+            Damping factor. The default is ``0``.
         load_force : float or str, optional
-            Load Force. If float, "newton" units will be applied.
+            Load force. The default is ``0``. If a float value is used, "newton"
+            units are applied.
         motion_name : str, optional
-            Motion Name.
+            Motion name. The default is ``None``.
 
         Returns
         -------
@@ -421,7 +435,7 @@ class Maxwell(object):
 
         >>> oModule.AssignBand
         """
-        assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to Transient Setup"
+        assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to the Transient setup."
         if not motion_name:
             motion_name = generate_unique_name("Motion")
         object_list = self.modeler.convert_to_selections(band_object, True)
@@ -450,7 +464,7 @@ class Maxwell(object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_rotate_motion(
         self,
         band_object,
@@ -469,41 +483,46 @@ class Maxwell(object):
         load_torque="0newton",
         motion_name=None,
     ):
-        """Assign a Rotation Motion to an object container.
+        """Assign a rotation motion to an object container.
 
         Parameters
         ----------
         band_object : str,
             Object container.
         coordinate_system : str, optional
-            Coordinate System Name. Default is ``"Global``.
+            Coordinate system name. The default is ``"Global"``.
         axis : str or int, optional
-            Coordinate System Axis. Default is ``"Z"``.
-            It can be a ``pyaedt.generic.constants.AXIS`` Enumerator value.
-        positive_movement : bool, Optional
-            Either if movement is Positive or not. Default is ``True``.
+            Coordinate system axis. The default is ``"Z"``.
+            It can be a ``pyaedt.generic.constants.AXIS`` enumerator value.
+        positive_movement : bool, optional
+            Whether the movement is positive. The default is ``True``.
         start_position : float or str, optional
-            Movement Start Position. If float, "deg" units will be applied.
-        has_rotation_limits : bool, Optional
-            Either if there will be a limit in rotation or not. Default is ``False``.
+            Starting position of the movement. The default is ``0``. If a float value
+            is used, "deg" units are applied.
+        has_rotation_limits : bool, optional
+            Whether there is a limit in rotation. The default is ``False``.
         negative_limit : float or str, optional
-            Movement negative limit. If float, "deg" units will be applied.
+            Negative limit of the movement. The default is ``0``. If a float value is
+            used, "deg" units are applied.
         positive_limit : float or str, optional
-            Movement positive limit. If float, "deg" units will be applied.
+            Positive limit of the movement. The default is ``360``. If a float value is used,
+            "deg" units are applied.
         non_cylindrical : bool, optional
-            Either if Non Cylindrical rotation has to be considered. Default is ``False``.
+            Whether to consider non-cylindrical rotation. The default is ``False``.
         angular_velocity : float or str, optional
-            Movement velocity. If float, "rpm" units will be applied.
-        mechanical_transient : bool, Optional
-            Either to consider or not mechanical movement. Default is ``False``.
+            Movement velocity. The default is ``"0rpm"``. If a float value is used,
+            "rpm" units are applied.
+        mechanical_transient : bool, optional
+            Whether to consider mechanical movement. The default is ``False``.
         inertia : float, optional
-            mechanical inertia.
+            Mechanical inertia. The default is ``1``.
         damping : float, optional
-            Damping Factor. Default ``0``.
+            Damping factor. The default is ``0``.
         load_torque : float or str, optional
-            Load Force. If float, "NewtonMeter" units will be applied.
+            Load force. The default is ``"0newton"``. If a float value is used,
+            "NewtonMeter" units are applied.
         motion_name : str, optional
-            Motion Name.
+            Motion name. The default is ``None``.
 
         Returns
         -------
@@ -515,7 +534,7 @@ class Maxwell(object):
 
         >>> oModule.AssignBand
         """
-        assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to Transient Setup"
+        assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to the Transient setup."
         if not motion_name:
             motion_name = generate_unique_name("Motion")
         object_list = self.modeler.convert_to_selections(band_object, True)
@@ -544,14 +563,14 @@ class Maxwell(object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_voltage(self, face_list, amplitude=1, name=None):
         """Assign a voltage source to a list of faces.
 
         Parameters
         ----------
         face_list : list
-            List of faces to assign a voltrage source to.
+            List of faces to assign a voltage source to.
         amplitude : float, optional
             Voltage amplitude in mV. The default is ``1``.
         name : str, optional
@@ -583,7 +602,7 @@ class Maxwell(object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_voltage_drop(self, face_list, amplitude=1, swap_direction=False, name=None):
         """Assign a voltage drop to a list of faces.
 
@@ -594,7 +613,7 @@ class Maxwell(object):
         amplitude : float, optional
             Voltage amplitude in mV. The default is ``1``.
         swap_direction : bool, optional
-            The default value is ``False``.
+            Whether to swap the direction. The default value is ``False``.
         name : str, optional
             Name of the boundary. The default is ``None``.
 
@@ -622,7 +641,7 @@ class Maxwell(object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_winding(
         self,
         coil_terminals=None,
@@ -646,7 +665,8 @@ class Maxwell(object):
             Type of the winding. Options are ``"Current"``, ``"Voltage"``,
             and ``"External"``. The default is ``"Current"``.
         is_solid : bool, optional
-            Type of the winding.  ``True`` is solid, ``False`` is stranded. The default is ``True``.
+            Whether the winding is the solid type. The default is ``True``. If ``False``,
+            the winding is the stranded type.
         current_value : float, optional
             Value of the current in amperes. The default is ``1``.
         res : float, optional
@@ -656,7 +676,7 @@ class Maxwell(object):
         voltage : float, optional
             Voltage value. The default is ``0``.
         parallel_branches : int, optional
-            The default is ``1``.
+            The number of parallel branches. The default is ``1``.
         name : str, optional
             Name of the boundary. The default is ``None``.
 
@@ -700,7 +720,7 @@ class Maxwell(object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_winding_coils(self, windingname, coil_names):
         """Add coils to the winding.
 
@@ -728,7 +748,7 @@ class Maxwell(object):
             self.oboundary.AddWindingCoils(windingname, coil_names)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_coil(self, input_object, conductor_number=1, polarity="Positive", name=None):
         """Assign coils to a list of objects or face IDs.
 
@@ -741,7 +761,7 @@ class Maxwell(object):
         polarity : str, optional
             Type of the polarity. The default is ``"Positive"``.
         name : str, optional
-             The default is ``None``.
+            The default is ``None``.
 
         Returns
         -------
@@ -789,7 +809,7 @@ class Maxwell(object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_force(self, input_object, reference_cs="Global", is_virtual=True, force_name=None):
         """Assign a force to one or more objects.
 
@@ -798,7 +818,7 @@ class Maxwell(object):
         input_object : str, list
             One or more objects to assign the force to.
         reference_cs : str, optional
-            The default is ``"Global"``.
+            Name of the reference coordinate system. The default is ``"Global"``.
         is_virtual : bool, optional
             Whether the force is virtual. The default is ``True.``
         force_name : str, optional
@@ -835,7 +855,7 @@ class Maxwell(object):
             )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_torque(
         self, input_object, reference_cs="Global", is_positive=True, is_virtual=True, axis="Z", torque_name=None
     ):
@@ -899,7 +919,7 @@ class Maxwell(object):
             )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def solve_inside(self, name, activate=True):
         """Solve inside.
 
@@ -923,7 +943,7 @@ class Maxwell(object):
         self.modeler[name].solve_inside = activate
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def analyze_from_zero(self):
         """Analyze from zero.
 
@@ -941,7 +961,7 @@ class Maxwell(object):
         self.analyze_nominal()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_initial_angle(self, motion_setup, val):
         """Set the initial angle.
 
@@ -1006,10 +1026,10 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used. This
         parameter is ignored when Script is launched within AEDT.
-    NG : bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical
-        mode. This parameter is ignored when Script is launched within
+    non_graphical : bool, optional
+        Whether to launch AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in graphical
+        mode. This parameter is ignored when a script is launched within
         AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
@@ -1058,7 +1078,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         student_version=False,
     ):
         """
-        Initialize the `Maxwell` class.
+        Initialize the ``Maxwell`` class.
         """
         self.is3d = True
         FieldAnalysis3D.__init__(
@@ -1105,10 +1125,10 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when Script is launched within AEDT.
-    NG : bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode.
-        This parameter is ignored when Script is launched within AEDT.
+    non_graphical : bool, optional
+        Whether to launch AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -1186,20 +1206,20 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
     @property
     def xy_plane(self):
-        """Get/Set Maxwell 2d plane between `"XY"` and `"about Z"`."""
+        """Maxwell 2D plane between `"XY"` and `"about Z"`."""
         if self.design_solutions.xy_plane == "XY":
             return True
         else:
             return False
 
     @xy_plane.setter
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def xy_plane(self, value=True):
         self.design_solutions.xy_plane = value
 
     @property
     def model_depth(self):
-        """Get model depth."""
+        """Model depth."""
 
         if "ModelDepth" in self.design_properties:
             value_str = self.design_properties["ModelDepth"]
@@ -1224,16 +1244,16 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             ]
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def generate_design_data(self, linefilter=None, objectfilter=None):
         """Generate a generic set of design data and store it in the extension directory as ``design_data.json``.
 
         Parameters
         ----------
         linefilter : optional
-             The default is ``None``.
+            The default is ``None``.
         objectfilter : optional
-             The default is ``None``.
+            The default is ``None``.
 
         Returns
         -------
@@ -1277,7 +1297,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             json.dump(convert(self.design_data), fps, indent=4)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def read_design_data(self):
         """Read back the design data as a dictionary.
 
@@ -1292,7 +1312,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             design_data = json.load(fps)
         return design_data
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_balloon(self, edge_list, bound_name=None):
         """Assign a balloon boundary to a list of edges.
 
@@ -1326,7 +1346,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_vector_potential(self, input_edge, vectorvalue=0, bound_name=None):
         """Assign a vector to a list of edges.
 
@@ -1364,7 +1384,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_master_slave(
         self, master_edge, slave_edge, reverse_master=False, reverse_slave=False, same_as_master=True, bound_name=None
     ):

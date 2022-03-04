@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 """This module contains the ``Circuit`` class."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import  # noreorder
 
+import io
 import math
 import os
 import re
 
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
-from pyaedt.generic.DataHandlers import from_rkm_to_aedt
-from pyaedt.generic.general_methods import aedt_exception_handler
 from pyaedt.generic import ibis_reader
+from pyaedt.generic.DataHandlers import from_rkm_to_aedt
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class Circuit(FieldAnalysisCircuit, object):
@@ -38,10 +40,10 @@ class Circuit(FieldAnalysisCircuit, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
-    NG : bool, optional
-        Whether to run AEDT in the non-graphical mode. The default
-        is``False``, in which case AEDT is launched in the graphical mode.
-        This parameter is ignored when Script is launched within AEDT.
+    non_graphical : bool, optional
+        Whether to run AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -127,7 +129,7 @@ class Circuit(FieldAnalysisCircuit, object):
         except:
             return from_rkm_to_aedt(value)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_schematic_from_netlist(self, file_to_import):
         """Create a circuit schematic from an HSpice net list.
 
@@ -148,7 +150,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Returns
         -------
         bool
-             ``True`` when successful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed.
 
         """
         xpos = 0
@@ -361,25 +363,25 @@ class Circuit(FieldAnalysisCircuit, object):
         self.logger.info("Netlist correctly imported into %s", self.design_name)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def read_ibis(self, path):
-        """Create an IBIS model based on the data contained in an IBS file.
+        """Create an IBIS model based on the data contained in an IBIS file.
 
         Parameters
         ----------
         path : str
-            Path of the ibis file.
+            Path of the IBIS file.
 
         Returns
         ----------
         :class:`pyaedt.generic.ibis_reader.Ibis`
-            Ibis object exposing all data from the ibis file.
+            IBIS object exposing all data from the IBIS file.
         """
 
         reader = ibis_reader.IbisReader()
         return reader.read_project(path, self)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_schematic_from_mentor_netlist(self, file_to_import):
         """Create a circuit schematic from a Mentor net list.
 
@@ -518,7 +520,7 @@ class Circuit(FieldAnalysisCircuit, object):
         self.logger.info("Netlist correctly imported into %s", self.design_name)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def retrieve_mentor_comp(self, refid):
         """Retrieve the type of the Mentor net list component for a given reference ID.
 
@@ -546,11 +548,11 @@ class Circuit(FieldAnalysisCircuit, object):
         else:
             return ""
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_source_pin_names(
         self, source_design_name, source_project_name=None, source_project_path=None, port_selector=3
     ):
-        """List the pin names.
+        """Retrieve pin names.
 
         Parameters
         ----------
@@ -561,9 +563,8 @@ class Circuit(FieldAnalysisCircuit, object):
         source_project_path : str, optional
             Path to the source project if different than the existing path. The default is ``None``.
         port_selector : int, optional
-             Type of the port. Options are ``1``, ``2``, or ``3``, corresponding respectively to ``"Wave Port"``,
-             ``"Terminal"``, or ``"Circuit Port"``.
-             The default is ``3``, which is a circuit port.
+            Type of the port. Options are ``1``, ``2``, and ``3``, corresponding respectively to ``"Wave Port"``,
+            ``"Terminal"``, or ``"Circuit Port"``. The default is ``3``, which is a circuit port.
 
         Returns
         -------
@@ -577,11 +578,11 @@ class Circuit(FieldAnalysisCircuit, object):
         """
         if source_project_name and self.project_name != source_project_name and not source_project_path:
             raise AttributeError(
-                "If source project is different than the current one, " "``source_project_path`` must be also provided."
+                "If source project is different than the current one, " "``source_project_path`` must also be provided."
             )
         if source_project_path and not source_project_name:
             raise AttributeError(
-                "When ``source_project_path`` is specified, " "``source_project_name`` must be also provided."
+                "When ``source_project_path`` is specified, " "``source_project_name`` must also be provided."
             )
         if not source_project_name or self.project_name == source_project_name:
             oSrcProject = self._desktop.GetActiveProject()
@@ -603,7 +604,7 @@ class Circuit(FieldAnalysisCircuit, object):
         self.logger.info("%s Excitations Pins found.", len(pins))
         return pins
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_touchstone_solution(self, filename, solution_name="Imported_Data"):
         """Import a Touchstone file as the solution.
 
@@ -739,25 +740,25 @@ class Circuit(FieldAnalysisCircuit, object):
         self.logger.info("Touchstone correctly imported into %s", self.design_name)
         return portnames
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_touchstone(self, solutionname, sweepname, filename=None, variation=[], variations_value=[]):
         """Export the Touchstone file to a local folder.
 
         Parameters
         ----------
         solutionname : str
-             Name of the solution that has been solved.
+            Name of the solution that has been solved.
         sweepname : str
-             Name of the sweep that has been solved.
+            Name of the sweep that has been solved.
         filename : str, optional
-             Full path and name for the Touchstone file.
-             The default is ``None`` which export file in working_directory.
+            Full path and name for the Touchstone file. The default is ``None``,
+            which exports the file to the working directory.
         variation : list, optional
-             List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
-             The default is ``[]``.
+            List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
+            The default is ``[]``.
         variations_value : list, optional
-             List of all parameter variation values. For example, ``["22cel", "100"]``.
-             The default is ``[]``.
+            List of all parameter variation values. For example, ``["22cel", "100"]``.
+            The default is ``[]``.
 
         Returns
         -------
@@ -821,7 +822,7 @@ class Circuit(FieldAnalysisCircuit, object):
         self.logger.info("Touchstone correctly exported to %s", filename)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_fullwave_spice(
         self,
         designname=None,
@@ -852,7 +853,7 @@ class Circuit(FieldAnalysisCircuit, object):
             Whether it is an imported solution file. The default is ``False``.
         filename : str, optional
             Full path and name for exporting the HSpice file.
-            The default is ``None`` which export file in working_directory.
+            The default is ``None``, in which case the file is exported to the working directory.
         passivity : bool, optional
             Whether to compute the passivity. The default is ``False``.
         causality : bool, optional
@@ -949,7 +950,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         return filename
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_touchstone_report(
         self,
         plot_name,
@@ -972,7 +973,7 @@ class Circuit(FieldAnalysisCircuit, object):
         variation_dict : dict, optional
             Dictionary of variation names. The default value is ``None``.
         subdesign_id : int, optional
-            Specify a SubDesign ID to export a touchstone of this Subdesign. The default value is ``None``.
+            Specify a subdesign ID to export a Touchstone file of this subdesign. The default value is ``None``.
 
         Returns
         -------
@@ -1000,9 +1001,10 @@ class Circuit(FieldAnalysisCircuit, object):
             curvenames, solution_name, variations, plotname=plot_name, context=ctxt
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_touchstone_data(self, curvenames, solution_name=None, variation_dict=None):
-        """Return Touchstone Data plot.
+        """
+        Return a Touchstone data plot.
 
         Parameters
         ----------
@@ -1032,7 +1034,7 @@ class Circuit(FieldAnalysisCircuit, object):
         ctxt = ["NAME:Context", "SimValueContext:=", [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
         return self.post.get_solution_data_per_variation("Standard", solution_name, ctxt, variations, curvenames)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def push_excitations(self, instance_name, thevenin_calculation=False, setup_name="LinearFrequency"):
         """Push excitations.
 
@@ -1042,8 +1044,8 @@ class Circuit(FieldAnalysisCircuit, object):
             Name of the instance.
         thevenin_calculation : bool, optional
             Whether to perform the Thevenin equivalent calculation. The default is ``False``.
-        setup_name : str
-            Name of the solution setup to push.
+        setup_name : str, optional
+            Name of the solution setup to push. The default is ``"LinearFrequency"``.
 
         Returns
         -------
@@ -1060,7 +1062,7 @@ class Circuit(FieldAnalysisCircuit, object):
         self.modeler.oeditor.PushExcitations(instance_name, arg)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_voltage_sinusoidal_excitation_to_ports(self, ports, settings):
         """Assign a voltage sinusoidal excitation to circuit ports.
 
@@ -1069,22 +1071,22 @@ class Circuit(FieldAnalysisCircuit, object):
         ports : list
             List of circuit ports to assign to the sinusoidal excitation.
         settings : list
-            List of parameter values to use in voltage sinusoidal excitation creation.
-            All settings must be provided as strings.
-            An empty string (``""``) sets the parameter to its default.
+            List of parameter values to use to create the voltage sinusoidal excitation.
+            All settings must be provided as strings. An empty string (``""``) sets the
+            parameter to its default.
 
             Values are given in this order:
 
-            * 0: AC magnitude for small-signal analysis. For example ``"33V"``. Default = "nan V".
-            * 1: AC phase for small-signal analysis. For example ``"44deg"``. Default = "0deg".
-            * 2: DC voltage. For example ``"1V"``. Default = "0V"
-            * 3: Voltage offset from zero. For example ``"1V"``. Default = "0V".
-            * 4: Voltage amplitude. For example ``"3V"``. Default = "0V".
-            * 5: Frequency. For example ``"15GHz"``. Default = "1GHz".
-            * 6: Delay to start of sine wave. For example ``"16s"``. Default = "0s".
-            * 7: Damping factor (1/seconds). For example ``"2"``. Default = "0".
-            * 8: Phase delay. For example ``"18deg"``. Default = "0deg".
-            * 9: Frequency to use for harmonic balance analysis. For example ``"20Hz"``. Default = "0Hz".
+            * 0: AC magnitude for small-signal analysis. For example, ``"33V"``. The default is ``"nan V"``.
+            * 1: AC phase for small-signal analysis. For example, ``"44deg"``. The default is ``"0deg"``.
+            * 2: DC voltage. For example, ``"1V"``. The default is ``"0V"``.
+            * 3: Voltage offset from zero. For example, ``"1V"``. The default is ``"0V"``.
+            * 4: Voltage amplitude. For example, ``"3V"``. The default is ``"0V"``.
+            * 5: Frequency. For example, ``"15GHz"``. The default is ``"1GHz"``.
+            * 6: Delay to start of sine wave. For example, ``"16s"``. The default is ``"0s"``.
+            * 7: Damping factor (1/seconds). For example, ``"2"``. The default is ``"0"``.
+            * 8: Phase delay. For example, ``"18deg"``. The default is ``"0deg"``.
+            * 9: Frequency to use for harmonic balance analysis. For example, ``"20Hz"``. The default is ``"0Hz"``.
 
         Returns
         -------
@@ -1185,7 +1187,7 @@ class Circuit(FieldAnalysisCircuit, object):
         self.logger.info("Voltage Source updated correctly.")
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_current_sinusoidal_excitation_to_ports(self, ports, settings):
         """Assign a current sinusoidal excitation to circuit ports.
 
@@ -1194,23 +1196,25 @@ class Circuit(FieldAnalysisCircuit, object):
         ports : list
             List of circuit ports to assign to the sinusoidal excitation.
         settings : list
-            List of parameter values to use in voltage sinusoidal excitation creation.
-            All settings must be provided as strings.
-            An empty string (``""``) sets the parameter to its default.
+            List of parameter values to use to create the voltage sinusoidal excitation.
+            All settings must be provided as strings. An empty string (``""``) sets the
+            parameter to its default.
 
             Values are given in this order:
 
-            * 0: AC magnitude for small-signal analysis. For example ``"33A"``. Default = "nan A".
-            * 1: AC phase for small-signal analysis. For example ``"44deg"``. Default = "0deg".
-            * 2: DC voltage. For example ``"1A"``. Default = "0A"
-            * 3: Current offset from zero. For example ``"1A"``. Default = "0A".
-            * 4: Current amplitude. For example ``"3A"``. Default = "0A".
-            * 5: Frequency. For example ``"15GHz"``. Default = "1GHz".
-            * 6: Delay to start of sine wave. For example ``"16s"``. Default = "0s".
-            * 7: Damping factor (1/seconds). For example ``"2"``. Default = "0".
-            * 8: Phase delay. For example ``"18deg"``. Default = "0deg".
-            * 9: Multiplier for simulating multiple parallel current sources. For example ``"4"``. Default = "1".
-            * 10: Frequency to use for harmonic balance analysis. For example ``"20Hz"``. Default = "0Hz".
+            * 0: AC magnitude for small-signal analysis. For example, ``"33A"``. The default is ``"nan A"``.
+            * 1: AC phase for small-signal analysis. For example, ``"44deg"``. The default is ``"0deg"``.
+            * 2: DC voltage. For example, ``"1A"``. The default is ``"0A"``.
+            * 3: Current offset from zero. For example, ``"1A"``. The default is ``"0A"``.
+            * 4: Current amplitude. For example, ``"3A"``. The default is ``"0A"``.
+            * 5: Frequency. For example, ``"15GHz"``. The default is ``"1GHz"``.
+            * 6: Delay to start of sine wave. For example, ``"16s"``. The default is ``"0s"``.
+            * 7: Damping factor (1/seconds). For example, ``"2"``. The default is ``"0"``.
+            * 8: Phase delay. For example, ``"18deg"``. The default is ``"0deg"``.
+            * 9: Multiplier for simulating multiple parallel current sources. For example, ``"4"``.
+              The default is ``"1"``.
+            * 10: Frequency to use for harmonic balance analysis. For example, ``"20Hz"``.
+              The default is ``"0Hz".``
 
         Returns
         -------
@@ -1312,7 +1316,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_power_sinusoidal_excitation_to_ports(self, ports, settings):
         """Assign a power sinusoidal excitation to circuit ports.
 
@@ -1321,22 +1325,22 @@ class Circuit(FieldAnalysisCircuit, object):
         ports : list
             List of circuit ports to assign to the sinusoidal excitation.
         settings : list
-            List of parameter values to use in power sinusoidal excitation creation.
-            All settings must be provided as strings.
-            An empty string (``""``) sets the parameter to its default.
+            List of parameter values to use to create the power sinusoidal excitation.
+            All settings must be provided as strings. An empty string (``""``) sets the
+            parameter to its default.
 
             Values are given in this order:
 
-            * 0: AC magnitude for small-signal analysis. For example ``"33V"``. Default = "nan V".
-            * 1: AC phase for small-signal analysis. For example ``"44deg"``. Default = "0deg".
-            * 2: DC voltage. For example ``"1V"``. Default = "0V"
-            * 3: Power offset from zero watts. For example ``"1W"``. Default = "0W".
-            * 4: Available power of the source above VO. For example ``"3W"``. Default = "0W".
-            * 5: Frequency. For example ``"15GHz"``. Default = "1GHz".
-            * 6: Delay to start of sine wave. For example ``"16s"``. Default = "0s".
-            * 7: Damping factor (1/seconds). For example ``"2"``. Default = "0".
-            * 8: Phase delay. For example ``"18deg"``. Default = "0deg".
-            * 9: Frequency to use for harmonic balance analysis. For example ``"20Hz"``. Default = "0Hz".
+            * 0: AC magnitude for small-signal analysis. For example, ``"33V"``. The default is ``"nan V"``.
+            * 1: AC phase for small-signal analysis. For example, ``"44deg"``. The default is ``"0deg"``.
+            * 2: DC voltage. For example, ``"1V"``. The default is ``"0V"``.
+            * 3: Power offset from zero watts. For example, ``"1W"``. The default is ``"0W"``.
+            * 4: Available power of the source above VO. For example, ``"3W"``. The default is ``"0W"``.
+            * 5: Frequency. For example, ``"15GHz"``. The default is ``"1GHz"``.
+            * 6: Delay to start of sine wave. For example, ``"16s"``. The default is ``"0s"``.
+            * 7: Damping factor (1/seconds). For example, ``"2"``. The default is ``"0"``.
+            * 8: Phase delay. For example, ``"18deg"``. The default is ``"0deg"``.
+            * 9: Frequency to use for harmonic balance analysis. For example, ``"20Hz"``. The default is ``"0Hz"``.
 
         Returns
         -------
@@ -1437,3 +1441,175 @@ class Circuit(FieldAnalysisCircuit, object):
         self.logger.info("Power Source updated correctly.")
 
         return True
+
+    @pyaedt_function_handler()
+    def set_differential_pair(
+        self,
+        positive_terminal,
+        negative_terminal,
+        common_name=None,
+        diff_name=None,
+        common_ref_z=25,
+        diff_ref_z=100,
+        active=True,
+    ):
+        """Add a differential pair definition.
+
+        Parameters
+        ----------
+        positive_terminal : str
+            Name of the terminal to use as the positive terminal.
+        negative_terminal : str
+            Name of the terminal to use as the negative terminal.
+        common_name : str, optional
+            Name for the common mode. Default is ``None`` in which case a unique name is chosen.
+        diff_name : str, optional
+            Name for the differential mode. Default is ``None`` in which case a unique name is chosen.
+        common_ref_z : float, optional
+            Reference impedance for the common mode. Units are Ohm. Default is ``25``.
+        diff_ref_z : float, optional
+            Reference impedance for the differential mode. Units are Ohm. Default is ``100``.
+        active : bool, optional
+            Set the differential pair as active. Default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oDesign.SetDiffPairs
+        """
+        if not diff_name:
+            diff_name = generate_unique_name("Diff")
+        if not common_name:
+            common_name = generate_unique_name("Comm")
+
+        arg1 = [
+            "Pos:=",
+            positive_terminal,
+            "Neg:=",
+            negative_terminal,
+            "On:=",
+            active,
+            "matched:=",
+            False,
+            "Dif:=",
+            diff_name,
+            "DfZ:=",
+            [float(diff_ref_z), 0],
+            "Com:=",
+            common_name,
+            "CmZ:=",
+            [float(common_ref_z), 0],
+        ]
+
+        arg = ["NAME:DiffPairs"]
+        arg.append("Pair:=")
+        arg.append(arg1)
+
+        tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
+        self.odesign.SaveDiffPairsToFile(tmpfile1)
+        with open(tmpfile1, "r") as fh:
+            lines = fh.read().splitlines()
+        num_diffs_before = len(lines)
+        old_arg = []
+        for line in lines:
+            data = line.split(",")
+            data_arg = [
+                "Pos:=",
+                data[0],
+                "Neg:=",
+                data[1],
+                "On:=",
+                data[2] == "1",
+                "matched:=",
+                False,
+                "Dif:=",
+                data[4],
+                "DfZ:=",
+                [float(data[5]), 0],
+                "Com:=",
+                data[6],
+                "CmZ:=",
+                [float(data[7]), 0],
+            ]
+            old_arg.append(data_arg)
+
+        for arg2 in old_arg:
+            arg.append("Pair:=")
+            arg.append(arg2)
+
+        try:
+            os.remove(tmpfile1)
+        except:  # pragma: no cover
+            self.logger.warning("ERROR: Cannot remove temp files.")
+
+        try:
+            self.odesign.SetDiffPairs(arg)
+        except:  # pragma: no cover
+            return False
+        return True
+
+    @pyaedt_function_handler()
+    def load_diff_pairs_from_file(self, filename):
+        """Load differtential pairs definition from file.
+
+        File format can be obtained using ``save_diff_pairs_to_file`` method.
+        New definitions are added only if compatible with the existing definition already defined in the project.
+
+        Parameters
+        ----------
+        filename : str
+            Full qualified name of the file containing the differential pairs definition.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oDesign.LoadDiffPairsFromFile
+        """
+        if not os.path.isfile(filename):  # pragma: no cover
+            raise ValueError("{}: unable to find the specified file.".format(filename))
+
+        try:
+            new_file = os.path.join(os.path.dirname(filename), generate_unique_name("temp") + ".txt")
+            with open(filename, "r") as file:
+                filedata = file.read().splitlines()
+            with io.open(new_file, "w", newline="\n") as fh:
+                for line in filedata:
+                    fh.write(line + "\n")
+
+            self.odesign.LoadDiffPairsFromFile(new_file)
+            os.remove(new_file)
+        except:  # pragma: no cover
+            return False
+        return True
+
+    @pyaedt_function_handler()
+    def save_diff_pairs_to_file(self, filename):
+        """Save differtential pairs definition to file.
+
+        If ``filename`` already exists, it will be overwritten.
+
+        Parameters
+        ----------
+        filename : str
+            Full qualified name of the file containing the differential pairs definition.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oDesign.SaveDiffPairsToFile
+        """
+        self.odesign.SaveDiffPairsToFile(filename)
+
+        return os.path.isfile(filename)

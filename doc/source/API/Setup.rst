@@ -2,7 +2,7 @@ Setup
 =====
 This section lists setup modules:
 * Setup for ``Hfss``, ``Maxwell2D``, ``Maxwell3d``, ``Q2d`` and ``Q3d``
-* SetupCircuit for ``Circuit`` and ``Simplorer``
+* SetupCircuit for ``Circuit`` and ``Twin Builder``
 * Setup3DLayout for ``Hfss3dLayout``
 Setup object is accessible through the ``create_setup`` method and ``setups`` object list.
 

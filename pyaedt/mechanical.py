@@ -1,11 +1,12 @@
-"""This module contains the `Mechanical` class."""
+"""This module contains the ``Mechanical`` class."""
+from __future__ import absolute_import  # noreorder
 
-from __future__ import absolute_import
+from collections import OrderedDict
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
-from pyaedt.generic.general_methods import generate_unique_name, aedt_exception_handler
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import BoundaryObject
-from collections import OrderedDict
 
 
 class Mechanical(FieldAnalysis3D, object):
@@ -33,10 +34,10 @@ class Mechanical(FieldAnalysis3D, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when Script is launched within AEDT.
-    NG : bool, optional
+    non_graphical : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
-        is``False``, in which case AEDT is launched in the graphical mode.
-        This parameter is ignored when Script is launched within AEDT.
+        is ``False``, in which case AEDT is launched in the graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -109,7 +110,7 @@ class Mechanical(FieldAnalysis3D, object):
     def __enter__(self):
         return self
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_em_losses(
         self,
         designname="HFSSDesign1",
@@ -153,7 +154,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignEMLoss
         """
-        assert self.solution_type == "Thermal", "This Method works only in Mechanical Structural Solution"
+        assert self.solution_type == "Thermal", "This method works only in a Mechanical structural analysis."
 
         self.logger.info("Mapping HFSS EM Lossess")
         oName = self.project_name
@@ -207,7 +208,7 @@ class Mechanical(FieldAnalysis3D, object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_thermal_map(
         self,
         object_list,
@@ -249,7 +250,7 @@ class Mechanical(FieldAnalysis3D, object):
         >>> oModule.AssignThermalCondition
         """
 
-        assert self.solution_type == "Structural", "This method works only in a Mechanical structural solution."
+        assert self.solution_type == "Structural", "This method works only in a Mechanical structural analysis."
 
         self.logger.info("Mapping HFSS EM Lossess")
         oName = self.project_name
@@ -296,7 +297,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_uniform_convection(
         self, objects_list, convection_value, convection_unit="w_per_m2kel", temperature="AmbientTemp", boundary_name=""
     ):
@@ -325,7 +326,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignConvection
         """
-        assert self.solution_type == "Thermal", "This method works only in a Mechanical structural solution."
+        assert self.solution_type == "Thermal", "This method works only in a Mechanical structural analysis."
 
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
@@ -348,7 +349,7 @@ class Mechanical(FieldAnalysis3D, object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_uniform_temperature(self, objects_list, temperature="AmbientTemp", boundary_name=""):
         """Assign a uniform temperature boundary.
 
@@ -395,7 +396,7 @@ class Mechanical(FieldAnalysis3D, object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_frictionless_support(self, objects_list, boundary_name=""):
         """Assign a Mechanical frictionless support.
 
@@ -421,7 +422,7 @@ class Mechanical(FieldAnalysis3D, object):
         """
 
         if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
-            self.logger.error("This method works only in Mechanical Structural Solution")
+            self.logger.error("This method works only in Mechanical atructural analysis.")
             return False
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
@@ -440,7 +441,7 @@ class Mechanical(FieldAnalysis3D, object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_fixed_support(self, objects_list, boundary_name=""):
         """Assign a Mechanical fixed support.
 
@@ -465,7 +466,7 @@ class Mechanical(FieldAnalysis3D, object):
         >>> oModule.AssignFixedSupport
         """
         if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
-            self.logger.error("This method works only in a Mechanical structural solution.")
+            self.logger.error("This method works only in a Mechanical structural analysis.")
             return False
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)

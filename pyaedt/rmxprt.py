@@ -1,28 +1,30 @@
-"""This module contains these classes: `RMXprtModule` and `Rmxprt`."""
-from __future__ import absolute_import
+"""This module contains these classes: ``RMXprtModule`` and ``Rmxprt``."""
+from __future__ import absolute_import  # noreorder
 
 from pyaedt.application.AnalysisRMxprt import FieldAnalysisRMxprt
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class RMXprtModule(object):
-    """RMXertModule class."""
+    """Provides RMxprt module properties."""
 
     component = None
     prop_servers = None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_prop_server(self, parameter_name):
-        """Retrieve the properties of a paraemter.
+        """Retrieve the properties of the server.
 
         Parameters
         ----------
         parameter_name : str
-            Name of the parameter.
+            Name of the server.
 
 
         Returns
         -------
+        list
+            List of server properties.
 
         """
         prop_server = None
@@ -38,12 +40,12 @@ class RMXprtModule(object):
     def __init__(self, oeditor):
         self._oeditor = oeditor
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __setitem__(self, parameter_name, value):
         self.set_rmxprt_parameter(parameter_name, value)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_rmxprt_parameter(self, parameter_name, value):
         """Modify a parameter value.
 
@@ -80,7 +82,7 @@ class RMXprtModule(object):
 
 
 class Stator(RMXprtModule):
-    """Stator class."""
+    """Provides stator properties."""
 
     component = "Stator"
     prop_servers = {
@@ -101,7 +103,7 @@ class Stator(RMXprtModule):
 
 
 class Rotor(RMXprtModule):
-    """Rotor class."""
+    """Provides rotor properties."""
 
     component = "Rotor"
     prop_servers = {"": ["Outer Diameter"], "Slot": [], "Winding": []}
@@ -134,9 +136,10 @@ class Rmxprt(FieldAnalysisRMxprt):
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
         used.
-    NG : bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode.
+    non_graphical : bool, optional
+        Whether to launch AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -210,10 +213,10 @@ class Rmxprt(FieldAnalysisRMxprt):
 
     @property
     def design_type(self):
-        """Get/Set the Machine Design Type."""
+        """Machine design type."""
         return self.design_solutions.design_type
 
     @design_type.setter
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def design_type(self, value):
         self.design_solutions.design_type = value

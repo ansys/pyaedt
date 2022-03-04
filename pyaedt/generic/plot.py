@@ -1,13 +1,15 @@
 import csv
 import os
+import tempfile
 import time
 import warnings
 from datetime import datetime
 
-from pyaedt import aedt_exception_handler
-from pyaedt.generic.constants import CSS4_COLORS, AEDT_UNITS
-from pyaedt.generic.general_methods import is_ironpython, convert_remote_object
-import tempfile
+from pyaedt import pyaedt_function_handler
+from pyaedt.generic.constants import AEDT_UNITS
+from pyaedt.generic.constants import CSS4_COLORS
+from pyaedt.generic.general_methods import convert_remote_object
+from pyaedt.generic.general_methods import is_ironpython
 
 if not is_ironpython:
     try:
@@ -390,7 +392,7 @@ class ModelPlotter(object):
     def zoom(self, value=1):
         self._zoom = value
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_orientation(self, camera_position="xy", roll_angle=0, azimuth_angle=45, elevation_angle=20):
         """Change the plot default orientation.
 
@@ -463,7 +465,7 @@ class ModelPlotter(object):
         """
         return self._objects
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_object(self, cad_path, cad_color="dodgerblue", opacity=1, units="mm"):
         """Add an mesh file to the scenario. It can be obj or any of pyvista supported files.
 
@@ -487,7 +489,7 @@ class ModelPlotter(object):
         self.units = units
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_field_from_file(
         self,
         field_path,
@@ -541,7 +543,7 @@ class ModelPlotter(object):
             )
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_frames_from_file(
         self,
         field_files,
@@ -593,7 +595,7 @@ class ModelPlotter(object):
             )
             self._frames[-1]._is_frame = True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_field_from_data(
         self,
         coordinates,
@@ -642,7 +644,7 @@ class ModelPlotter(object):
         filedata.point_data[self.fields[-1].label] = np.array(fields_data)
         self.fields[-1]._cached_polydata = filedata
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _triangle_vertex(self, elements_nodes, num_nodes_per_element, take_all_nodes=True):
         trg_vertex = []
         if num_nodes_per_element == 10 and take_all_nodes:
@@ -696,7 +698,7 @@ class ModelPlotter(object):
 
         return trg_vertex
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _read_mesh_files(self, read_frames=False):
         for cad in self.objects:
             if not cad._cached_polydata:
@@ -833,7 +835,7 @@ class ModelPlotter(object):
                         filedata.point_data[field.label] = np.array(values)
                         field._cached_polydata = filedata
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _add_buttons(self):
         size = int(self.pv.window_size[1] / 40)
         startpos = self.pv.window_size[1] - 2 * size
@@ -964,7 +966,7 @@ class ModelPlotter(object):
                 0, self.pv.button_widgets.pop(self.pv.button_widgets.index(self.pv.button_widgets[-1]))
             )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def plot(self, export_image_path=None):
         """Plot the current available Data. With `s` key a screenshot is saved in export_image_path or in tempdir.
 
@@ -1070,7 +1072,7 @@ class ModelPlotter(object):
         self.image_file = export_image_path
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def clean_cache_and_files(self, remove_objs=True, remove_fields=True, clean_cache=False):
         """Clean downloaded files, and, on demand, also the cached meshes.
 
@@ -1100,7 +1102,7 @@ class ModelPlotter(object):
                     el._cached_polydata = None
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def animate(self):
         """Animate the current field plot.
 

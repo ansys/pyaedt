@@ -1,11 +1,12 @@
-"""This module contains the `TwinBuilder` class."""
+"""This module contains the ``TwinBuilder`` class."""
+from __future__ import absolute_import  # noreorder
 
-from __future__ import absolute_import
 import math
 
 from pyaedt.application.AnalysisTwinBuilder import AnalysisTwinBuilder
 from pyaedt.application.Variables import Variable
-from pyaedt.generic.general_methods import aedt_exception_handler, is_number
+from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class TwinBuilder(AnalysisTwinBuilder, object):
@@ -33,9 +34,10 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         Version of AEDT to use. The default is ``None``. If ``None``,
         the active setup is used or the latest installed version is
         used.
-    NG : bool, optional
-        Whether to launch AEDT in the non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in the graphical mode.
+    non_graphical : bool, optional
+        Whether to launch AEDT in non-graphical mode. The default
+        is ``False``, in which case AEDT is launched in graphical mode.
+        This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
@@ -98,7 +100,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             student_version,
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_schematic_from_netlist(self, file_to_import):
         """Create a circuit schematic from an HSpice net list.
 
@@ -176,7 +178,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                         ypos = 0
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_end_time(self, expression):
         """Set the end time.
 
@@ -188,6 +190,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
@@ -197,7 +200,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         self.set_sim_setup_parameter("Tend", expression)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_hmin(self, expression):
         """Set hmin.
 
@@ -219,7 +222,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         self.set_sim_setup_parameter("Hmin", expression)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_hmax(self, expression):
         """Set hmax.
 
@@ -241,7 +244,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         self.set_sim_setup_parameter("Hmax", expression)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_sim_setup_parameter(self, var_str, expression, analysis_name="TR"):
         """Set simulation setup parameters.
 

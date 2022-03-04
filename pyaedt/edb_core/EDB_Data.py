@@ -1,10 +1,12 @@
-import time
-import warnings
 import math
 import os
+import time
+import warnings
+from collections import OrderedDict
 
-from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 try:
@@ -108,7 +110,7 @@ class EDBNetsData(object):
                 comps[el] = val
         return comps
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def plot(self, layers=None, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)):
         """Plot a Net to Matplotlib 2D Chart.
 
@@ -165,7 +167,7 @@ class EDBPrimitives(object):
         self._core_net = core_app.core_nets
         self.primitive_object = raw_primitive
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def area(self, include_voids=True):
         """Return the total area.
 
@@ -293,7 +295,7 @@ class EDBPrimitives(object):
         # fmt: on
         return x, y
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def points(self, arc_segments=6):
         """Return the list of points with arcs converted to segments.
 
@@ -332,7 +334,7 @@ class EDBPrimitives(object):
             voids.append(EDBPrimitives(void, self._app))
         return voids
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def points_raw(self):
         """Return a list of Edb points.
 
@@ -350,7 +352,7 @@ class EDBPrimitives(object):
         except:
             return points
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def is_arc(self, point):
         """Either if a point is an arc or not.
 
@@ -431,7 +433,7 @@ class EDBPrimitives(object):
         else:
             raise AttributeError("Value inserted not found. Input has to be layer name or layer object.")
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete(self):
         """Delete this primtive."""
         self.primitive_object.Delete()
@@ -554,11 +556,11 @@ class EDBLayer(object):
 
         Returns
         -------
-        str
+        float
             Thickness value.
         """
         try:
-            self._thickness = self._layer.GetThicknessValue().ToString()
+            self._thickness = self._layer.GetThicknessValue().ToDouble()
         except:
             pass
         return self._thickness
@@ -673,7 +675,7 @@ class EDBLayer(object):
             self._etch_factor = value
             self.update_layers()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def plot(self, nets=None, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)):
         """Plot a Layer to Matplotlib 2D Chart.
 
@@ -703,7 +705,7 @@ class EDBLayer(object):
             size=size,
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def init_vals(self):
         """Initialize values."""
         try:
@@ -720,7 +722,7 @@ class EDBLayer(object):
         except:
             pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_layer_vals(self, layerName, newLayer, etchMap, materialMap, fillMaterialMap, thicknessMap, layerTypeMap):
         """Update layer properties.
 
@@ -766,7 +768,7 @@ class EDBLayer(object):
             newLayer.SetEtchFactor(self._edb_value(etchVal))
         return newLayer
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_elevation(self, layer, elev):
         """Update the layer elevation.
 
@@ -783,10 +785,11 @@ class EDBLayer(object):
             Layer
 
         """
+
         layer.SetLowerElevation(self._edb_value(elev))
         return layer
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_layers(self):
         """Update all layers.
 
@@ -939,7 +942,7 @@ class EDBLayers(object):
         dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBLayer`]
             Dictionary of signal layers.
         """
-        self._signal_layers = {}
+        self._signal_layers = OrderedDict({})
         for layer, edblayer in self.layers.items():
             if (
                 edblayer._layer_type == self._edb.Cell.LayerType.SignalLayer
@@ -996,7 +999,7 @@ class EDBLayers(object):
         """Logger."""
         return self._pedbstackup.logger
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _int_to_layer_types(self, val):
         if int(val) == 0:
             return self.layer_types.SignalLayer
@@ -1041,15 +1044,15 @@ class EDBLayers(object):
         elif value == 2 or value == self.layer_collection_mode.MultiZone:
             self.layer_collection.SetMode(self.layer_collection_mode.MultiZone)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _update_edb_objects(self):
-        self._edb_object = {}
+        self._edb_object = OrderedDict({})
         layers = self.edb_layers
         for i in range(len(layers)):
             self._edb_object[layers[i].GetName()] = EDBLayer(layers[i], self)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_layer(
         self,
         layerName,
@@ -1088,13 +1091,21 @@ class EDBLayers(object):
         thisLC = self._pedbstackup._active_layout.GetLayerCollection()
         layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         layers.reverse()
-        newLayers = List[self._edb.Cell.Layer]()
+        # newLayers = List[self._edb.Cell.Layer]()
         el = 0.0
+        lcNew = self._edb.Cell.LayerCollection()
+
         if not layers or not start_layer:
             if int(layerType) > 2:
                 newLayer = self._edb.Cell.Layer(layerName, self._int_to_layer_types(layerType))
-                newLayers.Add(newLayer)
+                # newLayers.Add(newLayer)
+                lcNew.AddLayerTop(newLayer)
             else:
+                for lyr in layers:
+                    if not lyr.IsStackupLayer():
+                        # newLayers.Add(lyr.Clone())
+                        lcNew.AddLayerTop(lyr.Clone())
+                        continue
                 newLayer = self._edb.Cell.StackupLayer(
                     layerName,
                     self._int_to_layer_types(layerType),
@@ -1102,31 +1113,34 @@ class EDBLayers(object):
                     self._edb_value(0),
                     "",
                 )
-                newLayers.Add(newLayer)
                 self._edb_object[layerName] = EDBLayer(newLayer, self._pedbstackup)
                 newLayer = self._edb_object[layerName].update_layer_vals(
                     layerName, newLayer, etchMap, material, fillMaterial, thickness, self._int_to_layer_types(layerType)
                 )
-                newLayer = self._edb_object[layerName].set_elevation(newLayer, el)
+                newLayer.SetLowerElevation(self._edb_value(el))
+
+                # newLayers.Add(newLayer)
+                lcNew.AddLayerTop(newLayer)
                 el += newLayer.GetThickness()
             for lyr in layers:
                 if not lyr.IsStackupLayer():
-                    newLayers.Add(lyr.Clone())
                     continue
                 newLayer = lyr.Clone()
-                newLayer = self._edb_object[lyr.GetName()].set_elevation(newLayer, el)
+                newLayer.SetLowerElevation(self._edb_value(el))
                 el += newLayer.GetThickness()
-                newLayers.Add(newLayer)
+                # newLayers.Add(newLayer)
+                lcNew.AddLayerTop(newLayer)
         else:
             for lyr in layers:
                 if not lyr.IsStackupLayer():
-                    newLayers.Add(lyr.Clone())
+                    # newLayers.Add(lyr.Clone())
+                    lcNew.AddLayerTop(lyr.Clone())
                     continue
                 if lyr.GetName() == start_layer:
-                    newLayer = lyr.Clone()
-                    el += newLayer.GetThickness()
-                    newLayers.Add(newLayer)
-
+                    original_layer = lyr.Clone()
+                    original_layer.SetLowerElevation(self._edb_value(el))
+                    lcNew.AddLayerTop(original_layer)
+                    el += original_layer.GetThickness()
                     newLayer = self._edb.Cell.StackupLayer(
                         layerName,
                         self._int_to_layer_types(layerType),
@@ -1144,16 +1158,19 @@ class EDBLayers(object):
                         thickness,
                         self._int_to_layer_types(layerType),
                     )
-                    newLayer = self._edb_object[layerName].set_elevation(newLayer, el)
+                    newLayer.SetLowerElevation(self._edb_value(el))
+                    lcNew.AddLayerTop(newLayer)
                     el += newLayer.GetThickness()
+                    # newLayers.Add(original_layer)
+
                 else:
                     newLayer = lyr.Clone()
-                    newLayer = self._edb_object[lyr.GetName()].set_elevation(newLayer, el)
+                    newLayer.SetLowerElevation(self._edb_value(el))
                     el += newLayer.GetThickness()
-                newLayers.Add(newLayer)
-        lcNew = self._edb.Cell.LayerCollection()
-        newLayers.Reverse()
-        if not lcNew.AddLayers(newLayers) or not self._active_layout.SetLayerCollection(lcNew):
+                    lcNew.AddLayerTop(newLayer)
+        # lcNew = self._edb.Cell.LayerCollection()
+        # newLayers.Reverse()
+        if not self._active_layout.SetLayerCollection(lcNew):
             self._logger.error("Failed to set new layers when updating the stackup information.")
             return False
         self._update_edb_objects()
@@ -1179,7 +1196,7 @@ class EDBLayers(object):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def remove_layer(self, layername):
         """Remove a layer.
 
@@ -1399,7 +1416,7 @@ class EDBPadProperties(object):
 
         self._update_pad_parameters_parameters(rotation=rotation_value)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def int_to_geometry_type(self, val=0):
         """Convert an integer to an EDB.PadGeometryType.
 
@@ -1439,7 +1456,7 @@ class EDBPadProperties(object):
         elif val == 12:
             return self._edb.Definition.PadGeometryType.InvalidGeometry
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _update_pad_parameters_parameters(
         self, layer_name=None, pad_type=None, geom_type=None, params=None, offsetx=None, offsety=None, rotation=None
     ):
@@ -1604,7 +1621,7 @@ class EDBPadstack(object):
         self._hole_parameters = self._hole_params[2]
         return self._hole_parameters
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _update_hole_parameters(self, hole_type=None, params=None, offsetx=None, offsety=None, rotation=None):
         """Update hole parameters.
 
@@ -2010,12 +2027,12 @@ class EDBPadstackInstance(object):
         else:
             return self._edb_padstackinstance.GetName()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete_padstack_instance(self):
         """Delete this padstack instance."""
         self._edb_padstackinstance.Delete()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def in_voids(self, net_name=None, layer_name=None):
         """Check if this padstack instance is in any void.
 
@@ -2101,6 +2118,149 @@ class EDBPadstackInstance(object):
         """
         return int(self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetTopBottomAssociation())
 
+    @pyaedt_function_handler()
+    def create_rectangle_in_pad(self, layer_name):
+        """Create a rectangle inscribed inside a padstack instance pad. The rectangle is fully inscribed in the
+        pad and has the maximum area. It is necessary to specify the layer on which the rectangle will be created.
+
+        Parameters
+        ----------
+        layer_name : str
+            Name of the layer on which to create the polygon.
+
+        Returns
+        -------
+        bool, :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
+            Polygon when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", edbversion="2021.2")
+        >>> edb_layout = edbapp.core_primitives
+        >>> list_of_padstack_instances = list(edbapp.core_padstack.padstack_instances.values())
+        >>> padstack_inst = list_of_padstack_instances[0]
+        >>> padstack_inst.create_rectangle_in_pad("TOP")
+        """
+
+        padstack_center = self.position
+        padstack_name = self.padstack_definition
+        try:
+            padstack = self._pedb.core_padstack.padstacks[padstack_name]
+        except KeyError:  # pragma: no cover
+            return False
+        try:
+            padstack_pad = padstack.pad_by_layer[layer_name]
+        except KeyError:  # pragma: no cover
+            return False
+
+        pad_shape = padstack_pad.geometry_type
+        params = padstack_pad.parameters_values
+        polygon_data = padstack_pad.polygon_data
+
+        rect = None
+        pcx = padstack_center[0]
+        pcy = padstack_center[1]
+
+        if pad_shape == 1:
+            # Circle
+            diameter = params[0]
+            r = diameter * 0.5
+            p1 = [pcx + r, pcy]
+            p2 = [pcx, pcy + r]
+            p3 = [pcx - r, pcy]
+            p4 = [pcx, pcy - r]
+            rect = [p1, p2, p3, p4]
+        elif pad_shape == 2:
+            # Square
+            square_size = params[0]
+            s2 = square_size * 0.5
+            p1 = [pcx + s2, pcy + s2]
+            p2 = [pcx - s2, pcy + s2]
+            p3 = [pcx - s2, pcy - s2]
+            p4 = [pcx + s2, pcy - s2]
+            rect = [p1, p2, p3, p4]
+        elif pad_shape == 3:
+            # Rectangle
+            x_size = float(params[0])
+            y_size = float(params[1])
+            sx2 = x_size * 0.5
+            sy2 = y_size * 0.5
+            p1 = [pcx + sx2, pcy + sy2]
+            p2 = [pcx - sx2, pcy + sy2]
+            p3 = [pcx - sx2, pcy - sy2]
+            p4 = [pcx + sx2, pcy - sy2]
+            rect = [p1, p2, p3, p4]
+        elif pad_shape == 4:
+            # Oval
+            x_size = params[0]
+            y_size = params[1]
+            corner_radius = float(params[2])
+            if corner_radius >= min(x_size, y_size):
+                r = min(x_size, y_size)
+            else:
+                r = corner_radius
+            sx = x_size * 0.5 - r
+            sy = y_size * 0.5 - r
+            k = r / math.sqrt(2)
+            p1 = [pcx + sx + k, pcy + sy + k]
+            p2 = [pcx - sx - k, pcy + sy + k]
+            p3 = [pcx - sx - k, pcy - sy - k]
+            p4 = [pcx + sx + k, pcy - sy - k]
+            rect = [p1, p2, p3, p4]
+        elif pad_shape == 5:
+            # Bullet
+            x_size = params[0]
+            y_size = params[1]
+            corner_radius = params[2]
+            if corner_radius >= min(x_size, y_size):
+                r = min(x_size, y_size)
+            else:
+                r = corner_radius
+            sx = x_size * 0.5 - r
+            sy = y_size * 0.5 - r
+            k = r / math.sqrt(2)
+            p1 = [pcx + sx + k, pcy + sy + k]
+            p2 = [pcx - x_size * 0.5, pcy + sy + k]
+            p3 = [pcx - x_size * 0.5, pcy - sy - k]
+            p4 = [pcx + sx + k, pcy - sy - k]
+            rect = [p1, p2, p3, p4]
+        elif pad_shape == 6:
+            # N-Sided Polygon
+            size = params[0]
+            num_sides = params[1]
+            ext_radius = size * 0.5
+            apothem = ext_radius * math.cos(math.pi / num_sides)
+            p1 = [pcx + apothem, pcy]
+            p2 = [pcx, pcy + apothem]
+            p3 = [pcx - apothem, pcy]
+            p4 = [pcx, pcy - apothem]
+            rect = [p1, p2, p3, p4]
+        elif pad_shape == 0 and polygon_data is not None:
+            # Polygon
+            points = []
+            i = 0
+            while i < polygon_data.Count:
+                point = polygon_data.GetPoint(i)
+                if point.IsArc():
+                    continue
+                else:
+                    points.append([point.X.ToDouble(), point.Y.ToDouble()])
+                i += 1
+            xpoly, ypoly = zip(*points)
+            polygon = [list(xpoly), list(ypoly)]
+            rectangles = GeometryOperators.find_largest_rectangle_inside_polygon(polygon)
+            rect = rectangles[0]
+            for i in range(4):
+                rect[i][0] = rect[i][0] + pcx
+                rect[i][1] = rect[i][1] + pcy
+
+        if rect is None or len(rect) != 4:
+            return False
+        path = self._pedb.core_primitives.Shape("polygon", points=rect)
+        created_polygon = self._pedb.core_primitives.create_polygon(path, padstack_pad.layer_name)
+        return created_polygon
+
 
 class EDBComponent(object):
     """Manages EDB functionalities for components.
@@ -2117,6 +2277,25 @@ class EDBComponent(object):
     def __init__(self, components, cmp):
         self._pcomponents = components
         self.edbcomponent = cmp
+
+    @property
+    def component_property(self):
+        """Component Property Object."""
+        return self.edbcomponent.GetComponentProperty().Clone()
+
+    @property
+    def solder_ball_height(self):
+        """Solder ball height if available.."""
+        if "GetSolderBallProperty" in dir(self.component_property):
+            return self.component_property.GetSolderBallProperty().GetHeight()
+        return None
+
+    @property
+    def solder_ball_placement(self):
+        """Solder ball placement if available.."""
+        if "GetSolderBallProperty" in dir(self.component_property):
+            return int(self.component_property.GetSolderBallProperty().GetPlacement())
+        return 2
 
     @property
     def refdes(self):
@@ -2324,7 +2503,7 @@ class EDBComponent(object):
         str
            Name of the placement layer.
         """
-        return self.pinlist[0].GetGroup().GetPlacementLayer().GetName()
+        return self.edbcomponent.GetPlacementLayer().GetName()
 
     @property
     def lower_elevation(self):
@@ -2335,7 +2514,7 @@ class EDBComponent(object):
         float
             Lower elevation of the placement layer.
         """
-        return self.pinlist[0].GetGroup().GetPlacementLayer().GetLowerElevation()
+        return self.edbcomponent.GetPlacementLayer().GetLowerElevation()
 
     @property
     def upper_elevation(self):
@@ -2347,7 +2526,7 @@ class EDBComponent(object):
             Upper elevation of the placement layer.
 
         """
-        return self.pinlist[0].GetGroup().GetPlacementLayer().GetUpperElevation()
+        return self.edbcomponent.GetPlacementLayer().GetUpperElevation()
 
     @property
     def top_bottom_association(self):
@@ -2364,7 +2543,7 @@ class EDBComponent(object):
             * 4 - Number of top/bottom associations.
             * -1 - Undefined
         """
-        return int(self.pinlist[0].GetGroup().GetPlacementLayer().GetTopBottomAssociation())
+        return int(self.edbcomponent.GetPlacementLayer().GetTopBottomAssociation())
 
 
 class EdbBuilder(object):

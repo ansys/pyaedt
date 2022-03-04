@@ -1,7 +1,8 @@
-from __future__ import absolute_import
+from __future__ import absolute_import  # noreorder
+
 import warnings
 
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Modeler import GeometryModeler
 from pyaedt.modeler.Primitives3D import Primitives3D
 
@@ -48,8 +49,18 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         warnings.warn(mess, DeprecationWarning)
         return self._primitives
 
-    @aedt_exception_handler
-    def create_3dcomponent(self, component_file, component_name=None, variables_to_include=[], exclude_region=False):
+    @pyaedt_function_handler()
+    def create_3dcomponent(
+        self,
+        component_file,
+        component_name=None,
+        variables_to_include=[],
+        exclude_region=False,
+        object_list=None,
+        boundaries_list=None,
+        excitation_list=None,
+        included_cs=None,
+    ):
         """Create a 3D component file.
 
         Parameters
@@ -62,6 +73,14 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
              List of variables to include. The default is ``[]``.
         exclude_region : bool, optional
              Whether to exclude the region. The default is ``False``.
+        object_list : list, optional
+            List of Objects names to export. The default is all objects
+        boundaries_list : list, optional
+            List of Boundaries names to export. The default is all boundaries
+        excitation_list : list, optional
+            List of Excitation names to export. The default is all excitations
+        included_cs : list, optional
+            List of Coordinate Systems to export. The default is all coordinate systems
 
         Returns
         -------
@@ -122,14 +141,20 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             "ComponentOutline:=",
             "None",
         ]
-        objs = self.object_names
+        if object_list:
+            objs = object_list
+        else:
+            objs = self.object_names
         for el in objs:
             if "Region" in el and exclude_region:
                 objs.remove(el)
         arg.append("IncludedParts:="), arg.append(objs)
         arg.append("HiddenParts:="), arg.append([])
         activecs = self.oeditor.GetActiveCoordinateSystem()
-        allcs = self.oeditor.GetCoordinateSystems()
+        if included_cs:
+            allcs = included_cs
+        else:
+            allcs = self.oeditor.GetCoordinateSystems()
         arg.append("IncludedCS:="), arg.append(allcs)
         arg.append("ReferenceCS:="), arg.append(activecs)
         variables = variables_to_include
@@ -149,7 +174,10 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         arg.append("VendorComponentIdentifier:="), arg.append("")
         arg.append("PublicKeyFile:="), arg.append("")
         arg2 = ["NAME:DesignData"]
-        boundaries = self.get_boundaries_name()
+        if boundaries_list:
+            boundaries = boundaries_list
+        else:
+            boundaries = self.get_boundaries_name()
         arg2.append("Boundaries:="), arg2.append(boundaries)
         if self._app.design_type == "Icepak":
             meshregions = [name for name in self._app.mesh.meshregions.name]
@@ -159,7 +187,10 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 pass
             arg2.append("MeshRegions:="), arg2.append(meshregions)
         else:
-            excitations = self._app.excitations
+            if excitation_list:
+                excitations = excitation_list
+            else:
+                excitations = self._app.excitations
             arg2.append("Excitations:="), arg2.append(excitations)
         meshops = [el.name for el in self._app.mesh.meshoperations]
         arg2.append("MeshOperations:="), arg2.append(meshops)

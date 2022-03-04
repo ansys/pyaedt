@@ -1,28 +1,22 @@
 import os
 
 # Setup paths for module imports
-from _unittest.conftest import scratch_path, local_path, desktop_version
-import gc
+from _unittest.conftest import local_path, desktop_version, BasisTest
 
 # Import required modules
 from pyaedt import Q2d
-from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "coax_Q2D"
 
 
-class TestClass:
+class TestClass(BasisTest, object):
     def setup_class(self):
-        # set a scratch directory and the environment / test data
-        with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Q2d(specified_version=desktop_version)
-            self.test_matrix = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, application=Q2d)
+        self.test_matrix = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        assert self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self)
 
     def test_01_save(self):
         test_project = os.path.join(self.local_scratch.path, test_project_name + ".aedt")
@@ -42,6 +36,13 @@ class TestClass:
         mysetup = self.aedtapp.create_setup()
         mysetup.props["SaveFields"] = True
         assert mysetup.update()
+        sweepName = "Q2D_Sweep1"
+        qSweep = mysetup.add_sweep(sweepName)
+        assert qSweep.add_subrange("LinearCount", 0.0, 100e6, 10)
+        assert qSweep.add_subrange("LinearStep", 100e6, 2e9, 50e6)
+        assert qSweep.add_subrange("LogScale", 100, 100e6, 10, clear=True)
+        assert qSweep.add_subrange("LinearStep", 100, 100e6, 1e4, clear=True)
+        assert qSweep.add_subrange("LinearCount", 100, 100e6, 10, clear=True)
 
     def test_07_single_signal_line(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)

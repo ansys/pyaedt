@@ -2,19 +2,18 @@ import os
 import re
 from warnings import warn
 
-from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.edb import Edb
-from pyaedt.generic.general_methods import (
-    aedt_exception_handler,
-    _retry_ntimes,
-    is_ironpython,
-    _pythonver,
-    inside_desktop,
-    get_filename_without_extension,
-)
-from pyaedt.modules.LayerStackup import Layers
+from pyaedt.generic.general_methods import _pythonver
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import get_filename_without_extension
+from pyaedt.generic.general_methods import inside_desktop
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Modeler import Modeler
-from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout, Primitives3DLayout
+from pyaedt.modeler.Object3d import ComponentsSubCircuit3DLayout
+from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout
+from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
+from pyaedt.modules.LayerStackup import Layers
 
 
 class Modeler3DLayout(Modeler, Primitives3DLayout):
@@ -37,29 +36,16 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     def __init__(self, app):
         self._app = app
+        self._edb = None
         self._oeditor = self._app._odesign.SetActiveEditor("Layout")
         self.logger.info("Loading Modeler.")
         Modeler.__init__(self, app)
         self.logger.info("Modeler loaded.")
-        edb_folder = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
-        edb_file = os.path.join(edb_folder, "edb.def")
-        self._edb = None
-        if os.path.exists(edb_file) or (inside_desktop and is_ironpython):
-            self._edb = Edb(
-                edb_folder,
-                self._app.design_name,
-                True,
-                self._app._aedt_version,
-                isaedtowned=True,
-                oproject=self._app.oproject,
-            )
-
         self.logger.info("EDB loaded.")
         self.layers = Layers(self, roughnessunits="um")
         self.logger.info("Layers loaded.")
         Primitives3DLayout.__init__(self, app)
         self._primitives = self
-
         self.logger.info("Primitives loaded.")
         self.layers.refresh_all_layers()
         self.o_def_manager = self._app.odefinition_manager
@@ -78,6 +64,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return self._oeditor
 
     @property
+    def _edb_folder(self):
+        return os.path.join(self._app.project_path, self._app.project_name + ".aedb")
+
+    @property
+    def _edb_file(self):
+        return os.path.join(self._edb_folder, "edb.def")
+
+    @property
     def edb(self):
         """EBD.
 
@@ -87,14 +81,23 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
              EDB.
 
         """
-        if not (inside_desktop and is_ironpython):
-            edb_folder = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
-            edb_file = os.path.join(edb_folder, "edb.def")
+        if not self._edb:
+            self._edb = None
+            if os.path.exists(self._edb_file) or (inside_desktop and is_ironpython):
+                self._edb = Edb(
+                    self._edb_folder,
+                    self._app.design_name,
+                    True,
+                    self._app._aedt_version,
+                    isaedtowned=True,
+                    oproject=self._app.oproject,
+                )
+        elif not (inside_desktop and is_ironpython):
             if self._app.project_timestamp_changed:
                 if self._edb:
                     self._edb.close_edb()
                 self._edb = Edb(
-                    edb_folder,
+                    self._edb_folder,
                     self._app.design_name,
                     True,
                     self._app._aedt_version,
@@ -108,7 +111,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """Logger."""
         return self._app.logger
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def fit_all(self):
         """Fit all.
 
@@ -170,7 +173,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """
         return self.oeditor.GetModelBoundingBox()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _arg_with_dim(self, value, units=None):
         if isinstance(value, str):
             val = value
@@ -194,7 +197,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         return posx, posy, posz
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def change_property(self, property_object, property_name, property_value, property_tab="BaseElementTab"):
         """Change an oeditor property.
 
@@ -234,6 +237,17 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     ],
                 ]
             )
+        elif isinstance(property_value, bool):
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + property_tab,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
+                    ],
+                ]
+            )
         elif isinstance(property_value, (str, float, int)):
             posx = self._arg_with_dim(property_value, self.model_units)
             self.oeditor.ChangeProperty(
@@ -252,7 +266,55 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.logger.info("Property {} Changed correctly.".format(property_name))
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
+    def merge_design(self, merged_design=None, pos_x="0.0", pos_y="0.0", pos_z="0.0", rotation="0.0"):
+        """Merge a design into another.
+
+        Parameters
+        ----------
+        merged_design : :class:`pyaedt.hfss3dlayout.Hfss3dLayout`
+            Design to merge.
+        pos_x : float, str
+            X Offset.
+        pos_y : float, str
+            Y Offset.
+        pos_z : float, str
+            Z Offset.
+        rotation : float, str
+            Rotation angle in deg.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.ComponentsSubCircuit3DLayout`
+            Object if successful.
+        """
+        des_name = merged_design.design_name
+        merged_design.oproject.CopyDesign(des_name)
+        self._app.odesign.PasteDesign(1)
+        comp_name = ""
+        for i in range(100, 0, -1):
+            try:
+                cmp_info = _retry_ntimes(10, self.oeditor.GetComponentInfo, str(i))
+                if cmp_info and des_name in cmp_info[0]:
+                    comp_name = str(i)
+                    break
+            except:
+                continue
+        if not comp_name:
+            return False
+        comp = ComponentsSubCircuit3DLayout(self, comp_name)
+        self.components_3d[comp_name] = comp
+        self.change_property(property_object=comp_name, property_name="3D Placement", property_value=True)
+        self.change_property(property_object=comp_name, property_name="Local Origin", property_value=[0.0, 0.0, 0.0])
+        pos_x = self._arg_with_dim(pos_x)
+        pos_y = self._arg_with_dim(pos_y)
+        pos_z = self._arg_with_dim(pos_z)
+        rotation = self._arg_with_dim(rotation, "deg")
+        self.change_property(property_object=comp_name, property_name="Location", property_value=[pos_x, pos_y, pos_z])
+        self.change_property(property_object=comp_name, property_name="Rotation Angle", property_value=rotation)
+        return comp
+
+    @pyaedt_function_handler()
     def change_clip_plane_position(self, clip_name, position):
         """Change the clip plane position.
 
@@ -275,7 +337,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """
         return self.change_property(clip_name, "Location", position)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def colinear_heal(self, selection, tolerance=0.1):
         """Remove small edges of one or more primitives.
 
@@ -324,7 +386,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def expand(self, object_to_expand, size=1, expand_type="ROUND", replace_original=False):
         """Expand the object by a specific size.
 
@@ -380,7 +442,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             return new_geom_names[0]
         return object_to_expand
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_cadence_brd(self, brd_filename, edb_path=None, edb_name=None):
         """Import a cadence board.
 
@@ -417,7 +479,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self._app.__init__(self._app._desktop.GetActiveProject().GetName())
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def modeler_variable(self, value):
         """Retrieve a modeler variable.
 
@@ -434,7 +496,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         else:
             return str(value) + self.model_units
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_ipc2581(self, ipc_filename, edb_path=None, edb_name=None):
         """Import an IPC file.
 
@@ -471,7 +533,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self._app.__init__(self._app._desktop.GetActiveProject().GetName())
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def subtract(self, blank, tool):
         """Subtract objects from one or more names.
 
@@ -509,7 +571,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 self._geometries.pop(tool)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def unite(self, objectlists):
         """Unite objects from names.
 
@@ -542,7 +604,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             self.logger.error("Input list must contain at least two elements.")
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def intersect(self, objectlists):
         """Intersect objects from names.
 
@@ -575,7 +637,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             self.logger.error("Input list must contain at least two elements.")
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def duplicate(self, objectlists, count, direction_vector):
         """Duplicate one or more elements along a vector.
 
@@ -605,7 +667,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_temperature_dependence(
         self,
         include_temperature_dependence=True,
@@ -661,7 +723,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             self.logger.info("Assigned Objects Temperature")
             return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_spice_model(self, component_name, model_path, model_name=None, subcircuit_name=None, pin_map=None):
         """Assign a Spice model to a component.
 

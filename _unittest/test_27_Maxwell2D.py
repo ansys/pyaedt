@@ -7,6 +7,8 @@ import os
 # Import required modules
 from pyaedt import Maxwell2d
 from pyaedt.generic.constants import SOLUTIONS
+from pyaedt.application.Design import DesignCache
+
 from _unittest.conftest import BasisTest, local_path, pyaedt_unittest_check_desktop_error
 
 try:
@@ -15,11 +17,16 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        BasisTest.setup_class(
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(
             self, project_name="Motor_EM_R2019R3", design_name="Basis_Model_For_Test", application=Maxwell2d
         )
+        self.cache = DesignCache(self.aedtapp)
+
+    def teardown_class(self):
+        BasisTest.my_teardown(self)
 
     @pyaedt_unittest_check_desktop_error
     def test_03_assign_initial_mesh_from_slider(self):

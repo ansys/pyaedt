@@ -1,16 +1,17 @@
 import os
+import math
+import time
 
 # Setup paths for module imports
-import gc
 
 # Import required modules
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
-from pyaedt.generic.filesystem import Scratch
+
 
 test_project_name = "Galileo_edb"
 bom_example = "bom_example.csv"
-from _unittest.conftest import config, desktop_version, local_path, scratch_path, is_ironpython, settings
+from _unittest.conftest import config, desktop_version, local_path, scratch_path, is_ironpython, settings, BasisTest
 
 try:
     import pytest
@@ -18,24 +19,18 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
 
-class TestClass:
+class TestClass(BasisTest, object):
     def setup_class(self):
-
-        with Scratch(scratch_path) as self.local_scratch:
-            # example_project = os.path.join(local_path, 'example_models', test_project_name + '.aedt')
-            # self.test_project = self.local_scratch.copyfile(example_project)
-            aedbproject = os.path.join(self.local_scratch.path, test_project_name + ".aedb")
-            self.local_scratch.copyfolder(
-                os.path.join(local_path, "example_models", test_project_name + ".aedb"),
-                os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
-            )
-            self.edbapp = Edb(aedbproject, "Galileo_G87173_204", edbversion=desktop_version, isreadonly=False)
+        BasisTest.my_setup(self)
+        self.edbapp = BasisTest.add_edb(self, test_project_name)
+        example_project = os.path.join(local_path, "example_models", "Package.aedb")
+        self.target_path = os.path.join(self.local_scratch.path, "Package_test_00.aedb")
+        self.local_scratch.copyfolder(example_project, self.target_path)
 
     def teardown_class(self):
         self.edbapp.close_edb()
-        self.edbapp = None
         self.local_scratch.remove()
-        gc.collect()
+        del self.edbapp
 
     def test_00_export_ipc2581(self):
         ipc_path = os.path.join(self.local_scratch.path, "test.xml")
@@ -60,9 +55,6 @@ class TestClass:
     def test_01B_get_vias_from_nets(self):
         assert self.edbapp.core_padstack.get_via_instance_from_net("GND")
         assert not self.edbapp.core_padstack.get_via_instance_from_net(["GND2"])
-
-    def test_01_flip_layer_stackup(self):
-        assert self.edbapp.core_stackup.place_in_layout()
 
     def test_02_get_properties(self):
         assert len(self.edbapp.core_components.components) > 0
@@ -183,10 +175,11 @@ class TestClass:
         assert diel
 
     def test_15_update_layer(self):
+        tol = 1e-12
         assert "LYR_1" in self.edbapp.core_stackup.stackup_layers.layers.keys()
-        self.edbapp.core_stackup.stackup_layers["LYR_1"].name
+        assert self.edbapp.core_stackup.stackup_layers["LYR_1"].name
         self.edbapp.core_stackup.stackup_layers["LYR_1"].thickness_value = "100um"
-        assert self.edbapp.core_stackup.stackup_layers["LYR_1"].thickness_value == "100um"
+        assert abs(self.edbapp.core_stackup.stackup_layers["LYR_1"].thickness_value - 10e-5) < tol
         self.edbapp.core_stackup.stackup_layers["LYR_2"].material_name = "MyCond"
         assert self.edbapp.core_stackup.stackup_layers["LYR_2"].material_name == "MyCond"
         assert self.edbapp.core_stackup.stackup_layers["LYR_1"].filling_material_name is not None or False
@@ -387,7 +380,7 @@ class TestClass:
 
     def test_47_get_polygons_bbylayerandnets(self):
         nets = ["GND", "IO2"]
-        polys = self.edbapp.core_primitives.get_polygons_by_layer("TOP", nets)
+        polys = self.edbapp.core_primitives.get_polygons_by_layer("BOTTOM", nets)
         assert polys
 
     def test_48_get_polygons_points(self):
@@ -635,3 +628,93 @@ class TestClass:
     def test_76_short_component(self):
         assert self.edbapp.core_components.short_component_pins("EU1", width=0.2e-3)
         assert self.edbapp.core_components.short_component_pins("U10", ["2", "5"])
+
+    def test_77_flip_layer_stackup(self):
+
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
+        assert edb2.core_stackup.place_in_layout_3d_placement(
+            self.edbapp,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=True,
+            place_on_top=True,
+            solder_height=0.00033,
+        )
+        edb2.close_edb()
+
+    def test_78_flip_layer_stackup_2(self):
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
+        assert edb2.core_stackup.place_in_layout(
+            self.edbapp,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=True,
+            place_on_top=True,
+        )
+        edb2.close_edb()
+
+    def test_79_get_placement_vector(self):
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
+        for cmpname, cmp in edb2.core_components.components.items():
+            assert isinstance(cmp.solder_ball_placement, int)
+        mounted_cmp = edb2.core_components.get_component_by_name("BGA")
+        hosting_cmp = self.edbapp.core_components.get_component_by_name("U2A5")
+        result, vector, rotation, solder_ball_height = self.edbapp.core_components.get_component_placement_vector(
+            mounted_component=mounted_cmp,
+            hosting_component=hosting_cmp,
+            mounted_component_pin1="A10",
+            mounted_component_pin2="A12",
+            hosting_component_pin1="A2",
+            hosting_component_pin2="A4",
+        )
+        assert result
+        assert abs(rotation - math.pi / 2) < 1e-9
+        assert solder_ball_height == 0.00033
+        assert len(vector) == 2
+        result, vector, rotation, solder_ball_height = self.edbapp.core_components.get_component_placement_vector(
+            mounted_component=mounted_cmp,
+            hosting_component=hosting_cmp,
+            mounted_component_pin1="A10",
+            mounted_component_pin2="A12",
+            hosting_component_pin1="A4",
+            hosting_component_pin2="A2",
+        )
+        assert result
+        assert abs(rotation + math.pi / 2) < 1e-9
+        assert solder_ball_height == 0.00033
+        assert len(vector) == 2
+        edb2.close_edb()
+        del edb2
+
+    def test_80_edb_without_path(self):
+        edbapp_without_path = Edb(edbversion=desktop_version, isreadonly=False)
+        time.sleep(2)
+        edbapp_without_path.close_edb()
+        edbapp_without_path = None
+        del edbapp_without_path
+
+    def test_80_create_rectangle_in_pad(self):
+        example_model = os.path.join(local_path, "example_models", "padstacks.aedb")
+        self.local_scratch.copyfolder(
+            example_model,
+            os.path.join(self.local_scratch.path, "padstacks2.aedb"),
+        )
+        edb_padstacks = Edb(
+            edbpath=os.path.join(self.local_scratch.path, "padstacks2.aedb"),
+            edbversion=desktop_version,
+            isreadonly=True,
+        )
+        for i in range(7):
+            padstack_instance = list(edb_padstacks.core_padstack.padstack_instances.values())[i]
+            result = padstack_instance.create_rectangle_in_pad("s")
+            assert result
+        edb_padstacks.close_edb()
+
+    def test_81_edb_with_dxf(self):
+        src = os.path.join(local_path, "example_models", "edb_test_82.dxf")
+        dxf_path = self.local_scratch.copyfile(src)
+        edb3 = Edb(dxf_path, edbversion=desktop_version)
+        edb3.close_edb()
+        del edb3

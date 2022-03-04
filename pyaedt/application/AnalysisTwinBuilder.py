@@ -1,8 +1,8 @@
-from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.modeler.Circuit import ModelerSimplorer
-from pyaedt.modules.SolveSetup import SetupCircuit
 from pyaedt.application.Analysis import Analysis
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.Circuit import ModelerTwinBuilder
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
+from pyaedt.modules.SolveSetup import SetupCircuit
 
 
 class AnalysisTwinBuilder(Analysis):
@@ -68,7 +68,7 @@ class AnalysisTwinBuilder(Analysis):
             student_version,
         )
         self.solution_type = solution_type
-        self._modeler = ModelerSimplorer(self)
+        self._modeler = ModelerTwinBuilder(self)
         self._post = CircuitPostProcessor(self)
 
     @property
@@ -76,7 +76,7 @@ class AnalysisTwinBuilder(Analysis):
         """Design oModeler."""
         return self._modeler
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
         """Create a new setup.
 

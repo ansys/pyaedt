@@ -1,9 +1,8 @@
 """Download example datasets from https://github.com/pyansys/example-data"""
 import os
-import os.path
 import shutil
-import zipfile
 import tempfile
+import zipfile
 
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.misc import list_installed_ansysem
@@ -121,6 +120,32 @@ def download_aedb():
     _download_file("edb/Galileo.aedb", "GRM32ER72A225KA35_25C_0V.sp")
 
     return _download_file("edb/Galileo.aedb", "edb.def")
+
+
+def download_edb_merge_utility():
+    """Download an example of WPF Project which allows to merge 2aedb files.
+
+    Examples files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+
+    Returns
+    -------
+    str
+        Path to the example file.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file
+    >>> from pyaedt import examples
+    >>> path = examples.download_edb_mergge_utility()
+    >>> path
+    'C:/Users/user/AppData/local/temp/Galileo.aedb'
+    """
+    _download_file("wpf_edb_merge/board.aedb", "edb.def")
+    _download_file("wpf_edb_merge/package.aedb", "edb.def")
+    _download_file("wpf_edb_merge", "merge_wizard_settings.json")
+
+    return _download_file("wpf_edb_merge", "merge_wizard.py")
 
 
 def download_netlist():

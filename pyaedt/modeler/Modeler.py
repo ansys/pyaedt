@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 This module contains these classes: `BaseCoordinateSystem`, `FaceCoordinateSystem`, `CoordinateSystem`, `Modeler`,
 `Position`, and `SweepOptions`.
@@ -5,17 +6,25 @@ This module contains these classes: `BaseCoordinateSystem`, `FaceCoordinateSyste
 This modules provides functionalities for the 3D Modeler, 2D Modeler,
 3D Layout Modeler, and Circuit Modeler.
 """
-from __future__ import absolute_import
+
+from __future__ import absolute_import  # noreorder
+
+import math
 import os
 import warnings
-
 from collections import OrderedDict
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+
 from pyaedt.generic.constants import AEDT_UNITS
-from pyaedt.generic.general_methods import generate_unique_name, _retry_ntimes, aedt_exception_handler, _pythonver
-import math
 from pyaedt.generic.DataHandlers import _dict2arg
-from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive, Object3d
+from pyaedt.generic.general_methods import _pythonver
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.Object3d import EdgePrimitive
+from pyaedt.modeler.Object3d import FacePrimitive
+from pyaedt.modeler.Object3d import Object3d
+from pyaedt.modeler.Object3d import VertexPrimitive
 
 
 class BaseCoordinateSystem(object):
@@ -37,7 +46,7 @@ class BaseCoordinateSystem(object):
         self.model_units = self._modeler.model_units
         self.name = name
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _dim_arg(self, value, units=None):
         """Dimension argument.
 
@@ -64,7 +73,7 @@ class BaseCoordinateSystem(object):
             val = "{0}{1}".format(value, units)
         return val
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete(self):
         """Delete the coordinate system.
 
@@ -78,7 +87,7 @@ class BaseCoordinateSystem(object):
         self._modeler.coordinate_systems.remove(self)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_as_working_cs(self):
         """Set the coordinate system as the working coordinate system.
 
@@ -93,7 +102,7 @@ class BaseCoordinateSystem(object):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _change_property(self, name, arg):
         """Update properties of the coordinate system.
 
@@ -114,7 +123,7 @@ class BaseCoordinateSystem(object):
         arguments = ["NAME:AllTabs", ["NAME:Geometry3DCSTab", ["NAME:PropServers", name], arg]]
         _retry_ntimes(5, self._modeler.oeditor.ChangeProperty, arguments)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def rename(self, newname):
         """Rename the coordinate system.
 
@@ -185,7 +194,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name, "PartName:=", self._part_name]
         return coordinateSystemAttributes
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create(
         self, face, origin, axis_position, axis="X", name=None, offset=None, rotation=0, always_move_to_end=True
     ):
@@ -325,7 +334,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_type_from_id(self, obj_id):
         """Get the entity type from the id"""
         for obj in self._modeler.objects.values():
@@ -342,7 +351,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
                             return "Vertex"
         raise ValueError("Cannot find entity id {}".format(obj_id))  # pragma: no cover
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_type_from_object(self, obj):
         """Get the entity type from the object"""
         if type(obj) is FacePrimitive:
@@ -356,7 +365,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         else:  # pragma: no cover
             raise ValueError("Cannot detect the entity type.")
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update(self):
         """Update the coordinate system.
 
@@ -419,7 +428,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         except:
             pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update(self):
         """Update the coordinate system.
 
@@ -487,7 +496,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         self._change_property(self.name, props)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def change_cs_mode(self, mode_type=0):
         """Change the mode of the coordinate system.
 
@@ -587,7 +596,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             raise ValueError('mode_type=0 for "Axis/Position", =1 for "Euler Angle ZXZ", =2 for "Euler Angle ZYZ"')
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create(
         self,
         origin=None,
@@ -917,7 +926,7 @@ class GeometryModeler(Modeler, object):
         """
         return self._app.materials
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _convert_list_to_ids(self, input_list, convert_objects_ids_to_name=True):
         """Convert a list to IDs.
 
@@ -1145,7 +1154,7 @@ class GeometryModeler(Modeler, object):
         """
         return self.oeditor.GetModelBoundingBox()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def fit_all(self):
         """Fit all.
 
@@ -1225,7 +1234,7 @@ class GeometryModeler(Modeler, object):
             objects = self.oeditor.GetObjectsInGroup("Sheets")
         return list(objects)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _find_perpendicular_points(self, face):
 
         if isinstance(face, str):
@@ -1256,7 +1265,7 @@ class GeometryModeler(Modeler, object):
             return False, (origin, a_end, b_end)
         return True, (origin, a_end, b_end)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def cover_lines(self, selection):
         """Cover a closed line and transform it to sheet.
 
@@ -1277,7 +1286,7 @@ class GeometryModeler(Modeler, object):
         self.oeditor.CoverLines(["NAME:Selections", "Selections:=", obj_to_cover, "NewPartsModelFlag:=", "Model"])
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_coordinate_system(
         self,
         origin=None,
@@ -1387,7 +1396,7 @@ class GeometryModeler(Modeler, object):
                 return cs
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_face_coordinate_system(
         self, face, origin, axis_position, axis="X", name=None, offset=None, rotation=0, always_move_to_end=True
     ):
@@ -1458,7 +1467,7 @@ class GeometryModeler(Modeler, object):
                 return cs
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def global_to_cs(self, point, ref_cs):
         """Transform a point from the global coordinate system to another coordinate system.
 
@@ -1516,7 +1525,7 @@ class GeometryModeler(Modeler, object):
 
         return get_total_transformation(point, ref_cs)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_working_coordinate_system(self, name):
         """Set the working coordinate system to another coordinate system.
 
@@ -1545,7 +1554,7 @@ class GeometryModeler(Modeler, object):
             )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_objects_deformation(self, objects):
         """Assign deformation objects to a Workbench link.
 
@@ -1574,7 +1583,7 @@ class GeometryModeler(Modeler, object):
             self.logger.info("Successfully enabled deformation feedback")
             return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_objects_temperature(self, objects, ambient_temp=22, create_project_var=False):
         """Assign temperatures to objects.
 
@@ -1634,7 +1643,7 @@ class GeometryModeler(Modeler, object):
             self.logger.info("Assigned Objects Temperature")
             return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _create_sheet_from_object_closest_edge(self, startobj, endobject, axisdir, portonplane):
         """Create a sheet from the edge closest to the object.
 
@@ -1673,7 +1682,7 @@ class GeometryModeler(Modeler, object):
         self.connect(port_edges)
         return sheet_name, point0, point1
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def find_point_around(self, objectname, startposition, offset, plane):
         """Find the point around an object.
 
@@ -1725,7 +1734,7 @@ class GeometryModeler(Modeler, object):
                     angle += 90
         return position
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_sheet_to_ground(self, objectname, groundname=None, axisdir=0, sheet_dim=1):
         """Create a sheet between an object and a ground plane.
 
@@ -1818,7 +1827,7 @@ class GeometryModeler(Modeler, object):
 
         return p1
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_faceid_on_axis(self, objname, axisdir):
         """Get the ID of the face on the axis.
 
@@ -1854,7 +1863,7 @@ class GeometryModeler(Modeler, object):
                 pass
         return face
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _create_microstrip_sheet_from_object_closest_edge(self, startobj, endobject, axisdir, vfactor=3, hfactor=5):
         def duplicate_and_unite(sheet_name, array1, array2, dup_factor):
             status, list = self.duplicate_along_line(sheet_name, array1, dup_factor + 1)
@@ -1902,7 +1911,7 @@ class GeometryModeler(Modeler, object):
 
         return sheet_name, point0, point1
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_boundaries_name(self):
         """Retrieve all boundary names.
 
@@ -1921,7 +1930,7 @@ class GeometryModeler(Modeler, object):
         del list_names[1::2]
         return list_names
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_object_model_state(self, obj_list, model=True):
         """Set a list of objects to either models or non-models.
 
@@ -1948,7 +1957,7 @@ class GeometryModeler(Modeler, object):
             self[obj].model = model
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_objects_in_group(self, group):
         """Retrieve a list of objects belonging to a group.
 
@@ -1974,7 +1983,7 @@ class GeometryModeler(Modeler, object):
             return None
         return group_objs
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_group_bounding_box(self, group):
         """Retrieve the bounding box of a group.
 
@@ -2011,7 +2020,7 @@ class GeometryModeler(Modeler, object):
             bounding = self.get_model_bounding_box()
         return bounding
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def convert_to_selections(self, objtosplit, return_list=False):
         """Convert one or more object to selections.
 
@@ -2056,7 +2065,7 @@ class GeometryModeler(Modeler, object):
         else:
             return ",".join(objnames)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def split(self, objects, plane, sides="Both"):
         """Split a list of objects.
 
@@ -2106,7 +2115,7 @@ class GeometryModeler(Modeler, object):
         self.refresh_all_ids()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def duplicate_and_mirror(self, objid, position, vector, is_3d_comp=False):
         """Duplicate and mirror a selection.
 
@@ -2157,7 +2166,7 @@ class GeometryModeler(Modeler, object):
                 return True, added_3d_comps
         return True, added_objs
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def mirror(self, objid, position, vector):
         """Mirror a selection.
 
@@ -2199,7 +2208,7 @@ class GeometryModeler(Modeler, object):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def move(self, objid, vector):
         """Move objects from a list.
 
@@ -2234,7 +2243,7 @@ class GeometryModeler(Modeler, object):
             self.oeditor.Move(vArg1, vArg2)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def duplicate_around_axis(self, objid, cs_axis, angle=90, nclones=2, create_new_objects=True, is_3d_comp=False):
         """Duplicate a selection around an axis.
 
@@ -2297,7 +2306,7 @@ class GeometryModeler(Modeler, object):
         else:
             return False, []
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def duplicate_along_line(self, objid, vector, nclones=2, attachObject=False, is_3d_comp=False):
         """Duplicate a selection along a line.
 
@@ -2346,7 +2355,7 @@ class GeometryModeler(Modeler, object):
         return True, list(added_objs)
         # return self._duplicate_added_objects_tuple()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def thicken_sheet(self, objid, thickness, bBothSides=False):
         """Thicken the sheet of the selection.
 
@@ -2378,7 +2387,7 @@ class GeometryModeler(Modeler, object):
         self.oeditor.ThickenSheet(vArg1, vArg2)
         return self.update_object(objid)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def sweep_along_normal(self, obj_name, face_id, sweep_value=0.1):
         """Sweep the selection along the vector.
 
@@ -2424,7 +2433,7 @@ class GeometryModeler(Modeler, object):
             return self.update_object(self[obj[0]])
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def sweep_along_vector(self, objid, sweep_vector, draft_angle=0, draft_type="Round"):
         """Sweep the selection along a vector.
 
@@ -2465,7 +2474,7 @@ class GeometryModeler(Modeler, object):
 
         return self.update_object(objid)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def sweep_along_path(
         self, objid, sweep_object, draft_angle=0, draft_type="Round", is_check_face_intersection=False, twist_angle=0
     ):
@@ -2509,7 +2518,7 @@ class GeometryModeler(Modeler, object):
 
         return self.update_object(objid)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def sweep_around_axis(self, objid, cs_axis, sweep_angle=360, draft_angle=0):
         """Sweep the selection around the axis.
 
@@ -2557,7 +2566,7 @@ class GeometryModeler(Modeler, object):
 
         return self.update_object(objid)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def section(self, object_list, plane, create_new=True, section_cross_object=False):
         """Section the selection.
 
@@ -2602,7 +2611,7 @@ class GeometryModeler(Modeler, object):
         self.refresh_all_ids()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def separate_bodies(self, object_list, create_group=False):
         """Separate bodies of the selection.
 
@@ -2631,7 +2640,7 @@ class GeometryModeler(Modeler, object):
         self.refresh_all_ids()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def rotate(self, objid, cs_axis, angle=90.0, unit="deg"):
         """Rotate the selection.
 
@@ -2669,7 +2678,7 @@ class GeometryModeler(Modeler, object):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def subtract(self, blank_list, tool_list, keepOriginals=True):
         """Subtract objects.
 
@@ -2706,7 +2715,7 @@ class GeometryModeler(Modeler, object):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def purge_history(self, theList):
         """Purge history objects from object names.
 
@@ -2732,7 +2741,7 @@ class GeometryModeler(Modeler, object):
         self.oeditor.PurgeHistory(vArg1)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_model_bounding_box(self):
         """Retrieve the model bounding box.
 
@@ -2752,7 +2761,7 @@ class GeometryModeler(Modeler, object):
         bound = [float(b) for b in bb]
         return bound
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def unite(self, theList):
         """Unite objects from a list.
 
@@ -2793,7 +2802,7 @@ class GeometryModeler(Modeler, object):
         self.logger.info("Union of {} objects has been executed.".format(num_objects))
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def clone(self, objid):
         """Clone objects from a list of object IDs.
 
@@ -2824,7 +2833,7 @@ class GeometryModeler(Modeler, object):
         new_objects = self.add_new_objects()
         return True, new_objects
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def intersect(self, theList, keeporiginal=False):
         """Intersect objects from a list.
 
@@ -2861,7 +2870,7 @@ class GeometryModeler(Modeler, object):
         self.logger.info("Intersection Succeeded")
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def connect(self, theList):
         """Connect objects from a list.
 
@@ -2895,7 +2904,7 @@ class GeometryModeler(Modeler, object):
         self.logger.info("Connection Correctly created")
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def translate(self, objid, vector):
         """Translate objects from a list.
 
@@ -2931,7 +2940,7 @@ class GeometryModeler(Modeler, object):
             self.oeditor.Move(vArg1, vArg2)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def chassis_subtraction(self, chassis_part):
         """Subtract all non-vacuum objects from the main chassis object.
 
@@ -2968,7 +2977,7 @@ class GeometryModeler(Modeler, object):
 
         self.logger.info("Subtraction Objs - Initial: " + str(num_obj_start) + "  ,  Final: " + str(num_obj_end))
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _offset_on_plane(self, i, offset):
         """Offset the object on a plane.
 
@@ -3005,7 +3014,7 @@ class GeometryModeler(Modeler, object):
             off3 = +offset
         return off1, off2, off3
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def check_plane(self, obj, faceposition, offset=1):
         """Check for the plane that is defined as the face for an object.
 
@@ -3055,7 +3064,7 @@ class GeometryModeler(Modeler, object):
 
         return plane
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_matched_object_name(self, search_string):
         """Retrieve the name of the matched object.
 
@@ -3077,7 +3086,7 @@ class GeometryModeler(Modeler, object):
         """
         return self.oeditor.GetMatchedObjectName(search_string)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def clean_objects_name(self, main_part_name):
         """Clean the names of the objects for a main part.
 
@@ -3109,7 +3118,7 @@ class GeometryModeler(Modeler, object):
             self.oeditor.RenamePart(RenameArgs)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_airbox(self, offset=0, offset_type="Absolute", defname="AirBox_Auto"):
         """Create an airbox that is as big as the bounding extension of the project.
 
@@ -3153,7 +3162,7 @@ class GeometryModeler(Modeler, object):
         airid = self.create_box(startpos, dim, defname)
         return airid
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_air_region(self, x_pos=0, y_pos=0, z_pos=0, x_neg=0, y_neg=0, z_neg=0):
         """Create an air region.
 
@@ -3187,7 +3196,7 @@ class GeometryModeler(Modeler, object):
         """
         return self.create_region([x_pos, y_pos, z_pos, x_neg, y_neg, z_neg])
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_coaxial(
         self,
         startingposition,
@@ -3263,7 +3272,7 @@ class GeometryModeler(Modeler, object):
 
         return inner, outer, diel
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_waveguide(
         self,
         origin,
@@ -3447,7 +3456,7 @@ class GeometryModeler(Modeler, object):
         else:
             return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def edit_region_dimensions(self, listvalues):
         """Modify the dimensions of the region.
 
@@ -3482,7 +3491,7 @@ class GeometryModeler(Modeler, object):
         self.oeditor.ChangeProperty(arg)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_face_list(self, fl, name):
         """Create a list of faces given a list of face names.
 
@@ -3511,7 +3520,7 @@ class GeometryModeler(Modeler, object):
         self.logger.info("Face List " + name + " created")
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_object_list(self, fl, name):
         """Create an object list given a list of object names.
 
@@ -3541,7 +3550,7 @@ class GeometryModeler(Modeler, object):
 
         return self.get_entitylist_id(name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def generate_object_history(self, objectname):
         """Generate history for the object.
 
@@ -3567,7 +3576,7 @@ class GeometryModeler(Modeler, object):
         self.cleanup_objects()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_faceted_bondwire_from_true_surface(self, bondname, bond_direction, min_size=0.2, numberofsegments=8):
         """Create a faceted bondwire from an existing true surface bondwire.
 
@@ -3690,7 +3699,7 @@ class GeometryModeler(Modeler, object):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_entitylist_id(self, name):
         """Retrieve the ID of an entity list.
 
@@ -3712,7 +3721,7 @@ class GeometryModeler(Modeler, object):
         id = self.oeditor.GetEntityListIDByName(name)
         return id
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_outer_facelist(self, externalobjects, name="outer_faces"):
         """Create a face list from a list of outer objects.
 
@@ -3734,7 +3743,7 @@ class GeometryModeler(Modeler, object):
         self.logger.info("Extfaces of thermal model = " + str(len(list2)))
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def explicitly_subtract(self, diellist, metallist):
         """Explicitly subtract all elements in a SolveInside list and a SolveSurface list.
 
@@ -3784,7 +3793,7 @@ class GeometryModeler(Modeler, object):
         self.logger.info("Explicit subtraction is completed.")
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def find_port_faces(self, objs):
         """Find the vaccums given a list of input sheets.
 
@@ -3823,7 +3832,7 @@ class GeometryModeler(Modeler, object):
             id += 1
         return faces
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def load_objects_bytype(self, type):
         """Load all objects of a specified type.
 
@@ -3846,7 +3855,7 @@ class GeometryModeler(Modeler, object):
         objNames = list(self.oeditor.GetObjectsInGroup(type))
         return objNames
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_line_ids(self):
         """Create a dictionary of object IDs for the lines in the design with the line name as the key."""
         line_ids = {}
@@ -3859,7 +3868,7 @@ class GeometryModeler(Modeler, object):
                 self.logger.warning("Line {} has an invalid ID!".format(line_object))
         return line_ids
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_bounding_dimension(self):
         """Retrieve the dimension array of the bounding box.
 
@@ -3881,7 +3890,7 @@ class GeometryModeler(Modeler, object):
         dimensions.append(abs(float(oBoundingBox[2]) - float(oBoundingBox[5])))
         return dimensions
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_object_name_from_edge_id(self, edge_id):
         """Retrieve the object name for a predefined edge ID.
 
@@ -3909,7 +3918,7 @@ class GeometryModeler(Modeler, object):
                 return False
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_solving_volume(self):
         """Generate a mesh for a setup.
 
@@ -3928,7 +3937,7 @@ class GeometryModeler(Modeler, object):
         volume = str(round(volume, 0))
         return volume
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def vertex_data_of_lines(self, txtfilter=None):
         """Generate a dictionary of line vertex data for all lines contained within the design.
 
@@ -3953,7 +3962,7 @@ class GeometryModeler(Modeler, object):
 
         return line_data
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_vertices_of_line(self, sLineName):
         """Generate a list of vertex positions for a line object from AEDT in model units.
 
@@ -3989,7 +3998,7 @@ class GeometryModeler(Modeler, object):
 
         return position_list
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_3d_cad(self, filename, healing=0, refresh_all_ids=True):
         """Import a CAD model.
 
@@ -4036,7 +4045,7 @@ class GeometryModeler(Modeler, object):
         self.logger.info("Step file {} imported".format(filename))
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_spaceclaim_document(self, SCFile):
         """Import a SpaceClaim document.
 
@@ -4257,7 +4266,7 @@ class GeometryModeler(Modeler, object):
         self.refresh_all_ids()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def modeler_variable(self, value):
         """Modeler variable.
 
@@ -4275,7 +4284,7 @@ class GeometryModeler(Modeler, object):
         else:
             return str(value) + self.model_units
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def break_spaceclaim_connection(self):
         """Break the connection with SpaceClaim.
 
@@ -4293,7 +4302,7 @@ class GeometryModeler(Modeler, object):
         self.oeditor.BreakUDMConnection(args)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def load_scdm_in_hfss(self, SpaceClaimFile):
         """Load a SpaceClaim file in HFSS.
 
@@ -4318,7 +4327,7 @@ class GeometryModeler(Modeler, object):
         self.break_spaceclaim_connection()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def load_hfss(self, cadfile):
         """Load HFSS.
 
@@ -4341,7 +4350,7 @@ class GeometryModeler(Modeler, object):
         self.import_3d_cad(cadfile, 1)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_faces_from_materials(self, mats):
         """Select all outer faces given a list of materials.
 
@@ -4379,7 +4388,7 @@ class GeometryModeler(Modeler, object):
                     sel.append(int(facce))
         return sel
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def select_allfaces_fromobjects(self, elements):
         """Select all outer faces given a list of objects.
 
@@ -4410,7 +4419,7 @@ class GeometryModeler(Modeler, object):
                 sel.append(int(facce))
         return sel
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def setunassigned_mats(self):
         """Find unassagned objects and set them to non-model.
 
@@ -4431,7 +4440,7 @@ class GeometryModeler(Modeler, object):
                 self.oeditor.SetPropertyValue("Geometry3DAttributeTab", obj, "Model", False)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def automatic_thicken_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
         """Create thickened sheets for a list of input faces.
 
@@ -4551,7 +4560,7 @@ class GeometryModeler(Modeler, object):
 
         """
 
-        @aedt_exception_handler
+        @pyaedt_function_handler()
         def __getitem__(self, item):
             if item == 0:
                 return self.X
@@ -4560,7 +4569,7 @@ class GeometryModeler(Modeler, object):
             elif item == 2:
                 return self.Z
 
-        @aedt_exception_handler
+        @pyaedt_function_handler()
         def __setitem__(self, item, value):
             if item == 0:
                 self.X = value
@@ -4618,13 +4627,13 @@ class GeometryModeler(Modeler, object):
 
         """
 
-        @aedt_exception_handler
+        @pyaedt_function_handler()
         def __init__(self, draftType="Round", draftAngle="0deg", twistAngle="0deg"):
             self.DraftType = draftType
             self.DraftAngle = draftAngle
             self.TwistAngle = twistAngle
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_group(self, objects=None, components=None, groups=None, group_name=None):
         """Group objects or groups into one group.
 
@@ -4698,7 +4707,7 @@ class GeometryModeler(Modeler, object):
         else:
             return assigned_name
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def ungroup(self, groups):
         """Ungroup one or more groups.
 
@@ -4722,7 +4731,7 @@ class GeometryModeler(Modeler, object):
         self.oeditor.Ungroup(arg)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def flatten_assembly(self):
         """Flatten the assembly, removing all group trees.
 

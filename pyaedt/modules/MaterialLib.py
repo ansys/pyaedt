@@ -2,15 +2,21 @@
 """
 This module contains the `Materials` class.
 """
-from __future__ import absolute_import
+from __future__ import absolute_import  # noreorder
 
-import json
 import copy
+import json
 import os
 
 from pyaedt.generic.DataHandlers import _arg2dict
-from pyaedt.generic.general_methods import aedt_exception_handler, _retry_ntimes, generate_unique_name, is_ironpython
-from pyaedt.modules.Material import Material, SurfaceMaterial, MatProperties, OrderedDict
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.Material import Material
+from pyaedt.modules.Material import MatProperties
+from pyaedt.modules.Material import OrderedDict
+from pyaedt.modules.Material import SurfaceMaterial
 
 
 class Materials(object):
@@ -85,7 +91,7 @@ class Materials(object):
                 mats.append(el)
         return mats
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_materials(self):
         """Get materials."""
         mats = {}
@@ -98,7 +104,7 @@ class Materials(object):
             pass
         return mats
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_surface_materials(self):
         mats = {}
         try:
@@ -112,7 +118,7 @@ class Materials(object):
             pass
         return mats
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def checkifmaterialexists(self, mat):
         """Check if a material exists in AEDT.
 
@@ -145,7 +151,7 @@ class Materials(object):
             else:
                 return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def check_thermal_modifier(self, mat):
         """Check a material to see if it has any thermal modifiers.
 
@@ -175,7 +181,7 @@ class Materials(object):
                     return True
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_material(self, materialname, props=None):
         """Add a material with default values.
 
@@ -222,7 +228,7 @@ class Materials(object):
             self.material_keys[materialname] = material
             return self.material_keys[materialname]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_surface_material(self, material_name, emissivity=None):
         """Add a surface material.
 
@@ -269,7 +275,7 @@ class Materials(object):
             self.surface_material_keys[materialname] = material
             return self.surface_material_keys[materialname]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _create_mat_project_vars(self, matlist):
         matprop = {}
         tol = 1e-12
@@ -289,7 +295,7 @@ class Materials(object):
                 pass
         return matprop
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_material_sweep(self, swargs, matname):
         """Create a sweep material made of an array of materials.
 
@@ -350,7 +356,7 @@ class Materials(object):
         self.material_keys[matname] = newmat
         return index
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def duplicate_material(self, material, new_name):
         """Duplicate a material.
 
@@ -387,7 +393,7 @@ class Materials(object):
         self.material_keys[new_name.lower()] = newmat
         return newmat
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def duplicate_surface_material(self, material, new_name):
         """Duplicate a surface material.
 
@@ -423,7 +429,7 @@ class Materials(object):
         self.surface_material_keys[new_name.lower()] = newmat
         return newmat
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def remove_material(self, material, library="Project"):
         """Remove a material.
 
@@ -503,7 +509,7 @@ class Materials(object):
                 except Exception as e:
                     self.logger.info("aedmattolibrary failed for material %s", el)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _aedmattolibrary(self, matname):
         matname = matname.lower()
         props = {}
@@ -516,7 +522,7 @@ class Materials(object):
         self.material_keys[matname] = newmat
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_materials_to_file(self, full_json_path):
         """Export all materials to a JSON file.
 
@@ -596,7 +602,7 @@ class Materials(object):
             os.remove(temp_path)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_materials_from_file(self, full_json_path):
         """Import and create materials from a JSON file.
 

@@ -1,14 +1,11 @@
 # standard imports
-import gc
 import os
-import time
 
 # Import required modules
 from pyaedt import Icepak
-from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, desktop_version, config
+from _unittest.conftest import local_path, scratch_path, desktop_version, config, BasisTest
 
 try:
     import pytest  # noqa: F401
@@ -35,34 +32,15 @@ source_project_path = os.path.join(local_path, "example_models", src_project_nam
 source_fluent = os.path.join(local_path, "example_models", "ColdPlateExample.aedt")
 
 
-class TestClass:
+class TestClass(BasisTest, object):
     def setup_class(self):
-        timeout = 4
-        while gc.collect() != 0 and timeout > 0:
-            time.sleep(0.5)
-            timeout -= 0.5
-        with Scratch(scratch_path) as self.local_scratch:
-            example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
-
-            self.test_project = self.local_scratch.copyfile(example_project)
-            self.test_src_project = self.local_scratch.copyfile(source_project)
-
-            self.local_scratch.copyfolder(
-                os.path.join(local_path, "example_models", test_project_name + ".aedb"),
-                os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
-            )
-            self.aedtapp = Icepak(self.test_project, specified_version=desktop_version)
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Icepak)
+        project_path = os.path.join(local_path, "example_models", src_project_name + ".aedt")
+        self.local_scratch.copyfile(project_path)
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        try:
-            self.aedtapp.close_project(src_project_name, False)
-            self.aedtapp.close_project(self.aedtapp.project_name)
-        except:
-            pass
-        time.sleep(2)
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self, True)
 
     def test_01_save(self):
         self.aedtapp.save_project()
@@ -295,7 +273,7 @@ class TestClass:
     def test_25_copy_solid_bodies(self):
         project_name = "IcepakCopiedProject"
         design_name = "IcepakCopiedBodies"
-        new_design = Icepak(projectname=project_name, designname=design_name)
+        new_design = Icepak(projectname=project_name, designname=design_name, specified_version=desktop_version)
         assert new_design.copy_solid_bodies_from(self.aedtapp)
         assert sorted(new_design.modeler.solid_bodies) == [
             "Region",
@@ -400,7 +378,7 @@ class TestClass:
     @pytest.mark.skipif(config["build_machine"], reason="Needs Workbench to run.")
     def test_90_export_fluent_mesh(self):
         self.fluent = self.local_scratch.copyfile(source_fluent)
-        app = Icepak(self.fluent)
+        app = Icepak(self.fluent, specified_version=desktop_version)
         assert app.get_liquid_objects() == ["Liquid"]
         assert app.get_gas_objects() == ["Region"]
         assert app.generate_fluent_mesh()

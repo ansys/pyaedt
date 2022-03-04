@@ -12,13 +12,17 @@ Examples
 >>> hfss["postd"] = "1W"
 
 """
-from __future__ import absolute_import, division
+
+from __future__ import absolute_import, division  # noreorder
 
 import os
 import re
 
-from pyaedt import aedt_exception_handler
-from pyaedt.generic.constants import AEDT_UNITS, SI_UNITS, unit_system, _resolve_unit_system
+from pyaedt import pyaedt_function_handler
+from pyaedt.generic.constants import _resolve_unit_system
+from pyaedt.generic.constants import AEDT_UNITS
+from pyaedt.generic.constants import SI_UNITS
+from pyaedt.generic.constants import unit_system
 from pyaedt.generic.general_methods import is_number
 
 
@@ -138,7 +142,7 @@ class CSVDataset:
 
         pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __getitem__(self, item):
         variable_list = item.split(",")
         data_out = CSVDataset()
@@ -153,7 +157,7 @@ class CSVDataset:
             data_out._header.append(variable)
         return data_out
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __add__(self, other):
         assert self.number_of_columns == other.number_of_columns, "Inconsistent number of columns"
         # Create a new object to return, avoiding changing the original inputs
@@ -224,7 +228,7 @@ class CSVDataset:
         return self.__next__()
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def _find_units_in_dependent_variables(variable_value, full_variables={}):
     m2 = re.findall(r"[0-9.]+ *([a-z_A-Z]+)", variable_value)
     if len(m2) > 0:
@@ -243,7 +247,7 @@ def _find_units_in_dependent_variables(variable_value, full_variables={}):
     return ""
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def decompose_variable_value(variable_value, full_variables={}):
     """Decompose a variable value.
 
@@ -604,21 +608,21 @@ class VariableManager(object):
         # Global Desktop Environment
         self._app = app
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __delitem__(self, key):
         """Implement del with array name or index."""
         self.delete_variable(key)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __getitem__(self, variable_name):
         return self.variables[variable_name]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __setitem__(self, variable, value):
         self.set_variable(variable, value)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _variable_dict(self, object_list, dependent=True, independent=True):
         """Retrieve the variable dictionary.
 
@@ -660,7 +664,7 @@ class VariableManager(object):
                         var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
         return var_dict
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_expression(self, variable_name):
         """Retrieve the variable value of a project or design variable as a string.
 
@@ -672,7 +676,7 @@ class VariableManager(object):
         """
         return self.aedt_object(variable_name).GetVariableValue(variable_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def aedt_object(self, variable):
         """Retrieve an AEDT object.
 
@@ -687,7 +691,7 @@ class VariableManager(object):
         else:
             return self._odesign
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_variable(
         self, variable_name, expression=None, readonly=False, hidden=False, description=None, overwrite=True
     ):
@@ -780,7 +784,7 @@ class VariableManager(object):
             try:
                 if self.delete_separator(variable_name):
                     desktop_object.Undo()
-                    self.logger.clear_messages()
+                    self._logger.clear_messages()
                     return
             except:
                 pass
@@ -879,7 +883,7 @@ class VariableManager(object):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete_separator(self, separator_name):
         """Delete a separator from either the active project or design.
 
@@ -920,7 +924,7 @@ class VariableManager(object):
                 pass
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete_variable(self, var_name):
         """Delete a variable.
 
@@ -1064,7 +1068,7 @@ class Variable(object):
         """
         return ("{}{}").format(self.numeric_value, self._units)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def rescale_to(self, units):
         """Rescale the expression to a new unit within the current unit system.
 
@@ -1092,7 +1096,7 @@ class Variable(object):
         self._units = units
         return self
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def format(self, format):
         """Retrieve the string value with the specified numerical formatting.
 
@@ -1119,7 +1123,7 @@ class Variable(object):
         """
         return ("{0:" + format + "}{1}").format(self.numeric_value, self._units)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __mul__(self, other):
         """Multiply the variable with a number or another variable and return a new object.
 
@@ -1178,7 +1182,7 @@ class Variable(object):
 
     __rmul__ = __mul__
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __add__(self, other):
         """Add the variable to another variable to return a new object.
 
@@ -1219,7 +1223,7 @@ class Variable(object):
 
         return result_variable
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __sub__(self, other):
         """Subtract another variable from the variable to return a new object.
 
@@ -1261,7 +1265,7 @@ class Variable(object):
         return result_variable
 
     # Python 3.x version
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __truediv__(self, other):
         """Divide the variable by a number or another variable to return a new object.
 
@@ -1301,11 +1305,11 @@ class Variable(object):
         return Variable("{}{}".format(result_value, result_units))
 
     # Python 2.7 version
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __div__(self, other):
         return self.__truediv__(other)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __rtruediv__(self, other):
         """Divide another object by this object.
 
@@ -1343,7 +1347,7 @@ class Variable(object):
         return Variable("{}{}".format(result_value, result_units))
 
     # # Python 2.7 version
-    # @aedt_exception_handler
+    # @pyaedt_function_handler()
     # def __div__(self, other):
     #     return self.__rtruediv__(other)
 
@@ -1412,7 +1416,7 @@ class DataSet(object):
         self.zunit = zunit
         self.vunit = vunit
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _args(self):
         """Retrieve arguments."""
         arg = []
@@ -1442,7 +1446,7 @@ class DataSet(object):
         arg.append(arg2)
         return arg
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create(self):
         """Create a dataset.
 
@@ -1463,7 +1467,7 @@ class DataSet(object):
             self._app._odesign.AddDataset(self._args())
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_point(self, x, y, z=None, v=None):
         """Add a point to the dataset.
 
@@ -1495,7 +1499,7 @@ class DataSet(object):
 
         return self.update()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def remove_point_from_x(self, x):
         """Remove a point from an X-axis value.
 
@@ -1520,7 +1524,7 @@ class DataSet(object):
         id_to_remove = self.x.index(x)
         return self.remove_point_from_index(id_to_remove)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def remove_point_from_index(self, id_to_remove):
         """Remove a point from an index.
 
@@ -1550,7 +1554,7 @@ class DataSet(object):
         self._app.logger.error("cannot Remove {} index.".format(id_to_remove))
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update(self):
         """Update the dataset.
 
@@ -1574,7 +1578,7 @@ class DataSet(object):
             self._app._odesign.EditDataset(self.name, self._args())
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete(self):
         """Delete the dataset.
 
@@ -1597,7 +1601,7 @@ class DataSet(object):
             del self._app.project_datasets[self.name]
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export(self, dataset_path=None):
         """Export the dataset.
 

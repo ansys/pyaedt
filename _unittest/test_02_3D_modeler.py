@@ -1,6 +1,7 @@
 # Setup paths for module imports
 from _unittest.conftest import BasisTest, pyaedt_unittest_check_desktop_error
 from pyaedt.modeler.Modeler import FaceCoordinateSystem
+from pyaedt.application.Design import DesignCache
 
 try:
     import pytest  # noqa: F401
@@ -8,9 +9,14 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 
-class TestClass(BasisTest):
+class TestClass(BasisTest, object):
     def setup_class(self):
-        BasisTest.setup_class(self, project_name="Coax_HFSS")
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, project_name="Coax_HFSS")
+        self.cache = DesignCache(self.aedtapp)
+
+    def teardown_class(self):
+        BasisTest.my_teardown(self)
 
     def restore_model(self):
         for name in self.aedtapp.modeler.get_matched_object_name("outer*"):
@@ -64,7 +70,7 @@ class TestClass(BasisTest):
     @pyaedt_unittest_check_desktop_error
     def test_05_split(self):
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
-        assert self.aedtapp.modeler.split("box_to_split", 2)
+        assert self.aedtapp.modeler.split(box1.name, 2)
 
     @pyaedt_unittest_check_desktop_error
     def test_06_duplicate_and_mirror(self):

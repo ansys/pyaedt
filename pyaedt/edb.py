@@ -1,32 +1,32 @@
-"""This module contains the `Edb` class.
+"""This module contains the ``Edb`` class.
 
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
 """
+import datetime
 import gc
+import logging
+import os
+import re
+import shutil
 import sys
+import tempfile
 import time
 import traceback
 import warnings
-import shutil
-import tempfile
-import datetime
-import logging
-import re
-import os
 
 
 try:
     import clr
     from System.Collections.Generic import List
-except ImportError:
+except ImportError:  # pragma: no cover
     if os.name != "posix":
-        warnings.warn("Pythonnet is needed to run pyaedt")
+        warnings.warn("Pythonnet is needed to run PyAEDT.")
 from pyaedt import settings
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt.generic.general_methods import (
-    aedt_exception_handler,
+    pyaedt_function_handler,
     env_path,
     env_path_student,
     env_value,
@@ -83,7 +83,7 @@ class Edb(object):
 
     Examples
     --------
-    Create an `Edb` object and a new EDB cell.
+    Create an ``Edb`` object and a new EDB cell.
 
     >>> from pyaedt import Edb
     >>> app = Edb()
@@ -127,11 +127,11 @@ class Edb(object):
                         project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
                     )
                 self._logger = AedtLogger(filename=logfile, level=logging.DEBUG)
-                self._logger.info("Logger Started on %s", logfile)
+                self._logger.info("Logger started on %s", logfile)
                 self._main.aedt_logger = self._logger
 
             self.student_version = student_version
-            self.logger.info("Logger Initialized in EDB")
+            self.logger.info("Logger is initialized in EDB.")
             self.edbversion = edbversion
             self.isaedtowned = isaedtowned
             self._init_dlls()
@@ -150,7 +150,7 @@ class Edb(object):
                     if not edbpath:
                         edbpath = os.path.expanduser("~")
                     edbpath = os.path.join(edbpath, generate_unique_name("layout") + ".aedb")
-                self.logger.info("No Edb Provided. Creating new EDB {}.".format(edbpath))
+                self.logger.info("No EDB is provided. Creating a new EDB {}.".format(edbpath))
             self.edbpath = edbpath
             if isaedtowned and inside_desktop:
                 self.open_edb_inside_aedt()
@@ -158,19 +158,19 @@ class Edb(object):
                 self.edbpath = edbpath[:-4] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe)
-                self.logger.info("Edb %s Created Correctly from %s file", self.edbpath, edbpath[-2:])
+                self.logger.info("EDB %s was created correctly from %s file.", self.edbpath, edbpath[-2:])
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
-                self.logger.info("Edb %s Created Correctly", self.edbpath)
+                self.logger.info("EDB %s was created correctly.", self.edbpath)
             elif ".aedb" in edbpath:
                 self.edbpath = edbpath
                 self.open_edb()
             if self.builder:
-                self.logger.info("Edb Initialized")
+                self.logger.info("EDB was initialized.")
             else:
-                self.logger.info("Failed to initialize Dlls")
+                self.logger.info("Failed to initialize DLLs.")
         else:
-            warnings.warn("Failed to initialize Dlls")
+            warnings.warn("Failed to initialize DLLss")
 
     def __enter__(self):
         return self
@@ -199,7 +199,7 @@ class Edb(object):
         # time.sleep(2)
         # gc.collect()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _init_objects(self):
         time.sleep(1)
         self._components = Components(self)
@@ -227,14 +227,14 @@ class Edb(object):
         Returns
         -------
         list of str
-            List of Cell names.
+            List of cell names.
         """
         names = []
         for cell in list(self._db.TopCircuitCells):
             names.append(cell.GetName())
         return names
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _init_dlls(self):
         """Initialize DLLs."""
         sys.path.append(os.path.join(os.path.dirname(__file__), "dlls", "EDBLib"))
@@ -283,7 +283,7 @@ class Edb(object):
 
     @property
     def edblib(self):
-        """EdbLib object containing advanced Edb methods not accessible directly from python."""
+        """EdbLib object containing advanced EDB methods not accessible directly from Python."""
         if not self._edblib:
             if os.name == "posix":
                 clr.AddReferenceToFile("EdbLib.dll")
@@ -299,7 +299,7 @@ class Edb(object):
                 pass
         return self._edblib
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def open_edb(self, init_dlls=False):
         """Open EDB.
 
@@ -353,7 +353,7 @@ class Edb(object):
 
         return self.builder
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def open_edb_inside_aedt(self, init_dlls=False):
         """Open EDB inside of AEDT.
 
@@ -402,7 +402,7 @@ class Edb(object):
             self.builder = None
             return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_edb(self, init_dlls=False):
         """Create EDB.
 
@@ -410,9 +410,6 @@ class Edb(object):
         ----------
         init_dlls : bool, optional
             Whether to initialize DLLs. The default is ``False``.
-
-        Returns
-        -------
 
         """
         if init_dlls:
@@ -437,7 +434,7 @@ class Edb(object):
         self.builder = None
         return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_layout_pcb(self, input_file, working_dir, init_dlls=False, anstranslator_full_path="", use_ppe=False):
         """Import a BRD file and generate an ``edb.def`` file in the working directory.
 
@@ -451,7 +448,7 @@ class Edb(object):
         init_dlls : bool
             Whether to initialize DLLs. The default is ``False``.
         anstranslator_full_path : str, optional
-            Whether to use or not PPE License. The default is ``False``.
+            Full path to the Ansys translator. The default is ``""``.
         use_ppe : bool
             Whether to use or not PPE License. The default is ``False``.
         Returns
@@ -491,22 +488,21 @@ class Edb(object):
         self.edbpath = os.path.join(working_dir, aedb_name)
         return self.open_edb()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_to_ipc2581(self, ipc_path=None, units="millimeter"):
-        """Create an XML IPC2581 File from active Edb.
+        """Create an XML IPC2581 file from the active EDB.
 
         .. note::
-           This Method is still under test and need further Debug.
-           Any feedback is welcome. Actually, backdrills and
-           custom pads are not supported yet.
+           This method is still being tested and may need further debugging.
+           Any feedback is welcome. Backdrills and custom pads are not supported yet.
 
         Parameters
         ----------
         ipc_path : str, optional
-            Path to the xml file
+            Path to the XML file. The default is ``None``.
         units : str, optional
-            Units of IPC2581 file. Default ``millimeter``. It can be ``millimeter``,
-            ``inch``, ``micron``.
+            Units of the IPC2581 file. Options are ``"millimeter"``,
+            ``"inch"``, and ``"micron"``.The default is ``"millimeter"``.
         Returns
         -------
         bool
@@ -668,7 +664,7 @@ class Edb(object):
 
         (Port, Pec, RLC, CurrentSource, VoltageSource, NexximGround, NexximPort, DcTerminal, VoltageProbe) = range(0, 9)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def edb_value(self, val):
         """EDB value.
 
@@ -698,7 +694,7 @@ class Edb(object):
             return self.edb.Utility.Value(val, var_server_cell)
         return self.edb.Utility.Value(val)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _is_file_existing_and_released(self, filename):
         if os.path.exists(filename):
             try:
@@ -710,14 +706,14 @@ class Edb(object):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _is_file_existing(self, filename):
         if os.path.exists(filename):
             return True
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _wait_for_file_release(self, timeout=30, file_to_release=None):
         if not file_to_release:
             file_to_release = os.path.join(self.edbpath)
@@ -730,7 +726,7 @@ class Edb(object):
             else:
                 time.sleep(0.250)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _wait_for_file_exists(self, timeout=30, file_to_release=None, wait_count=4):
         if not file_to_release:
             file_to_release = os.path.join(self.edbpath)
@@ -749,7 +745,7 @@ class Edb(object):
                 times = 0
                 time.sleep(0.250)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def close_edb(self):
         """Close EDB.
 
@@ -773,7 +769,7 @@ class Edb(object):
             timeout -= 1
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def save_edb(self):
         """Save the EDB file.
 
@@ -786,9 +782,9 @@ class Edb(object):
         self._db.Save()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def save_edb_as(self, fname):
-        """Save the EDB as another file.
+        """Save the EDB file as another file.
 
         Parameters
         ----------
@@ -804,7 +800,7 @@ class Edb(object):
         self._db.SaveAs(fname)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def execute(self, func):
         """Execute a function.
 
@@ -822,7 +818,7 @@ class Edb(object):
         """
         return self.edb.Utility.Command.Execute(func)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_cadence_file(self, inputBrd, WorkDir=None, anstranslator_full_path="", use_ppe=False):
         """Import a BRD file and generate an ``edb.def`` file in the working directory.
 
@@ -834,9 +830,10 @@ class Edb(object):
             Directory in which to create the ``aedb`` folder. The AEDB file name will be
             the same as the BRD file name. The default value is ``None``.
         anstranslator_full_path : str, optional
-            Optional AnsTranslator full path.
+            Full path to the Ansys translator.
         use_ppe : bool
-            Whether to use or not PPE License. The default is ``False``.
+            Whether to use the PPE License. The default is ``False``.
+
         Returns
         -------
         bool
@@ -850,7 +847,7 @@ class Edb(object):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_gds_file(self, inputGDS, WorkDir=None, anstranslator_full_path="", use_ppe=False):
         """Import a GDS file and generate an ``edb.def`` file in the working directory.
 
@@ -858,13 +855,14 @@ class Edb(object):
         ----------
         inputGDS : str
             Full path to the GDS file.
-        WorkDir : str
+        WorkDir : str, optional
             Directory in which to create the ``aedb`` folder. The AEDB file name will be
             the same as the GDS file name. The default value is ``None``.
         anstranslator_full_path : str, optional
-            Optional AnsTranslator full path.
+            Full path to the Ansys translator.
         use_ppe : bool
-            Whether to use or not PPE License. The default is ``False``.
+            Whether to use the PPE License. The default is ``False``.
+
         Returns
         -------
         bool
@@ -944,8 +942,8 @@ class Edb(object):
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, _poly)
 
-        # The analysis setup(s) do not come over with the clipped design copy,
-        # so add the analysis setup(s) from the original here
+        # Analysis setups do not come over with the clipped design copy,
+        # so add the analysis setups from the original here.
         id = 1
         for _setup in self.active_cell.SimulationSetups:
             # Empty string '' if coming from setup copy and don't set explicitly.
@@ -996,7 +994,7 @@ class Edb(object):
             self._init_objects()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def arg_with_dim(self, Value, sUnits):
         """Format arguments with dimensions.
 
@@ -1005,12 +1003,11 @@ class Edb(object):
         Value :
 
         sUnits :
-             The default is ``None``.
 
         Returns
         -------
         str
-            String containing the value or value and the units if `sUnits` is not ``None``.
+            String containing the value or the value and units if ``sUnits`` is not ``None``.
         """
         if type(Value) is str:
             val = Value
@@ -1019,7 +1016,7 @@ class Edb(object):
 
         return val
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_cutout_on_point_list(
         self,
         point_list,
@@ -1028,20 +1025,21 @@ class Edb(object):
         open_cutout_at_end=True,
         nets_to_include=None,
     ):
-        """Create a cutout on a specified shape and save it to a new .aedb file.
+        """Create a cutout on a specified shape and save it to a new AEDB file.
 
         Parameters
         ----------
         point_list : list
-            List of points defining the Cutout shape.
+            List of points defining the cutout shape.
         units : str
-            Units of Point list. Default ``mm``.
+            Units of the point list. The default is ``"mm"``.
         output_aedb_path : str, optional
             Full path and name for the new AEDB file.
         open_cutout_at_end : bool, optional
-            Whether to open the Cutout at the end. The default value is ``True``.
+            Whether to open the cutout at the end. The default is ``True``.
         nets_to_include : list, optional
-            List of nets to include in the cutout. If `None` all the nets will be included.
+            List of nets to include in the cutout. The default is ``None``, in
+            which case all nets are included.
 
         Returns
         -------
@@ -1058,9 +1056,9 @@ class Edb(object):
 
         _ref_nets = []
         if nets_to_include:
-            self.logger.info("Creating cutout on {} nets".format(len(nets_to_include)))
+            self.logger.info("Creating cutout on {} nets.".format(len(nets_to_include)))
         else:
-            self.logger.info("Creating cutout on all nets")  # pragma: no cover
+            self.logger.info("Creating cutout on all nets.")  # pragma: no cover
 
         # validate references in layout
         for _ref in self.core_nets.nets:
@@ -1150,16 +1148,17 @@ class Edb(object):
                         pass
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def write_export3d_option_config_file(self, path_to_output, config_dictionaries=None):
         """Write the options for a 3D export to a configuration file.
 
         Parameters
         ----------
         path_to_output : str
-            Full path to the configuration file where the 3D export options are to be saved.
+            Full path to the configuration file in which to save 3D export options.
 
         config_dictionaries : dict, optional
+            The default is ``None``.
 
         """
         option_config = {
@@ -1187,7 +1186,7 @@ class Edb(object):
                 f.write(el + " " + str(val) + "\n")
         return os.path.join(path_to_output, "options.config")
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_hfss(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None):
         """Export EDB to HFSS.
 
@@ -1196,12 +1195,14 @@ class Edb(object):
         path_to_output : str
             Full path and name for saving the AEDT file.
         net_list : list, optional
-            List of nets to export if only certain ones are to be
-            included.
+            List of nets to export if only certain ones are to be exported.
+            The default is ``None``.
         num_cores : int, optional
-            Define number of cores to use during export
+            Number of cores to use for the export. The default is ``None``.
         aedt_file_name : str, optional
-            Output aedt file name (without .aedt extension). If `None` then default naming is used.
+            Name of the AEDT output file (without the ``.aedt`` extension). The default is ``None``,
+            in which case the default name is used.
+
         Returns
         -------
         str
@@ -1223,7 +1224,7 @@ class Edb(object):
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
         return siwave_s.export_3d_cad("HFSS", path_to_output, net_list, num_cores, aedt_file_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_q3d(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None):
         """Export EDB to Q3D.
 
@@ -1232,17 +1233,18 @@ class Edb(object):
         path_to_output : str
             Full path and name for saving the AEDT file.
         net_list : list, optional
-            List of nets only if certain ones are to be
-            exported.
+            List of nets to export only if certain ones are to be exported.
+            The default is ``None``.
         num_cores : int, optional
-            Define number of cores to use during export.
+            Number of cores to use for the export. The default is ``None``.
         aedt_file_name : str, optional
-            Output  aedt file name (without .aedt extension). If `None` then default naming is used.
+            Name of the AEDT output file (without the ``.aedt`` extension). The default is ``None``,
+            in which case the default name is used.
 
         Returns
         -------
         str
-            Path to the AEDT file.
+            Full path to the AEDT file.
 
         Examples
         --------
@@ -1263,7 +1265,7 @@ class Edb(object):
             "Q3D", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_maxwell(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None):
         """Export EDB to Maxwell 3D.
 
@@ -1272,17 +1274,18 @@ class Edb(object):
         path_to_output : str
             Full path and name for saving the AEDT file.
         net_list : list, optional
-            List of nets only if certain ones are to be
-            exported.
+            List of nets to export only if certain ones are to be
+            exported. The default is ``None``.
         num_cores : int, optional
-            Define number of cores to use during export
+            Number of cores to use for the export. The default is ``None.``
         aedt_file_name : str, optional
-            Output  aedt file name (without .aedt extension). If `None` then default naming is used.
+            Name of the AEDT output file (without the ``.aedt`` extension). The default is ``None``,
+            in which case the default name is used.
 
         Returns
         -------
         str
-            Path to the AEDT file.
+            Full path to the AEDT file.
 
         Examples
         --------
@@ -1302,9 +1305,9 @@ class Edb(object):
             "Maxwell", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def solve_siwave(self):
-        """Close Edb and Solves it with Siwave.
+        """Close EDB and solve it with Siwave.
 
         Returns
         -------
@@ -1318,21 +1321,21 @@ class Edb(object):
         process.solve()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_design_variable(self, variable_name, variable_value):
-        """Add a Design Variable.
+        """Add a design variable.
 
         Parameters
         ----------
         variable_name : str
-            Name of the variable
+            Name of the variable.
         variable_value : str, float
             Value of the variable with units.
 
         Returns
         -------
         tuple
-            tuple containing AddVariable Result and variableserver.
+            tuple containing the ``AddVariable`` result and variable server.
         """
         is_parameter = True
         if "$" in variable_name:
@@ -1345,18 +1348,18 @@ class Edb(object):
             self.logger.warning("Parameter %s exists. Using it.", variable_name)
             return False, var_server
         else:
-            self.logger.info("Creating Parameter %s.", variable_name)
+            self.logger.info("Creating parameter %s.", variable_name)
             var_server.AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
             return True, var_server
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_bounding_box(self):
-        """Return the Layout bounding box.
+        """Retrieve the layout bounding box.
 
         Returns
         -------
         list of list of double
-            The bounding box as a [lower-left X, lower-left Y], [upper-right X, upper-right Y]) pair in meter.
+            Bounding box as a [lower-left X, lower-left Y], [upper-right X, upper-right Y]) pair in meters.
         """
         bbox = self.edbutils.HfssUtilities.GetBBox(self.active_layout)
         return [[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()], [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]]

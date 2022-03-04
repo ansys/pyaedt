@@ -1,10 +1,12 @@
+# -*- coding: utf-8 -*-
 import os
 
-from pyaedt.modeler.parts import Part, Antenna
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.filesystem import get_json_files
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.modeler.parts import Antenna
+from pyaedt.modeler.parts import Part
 
 
 class MultiPartComponent(object):
@@ -382,7 +384,7 @@ class MultiPartComponent(object):
         self._use_global_cs = False
         self._offset_values = o  # Expect tuple or list of strings
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def position_in_app(self, app):
         """Set up design variables and values to enable motion for the multi-part 3D component.
 
@@ -404,7 +406,6 @@ class MultiPartComponent(object):
                     expression=self.offset[m],
                     description=self.name + " " + xyz[m] + "-position",
                 )
-
             app.variable_manager.set_variable(
                 variable_name=self.yaw_name, expression=self.yaw, description=self.name + " yaw"
             )
@@ -430,7 +431,7 @@ class MultiPartComponent(object):
                 name=self.cs_name,
             )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _insert(self, app, motion=False):
         """Insert the multi-part 3D component.
 
@@ -462,7 +463,7 @@ class MultiPartComponent(object):
         app.modeler.create_group(components=self.aedt_components, group_name=self.name)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def insert(self, app, motion=False):
         """Insert the object in HFSS SBR+.
 
@@ -616,7 +617,7 @@ class Actor(MultiPartComponent, object):
     def speed_expression(self, s):  # TODO: Add validation of the expression.
         self._speed_expression = s
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _add_speed(self, app):
         app.variable_manager.set_variable(
             variable_name=self.speed_name, expression=self.speed_expression, description="object speed"

@@ -1,31 +1,25 @@
 import os
 
 # Setup paths for module imports
-from _unittest.conftest import scratch_path, local_path, desktop_version
-import gc
+from _unittest.conftest import local_path, desktop_version, BasisTest
 
 # Import required modules
-from pyaedt import Q3d, Q2d
-from pyaedt.generic.filesystem import Scratch
+from pyaedt import Q3d
 
 test_project_name = "coax_Q3D"
 bondwire_project_name = "bondwireq3d"
 
 
-class TestClass:
+class TestClass(BasisTest, object):
     def setup_class(self):
-        # set a scratch directory and the environment / test data
-        with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Q3d(specified_version=desktop_version)
-            example_project = os.path.join(local_path, "example_models", bondwire_project_name + ".aedt")
-            self.test_project = self.local_scratch.copyfile(example_project)
-            self.test_matrix = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, application=Q3d)
+        example_project = os.path.join(local_path, "example_models", bondwire_project_name + ".aedt")
+        self.test_project = self.local_scratch.copyfile(example_project)
+        self.test_matrix = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        assert self.aedtapp.close_project(self.aedtapp.project_name, saveproject=False)
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self)
 
     def test_01_save(self):
         test_project = os.path.join(self.local_scratch.path, test_project_name + ".aedt")
@@ -110,12 +104,6 @@ class TestClass:
         assert test
         pass
 
-    def test_10_q2d(self):
-        q2d = Q2d(specified_version=desktop_version)
-        assert q2d
-        assert q2d.dim == "2D"
-        pass
-
     def test_11_assign_net(self):
         box = self.aedtapp.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
         net_name = "my_net"
@@ -137,7 +125,7 @@ class TestClass:
         assert self.aedtapp.mesh.initial_mesh_settings.props
 
     def test_13_matrix_reduction(self):
-        q3d = Q3d(self.test_matrix, specified_version="2021.2")
+        q3d = Q3d(self.test_matrix, specified_version=desktop_version)
         assert q3d.matrices[0].name == "Original"
         assert len(q3d.matrices[0].sources()) > 0
         assert len(q3d.matrices[0].sources(False)) > 0

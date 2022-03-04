@@ -1,12 +1,8 @@
-# Setup paths for module imports
-import gc
-
 # Import required modules
 from pyaedt import Emit
-from pyaedt.generic.filesystem import Scratch
 from pyaedt.modeler.PrimitivesEmit import EmitComponent, EmitComponents
 
-from _unittest.conftest import scratch_path, config
+from _unittest.conftest import config, BasisTest
 
 try:
     import pytest
@@ -14,17 +10,13 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
 
-class TestClass:
+class TestClass(BasisTest, object):
     def setup_class(self):
-        # set a scratch directory and the environment / test data
-        with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Emit()
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        assert self.aedtapp.close_project(saveproject=False)
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self)
 
     def test_objects(self):
         assert self.aedtapp.solution_type

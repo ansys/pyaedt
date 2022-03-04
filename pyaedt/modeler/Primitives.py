@@ -1,7 +1,7 @@
 """
 This module contains these Primitives classes: `Polyline` and `Primitives`.
 """
-from __future__ import absolute_import
+from __future__ import absolute_import  # noreorder
 
 import math
 import os
@@ -9,10 +9,17 @@ import time
 from collections import OrderedDict
 
 from pyaedt.application.Variables import Variable
-from pyaedt.generic.general_methods import aedt_exception_handler, is_number, _retry_ntimes
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, Object3d, _dim_arg, _uname, Point
 from pyaedt.generic.constants import PLANE
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.Object3d import _dim_arg
+from pyaedt.modeler.Object3d import _uname
+from pyaedt.modeler.Object3d import EdgePrimitive
+from pyaedt.modeler.Object3d import FacePrimitive
+from pyaedt.modeler.Object3d import Object3d
+from pyaedt.modeler.Object3d import Point
 
 default_materials = {
     "Icepak": "air",
@@ -65,7 +72,6 @@ class PolylineSegment:
 
     """
 
-    @aedt_exception_handler
     def __init__(self, type, num_seg=0, num_points=0, arc_angle=0, arc_center=None, arc_plane=None):
 
         valid_types = ["Line", "Arc", "Spline", "AngularArc"]
@@ -152,7 +158,6 @@ class Polyline(Object3d):
 
     """
 
-    @aedt_exception_handler
     def __init__(
         self,
         primitives,
@@ -170,6 +175,7 @@ class Polyline(Object3d):
         xsection_height=1,
         xsection_num_seg=0,
         xsection_bend_type=None,
+        non_model=False,
     ):
 
         self._primitives = primitives
@@ -210,8 +216,11 @@ class Polyline(Object3d):
                     self._segment_types = segment_type
 
             varg1 = self._point_segment_string_array()
-
-            varg2 = self._primitives._default_object_attributes(name=name, matname=matname)
+            if non_model:
+                flag = "NonModel#"
+            else:
+                flag = ""
+            varg2 = self._primitives._default_object_attributes(name=name, matname=matname, flags=flag)
 
             new_object_name = _retry_ntimes(10, self.m_Editor.CreatePolyline, varg1, varg2)
 
@@ -280,6 +289,7 @@ class Polyline(Object3d):
         position_list = [self._primitives.get_vertex_position(id) for id in id_list]
         return position_list
 
+    @pyaedt_function_handler()
     def _pl_point(self, pt):
         pt_data = ["NAME:PLPoint"]
         pt_data.append("X:=")
@@ -290,6 +300,7 @@ class Polyline(Object3d):
         pt_data.append(_dim_arg(pt[2], self._primitives.model_units))
         return pt_data
 
+    @pyaedt_function_handler()
     def _point_segment_string_array(self):
         """Retrieve the parameter arrays for specifying the points and segments of a polyline
         used in the :class:`pyaedt.modeler.Primitives.Polyline` constructor.
@@ -388,6 +399,7 @@ class Polyline(Object3d):
 
         return varg1
 
+    @pyaedt_function_handler()
     def _segment_array(self, segment_data, start_index=0, start_point=None):
         """Retrieve a property array for a polyline segment for use in the
         :class:`pyaedt.modeler.Primitives.Polyline` constructor.
@@ -489,7 +501,7 @@ class Polyline(Object3d):
 
         return seg
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def clone(self):
         """Clone a polyline object.
 
@@ -516,6 +528,7 @@ class Polyline(Object3d):
         self._primitives._oeditor.Paste()
         return self._add_new_polyline()
 
+    @pyaedt_function_handler()
     def _add_new_polyline(self):
         new_objects = self._primitives.find_new_objects()
         assert len(new_objects) == 1
@@ -526,7 +539,7 @@ class Polyline(Object3d):
         self._primitives.object_id_dict[new_name] = new_polyline.id
         return new_polyline
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def remove_vertex(self, position, abstol=1e-9):
         """Remove a vertex from an existing polyline by position.
 
@@ -619,7 +632,7 @@ class Polyline(Object3d):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def remove_edges(self, edge_id):
         """Remove a vertex from an existing polyline by position.
 
@@ -664,7 +677,7 @@ class Polyline(Object3d):
             raise ValueError("Invalid edge ID {} is specified on polyline {}.".format(edge_id, self.name))
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_crosssection_properties(
         self, type=None, orient=None, width=0, topwidth=0, height=0, num_seg=0, bend_type=None
     ):
@@ -754,7 +767,7 @@ class Polyline(Object3d):
         self._update()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def insert_segment(self, position_list, segment=None):
         """Add a segment to an existing polyline.
 
@@ -1054,7 +1067,7 @@ class Primitives(object):
         report = {"Missing Objects": missing, "Non-Existent Objects": non_existent}
         return report
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _change_geometry_property(self, vPropChange, names_list):
         names = self._app.modeler.convert_to_selections(names_list, True)
         vChangedProps = ["NAME:ChangedProps", vPropChange]
@@ -1068,7 +1081,7 @@ class Primitives(object):
             self.cleanup_objects()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _change_point_property(self, vPropChange, names_list):
         names = self._app.modeler.convert_to_selections(names_list, True)
         vChangedProps = ["NAME:ChangedProps", vPropChange]
@@ -1082,7 +1095,7 @@ class Primitives(object):
             self.cleanup_objects()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_object(self, obj):
         """Update any :class:`pyaedt.modeler.Object3d.Object3d` derivatives
         that have potentially been modified by a modeler operation.
@@ -1102,7 +1115,7 @@ class Primitives(object):
         o._update()
         return o
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def value_in_object_units(self, value):
         """Convert one or more strings for numerical lengths to floating point values.
 
@@ -1146,7 +1159,7 @@ class Primitives(object):
         else:
             return numeric_list
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def does_object_exists(self, object):
         """ "Check to see if an object exists.
 
@@ -1173,7 +1186,7 @@ class Primitives(object):
 
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_region(self, pad_percent=300):
         """Create an air region.
 
@@ -1239,7 +1252,7 @@ class Primitives(object):
         self._oeditor.CreateRegion(arg, arg2)
         return self._create_object("Region")
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_object_from_edge(self, edge):
         """Create a line object from an edge ID or from an
         :class:`pyaedt.modeler.Object3d.EdgePrimitive` object.
@@ -1278,7 +1291,7 @@ class Primitives(object):
             new_object_name = self._oeditor.CreateObjectFromEdges(varg1, ["NAME:Parameters", varg2])[0]
             return self._create_object(new_object_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_object_from_face(self, face):
         """Create an object from a face.
 
@@ -1312,7 +1325,7 @@ class Primitives(object):
             new_object_name = self._oeditor.CreateObjectFromFaces(varg1, ["NAME:Parameters", varg2])[0]
             return self._create_object(new_object_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_polyline(
         self,
         position_list,
@@ -1328,6 +1341,7 @@ class Primitives(object):
         xsection_height=1,
         xsection_num_seg=0,
         xsection_bend_type=None,
+        non_model=False,
     ):
         """Draw a polyline object in the 3D modeler.
 
@@ -1392,6 +1406,8 @@ class Primitives(object):
             ``None``, in which case the bend type is set to
             ``"Corner"``. For the type ``"Circle"``, the bend type
             should be set to ``"Curved"``.
+        non_model : bool, optional
+            Either if the polyline will be created as model or unmodel object.
 
         Returns
         -------
@@ -1477,10 +1493,11 @@ class Primitives(object):
             xsection_height=xsection_height,
             xsection_num_seg=xsection_num_seg,
             xsection_bend_type=xsection_bend_type,
+            non_model=non_model,
         )
         return new_polyline
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_spiral_on_face(self, face, poly_width, filling_factor=1.5):
         """Create a Spiral Polyline inside a face.
 
@@ -1542,7 +1559,7 @@ class Primitives(object):
         # fmt: on
         return self.create_polyline(poly_points_list, xsection_type="Line", xsection_width=poly_width)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_existing_polyline(self, object):
         """Retrieve a polyline object to manipulate it.
 
@@ -1557,7 +1574,7 @@ class Primitives(object):
         """
         return Polyline(self, src_object=object)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_udp(self, udp_dll_name, udp_parameters_list, upd_library="syslib", name=None, udp_type="Solid"):
         """Create a user-defined primitive (UDP).
 
@@ -1622,7 +1639,7 @@ class Primitives(object):
         obj_name = self._oeditor.CreateUserDefinedPart(vArg1, vArg2)
         return self._create_object(obj_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_udp(self, object_name, operation_name, udp_parameters_list):
         """Update an existing geometrical object that was originally created using a user-defined primitive (UDP).
 
@@ -1675,7 +1692,7 @@ class Primitives(object):
         self._oeditor.ChangeProperty(vArg1)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete(self, objects=None):
         """Delete objects or groups.
 
@@ -1728,7 +1745,7 @@ class Primitives(object):
             self.logger.info("Deleted {} Objects".format(num_objects, objects_str))
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete_objects_containing(self, contained_string, case_sensitive=True):
         """Delete all objects with a given prefix.
 
@@ -1764,7 +1781,7 @@ class Primitives(object):
         self.logger.info("Deleted %s objects", num_del)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_model_bounding_box(self):
         """Retrieve the model's bounding box.
 
@@ -1781,7 +1798,7 @@ class Primitives(object):
         """
         return self._app.modeler.get_model_bounding_box()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_obj_id(self, objname):
         """Return the object ID from an object name.
 
@@ -1800,7 +1817,7 @@ class Primitives(object):
             return self.object_id_dict[objname]
         return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_object_from_name(self, objname):
         """Return the object from an object name.
 
@@ -1819,7 +1836,7 @@ class Primitives(object):
             id = self.get_obj_id(objname)
             return self.objects[id]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_objects_w_string(self, stringname, case_sensitive=True):
         """Retrieve all objects with a given string in their names.
 
@@ -1847,6 +1864,7 @@ class Primitives(object):
 
         return list_objs
 
+    @pyaedt_function_handler()
     def refresh(self):
         """Refresh this object."""
         self._solids = []
@@ -1862,6 +1880,7 @@ class Primitives(object):
         self.refresh_all_ids()
         self._refresh_all_ids_from_aedt_file()
 
+    @pyaedt_function_handler()
     def cleanup_objects(self):
         """Clean up objects that no longer exist in the modeler because
         they were removed by previous operations.
@@ -1889,6 +1908,7 @@ class Primitives(object):
         self.objects = new_object_dict
         self.object_id_dict = new_object_id_dict
 
+    @pyaedt_function_handler()
     def remove_point(self, name):
         """Remove a point.
 
@@ -1903,6 +1923,7 @@ class Primitives(object):
         self._points.remove(self.points_by_name[name])
         del self.points_by_name[name]
 
+    @pyaedt_function_handler()
     def find_new_objects(self):
         """Find any new objects in the modeler that were created
         by previous operations.
@@ -1919,6 +1940,7 @@ class Primitives(object):
                 new_objects.append(obj_name)
         return new_objects
 
+    @pyaedt_function_handler()
     def add_new_objects(self):
         """Add objects that have been created in the modeler by
         previous operations.
@@ -1938,7 +1960,7 @@ class Primitives(object):
 
     # TODO Eliminate this - check about import_3d_cad
     # Should no longer be a problem
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def refresh_all_ids(self):
         """Refresh all IDs."""
 
@@ -1947,7 +1969,7 @@ class Primitives(object):
 
         return len(self.objects)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_objects_by_material(self, materialname):
         """Retrieve a list of the IDs for objects of a specified material.
 
@@ -1976,7 +1998,7 @@ class Primitives(object):
                 obj_lst.append(el)
         return obj_lst
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def find_closest_edges(self, start_obj, end_obj, port_direction=0):
         """Retrieve the two closest edges that are not perpendicular for two objects.
 
@@ -2132,7 +2154,7 @@ class Primitives(object):
                         mindist = vert_dist_sum
         return edge_list, is_parallel
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_equivalent_parallel_edges(self, edgelist, portonplane=True, axisdir=0, startobj="", endobject=""):
         """Create two new edges that are parallel and equal to the smallest edge given a parallel couple of edges.
 
@@ -2207,7 +2229,7 @@ class Primitives(object):
             self.delete(first_edge)
             return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_object_faces(self, partId):
         """Retrieve the face IDs of a given object ID or object name.
 
@@ -2238,7 +2260,7 @@ class Primitives(object):
             oFaceIDs = [int(i) for i in oFaceIDs]
         return oFaceIDs
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_object_edges(self, partId):
         """Retrieve the edge IDs of a given object ID or object name.
 
@@ -2268,7 +2290,7 @@ class Primitives(object):
             oEdgeIDs = [int(i) for i in oEdgeIDs]
         return oEdgeIDs
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_face_edges(self, partId):
         """Retrieve the edge IDs of a given face name or face ID.
 
@@ -2292,7 +2314,7 @@ class Primitives(object):
         oEdgeIDs = [int(i) for i in oEdgeIDs]
         return oEdgeIDs
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_object_vertices(self, partID):
         """Retrieve the vertex IDs of a given object name or object ID.
 
@@ -2322,7 +2344,7 @@ class Primitives(object):
             oVertexIDs = [int(i) for i in oVertexIDs]
         return oVertexIDs
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_face_vertices(self, face_id):
         """Retrieve the vertex IDs of a given face ID or face name.
 
@@ -2352,7 +2374,7 @@ class Primitives(object):
             oVertexIDs = [int(i) for i in oVertexIDs]
         return oVertexIDs
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_edge_length(self, edgeID):
         """Get the length of an edge.
 
@@ -2375,7 +2397,7 @@ class Primitives(object):
         length = GeometryOperators.points_distance(pos1, pos2)
         return length
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_edge_vertices(self, edgeID):
         """Retrieve the vertex IDs of a given edge ID or edge name.
 
@@ -2405,7 +2427,7 @@ class Primitives(object):
             oVertexIDs = [int(i) for i in oVertexIDs]
         return oVertexIDs
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_vertex_position(self, vertex_id):
         """Retrieve a vector of vertex coordinates.
 
@@ -2433,7 +2455,7 @@ class Primitives(object):
             position = [float(i) for i in pos]
         return position
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_face_area(self, face_id):
         """Retrieve the area of a given face ID.
 
@@ -2457,7 +2479,7 @@ class Primitives(object):
         area = self._oeditor.GetFaceArea(face_id)
         return area
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_face_center(self, face_id):
         """Retrieve the center position for a given planar face ID.
 
@@ -2486,7 +2508,7 @@ class Primitives(object):
         center = [float(i) for i in c]
         return center
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_mid_points_on_dir(self, sheet, axisdir):
         """Retrieve midpoints on a given axis direction.
 
@@ -2519,7 +2541,7 @@ class Primitives(object):
                 point1 = el
         return point0, point1
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_edge_midpoint(self, partID):
         """Retrieve the midpoint coordinates of a given edge ID or edge name.
 
@@ -2555,7 +2577,7 @@ class Primitives(object):
         else:
             return []
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_bodynames_from_position(self, position, units=None):
         """Retrieve the names of the objects that are in contact with a given point.
 
@@ -2586,7 +2608,7 @@ class Primitives(object):
         list_of_bodies = list(self._oeditor.GetBodyNamesByPosition(vArg1))
         return list_of_bodies
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_edgeid_from_position(self, position, obj_name=None, units=None):
         """Get an edge ID from a position.
 
@@ -2627,7 +2649,7 @@ class Primitives(object):
             except Exception as e:
                 pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_edgeids_from_vertexid(self, vertexid, obj_name):
         """Retrieve edge IDs for a vertex ID.
 
@@ -2659,7 +2681,7 @@ class Primitives(object):
 
         return edgeID
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_faceid_from_position(self, position, obj_name=None, units=None):
         """Retrieve a face ID from a position.
 
@@ -2705,7 +2727,7 @@ class Primitives(object):
                 # Not Found, keep looking
                 pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_edges_on_bounding_box(self, sheets, return_colinear=True, tol=1e-6):
         """Retrieve the edges of the sheets passed in the input that are lying on the bounding box.
 
@@ -2775,7 +2797,7 @@ class Primitives(object):
 
         return selected_edges
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_edges_for_circuit_port_from_sheet(
         self, sheet, XY_plane=True, YZ_plane=True, XZ_plane=True, allow_perpendicular=False, tol=1e-6
     ):
@@ -2924,7 +2946,7 @@ class Primitives(object):
             return []
         pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_edges_for_circuit_port(
         self, face_id, XY_plane=True, YZ_plane=True, XZ_plane=True, allow_perpendicular=False, tol=1e-6
     ):
@@ -3068,7 +3090,7 @@ class Primitives(object):
             return []
         pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_closest_edgeid_to_position(self, position, units=None):
         """Get the edge ID closest to a given position.
 
@@ -3106,12 +3128,14 @@ class Primitives(object):
                 distance = d
         return selected_edge
 
+    @pyaedt_function_handler()
     def _resolve_object(self, object):
         if isinstance(object, Object3d):
             return object
         else:
             return self[object]
 
+    @pyaedt_function_handler()
     def _get_model_objects(self, model=True):
         """Retrieve all model objects.
 
@@ -3133,6 +3157,7 @@ class Primitives(object):
                 list_objs.append(obj.name)
         return list_objs
 
+    @pyaedt_function_handler()
     def _check_material(self, matname, defaultmatname):
         """Check for a material name.
 
@@ -3167,6 +3192,7 @@ class Primitives(object):
         else:
             return defaultmatname, True
 
+    @pyaedt_function_handler()
     def _refresh_solids(self):
         test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Solids")
         if test is None or test is False:
@@ -3177,6 +3203,7 @@ class Primitives(object):
             self._solids = list(test)
         self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
+    @pyaedt_function_handler()
     def _refresh_sheets(self):
         test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Sheets")
         if test is None or test is False:
@@ -3187,6 +3214,7 @@ class Primitives(object):
             self._sheets = list(test)
         self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
+    @pyaedt_function_handler()
     def _refresh_lines(self):
         test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Lines")
         if test is None or test is False:
@@ -3207,6 +3235,7 @@ class Primitives(object):
     #         self._points = list(test)
     #     self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
+    @pyaedt_function_handler()
     def _refresh_unclassified(self):
         test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Unclassified")
         if test is None or test is False:
@@ -3217,12 +3246,14 @@ class Primitives(object):
         else:
             self._unclassified = list(test)
 
+    @pyaedt_function_handler()
     def _refresh_object_types(self):
         self._refresh_solids()
         self._refresh_sheets()
         self._refresh_lines()
         self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
+    @pyaedt_function_handler()
     def _create_object(self, name):
         o = Object3d(self, name)
         new_id = o.id
@@ -3230,12 +3261,14 @@ class Primitives(object):
         self.object_id_dict[o.name] = new_id
         return o
 
+    @pyaedt_function_handler()
     def _create_point(self, name):
         point = Point(self, name)
         self._point_names[name] = point
         self._points.append(point)
         return point
 
+    @pyaedt_function_handler()
     def _refresh_all_ids_from_aedt_file(self):
         if not self._app.design_properties or "ModelSetup" not in self._app.design_properties:
             return False
@@ -3293,7 +3326,8 @@ class Primitives(object):
                 o._is_updated = True
         return len(self.objects)
 
-    def _default_object_attributes(self, name=None, matname=None):
+    @pyaedt_function_handler()
+    def _default_object_attributes(self, name=None, matname=None, flags=""):
 
         if not matname:
             matname = self.defaultmaterial
@@ -3319,7 +3353,7 @@ class Primitives(object):
             "Name:=",
             name,
             "Flags:=",
-            "",
+            flags,
             "Color:=",
             color,
             "Transparency:=",
@@ -3358,6 +3392,7 @@ class Primitives(object):
 
         return args
 
+    @pyaedt_function_handler()
     def _crosssection_arguments(self, type, orient, width, topwidth, height, num_seg, bend_type=None):
         """Generate the properties array for the polyline cross-section."""
         arg_str = ["NAME:PolylineXSection"]
@@ -3392,6 +3427,7 @@ class Primitives(object):
 
         return arg_str
 
+    @pyaedt_function_handler()
     def _arg_with_dim(self, prop_value, units=None):
         if isinstance(prop_value, str):
             val = prop_value
@@ -3403,6 +3439,7 @@ class Primitives(object):
             val = "{0}{1}".format(prop_value, units)
         return val
 
+    @pyaedt_function_handler()
     def _pos_with_arg(self, pos, units=None):
         posx = self._arg_with_dim(pos[0], units)
         if len(pos) < 2:
@@ -3416,6 +3453,7 @@ class Primitives(object):
 
         return posx, posy, posz
 
+    @pyaedt_function_handler()
     def _str_list(self, theList):
         szList = ""
         for id in theList:
@@ -3426,6 +3464,7 @@ class Primitives(object):
 
         return szList
 
+    @pyaedt_function_handler()
     def _find_object_from_edge_id(self, lval):
         objList = []
         objListSheets = self.sheet_names
@@ -3440,6 +3479,7 @@ class Primitives(object):
                 return obj
         return None
 
+    @pyaedt_function_handler()
     def _find_object_from_face_id(self, lval):
         if self._oeditor is not None:
             objList = []
@@ -3456,6 +3496,7 @@ class Primitives(object):
 
         return None
 
+    @pyaedt_function_handler()
     def __getitem__(self, partId):
         """Return the object ``Object3D`` for a given object ID or object name.
 

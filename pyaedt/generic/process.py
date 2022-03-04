@@ -1,8 +1,7 @@
-import os
 import os.path
 
-from pyaedt.generic.general_methods import env_path
 from pyaedt import is_ironpython
+from pyaedt.generic.general_methods import env_path
 
 if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess

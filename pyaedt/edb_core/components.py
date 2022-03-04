@@ -2,16 +2,19 @@
 
 """
 import math
+import os
 import re
 import warnings
-import os
 
-from pyaedt import generate_unique_name, _retry_ntimes
-from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.generic.general_methods import aedt_exception_handler, get_filename_without_extension, is_ironpython
-from pyaedt.generic.constants import SourceType
+from pyaedt import _retry_ntimes
+from pyaedt import generate_unique_name
 from pyaedt.edb_core.EDB_Data import EDBComponent
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.padstack import EdbPadstacks
+from pyaedt.generic.constants import SourceType
+from pyaedt.generic.general_methods import get_filename_without_extension
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 try:
@@ -87,7 +90,7 @@ class Components(object):
     def _edb(self):
         return self._pedb.edb
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _init_parts(self):
         a = self.components
         a = self.resistors
@@ -147,7 +150,7 @@ class Components(object):
             self.refresh_components()
         return self._cmp
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def refresh_components(self):
         """Refresh the component dictionary."""
         self._cmp = {}
@@ -321,7 +324,7 @@ class Components(object):
                 self._comps_by_part[val.partname] = [val]
         return self._comps_by_part
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_component_list(self):
         """Retrieve conponent setup information.
 
@@ -337,7 +340,7 @@ class Components(object):
             cmp_list.append(comp)
         return cmp_list
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_component_by_name(self, name):
         """Retrieve a component by name.
 
@@ -358,7 +361,7 @@ class Components(object):
         else:
             pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_components_from_nets(self, netlist=None):
         """Retrieve components from a net list.
 
@@ -383,7 +386,7 @@ class Components(object):
                 cmp_list.append(refdes)
         return cmp_list
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_edb_pin_from_pin_name(self, cmp, pin):
         if not isinstance(cmp, self._edb.Cell.Hierarchy.Component):
             return False
@@ -394,23 +397,23 @@ class Components(object):
             return pins[0]
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_component_placement_vector(
         self,
         mounted_component,
         hosting_component,
-        mounted_component_pin1=None,
-        mounted_component_pin2=None,
-        hosting_component_pin1=None,
-        hosting_component_pin2=None,
+        mounted_component_pin1,
+        mounted_component_pin2,
+        hosting_component_pin1,
+        hosting_component_pin2,
     ):
         """Get the placement vector between 2 components.
 
         Parameters
         ----------
-        mounted_component : str
+        mounted_component : `edb.Cell.Hierarchy.Component`
             Mounted component name.
-        hosting_component : str
+        hosting_component : `edb.Cell.Hierarchy.Component`
             Hosting component name.
         mounted_component_pin1 : str
             Mounted component Pin 1 name.
@@ -447,36 +450,52 @@ class Components(object):
             return False
         if not isinstance(hosting_component, self._edb.Cell.Hierarchy.Component):
             return False
+
         if mounted_component_pin1:
             m_pin1 = self._get_edb_pin_from_pin_name(mounted_component, mounted_component_pin1)
             m_pin1_pos = self.get_pin_position(m_pin1)
+            m_pin1_pos_3d = [m_pin1_pos[0], m_pin1_pos[1], 0]
         if mounted_component_pin2:
             m_pin2 = self._get_edb_pin_from_pin_name(mounted_component, mounted_component_pin2)
             m_pin2_pos = self.get_pin_position(m_pin2)
+            m_pin2_pos_3d = [m_pin2_pos[0], m_pin2_pos[1], 0]
+
         if hosting_component_pin1:
             h_pin1 = self._get_edb_pin_from_pin_name(hosting_component, hosting_component_pin1)
             h_pin1_pos = self.get_pin_position(h_pin1)
+            h_pin1_pos_3d = [h_pin1_pos[0], h_pin1_pos[1], 0]
+
         if hosting_component_pin2:
             h_pin2 = self._get_edb_pin_from_pin_name(hosting_component, hosting_component_pin2)
             h_pin2_pos = self.get_pin_position(h_pin2)
+            h_pin2_pos_3d = [h_pin2_pos[0], h_pin2_pos[1], 0]
+        #
         vector = [h_pin1_pos[0] - m_pin1_pos[0], h_pin1_pos[1] - m_pin1_pos[1]]
-        d_m_pin1_h_pin2 = math.sqrt(
-            math.pow(h_pin2_pos[0] - m_pin1_pos[0], 2) + math.pow(h_pin2_pos[1] - m_pin1_pos[1], 2)
-        )
-        d_m_pin2_h_pin2 = math.sqrt(
-            math.pow(h_pin2_pos[0] - m_pin2_pos[0], 2) + math.pow(h_pin2_pos[1] - m_pin2_pos[1], 2)
-        )
-        rotation = math.atan(d_m_pin2_h_pin2 / d_m_pin1_h_pin2)
+        vector1 = GeometryOperators.v_points(m_pin1_pos_3d, m_pin2_pos_3d)
+        vector2 = GeometryOperators.v_points(h_pin1_pos_3d, h_pin2_pos_3d)
+
+        rotation = GeometryOperators.v_angle(vector1, vector2)
+        if abs(rotation - math.pi / 2) < 1e-9 and vector1[0] * vector2[1] + vector1[1] * vector2[0] < 0:
+            rotation = -1 * math.pi / 2
+        if rotation != 0.0:
+            layinst = mounted_component.GetLayout().GetLayoutInstance()
+            cmpinst = layinst.GetLayoutObjInstance(mounted_component, None)
+            center = cmpinst.GetCenter()
+            center_double = [center.X.ToDouble(), center.Y.ToDouble(), 0]
+            vector_center = GeometryOperators.v_points(center_double, m_pin1_pos_3d)
+            x_v2 = vector_center[0] * math.cos(rotation) + vector_center[1] * math.sin(rotation)
+            y_v2 = -1 * vector_center[0] * math.sin(rotation) + vector_center[1] * math.cos(rotation)
+            new_vector = [x_v2 + center_double[0], y_v2 + center_double[1], 0]
+            vector = [h_pin1_pos[0] - new_vector[0], h_pin1_pos[1] - new_vector[1]]
+
         if vector:
             solder_ball_height = self.get_solder_ball_height(mounted_component)
-            if solder_ball_height == 0.0:
-                solder_ball_height = 150e-6
-            # mounted_component_name = mounted_component.GetName()
             self.set_solder_ball(component=mounted_component, sball_height=solder_ball_height)
             return True, vector, rotation, solder_ball_height
-        return False
+        self._logger.warning("Failed to compute vector.")
+        return False, [0, 0], 0, 0
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_solder_ball_height(self, cmp):
         """Get component solder ball height.
 
@@ -498,7 +517,7 @@ class Components(object):
             return cmp_prop.GetSolderBallProperty().GetHeight()
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_port_on_component(
         self, component, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="gnd"
     ):
@@ -606,7 +625,7 @@ class Components(object):
                         term.SetReferenceTerminal(ref_pin_term)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _create_terminal(self, pin):
         """Create terminal on component pin.
 
@@ -635,7 +654,7 @@ class Components(object):
         )
         return term
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_closest_pin_from(self, pin, ref_pinlist):
         """Returns the closest pin from given pin among the list of reference pins.
 
@@ -665,7 +684,7 @@ class Components(object):
                 closest_pin = ref_pin
         return closest_pin
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _create_pin_group_terminal(self, pingroup, isref=False):
         """Creates edb pin group terminal from given edb pin group.
 
@@ -689,7 +708,7 @@ class Components(object):
         )
         return pingroup_term
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _is_top_component(self, cmp):
         """Test the component placment layer.
 
@@ -711,7 +730,7 @@ class Components(object):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_component_from_pins(self, pins, component_name, placement_layer=None):
         """Create a component from pins.
 
@@ -748,7 +767,7 @@ class Components(object):
                 test = new_group.AddMember(pin)
             else:
                 if not self._components_methods.AddPinToGroup(new_group, pin):
-                    aedt_exception_handler(
+                    self._logger.error(
                         "Failed to add pin {} to the group {}".format(pin.GetName(), new_group.GetName())
                     )
         if not placement_layer:
@@ -765,7 +784,7 @@ class Components(object):
         # except:
         #    return (False, None)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_component_model(self, componentname, model_type="Spice", modelpath=None, modelname=None):
         """Assign a Spice or Touchstone model to a component.
 
@@ -856,7 +875,7 @@ class Components(object):
                 return False
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_pingroup_from_pins(self, pins, group_name=None):
         """Create a pin group on a component.
 
@@ -900,7 +919,7 @@ class Components(object):
             pingroup.SetNet(pins[0].GetNet())
             return (True, pingroup)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete_single_pin_rlc(self):
         """Delete all RLC components with a single pin.
 
@@ -931,7 +950,7 @@ class Components(object):
             del self.components[el]
         return deleted_comps
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete_component(self, component_name):
         """Delete a component.
 
@@ -961,7 +980,7 @@ class Components(object):
             return True
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def disable_rlc_component(self, component_name):
         """Disable a RLC component.
 
@@ -997,7 +1016,7 @@ class Components(object):
             return True
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_solder_ball(self, component="", sball_diam="100um", sball_height="150um"):
         """Set cylindrical solder balls on a given component.
 
@@ -1078,7 +1097,7 @@ class Components(object):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_component_rlc(self, componentname, res_value=None, ind_value=None, cap_value=None, isparallel=False):
         """Update values for an RLC component.
 
@@ -1149,7 +1168,7 @@ class Components(object):
         self._logger.warning("RLC properties for Component %s has been assigned.", componentname)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_rlc_from_bom(
         self, bom_file, delimiter=";", valuefield="Func des", comptype="Prod name", refdes="Pos / Place"
     ):
@@ -1208,7 +1227,7 @@ class Components(object):
                         self.set_component_rlc(new_refdes, ind_value=new_value)
         return found
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_pin_from_component(self, component, netName=None, pinName=None):
         """Retrieve the pins of a component.
 
@@ -1262,13 +1281,13 @@ class Components(object):
                 for p in list(component.LayoutObjs)
                 if int(p.GetObjType()) == 1
                 and p.IsLayoutPin()
-                and (self.get_aedt_pin_name(p) == str(pinName) or p.GetName() in str(pinName))
+                and (self.get_aedt_pin_name(p) in pinName or p.GetName() in pinName)
             ]
         else:
             pins = [p for p in list(component.LayoutObjs) if int(p.GetObjType()) == 1 and p.IsLayoutPin()]
         return pins
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_aedt_pin_name(self, pin):
         """Retrieve the pin name that is shown in AEDT.
 
@@ -1302,7 +1321,7 @@ class Components(object):
         name = str(name).strip("'")
         return name
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_pin_position(self, pin):
         """Retrieve the pin position in meters.
 
@@ -1339,7 +1358,7 @@ class Components(object):
         )
         return [pin_xy.X.ToDouble(), pin_xy.Y.ToDouble()]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_pins_name_from_net(self, pin_list, net_name):
         """Retrieve pins belonging to a net.
 
@@ -1369,7 +1388,7 @@ class Components(object):
                 pinlist.append(pin.GetName())
         return pinlist
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_nets_from_pin_list(self, PinList):
         """Retrieve nets with one or more pins.
 
@@ -1396,7 +1415,7 @@ class Components(object):
             netlist.append(pin.GetNet().GetName())
         return list(set(netlist))
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_component_net_connection_info(self, refdes):
         """Retrieve net connection information.
 
@@ -1488,7 +1507,7 @@ class Components(object):
 
         return through_comp_list
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def short_component_pins(self, component_name, pins_to_short=None, width=1e-3):
         """Short pins of component with a trace.
 

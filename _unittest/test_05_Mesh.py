@@ -1,11 +1,7 @@
-# Setup paths for module imports
-import gc
-
 # Import required modules
-from pyaedt import Hfss, Maxwell3d
-from pyaedt.generic.filesystem import Scratch
+from pyaedt import Maxwell3d
 
-from _unittest.conftest import scratch_path
+from _unittest.conftest import desktop_version, BasisTest
 
 try:
     import pytest  # noqa: F401
@@ -15,17 +11,13 @@ except ImportError:
 test_project_name = "coax_HFSS"
 
 
-class TestClass:
+class TestClass(BasisTest, object):
     def setup_class(self):
-        # set a scratch directory and the environment / test data
-        with Scratch(scratch_path) as self.local_scratch:
-            self.aedtapp = Hfss()
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, project_name="Test05")
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        assert self.aedtapp.close_project(self.aedtapp.project_name, False)
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self)
 
     def test_assign_model_resolution(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
@@ -66,7 +58,7 @@ class TestClass:
         assert self.aedtapp.mesh.assign_curvature_extraction("inner")
 
     def test_maxwell_mesh(self):
-        m3d = Maxwell3d()
+        m3d = Maxwell3d(specified_version=desktop_version)
         o = m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box_Mesh")
         assert m3d.mesh.assign_rotational_layer(o.name, meshop_name="Rotational")
         assert m3d.mesh.assign_edge_cut(o.name, meshop_name="Edge")

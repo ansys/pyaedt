@@ -1,14 +1,12 @@
 # standard imports
-import gc
 import os
 
 # Import required modules
 from pyaedt import Hfss
 from pyaedt.generic.general_methods import is_ironpython
-from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import config, local_path, scratch_path
+from _unittest.conftest import config, BasisTest
 
 try:
     import pytest
@@ -26,21 +24,15 @@ test_project_name = "coax_setup_solved"
 test_field_name = "Potter_Horn"
 
 
-class TestClass:
+class TestClass(BasisTest, object):
     def setup_class(self):
         # set a scratch directory and the environment / test data
-        with Scratch(scratch_path) as self.local_scratch:
-            example_project = os.path.join(local_path, "example_models", test_project_name + ".aedtz")
-            self.test_project = self.local_scratch.copyfile(example_project)
-            example_project2 = os.path.join(local_path, "example_models", test_field_name + ".aedtz")
-            self.test_project2 = self.local_scratch.copyfile(example_project2)
-            self.aedtapp = Hfss(self.test_project)
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name)
+        self.field_test = BasisTest.add_app(self, project_name=test_field_name)
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        assert self.aedtapp.close_project(self.aedtapp.project_name, False)
-        self.local_scratch.remove()
-        gc.collect()
+        BasisTest.my_teardown(self)
 
     def test_01B_Field_Plot(self):
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
@@ -252,12 +244,9 @@ class TestClass:
 
     def test_51_get_efields(self):
         if is_ironpython:
-
             assert True
         else:
-            app2 = Hfss(self.test_project2)
-            assert app2.post.get_efields_data(ff_setup="3D")
-            app2.close_project(saveproject=False)
+            assert self.field_test.post.get_efields_data(ff_setup="3D")
 
     @pytest.mark.skipif(
         config["build_machine"] or not ipython_available, reason="Skipped because ipython not available"

@@ -1,17 +1,20 @@
 """
-This module contains the `Siwave` class.
+This module contains the ``Siwave`` class.
 
-The `Siwave` module can be initialized as standalone before launching an app or
+The ``Siwave`` module can be initialized as standalone before launching an app or
 automatically initialized by an app to the latest installed AEDT version.
 
 """
-from __future__ import absolute_import
-from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython, _pythonver
+from __future__ import absolute_import  # noreorder
+
 import os
-import sys
 import pkgutil
+import sys
 import time
 
+from pyaedt.generic.general_methods import _pythonver
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.misc import list_installed_ansysem
 
 if is_ironpython:
@@ -19,7 +22,7 @@ if is_ironpython:
 
     _com = "pythonnet"
     import System
-elif os.name == "nt":
+elif os.name == "nt":  # pragma: no cover
     modules = [tup[1] for tup in pkgutil.iter_modules()]
     if "clr" in modules:
         import clr  # noqa: F401
@@ -31,7 +34,7 @@ elif os.name == "nt":
 
         _com = "pywin32"
     else:
-        raise Exception("Error. No win32com.client or Python.NET modules found. They need to be installed.")
+        raise Exception("Error. No win32com.client or Python.NET modules are found. They need to be installed.")
 
 
 class Siwave:
@@ -79,13 +82,15 @@ class Siwave:
             self._main.AEDTVersion = self._main.oSiwave.GetVersion()[0:6]
             self._main.oSiwave.RestoreWindow()
             specified_version = self.current_version
-            assert specified_version in self.version_keys, "Specified version {} not known.".format(specified_version)
+            assert specified_version in self.version_keys, "Specified version {} is not known.".format(
+                specified_version
+            )
             version_key = specified_version
             base_path = os.getenv(self._version_ids[specified_version])
             self._main.sDesktopinstallDirectory = base_path
         else:
             if specified_version:
-                assert specified_version in self.version_keys, "Specified version {} not known.".format(
+                assert specified_version in self.version_keys, "Specified version {} is not known.".format(
                     specified_version
                 )
                 version_key = specified_version
@@ -107,7 +112,7 @@ class Siwave:
             elif _com == "pythonnet_v3":
                 # TODO check if possible to use pythonnet. at the moment the tool open AEDt
                 # but doesn't return the wrapper of oApp
-                print("Launching Siwave with Module win32com")
+                print("Launching Siwave with module win32com.")
 
                 self._main.oSiwave = win32com.client.Dispatch("Siwave.Application.2021.2")
 
@@ -217,7 +222,7 @@ class Siwave:
         """Project."""
         return self._oproject
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def open_project(self, proj_path=None):
         """Open a project.
 
@@ -235,7 +240,7 @@ class Siwave:
             self.oSiwave.OpenProject(proj_path)
             self._oproject = self.oSiwave.GetActiveProject()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def save_project(self, projectpath=None, projectName=None):
         """Save the project.
 
@@ -258,14 +263,14 @@ class Siwave:
             self.oproject.Save()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def close_project(self, save_project=False):
         """Close the project.
 
         Parameters
         ----------
         save_project : bool, optional
-            whether to save or not the current project before close it.
+            Whether to save the current project before close it. The default is ``False``.
 
         Returns
         -------
@@ -279,7 +284,7 @@ class Siwave:
         self._oproject = None
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def quit_application(self):
         """Quit the application.
 
@@ -292,9 +297,18 @@ class Siwave:
         self._main.oSiwave.Quit()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_element_data(self, simulation_name, file_path, data_type="Vias"):
-        """Quit the application.
+        """Export element data.
+
+        Parameters
+        ----------
+        simulation_name :
+
+        file_path :
+
+        data_type : str, optional
+            The default is ``"Vias"``.
 
         Returns
         -------
@@ -305,9 +319,19 @@ class Siwave:
         self.oproject.ScrExportElementData(simulation_name, file_path, data_type)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_siwave_report(self, simulation_name, file_path, bkground_color="White"):
-        """Quit the application.
+        """Export the SiwaveE report.
+
+        Parameters
+        ----------
+        simulation_name :
+
+        file_path :
+
+        bkground_color : str, optional
+            Color of the report's background. The default is ``"white"``.
+
 
         Returns
         -------

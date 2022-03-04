@@ -1,12 +1,11 @@
-import gc
 import os
 
 # Import required modules
+
 from pyaedt import Hfss
-from pyaedt.generic.filesystem import Scratch
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path
+from _unittest.conftest import local_path, BasisTest, desktop_version
 
 try:
     import pytest  # noqa: F401
@@ -16,20 +15,16 @@ except ImportError:
 test_project_name = "Cassegrain"
 
 
-class TestClass:
+class TestClass(BasisTest, object):
     def setup_class(self):
-        gc.collect()
-        # set a scratch directory and the environment / test data
-        with Scratch(scratch_path) as self.local_scratch:
-            example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
-            self.test_project = self.local_scratch.copyfile(example_project)
-            self.aedtapp = Hfss(projectname=self.test_project, designname="Cassegrain_", solution_type="SBR+")
-            self.source = Hfss(projectname=test_project_name, designname="feeder")
+        BasisTest.my_setup(self)
+        self.aedtapp = BasisTest.add_app(
+            self, project_name=test_project_name, design_name="Cassegrain_reflectors", solution_type="SBR+"
+        )
+        self.source = Hfss(self.aedtapp.project_name, "feeder", specified_version=desktop_version)
 
     def teardown_class(self):
-        self.aedtapp._desktop.ClearMessages("", "", 3)
-        assert self.source.close_project(self.source.project_name, False)
-        self.local_scratch.remove()
+        BasisTest.my_teardown(self)
 
     def test_01_open_source(self):
         assert self.aedtapp.create_sbr_linked_antenna(self.source, target_cs="feederPosition", fieldtype="farfield")
@@ -144,3 +139,11 @@ class TestClass:
         assert setup.props["SbrRangeDopplerWaveformType"] == "ChirpSeqFmcw"
         assert setup.props["ChannelConfiguration"] == "IQChannels"
         assert sweep.props["Sim. Setups"] == [setup.name]
+
+    def test_11_add_sbr_boundaries_in_hfss_solution(self):
+        hfss_terminal = Hfss(solution_type="Terminal")
+
+        # sbr file based antenna should only work for SBR+ solution.
+        assert not hfss_terminal.create_sbr_file_based_antenna(
+            ffd_full_path=os.path.join(local_path, "example_models", "test.ffd")
+        )
