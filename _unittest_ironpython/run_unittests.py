@@ -60,6 +60,7 @@ def discover_and_run(start_dir, pattern=None):
             attempts = 0
             while True:
                 attempts += 1
+                f.write("\n")
                 result = runner.run(sub_suite)
                 if attempts == max_attempts:
                     total_failures += len(result.failures)
@@ -76,7 +77,7 @@ def discover_and_run(start_dir, pattern=None):
                 else:
                     break
                 # try again
-                f.write("\nAttempt n.{} FAILED. Re-running test suite.\n\n".format(attempts))
+                f.write("\nAttempt n.{} FAILED. Re-running test suite.\n".format(attempts))
                 f.flush()
         f.write(str(result))
     return result

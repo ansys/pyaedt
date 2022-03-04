@@ -491,9 +491,12 @@ class TestClass:
         filet = r"D:\temp\test_test_02.txt"
         with open(filet, "r") as fh:
             number = int(fh.readlines()[0])
-        if number == 3:
+        if number == 2:
             assert True
         else:
             with open(filet, "w") as fh:
                 fh.write(str(number + 1))
             assert False
+
+    def test_Z_dummy(self):
+        assert False

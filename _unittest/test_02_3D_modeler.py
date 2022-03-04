@@ -490,7 +490,7 @@ class TestClass(BasisTest, object):
         filet = r"D:\temp\test_test_02.txt"
         with open(filet, "r") as fh:
             number = int(fh.readlines()[0])
-        if number == 2:
+        if number == 3:
             assert True
         else:
             with open(filet, "w") as fh:
