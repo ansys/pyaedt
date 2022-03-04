@@ -1,5 +1,5 @@
 """Download example datasets from https://github.com/pyansys/example-data"""
-import os.path
+import os
 import shutil
 import tempfile
 import zipfile
