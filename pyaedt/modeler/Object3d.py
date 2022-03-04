@@ -1240,12 +1240,12 @@ class Object3d(object):
 
     @group_name.setter
     def group_name(self, name):
-        """Assign Object to a specific group. it creates a new group if group doesn't exists.
+        """Assign Object to a specific group. it creates a new group if the group doesn't exist.
 
         Parameters
         ----------
         name : str
-            Name of the group to assign. Group will be created if not exists.
+            Name of the group to assign. Group will be created if it does not exist.
 
         Returns
         -------
