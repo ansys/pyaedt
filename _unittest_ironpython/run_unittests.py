@@ -66,7 +66,11 @@ def discover_and_run(start_dir, pattern=None):
                     break
                 # try again
                 f.write("\nAttempt n.{} FAILED. Re-running test suite.\n".format(attempts))
-        f.write("\n<unittest.runner.TextTestResult run={} errors={} failures={}>\n".format(total_runs, total_errors, total_failures))
+        f.write(
+            "\n<unittest.runner.TextTestResult run={} errors={} failures={}>\n".format(
+                total_runs, total_errors, total_failures
+            )
+        )
     return result
 
 
