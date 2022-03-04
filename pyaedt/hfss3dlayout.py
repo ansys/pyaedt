@@ -378,9 +378,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oModule.ImportEDB
         """
+        if "edb.def" not in edb_full_path:
+            edb_full_path = os.path.join(edb_full_path, "edb.def")
         self.oimport_export.ImportEDB(edb_full_path)
-        self.oproject = self.odesktop.GetActiveProject().GetName()
-        self.odesign = self.odesktop.GetActiveProject().GetActiveDesign().GetName().split(";")[1]
+        self._close_edb()
+        project_name = self.odesktop.GetActiveProject().GetName()
+        design_name = self.odesktop.GetActiveProject().GetActiveDesign().GetName().split(";")[-1]
+        self.__init__(projectname=project_name, designname=design_name)
         return True
 
     @pyaedt_function_handler()
