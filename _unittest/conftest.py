@@ -62,12 +62,12 @@ if os.path.exists(local_config_file):
     with open(local_config_file) as f:
         config = json.load(f)
 else:
-    default_version = "2022.1"
+    default_version = "2021.2"
     if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
         default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
     config = {
         "desktopVersion": default_version,
-        "NonGraphical": True,
+        "NonGraphical": False,
         "NewThread": True,
         "test_desktops": False,
         "build_machine": True,
