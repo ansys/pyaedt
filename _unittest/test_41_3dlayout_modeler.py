@@ -22,6 +22,9 @@ class TestClass(BasisTest, object):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Hfss3dLayout)
         self.hfss3dl = BasisTest.add_app(self, project_name="differential_pairs", application=Hfss3dLayout)
+        example_project = os.path.join(local_path, "example_models", "Package.aedb")
+        self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
+        self.local_scratch.copyfolder(example_project, self.target_path)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -482,3 +485,6 @@ class TestClass(BasisTest, object):
         with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
+
+    def test_37_import_edb(self):
+        assert self.aedtapp.import_edb(self.test_project)
