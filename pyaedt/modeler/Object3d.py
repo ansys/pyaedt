@@ -1245,7 +1245,7 @@ class Object3d(object):
         Parameters
         ----------
         name : str
-            Name of the group to assign. Group will be created if not exists.
+            Name of the group to assign. Group will be created if it does not exist.
 
         Returns
         -------
