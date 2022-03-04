@@ -128,14 +128,3 @@ class TestClass(BasisTest, object):
         rect1 = self.aedtapp.modeler.create_rectangle([1, 0, -2], [8, 3])
         assert self.aedtapp.modeler.mirror(rect1, [1, 0, 0], [1, 0, 0])
         assert self.aedtapp.modeler.move(rect1, [1, 1, 0])
-
-    def test_dummy(self):
-        filet = r"D:\temp\test_test_02.txt"
-        with open(filet, "r") as fh:
-            number = int(fh.readlines()[0])
-        if number == 1:
-            assert True
-        else:
-            with open(filet, "w") as fh:
-                fh.write(str(number+1))
-            assert False

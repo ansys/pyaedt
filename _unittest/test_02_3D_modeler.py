@@ -485,14 +485,3 @@ class TestClass(BasisTest, object):
         cs4 = self.aedtapp.modeler.create_coordinate_system(name="CSP4", mode="zxz", phi=43, theta="126deg", psi=0)
         tol = 1e-9
         assert sum([abs(x1 - x2) for (x1, x2) in zip(cs3.quaternion, cs4.quaternion)]) < tol
-
-    def test_dummy(self):
-        filet = r"D:\temp\test_test_02.txt"
-        with open(filet, "r") as fh:
-            number = int(fh.readlines()[0])
-        if number == 3:
-            assert True
-        else:
-            with open(filet, "w") as fh:
-                fh.write(str(number + 1))
-            assert False
