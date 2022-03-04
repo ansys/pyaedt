@@ -26,9 +26,11 @@ run_dir = os.path.abspath(os.path.dirname(__file__))
 
 args_env = os.environ.get("RUN_UNITTESTS_ARGS", "")
 parser = argparse.ArgumentParser()
-parser.add_argument("--test-filter", "-t", default="test_*.py", help="test filter")
+parser.add_argument("--test-filter", "-t", default="test_02*.py", help="test filter")
 args = parser.parse_args(args_env.split())
 test_filter = args.test_filter
+
+max_attempts = 2
 
 
 def discover_and_run(start_dir, pattern=None):
@@ -43,10 +45,43 @@ def discover_and_run(start_dir, pattern=None):
     log_file = os.path.join(start_dir, "runner_unittest.log")
     with open(log_file, "w+") as f:
         f.write("Test filter: {}\n".format(test_filter))
-        f.write("Test started {}\n".format(datetime.now()))
+        f.write("Test started {}\n\n".format(datetime.now()))
         runner = unittest.TextTestRunner(f, verbosity=2)
-        result = runner.run(test_suite)
-        f.write(str(result))
+        # result = runner.run(test_suite)
+        # f.write(str(result))
+        total_failures = 0
+        total_errors = 0
+        for sub_suite in test_suite:
+            #############
+            filet = r"D:\temp\test_test_02.txt"
+            with open(filet, "w") as fh:
+                fh.write(str(1))
+            #############
+            attempts = 0
+            while True:
+                attempts += 1
+                result = runner.run(sub_suite)
+                f.write(str(result))
+                f.write("\n\n")
+                f.flush()
+                if attempts == max_attempts:
+                    total_failures += len(result.failures)
+                    total_errors += len(result.errors)
+                    break
+                if len(result.failures) > total_failures:
+                    # Removing last failures from result
+                    n = len(result.failures) - total_failures
+                    del result.failures[-n:]
+                elif len(result.errors) > total_errors:
+                    # Removing last errors from result
+                    n = len(result.errors) - total_errors
+                    del result.errors[-n:]
+                else:
+                    break
+                # try again
+                f.write("\nAttempt n.{} FAILED. Re-running test suite.\n\n".format(attempts))
+                f.flush()
+
     return result
 
 
