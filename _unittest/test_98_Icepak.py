@@ -40,7 +40,7 @@ class TestClass(BasisTest, object):
         self.local_scratch.copyfile(project_path)
 
     def teardown_class(self):
-        BasisTest.my_teardown(self, True)
+        BasisTest.my_teardown(self)
 
     def test_01_save(self):
         self.aedtapp.save_project()

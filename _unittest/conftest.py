@@ -85,42 +85,30 @@ class BasisTest(object):
         self.aedtapps = []
         self.edbapps = []
 
-    def my_teardown(self, close_desktop=False):
-        if close_desktop and not is_ironpython:
-            if self.aedtapps:
-                self.aedtapps[0].release_desktop()
-            else:
-                d = Desktop(desktop_version, non_graphical, False)
-                d.release_desktop()
-                del d
-            del self.aedtapps
-            del self.edbapps
-        else:
+    def my_teardown(self):
+        try:
+            oDesktop = sys.modules["__main__"].oDesktop
+        except Exception as e:
+            oDesktop = None
+        if oDesktop:
+            oDesktop.ClearMessages("", "", 3)
+        for edbapp in self.edbapps[::-1]:
             try:
-                oDesktop = sys.modules["__main__"].oDesktop
-            except Exception as e:
-                oDesktop = None
-            if oDesktop:
-                oDesktop.ClearMessages("", "", 3)
-            for edbapp in self.edbapps[::-1]:
-                try:
-                    edbapp.close_edb()
-                except:
-                    pass
-            del self.edbapps
-            for aedtapp in self.aedtapps[::-1]:
-                try:
-                    aedtapp.close_project(None, False)
-                except:
-                    pass
-            del self.aedtapps
+                edbapp.close_edb()
+            except:
+                pass
+        del self.edbapps
+        for aedtapp in self.aedtapps[::-1]:
+            try:
+                aedtapp.close_project(None, False)
+            except:
+                pass
+        del self.aedtapps
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None):
         if "oDesktop" not in dir(sys.modules["__main__"]):
             desktop = Desktop(desktop_version, non_graphical, new_thread)
             desktop.disable_autosave()
-            os.environ["PYAEDT_DESKTOP_PID"] = str(desktop.odesktop.GetProcessID())
-
         if project_name:
             example_project = os.path.join(local_path, "example_models", project_name + ".aedt")
             example_folder = os.path.join(local_path, "example_models", project_name + ".aedb")
@@ -189,15 +177,20 @@ non_graphical = config["NonGraphical"]
 def desktop_init():
 
     yield
-    if not is_ironpython and os.getenv("PYAEDT_DESKTOP_PID", None):
-        pid = int(os.getenv("PYAEDT_DESKTOP_PID", None))
-        os.kill(pid, 9)
+    if not is_ironpython:
+        try:
+            oDesktop = sys.modules["__main__"].oDesktop
+            pid = oDesktop.GetProcessID()
+            os.kill(pid, 9)
+        except:
+            pass
     p = [x[0] for x in os.walk(scratch_path) if "scratch" in x[0]]
     for folder in p:
         shutil.rmtree(folder, ignore_errors=True)
 
     if config["test_desktops"]:
         run_desktop_tests()
+
 
 @pytest.fixture
 def clean_desktop_messages(desktop_init):
