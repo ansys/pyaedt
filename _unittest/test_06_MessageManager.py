@@ -2,11 +2,9 @@
 import logging
 
 from pyaedt.application.MessageManager import AEDTMessageManager
-from pyaedt.generic.filesystem import Scratch
-from pyaedt.hfss import Hfss
 
 # Import required modules
-from _unittest.conftest import config, scratch_path, BasisTest, desktop_version
+from _unittest.conftest import config, BasisTest
 
 try:
     import pytest
