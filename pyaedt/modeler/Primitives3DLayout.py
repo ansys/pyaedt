@@ -111,7 +111,7 @@ class Primitives3DLayout(object):
         except:
             comps = []
         for el in comps:
-            self._components[el] = Components3DLayout(self, el)
+            self._components[el] = Components3DLayout(self, el, self.modeler.edb.core_components.components[el])
         return self._components
 
     @property

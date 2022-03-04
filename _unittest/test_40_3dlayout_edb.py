@@ -35,11 +35,20 @@ class TestClass(BasisTest, object):
         assert len(comp) > 0
         assert comp["L3A1"].object_units == "mm"
         assert comp["L3A1"].angle == "0deg"
-        assert comp["L3A1"].location == [0.0, 0.0]
+        assert comp["L3A1"].location[1] == 0.0381
         assert comp["L3A1"].placement_layer == "TOP"
         assert comp["L3A1"].part == "A32422-019"
         assert comp["L3A1"].part_type == "Inductor"
         assert comp["L3A1"].set_property_value("Angle", "0deg")
+        assert comp["L3A1"].enabled(False)
+        assert comp["L3A1"].enabled(True)
+        assert comp["R13"].enabled(False)
+        assert comp["R13"].enabled(True)
+        assert comp["C3B14"].enabled(False)
+        assert comp["C3B14"].enabled(True)
+        assert not comp["U3B2"].enabled(False)
+        assert not comp["J2"].enabled(False)
+        assert not comp["FB1M1"].enabled(False)
 
     def test_02a_get_geometries(self):
         line = self.aedtapp.modeler.geometries["line_1983"]

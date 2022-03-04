@@ -3085,9 +3085,10 @@ class Components3DLayout(Objec3DLayout, object):
 
     """
 
-    def __init__(self, primitives, name=""):
+    def __init__(self, primitives, name="", edb_object=None):
         Objec3DLayout.__init__(self, primitives)
         self.name = name
+        self.edb_object = edb_object
 
     @property
     def location(self):
@@ -3103,6 +3104,8 @@ class Components3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
+        if self.edb_object:
+            return self.edb_object.center
         location = _retry_ntimes(
             self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location"
         ).split(",")
@@ -3128,6 +3131,8 @@ class Components3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
+        if self.edb_object:
+            return self.edb_object.placement_layer
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
 
     @property
@@ -3144,6 +3149,8 @@ class Components3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
+        if self.edb_object:
+            return self.edb_object.partname
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Part")
 
     @property
@@ -3160,7 +3167,16 @@ class Components3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
+        if self.edb_object:
+            return self.edb_object.type
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Part Type")
+
+    @property
+    def _part_type_id(self):
+        parts = {"Other": 0, "Resistor": 1, "Inductor": 2, "Capacitor": 3, "IC": 4, "IO": 5}
+        if self.part_type in parts:
+            return parts[self.part_type]
+        return -1
 
     @property
     def angle(self):
@@ -3177,6 +3193,28 @@ class Components3DLayout(Objec3DLayout, object):
         >>> oEditor.GetPropertyValue
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Angle")
+
+    @pyaedt_function_handler
+    def enabled(self, status=True):
+        """Enable or Disable the RLC Component.
+
+        Parameters
+        ----------
+        status : bool, optional
+            Set the RLC Component to Enable or Disable state.
+
+        Returns
+        -------
+        bool
+            `True` if succeeded.
+        """
+        if self._part_type_id in [0, 4, 5]:
+            return False
+        args = [
+            "NAME:Model Info",
+            ["NAME:Model", "RLCProp:=", ["CompPropEnabled:=", status], "CompType:=", self._part_type_id],
+        ]
+        return self.change_property(args)
 
 
 class Nets3DLayout(Objec3DLayout, object):
