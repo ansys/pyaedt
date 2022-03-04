@@ -1262,16 +1262,34 @@ class Object3d(object):
 
         if not list(self.m_Editor.GetObjectsInGroup(name)):
             self.m_Editor.CreateGroup(
-                ["NAME:GroupParameter", "ParentGroupID:=", "Model", "Parts:=", self._m_name, "SubmodelInstances:=", "",
-                 "Groups:=", ""])
+                [
+                    "NAME:GroupParameter",
+                    "ParentGroupID:=",
+                    "Model",
+                    "Parts:=",
+                    self._m_name,
+                    "SubmodelInstances:=",
+                    "",
+                    "Groups:=",
+                    "",
+                ]
+            )
             groupName = _retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Group"
             )
-            self.m_Editor.ChangeProperty(["NAME:AllTabs", ["NAME:Attributes", ["NAME:PropServers", groupName],
-                                                           ["NAME:ChangedProps", ["NAME:Name", "Value:=", name]]]])
+            self.m_Editor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:Attributes",
+                        ["NAME:PropServers", groupName],
+                        ["NAME:ChangedProps", ["NAME:Name", "Value:=", name]],
+                    ],
+                ]
+            )
             self._m_groupName = name
         else:
-            vgroup = ["NAME:Group", "Value:=",  name ]
+            vgroup = ["NAME:Group", "Value:=", name]
             self._change_property(vgroup)
             self._m_groupName = name
 
