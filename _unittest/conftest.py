@@ -87,8 +87,14 @@ class BasisTest(object):
 
     def my_teardown(self, close_desktop=False):
         if close_desktop and not is_ironpython:
-            d = Desktop(desktop_version, non_graphical, False)
-            d.release_desktop()
+            if self.aedtapps:
+                self.aedtapps[0].release_desktop()
+            else:
+                d = Desktop(desktop_version, non_graphical, False)
+                d.release_desktop()
+                del d
+            del self.aedtapps
+            del self.edbapps
         else:
             try:
                 oDesktop = sys.modules["__main__"].oDesktop
@@ -111,11 +117,8 @@ class BasisTest(object):
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None):
         if "oDesktop" not in dir(sys.modules["__main__"]):
-            if self.aedtapps:
-                self.aedtapps[0].release_desktop()
-            else:
-                desktop = Desktop(desktop_version, non_graphical, new_thread)
-                desktop.disable_autosave()
+            desktop = Desktop(desktop_version, non_graphical, new_thread)
+            desktop.disable_autosave()
         if project_name:
             example_project = os.path.join(local_path, "example_models", project_name + ".aedt")
             example_folder = os.path.join(local_path, "example_models", project_name + ".aedb")
