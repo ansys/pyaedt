@@ -361,3 +361,6 @@ class TestClass(BasisTest, object):
         assert o1.group_name == "NewGroup"
         o2.group_name = "NewGroup"
         assert o2.group_name == "NewGroup"
+        o2.group_name = "NewGroup2"
+        assert o2.group_name == "NewGroup2"
+        assert o1.group_name == "NewGroup"
