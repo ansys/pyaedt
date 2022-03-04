@@ -770,6 +770,7 @@ class Object3d(object):
         self._wireframe = None
         self._part_coordinate_system = None
         self._model = None
+        self._m_groupName = None
 
     @pyaedt_function_handler()
     def _bounding_box_unmodel(self):
@@ -1235,6 +1236,43 @@ class Object3d(object):
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Group"
             )
             return self._m_groupName
+
+    @group_name.setter
+    def group_name(self, name):
+        """Assign Object to a specific group. it creates a new group if group doesn't exists.
+
+        Parameters
+        ----------
+        name : str
+            Name of the group to assign. Group will be created if not exists.
+
+        Returns
+        -------
+        str
+            Name of the group.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+
+        if not list(self.m_Editor.GetObjectsInGroup(name)):
+            self.m_Editor.CreateGroup(
+                ["NAME:GroupParameter", "ParentGroupID:=", "Model", "Parts:=", self._m_name, "SubmodelInstances:=", "",
+                 "Groups:=", ""])
+            groupName = _retry_ntimes(
+                10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Group"
+            )
+            self.m_Editor.ChangeProperty(["NAME:AllTabs", ["NAME:Attributes", ["NAME:PropServers", groupName],
+                                                           ["NAME:ChangedProps", ["NAME:Name", "Value:=", name]]]])
+            self._m_groupName = name
+        else:
+            vgroup = ["NAME:Group", "Value:=",  name ]
+            self._change_property(vgroup)
+            self._m_groupName = name
 
     @property
     def material_name(self):
