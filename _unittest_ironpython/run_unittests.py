@@ -51,6 +51,7 @@ def discover_and_run(start_dir, pattern=None):
         # f.write(str(result))
         total_failures = 0
         total_errors = 0
+        total_runs = 0
         for sub_suite in test_suite:
             #############
             filet = r"D:\temp\test_test_02.txt"
@@ -65,21 +66,25 @@ def discover_and_run(start_dir, pattern=None):
                 if attempts == max_attempts:
                     total_failures += len(result.failures)
                     total_errors += len(result.errors)
+                    total_runs += result.testsRun
                     break
-                if len(result.failures) > total_failures:
-                    # Removing last failures from result
-                    n = len(result.failures) - total_failures
-                    del result.failures[-n:]
-                elif len(result.errors) > total_errors:
-                    # Removing last errors from result
-                    n = len(result.errors) - total_errors
-                    del result.errors[-n:]
-                else:
+                # if len(result.failures) > total_failures:
+                #     # Removing last failures from result
+                #     n = len(result.failures) - total_failures
+                #     del result.failures[-n:]
+                # elif len(result.errors) > total_errors:
+                #     # Removing last errors from result
+                #     n = len(result.errors) - total_errors
+                #     del result.errors[-n:]
+                if result.wasSuccessful():
+                # else:
+                    total_runs += result.testsRun
                     break
                 # try again
                 f.write("\nAttempt n.{} FAILED. Re-running test suite.\n".format(attempts))
                 f.flush()
-        f.write(str(result))
+        # f.write(str(result))
+        f.write("\n<unittest.runner.TextTestResult run={} errors={} failures={}>\n".format(total_runs, total_errors, total_failures))
     return result
 
 
