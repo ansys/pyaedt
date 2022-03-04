@@ -19,36 +19,27 @@ LOGGER = logging.getLogger(__name__)
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        with Scratch(scratch_path) as self.local_scratch:
-
-            # Test the global _messenger before opening the desktop
-            msg = AEDTMessageManager()
-            msg.clear_messages()
-            msg.add_info_message("Test desktop level - Info")
-            msg.add_info_message("Test desktop level - Info", level="Design")
-            msg.add_info_message("Test desktop level - Info", level="Project")
-            msg.add_info_message("Test desktop level - Info", level="Global")
-            # assert len(msg.messages.global_level) == 4
-            # assert len(msg.messages.project_level) == 0
-            # assert len(msg.messages.design_level) == 0
-            # assert len(msg.messages.global_level) == 0
-            # assert len(msg.messages.project_level) == 0
-            # assert len(msg.messages.design_level) == 0
-            msg.clear_messages(level=0)
-
-            self.aedtapp = Hfss(specified_version=desktop_version)
-            msg.clear_messages(level=3)
+        # Test the global _messenger before opening the desktop
+        msg = AEDTMessageManager()
+        msg.clear_messages()
+        msg.add_info_message("Test desktop level - Info")
+        msg.add_info_message("Test desktop level - Info", level="Design")
+        msg.add_info_message("Test desktop level - Info", level="Project")
+        msg.add_info_message("Test desktop level - Info", level="Global")
+        # assert len(msg.messages.global_level) == 4
+        # assert len(msg.messages.project_level) == 0
+        # assert len(msg.messages.design_level) == 0
+        # assert len(msg.messages.global_level) == 0
+        # assert len(msg.messages.project_level) == 0
+        # assert len(msg.messages.design_level) == 0
+        msg.clear_messages(level=0)
+        BasisTest.add_app(self)
+        msg.clear_messages(level=3)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
 
-    def test_00_test_global_messenger(self):
-        # TODO: close_project causes a crash ... refactor the project/desktop stuff !
-        # self.aedtapp.close_project()
-        # self.aedtapp = Hfss()
-        pass
-
-    @pytest.mark.skipif(config["build_machine"] == True, reason="Issue on Build machine")
+    @pytest.mark.skipif(config["build_machine"], reason="Issue on Build machine")
     def test_01_get_messages(self):  # pragma: no cover
         msg = self.aedtapp._messenger
         msg.clear_messages(level=3)
@@ -60,7 +51,7 @@ class TestClass(BasisTest, object):
         assert len(msg.messages.design_level) >= 1
         pass
 
-    @pytest.mark.skipif(config["build_machine"] == True, reason="Issue on Build machine")
+    @pytest.mark.skipif(config["build_machine"], reason="Issue on Build machine")
     def test_02_messaging(self):  # pragma: no cover
         msg = self.aedtapp._messenger
         msg.clear_messages(level=3)
