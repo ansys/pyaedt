@@ -185,16 +185,10 @@ non_graphical = config["NonGraphical"]
 
 @pytest.fixture(scope="session", autouse=True)
 def desktop_init():
-    # desktop = Desktop(desktop_version, non_graphical, new_thread)
-    # desktop.disable_autosave()
-    # yield desktop
+
     yield
-    # If new_thread is set to false by a local_config, then don't close the desktop.
-    # Intended for local debugging purposes only
-    # if new_thread or os.name == "posix":
-    #    desktop.close_desktop()
+
     p = [x[0] for x in os.walk(scratch_path) if "scratch" in x[0]]
-    # p = pathlib.Path(scratch_path).glob('**/scratch*')
     for folder in p:
         shutil.rmtree(folder, ignore_errors=True)
 
