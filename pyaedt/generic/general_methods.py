@@ -1,18 +1,18 @@
-import os
 import csv
-import string
-import random
-import time
 import datetime
-import sys
-import traceback
-import logging
-from functools import update_wrapper
-from collections import OrderedDict
+import fnmatch
 import inspect
 import itertools
+import logging
+import os
+import random
 import re
-import fnmatch
+import string
+import sys
+import time
+import traceback
+from collections import OrderedDict
+from functools import update_wrapper
 
 try:
     logger = logging.getLogger("Global")

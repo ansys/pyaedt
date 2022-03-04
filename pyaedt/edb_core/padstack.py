@@ -1,14 +1,16 @@
 """
 This module contains the `EdbPadstacks` class.
 """
-
-import warnings
-import os
 import math
+import os
+import warnings
 
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, is_ironpython
+from pyaedt.edb_core.EDB_Data import EDBPadstack
+from pyaedt.edb_core.EDB_Data import EDBPadstackInstance
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.edb_core.EDB_Data import EDBPadstack, EDBPadstackInstance
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 try:
     from System import Array

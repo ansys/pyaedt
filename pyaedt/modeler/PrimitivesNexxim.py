@@ -1,9 +1,11 @@
-import warnings
 import os
+import warnings
 
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name
-from pyaedt.modeler.PrimitivesCircuit import CircuitComponents, ComponentCatalog
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Object3d import CircuitComponent
+from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
+from pyaedt.modeler.PrimitivesCircuit import ComponentCatalog
 
 
 class NexximComponents(CircuitComponents):

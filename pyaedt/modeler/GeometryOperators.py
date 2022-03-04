@@ -2,8 +2,11 @@
 import math
 import re
 import sys
+
+from pyaedt.generic.constants import AXIS
+from pyaedt.generic.constants import PLANE
+from pyaedt.generic.constants import SWEEPDRAFT
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.generic.constants import PLANE, AXIS, SWEEPDRAFT
 
 
 class GeometryOperators(object):

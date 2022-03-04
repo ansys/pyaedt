@@ -6,17 +6,25 @@ This module contains these classes: `BaseCoordinateSystem`, `FaceCoordinateSyste
 This modules provides functionalities for the 3D Modeler, 2D Modeler,
 3D Layout Modeler, and Circuit Modeler.
 """
-from __future__ import absolute_import
+
+from __future__ import absolute_import  # noreorder
+
+import math
 import os
 import warnings
-
 from collections import OrderedDict
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+
 from pyaedt.generic.constants import AEDT_UNITS
-from pyaedt.generic.general_methods import generate_unique_name, _retry_ntimes, pyaedt_function_handler, _pythonver
-import math
 from pyaedt.generic.DataHandlers import _dict2arg
-from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive, Object3d
+from pyaedt.generic.general_methods import _pythonver
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.Object3d import EdgePrimitive
+from pyaedt.modeler.Object3d import FacePrimitive
+from pyaedt.modeler.Object3d import Object3d
+from pyaedt.modeler.Object3d import VertexPrimitive
 
 
 class BaseCoordinateSystem(object):

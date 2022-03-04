@@ -4,20 +4,25 @@ This module contains these classes: `FieldPlot`, `PostProcessor`, and `SolutionD
 This module provides all functionalities for creating and editing plots in the 3D tools.
 
 """
-from __future__ import absolute_import
+from __future__ import absolute_import  # noreorder
 
 import itertools
 import math
 import os
 import random
 import string
-import warnings
 import sys
+import warnings
 from collections import OrderedDict
 
-from pyaedt.generic.constants import AEDT_UNITS, db10, db20
+from pyaedt.generic.constants import AEDT_UNITS
+from pyaedt.generic.constants import db10
+from pyaedt.generic.constants import db20
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, _retry_ntimes, write_csv
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import write_csv
 
 
 orientation_to_view = {

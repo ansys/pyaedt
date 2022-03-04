@@ -1,14 +1,18 @@
 """This module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor`."""
-from __future__ import absolute_import
+from __future__ import absolute_import  # noreorder
+
 import os
 import warnings
+from collections import OrderedDict
 
 from pyaedt.application.Analysis2D import FieldAnalysis2D
 from pyaedt.application.Analysis3D import FieldAnalysis3D
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name
-from collections import OrderedDict
-from pyaedt.modules.Boundary import BoundaryObject, Matrix
-from pyaedt.generic.constants import MATRIXOPERATIONSQ2D, MATRIXOPERATIONSQ3D
+from pyaedt.generic.constants import MATRIXOPERATIONSQ2D
+from pyaedt.generic.constants import MATRIXOPERATIONSQ3D
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.Boundary import Matrix
 
 
 class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):

@@ -2,11 +2,12 @@
 This module contains EDB general methods and related methods.
 
 """
-from __future__ import absolute_import
+
+from __future__ import absolute_import  # noreorder
 
 import logging
-import warnings
 import os
+import warnings
 
 from pyaedt.generic.general_methods import pyaedt_function_handler
 

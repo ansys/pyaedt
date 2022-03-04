@@ -5,16 +5,20 @@ This module provides all functionalities for creating and editing setups in AEDT
 It is based on templates to allow for easy creation and modification of setup properties.
 
 """
-from __future__ import absolute_import
+from __future__ import absolute_import  # noreorder
 
+import os.path
 import warnings
 from collections import OrderedDict
-import os.path
 
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name
-
-from pyaedt.modules.SetupTemplates import SweepHFSS, SweepQ3D, SetupKeys, SweepHFSS3DLayout
-from pyaedt.generic.DataHandlers import _tuple2dict, _dict2arg
+from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.DataHandlers import _tuple2dict
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.SetupTemplates import SetupKeys
+from pyaedt.modules.SetupTemplates import SweepHFSS
+from pyaedt.modules.SetupTemplates import SweepHFSS3DLayout
+from pyaedt.modules.SetupTemplates import SweepQ3D
 
 
 class Setup(object):

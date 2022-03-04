@@ -1,5 +1,5 @@
-from pyaedt.modeler.Circuit import ModelerMaxwellCircuit
 from pyaedt.application.Analysis import Analysis
+from pyaedt.modeler.Circuit import ModelerMaxwellCircuit
 
 
 class AnalysisMaxwellCircuit(Analysis):

@@ -1,15 +1,17 @@
 """
 This module contains the `Mesh` class.
 """
+from __future__ import absolute_import  # noreorder
 
-from __future__ import absolute_import
 import os
 import shutil
 from collections import OrderedDict
 
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, MethodNotSupportedError
 from pyaedt.application.design_solutions import model_names
 from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import MethodNotSupportedError
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
 meshers = {

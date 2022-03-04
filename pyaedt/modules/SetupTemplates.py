@@ -1,6 +1,7 @@
-from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.generic.DataHandlers import _dict2arg
 from collections import OrderedDict
+
+from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 meshlink = [("ImportMesh", False)]
 autosweep = [("RangeType", "LinearStep"), ("RangeStart", "1GHz"), ("RangeEnd", "10GHz"), ("RangeStep", "1GHz")]
