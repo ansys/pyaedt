@@ -2,16 +2,19 @@
 
 """
 import math
+import os
 import re
 import warnings
-import os
 
-from pyaedt import generate_unique_name, _retry_ntimes
-from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.generic.general_methods import pyaedt_function_handler, get_filename_without_extension, is_ironpython
-from pyaedt.generic.constants import SourceType
+from pyaedt import _retry_ntimes
+from pyaedt import generate_unique_name
 from pyaedt.edb_core.EDB_Data import EDBComponent
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.padstack import EdbPadstacks
+from pyaedt.generic.constants import SourceType
+from pyaedt.generic.general_methods import get_filename_without_extension
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 try:

@@ -1,7 +1,7 @@
 """
 This module contains these Primitives classes: `Polyline` and `Primitives`.
 """
-from __future__ import absolute_import
+from __future__ import absolute_import  # noreorder
 
 import math
 import os
@@ -9,10 +9,17 @@ import time
 from collections import OrderedDict
 
 from pyaedt.application.Variables import Variable
-from pyaedt.generic.general_methods import pyaedt_function_handler, is_number, _retry_ntimes
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, Object3d, _dim_arg, _uname, Point
 from pyaedt.generic.constants import PLANE
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.Object3d import _dim_arg
+from pyaedt.modeler.Object3d import _uname
+from pyaedt.modeler.Object3d import EdgePrimitive
+from pyaedt.modeler.Object3d import FacePrimitive
+from pyaedt.modeler.Object3d import Object3d
+from pyaedt.modeler.Object3d import Point
 
 default_materials = {
     "Icepak": "air",

@@ -1,7 +1,7 @@
-import os
-import re
 import csv
 import glob
+import os
+import re
 
 
 class BoxFacePointsAndFields(object):

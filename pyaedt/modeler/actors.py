@@ -1,6 +1,7 @@
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.DataHandlers import json_to_dict
-from pyaedt.modeler.multiparts import MultiPartComponent, Actor
+from pyaedt.modeler.multiparts import Actor
+from pyaedt.modeler.multiparts import MultiPartComponent
 
 
 def read_actors(fn, actor_lib):

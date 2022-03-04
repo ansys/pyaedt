@@ -1,6 +1,6 @@
 """This module contains the ``MaxwellCircuit`` class."""
+from __future__ import absolute_import  # noreorder
 
-from __future__ import absolute_import
 import math
 
 from pyaedt.application.AnalysisMaxwellCircuit import AnalysisMaxwellCircuit

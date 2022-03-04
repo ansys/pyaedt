@@ -68,15 +68,16 @@ Parallel to this file, an xaml file should be present in the same directory.
 >>> if __name__ == '__main__':
 >>>     launch(__file__, specified_version="2021.2", new_desktop_session=False, autosave=False)
 """
-from __future__ import print_function
-
-import os
 import json
-import sys
-import clr
+import os
 import shutil
+import sys
 from datetime import datetime
-from zipfile import ZipFile, ZIP_DEFLATED
+from zipfile import ZIP_DEFLATED
+from zipfile import ZipFile
+
+import clr
+
 from pyaedt import is_ironpython
 from pyaedt.desktop import Desktop
 from pyaedt.generic.general_methods import pyaedt_function_handler

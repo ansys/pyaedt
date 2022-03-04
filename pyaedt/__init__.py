@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import os
 
 os.environ["ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE"] = "1"

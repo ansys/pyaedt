@@ -1,4 +1,5 @@
-from pyaedt.generic.general_methods import pyaedt_function_handler, is_number
+from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Primitives import Primitives
 
 

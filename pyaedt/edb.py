@@ -3,17 +3,17 @@
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
 """
+import datetime
 import gc
+import logging
+import os
+import re
+import shutil
 import sys
+import tempfile
 import time
 import traceback
 import warnings
-import shutil
-import tempfile
-import datetime
-import logging
-import re
-import os
 
 
 try:

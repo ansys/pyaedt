@@ -1,19 +1,19 @@
+import os
 import sys
 import warnings
-import os
 
-from pyaedt.generic.general_methods import pyaedt_function_handler, is_ironpython, _retry_ntimes
-from pyaedt.modeler.Object3d import (
-    Padstack,
-    Components3DLayout,
-    Geometries3DLayout,
-    Pins3DLayout,
-    Nets3DLayout,
-    _uname,
-    ComponentsSubCircuit3DLayout,
-)
-from pyaedt.modeler.Primitives import default_materials
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.Object3d import _uname
+from pyaedt.modeler.Object3d import Components3DLayout
+from pyaedt.modeler.Object3d import ComponentsSubCircuit3DLayout
+from pyaedt.modeler.Object3d import Geometries3DLayout
+from pyaedt.modeler.Object3d import Nets3DLayout
+from pyaedt.modeler.Object3d import Padstack
+from pyaedt.modeler.Object3d import Pins3DLayout
+from pyaedt.modeler.Primitives import default_materials
 
 # import pkgutil
 # modules = [tup[1] for tup in pkgutil.iter_modules()]

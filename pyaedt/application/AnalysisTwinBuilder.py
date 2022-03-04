@@ -1,8 +1,8 @@
+from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Circuit import ModelerTwinBuilder
-from pyaedt.modules.SolveSetup import SetupCircuit
-from pyaedt.application.Analysis import Analysis
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
+from pyaedt.modules.SolveSetup import SetupCircuit
 
 
 class AnalysisTwinBuilder(Analysis):

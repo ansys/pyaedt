@@ -1,6 +1,6 @@
 """Miscellaneous Methods for PyAEDT."""
-import warnings
 import os
+import warnings
 
 
 def list_installed_ansysem():

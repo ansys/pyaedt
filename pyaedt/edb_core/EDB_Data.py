@@ -1,11 +1,12 @@
-import time
-import warnings
 import math
 import os
+import time
+import warnings
 from collections import OrderedDict
 
-from pyaedt.generic.general_methods import pyaedt_function_handler, is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 try:

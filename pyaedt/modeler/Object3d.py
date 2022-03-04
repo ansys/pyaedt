@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
 This module contains these classes: `Components3DLayout`,`CircuitComponent',
 `EdgePrimitive`, `EdgeTypePrimitive`, `FacePrimitive`, `Geometries3DLayout`,
@@ -10,20 +9,22 @@ This module provides methods and data structures for managing all properties of
 objects (points, lines, sheeets, and solids) within the AEDT 3D Modeler.
 
 """
-from __future__ import absolute_import
+from __future__ import absolute_import  # noreorder
 
-import random
-import string
 import math
 import os
+import random
 import re
+import string
 import warnings
 
-from pyaedt import pyaedt_function_handler, _retry_ntimes
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt import _retry_ntimes
+from pyaedt import pyaedt_function_handler
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic.constants import AEDT_UNITS, MILS2METER
+from pyaedt.generic.constants import AEDT_UNITS
+from pyaedt.generic.constants import MILS2METER
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
 

@@ -5,37 +5,44 @@ This module provides all functionalities for basic project information and objec
 These classes are inherited in the main tool class.
 
 """
-from __future__ import absolute_import
 
+from __future__ import absolute_import  # noreorder
+
+import gc
+import json
+import logging
 import os
+import random
 import re
 import shutil
-import sys
-import json
 import string
-import random
+import sys
 import time
-import logging
-import gc
 import warnings
 from collections import OrderedDict
-from pyaedt.application.design_solutions import (
-    DesignSolution,
-    IcepakDesignSolution,
-    Maxwell2DDesignSolution,
-    HFSSDesignSolution,
-    RmXprtDesignSolution,
-)
-from pyaedt.application.Variables import VariableManager, DataSet
-from pyaedt.generic.constants import AEDT_UNITS, unit_system
+
+from pyaedt.application.design_solutions import DesignSolution
+from pyaedt.application.design_solutions import HFSSDesignSolution
+from pyaedt.application.design_solutions import IcepakDesignSolution
+from pyaedt.application.design_solutions import Maxwell2DDesignSolution
+from pyaedt.application.design_solutions import model_names
+from pyaedt.application.design_solutions import RmXprtDesignSolution
+from pyaedt.application.design_solutions import solutions_defaults
+from pyaedt.application.Variables import DataSet
+from pyaedt.application.Variables import VariableManager
 from pyaedt.desktop import Desktop
-from pyaedt.desktop import exception_to_desktop, release_desktop, get_version_env_variable
-from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
-from pyaedt.generic.general_methods import pyaedt_function_handler, write_csv, is_ironpython
+from pyaedt.desktop import exception_to_desktop
+from pyaedt.desktop import get_version_env_variable
+from pyaedt.desktop import release_desktop
+from pyaedt.generic.constants import AEDT_UNITS
+from pyaedt.generic.constants import unit_system
 from pyaedt.generic.DataHandlers import variation_string_to_dict
-from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.application.design_solutions import model_names, solutions_defaults
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import write_csv
+from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+from pyaedt.modules.Boundary import BoundaryObject
 
 if sys.version_info.major > 2:
     import base64

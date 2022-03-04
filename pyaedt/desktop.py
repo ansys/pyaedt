@@ -6,20 +6,21 @@ This module is used to initialize AEDT and the message manager for managing AEDT
 You can initialize this module before launching an app or
 have the app automatically initialize it to the latest installed AEDT version.
 """
-from __future__ import absolute_import
 
-import os
-import sys
-import traceback
-import logging
-import pkgutil
-import getpass
-import re
-import warnings
-import gc
-import time
+from __future__ import absolute_import  # noreorder
+
 import datetime
+import gc
+import getpass
+import logging
+import os
+import pkgutil
+import re
+import sys
 import tempfile
+import time
+import traceback
+import warnings
 
 from pyaedt import is_ironpython
 
