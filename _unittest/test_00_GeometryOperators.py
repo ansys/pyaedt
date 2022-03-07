@@ -56,7 +56,12 @@ class TestClass:
         assert go.parse_dim_arg("-3.4e-2") == -3.4e-2
         assert abs(go.parse_dim_arg("180deg") - math.pi) < tol
         assert go.parse_dim_arg("1.57rad") == 1.57
-        assert go.parse_dim_arg("3km", ) == 3000.0
+        assert (
+            go.parse_dim_arg(
+                "3km",
+            )
+            == 3000.0
+        )
         assert go.parse_dim_arg("1m_per_h") == 3600.0
 
     def test_cs_plane_str(self):

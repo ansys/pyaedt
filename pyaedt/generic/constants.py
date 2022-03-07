@@ -169,7 +169,7 @@ def scale_units(scale_to_unit):
         Return the scaling factor if any.
     """
     sunit = 1.0
-    for el, val in AEDT_UNITS.items():
+    for val in list(AEDT_UNITS.values()):
         for unit, scale_val in val.items():
             if scale_to_unit.lower() == unit.lower():
                 sunit = scale_val
