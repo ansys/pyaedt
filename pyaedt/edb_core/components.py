@@ -490,7 +490,7 @@ class Components(object):
 
         if vector:
             solder_ball_height = self.get_solder_ball_height(mounted_component)
-            self.set_solder_ball(component=mounted_component, sball_height=solder_ball_height)
+            # self.set_solder_ball(component=mounted_component, sball_height=solder_ball_height)
             return True, vector, rotation, solder_ball_height
         self._logger.warning("Failed to compute vector.")
         return False, [0, 0], 0, 0
