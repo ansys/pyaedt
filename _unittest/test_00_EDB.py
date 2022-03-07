@@ -636,14 +636,47 @@ class TestClass(BasisTest, object):
         edb1 = Edb(self.target_path2, edbversion=desktop_version)
 
         edb2 = Edb(self.target_path, edbversion=desktop_version)
-        assert edb1.core_stackup.place_in_layout_3d_placement(
-            edb2,
+        assert edb2.core_stackup.place_in_layout_3d_placement(
+            edb1,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=False,
+            place_on_top=False,
+            solder_height=0.0,
+        )
+        edb2.close_edb()
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
+        assert edb2.core_stackup.place_in_layout_3d_placement(
+            edb1,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=True,
+            place_on_top=False,
+            solder_height=0.0,
+        )
+        edb2.close_edb()
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
+        assert edb2.core_stackup.place_in_layout_3d_placement(
+            edb1,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=False,
+            place_on_top=True,
+            solder_height=0.0,
+        )
+        edb2.close_edb()
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
+        assert edb2.core_stackup.place_in_layout_3d_placement(
+            edb1,
             angle=0.0,
             offset_x="41.783mm",
             offset_y="35.179mm",
             flipped_stackup=True,
             place_on_top=True,
-            solder_height=0.00033,
+            solder_height=0.0,
         )
         edb2.close_edb()
         edb1.close_edb()
