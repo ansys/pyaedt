@@ -368,7 +368,7 @@ class TestClass:
     def test_unit_converter(self):
         assert unit_converter(10) == 10000
         assert unit_converter(10, "Lengths") == 10
-        assert unit_converter(10, "Length", "meters") == 10
+        assert unit_converter(10, "Length", "metersi") == 10
 
     def test_are_segments_intersecting(self):
         # crossing
