@@ -278,6 +278,17 @@ class EdbStackup(object):
         return 0
 
     @pyaedt_function_handler()
+    def _remove_solder_pec(self, layer_name):
+        for el, val in self._pedb.core_components.components.items():
+            if val.solder_ball_height and val.placement_layer == layer_name:
+                comp_prop = val.component_property
+                port_property = comp_prop.GetPortProperty().Clone()
+                port_property.SetReferenceSizeAuto(False)
+                port_property.SetReferenceSize(self._edb_value(0.0), self._edb_value(0.0))
+                comp_prop.SetPortProperty(port_property)
+                val.edbcomponent.SetComponentProperty(comp_prop)
+
+    @pyaedt_function_handler()
     def adjust_solder_dielectrics(self):
         """Adjust the stack-up by adding or modifying dielectric layers that contains Solder Balls.
         This method identifies the solder-ball height and adjust the dielectric thickness on top (or bottom) to fit
@@ -480,9 +491,14 @@ class EdbStackup(object):
 
         if solder_height <= 0:
             if flipped_stackup and not place_on_top or (place_on_top and not flipped_stackup):
-                solder_height = self._get_solder_height(list(self.signal_layers.keys())[0])
+                lay = list(self.signal_layers.keys())[0]
+                solder_height = self._get_solder_height(lay)
+                self._remove_solder_pec(lay)
             else:
-                solder_height = self._get_solder_height(list(self.signal_layers.keys())[-1])
+                lay = list(self.signal_layers.keys())[-1]
+
+                solder_height = self._get_solder_height(lay)
+                self._remove_solder_pec(lay)
 
         rotation = self._edb_value(0.0)
         if flipped_stackup:
