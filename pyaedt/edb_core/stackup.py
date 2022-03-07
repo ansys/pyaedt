@@ -529,27 +529,15 @@ class EdbStackup(object):
         sig_set = self._edb.Cell.LayerTypeSet.SignalLayerSet
 
         if is_ironpython:
-            (
-                res,
-                target_top,
-                target_top_thick,
-                target_bottom,
-                target_bottom_thick,
-            ) = stackup_target.GetTopBottomStackupLayers(stack_set)
-            (
-                res_s,
-                source_stack_top,
-                source_stack_top_thick,
-                source_stack_bot,
-                source_stack_bot_thick,
-            ) = stackup_source.GetTopBottomStackupLayers(stack_set)
-            (
-                res2,
-                source_sig_top,
-                source_sig_top_thick,
-                source_sig_bot,
-                source_sig_bot_thick,
-            ) = stackup_source.GetTopBottomStackupLayers(sig_set)
+            res = stackup_target.GetTopBottomStackupLayers(stack_set)
+            target_top_thick = res[2]
+            target_bottom_thick = res[4]
+            res_s = stackup_source.GetTopBottomStackupLayers(stack_set)
+            source_stack_top_thick = res_s[2]
+            source_stack_bot_thick = res_s[4]
+            res2 = stackup_source.GetTopBottomStackupLayers(sig_set)
+            source_sig_top_thick = res2[2]
+            source_sig_bot_thick = res2[4]
         else:
             target_top = None
             target_top_thick = Double(0.0)
@@ -563,28 +551,22 @@ class EdbStackup(object):
             source_stack_top_thick = Double(0.0)
             source_stack_bot = None
             source_stack_bot_thick = Double(0.0)
-            (
-                res,
-                target_top,
-                target_top_thick,
-                target_bottom,
-                target_bottom_thick,
-            ) = stackup_target.GetTopBottomStackupLayers(
+            res = stackup_target.GetTopBottomStackupLayers(
                 stack_set, target_top, target_top_thick, target_bottom, target_bottom_thick
             )
 
-            (
-                res_s,
-                source_stack_top,
-                source_stack_top_thick,
-                source_stack_bot,
-                source_stack_bot_thick,
-            ) = stackup_source.GetTopBottomStackupLayers(
+            res_s = stackup_source.GetTopBottomStackupLayers(
                 stack_set, source_stack_top, source_stack_top_thick, source_stack_bot, source_stack_bot_thick
             )
-            res2, source_sig_top, source_sig_top_thick, bottoml2, bottomz2 = stackup_source.GetTopBottomStackupLayers(
+            res2 = stackup_source.GetTopBottomStackupLayers(
                 sig_set, source_sig_top, source_sig_top_thick, source_sig_bot, source_sig_bot_thick
             )
+            target_top_thick = res[2]
+            target_bottom_thick = res[4]
+            source_stack_top_thick = res_s[2]
+            source_stack_bot_thick = res_s[4]
+            source_sig_top_thick = res2[2]
+            source_sig_bot_thick = res2[4]
         if place_on_top and flipped_stackup:
             elevation = target_top_thick + source_stack_top_thick
             diel_elevation = source_stack_top_thick - source_sig_top_thick
