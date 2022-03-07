@@ -528,7 +528,7 @@ class EdbStackup(object):
         stack_set = self._edb.Cell.LayerTypeSet.StackupLayerSet
         sig_set = self._edb.Cell.LayerTypeSet.SignalLayerSet
 
-        if is_ironpython:
+        if is_ironpython:  # pragma: no cover
             res = stackup_target.GetTopBottomStackupLayers(stack_set)
             target_top_thick = res[2]
             target_bottom_thick = res[4]
