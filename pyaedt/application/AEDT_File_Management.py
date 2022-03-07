@@ -3,10 +3,10 @@ import os
 import re
 import shutil
 
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def read_info_fromcsv(projdir, name):
     """Read information from a CSV file and return a list.
 
@@ -32,7 +32,7 @@ def read_info_fromcsv(projdir, name):
     return listmcad
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def clean_proj_folder(dir, name):
     """Delete all project name-related folders.
 
@@ -54,7 +54,7 @@ def clean_proj_folder(dir, name):
     return True
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def create_output_folder(ProjectDir):
     """Create the output folders starting from the project directory.
 
@@ -88,7 +88,7 @@ def create_output_folder(ProjectDir):
     return PicturePath, ResultsPath
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def change_objects_visibility(origfile, solid_list):
     """Edit the project file to make only the solids that are specified visible.
 
@@ -134,7 +134,7 @@ def change_objects_visibility(origfile, solid_list):
         print("change_objects_visibility: Project %s is still locked." % origfile)
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def change_model_orientation(origfile, bottom_dir):
     """Edit the project file to change the model orientation.
 

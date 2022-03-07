@@ -2,15 +2,17 @@
 This module contains the `EdbStackup` class.
 
 """
-from __future__ import absolute_import
+
+from __future__ import absolute_import  # noreorder
 
 import math
-import warnings
 import os
+import warnings
 
 from pyaedt.edb_core.EDB_Data import EDBLayers
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.generic.general_methods import aedt_exception_handler, is_ironpython
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 try:
     from System import Double
@@ -122,7 +124,7 @@ class EdbStackup(object):
             mats[el.Name] = el
         return mats
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_dielectric(self, name, permittivity=1, loss_tangent=0):
         """Create a dielectric with simple properties.
 
@@ -151,7 +153,7 @@ class EdbStackup(object):
             return material_def
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_conductor(self, name, conductivity=1e6):
         """Create a conductor with simple properties.
 
@@ -175,7 +177,7 @@ class EdbStackup(object):
             return material_def
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_debye_material(
         self,
         name,
@@ -222,7 +224,7 @@ class EdbStackup(object):
         )
         return self._add_dielectric_material_model(name, material_def)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_multipole_debye_material(
         self,
         name,
@@ -268,14 +270,25 @@ class EdbStackup(object):
         )
         return self._add_dielectric_material_model(name, material_def)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_solder_height(self, layer_name):
         for el, val in self._pedb.core_components.components.items():
             if val.solder_ball_height and val.placement_layer == layer_name:
                 return val.solder_ball_height
         return 0
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
+    def _remove_solder_pec(self, layer_name):
+        for el, val in self._pedb.core_components.components.items():
+            if val.solder_ball_height and val.placement_layer == layer_name:
+                comp_prop = val.component_property
+                port_property = comp_prop.GetPortProperty().Clone()
+                port_property.SetReferenceSizeAuto(False)
+                port_property.SetReferenceSize(self._edb_value(0.0), self._edb_value(0.0))
+                comp_prop.SetPortProperty(port_property)
+                val.edbcomponent.SetComponentProperty(comp_prop)
+
+    @pyaedt_function_handler()
     def adjust_solder_dielectrics(self):
         """Adjust the stack-up by adding or modifying dielectric layers that contains Solder Balls.
         This method identifies the solder-ball height and adjust the dielectric thickness on top (or bottom) to fit
@@ -334,7 +347,7 @@ class EdbStackup(object):
                         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def place_in_layout(
         self,
         edb,
@@ -425,7 +438,7 @@ class EdbStackup(object):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def place_in_layout_3d_placement(
         self,
         edb,
@@ -478,9 +491,14 @@ class EdbStackup(object):
 
         if solder_height <= 0:
             if flipped_stackup and not place_on_top or (place_on_top and not flipped_stackup):
-                solder_height = self._get_solder_height(list(self.signal_layers.keys())[0])
+                lay = list(self.signal_layers.keys())[0]
+                solder_height = self._get_solder_height(lay)
+                self._remove_solder_pec(lay)
             else:
-                solder_height = self._get_solder_height(list(self.signal_layers.keys())[-1])
+                lay = list(self.signal_layers.keys())[-1]
+
+                solder_height = self._get_solder_height(lay)
+                self._remove_solder_pec(lay)
 
         rotation = self._edb_value(0.0)
         if flipped_stackup:
@@ -507,35 +525,64 @@ class EdbStackup(object):
         else:
             cell_inst2.SetPlacementLayer(list(stackup_target.Layers(self._edb.Cell.LayerTypeSet.SignalLayerSet))[-1])
         cell_inst2.SetIs3DPlacement(True)
-        input_layers = self._edb.Cell.LayerTypeSet.SignalLayerSet
-        if is_ironpython:
-            res, topl, topz, bottoml, bottomz = stackup_target.GetTopBottomStackupLayers(input_layers)
-            res_s, topl_s, topz_s, bottoml_s, bottomz_s = stackup_source.GetTopBottomStackupLayers(input_layers)
+        stack_set = self._edb.Cell.LayerTypeSet.StackupLayerSet
+        sig_set = self._edb.Cell.LayerTypeSet.SignalLayerSet
+
+        if is_ironpython:  # pragma: no cover
+            res = stackup_target.GetTopBottomStackupLayers(stack_set)
+            target_top_thick = res[2]
+            target_bottom_thick = res[4]
+            res_s = stackup_source.GetTopBottomStackupLayers(stack_set)
+            source_stack_top_thick = res_s[2]
+            source_stack_bot_thick = res_s[4]
+            res2 = stackup_source.GetTopBottomStackupLayers(sig_set)
+            source_sig_top_thick = res2[2]
+            source_sig_bot_thick = res2[4]
         else:
-            topl = None
-            topz = Double(0.0)
-            bottoml = None
-            bottomz = Double(0.0)
-            topl_s = None
-            topz_s = Double(0.0)
-            bottoml_s = None
-            bottomz_s = Double(0.0)
-            res, topl, topz, bottoml, bottomz = stackup_target.GetTopBottomStackupLayers(
-                input_layers, topl, topz, bottoml, bottomz
-            )
-            res_s, topl_s, topz_s, bottoml_s, bottomz_s = stackup_source.GetTopBottomStackupLayers(
-                input_layers, topl_s, topz_s, bottoml_s, bottomz_s
+            target_top = None
+            target_top_thick = Double(0.0)
+            target_bottom = None
+            target_bottom_thick = Double(0.0)
+            source_sig_top = None
+            source_sig_top_thick = Double(0.0)
+            source_sig_bot = None
+            source_sig_bot_thick = Double(0.0)
+            source_stack_top = None
+            source_stack_top_thick = Double(0.0)
+            source_stack_bot = None
+            source_stack_bot_thick = Double(0.0)
+            res = stackup_target.GetTopBottomStackupLayers(
+                stack_set, target_top, target_top_thick, target_bottom, target_bottom_thick
             )
 
-        if place_on_top:
-            if flipped_stackup:
-                h_stackup = self._edb_value(topz + solder_height + topz_s)
-            else:
-                h_stackup = self._edb_value(topz + solder_height - bottomz_s)
+            res_s = stackup_source.GetTopBottomStackupLayers(
+                stack_set, source_stack_top, source_stack_top_thick, source_stack_bot, source_stack_bot_thick
+            )
+            res2 = stackup_source.GetTopBottomStackupLayers(
+                sig_set, source_sig_top, source_sig_top_thick, source_sig_bot, source_sig_bot_thick
+            )
+            target_top_thick = res[2]
+            target_bottom_thick = res[4]
+            source_stack_top_thick = res_s[2]
+            source_stack_bot_thick = res_s[4]
+            source_sig_top_thick = res2[2]
+            source_sig_bot_thick = res2[4]
+        if place_on_top and flipped_stackup:
+            elevation = target_top_thick + source_stack_top_thick
+            diel_elevation = source_stack_top_thick - source_sig_top_thick
+        elif place_on_top:
+            elevation = target_top_thick + source_stack_bot_thick
+            diel_elevation = source_sig_bot_thick - source_stack_bot_thick
         elif flipped_stackup:
-            h_stackup = self._edb_value(topl.GetThickness() + bottomz - solder_height - bottomz_s)
+            elevation = target_bottom_thick - source_stack_bot_thick
+            diel_elevation = source_stack_bot_thick - source_sig_bot_thick
+            solder_height = -solder_height
         else:
-            h_stackup = self._edb_value(bottomz - solder_height - topz_s)
+            elevation = target_bottom_thick - source_sig_top_thick
+            diel_elevation = target_bottom_thick - source_stack_bot_thick
+            solder_height = -solder_height
+
+        h_stackup = self._edb_value(elevation + solder_height - diel_elevation)
 
         zero_data = self._edb_value(0.0)
         one_data = self._edb_value(1.0)
@@ -548,7 +595,7 @@ class EdbStackup(object):
         cell_inst2.Set3DTransformation(point_loc, point_from, point_to, rotation, point3d_t)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def flip_design(self):
         """Flip the current design of a layout.
 
@@ -667,7 +714,7 @@ class EdbStackup(object):
         except:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_djordjevicsarkar_material(self, name, relative_permittivity, loss_tangent, test_frequency):
         """Create a Djordjevic_Sarkar dielectric.
 
@@ -693,7 +740,7 @@ class EdbStackup(object):
         material_def.SetRelativePermitivityAtFrequency(relative_permittivity)
         return self._add_dielectric_material_model(name, material_def)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _add_dielectric_material_model(self, name, material_model):
         if self._edb.Definition.MaterialDef.FindByName(self._db, name).IsNull():
             DieDef = self._edb.Definition.MaterialDef.Create(self._db, name)
@@ -702,7 +749,7 @@ class EdbStackup(object):
                 return DieDef
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def stackup_limits(self, only_metals=False):
         """Retrieve stackup limits.
 

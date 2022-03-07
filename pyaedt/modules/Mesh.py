@@ -1,15 +1,17 @@
 """
 This module contains the `Mesh` class.
 """
+from __future__ import absolute_import  # noreorder
 
-from __future__ import absolute_import
 import os
 import shutil
 from collections import OrderedDict
 
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, MethodNotSupportedError
 from pyaedt.application.design_solutions import model_names
 from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import MethodNotSupportedError
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
 meshers = {
@@ -45,7 +47,7 @@ class MeshOperation(object):
         self.props = props
         self.type = meshoptype
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_args(self):
         """Retrieve arguments."""
         props = self.props
@@ -53,7 +55,7 @@ class MeshOperation(object):
         _dict2arg(props, arg)
         return arg
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create(self):
         """Create a mesh.
 
@@ -87,7 +89,7 @@ class MeshOperation(object):
             return False
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update(self):
         """Update the mesh.
 
@@ -136,7 +138,7 @@ class MeshOperation(object):
             return False
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete(self):
         """Delete the mesh.
 
@@ -210,7 +212,7 @@ class Mesh(object):
         """
         return self._omeshmodule
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_design_global_mesh(self):
         """ """
         props = None
@@ -239,7 +241,7 @@ class Mesh(object):
             return bound
         return OrderedDict()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _get_design_mesh_operations(self):
         """ """
         meshops = []
@@ -258,7 +260,7 @@ class Mesh(object):
             pass
         return meshops
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_surface_mesh(self, names, level, meshop_name=None):
         """Assign a surface mesh level to one or more objects.
 
@@ -308,7 +310,7 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_surface_mesh_manual(self, names, surf_dev=None, normal_dev=None, aspect_ratio=None, meshop_name=None):
         """Assign a surface mesh to a list of faces.
 
@@ -378,7 +380,7 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_model_resolution(self, names, defeature_length=None, meshop_name=None):
         """Assign the model resolution.
 
@@ -431,7 +433,7 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_initial_mesh_from_slider(
         self,
         level=5,
@@ -523,7 +525,7 @@ class Mesh(object):
         self.omeshmodule.InitialMeshSettings(args)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_surf_priority_for_tau(self, object_lists, surfpriority=0):
         """Assign a surface representation priority for the TAU mesh.
 
@@ -552,7 +554,7 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def generate_mesh(self, name):
         """Generate the mesh for a design.
 
@@ -573,7 +575,7 @@ class Mesh(object):
         """
         return self._odesign.GenerateMesh(name) == 0
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete_mesh_operations(self, mesh_type=None):
         """Remove mesh operations from a design.
 
@@ -612,7 +614,7 @@ class Mesh(object):
 
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_length_mesh(self, names, isinside=True, maxlength=1, maxel=1000, meshop_name=None):
         """Assign a length for the model resolution.
 
@@ -693,7 +695,7 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_skin_depth(
         self, names, skindepth, maxelements=None, triangulation_max_length="0.1mm", numlayers="2", meshop_name=None
     ):
@@ -770,7 +772,7 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_curvilinear_elements(self, names, enable=True, meshop_name=None):
         """Assign curvilinear elements.
 
@@ -820,7 +822,7 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_curvature_extraction(self, names, disable_for_faceted_surf=True, meshop_name=None):
         """Assign curvature extraction.
 
@@ -872,7 +874,7 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_rotational_layer(self, names, num_layers=3, total_thickness="1mm", meshop_name=None):
         """Assign a rotational layer mesh.
 
@@ -923,7 +925,7 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_edge_cut(self, names, layer_thickness="1mm", meshop_name=None):
         """Assign an edge cut layer mesh.
 
@@ -964,7 +966,7 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_density_control(self, names, refine_inside=True, maxelementlength=None, layerNum=None, meshop_name=None):
         """Assign density control.
 

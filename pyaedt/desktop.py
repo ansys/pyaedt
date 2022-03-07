@@ -6,20 +6,21 @@ This module is used to initialize AEDT and the message manager for managing AEDT
 You can initialize this module before launching an app or
 have the app automatically initialize it to the latest installed AEDT version.
 """
-from __future__ import absolute_import
 
-import os
-import sys
-import traceback
-import logging
-import pkgutil
-import getpass
-import re
-import warnings
-import gc
-import time
+from __future__ import absolute_import  # noreorder
+
 import datetime
+import gc
+import getpass
+import logging
+import os
+import pkgutil
+import re
+import sys
 import tempfile
+import time
+import traceback
+import warnings
 
 from pyaedt import is_ironpython
 
@@ -29,7 +30,7 @@ else:
     import subprocess
 
 from pyaedt.misc import list_installed_ansysem
-from pyaedt import aedt_exception_handler, settings
+from pyaedt import pyaedt_function_handler, settings
 from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop
 
 from pyaedt import aedt_logger, __version__
@@ -554,7 +555,7 @@ class Desktop:
         """AEDT logger."""
         return self._logger
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def project_list(self):
         """Retrieve a list of projects.
 
@@ -566,7 +567,7 @@ class Desktop:
         """
         return list(self.odesktop.GetProjectList())
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def analyze_all(self, project=None, design=None):
         """Analyze all setups in a project.
 
@@ -597,7 +598,7 @@ class Desktop:
                     odesign.AnalyzeAll()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def clear_messages(self):
         """Clear all AEDT messages.
 
@@ -609,7 +610,7 @@ class Desktop:
         self._desktop.ClearMessages("", "", 3)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def save_project(self, project_name=None, project_path=None):
         """Save the project.
 
@@ -637,7 +638,7 @@ class Desktop:
             oproject.Save()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def copy_design(self, project_name=None, design_name=None, target_project=None):
         """Copy a design and paste it in an existing project or new project.
 
@@ -678,7 +679,7 @@ class Desktop:
                         return True
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def project_path(self, project_name=None):
         """Retrieve the path to the project.
 
@@ -702,7 +703,7 @@ class Desktop:
             return os.path.normpath(oproject.GetPath())
         return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def design_list(self, project=None):
         """Retrieve a list of the designs.
 
@@ -730,7 +731,7 @@ class Desktop:
                 updateddeslist.append(m.group(0))
         return updateddeslist
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def design_type(self, project_name=None, design_name=None):
         """Retrieve the type of a design.
 

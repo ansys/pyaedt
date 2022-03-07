@@ -1,15 +1,26 @@
 import json
 import os
-from math import pi, cos, sin, tan, asin, sqrt, radians, degrees, ceil
 import random
 import string
+from math import asin
+from math import ceil
+from math import cos
+from math import degrees
+from math import pi
+from math import radians
+from math import sin
+from math import sqrt
+from math import tan
 
-from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.modeler.Primitives import Primitives
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.multiparts import MultiPartComponent, Environment
-from pyaedt.modeler.actors import Person, Bird, Vehicle
 from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.actors import Bird
+from pyaedt.modeler.actors import Person
+from pyaedt.modeler.actors import Vehicle
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.multiparts import Environment
+from pyaedt.modeler.multiparts import MultiPartComponent
+from pyaedt.modeler.Primitives import Primitives
 
 
 class Primitives3D(Primitives, object):
@@ -37,7 +48,7 @@ class Primitives3D(Primitives, object):
         Primitives.__init__(self)
         self.multiparts = []
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def is3d(self):
         """Check if the analysis is a 3D type.
 
@@ -48,7 +59,7 @@ class Primitives3D(Primitives, object):
 
         """
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_point(self, position, name=None, color="(143 175 143)"):
         """Create a point.
 
@@ -98,7 +109,7 @@ class Primitives3D(Primitives, object):
         point = _retry_ntimes(10, self._oeditor.CreatePoint, parameters, attributes)
         return self._create_point(name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_box(self, position, dimensions_list, name=None, matname=None):
         """Create a box.
 
@@ -152,7 +163,7 @@ class Primitives3D(Primitives, object):
         new_object_name = _retry_ntimes(10, self._oeditor.CreateBox, vArg1, vArg2)
         return self._create_object(new_object_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_cylinder(self, cs_axis, position, radius, height, numSides=0, name=None, matname=None):
         """Create a cylinder.
 
@@ -217,7 +228,7 @@ class Primitives3D(Primitives, object):
         new_object_name = self._oeditor.CreateCylinder(vArg1, vArg2)
         return self._create_object(new_object_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_polyhedron(
         self,
         cs_axis=None,
@@ -292,7 +303,7 @@ class Primitives3D(Primitives, object):
         new_object_name = self._oeditor.CreateRegularPolyhedron(vArg1, vArg2)
         return self._create_object(new_object_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_cone(self, cs_axis, position, bottom_radius, top_radius, height, name=None, matname=None):
         """Create a cone.
 
@@ -363,7 +374,7 @@ class Primitives3D(Primitives, object):
         new_object_name = self._oeditor.CreateCone(vArg1, vArg2)
         return self._create_object(new_object_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_sphere(self, position, radius, name=None, matname=None):
         """Create a sphere.
 
@@ -417,7 +428,7 @@ class Primitives3D(Primitives, object):
         new_object_name = self._oeditor.CreateSphere(vArg1, vArg2)
         return self._create_object(new_object_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_torus(self, center, major_radius, minor_radius, axis=None, name=None, material_name=None):
         """Create a torus.
 
@@ -485,7 +496,7 @@ class Primitives3D(Primitives, object):
         new_object_name = _retry_ntimes(10, self._oeditor.CreateTorus, first_argument, second_argument)
         return self._create_object(new_object_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_bondwire(
         self,
         start_position,
@@ -600,7 +611,7 @@ class Primitives3D(Primitives, object):
         new_object_name = self._oeditor.CreateBondwire(first_argument, second_argument)
         return self._create_object(new_object_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_rectangle(self, csPlane, position, dimension_list, name=None, matname=None, is_covered=True):
         """Create a rectangle.
 
@@ -652,7 +663,7 @@ class Primitives3D(Primitives, object):
         new_object_name = self._oeditor.CreateRectangle(vArg1, vArg2)
         return self._create_object(new_object_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_circle(self, cs_plane, position, radius, numSides=0, is_covered=True, name=None, matname=None):
         """Create a circle.
 
@@ -700,7 +711,7 @@ class Primitives3D(Primitives, object):
         new_object_name = self._oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_ellipse(self, cs_plane, position, major_radius, ratio, is_covered=True, name=None, matname=None):
         """Create an ellipse.
 
@@ -755,7 +766,7 @@ class Primitives3D(Primitives, object):
         new_object_name = self._oeditor.CreateEllipse(vArg1, vArg2)
         return self._create_object(new_object_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_equationbased_curve(
         self,
         x_t=0,
@@ -864,7 +875,7 @@ class Primitives3D(Primitives, object):
         new_name = self._oeditor.CreateEquationCurve(vArg1, vArg2)
         return self._create_object(new_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_helix(self, udphelixdefinition):
         """Create an helix.
 
@@ -893,7 +904,7 @@ class Primitives3D(Primitives, object):
         new_name = self._oeditor.CreateHelix(vArg1, vArg2)
         return self._create_object(new_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def convert_segments_to_line(self, object_name):
         """Convert a CreatePolyline list of segments to lines.
 
@@ -930,7 +941,7 @@ class Primitives3D(Primitives, object):
             )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_udm(self, udmfullname, udm_params_list, udm_library="syslib"):
         """Create a user-defined model.
 
@@ -1007,7 +1018,7 @@ class Primitives3D(Primitives, object):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_spiral(
         self,
         internal_radius=10,
@@ -1077,7 +1088,7 @@ class Primitives3D(Primitives, object):
             p1.name = name
         return p1
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def insert_3d_component(self, compFile, geoParams=None, szMatParams="", szDesignParams="", targetCS="Global"):
         """Insert a new 3D component.
 
@@ -1134,7 +1145,7 @@ class Primitives3D(Primitives, object):
         self.refresh_all_ids()
         return new_object_name
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_3d_component_object_list(self, componentname):
         """Retrieve all objects belonging to a 3D component.
 
@@ -1161,7 +1172,7 @@ class Primitives3D(Primitives, object):
             self.logger.warning("Object Oriented Beta Option is not enabled in this Desktop.")
         return []
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _check_actor_folder(self, actor_folder):
         if not os.path.exists(actor_folder):
             self.logger.error("Folder {} does not exist.".format(actor_folder))
@@ -1173,14 +1184,14 @@ class Primitives3D(Primitives, object):
             return False
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _initialize_multipart(self):
         if MultiPartComponent._t in self._app._variable_manager.independent_variable_names:
             return True
         else:
             return MultiPartComponent.start(self._app)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_person(
         self,
         actor_folder,
@@ -1288,7 +1299,7 @@ class Primitives3D(Primitives, object):
         self.multiparts.append(person1)
         return person1
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_vehicle(
         self,
         actor_folder,
@@ -1378,7 +1389,7 @@ class Primitives3D(Primitives, object):
         self.multiparts.append(vehicle)
         return vehicle
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_bird(
         self,
         actor_folder,
@@ -1494,7 +1505,7 @@ class Primitives3D(Primitives, object):
         self.multiparts.append(bird)
         return bird
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_environment(
         self, env_folder, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None, environment_name=None
     ):
@@ -1561,7 +1572,7 @@ class Primitives3D(Primitives, object):
         self.multiparts.append(environment)
         return environment
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_choke(self, json_file):
         """Create a chock from json setting file.
 
@@ -1593,9 +1604,9 @@ class Primitives3D(Primitives, object):
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
         >>> mychoke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
         """
-        json_file = open(json_file, "r")
-        values = json.load(json_file)
-        self.logger.info("CHOKE INFO" + str(values))
+        with open(json_file, "r") as read_file:
+            values = json.load(read_file)
+        self.logger.info("CHOKE INFO: " + str(values))
 
         security_factor = 1.1
         sr = security_factor
@@ -1778,7 +1789,7 @@ class Primitives3D(Primitives, object):
         returned_list.insert(0, success)
         return returned_list
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _make_winding(self, name, color, mat, in_rad, out_rad, height, dia, teta, turns, chamf, sep_layer):
 
         teta_r = radians(teta)
@@ -1819,7 +1830,7 @@ class Primitives3D(Primitives, object):
 
         return list_positions
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _make_double_linked_winding(
         self,
         name,
@@ -1880,7 +1891,7 @@ class Primitives3D(Primitives, object):
         true_polyline = self.create_polyline(position_list=list_positions, name="Final_Winding")
         return [true_polyline, list_positions]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _make_triple_linked_winding(
         self,
         name,
@@ -1957,7 +1968,7 @@ class Primitives3D(Primitives, object):
         true_polyline = self.create_polyline(position_list=list_positions, name="Final_Winding")
         return [true_polyline, list_positions]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _make_double_winding(
         self,
         name,
@@ -1999,7 +2010,7 @@ class Primitives3D(Primitives, object):
         ]
         return list_object
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _make_triple_winding(
         self,
         name,
@@ -2060,7 +2071,7 @@ class Primitives3D(Primitives, object):
         ]
         return list_object
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _make_core(self, name, color, mat, in_rad, out_rad, height, chamfer):
         tool = self.create_cylinder("Z", [0, 0, -height / 2], in_rad, height, 0, "Tool")
         core = self.create_cylinder("Z", [0, 0, -height / 2], out_rad, height, 0, name)
@@ -2070,7 +2081,7 @@ class Primitives3D(Primitives, object):
             n.chamfer(chamfer)
         return core
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def check_choke_values(self, json_file, create_another_file=True):
         """Verify the values in the json file and create another one with corrected values next to the first one.
 
@@ -2139,8 +2150,8 @@ class Primitives3D(Primitives, object):
         are_inequations_checkable = True
         security_factor = 1.1
         sr = security_factor
-        read_file = open(json_file, "r")
-        values = json.load(read_file)
+        with open(json_file, "r") as read_file:
+            values = json.load(read_file)
 
         for key, value in dictionary_model.items():
             if key not in values:
@@ -2482,14 +2493,14 @@ class Primitives3D(Primitives, object):
 
         return [are_inequations_checkable, values]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _make_winding_follow_chamfer(self, chamfer, security_factor, wire_diameter, layer_number):
         sr = security_factor
         w_rad_inc = layer_number * sr * wire_diameter / 2
         distance = sqrt(2 * w_rad_inc ** 2) - w_rad_inc + sqrt(2 * chamfer ** 2) / 2
         return sqrt(2) * distance
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _check_value_type(self, taken_value, value_type, are_inequations_checkable, part_message1, part_message2):
         are_inequations_checkable = are_inequations_checkable
         if value_type == int:

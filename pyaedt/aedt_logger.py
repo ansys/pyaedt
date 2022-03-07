@@ -1,7 +1,8 @@
 import logging
 import sys
 
-from pyaedt import log_handler, settings
+from pyaedt import log_handler
+from pyaedt import settings
 from pyaedt.application.MessageManager import AEDTMessageManager
 
 

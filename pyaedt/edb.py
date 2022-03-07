@@ -3,17 +3,17 @@
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
 """
+import datetime
 import gc
+import logging
+import os
+import re
+import shutil
 import sys
+import tempfile
 import time
 import traceback
 import warnings
-import shutil
-import tempfile
-import datetime
-import logging
-import re
-import os
 
 
 try:
@@ -26,7 +26,7 @@ from pyaedt import settings
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt.generic.general_methods import (
-    aedt_exception_handler,
+    pyaedt_function_handler,
     env_path,
     env_path_student,
     env_value,
@@ -199,7 +199,7 @@ class Edb(object):
         # time.sleep(2)
         # gc.collect()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _init_objects(self):
         time.sleep(1)
         self._components = Components(self)
@@ -234,7 +234,7 @@ class Edb(object):
             names.append(cell.GetName())
         return names
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _init_dlls(self):
         """Initialize DLLs."""
         sys.path.append(os.path.join(os.path.dirname(__file__), "dlls", "EDBLib"))
@@ -299,7 +299,7 @@ class Edb(object):
                 pass
         return self._edblib
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def open_edb(self, init_dlls=False):
         """Open EDB.
 
@@ -353,7 +353,7 @@ class Edb(object):
 
         return self.builder
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def open_edb_inside_aedt(self, init_dlls=False):
         """Open EDB inside of AEDT.
 
@@ -402,7 +402,7 @@ class Edb(object):
             self.builder = None
             return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_edb(self, init_dlls=False):
         """Create EDB.
 
@@ -434,7 +434,7 @@ class Edb(object):
         self.builder = None
         return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_layout_pcb(self, input_file, working_dir, init_dlls=False, anstranslator_full_path="", use_ppe=False):
         """Import a BRD file and generate an ``edb.def`` file in the working directory.
 
@@ -488,7 +488,7 @@ class Edb(object):
         self.edbpath = os.path.join(working_dir, aedb_name)
         return self.open_edb()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_to_ipc2581(self, ipc_path=None, units="millimeter"):
         """Create an XML IPC2581 file from the active EDB.
 
@@ -664,7 +664,7 @@ class Edb(object):
 
         (Port, Pec, RLC, CurrentSource, VoltageSource, NexximGround, NexximPort, DcTerminal, VoltageProbe) = range(0, 9)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def edb_value(self, val):
         """EDB value.
 
@@ -694,7 +694,7 @@ class Edb(object):
             return self.edb.Utility.Value(val, var_server_cell)
         return self.edb.Utility.Value(val)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _is_file_existing_and_released(self, filename):
         if os.path.exists(filename):
             try:
@@ -706,14 +706,14 @@ class Edb(object):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _is_file_existing(self, filename):
         if os.path.exists(filename):
             return True
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _wait_for_file_release(self, timeout=30, file_to_release=None):
         if not file_to_release:
             file_to_release = os.path.join(self.edbpath)
@@ -726,7 +726,7 @@ class Edb(object):
             else:
                 time.sleep(0.250)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _wait_for_file_exists(self, timeout=30, file_to_release=None, wait_count=4):
         if not file_to_release:
             file_to_release = os.path.join(self.edbpath)
@@ -745,7 +745,7 @@ class Edb(object):
                 times = 0
                 time.sleep(0.250)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def close_edb(self):
         """Close EDB.
 
@@ -769,7 +769,7 @@ class Edb(object):
             timeout -= 1
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def save_edb(self):
         """Save the EDB file.
 
@@ -782,7 +782,7 @@ class Edb(object):
         self._db.Save()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def save_edb_as(self, fname):
         """Save the EDB file as another file.
 
@@ -800,7 +800,7 @@ class Edb(object):
         self._db.SaveAs(fname)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def execute(self, func):
         """Execute a function.
 
@@ -818,7 +818,7 @@ class Edb(object):
         """
         return self.edb.Utility.Command.Execute(func)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_cadence_file(self, inputBrd, WorkDir=None, anstranslator_full_path="", use_ppe=False):
         """Import a BRD file and generate an ``edb.def`` file in the working directory.
 
@@ -847,7 +847,7 @@ class Edb(object):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def import_gds_file(self, inputGDS, WorkDir=None, anstranslator_full_path="", use_ppe=False):
         """Import a GDS file and generate an ``edb.def`` file in the working directory.
 
@@ -994,7 +994,7 @@ class Edb(object):
             self._init_objects()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def arg_with_dim(self, Value, sUnits):
         """Format arguments with dimensions.
 
@@ -1016,7 +1016,7 @@ class Edb(object):
 
         return val
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_cutout_on_point_list(
         self,
         point_list,
@@ -1148,7 +1148,7 @@ class Edb(object):
                         pass
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def write_export3d_option_config_file(self, path_to_output, config_dictionaries=None):
         """Write the options for a 3D export to a configuration file.
 
@@ -1186,7 +1186,7 @@ class Edb(object):
                 f.write(el + " " + str(val) + "\n")
         return os.path.join(path_to_output, "options.config")
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_hfss(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None):
         """Export EDB to HFSS.
 
@@ -1224,7 +1224,7 @@ class Edb(object):
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
         return siwave_s.export_3d_cad("HFSS", path_to_output, net_list, num_cores, aedt_file_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_q3d(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None):
         """Export EDB to Q3D.
 
@@ -1265,7 +1265,7 @@ class Edb(object):
             "Q3D", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_maxwell(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None):
         """Export EDB to Maxwell 3D.
 
@@ -1305,7 +1305,7 @@ class Edb(object):
             "Maxwell", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def solve_siwave(self):
         """Close EDB and solve it with Siwave.
 
@@ -1321,7 +1321,7 @@ class Edb(object):
         process.solve()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_design_variable(self, variable_name, variable_value):
         """Add a design variable.
 
@@ -1352,7 +1352,7 @@ class Edb(object):
             var_server.AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
             return True, var_server
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_bounding_box(self):
         """Retrieve the layout bounding box.
 

@@ -1,6 +1,7 @@
 import os
 
 import pytest
+
 from pyaedt import Icepak
 from pyaedt import icepak as icepak_module
 

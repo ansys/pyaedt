@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 import json
 import math
+import os
 import random
 import re
 import string
 import warnings
-import os
 from collections import OrderedDict
 from decimal import Decimal
 
-from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.modeler.Object3d import EdgePrimitive, FacePrimitive, VertexPrimitive
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.Object3d import EdgePrimitive
+from pyaedt.modeler.Object3d import FacePrimitive
+from pyaedt.modeler.Object3d import VertexPrimitive
 
 try:
     import clr
@@ -25,7 +27,7 @@ except ImportError:
         warnings.warn("Pythonnet is needed to run pyaedt")
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def _tuple2dict(t, d):
     """
 
@@ -56,7 +58,7 @@ def _tuple2dict(t, d):
         d[k] = v
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def _dict2arg(d, arg_out):
     """
 
@@ -100,7 +102,7 @@ def _dict2arg(d, arg_out):
                 arg_out.append(v)
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def _arg2dict(arg, dict_out):
     if arg[0] == "NAME:DimUnits" or "NAME:Point" in arg[0]:
         if arg[0][5:] in dict_out:
@@ -151,7 +153,7 @@ def _arg2dict(arg, dict_out):
         raise ValueError("Incorrect data argument format")
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def create_list_for_csharp(input_list, return_strings=False):
     """
 
@@ -179,7 +181,7 @@ def create_list_for_csharp(input_list, return_strings=False):
     return col
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def create_table_for_csharp(input_list_of_list, return_strings=True):
     """
 
@@ -201,7 +203,7 @@ def create_table_for_csharp(input_list_of_list, return_strings=True):
     return new_table
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def format_decimals(el):
     """
 
@@ -223,7 +225,7 @@ def format_decimals(el):
     return num
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def random_string(length=6, only_digits=False, char_set=None):
     """Generate a random string
 
@@ -252,6 +254,7 @@ def random_string(length=6, only_digits=False, char_set=None):
     return random_str
 
 
+@pyaedt_function_handler()
 def unique_string_list(element_list, only_string=True):
     """Return a unique list of strings from an element list.
 
@@ -286,6 +289,7 @@ def unique_string_list(element_list, only_string=True):
     return element_list
 
 
+@pyaedt_function_handler()
 def string_list(element_list):
     """
 
@@ -305,6 +309,7 @@ def string_list(element_list):
     return element_list
 
 
+@pyaedt_function_handler()
 def ensure_list(element_list):
     """
 
@@ -322,6 +327,7 @@ def ensure_list(element_list):
     return element_list
 
 
+@pyaedt_function_handler()
 def variation_string_to_dict(variation_string, separator="="):
     """Helper function to convert a list of "="-separated strings into a dictionary
 
@@ -382,6 +388,7 @@ RKM_MAPS = {
 AEDT_MAPS = {"μ": "u"}
 
 
+@pyaedt_function_handler()
 def from_rkm(code):
     """Convert an RKM code string to a string with a decimal point.
 
@@ -397,7 +404,7 @@ def from_rkm(code):
 
     Examples
     --------
-    >>> from pyaedt.generic.data_handling import from_rkm
+    >>> from pyaedt.generic.DataHandlers import from_rkm
     >>> from_rkm('R47')
     '0.47'
 
@@ -450,6 +457,7 @@ def from_rkm(code):
     return code
 
 
+@pyaedt_function_handler()
 def to_aedt(code):
     """
 
@@ -468,6 +476,7 @@ def to_aedt(code):
     return return_code
 
 
+@pyaedt_function_handler()
 def from_rkm_to_aedt(code):
     """
 
@@ -524,6 +533,7 @@ with Desktop() as d:
 """
 
 
+@pyaedt_function_handler()
 def float_units(val_str, units=""):
     """Retrieve units for a value.
 
@@ -554,6 +564,7 @@ def float_units(val_str, units=""):
     return val
 
 
+@pyaedt_function_handler()
 def json_to_dict(fn):
     """Load Json File to a dictionary.
 
