@@ -26,6 +26,9 @@ class TestClass(BasisTest, object):
         example_project = os.path.join(local_path, "example_models", "Package.aedb")
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_00.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
+        example_project2 = os.path.join(local_path, "example_models", "simple.aedb")
+        self.target_path2 = os.path.join(self.local_scratch.path, "simple_00.aedb")
+        self.local_scratch.copyfolder(example_project2, self.target_path2)
 
     def teardown_class(self):
         self.edbapp.close_edb()
@@ -630,10 +633,11 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_components.short_component_pins("U10", ["2", "5"])
 
     def test_77_flip_layer_stackup(self):
+        edb1 = Edb(self.target_path2, edbversion=desktop_version)
 
         edb2 = Edb(self.target_path, edbversion=desktop_version)
-        assert edb2.core_stackup.place_in_layout_3d_placement(
-            self.edbapp,
+        assert edb1.core_stackup.place_in_layout_3d_placement(
+            edb2,
             angle=0.0,
             offset_x="41.783mm",
             offset_y="35.179mm",
@@ -642,6 +646,7 @@ class TestClass(BasisTest, object):
             solder_height=0.00033,
         )
         edb2.close_edb()
+        edb1.close_edb()
 
     def test_78_flip_layer_stackup_2(self):
         edb2 = Edb(self.target_path, edbversion=desktop_version)
