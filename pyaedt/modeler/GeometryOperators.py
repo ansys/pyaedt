@@ -5,6 +5,7 @@ import sys
 
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.constants import PLANE
+from pyaedt.generic.constants import scale_units
 from pyaedt.generic.constants import SWEEPDRAFT
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
@@ -72,46 +73,17 @@ class GeometryOperators(object):
         2.0
 
         """
-        scaling = {
-            "m": 1.0,
-            "meter": 1.0,
-            "meters": 1.0,
-            "dm": 0.1,
-            "cm": 1e-2,
-            "mm": 1e-3,
-            "um": 1e-6,
-            "nm": 1e-9,
-            "in": 2.54e-2,
-            "mil": 2.54e-5,
-            "uin": 2.54e-8,
-            "ft": 3.048e-1,
-            "s": 1.0,
-            "sec": 1.0,
-            "ms": 1e-3,
-            "us": 1e-6,
-            "ns": 1e-9,
-            "Hz": 1.0,
-            "kHz": 1e3,
-            "MHz": 1e6,
-            "GHz": 1e9,
-            "THz": 1e12,
-        }
 
         if type(string) is not str:
             try:
                 return float(string)
             except ValueError:  # pragma: no cover
                 raise TypeError("Input argument is not string nor number")
-
+        sunit = 1.0
         if scale_to_unit:
-            try:
-                sunit = scaling[scale_to_unit]
-            except KeyError as e:  # pragma: no cover
-                raise e
-        else:
-            sunit = 1.0
+            sunit = scale_units(scale_to_unit)
 
-        pattern = r"(?P<number>[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)\s*(?P<unit>[a-zA-Z]*)"
+        pattern = r"(?P<number>[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)\s*(?P<unit>[a-z_A-Z]*)"
         m = re.search(pattern, string)
         if m:
             if m.group(0) != string:
@@ -124,17 +96,9 @@ class GeometryOperators(object):
                     return string
             elif not m.group("unit"):
                 return float(m.group("number"))
-            elif m.group("unit") == "deg":
-                return GeometryOperators.deg2rad(float(m.group("number")))
-            elif m.group("unit") == "rad":
-                return float(m.group("number"))
             else:
-                try:
-                    scaling_factor = scaling[m.group("unit")]
-                except KeyError as e:  # pragma: no cover
-                    raise e
-                else:
-                    return float(m.group("number")) * scaling_factor / sunit
+                scaling_factor = scale_units(m.group("unit"))
+                return float(m.group("number")) * scaling_factor / sunit
         else:  # pragma: no cover
             raise TypeError("String is no number")
 
