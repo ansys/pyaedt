@@ -278,6 +278,17 @@ class EdbStackup(object):
         return 0
 
     @pyaedt_function_handler()
+    def _remove_solder_pec(self, layer_name):
+        for el, val in self._pedb.core_components.components.items():
+            if val.solder_ball_height and val.placement_layer == layer_name:
+                comp_prop = val.component_property
+                port_property = comp_prop.GetPortProperty().Clone()
+                port_property.SetReferenceSizeAuto(False)
+                port_property.SetReferenceSize(self._edb_value(0.0), self._edb_value(0.0))
+                comp_prop.SetPortProperty(port_property)
+                val.edbcomponent.SetComponentProperty(comp_prop)
+
+    @pyaedt_function_handler()
     def adjust_solder_dielectrics(self):
         """Adjust the stack-up by adding or modifying dielectric layers that contains Solder Balls.
         This method identifies the solder-ball height and adjust the dielectric thickness on top (or bottom) to fit
@@ -480,9 +491,14 @@ class EdbStackup(object):
 
         if solder_height <= 0:
             if flipped_stackup and not place_on_top or (place_on_top and not flipped_stackup):
-                solder_height = self._get_solder_height(list(self.signal_layers.keys())[0])
+                lay = list(self.signal_layers.keys())[0]
+                solder_height = self._get_solder_height(lay)
+                self._remove_solder_pec(lay)
             else:
-                solder_height = self._get_solder_height(list(self.signal_layers.keys())[-1])
+                lay = list(self.signal_layers.keys())[-1]
+
+                solder_height = self._get_solder_height(lay)
+                self._remove_solder_pec(lay)
 
         rotation = self._edb_value(0.0)
         if flipped_stackup:
@@ -509,35 +525,64 @@ class EdbStackup(object):
         else:
             cell_inst2.SetPlacementLayer(list(stackup_target.Layers(self._edb.Cell.LayerTypeSet.SignalLayerSet))[-1])
         cell_inst2.SetIs3DPlacement(True)
-        input_layers = self._edb.Cell.LayerTypeSet.SignalLayerSet
-        if is_ironpython:
-            res, topl, topz, bottoml, bottomz = stackup_target.GetTopBottomStackupLayers(input_layers)
-            res_s, topl_s, topz_s, bottoml_s, bottomz_s = stackup_source.GetTopBottomStackupLayers(input_layers)
+        stack_set = self._edb.Cell.LayerTypeSet.StackupLayerSet
+        sig_set = self._edb.Cell.LayerTypeSet.SignalLayerSet
+
+        if is_ironpython:  # pragma: no cover
+            res = stackup_target.GetTopBottomStackupLayers(stack_set)
+            target_top_thick = res[2]
+            target_bottom_thick = res[4]
+            res_s = stackup_source.GetTopBottomStackupLayers(stack_set)
+            source_stack_top_thick = res_s[2]
+            source_stack_bot_thick = res_s[4]
+            res2 = stackup_source.GetTopBottomStackupLayers(sig_set)
+            source_sig_top_thick = res2[2]
+            source_sig_bot_thick = res2[4]
         else:
-            topl = None
-            topz = Double(0.0)
-            bottoml = None
-            bottomz = Double(0.0)
-            topl_s = None
-            topz_s = Double(0.0)
-            bottoml_s = None
-            bottomz_s = Double(0.0)
-            res, topl, topz, bottoml, bottomz = stackup_target.GetTopBottomStackupLayers(
-                input_layers, topl, topz, bottoml, bottomz
-            )
-            res_s, topl_s, topz_s, bottoml_s, bottomz_s = stackup_source.GetTopBottomStackupLayers(
-                input_layers, topl_s, topz_s, bottoml_s, bottomz_s
+            target_top = None
+            target_top_thick = Double(0.0)
+            target_bottom = None
+            target_bottom_thick = Double(0.0)
+            source_sig_top = None
+            source_sig_top_thick = Double(0.0)
+            source_sig_bot = None
+            source_sig_bot_thick = Double(0.0)
+            source_stack_top = None
+            source_stack_top_thick = Double(0.0)
+            source_stack_bot = None
+            source_stack_bot_thick = Double(0.0)
+            res = stackup_target.GetTopBottomStackupLayers(
+                stack_set, target_top, target_top_thick, target_bottom, target_bottom_thick
             )
 
-        if place_on_top:
-            if flipped_stackup:
-                h_stackup = self._edb_value(topz + solder_height + topz_s)
-            else:
-                h_stackup = self._edb_value(topz + solder_height - bottomz_s)
+            res_s = stackup_source.GetTopBottomStackupLayers(
+                stack_set, source_stack_top, source_stack_top_thick, source_stack_bot, source_stack_bot_thick
+            )
+            res2 = stackup_source.GetTopBottomStackupLayers(
+                sig_set, source_sig_top, source_sig_top_thick, source_sig_bot, source_sig_bot_thick
+            )
+            target_top_thick = res[2]
+            target_bottom_thick = res[4]
+            source_stack_top_thick = res_s[2]
+            source_stack_bot_thick = res_s[4]
+            source_sig_top_thick = res2[2]
+            source_sig_bot_thick = res2[4]
+        if place_on_top and flipped_stackup:
+            elevation = target_top_thick + source_stack_top_thick
+            diel_elevation = source_stack_top_thick - source_sig_top_thick
+        elif place_on_top:
+            elevation = target_top_thick + source_stack_bot_thick
+            diel_elevation = source_sig_bot_thick - source_stack_bot_thick
         elif flipped_stackup:
-            h_stackup = self._edb_value(topl.GetThickness() + bottomz - solder_height - bottomz_s)
+            elevation = target_bottom_thick - source_stack_bot_thick
+            diel_elevation = source_stack_bot_thick - source_sig_bot_thick
+            solder_height = -solder_height
         else:
-            h_stackup = self._edb_value(bottomz - solder_height - topz_s)
+            elevation = target_bottom_thick - source_sig_top_thick
+            diel_elevation = target_bottom_thick - source_stack_bot_thick
+            solder_height = -solder_height
+
+        h_stackup = self._edb_value(elevation + solder_height - diel_elevation)
 
         zero_data = self._edb_value(0.0)
         one_data = self._edb_value(1.0)
