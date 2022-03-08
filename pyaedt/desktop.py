@@ -291,11 +291,11 @@ class Desktop:
             self._main.isoutsideDesktop = True
         self.release_on_exit = True
         self.logfile = None
-        if "oDesktop" in dir():
+        if "oDesktop" in dir():  # pragma: no cover
             self.release_on_exit = False
             self._main.oDesktop = oDesktop
             settings.aedt_version = oDesktop.GetVersion()[0:6]
-        elif "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
+        elif "oDesktop" in dir(self._main) and self._main.oDesktop is not None:  # pragma: no cover
             self.release_on_exit = False
         else:
             if "oDesktop" in dir(self._main):
@@ -610,8 +610,7 @@ class Desktop:
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not settings.non_graphical:
-            self._desktop.ClearMessages("", "", 3)
+        self._desktop.ClearMessages("", "", 3)
         return True
 
     @pyaedt_function_handler()
