@@ -90,7 +90,7 @@ class BasisTest(object):
             oDesktop = sys.modules["__main__"].oDesktop
         except Exception as e:
             oDesktop = None
-        if oDesktop:
+        if oDesktop and not settings.non_graphical:
             oDesktop.ClearMessages("", "", 3)
         for edbapp in self.edbapps[::-1]:
             try:
