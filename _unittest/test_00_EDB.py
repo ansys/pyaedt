@@ -42,7 +42,7 @@ class TestClass(BasisTest, object):
         self.edbapp.export_to_ipc2581(ipc_path, "mm")
         assert os.path.exists(ipc_path)
 
-        # Test the export method when IPC8521.ExportIPC2581FromLayout raises an exception internally.
+        # Test the export_to_ipc2581 method when IPC8521.ExportIPC2581FromLayout raises an exception internally.
         with unittest.mock.patch("pyaedt.Edb.edblib", new_callable=unittest.mock.PropertyMock) as edblib_mock:
             Edb.edblib.IPC8521 = unittest.mock.Mock()
             Edb.edblib.IPC8521.IPCExporter = unittest.mock.Mock()
