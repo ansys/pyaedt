@@ -43,9 +43,9 @@ class TestClass(BasisTest, object):
         assert os.path.exists(ipc_path)
 
         with unittest.mock.patch('pyaedt.Edb.edblib', new_callable=unittest.mock.PropertyMock) as edblib_mock:
-            Edb.edblib.IPC8521 = unittest.mock.MagicMock()
-            Edb.edblib.IPC8521.IPCExporter = unittest.mock.MagicMock()
-            Edb.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout = unittest.mock.MagicMock(side_effect=Exception("Exception for testing raised in ExportIPC2581FromLayout."))
+            Edb.edblib.IPC8521 = unittest.mock.Mock()
+            Edb.edblib.IPC8521.IPCExporter = unittest.mock.Mock()
+            Edb.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout = unittest.mock.Mock(side_effect=Exception("Exception for testing raised in ExportIPC2581FromLayout."))
 
             assert not self.edbapp.export_to_ipc2581(os.path.exists(ipc_path))
 
