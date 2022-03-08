@@ -19,7 +19,7 @@ class SimulationConfiguration(object):
         self._keep_anf_ports_and_pin_groups = True
         self._use_default_coax_port_radial_extension = True
         self._trim_reference_size = False
-        self._cutout_subdesign_type = 'Conformal'  # CutoutSubdesignType.Conformal
+        self._cutout_subdesign_type = CutoutSubdesignType.Conformal  # Conformal
         self._cutout_subdesign_expansion = 0.1
         self._cutout_subdesign_round_corner = True
         self._sweep_interpolating = True
@@ -31,16 +31,16 @@ class SimulationConfiguration(object):
         self._enforce_passivity = True
         self._passivity_tolerance = 0.0001
         self._sweep_name = 'Sweep1'
-        self._radiation_box = 'ConvexHull'  # RadiationBoxType.ConvexHull
+        self._radiation_box = RadiationBoxType.ConvexHull  # 'ConvexHull'
         self._start_frequency = '0.0GHz'  # 0.0
         self._stop_freq = '10.001GHz'  # 10e9
-        self._sweep_type = 'Linear'  # SweepType.Linear
+        self._sweep_type = SweepType.Linear  # 'Linear'
         self._step_freq = '0.040004GHz'  # 10e6
         self._mesh_freq = '3GHz'  # 5e9
         self._max_num_passes = 30
         self._max_mag_delta_s = 0.03
         self._min_num_passes = 1
-        self._basis_order = 'Mixed'  # BasisOrder.Mixed
+        self._basis_order = BasisOrder.Mixed  # 'Mixed'
         self._do_lambda_refinement = True
         self._arc_angle = '30deg'  # 30
         self._start_azimuth = 0
@@ -87,7 +87,7 @@ class SimulationConfiguration(object):
         return self._setup_name
 
     @setup_name.setter
-    def set_name(self, value):
+    def setup_name(self, value):
         if isinstance(value, str):
             self._setup_name = value
 
@@ -160,10 +160,10 @@ class SimulationConfiguration(object):
 
     @cutout_subdesign_type.setter
     def cutout_subdesign_type(self, value):
-        # if isinstance(value, CutoutSubdesignType):
-        #     self._cutout_subdesign_type = value
-        if isinstance(value, str):
+        if isinstance(value, CutoutSubdesignType):
             self._cutout_subdesign_type = value
+        # if isinstance(value, str):
+        #     self._cutout_subdesign_type = value
 
     @property
     def cutout_subdesign_expansion(self):
@@ -270,10 +270,10 @@ class SimulationConfiguration(object):
 
     @radiation_box.setter
     def radiation_box(self, value):
-        # if isinstance(value, RadiationBoxType):
-        #     self._radiation_box = value
-        if isinstance(value, str):
+        if isinstance(value, RadiationBoxType):
             self._radiation_box = value
+        # if isinstance(value, str):
+        #     self._radiation_box = value
 
     @property
     def start_frequency(self):
@@ -299,10 +299,10 @@ class SimulationConfiguration(object):
 
     @sweep_type.setter
     def sweep_type(self, value):
-        # if isinstance(value, SweepType):
-        #     self._sweep_type = value
-        if isinstance(value, str):
+        if isinstance(value, SweepType):
             self._sweep_type = value
+        # if isinstance(value, str):
+        #     self._sweep_type = value
 
     @property
     def step_freq(self):
@@ -355,10 +355,10 @@ class SimulationConfiguration(object):
 
     @basis_order.setter
     def basis_order(self, value):
-        # if isinstance(value, BasisOrder):
-        #     self._basis_order = value
-        if isinstance(value, str):
+        if isinstance(value, BasisOrder):
             self._basis_order = value
+        # if isinstance(value, str):
+        #     self._basis_order = value
 
     @property
     def do_lambda_refinement(self):
@@ -574,122 +574,152 @@ class SimulationConfiguration(object):
 
         if not os.path.exists(self._filename):
             raise Exception("{} does not exist.".format(self._filename))
-
-        with open(self._filename) as cfg_file:
-            cfg_lines = cfg_file.read().split('\n')
-            for line in cfg_lines:
-                if line.strip() != "":
-                    if line.find("="):
-                        i, prop_value = line.strip().split("=")
-                        value = prop_value.replace("'", "").strip()
-                        if i.startswith("generateSolderBalls"):
-                            self.generate_solder_balls = self._get_bool_value(value)
-                        elif i.startswith('signalNets'):
-                            self.signal_nets = self._get_list_value(value)
-                        elif i.startswith("powerNets"):
-                            self.power_nets = self._get_list_value(value)
-                        elif i.startswith('coax_components'):
-                            self.component_with_coaxial_ports = self._get_list_value(value)
-                        elif i.startswith('coax_instances'):
-                            self.coax_instances = self._get_list_value(value)
-                        elif i.startswith('coaxSolderBallsDiams'):
-                            self.coax_solder_ball_diameter = self._get_list_value(value)
-                        elif i.startswith('KeepANFPortsAndPinGroups'):
-                            self.keep_anf_ports_and_pin_groups = self._get_bool_value(value)
-                        elif i.startswith('UseDefaultCoaxPortRadialExtentFactor'):
-                            self.signal_nets = self._get_bool_value(value)
-                        elif i.startswith('TrimRefSize'):
-                            self.trim_reference_size = self._get_bool_value(value)
-                        elif i.startswith('CutoutSubdesignType'):
-                            self.cutout_subdesign_type = value
-                        elif i.startswith('CutoutSubdesignExpansion'):
-                            self.cutout_subdesign_expansion = float(value)
-                        elif i.startswith('CutoutSubdesignRoundCorners'):
-                            self.cutout_subdesign_round_corner = self._get_bool_value(value)
-                        elif i.startswith('SweepInterpolating'):
-                            self.sweep_interpolating = self._get_bool_value(value)
-                        elif i.startswith('UseQ3DForDC'):
-                            self.use_q3d_for_dc = self._get_bool_value(value)
-                        elif i.startswith('RelativeErrorS'):
-                            self.relative_error = float(value)
-                        elif i.startswith('UseErrorZ0'):
-                            self.use_error_z0 = self._get_bool_value(value)
-                        elif i.startswith('PercentErrorZ0'):
-                            self.percentage_error_z0 = float(value)
-                        elif i.startswith('EnforceCausality'):
-                            self.enforce_causality = self._get_bool_value(value)
-                        elif i.startswith('EnforcePassivity'):
-                            self.enforce_passivity = self._get_bool_value(value)
-                        elif i.startswith('PassivityTolerance'):
-                            self.passivity_tolerance = float(value)
-                        elif i.startswith('SweepName'):
-                            self.sweep_name = value
-                        elif i.startswith('RadiationBox'):
-                            self.radiation_box = value
-                        elif i.startswith('StartFreq'):
-                            self.start_frequency = value
-                        elif i.startswith('StopFreq'):
-                            self.stop_freq = value
-                        elif i.startswith('SweepType'):
-                            self.sweep_type = value
-                        elif i.startswith('StepFreq'):
-                            self.step_freq = value
-                        elif i.startswith('Mesh_Freq'):
-                            self.mesh_freq = value
-                        elif i.startswith('MaxNumPasses'):
-                            self.max_num_passes = int(value)
-                        elif i.startswith('MaxMagDeltaS'):
-                            self.max_mag_delta_s = float(value)
-                        elif i.startswith('MinNumPasses'):
-                            self.min_num_passes = int(value)
-                        elif i.startswith('BasisOrder'):
-                            self.basis_order = value
-                        elif i.startswith('DoLambdaRefinement'):
-                            self.do_lambda_refinement = self._get_bool_value(value)
-                        elif i.startswith('ArcAngle'):
-                            self.arc_angle = value
-                        elif i.startswith('StartAzimuth'):
-                            self.start_azimuth = float(value)
-                        elif i.startswith('MaxArcPoints'):
-                            self.max_arc_points = int(value)
-                        elif i.startswith('UseArcToChordError'):
-                            self.use_arc_to_chord_error = self._get_bool_value(value)
-                        elif i.startswith('ArcToChordError'):
-                            self.arc_to_chord_error = value
-                        elif i.startswith('DefeatureAbsLength'):
-                            self.defeature_abs_length = value
-                        elif i.startswith('DefeatureLayout'):
-                            self.defeature_layout = self._get_bool_value(value)
-                        elif i.startswith('MinimumVoidSuface'):
-                            self.minimum_void_surface = float(value)
-                        elif i.startswith('MaxSufDev'):
-                            self.max_suf_dev = float(value)
-                        elif i.startswith('ProcessPadstackDefinitions'):
-                            self.process_padstack_definitions = self._get_bool_value(value)
-                        elif i.startswith('ReturnCurrentDistribution'):
-                            self.return_current_distribution = self._get_bool_value(value)
-                        elif i.startswith('IgnoreNonFunctionalPads'):
-                            self.ignore_non_functional_pads = self._get_bool_value(value)
-                        elif i.startswith('IncludeInterPlaneCoupling'):
-                            self.include_inter_plane_coupling = self._get_bool_value(value)
-                        elif i.startswith('XtalkThreshold'):
-                            self.xtalk_threshold = float(value)
-                        elif i.startswith('MinVoidArea'):
-                            self.min_void_area = value
-                        elif i.startswith('MinPadAreaToMesh'):
-                            self.min_pad_area_to_mesh = value
-                        elif i.startswith('SnapLengthThreshold'):
-                            self.snap_length_threshold = value
-                        elif i.startswith('DcMinPlaneAreaToMesh'):
-                            self.dc_min_plane_area_to_mesh = value
-                        elif i.startswith('MaxInitMeshEdgeLength'):
-                            self.max_init_mesh_edge_length = value
-                        elif i.startswith('SignalLayersProperties'):
-                            self.signalLayersProperties = self._get_list_value(value)
+        
+        try:
+            with open(self._filename) as cfg_file:
+                cfg_lines = cfg_file.read().split('\n')
+                for line in cfg_lines:
+                    if line.strip() != "":
+                        if line.find("="):
+                            i, prop_value = line.strip().split("=")
+                            value = prop_value.replace("'", "").strip()
+                            if i.startswith("generateSolderBalls"):
+                                self.generate_solder_balls = self._get_bool_value(value)
+                            elif i.startswith('signalNets'):
+                                self.signal_nets = self._get_list_value(value)
+                            elif i.startswith("powerNets"):
+                                self.power_nets = self._get_list_value(value)
+                            elif i.startswith('coax_components'):
+                                self.component_with_coaxial_ports = self._get_list_value(value)
+                            elif i.startswith('coax_instances'):
+                                self.coax_instances = self._get_list_value(value)
+                            elif i.startswith('coaxSolderBallsDiams'):
+                                self.coax_solder_ball_diameter = self._get_list_value(value)
+                            elif i.startswith('KeepANFPortsAndPinGroups'):
+                                self.keep_anf_ports_and_pin_groups = self._get_bool_value(value)
+                            elif i.startswith('UseDefaultCoaxPortRadialExtentFactor'):
+                                self.signal_nets = self._get_bool_value(value)
+                            elif i.startswith('TrimRefSize'):
+                                self.trim_reference_size = self._get_bool_value(value)
+                            elif i.startswith('CutoutSubdesignType'):
+                                if value.lower().startswith('conformal'):
+                                    self.cutout_subdesign_type = CutoutSubdesignType.Conformal
+                                elif value.lower().startswith('boundingbox'):
+                                    self.cutout_subdesign_type = CutoutSubdesignType.BoundingBox
+                                else:
+                                    print("Unprocessed value for CutoutSubdesignType '{0}'".format(value))
+                            elif i.startswith('CutoutSubdesignExpansion'):
+                                self.cutout_subdesign_expansion = float(value)
+                            elif i.startswith('CutoutSubdesignRoundCorners'):
+                                self.cutout_subdesign_round_corner = self._get_bool_value(value)
+                            elif i.startswith('SweepInterpolating'):
+                                self.sweep_interpolating = self._get_bool_value(value)
+                            elif i.startswith('UseQ3DForDC'):
+                                self.use_q3d_for_dc = self._get_bool_value(value)
+                            elif i.startswith('RelativeErrorS'):
+                                self.relative_error = float(value)
+                            elif i.startswith('UseErrorZ0'):
+                                self.use_error_z0 = self._get_bool_value(value)
+                            elif i.startswith('PercentErrorZ0'):
+                                self.percentage_error_z0 = float(value)
+                            elif i.startswith('EnforceCausality'):
+                                self.enforce_causality = self._get_bool_value(value)
+                            elif i.startswith('EnforcePassivity'):
+                                self.enforce_passivity = self._get_bool_value(value)
+                            elif i.startswith('PassivityTolerance'):
+                                self.passivity_tolerance = float(value)
+                            elif i.startswith('SweepName'):
+                                self.sweep_name = value
+                            elif i.startswith('RadiationBox'):
+                                if value.lower().startswith('conformal'):
+                                    self.radiation_box = RadiationBoxType.Conformal
+                                elif value.lower().startswith('boundingbox'):
+                                    self.radiation_box = RadiationBoxType.BoundingBox
+                                elif value.lower().startswith('convexhull'):
+                                    self.radiation_box = RadiationBoxType.ConvexHull
+                                else:
+                                    print("Unprocessed value for RadiationBox '{0}'".format(value))
+                            elif i.startswith('StartFreq'):
+                                self.start_frequency = value
+                            elif i.startswith('StopFreq'):
+                                self.stop_freq = value
+                            elif i.startswith('SweepType'):
+                                if value.lower().startswith('linear'):
+                                    self.sweep_type = SweepType.Linear
+                                elif value.lower().startswith('logcount'):
+                                    self.sweep_type = SweepType.LogCount
+                                else:
+                                    print("Unprocessed value for SweepType '{0}'".format(value))
+                            elif i.startswith('StepFreq'):
+                                self.step_freq = value
+                            elif i.startswith('Mesh_Freq'):
+                                self.mesh_freq = value
+                            elif i.startswith('MaxNumPasses'):
+                                self.max_num_passes = int(value)
+                            elif i.startswith('MaxMagDeltaS'):
+                                self.max_mag_delta_s = float(value)
+                            elif i.startswith('MinNumPasses'):
+                                self.min_num_passes = int(value)
+                            elif i.startswith('BasisOrder'):
+                                if value.lower().startswith('mixed'):
+                                    self.basis_order = BasisOrder.Mixed
+                                elif value.lower().startswith('zero'):
+                                    self.basis_order = BasisOrder.Zero
+                                elif value.lower().startswith('first'):  # single
+                                    self.basis_order = BasisOrder.single
+                                elif value.lower().startswith('second'):  # double
+                                    self.basis_order = BasisOrder.Double
+                                else:
+                                    print("Unprocessed value for BasisOrder '{0}'".format(value))
+                            elif i.startswith('DoLambdaRefinement'):
+                                self.do_lambda_refinement = self._get_bool_value(value)
+                            elif i.startswith('ArcAngle'):
+                                self.arc_angle = value
+                            elif i.startswith('StartAzimuth'):
+                                self.start_azimuth = float(value)
+                            elif i.startswith('MaxArcPoints'):
+                                self.max_arc_points = int(value)
+                            elif i.startswith('UseArcToChordError'):
+                                self.use_arc_to_chord_error = self._get_bool_value(value)
+                            elif i.startswith('ArcToChordError'):
+                                self.arc_to_chord_error = value
+                            elif i.startswith('DefeatureAbsLength'):
+                                self.defeature_abs_length = value
+                            elif i.startswith('DefeatureLayout'):
+                                self.defeature_layout = self._get_bool_value(value)
+                            elif i.startswith('MinimumVoidSuface'):
+                                self.minimum_void_surface = float(value)
+                            elif i.startswith('MaxSufDev'):
+                                self.max_suf_dev = float(value)
+                            elif i.startswith('ProcessPadstackDefinitions'):
+                                self.process_padstack_definitions = self._get_bool_value(value)
+                            elif i.startswith('ReturnCurrentDistribution'):
+                                self.return_current_distribution = self._get_bool_value(value)
+                            elif i.startswith('IgnoreNonFunctionalPads'):
+                                self.ignore_non_functional_pads = self._get_bool_value(value)
+                            elif i.startswith('IncludeInterPlaneCoupling'):
+                                self.include_inter_plane_coupling = self._get_bool_value(value)
+                            elif i.startswith('XtalkThreshold'):
+                                self.xtalk_threshold = float(value)
+                            elif i.startswith('MinVoidArea'):
+                                self.min_void_area = value
+                            elif i.startswith('MinPadAreaToMesh'):
+                                self.min_pad_area_to_mesh = value
+                            elif i.startswith('SnapLengthThreshold'):
+                                self.snap_length_threshold = value
+                            elif i.startswith('DcMinPlaneAreaToMesh'):
+                                self.dc_min_plane_area_to_mesh = value
+                            elif i.startswith('MaxInitMeshEdgeLength'):
+                                self.max_init_mesh_edge_length = value
+                            elif i.startswith('SignalLayersProperties'):
+                                self.signalLayersProperties = self._get_list_value(value)
+                        else:
+                            print("Unprocessed line in cfg file: {0}".format(line))
                     else:
-                        print("Unprocessed line in cfg file: {0}".format(line))
-                else:
-                    continue
+                        continue
+        except EnvironmentError as e:
+            print("Error reading cfg file: {}".format(e.message))
+            raise
 
 
 
