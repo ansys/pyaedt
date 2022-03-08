@@ -406,6 +406,7 @@ class Components(object):
         mounted_component_pin2,
         hosting_component_pin1,
         hosting_component_pin2,
+        flipped=False,
     ):
         """Get the placement vector between 2 components.
 
@@ -473,17 +474,18 @@ class Components(object):
         vector = [h_pin1_pos[0] - m_pin1_pos[0], h_pin1_pos[1] - m_pin1_pos[1]]
         vector1 = GeometryOperators.v_points(m_pin1_pos_3d, m_pin2_pos_3d)
         vector2 = GeometryOperators.v_points(h_pin1_pos_3d, h_pin2_pos_3d)
-
+        if flipped:
+            vector1[1] = -1 * vector1[1]
         rotation = GeometryOperators.v_angle(vector1, vector2)
-        if abs(rotation - math.pi / 2) < 1e-9 and vector1[0] * vector2[1] + vector1[1] * vector2[0] < 0:
-            rotation = -1 * math.pi / 2
+        # if abs(rotation - math.pi / 2) < 1e-9 and vector1[0] * vector2[1] + vector1[1] * vector2[0] > 0:
+        #     rotation = -1 * math.pi / 2
         if rotation != 0.0:
             layinst = mounted_component.GetLayout().GetLayoutInstance()
             cmpinst = layinst.GetLayoutObjInstance(mounted_component, None)
             center = cmpinst.GetCenter()
             center_double = [center.X.ToDouble(), center.Y.ToDouble(), 0]
             vector_center = GeometryOperators.v_points(center_double, m_pin1_pos_3d)
-            x_v2 = vector_center[0] * math.cos(rotation) + vector_center[1] * math.sin(rotation)
+            x_v2 = vector_center[0] * math.cos(rotation) - vector_center[1] * math.sin(rotation)
             y_v2 = -1 * vector_center[0] * math.sin(rotation) + vector_center[1] * math.cos(rotation)
             new_vector = [x_v2 + center_double[0], y_v2 + center_double[1], 0]
             vector = [h_pin1_pos[0] - new_vector[0], h_pin1_pos[1] - new_vector[1]]
