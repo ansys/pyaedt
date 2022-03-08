@@ -897,13 +897,17 @@ class Primitives3D(Primitives, object):
         position : list
             List of ``[x, y, z]`` coordinates for the center point of the circle.
         x_start_dir : float
+            Distance along x axis from the polyline.
         y_start_dir : float
+            Distance along y axis from the polyline.
         z_start_dir : float
+            Distance along z axis from the polyline.
         num_thread : int, optional
-        The default value is ``1``.
+            Number of turns. The default value is ``1``.
         right_hand : bool, optional
             Whether the helix turning direction is right hand. The default value is ``True``.
-        radius_increment :
+        radius_increment : float, optional
+            Radius change per turn. The default value is ``0.0``.
         thread : float
 
         Returns
