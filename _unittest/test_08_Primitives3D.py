@@ -1182,12 +1182,6 @@ class TestClass(BasisTest, object):
         )
 
         assert helix_right_turn.object_units == "mm"
-        assert 30 < helix_right_turn.bounding_dimension[0]
-        assert helix_right_turn.bounding_dimension[0] < 31
-        assert 21 < helix_right_turn.bounding_dimension[1]
-        assert helix_right_turn.bounding_dimension[1] < 22
-        assert 21 < helix_right_turn.bounding_dimension[2]
-        assert helix_right_turn.bounding_dimension[2] < 22
 
         # Test left turn without providing argument value for default parameters.
         udp1 = [-45, 0, 0]
