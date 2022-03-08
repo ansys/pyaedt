@@ -1165,10 +1165,12 @@ class TestClass(BasisTest, object):
         udp2 = [5, 0, 0]
         udp3 = [10, 5, 0]
         udp4 = [15, 3, 0]
-        polyline = self.aedtapp.modeler.create_polyline([udp1, udp2, udp3, udp4], cover_surface=False, name="helix_polyline")
+        polyline = self.aedtapp.modeler.create_polyline(
+            [udp1, udp2, udp3, udp4], cover_surface=False, name="helix_polyline"
+        )
 
         helix_right_turn = self.aedtapp.modeler.create_helix(
-            polyline_name = "helix_polyline",
+            polyline_name="helix_polyline",
             position=[0, 0, 0],
             x_start_dir=0,
             y_start_dir=1.0,
@@ -1178,24 +1180,26 @@ class TestClass(BasisTest, object):
             radius_increment=0.0,
             thread=1.0,
         )
-    
+
         assert helix_right_turn.object_units == "mm"
-        assert 30<helix_right_turn.bounding_dimension[0]
-        assert helix_right_turn.bounding_dimension[0]<31
-        assert 21<helix_right_turn.bounding_dimension[1]
-        assert helix_right_turn.bounding_dimension[1]<22
-        assert 21<helix_right_turn.bounding_dimension[2]
-        assert helix_right_turn.bounding_dimension[2]<22
+        assert 30 < helix_right_turn.bounding_dimension[0]
+        assert helix_right_turn.bounding_dimension[0] < 31
+        assert 21 < helix_right_turn.bounding_dimension[1]
+        assert helix_right_turn.bounding_dimension[1] < 22
+        assert 21 < helix_right_turn.bounding_dimension[2]
+        assert helix_right_turn.bounding_dimension[2] < 22
 
         # Test left turn without providing argument value for default parameters.
         udp1 = [-45, 0, 0]
         udp2 = [-50, 0, 0]
         udp3 = [-105, 5, 0]
         udp4 = [-110, 3, 0]
-        polyline_left = self.aedtapp.modeler.create_polyline([udp1, udp2, udp3, udp4], cover_surface=False, name="helix_polyline_left")
+        polyline_left = self.aedtapp.modeler.create_polyline(
+            [udp1, udp2, udp3, udp4], cover_surface=False, name="helix_polyline_left"
+        )
 
         assert self.aedtapp.modeler.create_helix(
-            polyline_name = "helix_polyline_left",
+            polyline_name="helix_polyline_left",
             position=[0, 0, 0],
             x_start_dir=1.0,
             y_start_dir=1.0,
@@ -1206,7 +1210,7 @@ class TestClass(BasisTest, object):
         # Test that an exception is raised if the name of the polyline is not provided.
         with pytest.raises(ValueError) as exc_info:
             assert self.aedtapp.modeler.create_helix(
-                polyline_name = "",
+                polyline_name="",
                 position=[0, 0, 0],
                 x_start_dir=1.0,
                 y_start_dir=1.0,
