@@ -9,6 +9,7 @@ class SimulationConfiguration(object):
 
     def __init__(self, filename):
         self._filename = filename
+        self._setup_name = "Pyaedt_setup"
         self._generate_solder_balls = True
         self._signal_nets = []
         self._power_nets = []
@@ -80,6 +81,15 @@ class SimulationConfiguration(object):
     def signal_nets(self, value):
         if isinstance(value, list):
             self._signal_nets = value
+
+    @property
+    def setup_name(self):
+        return self._setup_name
+
+    @setup_name.setter
+    def set_name(self, value):
+        if isinstance(value, str):
+            self._setup_name = value
 
     @property
     def power_nets(self):
