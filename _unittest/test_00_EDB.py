@@ -475,21 +475,17 @@ class TestClass(BasisTest, object):
         assert self.edbapp.create_cutout(["A0_N", "A0_P"], ["GND"], output_aedb_path=output, open_cutout_at_end=False)
         assert os.path.exists(os.path.join(output, "edb.def"))
         bounding = self.edbapp.get_bounding_box()
-
+        cutout_line_x = 41
+        cutout_line_y = 30
         points = [[bounding[0][0], bounding[0][1]]]
-        points.append([bounding[0][0], bounding[0][1] + (bounding[1][1] - bounding[0][1]) / 10])
-        points.append(
-            [
-                bounding[0][0] + (bounding[0][1] - bounding[0][0]) / 10,
-                bounding[0][1] + (bounding[1][1] - bounding[0][1]) / 10,
-            ]
-        )
-        points.append([bounding[0][0] + (bounding[0][1] - bounding[0][0]) / 10, bounding[0][1]])
+        points.append([cutout_line_x, bounding[0][1]])
+        points.append([cutout_line_x, cutout_line_y])
+        points.append([bounding[0][0], cutout_line_y])
         points.append([bounding[0][0], bounding[0][1]])
         output = os.path.join(self.local_scratch.path, "cutout2.aedb")
 
         assert self.edbapp.create_cutout_on_point_list(
-            points, nets_to_include=["GND"], output_aedb_path=output, open_cutout_at_end=False
+            points, nets_to_include=["GND", "V3P3_S0"], output_aedb_path=output, open_cutout_at_end=False
         )
         assert os.path.exists(os.path.join(output, "edb.def"))
 
