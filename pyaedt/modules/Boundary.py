@@ -15,6 +15,26 @@ from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import VertexPrimitive
 
 
+class BoundaryProps(dict):
+    """AEDT Circuit Component Internal Parameters."""
+
+    def __setitem__(self, key, value):
+        dict.__setitem__(self, key, value)
+        if key in ["Edges", "Faces", "Objects"]:
+            res = self._pyaedt_boundary.update_assignment()
+        else:
+            res = self._pyaedt_boundary.update()
+        if not res:
+            self._pyaedt_boundary._app.logger.warning("Update of %s% Failed. Check needed arguments", key)
+
+    def __init__(self, boundary, props):
+        dict.__init__(self, props)
+        self._pyaedt_boundary = boundary
+
+    def _setitem_without_update(self, key, value):
+        dict.__setitem__(self, key, value)
+
+
 class BoundaryCommon(object):
     """ """
 
@@ -75,43 +95,46 @@ class NativeComponentObject(BoundaryCommon, object):
         self._app = app
         self.name = "InsertNativeComponentData"
         self.component_name = component_name
-        self.props = OrderedDict(
-            {
-                "TargetCS": "Global",
-                "SubmodelDefinitionName": self.component_name,
-                "ComponentPriorityLists": OrderedDict({}),
-                "NextUniqueID": 0,
-                "MoveBackwards": False,
-                "DatasetType": "ComponentDatasetType",
-                "DatasetDefinitions": OrderedDict({}),
-                "BasicComponentInfo": OrderedDict(
-                    {
-                        "ComponentName": self.component_name,
-                        "Company": "",
-                        "Company URL": "",
-                        "Model Number": "",
-                        "Help URL": "",
-                        "Version": "1.0",
-                        "Notes": "",
-                        "IconType": "",
-                    }
-                ),
-                "GeometryDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-                "DesignDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-                "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-                "MapInstanceParameters": "DesignVariable",
-                "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
-                + random_string(12, char_set="abcdef0123456789"),
-                "OriginFilePath": "",
-                "IsLocal": False,
-                "ChecksumString": "",
-                "ChecksumHistory": [],
-                "VersionHistory": [],
-                "NativeComponentDefinitionProvider": OrderedDict({"Type": component_type}),
-                "InstanceParameters": OrderedDict(
-                    {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""}
-                ),
-            }
+        self.props = BoundaryProps(
+            self,
+            OrderedDict(
+                {
+                    "TargetCS": "Global",
+                    "SubmodelDefinitionName": self.component_name,
+                    "ComponentPriorityLists": OrderedDict({}),
+                    "NextUniqueID": 0,
+                    "MoveBackwards": False,
+                    "DatasetType": "ComponentDatasetType",
+                    "DatasetDefinitions": OrderedDict({}),
+                    "BasicComponentInfo": OrderedDict(
+                        {
+                            "ComponentName": self.component_name,
+                            "Company": "",
+                            "Company URL": "",
+                            "Model Number": "",
+                            "Help URL": "",
+                            "Version": "1.0",
+                            "Notes": "",
+                            "IconType": "",
+                        }
+                    ),
+                    "GeometryDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+                    "DesignDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+                    "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+                    "MapInstanceParameters": "DesignVariable",
+                    "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
+                    + random_string(12, char_set="abcdef0123456789"),
+                    "OriginFilePath": "",
+                    "IsLocal": False,
+                    "ChecksumString": "",
+                    "ChecksumHistory": [],
+                    "VersionHistory": [],
+                    "NativeComponentDefinitionProvider": OrderedDict({"Type": component_type}),
+                    "InstanceParameters": OrderedDict(
+                        {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""}
+                    ),
+                }
+            ),
         )
         if props:
             self._update_props(self.props, props)
@@ -140,9 +163,15 @@ class NativeComponentObject(BoundaryCommon, object):
             if isinstance(v, (dict, OrderedDict)):
                 if k not in d:
                     d[k] = OrderedDict({})
-                d[k] = self._update_props(d[k], v)
+                if isinstance(d, BoundaryProps):
+                    d._setitem_without_update(k, self._update_props(d[k], v))
+                else:
+                    d[k] = self._update_props(d[k], v)
             else:
-                d[k] = v
+                if isinstance(d, BoundaryProps):
+                    d._setitem_without_update(k, v)
+                else:
+                    d[k] = v
         return d
 
     @pyaedt_function_handler()
@@ -246,7 +275,7 @@ class BoundaryObject(BoundaryCommon, object):
     def __init__(self, app, name, props, boundarytype):
         self._app = app
         self.name = name
-        self.props = props
+        self.props = BoundaryProps(self, OrderedDict(props))
         self.type = boundarytype
         self._boundary_name = self.name
 
@@ -433,7 +462,7 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditAperture(self._boundary_name, self._get_args())
         elif self.type == "Radiation":
             self._app.oboundary.EditRadiation(self._boundary_name, self._get_args())
-        elif self.type == "FiniteCond":
+        elif self.type in ["FiniteCond", "Finite Conductivity"]:
             self._app.oboundary.EditFiniteCond(self._boundary_name, self._get_args())
         elif self.type == "LumpedRLC":
             self._app.oboundary.EditLumpedRLC(self._boundary_name, self._get_args())
@@ -580,19 +609,7 @@ class FieldSetup(BoundaryCommon, object):
         self._app = app
         self.type = component_type
         self.name = component_name
-        self.props = OrderedDict({})
-        if props:
-            self._load_props(self.props, props)
-
-    def _load_props(self, d, u):
-        for k, v in u.items():
-            if isinstance(v, (dict, OrderedDict)):
-                if k not in d:
-                    d[k] = OrderedDict({})
-                d[k] = self._load_props(d[k], v)
-            else:
-                d[k] = v
-        return d
+        self.props = BoundaryProps(self, OrderedDict(props))
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):

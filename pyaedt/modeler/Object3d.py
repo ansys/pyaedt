@@ -2605,11 +2605,8 @@ class CircuitPins(object):
             return False
 
 
-class ComponentParameters(object):
+class ComponentParameters(dict):
     """AEDT Circuit Component Internal Parameters."""
-
-    def __getitem__(self, key):
-        return self.parameters[key]
 
     def __setitem__(self, key, value):
         try:
@@ -2623,17 +2620,14 @@ class ComponentParameters(object):
                     ],
                 ]
             )
-            self.parameters[key] = value
+            dict.__setitem__(self, key, value)
         except:
-            self._component._circuit_components.logger.warning("Property %s has not been edited", key)
+            self._component._circuit_components.logger.warning("Property %s has not been edited.Check if readonly", key)
 
-    def __repr__(self):
-        return str(self.parameters)
-
-    def __init__(self, component, tab, params):
+    def __init__(self, component, tab, *args, **kw):
+        dict.__init__(self, *args, **kw)
         self._component = component
         self._tab = tab
-        self.parameters = params
 
 
 class CircuitComponent(object):
