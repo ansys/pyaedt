@@ -641,6 +641,8 @@ class Settings(object):
         self._enable_debug_internal_methods_logger = False
         self._enable_debug_logger = False
         self._enable_error_handler = True
+        self.non_graphical = False
+        self.aedt_version = None
 
     @property
     def enable_error_handler(self):
