@@ -6,7 +6,7 @@ from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
-
+from pyaedt.io import SimulationConfiguration
 
 class EdbHfss(object):
     """Manages EDB functionalities for 3D layouts.
@@ -670,3 +670,60 @@ class EdbHfss(object):
             round(_bbox.Item2.Y.ToDouble(), digit_resolution),
         ]
         return layout_bbox
+
+    @pyaedt_function_handler()
+    def configure_hfss_extents(self, simulation_setup=None):
+        """ Configure HFSS extent box
+        """
+        if not isinstance(simulation_setup, SimulationConfiguration):
+            return False
+        hfss_extent = self._edb.Utility.HFSSExtentInfo()
+        if simulation_setup.radiation_box == 'BoundingBox':
+            hfss_extent.ExtentType = self._edb.Utility.HFSSExtentInfoType.BoundingBox
+        elif simulation_setup.radiation_box == 'Conformal':
+            hfss_extent.ExtentType = self._edb.Utility.HFSSExtentInfoType.Conforming
+        else:
+            hfss_extent.ExtentType = self._edb.Utility.HFSSExtentInfoType.ConvexHull
+
+        # DielectricExtentSize = System.Tuple.Create(0.01, True)
+        hfss_extent.DielectricExtentSize = (0.01, True)
+        # AirBoxHorizontalExtent = System.Tuple.Create(0.04, True)
+        hfss_extent.AirBoxHorizontalExtent = (0.04, True)
+        # AirBoxNegativeVerticalExtent = System.Tuple.Create(0.1, True)
+        hfss_extent.AirBoxNegativeVerticalExtent = (0.1, True)
+        # AirBoxPositiveVerticalExtent = System.Tuple.Create(0.1, True)
+        hfss_extent.AirBoxPositiveVerticalExtent = (0.1, True)
+        hfss_extent.HonorUserDielectric = False
+        hfss_extent.TruncateAirBoxAtGround = False
+        hfss_extent.UseRadiationBoundary = True
+
+        return self._cell.SetHFSSExtentInfo(hfss_extent)
+
+    @pyaedt_function_handler()
+    def configure_hfss_analysis_setup(self, simulation_setup=None):
+        """Configure HFSS analysis setup.
+        """
+        if not isinstance(simulation_setup, SimulationConfiguration):
+            return False
+        adapt = self._edb._SimSetup.Data.AdaptiveFrequencyData()
+        adapt.AdaptiveFrequency = simulation_setup.mesh_freq
+        adapt.MaxPasses = int(simulation_setup.max_num_passes)
+        adapt.MaxDelta = simulation_setup.max_mag_delta_s
+        simsetup_info = self._pedb.simsetupdata.SimSetupInfo[self._pedb.simsetupdata.Data.HFSSSimulationSettings]()
+        simsetup_info.Name = simulation_setup.setup_name
+
+        # simSetupInfo.SimulationSettings.CurveApproxSettings.ArcAngle = setup_info.ArcAngle
+        # simSetupInfo.SimulationSettings.CurveApproxSettings.UseArcToChordError = setup_info.UseArcToChordError
+        # simSetupInfo.SimulationSettings.CurveApproxSettings.ArcToChordError = setup_info.ArcToChordError
+        # simSetupInfo.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Clear()  # clear the default adapt
+        # simSetupInfo.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Add(adapt)
+        # simSetupInfo.SimulationSettings.InitialMeshSettings.LambdaRefine = True
+        # simSetupInfo.SimulationSettings.InitialMeshSettings.UseDefaultLambda = True
+        # simSetupInfo.SimulationSettings.AdaptiveSettings.MaxRefinePerPass = 30
+        # simSetupInfo.SimulationSettings.AdaptiveSettings.MinPasses = 1
+        # simSetupInfo.SimulationSettings.AdaptiveSettings.MinConvergedPasses = 1
+        # simSetupInfo.SimulationSettings.HFSSSolverSettings.OrderBasis = -1  # e.g. mixed
+        # simSetupInfo.SimulationSettings.HFSSSolverSettings.UseHFSSIterativeSolver = False
+        # simSetupInfo.SimulationSettings.DefeatureSettings.UseDefeature = False  # set True when using defeature ratio
+        # simSetupInfo.SimulationSettings.DefeatureSettings.UseDefeatureAbsLength = True
+        # simSetupInfo.SimulationSettings.DefeatureSettings.DefeatureAbsLength = setup_info.DefeatureAbsLength
