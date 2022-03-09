@@ -1,9 +1,8 @@
 """Download example datasets from https://github.com/pyansys/example-data"""
 import os
-import os.path
 import shutil
-import zipfile
 import tempfile
+import zipfile
 
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.misc import list_installed_ansysem

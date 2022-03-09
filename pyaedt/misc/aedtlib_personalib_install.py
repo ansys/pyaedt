@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 pyaedtpath = os.path.join(

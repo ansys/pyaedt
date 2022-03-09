@@ -1,14 +1,18 @@
 """This module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor`."""
-from __future__ import absolute_import
+from __future__ import absolute_import  # noreorder
+
 import os
 import warnings
+from collections import OrderedDict
 
 from pyaedt.application.Analysis2D import FieldAnalysis2D
 from pyaedt.application.Analysis3D import FieldAnalysis3D
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name
-from collections import OrderedDict
-from pyaedt.modules.Boundary import BoundaryObject, Matrix
-from pyaedt.generic.constants import MATRIXOPERATIONSQ2D, MATRIXOPERATIONSQ3D
+from pyaedt.generic.constants import MATRIXOPERATIONSQ2D
+from pyaedt.generic.constants import MATRIXOPERATIONSQ3D
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.Boundary import Matrix
 
 
 class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
@@ -93,7 +97,7 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         """
         return self.matrices[0].sources(False)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def insert_reduced_matrix(self, operation_name, source_names=None, rm_name=None):
         """Insert a new reduced matrix.
 
@@ -219,7 +223,7 @@ class Q3d(QExtractor, object):
                 net_names.append(i[0].split(":")[1])
         return net_names
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def net_sources(self, net_name):
         """Check if a net has sources and return a list of source names.
 
@@ -252,7 +256,7 @@ class Q3d(QExtractor, object):
 
         return sources
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def net_sinks(self, net_name):
         """Check if a net has sinks and returns a list of sink names.
 
@@ -283,7 +287,7 @@ class Q3d(QExtractor, object):
                 sinks.append(i.name)
         return sinks
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def auto_identify_nets(self):
         """Automatically identify nets.
 
@@ -313,7 +317,7 @@ class Q3d(QExtractor, object):
             self.logger.info("No new nets identified")
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_net(self, objects, net_name=None, net_type="Signal"):
         """Assign a net to a list of objects.
 
@@ -363,7 +367,7 @@ class Q3d(QExtractor, object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_source_to_objectface(self, object_name, axisdir=0, source_name=None, net_name=None):
         """Generate a source on a face of an object.
 
@@ -410,7 +414,7 @@ class Q3d(QExtractor, object):
                 return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_source_to_sheet(self, sheetname, objectname=None, netname=None, sourcename=None):
         """Generate a source on a sheet.
 
@@ -451,7 +455,7 @@ class Q3d(QExtractor, object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_sink_to_objectface(self, object_name, axisdir=0, sink_name=None, net_name=None):
         """Generate a sink on a face of an object.
 
@@ -499,7 +503,7 @@ class Q3d(QExtractor, object):
                 return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_sink_to_sheet(self, sheetname, objectname=None, netname=None, sinkname=None):
         """Generate a sink on a sheet.
 
@@ -541,7 +545,7 @@ class Q3d(QExtractor, object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_frequency_sweep(self, setupname, units, freqstart, freqstop, freqstep=None, sweepname=None):
         """Create a frequency sweep.
 
@@ -601,7 +605,7 @@ class Q3d(QExtractor, object):
                 return sweepdata
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_discrete_sweep(
         self, setupname, freqstart, freqstop=None, freqstep=None, units="GHz", sweepname=None, savefields=False
     ):
@@ -764,7 +768,7 @@ class Q2d(QExtractor, object):
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ2D()
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_rectangle(self, position, dimension_list, name="", matname=""):
         """
         Create a rectangle.
@@ -794,7 +798,7 @@ class Q2d(QExtractor, object):
         """
         return self.modeler.create_rectangle(position, dimension_list=dimension_list, name=name, matname=matname)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_single_signal_line(self, target_objects, name="", solve_option="SolveInside", thickness=None, unit="um"):
         """Assign the conductor type to sheets.
 
@@ -826,7 +830,7 @@ class Q2d(QExtractor, object):
         )
         self.assign_single_conductor(target_objects, name, "SignalLine", solve_option, thickness, unit)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_single_conductor(
         self,
         target_objects,
@@ -896,7 +900,7 @@ class Q2d(QExtractor, object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def assign_huray_finitecond_to_edges(self, edges, radius, ratio, unit="um", name=""):
         """
         Assign the Huray surface roughness model to edges.
@@ -939,7 +943,7 @@ class Q2d(QExtractor, object):
             return bound
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def auto_assign_conductors(self):
         """Automatically assign conductors to signal lines.
 
@@ -966,7 +970,7 @@ class Q2d(QExtractor, object):
             self.logger.info("No new nets identified")
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def toggle_conductor_type(self, conductor_name, new_type):
         """Change the conductor type.
 

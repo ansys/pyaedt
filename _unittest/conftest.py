@@ -10,7 +10,7 @@ This module contains the configuration and fixture for the pytest-based unit tes
 The default configuration can be changed by placing a file called local_config.json in the same
 directory as this module. An example of the contents of local_config.json
 {
-  "desktopVersion": "2021.2",
+  "desktopVersion": "2022.1",
   "NonGraphical": false,
   "NewThread": false,
   "test_desktops": true
@@ -62,12 +62,12 @@ if os.path.exists(local_config_file):
     with open(local_config_file) as f:
         config = json.load(f)
 else:
-    default_version = "2021.2"
+    default_version = "2022.1"
     if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
         default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
     config = {
         "desktopVersion": default_version,
-        "NonGraphical": False,
+        "NonGraphical": True,
         "NewThread": True,
         "test_desktops": False,
         "build_machine": True,
@@ -90,7 +90,7 @@ class BasisTest(object):
             oDesktop = sys.modules["__main__"].oDesktop
         except Exception as e:
             oDesktop = None
-        if oDesktop:
+        if oDesktop and not settings.non_graphical:
             oDesktop.ClearMessages("", "", 3)
         for edbapp in self.edbapps[::-1]:
             try:
@@ -106,6 +106,9 @@ class BasisTest(object):
         del self.aedtapps
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None):
+        if "oDesktop" not in dir(sys.modules["__main__"]):
+            desktop = Desktop(desktop_version, non_graphical, new_thread)
+            desktop.disable_autosave()
         if project_name:
             example_project = os.path.join(local_path, "example_models", project_name + ".aedt")
             example_folder = os.path.join(local_path, "example_models", project_name + ".aedb")
@@ -172,16 +175,16 @@ non_graphical = config["NonGraphical"]
 
 @pytest.fixture(scope="session", autouse=True)
 def desktop_init():
-    desktop = Desktop(desktop_version, non_graphical, new_thread)
-    desktop.disable_autosave()
-    yield desktop
 
-    # If new_thread is set to false by a local_config, then don't close the desktop.
-    # Intended for local debugging purposes only
-    if new_thread or os.name == "posix":
-        desktop.close_desktop()
+    yield
+    if not is_ironpython:
+        try:
+            oDesktop = sys.modules["__main__"].oDesktop
+            pid = oDesktop.GetProcessID()
+            os.kill(pid, 9)
+        except:
+            pass
     p = [x[0] for x in os.walk(scratch_path) if "scratch" in x[0]]
-    # p = pathlib.Path(scratch_path).glob('**/scratch*')
     for folder in p:
         shutil.rmtree(folder, ignore_errors=True)
 

@@ -155,6 +155,31 @@ def unit_converter(value, unit_system="Length", input_units="meter", output_unit
     return value
 
 
+def scale_units(scale_to_unit):
+    """Find the scale_to_unit into main system unit.
+
+    Parameters
+    ----------
+    scale_to_unit : str
+        Unit to Scale.
+
+    Returns
+    -------
+    float
+        Return the scaling factor if any.
+    """
+    sunit = 1.0
+    for val in list(AEDT_UNITS.values()):
+        for unit, scale_val in val.items():
+            if scale_to_unit.lower() == unit.lower():
+                sunit = scale_val
+                break
+        else:
+            continue
+        break
+    return sunit
+
+
 AEDT_UNITS = {
     "AngularSpeed": {
         "deg_per_hr": HOUR2SEC * DEG2RAD,
@@ -206,6 +231,7 @@ AEDT_UNITS = {
         "cm": 1e-2,
         "dm": 1e-1,
         "meter": 1.0,
+        "meters": 1.0,
         "km": 1e3,
         "uin": METER2IN * 1e-6,
         "mil": METER2IN * 1e-3,

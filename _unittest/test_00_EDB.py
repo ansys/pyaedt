@@ -23,6 +23,12 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.edbapp = BasisTest.add_edb(self, test_project_name)
+        example_project = os.path.join(local_path, "example_models", "Package.aedb")
+        self.target_path = os.path.join(self.local_scratch.path, "Package_test_00.aedb")
+        self.local_scratch.copyfolder(example_project, self.target_path)
+        example_project2 = os.path.join(local_path, "example_models", "simple.aedb")
+        self.target_path2 = os.path.join(self.local_scratch.path, "simple_00.aedb")
+        self.local_scratch.copyfolder(example_project2, self.target_path2)
 
     def teardown_class(self):
         self.edbapp.close_edb()
@@ -469,21 +475,17 @@ class TestClass(BasisTest, object):
         assert self.edbapp.create_cutout(["A0_N", "A0_P"], ["GND"], output_aedb_path=output, open_cutout_at_end=False)
         assert os.path.exists(os.path.join(output, "edb.def"))
         bounding = self.edbapp.get_bounding_box()
-
+        cutout_line_x = 41
+        cutout_line_y = 30
         points = [[bounding[0][0], bounding[0][1]]]
-        points.append([bounding[0][0], bounding[0][1] + (bounding[1][1] - bounding[0][1]) / 10])
-        points.append(
-            [
-                bounding[0][0] + (bounding[0][1] - bounding[0][0]) / 10,
-                bounding[0][1] + (bounding[1][1] - bounding[0][1]) / 10,
-            ]
-        )
-        points.append([bounding[0][0] + (bounding[0][1] - bounding[0][0]) / 10, bounding[0][1]])
+        points.append([cutout_line_x, bounding[0][1]])
+        points.append([cutout_line_x, cutout_line_y])
+        points.append([bounding[0][0], cutout_line_y])
         points.append([bounding[0][0], bounding[0][1]])
         output = os.path.join(self.local_scratch.path, "cutout2.aedb")
 
         assert self.edbapp.create_cutout_on_point_list(
-            points, nets_to_include=["GND"], output_aedb_path=output, open_cutout_at_end=False
+            points, nets_to_include=["GND", "V3P3_S0"], output_aedb_path=output, open_cutout_at_end=False
         )
         assert os.path.exists(os.path.join(output, "edb.def"))
 
@@ -627,20 +629,56 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_components.short_component_pins("U10", ["2", "5"])
 
     def test_77_flip_layer_stackup(self):
-        edb2 = Edb(os.path.join(local_path, "example_models", "Package.aedb"), edbversion=desktop_version)
+        edb1 = Edb(self.target_path2, edbversion=desktop_version)
+
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
         assert edb2.core_stackup.place_in_layout_3d_placement(
-            self.edbapp,
+            edb1,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=False,
+            place_on_top=False,
+            solder_height=0.0,
+        )
+        edb2.close_edb()
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
+        assert edb2.core_stackup.place_in_layout_3d_placement(
+            edb1,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=True,
+            place_on_top=False,
+            solder_height=0.0,
+        )
+        edb2.close_edb()
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
+        assert edb2.core_stackup.place_in_layout_3d_placement(
+            edb1,
+            angle=0.0,
+            offset_x="41.783mm",
+            offset_y="35.179mm",
+            flipped_stackup=False,
+            place_on_top=True,
+            solder_height=0.0,
+        )
+        edb2.close_edb()
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
+        assert edb2.core_stackup.place_in_layout_3d_placement(
+            edb1,
             angle=0.0,
             offset_x="41.783mm",
             offset_y="35.179mm",
             flipped_stackup=True,
             place_on_top=True,
-            solder_height=0.00033,
+            solder_height=0.0,
         )
         edb2.close_edb()
+        edb1.close_edb()
 
     def test_78_flip_layer_stackup_2(self):
-        edb2 = Edb(os.path.join(local_path, "example_models", "Package.aedb"), edbversion=desktop_version)
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
         assert edb2.core_stackup.place_in_layout(
             self.edbapp,
             angle=0.0,
@@ -652,7 +690,7 @@ class TestClass(BasisTest, object):
         edb2.close_edb()
 
     def test_79_get_placement_vector(self):
-        edb2 = Edb(os.path.join(local_path, "example_models", "Package.aedb"), edbversion=desktop_version)
+        edb2 = Edb(self.target_path, edbversion=desktop_version)
         for cmpname, cmp in edb2.core_components.components.items():
             assert isinstance(cmp.solder_ball_placement, int)
         mounted_cmp = edb2.core_components.get_component_by_name("BGA")
@@ -691,7 +729,7 @@ class TestClass(BasisTest, object):
         edbapp_without_path = None
         del edbapp_without_path
 
-    def test_80_create_reactangle_in_pad(self):
+    def test_80_create_rectangle_in_pad(self):
         example_model = os.path.join(local_path, "example_models", "padstacks.aedb")
         self.local_scratch.copyfolder(
             example_model,
@@ -704,11 +742,13 @@ class TestClass(BasisTest, object):
         )
         for i in range(7):
             padstack_instance = list(edb_padstacks.core_padstack.padstack_instances.values())[i]
-            result = padstack_instance.create_reactangle_in_pad("s")
+            result = padstack_instance.create_rectangle_in_pad("s")
             assert result
         edb_padstacks.close_edb()
 
     def test_81_edb_with_dxf(self):
-        edb3 = Edb(os.path.join(local_path, "example_models", "edb_test_82.dxf"), edbversion=desktop_version)
+        src = os.path.join(local_path, "example_models", "edb_test_82.dxf")
+        dxf_path = self.local_scratch.copyfile(src)
+        edb3 = Edb(dxf_path, edbversion=desktop_version)
         edb3.close_edb()
         del edb3

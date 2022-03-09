@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
 This module contains these classes: `Components3DLayout`,`CircuitComponent',
 `EdgePrimitive`, `EdgeTypePrimitive`, `FacePrimitive`, `Geometries3DLayout`,
@@ -10,20 +9,23 @@ This module provides methods and data structures for managing all properties of
 objects (points, lines, sheeets, and solids) within the AEDT 3D Modeler.
 
 """
-from __future__ import absolute_import
+from __future__ import absolute_import  # noreorder
 
-import random
-import string
 import math
 import os
+import random
 import re
+import string
 import warnings
 
-from pyaedt import aedt_exception_handler, _retry_ntimes
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt import _retry_ntimes
+from pyaedt import pyaedt_function_handler
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic.constants import AEDT_UNITS, MILS2METER
+from pyaedt.generic.constants import AEDT_UNITS
+from pyaedt.generic.constants import MILS2METER
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt import settings
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
 
@@ -70,7 +72,7 @@ def _uname(name=None):
         return "NewObject_" + unique_name
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def _to_boolean(val):
     """Retrieve the Boolean value of the provided input.
 
@@ -98,7 +100,7 @@ def _to_boolean(val):
     return not str(val).strip().lower() in false_items
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def _dim_arg(value, units):
     """Concatenate a specified units string to a numerical input.
 
@@ -124,7 +126,7 @@ def _dim_arg(value, units):
 class EdgeTypePrimitive(object):
     """Provides common methods for EdgePrimitive and FacePrimitive."""
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def fillet(self, radius=0.1, setback=0.0):
         """Add a fillet to the selected edge.
 
@@ -171,7 +173,7 @@ class EdgeTypePrimitive(object):
             return False
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def chamfer(self, left_distance=1, right_distance=None, angle=45, chamfer_type=0):
         """Add a chamfer to the selected edge.
 
@@ -545,7 +547,7 @@ class FacePrimitive(object):
         area = self._oeditor.GetFaceArea(self.id)
         return area
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def is_on_bounding(self, tol=1e-9):
         """Check if the face is on bounding box or Not.
 
@@ -572,7 +574,7 @@ class FacePrimitive(object):
             return True
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def move_with_offset(self, offset=1.0):
         """Move the face along the normal.
 
@@ -615,7 +617,7 @@ class FacePrimitive(object):
         )
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def move_with_vector(self, vector):
         """Move the face along a vector.
 
@@ -770,8 +772,9 @@ class Object3d(object):
         self._wireframe = None
         self._part_coordinate_system = None
         self._model = None
+        self._m_groupName = None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _bounding_box_unmodel(self):
         """Bounding box of a part, unmodel/undo method.
 
@@ -801,12 +804,13 @@ class Object3d(object):
             self._odesign.Undo()
         if not modeled:
             self._odesign.Undo()
-        self._primitives._app.odesktop.ClearMessages(
-            self._primitives._app.project_name, self._primitives._app.design_name, 1
-        )
+        if not settings.non_graphical:
+            self._primitives._app.odesktop.ClearMessages(
+                self._primitives._app.project_name, self._primitives._app.design_name, 1
+            )
         return bounding
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _bounding_box_sat(self):
         """Bounding box of a part.
 
@@ -913,7 +917,7 @@ class Object3d(object):
         """Design."""
         return self._primitives._modeler._app._odesign
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def plot(self, show=True):
         """Plot model with PyVista.
 
@@ -938,7 +942,7 @@ class Object3d(object):
                 show=show,
             )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def export_image(self, file_path=None):
 
         """Export the model to path.
@@ -1235,6 +1239,61 @@ class Object3d(object):
                 10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Group"
             )
             return self._m_groupName
+
+    @group_name.setter
+    def group_name(self, name):
+        """Assign Object to a specific group. it creates a new group if the group doesn't exist.
+
+        Parameters
+        ----------
+        name : str
+            Name of the group to assign. Group will be created if it does not exist.
+
+        Returns
+        -------
+        str
+            Name of the group.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+
+        if not list(self.m_Editor.GetObjectsInGroup(name)):
+            self.m_Editor.CreateGroup(
+                [
+                    "NAME:GroupParameter",
+                    "ParentGroupID:=",
+                    "Model",
+                    "Parts:=",
+                    self._m_name,
+                    "SubmodelInstances:=",
+                    "",
+                    "Groups:=",
+                    "",
+                ]
+            )
+            groupName = _retry_ntimes(
+                10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Group"
+            )
+            self.m_Editor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:Attributes",
+                        ["NAME:PropServers", groupName],
+                        ["NAME:ChangedProps", ["NAME:Name", "Value:=", name]],
+                    ],
+                ]
+            )
+            self._m_groupName = name
+        else:
+            vgroup = ["NAME:Group", "Value:=", name]
+            self._change_property(vgroup)
+            self._m_groupName = name
 
     @property
     def material_name(self):
@@ -1658,7 +1717,7 @@ class Object3d(object):
         self._change_property(vArg1)
         self._model = fModel
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def unite(self, object_list):
         """Unite a list of objects with this object.
 
@@ -1682,7 +1741,7 @@ class Object3d(object):
         self._primitives.modeler.unite(unite_list)
         return self
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def mirror(self, position, vector):
         """Mirror a selection.
 
@@ -1707,7 +1766,7 @@ class Object3d(object):
         """
         return self._primitives.modeler.mirror(self.id, position=position, vector=vector)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def rotate(self, cs_axis, angle=90.0, unit="deg"):
         """Rotate the selection.
 
@@ -1734,7 +1793,7 @@ class Object3d(object):
         """
         return self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def move(self, vector):
         """Move objects from a list.
 
@@ -1787,7 +1846,7 @@ class Object3d(object):
         )
         return added_objects
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def duplicate_along_line(self, vector, nclones=2, attachObject=False):
         """Duplicate the object along a line.
 
@@ -1814,7 +1873,7 @@ class Object3d(object):
         ret, added_objects = self._primitives.modeler.duplicate_along_line(self, vector, nclones, attachObject)
         return added_objects
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def translate(self, vector):
         """Translate the object and return the 3D object.
 
@@ -1836,7 +1895,7 @@ class Object3d(object):
         self.move(vector)
         return self
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def sweep_along_vector(self, sweep_vector, draft_angle=0, draft_type="Round"):
         """Sweep the selection along a vector.
 
@@ -1864,7 +1923,7 @@ class Object3d(object):
         self._primitives.modeler.sweep_along_vector(self, sweep_vector, draft_angle, draft_type)
         return self
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def sweep_along_path(
         self, sweep_object, draft_angle=0, draft_type="Round", is_check_face_intersection=False, twist_angle=0
     ):
@@ -1900,7 +1959,7 @@ class Object3d(object):
         )
         return self
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def sweep_around_axis(self, cs_axis, sweep_angle=360, draft_angle=0):
         """Sweep around an axis.
 
@@ -1927,7 +1986,7 @@ class Object3d(object):
         self._primitives.modeler.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
         return self
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def section(self, plane, create_new=True, section_cross_object=False):
         """Section the object.
 
@@ -1955,7 +2014,7 @@ class Object3d(object):
         self._primitives.modeler.section(self, plane, create_new, section_cross_object)
         return self
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def clone(self):
         """Clone the object and return the new 3D object.
 
@@ -1976,7 +2035,7 @@ class Object3d(object):
         new_name = new_obj_tuple[1][0]
         return self._primitives[new_name]
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def subtract(self, tool_list, keep_originals=True):
         """Subtract one or more parts from the object.
 
@@ -2002,7 +2061,7 @@ class Object3d(object):
         self._primitives.modeler.subtract(self.name, tool_list, keep_originals)
         return self
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete(self):
         """Delete the object.
 
@@ -2016,7 +2075,7 @@ class Object3d(object):
         self._primitives.cleanup_objects()
         self.__dict__ = {}
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _change_property(self, vPropChange):
         return self._primitives._change_geometry_property(vPropChange, self._m_name)
 
@@ -2274,7 +2333,7 @@ class Padstack(object):
         arg.append([])
         return arg
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_layer(
         self, layername="Start", pad_hole=None, antipad_hole=None, thermal_hole=None, connx=0, conny=0, conndir=0
     ):
@@ -2320,7 +2379,7 @@ class Padstack(object):
             self.layers[layername] = new_layer
             return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_hole(self, holetype="Cir", sizes=[1], xpos=0, ypos=0, rot=0):
         """Add a hole.
 
@@ -2367,7 +2426,7 @@ class Padstack(object):
         hole.rot = _dim_arg(rot, "deg")
         return hole
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create(self):
         """Create a padstack in AEDT.
 
@@ -2385,7 +2444,7 @@ class Padstack(object):
         self.padstackmgr.Add(self.pads_args)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update(self):
         """Update the padstack in AEDT.
 
@@ -2402,7 +2461,7 @@ class Padstack(object):
         """
         self.padstackmgr.Edit(self.name, self.pads_args)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def remove(self):
         """Remove the padstack in AEDT.
 
@@ -2473,7 +2532,7 @@ class CircuitPins(object):
                     return net
         return ""
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def connect_to_component(self, component_pin):
         """Connect schematic components.
 
@@ -2792,7 +2851,7 @@ class CircuitComponent(object):
         vMaterial = ["NAME:Component Mirror", "Value:=", mirror_value]
         self.change_property(vMaterial)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_use_symbol_color(self, symbol_color=None):
         """Set symbol color usage.
 
@@ -2817,7 +2876,7 @@ class CircuitComponent(object):
         self.change_property(vMaterial)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_color(self, R=255, G=128, B=0):
         """Set symbol color.
 
@@ -2844,7 +2903,7 @@ class CircuitComponent(object):
         self.change_property(vMaterial)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_property(self, property_name, property_value):
         """Set a part property.
 
@@ -2876,7 +2935,7 @@ class CircuitComponent(object):
             self.__dict__[property_name] = property_value
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _add_property(self, property_name, property_value):
         """Add a property.
 
@@ -2957,7 +3016,7 @@ class Objec3DLayout(object):
         """Object units."""
         return self._primitives.model_units
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def change_property(self, vPropChange, names_list=None):
         """Modify a property.
 
@@ -2991,7 +3050,7 @@ class Objec3DLayout(object):
         self.m_Editor.ChangeProperty(vOut)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_property_value(self, property_name, property_value):
         """Set a property value.
 
@@ -3028,12 +3087,13 @@ class Components3DLayout(Objec3DLayout, object):
 
     """
 
-    def __init__(self, primitives, name=""):
+    def __init__(self, primitives, name="", edb_object=None):
         Objec3DLayout.__init__(self, primitives)
         self.name = name
+        self.edb_object = edb_object
 
-    @aedt_exception_handler
-    def get_location(self):
+    @property
+    def location(self):
         """Retrieve the component location.
 
         Returns
@@ -3046,11 +3106,21 @@ class Components3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        location = _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location")
-        return list(location)
+        if self.edb_object:
+            return self.edb_object.center
+        location = _retry_ntimes(
+            self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location"
+        ).split(",")
+        l = []
+        for i in location:
+            try:
+                l.append(float(i))
+            except ValueError:
+                l.append(i)
+        return l
 
-    @aedt_exception_handler
-    def get_placement_layer(self):
+    @property
+    def placement_layer(self):
         """Retrieve the component placement layer.
 
         Returns
@@ -3063,10 +3133,12 @@ class Components3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
+        if self.edb_object:
+            return self.edb_object.placement_layer
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
 
-    @aedt_exception_handler
-    def get_part(self):
+    @property
+    def part(self):
         """Retrieve the component part.
 
         Returns
@@ -3079,10 +3151,12 @@ class Components3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
+        if self.edb_object:
+            return self.edb_object.partname
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Part")
 
-    @aedt_exception_handler
-    def get_part_type(self):
+    @property
+    def part_type(self):
         """Retrieve the component part type.
 
         Returns
@@ -3095,10 +3169,19 @@ class Components3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
+        if self.edb_object:
+            return self.edb_object.type
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Part Type")
 
-    @aedt_exception_handler
-    def get_angle(self):
+    @property
+    def _part_type_id(self):
+        parts = {"Other": 0, "Resistor": 1, "Inductor": 2, "Capacitor": 3, "IC": 4, "IO": 5}
+        if self.part_type in parts:
+            return parts[self.part_type]
+        return -1
+
+    @property
+    def angle(self):
         """Retrieve the component angle.
 
         Returns
@@ -3112,6 +3195,28 @@ class Components3DLayout(Objec3DLayout, object):
         >>> oEditor.GetPropertyValue
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Angle")
+
+    @pyaedt_function_handler
+    def enabled(self, status=True):
+        """Enable or Disable the RLC Component.
+
+        Parameters
+        ----------
+        status : bool, optional
+            Set the RLC Component to Enable or Disable state.
+
+        Returns
+        -------
+        bool
+            `True` if succeeded.
+        """
+        if self._part_type_id in [0, 4, 5]:
+            return False
+        args = [
+            "NAME:Model Info",
+            ["NAME:Model", "RLCProp:=", ["CompPropEnabled:=", status], "CompType:=", self._part_type_id],
+        ]
+        return self.change_property(args)
 
 
 class Nets3DLayout(Objec3DLayout, object):
@@ -3154,8 +3259,8 @@ class Pins3DLayout(Objec3DLayout, object):
         self.pinname = pinname
         self.name = name
 
-    @aedt_exception_handler
-    def get_location(self):
+    @property
+    def location(self):
         """Retrieve the pin locaton.
 
         Returns
@@ -3168,11 +3273,19 @@ class Pins3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        location = _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location")
-        return location
+        location = _retry_ntimes(
+            self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location"
+        ).split(",")
+        l = []
+        for pos in location:
+            try:
+                l.append(float(pos))
+            except ValueError:
+                l.append(pos)
+        return l
 
-    @aedt_exception_handler
-    def get_start_layer(self):
+    @property
+    def start_layer(self):
         """Retrieve the starting layer of the pin.
 
         Returns
@@ -3187,8 +3300,8 @@ class Pins3DLayout(Objec3DLayout, object):
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Start Layer")
 
-    @aedt_exception_handler
-    def get_stop_layer(self):
+    @property
+    def stop_layer(self):
         """Retrieve the starting layer of the pin.
 
         Returns
@@ -3203,8 +3316,8 @@ class Pins3DLayout(Objec3DLayout, object):
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Stop Layer")
 
-    @aedt_exception_handler
-    def get_holediam(self):
+    @property
+    def holediam(self):
         """Retrieve the hole diameter of the pin.
 
         Returns
@@ -3219,8 +3332,8 @@ class Pins3DLayout(Objec3DLayout, object):
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "HoleDiameter")
 
-    @aedt_exception_handler
-    def get_angle(self):
+    @property
+    def angle(self):
         """Retrieve the rotation angle of the pin in degrees.
 
         Returns
@@ -3255,7 +3368,7 @@ class Geometries3DLayout(Objec3DLayout, object):
         self.name = name
         self.id = id
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_placement_layer(self):
         """Retrieve the placement layer of the object.
 
@@ -3271,7 +3384,7 @@ class Geometries3DLayout(Objec3DLayout, object):
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_net_name(self):
         """Retrieve the net name.
 
@@ -3287,7 +3400,7 @@ class Geometries3DLayout(Objec3DLayout, object):
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Net")
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_property_value(self, propertyname):
         """Retrieve a property value.
 
@@ -3308,7 +3421,7 @@ class Geometries3DLayout(Objec3DLayout, object):
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, propertyname)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_layer(self, layer_name):
         """Set the object layer.
 
@@ -3329,7 +3442,7 @@ class Geometries3DLayout(Objec3DLayout, object):
         vMaterial = ["NAME:PlacementLayer", "Value:=", layer_name]
         return self.change_property(vMaterial)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_lock_position(self, lock_position=True):
         """Set the lock position.
 
@@ -3350,7 +3463,7 @@ class Geometries3DLayout(Objec3DLayout, object):
         vMaterial = ["NAME:LockPosition", "Value:=", lock_position]
         return self.change_property(vMaterial)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_negative(self, negative=False):
         """Set the negative.
 
@@ -3370,7 +3483,7 @@ class Geometries3DLayout(Objec3DLayout, object):
         vMaterial = ["NAME:Negative", "Value:=", negative]
         return self.change_property(vMaterial)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_net_name(self, netname=""):
         """Set the net name.
 
@@ -3575,7 +3688,7 @@ class Point(object):
         self._point_coordinate_system = new_coordinate_system
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def delete(self):
         """Delete the point.
 
@@ -3589,7 +3702,7 @@ class Point(object):
         self._primitives.remove_point(self.name)
         self.__dict__ = {}
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _change_property(self, vPropChange):
         return self._primitives._change_point_property(vPropChange, self.name)
 
@@ -3618,3 +3731,126 @@ class Point(object):
             self.display_wireframe,
             self.part_coordinate_system,
         )
+
+
+class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
+    """Contains 3d Components in HFSS 3D Layout.
+
+    Parameters
+    ----------
+    parent :
+
+    name : string, optional
+        The default is ``""``.
+
+    """
+
+    def __init__(self, primitives, name=""):
+        Objec3DLayout.__init__(self, primitives)
+        self.name = name
+
+    @property
+    def component_info(self):
+        """Retrieve all component info."""
+        return self.m_Editor.GetComponentInfo(self.name)
+
+    @property
+    def component_name(self):
+        """Retrieve the component name."""
+        try:
+            return self.component_info[0].split("=")[1]
+        except IndexError:
+            return ""
+
+    @property
+    def location(self):
+        """Retrieve/Set the component location.
+
+        Returns
+        -------
+        list
+           List of ``(x, y)`` coordinates for the component location.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        location = _retry_ntimes(
+            self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location"
+        ).split(",")
+        l = []
+        for i in location:
+            try:
+                l.append(float(i))
+            except ValueError:
+                l.append(i)
+        return l
+
+    @location.setter
+    def location(self, position):
+        props = ["NAME:Location", "X:=", str(position[0]), "Y:=", str(position[0])]
+        self.change_property(props)
+
+    @property
+    def placement_layer(self):
+        """Retrieve/Set the component placement layer.
+
+        Returns
+        -------
+        str
+            Component placement layer.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
+
+    @placement_layer.setter
+    def placement_layer(self, layer):
+        props = ["NAME:PlacementLayer", "Value:=", layer.lower()]
+        self.change_property(props)
+
+    @property
+    def angle(self):
+        """Retrieve/Set the component angle.
+
+        Returns
+        -------
+        str
+            Component angle.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        if self.is_3d_placement:
+            ang = self.m_Editor.GetPropertyValue("BaseElementTab", self.name, "Rotation Angle")
+        else:
+            ang = self.m_Editor.GetPropertyValue("BaseElementTab", self.name, "Angle")
+        try:
+            return float(ang)
+        except ValueError:
+            return ang
+
+    @angle.setter
+    def angle(self, angle_val):
+        if isinstance(angle_val, (int, float)):
+            angle_val = "{}deg".format(angle_val)
+
+        if not self.is_3d_placement:
+            props = ["NAME:Angle", "Value:=", angle_val]
+        else:
+            props = ["NAME:Rotation Angle", "Value:=", angle_val]
+        self.change_property(props)
+
+    @property
+    def is_3d_placement(self):
+        """Retrieve if the component has 3d placement."""
+        if self.m_Editor.GetPropertyValue("BaseElementTab", self.name, "3D Placement") in ["true", "True"]:
+            return True
+        else:
+            return False

@@ -56,6 +56,13 @@ class TestClass:
         assert go.parse_dim_arg("-3.4e-2") == -3.4e-2
         assert abs(go.parse_dim_arg("180deg") - math.pi) < tol
         assert go.parse_dim_arg("1.57rad") == 1.57
+        assert (
+            go.parse_dim_arg(
+                "3km",
+            )
+            == 3000.0
+        )
+        assert go.parse_dim_arg("1m_per_h") == 3600.0
 
     def test_cs_plane_str(self):
         assert go.cs_plane_to_axis_str(PLANE.XY) == "Z"
@@ -361,7 +368,7 @@ class TestClass:
     def test_unit_converter(self):
         assert unit_converter(10) == 10000
         assert unit_converter(10, "Lengths") == 10
-        assert unit_converter(10, "Length", "meters") == 10
+        assert unit_converter(10, "Length", "metersi") == 10
 
     def test_are_segments_intersecting(self):
         # crossing

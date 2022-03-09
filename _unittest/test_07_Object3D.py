@@ -352,3 +352,15 @@ class TestClass(BasisTest, object):
     def test_20_mirror(self):
         o = self.aedtapp.modeler.create_box([-10, 0, 0], [10, 10, 5], "MirrorBox", "Copper")
         assert o.mirror(position=[-10, 0, 0], vector=[0, 1, 0])
+
+    def test_21_groups(self):
+        o1 = self.aedtapp.modeler.create_box([-10, 0, 0], [10, 10, 5], "GroupB1", "Copper")
+        o2 = self.aedtapp.modeler.create_box([-10, 0, 0], [10, 10, 5], "GroupB2", "Copper")
+        assert o1.group_name == "Model"
+        o1.group_name = "NewGroup"
+        assert o1.group_name == "NewGroup"
+        o2.group_name = "NewGroup"
+        assert o2.group_name == "NewGroup"
+        o2.group_name = "NewGroup2"
+        assert o2.group_name == "NewGroup2"
+        assert o1.group_name == "NewGroup"

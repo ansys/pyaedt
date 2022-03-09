@@ -3,7 +3,9 @@ This module contains the `EdbHfss` class.
 """
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.generic.general_methods import aedt_exception_handler, generate_unique_name, is_ironpython
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class EdbHfss(object):
@@ -63,7 +65,7 @@ class EdbHfss(object):
     def _builder(self):
         return self._pedb.builder
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_trace_width_for_traces_with_ports(self):
         """Retrieve the trace width for traces with ports.
 
@@ -78,7 +80,7 @@ class EdbHfss(object):
         else:
             return {}
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_circuit_port_on_pin(self, pos_pin, neg_pin, impedance=50, port_name=None):
         """Create Circuit Port on Pin.
 
@@ -106,7 +108,7 @@ class EdbHfss(object):
         """
         return self._pedb.core_siwave.create_circuit_port_on_pin(pos_pin, neg_pin, impedance, port_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_voltage_source_on_pin(self, pos_pin, neg_pin, voltage_value=3.3, phase_value=0, source_name=""):
         """Create a voltage source.
 
@@ -140,7 +142,7 @@ class EdbHfss(object):
             pos_pin, neg_pin, voltage_value, phase_value, source_name
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_current_source_on_pin(self, pos_pin, neg_pin, current_value=0.1, phase_value=0, source_name=""):
         """Create a current source.
 
@@ -175,7 +177,7 @@ class EdbHfss(object):
             pos_pin, neg_pin, current_value, phase_value, source_name
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_resistor_on_pin(self, pos_pin, neg_pin, rvalue=1, resistor_name=""):
         """Create a voltage source.
 
@@ -205,7 +207,7 @@ class EdbHfss(object):
         """
         return self._pedb.core_siwave.create_resistor_on_pin(pos_pin, neg_pin, rvalue, resistor_name)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_circuit_port_on_net(
         self,
         positive_component_name,
@@ -254,7 +256,7 @@ class EdbHfss(object):
             port_name,
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_voltage_source_on_net(
         self,
         positive_component_name,
@@ -307,7 +309,7 @@ class EdbHfss(object):
             source_name,
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_current_source_on_net(
         self,
         positive_component_name,
@@ -360,7 +362,7 @@ class EdbHfss(object):
             source_name,
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_resistor_on_net(
         self,
         positive_component_name,
@@ -409,7 +411,7 @@ class EdbHfss(object):
             resistor_name,
         )
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_coax_port_on_component(self, ref_des_list, net_list):
         """Create a coaxial port on a component or component list on a net or net list.
 
@@ -449,7 +451,7 @@ class EdbHfss(object):
                         coax.append(port_name)
         return coax
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_hfss_ports_on_padstack(self, pinpos, portname=None):
         """Create a HFSS port on a padstack.
 
@@ -480,7 +482,7 @@ class EdbHfss(object):
         else:
             return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_lumped_port_on_trace(
         self,
         nets=None,
@@ -556,8 +558,10 @@ class EdbHfss(object):
                                 edges_pts.append(_pt)
                             else:
                                 port_name = generate_unique_name("port")
-                                if not self._hfss_terminals.CreateEdgePort(path, pt, reference_layer, port_name):
-                                    aedt_exception_handler(
+                                if not self._hfss_terminals.CreateEdgePort(
+                                    path, pt, reference_layer, port_name
+                                ):  # pragma: no cover
+                                    raise Exception(
                                         "edge port creation failed on point {}, {}".format(str(pt[0]), str(_pt[1]))
                                     )
                 for poly in net_poly:
@@ -581,8 +585,8 @@ class EdbHfss(object):
                                 port_name = generate_unique_name("port")
                                 if not self._hfss_terminals.CreateEdgePortOnPolygon(
                                     poly, convert_py_list_to_net_list(pt_at_left), reference_layer, port_name
-                                ):
-                                    aedt_exception_handler("Failed to create port on polygon {}".format(poly.GetName()))
+                                ):  # pragma: no cover
+                                    raise Exception("Failed to create port on polygon {}".format(poly.GetName()))
 
                     pt_at_bottom = [
                         pt for pt in points_at_border if round(pt.Y.ToDouble(), digit_resolution) == layout_bbox[1]
@@ -597,8 +601,8 @@ class EdbHfss(object):
                                 port_name = generate_unique_name("port")
                                 if not self._hfss_terminals.CreateEdgePortOnPolygon(
                                     poly, convert_py_list_to_net_list(pt_at_bottom), reference_layer, port_name
-                                ):
-                                    aedt_exception_handler("Failed to create port on polygon {}".format(poly.GetName()))
+                                ):  # pragma: no cover
+                                    raise Exception("Failed to create port on polygon {}".format(poly.GetName()))
 
                     pt_at_right = [
                         pt for pt in points_at_border if round(pt.X.ToDouble(), digit_resolution) == layout_bbox[2]
@@ -613,8 +617,8 @@ class EdbHfss(object):
                                 port_name = generate_unique_name("port")
                                 if not self._hfss_terminals.CreateEdgePortOnPolygon(
                                     poly, convert_py_list_to_net_list(pt_at_right), reference_layer, port_name
-                                ):
-                                    aedt_exception_handler("Failed to create port on polygon {}".format(poly.GetName()))
+                                ):  # pragma: no cover
+                                    raise Exception("Failed to create port on polygon {}".format(poly.GetName()))
 
                     pt_at_top = [
                         pt for pt in points_at_border if round(pt.Y.ToDouble(), digit_resolution) == layout_bbox[3]
@@ -629,13 +633,13 @@ class EdbHfss(object):
                                 port_name = generate_unique_name("port")
                                 if not self._hfss_terminals.CreateEdgePortOnPolygon(
                                     poly, convert_py_list_to_net_list(pt_at_top), reference_layer, port_name
-                                ):
-                                    aedt_exception_handler("Failed to create port on polygon {}".format(poly.GetName()))
+                                ):  # pragma: no cover
+                                    raise Exception("Failed to create port on polygon {}".format(poly.GetName()))
             if return_points_only:
                 return edges_pts
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def get_layout_bounding_box(self, layout=None, digit_resolution=6):
         """Evaluate the layout bounding box.
 

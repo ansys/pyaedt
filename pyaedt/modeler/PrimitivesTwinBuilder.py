@@ -1,5 +1,6 @@
-from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.modeler.PrimitivesCircuit import CircuitComponents, ComponentCatalog
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
+from pyaedt.modeler.PrimitivesCircuit import ComponentCatalog
 
 
 class TwinBuilderComponents(CircuitComponents):
@@ -36,7 +37,7 @@ class TwinBuilderComponents(CircuitComponents):
         """Tab name."""
         return "Quantities"
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __getitem__(self, partname):
         """Get object id from a string or integer.
 
@@ -78,7 +79,7 @@ class TwinBuilderComponents(CircuitComponents):
             self._components_catalog = ComponentCatalog(self)
         return self._components_catalog
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_resistor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
@@ -118,7 +119,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         return id
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_inductor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
@@ -157,7 +158,7 @@ class TwinBuilderComponents(CircuitComponents):
         id.set_property("L", value)
         return id
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_capacitor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
@@ -197,7 +198,7 @@ class TwinBuilderComponents(CircuitComponents):
         id.set_property("UseInitialConditions", True)
         return id
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_voltage_source(
         self, compname=None, type="E", amplitude=326, freq=50, location=[], angle=0, use_instance_id_netlist=False
     ):
@@ -251,7 +252,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         return id
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_diode(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
@@ -286,7 +287,7 @@ class TwinBuilderComponents(CircuitComponents):
         )
         return id
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_npn(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
         """Create an NPN transistor.
 
@@ -321,7 +322,7 @@ class TwinBuilderComponents(CircuitComponents):
         )
         return id
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_pnp(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
         """Create a PNP transistor.
 
@@ -357,7 +358,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         return id
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_periodic_waveform_source(
         self,
         compname=None,

@@ -4,9 +4,9 @@ This module contains the ``AEDTMessageManager`` class.
 This module provides all functionalities for logging errors and messages
 in both AEDT and the log file.
 """
-
 import logging
 import sys
+
 from pyaedt.generic.general_methods import settings
 
 message_levels = {"Global": 0, "Project": 1, "Design": 2}

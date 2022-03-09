@@ -6,20 +6,21 @@ This module is used to initialize AEDT and the message manager for managing AEDT
 You can initialize this module before launching an app or
 have the app automatically initialize it to the latest installed AEDT version.
 """
-from __future__ import absolute_import
 
-import os
-import sys
-import traceback
-import logging
-import pkgutil
-import getpass
-import re
-import warnings
-import gc
-import time
+from __future__ import absolute_import  # noreorder
+
 import datetime
+import gc
+import getpass
+import logging
+import os
+import pkgutil
+import re
+import sys
 import tempfile
+import time
+import traceback
+import warnings
 
 from pyaedt import is_ironpython
 
@@ -29,7 +30,7 @@ else:
     import subprocess
 
 from pyaedt.misc import list_installed_ansysem
-from pyaedt import aedt_exception_handler, settings
+from pyaedt import pyaedt_function_handler, settings
 from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop
 
 from pyaedt import aedt_logger, __version__
@@ -283,21 +284,24 @@ class Desktop:
         self._main.pyaedt_version = pyaedtversion
         self._main.interpreter_ver = _pythonver
         self._main.student_version = student_version
+        settings.non_graphical = non_graphical
         if is_ironpython:
             self._main.isoutsideDesktop = False
         else:
             self._main.isoutsideDesktop = True
         self.release_on_exit = True
         self.logfile = None
-        if "oDesktop" in dir():
+        if "oDesktop" in dir():  # pragma: no cover
             self.release_on_exit = False
             self._main.oDesktop = oDesktop
-        elif "oDesktop" in dir(self._main) and self._main.oDesktop is not None:
+            settings.aedt_version = oDesktop.GetVersion()[0:6]
+        elif "oDesktop" in dir(self._main) and self._main.oDesktop is not None:  # pragma: no cover
             self.release_on_exit = False
         else:
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
             self._main.student_version, version_key, version = self._set_version(specified_version, student_version)
+            settings.aedt_version = version
             if _com == "ironpython":  # pragma: no cover
                 print("Launching PyAEDT outside AEDT with IronPython.")
                 self._init_ironpython(non_graphical, new_desktop_session, version)
@@ -554,7 +558,7 @@ class Desktop:
         """AEDT logger."""
         return self._logger
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def project_list(self):
         """Retrieve a list of projects.
 
@@ -566,7 +570,7 @@ class Desktop:
         """
         return list(self.odesktop.GetProjectList())
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def analyze_all(self, project=None, design=None):
         """Analyze all setups in a project.
 
@@ -597,7 +601,7 @@ class Desktop:
                     odesign.AnalyzeAll()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def clear_messages(self):
         """Clear all AEDT messages.
 
@@ -609,7 +613,7 @@ class Desktop:
         self._desktop.ClearMessages("", "", 3)
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def save_project(self, project_name=None, project_path=None):
         """Save the project.
 
@@ -637,7 +641,7 @@ class Desktop:
             oproject.Save()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def copy_design(self, project_name=None, design_name=None, target_project=None):
         """Copy a design and paste it in an existing project or new project.
 
@@ -678,7 +682,7 @@ class Desktop:
                         return True
         return False
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def project_path(self, project_name=None):
         """Retrieve the path to the project.
 
@@ -702,7 +706,7 @@ class Desktop:
             return os.path.normpath(oproject.GetPath())
         return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def design_list(self, project=None):
         """Retrieve a list of the designs.
 
@@ -730,7 +734,7 @@ class Desktop:
                 updateddeslist.append(m.group(0))
         return updateddeslist
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def design_type(self, project_name=None, design_name=None):
         """Retrieve the type of a design.
 

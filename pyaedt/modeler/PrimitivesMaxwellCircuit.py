@@ -1,4 +1,4 @@
-from pyaedt.generic.general_methods import aedt_exception_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
 
 
@@ -26,7 +26,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         """Tab name."""
         return "PassedParameterTab"
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def __getitem__(self, partname):
         """Get object id from a string or integer.
 
@@ -56,7 +56,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         self._currentId = 0
         pass
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_resistor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
@@ -96,7 +96,7 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         return id
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_inductor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
@@ -135,7 +135,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         id.set_property("L", value)
         return id
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_capacitor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
@@ -174,7 +174,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         id.set_property("C", value)
         return id
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_diode(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
@@ -209,7 +209,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         )
         return id
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_winding(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
         """Create an NPN transistor.
 

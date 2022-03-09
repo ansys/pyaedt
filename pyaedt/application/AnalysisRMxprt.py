@@ -1,6 +1,6 @@
-from pyaedt.generic.general_methods import aedt_exception_handler
-from pyaedt.modeler.Model2D import ModelerRMxprt
 from pyaedt.application.Analysis import Analysis
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.Model2D import ModelerRMxprt
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
 
@@ -59,7 +59,7 @@ class FieldAnalysisRMxprt(Analysis):
         """
         return self._modeler
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def disable_modelcreation(self, solution_type=None):
         """Enable the RMxprt solution.
 
@@ -78,7 +78,7 @@ class FieldAnalysisRMxprt(Analysis):
         self.solution_type = solution_type
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def enable_modelcreation(self, solution_type=None):
         """Enable model creation for the Maxwell model wizard.
 
@@ -97,7 +97,7 @@ class FieldAnalysisRMxprt(Analysis):
         self.solution_type = solution_type
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _check_solution_consistency(self):
         """Check solution consistency."""
         if self.design_solutions:
@@ -105,7 +105,7 @@ class FieldAnalysisRMxprt(Analysis):
         else:
             return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _check_design_consistency(self):
         """Check design consistency."""
         consistent = False

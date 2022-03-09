@@ -3,12 +3,11 @@ This module contains these classes: `Layer` and `Layers`.
 
 This module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
 """
-from __future__ import absolute_import
+from __future__ import absolute_import  # noreorder
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
-from pyaedt.generic.general_methods import aedt_exception_handler
 
-
-@aedt_exception_handler
+@pyaedt_function_handler()
 def _str2bool(str0):
     """Convert a string to a Boolean value.
 
@@ -57,7 +56,7 @@ def _conv_number(number, typen=float):
             return number
 
 
-@aedt_exception_handler
+@pyaedt_function_handler()
 def _getIfromRGB(rgb):
     """Retrieve if from a specific layer color.
 
@@ -174,7 +173,7 @@ class Layer(object):
                 visflag += 16
         return visflag
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def set_layer_color(self, r, g, b):
         """Update the color of the layer.
 
@@ -202,7 +201,7 @@ class Layer(object):
         self.update_stackup_layer()
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def create_stackup_layer(self):
         """Create a stackup layer.
 
@@ -355,7 +354,7 @@ class Layer(object):
         self.id = int(infosdict["LayerId"])
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def _arg_with_dim(self, value, units=None):
         """Argument with dimensions.
 
@@ -379,7 +378,7 @@ class Layer(object):
 
         return val
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def update_stackup_layer(self):
         """Update the stackup layer.
 
@@ -541,7 +540,7 @@ class Layer(object):
             return False
         return True
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def remove_stackup_layer(self):
         """Remove the stackup layer.
 
@@ -618,6 +617,23 @@ class Layers(object):
         return self._oeditor.GetStackupLayerNames()
 
     @property
+    def drawing_layers(self):
+        """All drawing layers.
+
+        Returns
+        -------
+        list
+           List of stackup layers.
+
+        References
+        ----------
+
+        >>> oEditor.GetAllLayerNames()
+        """
+        stackup = self.all_layers
+        return [i for i in list(self._oeditor.GetAllLayerNames()) if i not in stackup]
+
+    @property
     def all_signal_layers(self):
         """All signal layers.
 
@@ -656,7 +672,7 @@ class Layers(object):
                 die.append(layid)
         return die
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def layer_id(self, name):
         """Retrieve a layer ID.
 
@@ -675,7 +691,7 @@ class Layers(object):
                 return el
         return None
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def refresh_all_layers(self):
         """Refresh all layers in the current stackup.
 
@@ -764,7 +780,7 @@ class Layers(object):
                 self.layers[o.id] = o
         return len(self.layers)
 
-    @aedt_exception_handler
+    @pyaedt_function_handler()
     def add_layer(
         self, layername, layertype="signal", thickness="0mm", elevation="0mm", material="copper", isnegative=False
     ):
