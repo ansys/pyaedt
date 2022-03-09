@@ -193,6 +193,8 @@ class EDBPrimitives(object):
         -------
         bool
         """
+        if not hasattr(self.primitive_object, "IsVoid"):
+            return False
         return self.primitive_object.IsVoid()
 
     @staticmethod

@@ -517,16 +517,19 @@ class Edb(object):
             ipc_path = self.edbpath[:-4] + "xml"
         self.logger.info("Export IPC 2581 is starting. This operation can take a while...")
         start = time.time()
-        result = self.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout(
-            self.active_layout, self.edbversion, ipc_path, units.lower()
-        )
-        end = time.time() - start
-        if result:
-            self.logger.info("Export IPC 2581 completed in %s sec.", end)
-            self.logger.info("File saved as %s", ipc_path)
-            return ipc_path
-        self.logger.info("Error Exporting IPC 2581.")
-        return False
+        try:
+            result = self.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout(
+                self.active_layout, self.edbversion, ipc_path, units.lower()
+            )
+            end = time.time() - start
+            if result:
+                self.logger.info("Export IPC 2581 completed in %s sec.", end)
+                self.logger.info("File saved as %s", ipc_path)
+                return ipc_path
+        except Exception as e:
+            self.logger.info("Error Exporting IPC 2581.")
+            self.logger.info(str(e))
+            return False
 
     def edb_exception(self, ex_value, tb_data):
         """Write the trace stack to AEDT when a Python error occurs.
@@ -1068,9 +1071,11 @@ class Edb(object):
             else:
                 _ref_nets.append(self.core_nets.nets[_ref].net_object)  # pragma: no cover
         # TODO check and insert via check on polygon intersection
-        circle_voids = [void_circle for void_circle in self.core_primitives.circles if void_circle.is_void]
+        voids = [p for p in self.core_primitives.circles if p.is_void]
+        voids2 = [p for p in self.core_primitives.polygons if p.is_void]
+        voids.extend(voids2)
         voids_to_add = []
-        for circle in circle_voids:
+        for circle in voids:
             if polygonData.GetIntersectionType(circle.primitive_object.GetPolygonData()) >= 3:
                 voids_to_add.append(circle)
 
@@ -1078,23 +1083,27 @@ class Edb(object):
         net_signals = List[type(_ref_nets[0])]()
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
-
+        layout = _cutout.GetLayout()
         for void_circle in voids_to_add:
-            layout = _cutout.GetLayout()
-            if is_ironpython:  # pragma: no cover
-                res, center_x, center_y, radius = void_circle.primitive_object.GetParameters()
-            else:
-                res, center_x, center_y, radius = void_circle.primitive_object.GetParameters(0.0, 0.0, 0.0)
-            cloned_circle = self.edb.Cell.Primitive.Circle.Create(
-                layout,
-                void_circle.layer_name,
-                void_circle.net,
-                self.edb_value(center_x),
-                self.edb_value(center_y),
-                self.edb_value(radius),
-            )
-            cloned_circle.SetIsNegative(True)
-
+            if void_circle.type == "Circle":
+                if is_ironpython:  # pragma: no cover
+                    res, center_x, center_y, radius = void_circle.primitive_object.GetParameters()
+                else:
+                    res, center_x, center_y, radius = void_circle.primitive_object.GetParameters(0.0, 0.0, 0.0)
+                cloned_circle = self.edb.Cell.Primitive.Circle.Create(
+                    layout,
+                    void_circle.layer_name,
+                    void_circle.net,
+                    self.edb_value(center_x),
+                    self.edb_value(center_y),
+                    self.edb_value(radius),
+                )
+                cloned_circle.SetIsNegative(True)
+            elif void_circle.type == "Polygon":
+                cloned_polygon = self.edb.Cell.Primitive.Polygon.Create(
+                    layout, void_circle.layer_name, void_circle.net, void_circle.primitive_object.GetPolygonData()
+                )
+                cloned_polygon.SetIsNegative(True)
         layers = self.core_stackup.stackup_layers.signal_layers
         for layer in list(layers.keys()):
             layer_primitves = self.core_primitives.get_primitives(layer_name=layer)

@@ -122,11 +122,16 @@ def download_aedb():
     return _download_file("edb/Galileo.aedb", "edb.def")
 
 
-def download_edb_merge_utility():
+def download_edb_merge_utility(force_download=False):
     """Download an example of WPF Project which allows to merge 2aedb files.
 
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
+
+    Parameters
+    ----------
+    force_download : bool
+        Force to delete cache and download files again.
 
     Returns
     -------
@@ -137,10 +142,14 @@ def download_edb_merge_utility():
     --------
     Download an example result file and return the path of the file
     >>> from pyaedt import examples
-    >>> path = examples.download_edb_mergge_utility()
+    >>> path = examples.download_edb_merge_utility(force_download=True)
     >>> path
-    'C:/Users/user/AppData/local/temp/Galileo.aedb'
+    'C:/Users/user/AppData/local/temp/wpf_edb_merge/merge_wizard.py'
     """
+    if force_download:
+        local_path = os.path.join(EXAMPLES_PATH, "wpf_edb_merge")
+        if os.path.exists(local_path):
+            shutil.rmtree(local_path, ignore_errors=True)
     _download_file("wpf_edb_merge/board.aedb", "edb.def")
     _download_file("wpf_edb_merge/package.aedb", "edb.def")
     _download_file("wpf_edb_merge", "merge_wizard_settings.json")

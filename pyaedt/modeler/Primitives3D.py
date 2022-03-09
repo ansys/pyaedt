@@ -876,13 +876,39 @@ class Primitives3D(Primitives, object):
         return self._create_object(new_name)
 
     @pyaedt_function_handler()
-    def create_helix(self, udphelixdefinition):
-        """Create an helix.
+    def create_helix(
+        self,
+        polyline_name,
+        position,
+        x_start_dir,
+        y_start_dir,
+        z_start_dir,
+        num_thread=1,
+        right_hand=True,
+        radius_increment=0.0,
+        thread=1,
+    ):
+        """Create an helix from a polyline.
 
         Parameters
         ----------
-        udphelixdefinition :
-
+        polyline_name : str
+            Name of the polyline used as the base for the helix.
+        position : list
+            List of ``[x, y, z]`` coordinates for the center point of the circle.
+        x_start_dir : float
+            Distance along x axis from the polyline.
+        y_start_dir : float
+            Distance along y axis from the polyline.
+        z_start_dir : float
+            Distance along z axis from the polyline.
+        num_thread : int, optional
+            Number of turns. The default value is ``1``.
+        right_hand : bool, optional
+            Whether the helix turning direction is right hand. The default value is ``True``.
+        radius_increment : float, optional
+            Radius change per turn. The default value is ``0.0``.
+        thread : float
 
         Returns
         -------
@@ -895,11 +921,36 @@ class Primitives3D(Primitives, object):
         >>> oEditor.CreateHelix
 
         """
+        if not polyline_name or polyline_name == "":
+            raise ValueError("The name of the polyline cannot be an empty string.")
+
+        x_center, y_center, z_center = self._pos_with_arg(position)
+
         vArg1 = ["NAME:Selections"]
-        vArg1.append("Selections:="), vArg1.append(o.name)
+        vArg1.append("Selections:="), vArg1.append(polyline_name)
         vArg1.append("NewPartsModelFlag:="), vArg1.append("Model")
 
-        vArg2 = udphelixdefinition.toScript(self.model_units)
+        vArg2 = ["NAME:HelixParameters"]
+        vArg2.append("XCenter:=")
+        vArg2.append(x_center)
+        vArg2.append("YCenter:=")
+        vArg2.append(y_center)
+        vArg2.append("ZCenter:=")
+        vArg2.append(z_center)
+        vArg2.append("XStartDir:=")
+        vArg2.append(self._arg_with_dim(x_start_dir))
+        vArg2.append("YStartDir:=")
+        vArg2.append(self._arg_with_dim(y_start_dir))
+        vArg2.append("ZStartDir:=")
+        vArg2.append(self._arg_with_dim(z_start_dir))
+        vArg2.append("NumThread:=")
+        vArg2.append(num_thread)
+        vArg2.append("RightHand:=")
+        vArg2.append(right_hand)
+        vArg2.append("RadiusIncrement:=")
+        vArg2.append(self._arg_with_dim(radius_increment))
+        vArg2.append("Thread:=")
+        vArg2.append(self._arg_with_dim(thread))
 
         new_name = self._oeditor.CreateHelix(vArg1, vArg2)
         return self._create_object(new_name)
