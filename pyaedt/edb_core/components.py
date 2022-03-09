@@ -424,6 +424,8 @@ class Components(object):
             Hosted component Pin 1 name.
         hosting_component_pin2 : str
             Hosted component Pin 2 name.
+        flipped : bool, optional
+            Either if the mounted component will be flipped or not.
 
         Returns
         -------
