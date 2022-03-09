@@ -1211,6 +1211,8 @@ class TestClass(BasisTest, object):
                 z_start_dir=1.0,
             )
         except ValueError as exc_info:
-            assert "The name of the polyline cannot be an empty string." in str(exc_info.value)
+            import pdb
+            pdb.set_trace()
+            assert "The name of the polyline cannot be an empty string." in str(exc_info.args[0])
         else:
             assert False
