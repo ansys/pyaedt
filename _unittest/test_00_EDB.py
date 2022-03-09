@@ -20,7 +20,7 @@ except ImportError:  # pragma: no cover
     import _unittest_ironpython.conf_unittest as pytest
 
 
-class TestClass(BasisTest, object):
+class TestGalileo(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.edbapp = BasisTest.add_edb(self, test_project_name)
@@ -765,3 +765,44 @@ class TestClass(BasisTest, object):
         edb3 = Edb(dxf_path, edbversion=desktop_version)
         edb3.close_edb()
         del edb3
+
+class TestOthers(BasisTest, object):
+    def test_00_place_on_lam_with_mold(self):
+        laminateEdb = Edb(os.path.join(local_path, "example_models", "lam_with_mold.aedb"), edbversion=desktop_version)
+        chipEdb = Edb(os.path.join(local_path, "example_models", "chip.aedb"), edbversion=desktop_version)
+        try:
+            layout = laminateEdb.active_layout
+            cellInstances = list(layout.CellInstances)
+            assert len(cellInstances) == 0
+            assert chipEdb.core_stackup.place_in_layout_3d_placement(
+                laminateEdb,
+                angle=0.0,
+                offset_x=0.0,
+                offset_y=0.0,
+                flipped_stackup=False,
+                place_on_top=True
+            )
+            merged_cell = chipEdb.edb.Cell.Cell.FindByName(chipEdb.db, chipEdb.edb.Cell.CellType.CircuitCell, 'lam_with_mold')
+            assert not merged_cell.IsNull()
+            layout = merged_cell.GetLayout()
+            cellInstances = list(layout.CellInstances)
+            assert len(cellInstances) == 1
+            cellInstance = cellInstances[0]
+            assert cellInstance.Is3DPlacement()
+            if is_ironpython:
+                res, localOrigin, rotAxisFrom, rotAxisTo, angle, loc = cellInstance.Get3DTransformation()
+            else:
+                res, localOrigin, rotAxisFrom, rotAxisTo, angle, loc = cellInstance.Get3DTransformation(None, None, None, None, None)
+            assert res
+            zeroValue = chipEdb.edb_value(0)
+            oneValue = chipEdb.edb_value(1)
+            originPoint = chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
+            xAxisPoint = chipEdb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
+            assert localOrigin.IsEqual(originPoint)
+            assert rotAxisFrom.IsEqual(xAxisPoint)
+            assert rotAxisTo.IsEqual(xAxisPoint)
+            assert angle.IsEqual(zeroValue)
+            assert loc.IsEqual(chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, chipEdb.edb_value(170e-6)))
+        finally:
+            chipEdb.close_edb()
+            laminateEdb.close_edb()
