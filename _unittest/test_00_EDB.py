@@ -766,6 +766,7 @@ class TestGalileo(BasisTest, object):
         edb3.close_edb()
         del edb3
 
+
 class TestOthers(BasisTest, object):
     def test_00_place_on_lam_with_mold(self):
         laminateEdb = Edb(os.path.join(local_path, "example_models", "lam_with_mold.aedb"), edbversion=desktop_version)
@@ -775,14 +776,11 @@ class TestOthers(BasisTest, object):
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
             assert chipEdb.core_stackup.place_in_layout_3d_placement(
-                laminateEdb,
-                angle=0.0,
-                offset_x=0.0,
-                offset_y=0.0,
-                flipped_stackup=False,
-                place_on_top=True
+                laminateEdb, angle=0.0, offset_x=0.0, offset_y=0.0, flipped_stackup=False, place_on_top=True
             )
-            merged_cell = chipEdb.edb.Cell.Cell.FindByName(chipEdb.db, chipEdb.edb.Cell.CellType.CircuitCell, 'lam_with_mold')
+            merged_cell = chipEdb.edb.Cell.Cell.FindByName(
+                chipEdb.db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
+            )
             assert not merged_cell.IsNull()
             layout = merged_cell.GetLayout()
             cellInstances = list(layout.CellInstances)
@@ -792,7 +790,9 @@ class TestOthers(BasisTest, object):
             if is_ironpython:
                 res, localOrigin, rotAxisFrom, rotAxisTo, angle, loc = cellInstance.Get3DTransformation()
             else:
-                res, localOrigin, rotAxisFrom, rotAxisTo, angle, loc = cellInstance.Get3DTransformation(None, None, None, None, None)
+                res, localOrigin, rotAxisFrom, rotAxisTo, angle, loc = cellInstance.Get3DTransformation(
+                    None, None, None, None, None
+                )
             assert res
             zeroValue = chipEdb.edb_value(0)
             oneValue = chipEdb.edb_value(1)
