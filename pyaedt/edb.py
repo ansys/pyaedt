@@ -517,16 +517,19 @@ class Edb(object):
             ipc_path = self.edbpath[:-4] + "xml"
         self.logger.info("Export IPC 2581 is starting. This operation can take a while...")
         start = time.time()
-        result = self.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout(
-            self.active_layout, self.edbversion, ipc_path, units.lower()
-        )
-        end = time.time() - start
-        if result:
-            self.logger.info("Export IPC 2581 completed in %s sec.", end)
-            self.logger.info("File saved as %s", ipc_path)
-            return ipc_path
-        self.logger.info("Error Exporting IPC 2581.")
-        return False
+        try:
+            result = self.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout(
+                self.active_layout, self.edbversion, ipc_path, units.lower()
+            )
+            end = time.time() - start
+            if result:
+                self.logger.info("Export IPC 2581 completed in %s sec.", end)
+                self.logger.info("File saved as %s", ipc_path)
+                return ipc_path
+        except Exception as e:
+            self.logger.info("Error Exporting IPC 2581.")
+            self.logger.info(str(e))
+            return False
 
     def edb_exception(self, ex_value, tb_data):
         """Write the trace stack to AEDT when a Python error occurs.

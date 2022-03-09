@@ -15,7 +15,8 @@ from _unittest.conftest import config, desktop_version, local_path, scratch_path
 
 try:
     import pytest
-except ImportError:
+    import unittest.mock
+except ImportError:  # pragma: no cover
     import _unittest_ironpython.conf_unittest as pytest
 
 
@@ -43,6 +44,17 @@ class TestClass(BasisTest, object):
         # Export should be made with units set to default -millimeter-.
         self.edbapp.export_to_ipc2581(ipc_path, "mm")
         assert os.path.exists(ipc_path)
+
+        if not is_ironpython:
+            # Test the export_to_ipc2581 method when IPC8521.ExportIPC2581FromLayout raises an exception internally.
+            with unittest.mock.patch("pyaedt.Edb.edblib", new_callable=unittest.mock.PropertyMock) as edblib_mock:
+                Edb.edblib.IPC8521 = unittest.mock.Mock()
+                Edb.edblib.IPC8521.IPCExporter = unittest.mock.Mock()
+                Edb.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout = unittest.mock.Mock(
+                    side_effect=Exception("Exception for testing raised in ExportIPC2581FromLayout.")
+                )
+
+                assert not self.edbapp.export_to_ipc2581(os.path.exists(ipc_path))
 
     def test_01_find_by_name(self):
         comp = self.edbapp.core_components.get_component_by_name("J1")
