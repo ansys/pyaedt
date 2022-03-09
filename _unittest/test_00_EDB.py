@@ -708,7 +708,7 @@ class TestClass(BasisTest, object):
             hosting_component_pin2="A4",
         )
         assert result
-        assert abs(abs(rotation) - math.pi/2) < 1e-9
+        assert abs(abs(rotation) - math.pi / 2) < 1e-9
         assert solder_ball_height == 0.00033
         assert len(vector) == 2
         result, vector, rotation, solder_ball_height = self.edbapp.core_components.get_component_placement_vector(
@@ -718,7 +718,7 @@ class TestClass(BasisTest, object):
             mounted_component_pin2="A12",
             hosting_component_pin1="A2",
             hosting_component_pin2="A4",
-            flipped=True
+            flipped=True,
         )
         assert result
         assert abs(rotation + math.pi / 2) < 1e-9
