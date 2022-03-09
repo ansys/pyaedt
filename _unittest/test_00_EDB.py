@@ -16,7 +16,7 @@ from _unittest.conftest import config, desktop_version, local_path, scratch_path
 try:
     import pytest
     import unittest.mock
-except ImportError:
+except ImportError:  # pragma: no cover
     import _unittest_ironpython.conf_unittest as pytest
 
 
