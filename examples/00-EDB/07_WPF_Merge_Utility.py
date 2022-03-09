@@ -14,7 +14,6 @@ This demo will show how to run a merge between two EDBs (eg. package on board).
 # json fil can be customized to change settings.
 
 from pyaedt.examples.downloads import download_edb_merge_utility
-from pyaedt.generic.toolkit import launch
 
 python_file = download_edb_merge_utility(force_download=True)
 desktop_version = "2022.1"
@@ -38,4 +37,5 @@ desktop_version = "2022.1"
 # load all settings.
 # The following command line can be unchecked and launched from python interpreter.
 
+# from pyaedt.generic.toolkit import launch
 # launch(python_file, specified_version=desktop_version, new_desktop_session=False, autosave=False)
