@@ -106,8 +106,8 @@ class Components(object):
         return self._pedb.builder
 
     @property
-    def _edb_value(self):
-        return self._pedb.edb_value
+    def _get_edb_value(self, value):
+        return self._pedb.edb_value(value)
 
     @property
     def _edbutils(self):
@@ -579,7 +579,7 @@ class Components(object):
 
         if port_type == SourceType.CoaxPort:
             pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
-            sball_diam = min([self._edb_value(val).ToDouble() for val in pad_params[1]])
+            sball_diam = min([self._get_edb_value(val).ToDouble() for val in pad_params[1]])
             sb_height = sball_diam
             self.set_solder_ball(component, sb_height, sball_diam)
             for pin in cmp_pins:
@@ -639,7 +639,7 @@ class Components(object):
         """
 
         res, pin_position, pin_rot = pin.GetPositionAndRotation(
-            self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0
+            self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)), 0.0
         )
         if not is_ironpython:
             res, from_layer, to_layer = pin.GetLayerRange(None, None)
@@ -670,13 +670,13 @@ class Components(object):
 
         """
         res, pin_position, pin_rot = pin.GetPositionAndRotation(
-            self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0
+            self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)), 0.0
         )
         distance = 1e3
         closest_pin = ref_pinlist[0]
         for ref_pin in ref_pinlist:
             res, ref_pin_position, ref_pin_rot = ref_pin.GetPositionAndRotation(
-                self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0
+                self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)), 0.0
             )
             temp_distance = pin_position.Distance(ref_pin_position)
             if temp_distance < distance:
@@ -1058,8 +1058,8 @@ class Components(object):
                 ic_cmp_property.SetDieProperty(ic_die_prop)
 
                 ic_solder_ball_prop = ic_cmp_property.GetSolderBallProperty().Clone()
-                ic_solder_ball_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam))
-                ic_solder_ball_prop.SetHeight(self._edb_value(sball_height))
+                ic_solder_ball_prop.SetDiameter(self._get_edb_value(sball_diam), self._get_edb_value(sball_diam))
+                ic_solder_ball_prop.SetHeight(self._get_edb_value(sball_height))
                 ic_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
                 ic_cmp_property.SetSolderBallProperty(ic_solder_ball_prop)
 
@@ -1072,8 +1072,8 @@ class Components(object):
             elif cmp_type == self._edb.Definition.ComponentType.IO:
                 io_cmp_prop = edb_cmp.GetComponentProperty().Clone()
                 io_solder_ball_prop = io_cmp_prop.GetSolderBallProperty().Clone()
-                io_solder_ball_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam))
-                io_solder_ball_prop.SetHeight(self._edb_value(sball_height))
+                io_solder_ball_prop.SetDiameter(self._get_edb_value(sball_diam), self._get_edb_value(sball_diam))
+                io_solder_ball_prop.SetHeight(self._get_edb_value(sball_height))
                 io_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
                 io_cmp_prop.SetSolderBallProperty(io_solder_ball_prop)
                 io_port_prop = io_cmp_prop.GetPortProperty().Clone()
@@ -1084,8 +1084,8 @@ class Components(object):
             elif cmp_type == self._edb.Definition.ComponentType.Other:
                 other_cmp_prop = edb_cmp.GetComponentProperty().Clone()
                 other_solder_ball_prop = other_cmp_prop.GetSolderBallProperty().Clone()
-                other_solder_ball_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam))
-                other_solder_ball_prop.SetHeight(self._edb_value(sball_height))
+                other_solder_ball_prop.SetDiameter(self._get_edb_value(sball_diam), self._get_edb_value(sball_diam))
+                other_solder_ball_prop.SetHeight(self._get_edb_value(sball_height))
                 other_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
                 other_cmp_prop.SetSolderBallProperty(other_solder_ball_prop)
                 other_port_prop = other_cmp_prop.GetPortProperty().Clone()
@@ -1143,13 +1143,13 @@ class Components(object):
             rlc.IsParallel = isparallel
             if res_value is not None:
                 rlc.REnabled = True
-                rlc.R = self._edb_value(res_value)
+                rlc.R = self._get_edb_value(res_value)
             if ind_value is not None:
                 rlc.LEnabled = True
-                rlc.L = self._edb_value(ind_value)
+                rlc.L = self._get_edb_value(ind_value)
             if cap_value is not None:
                 rlc.CEnabled = True
-                rlc.C = self._edb_value(cap_value)
+                rlc.C = self._get_edb_value(cap_value)
             pinPair = self._edb.Utility.PinPair(fromPin.GetName(), toPin.GetName())
             rlcModel = self._edb.Cell.Hierarchy.PinPairModel()
             rlcModel.SetPinPairRlc(pinPair, rlc)
@@ -1347,14 +1347,15 @@ class Components(object):
             res, pt_pos, rot_pos = pin.GetPositionAndRotation()
         else:
             res, pt_pos, rot_pos = pin.GetPositionAndRotation(
-                self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0
+                self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)), 0.0
             )
         if pin.GetComponent().IsNull():
             transformed_pt_pos = pt_pos
         else:
             transformed_pt_pos = pin.GetComponent().GetTransform().TransformPoint(pt_pos)
         pin_xy = self._edb.Geometry.PointData(
-            self._edb_value(str(transformed_pt_pos.X.ToDouble())), self._edb_value(str(transformed_pt_pos.Y.ToDouble()))
+            self._get_edb_value(str(transformed_pt_pos.X.ToDouble())),
+            self._get_edb_value(str(transformed_pt_pos.Y.ToDouble())),
         )
         return [pin_xy.X.ToDouble(), pin_xy.Y.ToDouble()]
 
