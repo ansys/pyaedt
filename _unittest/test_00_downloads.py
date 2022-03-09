@@ -32,3 +32,4 @@ class TestClass(BasisTest, object):
 
     def test_download_wfp(self):
         assert self.examples.download_edb_merge_utility()
+        assert self.examples.download_edb_merge_utility(True)
