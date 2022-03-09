@@ -105,7 +105,6 @@ class Components(object):
     def _builder(self):
         return self._pedb.builder
 
-    @property
     def _get_edb_value(self, value):
         return self._pedb.edb_value(value)
 
@@ -554,8 +553,9 @@ class Components(object):
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> net_list = ["M_DQ<1>", "M_DQ<2>", "M_DQ<3>", "M_DQ<4>", "M_DQ<5>"]
-        >>> edbapp.core_components.create_port_on_component(cmp="U2A5", net_list=net_list,
-        >>> port_type=SourceType.CoaxPort, do_pingroup=False, refnet="GND")
+        >>> edbapp.core_components.create_port_on_component(component="U2A5", net_list=net_list,
+        ...                                                 port_type=SourceType.CoaxPort,
+        ...                                                 do_pingroup=False, reference_net="GND")
 
         """
         if isinstance(component, self._edb.Cell.Hierarchy.Component):

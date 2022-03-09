@@ -7,6 +7,7 @@ import time
 # Import required modules
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
+from pyaedt.generic.constants import SourceType
 
 
 test_project_name = "Galileo_edb"
@@ -54,6 +55,13 @@ class TestClass(BasisTest, object):
         )
         assert isinstance(parameters[1], list)
         assert isinstance(parameters[0], int)
+
+    def test_01A_create_ports(self):
+        j1_comp = self.edbapp.core_components.get_component_by_name("J1")
+        net_list = ["M_DQ<1>", "M_DQ<2>", "M_DQ<3>", "M_DQ<4>", "M_DQ<5>"]
+        assert self.edbapp.core_components.create_port_on_component(
+            component="U2A5", net_list=net_list, port_type=SourceType.CoaxPort, do_pingroup=False, reference_net="GND"
+        )
 
     def test_01B_get_vias_from_nets(self):
         assert self.edbapp.core_padstack.get_via_instance_from_net("GND")
