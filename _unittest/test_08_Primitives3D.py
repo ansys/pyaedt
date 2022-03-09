@@ -1157,7 +1157,6 @@ class TestClass(BasisTest, object):
         assert isinstance(resolve3, float)
         assert not boolean3
 
-    @pytest.mark.skipif(is_ironpython, reason="pytest is not supported with IronPython.")
     @pyaedt_unittest_check_desktop_error
     def test_77_create_helix(self):
 
@@ -1202,12 +1201,16 @@ class TestClass(BasisTest, object):
         )
 
         # Test that an exception is raised if the name of the polyline is not provided.
-        with pytest.raises(ValueError) as exc_info:
-            assert self.aedtapp.modeler.create_helix(
+        # We can't use with.pytest.raises pattern bellow because IronPython does not support pytest.
+        try:
+            self.aedtapp.modeler.create_helix(
                 polyline_name="",
                 position=[0, 0, 0],
                 x_start_dir=1.0,
                 y_start_dir=1.0,
                 z_start_dir=1.0,
             )
+        except ValueError as exc_info:
             assert "The name of the polyline cannot be an empty string." in str(exc_info.value)
+        else:
+            assert False
