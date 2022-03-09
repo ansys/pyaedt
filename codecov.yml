@@ -4,9 +4,7 @@ comment:
 
 coverage:
   status:
-    project:
-      default:
-        informational: true
+    project: false
     patch:
       default:
         # basic
