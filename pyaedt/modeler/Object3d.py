@@ -2608,8 +2608,6 @@ class CircuitPins(object):
 
 
 class ComponentParameters(dict):
-    """AEDT Circuit Component Internal Parameters."""
-
     def __setitem__(self, key, value):
         try:
             self._component.m_Editor.ChangeProperty(
