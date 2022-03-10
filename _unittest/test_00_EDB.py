@@ -57,10 +57,24 @@ class TestClass(BasisTest, object):
         assert isinstance(parameters[0], int)
 
     def test_01A_create_ports(self):
-        j1_comp = self.edbapp.core_components.get_component_by_name("J1")
-        net_list = ["M_DQ<1>", "M_DQ<2>", "M_DQ<3>", "M_DQ<4>", "M_DQ<5>"]
+        pins = self.edbapp.core_components.get_pin_from_component("J1")
+        nets = self.edbapp.core_components.get_nets_from_pin_list(pins)
+        assert len(nets) == 6
+        assert 'IO13_ICSP_R' in nets
+        assert 'V5_ALW_ON' in nets
+        assert 'GND' in nets
+        assert 'IO11_ICSP_R' in nets
+        assert 'RESET_N_SHLD' in nets
+        assert 'IO12_ICSP_R' in nets
+
         assert self.edbapp.core_components.create_port_on_component(
-            component="U2A5", net_list=net_list, port_type=SourceType.CoaxPort, do_pingroup=False, reference_net="GND"
+            component="J1", net_list=nets[:2], port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="GND"
+        )
+        assert self.edbapp.core_components.create_port_on_component(
+            component="J1", net_list=nets[2], port_type=SourceType.CoaxPort, do_pingroup=False, reference_net="GND"
+        )
+        assert self.edbapp.core_components.create_port_on_component(
+            component="J1", net_list=nets[-3:], port_type=SourceType.CircPort, do_pingroup=False, reference_net="GND"
         )
 
     def test_01B_get_vias_from_nets(self):

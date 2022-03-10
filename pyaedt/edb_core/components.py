@@ -531,9 +531,9 @@ class Components(object):
             The list of nets where ports have to be created on the component.
             If net is not part of the component this one will be skipped.
 
-        port_type : SourceType enumerator, CoaxPort or CircuitPort
+        port_type : SourceType enumerator, CoaxPort or CircPort
             Define the type of port to be created. CoaxPort will auto generate solder balls.
-            CircuitPort will generate circuit ports on pins belonging to the net list.
+            CircPort will generate circuit ports on pins belonging to the net list.
 
         do_pingroup : bool
             True activate pingroup during port creation (only used with combination of CoaxPort),
