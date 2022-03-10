@@ -60,12 +60,12 @@ class TestClass(BasisTest, object):
         pins = self.edbapp.core_components.get_pin_from_component("J1")
         nets = self.edbapp.core_components.get_nets_from_pin_list(pins)
         assert len(nets) == 6
-        assert 'IO13_ICSP_R' in nets
-        assert 'V5_ALW_ON' in nets
-        assert 'GND' in nets
-        assert 'IO11_ICSP_R' in nets
-        assert 'RESET_N_SHLD' in nets
-        assert 'IO12_ICSP_R' in nets
+        assert "IO13_ICSP_R" in nets
+        assert "V5_ALW_ON" in nets
+        assert "GND" in nets
+        assert "IO11_ICSP_R" in nets
+        assert "RESET_N_SHLD" in nets
+        assert "IO12_ICSP_R" in nets
 
         assert self.edbapp.core_components.create_port_on_component(
             component="J1", net_list=nets[:2], port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="GND"
