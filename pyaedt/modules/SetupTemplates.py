@@ -1887,25 +1887,25 @@ class SetupKeys(object):
     ]
 
 
-class SetupProps(dict):
+class SetupProps(OrderedDict):
     """AEDT Boundary Component Internal Parameters."""
 
     def __setitem__(self, key, value):
-        dict.__setitem__(self, key, value)
+        OrderedDict.__setitem__(self, key, value)
         if self._pyaedt_setup.auto_update:
             res = self._pyaedt_setup.update()
             if not res:
                 self._pyaedt_setup._app.logger.warning("Update of %s% Failed. Check needed arguments", key)
 
     def __init__(self, setup, props):
-        dict.__init__(self)
+        OrderedDict.__init__(self)
         if props:
             for key, value in props.items():
                 if isinstance(value, (dict, OrderedDict)):
-                    dict.__setitem__(self, key, SetupProps(setup, value))
+                    OrderedDict.__setitem__(self, key, SetupProps(setup, value))
                 else:
-                    dict.__setitem__(self, key, value)
+                    OrderedDict.__setitem__(self, key, value)
         self._pyaedt_setup = setup
 
     def _setitem_without_update(self, key, value):
-        dict.__setitem__(self, key, value)
+        OrderedDict.__setitem__(self, key, value)

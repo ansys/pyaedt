@@ -27,28 +27,28 @@ from pyaedt.modeler.Object3d import Object3d
 from pyaedt.modeler.Object3d import VertexPrimitive
 
 
-class CsProps(dict):
+class CsProps(OrderedDict):
     """AEDT Cooardinate System Internal Parameters."""
 
     def __setitem__(self, key, value):
-        dict.__setitem__(self, key, value)
+        OrderedDict.__setitem__(self, key, value)
         if self._pyaedt_cs.auto_update:
             res = self._pyaedt_cs.update()
             if not res:
                 self._pyaedt_cs._app.logger.warning("Update of %s% Failed. Check needed arguments", key)
 
     def __init__(self, cs_object, props):
-        dict.__init__(self)
+        OrderedDict.__init__(self)
         if props:
             for key, value in props.items():
                 if isinstance(value, (dict, OrderedDict)):
-                    dict.__setitem__(self, key, CsProps(cs_object, value))
+                    OrderedDict.__setitem__(self, key, CsProps(cs_object, value))
                 else:
-                    dict.__setitem__(self, key, value)
+                    OrderedDict.__setitem__(self, key, value)
         self._pyaedt_cs = cs_object
 
     def _setitem_without_update(self, key, value):
-        dict.__setitem__(self, key, value)
+        OrderedDict.__setitem__(self, key, value)
 
 
 class BaseCoordinateSystem(object):
