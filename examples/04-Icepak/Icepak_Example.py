@@ -84,7 +84,6 @@ setup1.props["Flow Regime"] = "Turbulent"
 setup1.props["Convergence Criteria - Max Iterations"] = 5
 setup1.props["Linear Solver Type - Pressure"] = "flex"
 setup1.props["Linear Solver Type - Temperature"] = "flex"
-setup1.update()
 ipk.save_project(r"C:\temp\Graphic_card.aedt")
 
 ###############################################################################

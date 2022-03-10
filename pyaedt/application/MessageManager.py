@@ -7,7 +7,7 @@ in both AEDT and the log file.
 import logging
 import sys
 
-from pyaedt.generic.general_methods import settings
+from pyaedt import settings
 
 message_levels = {"Global": 0, "Project": 1, "Design": 2}
 

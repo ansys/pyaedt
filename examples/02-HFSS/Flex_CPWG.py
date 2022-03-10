@@ -177,7 +177,6 @@ setup = hfss.create_setup("setup1")
 setup.props["Frequency"] = "2GHz"
 setup.props["MaximumPasses"] = 10
 setup.props["MinimumConvergedPasses"] = 2
-setup.update()
 hfss.create_linear_count_sweep(
     setupname="setup1",
     unit="GHz",

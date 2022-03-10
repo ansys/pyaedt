@@ -174,6 +174,14 @@ Electrostatic = [
 ]
 """Maxwell electrostatic setup properties and default values."""
 
+subrange = [
+    ("SweepSetupType", "LinearStep"),
+    ("StartValue", "1e-08GHz"),
+    ("StopValue", "1e-06GHz"),
+    ("StepSize", "1e-08GHz"),
+]
+subranges = [("Subrange", subrange)]
+
 EddyCurrent = [
     ("Enabled", True),
     ("MeshLink", meshlink),
@@ -191,10 +199,7 @@ EddyCurrent = [
     ("SmoothBHCurve", False),
     ("Frequency", "60Hz"),
     ("HasSweepSetup", False),
-    ("SweepSetupType", "LinearStep"),
-    ("StartValue", "1e-08GHz"),
-    ("StopValue", "1e-06GHz"),
-    ("StepSize", "1e-08GHz"),
+    ("SweepRanges", subranges),
     ("UseHighOrderShapeFunc", False),
     ("UseMuLink", False),
 ]
@@ -1880,3 +1885,27 @@ class SetupKeys(object):
         "SiwaveAC3DLayout",
         "LNA3DLayout",
     ]
+
+
+class SetupProps(dict):
+    """AEDT Boundary Component Internal Parameters."""
+
+    def __setitem__(self, key, value):
+        dict.__setitem__(self, key, value)
+        if self._pyaedt_setup.auto_update:
+            res = self._pyaedt_setup.update()
+            if not res:
+                self._pyaedt_setup._app.logger.warning("Update of %s% Failed. Check needed arguments", key)
+
+    def __init__(self, setup, props):
+        dict.__init__(self)
+        if props:
+            for key, value in props.items():
+                if isinstance(value, (dict, OrderedDict)):
+                    dict.__setitem__(self, key, SetupProps(setup, value))
+                else:
+                    dict.__setitem__(self, key, value)
+        self._pyaedt_setup = setup
+
+    def _setitem_without_update(self, key, value):
+        dict.__setitem__(self, key, value)

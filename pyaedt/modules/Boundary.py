@@ -16,7 +16,7 @@ from pyaedt.modeler.Object3d import VertexPrimitive
 
 
 class BoundaryProps(dict):
-    """AEDT Circuit Component Internal Parameters."""
+    """AEDT Boundary Component Internal Parameters."""
 
     def __setitem__(self, key, value):
         dict.__setitem__(self, key, value)
@@ -28,7 +28,13 @@ class BoundaryProps(dict):
             self._pyaedt_boundary._app.logger.warning("Update of %s% Failed. Check needed arguments", key)
 
     def __init__(self, boundary, props):
-        dict.__init__(self, props)
+        dict.__init__(self)
+        if props:
+            for key, value in props.items():
+                if isinstance(value, (dict, OrderedDict)):
+                    dict.__setitem__(self, key, BoundaryProps(boundary, value))
+                else:
+                    dict.__setitem__(self, key, value)
         self._pyaedt_boundary = boundary
 
     def _setitem_without_update(self, key, value):
@@ -274,10 +280,20 @@ class BoundaryObject(BoundaryCommon, object):
 
     def __init__(self, app, name, props, boundarytype):
         self._app = app
-        self.name = name
+        self._name = name
         self.props = BoundaryProps(self, OrderedDict(props))
         self.type = boundarytype
         self._boundary_name = self.name
+
+    @property
+    def name(self):
+        """Boundary Name."""
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+        self.update()
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):

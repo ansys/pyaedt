@@ -50,7 +50,6 @@ cs1 = hfss.modeler.create_coordinate_system()
 cs1.props["OriginX"] = 10
 cs1.props["OriginY"] = 10
 cs1.props["OriginZ"] = 10
-cs1.update()
 
 # The pointing vectors can be changed.
 
@@ -58,7 +57,6 @@ ypoint = [0, -1, 0]
 cs1.props["YAxisXvec"] = ypoint[0]
 cs1.props["YAxisYvec"] = ypoint[1]
 cs1.props["YAxisZvec"] = ypoint[2]
-cs1.update()
 
 ###############################################################################
 # Rename the Coordinate System
@@ -80,7 +78,6 @@ cs1.change_cs_mode(1)
 cs1.props["Phi"] = "10deg"
 cs1.props["Theta"] = "22deg"
 cs1.props["Psi"] = "30deg"
-cs1.update()
 
 ###############################################################################
 # Delete the Coordinate System
@@ -151,7 +148,6 @@ fcs3 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_p
 
 # The axis can also be changed after the coordinate system is created.
 fcs3.props["WhichAxis"] = "X"
-fcs3.update()
 
 ###############################################################################
 # Apply a rotation around the Z axis.
@@ -162,7 +158,6 @@ fcs4 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_p
 
 # The rotation can also be changed after the coordinate system is created.
 fcs4.props["ZRotationAngle"] = "3deg"
-fcs4.update()
 
 ###############################################################################
 # Apply an offset to the X and Y axis of a Face coordinate system
@@ -175,7 +170,6 @@ fcs5 = hfss.modeler.create_face_coordinate_system(
 # The offset can also be changed after the coordinate system is created.
 fcs5.props["XOffset"] = "0.2mm"
 fcs5.props["YOffset"] = "0.1mm"
-fcs5.update()
 
 ###############################################################################
 # Create a coordinate system relative to a Face coordinate system

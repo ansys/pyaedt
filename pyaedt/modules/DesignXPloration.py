@@ -5,6 +5,7 @@ from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.SetupTemplates import SetupProps
 
 defaultparametricSetup = OrderedDict(
     {
@@ -151,6 +152,7 @@ class CommonOptimetrics(object):
     """
 
     def __init__(self, p_app, name, dictinputs, optimtype):
+        self.auto_update = False
         self._app = p_app
         self.omodule = self._app.ooptimetrics
         self.name = name
@@ -159,17 +161,17 @@ class CommonOptimetrics(object):
         inputd = copy.deepcopy(dictinputs)
 
         if optimtype == "OptiParametric":
-            self.props = inputd or copy.deepcopy(defaultparametricSetup)
+            self.props = SetupProps(self, inputd or copy.deepcopy(defaultparametricSetup))
         if optimtype == "OptiDesignExplorer":
-            self.props = inputd or copy.deepcopy(defaultdxSetup)
+            self.props = SetupProps(self, inputd or copy.deepcopy(defaultdxSetup))
         if optimtype == "OptiOptimization":
-            self.props = inputd or copy.deepcopy(defaultoptiSetup)
+            self.props = SetupProps(self, inputd or copy.deepcopy(defaultoptiSetup))
         if optimtype == "OptiSensitivity":
-            self.props = inputd or copy.deepcopy(defaultsensitivitySetup)
+            self.props = SetupProps(self, inputd or copy.deepcopy(defaultsensitivitySetup))
         if optimtype == "OptiStatistical":
-            self.props = inputd or copy.deepcopy(defaultstatisticalSetup)
+            self.props = SetupProps(self, inputd or copy.deepcopy(defaultstatisticalSetup))
         if optimtype == "OptiDXDOE":
-            self.props = inputd or copy.deepcopy(defaultdoeSetup)
+            self.props = SetupProps(self, inputd or copy.deepcopy(defaultdoeSetup))
 
         if inputd:
             self.props.pop("ID", None)
@@ -201,6 +203,7 @@ class CommonOptimetrics(object):
                     arg1 = OrderedDict()
                     _arg2dict(calculation, arg1)
                     self.props["Goals"] = arg1
+        self.auto_update = True
 
     @pyaedt_function_handler()
     def update(self, update_dictionary=None):
@@ -223,7 +226,7 @@ class CommonOptimetrics(object):
         """
         if update_dictionary:
             for el in update_dictionary:
-                self.props[el] = update_dictionary[el]
+                self.props._setitem_without_update(el, update_dictionary[el])
 
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
@@ -628,6 +631,7 @@ class DXSetups(object):
         if not parametricname:
             parametricname = generate_unique_name("DesignXplorer")
         setup = self.Setup(self._app, parametricname)
+        setup.auto_update = False
         setup.props["Sim. Setups"] = setupname
         setup.props["Sweeps"] = []
         if not defaults_var_values:
@@ -651,6 +655,7 @@ class DXSetups(object):
                 setup.props["StartingPoint"][v] = vv
         setup.create()
         self.setups.append(setup)
+        setup.auto_update = True
         return setup
 
 
@@ -834,6 +839,7 @@ class ParametericsSetups(object):
         if not parametricname:
             parametricname = generate_unique_name("Parametric")
         setup = self.Setup(self._app, parametricname)
+        setup.auto_update = False
         setup.props["Sim. Setups"] = setupname
         sweepdefinition = OrderedDict()
         sweepdefinition["Variable"] = sweep_var
@@ -843,6 +849,7 @@ class ParametericsSetups(object):
         setup.props["Sweeps"]["SweepDefinition"] = sweepdefinition
         setup.create()
         self.setups.append(setup)
+        setup.auto_update = True
         return setup
 
 
@@ -1438,6 +1445,7 @@ class DOESetups(object):
         if not parametricname:
             parametricname = generate_unique_name("DesignOfExp")
         setup = self.Setup(self._app, parametricname)
+        setup.auto_update = False
         setup.props["Sim. Setups"] = setupname
         sweepdefinition = OrderedDict()
         sweepdefinition["ReportType"] = reporttype
@@ -1457,6 +1465,7 @@ class DOESetups(object):
         setup.props["CostFunctionGoals"]["Goal"] = sweepdefinition
         setup.create()
         self.setups.append(setup)
+        setup.auto_update = True
         return setup
 
 

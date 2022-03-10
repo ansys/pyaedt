@@ -27,6 +27,30 @@ from pyaedt.modeler.Object3d import Object3d
 from pyaedt.modeler.Object3d import VertexPrimitive
 
 
+class CsProps(dict):
+    """AEDT Cooardinate System Internal Parameters."""
+
+    def __setitem__(self, key, value):
+        dict.__setitem__(self, key, value)
+        if self._pyaedt_cs.auto_update:
+            res = self._pyaedt_cs.update()
+            if not res:
+                self._pyaedt_cs._app.logger.warning("Update of %s% Failed. Check needed arguments", key)
+
+    def __init__(self, cs_object, props):
+        dict.__init__(self)
+        if props:
+            for key, value in props.items():
+                if isinstance(value, (dict, OrderedDict)):
+                    dict.__setitem__(self, key, CsProps(cs_object, value))
+                else:
+                    dict.__setitem__(self, key, value)
+        self._pyaedt_cs = cs_object
+
+    def _setitem_without_update(self, key, value):
+        dict.__setitem__(self, key, value)
+
+
 class BaseCoordinateSystem(object):
     """Base methods common to FaceCoordinateSystem and CoordinateSystem.
 
@@ -42,6 +66,7 @@ class BaseCoordinateSystem(object):
     """
 
     def __init__(self, modeler, name=None):
+        self.auto_update = True
         self._modeler = modeler
         self.model_units = self._modeler.model_units
         self.name = name
@@ -162,7 +187,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
     def __init__(self, modeler, props=None, name=None, face_id=None):
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.face_id = face_id
-        self.props = props
+        self.props = CsProps(self, props)
         try:  # pragma: no cover
             if "KernelVersion" in self.props:
                 del self.props["KernelVersion"]
@@ -329,7 +354,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         parameters["YOffset"] = self._dim_arg((offset[1]), self.model_units)
         parameters["AutoAxis"] = False
 
-        self.props = parameters
+        self.props = CsProps(self, parameters)
         self._modeler.oeditor.CreateFaceCS(self._face_paramenters, self._attributes)
 
         return True
@@ -418,7 +443,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
     def __init__(self, modeler, props=None, name=None):
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.model_units = self._modeler.model_units
-        self.props = props
+        self.props = CsProps(self, props)
         self.ref_cs = None
         self._quaternion = None
         self.mode = None
@@ -517,6 +542,8 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             ``True`` when successful, ``False`` when failed.
 
         """
+        legacy_update = self.auto_update
+        self.auto_update = False
         if mode_type == 0:  # "Axis/Position"
             if self.props and (self.props["Mode"] == "Euler Angle ZXZ" or self.props["Mode"] == "Euler Angle ZYZ"):
                 self.props["Mode"] = "Axis/Position"
@@ -594,6 +621,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
                 self.update()
         else:  # pragma: no cover
             raise ValueError('mode_type=0 for "Axis/Position", =1 for "Euler Angle ZXZ", =2 for "Euler Angle ZYZ"')
+        self.auto_update = legacy_update
         return True
 
     @pyaedt_function_handler()
@@ -761,7 +789,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         else:  # pragma: no cover
             raise ValueError("Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation' ")
 
-        self.props = orientationParameters
+        self.props = CsProps(self, orientationParameters)
         self._modeler.oeditor.CreateRelativeCS(self._orientation, self._attributes)
         # this workaround is necessary because the reference CS is ignored at creation, it needs to be modified later
         self.ref_cs = reference_cs

@@ -2714,7 +2714,7 @@ class CircuitComponent(object):
             for pin in pins:
                 if self._circuit_components._app.design_type != "Twin Builder":
                     self._pins.append(CircuitPins(self, pin))
-                elif pin not in list(self.parameters.parameters.keys()):
+                elif pin not in list(self.parameters.keys()):
                     self._pins.append(CircuitPins(self, pin))
         return self._pins
 

@@ -97,7 +97,6 @@ n_points = 1001
 unit = "GHz"
 sweep_list = ["LINC", str(bw_start) + unit, str(bw_stop) + unit, str(n_points)]
 LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
-LNA_setup.update()
 
 ###############################################################################
 # Solve and Push Excitation
