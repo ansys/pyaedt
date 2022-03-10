@@ -3328,7 +3328,7 @@ class Hfss(FieldAnalysis3D, object):
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
         """
-        sheet_list = self.modeler.convert_to_selections(sheet_list)
+        sheet_list = self.modeler.convert_to_selections(sheet_list, True)
         if self.solution_type in ["Modal", "Terminal", "Transient Network", "SBR+"]:
             if not sourcename:
                 sourcename = generate_unique_name("PerfE")

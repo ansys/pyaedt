@@ -36,7 +36,7 @@ class MeshProps(OrderedDict):
         else:
             res = self._pyaedt_mesh.update()
         if not res:
-            self._pyaedt_mesh._app.logger.warning("Update of %s% Failed. Check needed arguments", key)
+            self._pyaedt_mesh._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
     def __init__(self, mesh_object, props):
         OrderedDict.__init__(self)

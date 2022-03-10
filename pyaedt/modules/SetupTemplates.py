@@ -1895,7 +1895,7 @@ class SetupProps(OrderedDict):
         if self._pyaedt_setup.auto_update:
             res = self._pyaedt_setup.update()
             if not res:
-                self._pyaedt_setup._app.logger.warning("Update of %s% Failed. Check needed arguments", key)
+                self._pyaedt_setup._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
     def __init__(self, setup, props):
         OrderedDict.__init__(self)

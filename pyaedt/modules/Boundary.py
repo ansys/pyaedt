@@ -26,7 +26,7 @@ class BoundaryProps(OrderedDict):
             else:
                 res = self._pyaedt_boundary.update()
             if not res:
-                self._pyaedt_boundary._app.logger.warning("Update of %s% Failed. Check needed arguments", key)
+                self._pyaedt_boundary._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
     def __init__(self, boundary, props):
         OrderedDict.__init__(self)

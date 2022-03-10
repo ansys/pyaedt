@@ -35,7 +35,7 @@ class CsProps(OrderedDict):
         if self._pyaedt_cs.auto_update:
             res = self._pyaedt_cs.update()
             if not res:
-                self._pyaedt_cs._app.logger.warning("Update of %s% Failed. Check needed arguments", key)
+                self._pyaedt_cs._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
     def __init__(self, cs_object, props):
         OrderedDict.__init__(self)

@@ -68,12 +68,12 @@ source.plot(show=False, export_path=os.path.join(target.working_directory, "Imag
 # This example creates a setup and then solves it.
 
 setup1 = target.create_setup()
-setup1.props["RayDensityPerWavelength"] = 2
+setup1.props["RadiationSetup"] = "ATK_3D"
 setup1.props["ComputeFarFields"] = True
+setup1.props["RayDensityPerWavelength"] = 2
 setup1.props["MaxNumberOfBounces"] = 3
 setup1.props["Sweeps"]["Sweep"]["RangeType"] = "SinglePoints"
 setup1.props["Sweeps"]["Sweep"]["RangeStart"] = "10GHz"
-setup1.props["RadiationSetup"] = "ATK_3D"
 target.analyze_nominal()
 
 ###############################################################################
