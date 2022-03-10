@@ -815,15 +815,10 @@ class TestClass(BasisTest, object):
             cellInstances = list(layout.CellInstances)
             assert len(cellInstances) == 0
             assert chipEdb.core_stackup.place_in_layout_3d_placement(
-                laminateEdb,
-                angle=0.0,
-                offset_x=0.0,
-                offset_y=0.0,
-                flipped_stackup=False,
-                place_on_top=False
+                laminateEdb, angle=0.0, offset_x=0.0, offset_y=0.0, flipped_stackup=False, place_on_top=False
             )
             merged_cell = chipEdb.edb.Cell.Cell.FindByName(
-                chipEdb.db, chipEdb.edb.Cell.CellType.CircuitCell, 'lam_with_mold'
+                chipEdb.db, chipEdb.edb.Cell.CellType.CircuitCell, "lam_with_mold"
             )
             assert not merged_cell.IsNull()
             layout = merged_cell.GetLayout()
