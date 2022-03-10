@@ -71,10 +71,10 @@ class TestClass(BasisTest, object):
             component="J1", net_list=nets[:2], port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="GND"
         )
         assert self.edbapp.core_components.create_port_on_component(
-            component="J1", net_list=nets[2], port_type=SourceType.CoaxPort, do_pingroup=False, reference_net="GND"
+            component="J1", net_list=nets[3], port_type=SourceType.CoaxPort, do_pingroup=False, reference_net="GND"
         )
         assert self.edbapp.core_components.create_port_on_component(
-            component="J1", net_list=nets[-3:], port_type=SourceType.CircPort, do_pingroup=False, reference_net="GND"
+            component="J1", net_list=nets[-2:], port_type=SourceType.CircPort, do_pingroup=False, reference_net="GND"
         )
 
     def test_01B_get_vias_from_nets(self):
