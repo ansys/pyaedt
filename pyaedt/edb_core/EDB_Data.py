@@ -1971,7 +1971,7 @@ class EDBPadstackInstance(object):
 
     @property
     def position(self):
-        """padstack instance position.
+        """Padstack instance position.
 
         Returns
         -------
@@ -1991,7 +1991,7 @@ class EDBPadstackInstance(object):
 
     @property
     def rotation(self):
-        """padstack instance rotation.
+        """Padstack instance rotation.
 
         Returns
         -------
