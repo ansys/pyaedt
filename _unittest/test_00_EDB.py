@@ -807,7 +807,9 @@ class TestClass(BasisTest, object):
 
     def test_82b_place_on_bottom_of_lam_with_mold(self):
         laminateEdb = Edb(os.path.join(local_path, "example_models", "lam_with_mold.aedb"), edbversion=desktop_version)
-        chipEdb = Edb(os.path.join(local_path, "example_models", "chip_flipped_stackup.aedb"), edbversion=desktop_version)
+        chipEdb = Edb(
+            os.path.join(local_path, "example_models", "chip_flipped_stackup.aedb"), edbversion=desktop_version
+        )
         try:
             layout = laminateEdb.active_layout
             cellInstances = list(layout.CellInstances)
@@ -820,7 +822,9 @@ class TestClass(BasisTest, object):
                 flipped_stackup=False,
                 place_on_top=False
             )
-            merged_cell = chipEdb.edb.Cell.Cell.FindByName(chipEdb.db, chipEdb.edb.Cell.CellType.CircuitCell, 'lam_with_mold')
+            merged_cell = chipEdb.edb.Cell.Cell.FindByName(
+                chipEdb.db, chipEdb.edb.Cell.CellType.CircuitCell, 'lam_with_mold'
+            )
             assert not merged_cell.IsNull()
             layout = merged_cell.GetLayout()
             cellInstances = list(layout.CellInstances)
@@ -830,7 +834,9 @@ class TestClass(BasisTest, object):
             if is_ironpython:
                 res, localOrigin, rotAxisFrom, rotAxisTo, angle, loc = cellInstance.Get3DTransformation()
             else:
-                res, localOrigin, rotAxisFrom, rotAxisTo, angle, loc = cellInstance.Get3DTransformation(None, None, None, None, None)
+                res, localOrigin, rotAxisFrom, rotAxisTo, angle, loc = cellInstance.Get3DTransformation(
+                    None, None, None, None, None
+                )
             assert res
             zeroValue = chipEdb.edb_value(0)
             oneValue = chipEdb.edb_value(1)
