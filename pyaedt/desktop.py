@@ -295,10 +295,16 @@ class Desktop:
             self.release_on_exit = False
             self._main.oDesktop = oDesktop
             settings.aedt_version = oDesktop.GetVersion()[0:6]
-            settings.non_graphical = oDesktop.GetIsNonGraphical()
+            try:
+                settings.non_graphical = oDesktop.GetIsNonGraphical()
+            except:
+                settings.non_graphical = non_graphical
         elif "oDesktop" in dir(self._main) and self._main.oDesktop is not None:  # pragma: no cover
             self.release_on_exit = False
-            settings.non_graphical = self._main.oDesktop.GetIsNonGraphical()
+            try:
+                settings.non_graphical = self._main.oDesktop.GetIsNonGraphical()
+            except:
+                settings.non_graphical = non_graphical
         else:
             settings.non_graphical = non_graphical
             if "oDesktop" in dir(self._main):
