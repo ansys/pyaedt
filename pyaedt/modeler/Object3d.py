@@ -24,6 +24,7 @@ from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import MILS2METER
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt import settings
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
@@ -803,9 +804,10 @@ class Object3d(object):
             self._odesign.Undo()
         if not modeled:
             self._odesign.Undo()
-        self._primitives._app.odesktop.ClearMessages(
-            self._primitives._app.project_name, self._primitives._app.design_name, 1
-        )
+        if not settings.non_graphical:
+            self._primitives._app.odesktop.ClearMessages(
+                self._primitives._app.project_name, self._primitives._app.design_name, 1
+            )
         return bounding
 
     @pyaedt_function_handler()

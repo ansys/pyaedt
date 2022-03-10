@@ -431,7 +431,7 @@ class GeometryOperators(object):
 
         Returns
         -------
-        list
+        List
             List of ``[vx, vy, vz]``coordinates for the vector from the first point to the second point.
         """
         return GeometryOperators.v_sub(p2, p1)

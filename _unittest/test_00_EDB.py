@@ -15,7 +15,8 @@ from _unittest.conftest import config, desktop_version, local_path, scratch_path
 
 try:
     import pytest
-except ImportError:
+    import unittest.mock
+except ImportError:  # pragma: no cover
     import _unittest_ironpython.conf_unittest as pytest
 
 
@@ -43,6 +44,17 @@ class TestClass(BasisTest, object):
         # Export should be made with units set to default -millimeter-.
         self.edbapp.export_to_ipc2581(ipc_path, "mm")
         assert os.path.exists(ipc_path)
+
+        if not is_ironpython:
+            # Test the export_to_ipc2581 method when IPC8521.ExportIPC2581FromLayout raises an exception internally.
+            with unittest.mock.patch("pyaedt.Edb.edblib", new_callable=unittest.mock.PropertyMock) as edblib_mock:
+                Edb.edblib.IPC8521 = unittest.mock.Mock()
+                Edb.edblib.IPC8521.IPCExporter = unittest.mock.Mock()
+                Edb.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout = unittest.mock.Mock(
+                    side_effect=Exception("Exception for testing raised in ExportIPC2581FromLayout.")
+                )
+
+                assert not self.edbapp.export_to_ipc2581(os.path.exists(ipc_path))
 
     def test_01_find_by_name(self):
         comp = self.edbapp.core_components.get_component_by_name("J1")
@@ -475,21 +487,17 @@ class TestClass(BasisTest, object):
         assert self.edbapp.create_cutout(["A0_N", "A0_P"], ["GND"], output_aedb_path=output, open_cutout_at_end=False)
         assert os.path.exists(os.path.join(output, "edb.def"))
         bounding = self.edbapp.get_bounding_box()
-
+        cutout_line_x = 41
+        cutout_line_y = 30
         points = [[bounding[0][0], bounding[0][1]]]
-        points.append([bounding[0][0], bounding[0][1] + (bounding[1][1] - bounding[0][1]) / 10])
-        points.append(
-            [
-                bounding[0][0] + (bounding[0][1] - bounding[0][0]) / 10,
-                bounding[0][1] + (bounding[1][1] - bounding[0][1]) / 10,
-            ]
-        )
-        points.append([bounding[0][0] + (bounding[0][1] - bounding[0][0]) / 10, bounding[0][1]])
+        points.append([cutout_line_x, bounding[0][1]])
+        points.append([cutout_line_x, cutout_line_y])
+        points.append([bounding[0][0], cutout_line_y])
         points.append([bounding[0][0], bounding[0][1]])
         output = os.path.join(self.local_scratch.path, "cutout2.aedb")
 
         assert self.edbapp.create_cutout_on_point_list(
-            points, nets_to_include=["GND"], output_aedb_path=output, open_cutout_at_end=False
+            points, nets_to_include=["GND", "V3P3_S0"], output_aedb_path=output, open_cutout_at_end=False
         )
         assert os.path.exists(os.path.join(output, "edb.def"))
 
@@ -708,7 +716,7 @@ class TestClass(BasisTest, object):
             hosting_component_pin2="A4",
         )
         assert result
-        assert abs(rotation - math.pi / 2) < 1e-9
+        assert abs(abs(rotation) - math.pi / 2) < 1e-9
         assert solder_ball_height == 0.00033
         assert len(vector) == 2
         result, vector, rotation, solder_ball_height = self.edbapp.core_components.get_component_placement_vector(
@@ -716,8 +724,9 @@ class TestClass(BasisTest, object):
             hosting_component=hosting_cmp,
             mounted_component_pin1="A10",
             mounted_component_pin2="A12",
-            hosting_component_pin1="A4",
-            hosting_component_pin2="A2",
+            hosting_component_pin1="A2",
+            hosting_component_pin2="A4",
+            flipped=True,
         )
         assert result
         assert abs(rotation + math.pi / 2) < 1e-9
