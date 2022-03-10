@@ -20,12 +20,13 @@ class BoundaryProps(dict):
 
     def __setitem__(self, key, value):
         dict.__setitem__(self, key, value)
-        if key in ["Edges", "Faces", "Objects"]:
-            res = self._pyaedt_boundary.update_assignment()
-        else:
-            res = self._pyaedt_boundary.update()
-        if not res:
-            self._pyaedt_boundary._app.logger.warning("Update of %s% Failed. Check needed arguments", key)
+        if self._pyaedt_boundary.auto_update:
+            if key in ["Edges", "Faces", "Objects"]:
+                res = self._pyaedt_boundary.update_assignment()
+            else:
+                res = self._pyaedt_boundary.update()
+            if not res:
+                self._pyaedt_boundary._app.logger.warning("Update of %s% Failed. Check needed arguments", key)
 
     def __init__(self, boundary, props):
         dict.__init__(self)
@@ -98,6 +99,7 @@ class NativeComponentObject(BoundaryCommon, object):
     """
 
     def __init__(self, app, component_type, component_name, props):
+        self.auto_update = False
         self._app = app
         self.name = "InsertNativeComponentData"
         self.component_name = component_name
@@ -145,6 +147,7 @@ class NativeComponentObject(BoundaryCommon, object):
         if props:
             self._update_props(self.props, props)
         self.native_properties = self.props["NativeComponentDefinitionProvider"]
+        self.auto_update = True
 
     @property
     def targetcs(self):
@@ -169,15 +172,9 @@ class NativeComponentObject(BoundaryCommon, object):
             if isinstance(v, (dict, OrderedDict)):
                 if k not in d:
                     d[k] = OrderedDict({})
-                if isinstance(d, BoundaryProps):
-                    d._setitem_without_update(k, self._update_props(d[k], v))
-                else:
-                    d[k] = self._update_props(d[k], v)
+                d[k] = self._update_props(d[k], v)
             else:
-                if isinstance(d, BoundaryProps):
-                    d._setitem_without_update(k, v)
-                else:
-                    d[k] = v
+                d[k] = v
         return d
 
     @pyaedt_function_handler()
@@ -279,11 +276,13 @@ class BoundaryObject(BoundaryCommon, object):
     """
 
     def __init__(self, app, name, props, boundarytype):
+        self.auto_update = False
         self._app = app
         self._name = name
         self.props = BoundaryProps(self, OrderedDict(props))
         self.type = boundarytype
         self._boundary_name = self.name
+        self.auto_update = True
 
     @property
     def name(self):
@@ -622,10 +621,12 @@ class FieldSetup(BoundaryCommon, object):
     """
 
     def __init__(self, app, component_name, props, component_type):
+        self.auto_update = False
         self._app = app
         self.type = component_type
         self.name = component_name
         self.props = BoundaryProps(self, OrderedDict(props))
+        self.auto_update = True
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):

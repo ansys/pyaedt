@@ -1009,6 +1009,7 @@ class SensitivitySetups(object):
         if not parametricname:
             parametricname = generate_unique_name("Sensitivity")
         setup = self.Setup(self._app, parametricname)
+        setup.auto_update = False
         sweepdefinition = OrderedDict()
         sweepdefinition["ReportType"] = reporttype
         if not solution:
@@ -1022,6 +1023,7 @@ class SensitivitySetups(object):
         )
         setup.props["Goals"]["Goal"] = sweepdefinition
         setup.create()
+        setup.auto_update = True
         self.setups.append(setup)
         return setup
 
@@ -1183,6 +1185,7 @@ class StatisticalSetups(object):
         if not parametricname:
             parametricname = generate_unique_name("Statistical")
         setup = self.Setup(self._app, parametricname)
+        setup.auto_update = False
         sweepdefinition = OrderedDict()
         sweepdefinition["ReportType"] = reporttype
         if not solution:
@@ -1197,6 +1200,7 @@ class StatisticalSetups(object):
         )
         setup.props["Goals"]["Goal"] = sweepdefinition
         setup.create()
+        setup.auto_update = True
         self.setups.append(setup)
         return setup
 
@@ -1657,6 +1661,7 @@ class OptimizationSetups(object):
         if not parametricname:
             parametricname = generate_unique_name("Optimization")
         setup = self.Setup(self._app, parametricname)
+        setup.auto_update = False
         sweepdefinition = OrderedDict()
         sweepdefinition["ReportType"] = reporttype
         if not solution:
@@ -1676,5 +1681,6 @@ class OptimizationSetups(object):
 
         setup.props["Goals"]["Goal"] = sweepdefinition
         setup.create()
+        setup.auto_update = True
         self.setups.append(setup)
         return setup
