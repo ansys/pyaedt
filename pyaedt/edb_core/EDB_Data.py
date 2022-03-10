@@ -2022,6 +2022,7 @@ class EDBPadstackInstance(object):
 
     @property
     def name(self):
+        """Padstack Instance Name. If is a pin the syntax will be like in AEDT ComponentName-PinName."""
         if self.is_pin:
             comp_name = self._edb_padstackinstance.GetComponent().GetName()
             pin_name = self._edb_padstackinstance.GetName()
