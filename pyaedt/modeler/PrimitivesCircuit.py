@@ -189,6 +189,33 @@ class CircuitComponents(object):
         return True
 
     @pyaedt_function_handler()
+    def add_pin_iports(self, name, id):
+        """Add ports on pins.
+
+        Parameters
+        ----------
+        name : str
+            Name of the component.
+        ID : int
+            ID of circuit component.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oeditor.AddPinIPorts
+        """
+        comp_id = "CompInst@" + name + ";" + str(id) + ";395"
+        arg1 = ["Name:Selections", "Selections:=", [comp_id]]
+        self._oeditor.AddPinIPorts(arg1)
+
+        return True
+
+    @pyaedt_function_handler()
     def create_iport(self, name, posx=0.1, posy=0.1, angle=0):
         """Create an interface port.
 
@@ -885,7 +912,15 @@ class CircuitComponents(object):
 
     @pyaedt_function_handler()
     def create_new_component_from_symbol(
-        self, symbol_name, pin_lists, Refbase="U", parameter_list=[], parameter_value=[]
+        self,
+        symbol_name,
+        pin_lists,
+        time_stamp=1591858313,
+        description="",
+        refbase="U",
+        parameter_list=[],
+        parameter_value=[],
+        gref="",
     ):
         """Create a component from a symbol.
 
@@ -894,13 +929,19 @@ class CircuitComponents(object):
         symbol_name : str
             Name of the symbol.
         pin_lists : list
-            List of the pins.
-        Refbase : str, optional
+            List of pin names.
+        time_stamp : int, optional
+            UTC time stamp.
+        description : str, optional
+            Component description.
+        refbase : str, optional
             Reference base. The default is ``"U"``.
-        parameter_list : list, optional
-            List of the parameters. The default is ``[]``.
-        parameter_value : list, optional
-            List of the parameter values. The default is ``[]``.
+        parameter_list : list
+            List of parameters. The default is ``[]``.
+        parameter_value : list
+            List of parameter values. The default is ``[]``.
+        gref : str, optional
+            Global Reference
 
         Returns
         -------
@@ -910,6 +951,7 @@ class CircuitComponents(object):
         References
         ----------
 
+        >>> oModelManager.Add
         >>> oComponentManager.Add
         """
         arg = [
@@ -919,11 +961,11 @@ class CircuitComponents(object):
                 "Type:=",
                 0,
                 "NumTerminals:=",
-                5,
+                len(pin_lists),
                 "DataSource:=",
                 "",
                 "ModifiedOn:=",
-                1591858313,
+                time_stamp,
                 "Manufacturer:=",
                 "",
                 "Symbol:=",
@@ -933,7 +975,7 @@ class CircuitComponents(object):
                 "Footprint:=",
                 "",
                 "Description:=",
-                "",
+                description,
                 "InfoTopic:=",
                 "",
                 "InfoHelpFile:=",
@@ -951,7 +993,7 @@ class CircuitComponents(object):
                 "OriginalAuthor:=",
                 "",
                 "CreationDate:=",
-                1591858278,
+                time_stamp,
                 "ExampleFile:=",
                 "",
                 "HiddenComponent:=",
@@ -964,7 +1006,7 @@ class CircuitComponents(object):
             "CircuitEnv:=",
             0,
             "Refbase:=",
-            Refbase,
+            refbase,
             "NumParts:=",
             1,
             "ModSinceLib:=",
@@ -977,26 +1019,33 @@ class CircuitComponents(object):
         arg.append("CompExtID:=")
         arg.append(1)
         arg2 = ["NAME:Parameters"]
+
         for el, val in zip(parameter_list, parameter_value):
-            if isinstance(val, str):
+            if type(val) is str:
                 arg2.append("TextValueProp:=")
                 arg2.append([el, "D", "", val])
+
             else:
                 arg2.append("ValueProp:=")
-                arg2.append([el, "D", "", val, False, ""])
+                arg2.append([el, "D", "", str(val), False, ""])
+
         arg2.append("ButtonProp:=")
         arg2.append(["CosimDefinition", "D", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []])
         arg2.append("MenuProp:=")
         arg2.append(["CoSimulator", "D", "", "DefaultNetlist", 0])
 
         arg.append(arg2)
-        spicesintax = Refbase + "@ID "
+        spicesintax = refbase + "@ID "
         id = 0
-        while id < (len(pin_lists) - 1):
+        while id < len(pin_lists):
             spicesintax += "%" + str(id) + " "
             id += 1
-        for el in parameter_list:
-            spicesintax += "@{} ".format(el)
+        spicesintax += symbol_name + " "
+        for el, val in zip(parameter_list, parameter_value):
+            if "MOD" in el:
+                spicesintax += "@{} ".format(el)
+            else:
+                spicesintax += "{}=@{} ".format(el, el)
 
         arg3 = [
             "NAME:CosimDefinitions",
@@ -1013,12 +1062,13 @@ class CircuitComponents(object):
                 "Data:=",
                 ["Nexxim Circuit:=", spicesintax],
                 "GRef:=",
-                ["Nexxim Circuit:=", ""],
+                ["Nexxim Circuit:=", gref],
             ],
             "DefaultCosim:=",
             "DefaultNetlist",
         ]
         arg.append(arg3)
+        print(arg)
         self.o_component_manager.Add(arg)
         return True
 
