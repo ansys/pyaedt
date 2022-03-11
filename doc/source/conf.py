@@ -207,14 +207,18 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
         }
 
 # -- Options for HTML output -------------------------------------------------
+html_short_title = html_title = "PyAEDT"
 html_show_sourcelink = True
 html_theme = "pyansys_sphinx_theme"
 html_logo = pyansys_logo_black
 
 html_theme_options = {
-    "github_url": "https://github.com/pyansys/PyAEDT",
+    "github_url": "https://github.com/pyansys/pyaedt",
     "show_prev_next": False,
-    "logo_link": "https://aedtdocs.pyansys.com/",  # navigate to the main page
+    "show_breadcrumbs": True,
+    "additional_breadcrumbs": [
+        ("PyAnsys", "https://docs.pyansys.com/"),
+    ],
 }
 
 html_static_path = ["_static"]
