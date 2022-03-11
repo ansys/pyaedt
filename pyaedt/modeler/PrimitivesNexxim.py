@@ -923,7 +923,15 @@ class NexximComponents(CircuitComponents):
 
     @pyaedt_function_handler()
     def create_new_component_from_symbol(
-        self, symbol_name, pin_lists, Refbase="U", parameter_list=[], parameter_value=[]
+        self,
+        symbol_name,
+        pin_lists,
+        time_stamp=1591858313,
+        description="",
+        refbase="U",
+        parameter_list=[],
+        parameter_value=[],
+        gref="",
     ):
         """Create a component from a symbol.
 
@@ -933,12 +941,18 @@ class NexximComponents(CircuitComponents):
             Name of the symbol.
         pin_lists : list
             List of pin names.
-        Refbase : str, optional
+        time_stamp : int, optional
+            UTC time stamp.
+        description : str, optional
+            Component description.
+        refbase : str, optional
             Reference base. The default is ``"U"``.
         parameter_list : list
             List of parameters. The default is ``[]``.
         parameter_value : list
             List of parameter values. The default is ``[]``.
+        gref : str, optional
+            Global Reference
 
         Returns
         -------
@@ -962,7 +976,7 @@ class NexximComponents(CircuitComponents):
                 "DataSource:=",
                 "",
                 "ModifiedOn:=",
-                1591858313,
+                time_stamp,
                 "Manufacturer:=",
                 "",
                 "Symbol:=",
@@ -972,7 +986,7 @@ class NexximComponents(CircuitComponents):
                 "Footprint:=",
                 "",
                 "Description:=",
-                "",
+                description,
                 "InfoTopic:=",
                 "",
                 "InfoHelpFile:=",
@@ -990,7 +1004,7 @@ class NexximComponents(CircuitComponents):
                 "OriginalAuthor:=",
                 "",
                 "CreationDate:=",
-                1591858278,
+                time_stamp,
                 "ExampleFile:=",
                 "",
                 "HiddenComponent:=",
@@ -1003,7 +1017,7 @@ class NexximComponents(CircuitComponents):
             "CircuitEnv:=",
             0,
             "Refbase:=",
-            Refbase,
+            refbase,
             "NumParts:=",
             1,
             "ModSinceLib:=",
@@ -1016,24 +1030,28 @@ class NexximComponents(CircuitComponents):
         arg.append("CompExtID:=")
         arg.append(1)
         arg2 = ["NAME:Parameters"]
+
         for el, val in zip(parameter_list, parameter_value):
-            if type(val) is str:
+            if isinstance(val, str):
                 arg2.append("TextValueProp:=")
                 arg2.append([el, "D", "", val])
+
             else:
                 arg2.append("ValueProp:=")
-                arg2.append([el, "D", "", val, False, ""])
+                arg2.append([el, "D", "", str(val), False, ""])
+
         arg2.append("ButtonProp:=")
         arg2.append(["CosimDefinition", "D", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []])
         arg2.append("MenuProp:=")
         arg2.append(["CoSimulator", "D", "", "DefaultNetlist", 0])
 
         arg.append(arg2)
-        spicesintax = Refbase + "@ID "
+        spicesintax = refbase + "@ID "
         id = 0
         while id < len(pin_lists):
             spicesintax += "%" + str(id) + " "
             id += 1
+        spicesintax += symbol_name + " "
         for el, val in zip(parameter_list, parameter_value):
             if "MOD" in el:
                 spicesintax += "@{} ".format(el)
@@ -1055,12 +1073,13 @@ class NexximComponents(CircuitComponents):
                 "Data:=",
                 ["Nexxim Circuit:=", spicesintax],
                 "GRef:=",
-                ["Nexxim Circuit:=", ""],
+                ["Nexxim Circuit:=", gref],
             ],
             "DefaultCosim:=",
             "DefaultNetlist",
         ]
         arg.append(arg3)
+        print(arg)
         self.o_component_manager.Add(arg)
         return True
 
