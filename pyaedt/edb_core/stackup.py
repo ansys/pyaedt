@@ -525,14 +525,13 @@ class EdbStackup(object):
         else:
             cell_inst2.SetPlacementLayer(list(stackup_target.Layers(self._edb.Cell.LayerTypeSet.SignalLayerSet))[-1])
         cell_inst2.SetIs3DPlacement(True)
-        stack_set = self._edb.Cell.LayerTypeSet.StackupLayerSet
         sig_set = self._edb.Cell.LayerTypeSet.SignalLayerSet
 
         if is_ironpython:  # pragma: no cover
             res = stackup_target.GetTopBottomStackupLayers(sig_set)
             target_top_elevation = res[2]
             target_bottom_elevation = res[4]
-            res_s = stackup_source.GetTopBottomStackupLayers(stack_set)
+            res_s = stackup_source.GetTopBottomStackupLayers(sig_set)
             source_stack_top_elevation = res_s[2]
             source_stack_bot_elevation = res_s[4]
         else:
@@ -549,7 +548,7 @@ class EdbStackup(object):
             )
 
             res_s = stackup_source.GetTopBottomStackupLayers(
-                stack_set, source_stack_top, source_stack_top_elevation, source_stack_bot, source_stack_bot_elevation
+                sig_set, source_stack_top, source_stack_top_elevation, source_stack_bot, source_stack_bot_elevation
             )
             target_top_elevation = res[2]
             target_bottom_elevation = res[4]
@@ -558,9 +557,9 @@ class EdbStackup(object):
         if place_on_top and flipped_stackup:
             elevation = target_top_elevation + source_stack_top_elevation
         elif place_on_top:
-            elevation = target_top_elevation + source_stack_bot_elevation
+            elevation = target_top_elevation - source_stack_bot_elevation
         elif flipped_stackup:
-            elevation = target_bottom_elevation - source_stack_bot_elevation
+            elevation = target_bottom_elevation + source_stack_bot_elevation
             solder_height = -solder_height
         else:
             elevation = target_bottom_elevation - source_stack_top_elevation
