@@ -1032,7 +1032,7 @@ class NexximComponents(CircuitComponents):
         arg2 = ["NAME:Parameters"]
 
         for el, val in zip(parameter_list, parameter_value):
-            if type(val) is str:
+            if isinstance(val, str):
                 arg2.append("TextValueProp:=")
                 arg2.append([el, "D", "", val])
 

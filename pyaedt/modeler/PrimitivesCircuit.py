@@ -189,14 +189,14 @@ class CircuitComponents(object):
         return True
 
     @pyaedt_function_handler()
-    def add_pin_iports(self, name, id):
+    def add_pin_iports(self, name, id_num):
         """Add ports on pins.
 
         Parameters
         ----------
         name : str
             Name of the component.
-        ID : int
+        id_num : int
             ID of circuit component.
 
         Returns
@@ -209,7 +209,7 @@ class CircuitComponents(object):
 
         >>> oeditor.AddPinIPorts
         """
-        comp_id = "CompInst@" + name + ";" + str(id) + ";395"
+        comp_id = "CompInst@" + name + ";" + str(id_num) + ";395"
         arg1 = ["Name:Selections", "Selections:=", [comp_id]]
         self._oeditor.AddPinIPorts(arg1)
 
@@ -1021,7 +1021,7 @@ class CircuitComponents(object):
         arg2 = ["NAME:Parameters"]
 
         for el, val in zip(parameter_list, parameter_value):
-            if type(val) is str:
+            if isinstance(val, str):
                 arg2.append("TextValueProp:=")
                 arg2.append([el, "D", "", val])
 
