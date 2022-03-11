@@ -207,6 +207,7 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
         }
 
 # -- Options for HTML output -------------------------------------------------
+html_short_title = html_title = "PyAEDT"
 html_show_sourcelink = True
 html_theme = "pyansys_sphinx_theme"
 html_logo = pyansys_logo_black
