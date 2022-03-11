@@ -74,6 +74,8 @@ def _dict2arg(d, arg_out):
 
     """
     for k, v in d.items():
+        if "_pyaedt" in k:
+            continue
         if k == "Point" or k == "DimUnits":
             if isinstance(v[0], (list, tuple)):
                 for e in v:

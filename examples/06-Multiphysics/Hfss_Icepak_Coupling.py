@@ -149,7 +149,6 @@ setup = aedtapp.create_setup("MySetup")
 setup.props["Frequency"] = "1GHz"
 setup.props["BasisOrder"] = 2
 setup.props["MaximumPasses"] = 1
-setup.update()
 
 ###############################################################################
 # Generate a Sweep
@@ -193,7 +192,6 @@ ipkapp.edit_design_settings(aedtapp.GravityDirection.ZNeg)
 
 setup_ipk = ipkapp.create_setup("SetupIPK")
 setup_ipk.props["Convergence Criteria - Max Iterations"] = 3
-setup_ipk.update()
 
 ################################################################################
 # Edit or Review Mesh Parameters

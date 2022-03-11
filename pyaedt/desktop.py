@@ -30,8 +30,9 @@ else:
     import subprocess
 
 from pyaedt.misc import list_installed_ansysem
-from pyaedt import pyaedt_function_handler, settings
+from pyaedt import pyaedt_function_handler
 from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop
+from pyaedt import settings
 
 from pyaedt import aedt_logger, __version__
 
@@ -284,7 +285,6 @@ class Desktop:
         self._main.pyaedt_version = pyaedtversion
         self._main.interpreter_ver = _pythonver
         self._main.student_version = student_version
-        settings.non_graphical = non_graphical
         if is_ironpython:
             self._main.isoutsideDesktop = False
         else:
@@ -295,13 +295,22 @@ class Desktop:
             self.release_on_exit = False
             self._main.oDesktop = oDesktop
             settings.aedt_version = oDesktop.GetVersion()[0:6]
+            try:
+                settings.non_graphical = oDesktop.GetIsNonGraphical()
+            except:
+                settings.non_graphical = non_graphical
         elif "oDesktop" in dir(self._main) and self._main.oDesktop is not None:  # pragma: no cover
             self.release_on_exit = False
+            try:
+                settings.non_graphical = self._main.oDesktop.GetIsNonGraphical()
+            except:
+                settings.non_graphical = non_graphical
         else:
+            settings.non_graphical = non_graphical
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
             self._main.student_version, version_key, version = self._set_version(specified_version, student_version)
-            settings.aedt_version = version
+            settings.aedt_version = version_key
             if _com == "ironpython":  # pragma: no cover
                 print("Launching PyAEDT outside AEDT with IronPython.")
                 self._init_ironpython(non_graphical, new_desktop_session, version)

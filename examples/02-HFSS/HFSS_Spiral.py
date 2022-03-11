@@ -120,7 +120,6 @@ hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jp
 setup1 = hfss.create_setup(setupname="setup1")
 setup1.props["Frequency"] = "10GHz"
 hfss.create_linear_count_sweep("setup1", "GHz", 1e-3, 50, 451, sweep_type="Interpolating")
-setup1.update()
 hfss.save_project()
 hfss.analyze_all()
 

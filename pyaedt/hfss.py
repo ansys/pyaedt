@@ -3328,7 +3328,7 @@ class Hfss(FieldAnalysis3D, object):
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
         """
-        sheet_list = self.modeler.convert_to_selections(sheet_list)
+        sheet_list = self.modeler.convert_to_selections(sheet_list, True)
         if self.solution_type in ["Modal", "Terminal", "Transient Network", "SBR+"]:
             if not sourcename:
                 sourcename = generate_unique_name("PerfE")
@@ -4276,6 +4276,7 @@ class Hfss(FieldAnalysis3D, object):
         doppler_ad_sampling_rate=20,
     ):
         setup1 = self.create_setup(setup_name, "SBR+")
+        setup1.auto_update = False
         setup1.props["IsSbrRangeDoppler"] = True
         del setup1.props["PTDUTDSimulationSettings"]
         del setup1.props["ComputeFarFields"]
@@ -4301,6 +4302,7 @@ class Hfss(FieldAnalysis3D, object):
             setup1.props["IncludeRangeVelocityCouplingEffect"] = include_coupling_effects
             setup1.props["SbrRangeDopplerA/DSamplingRate"] = self.modeler._arg_with_dim(doppler_ad_sampling_rate, "MHz")
         setup1.update()
+        setup1.auto_update = True
         return setup1
 
     @pyaedt_function_handler()

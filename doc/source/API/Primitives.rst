@@ -192,7 +192,6 @@ It contains all getter and setter to simplify object manipulation.
 
    Object3d.CircuitComponent
    Object3d.CircuitPins
-   Object3d.ComponentParameters
 
 
 Objects in Hfss3d Layout

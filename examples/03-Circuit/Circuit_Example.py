@@ -46,13 +46,7 @@ aedt_app = Circuit()
 # This method creates and customizes a Linear Network Analysis (LNA) setup.
 
 setup1 = aedt_app.create_setup("MyLNA")
-setup1.SweepDefinition = [
-    ("Variable", "Freq"),
-    ("Data", "LINC 0GHz 4GHz 10001"),
-    ("OffsetF1", False),
-    ("Synchronize", 0),
-]
-setup1.update()
+setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 10001"
 
 ###############################################################################
 # Create Components
@@ -94,8 +88,7 @@ capacitor.pins[1].connect_to_component(gnd.pins[0])
 # This method adds a transient setup.
 
 setup2 = aedt_app.create_setup("MyTransient", aedt_app.SETUPS.NexximTransient)
-setup2.TransientData = ["0.01ns", "200ns"]
-setup2.update()
+setup2.props["TransientData"] = ["0.01ns", "200ns"]
 setup3 = aedt_app.create_setup("MyDC", aedt_app.SETUPS.NexximDC)
 
 ###############################################################################

@@ -11,6 +11,7 @@ from collections import OrderedDict
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.Mesh import MeshProps
 
 
 class Mesh3DOperation(object):
@@ -32,7 +33,7 @@ class Mesh3DOperation(object):
     def __init__(self, app, hfss_setup_name, name, props):
         self._mesh3dlayout = app
         self.name = name
-        self.props = props
+        self.props = MeshProps(self, props)
         self.hfss_setup_name = hfss_setup_name
 
     @pyaedt_function_handler()

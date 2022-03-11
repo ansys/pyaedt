@@ -362,7 +362,7 @@ class CircuitComponents(object):
             model_name = os.path.splitext(os.path.basename(touchstone_full_path))[0]
         if model_name in list(self.o_model_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
-        num_terminal = int(touchstone_full_path[-2:-1])
+        num_terminal = int(os.path.splitext(touchstone_full_path)[1].lower().strip(".sp"))
         with open(touchstone_full_path, "r") as f:
             port_names = _parse_ports_name(f)
         image_subcircuit_path = os.path.normpath(
