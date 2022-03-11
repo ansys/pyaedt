@@ -76,6 +76,10 @@ class TestClass(BasisTest, object):
 
     def test_05c_create_component(self):
         assert self.aedtapp.modeler.schematic.create_new_component_from_symbol("Test", ["1", "2"])
+        assert self.aedtapp.modeler.schematic.create_new_component_from_symbol("Test1", [1, 2],
+                                                                               parameter_list=["Author:=",
+                                                                                               "NumTerminals:="],
+                                                                               parameter_value=["pyaedt", 2])
 
     def test_06_add_3dlayout_component(self):
         myedb = self.aedtapp.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
