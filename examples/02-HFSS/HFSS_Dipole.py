@@ -77,7 +77,6 @@ my_plot.plot(
 setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "1GHz"
 setup.props["MaximumPasses"] = 1
-setup.update()
 hfss.create_linear_count_sweep(
     setupname=setup.name,
     unit="GHz",

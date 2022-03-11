@@ -1038,7 +1038,7 @@ class NexximComponents(CircuitComponents):
             if "MOD" in el:
                 spicesintax += "@{} ".format(el)
             else:
-                spicesintax += "{}=@{} ".format(el, val)
+                spicesintax += "{}=@{} ".format(el, el)
 
         arg3 = [
             "NAME:CosimDefinitions",

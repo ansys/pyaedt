@@ -26,6 +26,32 @@ meshers = {
 }
 
 
+class MeshProps(OrderedDict):
+    """AEDT Mesh Component Internal Parameters."""
+
+    def __setitem__(self, key, value):
+        OrderedDict.__setitem__(self, key, value)
+        if key in ["Edges", "Faces", "Objects"]:
+            res = self._pyaedt_mesh.update_assignment()
+        else:
+            res = self._pyaedt_mesh.update()
+        if not res:
+            self._pyaedt_mesh._app.logger.warning("Update of %s Failed. Check needed arguments", key)
+
+    def __init__(self, mesh_object, props):
+        OrderedDict.__init__(self)
+        if props:
+            for key, value in props.items():
+                if isinstance(value, (OrderedDict, OrderedDict)):
+                    OrderedDict.__setitem__(self, key, MeshProps(mesh_object, value))
+                else:
+                    OrderedDict.__setitem__(self, key, value)
+        self._pyaedt_mesh = mesh_object
+
+    def _setitem_without_update(self, key, value):
+        OrderedDict.__setitem__(self, key, value)
+
+
 class MeshOperation(object):
     """MeshOperation class.
 
@@ -44,7 +70,7 @@ class MeshOperation(object):
     def __init__(self, meshicepak, name, props, meshoptype):
         self._meshicepak = meshicepak
         self.name = name
-        self.props = props
+        self.props = MeshProps(self, props)
         self.type = meshoptype
 
     @pyaedt_function_handler()

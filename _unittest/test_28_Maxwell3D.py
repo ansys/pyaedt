@@ -88,6 +88,14 @@ class TestClass(BasisTest, object):
         Setup.props["MinimumConvergedPasses"] = 1
         Setup.props["PercentRefinement"] = 30
         Setup.props["Frequency"] = adaptive_frequency
+        dc_freq = 0.1
+        stop_freq = 10
+        count = 1
+        assert Setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, count, clear=True)
+        assert isinstance(Setup.props["SweepRanges"]["Subrange"], dict)
+        assert Setup.add_eddy_current_sweep("LinearCount", dc_freq, stop_freq, count, clear=False)
+        assert isinstance(Setup.props["SweepRanges"]["Subrange"], list)
+
         assert Setup.update()
         assert Setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
         assert Setup.disable()

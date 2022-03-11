@@ -367,11 +367,10 @@ class FieldAnalysisCircuit(Analysis):
 
         name = self.generate_unique_setup_name(setupname)
         setup = SetupCircuit(self, setuptype, name)
-        setup.name = name
         setup.create()
         if props:
             for el in props:
-                setup.props[el] = props[el]
+                setup.props._setitem_without_update(el, props[el])
         setup.update()
         self.analysis_setup = name
         self.setups.append(setup)
