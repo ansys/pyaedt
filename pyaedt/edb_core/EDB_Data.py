@@ -32,6 +32,15 @@ class EDBNetsData(object):
     >>> edb_net.GetName() # EDB Object Property
     """
 
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except:
+            try:
+                return getattr(self.net_object, key)
+            except AttributeError:
+                raise AttributeError("Attribute not present")
+
     def __init__(self, raw_net, core_app):
         self._app = core_app
         self._core_components = core_app.core_components
@@ -134,6 +143,15 @@ class EDBPrimitives(object):
     >>> edb_prim.is_void # Class Property
     >>> edb_prim.IsVoid() # EDB Object Property
     """
+
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except:
+            try:
+                return getattr(self.primitive_object, key)
+            except AttributeError:
+                raise AttributeError("Attribute not present")
 
     def __init__(self, raw_primitive, core_app):
         self._app = core_app
