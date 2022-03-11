@@ -29,10 +29,12 @@ def _get_file_url(directory, filename):
         return EXAMPLE_REPO + "/".join([directory, filename])
 
 
-def _retrieve_file(url, filename, directory):
+def _retrieve_file(url, filename, directory, destination=None):
     """Download a file from a url"""
     # First check if file has already been downloaded
-    local_path = os.path.join(EXAMPLES_PATH, directory, os.path.basename(filename))
+    if not destination:
+        destination = EXAMPLES_PATH
+    local_path = os.path.join(destination, directory, os.path.basename(filename))
     local_path_no_zip = local_path.replace(".zip", "")
     if os.path.isfile(local_path_no_zip) or os.path.isdir(local_path_no_zip):
         return local_path_no_zip
@@ -44,8 +46,8 @@ def _retrieve_file(url, filename, directory):
         urlretrieve = urllib.request.urlretrieve
 
     dirpath = os.path.dirname(local_path)
-    if not os.path.isdir(EXAMPLES_PATH):
-        os.mkdir(EXAMPLES_PATH)
+    if not os.path.isdir(destination):
+        os.mkdir(destination)
     if not os.path.isdir(dirpath):
         os.makedirs(dirpath)
 
@@ -87,9 +89,9 @@ def _retrieve_file(url, filename, directory):
     return local_path
 
 
-def _download_file(directory, filename):
+def _download_file(directory, filename, destination=None):
     url = _get_file_url(directory, filename)
-    local_path = _retrieve_file(url, filename, directory)
+    local_path = _retrieve_file(url, filename, directory, destination)
 
     return local_path
 
@@ -98,11 +100,16 @@ def _download_file(directory, filename):
 # front-facing functions
 
 
-def download_aedb():
+def download_aedb(destination=None):
     """Download an example of AEDB File and return the def path.
 
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
+
+    Parameters
+    ----------
+    destination : str, optional
+        Path where files will be downloaded. Optional. Default is user temp folder.
 
     Returns
     -------
@@ -117,12 +124,12 @@ def download_aedb():
     >>> path
     'C:/Users/user/AppData/local/temp/Galileo.aedb'
     """
-    _download_file("edb/Galileo.aedb", "GRM32ER72A225KA35_25C_0V.sp")
+    _download_file("edb/Galileo.aedb", "GRM32ER72A225KA35_25C_0V.sp", destination)
 
-    return _download_file("edb/Galileo.aedb", "edb.def")
+    return _download_file("edb/Galileo.aedb", "edb.def", destination)
 
 
-def download_edb_merge_utility(force_download=False):
+def download_edb_merge_utility(force_download=False, destination=None):
     """Download an example of WPF Project which allows to merge 2aedb files.
 
     Examples files are downloaded to a persistent cache to avoid
@@ -132,6 +139,8 @@ def download_edb_merge_utility(force_download=False):
     ----------
     force_download : bool
         Force to delete cache and download files again.
+    destination : str, optional
+        Path where files will be downloaded. Optional. Default is user temp folder.
 
     Returns
     -------
@@ -146,21 +155,28 @@ def download_edb_merge_utility(force_download=False):
     >>> path
     'C:/Users/user/AppData/local/temp/wpf_edb_merge/merge_wizard.py'
     """
+    if not destination:
+        destination = EXAMPLES_PATH
     if force_download:
-        local_path = os.path.join(EXAMPLES_PATH, "wpf_edb_merge")
+        local_path = os.path.join(destination, "wpf_edb_merge")
         if os.path.exists(local_path):
             shutil.rmtree(local_path, ignore_errors=True)
-    _download_file("wpf_edb_merge/board.aedb", "edb.def")
-    _download_file("wpf_edb_merge/package.aedb", "edb.def")
-    _download_file("wpf_edb_merge", "merge_wizard_settings.json")
+    _download_file("wpf_edb_merge/board.aedb", "edb.def", destination)
+    _download_file("wpf_edb_merge/package.aedb", "edb.def", destination)
+    _download_file("wpf_edb_merge", "merge_wizard_settings.json", destination)
 
-    return _download_file("wpf_edb_merge", "merge_wizard.py")
+    return _download_file("wpf_edb_merge", "merge_wizard.py", destination)
 
 
-def download_netlist():
+def download_netlist(destination=None):
     """Download an example of netlist File and return the def path.
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
+
+    Parameters
+    ----------
+    destination : str, optional
+        Path where files will be downloaded. Optional. Default is user temp folder.
 
     Returns
     -------
@@ -177,15 +193,20 @@ def download_netlist():
     'C:/Users/user/AppData/local/temp/pyaedtexamples/netlist_small.cir'
     """
 
-    return _download_file("netlist", "netlist_small.cir")
+    return _download_file("netlist", "netlist_small.cir", destination)
 
 
-def download_antenna_array():
+def download_antenna_array(destination=None):
     """Download an example of Antenna Array and return the def path.
 
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
 
+    Parameters
+    ----------
+    destination : str, optional
+        Path where files will be downloaded. Optional. Default is user temp folder.
+
     Returns
     -------
     str
@@ -202,15 +223,20 @@ def download_antenna_array():
     'C:/Users/user/AppData/local/temp/pyaedtexamples/FiniteArray_Radome_77GHz_3D_CADDM.aedt'
     """
 
-    return _download_file("array_antenna", "FiniteArray_Radome_77GHz_3D_CADDM.aedt")
+    return _download_file("array_antenna", "FiniteArray_Radome_77GHz_3D_CADDM.aedt", destination)
 
 
-def download_sbr():
+def download_sbr(destination=None):
     """Download an example of SBR+ Array and return the def path.
 
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
 
+    Parameters
+    ----------
+    destination : str, optional
+        Path where files will be downloaded. Optional. Default is user temp folder.
+
     Returns
     -------
     str
@@ -226,14 +252,19 @@ def download_sbr():
     'C:/Users/user/AppData/local/temp/pyaedtexamples/FiniteArray_Radome_77GHz_3D_CADDM.aedt'
     """
 
-    return _download_file("sbr", "Cassegrain.aedt")
+    return _download_file("sbr", "Cassegrain.aedt", destination)
 
 
-def download_icepak():
+def download_icepak(destination=None):
     """Download an example of Icepak Array and return the def path.
 
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
+
+    Parameters
+    ----------
+    destination : str, optional
+        Path where files will be downloaded. Optional. Default is user temp folder.
 
     Returns
     -------
@@ -250,14 +281,19 @@ def download_icepak():
     'C:/Users/user/AppData/local/temp/pyaedtexamples/Graphic_Card.aedt'
     """
 
-    return _download_file("icepak", "Graphics_card.aedt")
+    return _download_file("icepak", "Graphics_card.aedt", destination)
 
 
-def download_via_wizard():
+def download_via_wizard(destination=None):
     """Download an example of Hfss Via Wizard and return the def path.
 
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
+
+    Parameters
+    ----------
+    destination : str, optional
+        Path where files will be downloaded. Optional. Default is user temp folder.
 
     Returns
     -------
@@ -274,14 +310,19 @@ def download_via_wizard():
     'C:/Users/user/AppData/local/temp/pyaedtexamples/Graphic_Card.aedt'
     """
 
-    return _download_file("via_wizard", "viawizard_vacuum_FR4.aedt")
+    return _download_file("via_wizard", "viawizard_vacuum_FR4.aedt", destination)
 
 
-def download_touchstone():
+def download_touchstone(destination=None):
     """Download an example of touchstone File and return the def path.
 
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
+
+    Parameters
+    ----------
+    destination : str, optional
+        Path where files will be downloaded. Optional. Default is user temp folder.
 
     Returns
     -------
@@ -296,15 +337,19 @@ def download_touchstone():
     >>> path
     'C:/Users/user/AppData/local/temp/pyaedtexamples/ssn_ssn.s6p'
     """
+    return _download_file("touchstone", "SSN_ssn.s6p", destination)
 
-    return _download_file("touchstone", "SSN_ssn.s6p")
 
-
-def download_sherlock():
+def download_sherlock(destination=None):
     """Download an example of sherlock needed files and return the def path.
 
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
+
+    Parameters
+    ----------
+    destination : str, optional
+        Path where files will be downloaded. Optional. Default is user temp folder.
 
     Returns
     -------
@@ -320,20 +365,27 @@ def download_sherlock():
     >>> path
     'C:/Users/user/AppData/local/temp/Galileo.aedb'
     """
-    _download_file("sherlock", "MaterialExport.csv")
-    _download_file("sherlock", "TutorialBoardPartsList.csv")
-    _download_file("sherlock", "SherlockTutorial.aedt")
-    _download_file("sherlock", "TutorialBoard.stp")
-    _download_file("sherlock/SherlockTutorial.aedb", "edb.def")
+    if not destination:
+        destination = EXAMPLES_PATH
+    _download_file("sherlock", "MaterialExport.csv", destination)
+    _download_file("sherlock", "TutorialBoardPartsList.csv", destination)
+    _download_file("sherlock", "SherlockTutorial.aedt", destination)
+    _download_file("sherlock", "TutorialBoard.stp", destination)
+    _download_file("sherlock/SherlockTutorial.aedb", "edb.def", destination)
 
-    return os.path.join(EXAMPLES_PATH, "sherlock")
+    return os.path.join(destination, "sherlock")
 
 
-def download_multiparts():
+def download_multiparts(destination=None):
     """Download an example of 3DComponents Multiparts.
 
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.
+
+    Parameters
+    ----------
+    destination : str, optional
+        Path where files will be downloaded. Optional. Default is user temp folder.
 
     Returns
     -------
@@ -349,12 +401,14 @@ def download_multiparts():
     >>> path
     'C:/Users/user/AppData/local/temp/multiparts/library'
     """
-    dest_folder = os.path.join(EXAMPLES_PATH, "multiparts")
+    if not destination:
+        destination = EXAMPLES_PATH
+    dest_folder = os.path.join(destination, "multiparts")
     if os.path.exists(os.path.join(dest_folder, "library")):
         shutil.rmtree(os.path.join(dest_folder, "library"), ignore_errors=True)
-    _download_file("multiparts", "library.zip")
-    if os.path.exists(os.path.join(EXAMPLES_PATH, "multiparts", "library.zip")):
-        unzip(os.path.join(EXAMPLES_PATH, "multiparts", "library.zip"), dest_folder)
+    _download_file("multiparts", "library.zip", destination)
+    if os.path.exists(os.path.join(destination, "multiparts", "library.zip")):
+        unzip(os.path.join(destination, "multiparts", "library.zip"), dest_folder)
     return os.path.join(dest_folder, "library")
 
 
