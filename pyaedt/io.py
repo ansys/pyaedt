@@ -36,6 +36,7 @@ class SimulationConfiguration(object):
         self._stop_freq = '10.001GHz'  # 10e9
         self._sweep_type = SweepType.Linear  # 'Linear'
         self._step_freq = '0.040004GHz'  # 10e6
+        self._decade_count = 100  # Newly Added
         self._mesh_freq = '3GHz'  # 5e9
         self._max_num_passes = 30
         self._max_mag_delta_s = 0.03
@@ -59,6 +60,7 @@ class SimulationConfiguration(object):
         self._min_void_area = '0.01mm2'
         self._min_pad_area_to_mesh = '0.01mm2'
         self._snap_length_threshold = '2.5um'
+        self._min_plane_area_to_mesh = '4mil2'  # Newly Added
         self._dc_min_plane_area_to_mesh = '8mil2'
         self._max_init_mesh_edge_length = '14.5mil'
         self._signalLayersProperties = []
@@ -314,6 +316,15 @@ class SimulationConfiguration(object):
             self._step_freq = value
 
     @property
+    def decade_count(self):
+        return self._decade_count
+
+    @decade_count.setter
+    def decade_count(self, value):
+        if isinstance(value, int):
+            self._decade_count = value
+
+    @property
     def mesh_freq(self):
         return self._mesh_freq
 
@@ -521,6 +532,15 @@ class SimulationConfiguration(object):
     def snap_length_threshold(self, value):
         if isinstance(value, str):
             self._snap_length_threshold = value
+    
+    @property
+    def min_plane_area_to_mesh(self):
+        return self._min_plane_area_to_mesh
+
+    @min_plane_area_to_mesh.setter
+    def min_plane_area_to_mesh(self, value):
+        if isinstance(value, str):
+            self._min_plane_area_to_mesh = value
 
     @property
     def dc_min_plane_area_to_mesh(self):
@@ -652,6 +672,8 @@ class SimulationConfiguration(object):
                                     print("Unprocessed value for SweepType '{0}'".format(value))
                             elif i.startswith('StepFreq'):
                                 self.step_freq = value
+                            elif i.startswith('DecadeCount'):
+                                self.decade_count = int(value)
                             elif i.startswith('Mesh_Freq'):
                                 self.mesh_freq = value
                             elif i.startswith('MaxNumPasses'):
@@ -707,6 +729,8 @@ class SimulationConfiguration(object):
                                 self.min_pad_area_to_mesh = value
                             elif i.startswith('SnapLengthThreshold'):
                                 self.snap_length_threshold = value
+                            elif i.startswith('MinPlaneAreaToMesh'):
+                                self.min_plane_area_to_mesh = value
                             elif i.startswith('DcMinPlaneAreaToMesh'):
                                 self.dc_min_plane_area_to_mesh = value
                             elif i.startswith('MaxInitMeshEdgeLength'):

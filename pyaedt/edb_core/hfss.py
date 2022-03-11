@@ -7,6 +7,7 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.io import SimulationConfiguration
+from pyaedt.generic.constants import CutoutSubdesignType, RadiationBoxType, SweepType, BasisOrder
 
 class EdbHfss(object):
     """Manages EDB functionalities for 3D layouts.
@@ -670,7 +671,7 @@ class EdbHfss(object):
             round(_bbox.Item2.Y.ToDouble(), digit_resolution),
         ]
         return layout_bbox
-
+    
     @pyaedt_function_handler()
     def configure_hfss_extents(self, simulation_setup=None):
         """ Configure HFSS extent box
@@ -678,9 +679,9 @@ class EdbHfss(object):
         if not isinstance(simulation_setup, SimulationConfiguration):
             return False
         hfss_extent = self._edb.Utility.HFSSExtentInfo()
-        if simulation_setup.radiation_box == 'BoundingBox':
+        if simulation_setup.radiation_box == RadiationBoxType.BoundingBox:
             hfss_extent.ExtentType = self._edb.Utility.HFSSExtentInfoType.BoundingBox
-        elif simulation_setup.radiation_box == 'Conformal':
+        elif simulation_setup.radiation_box == RadiationBoxType.Conformal:
             hfss_extent.ExtentType = self._edb.Utility.HFSSExtentInfoType.Conforming
         else:
             hfss_extent.ExtentType = self._edb.Utility.HFSSExtentInfoType.ConvexHull
@@ -701,7 +702,8 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def configure_hfss_analysis_setup(self, simulation_setup=None):
-        """Configure HFSS analysis setup.
+        """
+        Configure HFSS analysis setup.
         """
         if not isinstance(simulation_setup, SimulationConfiguration):
             return False
@@ -712,18 +714,92 @@ class EdbHfss(object):
         simsetup_info = self._pedb.simsetupdata.SimSetupInfo[self._pedb.simsetupdata.Data.HFSSSimulationSettings]()
         simsetup_info.Name = simulation_setup.setup_name
 
-        # simSetupInfo.SimulationSettings.CurveApproxSettings.ArcAngle = setup_info.ArcAngle
-        # simSetupInfo.SimulationSettings.CurveApproxSettings.UseArcToChordError = setup_info.UseArcToChordError
-        # simSetupInfo.SimulationSettings.CurveApproxSettings.ArcToChordError = setup_info.ArcToChordError
-        # simSetupInfo.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Clear()  # clear the default adapt
-        # simSetupInfo.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Add(adapt)
-        # simSetupInfo.SimulationSettings.InitialMeshSettings.LambdaRefine = True
-        # simSetupInfo.SimulationSettings.InitialMeshSettings.UseDefaultLambda = True
-        # simSetupInfo.SimulationSettings.AdaptiveSettings.MaxRefinePerPass = 30
-        # simSetupInfo.SimulationSettings.AdaptiveSettings.MinPasses = 1
-        # simSetupInfo.SimulationSettings.AdaptiveSettings.MinConvergedPasses = 1
-        # simSetupInfo.SimulationSettings.HFSSSolverSettings.OrderBasis = -1  # e.g. mixed
-        # simSetupInfo.SimulationSettings.HFSSSolverSettings.UseHFSSIterativeSolver = False
-        # simSetupInfo.SimulationSettings.DefeatureSettings.UseDefeature = False  # set True when using defeature ratio
-        # simSetupInfo.SimulationSettings.DefeatureSettings.UseDefeatureAbsLength = True
-        # simSetupInfo.SimulationSettings.DefeatureSettings.DefeatureAbsLength = setup_info.DefeatureAbsLength
+        simsetup_info.SimulationSettings.CurveApproxSettings.ArcAngle = simulation_setup.arc_angle
+        simsetup_info.SimulationSettings.CurveApproxSettings.UseArcToChordError = \
+            simulation_setup.use_arc_to_chord_error
+        simsetup_info.SimulationSettings.CurveApproxSettings.ArcToChordError = simulation_setup.arc_to_chord_error
+        simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Clear()  # clear the default adapt
+        simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Add(adapt)
+        simsetup_info.SimulationSettings.InitialMeshSettings.LambdaRefine = simulation_setup.do_lambda_refinement  # True
+        simsetup_info.SimulationSettings.InitialMeshSettings.UseDefaultLambda = True
+        simsetup_info.SimulationSettings.AdaptiveSettings.MaxRefinePerPass = 30
+        simsetup_info.SimulationSettings.AdaptiveSettings.MinPasses = simulation_setup.min_num_passes  # 1
+        simsetup_info.SimulationSettings.AdaptiveSettings.MinConvergedPasses = 1
+        simsetup_info.SimulationSettings.HFSSSolverSettings.OrderBasis = simulation_setup.basis_order  # -1  # e.g. mixed
+        simsetup_info.SimulationSettings.HFSSSolverSettings.UseHFSSIterativeSolver = False
+        simsetup_info.SimulationSettings.DefeatureSettings.UseDefeature = False  # set True when using defeature ratio
+        simsetup_info.SimulationSettings.DefeatureSettings.UseDefeatureAbsLength = simulation_setup.defeature_layout  # True
+        simsetup_info.SimulationSettings.DefeatureSettings.DefeatureAbsLength = simulation_setup.defeature_abs_length
+
+        try:
+            sweep = self._edb._SimSetup.Data.SweepData(simulation_setup.sweep_name)
+            sweep.IsDiscrete = False
+            sweep.UseQ3DForDC = simulation_setup.use_q3d_for_dc
+            if simulation_setup.keep_anf_ports_and_pin_groups:
+                sweep.UseQ3DForDC = False
+            # else:
+            #    sweep.UseQ3DForDC = True
+            sweep.RelativeSError = simulation_setup.relative_error  # 0.005
+            sweep.InterpUsePortImpedance = False
+            sweep.EnforceCausality = ((self._convert_freq_string_to_float(simulation_setup.start_frequency) - 0) < 1e-9)
+            # sweep.EnforceCausality = False
+            sweep.EnforcePassivity = simulation_setup.enforce_passivity  # True
+            sweep.PassivityTolerance = simulation_setup.passivity_tolerance  # 0.0001
+            sweep.Frequencies.Clear()  # clear defaults
+            if simulation_setup.sweep_type == SweepType.LogCount:  # setup_info.SweepType == 'DecadeCount'
+                self._setup_decade_count_sweep(sweep, simulation_setup.start_frequency, simulation_setup.stop_freq,
+                                               simulation_setup.decade_count)  # Added DecadeCount as a new attribute
+
+            else:
+                sweep.Frequencies = self._edb._SimSetup.Data.SweepData.SetFrequencies(simulation_setup.start_frequency,
+                                                                                      simulation_setup.stop_freq,
+                                                                                      simulation_setup.step_freq)
+
+            simsetup_info.SweepDataList.Add(sweep)
+        except Exception as err:
+            self._logger.error('Exception in Sweep configuration: {0}'.format(err))
+
+        sim_setup = self._edb.Utility.HFSSSimulationSetup(simsetup_info)
+
+        return self._cell.AddSimulationSetup(sim_setup)
+
+    def _setup_decade_count_sweep(self, sweep, start_freq, stop_freq, decade_count):
+        import math
+        start_f = self._convert_freq_string_to_float(start_freq)
+        if start_f == 0.0:
+            start_f = 10
+            self._logger.warning('Decade Count sweep does not support DC value, defaulting starting frequency to 10Hz')
+            
+        stop_f = self._convert_freq_string_to_float(stop_freq)
+        decade_cnt = self._convert_freq_string_to_float(decade_count)
+        freq = start_f
+        sweep.Frequencies.Add(str(freq))
+
+        while freq < stop_f:
+            freq = freq * math.pow(10, 1.0 / decade_cnt)
+            sweep.Frequencies.Add(str(freq))
+
+    def _convert_freq_string_to_float(self, freq_string):
+        try:
+            freq_float = float(freq_string)
+            return freq_float
+        except:
+            freq = freq_string.lower()
+            for unit in ['hz', 'khz', 'mhz', 'ghz', 'thz']:
+                try:
+                    freq_float = float(freq.strip(unit))
+                    if unit == 'hz':
+                        return freq_float
+                    elif unit == 'khz':
+                        return freq_float * 1e3
+                    elif unit == 'mhz':
+                        return freq_float * 1e6
+                    elif unit == 'ghz':
+                        return freq_float * 1e9
+                    elif unit == 'thz':
+                        return freq_float * 1e12
+                    else:
+                        pass
+                except:
+                    pass
+            return False
