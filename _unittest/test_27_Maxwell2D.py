@@ -31,6 +31,8 @@ class TestClass(BasisTest, object):
     @pyaedt_unittest_check_desktop_error
     def test_03_assign_initial_mesh_from_slider(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
+        self.aedtapp.set_active_design("Basis_Model_For_Test")
+        assert self.aedtapp.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
 
     @pyaedt_unittest_check_desktop_error
     def test_04_create_winding(self):
@@ -124,3 +126,11 @@ class TestClass(BasisTest, object):
     def test_17_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
         assert self.aedtapp.mesh.initial_mesh_settings.props
+
+    def test_18_setup_y_connection(self):
+        import pdb
+        pdb.set_trace()
+        self.aedtapp.set_active_design("Basis_Model_For_Test")
+        assert self.aedtapp.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
+        a=10
+

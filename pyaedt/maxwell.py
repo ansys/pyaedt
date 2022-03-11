@@ -299,6 +299,38 @@ class Maxwell(object):
         return True
 
     @pyaedt_function_handler()
+    def setup_y_connection(self, windings_name):
+        """Setup the y connection.
+
+        Parameters
+        ----------
+        winding_name : list
+            List of windings. For instance ["PhaseA", "PhaseB", "PhaseC"]
+
+        Returns
+        -------
+        bool
+            ``True`` when successful and ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.SetupYConnection
+        """
+
+        oModule = self.odesign.GetModule("BoundarySetup")
+        foo = ["NAME:YConnection"]
+        foo.append("Windings:=")
+        foo.append("PhaseA,PhaseB,PhaseC")
+        foo2 = []
+        foo2.append(foo)
+        import pdb
+
+        pdb.set_trace()
+        oModule.SetupYConnection(foo2)
+        return True
+
+    @pyaedt_function_handler()
     def assign_current(self, object_list, amplitude=1, phase="0deg", solid=True, swap_direction=False, name=None):
         """Assign the source of the current.
 

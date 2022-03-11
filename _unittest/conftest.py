@@ -67,7 +67,7 @@ else:
         default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
     config = {
         "desktopVersion": default_version,
-        "NonGraphical": True,
+        "NonGraphical": False,
         "NewThread": True,
         "test_desktops": False,
         "build_machine": True,
