@@ -2607,12 +2607,7 @@ class CircuitPins(object):
             return False
 
 
-class ComponentParameters(object):
-    """AEDT Circuit Component Internal Parameters."""
-
-    def __getitem__(self, key):
-        return self.parameters[key]
-
+class ComponentParameters(dict):
     def __setitem__(self, key, value):
         try:
             self._component.m_Editor.ChangeProperty(
@@ -2625,17 +2620,14 @@ class ComponentParameters(object):
                     ],
                 ]
             )
-            self.parameters[key] = value
+            dict.__setitem__(self, key, value)
         except:
-            self._component._circuit_components.logger.warning("Property %s has not been edited", key)
+            self._component._circuit_components.logger.warning("Property %s has not been edited.Check if readonly", key)
 
-    def __repr__(self):
-        return str(self.parameters)
-
-    def __init__(self, component, tab, params):
+    def __init__(self, component, tab, *args, **kw):
+        dict.__init__(self, *args, **kw)
         self._component = component
         self._tab = tab
-        self.parameters = params
 
 
 class CircuitComponent(object):
@@ -2720,7 +2712,7 @@ class CircuitComponent(object):
             for pin in pins:
                 if self._circuit_components._app.design_type != "Twin Builder":
                     self._pins.append(CircuitPins(self, pin))
-                elif pin not in list(self.parameters.parameters.keys()):
+                elif pin not in list(self.parameters.keys()):
                     self._pins.append(CircuitPins(self, pin))
         return self._pins
 

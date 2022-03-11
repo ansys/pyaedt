@@ -641,8 +641,17 @@ class Settings(object):
         self._enable_debug_internal_methods_logger = False
         self._enable_debug_logger = False
         self._enable_error_handler = True
-        self.non_graphical = False
+        self._non_graphical = False
         self.aedt_version = None
+
+    @property
+    def non_graphical(self):
+        """Return the non graphical flag."""
+        return self._non_graphical
+
+    @non_graphical.setter
+    def non_graphical(self, val):
+        self._non_graphical = val
 
     @property
     def enable_error_handler(self):

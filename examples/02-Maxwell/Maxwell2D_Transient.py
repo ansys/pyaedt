@@ -83,7 +83,6 @@ setup.props["SaveFieldsType"] = "Every N Steps"
 setup.props["N Steps"] = "1"
 setup.props["Steps From"] = "0s"
 setup.props["Steps To"] = "0.002s"
-setup.update()
 
 ###############################################################################
 # Create a Rectangular Plot
