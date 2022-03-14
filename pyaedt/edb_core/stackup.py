@@ -13,9 +13,11 @@ from pyaedt.edb_core.EDB_Data import EDBLayers
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.io import SimulationConfiguration
 
 try:
     from System import Double
+    from System.Collections.Generic import List
 except ImportError:
     if os.name != "posix":
         warnings.warn('This module requires the "pythonnet" package.')
@@ -781,3 +783,126 @@ class EdbStackup(object):
             )
         h_stackup = abs(float(topz) - float(bottomz))
         return topl.GetName(), topz, bottoml.GetName(), bottomz
+
+    @pyaedt_function_handler()
+    def set_layer_stackup(self, simulation_setup=None):
+
+        if not isinstance(simulation_setup, SimulationConfiguration):
+            return False
+        cell = self._builder.cell
+        this_lc = self._edb.Cell.LayerCollection(cell.GetLayout().GetLayerCollection())
+        all_layers = list(list(this_lc.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
+        all_stackup_layers = list(all_layers.Where(
+            lambda lyr: (lyr.GetLayerType() == self._edb.Cell.LayerType.DielectricLayer) or (
+                        lyr.GetLayerType() == self._edb.Cell.LayerType.SignalLayer)))
+        all_stackup_layers.OrderBy(lambda lyr=self._edb.Cell.StackupLayer: lyr.GetLowerElevation())
+
+        # Cloning Stackup
+        new_layer_collection = self._edb.Cell.LayerCollection()
+        new_stk_up = [lay.Clone() for lay in all_stackup_layers]
+        for lay in new_stk_up:
+            if lay.GetName() in simulation_setup.signalLayersProperties.keys():
+                layer_name = lay.GetName()
+                etching_factor = simulation_setup.signalLayersProperties[layer_name][0]
+                self._logger.info('Etching factor for layer {0} : {1}'.format(layer_name, etching_factor))
+
+                top_roughness_nodule_radius = simulation_setup.signalLayersProperties[layer_name][1]
+                self._logger.info(
+                    'Top Roughness Nodule Radius for layer {0} : {1}'.format(layer_name, top_roughness_nodule_radius))
+
+                top_roughness_surface_ratio = simulation_setup.signalLayersProperties[layer_name][2]
+                self._logger.info(
+                    'Top Roughness Surface Ratio for layer {0} : {1}'.format(layer_name, top_roughness_surface_ratio))
+
+                bot_roughness_nodule_radius = simulation_setup.signalLayersProperties[layer_name][3]
+                self._logger.info(
+                    'Bottom Roughness Nodule for layer {0} : {1}'.format(layer_name, bot_roughness_nodule_radius))
+
+                bot_roughness_surface_ratio = simulation_setup.signalLayersProperties[layer_name][4]
+                self._logger.info(
+                    'Bottom Roughness surface ratio for layer {0} : {1}'.format(layer_name, bot_roughness_surface_ratio))
+
+                if not etching_factor == '':
+                    try:
+                        if not lay.SetEtchFactorEnabled(True):
+                            self._logger.error('Failed to enable Etching factor for layer {0}'.format(layer_name))
+                        if not lay.SetEtchFactor(float(simulation_setup.signalLayersProperties[layer_name][0])):
+                            self._logger.error('Failed to assign Etching factor value for layer {0}'.format(layer_name))
+                    except:
+                        self._logger.error('Failed to define Etching Factor for layer {0}'.format(layer_name))
+
+                if not top_roughness_nodule_radius == '':
+                    if not top_roughness_surface_ratio == '':
+                        try:
+                            if not lay.SetTopRoughnessEnabled(True):
+                                self._logger.error('Failed to enable Top roughness for layer {0}'.format(layer_name))
+                            # if not lay.SetTopRoughnessModel(edb.Cell.HurrayRoughnessModel(
+                            # float(TopRoughnessNoduleRadius),float(TopRoughnessSurfaceRatio))):
+                            if not lay.SetTopRoughnessModel(
+                                    self._edb.Cell.HurrayRoughnessModel(top_roughness_nodule_radius,
+                                                                        top_roughness_surface_ratio)):
+                                self._logger.error(
+                                    'Failed to assign top roughness model for layer {0}'.format(layer_name))
+                        except:
+                            self._logger.error('Failed to define Top roughness for layer {0}'.format(lay.GetName()))
+
+                if not bot_roughness_nodule_radius == '':
+                    if not bot_roughness_surface_ratio == '':
+                        try:
+                            if not lay.SetBottomRoughnessEnabled(True):
+                                self._logger.error('Failed to enable Bottom roughness for layer {0}'.format(layer_name))
+                            # if not lay.SetBottomRoughnessModel(edb.Cell.HurrayRoughnessModel(
+                            # float(BotRoughnessNoduleRadius),float(BotRoughnessSurfaceRatio))):
+                            if not lay.SetBottomRoughnessModel(
+                                    self._edb.Cell.HurrayRoughnessModel(bot_roughness_nodule_radius,
+                                                                        bot_roughness_surface_ratio)):
+                                self._logger.error(
+                                    'Failed to assign bottom roughness model for layer {0}'.format(layer_name))
+                        except:
+                            self._logger.error('Failed to define Bottom roughness for layer {0}'.format(lay.GetName()))
+
+        new_layer_collection.AddLayers(new_stk_up)
+        cell.GetLayout().SetLayerCollection(new_layer_collection)
+
+    @pyaedt_function_handler()
+    def set_etching_layers(self, simulation_setup=None):
+        if not isinstance(simulation_setup, SimulationConfiguration):
+            return False
+        cell = self._builder.cell
+        this_lc = self._edb.Cell.LayerCollection(cell.GetLayout().GetLayerCollection())
+        all_layers = list(this_lc.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet))
+
+        # SignalLayers = list(allLayers.Where(lambda lyr: lyr.GetLayerType() == edb.Cell.LayerType.SignalLayer))
+        signal_layers = [lay for lay in all_layers if lay.GetLayerType() == self._edb.Cell.LayerType.SignalLayer]
+
+        new_layers = list(all_layers.Where(lambda lyr: lyr.GetLayerType() != self._edb.Cell.LayerType.SignalLayer))
+
+        if simulation_setup.SignalLayerEtchingInstances:
+            for Lay in signal_layers:
+                if not Lay.GetName() in simulation_setup.SignalLayerEtchingInstances:
+                    self._logger.error(
+                        "Signal layer {0} not found in Etching layers from the cfg, "
+                        "skipping the etching factor assignment".format(Lay.GetName()))
+                    # cloning the same signal layer to keep a valid layout
+                    new_signal_lay = Lay.Clone()
+                else:
+                    new_signal_lay = Lay.Clone()
+                    new_signal_lay.SetEtchFactorEnabled(True)
+                    etching_factor = float(
+                        simulation_setup.EtchingFactorInstances[
+                            simulation_setup.SignalLayerEtchingInstances.index(Lay.GetName())])
+                    new_signal_lay.SetEtchFactor(etching_factor)
+                    self._logger.info(
+                        "Setting Etching factor {0} on layer {1}".format(str(etching_factor), Lay.GetName()))
+
+                new_layers.Add(new_signal_lay)
+
+            layers_with_etching = self._edb.Cell.LayerCollection()
+            if not layers_with_etching.AddLayers(new_layers):
+                return False
+
+            if not cell.GetLayout().SetLayerCollection(layers_with_etching):
+                return False
+
+            return True
+        return True

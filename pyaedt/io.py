@@ -63,7 +63,8 @@ class SimulationConfiguration(object):
         self._min_plane_area_to_mesh = '4mil2'  # Newly Added
         self._dc_min_plane_area_to_mesh = '8mil2'
         self._max_init_mesh_edge_length = '14.5mil'
-        self._signalLayersProperties = []
+        self._signalLayersProperties = {}
+        self._coplanar_instances = []
         self._read_cfg()
 
     @property
@@ -566,8 +567,17 @@ class SimulationConfiguration(object):
 
     @signalLayersProperties.setter
     def signalLayersProperties(self, value):
-        if isinstance(value, list):
+        if isinstance(value, dict):
             self._signalLayersProperties = value
+    
+    @property
+    def coplanar_instances(self):
+        return self._coplanar_instances
+
+    @coplanar_instances.setter
+    def coplanar_instances(self, value):
+        if isinstance(value, list):
+            self._coplanar_instances = value
 
     def _get_bool_value(self, value):
         val = value.lower()
@@ -589,6 +599,16 @@ class SimulationConfiguration(object):
             else:
                 prop_values = [value.strip()]
             return prop_values
+
+    def _parse_signal_layer_properties(self, signal_properties):
+        for lay in signal_properties:
+            lp = lay.split(':')
+            try:
+                # self.signalLayersProperties[lp[0]] = [lp[1], lp[2], lp[3], lp[4], lp[5]]
+                self.signalLayersProperties.update({lp[0]: [lp[1], lp[2], lp[3], lp[4], lp[5]]})
+            except:
+                print('missing parameter for layer {0}'.format(lp[0]))
+                # Logger.Info('missing parameter for layer {0}'.format(lp[0]))
 
     def _read_cfg(self):
 
@@ -736,7 +756,9 @@ class SimulationConfiguration(object):
                             elif i.startswith('MaxInitMeshEdgeLength'):
                                 self.max_init_mesh_edge_length = value
                             elif i.startswith('SignalLayersProperties'):
-                                self.signalLayersProperties = self._get_list_value(value)
+                                self._parse_signal_layer_properties(self._get_list_value(value))
+                            elif i.startswith('coplanar_instances'):
+                                self.coplanar_instances = self._get_list_value(value)
                         else:
                             print("Unprocessed line in cfg file: {0}".format(line))
                     else:
