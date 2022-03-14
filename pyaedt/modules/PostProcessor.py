@@ -1621,6 +1621,9 @@ class PostProcessorCommon(object):
         ctxt = []
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
+        elif setup_sweep_name not in self._app.existing_analysis_sweeps:
+            self.logger.error("Sweep not Available.")
+            return False
         families_input = []
         did = 3
         if domain == "Sweep" and not primary_sweep_variable:
