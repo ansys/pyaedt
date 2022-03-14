@@ -1,7 +1,6 @@
 pyvista
 matplotlib
 numpy
-pytest
+pytest==7.0.0
 pytest-cov
-pytest-reporter==0.4.0
 codecov
