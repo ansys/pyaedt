@@ -5,8 +5,6 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import local_path
 from pyaedt import TwinBuilder
 
-# Import required modules
-
 
 class TestClass(BasisTest, object):
     def setup_class(self):

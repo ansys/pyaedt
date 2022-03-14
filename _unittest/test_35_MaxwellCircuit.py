@@ -2,8 +2,6 @@
 from _unittest.conftest import BasisTest
 from pyaedt import MaxwellCircuit
 
-# Import required modules
-
 
 class TestClass(BasisTest, object):
     def setup_class(self):

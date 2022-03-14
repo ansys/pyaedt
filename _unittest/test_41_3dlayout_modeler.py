@@ -8,9 +8,6 @@ from _unittest.conftest import scratch_path
 from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
 
-# Import required modules
-# Setup paths for module imports
-
 try:
     import pytest  # noqa: F401
 except ImportError:

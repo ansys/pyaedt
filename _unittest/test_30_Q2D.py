@@ -5,9 +5,6 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 from pyaedt import Q2d
 
-# Setup paths for module imports
-# Import required modules
-
 test_project_name = "coax_Q2D"
 
 

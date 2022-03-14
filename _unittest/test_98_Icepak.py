@@ -8,9 +8,6 @@ from _unittest.conftest import local_path
 from _unittest.conftest import scratch_path
 from pyaedt import Icepak
 
-# Import required modules
-# Setup paths for module imports
-
 try:
     import pytest  # noqa: F401
 except ImportError:

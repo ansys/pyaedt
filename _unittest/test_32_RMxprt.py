@@ -3,9 +3,6 @@ import os
 from _unittest.conftest import BasisTest
 from pyaedt import Rmxprt
 
-# Setup paths for module imports
-# Import required modules
-
 test_project_name = "motor"
 
 
