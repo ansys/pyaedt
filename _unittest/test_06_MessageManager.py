@@ -5,8 +5,6 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from pyaedt.application.MessageManager import AEDTMessageManager
 
-# Import required modules
-
 try:
     import pytest
 except ImportError:
