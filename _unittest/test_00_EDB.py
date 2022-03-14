@@ -8,7 +8,6 @@ from pyaedt.edb_core.components import resistor_value_parser
 # Setup paths for module imports
 # Import required modules
 
-
 test_project_name = "Galileo_edb"
 bom_example = "bom_example.csv"
 from _unittest.conftest import config, desktop_version, local_path, scratch_path, is_ironpython, settings, BasisTest
