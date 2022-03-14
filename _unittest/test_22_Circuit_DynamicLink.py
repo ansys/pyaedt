@@ -51,10 +51,9 @@ class TestClass(BasisTest, object):
                         ).encode()
                         found = True
                 outf.write(line + b"\n")
-        self.aedtapp = Circuit(self.test_project,
-                               specified_version=desktop_version,
-                               non_graphical=settings.non_graphical
-                               )
+        self.aedtapp = Circuit(
+            self.test_project, specified_version=desktop_version, non_graphical=settings.non_graphical
+        )
         self.aedtapps.append(self.aedtapp)
 
     def teardown_class(self):
@@ -192,8 +191,9 @@ class TestClass(BasisTest, object):
             proj_path = proj_name
         q3d = Q3d(proj_path, specified_version=desktop_version)
 
-        q3d_comp = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q3d,
-                                                                              solution_name="Setup1 : LastAdaptive")
+        q3d_comp = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
+            q3d, solution_name="Setup1 : LastAdaptive"
+        )
         assert q3d_comp
         assert len(q3d_comp.pins) == 4
         hfss = Hfss(proj_path, specified_version=desktop_version)
