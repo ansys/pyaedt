@@ -33,16 +33,12 @@ class EDBNetsData(object):
     """
 
     def __getattr__(self, key):
-        if key in dir(self):
-            try:
-                return getattr(self, key)
-            except:
-                raise AttributeError("Attribute not present")
-
-        if key in dir(self.net_object):
+        try:
+            return self[key]
+        except:
             try:
                 return getattr(self.net_object, key)
-            except:
+            except AttributeError:
                 raise AttributeError("Attribute not present")
 
     def __init__(self, raw_net, core_app):
@@ -149,16 +145,12 @@ class EDBPrimitives(object):
     """
 
     def __getattr__(self, key):
-        if key in dir(self):
-            try:
-                return getattr(self, key)
-            except:
-                raise AttributeError("Attribute not present")
-
-        if key in dir(self.primitive_object):
+        try:
+            return self[key]
+        except:
             try:
                 return getattr(self.primitive_object, key)
-            except:
+            except AttributeError:
                 raise AttributeError("Attribute not present")
 
     def __init__(self, raw_primitive, core_app):
@@ -1972,7 +1964,7 @@ class EDBPadstackInstance(object):
 
     @property
     def position(self):
-        """padstack instance position.
+        """Padstack instance position.
 
         Returns
         -------
@@ -1992,7 +1984,7 @@ class EDBPadstackInstance(object):
 
     @property
     def rotation(self):
-        """padstack instance rotation.
+        """Padstack instance rotation.
 
         Returns
         -------
@@ -2023,6 +2015,7 @@ class EDBPadstackInstance(object):
 
     @property
     def name(self):
+        """Padstack Instance Name. If it is a pin, the syntax will be like in AEDT ComponentName-PinName."""
         if self.is_pin:
             comp_name = self._edb_padstackinstance.GetComponent().GetName()
             pin_name = self._edb_padstackinstance.GetName()

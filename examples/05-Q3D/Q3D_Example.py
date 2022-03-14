@@ -85,7 +85,6 @@ q.assign_sink_to_objectface("Bar2", axisdir=q.AxisDir.XNeg, sink_name="Sink2")
 q.assign_source_to_objectface("Bar3", axisdir=q.AxisDir.XPos, source_name="Source3")
 bar3_sink = q.assign_sink_to_objectface("Bar3", axisdir=q.AxisDir.YPos)
 bar3_sink.name = "Sink3"
-bar3_sink.update()
 
 ###############################################################################
 # Print Infos

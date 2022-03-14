@@ -488,4 +488,4 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(is_ironpython, reason="Crash on Ironpython")
     def test_37_import_edb(self):
-        assert self.aedtapp.import_edb(self.test_project)
+        assert self.aedtapp.import_edb(self.target_path)

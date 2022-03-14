@@ -13,7 +13,6 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
-
 original_project_name = "Galileo_t21"
 test_project_name = "Galileo_t21"
 netlist1 = "netlist_small.cir"
@@ -40,7 +39,7 @@ class TestClass(BasisTest, object):
     def teardown_class(self):
         BasisTest.my_teardown(self)
 
-    def test_01_create_inductor(self):
+    def test_01a_create_inductor(self):
         myind = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[0.2, 0.2])
         assert type(myind.id) is int
         assert myind.parameters["L"] == "1e-09"
@@ -64,12 +63,22 @@ class TestClass(BasisTest, object):
         assert type(pinnames) is list
         assert len(pinnames) == 2
 
-    def test_05_getpin_location(self):
+    def test_05a_getpin_location(self):
         for el in self.aedtapp.modeler.schematic.components:
             pinnames = self.aedtapp.modeler.schematic.get_pins(el)
             for pinname in pinnames:
                 pinlocation = self.aedtapp.modeler.schematic.get_pin_location(el, pinname)
                 assert len(pinlocation) == 2
+
+    def test_05b_add_pin_iport(self):
+        mycap3 = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12)
+        assert self.aedtapp.modeler.schematic.add_pin_iports(mycap3.name, mycap3.id)
+
+    def test_05c_create_component(self):
+        assert self.aedtapp.modeler.schematic.create_new_component_from_symbol("Test", ["1", "2"])
+        assert self.aedtapp.modeler.schematic.create_new_component_from_symbol(
+            "Test1", [1, 2], parameter_list=["Author:=", "NumTerminals:="], parameter_value=["pyaedt", 2]
+        )
 
     def test_06_add_3dlayout_component(self):
         myedb = self.aedtapp.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
@@ -311,3 +320,9 @@ class TestClass(BasisTest, object):
         with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
+
+    def test_29_create_circuit_from_spice(self):
+        model = os.path.join(local_path, "example_models", "test.lib")
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345")
+        assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")

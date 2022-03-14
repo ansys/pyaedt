@@ -40,7 +40,6 @@ M3D["Coil_Position"] = str(Coil_Position) + uom  # Creates a design variable in 
 ################################################################################
 # Create TEAM3 aluminium material for the ladder plate
 mat = M3D.materials.add_material("team3_aluminium")
-mat.update()
 mat.conductivity = 32780000
 
 ###############################################################################
@@ -98,10 +97,8 @@ M3D.plot(show=False, export_path=os.path.join(M3D.working_directory, "Image.jpg"
 Setup = M3D.create_setup(setupname="Setup1")
 Setup.props["Frequency"] = "200Hz"
 Setup.props["HasSweepSetup"] = True
-Setup.props["StartValue"] = "50Hz"
-Setup.props["StopValue"] = "200Hz"
-Setup.props["StepSize"] = "150Hz"
-Setup.update()
+Setup.add_eddy_current_sweep("LinearStep", 50, 200, 150, clear=True)
+
 
 ################################################################################
 # Adjust Eddy Effects for LadderPlate and SearchCoil
@@ -116,7 +113,6 @@ param = M3D.opti_parametric.add_parametric_setup("Coil_Position", "LIN -20mm 0mm
 param.props["ProdOptiSetupDataV2"]["SaveFields"] = True
 param.props["ProdOptiSetupDataV2"]["CopyMesh"] = False
 param.props["ProdOptiSetupDataV2"]["SolveWithCopiedMeshOnly"] = True
-param.update()
 
 # Solve the model, we solve the parametric sweep directly so results of all variations are available.
 M3D.analyze_setup(sweepname)

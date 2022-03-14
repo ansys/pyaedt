@@ -42,12 +42,9 @@ stop_freq = 50
 Setup = M3D.create_setup(setupname="Setup1")
 Setup.props["Frequency"] = "200Hz"
 Setup.props["HasSweepSetup"] = True
-Setup.props["StartValue"] = str(dc_freq) + "Hz"
-Setup.props["StopValue"] = str(stop_freq) + "Hz"
-Setup.props["StepSize"] = str(stop_freq - dc_freq) + "Hz"
+Setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, stop_freq - dc_freq, clear=True)
 Setup.props["UseHighOrderShapeFunc"] = True
 Setup.props["PercentError"] = 0.4
-Setup.update()
 
 ###########################################################################################
 # Coil Dimensions
@@ -106,7 +103,6 @@ M3D.modeler.set_working_coordinate_system("Global")
 
 # Add a new material with Team 7 properties for Aluminium
 mat = M3D.materials.add_material("team7_aluminium")
-mat.update()
 mat.conductivity = 3.526e7
 
 # Model the Aluminium plate with a hole in by subtracting two rectangular cuboids.
