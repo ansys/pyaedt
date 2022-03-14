@@ -1,9 +1,14 @@
 files: ^pyaedt/
+    (?x)(
+        ^pyaedt/|
+        _unittest/
+    )
 exclude: |
     (?x)(
         ^pyaedt/rpc/|
         ^pyaedt/third_party/|
-        pyaedt/conftest.py
+        pyaedt/conftest.py|
+        _unittest/example_models
     )
 repos:
 - repo: https://github.com/psf/black
