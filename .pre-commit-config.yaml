@@ -1,4 +1,4 @@
-files: ^pyaedt/
+files: |
     (?x)(
         ^pyaedt/|
         _unittest/
@@ -12,13 +12,13 @@ exclude: |
     )
 repos:
 - repo: https://github.com/psf/black
-  rev: 21.12b0
+  rev: 22.1.0
   hooks:
   - id: black
     args:
       - --line-length=120
 - repo: https://github.com/asottile/reorder_python_imports
-  rev: v2.6.0
+  rev: v3.0.1
   hooks:
   - id: reorder-python-imports
     args: 
