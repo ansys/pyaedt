@@ -1,4 +1,5 @@
 # Setup paths for module imports
+from __future__ import division  # noreorder
 import math
 
 from _unittest.conftest import BasisTest
