@@ -482,9 +482,9 @@ class EDBLayer(object):
         return self._pedblayers.logger
 
     @property
-    def _edb_value(self):
-        """Edb Value."""
-        return self._pedblayers._edb_value
+    def _get_edb_value(self, value):
+        """Get Edb Value."""
+        return self._pedblayers.edb_value(value)
 
     @property
     def name(self):
@@ -756,7 +756,7 @@ class EDBLayer(object):
             self._logger.error("Layer %s has unknown type %s.", layerName, layerTypeMap)
             return False
         if thicknessMap:
-            newLayer.SetThickness(self._edb_value(thicknessMap))
+            newLayer.SetThickness(self._get_edb_value(thicknessMap))
         if materialMap:
             newLayer.SetMaterial(materialMap)
         if fillMaterialMap:
@@ -767,7 +767,7 @@ class EDBLayer(object):
             etchVal = 0.0
         if etchVal != 0.0:
             newLayer.SetEtchFactorEnabled(True)
-            newLayer.SetEtchFactor(self._edb_value(etchVal))
+            newLayer.SetEtchFactor(self._get_edb_value(etchVal))
         return newLayer
 
     @pyaedt_function_handler()
@@ -788,7 +788,7 @@ class EDBLayer(object):
 
         """
 
-        layer.SetLowerElevation(self._edb_value(elev))
+        layer.SetLowerElevation(self._get_edb_value(elev))
         return layer
 
     @pyaedt_function_handler()
@@ -1111,15 +1111,15 @@ class EDBLayers(object):
                 newLayer = self._edb.Cell.StackupLayer(
                     layerName,
                     self._int_to_layer_types(layerType),
-                    self._edb_value(0),
-                    self._edb_value(0),
+                    self._get_edb_value(0),
+                    self._get_edb_value(0),
                     "",
                 )
                 self._edb_object[layerName] = EDBLayer(newLayer, self._pedbstackup)
                 newLayer = self._edb_object[layerName].update_layer_vals(
                     layerName, newLayer, etchMap, material, fillMaterial, thickness, self._int_to_layer_types(layerType)
                 )
-                newLayer.SetLowerElevation(self._edb_value(el))
+                newLayer.SetLowerElevation(self._get_edb_value(el))
 
                 # newLayers.Add(newLayer)
                 lcNew.AddLayerTop(newLayer)
@@ -1128,7 +1128,7 @@ class EDBLayers(object):
                 if not lyr.IsStackupLayer():
                     continue
                 newLayer = lyr.Clone()
-                newLayer.SetLowerElevation(self._edb_value(el))
+                newLayer.SetLowerElevation(self._get_edb_value(el))
                 el += newLayer.GetThickness()
                 # newLayers.Add(newLayer)
                 lcNew.AddLayerTop(newLayer)
@@ -1140,14 +1140,14 @@ class EDBLayers(object):
                     continue
                 if lyr.GetName() == start_layer:
                     original_layer = lyr.Clone()
-                    original_layer.SetLowerElevation(self._edb_value(el))
+                    original_layer.SetLowerElevation(self._get_edb_value(el))
                     lcNew.AddLayerTop(original_layer)
                     el += original_layer.GetThickness()
                     newLayer = self._edb.Cell.StackupLayer(
                         layerName,
                         self._int_to_layer_types(layerType),
-                        self._edb_value(0),
-                        self._edb_value(0),
+                        self._get_edb_value(0),
+                        self._get_edb_value(0),
                         "",
                     )
                     self._edb_object[layerName] = EDBLayer(newLayer, self._pedbstackup)
@@ -1160,14 +1160,14 @@ class EDBLayers(object):
                         thickness,
                         self._int_to_layer_types(layerType),
                     )
-                    newLayer.SetLowerElevation(self._edb_value(el))
+                    newLayer.SetLowerElevation(self._get_edb_value(el))
                     lcNew.AddLayerTop(newLayer)
                     el += newLayer.GetThickness()
                     # newLayers.Add(original_layer)
 
                 else:
                     newLayer = lyr.Clone()
-                    newLayer.SetLowerElevation(self._edb_value(el))
+                    newLayer.SetLowerElevation(self._get_edb_value(el))
                     el += newLayer.GetThickness()
                     lcNew.AddLayerTop(newLayer)
         # lcNew = self._edb.Cell.LayerCollection()
@@ -1301,7 +1301,7 @@ class EDBPadProperties(object):
         shape.8, Round gap with 45 degree thermal ties. 9, Round gap with 90 degree thermal ties.10, Square gap
         with 45 degree thermal ties. 11, Square gap with 90 degree thermal ties.
         """
-        val = self._edb_value(0)
+        val = self._get_edb_value(0)
         params = []
         if geom_type == 0:
             pass
@@ -1362,9 +1362,9 @@ class EDBPadProperties(object):
     def parameters(self, propertylist):
 
         if not isinstance(propertylist, list):
-            propertylist = [self._edb_value(propertylist)]
+            propertylist = [self._get_edb_value(propertylist)]
         else:
-            propertylist = [self._edb_value(i) for i in propertylist]
+            propertylist = [self._get_edb_value(i) for i in propertylist]
         self._update_pad_parameters_parameters(params=propertylist)
 
     @property
@@ -1493,7 +1493,7 @@ class EDBPadProperties(object):
         if not geom_type:
             geom_type = self.geometry_type
         if not params:
-            params = [self._edb_value(i) for i in self.parameters]
+            params = [self._get_edb_value(i) for i in self.parameters]
         if not offsetx:
             offsetx = self.offset_x
         if not offsety:
@@ -1510,9 +1510,9 @@ class EDBPadProperties(object):
             pad_type,
             geom_type,
             convert_py_list_to_net_list(params),
-            self._edb_value(offsetx),
-            self._edb_value(offsety),
-            self._edb_value(rotation),
+            self._get_edb_value(offsetx),
+            self._get_edb_value(offsety),
+            self._get_edb_value(rotation),
         )
         self._edb_padstack.SetData(newPadstackDefinitionData)
 
@@ -1605,7 +1605,7 @@ class EDBPadstack(object):
         if is_ironpython:
             out = viaData.GetHoleParametersValue()
         else:
-            value0 = self._edb_value("0.0")
+            value0 = self._get_edb_value("0.0")
             ptype = self._edb.Definition.PadGeometryType.Circle
             HoleParam = Array[type(value0)]([])
             out = viaData.GetHoleParametersValue(ptype, HoleParam, value0, value0, value0)
@@ -1659,15 +1659,19 @@ class EDBPadstack(object):
             rotation = self.hole_rotation
         if is_ironpython:
             newPadstackDefinitionData.SetHoleParameters(
-                hole_type, params, self._edb_value(offsetx), self._edb_value(offsety), self._edb_value(rotation)
+                hole_type,
+                params,
+                self._get_edb_value(offsetx),
+                self._get_edb_value(offsety),
+                self._get_edb_value(rotation),
             )
         else:
             newPadstackDefinitionData.SetHoleParameters(
                 hole_type,
                 convert_py_list_to_net_list(params),
-                self._edb_value(offsetx),
-                self._edb_value(offsety),
-                self._edb_value(rotation),
+                self._get_edb_value(offsetx),
+                self._get_edb_value(offsety),
+                self._get_edb_value(rotation),
             )
         self.edb_padstack.SetData(newPadstackDefinitionData)
 
@@ -1687,9 +1691,9 @@ class EDBPadstack(object):
     def hole_properties(self, propertylist):
 
         if not isinstance(propertylist, list):
-            propertylist = [self._edb_value(propertylist)]
+            propertylist = [self._get_edb_value(propertylist)]
         else:
-            propertylist = [self._edb_value(i) for i in propertylist]
+            propertylist = [self._get_edb_value(i) for i in propertylist]
         self._update_hole_parameters(params=propertylist)
 
     @property
@@ -1774,7 +1778,7 @@ class EDBPadstack(object):
 
         originalPadstackDefinitionData = self.edb_padstack.GetData()
         newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
-        newPadstackDefinitionData.SetHolePlatingPercentage(self._edb_value(ratio))
+        newPadstackDefinitionData.SetHolePlatingPercentage(self._get_edb_value(ratio))
         self.edb_padstack.SetData(newPadstackDefinitionData)
 
     @property
