@@ -5,9 +5,6 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 from pyaedt import Hfss
 
-# Import required modules
-# Setup paths for module imports
-
 try:
     import pytest  # noqa: F401
 except ImportError:
