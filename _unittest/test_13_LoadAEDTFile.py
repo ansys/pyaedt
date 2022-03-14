@@ -8,8 +8,6 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import local_path
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
-# Import required modules
-
 
 def _write_jpg(design_info, scratch):
     """writes the jpg Image64 property of the design info
