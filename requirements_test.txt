@@ -3,5 +3,5 @@ matplotlib
 numpy
 pytest
 pytest-cov
-pytest-reporter==4.0.0
+pytest-reporter==0.4.0
 codecov
