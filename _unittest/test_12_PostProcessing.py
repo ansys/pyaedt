@@ -6,9 +6,6 @@ from _unittest.conftest import config
 from pyaedt import Hfss
 from pyaedt.generic.general_methods import is_ironpython
 
-# Import required modules
-# Setup paths for module imports
-
 try:
     import pytest
 except ImportError:
