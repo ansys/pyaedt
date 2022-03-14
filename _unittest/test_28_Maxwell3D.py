@@ -8,8 +8,6 @@ from _unittest.conftest import local_path
 from pyaedt import Maxwell3d
 from pyaedt.generic.constants import SOLUTIONS
 
-# Import required modules
-
 try:
     import pytest
 except ImportError:
