@@ -65,6 +65,10 @@ class EdbHfss(object):
     def _builder(self):
         return self._pedb.builder
 
+    @property
+    def _edb_value(self):
+        return self._pedb.edb_value
+
     @pyaedt_function_handler()
     def get_trace_width_for_traces_with_ports(self):
         """Retrieve the trace width for traces with ports.
@@ -490,6 +494,7 @@ class EdbHfss(object):
         return_points_only=False,
         polygon_trace_threshhold=300e-6,
         digit_resolution=6,
+        point_list=None,
     ):
         """Create an edge port on traces.
 
@@ -511,7 +516,12 @@ class EdbHfss(object):
             ``300-e6``.
 
         digit_resolution : int, optional
-            The number of digits carried for the edges location accuracy. The default value is ``6``.
+            The number of digits carried for the edge location accuracy. The default value is ``6``.
+
+        point_list : list(tuples), optional
+            The list of points where to define ports. The port evaluation is done for each net provided and if a point
+            belongs to a center line points from a path or a polygon then the port will be created. If the point is not
+            found the ports  will be skipped.
 
         Returns
         -------
@@ -531,10 +541,16 @@ class EdbHfss(object):
                 elif isinstance(nn, self._edb.Cell.Net):
                     temp_nets.append(nn)
             nets = temp_nets
+        if point_list:
+            if isinstance(point_list, tuple):
+                point_list = [point_list]
         edges_pts = []
         if nets:
             if isinstance(reference_layer, str):
-                reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
+                try:
+                    reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
+                except:
+                    raise Exception("Failed to get the layer {]".format(reference_layer))
             if not isinstance(reference_layer, self._edb.Cell.ILayerReadOnly):
                 return False
             layout = nets[0].GetLayout()
@@ -551,19 +567,30 @@ class EdbHfss(object):
                 ]
                 for path in net_paths:
                     trace_path_pts = list(path.GetCenterLine().Points)
-                    for pt in trace_path_pts:
-                        _pt = [round(pt.X.ToDouble(), digit_resolution), round(pt.Y.ToDouble(), digit_resolution)]
-                        if bool(set(_pt) & set(layout_bbox)):
-                            if return_points_only:
-                                edges_pts.append(_pt)
-                            else:
-                                port_name = generate_unique_name("port")
-                                if not self._hfss_terminals.CreateEdgePort(
-                                    path, pt, reference_layer, port_name
-                                ):  # pragma: no cover
+                    port_name = "{}_{}".format(net.GetName(), path.GetId())
+                    if point_list:
+                        for _pt in point_list:
+                            pt = self._edb.Geometry.PointData(self._edb_value(_pt[0]), self._edb_value(_pt[1]))
+                            if pt in trace_path_pts:
+                                if not self._hfss_terminals.CreateEdgePort(path, pt, reference_layer, port_name):
                                     raise Exception(
-                                        "edge port creation failed on point {}, {}".format(str(pt[0]), str(_pt[1]))
+                                        "edge port creation failed on point {}, {}".format(
+                                            str(pt.X.ToDouble()), str(pt.Y.ToDouble())
+                                        )
                                     )
+                    else:
+                        for pt in trace_path_pts:
+                            _pt = [round(pt.X.ToDouble(), digit_resolution), round(pt.Y.ToDouble(), digit_resolution)]
+                            if bool(set(_pt) & set(layout_bbox)):
+                                if return_points_only:
+                                    edges_pts.append(_pt)
+                                else:
+                                    if not self._hfss_terminals.CreateEdgePort(
+                                        path, pt, reference_layer, port_name
+                                    ):  # pragma: no cover
+                                        raise Exception(
+                                            "edge port creation failed on point {}, {}".format(str(pt[0]), str(_pt[1]))
+                                        )
                 for poly in net_poly:
                     pt_list = list(poly.GetPolygonData().Points)
                     points_at_border = [
