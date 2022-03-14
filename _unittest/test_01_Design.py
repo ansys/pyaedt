@@ -7,9 +7,6 @@ from _unittest.conftest import local_path
 from pyaedt import Desktop
 from pyaedt import get_pyaedt_app
 
-# Import required modules
-# Setup paths for module imports
-
 try:
     import pytest  # noqa: F401
 except ImportError:
