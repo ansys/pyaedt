@@ -4,6 +4,7 @@ import warnings
 
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
 from pyaedt.modeler.PrimitivesCircuit import ComponentCatalog
@@ -1338,6 +1339,7 @@ class NexximComponents(CircuitComponents):
         matrix=None,
         enable_cable_modeling=False,
         default_matrix="Original",
+        simulate_solutions=False,
     ):
         """Add a subcircuit HFSS link.
 
@@ -1364,6 +1366,8 @@ class NexximComponents(CircuitComponents):
         extrusion_length_q2d : str, float optional
             Extrusion length for 2D Models. Default is 10 (in model units).
         matrix : list, optional
+        simulate_solutions : bool, optional
+            Either if simulate or interpolate solutions.
 
         Returns
         -------
@@ -1389,6 +1393,10 @@ class NexximComponents(CircuitComponents):
             model = "2dext"
             owner = "2DExtractor"
             icon_file = "2dextractor.bmp"
+        elif model_type.lower() == "siwave":
+            model = "siwave"
+            owner = "Siwave"
+            icon_file = ""
         designer_customization = self.get_comp_custom_settings(1, 0, 0, 1, 0, 0, "False", "", 1)
         nexxim_customization = self.get_comp_custom_settings(2, 3, 1, 3, 0, 0, "False", "", 2)
         hspice_customization = self.get_comp_custom_settings(3, 1, 2, 3, 0, 0, "False", "", 3)
@@ -1454,9 +1462,9 @@ class NexximComponents(CircuitComponents):
             "numberofports:=",
             len(pin_names),
             "Simulate:=",
-            False,
+            simulate_solutions,
             "CloseProject:=",
-            False,
+            model_type.lower() == "siwave",
             "SaveProject:=",
             True,
             "InterpY:=",
@@ -1466,7 +1474,7 @@ class NexximComponents(CircuitComponents):
             "IgnoreDepVars:=",
             False,
         ]
-        if owner == "HFSS":
+        if owner in ["HFSS", "Siwave"]:
             compInfo.extend(
                 [
                     "Renormalize:=",
@@ -1798,4 +1806,53 @@ class NexximComponents(CircuitComponents):
             component_library=None,
             component_name=model_name,
             location=location,
+        )
+
+    @pyaedt_function_handler()
+    def add_siwave_dynamic_link(self, model_path, solution_name=None, simulate_solutions=False):
+        """Add a siwave dinamyc link object.
+
+        Parameters
+        ----------
+        model_path : str
+            Full path to the .siw file.
+        solution_name : str, optional
+            Solution name.
+        simulate_solutions : bool, optional
+            Either if simulate or interpolate existing solutions.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
+        """
+        assert os.path.exists(model_path), "Project file doesn't exist"
+        comp_name = os.path.splitext(os.path.basename(model_path))[0]
+        results_path = model_path + "averesults"
+        solution = os.path.join(results_path, comp_name + ".asol")
+        out = load_entire_aedt_file(solution)
+        if not solution_name:
+            solution_name = list(out["Solutions"]["SYZSolutions"].keys())[0]
+        results_folder = os.path.join(
+            results_path,
+            out["Solutions"]["SYZSolutions"][solution_name]["DiskName"],
+            out["Solutions"]["SYZSolutions"][solution_name]["DiskName"] + ".syzinfo",
+        )
+
+        pin_names = []
+        with open(results_folder, "r") as f:
+            lines = f.read().splitlines()
+            for line in lines:
+                if line[:4] == "PORT":
+                    line_spit = line.split(" ")
+                    pin_names.append(line_spit[1])
+
+        return self._add_subcircuit_link(
+            comp_name,
+            pin_names,
+            model_path,
+            comp_name,
+            solution_name=solution_name,
+            model_type="siwave",
+            simulate_solutions=simulate_solutions,
         )
