@@ -1,5 +1,4 @@
 import os
-import sys
 import time
 
 # Import required modules
@@ -327,4 +326,3 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345")
         assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")
-
