@@ -8,8 +8,6 @@ from pyaedt.modeler.Object3d import _to_boolean
 from pyaedt.modeler.Object3d import _uname
 from pyaedt.modeler.Object3d import FacePrimitive
 
-# Import required modules
-
 
 class TestClass(BasisTest, object):
     def setup_class(self):
