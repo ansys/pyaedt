@@ -176,8 +176,28 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.post.rename_report("MyTestScattering", "MyNewScattering")
 
     def test_09_manipulate_report(self):
-        assert self.aedtapp.post.create_rectangular_plot("dB(S(1,1))")
+        assert self.aedtapp.post.create_report("dB(S(1,1))")
         assert len(self.aedtapp.post.all_report_names) > 0
+        variations = self.field_test.available_variations.nominal_w_values_dict
+        variations["Theta"] = ["All"]
+        variations["Phi"] = ["All"]
+        variations["Freq"] = ["30GHz"]
+        assert self.field_test.post.create_report(
+            "db(GainTotal)",
+            self.field_test.nominal_adaptive,
+            variations=variations,
+            primary_sweep_variable="Phi",
+            secondary_sweep_variable="Theta",
+            plot_type="3D Polar Plot",
+            context="3D",
+            report_category="Far Fields",
+        )
+        self.field_test.post.create_report(
+            "S(1,1)",
+            self.field_test.nominal_sweep,
+            variations=variations,
+            plot_type="Smith Chart",
+        )
 
     def test_09b_export_report(self):
         files = self.aedtapp.export_results()

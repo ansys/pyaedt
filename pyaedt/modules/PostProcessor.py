@@ -1278,6 +1278,9 @@ class PostProcessorCommon(object):
     ):
         """Create a 2D rectangular plot in AEDT.
 
+        .. deprecated:: 0.4.41
+            Method deprecated. use `create_report` instead.
+
         Parameters
         ----------
         expression : str or list, optional
@@ -1306,6 +1309,10 @@ class PostProcessorCommon(object):
 
         >>> oModule.CreateReport
         """
+        warnings.warn(
+            "`create_rectangular_plot` is deprecated. Use `create_report` property instead.", DeprecationWarning
+        )
+
         ctxt = []
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
@@ -1554,6 +1561,204 @@ class PostProcessorCommon(object):
         npath = os.path.normpath(project_dir)
         file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
         self.oreportsetup.ExportImageToFile(plot_name, file_name, 0, 0)
+        return True
+
+    @pyaedt_function_handler()
+    def create_report(
+        self,
+        expressions,
+        setup_sweep_name=None,
+        domain="Sweep",
+        variations=None,
+        primary_sweep_variable=None,
+        secondary_sweep_variable=None,
+        report_category=None,
+        plot_type="Rectangular Plot",
+        context=None,
+        subdesign_id=None,
+        plotname=None,
+    ):
+        """Create a 2D rectangular plot in AEDT.
+
+        Parameters
+        ----------
+        expressions : str or list, optional
+            One or more formulas to add to the report. Example is value = ``"dB(S(1,1))"``.
+        setup_sweep_name : str, optional
+            Setup name with the sweep. The default is ``""``.
+        domain : str, optional
+            Plot Domain. Options are "Sweep" and "Time".
+        variations : dict, optional
+            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
+        primary_sweep_variable : str, optional
+            Name of the primary sweep. The default is ``"Freq"``.
+        secondary_sweep_variable : str, optional
+            Name of the secondary sweep variable in 3D Plots.
+        report_category : str, optional
+            Category of the Report to be created. If `None` default data Report will be used
+        plot_type : str, optional
+            The format of Data Visualization. Default is ``Rectangular Plot``
+        context : str, optional
+            The default is ``None``. It can be `None`, `"Differential Pairs"` or
+            Reduce Matrix Name for Q2d/Q3d solution.
+        plotname : str, optional
+            Name of the plot. The default is ``None``.
+        subdesign_id : int, optional
+            Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
+            The default value is ``None``.
+        context : str, optional
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.CreateReport
+        """
+        ctxt = []
+        if not setup_sweep_name:
+            setup_sweep_name = self._app.nominal_sweep
+        families_input = []
+        did = 3
+        if domain == "Sweep" and not primary_sweep_variable:
+            primary_sweep_variable = "Freq"
+        elif not primary_sweep_variable:
+            primary_sweep_variable = "Time"
+            did = 1
+        families_input.append(primary_sweep_variable + ":=")
+        if not variations or primary_sweep_variable not in variations:
+            families_input.append(["All"])
+        elif isinstance(variations[primary_sweep_variable], list):
+            families_input.append(variations[primary_sweep_variable])
+        else:
+            families_input.append([variations[primary_sweep_variable]])
+        if not variations:
+            variations = self._app.available_variations.nominal_w_values_dict
+        for el in variations:
+            if el == primary_sweep_variable:
+                continue
+            families_input.append(el + ":=")
+            if isinstance(variations[el], list):
+                families_input.append(variations[el])
+            else:
+                families_input.append([variations[el]])
+
+        if self.post_solution_type in ["TR", "AC", "DC"]:
+            ctxt = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0],
+            ]
+            setup_sweep_name = self.post_solution_type
+        elif self.post_solution_type in ["HFSS3DLayout"]:
+            if context == "Differential Pairs":
+                ctxt = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [
+                        did,
+                        0,
+                        2,
+                        0,
+                        False,
+                        False,
+                        -1,
+                        1,
+                        0,
+                        1,
+                        1,
+                        "",
+                        0,
+                        0,
+                        "EnsDiffPairKey",
+                        False,
+                        "1",
+                        "IDIID",
+                        False,
+                        "1",
+                    ],
+                ]
+            else:
+                ctxt = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"],
+                ]
+        elif self.post_solution_type in ["NexximLNA", "NexximTransient"]:
+            ctxt = ["NAME:Context", "SimValueContext:=", [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
+            if subdesign_id:
+                ctxt_temp = ["NUMLEVELS", False, "0", "SUBDESIGNID", False, str(subdesign_id)]
+                for el in ctxt_temp:
+                    ctxt[2].append(el)
+            if context == "Differential Pairs":
+                ctxt_temp = ["USE_DIFF_PAIRS", False, "1"]
+                for el in ctxt_temp:
+                    ctxt[2].append(el)
+        elif context == "Differential Pairs":
+            ctxt = ["Diff:=", "Differential Pairs", "Domain:=", domain]
+        elif self.post_solution_type in ["Q3D Extractor", "2D Extractor"]:
+            if not context:
+                ctxt = ["Context:=", "Original"]
+            else:
+                ctxt = ["Context:=", context]
+        elif context:
+            ctxt = ["Context:=", context]
+
+        if not isinstance(expressions, list):
+            expressions = [expressions]
+
+        if not report_category and not self._app.design_solutions.report_type:
+            self.logger.error("Solution not supported")
+            return False
+        if not report_category:
+            modal_data = self._app.design_solutions.report_type
+        else:
+            modal_data = report_category
+        if not plotname:
+            plotname = generate_unique_name("Plot")
+
+        arg = ["X Component:=", primary_sweep_variable, "Y Component:=", expressions]
+        if plot_type in ["3D Polar Plot", "3D Spherical Plot"]:
+            if not primary_sweep_variable:
+                primary_sweep_variable = "Phi"
+            if not secondary_sweep_variable:
+                secondary_sweep_variable = "Theta"
+            arg = [
+                "Phi Component:=",
+                primary_sweep_variable,
+                "Theta Component:=",
+                secondary_sweep_variable,
+                "Mag Component:=",
+                expressions,
+            ]
+        elif plot_type == "Radiation Pattern":
+            if not primary_sweep_variable:
+                primary_sweep_variable = "Phi"
+            arg = ["Ang Component:=", primary_sweep_variable, "Mag Component:=", expressions]
+        elif plot_type in ["Smith Chart", "Polar Plot"]:
+            arg = ["Polar Component:=", expressions]
+        elif plot_type == "Rectangular Contour Plot":
+            arg = [
+                "X Component:=",
+                primary_sweep_variable,
+                "Y Component:=",
+                secondary_sweep_variable,
+                "Z Component:=",
+                expressions,
+            ]
+
+        self.oreportsetup.CreateReport(
+            plotname,
+            modal_data,
+            plot_type,
+            setup_sweep_name,
+            ctxt,
+            families_input,
+            arg,
+        )
         return True
 
 

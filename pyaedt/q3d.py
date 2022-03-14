@@ -123,6 +123,53 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
             self.matrices.append(matrix)
         return matrix
 
+    @pyaedt_function_handler()
+    def get_traces_for_plot(
+        self,
+        get_self_terms=True,
+        get_mutual_terms=True,
+        first_element_filter=None,
+        second_element_filter=None,
+        category="C",
+    ):
+        """Retrieve a list of traces of specified designs ready to use in plot reports.
+
+        Parameters
+        ----------
+        get_self_terms : bool, optional
+            Whether to return self terms. The default is ``True``.
+        get_mutual_terms : bool, optional
+            Whether to return mutual terms. The default is ``True``.
+        first_element_filter : str, optional
+            Filter to apply to the first element of the equation. This parameter accepts ``*``
+            and ``?`` as special characters. The default is ``None``.
+        second_element_filter : str, optional
+            Filter to apply to the second element of the equation. This parameter accepts ``*``
+            and ``?`` as special characters. The default is ``None``.
+        category : str
+            Plot category name as in the report (including operator). The default is ``"C"`,
+            which is the plot category name for capacitance.
+
+        Returns
+        -------
+        list
+            List of traces of specified designs ready to use in plot reports.
+
+        Examples
+        --------
+        >>> from pyaedt import Q3d
+        >>> hfss = Q3d(project_path)
+        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1",
+        ...                           second_element_filter="GND*", category="C")
+        """
+        return self.matrices[0].get_sources_for_plot(
+            get_self_terms=get_self_terms,
+            get_mutual_terms=get_mutual_terms,
+            first_element_filter=first_element_filter,
+            second_element_filter=second_element_filter,
+            category=category,
+        )
+
 
 class Q3d(QExtractor, object):
     """Provides the Q3D application interface.
