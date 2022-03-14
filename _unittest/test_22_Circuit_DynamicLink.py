@@ -9,6 +9,7 @@ from pyaedt import Circuit
 from pyaedt import Hfss
 from pyaedt import Q2d
 from pyaedt import Q3d
+from pyaedt import settings
 
 
 try:
