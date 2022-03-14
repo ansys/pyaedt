@@ -1,4 +1,5 @@
 import os
+import re
 import warnings
 
 from pyaedt.generic.general_methods import generate_unique_name
@@ -928,7 +929,7 @@ class NexximComponents(CircuitComponents):
         pin_lists,
         time_stamp=1591858313,
         description="",
-        refbase="U",
+        refbase="x",
         parameter_list=[],
         parameter_value=[],
         gref="",
@@ -1032,13 +1033,12 @@ class NexximComponents(CircuitComponents):
         arg2 = ["NAME:Parameters"]
 
         for el, val in zip(parameter_list, parameter_value):
-            if isinstance(val, str):
+            if "MOD" in el:
                 arg2.append("TextValueProp:=")
                 arg2.append([el, "D", "", val])
-
             else:
-                arg2.append("ValueProp:=")
-                arg2.append([el, "D", "", str(val), False, ""])
+                arg2.append("ValuePropNU:=")
+                arg2.append([el, "D", "", str(val), 0, ""])
 
         arg2.append("ButtonProp:=")
         arg2.append(["CosimDefinition", "D", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []])
@@ -1051,7 +1051,7 @@ class NexximComponents(CircuitComponents):
         while id < len(pin_lists):
             spicesintax += "%" + str(id) + " "
             id += 1
-        spicesintax += symbol_name + " "
+        # spicesintax += symbol_name + " "
         for el, val in zip(parameter_list, parameter_value):
             if "MOD" in el:
                 spicesintax += "@{} ".format(el)
@@ -1750,3 +1750,54 @@ class NexximComponents(CircuitComponents):
             DeprecationWarning,
         )
         return self._app.assign_voltage_sinusoidal_excitation_to_ports(ports, settings)
+
+    @pyaedt_function_handler()
+    def _parse_spice_model(self, model_path):
+        models = []
+        with open(model_path, "r") as f:
+            for line in f:
+                if ".subckt" in line.lower():
+                    pinNames = [i.strip() for i in re.split(" |\t", line) if i]
+                    models.append(pinNames[1])
+        return models
+
+    @pyaedt_function_handler()
+    def create_component_from_spicemodel(self, model_path, model_name=None, location=None):
+        """Create and place a new component based on a spice .lib file.
+
+        Parameters
+        ----------
+        model_path : str
+            Path to .lib file.
+        model_name : str, optional
+            Model name to import. If `None` the first subckt in the lib file will be placed.
+        location : list, optional
+            Position in the schematic of the new component.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
+        """
+        models = self._parse_spice_model(model_path)
+        if not model_name and models:
+            model_name = models[0]
+        elif model_name not in models:
+            return False
+        arg = ["NAME:Options", "Mode:=", 2, "Overwrite:=", False, "SupportsSimModels:=", False, "LoadOnly:=", False]
+        arg2 = ["NAME:Models"]
+        for el in models:
+            arg2.append(el + ":=")
+            if el == model_name:
+                arg2.append([True, "", "", False])
+            else:
+                arg2.append([False, "", "", False])
+        arg.append(arg2)
+        self.o_component_manager.ImportModelsFromFile(model_path, arg)
+
+        return self.create_component(
+            None,
+            component_library=None,
+            component_name=model_name,
+            location=location,
+        )
