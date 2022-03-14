@@ -890,9 +890,8 @@ class EDBLayers(object):
     def _edb(self):
         return self._pedbstackup._edb
 
-    @property
-    def _edb_value(self):
-        return self._pedbstackup._edb_value
+    def _get_edb_value(self, value):
+        return self._pedbstackup._get_edb_value(value)
 
     @property
     def _builder(self):
@@ -1279,9 +1278,8 @@ class EDBPadProperties(object):
     def _edb(self):
         return self._pedbpadstack._edb
 
-    @property
-    def _edb_value(self):
-        return self._pedbpadstack._edb_value
+    def _get_edb_value(self, value):
+        return self._pedbstackup._get_edb_value(value)
 
     @property
     def geometry_type(self):
@@ -1562,9 +1560,8 @@ class EDBPadstack(object):
     def _edb(self):
         return self._ppadstack._edb
 
-    @property
-    def _edb_value(self):
-        return self._ppadstack._edb_value
+    def _get_edb_value(self, value):
+        return self._pedbstackup._get_edb_value(value)
 
     @property
     def via_layers(self):
@@ -2492,9 +2489,8 @@ class EDBComponent(object):
         """
         return self.edbcomponent.GetComponentDef().GetName()
 
-    @property
-    def _edb_value(self):
-        return self._pcomponents._edb_value
+    def _get_edb_value(self, value):
+        return self._pcomponents._get_edb_value(value)
 
     @property
     def _edb(self):
