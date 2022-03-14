@@ -10,8 +10,6 @@ from pyaedt import Maxwell2d
 from pyaedt.application.Design import DesignCache
 from pyaedt.generic.constants import SOLUTIONS
 
-# Import required modules
-
 try:
     import pytest  # noqa: F401
 except ImportError:
