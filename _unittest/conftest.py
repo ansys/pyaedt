@@ -49,7 +49,7 @@ from pyaedt.generic.filesystem import Scratch
 test_project_name = "test_primitives"
 
 sys.path.append(local_path)
-from .launch_desktop_tests import run_desktop_tests
+from _unittest.launch_desktop_tests import run_desktop_tests
 
 # set scratch path and create it if necessary
 scratch_path = tempfile.gettempdir()
