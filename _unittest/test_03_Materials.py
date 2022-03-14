@@ -9,9 +9,6 @@ from pyaedt import Maxwell3d
 from pyaedt.modules.Material import MatProperties
 from pyaedt.modules.Material import SurfMatProperties
 
-# Import required modules
-# Setup paths for module imports
-
 try:
     import pytest  # noqa: F401
 except ImportError:
