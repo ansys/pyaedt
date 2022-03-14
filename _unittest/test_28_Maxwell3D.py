@@ -1,11 +1,14 @@
 # Setup paths for module imports
-from _unittest.conftest import desktop_version, local_path, BasisTest
 import os
 import tempfile
 
-# Import required modules
+from _unittest.conftest import BasisTest
+from _unittest.conftest import desktop_version
+from _unittest.conftest import local_path
 from pyaedt import Maxwell3d
 from pyaedt.generic.constants import SOLUTIONS
+
+# Import required modules
 
 try:
     import pytest

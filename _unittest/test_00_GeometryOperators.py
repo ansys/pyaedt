@@ -1,6 +1,7 @@
 import math
 
 import clr
+
 from pyaedt.modeler.GeometryOperators import GeometryOperators as go
 
 clr.AddReference("System.Collections")

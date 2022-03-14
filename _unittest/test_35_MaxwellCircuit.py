@@ -1,8 +1,8 @@
 # Setup paths for module imports
 from _unittest.conftest import BasisTest
+from pyaedt import MaxwellCircuit
 
 # Import required modules
-from pyaedt import MaxwellCircuit
 
 
 class TestClass(BasisTest, object):

@@ -1,10 +1,10 @@
 import os
 
-# Setup paths for module imports
 from _unittest.conftest import BasisTest
-
-# Import required modules
 from pyaedt import Rmxprt
+
+# Setup paths for module imports
+# Import required modules
 
 test_project_name = "motor"
 

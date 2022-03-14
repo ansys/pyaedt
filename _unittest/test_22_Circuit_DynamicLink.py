@@ -1,8 +1,14 @@
 # standard imports
 import os
-from _unittest.conftest import local_path, config, desktop_version, BasisTest
 
-from pyaedt import Circuit, Q2d, Q3d, Hfss
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
+from _unittest.conftest import desktop_version
+from _unittest.conftest import local_path
+from pyaedt import Circuit
+from pyaedt import Hfss
+from pyaedt import Q2d
+from pyaedt import Q3d
 
 try:
     import pytest

@@ -1,10 +1,14 @@
 import os
 
-# Setup paths for module imports
-from _unittest.conftest import desktop_version, config, BasisTest
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
+from _unittest.conftest import desktop_version
+from pyaedt import Hfss
+from pyaedt import Icepak
+from pyaedt import Mechanical
 
+# Setup paths for module imports
 # Import required modules
-from pyaedt import Hfss, Mechanical, Icepak
 
 try:
     import pytest

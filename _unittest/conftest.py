@@ -17,14 +17,17 @@ directory as this module. An example of the contents of local_config.json
 }
 
 """
-import tempfile
+import gc
+import json
 import os
 import shutil
-import json
-import gc
 import sys
-from pyaedt.generic.general_methods import is_ironpython, inside_desktop, generate_unique_name
+import tempfile
+
 from pyaedt import settings
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import inside_desktop
+from pyaedt.generic.general_methods import is_ironpython
 
 log_path = os.path.join(tempfile.gettempdir(), "test.log")
 if os.path.exists(os.path.join(tempfile.gettempdir(), "test.log")):

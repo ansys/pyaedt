@@ -1,12 +1,12 @@
-import os
 import math
+import os
 import time
 
-# Setup paths for module imports
-
-# Import required modules
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
+
+# Setup paths for module imports
+# Import required modules
 
 
 test_project_name = "Galileo_edb"

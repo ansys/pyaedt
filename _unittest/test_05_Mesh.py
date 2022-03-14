@@ -1,7 +1,7 @@
 # Import required modules
+from _unittest.conftest import BasisTest
+from _unittest.conftest import desktop_version
 from pyaedt import Maxwell3d
-
-from _unittest.conftest import desktop_version, BasisTest
 
 try:
     import pytest  # noqa: F401

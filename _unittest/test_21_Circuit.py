@@ -1,12 +1,14 @@
 import os
 import time
 
-# Import required modules
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
+from _unittest.conftest import local_path
 from pyaedt import Circuit
 from pyaedt.generic.TouchstoneParser import read_touchstone
 
+# Import required modules
 # Setup paths for module imports
-from _unittest.conftest import local_path, config, BasisTest
 
 try:
     import pytest  # noqa: F401

@@ -1,10 +1,11 @@
 # Setup paths for module imports
 import logging
 
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
 from pyaedt.application.MessageManager import AEDTMessageManager
 
 # Import required modules
-from _unittest.conftest import config, BasisTest
 
 try:
     import pytest

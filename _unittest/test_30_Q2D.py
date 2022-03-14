@@ -1,10 +1,12 @@
 import os
 
-# Setup paths for module imports
-from _unittest.conftest import local_path, desktop_version, BasisTest
-
-# Import required modules
+from _unittest.conftest import BasisTest
+from _unittest.conftest import desktop_version
+from _unittest.conftest import local_path
 from pyaedt import Q2d
+
+# Setup paths for module imports
+# Import required modules
 
 test_project_name = "coax_Q2D"
 

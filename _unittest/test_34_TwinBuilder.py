@@ -1,9 +1,11 @@
 # Setup paths for module imports
-from _unittest.conftest import local_path, BasisTest
+import os
+
+from _unittest.conftest import BasisTest
+from _unittest.conftest import local_path
+from pyaedt import TwinBuilder
 
 # Import required modules
-from pyaedt import TwinBuilder
-import os
 
 
 class TestClass(BasisTest, object):

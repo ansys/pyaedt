@@ -1,15 +1,16 @@
 #!/ekm/software/anaconda3/bin/python
-
 # Standard imports
 import filecmp
 import os
 
-# Import required modules
+from _unittest.conftest import BasisTest
+from _unittest.conftest import local_path
+from _unittest.conftest import pyaedt_unittest_check_desktop_error
 from pyaedt import Maxwell2d
-from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.application.Design import DesignCache
+from pyaedt.generic.constants import SOLUTIONS
 
-from _unittest.conftest import BasisTest, local_path, pyaedt_unittest_check_desktop_error
+# Import required modules
 
 try:
     import pytest  # noqa: F401
