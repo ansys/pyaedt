@@ -1034,7 +1034,7 @@ class PostProcessorCommon(object):
     --------
     >>> from pyaedt import Q3d
     >>> q3d = Q3d()
-    >>> q3d = q.post.get_report_data(expression="C(Bar1,Bar1)", domain=["Context:=", "Original"])
+    >>> q3d = q.post.get_solution_data(expression="C(Bar1,Bar1)", domain="Original")
     """
 
     def __init__(self, app):
@@ -1184,9 +1184,11 @@ class PostProcessorCommon(object):
         self, expression="dB(S(1,1))", setup_sweep_name="", domain="Sweep", families_dict=None, report_input_type=None
     ):
         """Generate report data.
-
         This method returns the data object and the arrays ``solData`` and
         ``FreqVals``.
+
+        .. deprecated:: 0.4.41
+           Use :func:`get_solution_data` method instead.
 
         Parameters
         ----------
@@ -1227,6 +1229,7 @@ class PostProcessorCommon(object):
         >>> m3d.post.get_report_data("Wind(LoadA,LaodA)")    # TransientAnalsysis
 
         """
+        warnings.warn("`get_report_data` is deprecated. Use `get_solution_data` property instead.", DeprecationWarning)
         if self.post_solution_type in ["HFSS3DLayout", "NexximLNA", "NexximTransient", "TR", "AC", "DC"]:
             if domain == "Sweep":
                 did = 3
