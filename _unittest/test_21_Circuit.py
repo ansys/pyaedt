@@ -1,12 +1,12 @@
 import os
 import time
 
-# Import required modules
-from pyaedt import Circuit
-from pyaedt.generic.TouchstoneParser import read_touchstone
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
+from _unittest.conftest import local_path
+from pyaedt import Circuit  # Setup paths for module imports
+from pyaedt.generic.TouchstoneParser import read_touchstone  # Setup paths for module imports
 
-# Setup paths for module imports
-from _unittest.conftest import local_path, config, BasisTest
 
 try:
     import pytest  # noqa: F401
@@ -328,3 +328,9 @@ class TestClass(BasisTest, object):
         with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
+
+    def test_29_create_circuit_from_spice(self):
+        model = os.path.join(local_path, "example_models", "test.lib")
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345")
+        assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")

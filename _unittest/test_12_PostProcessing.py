@@ -1,12 +1,14 @@
 # standard imports
 import os
 
-# Import required modules
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
+from pyaedt import Circuit
 from pyaedt import Hfss
 from pyaedt.generic.general_methods import is_ironpython
 
+# Import required modules
 # Setup paths for module imports
-from _unittest.conftest import config, BasisTest
 
 try:
     import pytest
@@ -22,6 +24,7 @@ except ImportError:
 
 test_project_name = "coax_setup_solved"
 test_field_name = "Potter_Horn"
+test_circuit_name = "Switching_Speed_FET_And_Diode"
 
 
 class TestClass(BasisTest, object):
@@ -30,6 +33,10 @@ class TestClass(BasisTest, object):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, project_name=test_project_name)
         self.field_test = BasisTest.add_app(self, project_name=test_field_name)
+        self.circuit_test = BasisTest.add_app(
+            self, project_name=test_circuit_name, design_name="Diode", application=Circuit
+        )
+        self.diff_test = Circuit(designname="diff", projectname=self.circuit_test.project_name)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -176,8 +183,28 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.post.rename_report("MyTestScattering", "MyNewScattering")
 
     def test_09_manipulate_report(self):
-        assert self.aedtapp.post.create_rectangular_plot("dB(S(1,1))")
+        assert self.aedtapp.post.create_report("dB(S(1,1))")
         assert len(self.aedtapp.post.all_report_names) > 0
+        variations = self.field_test.available_variations.nominal_w_values_dict
+        variations["Theta"] = ["All"]
+        variations["Phi"] = ["All"]
+        variations["Freq"] = ["30GHz"]
+        assert self.field_test.post.create_report(
+            "db(GainTotal)",
+            self.field_test.nominal_adaptive,
+            variations=variations,
+            primary_sweep_variable="Phi",
+            secondary_sweep_variable="Theta",
+            plot_type="3D Polar Plot",
+            context="3D",
+            report_category="Far Fields",
+        )
+        self.field_test.post.create_report(
+            "S(1,1)",
+            self.field_test.nominal_sweep,
+            variations=variations,
+            plot_type="Smith Chart",
+        )
 
     def test_09b_export_report(self):
         files = self.aedtapp.export_results()
@@ -241,6 +268,31 @@ class TestClass(BasisTest, object):
             listtype="CutPlane",
         )
         assert plot
+
+    def test_17_circuit(self):
+        self.circuit_test.analyze_setup("LNA")
+        self.circuit_test.analyze_setup("Transient")
+        assert self.circuit_test.post.create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA")
+        assert self.circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
+
+    def test_18_diff_plot(self):
+        self.diff_test.analyze_setup("LinearFrequency")
+        variations = self.diff_test.available_variations.nominal_w_values_dict
+        variations["Freq"] = ["1GHz"]
+        variations["l1"] = ["All"]
+        assert self.diff_test.post.create_report(
+            ["dB(S(Diff1, Diff1))"],
+            "LinearFrequency",
+            variations=variations,
+            primary_sweep_variable="l1",
+            context="Differential Pairs",
+        )
+        assert self.diff_test.create_touchstone_report(
+            plot_name="Diff_plot",
+            curvenames=["dB(S(Diff1, Diff1))"],
+            solution_name="LinearFrequency",
+            differential_pairs=True,
+        )
 
     def test_51_get_efields(self):
         if is_ironpython:

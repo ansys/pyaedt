@@ -1,9 +1,9 @@
 # Import required modules
-import tempfile
 import os
+import tempfile
 
-from pyaedt.examples import downloads
 from _unittest.conftest import BasisTest
+from pyaedt.examples import downloads
 
 
 class TestClass(BasisTest, object):

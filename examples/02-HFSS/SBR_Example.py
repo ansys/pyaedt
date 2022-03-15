@@ -85,8 +85,13 @@ variations = target.available_variations.nominal_w_values_dict
 variations["Freq"] = ["10GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
-target.post.create_rectangular_plot(
-    "db(GainTotal)", target.nominal_adaptive, variations, "Theta", "ATK_3D", report_category="Far Fields"
+target.post.create_report(
+    "db(GainTotal)",
+    target.nominal_adaptive,
+    variations=variations,
+    primary_sweep_variable="Theta",
+    context="ATK_3D",
+    report_category="Far Fields",
 )
 if os.name != "posix":
     target.release_desktop()
