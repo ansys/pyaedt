@@ -521,7 +521,8 @@ class EdbHfss(object):
         point_list : list(tuples), optional
             The list of points where to define ports. The port evaluation is done for each net provided and if a point
             belongs to a center line points from a path or a polygon then the port will be created. If the point is not
-            found the ports  will be skipped.
+            found the ports  will be skipped. If point_list is None, the algorithm will try to find the edges from
+            traces or polygons touching the layout bounding box.
 
         Returns
         -------
