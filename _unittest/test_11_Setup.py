@@ -1,10 +1,9 @@
 # standard imports
-
 # Setup paths for module imports
 from _unittest.conftest import BasisTest
+from pyaedt import Circuit
 
 # Import required modules
-from pyaedt import Circuit
 
 test_project_name = "coax_setup"
 

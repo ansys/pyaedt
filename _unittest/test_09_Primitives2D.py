@@ -1,11 +1,12 @@
 #!/ekm/software/anaconda3/bin/python
 # Import required modules
+from _unittest.conftest import BasisTest
+from _unittest.conftest import pyaedt_unittest_check_desktop_error
 from pyaedt import Maxwell2d
-from pyaedt.modeler.Primitives import Polyline
 from pyaedt.application.Design import DesignCache
+from pyaedt.modeler.Primitives import Polyline
 
 # Setup paths for module imports
-from _unittest.conftest import BasisTest, pyaedt_unittest_check_desktop_error
 
 try:
     import pytest  # noqa: F401

@@ -1,12 +1,10 @@
 # standard imports
 import os
 
-# Import required modules
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
 from pyaedt import Hfss
 from pyaedt.generic.general_methods import is_ironpython
-
-# Setup paths for module imports
-from _unittest.conftest import config, BasisTest
 
 try:
     import pytest

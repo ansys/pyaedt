@@ -1,11 +1,11 @@
 # standard imports
 import os
 
-# Import required modules
-from pyaedt import Desktop, get_pyaedt_app
-
-# Setup paths for module imports
-from _unittest.conftest import desktop_version, local_path, BasisTest
+from _unittest.conftest import BasisTest
+from _unittest.conftest import desktop_version
+from _unittest.conftest import local_path
+from pyaedt import Desktop
+from pyaedt import get_pyaedt_app
 
 try:
     import pytest  # noqa: F401

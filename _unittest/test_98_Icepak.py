@@ -1,11 +1,12 @@
 # standard imports
 import os
 
-# Import required modules
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
+from _unittest.conftest import desktop_version
+from _unittest.conftest import local_path
+from _unittest.conftest import scratch_path
 from pyaedt import Icepak
-
-# Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, desktop_version, config, BasisTest
 
 try:
     import pytest  # noqa: F401
