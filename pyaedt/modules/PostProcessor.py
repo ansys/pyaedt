@@ -1618,6 +1618,12 @@ class PostProcessorCommon(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+
+        References
+        ----------
+
+        >>> oModule.CreateReport
+
         Examples
         --------
         >>> from pyaedt import Hfss
@@ -1651,11 +1657,6 @@ class PostProcessorCommon(object):
         >>> maxwell_2d.post.create_report(
         ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
         ... )
-
-        References
-        ----------
-
-        >>> oModule.CreateReport
         """
         ctxt = []
         if not setup_sweep_name:
@@ -1732,7 +1733,7 @@ class PostProcessorCommon(object):
         elif self.post_solution_type in ["NexximLNA", "NexximTransient"]:
             ctxt = ["NAME:Context", "SimValueContext:=", [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
             if subdesign_id:
-                ctxt_temp = ["NUMLEVELS", False, "0", "SUBDESIGNID", False, str(subdesign_id)]
+                ctxt_temp = ["NUMLEVELS", False, "1", "SUBDESIGNID", False, str(subdesign_id)]
                 for el in ctxt_temp:
                     ctxt[2].append(el)
             if context == "Differential Pairs":
