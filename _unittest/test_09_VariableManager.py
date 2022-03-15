@@ -1,13 +1,13 @@
 # Setup paths for module imports
-from __future__ import division
+from __future__ import division  # noreorder
 import math
 
-from pyaedt.application.Variables import Variable
+from _unittest.conftest import BasisTest
 from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.application.Variables import Variable
 from pyaedt.generic.general_methods import isclose
 
 # Import required modules
-from _unittest.conftest import BasisTest
 
 try:
     import pytest  # noqa: F401
