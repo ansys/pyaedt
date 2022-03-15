@@ -15,7 +15,9 @@ import getpass
 import logging
 import os
 import pkgutil
+import random
 import re
+import socket
 import sys
 import tempfile
 import time
@@ -69,20 +71,30 @@ elif IsWindows:  # pragma: no cover
         raise Exception("Error. No win32com.client or Pythonnet modules found. Install them and try again.")
 
 
-def check_grpc_port(port, machine_name=""):
-    """Check for an available grpc port on the local machine.
+def _check_grpc_port(port, machine_name=""):
+    s = socket.socket()
+    try:
+        if not machine_name:
+            machine_name = socket.getfqdn()
+        s.connect((machine_name, port))
+    except socket.error as e:
+        return False
+    else:
+        s.close()
+        return True
 
-     Parameters
-    ----------
-    port : int
-        Ports to search.
 
-    Returns
-    -------
-    int
-        Next Port available.
-    """
-    return port
+def _find_free_port(port_start=50001, port_end=60000):
+    list_ports = random.sample(range(port_start, port_end), port_end - port_start)
+    s = socket.socket()
+    for port in list_ports:
+        try:
+            s.connect((socket.getfqdn(), port))
+        except socket.error as e:
+            return port
+        else:
+            s.close()
+    return 0
 
 
 def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
@@ -311,9 +323,6 @@ class Desktop:
         self._main.student_version = student_version
         self.machine = machine
         self.port = port
-        if new_desktop_session:
-            self.port = check_grpc_port(port, machine)
-
         if is_ironpython:
             self._main.isoutsideDesktop = False
         else:
@@ -350,9 +359,7 @@ class Desktop:
                         non_graphical, new_desktop_session, version, self._main.student_version, version_key
                     )
                 else:
-                    self._init_cpython_new(
-                        non_graphical, new_desktop_session, version, self._main.student_version, version_key
-                    )
+                    self._init_cpython_new(non_graphical, new_desktop_session, version, self._main.student_version)
                 # print("Launching PyAEDT outside AEDT with CPython and Pythonnet.")
                 # self._init_cpython(non_graphical, new_desktop_session, version,
                 # self._main.student_version, version_key)
@@ -581,7 +588,10 @@ class Desktop:
             )
             self._dispatch_win32(version)
 
-    def _init_cpython_new(self, non_graphical, new_aedt_session, version, student_version, version_key):
+    def _init_cpython_new(self, non_graphical, new_aedt_session, version, student_version):
+        if new_aedt_session:
+            self.port = _find_free_port()
+            self.machine = ""
         base_path = self._main.sDesktopinstallDirectory
         sys.path.append(base_path)
         sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
@@ -589,13 +599,22 @@ class Desktop:
         print(launch_msg)
         print("===================================================================================")
         print("pyaedt info: Launching AEDT with PyDesktopPlugin.")
-        processID = []
-        if IsWindows:
-            processID = self._get_tasks_list_windows(student_version)
 
         import ScriptEnv
 
-        ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
+        if new_aedt_session:
+            ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, "", self.port)
+        else:
+            if not self.machine and _check_grpc_port(self.port):
+                self.machine = "localhost"
+            elif self.machine in [
+                "localhost",
+                "127.0.0.1",
+                socket.getfqdn(),
+                socket.getfqdn().split(".")[0],
+            ] and not _check_grpc_port(self.port):
+                self.machine = ""
+            ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
 
         # if non_graphical or new_aedt_session or not processID:
         #     # Force new object if no non-graphical instance is running or if there is not an already existing process.
@@ -979,10 +998,7 @@ class Desktop:
 
         """
         result = release_desktop(close_projects, close_on_exit)
-        props = [a for a in dir(self) if not a.startswith("__")]
-        for a in props:
-            self.__dict__.pop(a, None)
-        gc.collect()
+        self.odesktop = None
         return result
 
     def force_close_desktop(self):
