@@ -65,6 +65,8 @@ class SimulationConfiguration(object):
         self._max_init_mesh_edge_length = '14.5mil'
         self._signalLayersProperties = {}
         self._coplanar_instances = []
+        self._signal_layer_etching_instances = []
+        self._etching_factor_instances = []
         self._read_cfg()
 
     @property
@@ -578,6 +580,24 @@ class SimulationConfiguration(object):
     def coplanar_instances(self, value):
         if isinstance(value, list):
             self._coplanar_instances = value
+    
+    @property
+    def signal_layer_etching_instances(self):
+        return self._signal_layer_etching_instances
+
+    @signal_layer_etching_instances.setter
+    def signal_layer_etching_instances(self, value):
+        if isinstance(value, list):
+            self._signal_layer_etching_instances = value
+    
+    @property
+    def etching_factor_instances(self):
+        return self._etching_factor_instances
+
+    @etching_factor_instances.setter
+    def etching_factor_instances(self, value):
+        if isinstance(value, list):
+            self._etching_factor_instances = value
 
     def _get_bool_value(self, value):
         val = value.lower()
@@ -759,6 +779,10 @@ class SimulationConfiguration(object):
                                 self._parse_signal_layer_properties(self._get_list_value(value))
                             elif i.startswith('coplanar_instances'):
                                 self.coplanar_instances = self._get_list_value(value)
+                            elif i.startswith('SignalLayersEtching'):
+                                self.SignalLayerEtchingInstances = self._get_list_value(value)
+                            elif i.startswith('EtchingFactor'):
+                                self.EtchingFactorInstances = self._get_list_value(value)
                         else:
                             print("Unprocessed line in cfg file: {0}".format(line))
                     else:
