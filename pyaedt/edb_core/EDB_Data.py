@@ -1270,7 +1270,7 @@ class EDBPadProperties(object):
         return self._pedbpadstack._edb
 
     def _get_edb_value(self, value):
-        return self._pedbstackup._get_edb_value(value)
+        return self._pedbpadstack._get_edb_value(value)
 
     @property
     def geometry_type(self):
@@ -1552,7 +1552,7 @@ class EDBPadstack(object):
         return self._ppadstack._edb
 
     def _get_edb_value(self, value):
-        return self._pedbstackup._get_edb_value(value)
+        return self._ppadstack._get_edb_value(value)
 
     @property
     def via_layers(self):
