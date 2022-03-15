@@ -5,6 +5,10 @@ import warnings
 from collections import OrderedDict
 
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.generic.constants import BasisOrder
+from pyaedt.generic.constants import CutoutSubdesignType
+from pyaedt.generic.constants import RadiationBoxType
+from pyaedt.generic.constants import SweepType
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -2549,11 +2553,6 @@ class EdbBuilder(object):
         self.EdbHandler.dB = db
         self.EdbHandler.cell = cell
         self.EdbHandler.layout = cell.GetLayout()
-
-
-import os
-
-from pyaedt.generic.constants import CutoutSubdesignType, RadiationBoxType, SweepType, BasisOrder
 
 
 class SimulationConfiguration(object):
