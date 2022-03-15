@@ -80,8 +80,19 @@ class TestClass(BasisTest, object):
             "Test1", [1, 2], parameter_list=["Author:=", "NumTerminals:="], parameter_value=["pyaedt", 2]
         )
 
-    def test_06_add_3dlayout_component(self):
+    def test_06a_create_setup(self):
+        setup_name = "LNA"
+        LNA_setup = self.aedtapp.create_setup(setup_name)
+        assert LNA_setup
+
+    def test_06b_add_3dlayout_component(self):
         myedb = self.aedtapp.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
+        ports = myedb.pins
+        tx = ports
+        rx = ports
+        insertions = ["dB(S({},{}))".format(i.name, j.name) for i, j in zip(tx, rx)]
+        assert self.aedtapp.create_touchstone_report("Insertion Losses", insertions, solution_name="LNA",
+                                                     subdesign_id=myedb.id, num_levels=1)
         assert type(myedb.id) is int
 
     def test_07_add_hfss_component(self):
@@ -91,9 +102,6 @@ class TestClass(BasisTest, object):
         assert type(my_model) is int
 
     def test_07a_push_excitation(self):
-        setup_name = "LNA"
-        LNA_setup = self.aedtapp.create_setup(setup_name)
-        assert LNA_setup
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=False)
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=True)
 
@@ -115,7 +123,7 @@ class TestClass(BasisTest, object):
         numports2 = len(ports2)
         assert numports2 == 3
         tx = ports[: int(numports / 2)]
-        rx = ports[int(numports / 2) :]
+        rx = ports[int(numports / 2):]
         insertions = ["dB(S({},{}))".format(i, j) for i, j in zip(tx, rx)]
         assert self.aedtapp.create_touchstone_report("Insertion Losses", insertions)
         touchstone_data = self.aedtapp.get_touchstone_data(insertions)
@@ -205,47 +213,47 @@ class TestClass(BasisTest, object):
         ami_design = BasisTest.add_app(self, ami_project, application=Circuit)
         report_name = "MyReport"
         assert (
-            ami_design.post.create_ami_initial_response_plot(
-                "AMIAnalysis",
-                "b_input_15",
-                ami_design.available_variations.nominal,
-                plot_type="Rectangular Stacked Plot",
-                plot_final_response=True,
-                plot_intermediate_response=True,
-                plotname=report_name,
-            )
-            == report_name
+                ami_design.post.create_ami_initial_response_plot(
+                    "AMIAnalysis",
+                    "b_input_15",
+                    ami_design.available_variations.nominal,
+                    plot_type="Rectangular Stacked Plot",
+                    plot_final_response=True,
+                    plot_intermediate_response=True,
+                    plotname=report_name,
+                )
+                == report_name
         )
         setup_name = "Dom_Verify"
         assert ami_design.create_setup(setup_name, "NexximVerifEye")
         setup_name = "Dom_Quick"
         assert ami_design.create_setup(setup_name, "NexximQuickEye")
         assert (
-            ami_design.post.create_ami_statistical_eye_plot(
-                "AMIAnalysis", "b_output4_14", ami_design.available_variations.nominal, plotname="MyReport1"
-            )
-            == "MyReport1"
+                ami_design.post.create_ami_statistical_eye_plot(
+                    "AMIAnalysis", "b_output4_14", ami_design.available_variations.nominal, plotname="MyReport1"
+                )
+                == "MyReport1"
         )
         assert (
-            ami_design.post.create_statistical_eye_plot(
-                "Dom_Quick",
-                "b_input_15.int_ami_rx.eye_probe",
-                ami_design.available_variations.nominal,
-                plotname="MyReportQ",
-            )
-            == "MyReportQ"
+                ami_design.post.create_statistical_eye_plot(
+                    "Dom_Quick",
+                    "b_input_15.int_ami_rx.eye_probe",
+                    ami_design.available_variations.nominal,
+                    plotname="MyReportQ",
+                )
+                == "MyReportQ"
         )
 
     @pytest.mark.skipif(config["desktopVersion"] > "2021.2", reason="Skipped on versions higher than 2021.2")
     def test_20B_create_AMI_plots(self):
         assert (
-            self.aedtapp.post.create_statistical_eye_plot(
-                "Dom_Verify",
-                "b_input_15.int_ami_rx.eye_probe",
-                self.aedtapp.available_variations.nominal,
-                plotname="MyReportV",
-            )
-            == "MyReportV"
+                self.aedtapp.post.create_statistical_eye_plot(
+                    "Dom_Verify",
+                    "b_input_15.int_ami_rx.eye_probe",
+                    self.aedtapp.available_variations.nominal,
+                    plotname="MyReportV",
+                )
+                == "MyReportV"
         )
 
     def test_21_assign_voltage_sinusoidal_excitation_to_ports(self):
