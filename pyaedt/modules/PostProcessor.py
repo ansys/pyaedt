@@ -1578,7 +1578,7 @@ class PostProcessorCommon(object):
         subdesign_id=None,
         plotname=None,
     ):
-        """Create a 2D rectangular plot in AEDT.
+        """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
 
         Parameters
         ----------
@@ -1595,12 +1595,17 @@ class PostProcessorCommon(object):
         secondary_sweep_variable : str, optional
             Name of the secondary sweep variable in 3D Plots.
         report_category : str, optional
-            Category of the Report to be created. If `None` default data Report will be used
+            Category of the Report to be created. If `None` default data Report will be used.
+            The Report Category can be one of the types available for creating a report depend on the simulation setup.
+            For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
+            The report category will be in this case "Far Fields".
+            Depending on the setup different categories are available.
+            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
         plot_type : str, optional
-            The format of Data Visualization. Default is ``Rectangular Plot``
+            The format of Data Visualization. Default is ``Rectangular Plot``.
         context : str, optional
             The default is ``None``. It can be `None`, `"Differential Pairs"` or
-            Reduce Matrix Name for Q2d/Q3d solution.
+            Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
         plotname : str, optional
             Name of the plot. The default is ``None``.
         subdesign_id : int, optional

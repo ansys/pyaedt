@@ -31,7 +31,8 @@ class TestClass(BasisTest, object):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, project_name=test_project_name)
         self.field_test = BasisTest.add_app(self, project_name=test_field_name)
-        self.circuit_test = BasisTest.add_app(self, project_name=test_circuit_name, application=Circuit)
+        self.circuit_test = BasisTest.add_app(self, project_name=test_circuit_name, design_name="Diode", application=Circuit)
+        self.diff_test = Circuit(designname="diff", projectname=self.circuit_test.project_name)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -267,8 +268,23 @@ class TestClass(BasisTest, object):
     def test_17_circuit(self):
         self.circuit_test.analyze_setup("LNA")
         self.circuit_test.analyze_setup("Transient")
-        assert self.circuit_test.post.create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA ")
+        assert self.circuit_test.post.create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA")
         assert self.circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
+
+    def test_18_diff_plot(self):
+        self.diff_test.analyze_setup("LinearFrequency")
+        variations = self.diff_test.available_variations.nominal_w_values_dict
+        variations["Freq"] = ["1GHz"]
+        variations["l1"] = ["All"]
+        assert self.diff_test.post.create_report(["dB(S(Diff1, Diff1))"],
+                                                 "LinearFrequency",
+                                                 variations=variations,
+                                                 primary_sweep_variable="l1",
+                                                 context="Differential Pairs")
+        assert self.diff_test.create_touchstone_report(plot_name="Diff_plot",
+                                                       curvenames=["dB(S(Diff1, Diff1))"],
+                                                       solution_name="LinearFrequency",
+                                                       differential_pairs=True)
 
     def test_51_get_efields(self):
         if is_ironpython:
