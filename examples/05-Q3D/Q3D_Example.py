@@ -113,7 +113,7 @@ q.create_setup(props={"AdaptiveFreq": "100MHz"})
 # This command simplify the way you can get curves to be plotted.
 
 data_plot_self = q.matrices[0].get_sources_for_plot(get_self_terms=True, get_mutual_terms=False)
-data_plot_mutual = q.get_traces_for_plot(get_self_terms=False, get_mutual_terms=True)
+data_plot_mutual = q.get_traces_for_plot(get_self_terms=False, get_mutual_terms=True, category="C")
 data_plot_self
 data_plot_mutual
 
@@ -121,9 +121,9 @@ data_plot_mutual
 # Create a Rectangular Plot
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # This command creates a rectangular plot and a Data Table.
-q.post.create_rectangular_plot(expression=data_plot_self, context="Original")
+q.post.create_report(expressions=data_plot_self)
 
-q.post.create_rectangular_plot(expression=data_plot_mutual, context="Original", plot_type="Data Table")
+q.post.create_report(expressions=data_plot_mutual, context="Original", plot_type="Data Table")
 
 ###############################################################################
 # Solve the Setup
