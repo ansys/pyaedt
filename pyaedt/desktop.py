@@ -589,7 +589,7 @@ class Desktop:
             self._dispatch_win32(version)
 
     def _init_cpython_new(self, non_graphical, new_aedt_session, version, student_version):
-        if new_aedt_session:
+        if new_aedt_session or not self.port:
             self.port = _find_free_port()
             self.machine = ""
         base_path = self._main.sDesktopinstallDirectory
