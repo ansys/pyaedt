@@ -1,12 +1,13 @@
 # standard imports
 import os
 
-# Import required modules
-from pyaedt import Icepak, Maxwell3d
-from pyaedt.modules.Material import MatProperties, SurfMatProperties
-
-# Setup paths for module imports
-from _unittest.conftest import desktop_version, local_path, BasisTest
+from _unittest.conftest import BasisTest
+from _unittest.conftest import desktop_version
+from _unittest.conftest import local_path
+from pyaedt import Icepak
+from pyaedt import Maxwell3d
+from pyaedt.modules.Material import MatProperties
+from pyaedt.modules.Material import SurfMatProperties
 
 try:
     import pytest  # noqa: F401

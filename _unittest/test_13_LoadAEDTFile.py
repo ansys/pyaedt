@@ -1,12 +1,12 @@
 # Setup paths for module imports
-from _unittest.conftest import local_path, BasisTest
-
-# Import required modules
-from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 import base64
 import filecmp
 import os
 import sys
+
+from _unittest.conftest import BasisTest
+from _unittest.conftest import local_path
+from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
 
 def _write_jpg(design_info, scratch):

@@ -2,11 +2,13 @@
 import math
 import os
 
-from pyaedt.generic.general_methods import isclose, is_ironpython
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import isclose
 from pyaedt.maxwell import Maxwell2d
 
 # Setup paths for module imports
-from _unittest.conftest import BasisTest, config
 
 try:
     import pytest  # noqa: F401
