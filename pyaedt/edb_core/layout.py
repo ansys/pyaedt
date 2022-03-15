@@ -6,10 +6,10 @@ import os
 import warnings
 
 from pyaedt.edb_core.EDB_Data import EDBPrimitives
+from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.io import SimulationConfiguration
 
 try:
     from System import Tuple
@@ -882,9 +882,9 @@ class EdbLayout(object):
     @pyaedt_function_handler()
     def setup_coplanar_instances(self, simulation_setup=None):
         # Coplanar circuit port support for intermediate layers for Package merged on Board
-        """ Iterate coplanar_instances.
-                For each component, create a coplanar circuit port at each signalNet pin.
-                Use the closest powerNet pin as a reference, regardless of component.
+        """Iterate coplanar_instances.
+        For each component, create a coplanar circuit port at each signalNet pin.
+        Use the closest powerNet pin as a reference, regardless of component.
         """
         if not isinstance(simulation_setup, SimulationConfiguration):
             return False
@@ -894,9 +894,9 @@ class EdbLayout(object):
         layout = self._cell.GetLayout()
         l_inst = layout.GetLayoutInstance()
 
-        signal_nets, power_nets, port_nets, noport_nets, floating_nets = self._edbutils.NetSetupInfo.GetEdbNets(layout,
-                                                                                                           simulation_setup.NetSetup,
-                                                                                                           None)  # NetSetup Attribute needs to be addressed in Simulation Configuration
+        signal_nets, power_nets, port_nets, noport_nets, floating_nets = self._edbutils.NetSetupInfo.GetEdbNets(
+            layout, simulation_setup.NetSetup, None
+        )  # NetSetup Attribute needs to be addressed in Simulation Configuration
         # success, topLayer, botLayer = edbUtils.HfssUtilities.GetTopBottomSignalLayers(layout)
         # topNm = topLayer.GetName()
         # botNm = botLayer.GetName()
@@ -928,13 +928,22 @@ class EdbLayout(object):
             # Linux: cast to a list to avoid "ValueError: Type System.Collections.Generic.IEnumerable`1[TSource]
             # contains generic parameters"
             all_hits = list(list(hit.Item1.Items).Concat(list(hit.Item2.Items)))
-            hit_pinsts = list(all_hits.Where(lambda obj: obj.GetLayoutObj().GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance))
+            hit_pinsts = list(
+                all_hits.Where(
+                    lambda obj: obj.GetLayoutObj().GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
+                )
+            )
             if not hit_pinsts.Any():
                 self._logger.error("SetupCoplanarInstances: could not find a pin in the vicinity of {0}".format(inst))
                 continue
 
             # Iterate each pin in the component that's on the signal nets and create a CircuitPort
-            for ii, pin in enumerate(list(comp.LayoutObjs).Where(lambda obj: obj.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and obj.GetNet().GetName() in signal_net_names)):
+            for ii, pin in enumerate(
+                list(comp.LayoutObjs).Where(
+                    lambda obj: obj.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
+                    and obj.GetNet().GetName() in signal_net_names
+                )
+            ):
                 pin_c = l_inst.GetLayoutObjInstance(pin, None).GetCenter()
 
                 ref_pinst = None
@@ -949,17 +958,18 @@ class EdbLayout(object):
                         ref_dist = this_dist
 
                 port_nm = "PORT_{0}_{1}@{2}".format(comp.GetName(), ii, pin.GetNet().GetName())
-                self._edbutils.HfssUtilities.CreateCircuitPortFromPoints(port_nm, layout, pin_c, port_layer, pin.GetNet(),
-                                                                         ref_pt, port_layer, ref_pinst.GetNet())
+                self._edbutils.HfssUtilities.CreateCircuitPortFromPoints(
+                    port_nm, layout, pin_c, port_layer, pin.GetNet(), ref_pt, port_layer, ref_pinst.GetNet()
+                )
         return True
 
     @pyaedt_function_handler()
     def set_coax_port_attributes(self, simulation_setup=None):
-        """ 1) Rename all ports using the following convention:
-                        PORT_<component>_<ii_count>@<net>
-                        For consistency with previous automation, if possible iterate in cfg-file order.
+        """1) Rename all ports using the following convention:
+                PORT_<component>_<ii_count>@<net>
+                For consistency with previous automation, if possible iterate in cfg-file order.
 
-                2) Set coaxial ports with 0.125*sball_diam radial extent factor
+        2) Set coaxial ports with 0.125*sball_diam radial extent factor
         """
 
         if not isinstance(simulation_setup, SimulationConfiguration):
@@ -967,28 +977,35 @@ class EdbLayout(object):
         net_names = []
         if simulation_setup.NetSetup:
             net_names = list(
-                list(simulation_setup.NetSetup.Where(lambda nn: not nn.IsPwrGnd)).Select(lambda nn: nn.Name))
+                list(simulation_setup.NetSetup.Where(lambda nn: not nn.IsPwrGnd)).Select(lambda nn: nn.Name)
+            )
 
-        cmp_names = simulation_setup.coax_instances if simulation_setup.coax_instances else [gg.GetName() for gg in
-                                                                                            self._builder.layout.Groups]
+        cmp_names = (
+            simulation_setup.coax_instances
+            if simulation_setup.coax_instances
+            else [gg.GetName() for gg in self._builder.layout.Groups]
+        )
         ii = 0
         for cc in cmp_names:
             cmp = self._edb.Cell.Hierarchy.Component.FindByName(self._builder.layout, cc)
             if cmp.IsNull():
                 self._logger.warning("RenamePorts: could not find component {0}".format(cc))
                 continue
-            terms = list(list(cmp.LayoutObjs).Where(lambda obj: obj.GetObjType() == self._edb.Cell.LayoutObjType.Terminal))
+            terms = list(
+                list(cmp.LayoutObjs).Where(lambda obj: obj.GetObjType() == self._edb.Cell.LayoutObjType.Terminal)
+            )
 
             for nn in net_names:
                 for tt in list(terms.Where(lambda tt: tt.GetNet().GetName() == nn)):
-                    if not tt.SetImpedance('50ohm'):
+                    if not tt.SetImpedance("50ohm"):
                         self._logger.warning("Could not set terminal {0} impedance as 5ohm".format(tt.GetName()))
                         continue
 
-                    nparts = tt.GetName().split('.')
+                    nparts = tt.GetName().split(".")
                     if nparts[1] == nn:
-                        new_name = '.'.join([nparts[0], nparts[2], nparts[
-                            1]])  # rename comp.net.pin --> comp.pin.net (as in ports created in edt GUI)
+                        new_name = ".".join(
+                            [nparts[0], nparts[2], nparts[1]]
+                        )  # rename comp.net.pin --> comp.pin.net (as in ports created in edt GUI)
                         self._logger.info("rename port {0} --> {1}".format(tt.GetName(), new_name))
                         if not tt.SetName(new_name):
                             self._logger.warning("Could not rename terminal {0} as {1}".format(tt.GetName(), new_name))
@@ -999,21 +1016,25 @@ class EdbLayout(object):
                 radial_factor_multiplier = 0.125
                 # Set the Radial Extent Factor
                 typ = cmp.GetComponentType()
-                if typ in [self._edb.Definition.ComponentType.Other, self._edb.Definition.ComponentType.IC,
-                           self._edb.Definition.ComponentType.IO]:
+                if typ in [
+                    self._edb.Definition.ComponentType.Other,
+                    self._edb.Definition.ComponentType.IC,
+                    self._edb.Definition.ComponentType.IO,
+                ]:
                     cmp_prop = cmp.GetComponentProperty().Clone()
                     success, diam1, diam2 = cmp_prop.GetSolderBallProperty().GetDiameter()
                     if success and diam1 > 0:
-                        radial_factor = '{0}meter'.format(radial_factor_multiplier * diam1)
+                        radial_factor = "{0}meter".format(radial_factor_multiplier * diam1)
                         for tt in terms:
                             self._builder.SetHfssSolverOption(tt, "Radial Extent Factor", radial_factor)
                             self._builder.SetHfssSolverOption(tt, "Layer Alignment", "Upper")  # ensure this is also set
 
     @pyaedt_function_handler()
     def trim_component_reference_size(self, simulation_setup=None, trim_to_terminals=False):
-        """ Trim the common component reference to the minimally acceptable size.
-            trimToTerminals: if True, reduce the reference to a box covering only the active terminals (i.e. those with ports).
-                             if False, reduce the reference to the minimal size needed to cover all pins.
+        """Trim the common component reference to the minimally acceptable size.
+        trimToTerminals: if True, reduce the reference to a box covering only the active terminals (i.e. those with
+        ports).
+                         if False, reduce the reference to the minimal size needed to cover all pins.
         """
 
         if not isinstance(simulation_setup, SimulationConfiguration):
@@ -1039,7 +1060,8 @@ class EdbLayout(object):
             if trim_to_terminals:
                 # Remove any pins that aren't interior to the Terminals bbox
                 for pp in list(comp.LayoutObjs).Where(
-                        lambda obj: obj.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance):
+                    lambda obj: obj.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
+                ):
                     loi = l_inst.GetLayoutObjInstance(pp, None)
                     bb_c = loi.GetCenter()
                     if not terms_bbox.PointInPolygon(bb_c):
@@ -1049,8 +1071,10 @@ class EdbLayout(object):
             cmp_prop = comp.GetComponentProperty().Clone()
             port_prop = cmp_prop.GetPortProperty().Clone()
             port_prop.SetReferenceSizeAuto(False)
-            port_prop.SetReferenceSize(terms_bbox_pts.Item2.X.ToDouble() - terms_bbox_pts.Item1.X.ToDouble(),
-                                       terms_bbox_pts.Item2.Y.ToDouble() - terms_bbox_pts.Item1.Y.ToDouble())
+            port_prop.SetReferenceSize(
+                terms_bbox_pts.Item2.X.ToDouble() - terms_bbox_pts.Item1.X.ToDouble(),
+                terms_bbox_pts.Item2.Y.ToDouble() - terms_bbox_pts.Item1.Y.ToDouble(),
+            )
             cmp_prop.SetPortProperty(port_prop)
             comp.SetComponentProperty(cmp_prop)
 
@@ -1058,14 +1082,17 @@ class EdbLayout(object):
     def _get_terminals_bbox(self, comp, l_inst, terminals_only):
         terms_loi = []
         if terminals_only:
-            for tt in list(comp.LayoutObjs).Where(lambda obj: obj.GetObjType() == self._edb.Cell.LayoutObjType.Terminal):
+            for tt in list(comp.LayoutObjs).Where(
+                lambda obj: obj.GetObjType() == self._edb.Cell.LayoutObjType.Terminal
+            ):
                 success, p_inst, lyr = tt.GetParameters()
                 if success:
                     loi = l_inst.GetLayoutObjInstance(p_inst, None)
                     terms_loi.append(loi)
         else:
             for pi in list(comp.LayoutObjs).Where(
-                    lambda obj: obj.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance):
+                lambda obj: obj.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
+            ):
                 loi = l_inst.GetLayoutObjInstance(pi, None)
                 terms_loi.append(loi)
 
@@ -1089,8 +1116,8 @@ class EdbLayout(object):
     def get_ports_number(self):
         port_list = []
         for term in self._builder.layout.Terminals:
-            if str(term.GetBoundaryType()) == 'PortBoundary':
-                if 'ref' not in term.GetName():
+            if str(term.GetBoundaryType()) == "PortBoundary":
+                if "ref" not in term.GetName():
                     port_list.append(term)
         return port_list.Count
 
@@ -1136,10 +1163,13 @@ class EdbLayout(object):
                         void.Delete()
                         self._logger.warning(
                             "Defeaturing Polygon {0}: Deleting Void {1} area is lower than the minimum criteria".format(
-                                str(Poly.GetId()), str(void.GetId())))
+                                str(Poly.GetId()), str(void.GetId())
+                            )
+                        )
                     else:
                         self._logger.info(
-                            "Defeaturing Polygon {0}: Void {1}".format(str(Poly.GetId()), str(void.GetId())))
+                            "Defeaturing Polygon {0}: Void {1}".format(str(Poly.GetId()), str(void.GetId()))
+                        )
                         new_void_data = self._defeature_polygon(simulation_setup, void_data)
                         void.SetPolygonData(new_void_data)
 
@@ -1165,7 +1195,8 @@ class EdbLayout(object):
         new_poly = None
         # print(setup_info.MaxSufDev)
         while (surf_dev < setup_info.max_suf_dev and pts_list.Count > 16 and minimum_distance < 1000e-6) and float(
-                nb_pts_removed) / float(nb_ini_pts) < 0.4:
+            nb_pts_removed
+        ) / float(nb_ini_pts) < 0.4:
             pts_list, nb_pts_removed = self._trim_polygon_points(pts, minimum_distance)
             new_poly = self._edb.Geometry.PolygonData(pts_list, True)
             current_surf = new_poly.Area()
@@ -1177,11 +1208,9 @@ class EdbLayout(object):
         self._logger.info(
             "Defeaturing Polygon {0}: Final Surface Deviation = {1} ,  Maximum Distance(um) = {2}, "
             "Number of Points removed = {3}/{4}".format(
-                str(poly.GetId()),
-                str(surf_dev),
-                str(minimum_distance * 1e6),
-                str(nb_pts_removed),
-                str(nb_ini_pts)))
+                str(poly.GetId()), str(surf_dev), str(minimum_distance * 1e6), str(nb_pts_removed), str(nb_ini_pts)
+            )
+        )
         return new_poly
 
     @pyaedt_function_handler()
@@ -1222,8 +1251,9 @@ class EdbLayout(object):
         # NbIniPts = pts_list.Count
 
         while ind < pts_list.Count - 2:
-            pts_list, nb_pts_removed = self._get_point_list_with_minimum_distance(pts_list, minimum_distance,
-                                                                                  ind, nb_pts_removed)
+            pts_list, nb_pts_removed = self._get_point_list_with_minimum_distance(
+                pts_list, minimum_distance, ind, nb_pts_removed
+            )
             ind = ind + 1
 
         return pts_list, nb_pts_removed
@@ -1243,11 +1273,13 @@ class EdbLayout(object):
         if not isinstance(simulation_setup, SimulationConfiguration):
             return False
         layout = self._builder.cell.GetLayout()
-        signal_nets, power_nets, port_nets, noport_nets, floating_nets = self._edbutils.NetSetupInfo.GetEdbNets(layout, simulation_setup.NetSetup, None)
+        signal_nets, power_nets, port_nets, noport_nets, floating_nets = self._edbutils.NetSetupInfo.GetEdbNets(
+            layout, simulation_setup.NetSetup, None
+        )
 
         for obj in layout.Nets:
             obj.SetIsPowerGround(False)
 
         for obj in power_nets:
             obj.SetIsPowerGround(True)
-            self._logger.info('POWER NET: {} pg={}'.format(obj.GetName(), obj.IsPowerGround()))
+            self._logger.info("POWER NET: {} pg={}".format(obj.GetName(), obj.IsPowerGround()))
