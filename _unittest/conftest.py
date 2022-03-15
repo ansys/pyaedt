@@ -17,14 +17,17 @@ directory as this module. An example of the contents of local_config.json
 }
 
 """
-import tempfile
+import gc
+import json
 import os
 import shutil
-import json
-import gc
 import sys
-from pyaedt.generic.general_methods import is_ironpython, inside_desktop, generate_unique_name
+import tempfile
+
 from pyaedt import settings
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import inside_desktop
+from pyaedt.generic.general_methods import is_ironpython
 
 log_path = os.path.join(tempfile.gettempdir(), "test.log")
 if os.path.exists(os.path.join(tempfile.gettempdir(), "test.log")):
@@ -49,7 +52,7 @@ from pyaedt.generic.filesystem import Scratch
 test_project_name = "test_primitives"
 
 sys.path.append(local_path)
-from .launch_desktop_tests import run_desktop_tests
+from _unittest.launch_desktop_tests import run_desktop_tests
 
 # set scratch path and create it if necessary
 scratch_path = tempfile.gettempdir()
@@ -77,6 +80,7 @@ else:
         "skip_debug": False,
         "local": False,
     }
+settings.non_graphical = config["NonGraphical"]
 
 
 class BasisTest(object):
@@ -107,7 +111,7 @@ class BasisTest(object):
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None):
         if "oDesktop" not in dir(sys.modules["__main__"]):
-            desktop = Desktop(desktop_version, non_graphical, new_thread)
+            desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
             desktop.disable_autosave()
         if project_name:
             example_project = os.path.join(local_path, "example_models", project_name + ".aedt")
@@ -170,7 +174,6 @@ class BasisTest(object):
 # Define desktopVersion explicitly since this is imported by other modules
 desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
-non_graphical = config["NonGraphical"]
 
 
 @pytest.fixture(scope="session", autouse=True)

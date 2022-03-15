@@ -60,6 +60,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False):
         os.environ["PYAEDT_SERVER_AEDT_PATH"] = ansysem_path
         os.environ["PYAEDT_SERVER_AEDT_NG"] = str(non_graphical)
         os.environ["ANS_NO_MONO_CLEANUP"] = str(1)
+        os.environ["ANS_NODEPCHECK"] = str(1)
 
     hostname = socket.gethostname()
     safe_attrs = {

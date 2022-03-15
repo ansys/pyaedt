@@ -12,10 +12,11 @@ This demo will show how to run a merge between two EDBs (eg. package on board).
 #
 # Example contains everything to run.
 # json fil can be customized to change settings.
+import tempfile
 
 from pyaedt.examples.downloads import download_edb_merge_utility
 
-python_file = download_edb_merge_utility(force_download=True)
+python_file = download_edb_merge_utility(force_download=True, destination=tempfile.gettempdir())
 desktop_version = "2022.1"
 
 ######################################################################

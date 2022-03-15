@@ -1,6 +1,9 @@
 # Import required modules
-from pyaedt.examples import downloads
+import os
+import tempfile
+
 from _unittest.conftest import BasisTest
+from pyaedt.examples import downloads
 
 
 class TestClass(BasisTest, object):
@@ -28,8 +31,13 @@ class TestClass(BasisTest, object):
         assert self.examples.download_antenna_array()
 
     def test_download_antenna_sherlock(self):
-        assert self.examples.download_sherlock()
+        assert self.examples.download_sherlock(destination=os.path.join(tempfile.gettempdir(), "sherlock"))
+
+    def test_download_multiparts(self):
+        assert self.examples.download_multiparts(destination=os.path.join(tempfile.gettempdir(), "multi"))
 
     def test_download_wfp(self):
         assert self.examples.download_edb_merge_utility()
         assert self.examples.download_edb_merge_utility(True)
+        out = self.examples.download_edb_merge_utility(True, destination=tempfile.gettempdir())
+        assert os.path.exists(out)

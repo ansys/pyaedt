@@ -527,64 +527,47 @@ class EdbStackup(object):
         else:
             cell_inst2.SetPlacementLayer(list(stackup_target.Layers(self._edb.Cell.LayerTypeSet.SignalLayerSet))[-1])
         cell_inst2.SetIs3DPlacement(True)
-        stack_set = self._edb.Cell.LayerTypeSet.StackupLayerSet
         sig_set = self._edb.Cell.LayerTypeSet.SignalLayerSet
 
         if is_ironpython:  # pragma: no cover
-            res = stackup_target.GetTopBottomStackupLayers(stack_set)
-            target_top_thick = res[2]
-            target_bottom_thick = res[4]
-            res_s = stackup_source.GetTopBottomStackupLayers(stack_set)
-            source_stack_top_thick = res_s[2]
-            source_stack_bot_thick = res_s[4]
-            res2 = stackup_source.GetTopBottomStackupLayers(sig_set)
-            source_sig_top_thick = res2[2]
-            source_sig_bot_thick = res2[4]
+            res = stackup_target.GetTopBottomStackupLayers(sig_set)
+            target_top_elevation = res[2]
+            target_bottom_elevation = res[4]
+            res_s = stackup_source.GetTopBottomStackupLayers(sig_set)
+            source_stack_top_elevation = res_s[2]
+            source_stack_bot_elevation = res_s[4]
         else:
             target_top = None
-            target_top_thick = Double(0.0)
+            target_top_elevation = Double(0.0)
             target_bottom = None
-            target_bottom_thick = Double(0.0)
-            source_sig_top = None
-            source_sig_top_thick = Double(0.0)
-            source_sig_bot = None
-            source_sig_bot_thick = Double(0.0)
+            target_bottom_elevation = Double(0.0)
             source_stack_top = None
-            source_stack_top_thick = Double(0.0)
+            source_stack_top_elevation = Double(0.0)
             source_stack_bot = None
-            source_stack_bot_thick = Double(0.0)
+            source_stack_bot_elevation = Double(0.0)
             res = stackup_target.GetTopBottomStackupLayers(
-                stack_set, target_top, target_top_thick, target_bottom, target_bottom_thick
+                sig_set, target_top, target_top_elevation, target_bottom, target_bottom_elevation
             )
 
             res_s = stackup_source.GetTopBottomStackupLayers(
-                stack_set, source_stack_top, source_stack_top_thick, source_stack_bot, source_stack_bot_thick
+                sig_set, source_stack_top, source_stack_top_elevation, source_stack_bot, source_stack_bot_elevation
             )
-            res2 = stackup_source.GetTopBottomStackupLayers(
-                sig_set, source_sig_top, source_sig_top_thick, source_sig_bot, source_sig_bot_thick
-            )
-            target_top_thick = res[2]
-            target_bottom_thick = res[4]
-            source_stack_top_thick = res_s[2]
-            source_stack_bot_thick = res_s[4]
-            source_sig_top_thick = res2[2]
-            source_sig_bot_thick = res2[4]
+            target_top_elevation = res[2]
+            target_bottom_elevation = res[4]
+            source_stack_top_elevation = res_s[2]
+            source_stack_bot_elevation = res_s[4]
         if place_on_top and flipped_stackup:
-            elevation = target_top_thick + source_stack_top_thick
-            diel_elevation = source_stack_top_thick - source_sig_top_thick
+            elevation = target_top_elevation + source_stack_top_elevation
         elif place_on_top:
-            elevation = target_top_thick + source_stack_bot_thick
-            diel_elevation = source_sig_bot_thick - source_stack_bot_thick
+            elevation = target_top_elevation - source_stack_bot_elevation
         elif flipped_stackup:
-            elevation = target_bottom_thick - source_stack_bot_thick
-            diel_elevation = source_stack_bot_thick - source_sig_bot_thick
+            elevation = target_bottom_elevation + source_stack_bot_elevation
             solder_height = -solder_height
         else:
-            elevation = target_bottom_thick - source_sig_top_thick
-            diel_elevation = target_bottom_thick - source_stack_bot_thick
+            elevation = target_bottom_elevation - source_stack_top_elevation
             solder_height = -solder_height
 
-        h_stackup = self._edb_value(elevation + solder_height - diel_elevation)
+        h_stackup = self._edb_value(elevation + solder_height)
 
         zero_data = self._edb_value(0.0)
         one_data = self._edb_value(1.0)

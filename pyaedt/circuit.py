@@ -264,7 +264,11 @@ class Circuit(FieldAnalysisCircuit, object):
                                 already_exist = True
                         if not already_exist:
                             self.modeler.schematic.create_new_component_from_symbol(
-                                parameter, pins, fields[0][0], parameter_list, parameter_value
+                                parameter,
+                                pins,
+                                refbase=fields[0][0],
+                                parameter_list=parameter_list,
+                                parameter_value=parameter_value,
                             )
                         mycomp = self.modeler.schematic.create_component(
                             fields[0],
@@ -295,7 +299,11 @@ class Circuit(FieldAnalysisCircuit, object):
                             already_exist = True
                     if not already_exist:
                         self.modeler.schematic.create_new_component_from_symbol(
-                            parameter, pins, fields[0][0], parameter_list, parameter_value
+                            parameter,
+                            pins,
+                            refbase=fields[0][0],
+                            parameter_list=parameter_list,
+                            parameter_value=parameter_value,
                         )
                     mycomp = self.modeler.schematic.create_component(
                         fields[0],

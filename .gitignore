@@ -367,3 +367,12 @@ scratch_notebooks/
 
 # Visual studio code local settings
 .vscode/
+
+# EDB temp and backup files
+*.aedb.bak/
+edb.def.bak
+edb.def.tmp
+edb.def\+
+model.index.bak
+model.index.tmp
+model.index\+

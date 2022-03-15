@@ -1,5 +1,14 @@
 # Import required modules
-from pyaedt import Hfss, Maxwell2d, Maxwell3d, Q2d, Q3d, TwinBuilder, Hfss3dLayout, Icepak, Circuit, Mechanical
+from pyaedt import Circuit
+from pyaedt import Hfss
+from pyaedt import Hfss3dLayout
+from pyaedt import Icepak
+from pyaedt import Maxwell2d
+from pyaedt import Maxwell3d
+from pyaedt import Mechanical
+from pyaedt import Q2d
+from pyaedt import Q3d
+from pyaedt import TwinBuilder
 
 
 def run_desktop_tests():

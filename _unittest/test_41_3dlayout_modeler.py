@@ -1,12 +1,12 @@
 import os
 import time
 
-# Import required modules
+from _unittest.conftest import BasisTest
+from _unittest.conftest import is_ironpython
+from _unittest.conftest import local_path
+from _unittest.conftest import scratch_path
 from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
-
-# Setup paths for module imports
-from _unittest.conftest import scratch_path, local_path, BasisTest, is_ironpython
 
 try:
     import pytest  # noqa: F401
@@ -488,4 +488,4 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(is_ironpython, reason="Crash on Ironpython")
     def test_37_import_edb(self):
-        assert self.aedtapp.import_edb(self.test_project)
+        assert self.aedtapp.import_edb(self.target_path)

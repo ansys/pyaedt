@@ -68,7 +68,7 @@ Those classes are the container of Data read from edb file.
    EDB_Data.EDBLayers
    EDB_Data.EDBPadProperties
    EDB_Data.EDBPadstack
-   EDB_Data.EDBPinInstances
+   EDB_Data.EDBPadstackInstance
    EDB_Data.EDBComponent
    EDB_Data.EDBNetsData
    EDB_Data.EDBPrimitives

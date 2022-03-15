@@ -189,6 +189,33 @@ class CircuitComponents(object):
         return True
 
     @pyaedt_function_handler()
+    def add_pin_iports(self, name, id_num):
+        """Add ports on pins.
+
+        Parameters
+        ----------
+        name : str
+            Name of the component.
+        id_num : int
+            ID of circuit component.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oeditor.AddPinIPorts
+        """
+        comp_id = "CompInst@" + name + ";" + str(id_num) + ";395"
+        arg1 = ["Name:Selections", "Selections:=", [comp_id]]
+        self._oeditor.AddPinIPorts(arg1)
+
+        return True
+
+    @pyaedt_function_handler()
     def create_iport(self, name, posx=0.1, posy=0.1, angle=0):
         """Create an interface port.
 
@@ -335,7 +362,7 @@ class CircuitComponents(object):
             model_name = os.path.splitext(os.path.basename(touchstone_full_path))[0]
         if model_name in list(self.o_model_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
-        num_terminal = int(touchstone_full_path[-2:-1])
+        num_terminal = int(os.path.splitext(touchstone_full_path)[1].lower().strip(".sp"))
         with open(touchstone_full_path, "r") as f:
             port_names = _parse_ports_name(f)
         image_subcircuit_path = os.path.normpath(
@@ -881,145 +908,6 @@ class CircuitComponents(object):
         )
         self.o_symbol_manager.EditWithComps(symbol_name, arg, [])
         oDefinitionEditor.CloseEditor()
-        return True
-
-    @pyaedt_function_handler()
-    def create_new_component_from_symbol(
-        self, symbol_name, pin_lists, Refbase="U", parameter_list=[], parameter_value=[]
-    ):
-        """Create a component from a symbol.
-
-        Parameters
-        ----------
-        symbol_name : str
-            Name of the symbol.
-        pin_lists : list
-            List of the pins.
-        Refbase : str, optional
-            Reference base. The default is ``"U"``.
-        parameter_list : list, optional
-            List of the parameters. The default is ``[]``.
-        parameter_value : list, optional
-            List of the parameter values. The default is ``[]``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oComponentManager.Add
-        """
-        arg = [
-            "NAME:" + symbol_name,
-            "Info:=",
-            [
-                "Type:=",
-                0,
-                "NumTerminals:=",
-                5,
-                "DataSource:=",
-                "",
-                "ModifiedOn:=",
-                1591858313,
-                "Manufacturer:=",
-                "",
-                "Symbol:=",
-                symbol_name,
-                "ModelNames:=",
-                "",
-                "Footprint:=",
-                "",
-                "Description:=",
-                "",
-                "InfoTopic:=",
-                "",
-                "InfoHelpFile:=",
-                "",
-                "IconFile:=",
-                "",
-                "Library:=",
-                "",
-                "OriginalLocation:=",
-                "Project",
-                "IEEE:=",
-                "",
-                "Author:=",
-                "",
-                "OriginalAuthor:=",
-                "",
-                "CreationDate:=",
-                1591858278,
-                "ExampleFile:=",
-                "",
-                "HiddenComponent:=",
-                0,
-                "CircuitEnv:=",
-                0,
-                "GroupID:=",
-                0,
-            ],
-            "CircuitEnv:=",
-            0,
-            "Refbase:=",
-            Refbase,
-            "NumParts:=",
-            1,
-            "ModSinceLib:=",
-            True,
-        ]
-
-        for pin in pin_lists:
-            arg.append("Terminal:=")
-            arg.append([pin, pin, "A", False, 0, 1, "", "Electrical", "0"])
-        arg.append("CompExtID:=")
-        arg.append(1)
-        arg2 = ["NAME:Parameters"]
-        for el, val in zip(parameter_list, parameter_value):
-            if isinstance(val, str):
-                arg2.append("TextValueProp:=")
-                arg2.append([el, "D", "", val])
-            else:
-                arg2.append("ValueProp:=")
-                arg2.append([el, "D", "", val, False, ""])
-        arg2.append("ButtonProp:=")
-        arg2.append(["CosimDefinition", "D", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []])
-        arg2.append("MenuProp:=")
-        arg2.append(["CoSimulator", "D", "", "DefaultNetlist", 0])
-
-        arg.append(arg2)
-        spicesintax = Refbase + "@ID "
-        id = 0
-        while id < (len(pin_lists) - 1):
-            spicesintax += "%" + str(id) + " "
-            id += 1
-        for el in parameter_list:
-            spicesintax += "@{} ".format(el)
-
-        arg3 = [
-            "NAME:CosimDefinitions",
-            [
-                "NAME:CosimDefinition",
-                "CosimulatorType:=",
-                4,
-                "CosimDefName:=",
-                "DefaultNetlist",
-                "IsDefinition:=",
-                True,
-                "Connect:=",
-                True,
-                "Data:=",
-                ["Nexxim Circuit:=", spicesintax],
-                "GRef:=",
-                ["Nexxim Circuit:=", ""],
-            ],
-            "DefaultCosim:=",
-            "DefaultNetlist",
-        ]
-        arg.append(arg3)
-        self.o_component_manager.Add(arg)
         return True
 
     @pyaedt_function_handler()
