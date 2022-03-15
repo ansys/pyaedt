@@ -89,8 +89,8 @@ setup.props["Steps To"] = "0.002s"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # This command creates a rectangular plot.
 
-maxwell_2d.post.create_rectangular_plot(
-    "InputCurrent(PHA)", primary_sweep_variable="Time", families_dict={"Time": ["All"]}, plotname="Winding Plot 1"
+maxwell_2d.post.create_report(
+    "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
 )
 
 ###############################################################################
