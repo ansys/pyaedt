@@ -551,7 +551,7 @@ class EdbHfss(object):
                 try:
                     reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
                 except:
-                    raise Exception("Failed to get the layer {]".format(reference_layer))
+                    raise Exception("Failed to get the layer {}".format(reference_layer))
             if not isinstance(reference_layer, self._edb.Cell.ILayerReadOnly):
                 return False
             layout = nets[0].GetLayout()
