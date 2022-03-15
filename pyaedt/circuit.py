@@ -982,7 +982,7 @@ class Circuit(FieldAnalysisCircuit, object):
         variation_dict : dict, optional
             Dictionary of variation names. The default value is ``None``.
         differential_pairs : bool, optional
-            Specify if the plot is on differential pairs tracs. The default value is ``False``.
+            Specify if the plot is on differential pairs traces. The default value is ``False``.
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. The default value is ``None``.
         Returns
