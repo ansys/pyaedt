@@ -184,6 +184,9 @@ class TestClass(BasisTest, object):
 
     def test_09_manipulate_report(self):
         assert self.aedtapp.post.create_report("dB(S(1,1))")
+        data = self.aedtapp.post.get_solution_data("S(1,1)")
+        assert data.primary_sweep == "Freq"
+        assert data.expressions[0] == "S(1,1)"
         assert len(self.aedtapp.post.all_report_names) > 0
         variations = self.field_test.available_variations.nominal_w_values_dict
         variations["Theta"] = ["All"]
@@ -199,6 +202,17 @@ class TestClass(BasisTest, object):
             context="3D",
             report_category="Far Fields",
         )
+        data = self.field_test.post.get_solution_data(
+            "GainTotal",
+            self.field_test.nominal_adaptive,
+            variations=variations,
+            primary_sweep_variable="Phi",
+            context="3D",
+            report_category="Far Fields",
+        )
+        assert data.primary_sweep == "Phi"
+        assert data.data_magnitude("GainTotal")
+        assert not data.data_magnitude("GainTotal2")
         self.field_test.post.create_report(
             "S(1,1)",
             self.field_test.nominal_sweep,
@@ -273,7 +287,13 @@ class TestClass(BasisTest, object):
         self.circuit_test.analyze_setup("LNA")
         self.circuit_test.analyze_setup("Transient")
         assert self.circuit_test.post.create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA")
+        data1 = self.circuit_test.post.get_solution_data(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA")
+        assert data1.primary_sweep == "Freq"
         assert self.circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
+        data2 = self.circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Time")
+        assert data2.primary_sweep == "Time"
+        assert data2.data_magnitude()
+        pass
 
     def test_18_diff_plot(self):
         self.diff_test.analyze_setup("LinearFrequency")
@@ -287,6 +307,15 @@ class TestClass(BasisTest, object):
             primary_sweep_variable="l1",
             context="Differential Pairs",
         )
+        data1 = self.diff_test.post.get_solution_data(
+            ["dB(S(Diff1, Diff1))"],
+            "LinearFrequency",
+            variations=variations,
+            primary_sweep_variable="Freq",
+            context="Differential Pairs",
+        )
+        assert data1.primary_sweep == "Freq"
+        assert data1.data_magnitude()
         assert self.diff_test.create_touchstone_report(
             plot_name="Diff_plot",
             curvenames=["dB(S(Diff1, Diff1))"],
