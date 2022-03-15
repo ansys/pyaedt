@@ -199,7 +199,7 @@ class TestClass(BasisTest, object):
             context="3D",
             report_category="Far Fields",
         )
-        self.field_test.post.create_report(
+        assert self.field_test.post.create_report(
             "S(1,1)",
             self.field_test.nominal_sweep,
             variations=variations,
