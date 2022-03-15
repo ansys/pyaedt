@@ -69,6 +69,22 @@ elif IsWindows:  # pragma: no cover
         raise Exception("Error. No win32com.client or Pythonnet modules found. Install them and try again.")
 
 
+def check_grpc_port(port, machine_name=""):
+    """Check for an available grpc port on the local machine.
+
+     Parameters
+    ----------
+    port : int
+        Ports to search.
+
+    Returns
+    -------
+    int
+        Next Port available.
+    """
+    return port
+
+
 def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
     """Writes the trace stack to AEDT when a Python error occurs.
 
@@ -142,12 +158,17 @@ def release_desktop(close_projects=True, close_desktop=True):
             for project in projects:
                 desktop.CloseProject(project)
         pid = Module.oDesktop.GetProcessID()
-        if not (is_ironpython and inside_desktop):
-            i = 0
-            scopeID = 5
-            while i <= scopeID:
-                Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, i)
-                i += 1
+        if not is_ironpython:
+            if settings.aedt_version >= "2022.2":
+                import ScriptEnv
+
+                ScriptEnv.Release()
+            elif not inside_desktop:
+                i = 0
+                scopeID = 5
+                while i <= scopeID:
+                    Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, i)
+                    i += 1
             _delete_objects()
 
         if close_desktop:
@@ -277,8 +298,8 @@ class Desktop:
         new_desktop_session=True,
         close_on_exit=True,
         student_version=False,
-        machine=None,
-        port=50052,
+        machine="",
+        port=0,
     ):
         """Initialize desktop."""
         self._main = sys.modules["__main__"]
@@ -290,6 +311,9 @@ class Desktop:
         self._main.student_version = student_version
         self.machine = machine
         self.port = port
+        if new_desktop_session:
+            self.port = check_grpc_port(port, machine)
+
         if is_ironpython:
             self._main.isoutsideDesktop = False
         else:
@@ -571,7 +595,7 @@ class Desktop:
 
         import ScriptEnv
 
-        ScriptEnv._doInitialize(version, non_graphical, new_aedt_session, non_graphical, self.machine, self.port)
+        ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
 
         # if non_graphical or new_aedt_session or not processID:
         #     # Force new object if no non-graphical instance is running or if there is not an already existing process.
