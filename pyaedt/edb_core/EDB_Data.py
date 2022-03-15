@@ -473,7 +473,6 @@ class EDBLayer(object):
         """Logger."""
         return self._pedblayers.logger
 
-    @property
     def _get_edb_value(self, value):
         """Get Edb Value."""
         return self._pedblayers.edb_value(value)
@@ -883,7 +882,7 @@ class EDBLayers(object):
         return self._pedbstackup._edb
 
     def _get_edb_value(self, value):
-        return self._pedbstackup._get_edb_value(value)
+        return self._pedbstackup._edb_value(value)
 
     @property
     def _builder(self):
