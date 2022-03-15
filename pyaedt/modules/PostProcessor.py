@@ -1613,6 +1613,40 @@ class PostProcessorCommon(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> aedtapp.post.create_report("dB(S(1,1))")
+
+        >>> variations = aedtapp.available_variations.nominal_w_values_dict
+        >>> variations["Theta"] = ["All"]
+        >>> variations["Phi"] = ["All"]
+        >>> variations["Freq"] = ["30GHz"]
+        >>> aedtapp.post.create_report(
+        ...    "db(GainTotal)",
+        ...    aedtapp.nominal_adaptive,
+        ...    variations=variations,
+        ...    primary_sweep_variable="Phi",
+        ...    secondary_sweep_variable="Theta",
+        ...    plot_type="3D Polar Plot",
+        ...    context="3D",
+        ...    report_category="Far Fields",
+        ...)
+
+        >>> aedtapp.post.create_report(
+        ...    "S(1,1)",
+        ...    aedtapp.nominal_sweep,
+        ...    variations=variations,
+        ...    plot_type="Smith Chart",
+        ...)
+
+        >>> from pyaedt import Maxwell2d
+        >>> maxwell_2d = Maxwell2d()
+        >>> maxwell_2d.post.create_report(
+        ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
+        ... )
+
         References
         ----------
 

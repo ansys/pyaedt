@@ -2,7 +2,7 @@
 import os
 
 # Import required modules
-from pyaedt import Hfss
+from pyaedt import Hfss, Circuit
 from pyaedt.generic.general_methods import is_ironpython
 
 # Setup paths for module imports
@@ -22,6 +22,7 @@ except ImportError:
 
 test_project_name = "coax_setup_solved"
 test_field_name = "Potter_Horn"
+test_circuit_name = "Switching_Speed_FET_And_Diode"
 
 
 class TestClass(BasisTest, object):
@@ -30,6 +31,7 @@ class TestClass(BasisTest, object):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, project_name=test_project_name)
         self.field_test = BasisTest.add_app(self, project_name=test_field_name)
+        self.circuit_test = BasisTest.add_app(self, project_name=test_circuit_name, application=Circuit)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -261,6 +263,12 @@ class TestClass(BasisTest, object):
             listtype="CutPlane",
         )
         assert plot
+
+    def test_17_circuit(self):
+        self.circuit_test.analyze_setup("LNA")
+        self.circuit_test.analyze_setup("Transient")
+        assert self.circuit_test.post.create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA ")
+        assert self.circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
 
     def test_51_get_efields(self):
         if is_ironpython:
