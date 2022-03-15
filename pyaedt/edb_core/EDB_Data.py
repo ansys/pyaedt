@@ -2556,7 +2556,65 @@ class EdbBuilder(object):
 
 
 class SimulationConfiguration(object):
-    """ """
+    """Data class used to parse s simulation configuration file. The configuration file is ASCII and supports all type
+    of inputs to setup and automated any kind of SI or PI simulation both with HFSS 3D layout and Siwave. If field are
+    omitted the default values will be applied.
+    Example of configuration file:
+
+    generateSoledBalls = 'True'
+    signalNets = ['net1', 'net2']
+    powerNets = ['gnd']
+    coax_components = []
+    coax_instances = []
+    coaxSolderBallsDiams = ['0.077mm', '0.077mm']
+    KeepANFPortsAndPinGroups='False'
+    UseDefaultCoaxPortRadialExtentFactor='True'
+    TrimRefSize='False'
+    CutoutSubdesignType='Conformal'
+    CutoutSubdesignExpansion='0.1'
+    CutoutSubdesignRoundCorners='True'
+    SweepInterpolating='True'
+    UseQ3DForDC='True'
+    RelatirelativeveErrorS='0.5'
+    UseErrorZ0='False'
+    PercentErrorZ0='1'
+    EnforceCausality='True'
+    EnforcePassivity='True'
+    PassivityTolerance='0.0001'
+    SweepName='Sweep1'
+    RadiationBox='ConvexHull'
+    StartFreq = '0.0GHz'
+    StopFreq = '10.001GHz'
+    SweepType='LinearStep'
+    StepFreq = '0.040004GHz'
+    Mesh_Freq = '3GHz'
+    MaxNumPasses='30'
+    MaxMagDeltaS='0.03'
+    MinNumPasses='1'
+    BasisOrder='Mixed'
+    DoLambdaRefinement='True'
+    ArcAngle='30deg'
+    StartAzimuth='0'
+    MaxArcPoints='8'
+    UseArcToChordError='True'
+    ArcToChordError='1um'
+    DefeatureAbsLength='1um'
+    DefeatureLayout='True'
+    MinimumVoidSuface = '0'
+    MaxSufDev = '0.001'
+    ProcessPadstackDefinitions = 'False'
+    ReturnCurrentDistribution = 'True'
+    IgnoreNonFunctionalPads =  'True'
+    IncludeInterPlaneCoupling = 'True'
+    XtalkThreshold = '-50'
+    MinVoidArea = '0.01mm2'
+    MinPadAreaToMesh = '0.01mm2'
+    SnapLengthThreshold = '2.5um'
+    DcMinPlaneAreaToMesh = '8mil2'
+    MaxInitMeshEdgeLength = '14.5mil'
+    SignalLayersProperties = ['surface:0.0::::', '4f:0.0::::', '3f:0.0::::', '2f:0.0::::', '1fco:0.0::::',
+    '1bco:0.0::::', '2b:0.0::::', '3b:0.0::::', '4b:0.0::::', 'base:0.0::::', ]
+    """
 
     def __init__(self, filename):
         self._filename = filename
