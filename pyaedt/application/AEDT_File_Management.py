@@ -119,9 +119,10 @@ def change_objects_visibility(origfile, solid_list):
                 r"(\$begin 'EditorWindow'\n.+)(Drawings\[.+\])(.+\n\s*\$end 'EditorWindow')", re.UNICODE
             )
             # Replacing string
+            # fmt: off
             ViewStr = u"Drawings[" + unicode(str(len(solid_list))) + u": " + unicode(str(solid_list).strip("["))
             s = pattern.sub(r"\1" + ViewStr + r"\3", content)
-
+            # fmt: on
             # writing file content
             n.write(str(s))
 
