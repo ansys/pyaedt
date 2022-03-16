@@ -184,6 +184,9 @@ class TestClass(BasisTest, object):
 
     def test_09_manipulate_report(self):
         assert self.aedtapp.post.create_report("dB(S(1,1))")
+        data = self.aedtapp.post.get_solution_data("S(1,1)")
+        assert data.primary_sweep == "Freq"
+        assert data.expressions[0] == "S(1,1)"
         assert len(self.aedtapp.post.all_report_names) > 0
         variations = self.field_test.available_variations.nominal_w_values_dict
         variations["Theta"] = ["All"]
@@ -199,6 +202,20 @@ class TestClass(BasisTest, object):
             context="3D",
             report_category="Far Fields",
         )
+        data = self.field_test.post.get_solution_data(
+            "GainTotal",
+            self.field_test.nominal_adaptive,
+            variations=variations,
+            primary_sweep_variable="Theta",
+            context="3D",
+            report_category="Far Fields",
+        )
+        if not is_ironpython:
+            assert data.plot(is_polar=True)
+            assert data.plot_3d()
+        assert data.primary_sweep == "Theta"
+        assert data.data_magnitude("GainTotal")
+        assert not data.data_magnitude("GainTotal2")
         assert self.field_test.post.create_report(
             "S(1,1)",
             self.field_test.nominal_sweep,
@@ -273,12 +290,18 @@ class TestClass(BasisTest, object):
         self.circuit_test.analyze_setup("LNA")
         self.circuit_test.analyze_setup("Transient")
         assert self.circuit_test.post.create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA")
+        data1 = self.circuit_test.post.get_solution_data(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA")
+        assert data1.primary_sweep == "Freq"
         assert self.circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
+        data2 = self.circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Time")
+        assert data2.primary_sweep == "Time"
+        assert data2.data_magnitude()
+        pass
 
     def test_18_diff_plot(self):
         self.diff_test.analyze_setup("LinearFrequency")
         variations = self.diff_test.available_variations.nominal_w_values_dict
-        variations["Freq"] = ["1GHz"]
+        variations["Freq"] = ["All"]
         variations["l1"] = ["All"]
         assert self.diff_test.post.create_report(
             ["dB(S(Diff1, Diff1))"],
@@ -287,6 +310,31 @@ class TestClass(BasisTest, object):
             primary_sweep_variable="l1",
             context="Differential Pairs",
         )
+        data1 = self.diff_test.post.get_solution_data(
+            ["S(Diff1, Diff1)"],
+            "LinearFrequency",
+            variations=variations,
+            primary_sweep_variable="Freq",
+            context="Differential Pairs",
+        )
+        assert data1.primary_sweep == "Freq"
+        if not is_ironpython:
+            data1.plot(math_formula="db20")
+        data1.primary_sweep = "l1"
+        assert data1.primary_sweep == "l1"
+        assert len(data1.data_magnitude()) == 5
+        if is_ironpython:
+            assert not data1.plot("S(Diff1, Diff1)")
+        else:
+            assert data1.plot("S(Diff1, Diff1)")
+            assert data1.plot(math_formula="db20")
+            assert data1.plot(math_formula="db10")
+            assert data1.plot(math_formula="mag")
+            assert data1.plot(math_formula="re")
+            assert data1.plot(math_formula="im")
+            assert data1.plot(math_formula="phasedeg")
+            assert data1.plot(math_formula="phaserad")
+
         assert self.diff_test.create_touchstone_report(
             plot_name="Diff_plot",
             curvenames=["dB(S(Diff1, Diff1))"],

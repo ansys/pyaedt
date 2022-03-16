@@ -19,11 +19,11 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import _retry_ntimes, is_ironpython
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import write_csv
-
+from pyaedt.generic.plot import plot_2d_chart, plot_polar_chart, plot_3d_chart
 
 orientation_to_view = {
     "isometric": "iso",
@@ -34,6 +34,18 @@ orientation_to_view = {
     "front": "YZ",
     "back": "YZ",
 }
+
+
+@pyaedt_function_handler()
+def _convert_dict_to_report_sel(sweeps):
+    sweep_list = []
+    for el in sweeps:
+        sweep_list.append(el + ":=")
+        if type(sweeps[el]) is list:
+            sweep_list.append(sweeps[el])
+        else:
+            sweep_list.append([sweeps[el]])
+    return sweep_list
 
 
 class SolutionData(object):
@@ -173,15 +185,35 @@ class SolutionData(object):
         """ """
         sols_data = {}
         for expression in self.expressions:
-            solution = list(self.nominal_variation.GetRealDataValues(expression, False))
+            combinations = []
+            if len(self._original_data) == 1:
+                solution = list(self.nominal_variation.GetRealDataValues(expression, False))
+            else:
+                solution = []
+                for data in self._original_data:
+                    for v in data.GetDesignVariableNames():
+                        if v not in self._sweeps_names:
+                            self._sweeps[v] = []
+                            self._sweeps_names.append(v)
+                            self.nominal_sweeps[v] = data.GetDesignVariableValue(v)
+                            self.units_sweeps[v] = data.GetDesignVariableUnits(v)
+                    comb = []
+                    for v in reversed(data.GetDesignVariableNames()):
+                        if data.GetDesignVariableValue(v) not in self._sweeps[v]:
+                            self._sweeps[v].append(data.GetDesignVariableValue(v))
+                        comb.append(data.GetDesignVariableValue(v))
+                    combinations.append(comb)
+                    solution.extend(list(data.GetRealDataValues(expression, False)))
             values = []
             for el in reversed(self._sweeps_names):
                 values.append(self.sweeps[el])
+
             solution_Data = {}
             i = 0
             for t in itertools.product(*values):
-                solution_Data[t] = solution[i]
-                i += 1
+                if not combinations or (combinations and list(t[: len(combinations[0])]) in combinations):
+                    solution_Data[t] = solution[i]
+                    i += 1
             sols_data[expression] = solution_Data
         return sols_data
 
@@ -189,19 +221,36 @@ class SolutionData(object):
     def _solution_data_imag(self):
         """ """
         sols_data = {}
+        combinations = []
         for expression in self.expressions:
-            try:
-                solution = list(self.nominal_variation.GetImagDataValues(expression, False))
-            except:
-                solution = [0 for i in range(len(self.solutions_data_real[expression]))]
+            if self.nominal_variation.IsDataComplex(expression):
+                if len(self._original_data) == 1:
+                    solution = list(self.nominal_variation.GetImagDataValues(expression, False))
+                else:
+                    solution = []
+                    for data in self._original_data:
+                        comb = []
+                        for v in reversed(data.GetDesignVariableNames()):
+                            if data.GetDesignVariableValue(v) not in self._sweeps[v]:
+                                self._sweeps[v].append(data.GetDesignVariableValue(v))
+                            comb.append(data.GetDesignVariableValue(v))
+                        combinations.append(comb)
+                        solution.extend(list(data.GetImagDataValues(expression, False)))
+            else:
+                solution = None
             values = []
             for el in reversed(self._sweeps_names):
                 values.append(self.sweeps[el])
+
             solution_Data = {}
             i = 0
             for t in itertools.product(*values):
-                solution_Data[t] = solution[i]
-                i += 1
+                if not combinations or (combinations and list(t[: len(combinations[0])]) in combinations):
+                    if solution:
+                        solution_Data[t] = solution[i]
+                    else:
+                        solution_Data[t] = 0
+                    i += 1
             sols_data[expression] = solution_Data
         return sols_data
 
@@ -220,7 +269,7 @@ class SolutionData(object):
             List of inputs in degrees.
 
         """
-        return [i * 2 * math.pi / 360 for i in input_list]
+        return [i * 360 / (2 * math.pi) for i in input_list]
 
     @pyaedt_function_handler()
     def to_radians(self, input_list):
@@ -237,8 +286,9 @@ class SolutionData(object):
             List of inputs in radians.
 
         """
-        return [i * 360 / (2 * math.pi) for i in input_list]
+        return [i * 2 * math.pi / 360 for i in input_list]
 
+    @pyaedt_function_handler()
     def data_magnitude(self, expression=None, convert_to_SI=False):
         """Retrieve the data magnitude of an expression.
 
@@ -259,6 +309,8 @@ class SolutionData(object):
         """
         if not expression:
             expression = self.expressions[0]
+        elif expression not in self.expressions:
+            return False
         temp = []
         for it in self.nominal_sweeps:
             temp.append(self.nominal_sweeps[it])
@@ -378,6 +430,31 @@ class SolutionData(object):
             expression = self.expressions[0]
 
         return [db20(i) for i in self.data_magnitude(expression, convert_to_SI)]
+
+    def data_phase(self, expression=None, radians=True):
+        """Retrieve the phase part of the data for an expression.
+
+        Parameters
+        ----------
+        expression : str, None
+            Name of the expression. The default is ``None``,
+            in which case the first expression is used.
+        radians : bool, optional
+            Whether to convert the data into radians or degree.
+            The default is ``True`` for radians.
+
+        Returns
+        -------
+        list
+            Phase data for the expression.
+
+        """
+        if not expression:
+            expression = self.expressions[0]
+        coefficient = 1
+        if not radians:
+            coefficient = 180 / math.pi
+        return [coefficient * math.atan(k / i) for i, k in zip(self.data_real(expression), self.data_imag(expression))]
 
     def data_real(self, expression=None, convert_to_SI=False):
         """Retrieve the real part of the data for an expression.
@@ -525,6 +602,154 @@ class SolutionData(object):
                     i += 1
 
         return write_csv(output, list_full, delimiter=delimiter)
+
+    @pyaedt_function_handler()
+    def plot(
+        self,
+        curves=None,
+        math_formula=None,
+        size=(2000, 1000),
+        show_legend=True,
+        xlabel="",
+        ylabel="",
+        title="",
+        snapshot_path=None,
+        is_polar=False,
+    ):
+        """Create a matplotlib plot based on a list of data.
+
+        Parameters
+        ----------
+        curves : list
+            Curves to be plotted. If None, the first curve will be plotted.
+        math_formula : str , optional
+            Mathematical formula to apply to the plot curve.
+            Valid values are `"re"`, `"im"`, `"db20"`, `"db10"`, `"abs"`, `"mag"`, `"phasedeg"`, `"phaserad"`.
+        size : tuple, optional
+            Image size in pixel (width, height).
+        show_legend : bool
+            Either to show legend or not.
+        xlabel : str
+            Plot X label.
+        ylabel : str
+            Plot Y label.
+        title : str
+            Plot Title label.
+        snapshot_path : str
+            Full path to image file if a snapshot is needed.
+        is_polar : bool, optional
+            Set to `True` if this is a polar plot.
+        """
+        if is_ironpython:
+            return False
+        if not curves:
+            curves = [self.expressions[0]]
+        if isinstance(curves, str):
+            curves = [curves]
+        data_plot = []
+        sweep_name = self.primary_sweep
+        if not math_formula:
+            math_formula = "mag"
+        if is_polar:
+            sw = self.to_radians(self.sweeps[sweep_name])
+        else:
+            sw = self.sweeps[sweep_name]
+
+        for curve in curves:
+            if math_formula == "re":
+                data_plot.append([sw, self.data_real(curve), "{}({})".format(math_formula, curve)])
+            elif math_formula == "im":
+                data_plot.append([sw, self.data_imag(curve), "{}({})".format(math_formula, curve)])
+            elif math_formula == "db20":
+                data_plot.append([sw, self.data_db20(curve), "{}({})".format(math_formula, curve)])
+            elif math_formula == "db10":
+                data_plot.append([sw, self.data_db10(curve), "{}({})".format(math_formula, curve)])
+            elif math_formula == "mag":
+                data_plot.append([sw, self.data_magnitude(curve), "{}({})".format(math_formula, curve)])
+            elif math_formula == "phasedeg":
+                data_plot.append([sw, self.data_phase(curve, False), "{}({})".format(math_formula, curve)])
+            elif math_formula == "phaserad":
+                data_plot.append([sw, self.data_phase(curve, True), "{}({})".format(math_formula, curve)])
+        if not xlabel:
+            xlabel = sweep_name
+        if not ylabel:
+            ylabel = math_formula
+        if not title:
+            title = "Simulation Results Plot"
+        if is_polar:
+            return plot_polar_chart(data_plot, size, show_legend, xlabel, ylabel, title, snapshot_path)
+        else:
+            return plot_2d_chart(data_plot, size, show_legend, xlabel, ylabel, title, snapshot_path)
+
+    @pyaedt_function_handler()
+    def plot_3d(
+        self,
+        curve=None,
+        x_axis="Theta",
+        y_axis="Phi",
+        xlabel="",
+        ylabel="",
+        title="",
+        math_formula=None,
+        size=(2000, 1000),
+        snapshot_path=None,
+    ):
+        """Create a matplotlib 3d plot based on a list of data.
+
+        Parameters
+        ----------
+        curve : str
+            Curve to be plotted. If None, the first curve will be plotted.
+        x_axis : str, optional
+            X Axis sweep. Default is `"Theta"`.
+        y_axis : str, optional
+            Y Axis sweep. Default is `"Phi"`.
+        math_formula : str , optional
+            Mathematical formula to apply to the plot curve.
+            Valid values are `"re"`, `"im"`, `"db20"`, `"db10"`, `"abs"`, `"mag"`, `"phasedeg"`, `"phaserad"`.
+        size : tuple, optional
+            Image size in pixel (width, height).
+        snapshot_path : str
+            Full path to image file if a snapshot is needed.
+        is_polar : bool, optional
+            Set to `True` if this is a polar plot.
+        """
+        if is_ironpython:
+            return False
+        if not curve:
+            curve = self.expressions[0]
+
+        if not math_formula:
+            math_formula = "mag"
+        theta = self.to_radians(self.sweeps[x_axis])
+        phi = []
+        r = []
+        for el in self.sweeps[y_axis]:
+            self.nominal_sweeps[y_axis] = el
+            phi.append(el * math.pi / 180)
+
+            if math_formula == "re":
+                r.append(self.data_real(curve))
+            elif math_formula == "im":
+                r.append(self.data_imag(curve))
+            elif math_formula == "db20":
+                r.append(self.data_db20(curve))
+            elif math_formula == "db10":
+                r.append(self.data_db10(curve))
+            elif math_formula == "mag":
+                r.append(self.data_magnitude(curve))
+            elif math_formula == "phasedeg":
+                r.append(self.data_phase(curve, False))
+            elif math_formula == "phaserad":
+                r.append(self.data_phase(curve, True))
+        data_plot = [theta, phi, r]
+        if not xlabel:
+            xlabel = x_axis
+        if not ylabel:
+            ylabel = y_axis
+        if not title:
+            title = "Simulation Results Plot"
+        return plot_3d_chart(data_plot, size, xlabel, ylabel, title, snapshot_path)
 
 
 class FieldPlot:
@@ -1031,7 +1256,7 @@ class PostProcessorCommon(object):
     --------
     >>> from pyaedt import Q3d
     >>> q3d = Q3d()
-    >>> q3d = q.post.get_report_data(expression="C(Bar1,Bar1)", domain=["Context:=", "Original"])
+    >>> q3d = q.post.get_solution_data(expression="C(Bar1,Bar1)", domain="Original")
     """
 
     def __init__(self, app):
@@ -1181,9 +1406,11 @@ class PostProcessorCommon(object):
         self, expression="dB(S(1,1))", setup_sweep_name="", domain="Sweep", families_dict=None, report_input_type=None
     ):
         """Generate report data.
-
         This method returns the data object and the arrays ``solData`` and
         ``FreqVals``.
+
+        .. deprecated:: 0.4.41
+           Use :func:`get_solution_data` method instead.
 
         Parameters
         ----------
@@ -1224,6 +1451,7 @@ class PostProcessorCommon(object):
         >>> m3d.post.get_report_data("Wind(LoadA,LaodA)")    # TransientAnalsysis
 
         """
+        warnings.warn("`get_report_data` is deprecated. Use `get_solution_data` property instead.", DeprecationWarning)
         if self.post_solution_type in ["HFSS3DLayout", "NexximLNA", "NexximTransient", "TR", "AC", "DC"]:
             if domain == "Sweep":
                 did = 3
@@ -1416,13 +1644,7 @@ class PostProcessorCommon(object):
             expression = [expression]
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_adaptive
-        sweep_list = []
-        for el in sweeps:
-            sweep_list.append(el + ":=")
-            if type(sweeps[el]) is list:
-                sweep_list.append(sweeps[el])
-            else:
-                sweep_list.append([sweeps[el]])
+        sweep_list = _convert_dict_to_report_sel(sweeps)
 
         data = list(
             self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression)
@@ -1564,7 +1786,7 @@ class PostProcessorCommon(object):
         return True
 
     @pyaedt_function_handler()
-    def create_report(
+    def _get_report_inputs(
         self,
         expressions,
         setup_sweep_name=None,
@@ -1577,117 +1799,41 @@ class PostProcessorCommon(object):
         context=None,
         subdesign_id=None,
         plotname=None,
+        only_get_method=False,
     ):
-        """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
-
-        Parameters
-        ----------
-        expressions : str or list, optional
-            One or more formulas to add to the report. Example is value = ``"dB(S(1,1))"``.
-        setup_sweep_name : str, optional
-            Setup name with the sweep. The default is ``""``.
-        domain : str, optional
-            Plot Domain. Options are "Sweep" and "Time".
-        variations : dict, optional
-            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
-        primary_sweep_variable : str, optional
-            Name of the primary sweep. The default is ``"Freq"``.
-        secondary_sweep_variable : str, optional
-            Name of the secondary sweep variable in 3D Plots.
-        report_category : str, optional
-            Category of the Report to be created. If `None` default data Report will be used.
-            The Report Category can be one of the types available for creating a report depend on the simulation setup.
-            For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
-            The report category will be in this case "Far Fields".
-            Depending on the setup different categories are available.
-            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
-        plot_type : str, optional
-            The format of Data Visualization. Default is ``Rectangular Plot``.
-        context : str, optional
-            The default is ``None``. It can be `None`, `"Differential Pairs"` or
-            Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
-        plotname : str, optional
-            Name of the plot. The default is ``None``.
-        subdesign_id : int, optional
-            Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
-            The default value is ``None``.
-        context : str, optional
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-
-        References
-        ----------
-
-        >>> oModule.CreateReport
-
-        Examples
-        --------
-        >>> from pyaedt import Hfss
-        >>> aedtapp = Hfss()
-        >>> aedtapp.post.create_report("dB(S(1,1))")
-
-        >>> variations = aedtapp.available_variations.nominal_w_values_dict
-        >>> variations["Theta"] = ["All"]
-        >>> variations["Phi"] = ["All"]
-        >>> variations["Freq"] = ["30GHz"]
-        >>> aedtapp.post.create_report(
-        ...    "db(GainTotal)",
-        ...    aedtapp.nominal_adaptive,
-        ...    variations=variations,
-        ...    primary_sweep_variable="Phi",
-        ...    secondary_sweep_variable="Theta",
-        ...    plot_type="3D Polar Plot",
-        ...    context="3D",
-        ...    report_category="Far Fields",
-        ...)
-
-        >>> aedtapp.post.create_report(
-        ...    "S(1,1)",
-        ...    aedtapp.nominal_sweep,
-        ...    variations=variations,
-        ...    plot_type="Smith Chart",
-        ...)
-
-        >>> from pyaedt import Maxwell2d
-        >>> maxwell_2d = Maxwell2d()
-        >>> maxwell_2d.post.create_report(
-        ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
-        ... )
-        """
         ctxt = []
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
         elif setup_sweep_name not in self._app.existing_analysis_sweeps:
             self.logger.error("Sweep not Available.")
             return False
-        families_input = []
+        families_input = OrderedDict({})
         did = 3
         if domain == "Sweep" and not primary_sweep_variable:
             primary_sweep_variable = "Freq"
         elif not primary_sweep_variable:
             primary_sweep_variable = "Time"
             did = 1
-        families_input.append(primary_sweep_variable + ":=")
         if not variations or primary_sweep_variable not in variations:
-            families_input.append(["All"])
+            families_input[primary_sweep_variable] = ["All"]
         elif isinstance(variations[primary_sweep_variable], list):
-            families_input.append(variations[primary_sweep_variable])
+            families_input[primary_sweep_variable] = variations[primary_sweep_variable]
         else:
-            families_input.append([variations[primary_sweep_variable]])
+            families_input[primary_sweep_variable] = [variations[primary_sweep_variable]]
         if not variations:
             variations = self._app.available_variations.nominal_w_values_dict
-        for el in variations:
+        for el in list(variations.keys()):
             if el == primary_sweep_variable:
                 continue
-            families_input.append(el + ":=")
             if isinstance(variations[el], list):
-                families_input.append(variations[el])
+                families_input[el] = variations[el]
             else:
-                families_input.append([variations[el]])
+                families_input[el] = [variations[el]]
+        if only_get_method and domain == "Sweep":
+            if "Phi" not in families_input:
+                families_input["Phi"] = ["All"]
+            if "Theta" not in families_input:
+                families_input["Theta"] = ["All"]
 
         if self.post_solution_type in ["TR", "AC", "DC"]:
             ctxt = [
@@ -1792,17 +1938,239 @@ class PostProcessorCommon(object):
                 "Z Component:=",
                 expressions,
             ]
+        return [plotname, modal_data, plot_type, setup_sweep_name, ctxt, families_input, arg]
 
-        self.oreportsetup.CreateReport(
-            plotname,
-            modal_data,
-            plot_type,
+    @pyaedt_function_handler()
+    def create_report(
+        self,
+        expressions,
+        setup_sweep_name=None,
+        domain="Sweep",
+        variations=None,
+        primary_sweep_variable=None,
+        secondary_sweep_variable=None,
+        report_category=None,
+        plot_type="Rectangular Plot",
+        context=None,
+        subdesign_id=None,
+        plotname=None,
+    ):
+        """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
+
+        Parameters
+        ----------
+        expressions : str or list, optional
+            One or more formulas to add to the report. Example is value = ``"dB(S(1,1))"``.
+        setup_sweep_name : str, optional
+            Setup name with the sweep. The default is ``""``.
+        domain : str, optional
+            Plot Domain. Options are "Sweep" and "Time".
+        variations : dict, optional
+            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
+        primary_sweep_variable : str, optional
+            Name of the primary sweep. The default is ``"Freq"``.
+        secondary_sweep_variable : str, optional
+            Name of the secondary sweep variable in 3D Plots.
+        report_category : str, optional
+            Category of the Report to be created. If `None` default data Report will be used.
+            The Report Category can be one of the types available for creating a report depend on the simulation setup.
+            For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
+            The report category will be in this case "Far Fields".
+            Depending on the setup different categories are available.
+            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
+        plot_type : str, optional
+            The format of Data Visualization. Default is ``Rectangular Plot``.
+        context : str, optional
+            The default is ``None``. It can be `None`, `"Differential Pairs"` or
+            Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
+        plotname : str, optional
+            Name of the plot. The default is ``None``.
+        subdesign_id : int, optional
+            Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
+            The default value is ``None``.
+        context : str, optional
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+
+        References
+        ----------
+
+        >>> oModule.CreateReport
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> aedtapp.post.create_report("dB(S(1,1))")
+
+        >>> variations = aedtapp.available_variations.nominal_w_values_dict
+        >>> variations["Theta"] = ["All"]
+        >>> variations["Phi"] = ["All"]
+        >>> variations["Freq"] = ["30GHz"]
+        >>> aedtapp.post.create_report(
+        ...    "db(GainTotal)",
+        ...    aedtapp.nominal_adaptive,
+        ...    variations=variations,
+        ...    primary_sweep_variable="Phi",
+        ...    secondary_sweep_variable="Theta",
+        ...    plot_type="3D Polar Plot",
+        ...    context="3D",
+        ...    report_category="Far Fields",
+        ...)
+
+        >>> aedtapp.post.create_report(
+        ...    "S(1,1)",
+        ...    aedtapp.nominal_sweep,
+        ...    variations=variations,
+        ...    plot_type="Smith Chart",
+        ...)
+
+        >>> from pyaedt import Maxwell2d
+        >>> maxwell_2d = Maxwell2d()
+        >>> maxwell_2d.post.create_report(
+        ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
+        ... )
+        """
+
+        out = self._get_report_inputs(
+            expressions,
             setup_sweep_name,
-            ctxt,
-            families_input,
-            arg,
+            domain,
+            variations,
+            primary_sweep_variable,
+            secondary_sweep_variable,
+            report_category,
+            plot_type,
+            context,
+            subdesign_id,
+            plotname,
+        )
+        if not out:
+            return False
+        self.oreportsetup.CreateReport(
+            out[0],
+            out[1],
+            out[2],
+            out[3],
+            out[4],
+            _convert_dict_to_report_sel(out[5]),
+            out[6],
         )
         return True
+
+    @pyaedt_function_handler()
+    def get_solution_data(
+        self,
+        expressions,
+        setup_sweep_name=None,
+        domain="Sweep",
+        variations=None,
+        primary_sweep_variable=None,
+        report_category=None,
+        context=None,
+        subdesign_id=None,
+    ):
+        """Get SolutionData of a report in AEDT. It can be a 2D plot, 3D solution data class.
+
+        Parameters
+        ----------
+        expressions : str or list, optional
+            One or more formulas to add to the report. Example is value = ``"dB(S(1,1))"``.
+        setup_sweep_name : str, optional
+            Setup name with the sweep. The default is ``""``.
+        domain : str, optional
+            Plot Domain. Options are "Sweep" and "Time".
+        variations : dict, optional
+            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
+        primary_sweep_variable : str, optional
+            Name of the primary sweep. The default is ``"Freq"``.
+        report_category : str, optional
+            Category of the Report to be created. If `None` default data Report will be used.
+            The Report Category can be one of the types available for creating a report depend on the simulation setup.
+            For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
+            The report category will be in this case "Far Fields".
+            Depending on the setup different categories are available.
+            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
+        context : str, optional
+            The default is ``None``. It can be `None`, `"Differential Pairs"` or
+            Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
+        subdesign_id : int, optional
+            Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
+            The default value is ``None``.
+        context : str, optional
+
+        Returns
+        -------
+        :class:`pyaedt.modules.PostProcessor.SolutionData`
+            `Solution Data object.
+
+
+        References
+        ----------
+
+        >>> oModule.GetSolutionDataPerVariation
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> aedtapp.post.create_report("dB(S(1,1))")
+
+        >>> variations = aedtapp.available_variations.nominal_w_values_dict
+        >>> variations["Theta"] = ["All"]
+        >>> variations["Phi"] = ["All"]
+        >>> variations["Freq"] = ["30GHz"]
+        >>> data1 = aedtapp.post.get_solution_data(
+        ...    "GainTotal",
+        ...    aedtapp.nominal_adaptive,
+        ...    variations=variations,
+        ...    primary_sweep_variable="Phi",
+        ...    secondary_sweep_variable="Theta",
+        ...    context="3D",
+        ...    report_category="Far Fields",
+        ...)
+
+        >>> data2 =aedtapp.post.get_solution_data(
+        ...    "S(1,1)",
+        ...    aedtapp.nominal_sweep,
+        ...    variations=variations,
+        ...)
+        >>> data2.plot()
+
+        >>> from pyaedt import Maxwell2d
+        >>> maxwell_2d = Maxwell2d()
+        >>> data3 = maxwell_2d.post.get_solution_data(
+        ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time",
+        ... )
+        >>> data3.plot("InputCurrent(PHA)")
+
+        """
+        out = self._get_report_inputs(
+            expressions,
+            setup_sweep_name,
+            domain,
+            variations,
+            primary_sweep_variable,
+            None,
+            report_category,
+            None,
+            context,
+            subdesign_id,
+            None,
+            True,
+        )
+
+        solution_data = self.get_solution_data_per_variation(out[1], out[3], out[4], out[5], expressions)
+        if primary_sweep_variable:
+            solution_data.primary_sweep = primary_sweep_variable
+        if not solution_data:
+            warnings.warn("No Data Available. Check inputs")
+            return False
+        return solution_data
 
 
 class PostProcessor(PostProcessorCommon, object):

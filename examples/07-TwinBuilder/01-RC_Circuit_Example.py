@@ -10,7 +10,6 @@ and run a Twin Builder time-domain simulation.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 import os
-import matplotlib.pyplot as plt
 from pyaedt import TwinBuilder
 
 ###############################################################################
@@ -90,17 +89,11 @@ tb.analyze_setup("TR")
 # Get the values for the voltage on the capacitor in the RC Circuit
 
 E_Value = "E1.V"
-x = tb.post.get_report_data(E_Value, "TR", "Time", {"Time": ["All"]})
-plt.plot(x.sweeps["Time"], x.data_real(E_Value))
-
 C_Value = "C1.V"
-x = tb.post.get_report_data(C_Value, "TR", "Time", {"Time": ["All"]})
-plt.plot(x.sweeps["Time"], x.data_real(C_Value))
 
-plt.grid()
-plt.xlabel("Time")
-plt.ylabel("Capacitor Voltage vs Input Pulse")
-plt.show()
+x = tb.post.get_solution_data([E_Value, C_Value], "TR", "Time")
+x.plot([E_Value, C_Value], xlabel="Time", ylabel="Capacitor Voltage vs Input Pulse")
+
 
 ###############################################################################
 # Close Twin Builder

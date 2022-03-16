@@ -16,7 +16,7 @@ from pyaedt import Q3d
 # You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch
 # AEDT in graphical mode.
 
-NonGraphical = True
+NonGraphical = False
 
 ###############################################################################
 # Launch AEDT and Q3D
@@ -104,8 +104,12 @@ print(q.net_sources("Bar3"))
 # This command adds a setup to the project and defines the adaptive frequency
 # value.
 
-q.create_setup(props={"AdaptiveFreq": "100MHz"})
-
+setup1 = q.create_setup(props={"AdaptiveFreq": "100MHz"})
+sw1 = setup1.add_sweep()
+sw1.props["RangeStart"] = "1MHz"
+sw1.props["RangeEnd"] = "100MHz"
+sw1.props["RangeStep"] = "5MHz"
+sw1.update()
 
 ###############################################################################
 # Get Curves for plot
@@ -137,10 +141,10 @@ q.analyze_nominal()
 # ~~~~~~~~~~~~~~~
 # This command get the report data into a Data Structure that allows to manipulate them.
 
-a = q.post.get_report_data(expression=data_plot_self, domain=["Context:=", "Original"])
+a = q.post.get_solution_data(expressions=data_plot_self, context="Original")
 a.sweeps["Freq"]
 a.data_magnitude()
-
+a.plot()
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
