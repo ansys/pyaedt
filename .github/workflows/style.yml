@@ -21,7 +21,7 @@ jobs:
 
       - name: black style
         run: |
-          python -m black --check -l 120 --exclude='pyaedt\/third_party\/.*\.pyi?$|pyaedt\/rpc\/.*\.pyi?$|pyaedt\/dlls\/.*\.pyi?$|' .
+          python -m black --check -l 120 --exclude='pyaedt\/third_party\/?$|pyaedt\/rpc\/?$|pyaedt\/dlls\/.*\.pyi?$|' .
 
       - name: Codespell
         run: |
