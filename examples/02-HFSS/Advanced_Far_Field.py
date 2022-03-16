@@ -35,7 +35,6 @@ from pyaedt.generic.general_methods import remove_project_lock
 
 import numpy as np
 import matplotlib.pyplot as plt
-import math
 
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
