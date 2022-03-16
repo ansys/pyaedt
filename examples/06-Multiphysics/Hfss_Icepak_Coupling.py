@@ -308,7 +308,7 @@ aedtapp.save_project()
 ################################################################################
 # Use Matplotlib and Numpy to Generate Graphs
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example use Matplotlib and Numpy to generate report outside of Electronics Desktop.
+# This example uses Matplotlib and Numpy to generate report outside of Electronics Desktop.
 
 trace_names = aedtapp.get_traces_for_plot(category="S")
 cxt = ["Domain:=", "Sweep"]
