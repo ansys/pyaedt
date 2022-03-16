@@ -315,21 +315,22 @@ class TestClass(BasisTest, object):
             context="Differential Pairs",
         )
         assert data1.primary_sweep == "Freq"
-        data1.plot(math_formula="db20")
+        if not is_ironpython:
+            data1.plot(math_formula="db20")
         data1.primary_sweep = "l1"
         assert data1.primary_sweep == "l1"
         assert len(data1.data_magnitude()) == 5
-        assert data1.plot(math_formula="db20")
-        assert data1.plot(math_formula="db10")
-        assert data1.plot(math_formula="mag")
-        assert data1.plot(math_formula="re")
-        assert data1.plot(math_formula="im")
-        assert data1.plot(math_formula="phasedeg")
-        assert data1.plot(math_formula="phaserad")
         if is_ironpython:
             assert not data1.plot("S(Diff1, Diff1)")
         else:
             assert data1.plot("S(Diff1, Diff1)")
+            assert data1.plot(math_formula="db20")
+            assert data1.plot(math_formula="db10")
+            assert data1.plot(math_formula="mag")
+            assert data1.plot(math_formula="re")
+            assert data1.plot(math_formula="im")
+            assert data1.plot(math_formula="phasedeg")
+            assert data1.plot(math_formula="phaserad")
 
         assert self.diff_test.create_touchstone_report(
             plot_name="Diff_plot",
