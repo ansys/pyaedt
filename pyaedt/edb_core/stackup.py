@@ -40,10 +40,8 @@ class EdbStackup(object):
         """ """
         return self._pedb.builder
 
-    @property
-    def _edb_value(self):
-        """ """
-        return self._pedb.edb_value
+    def _get_edb_value(self, value):
+        return self._pedb.edb_value(value)
 
     @property
     def _edb(self):
@@ -145,10 +143,10 @@ class EdbStackup(object):
         if self._edb.Definition.MaterialDef.FindByName(self._db, name).IsNull():
             material_def = self._edb.Definition.MaterialDef.Create(self._db, name)
             material_def.SetProperty(
-                self._edb.Definition.MaterialPropertyId.Permittivity, self._edb_value(permittivity)
+                self._edb.Definition.MaterialPropertyId.Permittivity, self._get_edb_value(permittivity)
             )
             material_def.SetProperty(
-                self._edb.Definition.MaterialPropertyId.DielectricLossTangent, self._edb_value(loss_tangent)
+                self._edb.Definition.MaterialPropertyId.DielectricLossTangent, self._get_edb_value(loss_tangent)
             )
             return material_def
         return False
@@ -172,7 +170,7 @@ class EdbStackup(object):
         if self._edb.Definition.MaterialDef.FindByName(self._db, name).IsNull():
             material_def = self._edb.Definition.MaterialDef.Create(self._db, name)
             material_def.SetProperty(
-                self._edb.Definition.MaterialPropertyId.Conductivity, self._edb_value(conductivity)
+                self._edb.Definition.MaterialPropertyId.Conductivity, self._get_edb_value(conductivity)
             )
             return material_def
         return False
@@ -220,7 +218,7 @@ class EdbStackup(object):
         material_def.SetFrequencyRange(lower_freqency, higher_frequency)
         material_def.SetLossTangentAtHighLowFrequency(loss_tangent_low, loss_tangent_high)
         material_def.SetRelativePermitivityAtHighLowFrequency(
-            self._edb_value(relative_permittivity_low), self._edb_value(relative_permittivity_high)
+            self._get_edb_value(relative_permittivity_low), self._get_edb_value(relative_permittivity_high)
         )
         return self._add_dielectric_material_model(name, material_def)
 
@@ -284,7 +282,7 @@ class EdbStackup(object):
                 comp_prop = val.component_property
                 port_property = comp_prop.GetPortProperty().Clone()
                 port_property.SetReferenceSizeAuto(False)
-                port_property.SetReferenceSize(self._edb_value(0.0), self._edb_value(0.0))
+                port_property.SetReferenceSize(self._get_edb_value(0.0), self._get_edb_value(0.0))
                 comp_prop.SetPortProperty(port_property)
                 val.edbcomponent.SetComponentProperty(comp_prop)
 
@@ -410,9 +408,9 @@ class EdbStackup(object):
         elif flipped_stackup:
             self.flip_design()
         edb_cell = edb.active_cell
-        _angle = self._edb_value(angle * math.pi / 180.0)
-        _offset_x = self._edb_value(offset_x)
-        _offset_y = self._edb_value(offset_y)
+        _angle = self._get_edb_value(angle * math.pi / 180.0)
+        _offset_x = self._get_edb_value(offset_x)
+        _offset_y = self._get_edb_value(offset_y)
 
         if edb_cell.GetName() not in self._pedb.cell_names:
             _dbCell = convert_py_list_to_net_list([edb_cell])
@@ -500,13 +498,13 @@ class EdbStackup(object):
                 solder_height = self._get_solder_height(lay)
                 self._remove_solder_pec(lay)
 
-        rotation = self._edb_value(0.0)
+        rotation = self._get_edb_value(0.0)
         if flipped_stackup:
-            rotation = self._edb_value(math.pi)
+            rotation = self._get_edb_value(math.pi)
 
         edb_cell = edb.active_cell
-        _offset_x = self._edb_value(offset_x)
-        _offset_y = self._edb_value(offset_y)
+        _offset_x = self._get_edb_value(offset_x)
+        _offset_y = self._get_edb_value(offset_y)
 
         if edb_cell.GetName() not in self._pedb.cell_names:
             _dbCell = convert_py_list_to_net_list([edb_cell])
@@ -565,15 +563,15 @@ class EdbStackup(object):
             elevation = target_bottom_elevation - source_stack_top_elevation
             solder_height = -solder_height
 
-        h_stackup = self._edb_value(elevation + solder_height)
+        h_stackup = self._get_edb_value(elevation + solder_height)
 
-        zero_data = self._edb_value(0.0)
-        one_data = self._edb_value(1.0)
+        zero_data = self._get_edb_value(0.0)
+        one_data = self._get_edb_value(1.0)
         point3d_t = self._edb.Geometry.Point3DData(_offset_x, _offset_y, h_stackup)
         point_loc = self._edb.Geometry.Point3DData(zero_data, zero_data, zero_data)
         point_from = self._edb.Geometry.Point3DData(one_data, zero_data, zero_data)
         point_to = self._edb.Geometry.Point3DData(
-            self._edb_value(math.cos(_angle)), self._edb_value(-1 * math.sin(_angle)), zero_data
+            self._get_edb_value(math.cos(_angle)), self._get_edb_value(-1 * math.sin(_angle)), zero_data
         )
         cell_inst2.Set3DTransformation(point_loc, point_from, point_to, rotation, point3d_t)
         return True
@@ -616,7 +614,7 @@ class EdbStackup(object):
                 if not "RadBox" in layer.GetName() and not layer.IsViaLayer():
                     upper_elevation = layer.GetUpperElevation() * 1.0e6
                     updated_lower_el = max_elevation - upper_elevation
-                    val = self._edb_value("{}um".format(updated_lower_el))
+                    val = self._get_edb_value("{}um".format(updated_lower_el))
                     cloned_layer.SetLowerElevation(val)
                     if cloned_layer.GetTopBottomAssociation() == self._edb.Cell.TopBottomAssociation.TopAssociated:
                         cloned_layer.SetTopBottomAssociation(self._edb.Cell.TopBottomAssociation.BottomAssociated)
@@ -645,7 +643,7 @@ class EdbStackup(object):
                 via_layer_lower_elevation = (
                     ref_layer_in_flipped_stackup.GetLowerElevation() + ref_layer_in_flipped_stackup.GetThickness()
                 )
-                cloned_via_layer.SetLowerElevation(self._edb_value(via_layer_lower_elevation))
+                cloned_via_layer.SetLowerElevation(self._get_edb_value(via_layer_lower_elevation))
                 new_lc.AddStackupLayerAtElevation(cloned_via_layer)
 
             layer_list = convert_py_list_to_net_list(non_stackup_layers)
@@ -719,7 +717,7 @@ class EdbStackup(object):
         """
         material_def = self._edb.Definition.DjordjecvicSarkarModel()
         material_def.SetFrequency(test_frequency)
-        material_def.SetLossTangentAtFrequency(self._edb_value(loss_tangent))
+        material_def.SetLossTangentAtFrequency(self._get_edb_value(loss_tangent))
         material_def.SetRelativePermitivityAtFrequency(relative_permittivity)
         return self._add_dielectric_material_model(name, material_def)
 

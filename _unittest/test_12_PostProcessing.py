@@ -213,7 +213,7 @@ class TestClass(BasisTest, object):
         assert data.primary_sweep == "Phi"
         assert data.data_magnitude("GainTotal")
         assert not data.data_magnitude("GainTotal2")
-        self.field_test.post.create_report(
+        assert self.field_test.post.create_report(
             "S(1,1)",
             self.field_test.nominal_sweep,
             variations=variations,

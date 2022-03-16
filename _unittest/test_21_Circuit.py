@@ -80,9 +80,26 @@ class TestClass(BasisTest, object):
             "Test1", [1, 2], parameter_list=["Author:=", "NumTerminals:="], parameter_value=["pyaedt", 2]
         )
 
-    def test_06_add_3dlayout_component(self):
+    def test_06a_create_setup(self):
+        setup_name = "LNA"
+        LNA_setup = self.aedtapp.create_setup(setup_name)
+        assert LNA_setup
+
+    def test_06b_add_3dlayout_component(self):
         myedb = self.aedtapp.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
         assert type(myedb.id) is int
+        ports = myedb.pins
+        tx = ports
+        rx = ports
+        insertions = ["dB(S({},{}))".format(i.name, j.name) for i, j in zip(tx, rx)]
+        assert self.aedtapp.post.create_report(
+            insertions,
+            self.aedtapp.nominal_adaptive,
+            plotname="Insertion Losses",
+            plot_type="Rectangular Plot",
+            report_category="Standard",
+            subdesign_id=myedb.id,
+        )
 
     def test_07_add_hfss_component(self):
         my_model, myname = self.aedtapp.modeler.schematic.create_field_model(
@@ -91,9 +108,6 @@ class TestClass(BasisTest, object):
         assert type(my_model) is int
 
     def test_07a_push_excitation(self):
-        setup_name = "LNA"
-        LNA_setup = self.aedtapp.create_setup(setup_name)
-        assert LNA_setup
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=False)
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=True)
 
