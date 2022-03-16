@@ -185,15 +185,35 @@ class SolutionData(object):
         """ """
         sols_data = {}
         for expression in self.expressions:
-            solution = list(self.nominal_variation.GetRealDataValues(expression, False))
+            combinations = []
+            if len(self._original_data) == 1:
+                solution = list(self.nominal_variation.GetRealDataValues(expression, False))
+            else:
+                solution = []
+                for data in self._original_data:
+                    for v in data.GetDesignVariableNames():
+                        if v not in self._sweeps_names:
+                            self._sweeps[v] = []
+                            self._sweeps_names.append(v)
+                            self.nominal_sweeps[v] = data.GetDesignVariableValue(v)
+                            self.units_sweeps[v] = data.GetDesignVariableUnits(v)
+                    comb = []
+                    for v in reversed(data.GetDesignVariableNames()):
+                        if data.GetDesignVariableValue(v) not in self._sweeps[v]:
+                            self._sweeps[v].append(data.GetDesignVariableValue(v))
+                        comb.append(data.GetDesignVariableValue(v))
+                    combinations.append(comb)
+                    solution.extend(list(data.GetRealDataValues(expression, False)))
             values = []
             for el in reversed(self._sweeps_names):
                 values.append(self.sweeps[el])
+
             solution_Data = {}
             i = 0
             for t in itertools.product(*values):
-                solution_Data[t] = solution[i]
-                i += 1
+                if combinations and list(t[: len(combinations[0])]) in combinations:
+                    solution_Data[t] = solution[i]
+                    i += 1
             sols_data[expression] = solution_Data
         return sols_data
 
@@ -201,19 +221,30 @@ class SolutionData(object):
     def _solution_data_imag(self):
         """ """
         sols_data = {}
+        combinations = []
         for expression in self.expressions:
-            try:
+            if len(self._original_data) == 1:
                 solution = list(self.nominal_variation.GetImagDataValues(expression, False))
-            except:
-                solution = [0 for i in range(len(self.solutions_data_real[expression]))]
+            else:
+                solution = []
+                for data in self._original_data:
+                    comb = []
+                    for v in reversed(data.GetDesignVariableNames()):
+                        if data.GetDesignVariableValue(v) not in self._sweeps[v]:
+                            self._sweeps[v].append(data.GetDesignVariableValue(v))
+                        comb.append(data.GetDesignVariableValue(v))
+                    combinations.append(comb)
+                    solution.extend(list(data.GetImagDataValues(expression, False)))
             values = []
             for el in reversed(self._sweeps_names):
                 values.append(self.sweeps[el])
+
             solution_Data = {}
             i = 0
             for t in itertools.product(*values):
-                solution_Data[t] = solution[i]
-                i += 1
+                if combinations and list(t[: len(combinations[0])]) in combinations:
+                    solution_Data[t] = solution[i]
+                    i += 1
             sols_data[expression] = solution_Data
         return sols_data
 
@@ -394,6 +425,14 @@ class SolutionData(object):
 
         return [db20(i) for i in self.data_magnitude(expression, convert_to_SI)]
 
+    def data_phase(self, expression=None, radians=True):
+        if not expression:
+            expression = self.expressions[0]
+        coefficient = 1
+        if not radians:
+            coefficient = 180 / math.pi
+        return [coefficient * math.atan(k / i) for i, k in zip(self.data_real(expression), self.data_imag(expression))]
+
     def data_real(self, expression=None, convert_to_SI=False):
         """Retrieve the real part of the data for an expression.
 
@@ -544,8 +583,7 @@ class SolutionData(object):
     @pyaedt_function_handler()
     def plot(
         self,
-        curves,
-        sweep_name=None,
+        curves=None,
         math_formula=None,
         size=(2000, 1000),
         show_legend=True,
@@ -558,12 +596,11 @@ class SolutionData(object):
 
         Parameters
         ----------
-        curves : list of list
-            List of plot data. Every item has to be in the following format
-            `[x points, y points, color, alpha, label, type]`. type can be `fill` or `path`.
+        curves : list
+            Curves to be plotted. If None, the first curve will be plotted.
         math_formula : str , optional
             Mathematical formula to apply to the plot curve.
-            Valid values are `"re"`, `"im"`, `"db20"`, `"db10"`, `"abs"`, `"mag"`.
+            Valid values are `"re"`, `"im"`, `"db20"`, `"db10"`, `"abs"`, `"mag"`, `"phasedeg"`, `"phaserad"`.
         size : tuple, optional
             Image size in pixel (width, height).
         show_legend : bool
@@ -579,22 +616,35 @@ class SolutionData(object):
         """
         if is_ironpython:
             return False
+        if not curves:
+            curves = [self.expressions[0]]
         if isinstance(curves, str):
             curves = [curves]
         data_plot = []
-        if not sweep_name:
-            sweep_name = self.primary_sweep
+        sweep_name = self.primary_sweep
+        if not math_formula:
+            math_formula = "mag"
         for curve in curves:
-            if math_formula == "re" or not math_formula:
-                data_plot.append([self.sweeps[sweep_name], self.data_real(curve)])
+            if math_formula == "re":
+                data_plot.append([self.sweeps[sweep_name], self.data_real(curve), "{}({})".format(math_formula, curve)])
             elif math_formula == "im":
-                data_plot.append([self.sweeps[sweep_name], self.data_imag(curve)])
+                data_plot.append([self.sweeps[sweep_name], self.data_imag(curve), "{}({})".format(math_formula, curve)])
             elif math_formula == "db20":
-                data_plot.append([self.sweeps[sweep_name], self.data_db20(curve)])
+                data_plot.append([self.sweeps[sweep_name], self.data_db20(curve), "{}({})".format(math_formula, curve)])
             elif math_formula == "db10":
-                data_plot.append([self.sweeps[sweep_name], self.data_db10(curve)])
+                data_plot.append([self.sweeps[sweep_name], self.data_db10(curve), "{}({})".format(math_formula, curve)])
             elif math_formula == "mag":
-                data_plot.append([self.sweeps[sweep_name], self.data_magnitude(curve)])
+                data_plot.append(
+                    [self.sweeps[sweep_name], self.data_magnitude(curve), "{}({})".format(math_formula, curve)]
+                )
+            elif math_formula == "phasedeg":
+                data_plot.append(
+                    [self.sweeps[sweep_name], self.data_phase(curve, False), "{}({})".format(math_formula, curve)]
+                )
+            elif math_formula == "phaserad":
+                data_plot.append(
+                    [self.sweeps[sweep_name], self.data_phase(curve, True), "{}({})".format(math_formula, curve)]
+                )
         return plot_2d_chart(data_plot, size, show_legend, xlabel, ylabel, title, snapshot_path)
 
 

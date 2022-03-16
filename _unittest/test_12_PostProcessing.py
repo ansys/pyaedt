@@ -298,7 +298,7 @@ class TestClass(BasisTest, object):
     def test_18_diff_plot(self):
         self.diff_test.analyze_setup("LinearFrequency")
         variations = self.diff_test.available_variations.nominal_w_values_dict
-        variations["Freq"] = ["1GHz"]
+        variations["Freq"] = ["All"]
         variations["l1"] = ["All"]
         assert self.diff_test.post.create_report(
             ["dB(S(Diff1, Diff1))"],
@@ -315,7 +315,17 @@ class TestClass(BasisTest, object):
             context="Differential Pairs",
         )
         assert data1.primary_sweep == "Freq"
-        assert data1.data_magnitude()
+        data1.plot(math_formula="db20")
+        data1.primary_sweep = "l1"
+        assert data1.primary_sweep == "l1"
+        assert len(data1.data_magnitude()) == 5
+        assert data1.plot(math_formula="db20")
+        assert data1.plot(math_formula="db10")
+        assert data1.plot(math_formula="mag")
+        assert data1.plot(math_formula="re")
+        assert data1.plot(math_formula="im")
+        assert data1.plot(math_formula="phasedeg")
+        assert data1.plot(math_formula="phaserad")
         if is_ironpython:
             assert not data1.plot("S(Diff1, Diff1)")
         else:

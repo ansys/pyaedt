@@ -86,7 +86,7 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
     ----------
     plot_data : list of list
         List of plot data. Every item has to be in the following format
-        `[x points, y points]`.
+        `[x points, y points, label]`.
     size : tuple, optional
         Image size in pixel (width, height).
     show_legend : bool
@@ -107,8 +107,14 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
         len(plot_data)
     except:
         plot_data = convert_remote_object(plot_data)
+    id = 1
     for object in plot_data:
-        ax.plot(np.array(object[0]), np.array(object[1]))
+        if len(object) == 3:
+            label = object[2]
+        else:
+            label = "Trace " + str(id)
+        ax.plot(np.array(object[0]), np.array(object[1]), label=label)
+        id += 1
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
     if show_legend:
