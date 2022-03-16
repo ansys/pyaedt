@@ -207,6 +207,7 @@ if sys.version_info >= (3, 2):
             return lock.acquire(blocking, timeout.timeleft())
         return lock.acquire(blocking)
 
+    
 else:
 
     def acquire_lock(lock, blocking, timeout):
