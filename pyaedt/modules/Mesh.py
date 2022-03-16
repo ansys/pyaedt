@@ -254,7 +254,7 @@ class Mesh(object):
                 sol = "HFSS Terminal Network"
             else:
                 sol = self._app.solution_type
-            des_target = oproject_target.InsertDesign(self._app.design_type, temp_name, sol, "")
+            oproject_target.InsertDesign(self._app.design_type, temp_name, sol, "")
             oproject_target.SaveAs(temp_proj, True)
             self._app.odesktop.CloseProject(temp_name)
             _project_dictionary = load_entire_aedt_file(temp_proj)
