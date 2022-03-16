@@ -211,7 +211,7 @@ class SolutionData(object):
             solution_Data = {}
             i = 0
             for t in itertools.product(*values):
-                if combinations and list(t[: len(combinations[0])]) in combinations:
+                if not combinations or (combinations and list(t[: len(combinations[0])]) in combinations):
                     solution_Data[t] = solution[i]
                     i += 1
             sols_data[expression] = solution_Data
@@ -242,7 +242,7 @@ class SolutionData(object):
             solution_Data = {}
             i = 0
             for t in itertools.product(*values):
-                if combinations and list(t[: len(combinations[0])]) in combinations:
+                if not combinations or (combinations and list(t[: len(combinations[0])]) in combinations):
                     solution_Data[t] = solution[i]
                     i += 1
             sols_data[expression] = solution_Data

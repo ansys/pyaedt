@@ -38,8 +38,6 @@ print(project_dir)
 
 from pyaedt import Hfss
 from pyaedt import Icepak
-import numpy as np
-import matplotlib.pyplot as plt
 
 
 ###############################################################################
@@ -310,25 +308,13 @@ aedtapp.save_project()
 ################################################################################
 # Use Matplotlib and Numpy to Generate Graphs
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example use Matplotlib and Numpy to generate graphs outside of PyAEDT.
+# This example use Matplotlib and Numpy to generate report outside of Electronics Desktop.
 
 trace_names = aedtapp.get_traces_for_plot(category="S")
 cxt = ["Domain:=", "Sweep"]
 families = ["Freq:=", ["All"]]
-my_data = aedtapp.post.get_solution_data(expression=trace_names)
-freq_data = np.array(my_data.sweeps["Freq"])
-
-comp = []
-fig, ax = plt.subplots(figsize=(20, 10))
-
-ax.set(xlabel="Frequency (Ghz)", ylabel="SParameters(dB)", title="Scattering Chart")
-ax.grid()
-for el in trace_names:
-    mag_data = np.array(my_data.data_db(el))
-    ax.plot(freq_data, mag_data)
-plt.savefig(os.path.join(results_folder, project_name + ".svg"))
-plt.savefig(os.path.join(results_folder, project_name + ".jpg"))
-plt.show()
+my_data = aedtapp.post.get_solution_data(expressions=trace_names)
+my_data.plot(trace_names, "db20", xlabel="Frequency (Ghz)", ylabel="SParameters(dB)", title="Scattering Chart")
 
 ################################################################################
 # Close the Project and AEDT
