@@ -137,7 +137,7 @@ q.analyze_nominal()
 # ~~~~~~~~~~~~~~~
 # This command get the report data into a Data Structure that allows to manipulate them.
 
-a = q.post.get_solution_data(expression=data_plot_self, context="Original")
+a = q.post.get_solution_data(expressions=data_plot_self, context="Original")
 a.sweeps["Freq"]
 a.data_magnitude()
 
