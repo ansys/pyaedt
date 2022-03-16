@@ -206,11 +206,14 @@ class TestClass(BasisTest, object):
             "GainTotal",
             self.field_test.nominal_adaptive,
             variations=variations,
-            primary_sweep_variable="Phi",
+            primary_sweep_variable="Theta",
             context="3D",
             report_category="Far Fields",
         )
-        assert data.primary_sweep == "Phi"
+        if not is_ironpython:
+            assert data.plot(is_polar=True)
+            assert data.plot_3d()
+        assert data.primary_sweep == "Theta"
         assert data.data_magnitude("GainTotal")
         assert not data.data_magnitude("GainTotal2")
         assert self.field_test.post.create_report(

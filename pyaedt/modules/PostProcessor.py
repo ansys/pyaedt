@@ -23,7 +23,7 @@ from pyaedt.generic.general_methods import _retry_ntimes, is_ironpython
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import write_csv
-from pyaedt.generic.plot import plot_2d_chart
+from pyaedt.generic.plot import plot_2d_chart, plot_polar_chart, plot_3d_chart
 
 orientation_to_view = {
     "isometric": "iso",
@@ -269,7 +269,7 @@ class SolutionData(object):
             List of inputs in degrees.
 
         """
-        return [i * 2 * math.pi / 360 for i in input_list]
+        return [i * 360 / (2 * math.pi) for i in input_list]
 
     @pyaedt_function_handler()
     def to_radians(self, input_list):
@@ -286,7 +286,8 @@ class SolutionData(object):
             List of inputs in radians.
 
         """
-        return [i * 360 / (2 * math.pi) for i in input_list]
+        return [i * 2 * math.pi / 360 for i in input_list]
+
 
     @pyaedt_function_handler()
     def data_magnitude(self, expression=None, convert_to_SI=False):
@@ -614,6 +615,7 @@ class SolutionData(object):
         ylabel="",
         title="",
         snapshot_path=None,
+        is_polar=False,
     ):
         """Create a matplotlib plot based on a list of data.
 
@@ -636,6 +638,8 @@ class SolutionData(object):
             Plot Title label.
         snapshot_path : str
             Full path to image file if a snapshot is needed.
+        is_polar : bool, optional
+            Set to `True` if this is a polar plot.
         """
         if is_ironpython:
             return False
@@ -647,28 +651,106 @@ class SolutionData(object):
         sweep_name = self.primary_sweep
         if not math_formula:
             math_formula = "mag"
+        if is_polar:
+            sw = self.to_radians(self.sweeps[sweep_name])
+        else:
+            sw = self.sweeps[sweep_name]
+
         for curve in curves:
             if math_formula == "re":
-                data_plot.append([self.sweeps[sweep_name], self.data_real(curve), "{}({})".format(math_formula, curve)])
+                data_plot.append([sw, self.data_real(curve), "{}({})".format(math_formula, curve)])
             elif math_formula == "im":
-                data_plot.append([self.sweeps[sweep_name], self.data_imag(curve), "{}({})".format(math_formula, curve)])
+                data_plot.append([sw, self.data_imag(curve), "{}({})".format(math_formula, curve)])
             elif math_formula == "db20":
-                data_plot.append([self.sweeps[sweep_name], self.data_db20(curve), "{}({})".format(math_formula, curve)])
+                data_plot.append([sw, self.data_db20(curve), "{}({})".format(math_formula, curve)])
             elif math_formula == "db10":
-                data_plot.append([self.sweeps[sweep_name], self.data_db10(curve), "{}({})".format(math_formula, curve)])
+                data_plot.append([sw, self.data_db10(curve), "{}({})".format(math_formula, curve)])
             elif math_formula == "mag":
-                data_plot.append(
-                    [self.sweeps[sweep_name], self.data_magnitude(curve), "{}({})".format(math_formula, curve)]
-                )
+                data_plot.append([sw, self.data_magnitude(curve), "{}({})".format(math_formula, curve)])
             elif math_formula == "phasedeg":
-                data_plot.append(
-                    [self.sweeps[sweep_name], self.data_phase(curve, False), "{}({})".format(math_formula, curve)]
-                )
+                data_plot.append([sw, self.data_phase(curve, False), "{}({})".format(math_formula, curve)])
             elif math_formula == "phaserad":
-                data_plot.append(
-                    [self.sweeps[sweep_name], self.data_phase(curve, True), "{}({})".format(math_formula, curve)]
-                )
-        return plot_2d_chart(data_plot, size, show_legend, xlabel, ylabel, title, snapshot_path)
+                data_plot.append([sw, self.data_phase(curve, True), "{}({})".format(math_formula, curve)])
+        if not xlabel:
+            xlabel = sweep_name
+        if not ylabel:
+            ylabel = math_formula
+        if not title:
+            title = "Simulation Results Plot"
+        if is_polar:
+            return plot_polar_chart(data_plot, size, show_legend, xlabel, ylabel, title, snapshot_path)
+        else:
+            return plot_2d_chart(data_plot, size, show_legend, xlabel, ylabel, title, snapshot_path)
+
+    @pyaedt_function_handler()
+    def plot_3d(
+        self,
+        curve=None,
+        x_axis= "Theta",
+        y_axis= "Phi",
+        xlabel="",
+        ylabel="",
+        title="",
+        math_formula=None,
+        size=(2000, 1000),
+        snapshot_path=None,
+    ):
+        """Create a matplotlib 3d plot based on a list of data.
+
+        Parameters
+        ----------
+        curve : str
+            Curve to be plotted. If None, the first curve will be plotted.
+        x_axis : str, optional
+            X Axis sweep. Default is `"Theta"`.
+        y_axis : str, optional
+            Y Axis sweep. Default is `"Phi"`.
+        math_formula : str , optional
+            Mathematical formula to apply to the plot curve.
+            Valid values are `"re"`, `"im"`, `"db20"`, `"db10"`, `"abs"`, `"mag"`, `"phasedeg"`, `"phaserad"`.
+        size : tuple, optional
+            Image size in pixel (width, height).
+        snapshot_path : str
+            Full path to image file if a snapshot is needed.
+        is_polar : bool, optional
+            Set to `True` if this is a polar plot.
+        """
+        if is_ironpython:
+            return False
+        if not curve:
+            curve = self.expressions[0]
+
+        if not math_formula:
+            math_formula = "mag"
+        theta = self.to_radians(self.sweeps[x_axis])
+        phi = []
+        r = []
+        for el in self.sweeps[y_axis]:
+            self.nominal_sweeps[y_axis] = el
+            phi.append(el * math.pi / 180)
+
+            if math_formula == "re":
+                r.append(self.data_real(curve))
+            elif math_formula == "im":
+                r.append(self.data_imag(curve))
+            elif math_formula == "db20":
+                r.append(self.data_db20(curve))
+            elif math_formula == "db10":
+                r.append(self.data_db10(curve))
+            elif math_formula == "mag":
+                r.append(self.data_magnitude(curve))
+            elif math_formula == "phasedeg":
+                r.append(self.data_phase(curve, False))
+            elif math_formula == "phaserad":
+                r.append(self.data_phase(curve, True))
+        data_plot = [theta, phi, r]
+        if not xlabel:
+            xlabel = x_axis
+        if not ylabel:
+            ylabel = y_axis
+        if not title:
+            title = "Simulation Results Plot"
+        return plot_3d_chart(data_plot, size, xlabel, ylabel, title, snapshot_path)
 
 
 class FieldPlot:
