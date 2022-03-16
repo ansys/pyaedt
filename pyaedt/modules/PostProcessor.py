@@ -223,18 +223,21 @@ class SolutionData(object):
         sols_data = {}
         combinations = []
         for expression in self.expressions:
-            if len(self._original_data) == 1:
-                solution = list(self.nominal_variation.GetImagDataValues(expression, False))
+            if self.nominal_variation.IsDataComplex(expression):
+                if len(self._original_data) == 1:
+                    solution = list(self.nominal_variation.GetImagDataValues(expression, False))
+                else:
+                    solution = []
+                    for data in self._original_data:
+                        comb = []
+                        for v in reversed(data.GetDesignVariableNames()):
+                            if data.GetDesignVariableValue(v) not in self._sweeps[v]:
+                                self._sweeps[v].append(data.GetDesignVariableValue(v))
+                            comb.append(data.GetDesignVariableValue(v))
+                        combinations.append(comb)
+                        solution.extend(list(data.GetImagDataValues(expression, False)))
             else:
-                solution = []
-                for data in self._original_data:
-                    comb = []
-                    for v in reversed(data.GetDesignVariableNames()):
-                        if data.GetDesignVariableValue(v) not in self._sweeps[v]:
-                            self._sweeps[v].append(data.GetDesignVariableValue(v))
-                        comb.append(data.GetDesignVariableValue(v))
-                    combinations.append(comb)
-                    solution.extend(list(data.GetImagDataValues(expression, False)))
+                solution = None
             values = []
             for el in reversed(self._sweeps_names):
                 values.append(self.sweeps[el])
@@ -243,7 +246,10 @@ class SolutionData(object):
             i = 0
             for t in itertools.product(*values):
                 if not combinations or (combinations and list(t[: len(combinations[0])]) in combinations):
-                    solution_Data[t] = solution[i]
+                    if solution:
+                        solution_Data[t] = solution[i]
+                    else:
+                        solution_Data[t] = 0
                     i += 1
             sols_data[expression] = solution_Data
         return sols_data
@@ -1720,7 +1726,7 @@ class PostProcessorCommon(object):
         elif setup_sweep_name not in self._app.existing_analysis_sweeps:
             self.logger.error("Sweep not Available.")
             return False
-        families_input = {}
+        families_input = OrderedDict({})
         did = 3
         if domain == "Sweep" and not primary_sweep_variable:
             primary_sweep_variable = "Freq"
