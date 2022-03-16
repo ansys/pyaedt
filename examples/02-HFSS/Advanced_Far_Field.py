@@ -195,6 +195,7 @@ def Polar_Plot(Phase=0, Freq=76):
     Freq = int(Freq)
     f_list = [Freq]
     p_list = [Phase]
+    vals.primary_sweep = "Theta"
     if Freq == 75:
         f_list = vals.sweeps["Freq"]
     if Phase == -90:
