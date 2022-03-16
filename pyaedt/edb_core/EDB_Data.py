@@ -2614,7 +2614,7 @@ class SimulationConfiguration(object):
         self._min_plane_area_to_mesh = "4mil2"  # Newly Added
         self._dc_min_plane_area_to_mesh = "8mil2"
         self._max_init_mesh_edge_length = "14.5mil"
-        self._signalLayersProperties = {}
+        self._signal_layers_properties = {}
         self._coplanar_instances = []
         self._signal_layer_etching_instances = []
         self._etching_factor_instances = []
@@ -3115,13 +3115,13 @@ class SimulationConfiguration(object):
             self._max_init_mesh_edge_length = value
 
     @property
-    def signalLayersProperties(self):
-        return self._signalLayersProperties
+    def signal_layers_properties(self):
+        return self._signal_layers_properties
 
-    @signalLayersProperties.setter
-    def signalLayersProperties(self, value):
+    @signal_layers_properties.setter
+    def signal_layers_properties(self, value):
         if isinstance(value, dict):
-            self._signalLayersProperties = value
+            self._signal_layers_properties = value
 
     @property
     def coplanar_instances(self):
@@ -3175,11 +3175,9 @@ class SimulationConfiguration(object):
         for lay in signal_properties:
             lp = lay.split(":")
             try:
-                # self.signalLayersProperties[lp[0]] = [lp[1], lp[2], lp[3], lp[4], lp[5]]
-                self.signalLayersProperties.update({lp[0]: [lp[1], lp[2], lp[3], lp[4], lp[5]]})
+                self.signal_layers_properties.update({lp[0]: [lp[1], lp[2], lp[3], lp[4], lp[5]]})
             except:
                 print("missing parameter for layer {0}".format(lp[0]))
-                # Logger.Info('missing parameter for layer {0}'.format(lp[0]))
 
     def _read_cfg(self):
 
@@ -3331,9 +3329,9 @@ class SimulationConfiguration(object):
                             elif i.startswith("coplanar_instances"):
                                 self.coplanar_instances = self._get_list_value(value)
                             elif i.startswith("SignalLayersEtching"):
-                                self.SignalLayerEtchingInstances = self._get_list_value(value)
+                                self.signal_layer_etching_instances = self._get_list_value(value)
                             elif i.startswith("EtchingFactor"):
-                                self.EtchingFactorInstances = self._get_list_value(value)
+                                self.etching_factor_instances = self._get_list_value(value)
                         else:
                             print("Unprocessed line in cfg file: {0}".format(line))
                     else:

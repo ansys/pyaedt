@@ -786,27 +786,27 @@ class EdbStackup(object):
         new_layer_collection = self._edb.Cell.LayerCollection()
         new_stk_up = [lay.Clone() for lay in all_stackup_layers]
         for lay in new_stk_up:
-            if lay.GetName() in simulation_setup.signalLayersProperties.keys():
+            if lay.GetName() in simulation_setup.signal_layers_properties.keys():
                 layer_name = lay.GetName()
-                etching_factor = simulation_setup.signalLayersProperties[layer_name][0]
+                etching_factor = simulation_setup.signal_layers_properties[layer_name][0]
                 self._logger.info("Etching factor for layer {0} : {1}".format(layer_name, etching_factor))
 
-                top_roughness_nodule_radius = simulation_setup.signalLayersProperties[layer_name][1]
+                top_roughness_nodule_radius = simulation_setup.signal_layers_properties[layer_name][1]
                 self._logger.info(
                     "Top Roughness Nodule Radius for layer {0} : {1}".format(layer_name, top_roughness_nodule_radius)
                 )
 
-                top_roughness_surface_ratio = simulation_setup.signalLayersProperties[layer_name][2]
+                top_roughness_surface_ratio = simulation_setup.signal_layers_properties[layer_name][2]
                 self._logger.info(
                     "Top Roughness Surface Ratio for layer {0} : {1}".format(layer_name, top_roughness_surface_ratio)
                 )
 
-                bot_roughness_nodule_radius = simulation_setup.signalLayersProperties[layer_name][3]
+                bot_roughness_nodule_radius = simulation_setup.signal_layers_properties[layer_name][3]
                 self._logger.info(
                     "Bottom Roughness Nodule for layer {0} : {1}".format(layer_name, bot_roughness_nodule_radius)
                 )
 
-                bot_roughness_surface_ratio = simulation_setup.signalLayersProperties[layer_name][4]
+                bot_roughness_surface_ratio = simulation_setup.signal_layers_properties[layer_name][4]
                 self._logger.info(
                     "Bottom Roughness surface ratio for layer {0} : {1}".format(layer_name, bot_roughness_surface_ratio)
                 )
@@ -815,7 +815,7 @@ class EdbStackup(object):
                     try:
                         if not lay.SetEtchFactorEnabled(True):
                             self._logger.error("Failed to enable Etching factor for layer {0}".format(layer_name))
-                        if not lay.SetEtchFactor(float(simulation_setup.signalLayersProperties[layer_name][0])):
+                        if not lay.SetEtchFactor(float(simulation_setup.signal_layers_properties[layer_name][0])):
                             self._logger.error("Failed to assign Etching factor value for layer {0}".format(layer_name))
                     except:
                         self._logger.error("Failed to define Etching Factor for layer {0}".format(layer_name))
