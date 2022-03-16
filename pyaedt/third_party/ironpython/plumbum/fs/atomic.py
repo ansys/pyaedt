@@ -51,7 +51,7 @@ except ImportError:
         finally:
             UnlockFile(hndl, 0, 0, 0xFFFFFFFF, 0xFFFFFFFF)
 
-            
+
 else:
     if hasattr(fcntl, "lockf"):
 
