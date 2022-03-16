@@ -79,8 +79,9 @@ def is_float(istring):
         return 0
 
 
-def plot_polar_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="",
-                     snapshot_path=None):
+def plot_polar_chart(
+    plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None
+):
     """Create a matplotlib polar plot based on a list of data.
 
     Parameters
@@ -111,7 +112,7 @@ def plot_polar_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", 
         plot_data = convert_remote_object(plot_data)
 
     label_id = 1
-    legend =[]
+    legend = []
     for object in plot_data:
         if len(object) == 3:
             label = object[2]
@@ -137,6 +138,7 @@ def plot_polar_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", 
     else:
         fig.show()
     return True
+
 
 def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None):
     """Create a matplotlib 3D plot based on a list of data.
@@ -173,9 +175,7 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
     Z = R * np.cos(THETA)
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
 
-    ax.plot_surface(
-        X, Y, Z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.5
-    )
+    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.5)
     fig = plt.gcf()
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     if snapshot_path:
@@ -183,6 +183,7 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
     else:
         fig.show()
     return True
+
 
 def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
     """Create a matplotlib plot based on a list of data.

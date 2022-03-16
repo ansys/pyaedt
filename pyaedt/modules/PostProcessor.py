@@ -288,7 +288,6 @@ class SolutionData(object):
         """
         return [i * 2 * math.pi / 360 for i in input_list]
 
-
     @pyaedt_function_handler()
     def data_magnitude(self, expression=None, convert_to_SI=False):
         """Retrieve the data magnitude of an expression.
@@ -686,8 +685,8 @@ class SolutionData(object):
     def plot_3d(
         self,
         curve=None,
-        x_axis= "Theta",
-        y_axis= "Phi",
+        x_axis="Theta",
+        y_axis="Phi",
         xlabel="",
         ylabel="",
         title="",

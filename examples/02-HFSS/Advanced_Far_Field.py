@@ -185,7 +185,6 @@ vals = hfss.post.get_far_field_data(
 )
 
 
-
 vals.plot(math_formula="db20", is_polar=True)
 
 vals.plot(math_formula="db20", is_polar=False)
