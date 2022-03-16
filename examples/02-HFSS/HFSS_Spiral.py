@@ -133,7 +133,7 @@ Q_formula = "im(Y(1,1))/re(Y(1,1))"
 # Save and close the project.
 
 x = hfss.post.get_solution_data([L_formula, Q_formula])
-x.plot([L_formula, Q_formula], xlabel="Freq", ylabel="L and Q")
+x.plot([L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q")
 
 
 ################################################################

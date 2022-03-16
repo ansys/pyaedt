@@ -2076,10 +2076,10 @@ class PostProcessorCommon(object):
             primary_sweep_variable,
             None,
             report_category,
-            plot_type,
+            None,
             context,
             subdesign_id,
-            plotname,
+            None,
             True,
         )
 
