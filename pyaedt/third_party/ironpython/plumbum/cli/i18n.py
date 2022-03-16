@@ -18,7 +18,7 @@ if loc is None or loc.startswith("en"):
     def get_translation_for(package_name):
         return NullTranslation()
 
-    
+
 else:
     import gettext
     import os
