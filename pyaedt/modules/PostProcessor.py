@@ -36,6 +36,18 @@ orientation_to_view = {
 }
 
 
+@pyaedt_function_handler()
+def _convert_dict_to_report_sel(sweeps):
+    sweep_list = []
+    for el in sweeps:
+        sweep_list.append(el + ":=")
+        if type(sweeps[el]) is list:
+            sweep_list.append(sweeps[el])
+        else:
+            sweep_list.append([sweeps[el]])
+    return sweep_list
+
+
 class SolutionData(object):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
 
@@ -1478,7 +1490,7 @@ class PostProcessorCommon(object):
             expression = [expression]
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_adaptive
-        sweep_list = self._convert_dict_to_report_sel(sweeps)
+        sweep_list = _convert_dict_to_report_sel(sweeps)
 
         data = list(
             self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression)
@@ -1656,7 +1668,7 @@ class PostProcessorCommon(object):
             families_input[primary_sweep_variable] = [variations[primary_sweep_variable]]
         if not variations:
             variations = self._app.available_variations.nominal_w_values_dict
-        for el, val in variations.items():
+        for el in list(variations.keys()):
             if el == primary_sweep_variable:
                 continue
             if isinstance(variations[el], list):
@@ -1775,17 +1787,6 @@ class PostProcessorCommon(object):
         return [plotname, modal_data, plot_type, setup_sweep_name, ctxt, families_input, arg]
 
     @pyaedt_function_handler()
-    def _convert_dict_to_report_sel(self, sweeps):
-        sweep_list = []
-        for el in sweeps:
-            sweep_list.append(el + ":=")
-            if type(sweeps[el]) is list:
-                sweep_list.append(sweeps[el])
-            else:
-                sweep_list.append([sweeps[el]])
-        return sweep_list
-
-    @pyaedt_function_handler()
     def create_report(
         self,
         expressions,
@@ -1902,7 +1903,7 @@ class PostProcessorCommon(object):
             out[2],
             out[3],
             out[4],
-            self._convert_dict_to_report_sel(out[5]),
+            _convert_dict_to_report_sel(out[5]),
             out[6],
         )
         return True
