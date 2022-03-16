@@ -71,6 +71,10 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_padstack.get_via_instance_from_net("GND")
         assert not self.edbapp.core_padstack.get_via_instance_from_net(["GND2"])
 
+    def test_01C_create_lumped_port_at_location(self):
+        assert self.edbapp.core_hfss.create_lumped_port_on_trace(nets="A0_N", reference_layer="GND",
+                                                                 point_list=[94.107, 7.874])
+
     def test_02_get_properties(self):
         assert len(self.edbapp.core_components.components) > 0
         assert len(self.edbapp.core_components.inductors) > 0
