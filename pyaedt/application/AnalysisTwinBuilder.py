@@ -73,7 +73,7 @@ class AnalysisTwinBuilder(Analysis):
 
     @property
     def existing_analysis_sweeps(self):
-        """Existing analysis setups.
+        """Get all existing analysis setups.
 
         Returns
         -------
