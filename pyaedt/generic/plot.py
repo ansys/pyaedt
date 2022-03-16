@@ -107,14 +107,14 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
         len(plot_data)
     except:
         plot_data = convert_remote_object(plot_data)
-    id = 1
+    label_id = 1
     for object in plot_data:
         if len(object) == 3:
             label = object[2]
         else:
-            label = "Trace " + str(id)
+            label = "Trace " + str(label_id)
         ax.plot(np.array(object[0]), np.array(object[1]), label=label)
-        id += 1
+        label_id += 1
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
     if show_legend:
