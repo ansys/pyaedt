@@ -1990,12 +1990,10 @@ class PostProcessorCommon(object):
         variations=None,
         primary_sweep_variable=None,
         report_category=None,
-        plot_type="Rectangular Plot",
         context=None,
         subdesign_id=None,
-        plotname=None,
     ):
-        """Get SolutionData of a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
+        """Get SolutionData of a report in AEDT. It can be a 2D plot, 3D solution data class.
 
         Parameters
         ----------
@@ -2016,13 +2014,9 @@ class PostProcessorCommon(object):
             The report category will be in this case "Far Fields".
             Depending on the setup different categories are available.
             If `None` default category will be used (the first item in the Results drop down menu in AEDT).
-        plot_type : str, optional
-            The format of Data Visualization. Default is ``Rectangular Plot``.
         context : str, optional
             The default is ``None``. It can be `None`, `"Differential Pairs"` or
             Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
-        plotname : str, optional
-            Name of the plot. The default is ``None``.
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
@@ -2049,29 +2043,30 @@ class PostProcessorCommon(object):
         >>> variations["Theta"] = ["All"]
         >>> variations["Phi"] = ["All"]
         >>> variations["Freq"] = ["30GHz"]
-        >>> aedtapp.post.create_report(
-        ...    "db(GainTotal)",
+        >>> data1 = aedtapp.post.get_solution_data(
+        ...    "GainTotal",
         ...    aedtapp.nominal_adaptive,
         ...    variations=variations,
         ...    primary_sweep_variable="Phi",
         ...    secondary_sweep_variable="Theta",
-        ...    plot_type="3D Polar Plot",
         ...    context="3D",
         ...    report_category="Far Fields",
         ...)
 
-        >>> aedtapp.post.create_report(
+        >>> data2 =aedtapp.post.get_solution_data(
         ...    "S(1,1)",
         ...    aedtapp.nominal_sweep,
         ...    variations=variations,
-        ...    plot_type="Smith Chart",
         ...)
+        >>> data2.plot()
 
         >>> from pyaedt import Maxwell2d
         >>> maxwell_2d = Maxwell2d()
-        >>> maxwell_2d.post.create_report(
-        ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
+        >>> data3 = maxwell_2d.post.get_solution_data(
+        ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time",
         ... )
+        >>> data3.plot("InputCurrent(PHA)")
+
         """
         out = self._get_report_inputs(
             expressions,
