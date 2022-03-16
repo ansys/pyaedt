@@ -81,7 +81,7 @@ except ImportError:
     def select(*args):
         raise ImportError("select not supported on this platform")
 
-        
+
 else:
     # jython
     if hasattr(select_module, "cpython_compatible_select"):
