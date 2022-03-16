@@ -426,6 +426,23 @@ class SolutionData(object):
         return [db20(i) for i in self.data_magnitude(expression, convert_to_SI)]
 
     def data_phase(self, expression=None, radians=True):
+        """Retrieve the phase part of the data for an expression.
+
+        Parameters
+        ----------
+        expression : str, None
+            Name of the expression. The default is ``None``,
+            in which case the first expression is used.
+        radians : bool, optional
+            Whether to convert the data into radians or degree.
+            The default is ``True`` for radians.
+
+        Returns
+        -------
+        list
+            Phase data for the expression.
+
+        """
         if not expression:
             expression = self.expressions[0]
         coefficient = 1
