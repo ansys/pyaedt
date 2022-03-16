@@ -773,5 +773,5 @@ def _parse_next_sample(file, ports, format):
         if len(data) % 2 != 0:
             raise Exception("less ports than reported in the file extension")
 
-    assert count == ports ** 2
+    assert count == ports**2
     return (freq, list_data)
