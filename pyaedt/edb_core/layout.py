@@ -345,7 +345,7 @@ class EdbLayout(object):
 
         if not origin:
             origin = [center[0] + float(x1) * 10000, center[1] + float(y1) * 10000]
-        result, var_server = self._pedb.add_design_variable(offset_name, 0.0)
+        self._pedb.add_design_variable(offset_name, 0.0)
         i = 0
         continue_iterate = True
         prev_point = None
@@ -358,8 +358,8 @@ class EdbLayout(object):
                         xcoeff, ycoeff = calc_slope([point.X.ToDouble(), point.X.ToDouble()], origin)
 
                         new_points = self._edb.Geometry.PointData(
-                            self._get_edb_value(point.X.ToString() + "{}*{}".format(xcoeff, offset_name), var_server),
-                            self._get_edb_value(point.Y.ToString() + "{}*{}".format(ycoeff, offset_name), var_server),
+                            self._get_edb_value(point.X.ToString() + "{}*{}".format(xcoeff, offset_name)),
+                            self._get_edb_value(point.Y.ToString() + "{}*{}".format(ycoeff, offset_name)),
                         )
                         poligon_data.SetPoint(i, new_points)
                     prev_point = point
