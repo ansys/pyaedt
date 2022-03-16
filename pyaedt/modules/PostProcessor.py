@@ -19,11 +19,11 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
 from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import _retry_ntimes, is_ironpython
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import write_csv
-
+from pyaedt.generic.plot import plot_2d_chart
 
 orientation_to_view = {
     "isometric": "iso",
@@ -528,6 +528,62 @@ class SolutionData(object):
                     i += 1
 
         return write_csv(output, list_full, delimiter=delimiter)
+
+    @pyaedt_function_handler()
+    def plot(
+        self,
+        curves,
+        sweep_name=None,
+        math_formula=None,
+        size=(2000, 1000),
+        show_legend=True,
+        xlabel="",
+        ylabel="",
+        title="",
+        snapshot_path=None,
+    ):
+        """Create a matplotlib plot based on a list of data.
+
+        Parameters
+        ----------
+        curves : list of list
+            List of plot data. Every item has to be in the following format
+            `[x points, y points, color, alpha, label, type]`. type can be `fill` or `path`.
+        math_formula : str , optional
+            Mathematical formula to apply to the plot curve.
+            Valid values are `"re"`, `"im"`, `"db20"`, `"db10"`, `"abs"`, `"mag"`.
+        size : tuple, optional
+            Image size in pixel (width, height).
+        show_legend : bool
+            Either to show legend or not.
+        xlabel : str
+            Plot X label.
+        ylabel : str
+            Plot Y label.
+        title : str
+            Plot Title label.
+        snapshot_path : str
+            Full path to image file if a snapshot is needed.
+        """
+        if is_ironpython:
+            return False
+        if isinstance(curves, str):
+            curves = [curves]
+        data_plot = []
+        if not sweep_name:
+            sweep_name = self.primary_sweep
+        for curve in curves:
+            if math_formula == "re" or not math_formula:
+                data_plot.append([self.sweeps[sweep_name], self.data_real(curve)])
+            elif math_formula == "im":
+                data_plot.append([self.sweeps[sweep_name], self.data_imag(curve)])
+            elif math_formula == "db20":
+                data_plot.append([self.sweeps[sweep_name], self.data_db20(curve)])
+            elif math_formula == "db10":
+                data_plot.append([self.sweeps[sweep_name], self.data_db10(curve)])
+            elif math_formula == "mag":
+                data_plot.append([self.sweeps[sweep_name], self.data_magnitude(curve)])
+        return plot_2d_chart(data_plot, size, show_legend, xlabel, ylabel, title, snapshot_path)
 
 
 class FieldPlot:
@@ -1900,8 +1956,8 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.PostProcessor.SolutionData`
+            `Solution Data object.
 
 
         References

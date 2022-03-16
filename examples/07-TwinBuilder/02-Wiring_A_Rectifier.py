@@ -122,11 +122,11 @@ tb.analyze_setup("TR")
 # Get the values for the voltage on the capacitor in the RC Circuit
 
 E_Value = "V_AC.V"
-x = tb.post.get_report_data(E_Value, "TR", "Time", {"Time": ["All"]})
+x = tb.post.get_solution_data(E_Value, "TR", "Time")
 plt.plot(x.sweeps["Time"], x.data_real(E_Value))
 
 R_Value = "RL.V"
-x = tb.post.get_report_data(R_Value, "TR", "Time", {"Time": ["All"]})
+x = tb.post.get_solution_data(R_Value, "TR", "Time")
 plt.plot(x.sweeps["Time"], x.data_real(R_Value))
 
 plt.grid()

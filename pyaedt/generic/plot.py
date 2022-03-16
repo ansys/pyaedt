@@ -79,6 +79,48 @@ def is_float(istring):
         return 0
 
 
+def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
+    """Create a matplotlib plot based on a list of data.
+
+    Parameters
+    ----------
+    plot_data : list of list
+        List of plot data. Every item has to be in the following format
+        `[x points, y points]`.
+    size : tuple, optional
+        Image size in pixel (width, height).
+    show_legend : bool
+        Either to show legend or not.
+    xlabel : str
+        Plot X label.
+    ylabel : str
+        Plot Y label.
+    title : str
+        Plot Title label.
+    snapshot_path : str
+        Full path to image file if a snapshot is needed.
+    """
+    dpi = 100.0
+    figsize = (size[0] / dpi, size[1] / dpi)
+    fig, ax = plt.subplots(figsize=figsize)
+    try:
+        len(plot_data)
+    except:
+        plot_data = convert_remote_object(plot_data)
+    for object in plot_data:
+        ax.plot(np.array(object[0]), np.array(object[1]))
+
+    ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
+    if show_legend:
+        ax.legend()
+
+    if snapshot_path:
+        fig.savefig(snapshot_path)
+    else:
+        fig.show()
+    return True
+
+
 def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
     """Create a matplotlib plot based on a list of data.
 

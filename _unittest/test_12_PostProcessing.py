@@ -308,7 +308,7 @@ class TestClass(BasisTest, object):
             context="Differential Pairs",
         )
         data1 = self.diff_test.post.get_solution_data(
-            ["dB(S(Diff1, Diff1))"],
+            ["S(Diff1, Diff1)"],
             "LinearFrequency",
             variations=variations,
             primary_sweep_variable="Freq",
@@ -316,6 +316,11 @@ class TestClass(BasisTest, object):
         )
         assert data1.primary_sweep == "Freq"
         assert data1.data_magnitude()
+        if is_ironpython:
+            assert not data1.plot("S(Diff1, Diff1)")
+        else:
+            assert data1.plot("S(Diff1, Diff1)")
+
         assert self.diff_test.create_touchstone_report(
             plot_name="Diff_plot",
             curvenames=["dB(S(Diff1, Diff1))"],

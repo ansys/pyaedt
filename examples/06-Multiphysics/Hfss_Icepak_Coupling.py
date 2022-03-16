@@ -315,7 +315,7 @@ aedtapp.save_project()
 trace_names = aedtapp.get_traces_for_plot(category="S")
 cxt = ["Domain:=", "Sweep"]
 families = ["Freq:=", ["All"]]
-my_data = aedtapp.post.get_report_data(expression=trace_names)
+my_data = aedtapp.post.get_solution_data(expression=trace_names)
 freq_data = np.array(my_data.sweeps["Freq"])
 
 comp = []
