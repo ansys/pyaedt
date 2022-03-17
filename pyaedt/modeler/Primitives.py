@@ -2646,7 +2646,7 @@ class Primitives(object):
             try:
                 edgeID = int(self._oeditor.GetEdgeByPosition(vArg1))
                 return edgeID
-            except Exception as e:
+            except:
                 pass
 
     @pyaedt_function_handler()

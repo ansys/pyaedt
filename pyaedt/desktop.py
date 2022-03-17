@@ -622,7 +622,7 @@ class Desktop:
                 socket.getfqdn().split(".")[0],
             ] and not _check_grpc_port(self.port):
                 self.machine = ""
-            elif self.machine not in [
+            elif self.machine and self.machine not in [
                 "localhost",
                 "127.0.0.1",
                 socket.getfqdn(),
