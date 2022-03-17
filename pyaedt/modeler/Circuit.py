@@ -6,7 +6,7 @@ from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.Object3d import _dim_arg
 from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
-from pyaedt.modeler.PrimitivesEmit import EmitComponents
+from pyaedt.modeler.PrimitivesEmit import EmitComponents, EmitComponent
 from pyaedt.modeler.PrimitivesMaxwellCircuit import MaxwellCircuitComponents
 from pyaedt.modeler.PrimitivesNexxim import NexximComponents
 from pyaedt.modeler.PrimitivesTwinBuilder import TwinBuilderComponents
