@@ -194,7 +194,7 @@ class SiwaveSolve(object):
             if os.path.exists(exec_file):
                 with open(exec_file, "r+") as f:
                     content = f.readlines()
-                    if not "SetNumCpus" in content:
+                    if "SetNumCpus" not in content:
                         f.writelines(str.format("SetNumCpus {}", str(self.nbcores)) + "\n")
                         f.writelines("SaveSiw")
                     else:
