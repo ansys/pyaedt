@@ -687,11 +687,11 @@ def _parse_option_line(file, verbose=False):
 
     if verbose:
         print("  Frequency unit: %g Hz" % frequnit)
-        print("  Parameter:      %s" % type)
+        print("  Parameter:      %s" % parameter)
         print("  Format:         %s" % format)
         print("  Reference R:    %g" % z0)
 
-    return (frequnit, type, format, z0)
+    return (frequnit, parameter, format, z0)
 
 
 def _get_next_line_data(file):
