@@ -14,6 +14,7 @@ from pyaedt.modeler.Object3d import ComponentsSubCircuit3DLayout
 from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout
 from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
 from pyaedt.modules.LayerStackup import Layers
+from pyaedt import settings
 
 
 class Modeler3DLayout(Modeler, Primitives3DLayout):
@@ -81,6 +82,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
              EDB.
 
         """
+        if settings.remote_api:
+            return self._edb
         if not self._edb:
             self._edb = None
             if os.path.exists(self._edb_file) or (inside_desktop and is_ironpython):

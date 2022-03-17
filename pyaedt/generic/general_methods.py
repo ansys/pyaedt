@@ -643,6 +643,7 @@ class Settings(object):
         self._enable_error_handler = True
         self._non_graphical = False
         self.aedt_version = None
+        self.remote_api = False
 
     @property
     def non_graphical(self):

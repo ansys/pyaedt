@@ -68,6 +68,8 @@ class FieldAnalysis2D(Analysis):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
 
         Analysis.__init__(
@@ -82,6 +84,8 @@ class FieldAnalysis2D(Analysis):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
         self._osolution = self._odesign.GetModule("Solutions")
         self._oboundary = self._odesign.GetModule("BoundarySetup")

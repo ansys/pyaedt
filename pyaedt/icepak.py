@@ -64,6 +64,14 @@ class Icepak(FieldAnalysisIcepak):
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
         This parameter is ignored when Script is launched within AEDT.
+    machine : str, optional
+        Machine name to which connect the oDesktop Session. Works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+        If machine is `"localhost"` the server will also start if not present.
+    port : int, optional
+        Port number of which start the oDesktop communication on already existing server.
+        This parameter is ignored in new server creation. It works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
 
     Examples
     --------
@@ -118,6 +126,8 @@ class Icepak(FieldAnalysisIcepak):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
         FieldAnalysisIcepak.__init__(
             self,
@@ -131,6 +141,8 @@ class Icepak(FieldAnalysisIcepak):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
 
     def __enter__(self):

@@ -281,6 +281,14 @@ class Desktop:
     student_version : bool, optional
         Whether to open the AEDT student version. The default is
         ``False``.
+    machine : str, optional
+        Machine name to which connect the oDesktop Session. Works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+        If machine is `"localhost"` the server will also start if not present.
+    port : int, optional
+        Port number of which start the oDesktop communication on already existing server.
+        This parameter is ignored in new server creation. It works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
 
     Examples
     --------
@@ -614,6 +622,13 @@ class Desktop:
                 socket.getfqdn().split(".")[0],
             ] and not _check_grpc_port(self.port):
                 self.machine = ""
+            elif self.machine not in [
+                "localhost",
+                "127.0.0.1",
+                socket.getfqdn(),
+                socket.getfqdn().split(".")[0],
+            ]:
+                settings.remote_api = True
             ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
 
         # if non_graphical or new_aedt_session or not processID:
@@ -642,7 +657,9 @@ class Desktop:
 
     def _set_logger_file(self):
         # Set up the log file in the AEDT project directory
-        if "oDesktop" in dir(self._main):
+        if settings.remote_api:
+            project_dir = tempfile.gettempdir()
+        elif "oDesktop" in dir(self._main):
             project_dir = self._main.oDesktop.GetProjectDirectory()
         else:
             project_dir = tempfile.gettempdir()

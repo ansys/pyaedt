@@ -347,6 +347,8 @@ class Design(object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
         self._init_variables()
         # Get Desktop from global Desktop Environment
@@ -358,7 +360,8 @@ class Design(object):
         self.close_on_exit = close_on_exit
 
         if "pyaedt_initialized" not in dir(main_module):
-            desktop = Desktop(specified_version, non_graphical, new_desktop_session, close_on_exit, student_version)
+            desktop = Desktop(specified_version, non_graphical, new_desktop_session, close_on_exit, student_version,
+                              machine, port)
             self._logger = desktop.logger
             self.release_on_exit = True
         else:
@@ -2756,7 +2759,7 @@ class Design(object):
             newname = label + "_" + str(ind)
             ind += 1
         actual_name = [i for i in self.design_list if i not in design_list]
-        self.odesign = actual_name
+        self.odesign = actual_name[0]
         self.design_name = newname
         self._close_edb()
         self.__init__(self.project_name, self.design_name)

@@ -47,6 +47,8 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
         if Q3DType == "Q3D Extractor":
             FieldAnalysis3D.__init__(
@@ -61,6 +63,8 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
                 new_desktop_session,
                 close_on_exit,
                 student_version,
+                machine,
+                port,
             )
         else:
             FieldAnalysis2D.__init__(
@@ -75,6 +79,8 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
                 new_desktop_session,
                 close_on_exit,
                 student_version,
+                machine,
+                port,
             )
         self.omatrix = self.odesign.GetModule("ReduceMatrix")
         self.matrices = []
@@ -165,6 +171,14 @@ class Q3d(QExtractor, object):
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
         This parameter is ignored when Script is launched within AEDT.
+    machine : str, optional
+        Machine name to which connect the oDesktop Session. Works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+        If machine is `"localhost"` the server will also start if not present.
+    port : int, optional
+        Port number of which start the oDesktop communication on already existing server.
+        This parameter is ignored in new server creation. It works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
 
     Examples
     --------
@@ -187,6 +201,8 @@ class Q3d(QExtractor, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
         QExtractor.__init__(
             self,
@@ -200,6 +216,8 @@ class Q3d(QExtractor, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ3D()
 
@@ -714,6 +732,14 @@ class Q2d(QExtractor, object):
     student_version : bool, optional
         Whether to open the AEDT student version. This parameter is
         ignored when Script is launched within AEDT.
+    machine : str, optional
+        Machine name to which connect the oDesktop Session. Works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+        If machine is `"localhost"` the server will also start if not present.
+    port : int, optional
+        Port number of which start the oDesktop communication on already existing server.
+        This parameter is ignored in new server creation. It works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
 
     Examples
     --------
@@ -752,6 +778,8 @@ class Q2d(QExtractor, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
         QExtractor.__init__(
             self,
@@ -765,6 +793,8 @@ class Q2d(QExtractor, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ2D()
 
