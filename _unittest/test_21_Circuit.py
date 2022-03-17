@@ -154,7 +154,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.move("L100", [0, 200], "mil")
 
     def test_15_rotate(self):
-        assert self.aedtapp.modeler.rotate("Port1")
+        assert self.aedtapp.modeler.rotate("IPort@Port1")
 
     def test_16_read_touchstone(self):
         data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))

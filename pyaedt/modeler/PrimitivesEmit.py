@@ -235,6 +235,11 @@ class EmitComponent(object):
         self.odesign = components.odesign
         self.root_prop_node = None
 
+    @property
+    def composed_name(self):
+        """Component name. Needed for compatibility."""
+        return self.name
+
     @pyaedt_function_handler()
     def move_and_connect_to(self, component):
         """Move and connect this component to another component.
