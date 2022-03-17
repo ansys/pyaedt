@@ -1367,7 +1367,6 @@ class Analysis(Design, object):
         """
         assert variable in self.output_variables, "Output variable {} does not exist.".format(variable)
         nominal_variation = self.odesign.GetNominalVariation()
-        sol_type = self.solution_type
         value = self.ooutput_variable.GetOutputVariableValue(
             variable, nominal_variation, self.existing_analysis_sweeps[0], self.solution_type, []
         )
