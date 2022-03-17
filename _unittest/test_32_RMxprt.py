@@ -1,9 +1,6 @@
 import os
 
-# Setup paths for module imports
 from _unittest.conftest import BasisTest
-
-# Import required modules
 from pyaedt import Rmxprt
 
 test_project_name = "motor"
@@ -33,5 +30,5 @@ class TestClass(BasisTest, object):
 
     def test_06a_create_setup(self):
         mysetup = self.aedtapp.create_setup()
-        mysetup.props["Rated Output Power"] = "100W"
+        mysetup.props["RatedOutputPower"] = "100W"
         assert mysetup.update()

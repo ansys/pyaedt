@@ -1,11 +1,12 @@
 # standard imports
 import math
 
-# Import required modules
-from pyaedt.generic.general_methods import isclose, time_fn
-from pyaedt.modeler.Object3d import FacePrimitive, _to_boolean, _uname
-
 from _unittest.conftest import BasisTest
+from pyaedt.generic.general_methods import isclose
+from pyaedt.generic.general_methods import time_fn
+from pyaedt.modeler.Object3d import _to_boolean
+from pyaedt.modeler.Object3d import _uname
+from pyaedt.modeler.Object3d import FacePrimitive
 
 
 class TestClass(BasisTest, object):

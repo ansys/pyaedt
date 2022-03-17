@@ -108,8 +108,13 @@ variations = hfss.available_variations.nominal_w_values_dict
 variations["Freq"] = ["1GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
-hfss.post.create_rectangular_plot(
-    "db(GainTotal)", hfss.nominal_adaptive, variations, "Theta", "3D", report_category="Far Fields"
+hfss.post.create_report(
+    "db(GainTotal)",
+    hfss.nominal_adaptive,
+    variations,
+    primary_sweep_variable="Theta",
+    context="3D",
+    report_category="Far Fields",
 )
 
 ###############################################################################

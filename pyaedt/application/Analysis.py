@@ -974,7 +974,7 @@ class Analysis(Design, object):
             >>> oDesign.GetVariableValue
             >>> oDesign.GetNominalVariation"""
             families = {}
-            if self._app.design_type == "HFSS 3D Layout Design":
+            if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Twin Builder"]:
                 if self._app._is_object_oriented_enabled():
                     listvar = list(self._app._odesign.GetChildObject("Variables").GetChildNames())
                 else:

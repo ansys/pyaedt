@@ -1,8 +1,9 @@
 # Import required modules
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
 from pyaedt import Emit
-from pyaedt.modeler.PrimitivesEmit import EmitComponent, EmitComponents
-
-from _unittest.conftest import config, BasisTest
+from pyaedt.modeler.PrimitivesEmit import EmitComponent
+from pyaedt.modeler.PrimitivesEmit import EmitComponents
 
 try:
     import pytest

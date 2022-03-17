@@ -1,18 +1,17 @@
 import os
 import time
 
-# Import required modules
-from pyaedt import Circuit
-from pyaedt.generic.TouchstoneParser import read_touchstone
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
+from _unittest.conftest import local_path
+from pyaedt import Circuit  # Setup paths for module imports
+from pyaedt.generic.TouchstoneParser import read_touchstone  # Setup paths for module imports
 
-# Setup paths for module imports
-from _unittest.conftest import local_path, config, BasisTest
 
 try:
     import pytest  # noqa: F401
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
-
 
 original_project_name = "Galileo_t21"
 test_project_name = "Galileo_t21"
@@ -40,7 +39,7 @@ class TestClass(BasisTest, object):
     def teardown_class(self):
         BasisTest.my_teardown(self)
 
-    def test_01_create_inductor(self):
+    def test_01a_create_inductor(self):
         myind = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[0.2, 0.2])
         assert type(myind.id) is int
         assert myind.parameters["L"] == "1e-09"
@@ -64,16 +63,43 @@ class TestClass(BasisTest, object):
         assert type(pinnames) is list
         assert len(pinnames) == 2
 
-    def test_05_getpin_location(self):
+    def test_05a_getpin_location(self):
         for el in self.aedtapp.modeler.schematic.components:
             pinnames = self.aedtapp.modeler.schematic.get_pins(el)
             for pinname in pinnames:
                 pinlocation = self.aedtapp.modeler.schematic.get_pin_location(el, pinname)
                 assert len(pinlocation) == 2
 
-    def test_06_add_3dlayout_component(self):
+    def test_05b_add_pin_iport(self):
+        mycap3 = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12)
+        assert self.aedtapp.modeler.schematic.add_pin_iports(mycap3.name, mycap3.id)
+
+    def test_05c_create_component(self):
+        assert self.aedtapp.modeler.schematic.create_new_component_from_symbol("Test", ["1", "2"])
+        assert self.aedtapp.modeler.schematic.create_new_component_from_symbol(
+            "Test1", [1, 2], parameter_list=["Author:=", "NumTerminals:="], parameter_value=["pyaedt", 2]
+        )
+
+    def test_06a_create_setup(self):
+        setup_name = "LNA"
+        LNA_setup = self.aedtapp.create_setup(setup_name)
+        assert LNA_setup
+
+    def test_06b_add_3dlayout_component(self):
         myedb = self.aedtapp.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
         assert type(myedb.id) is int
+        ports = myedb.pins
+        tx = ports
+        rx = ports
+        insertions = ["dB(S({},{}))".format(i.name, j.name) for i, j in zip(tx, rx)]
+        assert self.aedtapp.post.create_report(
+            insertions,
+            self.aedtapp.nominal_adaptive,
+            plotname="Insertion Losses",
+            plot_type="Rectangular Plot",
+            report_category="Standard",
+            subdesign_id=myedb.id,
+        )
 
     def test_07_add_hfss_component(self):
         my_model, myname = self.aedtapp.modeler.schematic.create_field_model(
@@ -82,9 +108,6 @@ class TestClass(BasisTest, object):
         assert type(my_model) is int
 
     def test_07a_push_excitation(self):
-        setup_name = "LNA"
-        LNA_setup = self.aedtapp.create_setup(setup_name)
-        assert LNA_setup
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=False)
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=True)
 
@@ -311,3 +334,9 @@ class TestClass(BasisTest, object):
         with open(diff_file2, "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
+
+    def test_29_create_circuit_from_spice(self):
+        model = os.path.join(local_path, "example_models", "test.lib")
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345")
+        assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")

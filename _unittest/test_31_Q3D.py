@@ -1,9 +1,8 @@
 import os
 
-# Setup paths for module imports
-from _unittest.conftest import local_path, desktop_version, BasisTest
-
-# Import required modules
+from _unittest.conftest import BasisTest
+from _unittest.conftest import desktop_version
+from _unittest.conftest import local_path
 from pyaedt import Q3d
 
 test_project_name = "coax_Q3D"
@@ -149,6 +148,7 @@ class TestClass(BasisTest, object):
         mutual_list = q3d.matrices[0].get_sources_for_plot(
             get_self_terms=False, category=q3d.matrices[0].CATEGORIES.Q3D.ACL
         )
+        assert q3d.get_traces_for_plot() == q3d.matrices[0].get_sources_for_plot()
         assert len(full_list) > len(mutual_list)
         assert q3d.matrices[0].get_sources_for_plot(first_element_filter="Box?", second_element_filter="B*2") == [
             "C(Box1,Box1_2)"

@@ -248,7 +248,13 @@ class Mesh(object):
             temp_name = generate_unique_name("temp_prj")
             temp_proj = os.path.join(self._app.working_directory, temp_name + ".aedt")
             oproject_target = self._app.odesktop.NewProject(temp_name)
-            des_target = oproject_target.InsertDesign(self._app.design_type, temp_name, self._app.solution_type, "")
+            if self._app.solution_type == "Modal":
+                sol = "HFSS Modal Network"
+            elif self._app.solution_type == "Terminal":
+                sol = "HFSS Terminal Network"
+            else:
+                sol = self._app.solution_type
+            oproject_target.InsertDesign(self._app.design_type, temp_name, sol, "")
             oproject_target.SaveAs(temp_proj, True)
             self._app.odesktop.CloseProject(temp_name)
             _project_dictionary = load_entire_aedt_file(temp_proj)

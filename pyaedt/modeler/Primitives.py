@@ -2786,7 +2786,7 @@ class Primitives(object):
             for j, edge_j in enumerate(candidate_edges[i + 1 :]):
                 midpoint_j = edge_j.midpoint
                 area = GeometryOperators.get_triangle_area(midpoint_i, midpoint_j, vertex1_i)
-                if area < tol ** 2:
+                if area < tol**2:
                     selected_edges.extend([edge_i, edge_j])
                     break
         selected_edges = list(set(selected_edges))
@@ -2837,7 +2837,7 @@ class Primitives(object):
             List of edge IDs.
 
         """
-        tol2 = tol ** 2
+        tol2 = tol**2
         port_sheet = self._modeler.convert_to_selections(sheet, return_list=True)
         if len(port_sheet) > 1:
             return []
@@ -2875,7 +2875,7 @@ class Primitives(object):
                 if not center_i:  # non planar face
                     continue
                 radius_i = GeometryOperators.points_distance(vertex1_i, center_i)
-                area_i_eval = math.pi * radius_i ** 2
+                area_i_eval = math.pi * radius_i**2
                 if abs(area_i - area_i_eval) < tol2:  # it is a circle
                     vertex2_i = center_i
                     midpoints[ei] = center_i
@@ -2926,7 +2926,7 @@ class Primitives(object):
                 if abs(GeometryOperators._v_dot(normal1, vec1)) < tol2:  # the 4th point is coplanar
                     candidate_edges.append(ej)
 
-        minimum_distance = tol ** -1
+        minimum_distance = tol**-1
         selected_edges = []
         for ei in midpoints:
             midpoint_i = midpoints[ei]
@@ -2985,7 +2985,7 @@ class Primitives(object):
             List of edge IDs.
 
         """
-        tol2 = tol ** 2
+        tol2 = tol**2
 
         port_edges = self.get_face_edges(face_id)
 
@@ -3019,7 +3019,7 @@ class Primitives(object):
                 if not center_i:  # non planar face
                     continue
                 radius_i = GeometryOperators.points_distance(vertex1_i, center_i)
-                area_i_eval = math.pi * radius_i ** 2
+                area_i_eval = math.pi * radius_i**2
                 if abs(area_i - area_i_eval) < tol2:  # it is a circle
                     vertex2_i = center_i
                     midpoints[ei] = center_i
@@ -3070,7 +3070,7 @@ class Primitives(object):
                 if abs(GeometryOperators._v_dot(normal1, vec1)) < tol2:  # the 4th point is coplanar
                     candidate_edges.append(ej)
 
-        minimum_distance = tol ** -1
+        minimum_distance = tol**-1
         selected_edges = []
         for ei in midpoints:
             midpoint_i = midpoints[ei]
@@ -3194,7 +3194,7 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_solids(self):
-        test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Solids")
+        test = list(self._oeditor.GetObjectsInGroup("Solids"))
         if test is None or test is False:
             assert False, "Get Solids is failing"
         elif test is True:
@@ -3205,7 +3205,7 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_sheets(self):
-        test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Sheets")
+        test = list(self._oeditor.GetObjectsInGroup("Sheets"))
         if test is None or test is False:
             assert False, "Get Sheets is failing"
         elif test is True:
@@ -3216,7 +3216,7 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_lines(self):
-        test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Lines")
+        test = list(self._oeditor.GetObjectsInGroup("Lines"))
         if test is None or test is False:
             assert False, "Get Lines is failing"
         elif test is True:
