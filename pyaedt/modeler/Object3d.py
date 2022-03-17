@@ -2201,11 +2201,6 @@ class Padstack(object):
             else:
                 self._pad = Padstack.PDSHole(holetype="None", sizes=[])
 
-        @property
-        def antipad(self):
-            """Antipad."""
-            return self._antipad
-
         @antipad.setter
         def antipad(self, value=None):
             if value:
