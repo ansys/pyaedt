@@ -881,50 +881,72 @@ class EdbLayout(object):
         return True
 
     @pyaedt_function_handler()
-    def defeature_polygon(self, setup_info, poly):
-        """ """
-        poly_data = poly.GetPolygonData()
-        pts_list = []
-        pts = poly_data.Points
-        defeaturing_step = 1e-6
-        if poly_data.Count <= 16:
-            # defeaturing skipped for polygons with less than 16 points
-            self._logger.info(
-                "Polygon {} skipped for defeaturing because number of point is less than 16. ".format(poly.GetId())
-            )
-            return poly_data
+    def defeature_polygon(self, setup_info, poly, max_surface_deviation=0.001):
+        """Defeature polygon based on maximum surface deviation criteria.
 
-        for pt in pts:
-            pts_list.append(pt)
-        nb_ini_pts = len(pts_list)
-        ind = 0
-        minimum_distance = defeaturing_step  # 1e-6
-        init_surf = poly_data.Area()
-        nb_pts_removed = 0
-        surf_dev = 0
-        new_poly = None
-        # print(setup_info.MaxSufDev)
-        while (surf_dev < setup_info.max_suf_dev and pts_list.Count > 16 and minimum_distance < 1000e-6) and float(
-            nb_pts_removed
-        ) / float(nb_ini_pts) < 0.4:
-            pts_list, nb_pts_removed = self._trim_polygon_points(pts, minimum_distance)
-            new_poly = self._edb.Geometry.PolygonData(pts_list, True)
-            current_surf = new_poly.Area()
-            if current_surf == 0:
-                surf_dev = 1
-            else:
-                surf_dev = abs(init_surf - current_surf) / init_surf
-                minimum_distance = minimum_distance + defeaturing_step
-        self._logger.info(
-            "Defeaturing Polygon {0}: Final Surface Deviation = {1} ,  Maximum Distance(um) = {2}, "
-            "Number of Points removed = {3}/{4}".format(
-                str(poly.GetId()), str(surf_dev), str(minimum_distance * 1e6), str(nb_pts_removed), str(nb_ini_pts)
+        Parameters
+        ----------
+        setup_info : EDB_Data_SimulatiomConfiguratio object.
+            When setup_info argument provided, will overwrite the maximum_surface_deviation value.
+
+        poly : Edb Polygon primitive
+            polygon to defeature
+
+        max_surface_deviation : float
+            Maximum surface deviation criteria.
+
+        Returns
+        -------
+        bool
+            ``True`` is successful.
+        """
+        try:
+            if setup_info:
+                max_surface_deviation = setup_info.max_suf_dev
+            poly_data = poly.GetPolygonData()
+            pts_list = []
+            pts = poly_data.Points
+            defeaturing_step = 1e-6
+            if len(poly_data) <= 16:
+                # defeaturing skipped for polygons with less than 16 points
+                self._logger.info(
+                    "Polygon {} skipped for defeaturing because number of point is less than 16. ".format(poly.GetId())
+                )
+                return poly_data
+
+            for pt in pts:
+                pts_list.append(pt)
+            nb_ini_pts = len(pts_list)
+            ind = 0
+            minimum_distance = defeaturing_step  # 1e-6
+            init_surf = poly_data.Area()
+            nb_pts_removed = 0
+            surf_dev = 0
+            new_poly = None
+            # print(setup_info.MaxSufDev)
+            while (surf_dev < max_surface_deviation and pts_list.Count > 16 and minimum_distance < 1000e-6) and float(
+                nb_pts_removed
+            ) / float(nb_ini_pts) < 0.4:
+                pts_list, nb_pts_removed = self._trim_polygon_points(pts, minimum_distance)
+                new_poly = self._edb.Geometry.PolygonData(pts_list, True)
+                current_surf = new_poly.Area()
+                if current_surf == 0:
+                    surf_dev = 1
+                else:
+                    surf_dev = abs(init_surf - current_surf) / init_surf
+                    minimum_distance = minimum_distance + defeaturing_step
+            self._logger.info(
+                "Defeaturing Polygon {0}: Final Surface Deviation = {1} ,  Maximum Distance(um) = {2}, "
+                "Number of Points removed = {3}/{4}".format(
+                    str(poly.GetId()), str(surf_dev), str(minimum_distance * 1e6), str(nb_pts_removed), str(nb_ini_pts)
+                )
             )
-        )
-        return new_poly
+            return new_poly
+        except:
+            return False
 
     @pyaedt_function_handler()
-    def get_layout_primitives(self):
+    def get_all_primitives(self):
         """Returns primitives from the layout.
                Circles, polygons, voids and traces are returns
 

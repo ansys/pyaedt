@@ -2676,6 +2676,13 @@ class SimulationConfiguration(object):
         self._coplanar_instances = []
         self._signal_layer_etching_instances = []
         self._etching_factor_instances = []
+        self._dielectric_extent = 0.01
+        self._airbox_horizontal_extent = 0.04
+        self._airbox_negative_vertical_extent = 0.1
+        self._airbox_positive_vertical_extent = 0.1
+        self._honor_user_dielectric = False
+        self._truncate_airbox_at_ground = False
+        self._use_radiation_boundary = True
         self._read_cfg()
 
     @property
@@ -3207,6 +3214,69 @@ class SimulationConfiguration(object):
     def etching_factor_instances(self, value):
         if isinstance(value, list):
             self._etching_factor_instances = value
+
+    @property
+    def dielectric_extent(self):
+        return self._dielectric_extent
+
+    @dielectric_extent.setter
+    def dielectric_extent(self, value):
+        if isinstance(value, float):
+            self._dielectric_extent = value
+
+    @property
+    def airbox_horizontal_extent(self):
+        return self._airbox_horizontal_extent
+
+    @airbox_horizontal_extent.setter
+    def airbox_horizontal_extent(self, value):
+        if isinstance(value, float):
+            self._airbox_horizontal_extent = value
+
+    @property
+    def airbox_negative_vertical_extent(self):
+        return self._airbox_negative_vertical_extent
+
+    @airbox_negative_vertical_extent.setter
+    def airbox_negative_vertical_extent(self, value):
+        if isinstance(value, float):
+            self._airbox_negative_vertical_extent = value
+
+    @property
+    def airbox_positive_vertical_extent(self):
+        return self._airbox_positive_vertical_extent
+
+    @airbox_positive_vertical_extent.setter
+    def airbox_positive_vertical_extent(self, value):
+        if isinstance(value, float):
+            self._airbox_positive_vertical_extent = value
+
+    @property
+    def honor_user_dielectric(self):
+        return self._honor_user_dielectric
+
+    @honor_user_dielectric.setter
+    def honor_user_dielectric(self, value):
+        if isinstance(value, bool):
+            self._honor_user_dielectric = value
+
+    @property
+    def truncate_airbox_at_ground(self):
+        return self._truncate_airbox_at_ground
+
+    @truncate_airbox_at_ground.setter
+    def truncate_airbox_at_ground(self, value):
+        if isinstance(value, bool):
+            self._truncate_airbox_at_ground = value
+
+    @property
+    def use_radiation_boundary(self):
+        return self._use_radiation_boundary
+
+    @use_radiation_boundary.setter
+    def use_radiation_boundary(self, value):
+        if isinstance(value, bool):
+            self._use_radiation_boundary = value
 
     def _get_bool_value(self, value):
         val = value.lower()

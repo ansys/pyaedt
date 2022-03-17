@@ -774,43 +774,12 @@ class EdbHfss(object):
         return True
 
     @pyaedt_function_handler()
-    def configure_hfss_extents(
-        self,
-        simulation_setup=None,
-        dielectric_extent=0.01,
-        airbox_horizonzal=0.04,
-        airbox_negative_vertical=0.1,
-        airbox_positive_vertical=0.1,
-        honor_user_dieclectric=False,
-        truncate_airbox_at_ground=False,
-        use_radiation_boundary=True,
-    ):
+    def configure_hfss_extents(self, simulation_setup=None):
         """Configure HFSS extent box.
         Parameters
         ----------
         simulation_setup :
             Edb_DATA.SimulationConfiguration object
-
-        dielectric_extent : float
-            Dielectric extent ratio, default = 0.01
-
-        airbox_horizonzal : float
-            Airbox horizontal extent ratio, default = 0.04
-
-        airbox_negative_vertical : float
-            Airbox negative vertical extent ratio, default = 0.1
-
-        airbox_positive_vertical : float
-            Airbox positive vertical extent ratio, default = 0.1
-
-        honor_user_dieclectric : bool
-            Honor or not user dielectric, default = False
-
-        truncate_airbox_at_ground : bool
-            default = False.
-
-        use_radiation_boundary : bool
-            default = True.
 
         Returns
         -------
@@ -818,6 +787,7 @@ class EdbHfss(object):
             True when succeeded, False when failed.
         """
         if not isinstance(simulation_setup, SimulationConfiguration):
+            self._logger.error("Configure HFSS extent requires EDB_Data.SimulationConfiguration object")
             return False
         hfss_extent = self._edb.Utility.HFSSExtentInfo()
         if simulation_setup.radiation_box == RadiationBoxType.BoundingBox:
@@ -827,22 +797,23 @@ class EdbHfss(object):
         else:
             hfss_extent.ExtentType = self._edb.Utility.HFSSExtentInfoType.ConvexHull
         # DielectricExtentSize = System.Tuple.Create(0.01, True)
-        hfss_extent.DielectricExtentSize = (dielectric_extent, True)
+        hfss_extent.DielectricExtentSize = (simulation_setup.dielectric_extent, True)
         # AirBoxHorizontalExtent = System.Tuple.Create(0.04, True)
-        hfss_extent.AirBoxHorizontalExtent = (airbox_horizonzal, True)
+        hfss_extent.AirBoxHorizontalExtent = (simulation_setup.airbox_horizontal_extent, True)
         # AirBoxNegativeVerticalExtent = System.Tuple.Create(0.1, True)
-        hfss_extent.AirBoxNegativeVerticalExtent = (airbox_negative_vertical, True)
+        hfss_extent.AirBoxNegativeVerticalExtent = (simulation_setup.airbox_negative_vertical_extent, True)
         # AirBoxPositiveVerticalExtent = System.Tuple.Create(0.1, True)
-        hfss_extent.AirBoxPositiveVerticalExtent = (airbox_positive_vertical, True)
-        hfss_extent.HonorUserDielectric = honor_user_dieclectric
-        hfss_extent.TruncateAirBoxAtGround = truncate_airbox_at_ground
-        hfss_extent.UseRadiationBoundary = use_radiation_boundary
+        hfss_extent.AirBoxPositiveVerticalExtent = (simulation_setup.airbox_positive_vertical_extent, True)
+        hfss_extent.HonorUserDielectric = simulation_setup.honor_user_dielectric
+        hfss_extent.TruncateAirBoxAtGround = simulation_setup.truncate_airbox_at_ground
+        hfss_extent.UseRadiationBoundary = simulation_setup.use_radiation_boundary
         return self._cell.SetHFSSExtentInfo(hfss_extent)
 
     @pyaedt_function_handler()
     def configure_hfss_analysis_setup(self, simulation_setup=None):
         """
         Configure HFSS analysis setup.
+
         Parameters
         ----------
         simulation_setup :
@@ -854,6 +825,10 @@ class EdbHfss(object):
             True when succeeded, False when failed.
         """
         if not isinstance(simulation_setup, SimulationConfiguration):
+            self._logger.error(
+                "Configure HFSS analysis requires and EDB_Data.SimulationConfiguration object as \
+                               argument"
+            )
             return False
         adapt = self._edb._SimSetup.Data.AdaptiveFrequencyData()
         adapt.AdaptiveFrequency = simulation_setup.mesh_freq
@@ -892,8 +867,6 @@ class EdbHfss(object):
             sweep.UseQ3DForDC = simulation_setup.use_q3d_for_dc
             if simulation_setup.keep_anf_ports_and_pin_groups:
                 sweep.UseQ3DForDC = False
-            # else:
-            #    sweep.UseQ3DForDC = True
             sweep.RelativeSError = simulation_setup.relative_error  # 0.005
             sweep.InterpUsePortImpedance = False
             sweep.EnforceCausality = (self._convert_freq_string_to_float(simulation_setup.start_frequency) - 0) < 1e-9
@@ -937,12 +910,29 @@ class EdbHfss(object):
     @pyaedt_function_handler()
     def trim_component_reference_size(self, simulation_setup=None, trim_to_terminals=False):
         """Trim the common component reference to the minimally acceptable size.
-        trimToTerminals: if True, reduce the reference to a box covering only the active terminals (i.e. those with
+
+        Parameters
+        ----------
+        simulation_setup :
+            Edb_DATA.SimulationConfiguration object
+
+        trim_to_terminals :
+            bool.
+                True, reduce the reference to a box covering only the active terminals (i.e. those with
         ports).
-                         if False, reduce the reference to the minimal size needed to cover all pins.
+                False, reduce the reference to the minimal size needed to cover all pins
+
+        Returns
+        -------
+        bool
+            True when succeeded, False when failed.
         """
 
         if not isinstance(simulation_setup, SimulationConfiguration):
+            self._logger.error(
+                "Trim component reference size requires an EDB_Data.SimulationConfiguration object \
+                               as argument"
+            )
             return False
 
         if not simulation_setup.coax_instances:
@@ -964,13 +954,16 @@ class EdbHfss(object):
 
             if trim_to_terminals:
                 # Remove any pins that aren't interior to the Terminals bbox
-                for pp in list(comp.LayoutObjs).Where(
-                    lambda obj: obj.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
-                ):
-                    loi = l_inst.GetLayoutObjInstance(pp, None)
+                pin_list = [
+                    obj
+                    for obj in list(comp.LayoutObjs)
+                    if obj.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
+                ]
+                for pin in pin_list:
+                    loi = l_inst.GetLayoutObjInstance(pin, None)
                     bb_c = loi.GetCenter()
                     if not terms_bbox.PointInPolygon(bb_c):
-                        comp.RemoveMember(pp)
+                        comp.RemoveMember(pin)
 
             # Set the port property reference size
             cmp_prop = comp.GetComponentProperty().Clone()
@@ -982,6 +975,7 @@ class EdbHfss(object):
             )
             cmp_prop.SetPortProperty(port_prop)
             comp.SetComponentProperty(cmp_prop)
+            return True
 
     @pyaedt_function_handler()
     def set_coax_port_attributes(self, simulation_setup=None):
@@ -989,43 +983,47 @@ class EdbHfss(object):
                 PORT_<component>_<ii_count>@<net>
                 For consistency with previous automation, if possible iterate in cfg-file order.
 
-        2) Set coaxial ports with 0.125*sball_diam radial extent factor
+            2) Set coaxial ports with 0.125*sball_diam radial extent factor
+
+        Parameters
+        ----------
+        simulation_setup :
+            Edb_DATA.SimulationConfiguration object
+
+        Returns
+        -------
+        bool
+            True when succeeded, False when failed.
         """
 
         if not isinstance(simulation_setup, SimulationConfiguration):
-            return False
-        net_names = []
-        if simulation_setup.NetSetup:
-            net_names = list(
-                list(simulation_setup.NetSetup.Where(lambda nn: not nn.IsPwrGnd)).Select(lambda nn: nn.Name)
+            self._logger.error(
+                "Set coax port attribute requires an EDB_Data.SimulationConfiguration object \
+            as argument."
             )
-
+            return False
+        net_names = [net.GetName() for net in list(self._active_layout.Nets) if not net.IsPwrGnd]
         cmp_names = (
             simulation_setup.coax_instances
             if simulation_setup.coax_instances
-            else [gg.GetName() for gg in self._builder.layout.Groups]
+            else [gg.GetName() for gg in self._active_layout.Groups]
         )
         ii = 0
         for cc in cmp_names:
-            cmp = self._edb.Cell.Hierarchy.Component.FindByName(self._builder.layout, cc)
+            cmp = self._edb.Cell.Hierarchy.Component.FindByName(self._active_layout, cc)
             if cmp.IsNull():
                 self._logger.warning("RenamePorts: could not find component {0}".format(cc))
                 continue
-            terms = list(
-                list(cmp.LayoutObjs).Where(lambda obj: obj.GetObjType() == self._edb.Cell.LayoutObjType.Terminal)
-            )
-
+            terms = [obj for obj in list(cmp.LayoutObjs) if obj.GetObjType() == self._edb.Cell.LayoutObjType.Terminal]
             for nn in net_names:
-                for tt in list(terms.Where(lambda tt: tt.GetNet().GetName() == nn)):
+                for tt in list(map(lambda term: term.GetNet().GetName() == nn)):
                     if not tt.SetImpedance("50ohm"):
-                        self._logger.warning("Could not set terminal {0} impedance as 5ohm".format(tt.GetName()))
+                        self._logger.warning("Could not set terminal {0} impedance as 50ohm".format(tt.GetName()))
                         continue
-
                     nparts = tt.GetName().split(".")
                     if nparts[1] == nn:
-                        new_name = ".".join(
-                            [nparts[0], nparts[2], nparts[1]]
-                        )  # rename comp.net.pin --> comp.pin.net (as in ports created in edt GUI)
+                        new_name = ".".join([nparts[0], nparts[2], nparts[1]])
+                        # rename comp.net.pin --> comp.pin.net (as in ports created in edt GUI)
                         self._logger.info("rename port {0} --> {1}".format(tt.GetName(), new_name))
                         if not tt.SetName(new_name):
                             self._logger.warning("Could not rename terminal {0} as {1}".format(tt.GetName(), new_name))
@@ -1053,24 +1051,28 @@ class EdbHfss(object):
     def _get_terminals_bbox(self, comp, l_inst, terminals_only):
         terms_loi = []
         if terminals_only:
-            for tt in list(comp.LayoutObjs).Where(
-                lambda obj: obj.GetObjType() == self._edb.Cell.LayoutObjType.Terminal
-            ):
+            term_list = [
+                obj for obj in list(comp.LayoutObjs) if obj.GetObjType() == self._edb.Cell.LayoutObjType.Terminal
+            ]
+            for tt in term_list:
                 success, p_inst, lyr = tt.GetParameters()
                 if success:
                     loi = l_inst.GetLayoutObjInstance(p_inst, None)
                     terms_loi.append(loi)
         else:
-            for pi in list(comp.LayoutObjs).Where(
-                lambda obj: obj.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
-            ):
+            pin_list = [
+                obj
+                for obj in list(comp.LayoutObjs)
+                if obj.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
+            ]
+            for pi in pin_list:
                 loi = l_inst.GetLayoutObjInstance(pi, None)
                 terms_loi.append(loi)
 
         if len(terms_loi) == 0:
             return None
 
-        terms_bbox = List[self._edb.Geometry.PolygonData]()
+        terms_bbox = []
         for loi in terms_loi:
             # Need to account for the coax port dimension
             bb = loi.GetBBox()
@@ -1079,67 +1081,77 @@ class EdbHfss(object):
             # dim = 0.26 * max(abs(UR[0]-LL[0]), abs(UR[1]-LL[1]))  # 0.25 corresponds to the default 0.5
             # Radial Extent Factor, so set slightly larger to avoid validation errors
             dim = 0.30 * max(abs(ur[0] - ll[0]), abs(ur[1] - ll[1]))  # 0.25 corresponds to the default 0.5
-            terms_bbox.Add(self._edb.Geometry.PolygonData(ll[0] - dim, ll[1] - dim, ur[0] + dim, ur[1] + dim))
-
-        return self._edb.Geometry.PolygonData.GetBBoxOfPolygons(terms_bbox)
+            terms_bbox.append(self._edb.Geometry.PolygonData(ll[0] - dim, ll[1] - dim, ur[0] + dim, ur[1] + dim))
+        return self._edb.Geometry.PolygonData.GetBBoxOfPolygons(convert_py_list_to_net_list(terms_bbox))
 
     @pyaedt_function_handler()
     def get_ports_number(self):
+        """Return the total number of excitation ports in a layout.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        int
+            The number of ports.
+
+        """
         port_list = []
-        for term in self._builder.layout.Terminals:
+        for term in self._active_layout.Terminals:
             if str(term.GetBoundaryType()) == "PortBoundary":
                 if "ref" not in term.GetName():
                     port_list.append(term)
-        return port_list.Count
+        return len(port_list)
 
     @pyaedt_function_handler()
     def layout_defeaturing(self, simulation_setup=None):
+        """Defeature layout with reducing the number of points for polygons based on surface deviation criteria.
+
+        Parameters
+        ----------
+        simulation_setup :
+            Edb_DATA.SimulationConfiguration object
+
+        Returns
+        -------
+        bool
+            True when succeeded, False when failed.
+
+        """
         if not isinstance(simulation_setup, SimulationConfiguration):
+            self._logger.error("Layout defeaturing requires an EDB_Data.SimulationConfiguration object as argument.")
             return False
         self._logger.info("Starting Layout Defeaturing")
-        polygon_list, voids_list, traces_list, circles = self._collect_prims(self._builder)
+        polygon_list, voids_list, traces_list, circles = self._pedb.core_layout.get_all_primitives()
         self._logger.info("Number of Polygons Found: {0}".format(str(polygon_list.Count)))
         self._logger.info("Number of Voids Found: {0}".format(str(voids_list.Count)))
         self._logger.info("Number of Traces Found: {0}".format(str(traces_list.Count)))
         self._logger.info("Number of Circles Found: {0}".format(str(circles.Count)))
-        polygon_with_voids = self._get_poly_with_voids(polygon_list)
+        polygon_with_voids = self._pedb.core_layout.get_poly_with_voids(polygon_list)
         self._logger.info("Number of Polygons with Voids Found: {0}".format(str(polygon_with_voids.Count)))
-
-        # PadStkList = []
-        PadStkInstances = self._builder.layout.PadstackInstances
-        # for padstk in PadStkInstances:
-        #    PadStkList.append(padstk)
-
-        for Poly in polygon_list:
-            # PolyLayout = Poly.GetLayout()
-            poly_layer = Poly.GetLayer()
-            # PolyLayerId = Poly.GetId()
-            # PolyLayerName = PolyLayer.GetName()
-            # PolyNet = Poly.GetNet()
-            voids_from_current_poly = Poly.Voids
-
-            # defeaturing the current polygon
-            # Logger.Info("Defeaturing Polygon {0}".format(str(Poly.GetId())))
-
-            new_poly_data = self._defeature_polygon(simulation_setup, Poly)
-            Poly.SetPolygonData(new_poly_data)
-
-            if voids_from_current_poly.Count > 0:
+        for _poly in polygon_list:
+            voids_from_current_poly = _poly.Voids
+            new_poly_data = self._pedb.core_layout.defeature_polygon(setup_info=simulation_setup, poly=_poly)
+            _poly.SetPolygonData(new_poly_data)
+            if len(voids_from_current_poly) > 0:
                 for void in voids_from_current_poly:
-                    # defeaturing voids from the current poylgon
                     void_data = void.GetPolygonData()
                     if void_data.Area() < float(simulation_setup.minimum_void_surface):
-                        # print('MinimumVoidSuface:' + str(setup_info.MinimumVoidSuface))
-                        # print('Void Area:' + str(VoidData.Area()))
                         void.Delete()
                         self._logger.warning(
                             "Defeaturing Polygon {0}: Deleting Void {1} area is lower than the minimum criteria".format(
-                                str(Poly.GetId()), str(void.GetId())
+                                str(_poly.GetId()), str(void.GetId())
                             )
                         )
                     else:
                         self._logger.info(
-                            "Defeaturing Polygon {0}: Void {1}".format(str(Poly.GetId()), str(void.GetId()))
+                            "Defeaturing Polygon {0}: Void {1}".format(str(_poly.GetId()), str(void.GetId()))
                         )
-                        new_void_data = self._defeature_polygon(simulation_setup, void_data)
+                        new_void_data = self._pedb.core_layout.defeature_polygon(
+                            setup_info=simulation_setup, poly=void_data
+                        )
                         void.SetPolygonData(new_void_data)
+
+        return True
