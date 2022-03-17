@@ -83,7 +83,7 @@ class TestClass(BasisTest, object):
     def test_06a_create_setup(self):
         setup_name = "LNA"
         LNA_setup = self.aedtapp.create_setup(setup_name)
-        assert LNA_setup
+        assert LNA_setup.name == "LNA"
 
     def test_06b_add_3dlayout_component(self):
         myedb = self.aedtapp.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
