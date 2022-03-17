@@ -977,6 +977,7 @@ class Circuit(FieldAnalysisCircuit, object):
         curvenames,
         solution_name=None,
         variation_dict=None,
+        differential_pairs=False,
         subdesign_id=None,
     ):
         """
@@ -992,9 +993,10 @@ class Circuit(FieldAnalysisCircuit, object):
             Name of the solution. The default value is ``None``.
         variation_dict : dict, optional
             Dictionary of variation names. The default value is ``None``.
+        differential_pairs : bool, optional
+            Specify if the plot is on differential pairs traces. The default value is ``False``.
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. The default value is ``None``.
-
         Returns
         -------
         bool
@@ -1011,14 +1013,11 @@ class Circuit(FieldAnalysisCircuit, object):
         if variation_dict:
             for el in variation_dict:
                 variations[el] = [variation_dict[el]]
-        ctxt = ["NAME:Context", "SimValueContext:=", [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
-        if subdesign_id:
-            ctxt_temp = ["NUMLEVELS", False, "0", "SUBDESIGNID", False, str(subdesign_id)]
-            for el in ctxt_temp:
-                ctxt[2].append(el)
-
-        return self.post.create_rectangular_plot(
-            curvenames, solution_name, variations, plotname=plot_name, context=ctxt
+        dif = None
+        if differential_pairs:
+            dif = "Differential Pairs"
+        return self.post.create_report(
+            curvenames, solution_name, variations=variations, plotname=plot_name, context=dif, subdesign_id=subdesign_id
         )
 
     @pyaedt_function_handler()

@@ -1,4 +1,4 @@
 codespell==2.1.0
 flake8==3.9.2
-black==21.10b
+black==22.1.0
 pre-commit >= ^2.15.0

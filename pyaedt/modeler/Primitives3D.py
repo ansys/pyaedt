@@ -2548,7 +2548,7 @@ class Primitives3D(Primitives, object):
     def _make_winding_follow_chamfer(self, chamfer, security_factor, wire_diameter, layer_number):
         sr = security_factor
         w_rad_inc = layer_number * sr * wire_diameter / 2
-        distance = sqrt(2 * w_rad_inc ** 2) - w_rad_inc + sqrt(2 * chamfer ** 2) / 2
+        distance = sqrt(2 * w_rad_inc**2) - w_rad_inc + sqrt(2 * chamfer**2) / 2
         return sqrt(2) * distance
 
     @pyaedt_function_handler()

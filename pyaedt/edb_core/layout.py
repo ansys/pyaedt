@@ -38,9 +38,8 @@ class EdbLayout(object):
     def _edb(self):
         return self._pedb.edb
 
-    @property
-    def _edb_value(self):
-        return self._pedb.edb_value
+    def _get_edb_value(self, value):
+        return self._pedb.edb_value(value)
 
     @property
     def _logger(self):
@@ -346,7 +345,7 @@ class EdbLayout(object):
 
         if not origin:
             origin = [center[0] + float(x1) * 10000, center[1] + float(y1) * 10000]
-        result, var_server = self._pedb.add_design_variable(offset_name, 0.0)
+        self._pedb.add_design_variable(offset_name, 0.0)
         i = 0
         continue_iterate = True
         prev_point = None
@@ -359,8 +358,8 @@ class EdbLayout(object):
                         xcoeff, ycoeff = calc_slope([point.X.ToDouble(), point.X.ToDouble()], origin)
 
                         new_points = self._edb.Geometry.PointData(
-                            self._edb_value(point.X.ToString() + "{}*{}".format(xcoeff, offset_name), var_server),
-                            self._edb_value(point.Y.ToString() + "{}*{}".format(ycoeff, offset_name), var_server),
+                            self._get_edb_value(point.X.ToString() + "{}*{}".format(xcoeff, offset_name)),
+                            self._get_edb_value(point.Y.ToString() + "{}*{}".format(ycoeff, offset_name)),
                         )
                         poligon_data.SetPoint(i, new_points)
                     prev_point = point
@@ -434,14 +433,14 @@ class EdbLayout(object):
             corner_style = self._edb.Cell.Primitive.PathCornerStyle.MiterCorner  # pragma: no cover
 
         pointlists = [
-            self._edb.Geometry.PointData(self._edb_value(i[0]), self._edb_value(i[1])) for i in path_list.points
+            self._edb.Geometry.PointData(self._get_edb_value(i[0]), self._get_edb_value(i[1])) for i in path_list.points
         ]
         polygonData = self._edb.Geometry.PolygonData(convert_py_list_to_net_list(pointlists), False)
         polygon = self._edb.Cell.Primitive.Path.Create(
             self._active_layout,
             layer_name,
             net,
-            self._edb_value(width),
+            self._get_edb_value(width),
             start_cap_style,
             end_cap_style,
             corner_style,
@@ -564,9 +563,9 @@ class EdbLayout(object):
                 self._active_layout,
                 void_circle.layer_name,
                 void_circle.net,
-                self._edb_value(center_x),
-                self._edb_value(center_y),
-                self._edb_value(radius),
+                self._get_edb_value(center_x),
+                self._get_edb_value(center_y),
+                self._get_edb_value(radius),
             )
             if res:
                 cloned_circle.SetIsNegative(True)
@@ -629,8 +628,8 @@ class EdbLayout(object):
 
             if not self._validatePoint(endPoint):
                 return None
-            startPoint = [self._edb_value(i) for i in startPoint]
-            endPoint = [self._edb_value(i) for i in endPoint]
+            startPoint = [self._get_edb_value(i) for i in startPoint]
+            endPoint = [self._get_edb_value(i) for i in endPoint]
             if len(endPoint) == 2:
                 is_parametric = (
                     is_parametric
@@ -641,10 +640,10 @@ class EdbLayout(object):
                 )
                 arc = self._edb.Geometry.ArcData(
                     self._edb.Geometry.PointData(
-                        self._edb_value(startPoint[0].ToDouble()), self._edb_value(startPoint[1].ToDouble())
+                        self._get_edb_value(startPoint[0].ToDouble()), self._get_edb_value(startPoint[1].ToDouble())
                     ),
                     self._edb.Geometry.PointData(
-                        self._edb_value(endPoint[0].ToDouble()), self._edb_value(endPoint[1].ToDouble())
+                        self._get_edb_value(endPoint[0].ToDouble()), self._get_edb_value(endPoint[1].ToDouble())
                     ),
                 )
                 arcs.append(arc)
@@ -668,14 +667,14 @@ class EdbLayout(object):
                     return None
                 arc = self._edb.Geometry.ArcData(
                     self._edb.Geometry.PointData(
-                        self._edb_value(startPoint[0].ToDouble()), self._edb_value(startPoint[1].ToDouble())
+                        self._get_edb_value(startPoint[0].ToDouble()), self._get_edb_value(startPoint[1].ToDouble())
                     ),
                     self._edb.Geometry.PointData(
-                        self._edb_value(endPoint[0].ToDouble()), self._edb_value(endPoint[1].ToDouble())
+                        self._get_edb_value(endPoint[0].ToDouble()), self._get_edb_value(endPoint[1].ToDouble())
                     ),
                     rotationDirection,
                     self._edb.Geometry.PointData(
-                        self._edb_value(endPoint[3].ToDouble()), self._edb_value(endPoint[4].ToDouble())
+                        self._get_edb_value(endPoint[3].ToDouble()), self._get_edb_value(endPoint[4].ToDouble())
                     ),
                 )
                 arcs.append(arc)
@@ -685,7 +684,7 @@ class EdbLayout(object):
         else:
             k = 0
             for pt in points:
-                point = [self._edb_value(i) for i in pt]
+                point = [self._get_edb_value(i) for i in pt]
                 new_points = self._edb.Geometry.PointData(point[0], point[1])
                 if len(point) > 2:
                     k += 1
@@ -730,8 +729,12 @@ class EdbLayout(object):
     def _createPolygonDataFromRectangle(self, shape):
         if not self._validatePoint(shape.pointA, False) or not self._validatePoint(shape.pointB, False):
             return None
-        pointA = self._edb.Geometry.PointData(self._edb_value(shape.pointA[0]), self._edb_value(shape.pointA[1]))
-        pointB = self._edb.Geometry.PointData(self._edb_value(shape.pointB[0]), self._edb_value(shape.pointB[1]))
+        pointA = self._edb.Geometry.PointData(
+            self._get_edb_value(shape.pointA[0]), self._get_edb_value(shape.pointA[1])
+        )
+        pointB = self._edb.Geometry.PointData(
+            self._get_edb_value(shape.pointB[0]), self._get_edb_value(shape.pointB[1])
+        )
         points = Tuple[self._edb.Geometry.PointData, self._edb.Geometry.PointData](pointA, pointB)
         return self._edb.Geometry.PolygonData.CreateFromBBox(points)
 

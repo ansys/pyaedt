@@ -27,7 +27,7 @@ class AnalysisTwinBuilder(Analysis):
         ----------
 
         >>> oModule.GetAllSolutionSetups"""
-        setups = self.oanalysis.GetAllSolutionSetups()
+        setups = list(self.oanalysis.GetAllSolutionSetups())
         return setups
 
     @property
@@ -74,6 +74,18 @@ class AnalysisTwinBuilder(Analysis):
         self.solution_type = solution_type
         self._modeler = ModelerTwinBuilder(self)
         self._post = CircuitPostProcessor(self)
+
+    @property
+    def existing_analysis_sweeps(self):
+        """Get all existing analysis setups.
+
+        Returns
+        -------
+        list of str
+            List of all analysis setups in the design.
+
+        """
+        return self.existing_analysis_setups
 
     @property
     def modeler(self):

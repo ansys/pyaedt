@@ -217,6 +217,6 @@ h3d.create_linear_count_sweep(
 # Solve Setup
 #
 h3d.analyze_nominal()
-h3d.post.create_rectangular_plot(["db(S({0},{1}))".format(port_name, port_name)])
+h3d.post.create_report(["db(S({0},{1}))".format(port_name, port_name)])
 h3d.save_project()
 h3d.release_desktop()

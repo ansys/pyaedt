@@ -3767,7 +3767,7 @@ class Hfss(FieldAnalysis3D, object):
                         fa2 = self.modeler.get_face_area(int(f))
                         faceoriginal = [float(i) for i in faceCenter]
                         # dist = mat.sqrt(sum([(a*a-b*b) for a,b in zip(faceCenter, fc2)]))
-                        if abs(fa2 - maxarea) < tol ** 2 and (
+                        if abs(fa2 - maxarea) < tol**2 and (
                             abs(faceoriginal[2] - fc2[2]) > tol
                             or abs(faceoriginal[1] - fc2[1]) > tol
                             or abs(faceoriginal[0] - fc2[0]) > tol
@@ -3961,7 +3961,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        PlotName : str, optional
+        plot_name : str, optional
              Name of the plot. The default is ``"S Parameter Plot Nominal"``.
         sweep_name : str, optional
              Name of the sweep. The default is ``None``.
@@ -3993,48 +3993,19 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        Families = ["Freq:=", ["All"]]
-        if variations:
-            Families += variations
-        else:
-            Families += self.get_nominal_variation()
-        if not sweep_name:
-            sweep_name = self.existing_analysis_sweeps[1]
-        elif sweep_name not in self.existing_analysis_sweeps:
-            self.logger.error("Setup %s doesn't exist in the Setup list.", sweep_name)
-            return False
-        if not port_names:
-            port_names = self.excitations
-        full_matrix = False
-        if not port_excited:
-            port_excited = port_names
-            full_matrix = True
-        if type(port_names) is str:
-            port_names = [port_names]
-        if type(port_excited) is str:
-            port_excited = [port_excited]
-        list_y = []
-        for p in list(port_names):
-            for q in list(port_excited):
-                if not full_matrix:
-                    list_y.append("dB(S(" + p + "," + q + "))")
-                elif port_excited.index(q) >= port_names.index(p):
-                    list_y.append("dB(S(" + p + "," + q + "))")
-
-        Trace = ["X Component:=", "Freq", "Y Component:=", list_y]
-        solution_data = ""
+        solution_data = "Standard"
         if "Modal" in self.solution_type:
             solution_data = "Modal Solution Data"
         elif "Terminal" in self.solution_type:
             solution_data = "Terminal Solution Data"
-        if solution_data != "":
-            # run CreateReport function
-
-            self.post.oreportsetup.CreateReport(
-                plot_name, solution_data, "Rectangular Plot", sweep_name, ["Domain:=", "Sweep"], Families, Trace, []
-            )
-            return True
-        return False
+        if not port_names:
+            port_names = self.excitations
+        if not port_excited:
+            port_excited = port_names
+        traces = ["dB(S(" + p + "," + q + "))" for p, q in zip(list(port_names), list(port_excited))]
+        return self.post.create_report(
+            traces, sweep_name, variations=variations, report_category=solution_data, plotname=plot_name
+        )
 
     @pyaedt_function_handler()
     def create_qfactor_report(self, project_dir, outputlist, setupname, plotname, Xaxis="X"):
