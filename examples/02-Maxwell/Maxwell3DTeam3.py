@@ -133,26 +133,34 @@ Fields.AddNamedExpression("Bz", "Fields")
 
 ###############################################################################
 # Plot mag(Bz) as a function of frequency for both coil positions
-Plot = M3D.odesign.GetModule("ReportSetup")
-Plot.CreateReport(
-    "mag(Bz) Along 'Line_AB' Offset Coil",
-    "Fields",
-    "Rectangular Plot",
-    "Setup1 : LastAdaptive",
-    ["Context:=", "Line_AB", "PointCount:=", 1001],
-    ["Distance:=", ["All"], "Freq:=", ["All"], "Phase:=", ["0deg"], "Coil_Position:=", ["-20mm"]],
-    ["X Component:=", "Distance-60mm", "Y Component:=", ["mag(Bz)"]],
-)
+variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["-20mm"]}
+M3D.post.create_report(expressions="mag(Bz)", report_category="Fields", context="Line_AB", variations=variations,
+                       primary_sweep_variable="Distance", plotname="mag(Bz) Along 'Line_AB' Offset Coil",)
 
-Plot.CreateReport(
-    "mag(Bz) Along 'Line_AB' Centred Coil",
-    "Fields",
-    "Rectangular Plot",
-    "Setup1 : LastAdaptive",
-    ["Context:=", "Line_AB", "PointCount:=", 1001],
-    ["Distance:=", ["All"], "Freq:=", ["All"], "Phase:=", ["0deg"], "Coil_Position:=", ["0mm"]],
-    ["X Component:=", "Distance-60mm", "Y Component:=", ["mag(Bz)"]],
-)
+variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["0mm"]}
+M3D.post.create_report(expressions="mag(Bz)", report_category="Fields", context="Line_AB", variations=variations,
+                       primary_sweep_variable="Distance", plotname="mag(Bz) Along 'Line_AB' Coil",)
+
+
+###############################################################################
+# Postprocessing
+# --------------
+# The same report can be obtained outside electronic desktop with the
+# following commands.
+variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["All"]}
+
+solutions = M3D.post.get_solution_data(expressions="mag(Bz)",
+                                       report_category="Fields",
+                                       context="Line_AB",
+                                       variations=variations,
+                                       primary_sweep_variable="Distance",
+                                       )
+solutions.nominal_sweeps["Coil_Position"] = -0.02
+solutions.plot()
+
+solutions.nominal_sweeps["Coil_Position"] = 0
+solutions.plot()
+
 
 ###############################################################################
 # Create a plot Mag_J, the induced current density on the surface of the ladder plate

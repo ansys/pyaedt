@@ -145,6 +145,7 @@ a = q.post.get_solution_data(expressions=data_plot_self, context="Original")
 a.sweeps["Freq"]
 a.data_magnitude()
 a.plot()
+
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~

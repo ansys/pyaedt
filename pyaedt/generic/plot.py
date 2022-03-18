@@ -140,6 +140,7 @@ def plot_polar_chart(
     return True
 
 
+@pyaedt_function_handler()
 def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None):
     """Create a matplotlib 3D plot based on a list of data.
 
@@ -185,6 +186,7 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
     return True
 
 
+@pyaedt_function_handler()
 def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
     """Create a matplotlib plot based on a list of data.
 
@@ -233,6 +235,7 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
     return True
 
 
+@pyaedt_function_handler()
 def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
     """Create a matplotlib plot based on a list of data.
 
