@@ -1991,7 +1991,7 @@ class PostProcessorCommon(object):
         plotname : str, optional
             Name of the plot. The default is ``None``.
         polyline_points : int, optional,
-            Number of points on which crate the report for plots on polylines.
+            Number of points on which create the report for plots on polylines.
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
@@ -2114,7 +2114,7 @@ class PostProcessorCommon(object):
             The default is ``None``. It can be `None`, `"Differential Pairs"` or
             Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
         polyline_points : int, optional,
-            Number of points on which crate the report for plots on polylines.
+            Number of points on which create the report for plots on polylines.
 
 
         Returns
