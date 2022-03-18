@@ -571,10 +571,16 @@ class EdbHfss(object):
                     if point_list:
                         for _pt in point_list:
                             if isinstance(_pt, tuple):
-                                found_pt = [p for p in trace_path_pts if round(p.X.ToDouble(), 6) == round(_pt[0], 6)
-                                            and round(p.Y.ToDouble(), 6) == round(_pt[1], 6)]
+                                found_pt = [
+                                    p
+                                    for p in trace_path_pts
+                                    if round(p.X.ToDouble(), 6) == round(_pt[0], 6)
+                                    and round(p.Y.ToDouble(), 6) == round(_pt[1], 6)
+                                ]
                                 if found_pt:
-                                    pt = self._edb.Geometry.PointData(self._edb_value(_pt[0]), self._edb_value(_pt[1]))
+                                    pt = self._edb.Geometry.PointData(
+                                        self._get_edb_value(_pt[0]), self._get_edb_value(_pt[1])
+                                    )
                                     if not self._hfss_terminals.CreateEdgePort(path, pt, reference_layer, port_name):
                                         raise Exception(
                                             "edge port creation failed on point {}, {}".format(
