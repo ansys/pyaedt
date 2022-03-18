@@ -130,8 +130,8 @@ class ModelerCircuit(Modeler):
                 for el in list(self.schematic.components.values()):
                     if sel in [el.InstanceName, el.composed_name, el.name]:
                         sels.append(el.composed_name)
-        if return_as_list:
-            return ", ".format(sels)
+        if not return_as_list:
+            return ", ".join(sels)
         return sels
 
 class ModelerNexxim(ModelerCircuit):
@@ -312,7 +312,7 @@ class ModelerNexxim(ModelerCircuit):
             [
                 "NAME:RotateParameters",
                 "Degrees:=",
-                _dim_arg(degrees, "°"),
+                degrees,
                 "Disconnect:=",
                 False,
                 "Rubberband:=",

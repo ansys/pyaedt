@@ -644,6 +644,7 @@ class Settings(object):
         self._non_graphical = False
         self.aedt_version = None
         self.remote_api = False
+        self.use_22r2_grpc_api = True
 
     @property
     def non_graphical(self):

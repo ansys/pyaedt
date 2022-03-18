@@ -79,7 +79,9 @@ else:
         "skip_edb": False,
         "skip_debug": False,
         "local": False,
+        "use_grpc": True,
     }
+settings.use_22r2_grpc_api = config.get("use_grpc", True)
 settings.non_graphical = config["NonGraphical"]
 
 

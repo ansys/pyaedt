@@ -361,7 +361,7 @@ class Desktop:
                 print("Launching PyAEDT outside AEDT with IronPython.")
                 self._init_ironpython(non_graphical, new_desktop_session, version)
             elif _com == "pythonnet_v3":
-                if StrictVersion(version_key) < StrictVersion("2022.2.0"):
+                if StrictVersion(version_key) < StrictVersion("2022.2.0") or not settings.use_22r2_grpc_api:
                     print("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
                     self._init_cpython(
                         non_graphical, new_desktop_session, version, self._main.student_version, version_key
