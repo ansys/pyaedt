@@ -1733,7 +1733,7 @@ class Primitives(object):
             try:
                 self._oeditor.Delete(arg)
             except:
-                self.logger.warning("Failed to delete {}".format(objects_str))
+                self.logger.warning("Failed to delete {}.".format(objects_str))
             remaining -= slice
             if remaining > 0:
                 objects = objects[slice:]
@@ -1742,7 +1742,7 @@ class Primitives(object):
 
         if len(objects) > 0:
             self.cleanup_objects()
-            self.logger.info("Deleted {} Objects".format(num_objects, objects_str))
+            self.logger.info("Deleted {} Objects: {}.".format(num_objects, objects_str))
         return True
 
     @pyaedt_function_handler()

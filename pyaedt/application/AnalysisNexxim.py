@@ -120,9 +120,9 @@ class FieldAnalysisCircuit(Analysis):
         References
         ----------
 
-        >>> oModule.GetExcitations
+        >>> oModule.GetAllPorts
         """
-        ports = [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts()]
+        ports = [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts() if "IPort@" in p]
         return ports
 
     @property

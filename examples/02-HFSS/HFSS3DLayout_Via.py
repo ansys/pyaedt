@@ -95,6 +95,16 @@ traces = h3d.get_traces_for_plot(first_element_filter="Port1")
 h3d.post.create_report(traces, families_dict=h3d.available_variations.nominal_w_values_dict)
 
 ###############################################################################
+# Create Report outside AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create Report using Matplotlib.
+traces = h3d.get_traces_for_plot(first_element_filter="Port1", category="S")
+
+solutions = h3d.post.get_solution_data(expressions=traces)
+solutions.plot(math_formula="db20")
+
+
+###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
 # After the simulaton is completed, you can close AEDT or release it using the

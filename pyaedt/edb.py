@@ -385,7 +385,6 @@ class Edb(object):
             )
             if self._active_cell is None:
                 self._active_cell = list(self._db.TopCircuitCells)[0]
-            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
             if self._db and self._active_cell:
                 if not os.path.exists(self.edbpath):
                     os.makedirs(self.edbpath)
