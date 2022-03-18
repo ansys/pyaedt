@@ -73,7 +73,7 @@ class TestClass(BasisTest, object):
 
     def test_01C_create_lumped_port_at_location(self):
         assert self.edbapp.core_hfss.create_lumped_port_on_trace(
-            nets="A0_N", reference_layer="GND", point_list=[94.107, 7.874]
+            nets="M_DQ<11>", reference_layer="GND", point_list=[(17.169892e-3, 38.874954e-3)]
         )
 
     def test_02_get_properties(self):

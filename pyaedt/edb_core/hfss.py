@@ -518,7 +518,7 @@ class EdbHfss(object):
         digit_resolution : int, optional
             The number of digits carried for the edge location accuracy. The default value is ``6``.
 
-        point_list : list(tuples), optional
+        point_list : list(tuple), optional
             The list of points where to define ports. The port evaluation is done for each net provided and if a point
             belongs to a center line points from a path or a polygon then the port will be created. If the point is not
             found the ports  will be skipped. If point_list is None, the algorithm will try to find the edges from
@@ -571,14 +571,17 @@ class EdbHfss(object):
                     port_name = "{}_{}".format(net.GetName(), path.GetId())
                     if point_list:
                         for _pt in point_list:
-                            pt = self._edb.Geometry.PointData(self._edb_value(_pt[0]), self._edb_value(_pt[1]))
-                            if pt in trace_path_pts:
-                                if not self._hfss_terminals.CreateEdgePort(path, pt, reference_layer, port_name):
-                                    raise Exception(
-                                        "edge port creation failed on point {}, {}".format(
-                                            str(pt.X.ToDouble()), str(pt.Y.ToDouble())
+                            if isinstance(_pt, tuple):
+                                found_pt = [p for p in trace_path_pts if round(p.X.ToDouble(), 6) == round(_pt[0], 6)
+                                            and round(p.Y.ToDouble(), 6) == round(_pt[1], 6)]
+                                if found_pt:
+                                    pt = self._edb.Geometry.PointData(self._edb_value(_pt[0]), self._edb_value(_pt[1]))
+                                    if not self._hfss_terminals.CreateEdgePort(path, pt, reference_layer, port_name):
+                                        raise Exception(
+                                            "edge port creation failed on point {}, {}".format(
+                                                str(pt.X.ToDouble()), str(pt.Y.ToDouble())
+                                            )
                                         )
-                                    )
                     else:
                         for pt in trace_path_pts:
                             _pt = [round(pt.X.ToDouble(), digit_resolution), round(pt.Y.ToDouble(), digit_resolution)]
