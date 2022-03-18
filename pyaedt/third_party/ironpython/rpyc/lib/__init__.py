@@ -147,7 +147,7 @@ def exp_backoff(collision):
     """
     n = min(collision, 10)
     supremum_adjustment = 1 if n > 3 else 0
-    k = random.uniform(0, 2 ** n - supremum_adjustment)
+    k = random.uniform(0, 2**n - supremum_adjustment)
     return k * 0.0000512
 
 
