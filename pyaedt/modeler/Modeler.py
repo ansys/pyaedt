@@ -3541,6 +3541,7 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.CreateEntityList
         """
+        fl = self.convert_to_selections(fl, True)
         self.oeditor.CreateEntityList(
             ["NAME:GeometryEntityListParameters", "EntityType:=", "Face", "EntityList:=", fl],
             ["NAME:Attributes", "Name:=", name],

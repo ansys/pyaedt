@@ -213,7 +213,7 @@ class TestClass(BasisTest, object):
         if not is_ironpython:
             assert data.plot(is_polar=True)
             assert data.plot_3d()
-        self.field_test.modeler.create_polyline([[0,0,0], [0,5,30]], name="Poly1",non_model=True)
+        self.field_test.modeler.create_polyline([[0, 0, 0], [0, 5, 30]], name="Poly1", non_model=True)
         variations2 = self.field_test.available_variations.nominal_w_values_dict
         variations2["Theta"] = ["All"]
         variations2["Phi"] = ["All"]
