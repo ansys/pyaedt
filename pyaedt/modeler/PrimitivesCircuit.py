@@ -136,14 +136,14 @@ class CircuitComponents(object):
         if not location:
             xpos = self.current_position[0]
             ypos = self.current_position[1]
-            self.current_position[1] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[1]
-            if self.current_position[1] > self.limits_mils:
-                self.current_position[1] = 0
-                self.current_position[0] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[0]
         else:
             xpos = location[0]
             ypos = location[1]
             self.current_position = location
+        self.current_position[1] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[1]
+        if self.current_position[1] > self.limits_mils:
+            self.current_position[1] = 0
+            self.current_position[0] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[0]
         return xpos, ypos
 
     @pyaedt_function_handler()

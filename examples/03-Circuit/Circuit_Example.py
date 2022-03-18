@@ -99,6 +99,19 @@ setup3 = aedt_app.create_setup("MyDC", aedt_app.SETUPS.NexximDC)
 aedt_app.analyze_setup("MyLNA")
 
 aedt_app.export_fullwave_spice()
+
+
+###############################################################################
+# Postprocessing
+# --------------
+# Create Report.
+
+solutions = aedt_app.post.get_solution_data(
+    expressions=aedt_app.get_traces_for_plot(category="S"),
+)
+solutions.plot()
+
+
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
