@@ -393,8 +393,8 @@ class ModelPlotter(object):
     >>> model.add_object(r'D:\Simulation\antenna.obj', (200,20,255), 0.6, "in")
     >>> model.add_object(r'D:\Simulation\helix.obj', (0,255,0), 0.5, "in")
     >>> frames = [r'D:\Simulation\helic_antenna.csv', r'D:\Simulation\helic_antenna_10.fld',
-    >>>           r'D:\Simulation\helic_antenna_20.fld', r'D:\Simulation\helic_antenna_30.fld',
-    >>>           r'D:\Simulation\helic_antenna_40.fld']
+    ...           r'D:\Simulation\helic_antenna_20.fld', r'D:\Simulation\helic_antenna_30.fld',
+    ...           r'D:\Simulation\helic_antenna_40.fld']
     >>> model.gif_file = r"D:\Simulation\animation.gif"
     >>> model.animate()
     """
