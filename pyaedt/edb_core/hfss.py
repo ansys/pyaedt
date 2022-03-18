@@ -571,7 +571,7 @@ class EdbHfss(object):
                     port_name = "{}_{}".format(net.GetName(), path.GetId())
                     if point_list:
                         for _pt in point_list:
-                            pt = self._edb.Geometry.PointData(self._edb_value(_pt[0]), self._edb_value(_pt[1]))
+                            pt = self._edb.Geometry.PointData(self._get_edb_value(_pt[0]), self._get_edb_value(_pt[1]))
                             if pt in trace_path_pts:
                                 if not self._hfss_terminals.CreateEdgePort(path, pt, reference_layer, port_name):
                                     raise Exception(
