@@ -65,9 +65,8 @@ class EdbHfss(object):
     def _builder(self):
         return self._pedb.builder
 
-    @property
-    def _edb_value(self):
-        return self._pedb.edb_value
+    def _get_edb_value(self, value):
+        return self._pedb.edb_value(value)
 
     @pyaedt_function_handler()
     def get_trace_width_for_traces_with_ports(self):
