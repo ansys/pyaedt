@@ -65,9 +65,8 @@ class EdbHfss(object):
     def _builder(self):
         return self._pedb.builder
 
-    @property
-    def _edb_value(self):
-        return self._pedb.edb_value
+    def _get_edb_value(self, value):
+        return self._pedb.edb_value(value)
 
     @pyaedt_function_handler()
     def get_trace_width_for_traces_with_ports(self):
@@ -518,7 +517,7 @@ class EdbHfss(object):
         digit_resolution : int, optional
             The number of digits carried for the edge location accuracy. The default value is ``6``.
 
-        point_list : list(tuple), optional
+        point_list : list(tuples), optional
             The list of points where to define ports. The port evaluation is done for each net provided and if a point
             belongs to a center line points from a path or a polygon then the port will be created. If the point is not
             found the ports  will be skipped. If point_list is None, the algorithm will try to find the edges from
