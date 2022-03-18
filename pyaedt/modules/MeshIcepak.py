@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from pyaedt import settings
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Mesh import meshers
@@ -71,6 +72,20 @@ class IcepakMesh(object):
             self.Objects = ["Region"]
             self.SubModels = False
             self.Enable = True
+            self.ProximitySizeFunction = True
+            self.CurvatureSizeFunction = True
+            self.EnableTransition = False
+            self.OptimizePCBMesh = True
+            self.Enable2DCutCell = False
+            self.EnforceCutCellMeshing = False
+            self.Enforce2dot5DCutCell = False
+            self.SlackMinX = "0mm"
+            self.SlackMinY = "0mm"
+            self.SlackMinZ = "0mm"
+            self.SlackMaxX = "0mm"
+            self.SlackMaxY = "0mm"
+            self.SlackMaxZ = "0mm"
+            self.CoordCS = "Global"
 
         @pyaedt_function_handler()
         def _dim_arg(self, value):
@@ -83,6 +98,47 @@ class IcepakMesh(object):
             else:
                 val = "{0}{1}".format(value, self.model_units)
             return val
+
+        @property
+        def _new_versions_fields(self):
+            arg = []
+            if settings.aedt_version > "2021.2":
+                arg = [
+                    "ProximitySizeFunction:=",
+                    self.ProximitySizeFunction,
+                    "CurvatureSizeFunction:=",
+                    self.CurvatureSizeFunction,
+                    "EnableTransition:=",
+                    self.EnableTransition,
+                    "OptimizePCBMesh:=",
+                    self.OptimizePCBMesh,
+                    "Enable2DCutCell:=",
+                    self.Enable2DCutCell,
+                    "EnforceCutCellMeshing:=",
+                    self.EnforceCutCellMeshing,
+                    "Enforce2dot5DCutCell:=",
+                    self.Enforce2dot5DCutCell,
+                ]
+            if settings.aedt_version >= "2022.2":
+                arg.extend(
+                    [
+                        "SlackMinX:=",
+                        self.SlackMinX,
+                        "SlackMinY:=",
+                        self.SlackMinY,
+                        "SlackMinZ:=",
+                        self.SlackMinZ,
+                        "SlackMaxX:=",
+                        self.SlackMaxX,
+                        "SlackMaxY:=",
+                        self.SlackMaxY,
+                        "SlackMaxZ:=",
+                        self.SlackMaxZ,
+                        "CoordCS:=",
+                        self.CoordCS,
+                    ]
+                )
+            return arg
 
         @property
         def autosettings(self):
@@ -109,6 +165,7 @@ class IcepakMesh(object):
             else:
                 arg.append("Objects:=")
                 arg.append(self.Objects)
+            arg.extend(self._new_versions_fields)
             return arg
 
         @property
@@ -163,6 +220,7 @@ class IcepakMesh(object):
             else:
                 arg.append("Objects:=")
                 arg.append(self.Objects)
+            arg.extend(self._new_versions_fields)
             return arg
 
         @property
