@@ -1900,7 +1900,6 @@ class PostProcessorCommon(object):
                 ctxt.append("PointCount:=")
                 ctxt.append(polyline_points)
 
-
         if not isinstance(expressions, list):
             expressions = [expressions]
 

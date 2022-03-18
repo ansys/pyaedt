@@ -392,8 +392,8 @@ class GeometryOperators(object):
         """
         t = 0
         for i in a:
-            t += i**2
-        m = t**0.5
+            t += i ** 2
+        m = t ** 0.5
         return m
 
     @staticmethod
@@ -1909,7 +1909,7 @@ class GeometryOperators(object):
         float
 
         """
-        return math.ceil(math.degrees(angle) * 10**digits) / (10**digits)
+        return math.ceil(math.degrees(angle) * 10 ** digits) / (10 ** digits)
 
     @staticmethod
     @pyaedt_function_handler()
@@ -1928,7 +1928,7 @@ class GeometryOperators(object):
         float
 
         """
-        return math.ceil(math.radians(angle) * 10**digits) / (10**digits)
+        return math.ceil(math.radians(angle) * 10 ** digits) / (10 ** digits)
 
     @staticmethod
     @pyaedt_function_handler()
@@ -1947,7 +1947,7 @@ class GeometryOperators(object):
         float
 
         """
-        return math.floor(math.degrees(angle) * 10**digits) / (10**digits)
+        return math.floor(math.degrees(angle) * 10 ** digits) / (10 ** digits)
 
     @staticmethod
     @pyaedt_function_handler()
@@ -1966,4 +1966,4 @@ class GeometryOperators(object):
         float
 
         """
-        return math.floor(math.radians(angle) * 10**digits) / (10**digits)
+        return math.floor(math.radians(angle) * 10 ** digits) / (10 ** digits)

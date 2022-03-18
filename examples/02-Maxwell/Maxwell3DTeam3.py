@@ -134,12 +134,24 @@ Fields.AddNamedExpression("Bz", "Fields")
 ###############################################################################
 # Plot mag(Bz) as a function of frequency for both coil positions
 variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["-20mm"]}
-M3D.post.create_report(expressions="mag(Bz)", report_category="Fields", context="Line_AB", variations=variations,
-                       primary_sweep_variable="Distance", plotname="mag(Bz) Along 'Line_AB' Offset Coil",)
+M3D.post.create_report(
+    expressions="mag(Bz)",
+    report_category="Fields",
+    context="Line_AB",
+    variations=variations,
+    primary_sweep_variable="Distance",
+    plotname="mag(Bz) Along 'Line_AB' Offset Coil",
+)
 
 variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["0mm"]}
-M3D.post.create_report(expressions="mag(Bz)", report_category="Fields", context="Line_AB", variations=variations,
-                       primary_sweep_variable="Distance", plotname="mag(Bz) Along 'Line_AB' Coil",)
+M3D.post.create_report(
+    expressions="mag(Bz)",
+    report_category="Fields",
+    context="Line_AB",
+    variations=variations,
+    primary_sweep_variable="Distance",
+    plotname="mag(Bz) Along 'Line_AB' Coil",
+)
 
 
 ###############################################################################
@@ -149,12 +161,13 @@ M3D.post.create_report(expressions="mag(Bz)", report_category="Fields", context=
 # following commands.
 variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["All"]}
 
-solutions = M3D.post.get_solution_data(expressions="mag(Bz)",
-                                       report_category="Fields",
-                                       context="Line_AB",
-                                       variations=variations,
-                                       primary_sweep_variable="Distance",
-                                       )
+solutions = M3D.post.get_solution_data(
+    expressions="mag(Bz)",
+    report_category="Fields",
+    context="Line_AB",
+    variations=variations,
+    primary_sweep_variable="Distance",
+)
 solutions.nominal_sweeps["Coil_Position"] = -0.02
 solutions.plot()
 
