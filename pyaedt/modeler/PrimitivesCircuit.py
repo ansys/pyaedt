@@ -141,7 +141,7 @@ class CircuitComponents(object):
             ypos = location[1]
             self.current_position = location
         self.current_position[1] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[1]
-        if self.current_position[1] > self.limits_mils:
+        if self.current_position[1]/AEDT_UNITS["Length"]["mil"] > self.limits_mils:
             self.current_position[1] = 0
             self.current_position[0] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[0]
         return xpos, ypos

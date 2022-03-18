@@ -646,7 +646,7 @@ class SolutionData(object):
             Matplotlib fig object.
         """
         if is_ironpython:
-            return False
+            return False  # pragma: no cover
         if not curves:
             curves = [self.expressions[0]]
         if isinstance(curves, str):
@@ -725,7 +725,7 @@ class SolutionData(object):
             Matplotlib fig object.
         """
         if is_ironpython:
-            return False
+            return False  # pragma: no cover
         if not curve:
             curve = self.expressions[0]
 
