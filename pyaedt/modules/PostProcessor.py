@@ -639,6 +639,11 @@ class SolutionData(object):
             Full path to image file if a snapshot is needed.
         is_polar : bool, optional
             Set to `True` if this is a polar plot.
+
+        Returns
+        -------
+        :class:`matplotlib.plt`
+            Matplotlib fig object.
         """
         if is_ironpython:
             return False
@@ -713,6 +718,11 @@ class SolutionData(object):
             Full path to image file if a snapshot is needed.
         is_polar : bool, optional
             Set to `True` if this is a polar plot.
+
+        Returns
+        -------
+        :class:`matplotlib.plt`
+            Matplotlib fig object.
         """
         if is_ironpython:
             return False

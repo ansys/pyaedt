@@ -137,7 +137,7 @@ def plot_polar_chart(
         fig.savefig(snapshot_path)
     else:
         fig.show()
-    return True
+    return fig
 
 
 @pyaedt_function_handler()
@@ -159,6 +159,11 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
         Plot Title label.
     snapshot_path : str
         Full path to image file if a snapshot is needed.
+
+    Returns
+    -------
+    :class:`matplotlib.plt`
+        Matplotlib fig object.
     """
     dpi = 100.0
     dpi = 100.0
@@ -183,7 +188,7 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
         fig.savefig(snapshot_path)
     else:
         fig.show()
-    return True
+    return fig
 
 
 @pyaedt_function_handler()
@@ -207,6 +212,11 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
         Plot Title label.
     snapshot_path : str
         Full path to image file if a snapshot is needed.
+
+    Returns
+    -------
+    :class:`matplotlib.plt`
+        Matplotlib fig object.
     """
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
@@ -232,7 +242,7 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
         fig.savefig(snapshot_path)
     else:
         fig.show()
-    return True
+    return fig
 
 
 @pyaedt_function_handler()
@@ -256,6 +266,11 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
         Plot Title label.
     snapshot_path : str
         Full path to image file if a snapshot is needed.
+
+    Returns
+    -------
+    :class:`matplotlib.plt`
+        Matplotlib fig object.
     """
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)

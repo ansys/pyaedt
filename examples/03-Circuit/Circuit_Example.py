@@ -109,7 +109,7 @@ aedt_app.export_fullwave_spice()
 solutions = aedt_app.post.get_solution_data(
     expressions=aedt_app.get_traces_for_plot(category="S"),
 )
-solutions.plot()
+fig = solutions.plot()
 
 
 ###############################################################################
