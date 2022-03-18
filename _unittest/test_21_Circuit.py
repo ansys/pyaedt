@@ -177,6 +177,10 @@ class TestClass(BasisTest, object):
         assert data.data_imag()
         assert data.data_db()
 
+        data_with_verbose = read_touchstone(os.path.join(self.local_scratch.path, touchstone), verbose=True)
+        assert max(data_with_verbose.data_magnitude()) > 0.37
+        assert max(data_with_verbose.data_magnitude()) < 0.38
+
     def test_17_create_setup(self):
         setup_name = "Dom_LNA"
         LNA_setup = self.aedtapp.create_setup(setup_name)
