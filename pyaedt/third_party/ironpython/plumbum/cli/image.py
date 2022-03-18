@@ -77,7 +77,7 @@ class Image(object):
                 pixl = new_im.getpixel((x, y * 2 + 1))
                 print(
                     colors.bg.rgb(*pixl) & colors.fg.rgb(*pix),
-                    "\u2580",
+                    u"\u2580",
                     sep="",
                     end="",
                 )
