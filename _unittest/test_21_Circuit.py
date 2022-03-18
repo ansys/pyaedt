@@ -118,6 +118,7 @@ class TestClass(BasisTest, object):
 
     def test_09_import_netlist(self):
         self.aedtapp.insert_design("SchematicImport")
+        self.aedtapp.modeler.schematic.limits_mils = 5000
         assert self.aedtapp.create_schematic_from_netlist(os.path.join(self.local_scratch.path, netlist1))
 
     def test_10_import_touchstone(self):

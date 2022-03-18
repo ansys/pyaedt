@@ -93,5 +93,27 @@ target.post.create_report(
     context="ATK_3D",
     report_category="Far Fields",
 )
+
+###############################################################################
+# Plot Results Outside Electronics Desktop
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example plots results using matplotlib.
+
+solution = target.post.get_solution_data(
+    "GainTotal",
+    target.nominal_adaptive,
+    variations=variations,
+    primary_sweep_variable="Theta",
+    context="ATK_3D",
+    report_category="Far Fields",
+)
+solution.plot()
+
+
+###############################################################################
+# Close and Exit Example
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Release desktop and close example.
+
 if os.name != "posix":
     target.release_desktop()

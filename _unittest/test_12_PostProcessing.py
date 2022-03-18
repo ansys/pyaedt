@@ -213,6 +213,20 @@ class TestClass(BasisTest, object):
         if not is_ironpython:
             assert data.plot(is_polar=True)
             assert data.plot_3d()
+        self.field_test.modeler.create_polyline([[0, 0, 0], [0, 5, 30]], name="Poly1", non_model=True)
+        variations2 = self.field_test.available_variations.nominal_w_values_dict
+        variations2["Theta"] = ["All"]
+        variations2["Phi"] = ["All"]
+        variations2["Freq"] = ["30GHz"]
+        variations2["Distance"] = ["All"]
+        assert self.field_test.post.create_report(
+            "Mag_E",
+            self.field_test.nominal_adaptive,
+            variations=variations2,
+            primary_sweep_variable="Distance",
+            context="Poly1",
+            report_category="Fields",
+        )
         assert data.primary_sweep == "Theta"
         assert data.data_magnitude("GainTotal")
         assert not data.data_magnitude("GainTotal2")

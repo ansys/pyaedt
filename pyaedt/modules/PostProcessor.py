@@ -639,9 +639,14 @@ class SolutionData(object):
             Full path to image file if a snapshot is needed.
         is_polar : bool, optional
             Set to `True` if this is a polar plot.
+
+        Returns
+        -------
+        :class:`matplotlib.plt`
+            Matplotlib fig object.
         """
         if is_ironpython:
-            return False
+            return False  # pragma: no cover
         if not curves:
             curves = [self.expressions[0]]
         if isinstance(curves, str):
@@ -713,9 +718,14 @@ class SolutionData(object):
             Full path to image file if a snapshot is needed.
         is_polar : bool, optional
             Set to `True` if this is a polar plot.
+
+        Returns
+        -------
+        :class:`matplotlib.plt`
+            Matplotlib fig object.
         """
         if is_ironpython:
-            return False
+            return False  # pragma: no cover
         if not curve:
             curve = self.expressions[0]
 
@@ -1798,6 +1808,7 @@ class PostProcessorCommon(object):
         plot_type="Rectangular Plot",
         context=None,
         subdesign_id=None,
+        polyline_points=0,
         plotname=None,
         only_get_method=False,
     ):
@@ -1895,6 +1906,9 @@ class PostProcessorCommon(object):
                 ctxt = ["Context:=", context]
         elif context:
             ctxt = ["Context:=", context]
+            if context in self.modeler.line_names:
+                ctxt.append("PointCount:=")
+                ctxt.append(polyline_points)
 
         if not isinstance(expressions, list):
             expressions = [expressions]
@@ -1953,6 +1967,7 @@ class PostProcessorCommon(object):
         plot_type="Rectangular Plot",
         context=None,
         subdesign_id=None,
+        polyline_points=1001,
         plotname=None,
     ):
         """Create a report in AEDT. It can be a 2D plot, 3D plot, polar plots or data tables.
@@ -1985,6 +2000,8 @@ class PostProcessorCommon(object):
             Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
         plotname : str, optional
             Name of the plot. The default is ``None``.
+        polyline_points : int, optional,
+            Number of points on which create the report for plots on polylines.
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
@@ -2037,17 +2054,18 @@ class PostProcessorCommon(object):
         """
 
         out = self._get_report_inputs(
-            expressions,
-            setup_sweep_name,
-            domain,
-            variations,
-            primary_sweep_variable,
-            secondary_sweep_variable,
-            report_category,
-            plot_type,
-            context,
-            subdesign_id,
-            plotname,
+            expressions=expressions,
+            setup_sweep_name=setup_sweep_name,
+            domain=domain,
+            variations=variations,
+            primary_sweep_variable=primary_sweep_variable,
+            secondary_sweep_variable=secondary_sweep_variable,
+            report_category=report_category,
+            plot_type=plot_type,
+            context=context,
+            subdesign_id=subdesign_id,
+            polyline_points=polyline_points,
+            plotname=plotname,
         )
         if not out:
             return False
@@ -2073,6 +2091,7 @@ class PostProcessorCommon(object):
         report_category=None,
         context=None,
         subdesign_id=None,
+        polyline_points=1001,
     ):
         """Get SolutionData of a report in AEDT. It can be a 2D plot, 3D solution data class.
 
@@ -2102,6 +2121,11 @@ class PostProcessorCommon(object):
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
         context : str, optional
+            The default is ``None``. It can be `None`, `"Differential Pairs"` or
+            Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
+        polyline_points : int, optional,
+            Number of points on which create the report for plots on polylines.
+
 
         Returns
         -------
@@ -2150,18 +2174,16 @@ class PostProcessorCommon(object):
 
         """
         out = self._get_report_inputs(
-            expressions,
-            setup_sweep_name,
-            domain,
-            variations,
-            primary_sweep_variable,
-            None,
-            report_category,
-            None,
-            context,
-            subdesign_id,
-            None,
-            True,
+            expressions=expressions,
+            setup_sweep_name=setup_sweep_name,
+            domain=domain,
+            variations=variations,
+            primary_sweep_variable=primary_sweep_variable,
+            report_category=report_category,
+            context=context,
+            subdesign_id=subdesign_id,
+            polyline_points=polyline_points,
+            only_get_method=True,
         )
 
         solution_data = self.get_solution_data_per_variation(out[1], out[3], out[4], out[5], expressions)
