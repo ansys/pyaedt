@@ -81,7 +81,6 @@ except ImportError:
     def select(*args):
         raise ImportError("select not supported on this platform")
 
-
 else:
     # jython
     if hasattr(select_module, "cpython_compatible_select"):
@@ -206,7 +205,6 @@ if sys.version_info >= (3, 2):
         if blocking and timeout.finite:
             return lock.acquire(blocking, timeout.timeleft())
         return lock.acquire(blocking)
-
 
 else:
 

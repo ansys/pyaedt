@@ -2683,6 +2683,7 @@ class SimulationConfiguration(object):
         self._honor_user_dielectric = False
         self._truncate_airbox_at_ground = False
         self._use_radiation_boundary = True
+        self._do_cutout_subdesign = True
         self._read_cfg()
 
     @property
@@ -2774,6 +2775,15 @@ class SimulationConfiguration(object):
     def trim_reference_size(self, value):
         if isinstance(value, bool):
             self._trim_reference_size = value
+
+    @property
+    def do_cutout_subdesign(self):
+        return self._do_cutout_subdesign
+
+    @do_cutout_subdesign.setter
+    def do_cutout_subdesign(self, value):
+        if isinstance(value, bool):
+            self._do_cutout_subdesign = value
 
     @property
     def cutout_subdesign_type(self):
@@ -3460,6 +3470,8 @@ class SimulationConfiguration(object):
                                 self.signal_layer_etching_instances = self._get_list_value(value)
                             elif i.startswith("EtchingFactor"):
                                 self.etching_factor_instances = self._get_list_value(value)
+                            elif i.startswith("DoCutoutSubdesign"):
+                                self.do_cutout_subdesign = self._get_list_value(value)
                         else:
                             print("Unprocessed line in cfg file: {0}".format(line))
                     else:

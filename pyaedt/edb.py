@@ -24,7 +24,8 @@ except ImportError:  # pragma: no cover
         warnings.warn("Pythonnet is needed to run PyAEDT.")
 from pyaedt import settings
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
-from pyaedt.edb_core.EDB_Data import EdbBuilder
+from pyaedt.edb_core.EDB_Data import EdbBuilder, SimulationConfiguration
+from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.general_methods import (
     pyaedt_function_handler,
     env_path,
@@ -888,6 +889,7 @@ class Edb(object):
         use_round_corner=False,
         output_aedb_path=None,
         open_cutout_at_end=True,
+        simulation_setup=None,
     ):
         """Create a cutout and save it to a new AEDB file.
 
@@ -909,6 +911,8 @@ class Edb(object):
         open_cutout_at_end : bool, optional
             Whether to open the cutout at the end. The default
             is ``True``.
+        simulation_setup : EDB_Data.SimulationConfiguration object
+            When used will overwrite the other parameters
 
         Returns
         -------
@@ -916,23 +920,24 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        _signal_nets = []
+
+        if simulation_setup and isinstance(simulation_setup, SimulationConfiguration):
+            signal_list = simulation_setup.signal_nets
+            reference_list = simulation_setup.power_nets
+            if simulation_setup.cutout_subdesign_type == CutoutSubdesignType.Conformal:
+                extent_type = "Conforming"
+                expansion_size = float(simulation_setup.cutout_subdesign_expansion)
+                use_round_corner = bool(simulation_setup.cutout_subdesign_round_corner)
+
         # validate nets in layout
-        for _sig in signal_list:
-            _netobj = self.edb.Cell.Net.FindByName(self.active_layout, _sig)
-            _signal_nets.append(_netobj)
-
-        _ref_nets = []
+        net_signals = convert_py_list_to_net_list(
+            [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list]
+        )
         # validate references in layout
-        for _ref in reference_list:
-            _netobj = self.edb.Cell.Net.FindByName(self.active_layout, _ref)
-            _ref_nets.append(_netobj)
+        _netsClip = convert_py_list_to_net_list(
+            [net for net in list(self.active_layout.Nets) if net.GetName() in reference_list]
+        )
 
-        _netsClip = [
-            self.edb.Cell.Net.FindByName(self.active_layout, reference_list[i]) for i, p in enumerate(reference_list)
-        ]
-        _netsClip = convert_py_list_to_net_list(_netsClip)
-        net_signals = convert_py_list_to_net_list(_signal_nets)
         if extent_type == "Conforming":
             _poly = self.active_layout.GetExpandedExtentFromNets(
                 net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
@@ -1372,3 +1377,98 @@ class Edb(object):
         """
         bbox = self.edbutils.HfssUtilities.GetBBox(self.active_layout)
         return [[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()], [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]]
+
+    @pyaedt_function_handler()
+    def build_simulation_project(self, output_aedb=None, simulation_setup=None):
+        self.logger.info("Building simulation project using EDB. Output file: {0}".format(output_aedb))
+        try:
+            if not simulation_setup or not isinstance(simulation_setup, SimulationConfiguration):
+                return False
+            if simulation_setup.do_cutout_subdesign:
+                self.logger.info("Cuting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
+                ### to continue
+                success, cutout = self.create_cutout() builder.CutoutSubdesign(setupInfo.NetSetup, setupInfo.Cutout, setupInfo.Options)
+                if success:
+                    Logger.Info("Cutout processed as: {0}".format(cutout.GetName()))
+                    # delete the original
+                    builder.cell.Delete()
+                    builder.cell = cutout
+                    builder.layout = cutout.GetLayout()
+                else:
+                    Logger.Error("Cutout failed")
+
+            # if solver == 'SiWave':
+            cfg_build_utils.SetupNetClasses(setupInfo, builder)
+
+            if setupInfo.KeepANFPortsAndPinGroups:
+                # Use port/pin groups from cmp file (loaded by anf translator)
+                # Forcing circuit ports to avoid random gap ports creation after translation
+                Logger.Info("Configure circuit ports for existing ports")
+                for term in builder.layout.Terminals:
+                    term.SetIsCircuitPort(True)
+            else:
+                # Anstranslator can create ports and pin groups from the cmp file.
+                # These need to be removed for HFSS so that we have a clean starting point for the cfg file to create HFSS coax ports.
+                Logger.Info("Discarding existing ports")
+                for term in builder.layout.Terminals:
+                    term.Delete()
+                for pg in builder.layout.PinGroups:
+                    pg.Delete()
+                '''
+                ?????
+                '''
+                if setupInfo.ComponentSetup:
+                    Logger.Info("Configuring  component interfaces for HFSS")
+                    if not builder.ConfigureComponentInterfacesForHfss(setupInfo.ComponentSetup, None,
+                                                                       setupInfo.Options):
+                        raise RuntimeError("Failed to configure component interfaces for HFSS")
+
+                Logger.Info("Creating ports for signal nets")
+                if not builder.CreatePadstackInstanceTerminals(setupInfo.NetSetup, setupInfo.Options,
+                                                               setupInfo.ComponentSetup):
+                    raise RuntimeError("Failed to create ports")
+            Logger.Info("Number of ports: {}".format(cfg_build_utils.GetPortsNumber(builder)))
+
+            if solver == 'Hfss3D':
+                Logger.Info("Configure HFSS extents")
+                cfg_build_utils.ConfigureHfssExtents(setupInfo, builder)
+
+            Logger.Info("Configure analysis setup")
+            if solver == 'SiWave':
+                status = cfg_build_utils.ConfigureSiwAnalysisSetup(setupInfo, builder)
+            elif solver == 'Hfss3D':
+                status = cfg_build_utils.ConfigureHfssAnalysisSetup(setupInfo, builder)
+            if not status:
+                Logger.Error("Failed to configure analysis setup")
+
+            cfg_build_utils.SetCoaxPortAttributes(setupInfo, builder)
+
+            # For intermediate layers for Package merged on Board
+            # if solver == 'Hfss3D':
+            #    cfg_build_utils.SetupCoplanarInstances(setupInfo, builder)
+
+            # If TrimRefSize is activated to reduce the ref plane surface it will deactivate the automatic reference plane size.
+            # If the intention is to reduce the parasitic effect from the ref plane, we recommend using Pin groups with circuits ports e.g. Use_Siwave_project = KeepANFPortsAndPinGroups
+
+            if setupInfo.TrimRefSize:
+                Logger.Info('Trimming the reference plane for coaxial ports: {0}'.format(bool(setupInfo.TrimRefSize)))
+                cfg_build_utils.TrimComponentReferenceSize(setupInfo, builder, False)
+
+            if setupInfo.DefeatureLayout:
+                # Defeaturing the layout with replacing voids to circles, correct misalignment and defeatuer polygon based on sufrace deviation criteria
+                cfg_build_utils.LayoutDefeaturing(setupInfo, builder)
+
+            builder.CloseEDB(True)
+        except edb.EDBException as e:
+            Logger.Error(e.ToString())
+            sys.exit(1)
+        except Exception as e:
+            Logger.Error(e.message)
+            Logger.Error(traceback.print_exc())
+            sys.exit(1)
+        except:
+            Logger.Error("Unhandled exception in anf_to_aedb")
+            Logger.Error(traceback.print_exc())
+            sys.exit(1)
+
+        Logger.Info("anf_to_aedb SIWave analysis setup complete")
