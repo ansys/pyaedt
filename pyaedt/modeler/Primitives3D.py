@@ -2162,9 +2162,10 @@ class Primitives3D(Primitives, object):
                 "Similar Layer": {"Similar": True, "Different": False},
                 "Mode": {"Differential": True, "Common": False},
                 "Wire Section": {"None": False, "Hexagon": False, "Octagon": True, "Circle": False},
-                "Core": {"Name": "Core", "Inner Radius": 11, "Outer Radius": 17, "Height": 7, "Chamfer": 0.8},
-                "Outer Winding": {"Name": "Winding", "Inner Radius": 12, "Outer Radius": 16, "Height": 8,
-                                  "Wire Diameter": 1, "Turns": 10, "Coil Pit(deg)": 9, "Occupation(%)": 0},
+                "Core": {"Name": "Core", "Material": "iron", "Inner Radius": 11, "Outer Radius": 17, "Height": 7,
+                         "Chamfer": 0.8},
+                "Outer Winding": {"Name": "Winding", "Material": "copper", "Inner Radius": 12, "Outer Radius": 16,
+                                  "Height": 8, "Wire Diameter": 1, "Turns": 10, "Coil Pit(deg)": 9, "Occupation(%)": 0},
                 "Mid Winding": {"Turns": 8, "Coil Pit(deg)": 0.1, "Occupation(%)": 0},
                 "Inner Winding": {"Turns": 12, "Coil Pit(deg)": 0.1, "Occupation(%)": 0}
             }
@@ -2184,9 +2185,17 @@ class Primitives3D(Primitives, object):
             "Similar Layer": {"Similar": True, "Different": False},
             "Mode": {"Differential": True, "Common": False},
             "Wire Section": {"None": False, "Hexagon": False, "Octagon": True, "Circle": False},
-            "Core": {"Name": "Core", "Inner Radius": 11, "Outer Radius": 17, "Height": 7, "Chamfer": 0.8},
+            "Core": {
+                "Name": "Core",
+                "Material": "iron",
+                "Inner Radius": 11,
+                "Outer Radius": 17,
+                "Height": 7,
+                "Chamfer": 0.8,
+            },
             "Outer Winding": {
                 "Name": "Winding",
+                "Material": "copper",
                 "Inner Radius": 12,
                 "Outer Radius": 16,
                 "Height": 8,
@@ -2246,12 +2255,39 @@ class Primitives3D(Primitives, object):
             values["Core"]["Name"] = "Core"
 
         try:
+            core_material = str(values["Core"]["Material"])
+            if len(core_material) > 0:
+                if self.materials.checkifmaterialexists(core_material):
+                    values["Core"]["Material"] = core_material
+                else:
+                    self.logger.error("%s is not in the material library."
+                                      " It can be add using the method add_material" % core_material)
+                    values["Core"]["Material"] = "iron"
+        except:
+            self.logger.warning("Core Material must be a non-null string. A default material Core has been set.")
+            values["Core"]["Material"] = "iron"
+
+        try:
             winding_name = str(values["Outer Winding"]["Name"])
             if len(winding_name) > 0:
                 values["Outer Winding"]["Name"] = winding_name
         except:
             self.logger.warning("Outer Winding Name must be a non-null string. A default name Winding has been set.")
             values["Outer Winding"]["Name"] = "Winding"
+
+        try:
+            winding_material = str(values["Outer Winding"]["Material"])
+            if len(winding_material) > 0:
+                if self.materials.checkifmaterialexists(winding_material):
+                    values["Outer Winding"]["Material"] = winding_material
+                else:
+                    self.logger.error("%s is not in the material library."
+                                      " It can be add using the method add_material" % winding_material)
+                    values["Outer Winding"]["Material"] = "copper"
+        except:
+            self.logger.warning("Outer Winding Material must be a non-null string."
+                                " A default material Winding has been set.")
+            values["Outer Winding"]["Material"] = "copper"
 
         in_rad_core, are_inequations_checkable = self._check_value_type(
             values["Core"]["Inner Radius"],
@@ -2548,7 +2584,7 @@ class Primitives3D(Primitives, object):
     def _make_winding_follow_chamfer(self, chamfer, security_factor, wire_diameter, layer_number):
         sr = security_factor
         w_rad_inc = layer_number * sr * wire_diameter / 2
-        distance = sqrt(2 * w_rad_inc**2) - w_rad_inc + sqrt(2 * chamfer**2) / 2
+        distance = sqrt(2 * w_rad_inc ** 2) - w_rad_inc + sqrt(2 * chamfer ** 2) / 2
         return sqrt(2) * distance
 
     @pyaedt_function_handler()
