@@ -206,6 +206,125 @@ class CommonOptimetrics(object):
         self.auto_update = True
 
     @pyaedt_function_handler()
+    def _get_context(
+        self,
+        expressions,
+        condition,
+        goal_weight,
+        goal_value,
+        setup_sweep_name=None,
+        domain="Sweep",
+        variations=None,
+        variations_values=None,
+        report_category=None,
+        context=None,
+        subdesign_id=None,
+        polyline_points=0,
+        plotname=None,
+    ):
+        did = 3
+        var_type = "rd"
+        if domain != "Sweep":
+            did = 1
+            var_type = "a"
+        sweepdefinition = OrderedDict()
+        sweepdefinition["ReportType"] = report_category
+        if not setup_sweep_name:
+            setup_sweep_name = self._app.nominal_sweep
+        sweepdefinition["Solution"] = setup_sweep_name
+        ctxt = OrderedDict({"SimValueContext": context})
+
+        if self._app.solution_type in ["TR", "AC", "DC"]:
+            ctxt["SimValueContext"] = [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]
+            setup_sweep_name = self._app.solution_type
+            sweepdefinition["Solution"] = setup_sweep_name
+
+        elif self._app.solution_type in ["HFSS3DLayout"]:
+            if context == "Differential Pairs":
+                ctxt["SimValueContext"] = [
+                    did,
+                    0,
+                    2,
+                    0,
+                    False,
+                    False,
+                    -1,
+                    1,
+                    0,
+                    1,
+                    1,
+                    "",
+                    0,
+                    0,
+                    "EnsDiffPairKey",
+                    False,
+                    "1",
+                    "IDIID",
+                    False,
+                    "1",
+                ]
+            else:
+                ctxt["SimValueContext"] = [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"]
+
+        elif self._app.solution_type in ["NexximLNA", "NexximTransient"]:
+            ctxt["SimValueContext"] = [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]
+            if subdesign_id:
+                ctxt_temp = ["NUMLEVELS", False, "1", "SUBDESIGNID", False, str(subdesign_id)]
+                ctxt["SimValueContext"].extend(ctxt_temp)
+            if context == "Differential Pairs":
+                ctxt_temp = ["USE_DIFF_PAIRS", False, "1"]
+                ctxt["SimValueContext"].extend(ctxt_temp)
+        elif context == "Differential Pairs":
+            ctxt["SimValueContext"] = ["Diff:=", "Differential Pairs", "Domain:=", domain]
+        elif self._app.solution_type in ["Q3D Extractor", "2D Extractor"]:
+            if not context:
+                ctxt["SimValueContext"] = ["Original"]
+            else:
+                ctxt["SimValueContext"] = [context]
+        elif context:
+            ctxt["SimValueContext"] = context
+            if context in self._app.modeler.line_names:
+                ctxt["SimValueContext"]["PointCount"] = polyline_points
+        else:
+            ctxt = OrderedDict({"Domain": domain})
+
+        sweepdefinition["SimValueContext"] = ctxt
+
+        sweepdefinition["Calculation"] = expressions
+        sweepdefinition["Name"] = expressions
+        sweepdefinition["Ranges"] = None
+
+        if not setup_sweep_name:
+            setup_sweep_name = self._app.nominal_sweep
+        elif setup_sweep_name not in self._app.existing_analysis_sweeps:
+            self._app.logger.error("Sweep not Available.")
+            return False
+        families_input = OrderedDict({})
+
+        if isinstance(variations, list):
+            for var in variations:
+                r = OrderedDict({"Range": ["Var:=", var, "Type:=", var]})
+                if var_type == "rd":
+                    r["Range"].append("DiscreteValues:=")
+                    r["Range"].append(variations_values[variations.index(var)])
+
+                if not sweepdefinition["Ranges"]:
+                    sweepdefinition["Ranges"] = r
+                elif isinstance(sweepdefinition["Ranges"], list):
+                    sweepdefinition["Ranges"].append(r)
+                else:
+                    sweepdefinition["Ranges"] = [sweepdefinition["Ranges"]]
+                    sweepdefinition["Ranges"].append(r)
+
+        sweepdefinition["Condition"] = condition
+        sweepdefinition["GoalValue"] = OrderedDict(
+            {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]}
+        )
+        sweepdefinition["Weight"] = "[{};]".format(goal_weight)
+
+        return sweepdefinition
+
+    @pyaedt_function_handler()
     def update(self, update_dictionary=None):
         """Update the setup based on stored properties.
 
@@ -1608,8 +1727,8 @@ class OptimizationSetups(object):
     def add_optimization(
         self,
         calculation,
-        calculation_value,
-        calculation_type="Freq",
+        intrinsics_values,
+        intrinsics="Freq",
         reporttype="Modal Solution Data",
         domain="Sweep",
         condition="<=",
@@ -1617,6 +1736,7 @@ class OptimizationSetups(object):
         goal_weight=1,
         solution=None,
         parametricname=None,
+        context=None,
     ):
         """Add a basic optimization analysis.
 
@@ -1662,6 +1782,7 @@ class OptimizationSetups(object):
             parametricname = generate_unique_name("Optimization")
         setup = self.Setup(self._app, parametricname)
         setup.auto_update = False
+        sweepdefinition = self._get_context()
         sweepdefinition = OrderedDict()
         sweepdefinition["ReportType"] = reporttype
         if not solution:
