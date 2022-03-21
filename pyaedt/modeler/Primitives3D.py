@@ -49,17 +49,6 @@ class Primitives3D(Primitives, object):
         self.multiparts = []
 
     @pyaedt_function_handler()
-    def is3d(self):
-        """Check if the analysis is a 3D type.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-
-    @pyaedt_function_handler()
     def create_point(self, position, name=None, color="(143 175 143)"):
         """Create a point.
 

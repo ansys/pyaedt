@@ -1020,16 +1020,6 @@ class Primitives(object):
         return self._app._aedt_version
 
     @property
-    def modeler(self):
-        """Modeler."""
-        return self._modeler
-
-    @property
-    def model_units(self):
-        """Model units."""
-        return self.modeler.model_units
-
-    @property
     def model_objects(self):
         """List of the names of all model objects."""
         return self._get_model_objects(model=True)
@@ -1062,7 +1052,7 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _change_geometry_property(self, vPropChange, names_list):
-        names = self._app.modeler.convert_to_selections(names_list, True)
+        names = self.convert_to_selections(names_list, True)
         vChangedProps = ["NAME:ChangedProps", vPropChange]
         vPropServers = ["NAME:PropServers"]
         for el in names:
@@ -1076,7 +1066,7 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _change_point_property(self, vPropChange, names_list):
-        names = self._app.modeler.convert_to_selections(names_list, True)
+        names = self.convert_to_selections(names_list, True)
         vChangedProps = ["NAME:ChangedProps", vPropChange]
         vPropServers = ["NAME:PropServers"]
         for el in names:
@@ -1721,7 +1711,7 @@ class Primitives(object):
         remaining = num_objects
         while remaining > 0:
             objs = objects[:slice]
-            objects_str = self._modeler.convert_to_selections(objs, return_list=False)
+            objects_str = self.convert_to_selections(objs, return_list=False)
             arg = ["NAME:Selections", "Selections:=", objects_str]
             try:
                 self._oeditor.Delete(arg)
@@ -1789,7 +1779,7 @@ class Primitives(object):
 
         >>> oEditor.GetModelBoundingBox
         """
-        return self._app.modeler.get_model_bounding_box()
+        return self._app.get_model_bounding_box()
 
     @pyaedt_function_handler()
     def get_obj_id(self, objname):
@@ -2197,7 +2187,7 @@ class Primitives(object):
             if portonplane:
                 vect[divmod(axisdir, 3)[1]] = 0
             # TODO: can we avoid this translate operation - is there another way to check ?
-            self.modeler.translate(second_edge, vect)
+            self.translate(second_edge, vect)
             p_check = second_edge.vertices[0].position
             p_check2 = second_edge.vertices[1].position
         # elif len(ver2) == 1:  # for circular edges with one vertex
@@ -2743,8 +2733,8 @@ class Primitives(object):
             List of edge IDs lying on the bounding box.
 
         """
-        port_sheets = self._modeler.convert_to_selections(sheets, return_list=True)
-        bb = self._modeler.get_model_bounding_box()
+        port_sheets = self.convert_to_selections(sheets, return_list=True)
+        bb = self.get_model_bounding_box()
 
         candidate_edges = []
         for p in port_sheets:
@@ -2831,7 +2821,7 @@ class Primitives(object):
 
         """
         tol2 = tol**2
-        port_sheet = self._modeler.convert_to_selections(sheet, return_list=True)
+        port_sheet = self.convert_to_selections(sheet, return_list=True)
         if len(port_sheet) > 1:
             return []
         else:
@@ -2840,7 +2830,7 @@ class Primitives(object):
 
         # find the bodies to exclude
         port_sheet_midpoint = self.get_face_center(self.get_object_faces(port_sheet)[0])
-        point = self._modeler.Position(*port_sheet_midpoint)
+        point = self.Position(*port_sheet_midpoint)
         list_of_bodies = self.get_bodynames_from_position(point)
 
         # select all edges
@@ -2984,7 +2974,7 @@ class Primitives(object):
 
         # find the bodies to exclude
         port_sheet_midpoint = self.get_face_center(face_id)
-        point = self._modeler.Position(port_sheet_midpoint)
+        point = self.Position(port_sheet_midpoint)
         list_of_bodies = self.get_bodynames_from_position(point)
 
         # select all edges
@@ -3101,7 +3091,7 @@ class Primitives(object):
 
         """
         if isinstance(position, list):
-            position = self.modeler.Position(position)
+            position = self.Position(position)
 
         bodies = self.get_bodynames_from_position(position, units)
         # the function searches in all bodies, not efficient
