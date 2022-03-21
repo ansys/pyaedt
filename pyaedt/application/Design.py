@@ -460,12 +460,8 @@ class Design(object):
         self._post = None
         self._materials = None
         self._variable_manager = None
-        self.opti_parametric = None
-        self.opti_optimization = None
-        self.opti_doe = None
-        self.opti_designxplorer = None
-        self.opti_sensitivity = None
-        self.opti_statistical = None
+        self.parametrics = None
+        self.optimizations = None
         self.native_components = None
         self._mesh = None
 
