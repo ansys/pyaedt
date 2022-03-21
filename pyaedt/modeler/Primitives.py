@@ -768,7 +768,7 @@ class Polyline(Object3d):
         return True
 
     @pyaedt_function_handler()
-    def insert_segment(self, position_list, segment=None):
+    def insert_segment(self, position_list, segment=None, segment_number=0):
         """Add a segment to an existing polyline.
 
         Parameters
@@ -873,6 +873,25 @@ class Polyline(Object3d):
             varg1.append(varg2)
             varg1 += seg_str[9:]
         self._primitives._oeditor.InsertPolylineSegment(varg1)
+
+        if segment.type == "Spline":
+            varg1 = ["NAME:AllTabs"]
+            varg2 = ["NAME:Geometry3DPolylineTab"]
+
+            varg3 = ["NAME:PropServers"]
+            varg3.append(self._m_name + ":CreatePolyline:1" + ":Segment1")
+            varg2.append(varg3)
+
+            varg4 = ["NAME:ChangedProps"]
+            varg5 = ["NAME:Number of Segments"]
+            varg5.append("Value:=")
+            varg5.append(str(segment_number))
+
+            varg4.append(varg5)
+            varg2.append(varg4)
+            varg1.append(varg2)
+
+            self._primitives._oeditor.ChangeProperty(varg1)
 
         return True
 
