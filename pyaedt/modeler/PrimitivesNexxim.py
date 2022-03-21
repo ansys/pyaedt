@@ -764,7 +764,9 @@ class NexximComponents(CircuitComponents):
         cmpid.set_property("DC", value)
         return cmpid
 
-    def create_coupling_inductors(self, compname, l1, l2, value=1, location=[], angle=0, use_instance_id_netlist=False):
+    def create_coupling_inductors(
+        self, compname, l1, l2, value=1, location=None, angle=0, use_instance_id_netlist=False
+    ):
         """Create a coupling inductor.
 
         Parameters
@@ -795,6 +797,9 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location == None:
+            location = []
+
         cmpid = self.create_component(
             compname,
             component_library="Inductors",

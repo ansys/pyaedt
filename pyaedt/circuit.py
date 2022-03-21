@@ -778,7 +778,6 @@ class Circuit(FieldAnalysisCircuit, object):
 
         >>> oDesign.ExportNetworkData
         """
-
         if variation == None:
             variation = []
         if variations_value == None:
