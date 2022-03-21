@@ -749,7 +749,7 @@ class Circuit(FieldAnalysisCircuit, object):
         return portnames
 
     @pyaedt_function_handler()
-    def export_touchstone(self, solutionname, sweepname, filename=None, variation=[], variations_value=[]):
+    def export_touchstone(self, solutionname, sweepname, filename=None, variation=None, variations_value=None):
         """Export the Touchstone file to a local folder.
 
         Parameters
@@ -778,6 +778,12 @@ class Circuit(FieldAnalysisCircuit, object):
 
         >>> oDesign.ExportNetworkData
         """
+
+        if variation == None:
+            variation = []
+        if variations_value == None:
+            variations_value = []
+
         # Normalize the save path
         if not filename:
             appendix = ""

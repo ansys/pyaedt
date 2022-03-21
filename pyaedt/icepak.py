@@ -1730,7 +1730,7 @@ class Icepak(FieldAnalysisIcepak):
         geometryType="Volume",
         quantity="Temperature",
         variation="",
-        variationlist=[],
+        variationlist=None,
     ):
         """Export a fields summary of all objects.
 
@@ -1764,6 +1764,9 @@ class Icepak(FieldAnalysisIcepak):
         >>> oModule.EditFieldsSummarySetting
         >>> oModule.ExportFieldsSummary
         """
+        if variationlist == None:
+            variationlist = []
+
         all_objs = list(self.modeler.oeditor.GetObjectsInGroup("Solids"))
         all_objs_NonModeled = list(self.modeler.oeditor.GetObjectsInGroup("Non Model"))
         all_objs_model = [item for item in all_objs if item not in all_objs_NonModeled]
