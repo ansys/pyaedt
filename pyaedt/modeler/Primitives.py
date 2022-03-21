@@ -898,26 +898,19 @@ class Primitives(object):
         self.refresh()
 
     @property
-    def _modeler(self):
-        return self._app.modeler
-
-    @property
     def solid_objects(self):
         """List of all solid objects."""
-        self._refresh_solids()
-        return [self[name] for name in self._solids]
+        return [self[name] for name in self.solid_names]
 
     @property
     def sheet_objects(self):
         """List of all sheet objects."""
-        self._refresh_sheets()
-        return [self[name] for name in self._sheets]
+        return [self[name] for name in self.sheet_names]
 
     @property
     def line_objects(self):
         """List of all line objects."""
-        self._refresh_lines()
-        return [self[name] for name in self._lines]
+        return [self[name] for name in self.line_names]
 
     @property
     def points(self):
@@ -3194,7 +3187,7 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_solids(self):
-        test = list(self._oeditor.GetObjectsInGroup("Solids"))
+        test = list(self.oeditor.GetObjectsInGroup("Solids"))
         if test is None or test is False:
             assert False, "Get Solids is failing"
         elif test is True:
@@ -3205,7 +3198,7 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_sheets(self):
-        test = list(self._oeditor.GetObjectsInGroup("Sheets"))
+        test = list(self.oeditor.GetObjectsInGroup("Sheets"))
         if test is None or test is False:
             assert False, "Get Sheets is failing"
         elif test is True:
@@ -3216,7 +3209,7 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_lines(self):
-        test = list(self._oeditor.GetObjectsInGroup("Lines"))
+        test = list(self.oeditor.GetObjectsInGroup("Lines"))
         if test is None or test is False:
             assert False, "Get Lines is failing"
         elif test is True:
@@ -3225,15 +3218,16 @@ class Primitives(object):
             self._lines = list(test)
         self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
-    # def _refresh_points(self):
-    #     test = _retry_ntimes(10, self._oeditor.GetObjectsInGroup, "Points")
-    #     if test is None or test is False:
-    #         assert False, "Get Points is failing"
-    #     elif test is True:
-    #         self._points = []  # In IronPython True is returned when no points are present
-    #     else:
-    #         self._points = list(test)
-    #     self._all_object_names = self._solids + self._sheets + self._lines + self._points
+    @pyaedt_function_handler()
+    def _refresh_points(self):
+        test = list(self._oeditor.GetObjectsInGroup("Points"))
+        if test is None or test is False:
+            assert False, "Get Points is failing"
+        elif test is True:
+            self._points = []  # In IronPython True is returned when no points are present
+        else:
+            self._points = list(test)
+        self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
     @pyaedt_function_handler()
     def _refresh_unclassified(self):

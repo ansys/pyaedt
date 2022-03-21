@@ -4282,9 +4282,7 @@ class Hfss(FieldAnalysis3D, object):
         time_sweep = self.modeler._arg_with_dim(tsweep, "s")
         time_stop = self.modeler._arg_with_dim(tstop, "s")
         sweep_range = "LIN {} {} {}".format(time_start, time_stop, time_sweep)
-        return self.opti_parametric.add_parametric_setup(
-            time_var, sweep_range, setupname, parametricname=parametric_name
-        )
+        return self.parametrics.add(time_var, sweep_range, setupname, parametricname=parametric_name)
 
     @pyaedt_function_handler()
     def create_sbr_chirp_i_doppler_setup(

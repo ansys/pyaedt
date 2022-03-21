@@ -164,13 +164,11 @@ class CommonOptimetrics(object):
                 ctxt["PointCount"] = polyline_points
         else:
             ctxt = OrderedDict({"Domain": domain})
-
         sweepdefinition["SimValueContext"] = ctxt
-
         sweepdefinition["Calculation"] = expressions
         sweepdefinition["Name"] = expressions
         sweepdefinition["Ranges"] = OrderedDict({})
-        if context in self._app.modeler.line_names and intrinsics and "Distance" not in intrinsics:
+        if context and context in self._app.modeler.line_names and intrinsics and "Distance" not in intrinsics:
             sweepdefinition["Ranges"]["Range"] = ("Var:=", "Distance", "Type:=", "a")
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
@@ -180,10 +178,13 @@ class CommonOptimetrics(object):
         elif setup_sweep_name not in self._app.existing_analysis_sweeps:
             self._app.logger.error("Sweep not Available.")
             return False
-
         if intrinsics:
             for v, k in intrinsics.items():
-                r = ["Var:=", v, "Type:=", var_type]
+                if not k:
+                    r = ["Var:=", v, "Type:=", "a"]
+                else:
+                    r = ["Var:=", v, "Type:=", var_type]
+
                 if var_type == "d" and k:
                     r.append("DiscreteValues:=")
                     if isinstance(k, list):
@@ -192,7 +193,7 @@ class CommonOptimetrics(object):
                         r.append(k)
 
                 if not sweepdefinition["Ranges"]:
-                    sweepdefinition["Ranges"]["Range"] = {"Range": tuple(r)}
+                    sweepdefinition["Ranges"]["Range"] = tuple(r)
                 elif isinstance(sweepdefinition["Ranges"]["Range"], list):
                     sweepdefinition["Ranges"]["Range"].append(tuple(r))
                 else:
@@ -282,7 +283,7 @@ class CommonOptimetrics(object):
         calculation_value : str, optional
              The default is ``""``.
         calculation_name : str, optional
-             Name of the the calculation. The default is ``None``.
+             Name of the calculation. The default is ``None``.
 
         Returns
         -------
@@ -387,6 +388,17 @@ class CommonOptimetrics(object):
             else:
                 dr = calc_val1
             sweepdefinition["Ranges"] = OrderedDict({"Range": ["Var:=", var, "Type:=", "d", "DiscreteValues:=", dr]})
+        elif calculation_type == "all":
+            sweepdefinition["Ranges"] = OrderedDict(
+                {
+                    "Range": [
+                        "Var:=",
+                        var,
+                        "Type:=",
+                        "a",
+                    ]
+                }
+            )
         else:
             sweepdefinition["Ranges"] = OrderedDict(
                 {
@@ -543,8 +555,12 @@ class SetupOpti(CommonOptimetrics, object):
 
         >>> oModule.EditSetup
         """
+        if self.soltype in ["OptimDesignExplorer", "OptimDXDOE"]:
+            optigoalname = "CostFunctionGoals"
+        else:
+            optigoalname = "Goals"
         return self._add_goal(
-            optigoalname="CostFunctionGoals",
+            optigoalname=optigoalname,
             reporttype=reporttype,
             solution=solution,
             domain=domain,
@@ -797,7 +813,8 @@ class OptimizationSetups(object):
                         "OptiOptimization",
                         "OptiDXDOE",
                         "OptiDesignExplorer",
-                        "OptiSensitivity" "OptiStatistical",
+                        "OptiSensitivity",
+                        "OptiStatistical",
                     ]:
                         self.setups.append(SetupOpti(p_app, data, setups_data[data], setups_data[data]["SetupType"]))
             except:
@@ -809,16 +826,16 @@ class OptimizationSetups(object):
         calculation,
         intrinsics,
         optim_type="Optimization",
-        reporttype="Modal Solution Data",
-        domain="Sweep",
         condition="<=",
         goal_value=1,
         goal_weight=1,
         solution=None,
+        dx_variables=None,
         parametricname=None,
         context=None,
         subdesign_id=None,
         polyline_points=1001,
+        report_type=None,
     ):
         """Add a basic optimization analysis.
 
@@ -828,15 +845,11 @@ class OptimizationSetups(object):
         ----------
         calculation : str, optional
             Name of the calculation.
-        calculation_value : str, optional
-            Variation value, such as ``"1GHz"``.
-        calculation_type : str, optional
-            Type of the calculation. The default is ``"Freq"``.
-        reporttype : str, optional
-            Name of the report to add the calculation to. The default
-            is ``"Modal Solution Data"``.
-        domain : str, optional
-            Type of the domain. The default is ``"Sweep"``. If ``None``, one sweep is taken.
+        intrinsics : dict
+            Dictionary of intrinsics with respective values.
+        optim_type : strm optional
+            Optimization Type.
+            Possible values are `"Optimization"`, `"DXDOE"`,`"DesignExplorer"`,`"Sensitivity"`,`"Statistical"`.
         condition : string, optional
             The default is ``"<="``.
         goal_value : optional
@@ -846,9 +859,20 @@ class OptimizationSetups(object):
         solution : str, optional
             Type of the solution. The default is ``None``, in which case the default
             solution is used.
+        dx_variables : list or dict or str, optional
+            List of design explorer variables with their values.
+            It can be a list of variable, a dict of variables with values or a string.
         parametricname : str, optional
             Name of the analysis. The default is ``None``, in which case a
             default name is assigned.
+        context : str, optional
+            Calculation contexts. It can be a sphere, a matrix or a polyline.
+        subdesign_id : int, optional
+            Subdesign id for Circuit and HFSS 3D Layout objects.
+        polyline_points : int, optional
+            Number of points for Polyline context.
+        report_type : str, optional
+            Override the auto computation of Calculation Type.
 
         Returns
         -------
@@ -863,6 +887,22 @@ class OptimizationSetups(object):
         if not solution:
             solution = self._app.nominal_sweep
         setupname = [solution.split(" ")[0]]
+        domain = "Time"
+        if "Freq" in intrinsics or "Phase" in intrinsics or "Theta" in intrinsics:
+            domain = "Sweep"
+        if not report_type:
+            report_type = self._app.design_solutions.report_type
+            if context and context in self._app.modeler.sheet_names:
+                report_type = "Fields"
+            elif self._app.solution_type in ["Q3D Extractor", "2D Extractor"]:
+                report_type = "Matrix"
+            elif context:
+                try:
+                    for f in self._app.field_setups:
+                        if context == f.name:
+                            report_type = "Far Fields"
+                except:
+                    pass
         if not parametricname:
             parametricname = generate_unique_name(optim_type)
         setup = SetupOpti(self._app, parametricname, optim_type="Opti" + optim_type)
@@ -875,13 +915,30 @@ class OptimizationSetups(object):
             solution,
             domain,
             intrinsics,
-            reporttype,
+            report_type,
             context,
             subdesign_id,
             polyline_points,
         )
         setup.props["Sim. Setups"] = setupname
         setup.props["Goals"]["Goal"] = sweepdefinition
+        if optim_type == "DXDOE":
+            setup.props["CostFunctionGoals"]["Goal"] = sweepdefinition
+        if optim_type == "DesignExplorer":
+            if not dx_variables:
+                dx_variables = self._app.available_variations.nominal_w_values_dict
+            elif isinstance(dx_variables, str):
+                dx_variables = {dx_variables: self._app[dx_variables]}
+            elif isinstance(dx_variables, list):
+                dicts_vars = {}
+                for var in dx_variables:
+                    dicts_vars[var] = self._app[var]
+                dx_variables = dicts_vars
+            setup.props["Sweeps"]["SweepDefinition"] = []
+            for l, k in dx_variables.items():
+                arg = OrderedDict({"Variable": l, "Data": k, "OffsetF1": False, "Synchronize": 0})
+                setup.props["Sweeps"]["SweepDefinition"].append(arg)
+
         setup.create()
         setup.auto_update = True
         self.setups.append(setup)

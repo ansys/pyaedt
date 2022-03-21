@@ -568,7 +568,7 @@ class TestClass(BasisTest, object):
     def test_25_create_parametrics(self):
         self.aedtapp["w1"] = "10mm"
         self.aedtapp["w2"] = "2mm"
-        setup1 = self.aedtapp.opti_parametric.add_parametric_setup("w1", "LIN 0.1mm 20mm 0.2mm")
+        setup1 = self.aedtapp.parametrics.add({"w1": "LIN 0.1mm 20mm 0.2mm"})
         assert setup1
         assert setup1.add_variation("w2", "LINC 0.1mm 10mm 11")
         assert setup1.add_calculation(
@@ -576,7 +576,7 @@ class TestClass(BasisTest, object):
         )
 
     def test_26_create_optimization(self):
-        setup2 = self.aedtapp.opti_optimization.add_optimization("db(S(1,1))", "2.5GHz")
+        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", intrinsics={"Freq": "2.5GHz"})
         assert setup2
 
         assert setup2.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz")
@@ -585,23 +585,23 @@ class TestClass(BasisTest, object):
         )
 
     def test_27_create_doe(self):
-        setup2 = self.aedtapp.opti_doe.add_doe("db(S(1,1))", "2.5GHz")
+        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", intrinsics={"Freq": "2.5GHz"}, optim_type="DXDOE")
         assert setup2
         assert setup2.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz")
         assert setup2.add_calculation(calculation="dB(S(1,1))", calculation_value="2.5GHz")
 
     def test_28_create_dx(self):
-        setup2 = self.aedtapp.opti_designxplorer.add_dx_setup(["w1", "w2"], ["1mm", "2mm"])
+        setup2 = self.aedtapp.optimizations.add(None, {"w1": "1mm", "w2": "2mm"}, optim_type="DesignExplorer")
         assert setup2
         assert setup2.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz")
 
     def test_29_create_sensitivity(self):
-        setup2 = self.aedtapp.opti_sensitivity.add_sensitivity("db(S(1,1))", "2.5GHz")
+        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", intrinsics={"Freq": "2.5GHz"}, optim_type="Sensitivity")
         assert setup2
         assert setup2.add_calculation(calculation="dB(S(1,1))", calculation_value="2.6GHz")
 
     def test_29_create_statistical(self):
-        setup2 = self.aedtapp.opti_statistical.add_statistical("db(S(1,1))", "2.5GHz")
+        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", intrinsics={"Freq": "2.5GHz"}, optim_type="Statistical")
         assert setup2
         assert setup2.add_calculation(calculation="dB(S(1,1))", calculation_value="2.6GHz")
 
@@ -754,6 +754,13 @@ class TestClass(BasisTest, object):
             polarization_angle=30,
         )
         assert bound.azimuth_start == "2deg"
+        sweep6 = self.aedtapp.optimizations.add(
+            calculation="RealizedGainTotal",
+            solution=self.aedtapp.nominal_adaptive,
+            intrinsics={"Freq": "1GHz", "Theta": "0deg", "Phi": "0deg"},
+            context=bound.name,
+        )
+        assert sweep6
 
     def test_45_set_autoopen(self):
         assert self.aedtapp.set_auto_open(True, "PML")

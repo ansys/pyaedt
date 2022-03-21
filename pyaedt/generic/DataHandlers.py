@@ -85,7 +85,7 @@ def _dict2arg(d, arg_out):
                 arg = ["NAME:" + k, v[0], v[1]]
                 arg_out.append(arg)
         if k == "Range":
-            if isinstance(v, list):
+            if isinstance(v[0], (list, tuple)):
                 for e in v:
                     arg_out.append(k + ":=")
                     arg_out.append([i for i in e])
