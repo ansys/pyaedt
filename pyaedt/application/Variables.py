@@ -796,7 +796,7 @@ class VariableManager(object):
             except:
                 pass
         else:
-            raise Exception("Unhandled input type to the design property or project variable.")
+            raise Exception("Unhandled input type to the design property or project variable.")  # pragma: no cover
 
         # Get all design and project variables in lower case for a case-sensitive comparison
         if self._app._is_object_oriented_enabled():
