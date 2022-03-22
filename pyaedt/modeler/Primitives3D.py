@@ -2157,7 +2157,7 @@ class Primitives3D(Primitives, object):
                 "Similar Layer": {"Similar": True, "Different": False},
                 "Mode": {"Differential": True, "Common": False},
                 "Wire Section": {"None": False, "Hexagon": False, "Octagon": True, "Circle": False},
-                "Core": {"Name": "Core", "Material": "iron", "Inner Radius": 11, "Outer Radius": 17, "Height": 7,
+                "Core": {"Name": "Core", "Material": "ferrite", "Inner Radius": 11, "Outer Radius": 17, "Height": 7,
                          "Chamfer": 0.8},
                 "Outer Winding": {"Name": "Winding", "Material": "copper", "Inner Radius": 12, "Outer Radius": 16,
                                   "Height": 8, "Wire Diameter": 1, "Turns": 10, "Coil Pit(deg)": 9, "Occupation(%)": 0},
@@ -2182,7 +2182,7 @@ class Primitives3D(Primitives, object):
             "Wire Section": {"None": False, "Hexagon": False, "Octagon": True, "Circle": False},
             "Core": {
                 "Name": "Core",
-                "Material": "iron",
+                "Material": "ferrite",
                 "Inner Radius": 11,
                 "Outer Radius": 17,
                 "Height": 7,
@@ -2259,10 +2259,10 @@ class Primitives3D(Primitives, object):
                         "%s is not in the material library."
                         " It can be add using the method add_material" % core_material
                     )
-                    values["Core"]["Material"] = "iron"
+                    values["Core"]["Material"] = "ferrite"
         except:
             self.logger.warning("Core Material must be a non-null string. A default material Core has been set.")
-            values["Core"]["Material"] = "iron"
+            values["Core"]["Material"] = "ferrite"
 
         try:
             winding_name = str(values["Outer Winding"]["Name"])
