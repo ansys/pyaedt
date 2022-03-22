@@ -434,7 +434,9 @@ class Edb(object):
         return None
 
     @pyaedt_function_handler()
-    def import_layout_pcb(self, input_file, working_dir, init_dlls=False, anstranslator_full_path="", use_ppe=False):
+    def import_layout_pcb(
+        self, input_file, working_dir, init_dlls=False, anstranslator_full_path="", use_ppe=False, control_file=None
+    ):
         """Import a BRD file and generate an ``edb.def`` file in the working directory.
 
         Parameters
@@ -450,6 +452,9 @@ class Edb(object):
             Full path to the Ansys translator. The default is ``""``.
         use_ppe : bool
             Whether to use or not PPE License. The default is ``False``.
+        control_file : str, optional
+            Path to xml file. If None, the tool will try to get it from the same path/name of the gds.
+
         Returns
         -------
         str
@@ -475,17 +480,19 @@ class Edb(object):
                 command += ".exe"
         if not working_dir:
             working_dir = os.path.dirname(input_file)
-        cmd_translator = command + " " + input_file + " " + os.path.join(working_dir, aedb_name)
-        cmd_translator += " -l=" + os.path.join(working_dir, "Translator.log")
+        cmd_translator = '"{}" "{}" "{}"'.format(command, input_file, os.path.join(working_dir, aedb_name))
+        cmd_translator += ' -l="{}"'.format(os.path.join(working_dir, "Translator.log"))
         if not use_ppe:
             cmd_translator += " -ppe=false"
+        if control_file and input_file[-3:] == "gds":
+            cmd_translator += ' -c="{}"'.format(control_file)
         p = subprocess.Popen(cmd_translator)
         p.wait()
         if not os.path.exists(os.path.join(working_dir, aedb_name)):
             self.logger.error("Translator failed to translate.")
             return False
         self.edbpath = os.path.join(working_dir, aedb_name)
-        return self.open_edb()
+        self.open_edb()
 
     @pyaedt_function_handler()
     def export_to_ipc2581(self, ipc_path=None, units="millimeter"):
@@ -850,7 +857,7 @@ class Edb(object):
             return False
 
     @pyaedt_function_handler()
-    def import_gds_file(self, inputGDS, WorkDir=None, anstranslator_full_path="", use_ppe=False):
+    def import_gds_file(self, inputGDS, WorkDir=None, anstranslator_full_path="", use_ppe=False, control_file=None):
         """Import a GDS file and generate an ``edb.def`` file in the working directory.
 
         Parameters
@@ -864,6 +871,8 @@ class Edb(object):
             Full path to the Ansys translator.
         use_ppe : bool
             Whether to use the PPE License. The default is ``False``.
+        control_file : str, optional
+            Path to xml file. If None, the tool will try to get it from the same path/name of the gds.
 
         Returns
         -------
@@ -872,7 +881,11 @@ class Edb(object):
 
         """
         if self.import_layout_pcb(
-            inputGDS, working_dir=WorkDir, anstranslator_full_path=anstranslator_full_path, use_ppe=use_ppe
+            inputGDS,
+            working_dir=WorkDir,
+            anstranslator_full_path=anstranslator_full_path,
+            use_ppe=use_ppe,
+            control_file=control_file,
         ):
             return True
         else:
