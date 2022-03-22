@@ -124,9 +124,12 @@ sweep5.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 region = hfss.modeler.create_region()
 hfss.assign_radiation_boundary_to_objects(region)
 hfss.insert_infinite_sphere(name="Infinite_1")
-sweep6 = hfss.optimizations.add(calculation="RealizedGainTotal", solution=hfss.nominal_adaptive,
-                                ranges={"Freq": "5GHz", "Theta": ["0deg", "10deg", "20deg"], "Phi": "0deg"},
-                                context="Infinite_1")
+sweep6 = hfss.optimizations.add(
+    calculation="RealizedGainTotal",
+    solution=hfss.nominal_adaptive,
+    ranges={"Freq": "5GHz", "Theta": ["0deg", "10deg", "20deg"], "Phi": "0deg"},
+    context="Infinite_1",
+)
 
 ###############################################################################
 # Close AEDT
