@@ -11,6 +11,7 @@ import os
 from pyaedt import generate_unique_name
 from pyaedt import Desktop
 from pyaedt import Hfss
+from pyaedt.modules.Mesh import Mesh
 
 tmpfold = tempfile.gettempdir()
 
@@ -31,7 +32,7 @@ desktop = Desktop("2021.2", non_graphical=False, new_desktop_session=True)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This examples launches HFSS 2021.2 in graphical mode.
 
-hfss = Hfss(solution_type="Modal")
+hfss = Hfss(solution_type="Terminal")
 
 ###############################################################################
 # Rules and information of use
@@ -69,7 +70,14 @@ values = {
     "Similar Layer": {"Similar": False, "Different": True},
     "Mode": {"Differential": False, "Common": True},
     "Wire Section": {"None": False, "Hexagon": True, "Octagon": False, "Circle": False},
-    "Core": {"Name": "Core", "Material": "iron", "Inner Radius": 20, "Outer Radius": 30, "Height": 10, "Chamfer": 0.8},
+    "Core": {
+        "Name": "Core",
+        "Material": "ferrite",
+        "Inner Radius": 20,
+        "Outer Radius": 30,
+        "Height": 10,
+        "Chamfer": 0.8,
+    },
     "Outer Winding": {
         "Name": "Winding",
         "Material": "copper",
@@ -122,24 +130,39 @@ second_winding_list = list_object[3]
 # Create Ground
 # -------------
 
-ground_radius = 1.1 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
+ground_radius = 1.2 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
 ground_position = [0, 0, first_winding_list[1][0][2] - 2]
 ground = hfss.modeler.create_circle("XY", ground_position, ground_radius, name="GND", matname="copper")
-coat = hfss.assign_coating(ground, "copper", isinfgnd=True)
+coat = hfss.assign_coating(ground, isinfgnd=True)
 
 ###############################################################################
 # Create Lumped Ports
 # -------------------
 
-port_position_list = [[first_winding_list[1][0][0], first_winding_list[1][0][1], first_winding_list[1][0][2] - 1],
-                      [first_winding_list[1][-1][0], first_winding_list[1][-1][1], first_winding_list[1][-1][2] - 1],
-                      [second_winding_list[1][0][0], second_winding_list[1][0][1], second_winding_list[1][0][2] - 1],
-                      [second_winding_list[1][-1][0], second_winding_list[1][-1][1], second_winding_list[1][-1][2] - 1]]
+port_position_list = [
+    [first_winding_list[1][0][0], first_winding_list[1][0][1], first_winding_list[1][0][2] - 1],
+    [first_winding_list[1][-1][0], first_winding_list[1][-1][1], first_winding_list[1][-1][2] - 1],
+    [second_winding_list[1][0][0], second_winding_list[1][0][1], second_winding_list[1][0][2] - 1],
+    [second_winding_list[1][-1][0], second_winding_list[1][-1][1], second_winding_list[1][-1][2] - 1],
+]
 port_dimension_list = [2, dictionary_values[1]["Outer Winding"]["Wire Diameter"]]
 for position in port_position_list:
     sheet = hfss.modeler.create_rectangle("XZ", position, port_dimension_list, name="sheet_port")
-    sheet.move([-dictionary_values[1]["Outer Winding"]["Wire Diameter"]/2, 0, -1])
-    hfss.create_lumped_port_to_sheet(sheet.name, axisdir=hfss.AxisDir.ZNeg)
+    sheet.move([-dictionary_values[1]["Outer Winding"]["Wire Diameter"] / 2, 0, -1])
+    hfss.create_lumped_port_to_sheet(sheet.name, portname="port", reference_object_list=[ground])
+
+###############################################################################
+# Create Mesh Operation
+# -----------------
+
+cylinder_height = 2.5 * dictionary_values[1]["Outer Winding"]["Height"]
+cylinder_position = [0, 0, first_winding_list[1][0][2] - 4]
+mesh_operation_cylinder = hfss.modeler.create_cylinder(
+    "XY", cylinder_position, ground_radius, cylinder_height, numSides=36, name=None
+)
+mesh = Mesh(hfss)
+mesh.assign_model_resolution([mesh_operation_cylinder])
+
 
 ###############################################################################
 # Create Boundaries
