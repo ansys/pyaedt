@@ -143,7 +143,7 @@ port_position_list = [[first_winding_list[1][0][0], first_winding_list[1][0][1],
                       [second_winding_list[1][-1][0], second_winding_list[1][-1][1], second_winding_list[1][-1][2] - 1]]
 port_dimension_list = [2, dictionary_values[1]["Outer Winding"]["Wire Diameter"]]
 for position in port_position_list:
-    sheet = hfss.modeler.create_rectangle("XZ", position, port_dimension_list)
+    sheet = hfss.modeler.create_rectangle("XZ", position, port_dimension_list, name="sheet_port")
     sheet.move([-dictionary_values[1]["Outer Winding"]["Wire Diameter"]/2, 0, -1])
     hfss.create_lumped_port_to_sheet(sheet.name, axisdir=hfss.AxisDir.ZNeg)
 
@@ -152,7 +152,7 @@ for position in port_position_list:
 # -----------------
 # A region with openings is needed to run the analysis.
 
-region = hfss.modeler.create_region(pad_percent=50)
+region = hfss.modeler.create_region(pad_percent=25)
 
 ###############################################################################
 # Create the Setup
@@ -165,12 +165,16 @@ setup.props["MaximumPasses"] = 1
 hfss.create_linear_count_sweep(
     setupname=setup.name,
     unit="GHz",
-    freqstart=0.5,
-    freqstop=1,
+    freqstart=0.7,
+    freqstop=0.9,
     num_of_freq_points=251,
     sweepname="sweep1",
-    sweep_type="Interpolating",
-    interpolation_tol=3,
-    interpolation_max_solutions=255,
+    sweep_type="Discrete",
     save_fields=False,
 )
+
+###############################################################################
+# Save the project
+# ----------------
+
+hfss.save_project(os.path.join(temp_folder, "MyChoke.aedt"))
