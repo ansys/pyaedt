@@ -119,25 +119,28 @@ print(dictionary_values)
 list_object = hfss.modeler.create_choke(json_path)
 print(list_object)
 core = list_object[1]
-windings_list = list_object[2]
+first_winding_list = list_object[2]
+second_winding_list = list_object[3]
+
 
 ###############################################################################
 # Create Ground
 # -------------
 
+
 ground_radius = 1.1 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
-ground_position = [0, 0, windings_list[0][1][0][2] - 2]
-ground = hfss.modeler.create_circle("Z", ground_position, ground_radius, name="GND", matname="copper")
+ground_position = [0, 0, first_winding_list[1][0][2] - 2]
+ground = hfss.modeler.create_circle("X", ground_position, ground_radius, name="GND", matname="copper")
 coat = hfss.assign_coating(ground, "copper", isinfgnd=True)
 
 ###############################################################################
 # Create Lumped Ports
 # -------------------
 
-port_position_list = [[windings_list[0][1][0][0], windings_list[0][1][0][1], windings_list[0][1][0][2] - 1],
-                      [windings_list[0][1][-1][0], windings_list[0][1][-1][1], windings_list[0][1][-1][2] - 1],
-                      [windings_list[1][1][0][0], windings_list[1][1][0][1], windings_list[1][1][0][2] - 1],
-                      [windings_list[1][1][-1][0], windings_list[1][1][-1][1], windings_list[1][1][-1][2] - 1]]
+port_position_list = [[first_winding_list[1][0][0], first_winding_list[1][0][1], first_winding_list[1][0][2] - 1],
+                      [first_winding_list[1][-1][0], first_winding_list[1][-1][1], first_winding_list[1][-1][2] - 1],
+                      [second_winding_list[1][0][0], second_winding_list[1][0][1], second_winding_list[1][0][2] - 1],
+                      [second_winding_list[1][-1][0], second_winding_list[1][-1][1], second_winding_list[1][-1][2] - 1]]
 port_dimension_list = [dictionary_values[1]["Outer Winding"]["Wire Diameter"], 2]
 for position in port_position_list:
     sheet = hfss.modeler.create_rectangle("X", position, port_dimension_list)
