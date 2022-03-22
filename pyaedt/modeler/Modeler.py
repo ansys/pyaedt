@@ -3861,12 +3861,12 @@ class GeometryModeler(Modeler, object):
         return faces
 
     @pyaedt_function_handler()
-    def load_objects_bytype(self, type):
+    def load_objects_bytype(self, obj_type):
         """Load all objects of a specified type.
 
         Parameters
         ----------
-        type : str
+        obj_type : str
             Type of the objects to load. Options are
             ``"Solids"`` and ``"Sheets"``.
 
@@ -3880,7 +3880,7 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.GetObjectsInGroup
         """
-        objNames = list(self.oeditor.GetObjectsInGroup(type))
+        objNames = list(self.oeditor.GetObjectsInGroup(obj_type))
         return objNames
 
     @pyaedt_function_handler()
@@ -4027,7 +4027,7 @@ class GeometryModeler(Modeler, object):
         return position_list
 
     @pyaedt_function_handler()
-    def import_3d_cad(self, filename, healing=0, refresh_all_ids=True):
+    def import_3d_cad(self, filename, healing=False, refresh_all_ids=True):
         """Import a CAD model.
 
         Parameters
@@ -4035,6 +4035,9 @@ class GeometryModeler(Modeler, object):
         filename : str
             Full path and name of the CAD file.
         healing : bool, optional
+            Whether to perform healing. The default is ``False``, in which
+            case healing is not performed.
+        healing : int, optional
             Whether to perform healing. The default is ``0``, in which
             case healing is not performed.
         refresh_all_ids : bool, optional
@@ -4052,8 +4055,19 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Import
         """
+
+        if isinstance(healing, int):
+            if healing == 0:
+                healing = False
+            else:
+                healing = True
+            warnings.warn(
+                "Assigning `0` or `1` to `healing` option is deprecated. Assign `True` or `False` instead.",
+                DeprecationWarning
+            )
+
         vArg1 = ["NAME:NativeBodyParameters"]
-        vArg1.append("HealOption:="), vArg1.append(healing)
+        vArg1.append("HealOption:="), vArg1.append(1 if healing else 0)
         vArg1.append("Options:="), vArg1.append("-1")
         vArg1.append("FileType:="), vArg1.append("UnRecognized")
         vArg1.append("MaxStitchTol:="), vArg1.append(-1)
@@ -4359,6 +4373,9 @@ class GeometryModeler(Modeler, object):
     def load_hfss(self, cadfile):
         """Load HFSS.
 
+        .. deprecated:: 0.4.41
+           Use :func:`import_3d_cad` property instead.
+
         Parameters
         ----------
         cadfile : str
@@ -4375,7 +4392,10 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Import
         """
-        self.import_3d_cad(cadfile, 1)
+        warnings.warn(
+            "`load_hfss` is deprecated. Use `import_3d_cad` method instead.", DeprecationWarning
+        )
+        self.import_3d_cad(cadfile, healing=True)
         return True
 
     @pyaedt_function_handler()
