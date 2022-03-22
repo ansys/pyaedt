@@ -1390,8 +1390,6 @@ class Object3d(object):
             self._object_type = "Sheet"
         elif self._m_name in list(self.m_Editor.GetObjectsInGroup("Lines")):
             self._object_type = "Line"
-        elif self._m_name in list(self.m_Editor.GetObjectsInGroup("Points")):
-            self._object_type = "Point"
         elif self._m_name in list(self.m_Editor.GetObjectsInGroup("Unclassified")):
             self._object_type = "Unclassified"
         return self._object_type

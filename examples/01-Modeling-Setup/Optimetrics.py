@@ -64,9 +64,9 @@ hfss.create_linear_step_sweep(
 # This example creates a simple parametrics analysis with output calculations.
 
 sweep = hfss.parametrics.add({"w2": "LIN 90mm 200mm 5mm"})
-sweep.add_variation("w1", "LIN 0.1mm 2mm 0.1mm")
-sweep.add_calculation(calculation="dB(S(1,1))", calculation_value="2.5GHz", reporttype="Modal Solution Data")
-sweep.add_calculation(calculation="dB(S(1,1))", calculation_value="2.6GHz", reporttype="Modal Solution Data")
+sweep.add_variation("w1", 0.1, 2, 10)
+sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq":"2.5GHz"})
+sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq":"2.6GHz"})
 
 ###############################################################################
 # Optimetrics Sensitivity Setup
@@ -76,7 +76,7 @@ sweep.add_calculation(calculation="dB(S(1,1))", calculation_value="2.6GHz", repo
 # This example creates a sensitivity analysis with output calculations.
 
 sweep2 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq":"2.5GHz"}, optim_type="Sensitivity")
-sweep2.add_calculation(calculation="dB(S(1,1))", calculation_value="2.6GHz")
+sweep2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq":"2.6GHz"})
 
 ###############################################################################
 # Optimetrics Optimization Setup
@@ -86,13 +86,11 @@ sweep2.add_calculation(calculation="dB(S(1,1))", calculation_value="2.6GHz")
 # This example creates an optimization based on goals and calculations.
 
 sweep3 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq":"2.5GHz"})
-sweep3.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz")
-sweep3.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz", calculation_type="rd", calculation_stop="5GHz")
+sweep3.add_goal(calculation="dB(S(1,1))", ranges={"Freq":"2.6GHz"})
+sweep3.add_goal(calculation="dB(S(1,1))", ranges={"Freq":("2.6GHz", "5GHz")})
 sweep3.add_goal(
     calculation="dB(S(1,1))",
-    calculation_value="2.6GHz",
-    calculation_type="rd",
-    calculation_stop="5GHz",
+    ranges={"Freq": ("2.6GHz", "5GHz")},
     condition="Maximize",
 )
 
@@ -104,7 +102,7 @@ sweep3.add_goal(
 # This example creates a DX optimization based on a goal and a calculation.
 
 sweep4 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DesignExplorer")
-sweep4.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz")
+sweep4.add_goal(calculation="dB(S(1,1))", ranges={"Freq":"2.6GHz"})
 
 ###############################################################################
 # Optimetrics DOE (Design of Experiments) Setup
@@ -113,9 +111,9 @@ sweep4.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example creates a DOE based on a goal and a calculation.
 
-sweep5 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"}, optim_type="DXDOE")
-sweep5.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz")
-sweep5.add_calculation(calculation="dB(S(1,1))", calculation_value="2.5GHz")
+sweep5 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DXDOE")
+sweep5.add_goal(calculation="dB(S(1,1))", ranges={"Freq":"2.6GHz"})
+sweep5.add_calculation(calculation="dB(S(1,1))", ranges={"Freq":"2.6GHz"})
 
 ###############################################################################
 # Optimetrics ODOE (Design of Experiments) Setup

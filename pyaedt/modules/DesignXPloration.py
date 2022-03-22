@@ -100,10 +100,8 @@ class CommonOptimetrics(object):
         polyline_points=0,
     ):
         did = 3
-        var_type = "d"
         if domain != "Sweep":
             did = 1
-            var_type = "a"
         sweepdefinition = OrderedDict()
         sweepdefinition["ReportType"] = report_category
         if not setup_sweep_name:
@@ -182,10 +180,16 @@ class CommonOptimetrics(object):
             for v, k in intrinsics.items():
                 if not k:
                     r = ["Var:=", v, "Type:=", "a"]
-                else:
-                    r = ["Var:=", v, "Type:=", var_type]
-
-                if var_type == "d" and k:
+                elif isinstance(k, tuple):
+                    r = ["Var:=", v, "Type:=", "rd"]
+                    r.append("Start:=")
+                    r.append(k[0])
+                    r.append("Stop:=")
+                    r.append(k[1])
+                    r.append("DiscreteValues:=")
+                    r.append("")
+                elif isinstance(k, (list, str)):
+                    r = ["Var:=", v, "Type:=", "d"]
                     r.append("DiscreteValues:=")
                     if isinstance(k, list):
                         r.append(",".join(k))
@@ -258,64 +262,84 @@ class CommonOptimetrics(object):
     @pyaedt_function_handler()
     def _add_calculation(
         self,
-        reporttype,
+        calculation,
+        ranges,
         solution=None,
-        domain="Sweep",
-        calculation="",
-        calculation_type="d",
-        calculation_value="",
-        calculation_name=None,
+        context=None,
+        subdesign_id=None,
+        polyline_points=1001,
+        report_type=None,
+        is_goal=False,
+        condition="<=",
+        goal_value=1,
+        goal_weight=1,
     ):
-        """Add a calculation to the setup.
-
-        Parameters
-        ----------
-        reporttype : str
-            Type of report.
-        solution : str, optional
-            Type of the solution. The default is ``None``.
-        domain : str, optional
-             Type of the domain. The default is ``"Sweep"``.
-        calculation : str, optional
-             The default is ``""``.
-        calculation_type : str, optional
-             Type of the calculaton. The default is ``"d"``.
-        calculation_value : str, optional
-             The default is ``""``.
-        calculation_name : str, optional
-             Name of the calculation. The default is ``None``.
-
-        Returns
-        -------
-
-        """
-        sweepdefinition = OrderedDict()
-        sweepdefinition["ReportType"] = reporttype
         if not solution:
             solution = self._app.nominal_sweep
-
-        sweepdefinition["Solution"] = solution
-        sweepdefinition["SimValueContext"] = OrderedDict({"Domain": domain})
-        sweepdefinition["Calculation"] = calculation
-        if calculation_name:
-            sweepdefinition["Name"] = calculation_name
-        else:
-            sweepdefinition["Name"] = generate_unique_name(calculation)
-        if domain == "Sweep":
-            var = "Freq"
-        else:
-            var = "Time"
-        sweepdefinition["Ranges"] = OrderedDict(
-            {"Range": ["Var:=", var, "Type:=", calculation_type, "DiscreteValues:=", calculation_value]}
+        domain = "Time"
+        if "Freq" in ranges or "Phase" in ranges or "Theta" in ranges:
+            domain = "Sweep"
+        if not report_type:
+            report_type = self._app.design_solutions.report_type
+            if context and context in self._app.modeler.sheet_names:
+                report_type = "Fields"
+            elif self._app.solution_type in ["Q3D Extractor", "2D Extractor"]:
+                report_type = "Matrix"
+            elif context:
+                try:
+                    for f in self._app.field_setups:
+                        if context == f.name:
+                            report_type = "Far Fields"
+                except:
+                    pass
+        sweepdefinition = self._get_context(
+            calculation,
+            condition,
+            goal_weight,
+            goal_value,
+            solution,
+            domain,
+            ranges,
+            report_type,
+            context,
+            subdesign_id,
+            polyline_points,
         )
-        if "Goal" in self.props["Goals"]:
-            if type(self.props["Goals"]["Goal"]) is not list:
-                self.props["Goals"]["Goal"] = [self.props["Goals"]["Goal"], sweepdefinition]
-            else:
-                self.props["Goals"]["Goal"].append(sweepdefinition)
+        dx_variables = {}
+        for el in list(ranges.keys()):
+            if el not in ["Freq", "Distance", "Time", "Phase", "Theta", "Phi"]:
+                try:
+                    dx_variables[el] = self._app[dx_variables]
+                except:
+                    pass
+        if not dx_variables:
+            dx_variables = self._app.available_variations.nominal_w_values_dict
+        elif isinstance(dx_variables, str):
+            dx_variables = {dx_variables: self._app[dx_variables]}
+        elif isinstance(dx_variables, list):
+            dicts_vars = {}
+            for var in dx_variables:
+                dicts_vars[var] = self._app[var]
+            dx_variables = dicts_vars
+        for v in list(dx_variables.keys()):
+            self._activate_variable(v)
+        if self.soltype in ["OptiDesignExplorer", "OptiDXDOE"] and is_goal:
+            optigoalname = "CostFunctionGoals"
         else:
-            self.props["Goals"]["Goal"] = sweepdefinition
-
+            optigoalname = "Goals"
+        if "Goal" in self.props[optigoalname]:
+            if type(self.props[optigoalname]["Goal"]) is not list:
+                self.props[optigoalname]["Goal"] = [self.props[optigoalname]["Goal"], sweepdefinition]
+            else:
+                self.props[optigoalname]["Goal"].append(sweepdefinition)
+        else:
+            self.props[optigoalname]["Goal"] = sweepdefinition
+        if is_goal:
+            sweepdefinition["Condition"] = condition
+            sweepdefinition["GoalValue"] = OrderedDict(
+                {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]}
+            )
+            sweepdefinition["Weight"] = "[{};]".format(goal_weight)
         return self.update()
 
     @pyaedt_function_handler()
@@ -430,6 +454,17 @@ class CommonOptimetrics(object):
             self.props[optigoalname]["Goal"] = sweepdefinition
         return self.update()
 
+    @pyaedt_function_handler()
+    def _activate_variable(self, variable_name):
+        if self.soltype in ["OptiDesignExplorer", "OptiDXDOE", "OptiOptimization"]:
+            self._app.activate_variable_optimization(variable_name)
+        elif self.soltype == "OptiParametric":
+            self._app.activate_variable_tuning(variable_name)
+        elif self.soltype == "OptiSensitivity":
+            self._app.activate_variable_sensitivity(variable_name)
+        elif self.soltype == "OptiStatistical":
+            self._app.activate_variable_statistical(variable_name)
+
 
 class SetupOpti(CommonOptimetrics, object):
     """Sets up a DesignXplorer optimization in optiSLang.
@@ -451,31 +486,35 @@ class SetupOpti(CommonOptimetrics, object):
     @pyaedt_function_handler()
     def add_calculation(
         self,
-        calculation="",
-        calculation_value="",
-        reporttype="Modal Solution Data",
+        calculation,
+        ranges,
         solution=None,
-        domain="Sweep",
-        calculation_name=None,
+        context=None,
+        subdesign_id=None,
+        polyline_points=1001,
+        report_type=None,
     ):
         """Add a calculation to the setup.
 
         Parameters
         ----------
         calculation : str, optional
-            Expression for the calculation, such as ``"dB(S(1,1,))"``. The default is ``""``.
-        calculation_value : str, optional
-            Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
-        reporttype : str, optional
-            Name of the report to add the calculation to. The default
-            is ``"Modal Solution Data"``.
+            Name of the calculation.
+        ranges : dict
+            Dictionary of ranges with respective values.
+            Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
+            It includes intrinsics like "Freq", "Time", "Theta", "Distance".
         solution : str, optional
             Type of the solution. The default is ``None``, in which case the default
             solution is used.
-        domain : str, optional
-            Type of the domain. The default is ``"Sweep"``. If ``None``, one sweep is taken.
-        calculation_name : str, optional
-             Name of the calculation. The default is ``None``.
+        context : str, optional
+            Calculation contexts. It can be a sphere, a matrix or a polyline.
+        subdesign_id : int, optional
+            Subdesign id for Circuit and HFSS 3D Layout objects.
+        polyline_points : int, optional
+            Number of points for Polyline context.
+        report_type : str, optional
+            Override the auto computation of Calculation Type.
 
         Returns
         -------
@@ -488,62 +527,57 @@ class SetupOpti(CommonOptimetrics, object):
         >>> oModule.EditSetup
         """
         return self._add_calculation(
-            reporttype=reporttype,
-            solution=solution,
-            domain=domain,
-            calculation_type="d",
-            calculation=calculation,
-            calculation_value=calculation_value,
-            calculation_name=calculation_name,
+            calculation,
+            ranges,
+            solution,
+            context,
+            subdesign_id,
+            polyline_points,
+            report_type,
+            is_goal=False,
         )
 
     @pyaedt_function_handler()
     def add_goal(
         self,
-        calculation="",
-        calculation_value="",
-        calculation_type="discrete",
-        calculation_stop="",
-        reporttype="Modal Solution Data",
+        calculation,
+        ranges,
         solution=None,
-        domain="Sweep",
-        goal_name=None,
+        context=None,
+        subdesign_id=None,
+        polyline_points=1001,
+        report_type=None,
+        condition="<=",
         goal_value=1,
         goal_weight=1,
-        condition="==",
     ):
         """Add a goal to the setup.
 
         Parameters
         ----------
         calculation : str, optional
-            Expression for the calculation, such as ``"dB(S(1,1,))"``. The default is ``""``.
-        calculation_value : str, optional
-            Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
-            If ``calculation_type="discrete"``, the value is discrete or is a list. If the
-            value is a range, it is the starting value.
-        calculation_type : str, optional
-            Type of the calculation. Options are ``"discrete"`` or ``"range"``.
-            The default is ``"discrete"``.
-        calculation_stop : str, optional
-            Stopping value for the calculation if ``calculation_type="range"``.
-            The default is ``""``.
-        reporttype : str, optional
-            Name of the report to add the calculation to. The default
-            is ``"Modal Solution Data"``.
+            Name of the calculation.
+        ranges : dict
+            Dictionary of ranges with respective values.
+            Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
+            It includes intrinsics like "Freq", "Time", "Theta", "Distance".
+        condition : string, optional
+            The default is ``"<="``.
+        goal_value : optional
+            Value for the goal. The default is ``1``.
+        goal_weight : optional
+            Value for the goal weight. The default is ``1``.
         solution : str, optional
             Type of the solution. The default is ``None``, in which case the default
             solution is used.
-        domain : str, optional
-            Type of the domain. The default is ``"Sweep"``. If ``None``, one sweep is taken.
-        goal_name : str, optional
-             Name of the goal. The default is ``None``.
-        goal_value : optional
-             Value for the goal. The default is ``1``.
-        goal_weight : optional
-             Value for the goal weight. The default is ``1``.
-        condition : string, optional
-             The default is ``"=="``.
+        context : str, optional
+            Calculation contexts. It can be a sphere, a matrix or a polyline.
+        subdesign_id : int, optional
+            Subdesign id for Circuit and HFSS 3D Layout objects.
+        polyline_points : int, optional
+            Number of points for Polyline context.
+        report_type : str, optional
+            Override the auto computation of Calculation Type.
 
         Returns
         -------
@@ -555,23 +589,19 @@ class SetupOpti(CommonOptimetrics, object):
 
         >>> oModule.EditSetup
         """
-        if self.soltype in ["OptimDesignExplorer", "OptimDXDOE"]:
-            optigoalname = "CostFunctionGoals"
-        else:
-            optigoalname = "Goals"
-        return self._add_goal(
-            optigoalname=optigoalname,
-            reporttype=reporttype,
-            solution=solution,
-            domain=domain,
-            calculation_type=calculation_type,
-            calculation=calculation,
-            calc_val1=calculation_value,
-            calc_val2=calculation_stop,
-            goal_name=goal_name,
-            goal_weight=goal_weight,
-            goal_value=goal_value,
-            condition=condition,
+
+        return self._add_calculation(
+            calculation,
+            ranges,
+            solution,
+            context,
+            subdesign_id,
+            polyline_points,
+            report_type,
+            True,
+            condition,
+            goal_value,
+            goal_weight,
         )
 
 
@@ -598,15 +628,23 @@ class SetupParam(CommonOptimetrics, object):
         pass
 
     @pyaedt_function_handler()
-    def add_variation(self, sweep_var, datarange):
+    def add_variation(self, sweep_var, start_point, end_point, step=100, unit="mm", variation_type="LinearCount"):
         """Add a variation to an existing parametric setup.
 
         Parameters
         ----------
         sweep_var : str
             Name of the variable.
-        datarange :
-            Range of the data.
+        start_point : float or int
+            Variation Start Point.
+        end_point : float or int
+            Variation End Point.
+        step : float or int
+            Variation Step or Count depending on variation_type.
+        unit : str, optional
+            Variation units. Default is `"mm"`.
+        variation_type : float or int
+            Variation Type. Admitted values are `"LinearCount"`, `"LinearStep"`,  `"LogScale"`.
 
         Returns
         -------
@@ -618,45 +656,60 @@ class SetupParam(CommonOptimetrics, object):
 
         >>> oModule.EditSetup
         """
+        sweep_range = ""
+        start_point = self._app.modeler._arg_with_dim(start_point, unit)
+        end_point = self._app.modeler._arg_with_dim(end_point, unit)
+        if variation_type == "LinearCount":
+            sweep_range = "LINC {} {} {}".format(start_point, end_point, step)
+        elif variation_type == "LinearStep":
+            sweep_range = "LIN {} {} {}".format(start_point, end_point, self._app.modeler._arg_with_dim(step, unit))
+        elif variation_type == "LogScale":
+            sweep_range = "DEC {} {} {}".format(start_point, end_point, self._app.modeler._arg_with_dim(step, unit))
+        if not sweep_range:
+            return False
+        self._activate_variable(sweep_var)
         if type(self.props["Sweeps"]["SweepDefinition"]) is not list:
             self.props["Sweeps"]["SweepDefinition"] = [self.props["Sweeps"]["SweepDefinition"]]
         sweepdefinition = OrderedDict()
         sweepdefinition["Variable"] = sweep_var
-        sweepdefinition["Data"] = datarange
+        sweepdefinition["Data"] = sweep_range
         sweepdefinition["OffsetF1"] = False
         sweepdefinition["Synchronize"] = 0
         self.props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
-        self.update()
-        return True
+        return self.update()
 
     @pyaedt_function_handler()
     def add_calculation(
         self,
-        calculation="",
-        calculation_value="",
-        reporttype="Modal Solution Data",
+        calculation,
+        ranges,
         solution=None,
-        domain="Sweep",
-        calculation_name=None,
+        context=None,
+        subdesign_id=None,
+        polyline_points=1001,
+        report_type=None,
     ):
         """Add a calculation to the parametric setup.
 
         Parameters
         ----------
         calculation : str, optional
-            Expression for the calculation, such as ``"dB(S(1,1,))"``. The default is ``""``.
-        calculation_value : str, optional
-            Value for the calculation, such as ``"1GHz"`` if a sweep. The default is ``""``.
-        reporttype : str, optional
-            Name of the report to add the calculation to. The default
-            is ``"Modal Solution Data"``.
+            Name of the calculation.
+        ranges : dict
+            Dictionary of ranges with respective values.
+            Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
+            It includes intrinsics like "Freq", "Time", "Theta", "Distance".
         solution : str, optional
             Type of the solution. The default is ``None``, in which case the default
             solution is used.
-        domain : str, optional
-            Type of the domain. The default is ``"Sweep"``. If ``None``, one sweep is taken.
-        calculation_name : str, optional
-            Name of the calculation. The default is ``None``.
+        context : str, optional
+            Calculation contexts. It can be a sphere, a matrix or a polyline.
+        subdesign_id : int, optional
+            Subdesign id for Circuit and HFSS 3D Layout objects.
+        polyline_points : int, optional
+            Number of points for Polyline context.
+        report_type : str, optional
+            Override the auto computation of Calculation Type.
 
         Returns
         -------
@@ -669,14 +722,25 @@ class SetupParam(CommonOptimetrics, object):
         >>> oModule.EditSetup
         """
         return self._add_calculation(
-            reporttype=reporttype,
-            solution=solution,
-            domain=domain,
-            calculation_type="d",
-            calculation=calculation,
-            calculation_value=calculation_value,
-            calculation_name=calculation_name,
+            calculation, ranges, solution, context, subdesign_id, polyline_points, report_type, is_goal=False
         )
+
+    @pyaedt_function_handler()
+    def export_to_csv(self, filename):
+        """Export the current Parametric Setup to csv.
+
+        Parameters
+        ----------
+        filename : str
+            Full Path to the csv file.
+
+        Returns
+        -------
+        bool
+            `True` if the export is correctly executed.
+        """
+        self.omodule.ExportParametricSetupTable(self.name, filename)
+        return True
 
 
 class ParametricSetups(object):
@@ -762,7 +826,7 @@ class ParametricSetups(object):
         setup.props["Sim. Setups"] = setupname
         setup.props["Sweeps"] = OrderedDict({"SweepDefinition": None})
         for v, k in sweeps.items():
-            self._app.activate_variable_optimization(v)
+            self._app.activate_variable_tuning(v)
             sd = OrderedDict({"Variable": v, "Data": k, "OffsetF1": False, "Synchronize": 0})
             if not setup.props["Sweeps"]["SweepDefinition"]:
                 setup.props["Sweeps"]["SweepDefinition"] = sd
@@ -775,6 +839,30 @@ class ParametricSetups(object):
         setup.auto_update = True
         self.setups.append(setup)
         return setup
+
+    @pyaedt_function_handler()
+    def add_from_file(self, filename, parametricname=None):
+        """Add a Parametric Setup from a csv file.
+
+        Parameters
+        ----------
+        filename : str
+            Csv file path.
+        parametricname : str, option
+            Name of parameric setup.
+
+        Returns
+        -------
+        bool
+            `True` if the import is executed correctly.
+        """
+        if not parametricname:
+            parametricname = generate_unique_name("Parametric")
+        self.optimodule.ImportSetup("OptiParametric", ["NAME:" + parametricname, filename])
+        setup = SetupParam(self._app, parametricname, optim_type="OptiParametric")
+        setup.auto_update = False
+        self.setups.append(setup)
+        return True
 
 
 class OptimizationSetups(object):
@@ -831,7 +919,6 @@ class OptimizationSetups(object):
         goal_value=1,
         goal_weight=1,
         solution=None,
-        dx_variables=None,
         parametricname=None,
         context=None,
         subdesign_id=None,
@@ -848,6 +935,7 @@ class OptimizationSetups(object):
             Name of the calculation.
         ranges : dict
             Dictionary of ranges with respective values.
+            Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
             It includes intrinsics like "Freq", "Time", "Theta", "Distance".
         optim_type : strm optional
             Optimization Type.

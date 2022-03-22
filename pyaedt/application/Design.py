@@ -1118,7 +1118,7 @@ class Design(object):
             Values returned by method if any.
         """
         try:
-            return aedt_object.GetChildObject(object_name).GetPropValue(proname)
+            return aedt_object.GetChildObject(object_name).GetPropValue(prop_name)
         except:
             return False
 

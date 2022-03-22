@@ -3249,6 +3249,7 @@ class Primitives(object):
         self._refresh_solids()
         self._refresh_sheets()
         self._refresh_lines()
+        self._refresh_points()
         self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
     @pyaedt_function_handler()
