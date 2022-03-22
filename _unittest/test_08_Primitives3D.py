@@ -962,7 +962,6 @@ class TestClass(BasisTest, object):
         point.set_color("(143 175 158)")
         point2 = self.aedtapp.modeler.create_point([50, 30, 0], "mypoint2", "(100 100 100)")
         point.logger.info("Creation and testing of a point.")
-        assert point.solid_type == "Point"
 
         assert point.name == "mypoint"
         assert point.coordinate_system == "Global"

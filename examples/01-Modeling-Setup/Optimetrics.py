@@ -5,7 +5,6 @@ This example shows how you can use PyAEDT to create a project in HFSS and create
 """
 
 from pyaedt import Hfss
-from pyaedt import Desktop
 import os
 
 ###############################################################################
@@ -65,8 +64,8 @@ hfss.create_linear_step_sweep(
 
 sweep = hfss.parametrics.add({"w2": "LIN 90mm 200mm 5mm"})
 sweep.add_variation("w1", 0.1, 2, 10)
-sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq":"2.5GHz"})
-sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq":"2.6GHz"})
+sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
+sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
 ###############################################################################
 # Optimetrics Sensitivity Setup
@@ -75,8 +74,8 @@ sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq":"2.6GHz"})
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example creates a sensitivity analysis with output calculations.
 
-sweep2 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq":"2.5GHz"}, optim_type="Sensitivity")
-sweep2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq":"2.6GHz"})
+sweep2 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Sensitivity")
+sweep2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
 ###############################################################################
 # Optimetrics Optimization Setup
@@ -85,9 +84,9 @@ sweep2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq":"2.6GHz"})
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example creates an optimization based on goals and calculations.
 
-sweep3 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq":"2.5GHz"})
-sweep3.add_goal(calculation="dB(S(1,1))", ranges={"Freq":"2.6GHz"})
-sweep3.add_goal(calculation="dB(S(1,1))", ranges={"Freq":("2.6GHz", "5GHz")})
+sweep3 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
+sweep3.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
+sweep3.add_goal(calculation="dB(S(1,1))", ranges={"Freq": ("2.6GHz", "5GHz")})
 sweep3.add_goal(
     calculation="dB(S(1,1))",
     ranges={"Freq": ("2.6GHz", "5GHz")},
@@ -102,7 +101,7 @@ sweep3.add_goal(
 # This example creates a DX optimization based on a goal and a calculation.
 
 sweep4 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DesignExplorer")
-sweep4.add_goal(calculation="dB(S(1,1))", ranges={"Freq":"2.6GHz"})
+sweep4.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
 ###############################################################################
 # Optimetrics DOE (Design of Experiments) Setup
@@ -112,8 +111,8 @@ sweep4.add_goal(calculation="dB(S(1,1))", ranges={"Freq":"2.6GHz"})
 # This example creates a DOE based on a goal and a calculation.
 
 sweep5 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DXDOE")
-sweep5.add_goal(calculation="dB(S(1,1))", ranges={"Freq":"2.6GHz"})
-sweep5.add_calculation(calculation="dB(S(1,1))", ranges={"Freq":"2.6GHz"})
+sweep5.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
+sweep5.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
 ###############################################################################
 # Optimetrics ODOE (Design of Experiments) Setup
@@ -126,7 +125,8 @@ region = hfss.modeler.create_region()
 hfss.assign_radiation_boundary_to_objects(region)
 hfss.insert_infinite_sphere(name="Infinite_1")
 sweep6 = hfss.optimizations.add(calculation="RealizedGainTotal", solution=hfss.nominal_adaptive,
-                                ranges={"Freq": "5GHz", "Theta": ["0deg", "10deg", "20deg"], "Phi": "0deg"}, context="Infinite_1")
+                                ranges={"Freq": "5GHz", "Theta": ["0deg", "10deg", "20deg"], "Phi": "0deg"},
+                                context="Infinite_1")
 
 ###############################################################################
 # Close AEDT
