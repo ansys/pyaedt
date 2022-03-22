@@ -99,8 +99,15 @@ class GeometryOperators(object):
             else:
                 scaling_factor = scale_units(m.group("unit"))
                 return float(m.group("number")) * scaling_factor / sunit
-        else:  # pragma: no cover
-            raise TypeError("String is no number")
+        else:
+            # pragma: no cover
+            if variable_manager:
+                if not variable_manager.set_variable("temp_var", string):
+                    if not variable_manager.set_variable("temp_var", string, postprocessing=True):
+                        return string
+                value = variable_manager["temp_var"].value
+                del variable_manager["temp_var"]
+                return value
 
     @staticmethod
     @pyaedt_function_handler()

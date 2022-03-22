@@ -335,3 +335,9 @@ class TestClass(BasisTest, object):
         assert decompose_variable_value("3.123456Nm-2") == (3.123456, "Nm-2")
         assert decompose_variable_value("3.123456kg2m2") == (3.123456, "kg2m2")
         assert decompose_variable_value("3.123456kgm2") == (3.123456, "kgm2")
+
+    def test_13_postprocessing(self):
+        v1 = self.aedtapp.variable_manager.set_variable("test_post1", 10, postprocessing=True)
+        assert v1
+        assert not self.aedtapp.variable_manager.set_variable("test2", "v1+1")
+        assert self.aedtapp.variable_manager.set_variable("test2", "test_post1+1", postprocessing=True)
