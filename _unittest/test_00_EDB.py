@@ -761,6 +761,86 @@ class TestClass(BasisTest, object):
         edb2.close_edb()
         del edb2
 
+    def test_79b_get_placement_vector(self):
+        laminate_edb = Edb(
+            os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb"), edbversion=desktop_version
+        )
+        chip_edb = Edb(os.path.join(local_path, "example_models", "chip.aedb"), edbversion=desktop_version)
+        try:
+            laminate_cmp = laminate_edb.core_components.get_component_by_name("U3")
+            chip_cmp = chip_edb.core_components.get_component_by_name("U1")
+            result, vector, rotation, solder_ball_height = laminate_edb.core_components.get_component_placement_vector(
+                chip_cmp, laminate_cmp, "1", "2", "1", "2", True
+            )
+            assert result
+            assert abs(rotation - math.pi / 2) < 1e-9
+            assert solder_ball_height == 0
+            assert abs(vector[0] - 0.5e-3) < 1e-9
+            assert abs(vector[1] + 0.5e-3) < 1e-9
+        finally:
+            chip_edb.close_edb()
+            laminate_edb.close_edb()
+
+    def test_79c_get_placement_vector(self):
+        laminate_edb = Edb(
+            os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb"), edbversion=desktop_version
+        )
+        chip_edb = Edb(os.path.join(local_path, "example_models", "chip.aedb"), edbversion=desktop_version)
+        try:
+            laminate_cmp = laminate_edb.core_components.get_component_by_name("U1")
+            chip_cmp = chip_edb.core_components.get_component_by_name("U1")
+            result, vector, rotation, solder_ball_height = laminate_edb.core_components.get_component_placement_vector(
+                chip_cmp, laminate_cmp, "1", "2", "1", "2"
+            )
+            assert result
+            assert abs(rotation) < 1e-9
+            assert solder_ball_height == 0
+            assert abs(vector[0]) < 1e-9
+            assert abs(vector[1]) < 1e-9
+        finally:
+            chip_edb.close_edb()
+            laminate_edb.close_edb()
+
+    def test_79d_get_placement_vector_offset(self):
+        laminate_edb = Edb(
+            os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb"), edbversion=desktop_version
+        )
+        chip_edb = Edb(os.path.join(local_path, "example_models", "chip_offset.aedb"), edbversion=desktop_version)
+        try:
+            laminate_cmp = laminate_edb.core_components.get_component_by_name("U3")
+            chip_cmp = chip_edb.core_components.get_component_by_name("U1")
+            result, vector, rotation, solder_ball_height = laminate_edb.core_components.get_component_placement_vector(
+                chip_cmp, laminate_cmp, "1", "4", "1", "4", True
+            )
+            assert result
+            assert abs(rotation - math.pi / 2) < 1e-9
+            assert solder_ball_height == 0
+            assert abs(vector[0] - 0.2e-3) < 1e-9
+            assert abs(vector[1] + 0.8e-3) < 1e-9
+        finally:
+            chip_edb.close_edb()
+            laminate_edb.close_edb()
+
+    def test_79e_get_placement_vector_offset(self):
+        laminate_edb = Edb(
+            os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb"), edbversion=desktop_version
+        )
+        chip_edb = Edb(os.path.join(local_path, "example_models", "chip_offset.aedb"), edbversion=desktop_version)
+        try:
+            laminate_cmp = laminate_edb.core_components.get_component_by_name("U1")
+            chip_cmp = chip_edb.core_components.get_component_by_name("U1")
+            result, vector, rotation, solder_ball_height = laminate_edb.core_components.get_component_placement_vector(
+                chip_cmp, laminate_cmp, "1", "4", "1", "4"
+            )
+            assert result
+            assert abs(rotation) < 1e-9
+            assert solder_ball_height == 0
+            assert abs(vector[0] - 0.3e-3) < 1e-9
+            assert abs(vector[1] - 0.3e-3) < 1e-9
+        finally:
+            chip_edb.close_edb()
+            laminate_edb.close_edb()
+
     def test_80_edb_without_path(self):
         edbapp_without_path = Edb(edbversion=desktop_version, isreadonly=False)
         time.sleep(2)
