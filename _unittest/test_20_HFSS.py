@@ -574,18 +574,46 @@ class TestClass(BasisTest, object):
         assert setup1.add_calculation(
             calculation="dB(S(1,1))", calculation_value="2.5GHz", reporttype="Modal Solution Data"
         )
+        assert setup1.name in self.aedtapp.get_oo_name(
+            self.aedtapp.odesign, r"Optimetrics".format(self.aedtapp.design_name)
+        )
+        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup1.name))
+        oo_calculation = oo.GetCalculationInfo()[0]
+        assert "Modal Solution Data" in oo_calculation
 
     def test_26_create_optimization(self):
-        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", intrinsics={"Freq": "2.5GHz"})
+        calculation = "db(S(Cir1,Cir1))"
+        setup2 = self.aedtapp.optimizations.add(calculation, ranges={"Freq": "2.5GHz"})
         assert setup2
-
-        assert setup2.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz")
-        assert setup2.add_goal(
-            calculation="dB(S(1,1))", calculation_value="2.6GHz", calculation_type="rd", calculation_stop="5GHz"
+        assert setup2.name in self.aedtapp.get_oo_name(
+            self.aedtapp.odesign, r"Optimetrics".format(self.aedtapp.design_name)
         )
+        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup2.name))
+        oo_calculation = oo.GetCalculationInfo()[0]
+        assert calculation in oo_calculation
+        assert self.aedtapp.nominal_sweep in oo_calculation
+        for el in oo_calculation:
+            if "NAME:Ranges" in el:
+                break
+        assert len(el) == 3
+        assert setup2.add_goal(calculation=calculation, calculation_value="2.6GHz")
+        oo_calculation = oo.GetCalculationInfo()[0]
+        for el in reversed(oo_calculation):
+            if "NAME:Ranges" in el:
+                break
+        assert "2.6GHz" in el[2]
+        assert setup2.add_goal(
+            calculation=calculation, calculation_value="2.6GHz", calculation_type="rd", calculation_stop="5GHz"
+        )
+        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup2.name))
+        oo_calculation = oo.GetCalculationInfo()[0]
+        for el in reversed(oo_calculation):
+            if "NAME:Ranges" in el:
+                break
+        assert "rd" in el[2]
 
     def test_27_create_doe(self):
-        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", intrinsics={"Freq": "2.5GHz"}, optim_type="DXDOE")
+        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DXDOE")
         assert setup2
         assert setup2.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz")
         assert setup2.add_calculation(calculation="dB(S(1,1))", calculation_value="2.5GHz")
@@ -596,12 +624,12 @@ class TestClass(BasisTest, object):
         assert setup2.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz")
 
     def test_29_create_sensitivity(self):
-        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", intrinsics={"Freq": "2.5GHz"}, optim_type="Sensitivity")
+        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Sensitivity")
         assert setup2
         assert setup2.add_calculation(calculation="dB(S(1,1))", calculation_value="2.6GHz")
 
     def test_29_create_statistical(self):
-        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", intrinsics={"Freq": "2.5GHz"}, optim_type="Statistical")
+        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Statistical")
         assert setup2
         assert setup2.add_calculation(calculation="dB(S(1,1))", calculation_value="2.6GHz")
 
@@ -758,7 +786,7 @@ class TestClass(BasisTest, object):
         sweep6 = self.aedtapp.optimizations.add(
             calculation="RealizedGainTotal",
             solution=self.aedtapp.nominal_adaptive,
-            intrinsics={"Freq": "5GHz", "Theta": "0deg", "Phi": "0deg"},
+            ranges={"Freq": "5GHz", "Theta": "0deg", "Phi": "0deg"},
             context=bound.name,
         )
         assert sweep6

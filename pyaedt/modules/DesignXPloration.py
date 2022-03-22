@@ -762,6 +762,7 @@ class ParametricSetups(object):
         setup.props["Sim. Setups"] = setupname
         setup.props["Sweeps"] = OrderedDict({"SweepDefinition": None})
         for v, k in sweeps.items():
+            self._app.activate_variable_optimization(v)
             sd = OrderedDict({"Variable": v, "Data": k, "OffsetF1": False, "Synchronize": 0})
             if not setup.props["Sweeps"]["SweepDefinition"]:
                 setup.props["Sweeps"]["SweepDefinition"] = sd
@@ -824,7 +825,7 @@ class OptimizationSetups(object):
     def add(
         self,
         calculation,
-        intrinsics,
+        ranges,
         optim_type="Optimization",
         condition="<=",
         goal_value=1,
@@ -845,8 +846,9 @@ class OptimizationSetups(object):
         ----------
         calculation : str, optional
             Name of the calculation.
-        intrinsics : dict
-            Dictionary of intrinsics with respective values.
+        ranges : dict
+            Dictionary of ranges with respective values.
+            It includes intrinsics like "Freq", "Time", "Theta", "Distance".
         optim_type : strm optional
             Optimization Type.
             Possible values are `"Optimization"`, `"DXDOE"`,`"DesignExplorer"`,`"Sensitivity"`,`"Statistical"`.
@@ -859,9 +861,6 @@ class OptimizationSetups(object):
         solution : str, optional
             Type of the solution. The default is ``None``, in which case the default
             solution is used.
-        dx_variables : list or dict or str, optional
-            List of design explorer variables with their values.
-            It can be a list of variable, a dict of variables with values or a string.
         parametricname : str, optional
             Name of the analysis. The default is ``None``, in which case a
             default name is assigned.
@@ -888,7 +887,7 @@ class OptimizationSetups(object):
             solution = self._app.nominal_sweep
         setupname = [solution.split(" ")[0]]
         domain = "Time"
-        if "Freq" in intrinsics or "Phase" in intrinsics or "Theta" in intrinsics:
+        if "Freq" in ranges or "Phase" in ranges or "Theta" in ranges:
             domain = "Sweep"
         if not report_type:
             report_type = self._app.design_solutions.report_type
@@ -914,7 +913,7 @@ class OptimizationSetups(object):
             goal_value,
             solution,
             domain,
-            intrinsics,
+            ranges,
             report_type,
             context,
             subdesign_id,
@@ -922,23 +921,36 @@ class OptimizationSetups(object):
         )
         setup.props["Sim. Setups"] = setupname
         setup.props["Goals"]["Goal"] = sweepdefinition
+        dx_variables = {}
+        for el in list(ranges.keys()):
+            if el not in ["Freq", "Distance", "Time", "Phase", "Theta", "Phi"]:
+                try:
+                    dx_variables[el] = self._app[dx_variables]
+                except:
+                    pass
+        if not dx_variables:
+            dx_variables = self._app.available_variations.nominal_w_values_dict
+        elif isinstance(dx_variables, str):
+            dx_variables = {dx_variables: self._app[dx_variables]}
+        elif isinstance(dx_variables, list):
+            dicts_vars = {}
+            for var in dx_variables:
+                dicts_vars[var] = self._app[var]
+            dx_variables = dicts_vars
+        for v in list(dx_variables.keys()):
+            if optim_type in ["Optimization", "DXDOE", "DesignExplorer"]:
+                self._app.activate_variable_optimization(v)
+            elif optim_type == "Sensitivity":
+                self._app.activate_variable_sensitivity(v)
+            elif optim_type == "Statistical":
+                self._app.activate_variable_statistical(v)
         if optim_type == "DXDOE":
             setup.props["CostFunctionGoals"]["Goal"] = sweepdefinition
         if optim_type == "DesignExplorer":
-            if not dx_variables:
-                dx_variables = self._app.available_variations.nominal_w_values_dict
-            elif isinstance(dx_variables, str):
-                dx_variables = {dx_variables: self._app[dx_variables]}
-            elif isinstance(dx_variables, list):
-                dicts_vars = {}
-                for var in dx_variables:
-                    dicts_vars[var] = self._app[var]
-                dx_variables = dicts_vars
             setup.props["Sweeps"]["SweepDefinition"] = []
             for l, k in dx_variables.items():
                 arg = OrderedDict({"Variable": l, "Data": k, "OffsetF1": False, "Synchronize": 0})
                 setup.props["Sweeps"]["SweepDefinition"].append(arg)
-
         setup.create()
         setup.auto_update = True
         self.setups.append(setup)
