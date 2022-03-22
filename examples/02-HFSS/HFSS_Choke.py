@@ -130,7 +130,7 @@ second_winding_list = list_object[3]
 
 ground_radius = 1.1 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
 ground_position = [0, 0, first_winding_list[1][0][2] - 2]
-ground = hfss.modeler.create_circle("X", ground_position, ground_radius, name="GND", matname="copper")
+ground = hfss.modeler.create_circle("XY", ground_position, ground_radius, name="GND", matname="copper")
 coat = hfss.assign_coating(ground, "copper", isinfgnd=True)
 
 ###############################################################################
@@ -141,10 +141,11 @@ port_position_list = [[first_winding_list[1][0][0], first_winding_list[1][0][1],
                       [first_winding_list[1][-1][0], first_winding_list[1][-1][1], first_winding_list[1][-1][2] - 1],
                       [second_winding_list[1][0][0], second_winding_list[1][0][1], second_winding_list[1][0][2] - 1],
                       [second_winding_list[1][-1][0], second_winding_list[1][-1][1], second_winding_list[1][-1][2] - 1]]
-port_dimension_list = [dictionary_values[1]["Outer Winding"]["Wire Diameter"], 2]
+port_dimension_list = [2, dictionary_values[1]["Outer Winding"]["Wire Diameter"]]
 for position in port_position_list:
-    sheet = hfss.modeler.create_rectangle("X", position, port_dimension_list)
-    hfss.create_lumped_port_to_sheet(sheet.name, axisdir=hfss.AxisDir.ZPos)
+    sheet = hfss.modeler.create_rectangle("XZ", position, port_dimension_list)
+    sheet.move([-dictionary_values[1]["Outer Winding"]["Wire Diameter"]/2, 0, -1])
+    hfss.create_lumped_port_to_sheet(sheet.name, axisdir=hfss.AxisDir.ZNeg)
 
 ###############################################################################
 # Create Boundaries
@@ -152,3 +153,24 @@ for position in port_position_list:
 # A region with openings is needed to run the analysis.
 
 region = hfss.modeler.create_region(pad_percent=50)
+
+###############################################################################
+# Create the Setup
+# ----------------
+# A setup with a sweep will be used to run the simulation.
+
+setup = hfss.create_setup("MySetup")
+setup.props["Frequency"] = "0.8GHz"
+setup.props["MaximumPasses"] = 1
+hfss.create_linear_count_sweep(
+    setupname=setup.name,
+    unit="GHz",
+    freqstart=0.5,
+    freqstop=1,
+    num_of_freq_points=251,
+    sweepname="sweep1",
+    sweep_type="Interpolating",
+    interpolation_tol=3,
+    interpolation_max_solutions=255,
+    save_fields=False,
+)
