@@ -161,7 +161,7 @@ mesh_operation_cylinder = hfss.modeler.create_cylinder(
     "XY", cylinder_position, ground_radius, cylinder_height, numSides=36, name="mesh_cylinder"
 )
 mesh = Mesh(hfss)
-mesh.assign_model_resolution([mesh_operation_cylinder])
+mesh.assign_length_mesh([mesh_operation_cylinder], maxlength=15, maxel=None, meshop_name="choke_mesh")
 
 
 ###############################################################################
@@ -171,20 +171,21 @@ mesh.assign_model_resolution([mesh_operation_cylinder])
 
 region = hfss.modeler.create_region(pad_percent=25)
 
+
 ###############################################################################
 # Create the Setup
 # ----------------
 # A setup with a sweep will be used to run the simulation.
 
 setup = hfss.create_setup("MySetup")
-setup.props["Frequency"] = "0.8GHz"
+setup.props["Frequency"] = "50MHz"
 setup.props["MaximumPasses"] = 1
 hfss.create_linear_count_sweep(
     setupname=setup.name,
-    unit="GHz",
-    freqstart=0.7,
-    freqstop=0.9,
-    num_of_freq_points=251,
+    unit="MHz",
+    freqstart=0.1,
+    freqstop=100,
+    num_of_freq_points=100,
     sweepname="sweep1",
     sweep_type="Discrete",
     save_fields=False,
