@@ -6,6 +6,7 @@ from _unittest.conftest import BasisTest
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.application.Variables import Variable
 from pyaedt.generic.general_methods import isclose
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 # Import required modules
 
@@ -341,3 +342,5 @@ class TestClass(BasisTest, object):
         assert v1
         assert not self.aedtapp.variable_manager.set_variable("test2", "v1+1")
         assert self.aedtapp.variable_manager.set_variable("test2", "test_post1+1", postprocessing=True)
+        x1 = GeometryOperators.parse_dim_arg(self.aedtapp["test2"], variable_manager=self.aedtapp.variable_manager)
+        assert x1 == 11

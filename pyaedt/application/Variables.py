@@ -802,7 +802,7 @@ class VariableManager(object):
         if self._app._is_object_oriented_enabled():
             var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
         else:
-            var_list = list(desktop_object.GetVariables())
+            var_list = list(desktop_object.GetVariables())  # pragma: no cover
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
         if variable_name.lower() not in lower_case_vars:
@@ -887,7 +887,7 @@ class VariableManager(object):
         if self._app._is_object_oriented_enabled():
             var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
         else:
-            var_list = list(desktop_object.GetVariables())
+            var_list = list(desktop_object.GetVariables())  # pragma: no cover
         lower_case_vars = [var_name.lower() for var_name in var_list]
         if variable_name not in lower_case_vars:
             return False
@@ -960,7 +960,7 @@ class VariableManager(object):
         if self._app._is_object_oriented_enabled():
             var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
         else:
-            var_list = list(desktop_object.GetVariables())
+            var_list = list(desktop_object.GetVariables())  # pragma: no cover
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
         if var_name.lower() in lower_case_vars:

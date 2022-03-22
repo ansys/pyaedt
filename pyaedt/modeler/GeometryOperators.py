@@ -100,7 +100,6 @@ class GeometryOperators(object):
                 scaling_factor = scale_units(m.group("unit"))
                 return float(m.group("number")) * scaling_factor / sunit
         else:
-            # pragma: no cover
             if variable_manager:
                 if not variable_manager.set_variable("temp_var", string):
                     if not variable_manager.set_variable("temp_var", string, postprocessing=True):
