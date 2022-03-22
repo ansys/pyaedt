@@ -2459,6 +2459,30 @@ class EDBComponent(object):
         elif cmp_type == 0:
             return "Other"
 
+    @type.setter
+    def type(self, new_type):
+        """Set component type
+
+        Parameters
+        ----------
+        new_type : str
+            Type of the component. Options are ``"Resistor"``,  ``"Inductor"``, ``"Capacitor"``,
+            ``"IC"``, ``"IO"`` and ``"Other"``.
+        """
+        if new_type == "Resistor":
+            type_id = 1
+        elif new_type =="Inductor":
+            type_id = 2
+        elif new_type == "Capacitor":
+            type_id = 3
+        elif new_type == "IC":
+            type_id = 4
+        elif new_type == "IO":
+            type_id = 5
+        elif new_type == "Other":
+            type_id = 0
+        self.edbcomponent.SetComponentType(type_id)
+
     @property
     def numpins(self):
         """Number of Pins of Component.
