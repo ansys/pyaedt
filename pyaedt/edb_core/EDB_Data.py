@@ -2471,7 +2471,7 @@ class EDBComponent(object):
         """
         if new_type == "Resistor":
             type_id = 1
-        elif new_type =="Inductor":
+        elif new_type == "Inductor":
             type_id = 2
         elif new_type == "Capacitor":
             type_id = 3
