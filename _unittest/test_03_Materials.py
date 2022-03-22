@@ -170,5 +170,5 @@ class TestClass(BasisTest, object):
         assert app.modeler.create_box([0, 0, 0], [10, 10, 10], matname="myMat2")
 
     def test_10_add_material_sweep(self):
-        assert self.aedtapp.materials.add_material_sweep(["copper3", "new_copper"], "sweep_copper")
+        assert self.aedtapp.materials.add_material_sweep(["copper", "aluminum"], "sweep_copper")
         assert "sweep_copper" in list(self.aedtapp.materials.material_keys.keys())

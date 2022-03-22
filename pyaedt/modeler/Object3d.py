@@ -949,7 +949,7 @@ class Object3d(object):
         """Export the model to path.
 
         .. note::
-        Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
+           Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
 
         Parameters
         ----------
@@ -1390,8 +1390,8 @@ class Object3d(object):
             self._object_type = "Sheet"
         elif self._m_name in list(self.m_Editor.GetObjectsInGroup("Lines")):
             self._object_type = "Line"
-        elif self._m_name in list(self.m_Editor.GetObjectsInGroup("Unclassified")):
-            self._object_type = "Unclassified"
+        elif self._m_name in list(self.m_Editor.GetObjectsInGroup("Unclassified")):  # pragma: no cover
+            self._object_type = "Unclassified"  # pragma: no cover
         return self._object_type
 
     @property

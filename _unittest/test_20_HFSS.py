@@ -621,7 +621,12 @@ class TestClass(BasisTest, object):
         assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
         assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
 
-    def test_28_create_dx(self):
+    def test_28A_create_dx(self):
+        setup2 = self.aedtapp.optimizations.add(None, {"w1": "1mm", "w2": "2mm"}, optim_type="optiSLang")
+        assert setup2
+        assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
+
+    def test_28B_create_dx(self):
         setup2 = self.aedtapp.optimizations.add(None, {"w1": "1mm", "w2": "2mm"}, optim_type="DesignExplorer")
         assert setup2
         assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})

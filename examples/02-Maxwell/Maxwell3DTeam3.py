@@ -18,7 +18,7 @@ from pyaedt import Maxwell3d
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 3 Bath Plate"
 Solver = "EddyCurrent"
-DesktopVersion = "2021.2"
+DesktopVersion = "2022.1"
 NonGraphical = False
 
 M3D = Maxwell3d(
@@ -109,7 +109,7 @@ M3D.eddy_effects_on(["SearchCoil"], activate=False)
 ################################################################################
 # Add a linear parametric sweep for the two coil positions
 sweepname = "CoilSweep"
-param = M3D.parametrics.add("Coil_Position", "LIN -20mm 0mm 20mm", parametricname=sweepname)
+param = M3D.parametrics.add({"Coil_Position": "LIN -20mm 0mm 20mm"}, parametricname=sweepname)
 param.props["ProdOptiSetupDataV2"]["SaveFields"] = True
 param.props["ProdOptiSetupDataV2"]["CopyMesh"] = False
 param.props["ProdOptiSetupDataV2"]["SolveWithCopiedMeshOnly"] = True

@@ -51,7 +51,8 @@ class CommonOptimetrics(object):
             self.props = SetupProps(self, inputd or copy.deepcopy(defaultstatisticalSetup))
         if optimtype == "OptiDXDOE":
             self.props = SetupProps(self, inputd or copy.deepcopy(defaultdoeSetup))
-
+        if optimtype == "optiSLang":
+            self.props = SetupProps(self, inputd or copy.deepcopy(defaultdxSetup))
         if inputd:
             self.props.pop("ID", None)
             self.props.pop("NextUniqueID", None)
@@ -456,7 +457,7 @@ class CommonOptimetrics(object):
 
     @pyaedt_function_handler()
     def _activate_variable(self, variable_name):
-        if self.soltype in ["OptiDesignExplorer", "OptiDXDOE", "OptiOptimization"]:
+        if self.soltype in ["OptiDesignExplorer", "OptiDXDOE", "OptiOptimization", "OptiSLang"]:
             self._app.activate_variable_optimization(variable_name)
         elif self.soltype == "OptiParametric":
             self._app.activate_variable_tuning(variable_name)
@@ -467,18 +468,7 @@ class CommonOptimetrics(object):
 
 
 class SetupOpti(CommonOptimetrics, object):
-    """Sets up a DesignXplorer optimization in optiSLang.
-
-    Parameters
-    ----------
-    app :
-    name :
-    dictinputs :
-        The default is ``None``.
-    optimtype : str, optional
-        Type of the optimization. The default is ``"OptiDesignExplorer"``.
-
-    """
+    """Sets up an optimization in Opimetrics."""
 
     def __init__(self, app, name, dictinputs=None, optim_type="OptiDesignExplorer"):
         CommonOptimetrics.__init__(self, app, name, dictinputs=dictinputs, optimtype=optim_type)
@@ -606,22 +596,7 @@ class SetupOpti(CommonOptimetrics, object):
 
 
 class SetupParam(CommonOptimetrics, object):
-
-    """Sets up a parametric analysis in optiSLang.
-
-    Parameters
-    ----------
-    p_app : str
-        Inherited AEDT object.
-
-    name :
-
-    dictinputs : optional
-        The default is ``None``.
-    otimtype : str, optional
-        Type of the optimization. The default is ``"OptiParametric"``.
-
-    """
+    """Sets up a parametric analysis in Optimetrics."""
 
     def __init__(self, p_app, name, dictinputs=None, optim_type="OptiParametric"):
         CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype=optim_type)
@@ -808,7 +783,8 @@ class ParametricSetups(object):
 
         Returns
         -------
-        :class:`Sensitivity`
+        :class:`pyaedt.modules.DesignXPloration.SetupParam`
+            Optimization Object.
 
         References
         ----------
@@ -902,6 +878,7 @@ class OptimizationSetups(object):
                         "OptiOptimization",
                         "OptiDXDOE",
                         "OptiDesignExplorer",
+                        "OptiSLang",
                         "OptiSensitivity",
                         "OptiStatistical",
                     ]:
@@ -939,7 +916,8 @@ class OptimizationSetups(object):
             It includes intrinsics like "Freq", "Time", "Theta", "Distance".
         optim_type : strm optional
             Optimization Type.
-            Possible values are `"Optimization"`, `"DXDOE"`,`"DesignExplorer"`,`"Sensitivity"`,`"Statistical"`.
+            Possible values are `"Optimization"`, `"DXDOE"`,`"DesignExplorer"`,`"Sensitivity"`,`"Statistical"`
+            and `"optiSLang"'.
         condition : string, optional
             The default is ``"<="``.
         goal_value : optional
@@ -963,7 +941,7 @@ class OptimizationSetups(object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.modules.DesignXPloration.SetupOpti`
             Optimization object.
 
         References
@@ -992,7 +970,9 @@ class OptimizationSetups(object):
                     pass
         if not parametricname:
             parametricname = generate_unique_name(optim_type)
-        setup = SetupOpti(self._app, parametricname, optim_type="Opti" + optim_type)
+        if optim_type != "optiSLang":
+            optim_type = "Opti" + optim_type
+        setup = SetupOpti(self._app, parametricname, optim_type=optim_type)
         setup.auto_update = False
         sweepdefinition = setup._get_context(
             calculation,
@@ -1026,15 +1006,15 @@ class OptimizationSetups(object):
                 dicts_vars[var] = self._app[var]
             dx_variables = dicts_vars
         for v in list(dx_variables.keys()):
-            if optim_type in ["Optimization", "DXDOE", "DesignExplorer"]:
+            if optim_type in ["OptiOptimization", "OptiDXDOE", "OptiDesignExplorer"]:
                 self._app.activate_variable_optimization(v)
-            elif optim_type == "Sensitivity":
+            elif optim_type == "OptiSensitivity":
                 self._app.activate_variable_sensitivity(v)
-            elif optim_type == "Statistical":
+            elif optim_type == "OptiStatistical":
                 self._app.activate_variable_statistical(v)
-        if optim_type == "DXDOE":
+        if optim_type == "OptiDXDOE":
             setup.props["CostFunctionGoals"]["Goal"] = sweepdefinition
-        if optim_type == "DesignExplorer":
+        if optim_type in ["OptiDesignExplorer", "optiSLang"]:
             setup.props["Sweeps"]["SweepDefinition"] = []
             for l, k in dx_variables.items():
                 arg = OrderedDict({"Variable": l, "Data": k, "OffsetF1": False, "Synchronize": 0})

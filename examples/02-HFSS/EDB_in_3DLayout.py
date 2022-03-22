@@ -34,11 +34,11 @@ aedt_file = targetfile[:-12] + "aedt"
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# This example launches AEDT 2021.2 in graphical model.
+# This example launches AEDT 2022R2 in graphical model.
 
 # This example uses SI units.
 
-desktopVersion = "2021.2"
+desktopVersion = "2022.1"
 
 
 ###############################################################################

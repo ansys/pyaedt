@@ -18,7 +18,7 @@ import os
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 7 Asymmetric Conductor"
 Solver = "EddyCurrent"
-DesktopVersion = "2021.2"
+DesktopVersion = "2022.1"
 
 M3D = Maxwell3d(
     projectname=Project_Name, designname=Design_Name, solution_type=Solver, specified_version=DesktopVersion

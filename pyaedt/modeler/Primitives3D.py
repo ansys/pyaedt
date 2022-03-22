@@ -2136,8 +2136,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        List of
-        bool
+        List
             ``True`` when successful, ``False`` when failed.
         dictionary : class : 'dict'
 

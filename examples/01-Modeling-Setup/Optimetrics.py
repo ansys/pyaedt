@@ -12,7 +12,7 @@ import os
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # In this example, HFSS is to have two design variables, ``w1`` and ``w2``.
 NG = False
-hfss = Hfss(specified_version="2021.2", new_desktop_session=True, non_graphical=NG)
+hfss = Hfss(specified_version="2022.1", new_desktop_session=True, non_graphical=NG)
 hfss["w1"] = "1mm"
 hfss["w2"] = "100mm"
 
@@ -116,9 +116,9 @@ sweep5.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
 ###############################################################################
 # Optimetrics ODOE (Design of Experiments) Setup
-# ---------------------------------------------
+# ----------------------------------------------
 # DOE Based on a Goal and a Calculation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example creates a DOE based on a goal and a calculation.
 
 region = hfss.modeler.create_region()

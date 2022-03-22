@@ -35,11 +35,11 @@ from pyaedt import Edb
 # Launch EDB
 # ~~~~~~~~~~
 # This example launches the :class:`pyaedt.Edb` class.
-# This example uses EDB 2021.2 and uses SI units.
+# This example uses EDB 2022R2 and uses SI units.
 
 if os.path.exists(aedt_file):
     os.remove(aedt_file)
-edb = Edb(edbpath=targetfile, edbversion="2021.2")
+edb = Edb(edbpath=targetfile, edbversion="2022.1")
 
 ###############################################################################
 # Compute Nets and Components
@@ -187,7 +187,7 @@ edb.close_edb()
 # This command open Siwave and Generate Report. This works on Window Only.
 
 # from pyaedt import Siwave
-# siwave = Siwave("2021.2")
+# siwave = Siwave("2022.1")
 # siwave.open_project(siwave_file)
 # report_file = os.path.join(temp_folder,'Galileo.htm')
 #

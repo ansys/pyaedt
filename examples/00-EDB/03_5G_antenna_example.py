@@ -8,7 +8,7 @@ This example shows how to use HFSS 3D Layout to create and solve a 5G linear arr
 ###############################################################################
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example imports the `Hfss3dlayout` object and initializes it on version
-# 2021.2.
+# 2022R2.
 import tempfile
 from pyaedt import Edb
 from pyaedt.generic.general_methods import generate_unique_name
@@ -67,7 +67,7 @@ class LinearArray:
 tmpfold = tempfile.gettempdir()
 aedb_path = os.path.join(tmpfold, generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = Edb(edbpath=aedb_path, edbversion="2021.2")
+edb = Edb(edbpath=aedb_path, edbversion="2022.1")
 
 
 ###############################################################################
@@ -190,7 +190,7 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 # Launch Hfss3d Layout and open Edb
 #
 project = os.path.join(aedb_path, "edb.def")
-h3d = Hfss3dLayout(projectname=project, specified_version="2021.2", new_desktop_session=True, non_graphical=False)
+h3d = Hfss3dLayout(projectname=project, specified_version="2022.1", new_desktop_session=True, non_graphical=False)
 
 ###############################################################################
 # Create Setup and Sweeps
