@@ -916,7 +916,7 @@ class Object3d(object):
     @property
     def _odesign(self):
         """Design."""
-        return self._primitives._app._odesign
+        return self._primitives._modeler._app._odesign
 
     @pyaedt_function_handler()
     def plot(self, show=True):
@@ -1926,7 +1926,7 @@ class Object3d(object):
         >>> oEditor.SweepAlongVector
 
         """
-        self._primitives.sweep_along_vector(self, sweep_vector, draft_angle, draft_type)
+        self._primitives.modeler.sweep_along_vector(self, sweep_vector, draft_angle, draft_type)
         return self
 
     @pyaedt_function_handler()
@@ -1960,7 +1960,7 @@ class Object3d(object):
         >>> oEditor.SweepAlongPath
 
         """
-        self._primitives.sweep_along_path(
+        self._primitives.modeler.sweep_along_path(
             self, sweep_object, draft_angle, draft_type, is_check_face_intersection, twist_angle
         )
         return self
@@ -1989,7 +1989,7 @@ class Object3d(object):
         >>> oEditor.SweepAroundAxis
 
         """
-        self._primitives.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
+        self._primitives.modeler.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
         return self
 
     @pyaedt_function_handler()
@@ -2035,7 +2035,7 @@ class Object3d(object):
         >>> oEditor.Clone
 
         """
-        new_obj_tuple = self._primitives.clone(self.id)
+        new_obj_tuple = self._primitives.modeler.clone(self.id)
         success = new_obj_tuple[0]
         assert success, "Could not clone the object {}.".format(self.name)
         new_name = new_obj_tuple[1][0]
