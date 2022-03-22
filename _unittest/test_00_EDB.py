@@ -949,3 +949,8 @@ class TestClass(BasisTest, object):
         finally:
             chipEdb.close_edb()
             laminateEdb.close_edb()
+
+    def test_83_set_component_type(self):
+        comp = self.edbapp.core_components.components["R2L18"]
+        comp.type = "Capacitor"
+        assert comp.type == "Capacitor"
