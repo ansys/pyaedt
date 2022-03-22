@@ -30,7 +30,7 @@
   },
   "Core": {
     "Name": "Core",
-    "Material": "iron",
+    "Material": "ferrite",
     "Inner Radius": 20,
     "Outer Radius": 50,
     "Height": 20,
