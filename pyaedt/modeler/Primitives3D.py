@@ -1645,6 +1645,8 @@ class Primitives3D(Primitives, object):
                 list
                     list of point coordinates of the winding.
             for each winding.
+        [bool, core_obj, [first_winding_obj, first_winding_point_list],
+         [second_winding_obj, second_winding_point_list], etc...]
 
         Examples
         --------
