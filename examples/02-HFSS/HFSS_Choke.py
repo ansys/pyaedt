@@ -155,7 +155,7 @@ for position in port_position_list:
 
 ###############################################################################
 # Create Mesh Operation
-# -----------------
+# ---------------------
 
 cylinder_height = 2.5 * dictionary_values[1]["Outer Winding"]["Height"]
 cylinder_position = [0, 0, first_winding_list[1][0][2] - 4]
