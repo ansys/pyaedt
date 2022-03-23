@@ -1,7 +1,7 @@
 """
 CPWG Analysis
 ---------------
-This example shows how you can use PyAEDT to create a coplanar waveguide design in
+This example shows how you can use PyAEDT to create a coplanar waveguide design
 in Q2D and run a simulation.
 """
 
