@@ -1147,7 +1147,7 @@ class FieldPlot:
         """Export the active plot to an image file.
 
         .. note::
-            There are some limitations on HFSS 3D Layout plots.
+           There are some limitations on HFSS 3D Layout plots.
 
         full_path : str, optional
             Path for saving the image file. PNG and GIF formats are supported.

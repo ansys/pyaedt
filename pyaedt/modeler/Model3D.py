@@ -26,7 +26,6 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=True)
         Primitives3D.__init__(self)
-        self._primitives = self
 
     def __get__(self, instance, owner):
         self._app = instance
@@ -47,7 +46,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         mess = "The property `primitives` is deprecated.\n"
         mess += " Use `app.modeler` directly to instantiate primitives methods."
         warnings.warn(mess, DeprecationWarning)
-        return self._primitives
+        return self
 
     @pyaedt_function_handler()
     def create_3dcomponent(
