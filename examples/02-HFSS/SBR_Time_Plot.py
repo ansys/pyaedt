@@ -40,14 +40,15 @@ t_matrix = solution_data.ifft("NearE", window=True)
 # Export IFFT to csv files
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Description
-frames_list = solution_data.ifft_to_file(coord_system_center=[-0.15, 0, 0], db_val=True,
-                                         csv_dir=os.path.join(hfss.working_directory, "csv"))
+frames_list_file = solution_data.ifft_to_file(coord_system_center=[-0.15, 0, 0], db_val=True,
+                                              csv_dir=os.path.join(hfss.working_directory, "csv"))
 
 ###############################################################################
 # Plot the Scene
 # ~~~~~~~~~~~~~~
 # Description
-hfss.post.plot_scene(frames_list, os.path.join(hfss.working_directory, "animation.gif"), norm_index=15, dy_rng=35,
+
+hfss.post.plot_scene(frames_list_file, os.path.join(hfss.working_directory, "animation.gif"), norm_index=15, dy_rng=35,
                      show=False)
 
 
