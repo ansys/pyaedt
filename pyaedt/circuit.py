@@ -763,10 +763,10 @@ class Circuit(FieldAnalysisCircuit, object):
             which exports the file to the working directory.
         variation : list, optional
             List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
-            The default is ``[]``.
+            The default is ``None``.
         variations_value : list, optional
             List of all parameter variation values. For example, ``["22cel", "100"]``.
-            The default is ``[]``.
+            The default is ``None``.
 
         Returns
         -------

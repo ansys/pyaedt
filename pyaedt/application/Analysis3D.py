@@ -438,9 +438,9 @@ class FieldAnalysis3D(Analysis, object):
         fileFormat : str, optional
             Format of the file. The default is ``".step"``.
         object_list : list, optional
-            List of objects to export. The default is ``[]``.
+            List of objects to export. The default is ``None``.
         removed_objects : list, optional
-            The default is ``[]``.
+            The default is ``None``.
 
         Returns
         -------
