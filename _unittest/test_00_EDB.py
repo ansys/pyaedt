@@ -952,5 +952,15 @@ class TestClass(BasisTest, object):
 
     def test_83_set_component_type(self):
         comp = self.edbapp.core_components.components["R2L18"]
+        comp.type = "Resistor"
+        assert comp.type == "Resistor"
+        comp.type = "Inductor"
+        assert comp.type == "Inductor"
         comp.type = "Capacitor"
         assert comp.type == "Capacitor"
+        comp.type = "IO"
+        assert comp.type == "IO"
+        comp.type = "IC"
+        assert comp.type == "IC"
+        comp.type = "Other"
+        assert comp.type == "Other"
