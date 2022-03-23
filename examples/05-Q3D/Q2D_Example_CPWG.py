@@ -102,7 +102,7 @@ with Desktop("2022.1", non_graphical=NonGraphical, new_desktop_session=True) as 
     # Create conformal coating
 
     sm_obj_list = []
-    for obj_name in ["signal", "co_gnd_left", "co_gnd_right", "ref_gnd"]:
+    for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
         obj = q.modeler.get_object_from_name(obj_name)
         e_obj_list = []
         for i in [1, 2, 3]:
@@ -135,7 +135,7 @@ with Desktop("2022.1", non_graphical=NonGraphical, new_desktop_session=True) as 
     )
     # ~~~~~~~~~~~~~~~~~
     # Reference ground
-    obj = [q.modeler.get_object_from_name(i) for i in ["co_gnd_left", "co_gnd_right"]]
+    obj = [q.modeler.get_object_from_name(i) for i in ["co_gnd_left", "co_gnd_right", "ref_gnd"]]
     q.assign_single_conductor(
         name="gnd", target_objects=obj, conductor_type="ReferenceGround", solve_option="SolveOnBoundary", unit="mm"
     )
