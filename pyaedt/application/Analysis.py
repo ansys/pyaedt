@@ -29,12 +29,8 @@ from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import NativeComponentObject
-from pyaedt.modules.DesignXPloration import DOESetups
-from pyaedt.modules.DesignXPloration import DXSetups
 from pyaedt.modules.DesignXPloration import OptimizationSetups
-from pyaedt.modules.DesignXPloration import ParametericsSetups
-from pyaedt.modules.DesignXPloration import SensitivitySetups
-from pyaedt.modules.DesignXPloration import StatisticalSetups
+from pyaedt.modules.DesignXPloration import ParametricSetups
 from pyaedt.modules.MaterialLib import Materials
 from pyaedt.modules.SolveSetup import Setup
 
@@ -125,12 +121,8 @@ class Analysis(Design, object):
             self._ooutput_variable = self._odesign.GetModule("OutputVariable")
             self.setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
 
-        self.opti_parametric = ParametericsSetups(self)
-        self.opti_optimization = OptimizationSetups(self)
-        self.opti_doe = DOESetups(self)
-        self.opti_designxplorer = DXSetups(self)
-        self.opti_sensitivity = SensitivitySetups(self)
-        self.opti_statistical = StatisticalSetups(self)
+        self.parametrics = ParametricSetups(self)
+        self.optimizations = OptimizationSetups(self)
         self.native_components = self._get_native_data()
         self.SOLUTIONS = SOLUTIONS()
         self.SETUPS = SETUPS()
@@ -1160,7 +1152,7 @@ class Analysis(Design, object):
         return setup_name
 
     @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
+    def create_setup(self, setupname="MySetupAuto", setuptype=None, props=None):
         """Create a setup.
 
         Parameters
@@ -1205,6 +1197,9 @@ class Analysis(Design, object):
         ...
         pyaedt info: Sweep was created correctly.
         """
+        if props == None:
+            props = {}
+
         if setuptype is None:
             setuptype = self.design_solutions.default_setup
         name = self.generate_unique_setup_name(setupname)

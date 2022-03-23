@@ -33,11 +33,11 @@ target = Hfss(
     projectname=project_full_name,
     designname="Cassegrain_",
     solution_type="SBR+",
-    specified_version="2021.2",
+    specified_version="2022.1",
     new_desktop_session=True,
 )
 target.save_project(os.path.join(temp_folder, project_name + ".aedt"))
-source = Hfss(projectname=project_name, designname="feeder", specified_version="2021.2", new_desktop_session=False)
+source = Hfss(projectname=project_name, designname="feeder", specified_version="2022.1", new_desktop_session=False)
 
 ###############################################################################
 # Define a Linked Antenna
@@ -93,5 +93,27 @@ target.post.create_report(
     context="ATK_3D",
     report_category="Far Fields",
 )
+
+###############################################################################
+# Plot Results Outside Electronics Desktop
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example plots results using matplotlib.
+
+solution = target.post.get_solution_data(
+    "GainTotal",
+    target.nominal_adaptive,
+    variations=variations,
+    primary_sweep_variable="Theta",
+    context="ATK_3D",
+    report_category="Far Fields",
+)
+solution.plot()
+
+
+###############################################################################
+# Close and Exit Example
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Release desktop and close example.
+
 if os.name != "posix":
     target.release_desktop()

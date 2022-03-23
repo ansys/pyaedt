@@ -13,11 +13,11 @@ import os
 ###############################################################################
 # Launch AEDT and Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2021.2 in graphical mode.
+# This examples launches AEDT 2022R1 in graphical mode.
 
 # This examples uses SI units.
 
-desktop_version = "2021.2"
+desktop_version = "2022.1"
 
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
@@ -99,6 +99,19 @@ setup3 = aedt_app.create_setup("MyDC", aedt_app.SETUPS.NexximDC)
 aedt_app.analyze_setup("MyLNA")
 
 aedt_app.export_fullwave_spice()
+
+
+###############################################################################
+# Postprocessing
+# --------------
+# Create Report.
+
+solutions = aedt_app.post.get_solution_data(
+    expressions=aedt_app.get_traces_for_plot(category="S"),
+)
+fig = solutions.plot()
+
+
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~

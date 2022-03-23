@@ -8,7 +8,7 @@ This example shows how to use HFSS 3D Layout to create and solve a 5G linear arr
 ###############################################################################
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example imports the `Hfss3dlayout` object and initializes it on version
-# 2021.2.
+# 2022R1.
 import tempfile
 from pyaedt import Edb
 from pyaedt.generic.general_methods import generate_unique_name
@@ -67,7 +67,7 @@ class LinearArray:
 tmpfold = tempfile.gettempdir()
 aedb_path = os.path.join(tmpfold, generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = Edb(edbpath=aedb_path, edbversion="2021.2")
+edb = Edb(edbpath=aedb_path, edbversion="2022.1")
 
 
 ###############################################################################
@@ -190,7 +190,7 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 # Launch Hfss3d Layout and open Edb
 #
 project = os.path.join(aedb_path, "edb.def")
-h3d = Hfss3dLayout(projectname=project, specified_version="2021.2", new_desktop_session=True, non_graphical=False)
+h3d = Hfss3dLayout(projectname=project, specified_version="2022.1", new_desktop_session=True, non_graphical=False)
 
 ###############################################################################
 # Create Setup and Sweeps
@@ -214,9 +214,28 @@ h3d.create_linear_count_sweep(
 
 
 ###############################################################################
-# Solve Setup
-#
+# Solve Setup and create results
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Solves the project and create report.
+
 h3d.analyze_nominal()
 h3d.post.create_report(["db(S({0},{1}))".format(port_name, port_name)])
+
+
+###############################################################################
+# Plot Results Outside Electronics Desktop
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example plots results using matplotlib.
+
+solution = h3d.post.get_solution_data(["S({0},{1})".format(port_name, port_name)])
+solution.plot()
+
+###############################################################################
+# Close AEDT
+# ~~~~~~~~~~
+# After the simulaton is completed, you can close AEDT or release it using the
+# :func:`pyaedt.Desktop.release_desktop` method.
+# All methods provide for saving the project before exiting.
+
 h3d.save_project()
 h3d.release_desktop()

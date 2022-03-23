@@ -19,15 +19,15 @@ if not os.path.exists(temp_folder):
 ###############################################################################
 # Launch AEDT in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2021.2 in graphical mode.
+# This examples launches AEDT 2022R1 in graphical mode.
 
 nongraphical = False
-d = Desktop("2021.2", non_graphical=nongraphical, new_desktop_session=True)
+d = Desktop("2022.1", non_graphical=nongraphical, new_desktop_session=True)
 
 ###############################################################################
 # Launch HFSS in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches HFSS 2021.2 in graphical mode.
+# This examples launches HFSS 2022R1 in graphical mode.
 
 hfss = Hfss(solution_type="Modal")
 
@@ -116,6 +116,36 @@ hfss.post.create_report(
     context="3D",
     report_category="Far Fields",
 )
+
+###############################################################################
+# Postprocessing
+# --------------
+# The same report can be obtained outside electronic desktop with the
+# following commands.
+
+solutions = hfss.post.get_solution_data(
+    "GainTotal",
+    hfss.nominal_adaptive,
+    variations,
+    primary_sweep_variable="Theta",
+    context="3D",
+    report_category="Far Fields",
+)
+
+###############################################################################
+# 3D Plot
+# -------
+# plot_3d method created a 3d plot using matplotlib.
+
+solutions.plot_3d()
+
+###############################################################################
+# 2D Plot
+# -------
+# plot method created a 2d plot using matplotlib. is_polar boolean let you
+# decide if a polar plot or rectangular plot has to be created.
+
+solutions.plot(math_formula="db20", is_polar=True)
 
 ###############################################################################
 # Close AEDT

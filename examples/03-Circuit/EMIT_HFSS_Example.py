@@ -1,9 +1,19 @@
 """
 EMIT Example
 ------------
-This tutorial shows how you can use PyAEDT to create a project in EMIT.
+This tutorial shows how you can use PyAEDT to open an AEDT project with
+an HFSS design, create an EMIT design in the project, then link the HFSS design
+as a coupling link in the EMIT design.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/emit.png'
+import os
+import tempfile
+
+# Import required modules
+from pyaedt.generic.filesystem import Scratch
+
+# Setup paths for module imports
+from _unittest.conftest import scratch_path
 
 from pyaedt import Emit
 from pyaedt import Desktop
@@ -13,10 +23,11 @@ from pyaedt import Desktop
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Change NonGraphical Boolean to False to open AEDT in graphical mode
 # With NewThread = False, an existing instance of AEDT will be used, if
-# available. This example will use AEDT 2022R1
+# available. This example will use AEDT 2022.2
+
 NonGraphical = False
-NewThread = False
-desktop_version = "2022.1"
+NewThread = True
+desktop_version = "2022.2"
 
 
 ###############################################################################
@@ -27,10 +38,49 @@ desktop_version = "2022.1"
 # to create a new instance of AEDT or try to connect to existing instance of
 # it.
 d = Desktop(desktop_version, NonGraphical, NewThread)
-aedtapp = Emit()
+tmpfold = tempfile.gettempdir()
 
+temp_folder = os.path.join(tmpfold, ("EmitHFSSExample"))
+if not os.path.exists(temp_folder):
+    os.mkdir(temp_folder)
 
+example_name = "Cell Phone RFI Desense"
+example_aedt = example_name + ".aedt"
+example_lock = example_aedt + ".lock"
+example_pdf_file = example_name + " Example.pdf"
+
+example_dir = os.path.join(d.install_path, "Examples\\EMIT")
+example_project = os.path.join(example_dir, example_aedt)
+example_pdf = os.path.join(example_dir, example_pdf_file)
+
+# If the Cell phone example is not in the install dir, exit from this example.
+if not os.path.exists(example_project):
+    msg = """
+        Cell phone RFT Desense example file is not in the
+         Examples/EMIT directory under the EDT installation. You can not run this example.
+        """
+    print(msg)
+    d.force_close_desktop()
+    exit()
+
+my_project = os.path.join(temp_folder, example_aedt)
+my_project_lock = os.path.join(temp_folder, example_lock)
+my_project_pdf = os.path.join(temp_folder, example_pdf_file)
+
+if os.path.exists(my_project):
+    os.remove(my_project)
+
+if os.path.exists(my_project_lock):
+    os.remove(my_project_lock)
+
+with Scratch(scratch_path) as local_scratch:
+    local_scratch.copyfile(example_project, my_project)
+    if os.path.exists(example_pdf):
+        local_scratch.copyfile(example_pdf, my_project_pdf)
+
+aedtapp = Emit(my_project)
 ###############################################################################
+
 # Create and Connect EMIT Components
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create 3 radios and connect an antenna to each.
@@ -44,18 +94,14 @@ ant2 = aedtapp.modeler.components.create_component("Antenna")
 if rad2 and ant2:
     ant2.move_and_connect_to(rad2)
 
-rad3 = aedtapp.modeler.components.create_component("Bluetooth")
-ant3 = aedtapp.modeler.components.create_component("Antenna")
-if rad3 and ant3:
-    ant3.move_and_connect_to(rad3)
-
-
 ###############################################################################
 # Define Coupling Among the RF Systems
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This portion of the EMIT API is not yet implemented.
+for link in aedtapp.couplings.linkable_design_names:
+    aedtapp.couplings.add_link(link)
 
-
+for link in aedtapp.couplings.coupling_names:
+    aedtapp.couplings.update_link(link)
 ###############################################################################
 # Run the EMIT Simulation
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

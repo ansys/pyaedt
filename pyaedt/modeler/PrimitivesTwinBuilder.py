@@ -120,7 +120,7 @@ class TwinBuilderComponents(CircuitComponents):
         return id
 
     @pyaedt_function_handler()
-    def create_inductor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_inductor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
         Parameters
@@ -146,6 +146,9 @@ class TwinBuilderComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location == None:
+            location = []
+
         id = self.create_component(
             compname,
             component_library="Basic Elements\\Circuit\\Passive Elements",

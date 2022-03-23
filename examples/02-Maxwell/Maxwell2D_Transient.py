@@ -35,7 +35,7 @@ non_graphical = True
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example inserts a Maxwell 2D design and then saves the project.
 
-maxwell_2d = Maxwell2d(solution_type="TransientXY", specified_version="2021.2", non_graphical=non_graphical)
+maxwell_2d = Maxwell2d(solution_type="TransientXY", specified_version="2022.1", non_graphical=non_graphical)
 project_dir = maxwell_2d.generate_temp_project_directory("Example")
 maxwell_2d.save_project(os.path.join(project_dir, "M2d.aedt"))
 
@@ -105,9 +105,6 @@ maxwell_2d.analyze_nominal()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example creates the output and then plots it using PyVista.
 
-import time
-
-start = time.time()
 cutlist = ["Global:XY"]
 face_lists = rect1.faces
 face_lists += rect2.faces
@@ -124,6 +121,14 @@ animatedGif = maxwell_2d.post.animate_fields_from_aedtplt_2(
     export_gif=True,
 )
 
+###############################################################################
+# Postprocessing
+# --------------
+# The same report can be obtained outside electronic desktop with the
+# following commands.
+
+solutions = maxwell_2d.post.get_solution_data("InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time")
+solutions.plot()
 
 ###############################################
 # Close AEDT
