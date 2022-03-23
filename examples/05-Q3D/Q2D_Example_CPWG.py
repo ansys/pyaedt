@@ -167,7 +167,7 @@ a = q.post.get_solution_data(expressions="Z0(signal,signal)", context="Original"
 a.plot()
 
 ###############################################################################
-# Save the project and exist
+# Save the project and exit
 
 home = os.path.expanduser("~")
 q.save_project(os.path.join(home, "Downloads", "pyaedt_example", q.project_name + ".aedt"))
