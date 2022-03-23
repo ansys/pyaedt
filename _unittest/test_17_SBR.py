@@ -126,7 +126,6 @@ class TestClass(BasisTest, object):
         assert "PulseSweep" in sweep.name
         assert setup.props["SbrRangeDopplerWaveformType"] == "PulseDoppler"
         assert sweep.props["Sim. Setups"] == [setup.name]
-        assert sweep.props["Sim. Setups"] == [setup.name]
 
     def test_10_add_chirp_sweep(self):
         setup, sweep = self.aedtapp.create_sbr_chirp_i_doppler_setup(sweep_time_duration=20)
