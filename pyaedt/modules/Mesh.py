@@ -382,8 +382,8 @@ class Mesh(object):
         aspect_ratio_enable = 2
 
         if not surf_dev:
-            surf_dev_enable = 1
-            surf_dev = "0.001"
+            surf_dev_enable = 0
+            surf_dev = "0.0001"
 
         if not normal_dev:
             normal_dev_enable = 1
