@@ -169,7 +169,7 @@ mesh.assign_length_mesh([mesh_operation_cylinder], maxlength=15, maxel=None, mes
 # -----------------
 # A region with openings is needed to run the analysis.
 
-region = hfss.modeler.create_region(pad_percent=25)
+region = hfss.modeler.create_region(pad_percent=1000)
 
 
 ###############################################################################
@@ -179,7 +179,7 @@ region = hfss.modeler.create_region(pad_percent=25)
 
 setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "50MHz"
-setup.props["MaximumPasses"] = 1
+setup.props["MaximumPasses"] = 10
 hfss.create_linear_count_sweep(
     setupname=setup.name,
     unit="MHz",
@@ -187,7 +187,7 @@ hfss.create_linear_count_sweep(
     freqstop=100,
     num_of_freq_points=100,
     sweepname="sweep1",
-    sweep_type="Discrete",
+    sweep_type="Interpolating",
     save_fields=False,
 )
 
@@ -196,3 +196,16 @@ hfss.create_linear_count_sweep(
 # ----------------
 
 hfss.save_project(os.path.join(temp_folder, "MyChoke.aedt"))
+
+
+###############################################################################
+# Close AEDT
+# ~~~~~~~~~~
+# After the simulaton is completed, you can close AEDT or release it using the
+# :func:`pyaedt.Desktop.release_desktop` method.
+# All methods provide for saving the project before exiting.
+
+"""
+if os.name != "posix":
+    desktop.release_desktop()
+"""
