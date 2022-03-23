@@ -820,19 +820,25 @@ class Polyline(Object3d):
         except:
             end_point = []
 
+        segment_id = 1
         segment_index = 0
         num_vertices = len(self.vertices)
         for vertex in self.vertices:
             if vertex.position == end_point:
+                if vertex.id == self.vertices[0].id:
+                    segment_id = 0
                 at_start = True
                 break
-            elif vertex.position == start_point:
+            # If start_point=[0, 0, 0] (a list of integers provided by the user), it won't be equal to vertex.position
+            # that returns a list of float: [0., 0., 0.]. Thus we cast start_point as a list of floats.
+            elif vertex.position == [float(x) for x in start_point]:
                 at_start = False
                 if segment_index > 0:
                     segment_index -= 1
                 break
             segment_index += 1
         id_v = 0
+
         if isinstance(self._segment_types, list):
             s_types = [i for i in self._segment_types]
         else:
@@ -879,7 +885,7 @@ class Polyline(Object3d):
             varg2 = ["NAME:Geometry3DPolylineTab"]
 
             varg3 = ["NAME:PropServers"]
-            varg3.append(self._m_name + ":CreatePolyline:1" + ":Segment1")
+            varg3.append(self._m_name + ":CreatePolyline:1" + ":Segment" + str(segment_id))
             varg2.append(varg3)
 
             varg4 = ["NAME:ChangedProps"]
