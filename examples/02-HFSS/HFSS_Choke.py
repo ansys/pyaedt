@@ -149,7 +149,9 @@ port_dimension_list = [2, dictionary_values[1]["Outer Winding"]["Wire Diameter"]
 for position in port_position_list:
     sheet = hfss.modeler.create_rectangle("XZ", position, port_dimension_list, name="sheet_port")
     sheet.move([-dictionary_values[1]["Outer Winding"]["Wire Diameter"] / 2, 0, -1])
-    hfss.create_lumped_port_to_sheet(sheet.name, portname="port", reference_object_list=[ground])
+    hfss.create_lumped_port_to_sheet(sheet.name,
+                                     portname="port_" + str(port_position_list.index(position) + 1),
+                                     reference_object_list=[ground])
 
 ###############################################################################
 # Create Mesh Operation
