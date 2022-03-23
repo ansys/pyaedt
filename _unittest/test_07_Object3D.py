@@ -79,8 +79,12 @@ class TestClass(BasisTest, object):
         time_fn(self.create_copper_box_test_performance)
 
     def test_01_bounding_box(self):
+        l1 = len(self.aedtapp.modeler.solid_objects)
         o = self.create_copper_box()
-        a = o.color
+        assert len(self.aedtapp.modeler.solid_objects) == l1 + 1
+        assert len(self.aedtapp.modeler.sheet_objects) == 0
+        assert len(self.aedtapp.modeler.line_objects) == 0
+        assert isinstance(o.color, tuple)
         bb = o.bounding_box
         assert len(bb) == 6
 

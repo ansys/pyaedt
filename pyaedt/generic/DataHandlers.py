@@ -84,6 +84,14 @@ def _dict2arg(d, arg_out):
             else:
                 arg = ["NAME:" + k, v[0], v[1]]
                 arg_out.append(arg)
+        elif k == "Range":
+            if isinstance(v[0], (list, tuple)):
+                for e in v:
+                    arg_out.append(k + ":=")
+                    arg_out.append([i for i in e])
+            else:
+                arg_out.append(k + ":=")
+                arg_out.append([i for i in v])
         elif isinstance(v, (OrderedDict, dict)):
             arg = ["NAME:" + k]
             _dict2arg(v, arg)
