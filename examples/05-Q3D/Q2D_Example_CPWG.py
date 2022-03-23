@@ -141,6 +141,11 @@ with Desktop("2022.1", non_graphical=NonGraphical, new_desktop_session=True) as 
     )
 
     ###############################################################################
+    # Assign Huray model on signal
+    obj = q.modeler.get_object_from_name("signal")
+    q.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_" + obj.name)
+
+    ###############################################################################
     # Create setup
 
     setup = q.create_setup(setupname="new_setup")
