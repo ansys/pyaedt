@@ -90,16 +90,14 @@ class Edb(object):
     >>> from pyaedt import Edb
     >>> app = Edb()
 
-    Create an `Edb` object and open the specified project.
+    Create an ``Edb`` object and open the specified project.
 
     >>> app = Edb("myfile.aedb")
 
-    Create an `Edb` object from a GDS and control File.
-    The XML control file resides in the same directory as the
-    GDS file: (myfile.xml)
+    Create an ``Edb`` object from a GDS and control File.
+    The XML control file resides in the same directory as the GDS file: (myfile.xml).
 
-    >>> app = Edb("\\path\to\file\myfile.gds")
-
+    >>> app = Edb(r"\path\to\file\myfile.gds")
     """
 
     def __init__(
