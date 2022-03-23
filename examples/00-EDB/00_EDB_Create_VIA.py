@@ -8,7 +8,7 @@ This example shows how to use EDB to create a layout.
 ###############################################################################
 # Import the EDB Layout Object
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example imports the EDB layout object and initializes it on version 2022R2.
+# This example imports the EDB layout object and initializes it on version 2022R1.
 
 import time
 import os

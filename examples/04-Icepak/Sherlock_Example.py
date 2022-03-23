@@ -37,7 +37,7 @@ outline_polygon_name = "poly_14188"
 ###############################################################################
 # Import PyAEDT and Launch AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example launches AEDT 2022R2 in graphical mode.
+# This example launches AEDT 2022R1 in graphical mode.
 
 from pyaedt import Icepak
 from pyaedt import Desktop

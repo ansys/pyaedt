@@ -275,8 +275,12 @@ class CommonOptimetrics(object):
         goal_value=1,
         goal_weight=1,
     ):
+        self.auto_update = False
         if not solution:
             solution = self._app.nominal_sweep
+        setupname = [solution.split(" ")[0]]
+        if setupname not in self.props["Sim. Setups"]:
+            self.props["Sim. Setups"].append(setupname)
         domain = "Time"
         if "Freq" in ranges or "Phase" in ranges or "Theta" in ranges:
             domain = "Sweep"
@@ -341,6 +345,7 @@ class CommonOptimetrics(object):
                 {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]}
             )
             sweepdefinition["Weight"] = "[{};]".format(goal_weight)
+        self.auto_update = True
         return self.update()
 
     @pyaedt_function_handler()
@@ -392,10 +397,14 @@ class CommonOptimetrics(object):
         -------
 
         """
+        self.auto_update = False
         sweepdefinition = OrderedDict()
         sweepdefinition["ReportType"] = reporttype
         if not solution:
             solution = self._app.nominal_sweep
+        setupname = [solution.split(" ")[0]]
+        if setupname not in self.props["Sim. Setups"]:
+            self.props["Sim. Setups"].append(setupname)
         sweepdefinition["Solution"] = solution
         sweepdefinition["SimValueContext"] = OrderedDict({"Domain": domain})
         sweepdefinition["Calculation"] = calculation
@@ -453,6 +462,7 @@ class CommonOptimetrics(object):
                 self.props[optigoalname]["Goal"].append(sweepdefinition)
         else:
             self.props[optigoalname]["Goal"] = sweepdefinition
+        self.auto_update = True
         return self.update()
 
     @pyaedt_function_handler()
@@ -799,7 +809,7 @@ class ParametricSetups(object):
         setup = SetupParam(self._app, parametricname, optim_type="OptiParametric")
         setup.auto_update = False
 
-        setup.props["Sim. Setups"] = setupname
+        setup.props["Sim. Setups"] = [setupname]
         setup.props["Sweeps"] = OrderedDict({"SweepDefinition": None})
         for v, k in sweeps.items():
             self._app.activate_variable_tuning(v)
@@ -987,7 +997,7 @@ class OptimizationSetups(object):
             subdesign_id,
             polyline_points,
         )
-        setup.props["Sim. Setups"] = setupname
+        setup.props["Sim. Setups"] = [setupname]
         setup.props["Goals"]["Goal"] = sweepdefinition
         dx_variables = {}
         for el in list(ranges.keys()):

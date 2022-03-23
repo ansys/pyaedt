@@ -21,7 +21,7 @@ NonGraphical = False
 ###############################################################################
 # Launch AEDT and Q3D
 # ~~~~~~~~~~~~~~~~~~~
-# This example launches AEDT 2022R2 in graphical mode.
+# This example launches AEDT 2022R1 in graphical mode.
 
 # This example use SI units.
 

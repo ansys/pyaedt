@@ -7,7 +7,7 @@ This example shows how you can use PyAEDT to create a Multipart Scenario in SBR+
 ###############################################################################
 # Launch AEDT in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2022R2 in graphical mode.
+# This examples launches AEDT 2022R1 in graphical mode.
 import os
 import tempfile
 import pyaedt

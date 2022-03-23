@@ -8,7 +8,7 @@ The example file is an Icepak Project with a model already created and with mate
 ###############################################################################
 # Launch AEDT in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2022R2 in graphical mode.
+# This examples launches AEDT 2022R1 in graphical mode.
 
 import os
 import tempfile

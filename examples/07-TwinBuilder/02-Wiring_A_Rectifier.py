@@ -17,7 +17,7 @@ from pyaedt import TwinBuilder
 ###############################################################################
 # Select Version and Launch Options
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example launches Twin Builder 2022R2 in graphical mode.
+# This example launches Twin Builder 2022R1 in graphical mode.
 
 # You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
 # Twin Builder in non graphical mode.

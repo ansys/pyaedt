@@ -571,7 +571,9 @@ class TestClass(BasisTest, object):
         setup1 = self.aedtapp.parametrics.add({"w1": "LIN 0.1mm 20mm 0.2mm"})
         assert setup1
         assert setup1.add_variation("w2", "0.1mm", 10, 11)
-        assert setup1.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
+        assert setup1.add_calculation(
+            calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, solution="MySetupForSweep : LastAdaptive"
+        )
         assert setup1.name in self.aedtapp.get_oo_name(
             self.aedtapp.odesign, r"Optimetrics".format(self.aedtapp.design_name)
         )

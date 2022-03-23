@@ -21,7 +21,7 @@ if not os.path.exists(temp_folder):
 ###############################################################################
 # Launch AEDT in Graphical Mode
 # -----------------------------
-# This example launches AEDT 2022R2 in graphical mode.
+# This example launches AEDT 2022R1 in graphical mode.
 
 nongraphical = False
 d = Desktop("2022.1", non_graphical=nongraphical, new_desktop_session=True)

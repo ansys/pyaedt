@@ -8,7 +8,7 @@ This example shows how to use HFSS 3D Layout to create and solve a 5G linear arr
 ###############################################################################
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example imports the `Hfss3dlayout` object and initializes it on version
-# 2022R2.
+# 2022R1.
 import tempfile
 from pyaedt import Edb
 from pyaedt.generic.general_methods import generate_unique_name

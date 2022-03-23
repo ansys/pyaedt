@@ -31,7 +31,7 @@ shutil.copytree(example_path[:-8], targetfolder)
 # Launch EDB
 # ~~~~~~~~~~
 # This example launches the :class:`pyaedt.Edb` class.
-# This example uses EDB 2022R2 and uses SI units.
+# This example uses EDB 2022R1 and uses SI units.
 
 edb = Edb(edbpath=targetfolder, edbversion="2022.1")
 
