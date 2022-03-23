@@ -693,7 +693,14 @@ class VariableManager(object):
 
     @pyaedt_function_handler()
     def set_variable(
-        self, variable_name, expression=None, readonly=False, hidden=False, description=None, overwrite=True
+        self,
+        variable_name,
+        expression=None,
+        readonly=False,
+        hidden=False,
+        description=None,
+        overwrite=True,
+        postprocessing=False,
     ):
         """Set the value of a design property or project variable.
 
@@ -763,9 +770,9 @@ class VariableManager(object):
         test = desktop_object.GetName()
         proj_name = self._oproject.GetName()
         var_type = "Project" if "$" in variable_name[0] else "Local"
-
         prop_type = "VariableProp"
-
+        if postprocessing or "post" in variable_name.lower()[0:5]:
+            prop_type = "PostProcessingVariableProp"
         if isinstance(expression, str):
             # Handle string type variable (including arbitrary expression)# Handle input type variable
             variable = expression
@@ -789,16 +796,13 @@ class VariableManager(object):
             except:
                 pass
         else:
-            raise Exception("Unhandled input type to the design property or project variable.")
-
-        if "post" in variable_name.lower()[0:5]:
-            prop_type = "PostProcessingVariableProp"
+            raise Exception("Unhandled input type to the design property or project variable.")  # pragma: no cover
 
         # Get all design and project variables in lower case for a case-sensitive comparison
         if self._app._is_object_oriented_enabled():
             var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
         else:
-            var_list = list(desktop_object.GetVariables())
+            var_list = list(desktop_object.GetVariables())  # pragma: no cover
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
         if variable_name.lower() not in lower_case_vars:
@@ -880,7 +884,13 @@ class VariableManager(object):
                     ],
                 ]
             )
-
+        if self._app._is_object_oriented_enabled():
+            var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
+        else:
+            var_list = list(desktop_object.GetVariables())  # pragma: no cover
+        lower_case_vars = [var_name.lower() for var_name in var_list]
+        if variable_name not in lower_case_vars:
+            return False
         return True
 
     @pyaedt_function_handler()
@@ -950,7 +960,7 @@ class VariableManager(object):
         if self._app._is_object_oriented_enabled():
             var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
         else:
-            var_list = list(desktop_object.GetVariables())
+            var_list = list(desktop_object.GetVariables())  # pragma: no cover
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
         if var_name.lower() in lower_case_vars:
