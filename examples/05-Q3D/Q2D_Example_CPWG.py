@@ -27,8 +27,7 @@ NonGraphical = True
 # This example use SI units.
 
 with Desktop("2022.1", non_graphical=NonGraphical, new_desktop_session=True) as d:
-    q = Q2d(projectname=generate_unique_name("pyaedt_q2d_example"), designname="coplanar_waveguide"
-            )
+    q = Q2d(projectname=generate_unique_name("pyaedt_q2d_example"), designname="coplanar_waveguide")
 
     ###############################################################################
     # Create variables
@@ -42,13 +41,15 @@ with Desktop("2022.1", non_graphical=NonGraphical, new_desktop_session=True) as 
     d_h = "d_h"
     sm_h = "sm_h"
 
-    for var_name, var_value in {"sig_bot_w": "150um",
-                                "e_factor": "2",
-                                "gnd_w": "500um",
-                                "clearance": "150um",
-                                "cond_h": "50um",
-                                "d_h": "150um",
-                                "sm_h": "20um"}.items():
+    for var_name, var_value in {
+        "sig_bot_w": "150um",
+        "e_factor": "2",
+        "gnd_w": "500um",
+        "clearance": "150um",
+        "cond_h": "50um",
+        "d_h": "150um",
+        "sm_h": "20um",
+    }.items():
         q[var_name] = var_value
 
     delta_w_half = "({0}/{1})".format(cond_h, e_factor)
@@ -93,8 +94,9 @@ with Desktop("2022.1", non_graphical=NonGraphical, new_desktop_session=True) as 
 
     # ~~~~~~~~~~~~~~~~~
     # Create dielectric
-    q.modeler.create_rectangle(position=[0, layer_1_uh, 0], dimension_list=[model_w, d_h], name="Dielectric",
-                               matname="FR4_epoxy")
+    q.modeler.create_rectangle(
+        position=[0, layer_1_uh, 0], dimension_list=[model_w, d_h], name="Dielectric", matname="FR4_epoxy"
+    )
 
     # ~~~~~~~~~~~~~~~~~
     # Create conformal coating
@@ -128,13 +130,15 @@ with Desktop("2022.1", non_graphical=NonGraphical, new_desktop_session=True) as 
     # ~~~~~~~~~~~~~~~~~
     # Signal
     obj = q.modeler.get_object_from_name("signal")
-    q.assign_single_conductor(name=obj.name, target_objects=[obj], conductor_type="SignalLine",
-                              solve_option="SolveOnBoundary", unit="mm")
+    q.assign_single_conductor(
+        name=obj.name, target_objects=[obj], conductor_type="SignalLine", solve_option="SolveOnBoundary", unit="mm"
+    )
     # ~~~~~~~~~~~~~~~~~
     # Reference ground
     obj = [q.modeler.get_object_from_name(i) for i in ["co_gnd_left", "co_gnd_right"]]
-    q.assign_single_conductor(name="gnd", target_objects=obj, conductor_type="ReferenceGround",
-                              solve_option="SolveOnBoundary", unit="mm")
+    q.assign_single_conductor(
+        name="gnd", target_objects=obj, conductor_type="ReferenceGround", solve_option="SolveOnBoundary", unit="mm"
+    )
 
     ###############################################################################
     # Create setup
