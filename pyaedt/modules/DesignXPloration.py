@@ -803,7 +803,7 @@ class ParametricSetups(object):
         """
         if not solution:
             solution = self._app.nominal_sweep
-        setupname = [solution.split(" ")[0]]
+        setupname = solution.split(" ")[0]
         if not parametricname:
             parametricname = generate_unique_name("Parametric")
         setup = SetupParam(self._app, parametricname, optim_type="OptiParametric")
@@ -961,7 +961,7 @@ class OptimizationSetups(object):
         """
         if not solution:
             solution = self._app.nominal_sweep
-        setupname = [solution.split(" ")[0]]
+        setupname = solution.split(" ")[0]
         domain = "Time"
         if "Freq" in ranges or "Phase" in ranges or "Theta" in ranges:
             domain = "Sweep"
