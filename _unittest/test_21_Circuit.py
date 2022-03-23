@@ -83,7 +83,7 @@ class TestClass(BasisTest, object):
     def test_06a_create_setup(self):
         setup_name = "LNA"
         LNA_setup = self.aedtapp.create_setup(setup_name)
-        assert LNA_setup
+        assert LNA_setup.name == "LNA"
 
     def test_06b_add_3dlayout_component(self):
         myedb = self.aedtapp.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
@@ -118,6 +118,7 @@ class TestClass(BasisTest, object):
 
     def test_09_import_netlist(self):
         self.aedtapp.insert_design("SchematicImport")
+        self.aedtapp.modeler.schematic.limits_mils = 5000
         assert self.aedtapp.create_schematic_from_netlist(os.path.join(self.local_scratch.path, netlist1))
 
     def test_10_import_touchstone(self):
@@ -176,6 +177,10 @@ class TestClass(BasisTest, object):
         assert data.data_real()
         assert data.data_imag()
         assert data.data_db()
+
+        data_with_verbose = read_touchstone(os.path.join(self.local_scratch.path, touchstone), verbose=True)
+        assert max(data_with_verbose.data_magnitude()) > 0.37
+        assert max(data_with_verbose.data_magnitude()) < 0.38
 
     def test_17_create_setup(self):
         setup_name = "Dom_LNA"

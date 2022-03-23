@@ -170,7 +170,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 elif fields[0][0] == "D":
                     value = fields[3][fields[3].find("=") + 1 :].strip()
                     mycomp = self.modeler.schematic.create_diode(
-                        name, value, [xpos, ypos], use_instance_id_netlist=use_instance
+                        name, [xpos, ypos], use_instance_id_netlist=use_instance
                     )
                 if mycomp:
                     id = 1

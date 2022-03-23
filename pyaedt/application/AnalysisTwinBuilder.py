@@ -21,7 +21,7 @@ class AnalysisTwinBuilder(Analysis):
 
     @property
     def existing_analysis_setups(self):
-        """Existing analysis setups.
+        """Get all analysis solution setups.
 
         References
         ----------

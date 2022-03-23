@@ -430,7 +430,7 @@ class FieldAnalysis3D(Analysis, object):
         return self.export_3d_model(fileName, filePath, fileFormat, object_list, removed_objects)
 
     @pyaedt_function_handler()
-    def export_3d_model(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
+    def export_3d_model(self, fileName, filePath, fileFormat=".step", object_list=None, removed_objects=None):
         """Export the 3D model.
 
         Parameters
@@ -456,6 +456,12 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> oEditor.Export
         """
+
+        if object_list == None:
+            object_list = []
+        if removed_objects == None:
+            removed_objects = []
+
         if not object_list:
             allObjects = self.modeler.object_names
             if removed_objects:
