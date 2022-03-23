@@ -97,7 +97,7 @@ class Edb(object):
     Create an ``Edb`` object from a GDS and control File.
     The XML control file resides in the same directory as the GDS file: (myfile.xml).
 
-    >>> app = Edb(r"\path\to\file\myfile.gds")
+    >>> app = Edb("/path/to/file/myfile.gds")
     """
 
     def __init__(
