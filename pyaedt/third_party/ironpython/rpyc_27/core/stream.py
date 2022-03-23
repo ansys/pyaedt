@@ -7,9 +7,9 @@ import sys
 import os
 import socket
 import errno
-from rpyc.lib import safe_import, Timeout, socket_backoff_connect
-from rpyc.lib.compat import poll, select_error, BYTES_LITERAL, get_exc_errno, maxint  # noqa: F401
-from rpyc.core.consts import STREAM_CHUNK
+from pyaedt.third_party.ironpython.rpyc_27.lib import safe_import, Timeout, socket_backoff_connect
+from pyaedt.third_party.ironpython.rpyc_27.lib.compat import poll, select_error, BYTES_LITERAL, get_exc_errno, maxint  # noqa: F401
+from pyaedt.third_party.ironpython.rpyc_27.core.consts import STREAM_CHUNK
 
 win32file = safe_import("win32file")
 win32pipe = safe_import("win32pipe")
@@ -512,7 +512,7 @@ class NamedPipeStream(Win32PipeStream):
         a newly-created *named pipe* of the given name.
 
         :param pipename: the name of the pipe. It will be considered absolute if
-                         it starts with ``\\\\.``; otherwise ``\\\\.\\pipe\\rpyc``
+                         it starts with ``\\\\.``; otherwise ``\\\\.\\pipe\\rpyc_ipy``
                          will be prepended.
         :param connect: whether to connect on creation or not
 
@@ -549,7 +549,7 @@ class NamedPipeStream(Win32PipeStream):
         a newly-created *named pipe* of the given name.
 
         :param pipename: the name of the pipe. It will be considered absolute if
-                         it starts with ``\\\\.``; otherwise ``\\\\.\\pipe\\rpyc``
+                         it starts with ``\\\\.``; otherwise ``\\\\.\\pipe\\rpyc_ipy``
                          will be prepended.
 
         :returns: a :class:`NamedPipeStream` instance

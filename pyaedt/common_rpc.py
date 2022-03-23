@@ -1,22 +1,27 @@
 import os
 import socket
-import sys
 import time
 
 from pyaedt import is_ironpython
 from pyaedt.generic.general_methods import convert_remote_object
 
+# import sys
+
 if is_ironpython:
     pyaedt_path = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
-    sys.path.insert(0, os.path.join(pyaedt_path, "third_party", "ironpython"))
-
-import rpyc
-from rpyc.utils.server import ThreadedServer
-from pyaedt.rpc.rpyc_services import GlobalService, check_port
-import rpyc.core.consts
+    # sys.path.insert(0, os.path.join(pyaedt_path, "third_party", "ironpython"))
+    from pyaedt.third_party.ironpython import rpyc_27 as rpyc
+    from pyaedt.third_party.ironpython.rpyc_27.utils.server import ThreadedServer
+    from pyaedt.rpc.rpyc_services import GlobalService, check_port
+    from pyaedt.third_party.ironpython.rpyc_27.core import consts
+else:
+    import rpyc
+    from rpyc.utils.server import ThreadedServer
+    from pyaedt.rpc.rpyc_services import GlobalService, check_port
+    from rpyc.core import consts
 
 # Maximum Stream message size. Set to 256MB
-rpyc.core.consts.STREAM_CHUNK = 256000000
+consts.STREAM_CHUNK = 256000000
 
 from pyaedt import is_ironpython
 

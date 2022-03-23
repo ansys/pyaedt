@@ -8,7 +8,7 @@ import logging
 import threading
 import time
 import random
-from rpyc.lib.compat import maxint  # noqa: F401
+from pyaedt.third_party.ironpython.rpyc_27.lib.compat import maxint  # noqa: F401
 
 
 class MissingModule(object):

@@ -1,6 +1,6 @@
 import time  # noqa: F401
-from rpyc.lib import Timeout
-from rpyc.lib.compat import TimeoutError as AsyncResultTimeout
+from pyaedt.third_party.ironpython.rpyc_27.lib import Timeout
+from pyaedt.third_party.ironpython.rpyc_27.lib.compat import TimeoutError as AsyncResultTimeout
 
 
 class AsyncResult(object):

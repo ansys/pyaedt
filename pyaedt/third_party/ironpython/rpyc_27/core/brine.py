@@ -17,7 +17,7 @@ Example::
  >>> x == z
  True
 """
-from rpyc.lib.compat import Struct, BytesIO, BYTES_LITERAL
+from pyaedt.third_party.ironpython.rpyc_27.lib.compat import Struct, BytesIO, BYTES_LITERAL
 
 
 # singletons

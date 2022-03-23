@@ -7,11 +7,11 @@ import time  # noqa: F401
 import gc  # noqa: F401
 
 from threading import Lock, Condition
-from rpyc.lib import spawn, Timeout, get_methods, get_id_pack
-from rpyc.lib.compat import pickle, next, maxint, select_error, acquire_lock  # noqa: F401
-from rpyc.lib.colls import WeakValueDict, RefCountingColl
-from rpyc.core import consts, brine, vinegar, netref
-from rpyc.core.async_ import AsyncResult
+from pyaedt.third_party.ironpython.rpyc_27.lib import spawn, Timeout, get_methods, get_id_pack
+from pyaedt.third_party.ironpython.rpyc_27.lib.compat import pickle, next, maxint, select_error, acquire_lock  # noqa: F401
+from pyaedt.third_party.ironpython.rpyc_27.lib.colls import WeakValueDict, RefCountingColl
+from pyaedt.third_party.ironpython.rpyc_27.core import consts, brine, vinegar, netref
+from pyaedt.third_party.ironpython.rpyc_27.core.async_ import AsyncResult
 
 
 class PingError(Exception):
@@ -198,8 +198,8 @@ _connection_id_generator = itertools.count(1)
 class Connection(object):
     """The RPyC *connection* (AKA *protocol*).
 
-    :param root: the :class:`~rpyc.core.service.Service` object to expose
-    :param channel: the :class:`~rpyc.core.channel.Channel` over which messages are passed
+    :param root: the :class:`~pyaedt.third_party.ironpython.rpyc_27.core.service.Service` object to expose
+    :param channel: the :class:`~pyaedt.third_party.ironpython.rpyc_27.core.channel.Channel` over which messages are passed
     :param config: the connection's configuration dict (overriding parameters
                    from the :data:`default configuration <DEFAULT_CONFIG>`)
     """
@@ -562,7 +562,7 @@ class Connection(object):
     def async_request(self, handler, *args, **kwargs):  # serving
         """Send an asynchronous request (does not wait for it to finish)
 
-        :returns: an :class:`rpyc.core.async_.AsyncResult` object, which will
+        :returns: an :class:`pyaedt.third_party.ironpython.rpyc_27.core.async_.AsyncResult` object, which will
                   eventually hold the result (or exception)
         """
         timeout = kwargs.pop("timeout", None)

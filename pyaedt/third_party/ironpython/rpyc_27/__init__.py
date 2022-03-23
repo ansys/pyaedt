@@ -19,15 +19,15 @@ library for python.
 
 Usage::
 
-    >>> import rpyc
-    >>> c = rpyc.connect_by_service("SERVICENAME")
+    >>> import rpyc_ipy
+    >>> c = pyaedt.third_party.ironpython.rpyc_27.connect_by_service("SERVICENAME")
     >>> print c.root.some_function(1, 2, 3)
 
 Classic-style usage::
 
-    >>> import rpyc
+    >>> import rpyc_ipy
     >>> # `hostname` is assumed to be running a slave-service server
-    >>> c = rpyc.classic.connect("hostname")
+    >>> c = pyaedt.third_party.ironpython.rpyc_27.classic.connect("hostname")
     >>> print c.execute("x = 5")
     None
     >>> print c.eval("x + 2")
@@ -42,7 +42,7 @@ Classic-style usage::
 
 """
 # flake8: noqa: F401
-from rpyc.core import (
+from pyaedt.third_party.ironpython.rpyc_27.core import (
     SocketStream,
     TunneledSocketStream,
     PipeStream,
@@ -58,7 +58,7 @@ from rpyc.core import (
     MasterService,
     ClassicService,
 )
-from rpyc.utils.factory import (
+from pyaedt.third_party.ironpython.rpyc_27.utils.factory import (
     connect_stream,
     connect_channel,
     connect_pipes,
@@ -71,12 +71,12 @@ from rpyc.utils.factory import (
     connect_thread,
     ssh_connect,
 )
-from rpyc.utils.helpers import async_, timed, buffiter, BgServingThread, restricted
-from rpyc.utils import classic
-from rpyc.version import version as __version__
+from pyaedt.third_party.ironpython.rpyc_27.utils.helpers import async_, timed, buffiter, BgServingThread, restricted
+from pyaedt.third_party.ironpython.rpyc_27.utils import classic
+from pyaedt.third_party.ironpython.rpyc_27.version import version as __version__
 
-from rpyc.lib import setup_logger, spawn
-from rpyc.utils.server import OneShotServer, ThreadedServer, ThreadPoolServer, ForkingServer
+from pyaedt.third_party.ironpython.rpyc_27.lib import setup_logger, spawn
+from pyaedt.third_party.ironpython.rpyc_27.utils.server import OneShotServer, ThreadedServer, ThreadPoolServer, ForkingServer
 
 __author__ = "Tomer Filiba (tomerfiliba@gmail.com)"
 

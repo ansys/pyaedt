@@ -1,11 +1,13 @@
 import os
 import sys
 import warnings
+from pyaedt import is_ironpython
 
-try:
+if is_ironpython:
+    from pyaedt.third_party.ironpython.rpyc_27.utils.server import ThreadedServer
+else:
     from rpyc.utils.server import ThreadedServer
-except ImportError:
-    warnings.warn("rpyc is needed to run the service")
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 from pyaedt.rpc.rpyc_services import PyaedtServiceWindows
