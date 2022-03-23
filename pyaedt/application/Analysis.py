@@ -1160,7 +1160,7 @@ class Analysis(Design, object):
         return setup_name
 
     @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
+    def create_setup(self, setupname="MySetupAuto", setuptype=None, props=None):
         """Create a setup.
 
         Parameters
@@ -1205,6 +1205,9 @@ class Analysis(Design, object):
         ...
         pyaedt info: Sweep was created correctly.
         """
+        if props == None:
+            props = {}
+
         if setuptype is None:
             setuptype = self.design_solutions.default_setup
         name = self.generate_unique_setup_name(setupname)
