@@ -2470,17 +2470,19 @@ class EDBComponent(object):
             ``"IC"``, ``"IO"`` and ``"Other"``.
         """
         if new_type == "Resistor":
-            type_id = 1
+            type_id = self._edb.Definition.ComponentType.Resistor
         elif new_type == "Inductor":
-            type_id = 2
+            type_id = self._edb.Definition.ComponentType.Inductor
         elif new_type == "Capacitor":
-            type_id = 3
+            type_id = self._edb.Definition.ComponentType.Capacitor
         elif new_type == "IC":
-            type_id = 4
+            type_id = self._edb.Definition.ComponentType.IC
         elif new_type == "IO":
-            type_id = 5
+            type_id = self._edb.Definition.ComponentType.IO
         elif new_type == "Other":
-            type_id = 0
+            type_id = self._edb.Definition.ComponentType.Other
+        else:
+            return
         self.edbcomponent.SetComponentType(type_id)
 
     @property
