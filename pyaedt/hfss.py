@@ -3020,7 +3020,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        sheet : str or int or :class:`pyaedt.modeler.Object3d.Object3d`
+        sheet : str or int or list or :class:`pyaedt.modeler.Object3d.Object3d`
             Name of the sheet.
         deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
@@ -3669,8 +3669,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        list of int
-            List of the port IDs where thickened sheets were created.
+        Dict
+            For each input sheet returns the port IDs where thickened sheets were created.
 
         References
         ----------
