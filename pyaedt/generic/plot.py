@@ -79,6 +79,7 @@ def is_float(istring):
         return 0
 
 
+@pyaedt_function_handler()
 def plot_polar_chart(
     plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None
 ):

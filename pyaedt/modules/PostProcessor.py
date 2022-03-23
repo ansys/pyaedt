@@ -25,6 +25,16 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.plot import plot_2d_chart, plot_polar_chart, plot_3d_chart
 
+if not is_ironpython:
+    try:
+        import numpy as np
+    except ImportError:
+        warnings.warn(
+            "The NumPy module is required to run some functionalities of PostProcess.\n"
+            "Install with \n\npip install numpy\n\nRequires CPython."
+        )
+
+
 orientation_to_view = {
     "isometric": "iso",
     "top": "XY",
@@ -70,6 +80,7 @@ class SolutionData(object):
             except:
                 self.nominal_sweeps[e] = None
         self._init_solutions_data()
+        self._ifft = None
 
     @property
     def sweeps(self):
@@ -760,6 +771,158 @@ class SolutionData(object):
         if not title:
             title = "Simulation Results Plot"
         return plot_3d_chart(data_plot, size, xlabel, ylabel, title, snapshot_path)
+
+    @pyaedt_function_handler()
+    def ifft(self, curve_header="NearE", u_axis="_u", v_axis="_v", window=False):
+        """Create IFFT of given complex data.
+
+        Parameters
+        ----------
+        curve_header : curve header. Solution data must contain 3 curves with X, Y and Z components of curve header.
+        u_axis : str, optional
+            U Axis name. Default is Hfss name "_u"
+        v_axis : str, optional
+            V Axis name. Default is Hfss name "_v"
+        window : bool, optional
+            Either if Hanning windowing has to be applied.
+
+        Returns
+        -------
+        List
+            IFFT Matrix.
+        """
+        if is_ironpython:
+            return False
+        u = self.sweeps[u_axis]
+        if v_axis:
+            v = self.sweeps[v_axis]
+        freq = self.sweeps["Freq"]
+        vals_real_Ex = [j for j in self.solutions_data_real[curve_header + "X"].values()]
+        vals_imag_Ex = [j for j in self.solutions_data_imag[curve_header + "X"].values()]
+        vals_real_Ey = [j for j in self.solutions_data_real[curve_header + "Y"].values()]
+        vals_imag_Ey = [j for j in self.solutions_data_imag[curve_header + "Y"].values()]
+        vals_real_Ez = [j for j in self.solutions_data_real[curve_header + "Z"].values()]
+        vals_imag_Ez = [j for j in self.solutions_data_imag[curve_header + "Z"].values()]
+
+        E_realx = np.reshape(vals_real_Ex, (len(freq), len(v), len(u)))
+        E_imagx = np.reshape(vals_imag_Ex, (len(freq), len(v), len(u)))
+        E_realy = np.reshape(vals_real_Ey, (len(freq), len(v), len(u)))
+        E_imagy = np.reshape(vals_imag_Ey, (len(freq), len(v), len(u)))
+        E_realz = np.reshape(vals_real_Ez, (len(freq), len(v), len(u)))
+        E_imagz = np.reshape(vals_imag_Ez, (len(freq), len(v), len(u)))
+
+        Temp_E_compx = E_realx + 1j * E_imagx  # Here is the complex FD data matrix, ready for transforming
+        Temp_E_compy = E_realy + 1j * E_imagy
+        Temp_E_compz = E_realz + 1j * E_imagz
+
+        E_compx = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
+        E_compy = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
+        E_compz = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
+        if window:
+            timewin = np.hanning(len(freq))
+
+            for row in range(0, len(v)):
+                for col in range(0, len(u)):
+                    E_compx[:, row, col] = np.multiply(Temp_E_compx[:, row, col], timewin)
+                    E_compy[:, row, col] = np.multiply(Temp_E_compy[:, row, col], timewin)
+                    E_compz[:, row, col] = np.multiply(Temp_E_compz[:, row, col], timewin)
+        else:
+            E_compx = Temp_E_compx
+            E_compy = Temp_E_compy
+            E_compz = Temp_E_compz
+
+        E_time_x = np.fft.ifft(np.fft.fftshift(E_compx, 0), len(freq), 0, None)
+        E_time_y = np.fft.ifft(np.fft.fftshift(E_compy, 0), len(freq), 0, None)
+        E_time_z = np.fft.ifft(np.fft.fftshift(E_compz, 0), len(freq), 0, None)
+        E_time = np.zeros((np.size(freq), np.size(v), np.size(u)))
+        for i in range(0, len(freq)):
+            E_time[i, :, :] = np.abs(
+                np.sqrt(np.square(E_time_x[i, :, :]) + np.square(E_time_y[i, :, :]) + np.square(E_time_z[i, :, :]))
+            )
+        self._ifft = E_time
+
+        return self._ifft
+
+    @pyaedt_function_handler()
+    def ifft_to_file(
+        self,
+        u_axis="_u",
+        v_axis="_v",
+        coord_system_center=None,
+        db_val=False,
+        num_frames=None,
+        csv_dir=None,
+        name_str="res_",
+    ):
+        """Save IFFT Matrix to a list of csv files (one per time step).
+
+        Parameters
+        ----------
+        u_axis : str, optional
+            U Axis name. Default is Hfss name "_u"
+        v_axis : str, optional
+            V Axis name. Default is Hfss name "_v"
+        coord_system_center : list, optional
+            List of UV GlobalCS Center.
+        db_val : bool, optional
+            Either if data has to be exported in db or not.
+        num_frames : int, optional
+            Number of frames to export.
+        csv_dir : str
+            Output path
+        name_str : str, optional
+            csv file header.
+
+        Returns
+        -------
+        str
+            Path to file containing the list of csv files.
+        """
+        if not coord_system_center:
+            coord_system_center = [0, 0, 0]
+        t_matrix = self._ifft
+        x_c_list = self.sweeps[u_axis]
+        y_c_list = self.sweeps[v_axis]
+        adj_x = coord_system_center[0]
+        adj_y = coord_system_center[1]
+        adj_z = coord_system_center[2]
+        if num_frames:
+            frames = num_frames
+        else:
+            frames = t_matrix.shape[0]
+        csv_list = []
+        if os.path.exists(csv_dir):
+            files = [os.path.join(csv_dir, f) for f in os.listdir(csv_dir) if name_str in f and ".csv" in f]
+            for file in files:
+                os.remove(file)
+        else:
+            os.mkdir(csv_dir)
+
+        for frame in range(frames):
+            output = os.path.join(csv_dir, name_str + str(frame) + ".csv")
+            list_full = [["x", "y", "z", "val"]]
+            for i, y in enumerate(y_c_list):
+
+                for j, x in enumerate(x_c_list):
+                    y_coord = y + adj_y
+                    x_coord = x + adj_x
+                    z_coord = adj_z
+                    if db_val:
+                        val = 10.0 * np.log10(np.abs(t_matrix[frame, i, j]))
+                    else:
+                        val = t_matrix[frame, i, j]
+                    row_lst = [x_coord, y_coord, z_coord, val]
+                    list_full.append(row_lst)
+            write_csv(output, list_full, delimiter=",")
+            csv_list.append(output)
+
+        txt_file_name = csv_dir + "fft_list.txt"
+        textfile = open(txt_file_name, "w")
+
+        for element in csv_list:
+            textfile.write(element + "\n")
+        textfile.close()
+        return txt_file_name
 
 
 class FieldPlot:
