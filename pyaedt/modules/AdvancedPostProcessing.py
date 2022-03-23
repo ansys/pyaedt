@@ -695,7 +695,7 @@ class PostProcessor(Post):
         fig1.set_size_inches(10, 10)
 
     @pyaedt_function_handler()
-    def plot_scene(self, frames_list, output_gif_path, norm_index=0, dy_rng=0, fps=30):
+    def plot_scene(self, frames_list, output_gif_path, norm_index=0, dy_rng=0, fps=30, show=True):
         """Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
 
 
@@ -714,6 +714,8 @@ class PostProcessor(Post):
             Tweak this a couple of times with small number of frames.
         fps : int, optional
             Frames per Second.
+        show : bool, optional
+            Either if show or only export gif.
 
         Returns
         -------
@@ -738,7 +740,7 @@ class PostProcessor(Post):
         scene.add_frames_from_file(frames_paths_list, log_scale=False, color_map="jet", header_lines=1, opacity=0.8)
 
         # Specifying the attributes of the scene through the ModelPlotter object
-        scene.off_screen = False
+        scene.off_screen = not show
         scene.isometric_view = False
         scene.range_min = v_min
         scene.range_max = v_max
