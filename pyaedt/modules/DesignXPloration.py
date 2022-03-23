@@ -99,6 +99,7 @@ class CommonOptimetrics(object):
         context=None,
         subdesign_id=None,
         polyline_points=0,
+        is_goal=False,
     ):
         did = 3
         if domain != "Sweep":
@@ -204,12 +205,12 @@ class CommonOptimetrics(object):
                 else:
                     sweepdefinition["Ranges"]["Range"] = [sweepdefinition["Ranges"]["Range"]]
                     sweepdefinition["Ranges"]["Range"].append(tuple(r))
-
-        sweepdefinition["Condition"] = condition
-        sweepdefinition["GoalValue"] = OrderedDict(
-            {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]}
-        )
-        sweepdefinition["Weight"] = "[{};]".format(goal_weight)
+        if is_goal:
+            sweepdefinition["Condition"] = condition
+            sweepdefinition["GoalValue"] = OrderedDict(
+                {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]}
+            )
+            sweepdefinition["Weight"] = "[{};]".format(goal_weight)
         return sweepdefinition
 
     @pyaedt_function_handler()
@@ -278,7 +279,7 @@ class CommonOptimetrics(object):
         self.auto_update = False
         if not solution:
             solution = self._app.nominal_sweep
-        setupname = [solution.split(" ")[0]]
+        setupname = solution.split(" ")[0]
         if setupname not in self.props["Sim. Setups"]:
             self.props["Sim. Setups"].append(setupname)
         domain = "Time"
@@ -309,6 +310,7 @@ class CommonOptimetrics(object):
             context,
             subdesign_id,
             polyline_points,
+            is_goal,
         )
         dx_variables = {}
         for el in list(ranges.keys()):
@@ -338,13 +340,8 @@ class CommonOptimetrics(object):
             else:
                 self.props[optigoalname]["Goal"].append(sweepdefinition)
         else:
+            self.props[optigoalname] = OrderedDict({})
             self.props[optigoalname]["Goal"] = sweepdefinition
-        if is_goal:
-            sweepdefinition["Condition"] = condition
-            sweepdefinition["GoalValue"] = OrderedDict(
-                {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]}
-            )
-            sweepdefinition["Weight"] = "[{};]".format(goal_weight)
         self.auto_update = True
         return self.update()
 
@@ -402,7 +399,7 @@ class CommonOptimetrics(object):
         sweepdefinition["ReportType"] = reporttype
         if not solution:
             solution = self._app.nominal_sweep
-        setupname = [solution.split(" ")[0]]
+        setupname = solution.split(" ")[0]
         if setupname not in self.props["Sim. Setups"]:
             self.props["Sim. Setups"].append(setupname)
         sweepdefinition["Solution"] = solution
@@ -461,6 +458,7 @@ class CommonOptimetrics(object):
             else:
                 self.props[optigoalname]["Goal"].append(sweepdefinition)
         else:
+            self.props[optigoalname] = OrderedDict({})
             self.props[optigoalname]["Goal"] = sweepdefinition
         self.auto_update = True
         return self.update()
@@ -996,6 +994,7 @@ class OptimizationSetups(object):
             context,
             subdesign_id,
             polyline_points,
+            is_goal=True,
         )
         setup.props["Sim. Setups"] = [setupname]
         setup.props["Goals"]["Goal"] = sweepdefinition
