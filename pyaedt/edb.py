@@ -65,9 +65,9 @@ class Edb(object):
     edbpath : str, optional
         Full path to the ``aedb`` folder. The variable can also contain
         the path to a layout to import. Allowed formats are BRD,
-        XML (IPC2581), GDS, and DXF. The default is ``None``.  For GDS
-        import the Ansys control file (also XML) should have the same name
-        as the GDS file except, of course, for the file extension.
+        XML (IPC2581), GDS, and DXF. The default is ``None``.
+        For GDS import the Ansys control file (also XML) should have the same
+        name as the GDS file except, of course, for the file extension.
     cellname : str, optional
         Name of the cell to select. The default is ``None``.
     isreadonly : bool, optional
