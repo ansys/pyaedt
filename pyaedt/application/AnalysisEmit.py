@@ -1,5 +1,6 @@
 from pyaedt.application.Design import Design
 from pyaedt.modeler.Circuit import ModelerEmit
+from pyaedt.emit_core.Couplings import CouplingsEmit
 
 
 class FieldAnalysisEmit(Design):
@@ -50,6 +51,7 @@ class FieldAnalysisEmit(Design):
         self.solution_type = solution_type
         self.oanalysis = None
         self._modeler = ModelerEmit(self)
+        self._couplings = CouplingsEmit(self)
 
     @property
     def modeler(self):
@@ -61,3 +63,14 @@ class FieldAnalysisEmit(Design):
             Design oModeler
         """
         return self._modeler
+
+    @property
+    def couplings(self):
+        """Emit Couplings.
+
+        Returns
+        -------
+        pyaedt.emit_core.Couplings.CouplingsEmit
+            Couplings within the EMIT Design
+        """
+        return self._couplings

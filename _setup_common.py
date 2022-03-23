@@ -52,6 +52,7 @@ packages = [
     "pyaedt.modules",
     "pyaedt.generic",
     "pyaedt.edb_core",
+    "pyaedt.emit_core",
     "pyaedt.examples",
     "pyaedt.rpc",
     "pyaedt.third_party",
