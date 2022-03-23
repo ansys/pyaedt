@@ -4,30 +4,16 @@ name: Style Check
 on: [pull_request, workflow_dispatch]
 
 jobs:
-  build:
-    runs-on: ubuntu-20.04
-
+  stylecheck:
+    name: Style Check
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v2.2.2
         with:
-          python-version: 3.8
-
-      - name: Install style requirements
-        run: |
-          pip install -r requirements_style.txt --disable-pip-version-check
-
-      - name: black style
-        run: |
-          python -m black --check -l 120 --exclude="pyaedt/third_party/|pyaedt/rpc/|pyaed/dlls/" .
-
-      - name: Codespell
-        run: |
-          make codespell
-
-      - name: flake8
-        if: ${{ always() }}
-        run: |
-          make flake8
+          python-version: 3.9
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run pre-commit
+        run: pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
