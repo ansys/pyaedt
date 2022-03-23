@@ -175,7 +175,8 @@ region = hfss.modeler.create_region(pad_percent=1000)
 ###############################################################################
 # Create the Setup
 # ----------------
-# A setup with a sweep will be used to run the simulation.
+# A setup with a sweep will be used to run the simulation. Depending on your computing machine,
+# simulation can take time.
 
 setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "50MHz"
