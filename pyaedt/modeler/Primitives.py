@@ -826,7 +826,8 @@ class Polyline(Object3d):
         for vertex in self.vertices:
             if vertex.position == end_point:
                 if vertex.id == self.vertices[0].id:
-                    segment_id = 0
+                    if segment_id > 0:
+                        segment_id -= 1
                 at_start = True
                 break
             # If start_point=[0, 0, 0] (a list of integers provided by the user), it won't be equal to vertex.position
