@@ -33,7 +33,7 @@ solutions_types = {
             "options": "XY",
             "report_type": "EddyCurrent",
             "default_setup": 7,
-            "default_adaptive": "LastAdaptive",
+            "default_adaptive": "Nothing",
         },
         "Transient": {
             "name": "Transient",
@@ -47,7 +47,7 @@ solutions_types = {
             "options": "XY",
             "report_type": "Electrostatic",
             "default_setup": 8,
-            "default_adaptive": "LastAdaptive",
+            "default_adaptive": "Nothing",
         },
         "ElectricTransient": {
             "name": "ElectricTransient",

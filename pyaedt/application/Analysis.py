@@ -367,8 +367,10 @@ class Analysis(Design, object):
                     sweeps = self.oanalysis.GelAllSolutionNames()
                 else:
                     setuptype = self.design_solutions.default_adaptive
-                    if setuptype:
+                    if setuptype and setuptype != "Nothing":
                         sweep_list.append(el + " : " + setuptype)
+                    elif setuptype and setuptype == "Nothing":
+                        sweep_list.append(el)
                 try:
                     sweeps = list(self.oanalysis.GetSweeps(el))
                 except:
