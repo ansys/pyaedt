@@ -2114,7 +2114,7 @@ class EDBPadstackInstance(object):
         return int(self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetTopBottomAssociation())
 
     @pyaedt_function_handler()
-    def create_rectangle_in_pad(self, layer_name):
+    def create_rectangle_in_pad(self, layer_name, return_points=False):
         """Create a rectangle inscribed inside a padstack instance pad. The rectangle is fully inscribed in the
         pad and has the maximum area. It is necessary to specify the layer on which the rectangle will be created.
 
@@ -2123,10 +2123,14 @@ class EDBPadstackInstance(object):
         layer_name : str
             Name of the layer on which to create the polygon.
 
+        return_points : bool
+            If `True` does not create the rectangle and just returns a list containing the rectangle vertices.
+            Default is `False`.
+
         Returns
         -------
-        bool, :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
-            Polygon when successful, ``False`` when failed.
+        bool, List,  :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
+            Polygon when successful, ``False`` when failed, list of list if `return_points=True`.
 
         Examples
         --------
@@ -2147,7 +2151,10 @@ class EDBPadstackInstance(object):
         try:
             padstack_pad = padstack.pad_by_layer[layer_name]
         except KeyError:  # pragma: no cover
-            return False
+            try:
+                padstack_pad = padstack.pad_by_layer[padstack.via_start_layer]
+            except KeyError:  # pragma: no cover
+                return False
 
         pad_shape = padstack_pad.geometry_type
         params = padstack_pad.parameters_values
@@ -2252,9 +2259,12 @@ class EDBPadstackInstance(object):
 
         if rect is None or len(rect) != 4:
             return False
-        path = self._pedb.core_primitives.Shape("polygon", points=rect)
-        created_polygon = self._pedb.core_primitives.create_polygon(path, padstack_pad.layer_name)
-        return created_polygon
+        if return_points:
+            return rect
+        else:
+            path = self._pedb.core_primitives.Shape("polygon", points=rect)
+            created_polygon = self._pedb.core_primitives.create_polygon(path, layer_name)
+            return created_polygon
 
 
 class EDBComponent(object):
