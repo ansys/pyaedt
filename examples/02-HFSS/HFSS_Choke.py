@@ -22,17 +22,16 @@ if not os.path.exists(temp_folder):
 ###############################################################################
 # Launch AEDT in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2021.2 in graphical mode.
-
-
-desktop = Desktop("2021.2", non_graphical=False, new_desktop_session=True)
+# This examples launches AEDT 2022.1 in graphical mode.
+version = "2022.1"
+non_graphical = False
 
 ###############################################################################
 # Launch HFSS in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This examples launches HFSS 2021.2 in graphical mode.
 
-hfss = Hfss(solution_type="Terminal")
+hfss = Hfss(solution_type="Terminal", specified_version=version, non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Rules and information of use
@@ -210,4 +209,4 @@ hfss.save_project(os.path.join(temp_folder, "My_HFSS_Choke.aedt"))
 
 
 if os.name != "posix":
-    desktop.release_desktop()
+    hfss.release_desktop()
