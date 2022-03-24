@@ -195,7 +195,7 @@ def connect(server_name, aedt_client_port):
         return "Error. No connection. Check if AEDT is running and if the port number is correct."
 
 
-def client(server_name, server_port=18000, beta_options=None):
+def client(server_name, server_port=18000, beta_options=None, use_aedt_local_path=False):
     """Starts an rpyc client and connects to a remote machine.
 
     Parameters
@@ -206,7 +206,8 @@ def client(server_name, server_port=18000, beta_options=None):
         Port that the rpyc server is running on.
     beta_options : list, optional
         List of beta options to apply to the new service. The default is ``None``.
-
+    use_aedt_local_path : bool, optional
+        Whether to use aedt executable full path or relative path call. Needed in case linux environment is defined.
     Returns
     -------
     rpyc object.
@@ -253,7 +254,7 @@ def client(server_name, server_port=18000, beta_options=None):
     if not c:
         print("Failing to connect to {} on port {}. Check the settings".format(server_name, server_port))
         return False
-    port = c.root.start_service(server_name, beta_options)
+    port = c.root.start_service(server_name, beta_options, use_aedt_local_path=use_aedt_local_path)
     if not port:
         return "Error connecting to the server. Check the server name and port and retry."
     print("Connecting to a new session of AEDT on port {}. Wait.".format(port))
@@ -363,7 +364,7 @@ def _download_dir(remotepath, localpath, server_name, server_port=18000):
         _download_file(rfn, lfn, server_name, server_port=18000)
 
 
-def launch_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_client=True):
+def launch_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_client=True, use_aedt_local_path=False):
     """Start a process in IronPython and launch the rpc server on the specified port given an AEDT path on Linux.
 
     .. warning::
@@ -382,6 +383,9 @@ def launch_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_
         Port number. The default is ``18000``.
     launch_client : bool, optional
         Whether to launch the client. The default is ``True.``
+    use_aedt_local_path : bool, optional
+        Whether to use aedt executable full path or relative path call. Needed in case linux environment is defined.
+        aedt_path parameter is still needed since it is necessary to retrieve ipy64.exe full path.
 
     Returns
     -------
@@ -422,5 +426,5 @@ def launch_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_
     print("Known issues are in the returned list and dictionary.")
     print("For these known issues, using the method client.convert_remote_object is recommended.")
     if proc and launch_client:
-        return client(server_name=socket.getfqdn(), server_port=port1)
+        return client(server_name=socket.getfqdn(), server_port=port1, use_aedt_local_path=use_aedt_local_path)
     return False
