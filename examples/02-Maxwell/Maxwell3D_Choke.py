@@ -151,14 +151,18 @@ m3d.assign_matrix(["phase_1_in", "phase_2_in", "phase_3_in"], matrix_name="curre
 # ---------------------
 
 mesh = Mesh(m3d)
-mesh.assign_skin_depth([first_winding_list[0], second_winding_list[0], third_winding_list[0]],
-                       0.20,
-                       triangulation_max_length="10mm",
-                       meshop_name="skin_depth")
-mesh.assign_surface_mesh_manual([first_winding_list[0], second_winding_list[0], third_winding_list[0]],
-                                surf_dev=None,
-                                normal_dev="30deg",
-                                meshop_name="surface_approx")
+mesh.assign_skin_depth(
+    [first_winding_list[0], second_winding_list[0], third_winding_list[0]],
+    0.20,
+    triangulation_max_length="10mm",
+    meshop_name="skin_depth",
+)
+mesh.assign_surface_mesh_manual(
+    [first_winding_list[0], second_winding_list[0], third_winding_list[0]],
+    surf_dev=None,
+    normal_dev="30deg",
+    meshop_name="surface_approx",
+)
 
 ###############################################################################
 # Create Boundaries
