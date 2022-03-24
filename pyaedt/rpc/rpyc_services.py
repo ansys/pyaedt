@@ -767,7 +767,7 @@ class GlobalService(rpyc.Service):
         # (to finalize the service, if needed)
         pass
 
-    def exposed_start_service(self, hostname, beta_options=None, use_aedt_local_path=False):
+    def exposed_start_service(self, hostname, beta_options=None, use_aedt_relative_path=False):
         """Starts a new Pyaedt Service and start listen.
 
         Returns
@@ -802,7 +802,7 @@ class GlobalService(rpyc.Service):
                         lines = f1.readlines()
                         for line in lines:
                             f.write(line)
-                if not use_aedt_local_path:
+                if not use_aedt_relative_path:
                     aedt_exe = os.path.join(ansysem_path, executable)
                 else:
                     aedt_exe = executable
