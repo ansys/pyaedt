@@ -12,23 +12,21 @@ import tempfile
 # Import required modules
 from pyaedt.generic.filesystem import Scratch
 
-# Setup paths for module imports
-from _unittest.conftest import scratch_path
-
 from pyaedt import Emit
 from pyaedt import Desktop
+
 
 ###############################################################################
 # Initialization Settings
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Change NonGraphical Boolean to False to open AEDT in graphical mode
 # With NewThread = False, an existing instance of AEDT will be used, if
-# available. This example will use AEDT 2022.2
+# available. This example will use AEDT 2022.1
 
-NonGraphical = False
+NonGraphical = True
 NewThread = True
-desktop_version = "2022.2"
-
+desktop_version = "2022.1"
+scratch_path = tempfile.gettempdir()
 
 ###############################################################################
 # Launch AEDT and EMIT Design
@@ -38,9 +36,8 @@ desktop_version = "2022.2"
 # to create a new instance of AEDT or try to connect to existing instance of
 # it.
 d = Desktop(desktop_version, NonGraphical, NewThread)
-tmpfold = tempfile.gettempdir()
 
-temp_folder = os.path.join(tmpfold, ("EmitHFSSExample"))
+temp_folder = os.path.join(scratch_path, ("EmitHFSSExample"))
 if not os.path.exists(temp_folder):
     os.mkdir(temp_folder)
 
@@ -60,7 +57,7 @@ if not os.path.exists(example_project):
          Examples/EMIT directory under the EDT installation. You can not run this example.
         """
     print(msg)
-    d.force_close_desktop()
+    d.release_desktop(True, True)
     exit()
 
 my_project = os.path.join(temp_folder, example_aedt)
