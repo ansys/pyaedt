@@ -50,7 +50,7 @@ class TestClass(BasisTest, object):
         )
         surface_default_value = self.aedtapp.mesh.assign_surface_mesh_manual(cylinder_zx.id)
         assert "Surface_Manual" in [i.name for i in self.aedtapp.mesh.meshoperations]
-        assert surface_default_value.props["SurfDev"] == "0.001"
+        assert surface_default_value.props["SurfDev"] == "0.0001mm"
         assert surface_default_value.props["NormalDev"] == "1"
         assert surface_default_value.props["AspectRatioChoice"] == 1
 
