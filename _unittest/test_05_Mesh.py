@@ -43,7 +43,16 @@ class TestClass(BasisTest, object):
         surface = self.aedtapp.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3, meshop_name="Surface_Manual")
         assert "Surface_Manual" in [i.name for i in self.aedtapp.mesh.meshoperations]
         assert surface.props["SurfDev"] == 1e-6
-        assert surface.props["AspectRatioChoice"]
+        assert surface.props["AspectRatioChoice"] == 2
+
+        cylinder_zx = self.aedtapp.modeler.create_cylinder(
+            self.aedtapp.PLANE.ZX, udp, 3, coax_dimension, 0, "surface_manual"
+        )
+        surface_default_value = self.aedtapp.mesh.assign_surface_mesh_manual(cylinder_zx.id)
+        assert "Surface_Manual" in [i.name for i in self.aedtapp.mesh.meshoperations]
+        assert surface_default_value.props["SurfDev"] == "0.001"
+        assert surface_default_value.props["NormalDev"] == "1"
+        assert surface_default_value.props["AspectRatioChoice"] == 1
 
     def test_assign_surface_priority(self):
         surface = self.aedtapp.mesh.assign_surf_priority_for_tau(["surface", "surface_manual"], 1)
