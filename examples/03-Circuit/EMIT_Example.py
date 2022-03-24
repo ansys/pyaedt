@@ -16,7 +16,7 @@ from pyaedt import Desktop
 # available. This example will use AEDT 2022R1. However this example is supposed to work
 # on AEDT 2022R2 and on.
 
-NonGraphical = True
+NonGraphical = False
 NewThread = False
 desktop_version = "2022.1"
 
