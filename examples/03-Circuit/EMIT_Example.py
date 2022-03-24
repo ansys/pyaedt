@@ -18,7 +18,7 @@ from pyaedt import Desktop
 
 NonGraphical = True
 NewThread = False
-desktop_version = "2022.2"
+desktop_version = "2022.1"
 
 
 ###############################################################################
