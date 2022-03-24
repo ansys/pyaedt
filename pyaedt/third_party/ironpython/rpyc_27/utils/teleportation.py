@@ -1,8 +1,8 @@
 import opcode
 
-from rpyc.lib.compat import is_py_gte38
+from pyaedt.third_party.ironpython.rpyc_27.lib.compat import is_py_gte38
 from types import CodeType, FunctionType
-from rpyc.core import brine, netref
+from pyaedt.third_party.ironpython.rpyc_27.core import brine, netref
 from dis import _unpack_opargs
 
 CODEOBJ_MAGIC = "MAg1c J0hNNzo0hn ZqhuBP17LQk8"
@@ -207,7 +207,7 @@ def import_function(functup, globals=None, def_=True):
         globals = mod.__dict__
     # function globals must be real dicts, sadly:
     if isinstance(globals, netref.BaseNetref):
-        from rpyc.utils.classic import obtain
+        from pyaedt.third_party.ironpython.rpyc_27.utils.classic import obtain
 
         globals = obtain(globals)
     globals.setdefault("__builtins__", __builtins__)

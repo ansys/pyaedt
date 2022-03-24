@@ -1,22 +1,27 @@
 import os
 import socket
-import sys
 import time
 
 from pyaedt import is_ironpython
 from pyaedt.generic.general_methods import convert_remote_object
 
+# import sys
+
 if is_ironpython:
     pyaedt_path = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
-    sys.path.insert(0, os.path.join(pyaedt_path, "third_party", "ironpython"))
-
-import rpyc
-from rpyc.utils.server import ThreadedServer
-from pyaedt.rpc.rpyc_services import GlobalService, check_port
-import rpyc.core.consts
+    # sys.path.insert(0, os.path.join(pyaedt_path, "third_party", "ironpython"))
+    from pyaedt.third_party.ironpython import rpyc_27 as rpyc
+    from pyaedt.third_party.ironpython.rpyc_27.utils.server import ThreadedServer
+    from pyaedt.rpc.rpyc_services import GlobalService, check_port
+    from pyaedt.third_party.ironpython.rpyc_27.core import consts
+else:
+    import rpyc
+    from rpyc.utils.server import ThreadedServer
+    from pyaedt.rpc.rpyc_services import GlobalService, check_port
+    from rpyc.core import consts
 
 # Maximum Stream message size. Set to 256MB
-rpyc.core.consts.STREAM_CHUNK = 256000000
+consts.STREAM_CHUNK = 256000000
 
 from pyaedt import is_ironpython
 
@@ -235,7 +240,8 @@ def client(server_name, server_port=18000, beta_options=None):
     >>> cl2.root.run_script(script_to_run, ansysem_path = "/path/to/AnsysEMxxx/Linux64")
 
     """
-    t = 60
+    t = 120
+    c = None
     while t > 0:
         try:
             c = rpyc.connect(server_name, server_port, config={"sync_request_timeout": None})
@@ -244,6 +250,9 @@ def client(server_name, server_port=18000, beta_options=None):
         except:
             t -= 1
             time.sleep(1)
+    if not c:
+        print("Failing to connect to {} on port {}. Check the settings".format(server_name, server_port))
+        return False
     port = c.root.start_service(server_name, beta_options)
     if not port:
         return "Error connecting to the server. Check the server name and port and retry."
@@ -403,6 +412,9 @@ def launch_ironpython_server(aedt_path, non_graphical=False, port=18000, launch_
         str(val),
         str(port1),
     ]
+    if not os.path.exists(os.path.join(aedt_path, "common", "IronPython", "ipy64.exe")):
+        print("Check the aedt_path and retry.")
+        return False
     proc = subprocess.Popen(" ".join(command), shell=True)
     print("Process {} started on {}".format(proc.pid, socket.getfqdn()))
     print("Using port {}".format(port1))

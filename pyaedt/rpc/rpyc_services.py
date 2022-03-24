@@ -16,8 +16,12 @@ if os.name == "posix" and is_ironpython:
 else:
     import subprocess
 
-import rpyc
-from rpyc import ThreadedServer
+if is_ironpython:
+    import pyaedt.third_party.ironpython.rpyc_27 as rpyc
+    from pyaedt.third_party.ironpython.rpyc_27 import ThreadedServer
+else:
+    import rpyc
+    from rpyc import ThreadedServer
 
 from pyaedt import Edb
 from pyaedt import Hfss

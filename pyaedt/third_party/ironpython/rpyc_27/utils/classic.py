@@ -2,11 +2,11 @@ from __future__ import with_statement
 import sys
 import os
 import inspect
-from rpyc.lib.compat import pickle, execute
-from rpyc.core.service import ClassicService, Slave
-from rpyc.utils import factory
-from rpyc.core.service import ModuleNamespace  # noqa: F401
-from rpyc.core.consts import STREAM_CHUNK
+from pyaedt.third_party.ironpython.rpyc_27.lib.compat import pickle, execute
+from pyaedt.third_party.ironpython.rpyc_27.core.service import ClassicService, Slave
+from pyaedt.third_party.ironpython.rpyc_27.utils import factory
+from pyaedt.third_party.ironpython.rpyc_27.core.service import ModuleNamespace  # noqa: F401
+from pyaedt.third_party.ironpython.rpyc_27.core.consts import STREAM_CHUNK
 from contextlib import contextmanager
 
 
@@ -24,7 +24,7 @@ def connect_channel(channel):
     """
     Creates an RPyC connection over the given ``channel``
 
-    :param channel: the :class:`rpyc.core.channel.Channel` instance
+    :param channel: the :class:`pyaedt.third_party.ironpython.rpyc_27.core.channel.Channel` instance
 
     :returns: an RPyC connection exposing ``SlaveService``
     """
@@ -35,7 +35,7 @@ def connect_stream(stream):
     """
     Creates an RPyC connection over the given stream
 
-    :param channel: the :class:`rpyc.core.stream.Stream` instance
+    :param channel: the :class:`pyaedt.third_party.ironpython.rpyc_27.core.stream.Stream` instance
 
     :returns: an RPyC connection exposing ``SlaveService``
     """
@@ -135,7 +135,7 @@ def ssl_connect(
 
 def ssh_connect(remote_machine, remote_port):
     """Connects to the remote server over an SSH tunnel. See
-    :func:`rpyc.utils.factory.ssh_connect` for more info.
+    :func:`pyaedt.third_party.ironpython.rpyc_27.utils.factory.ssh_connect` for more info.
 
     :param remote_machine: the :class:`plumbum.remote.RemoteMachine` instance
     :param remote_port: the remote TCP port
@@ -164,7 +164,7 @@ def connect_subproc(server_file=None):
 def connect_thread():
     """
     Starts a SlaveService on a thread and connects to it. Useful for testing
-    purposes. See :func:`rpyc.utils.factory.connect_thread`
+    purposes. See :func:`pyaedt.third_party.ironpython.rpyc_27.utils.factory.connect_thread`
 
     :returns: an RPyC connection exposing ``SlaveService``
     """
@@ -175,7 +175,7 @@ def connect_multiprocess(args={}):
     """
     Starts a SlaveService on a multiprocess process and connects to it.
     Useful for testing purposes and running multicore code that's uses shared
-    memory. See :func:`rpyc.utils.factory.connect_multiprocess`
+    memory. See :func:`pyaedt.third_party.ironpython.rpyc_27.utils.factory.connect_multiprocess`
 
     :returns: an RPyC connection exposing ``SlaveService``
     """
@@ -281,7 +281,7 @@ def upload_package(conn, module, remotepath=None, chunk_size=STREAM_CHUNK):
 
        import foo.bar
        ...
-       rpyc.classic.upload_package(conn, foo.bar)
+       pyaedt.third_party.ironpython.rpyc_27.classic.upload_package(conn, foo.bar)
 
     """
     if remotepath is None:
@@ -321,7 +321,7 @@ def deliver(conn, localobj):
     :returns: a proxy to the remote object
     """
     # bytes-cast needed for IronPython-to-CPython communication, see #251:
-    return conn.modules["rpyc.lib.compat"].pickle.loads(bytes(pickle.dumps(localobj)))
+    return conn.modules["pyaedt.third_party.ironpython.rpyc_27.lib.compat"].pickle.loads(bytes(pickle.dumps(localobj)))
 
 
 @contextmanager
@@ -411,7 +411,7 @@ def teleport_function(conn, func, globals=None, def_=True):
     """
     if globals is None:
         globals = conn.namespace
-    from rpyc.utils.teleportation import export_function
+    from pyaedt.third_party.ironpython.rpyc_27.utils.teleportation import export_function
 
     exported = export_function(func)
-    return conn.modules["rpyc.utils.teleportation"].import_function(exported, globals, def_)
+    return conn.modules["pyaedt.third_party.ironpython.rpyc_27.utils.teleportation"].import_function(exported, globals, def_)

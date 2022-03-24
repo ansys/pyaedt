@@ -8,9 +8,9 @@ can interoperate, you're good to go.
 """
 from functools import partial
 
-from rpyc.lib import hybridmethod
-from rpyc.lib.compat import execute
-from rpyc.core.protocol import Connection
+from pyaedt.third_party.ironpython.rpyc_27.lib import hybridmethod
+from pyaedt.third_party.ironpython.rpyc_27.lib.compat import execute
+from pyaedt.third_party.ironpython.rpyc_27.core.protocol import Connection
 
 
 class Service(object):
@@ -228,7 +228,7 @@ class MasterService(Service):
         conn.namespace = slave.namespace
         conn.builtins = modules.builtins
         conn.builtin = modules.builtins  # TODO: cruft from py2 that requires cleanup elsewhere and CHANGELOG note
-        from rpyc.utils.classic import teleport_function
+        from pyaedt.third_party.ironpython.rpyc_27.utils.classic import teleport_function
 
         conn.teleport = partial(teleport_function, conn)
 

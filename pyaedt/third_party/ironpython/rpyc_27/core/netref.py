@@ -3,9 +3,9 @@ of *magic*, so beware.
 """
 import sys
 import types
-from rpyc.lib import get_methods, get_id_pack
-from rpyc.lib.compat import pickle, maxint, with_metaclass
-from rpyc.core import consts
+from pyaedt.third_party.ironpython.rpyc_27.lib import get_methods, get_id_pack
+from pyaedt.third_party.ironpython.rpyc_27.lib.compat import pickle, maxint, with_metaclass
+from pyaedt.third_party.ironpython.rpyc_27.core import consts
 
 
 builtin_id_pack_cache = {}  # name_pack -> id_pack
@@ -112,7 +112,7 @@ def syncreq(proxy, handler, *args):
 
     :param proxy: the proxy on which to issue the request
     :param handler: the request handler (one of the ``HANDLE_XXX`` members of
-                    ``rpyc.protocol.consts``)
+                    ``pyaedt.third_party.ironpython.rpyc_27.protocol.consts``)
     :param args: arguments to the handler
 
     :raises: any exception raised by the operation will be raised
@@ -128,10 +128,10 @@ def asyncreq(proxy, handler, *args):
 
     :param proxy: the proxy on which to issue the request
     :param handler: the request handler (one of the ``HANDLE_XXX`` members of
-                    ``rpyc.protocol.consts``)
+                    ``pyaedt.third_party.ironpython.rpyc_27.protocol.consts``)
     :param args: arguments to the handler
 
-    :returns: an :class:`~rpyc.core.async_.AsyncResult` representing
+    :returns: an :class:`~pyaedt.third_party.ironpython.rpyc_27.core.async_.AsyncResult` representing
               the operation
     """
     conn = object.__getattribute__(proxy, "____conn__")
@@ -158,17 +158,17 @@ class BaseNetref(with_metaclass(NetrefMetaclass, object)):
     defined in the :data:`_builtin_types`), and they are shared between all
     connections.
 
-    The rest of the netref classes are created by :meth:`rpyc.core.protocol.Connection._unbox`,
+    The rest of the netref classes are created by :meth:`pyaedt.third_party.ironpython.rpyc_27.core.protocol.Connection._unbox`,
     and are private to the connection.
 
     Do not use this class directly; use :func:`class_factory` instead.
 
-    :param conn: the :class:`rpyc.core.protocol.Connection` instance
+    :param conn: the :class:`pyaedt.third_party.ironpython.rpyc_27.core.protocol.Connection` instance
     :param id_pack: id tuple for an object ~ (name_pack, remote-class-id, remote-instance-id)
         (cont.) name_pack := __module__.__name__ (hits or misses on builtin cache and sys.module)
                 remote-class-id := id of object class (hits or misses on netref classes cache and instance checks)
                 remote-instance-id := id object instance (hits or misses on proxy cache)
-        id_pack is usually created by rpyc.lib.get_id_pack
+        id_pack is usually created by pyaedt.third_party.ironpython.rpyc_27.lib.get_id_pack
     """
 
     __slots__ = ["____conn__", "____id_pack__", "__weakref__", "____refcount__"]

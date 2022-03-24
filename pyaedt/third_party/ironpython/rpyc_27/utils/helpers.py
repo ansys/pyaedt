@@ -2,11 +2,11 @@
 Helpers and wrappers for common RPyC tasks
 """
 import time
-from rpyc.lib import spawn
-from rpyc.lib.colls import WeakValueDict
-from rpyc.lib.compat import callable
-from rpyc.core.consts import HANDLE_BUFFITER, HANDLE_CALL
-from rpyc.core.netref import syncreq, asyncreq
+from pyaedt.third_party.ironpython.rpyc_27.lib import spawn
+from pyaedt.third_party.ironpython.rpyc_27.lib.colls import WeakValueDict
+from pyaedt.third_party.ironpython.rpyc_27.lib.compat import callable
+from pyaedt.third_party.ironpython.rpyc_27.core.consts import HANDLE_BUFFITER, HANDLE_CALL
+from pyaedt.third_party.ironpython.rpyc_27.core.netref import syncreq, asyncreq
 
 
 def buffiter(obj, chunk=10, max_chunk=1000, factor=2):
@@ -64,10 +64,10 @@ def restricted(obj, attrs, wattrs=None):
 
     Example::
 
-        class MyService(rpyc.Service):
+        class MyService(pyaedt.third_party.ironpython.rpyc_27.Service):
             def exposed_open(self, filename):
                 f = open(filename, "r")
-                return rpyc.restricted(f, {"read", "close"})   # disallow access to `seek` or `write`
+                return pyaedt.third_party.ironpython.rpyc_27.restricted(f, {"read", "close"})   # disallow access to `seek` or `write`
 
     """
     if wattrs is None:
@@ -115,7 +115,7 @@ def async_(proxy):
     """
     Returns an asynchronous "version" of the given proxy. Invoking the returned
     proxy will not block; instead it will return an
-    :class:`rpyc.core.async_.AsyncResult` object that you can test for completion
+    :class:`pyaedt.third_party.ironpython.rpyc_27.core.async_.AsyncResult` object that you can test for completion
 
     :param proxy: any **callable** RPyC proxy
 
@@ -123,7 +123,7 @@ def async_(proxy):
 
     Example::
 
-        async_sleep = rpyc.async_(conn.modules.time.sleep)
+        async_sleep = pyaedt.third_party.ironpython.rpyc_27.async_(conn.modules.time.sleep)
         res = async_sleep(5)
 
     .. _async_note:
@@ -132,11 +132,11 @@ def async_(proxy):
        In order to avoid overloading the GC, the returned asynchronous wrapper is
        cached as a weak reference. Therefore, do not use::
 
-           rpyc.async_(foo)(5)
+           pyaedt.third_party.ironpython.rpyc_27.async_(foo)(5)
 
        Always store the returned asynchronous wrapper in a variable, e.g. ::
 
-           a_foo = rpyc.async_(foo)
+           a_foo = pyaedt.third_party.ironpython.rpyc_27.async_(foo)
            a_foo(5)
 
     .. note::
@@ -162,7 +162,7 @@ globals()["async"] = async_  # backward compatibility alias
 
 class timed(object):
     """Creates a timed asynchronous proxy. Invoking the timed proxy will
-    run in the background and will raise an :class:`rpyc.core.async_.AsyncResultTimeout`
+    run in the background and will raise an :class:`pyaedt.third_party.ironpython.rpyc_27.core.async_.AsyncResultTimeout`
     exception if the computation does not terminate within the given time frame
 
     :param proxy: any **callable** RPyC proxy
@@ -172,7 +172,7 @@ class timed(object):
 
     Example::
 
-        t_sleep = rpyc.timed(conn.modules.time.sleep, 6) # allow up to 6 seconds
+        t_sleep = pyaedt.third_party.ironpython.rpyc_27.timed(conn.modules.time.sleep, 6) # allow up to 6 seconds
         t_sleep(4) # okay
         t_sleep(8) # will time out and raise AsyncResultTimeout
     """
@@ -200,7 +200,7 @@ class BgServingThread(object):
 
     Example::
 
-        conn = rpyc.connect(...)
+        conn = pyaedt.third_party.ironpython.rpyc_27.connect(...)
         bg_server = BgServingThread(conn)
         ...
         bg_server.stop()

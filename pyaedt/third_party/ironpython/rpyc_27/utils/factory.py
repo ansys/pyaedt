@@ -19,11 +19,11 @@ except ImportError:
 
         interrupt_main = System.exit
 
-from rpyc.core.channel import Channel
-from rpyc.core.stream import SocketStream, TunneledSocketStream, PipeStream
-from rpyc.core.service import VoidService, MasterService, SlaveService
-from rpyc.utils.registry import UDPRegistryClient
-from rpyc.lib import safe_import, spawn
+from pyaedt.third_party.ironpython.rpyc_27.core.channel import Channel
+from pyaedt.third_party.ironpython.rpyc_27.core.stream import SocketStream, TunneledSocketStream, PipeStream
+from pyaedt.third_party.ironpython.rpyc_27.core.service import VoidService, MasterService, SlaveService
+from pyaedt.third_party.ironpython.rpyc_27.utils.registry import UDPRegistryClient
+from pyaedt.third_party.ironpython.rpyc_27.lib import safe_import, spawn
 
 ssl = safe_import("ssl")
 
@@ -264,7 +264,7 @@ def connect_by_service(service_name, host=None, service=VoidService, config={}):
 
 
 def connect_subproc(args, service=VoidService, config={}):
-    """runs an rpyc server on a child process that and connects to it over
+    """runs an rpyc_ipy server on a child process that and connects to it over
     the stdio pipes. uses the subprocess module.
 
     :param args: the args to Popen, e.g., ["python", "-u", "myfile.py"]
@@ -301,7 +301,7 @@ def _server(listener, remote_service, remote_config, args=None):
 
 
 def connect_thread(service=VoidService, config={}, remote_service=VoidService, remote_config={}):
-    """starts an rpyc server on a new thread, bound to an arbitrary port,
+    """starts an rpyc_ipy server on a new thread, bound to an arbitrary port,
     and connects to it over a socket.
 
     :param service: the local service to expose (defaults to Void)
@@ -319,7 +319,7 @@ def connect_thread(service=VoidService, config={}, remote_service=VoidService, r
 
 
 def connect_multiprocess(service=VoidService, config={}, remote_service=VoidService, remote_config={}, args={}):
-    """starts an rpyc server on a new process, bound to an arbitrary port,
+    """starts an rpyc_ipy server on a new process, bound to an arbitrary port,
     and connects to it over a socket. Basically a copy of connect_thread().
     However if args is used and if these are shared memory then changes
     will be bi-directional. That is we now have access to shared memory.
