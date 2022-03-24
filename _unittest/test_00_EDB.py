@@ -883,6 +883,16 @@ class TestClass(BasisTest, object):
             padstack_instance = list(edb_padstacks.core_padstack.padstack_instances.values())[i]
             result = padstack_instance.create_rectangle_in_pad("s")
             assert result
+            points = padstack_instance.create_rectangle_in_pad("s", return_points=True)
+            assert len(points) == 4
+            assert len(points[0]) == 2
+        for i in range(8, 10):
+            padstack_instance = list(edb_padstacks.core_padstack.padstack_instances.values())[i]
+            result = padstack_instance.create_rectangle_in_pad("g")
+            assert result
+            points = padstack_instance.create_rectangle_in_pad("g", return_points=True)
+            assert len(points) == 4
+            assert len(points[0]) == 2
         edb_padstacks.close_edb()
 
     def test_81_edb_with_dxf(self):
