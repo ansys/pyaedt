@@ -146,7 +146,10 @@ class AEDTMessageManager(object):
     def logger(self):
         """Aedt Logger object."""
         if self._log_on_file:
-            return logging.getLogger(__name__)
+            try:
+                return logging.getLogger(__name__)
+            except:
+                return None
         else:
             return None  # pragma: no cover
 
