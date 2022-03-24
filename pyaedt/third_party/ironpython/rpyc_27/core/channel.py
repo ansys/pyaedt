@@ -1,8 +1,8 @@
 """*Channel* is an abstraction layer over streams that works with *packets of data*,
 rather than an endless stream of bytes, and adds support for compression.
 """
-from rpyc.lib import safe_import
-from rpyc.lib.compat import Struct, BYTES_LITERAL
+from pyaedt.third_party.ironpython.rpyc_27.lib import safe_import
+from pyaedt.third_party.ironpython.rpyc_27.lib.compat import Struct, BYTES_LITERAL
 
 zlib = safe_import("zlib")
 

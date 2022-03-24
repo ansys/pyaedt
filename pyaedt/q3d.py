@@ -153,7 +153,7 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         Returns
         -------
         list
-            List of traces of specified designs ready to use in plot reports.
+            Traces of specified designs ready to use in plot reports.
 
         Examples
         --------

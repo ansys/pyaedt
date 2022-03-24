@@ -57,7 +57,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         pass
 
     @pyaedt_function_handler()
-    def create_resistor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_resistor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
         Parameters
@@ -83,6 +83,9 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location == None:
+            location = []
+
         id = self.create_component(
             compname,
             component_library="Passive Elements",
@@ -97,7 +100,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         return id
 
     @pyaedt_function_handler()
-    def create_inductor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_inductor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
         Parameters
@@ -123,6 +126,9 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location == None:
+            location = []
+
         id = self.create_component(
             compname,
             component_library="Passive Elements",
@@ -175,7 +181,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         return id
 
     @pyaedt_function_handler()
-    def create_diode(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
+    def create_diode(self, compname=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
         Parameters
@@ -199,6 +205,9 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location == None:
+            location = []
+
         id = self.create_component(
             compname,
             component_library="Passive Elements",

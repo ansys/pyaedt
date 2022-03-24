@@ -6,11 +6,11 @@ Requires [plumbum](http://plumbum.readthedocs.org/)
 from __future__ import with_statement
 import sys
 import socket  # noqa: F401
-from rpyc.lib.compat import BYTES_LITERAL
-from rpyc.core.service import VoidService
-from rpyc.core.stream import SocketStream
-import rpyc.utils.factory
-import rpyc.utils.classic
+from pyaedt.third_party.ironpython.rpyc_27.lib.compat import BYTES_LITERAL
+from pyaedt.third_party.ironpython.rpyc_27.core.service import VoidService
+from pyaedt.third_party.ironpython.rpyc_27.core.stream import SocketStream
+import pyaedt.third_party.ironpython.rpyc_27.utils.factory
+import pyaedt.third_party.ironpython.rpyc_27.utils.classic
 
 try:
     from plumbum import local, ProcessExecutionError, CommandNotFound
@@ -49,7 +49,7 @@ except Exception:
 
 sys.path.insert(0, here)
 from $MODULE$ import $SERVER$ as ServerCls
-from rpyc.core.service import SlaveService
+from pyaedt.third_party.ironpython.rpyc_27.core.service import SlaveService
 
 logger = None
 $EXTRA_SETUP$
@@ -90,19 +90,19 @@ class DeployedServer(object):
     """
 
     def __init__(
-        self, remote_machine, server_class="rpyc.utils.server.ThreadedServer", extra_setup="", python_executable=None
+        self, remote_machine, server_class="pyaedt.third_party.ironpython.rpyc_27.utils.server.ThreadedServer", extra_setup="", python_executable=None
     ):
         self.proc = None
         self.tun = None
         self.remote_machine = remote_machine
         self._tmpdir_ctx = None
 
-        rpyc_root = local.path(rpyc.__file__).up()
+        rpyc_root = local.path(pyaedt.third_party.ironpython.rpyc_27.__file__).up()
         self._tmpdir_ctx = remote_machine.tempdir()
         tmp = self._tmpdir_ctx.__enter__()
         copy(rpyc_root, tmp / "rpyc")
 
-        script = tmp / "deployed-rpyc.py"
+        script = tmp / "deployed-pyaedt.third_party.ironpython.rpyc_27.py"
         modname, clsname = server_class.rsplit(".", 1)
         script.write(
             SERVER_SCRIPT.replace("$MODULE$", modname)
@@ -145,7 +145,7 @@ class DeployedServer(object):
             # Paramiko: use connect_sock() instead of tunnels
             self.local_port = None
         else:
-            self.local_port = rpyc.utils.factory._get_free_port()
+            self.local_port = pyaedt.third_party.ironpython.rpyc_27.utils.factory._get_free_port()
             self.tun = remote_machine.tunnel(self.local_port, self.remote_port)
 
     def __del__(self):
@@ -196,14 +196,14 @@ class DeployedServer(object):
             return SocketStream._connect("localhost", self.local_port)
 
     def connect(self, service=VoidService, config={}):
-        """Same as :func:`~rpyc.utils.factory.connect`, but with the ``host`` and ``port``
+        """Same as :func:`~pyaedt.third_party.ironpython.rpyc_27.utils.factory.connect`, but with the ``host`` and ``port``
         parameters fixed"""
-        return rpyc.utils.factory.connect_stream(SocketStream(self._connect_sock()), service=service, config=config)
+        return pyaedt.third_party.ironpython.rpyc_27.utils.factory.connect_stream(SocketStream(self._connect_sock()), service=service, config=config)
 
     def classic_connect(self):
-        """Same as :func:`classic.connect <rpyc.utils.classic.connect>`, but with the ``host`` and
+        """Same as :func:`classic.connect <pyaedt.third_party.ironpython.rpyc_27.utils.classic.connect>`, but with the ``host`` and
         ``port`` parameters fixed"""
-        return rpyc.utils.classic.connect_stream(SocketStream(self._connect_sock()))
+        return pyaedt.third_party.ironpython.rpyc_27.utils.classic.connect_stream(SocketStream(self._connect_sock()))
 
 
 class MultiServerDeployment(object):
@@ -212,7 +212,7 @@ class MultiServerDeployment(object):
     separately, but lets you manage them as a single deployment.
     """
 
-    def __init__(self, remote_machines, server_class="rpyc.utils.server.ThreadedServer"):
+    def __init__(self, remote_machines, server_class="pyaedt.third_party.ironpython.rpyc_27.utils.server.ThreadedServer"):
         self.remote_machines = remote_machines
         # build the list incrementally, so we can clean it up if we have an exception
         self.servers = [DeployedServer(mach, server_class) for mach in remote_machines]

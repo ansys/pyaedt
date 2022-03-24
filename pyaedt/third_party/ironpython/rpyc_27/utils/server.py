@@ -1,5 +1,5 @@
 """
-rpyc plug-in server (threaded or forking)
+rpyc_ipy plug-in server (threaded or forking)
 """
 import sys
 import os
@@ -14,20 +14,20 @@ try:
     import Queue
 except ImportError:
     import queue as Queue
-from rpyc.core import SocketStream, Channel
-from rpyc.utils.registry import UDPRegistryClient
-from rpyc.utils.authenticators import AuthenticationError
-from rpyc.lib import safe_import, spawn, spawn_waitready
-from rpyc.lib.compat import poll, get_exc_errno
+from pyaedt.third_party.ironpython.rpyc_27.core import SocketStream, Channel
+from pyaedt.third_party.ironpython.rpyc_27.utils.registry import UDPRegistryClient
+from pyaedt.third_party.ironpython.rpyc_27.utils.authenticators import AuthenticationError
+from pyaedt.third_party.ironpython.rpyc_27.lib import safe_import, spawn, spawn_waitready
+from pyaedt.third_party.ironpython.rpyc_27.lib.compat import poll, get_exc_errno
 
 signal = safe_import("signal")
-gevent = safe_import("gevent")
+#gevent = safe_import("gevent")
 
 
 class Server(object):
     """Base server implementation
 
-    :param service: the :class:`~rpyc.core.service.Service` to expose
+    :param service: the :class:`~pyaedt.third_party.ironpython.rpyc_27.core.service.Service` to expose
     :param hostname: the host to bind to. By default, the 'wildcard address' is used to listen on all interfaces.
                      if not properly secured, the server can receive traffic from unintended or even malicious sources.
     :param ipv6: whether to create an IPv6 or IPv4 socket. The default is IPv4
@@ -36,12 +36,12 @@ class Server(object):
     :param reuse_addr: whether or not to create the socket with the ``SO_REUSEADDR`` option set.
     :param authenticator: the :ref:`api-authenticators` to use. If ``None``, no authentication
                           is performed.
-    :param registrar: the :class:`~rpyc.utils.registry.RegistryClient` to use.
-                          If ``None``, a default :class:`~rpyc.utils.registry.UDPRegistryClient`
+    :param registrar: the :class:`~pyaedt.third_party.ironpython.rpyc_27.utils.registry.RegistryClient` to use.
+                          If ``None``, a default :class:`~pyaedt.third_party.ironpython.rpyc_27.utils.registry.UDPRegistryClient`
                           will be used
     :param auto_register: whether or not to register using the *registrar*. By default, the
                           server will attempt to register only if a registrar was explicitly given.
-    :param protocol_config: the :data:`configuration dictionary <rpyc.core.protocol.DEFAULT_CONFIG>`
+    :param protocol_config: the :data:`configuration dictionary <pyaedt.third_party.ironpython.rpyc_27.core.protocol.DEFAULT_CONFIG>`
                             that is passed to the RPyC connection
     :param logger: the ``logger`` to use (of the built-in ``logging`` module). If ``None``, a
                    default logger will be created.
@@ -504,8 +504,8 @@ class ThreadPoolServer(Server):
 
     def _authenticate_and_build_connection(self, sock):
         """Authenticate a client and if it succeeds, wraps the socket in a connection object.
-        Note that this code is cut and paste from the rpyc internals and may have to be
-        changed if rpyc evolves"""
+        Note that this code is cut and paste from the rpyc_ipy internals and may have to be
+        changed if rpyc_ipy evolves"""
         # authenticate
         if self.authenticator:
             sock, credentials = self.authenticator(sock)
