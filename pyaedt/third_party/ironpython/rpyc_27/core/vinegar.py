@@ -1,6 +1,6 @@
 """
 **Vinegar** ("when things go sour") is a safe serializer for exceptions.
-The :data:`configuration parameters <rpyc.core.protocol.DEFAULT_CONFIG>` control
+The :data:`configuration parameters <pyaedt.third_party.ironpython.rpyc_27.core.protocol.DEFAULT_CONFIG>` control
 its mode of operation, for instance, whether to allow *old-style* exceptions
 (that do not derive from ``Exception``), whether to allow the :func:`load` to
 import custom modules (imposes a security risk), etc.
@@ -20,9 +20,9 @@ try:
 except ImportError:
     ClassType = type
 
-from rpyc.core import brine
-from rpyc.core import consts
-from rpyc import version
+from pyaedt.third_party.ironpython.rpyc_27.core import brine
+from pyaedt.third_party.ironpython.rpyc_27.core import consts
+from pyaedt.third_party.ironpython.rpyc_27 import version
 
 
 REMOTE_LINE_START = "\n\n========= Remote Traceback "
@@ -44,7 +44,7 @@ def dump(typ, val, tb, include_local_traceback, include_local_version):
 
     :returns: A tuple of ``((module name, exception name), arguments, attributes,
               traceback text)``. This tuple can be safely passed to
-              :func:`brine.dump <rpyc.core.brine.dump>`
+              :func:`brine.dump <pyaedt.third_party.ironpython.rpyc_27.core.brine.dump>`
     """
     if typ is StopIteration:
         return consts.EXC_STOP_ITERATION  # optimization

@@ -1201,7 +1201,7 @@ class TestClass(BasisTest, object):
         )
 
         # Test that an exception is raised if the name of the polyline is not provided.
-        # We can't use with.pytest.raises pattern bellow because IronPython does not support pytest.
+        # We can't use with.pytest.raises pattern below because IronPython does not support pytest.
         try:
             self.aedtapp.modeler.create_helix(
                 polyline_name="",

@@ -773,6 +773,7 @@ class Object3d(object):
         self._part_coordinate_system = None
         self._model = None
         self._m_groupName = None
+        self._object_type = None
 
     @pyaedt_function_handler()
     def _bounding_box_unmodel(self):
@@ -948,7 +949,7 @@ class Object3d(object):
         """Export the model to path.
 
         .. note::
-        Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
+           Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
 
         Parameters
         ----------
@@ -1381,13 +1382,16 @@ class Object3d(object):
             Type of the object.
 
         """
-        if self._m_name in self._primitives.solid_names:
+        if self._object_type:
+            return self._object_type
+        if self._m_name in list(self.m_Editor.GetObjectsInGroup("Solids")):
             self._object_type = "Solid"
-        else:
-            if self._m_name in self._primitives.sheet_names:
-                self._object_type = "Sheet"
-            elif self._m_name in self._primitives.line_names:
-                self._object_type = "Line"
+        elif self._m_name in list(self.m_Editor.GetObjectsInGroup("Sheets")):
+            self._object_type = "Sheet"
+        elif self._m_name in list(self.m_Editor.GetObjectsInGroup("Lines")):
+            self._object_type = "Line"
+        elif self._m_name in list(self.m_Editor.GetObjectsInGroup("Unclassified")):  # pragma: no cover
+            self._object_type = "Unclassified"  # pragma: no cover
         return self._object_type
 
     @property

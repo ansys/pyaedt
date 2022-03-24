@@ -9,14 +9,14 @@ what RPyC needed and required too complex a setup.
 If anyone wants to implement the RPyC registry using Avahi, Bonjour, or any
 other zeroconf implementation -- I'll be happy to include them.
 
-Refer to :file:`rpyc/scripts/rpyc_registry.py` for more info.
+Refer to :file:`rpyc_ipy/scripts/rpyc_registry.py` for more info.
 """
 import sys
 import socket
 import time
 import logging
 from contextlib import closing
-from rpyc.core import brine
+from pyaedt.third_party.ironpython.rpyc_27.core import brine
 
 
 DEFAULT_PRUNING_TIMEOUT = 4 * 60
@@ -268,7 +268,7 @@ class RegistryClient(object):
         """Registers the given service aliases with the given TCP port. This
         API is intended to be called only by an RPyC server.
 
-        :param aliases: the :class:`service's <rpyc.core.service.Service>` aliases
+        :param aliases: the :class:`service's <pyaedt.third_party.ironpython.rpyc_27.core.service.Service>` aliases
         :param port: the listening TCP port of the server
         """
         raise NotImplementedError()
@@ -293,7 +293,7 @@ class UDPRegistryClient(RegistryClient):
         list_of_servers = registrar.discover("foo")
 
     .. note::
-       Consider using :func:`rpyc.utils.factory.discover` instead
+       Consider using :func:`pyaedt.third_party.ironpython.rpyc_27.utils.factory.discover` instead
     """
 
     def __init__(self, ip="255.255.255.255", port=REGISTRY_PORT, timeout=2, bcast=None, logger=None, ipv6=False):
@@ -381,7 +381,7 @@ class TCPRegistryClient(RegistryClient):
         list_of_servers = registrar.discover("foo")
 
     .. note::
-       Consider using :func:`rpyc.utils.factory.discover` instead
+       Consider using :func:`pyaedt.third_party.ironpython.rpyc_27.utils.factory.discover` instead
     """
 
     def __init__(self, ip, port=REGISTRY_PORT, timeout=2, logger=None):

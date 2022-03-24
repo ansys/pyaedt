@@ -325,7 +325,7 @@ class EdbPadstacks(object):
         return geom_type, parameters, offset_x, offset_y, rot
 
     @pyaedt_function_handler()
-    def get_via_instance_from_net(self, net_list=[]):
+    def get_via_instance_from_net(self, net_list=None):
         """Get the list for Edb vias from net name list.
 
         Parameters
@@ -339,6 +339,9 @@ class EdbPadstacks(object):
         list of Edb.Cell.Primitive.PadstackInstance
             list of EDB vias.
         """
+        if net_list == None:
+            net_list = []
+
         if not isinstance(net_list, list):
             net_list = [net_list]
         layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
