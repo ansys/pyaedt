@@ -2843,8 +2843,8 @@ class GeometryModeler(Modeler, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        str
-            Name of objects cloned when successful.
+        List
+            List of names of objects cloned when successful.
 
         References
         ----------
@@ -3823,7 +3823,7 @@ class GeometryModeler(Modeler, object):
         return True
 
     @pyaedt_function_handler()
-    def find_port_faces(self, objs):
+    def find_port_faces(self, port_sheets):
         """Find the vaccums given a list of input sheets.
 
         Starting from a list of input sheets, this method creates a list of output sheets
@@ -3833,37 +3833,34 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objs : list
-            List of input sheets.
+        port_sheets : list
+            List of input sheets names.
 
         Returns
         -------
         List
-            List of output sheets (`2x len(objs)`).
+            List of output sheets (`2x len(port_sheets)`).
 
         """
         faces = []
-        id = 1
-        for obj in objs:
-            self.oeditor.Copy(["NAME:Selections", "Selections:=", obj])
-            originals = self.object_names
-            self.oeditor.Paste()
-            self.refresh_all_ids()
-            added = self.object_names
-            cloned = [i for i in added if i not in originals]
-            solids = self.get_all_solids_names()
-            self.subtract(cloned[0], ",".join(solids))
-            self.subtract(obj, cloned[0])
-            air = self.get_obj_id(cloned[0])
-            air.change_name(obj + "_Face1Vacuum")
-            faces.append(obj)
-            faces.append(obj + "_Face1Vacuum")
-            id += 1
+        solids = [s for s in self.solid_objects if s.material_name != "vacuum" and s.model]
+        for sheet_name in port_sheets:
+            sheet = self[sheet_name]  # get the sheet object
+            _, cloned = self.clone(sheet)
+            cloned = self[cloned[0]]
+            cloned.subtract(solids)
+            sheet.subtract(cloned)
+            cloned.name = sheet.name + "_Face1Vacuum"
+            faces.append(sheet.name)
+            faces.append(cloned.name)
         return faces
 
     @pyaedt_function_handler()
     def load_objects_bytype(self, obj_type):
         """Load all objects of a specified type.
+
+        .. deprecated:: 0.5.0
+           Use :func:`get_objects_in_group` property instead.
 
         Parameters
         ----------
@@ -3881,6 +3878,12 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.GetObjectsInGroup
         """
+
+        warnings.warn(
+            "`load_objects_bytype` is deprecated and will be removed in version 0.5.0. "
+            "Use `get_objects_in_group` method instead.", DeprecationWarning
+        )
+
         objNames = list(self.oeditor.GetObjectsInGroup(obj_type))
         return objNames
 
@@ -4593,9 +4596,9 @@ class GeometryModeler(Modeler, object):
                         # self.modeler_oproject.ClearMessages()
         return True
 
-    def __get__(self, instance, owner):
-        self._app = instance
-        return self
+    # def __get__(self, instance, owner):
+    #     self._app = instance
+    #     return self
 
     class Position:
         """Position.
