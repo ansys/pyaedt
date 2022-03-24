@@ -21,7 +21,8 @@ from pyaedt import Desktop
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Change NonGraphical Boolean to False to open AEDT in graphical mode
 # With NewThread = False, an existing instance of AEDT will be used, if
-# available. This example will use AEDT 2022.1
+# available. This example will use AEDT 2022.1 However this example is supposed to work
+# on AEDT 2022R2 and on.
 
 NonGraphical = False
 NewThread = True
