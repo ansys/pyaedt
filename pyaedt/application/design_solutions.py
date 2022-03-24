@@ -33,7 +33,7 @@ solutions_types = {
             "options": "XY",
             "report_type": "EddyCurrent",
             "default_setup": 7,
-            "default_adaptive": "LastAdaptive",
+            "default_adaptive": None,
         },
         "Transient": {
             "name": "Transient",
@@ -47,7 +47,7 @@ solutions_types = {
             "options": "XY",
             "report_type": "Electrostatic",
             "default_setup": 8,
-            "default_adaptive": "LastAdaptive",
+            "default_adaptive": None,
         },
         "ElectricTransient": {
             "name": "ElectricTransient",
@@ -61,7 +61,7 @@ solutions_types = {
             "options": "XY",
             "report_type": None,
             "default_setup": 9,
-            "default_adaptive": "LastAdaptive",
+            "default_adaptive": None,
         },
     },
     "Maxwell 3D": {
@@ -70,7 +70,7 @@ solutions_types = {
             "options": None,
             "report_type": "Magnetostatic",
             "default_setup": 6,
-            "default_adaptive": "LastAdaptive",
+            "default_adaptive": None,
         },
         "EddyCurrent": {
             "name": "EddyCurrent",
@@ -91,7 +91,7 @@ solutions_types = {
             "options": None,
             "report_type": "Electrostatic",
             "default_setup": 8,
-            "default_adaptive": "LastAdaptive",
+            "default_adaptive": None,
         },
         "DCConduction": {
             "name": None,
