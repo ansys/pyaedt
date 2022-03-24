@@ -2699,9 +2699,10 @@ class PostProcessor(PostProcessorCommon, object):
             self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
         if isvector:
             self.ofieldsreporter.CalcOp("Smooth")
-            self.ofieldsreporter.EnterScalar(0)
-            self.ofieldsreporter.CalcOp("AtPhase")
-            self.ofieldsreporter.CalcOp("Mag")
+            if phase:
+                self.ofieldsreporter.EnterScalar(0)
+                self.ofieldsreporter.CalcOp("AtPhase")
+                self.ofieldsreporter.CalcOp("Mag")
         units = self.modeler.model_units
         ang_units = "deg"
         if gridtype == "Cartesian":

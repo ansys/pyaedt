@@ -21,7 +21,7 @@ from pyaedt.third_party.ironpython.rpyc_27.lib import safe_import, spawn, spawn_
 from pyaedt.third_party.ironpython.rpyc_27.lib.compat import poll, get_exc_errno
 
 signal = safe_import("signal")
-gevent = safe_import("gevent")
+#gevent = safe_import("gevent")
 
 
 class Server(object):
