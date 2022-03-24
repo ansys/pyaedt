@@ -198,7 +198,7 @@ hfss.create_linear_count_sweep(
 # Save the project
 # ----------------
 
-hfss.save_project(os.path.join(temp_folder, "MyChoke.aedt"))
+hfss.save_project(os.path.join(temp_folder, "My_HFSS_Choke.aedt"))
 
 
 ###############################################################################
