@@ -348,11 +348,11 @@ class Mesh(object):
 
         Parameters
         ----------
-        names : list
+        names : list or str or :class:`pyaedt.modeler.Object3d.FacePrimitive`
             List of faces to apply the surface mesh to.
-        surf_dev : float, optional
-            Surface deviation. The default is ``None``.
-        normal_dev : float, optional
+        surf_dev : float or str, optional
+            Surface deviation. The default is ``None``. Allowed values are float, number with units or `"inf"`.
+        normal_dev : float or str, optional
             Normal deviation. The default is ``None``.
         aspect_ratio : int, optional
             Aspect ratio. The default is ``None``.
@@ -382,9 +382,10 @@ class Mesh(object):
         aspect_ratio_enable = 2
 
         if not surf_dev:
+            surf_dev_enable = 0
+            surf_dev = "0.0001mm"
+        elif surf_dev == "inf":
             surf_dev_enable = 1
-            surf_dev = "0.001"
-
         if not normal_dev:
             normal_dev_enable = 1
             normal_dev = "1"
