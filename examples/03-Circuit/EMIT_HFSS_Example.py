@@ -23,7 +23,7 @@ from pyaedt import Desktop
 # With NewThread = False, an existing instance of AEDT will be used, if
 # available. This example will use AEDT 2022.1
 
-NonGraphical = True
+NonGraphical = False
 NewThread = True
 desktop_version = "2022.1"
 scratch_path = tempfile.gettempdir()
