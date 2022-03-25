@@ -1,6 +1,6 @@
 """
-Choke
---------------
+Maxwell3d: Choke
+----------------
 This example shows how you can use PyAEDT to create an choke setup in Maxwell3D.
 """
 
@@ -24,7 +24,7 @@ if not os.path.exists(temp_folder):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This examples launches AEDT 2022.1 in graphical mode.
 version = "2022.1"
-non_graphical = False
+non_graphical = True
 
 ###############################################################################
 # Launch HFSS in Graphical Mode
@@ -191,6 +191,8 @@ setup.add_eddy_current_sweep(range_type="LinearCount", start=100, end=1000, coun
 # ----------------
 
 m3d.save_project(os.path.join(temp_folder, "My_Maxwell3d_Choke.aedt"))
+m3d.modeler.fit_all()
+m3d.plot(os.path.join(m3d.working_directory, "Image.jpg"))
 
 
 ###############################################################################

@@ -1,9 +1,8 @@
 """
-Siwave Analysis from EDB Setup
-------------------------------
+Edb: Siwave Analysis from EDB Setup
+-----------------------------------
 This example shows how to use EDB to interact with a layout.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/edb.png'
 
 import shutil
 
@@ -171,6 +170,8 @@ edb.core_siwave.add_siwave_dc_analysis(settings)
 # This command saves modifications.
 
 edb.save_edb()
+edb.core_nets.plot(None, "TOP")
+
 edb.solve_siwave()
 
 ###############################################################################

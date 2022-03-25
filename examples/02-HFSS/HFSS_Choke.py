@@ -1,6 +1,6 @@
 """
-Choke
---------------
+Hfss: Choke
+-----------
 This example shows how you can use PyAEDT to create an choke setup in HFSS.
 """
 
@@ -24,7 +24,7 @@ if not os.path.exists(temp_folder):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This examples launches AEDT 2022.1 in graphical mode.
 version = "2022.1"
-non_graphical = False
+non_graphical = True
 
 ###############################################################################
 # Launch HFSS in Graphical Mode
@@ -196,8 +196,9 @@ hfss.create_linear_count_sweep(
 ###############################################################################
 # Save the project
 # ----------------
-
 hfss.save_project(os.path.join(temp_folder, "My_HFSS_Choke.aedt"))
+hfss.modeler.fit_all()
+hfss.plot(os.path.join(hfss.working_directory, "Image.jpg"))
 
 
 ###############################################################################

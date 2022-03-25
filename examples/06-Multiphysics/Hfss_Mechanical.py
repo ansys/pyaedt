@@ -1,6 +1,6 @@
 """
-HFSS-Mechanical Multiphysics Analysis
--------------------------------------
+Multiphisics: HFSS-Mechanical Multiphysics Analysis
+---------------------------------------------------
 This example shows how to use Pyaedt to create a multiphysics workflow that includes Circuit, Hfss and Mechanical.
 """
 

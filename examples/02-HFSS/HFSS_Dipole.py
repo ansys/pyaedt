@@ -1,6 +1,6 @@
 """
-Dipole Antenna
---------------
+Hfss: Dipole Antenna
+--------------------
 This example shows how you can use PyAEDT to create an antenna setup in HFSS and postprocess results.
 """
 
@@ -120,6 +120,17 @@ hfss.post.create_report(
 ###############################################################################
 # Postprocessing
 # --------------
+# Create post processing variable and assign to new coordinate system .
+# A post processing variable can be created directly from setter
+# using "post" prefix or with arbitrary name using set_variable method.
+
+hfss["post_x"] = 2
+hfss.variable_manager.set_variable("y_post", 1, postprocessing=True)
+hfss.modeler.create_coordinate_system(["post_x", "y_post", 0], name="CS_Post")
+hfss.insert_infinite_sphere(custom_coordinate_system="CS_Post", name="Sphere_Custom")
+###############################################################################
+# Postprocessing
+# --------------
 # The same report can be obtained outside electronic desktop with the
 # following commands.
 
@@ -132,12 +143,28 @@ solutions = hfss.post.get_solution_data(
     report_category="Far Fields",
 )
 
+solutions_custom = hfss.post.get_solution_data(
+    "GainTotal",
+    hfss.nominal_adaptive,
+    variations,
+    primary_sweep_variable="Theta",
+    context="Sphere_Custom",
+    report_category="Far Fields",
+)
+
 ###############################################################################
 # 3D Plot
 # -------
 # plot_3d method created a 3d plot using matplotlib.
 
 solutions.plot_3d()
+
+###############################################################################
+# 3D Plot
+# -------
+# plot_3d method created a 3d plot using matplotlib.
+
+solutions_custom.plot_3d()
 
 ###############################################################################
 # 2D Plot

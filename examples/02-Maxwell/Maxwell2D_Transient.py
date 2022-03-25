@@ -1,6 +1,6 @@
 """
-Transient Winding Analysis
---------------------------
+Maxwell 2d: Transient Winding Analysis
+--------------------------------------
 This example shows how you can use PyAEDT to create a project in Maxwell 2D
 and run a transient simulation. It runs only on Windows using CPython.
 
