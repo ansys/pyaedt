@@ -452,6 +452,7 @@ class PostProcessor(Post):
         project_path="",
         export_gif=False,
         show=True,
+        zoom=None,
     ):
         """Generate a field plot to an animated gif file using PyVista.
 
@@ -487,10 +488,12 @@ class PostProcessor(Post):
         project_path : str, optional
             Path for the export. The default is ``""`` which export file in working_directory.
         export_gif : bool, optional
-             Whether to export to a GIF file. The default is ``False``,
-             in which case the plot is exported to a JPG file.
+            Whether to export to a GIF file. The default is ``False``,
+            in which case the plot is exported to a JPG file.
         show : bool, optional
-             Generate the animation without showing an interactive plot.  The default is ``True``.
+            Generate the animation without showing an interactive plot.  The default is ``True``.
+        zoom : float, optional
+            Zoom factor.
 
         Returns
         -------
@@ -528,6 +531,8 @@ class PostProcessor(Post):
             model.add_frames_from_file(fields_to_add)
         if export_gif:
             model.gif_file = os.path.join(self._app.working_directory, self._app.project_name + ".gif")
+        if zoom:
+            model.zoom = zoom
         if show or export_gif:
             model.animate()
             model.clean_cache_and_files(clean_cache=False)

@@ -1,6 +1,6 @@
 """
-Icepack Setup from Sherlock Inputs
-----------------------------------
+Icepack: Setup from Sherlock Inputs
+-----------------------------------
 This example shows how to create an Icepak project starting from Sherlock
 # files (STEP and CSV) and an AEDB board.
 """

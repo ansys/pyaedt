@@ -1,6 +1,6 @@
 """
-HFSS-Icepack Multyphisics Analysis
-----------------------------------
+Multiphisics: HFSS-Icepack Multyphisics Analysis
+------------------------------------------------
 This example shows how to create a full project from scratch in HFSS and Icepak (linked to HFSS).
 The project creates a setup, solves it, and creates post-processing output. It includes several
 commands to show PyAEDT's capabilities.
@@ -54,7 +54,7 @@ desktopVersion = "2022.1"
 # You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch
 # AEDT in graphical mode.
 
-NonGraphical = False
+NonGraphical = True
 NewThread = True
 project_name = "HFSS_Icepak_Coupling"
 project_file = os.path.join(project_dir, project_name + ".aedt")
@@ -88,9 +88,20 @@ aedtapp["inner"] = "3mm"
 # Alternatively, the material can be assigned using the :func:`assign_material` function.
 
 # TODO: How does this work when two truesurfaces are defined?
-o1 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.XY, udp, "inner", "$coax_dimension", numSides=0, name="inner")
-o2 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.XY, udp, 8, "$coax_dimension", numSides=0, matname="teflon_based")
-o3 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.XY, udp, 10, "$coax_dimension", numSides=0, name="outer")
+o1 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.ZX, udp, "inner", "$coax_dimension", numSides=0, name="inner")
+o2 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.ZX, udp, 8, "$coax_dimension", numSides=0, matname="teflon_based")
+o3 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.ZX, udp, 10, "$coax_dimension", numSides=0, name="outer")
+
+###############################################################################
+# Assign a Color
+# ~~~~~~~~~~~~~~
+# You can assign change color to every primitve created.
+
+o1.color = (255, 0, 0)
+o2.color = (0, 255, 0)
+o3.color = (255, 0, 0)
+o3.transparency = 0.8
+aedtapp.modeler.fit_all()
 
 ###############################################################################
 # Assign a Material
@@ -128,8 +139,8 @@ aedtapp.mesh.assign_length_mesh(o2.faces, False, 1, 2000)
 # and then creates a sheet to cover the faces and assigns a port to this face.
 # If selected, a PEC cap is also created.
 
-aedtapp.create_wave_port_between_objects("inner", "outer", axisdir=0, add_pec_cap=True, portname="P1")
-aedtapp.create_wave_port_between_objects("inner", "outer", axisdir=3, add_pec_cap=True, portname="P2")
+aedtapp.create_wave_port_between_objects("inner", "outer", axisdir=1, add_pec_cap=True, portname="P1")
+aedtapp.create_wave_port_between_objects("inner", "outer", axisdir=4, add_pec_cap=True, portname="P2")
 
 portnames = aedtapp.get_all_sources()
 aedtapp.modeler.fit_all()
@@ -266,7 +277,7 @@ import time
 start = time.time()
 cutlist = ["Global:XY"]
 phases = [str(i * 5) + "deg" for i in range(18)]
-aedtapp.post.animate_fields_from_aedtplt_2(
+animated = aedtapp.post.animate_fields_from_aedtplt_2(
     quantityname="Mag_E",
     object_list=cutlist,
     plottype="CutPlane",
@@ -277,8 +288,15 @@ aedtapp.post.animate_fields_from_aedtplt_2(
     variation_variable="Phase",
     variation_list=phases,
     show=False,
-    export_gif=True,
+    export_gif=False,
 )
+animated.gif_file = os.path.join(aedtapp.working_directory, "animate.gif")
+animated.camera_position = [0, 50, 200]
+animated.focal_point = [0, 50, 0]
+# Set off_screen to False to visualize the animation.
+# animated.off_screen = False
+animated.animate()
+
 endtime = time.time() - start
 print("Total Time", endtime)
 

@@ -1,6 +1,6 @@
 """
-EMIT Example
-------------
+EMIT: Antenna Example
+---------------------
 This tutorial shows how you can use PyAEDT to create a project in EMIT.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/emit.png'
