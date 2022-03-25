@@ -2143,6 +2143,7 @@ class EDBPadstackInstance(object):
         """
 
         padstack_center = self.position
+        rotation = self.rotation  # in radians
         padstack_name = self.padstack_definition
         try:
             padstack = self._pedb.core_padstack.padstacks[padstack_name]
@@ -2160,39 +2161,46 @@ class EDBPadstackInstance(object):
         params = padstack_pad.parameters_values
         polygon_data = padstack_pad.polygon_data
 
-        rect = None
-        pcx = padstack_center[0]
-        pcy = padstack_center[1]
+        def _rotate(p):
+            x = p[0]*math.cos(rotation) - p[1]*math.sin(rotation)
+            y = p[0]*math.sin(rotation) + p[1]*math.cos(rotation)
+            return [x, y]
 
+        def _translate(p):
+            x = p[0] + padstack_center[0]
+            y = p[1] + padstack_center[1]
+            return [x, y]
+
+        rect = None
         if pad_shape == 1:
             # Circle
             diameter = params[0]
             r = diameter * 0.5
-            p1 = [pcx + r, pcy]
-            p2 = [pcx, pcy + r]
-            p3 = [pcx - r, pcy]
-            p4 = [pcx, pcy - r]
-            rect = [p1, p2, p3, p4]
+            p1 = [r, 0.0]
+            p2 = [0.0, r]
+            p3 = [-r, 0.0]
+            p4 = [0.0, -r]
+            rect = [_translate(p1), _translate(p2), _translate(p3), _translate(p4)]
         elif pad_shape == 2:
             # Square
             square_size = params[0]
             s2 = square_size * 0.5
-            p1 = [pcx + s2, pcy + s2]
-            p2 = [pcx - s2, pcy + s2]
-            p3 = [pcx - s2, pcy - s2]
-            p4 = [pcx + s2, pcy - s2]
-            rect = [p1, p2, p3, p4]
+            p1 = [s2, s2]
+            p2 = [-s2, s2]
+            p3 = [-s2, -s2]
+            p4 = [s2, -s2]
+            rect = [_translate(_rotate(p1)), _translate(_rotate(p2)), _translate(_rotate(p3)), _translate(_rotate(p4))]
         elif pad_shape == 3:
             # Rectangle
             x_size = float(params[0])
             y_size = float(params[1])
             sx2 = x_size * 0.5
             sy2 = y_size * 0.5
-            p1 = [pcx + sx2, pcy + sy2]
-            p2 = [pcx - sx2, pcy + sy2]
-            p3 = [pcx - sx2, pcy - sy2]
-            p4 = [pcx + sx2, pcy - sy2]
-            rect = [p1, p2, p3, p4]
+            p1 = [sx2, sy2]
+            p2 = [-sx2, sy2]
+            p3 = [-sx2, -sy2]
+            p4 = [sx2, -sy2]
+            rect = [_translate(_rotate(p1)), _translate(_rotate(p2)), _translate(_rotate(p3)), _translate(_rotate(p4))]
         elif pad_shape == 4:
             # Oval
             x_size = params[0]
@@ -2205,11 +2213,11 @@ class EDBPadstackInstance(object):
             sx = x_size * 0.5 - r
             sy = y_size * 0.5 - r
             k = r / math.sqrt(2)
-            p1 = [pcx + sx + k, pcy + sy + k]
-            p2 = [pcx - sx - k, pcy + sy + k]
-            p3 = [pcx - sx - k, pcy - sy - k]
-            p4 = [pcx + sx + k, pcy - sy - k]
-            rect = [p1, p2, p3, p4]
+            p1 = [sx + k, sy + k]
+            p2 = [-sx - k, sy + k]
+            p3 = [-sx - k, -sy - k]
+            p4 = [sx + k, -sy - k]
+            rect = [_translate(_rotate(p1)), _translate(_rotate(p2)), _translate(_rotate(p3)), _translate(_rotate(p4))]
         elif pad_shape == 5:
             # Bullet
             x_size = params[0]
@@ -2222,22 +2230,22 @@ class EDBPadstackInstance(object):
             sx = x_size * 0.5 - r
             sy = y_size * 0.5 - r
             k = r / math.sqrt(2)
-            p1 = [pcx + sx + k, pcy + sy + k]
-            p2 = [pcx - x_size * 0.5, pcy + sy + k]
-            p3 = [pcx - x_size * 0.5, pcy - sy - k]
-            p4 = [pcx + sx + k, pcy - sy - k]
-            rect = [p1, p2, p3, p4]
+            p1 = [sx + k, sy + k]
+            p2 = [-x_size * 0.5, sy + k]
+            p3 = [-x_size * 0.5, -sy - k]
+            p4 = [sx + k, -sy - k]
+            rect = [_translate(_rotate(p1)), _translate(_rotate(p2)), _translate(_rotate(p3)), _translate(_rotate(p4))]
         elif pad_shape == 6:
             # N-Sided Polygon
             size = params[0]
             num_sides = params[1]
             ext_radius = size * 0.5
             apothem = ext_radius * math.cos(math.pi / num_sides)
-            p1 = [pcx + apothem, pcy]
-            p2 = [pcx, pcy + apothem]
-            p3 = [pcx - apothem, pcy]
-            p4 = [pcx, pcy - apothem]
-            rect = [p1, p2, p3, p4]
+            p1 = [apothem, 0.0]
+            p2 = [0.0, apothem]
+            p3 = [-apothem, 0.0]
+            p4 = [0.0, -apothem]
+            rect = [_translate(_rotate(p1)), _translate(_rotate(p2)), _translate(_rotate(p3)), _translate(_rotate(p4))]
         elif pad_shape == 0 and polygon_data is not None:
             # Polygon
             points = []
@@ -2254,8 +2262,7 @@ class EDBPadstackInstance(object):
             rectangles = GeometryOperators.find_largest_rectangle_inside_polygon(polygon)
             rect = rectangles[0]
             for i in range(4):
-                rect[i][0] = rect[i][0] + pcx
-                rect[i][1] = rect[i][1] + pcy
+                rect[i] = _translate(_rotate(rect[i]))
 
         if rect is None or len(rect) != 4:
             return False

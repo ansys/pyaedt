@@ -68,7 +68,6 @@ class AedtLogger(object):
         self.filename = filename or settings.logger_file_path
         settings.logger_file_path = self.filename
 
-        self._messenger = AEDTMessageManager()
         self._global = logging.getLogger("Global")
         self._file_handler = None
         self._std_out_handler = None
@@ -83,6 +82,9 @@ class AedtLogger(object):
                 self._global.removeHandler(self._global.handlers[0])
                 if self._global.handlers:
                     self._global.removeHandler(self._global.handlers[0])
+
+        self._messenger = AEDTMessageManager()
+
         if not self._global.handlers:
             self._global.addHandler(log_handler.LogHandler(self._messenger, "Global", logging.DEBUG))
             main._aedt_handler = self._global.handlers
