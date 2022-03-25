@@ -1086,7 +1086,7 @@ class Components(object):
                 other_port_prop = other_cmp_prop.GetPortProperty().Clone()
                 other_port_prop.SetReferenceSizeAuto(True)
                 other_cmp_prop.SetPortProperty(other_port_prop)
-                edb_cmp.SetComponentProperty(other_port_prop)
+                edb_cmp.SetComponentProperty(other_cmp_prop)
             else:
                 return False
         else:
