@@ -1,6 +1,6 @@
 """
-Advanced Far Field Postprocessing Example
------------------------------------------
+Hfss: Advanced Far Field Postprocessing
+---------------------------------------
 This example shows how to use advanced postprocessing functions to create plots
 using Matplotlib without opening the HFSS user interface.
 This examples runs only on Windows using CPython.
@@ -183,9 +183,14 @@ vals = hfss.post.get_far_field_data(
     setup_sweep_name=hfss.nominal_sweep, expression="RealizedGainTotal", domain="Elevation"
 )
 
-
+###############################################################################
+# Polar Plot
+# ~~~~~~~~~~
 vals.plot(math_formula="db20", is_polar=True)
 
+###############################################################################
+#  Scalar Plot
+# ~~~~~~~~~~~~
 vals.plot(math_formula="db20", is_polar=False)
 
 

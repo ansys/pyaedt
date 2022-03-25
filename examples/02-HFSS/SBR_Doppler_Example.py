@@ -1,6 +1,6 @@
 """
-SBR+ Doppler Setup
-------------------
+Sbr+: Doppler Setup
+-------------------
 This example shows how you can use PyAEDT to create a Multipart Scenario in SBR+ and setup a doppler Analysis.
 """
 

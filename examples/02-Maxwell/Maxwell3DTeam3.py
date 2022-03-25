@@ -1,6 +1,6 @@
 """
-Maxwell 3D Bath Plate
----------------------
+Maxwell 3d: Bath Plate
+----------------------
 This example uses PyAEDT to setup the TEAM3 problem.
 This is solved using the Maxwell 3D Eddy Current solver
 """
@@ -168,8 +168,19 @@ solutions = M3D.post.get_solution_data(
     variations=variations,
     primary_sweep_variable="Distance",
 )
+
+###############################################################################
+# Postprocessing
+# --------------
+# User can setup a sweep value and plot the solution.
+
 solutions.nominal_sweeps["Coil_Position"] = -0.02
 solutions.plot()
+
+###############################################################################
+# Postprocessing
+# --------------
+# User can change a sweep value and plot again.
 
 solutions.nominal_sweeps["Coil_Position"] = 0
 solutions.plot()

@@ -376,7 +376,8 @@ class Analysis(Design, object):
                 except:
                     sweeps = []
                 for sw in sweeps:
-                    sweep_list.append(el + " : " + sw)
+                    if el + " : " + sw not in sweep_list:
+                        sweep_list.append(el + " : " + sw)
         return sweep_list
 
     @property

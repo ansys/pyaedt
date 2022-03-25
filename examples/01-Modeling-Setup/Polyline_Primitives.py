@@ -1,6 +1,6 @@
 """
-Polyline Creation
------------------
+General: Polyline Creation
+--------------------------
 This example shows how you can use PyAEDT to create and manipulate polylines.
 """
 

@@ -1,6 +1,6 @@
 """
-Optimetrics Setup
------------------
+General: Optimetrics Setup
+--------------------------
 This example shows how you can use PyAEDT to create a project in HFSS and create all optimetrics setups.
 """
 

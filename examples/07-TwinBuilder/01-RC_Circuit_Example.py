@@ -1,6 +1,6 @@
 """
-RC Circuit Design in Twin Builder
----------------------------------
+TwinBuilder: RC Circuit Design in Twin Builder
+----------------------------------------------
 This example shows how you can use PyAEDT to create a Twin Builder design
 and run a Twin Builder time-domain simulation.
 """

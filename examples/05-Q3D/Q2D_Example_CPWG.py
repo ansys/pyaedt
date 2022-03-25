@@ -1,6 +1,6 @@
 """
-CPWG Analysis
----------------
+2d Extractor: CPWG Analysis
+---------------------------
 This example shows how you can use PyAEDT to create a coplanar waveguide design
 in Q2D and run a simulation.
 """
@@ -30,7 +30,7 @@ q = Q2d(specified_version="2022.1", non_graphical=NonGraphical, new_desktop_sess
 
 ###############################################################################
 # Create variables
-# ~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~
 
 e_factor = "e_factor"
 sig_bot_w = "sig_bot_w"
@@ -66,16 +66,19 @@ layer_1_uh = cond_h
 layer_2_lh = layer_1_uh + "+" + d_h
 layer_2_uh = layer_2_lh + "+" + cond_h
 
-# ~~~~~~~~~~~~~~~~~
+###############################################################################
 # Create signal
+# ~~~~~~~~~~~~~
 base_line_obj = q.modeler.create_polyline([[0, layer_2_lh, 0], [sig_bot_w, layer_2_lh, 0]], name="signal")
 top_line_obj = q.modeler.create_polyline([[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]])
 q.modeler.move([top_line_obj], [delta_w_half, 0, 0])
 q.modeler.connect([base_line_obj, top_line_obj])
 q.modeler.move([base_line_obj], ["{}+{}".format(co_gnd_w, clearance), 0, 0])
 
-# ~~~~~~~~~~~~~~~~~
+###############################################################################
 # Create coplanar ground
+# ~~~~~~~~~~~~~~~~~~~~~~~
+
 base_line_obj = q.modeler.create_polyline([[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_left")
 top_line_obj = q.modeler.create_polyline([[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
 q.modeler.move([top_line_obj], [delta_w_half, 0, 0])
@@ -87,18 +90,20 @@ q.modeler.move([top_line_obj], [delta_w_half, 0, 0])
 q.modeler.connect([base_line_obj, top_line_obj])
 q.modeler.move([base_line_obj], ["{}+{}*2+{}".format(co_gnd_w, clearance, sig_bot_w), 0, 0])
 
-# ~~~~~~~~~~~~~~~~~
+###############################################################################
 # Create reference ground plane
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 q.modeler.create_rectangle(position=[0, layer_1_lh, 0], dimension_list=[model_w, cond_h], name="ref_gnd")
 
-# ~~~~~~~~~~~~~~~~~
+###############################################################################
 # Create dielectric
+# ~~~~~~~~~~~~~~~~~
 q.modeler.create_rectangle(
     position=[0, layer_1_uh, 0], dimension_list=[model_w, d_h], name="Dielectric", matname="FR4_epoxy"
 )
-
-# ~~~~~~~~~~~~~~~~~
+###############################################################################
 # Create conformal coating
+# ~~~~~~~~~~~~~~~~~~~~~~~~
 
 sm_obj_list = []
 for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
@@ -129,12 +134,15 @@ sm_obj.name = "solder_mask"
 # Assign conductors
 # ~~~~~~~~~~~~~~~~~
 # Signal
+
 obj = q.modeler.get_object_from_name("signal")
 q.assign_single_conductor(
     name=obj.name, target_objects=[obj], conductor_type="SignalLine", solve_option="SolveOnBoundary", unit="mm"
 )
-# ~~~~~~~~~~~~~~~~~
+
+###############################################################################
 # Reference ground
+# ~~~~~~~~~~~~~~~~
 obj = [q.modeler.get_object_from_name(i) for i in ["co_gnd_left", "co_gnd_right", "ref_gnd"]]
 q.assign_single_conductor(
     name="gnd", target_objects=obj, conductor_type="ReferenceGround", solve_option="SolveOnBoundary", unit="mm"
@@ -142,12 +150,14 @@ q.assign_single_conductor(
 
 ###############################################################################
 # Assign Huray model on signal
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 obj = q.modeler.get_object_from_name("signal")
 q.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_" + obj.name)
 
 ###############################################################################
 # Create setup and analysis
-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
 setup = q.create_setup(setupname="new_setup")
 
 sweep = setup.add_sweep(sweepname="sweep1", sweeptype="Discrete")

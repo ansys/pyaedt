@@ -1,6 +1,6 @@
 """
-Choke
---------------
+Maxwell3d: Choke
+----------------
 This example shows how you can use PyAEDT to create an choke setup in Maxwell3D.
 """
 
@@ -22,17 +22,17 @@ if not os.path.exists(temp_folder):
 ###############################################################################
 # Launch AEDT in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2021.2 in graphical mode.
-
-
-desktop = Desktop("2021.2", non_graphical=False, new_desktop_session=True)
+# This examples launches AEDT 2022.1 in graphical mode.
+version = "2022.1"
+non_graphical = True
 
 ###############################################################################
 # Launch HFSS in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This examples launches HFSS 2021.2 in graphical mode.
 
-m3d = Maxwell3d(solution_type="EddyCurrent")
+m3d = Maxwell3d(solution_type="EddyCurrent", specified_version=version, non_graphical=non_graphical,
+                new_desktop_session=True)
 
 ###############################################################################
 # Rules and information of use
@@ -191,6 +191,8 @@ setup.add_eddy_current_sweep(range_type="LinearCount", start=100, end=1000, coun
 # ----------------
 
 m3d.save_project(os.path.join(temp_folder, "My_Maxwell3d_Choke.aedt"))
+m3d.modeler.fit_all()
+m3d.plot(os.path.join(m3d.working_directory, "Image.jpg"))
 
 
 ###############################################################################
@@ -202,4 +204,4 @@ m3d.save_project(os.path.join(temp_folder, "My_Maxwell3d_Choke.aedt"))
 
 
 if os.name != "posix":
-    desktop.release_desktop()
+    m3d.release_desktop()
