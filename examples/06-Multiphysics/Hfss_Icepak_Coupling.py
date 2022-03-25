@@ -1,6 +1,6 @@
 """
 Multiphisics: HFSS-Icepack Multyphisics Analysis
--------------------------------------------------
+------------------------------------------------
 This example shows how to create a full project from scratch in HFSS and Icepak (linked to HFSS).
 The project creates a setup, solves it, and creates post-processing output. It includes several
 commands to show PyAEDT's capabilities.

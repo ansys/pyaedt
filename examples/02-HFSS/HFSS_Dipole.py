@@ -120,7 +120,7 @@ hfss.post.create_report(
 ###############################################################################
 # Postprocessing
 # --------------
-# Create post processing variable and assign to new coordinate system .
+# Create post processing variable and assign to new coordinate system.
 # A post processing variable can be created directly from setter
 # using "post" prefix or with arbitrary name using set_variable method.
 

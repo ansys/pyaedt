@@ -142,7 +142,7 @@ q.assign_single_conductor(
 
 ###############################################################################
 # Reference ground
-# ~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~
 obj = [q.modeler.get_object_from_name(i) for i in ["co_gnd_left", "co_gnd_right", "ref_gnd"]]
 q.assign_single_conductor(
     name="gnd", target_objects=obj, conductor_type="ReferenceGround", solve_option="SolveOnBoundary", unit="mm"
