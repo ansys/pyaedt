@@ -1,5 +1,5 @@
 """
-Stripline Analysis
+2D Extractor: Stripline Analysis
 ---------------
 This example shows how you can use PyAEDT to create a differential stripline design in
 in Q2D and run a simulation.
@@ -67,7 +67,7 @@ model_w = "{}*2+{}*2+{}*2+{}".format(co_gnd_w, clearance, sig_w, sig_gap)
 
 ###############################################################################
 # Create Primitives
-# ~~~~~~~~~~~~~~~~~
+###############################################################################
 # Define layer heights
 
 layer_1_lh = 0
@@ -77,7 +77,7 @@ layer_2_uh = layer_2_lh + "+" + cond_h
 layer_3_lh = layer_2_uh + "+" + pp_h
 layer_3_uh = layer_3_lh + "+" + cond_h
 
-# ~~~~~~~~~~~~~~~~~
+###############################################################################
 # Create positive signal
 base_line_obj = q.modeler.create_polyline([[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_p")
 top_line_obj = q.modeler.create_polyline([[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]])
@@ -92,7 +92,7 @@ q.modeler.move([top_line_obj], [delta_w_half, 0, 0])
 q.modeler.connect([base_line_obj, top_line_obj])
 q.modeler.move([base_line_obj], ["{}+{}+{}+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0])
 
-# ~~~~~~~~~~~~~~~~~
+###############################################################################
 # Create coplanar ground
 base_line_obj = q.modeler.create_polyline([[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_left")
 top_line_obj = q.modeler.create_polyline([[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
@@ -105,12 +105,12 @@ q.modeler.move([top_line_obj], [delta_w_half, 0, 0])
 q.modeler.connect([base_line_obj, top_line_obj])
 q.modeler.move([base_line_obj], ["{}+{}*2+{}*2+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0])
 
-# ~~~~~~~~~~~~~~~~~
+###############################################################################
 # Create reference ground plane
 q.modeler.create_rectangle(position=[0, layer_1_lh, 0], dimension_list=[model_w, cond_h], name="ref_gnd_u")
 q.modeler.create_rectangle(position=[0, layer_3_lh, 0], dimension_list=[model_w, cond_h], name="ref_gnd_l")
 
-# ~~~~~~~~~~~~~~~~~
+###############################################################################
 # Create dielectric
 q.modeler.create_rectangle(
     position=[0, layer_1_uh, 0], dimension_list=[model_w, core_h], name="Core", matname="FR4_epoxy"
@@ -124,7 +124,7 @@ q.modeler.create_rectangle(
 
 ###############################################################################
 # Assign conductors
-# ~~~~~~~~~~~~~~~~~
+###############################################################################
 # Signal
 
 obj = q.modeler.get_object_from_name("signal_p")
