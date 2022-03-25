@@ -277,7 +277,7 @@ import time
 start = time.time()
 cutlist = ["Global:XY"]
 phases = [str(i * 5) + "deg" for i in range(18)]
-aedtapp.post.animate_fields_from_aedtplt_2(
+animated = aedtapp.post.animate_fields_from_aedtplt_2(
     quantityname="Mag_E",
     object_list=cutlist,
     plottype="CutPlane",
@@ -288,8 +288,15 @@ aedtapp.post.animate_fields_from_aedtplt_2(
     variation_variable="Phase",
     variation_list=phases,
     show=False,
-    export_gif=True,
+    export_gif=False,
 )
+animated.gif_file = os.path.join(aedtapp.working_directory, "animate.gif")
+animated.camera_position = [0, 50, 200]
+animated.focal_point = [0, 50, 0]
+# Set off_screen to False to visualize the animation.
+# animated.off_screen = False
+animated.animate()
+
 endtime = time.time() - start
 print("Total Time", endtime)
 
