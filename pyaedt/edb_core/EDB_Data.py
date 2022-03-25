@@ -451,6 +451,8 @@ class EDBLayer(object):
         self._etch_factor = None
         self._material_name = None
         self._filling_material_name = None
+        self._negative_layer = None
+        self._roughness_enabled = None
         self._lower_elevation = None
         self._upper_elevation = None
         self._top_bottom_association = None
@@ -588,6 +590,48 @@ class EDBLayer(object):
             self.update_layers()
 
     @property
+    def negative_layer_value(self):
+        """Negative layer.
+
+                Returns
+                -------
+                bool
+                    True if the layer is negative, else False.
+        """
+        try:
+            self._negative_layer = self._layer.GetNegative()
+        except:
+            pass
+        return self._negative_layer
+
+    @negative_layer_value.setter
+    def negative_layer_value(self, value):
+        if self._layer_type == 0 or self._layer_type == 2:
+            self._negative_layer = value
+            self.update_layers()
+
+    @property
+    def roughness_enabled_value(self):
+        """Roughness enabled.
+
+                Returns
+                -------
+                bool
+                    True if the layer has roughness, else False.
+        """
+        try:
+            self._roughness_enabled = self._layer.IsRoughnessEnabled()
+        except:
+            pass
+        return self._roughness_enabled
+
+    @roughness_enabled_value.setter
+    def roughness_enabled_value(self, value):
+        if self._layer_type == 0 or self._layer_type == 2:
+            self._roughness_enabled = value
+            self.update_layers()
+
+    @property
     def top_bottom_association(self):
         """Top/bottom association layer.
 
@@ -708,6 +752,8 @@ class EDBLayer(object):
             if self._layer_type == 0 or self._layer_type == 2:
                 self._etch_factor = self._layer.GetEtchFactor().ToString()
                 self._filling_material_name = self._layer.GetFillMaterial()
+                self._negative_layer = self._layer.GetNegative()
+                self._roughness_enabled = self._layer.IsRoughnessEnabled()
             self._material_name = self._layer.GetMaterial()
             self._lower_elevation = self._layer.GetLowerElevation()
             self._upper_elevation = self._layer.GetUpperElevation()
@@ -716,7 +762,16 @@ class EDBLayer(object):
             pass
 
     @pyaedt_function_handler()
-    def update_layer_vals(self, layerName, newLayer, etchMap, materialMap, fillMaterialMap, thicknessMap, layerTypeMap):
+    def update_layer_vals(self,
+                          layerName,
+                          newLayer,
+                          etchMap,
+                          materialMap,
+                          fillMaterialMap,
+                          thicknessMap,
+                          negativeMap,
+                          roughnessMap,
+                          layerTypeMap):
         """Update layer properties.
 
         Parameters
@@ -752,6 +807,10 @@ class EDBLayer(object):
             newLayer.SetMaterial(materialMap)
         if fillMaterialMap:
             newLayer.SetFillMaterial(fillMaterialMap)
+        if negativeMap:
+            newLayer.SetNegative(negativeMap)
+        if roughnessMap:
+            newLayer.SetRoughnessEnabled(roughnessMap)
         if etchMap and layerTypeMap == 0 or layerTypeMap == 2:
             etchVal = float(etchMap)
         else:
@@ -811,6 +870,8 @@ class EDBLayer(object):
                     self._material_name,
                     self._filling_material_name,
                     self._thickness,
+                    self._negative_layer,
+                    self._roughness_enabled,
                     self._layer_type,
                 )
                 newLayer = self.set_elevation(newLayer, el)
@@ -1053,6 +1114,8 @@ class EDBLayers(object):
         fillMaterial="",
         thickness="35um",
         layerType=0,
+        negative_layer=False,
+        roughness_enabled=False,
         etchMap=None,
     ):
         """Add a layer after a specific layer.
@@ -1107,7 +1170,15 @@ class EDBLayers(object):
                 )
                 self._edb_object[layerName] = EDBLayer(newLayer, self._pedbstackup)
                 newLayer = self._edb_object[layerName].update_layer_vals(
-                    layerName, newLayer, etchMap, material, fillMaterial, thickness, self._int_to_layer_types(layerType)
+                    layerName,
+                    newLayer,
+                    etchMap,
+                    material,
+                    fillMaterial,
+                    thickness,
+                    negative_layer,
+                    roughness_enabled,
+                    self._int_to_layer_types(layerType)
                 )
                 newLayer.SetLowerElevation(self._get_edb_value(el))
 
@@ -1148,6 +1219,8 @@ class EDBLayers(object):
                         material,
                         fillMaterial,
                         thickness,
+                        negative_layer,
+                        roughness_enabled,
                         self._int_to_layer_types(layerType),
                     )
                     newLayer.SetLowerElevation(self._get_edb_value(el))
