@@ -2172,6 +2172,7 @@ class EDBPadstackInstance(object):
             return [x, y]
 
         rect = None
+
         if pad_shape == 1:
             # Circle
             diameter = params[0]
