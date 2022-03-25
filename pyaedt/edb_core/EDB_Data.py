@@ -593,10 +593,10 @@ class EDBLayer(object):
     def negative_layer_value(self):
         """Negative layer.
 
-                Returns
-                -------
-                bool
-                    True if the layer is negative, else False.
+        Returns
+        -------
+        bool
+            True if the layer is negative, else False.
         """
         try:
             self._negative_layer = self._layer.GetNegative()
@@ -614,10 +614,10 @@ class EDBLayer(object):
     def roughness_enabled_value(self):
         """Roughness enabled.
 
-                Returns
-                -------
-                bool
-                    True if the layer has roughness, else False.
+        Returns
+        -------
+        bool
+            True if the layer has roughness, else False.
         """
         try:
             self._roughness_enabled = self._layer.IsRoughnessEnabled()
@@ -762,16 +762,18 @@ class EDBLayer(object):
             pass
 
     @pyaedt_function_handler()
-    def update_layer_vals(self,
-                          layerName,
-                          newLayer,
-                          etchMap,
-                          materialMap,
-                          fillMaterialMap,
-                          thicknessMap,
-                          negativeMap,
-                          roughnessMap,
-                          layerTypeMap):
+    def update_layer_vals(
+        self,
+        layerName,
+        newLayer,
+        etchMap,
+        materialMap,
+        fillMaterialMap,
+        thicknessMap,
+        negativeMap,
+        roughnessMap,
+        layerTypeMap,
+    ):
         """Update layer properties.
 
         Parameters
@@ -1178,7 +1180,7 @@ class EDBLayers(object):
                     thickness,
                     negative_layer,
                     roughness_enabled,
-                    self._int_to_layer_types(layerType)
+                    self._int_to_layer_types(layerType),
                 )
                 newLayer.SetLowerElevation(self._get_edb_value(el))
 
