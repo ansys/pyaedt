@@ -2145,6 +2145,7 @@ class EDBPadstackInstance(object):
         padstack_center = self.position
         rotation = self.rotation  # in radians
         padstack_name = self.padstack_definition
+        transform = self._edb_padstackinstance.GetComponent().GetTransform()
         try:
             padstack = self._pedb.core_padstack.padstacks[padstack_name]
         except KeyError:  # pragma: no cover
