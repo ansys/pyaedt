@@ -228,7 +228,7 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_stackup.stackup_layers["LYR_1"].top_bottom_association is not None or False
         assert self.edbapp.core_stackup.stackup_layers["LYR_1"].lower_elevation is not None or False
         assert self.edbapp.core_stackup.stackup_layers["LYR_1"].upper_elevation is not None or False
-        assert self.edbapp.core_stackup.stackup_layers["LYR_1"].etch_factor is not None
+        assert self.edbapp.core_stackup.stackup_layers["LYR_1"].etch_factor is not None or False
 
     def test_16_remove_layer(self):
         layers = self.edbapp.core_stackup.stackup_layers
