@@ -1023,7 +1023,7 @@ class Q2d(QExtractor, object):
 
         Parameters
         ----------
-        analyze : bool
+        analyze : bool, optional
             Whether to analyze before export. Solutions must be present for the design.
             The default is ``False``.
         export_folder : str, optional
@@ -1046,10 +1046,8 @@ class Q2d(QExtractor, object):
 
         for s in setups:
             sweeps = self.oanalysis.GetSweeps(s)
-            if len(sweeps) == 0:
+            if not sweeps:
                 sweeps = ["LastAdaptive"]
-            else:
-                pass
             for sweep in sweeps:
                 variation_array = self.list_of_variations(s, sweep)
                 solution_name = "{} : {}".format(s, sweep)
@@ -1092,7 +1090,7 @@ class Q2d(QExtractor, object):
                         )
                         exported_files.append(export_path)
                         self.logger.info("Exported W-element: %s", export_path)
-                    except:
+                    except:  # pragma: no cover
                         self.logger.warning("Export W-element failed")
                 else:
                     varCount = 0
@@ -1136,7 +1134,7 @@ class Q2d(QExtractor, object):
                             )
                             exported_files.append(export_path)
                             self.logger.info("Exported W-element: %s", export_path)
-                        except:
+                        except:  # pragma: no cover
                             self.logger.warning("Export W-element failed")
         return exported_files
 
