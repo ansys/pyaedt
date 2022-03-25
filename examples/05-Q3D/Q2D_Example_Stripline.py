@@ -4,7 +4,6 @@
 This example shows how you can use PyAEDT to create a differential stripline design in
 in Q2D and run a simulation.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/q2d_cpwg.png'
 
 import os
 
