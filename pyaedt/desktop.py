@@ -45,6 +45,7 @@ if os.name == "nt":
     IsWindows = True
 else:
     IsWindows = False
+logging.basicConfig()
 logger = logging.getLogger(__name__)
 
 if is_ironpython:

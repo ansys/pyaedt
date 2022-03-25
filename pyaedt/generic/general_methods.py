@@ -14,6 +14,7 @@ import traceback
 from collections import OrderedDict
 from functools import update_wrapper
 
+logging.basicConfig()
 try:
     logger = logging.getLogger("Global")
 except:
