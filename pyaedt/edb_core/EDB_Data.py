@@ -2162,8 +2162,8 @@ class EDBPadstackInstance(object):
         polygon_data = padstack_pad.polygon_data
 
         def _rotate(p):
-            x = p[0]*math.cos(rotation) - p[1]*math.sin(rotation)
-            y = p[0]*math.sin(rotation) + p[1]*math.cos(rotation)
+            x = p[0] * math.cos(rotation) - p[1] * math.sin(rotation)
+            y = p[0] * math.sin(rotation) + p[1] * math.cos(rotation)
             return [x, y]
 
         def _translate(p):
