@@ -2268,10 +2268,16 @@ class EDBPadstackInstance(object):
 
         if rect is None or len(rect) != 4:
             return False
+        path = self._pedb.core_primitives.Shape("polygon", points=rect)
+        pdata = self._pedb.core_primitives.shape_to_polygon_data(path)
+        pdata = transform.TransformPolygon(pdata)
+        new_rect = []
+        for point in pdata.Points:
+            new_rect.append([point.X.ToDouble(), point.Y.ToDouble()])
         if return_points:
-            return rect
+            return new_rect
         else:
-            path = self._pedb.core_primitives.Shape("polygon", points=rect)
+            path = self._pedb.core_primitives.Shape("polygon", points=new_rect)
             created_polygon = self._pedb.core_primitives.create_polygon(path, layer_name)
             return created_polygon
 
