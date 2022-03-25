@@ -1,6 +1,6 @@
 """
 2D Extractor: Stripline Analysis
----------------
+--------------------------------
 This example shows how you can use PyAEDT to create a differential stripline design in
 in Q2D and run a simulation.
 """
