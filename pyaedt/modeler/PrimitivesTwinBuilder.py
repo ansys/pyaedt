@@ -120,7 +120,7 @@ class TwinBuilderComponents(CircuitComponents):
         return id
 
     @pyaedt_function_handler()
-    def create_inductor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_inductor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
         Parameters
@@ -130,7 +130,7 @@ class TwinBuilderComponents(CircuitComponents):
         value : float, optional
             Value for the inductor. The default is ``50``.
         location : list of float, optional
-            Position on the X axis and Y axis.
+            Position on the X axis and Y axis. The default is ``None``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -146,6 +146,9 @@ class TwinBuilderComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location == None:
+            location = []
+
         id = self.create_component(
             compname,
             component_library="Basic Elements\\Circuit\\Passive Elements",

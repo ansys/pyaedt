@@ -5,6 +5,7 @@ files: |
     )
 exclude: |
     (?x)(
+        ^pyaedt/dlls/|
         ^pyaedt/rpc/|
         ^pyaedt/third_party/|
         pyaedt/conftest.py|

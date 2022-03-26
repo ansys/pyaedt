@@ -478,14 +478,9 @@ class Components(object):
 
         rotation = GeometryOperators.v_angle_sign_2D(vector1, vector2, False)
         if rotation != 0.0:
-            layinst = mounted_component.GetLayout().GetLayoutInstance()
-            cmpinst = layinst.GetLayoutObjInstance(mounted_component, None)
-            center = cmpinst.GetCenter()
-            center_double = [center.X.ToDouble(), center.Y.ToDouble()]
-            vector_center = GeometryOperators.v_points(center_double, m_pin1_pos)
-            x_v2 = vector_center[0] * math.cos(rotation) + multiplier * vector_center[1] * math.sin(rotation)
-            y_v2 = -1 * vector_center[0] * math.sin(rotation) + multiplier * vector_center[1] * math.cos(rotation)
-            new_vector = [x_v2 + center_double[0], y_v2 + center_double[1]]
+            x_v2 = m_pin1_pos[0] * math.cos(rotation) + multiplier * m_pin1_pos[1] * math.sin(rotation)
+            y_v2 = -1 * m_pin1_pos[0] * math.sin(rotation) + multiplier * m_pin1_pos[1] * math.cos(rotation)
+            new_vector = [x_v2, y_v2]
             vector = [h_pin1_pos[0] - new_vector[0], h_pin1_pos[1] - new_vector[1]]
 
         if vector:

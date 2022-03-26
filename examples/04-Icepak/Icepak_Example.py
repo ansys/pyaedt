@@ -1,6 +1,6 @@
 """
-Graphic Card Thermal Analysis
------------------------------
+Icepak: Graphic Card Thermal Analysis
+-------------------------------------
 This example shows how you can use PyAEDT to create an Graphic Card setup in Icepak and postprocess results.
 The example file is an Icepak Project with a model already created and with materials assigned.
 """
@@ -8,7 +8,7 @@ The example file is an Icepak Project with a model already created and with mate
 ###############################################################################
 # Launch AEDT in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2021.2 in graphical mode.
+# This examples launches AEDT 2022R1 in graphical mode.
 
 import os
 import tempfile
@@ -32,7 +32,7 @@ if not os.path.exists(temp_folder):
     os.makedirs(temp_folder)
 shutil.copy2(project_full_name, project_temp_name)
 
-ipk = Icepak(project_temp_name, specified_version="2021.2", new_desktop_session=True)
+ipk = Icepak(project_temp_name, specified_version="2022.1", new_desktop_session=True)
 ipk.save_project(os.path.join(temp_folder, "Graphics_card.aedt"))
 ipk.autosave_disable()
 

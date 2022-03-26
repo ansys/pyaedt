@@ -1,6 +1,6 @@
 """
-Schematic Creation and Analysis
--------------------------------
+Circuit: Schematic Creation and Analysis
+----------------------------------------
 This example shows how you can use PyAEDT to create a Circuit design
 and run a Nexxim time-domain simulation.
 """
@@ -13,11 +13,11 @@ import os
 ###############################################################################
 # Launch AEDT and Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2021.2 in graphical mode.
+# This examples launches AEDT 2022R1 in graphical mode.
 
 # This examples uses SI units.
 
-desktop_version = "2021.2"
+desktop_version = "2022.1"
 
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode

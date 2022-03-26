@@ -9,4 +9,5 @@ if int(sys.argv[2]) == 1:
     val = True
 else:
     val = False
+
 launch_server(ansysem_path=sys.argv[1], non_graphical=val, port=int(sys.argv[3]))

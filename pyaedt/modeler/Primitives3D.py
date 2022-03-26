@@ -49,17 +49,6 @@ class Primitives3D(Primitives, object):
         self.multiparts = []
 
     @pyaedt_function_handler()
-    def is3d(self):
-        """Check if the analysis is a 3D type.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-
-    @pyaedt_function_handler()
     def create_point(self, position, name=None, color="(143 175 143)"):
         """Create a point.
 
@@ -1645,6 +1634,8 @@ class Primitives3D(Primitives, object):
                 list
                     list of point coordinates of the winding.
             for each winding.
+        [bool, core_obj, [first_winding_obj, first_winding_point_list],
+         [second_winding_obj, second_winding_point_list], etc...]
 
         Examples
         --------
@@ -1675,12 +1666,14 @@ class Primitives3D(Primitives, object):
         sep_layer = values["Layer Type"]["Separate"]
 
         name_core = values["Core"]["Name"]
+        material_core = values["Core"]["Material"]
         in_rad_core = values["Core"]["Inner Radius"]
         out_rad_core = values["Core"]["Outer Radius"]
         height_core = values["Core"]["Height"]
         chamfer = values["Core"]["Chamfer"]
 
         name_wind = values["Outer Winding"]["Name"]
+        material_wind = values["Outer Winding"]["Material"]
         in_rad_wind = values["Outer Winding"]["Inner Radius"]
         out_rad_wind = values["Outer Winding"]["Outer Radius"]
         height_wind = values["Outer Winding"]["Height"]
@@ -1695,15 +1688,14 @@ class Primitives3D(Primitives, object):
         chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 1)
 
         returned_list = [
-            self._make_core(name_core, "(255 0 0)", "", in_rad_core, out_rad_core, height_core, chamfer),
+            self._make_core(name_core, material_core, in_rad_core, out_rad_core, height_core, chamfer),
         ]
 
         if values["Layer"]["Double"]:
             if values["Layer Type"]["Linked"]:
                 list_object = self._make_double_linked_winding(
                     name_wind,
-                    "(255 0 0)",
-                    "",
+                    material_wind,
                     in_rad_wind,
                     out_rad_wind,
                     height_wind,
@@ -1720,8 +1712,7 @@ class Primitives3D(Primitives, object):
             else:
                 list_object = self._make_double_winding(
                     name_wind,
-                    "(255 0 0)",
-                    "",
+                    material_wind,
                     in_rad_wind,
                     out_rad_wind,
                     height_wind,
@@ -1740,8 +1731,7 @@ class Primitives3D(Primitives, object):
             if values["Layer Type"]["Linked"]:
                 list_object = self._make_triple_linked_winding(
                     name_wind,
-                    "(255 0 0)",
-                    "",
+                    material_wind,
                     in_rad_wind,
                     out_rad_wind,
                     height_wind,
@@ -1760,8 +1750,7 @@ class Primitives3D(Primitives, object):
             else:
                 list_object = self._make_triple_winding(
                     name_wind,
-                    "(255 0 0)",
-                    "",
+                    material_wind,
                     in_rad_wind,
                     out_rad_wind,
                     height_wind,
@@ -1780,7 +1769,7 @@ class Primitives3D(Primitives, object):
                 print("make_triple_winding")
         else:
             list_object = self._make_winding(
-                name_wind, "(255 0 0)", "", in_rad_wind, out_rad_wind, height_wind, w_dia, teta, turns, chamf, sep_layer
+                name_wind, material_wind, in_rad_wind, out_rad_wind, height_wind, teta, turns, chamf, sep_layer
             )
             print("make_winding")
         list_duplicated_object = []
@@ -1801,7 +1790,9 @@ class Primitives3D(Primitives, object):
             if values["Mode"]["Common"] and number_duplication == 2:
                 if type(list_object[0]) == list:
                     for i in range(len(list_object)):
-                        duplication = self.create_polyline(position_list=list_object[i][1], name=name_wind)
+                        duplication = self.create_polyline(
+                            position_list=list_object[i][1], name=name_wind, matname=material_wind
+                        )
                         duplication.mirror([0, 0, 0], [-1, 0, 0])
                         duplication_points = self.get_vertices_of_line(duplication.name)
                         success = duplication.set_crosssection_properties(
@@ -1810,7 +1801,9 @@ class Primitives3D(Primitives, object):
                         list_duplicated_object.append([duplication, duplication_points])
 
                 else:
-                    duplication = self.create_polyline(position_list=list_object[1], name=name_wind)
+                    duplication = self.create_polyline(
+                        position_list=list_object[1], name=name_wind, matname=material_wind
+                    )
                     duplication.mirror([0, 0, 0], [-1, 0, 0])
                     duplication_points = self.get_vertices_of_line(duplication.name)
                     success = duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
@@ -1819,7 +1812,9 @@ class Primitives3D(Primitives, object):
                 if type(list_object[0]) == list:
                     for j in range(number_duplication - 1):
                         for i in range(len(list_object)):
-                            duplication = self.create_polyline(position_list=list_object[i][1], name=name_wind)
+                            duplication = self.create_polyline(
+                                position_list=list_object[i][1], name=name_wind, matname=material_wind
+                            )
                             duplication.rotate("Z", (j + 1) * 360 / number_duplication)
                             duplication_points = self.get_vertices_of_line(duplication.name)
                             success = duplication.set_crosssection_properties(
@@ -1828,7 +1823,9 @@ class Primitives3D(Primitives, object):
                             list_duplicated_object.append([duplication, duplication_points])
                 else:
                     for j in range(number_duplication - 1):
-                        duplication = self.create_polyline(position_list=list_object[1], name=name_wind)
+                        duplication = self.create_polyline(
+                            position_list=list_object[1], name=name_wind, matname=material_wind
+                        )
                         duplication.rotate("Z", (j + 1) * 360 / number_duplication)
                         duplication_points = self.get_vertices_of_line(duplication.name)
                         success = duplication.set_crosssection_properties(
@@ -1841,7 +1838,7 @@ class Primitives3D(Primitives, object):
         return returned_list
 
     @pyaedt_function_handler()
-    def _make_winding(self, name, color, mat, in_rad, out_rad, height, dia, teta, turns, chamf, sep_layer):
+    def _make_winding(self, name, material, in_rad, out_rad, height, teta, turns, chamf, sep_layer):
 
         teta_r = radians(teta)
         points_list1 = [
@@ -1855,7 +1852,7 @@ class Primitives3D(Primitives, object):
             [in_rad * cos(teta_r), in_rad * sin(teta_r), -height / 2 + chamf],
             [in_rad * cos(teta_r), in_rad * sin(teta_r), height / 2 - chamf],
         ]
-        polyline = self.create_polyline(position_list=points_list1, name="Polyline1")
+        polyline = self.create_polyline(position_list=points_list1, name=name, matname=material)
         union_polyline1 = [polyline.name]
         if turns > 1:
             union_polyline2 = polyline.duplicate_around_axis(
@@ -1874,7 +1871,7 @@ class Primitives3D(Primitives, object):
                 list_positions.pop()
             list_positions.insert(0, [list_positions[0][0], list_positions[0][1], -height])
             list_positions.append([list_positions[-1][0], list_positions[-1][1], -height])
-            true_polyline = self.create_polyline(position_list=list_positions, name=name)
+            true_polyline = self.create_polyline(position_list=list_positions, name=name, matname=material)
             true_polyline.rotate("Z", 180 - (turns - 1) * teta)
             list_positions = self.get_vertices_of_line(true_polyline.name)
             return [true_polyline, list_positions]
@@ -1885,8 +1882,7 @@ class Primitives3D(Primitives, object):
     def _make_double_linked_winding(
         self,
         name,
-        color,
-        mat,
+        material,
         in_rad,
         out_rad,
         height,
@@ -1901,8 +1897,7 @@ class Primitives3D(Primitives, object):
     ):
         list_object = self._make_double_winding(
             name,
-            color,
-            mat,
+            material,
             in_rad,
             out_rad,
             height,
@@ -1927,9 +1922,9 @@ class Primitives3D(Primitives, object):
         points_in_wind[-1] = [points_in_wind[-2][0], points_in_wind[-2][1], points_out_wind[1][2]]
         points_in_wind.append([points_in_wind[-3][0], points_in_wind[-3][1], points_out_wind[0][2]])
 
-        outer_polyline = self.create_polyline(position_list=points_out_wind, name="Winding")
+        outer_polyline = self.create_polyline(position_list=points_out_wind, name=name, matname=material)
         outer_polyline.rotate("Z", 180 - (turns - 1) * teta)
-        inner_polyline = self.create_polyline(position_list=points_in_wind, name="Winding2")
+        inner_polyline = self.create_polyline(position_list=points_in_wind, name=name, matname=material)
         inner_polyline.rotate("Z", 180 - (turns_in_wind - 1) * teta_in_wind)
         outer_polyline.mirror([0, 0, 0], [0, -1, 0])
         outer_polyline.rotate("Z", turns_in_wind * teta_in_wind - turns * teta)
@@ -1939,15 +1934,14 @@ class Primitives3D(Primitives, object):
         for i in range(len(list_polyline)):
             list_positions = list_positions + self.get_vertices_of_line(list_polyline[i])
         self.delete(list_polyline)
-        true_polyline = self.create_polyline(position_list=list_positions, name="Final_Winding")
+        true_polyline = self.create_polyline(position_list=list_positions, name=name, matname=material)
         return [true_polyline, list_positions]
 
     @pyaedt_function_handler()
     def _make_triple_linked_winding(
         self,
         name,
-        color,
-        mat,
+        material,
         in_rad,
         out_rad,
         height,
@@ -1964,8 +1958,7 @@ class Primitives3D(Primitives, object):
     ):
         list_object = self._make_triple_winding(
             name,
-            color,
-            mat,
+            material,
             in_rad,
             out_rad,
             height,
@@ -1999,11 +1992,11 @@ class Primitives3D(Primitives, object):
         points_in_wind[-1] = [points_in_wind[-2][0], points_in_wind[-2][1], points_mid_wind[1][2]]
         points_in_wind.append([points_in_wind[-3][0], points_in_wind[-3][1], points_mid_wind[0][2]])
 
-        outer_polyline = self.create_polyline(position_list=points_out_wind, name="Winding")
+        outer_polyline = self.create_polyline(position_list=points_out_wind, name=name, matname=material)
         outer_polyline.rotate("Z", 180 - (turns - 1) * teta)
-        mid_polyline = self.create_polyline(position_list=points_mid_wind, name="Winding2")
+        mid_polyline = self.create_polyline(position_list=points_mid_wind, name=name, matname=material)
         mid_polyline.rotate("Z", 180 - (turns_mid_wind - 1) * teta_mid_wind)
-        inner_polyline = self.create_polyline(position_list=points_in_wind, name="Winding3")
+        inner_polyline = self.create_polyline(position_list=points_in_wind, name=name, matname=material)
 
         inner_polyline.rotate("Z", 180 - (turns_in_wind - 1) * teta_in_wind)
         mid_polyline.mirror([0, 0, 0], [0, -1, 0])
@@ -2016,15 +2009,14 @@ class Primitives3D(Primitives, object):
         for i in range(len(list_polyline)):
             list_positions = list_positions + self.get_vertices_of_line(list_polyline[i])
         self.primitives.delete(list_polyline)
-        true_polyline = self.create_polyline(position_list=list_positions, name="Final_Winding")
+        true_polyline = self.create_polyline(position_list=list_positions, name=name, matname=material)
         return [true_polyline, list_positions]
 
     @pyaedt_function_handler()
     def _make_double_winding(
         self,
         name,
-        color,
-        mat,
+        material,
         in_rad,
         out_rad,
         height,
@@ -2044,15 +2036,13 @@ class Primitives3D(Primitives, object):
         out_rad_in_wind = out_rad - sr * w_dia
         height_in_wind = height - 2 * sr * w_dia
         list_object = [
-            self._make_winding(name, color, mat, in_rad, out_rad, height, w_dia, teta, turns, chamf, sep_layer),
+            self._make_winding(name, material, in_rad, out_rad, height, teta, turns, chamf, sep_layer),
             self._make_winding(
                 name,
-                color,
-                mat,
+                material,
                 in_rad_in_wind,
                 out_rad_in_wind,
                 height_in_wind,
-                w_dia,
                 teta_in_wind,
                 turns_in_wind,
                 chamf_in_wind,
@@ -2065,8 +2055,7 @@ class Primitives3D(Primitives, object):
     def _make_triple_winding(
         self,
         name,
-        color,
-        mat,
+        material,
         in_rad,
         out_rad,
         height,
@@ -2092,15 +2081,13 @@ class Primitives3D(Primitives, object):
         height_in_wind = height - 4 * sr * w_dia
         height_mid_wind = height - 2 * sr * w_dia
         list_object = [
-            self._make_winding(name, color, mat, in_rad, out_rad, height, w_dia, teta, turns, chamf, sep_layer),
+            self._make_winding(name, material, in_rad, out_rad, height, teta, turns, chamf, sep_layer),
             self._make_winding(
                 name,
-                color,
-                mat,
+                material,
                 in_rad_mid_wind,
                 out_rad_mid_wind,
                 height_mid_wind,
-                w_dia,
                 teta_mid_wind,
                 turns_mid_wind,
                 chamf_mid_wind,
@@ -2108,12 +2095,10 @@ class Primitives3D(Primitives, object):
             ),
             self._make_winding(
                 name,
-                color,
-                mat,
+                material,
                 in_rad_in_wind,
                 out_rad_in_wind,
                 height_in_wind,
-                w_dia,
                 teta_in_wind,
                 turns_in_wind,
                 chamf_in_wind,
@@ -2123,10 +2108,9 @@ class Primitives3D(Primitives, object):
         return list_object
 
     @pyaedt_function_handler()
-    def _make_core(self, name, color, mat, in_rad, out_rad, height, chamfer):
-        tool = self.create_cylinder("Z", [0, 0, -height / 2], in_rad, height, 0, "Tool")
-        core = self.create_cylinder("Z", [0, 0, -height / 2], out_rad, height, 0, name)
-        core.color = color
+    def _make_core(self, name, material, in_rad, out_rad, height, chamfer):
+        tool = self.create_cylinder("Z", [0, 0, -height / 2], in_rad, height, 0, "Tool", matname=material)
+        core = self.create_cylinder("Z", [0, 0, -height / 2], out_rad, height, 0, name=name, matname=material)
         core.subtract(tool, False)
         for n in core.edges:
             n.chamfer(chamfer)
@@ -2147,8 +2131,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        List of
-        bool
+        List
             ``True`` when successful, ``False`` when failed.
         dictionary : class : 'dict'
 
@@ -2162,9 +2145,10 @@ class Primitives3D(Primitives, object):
                 "Similar Layer": {"Similar": True, "Different": False},
                 "Mode": {"Differential": True, "Common": False},
                 "Wire Section": {"None": False, "Hexagon": False, "Octagon": True, "Circle": False},
-                "Core": {"Name": "Core", "Inner Radius": 11, "Outer Radius": 17, "Height": 7, "Chamfer": 0.8},
-                "Outer Winding": {"Name": "Winding", "Inner Radius": 12, "Outer Radius": 16, "Height": 8,
-                                  "Wire Diameter": 1, "Turns": 10, "Coil Pit(deg)": 9, "Occupation(%)": 0},
+                "Core": {"Name": "Core", "Material": "ferrite", "Inner Radius": 11, "Outer Radius": 17, "Height": 7,
+                         "Chamfer": 0.8},
+                "Outer Winding": {"Name": "Winding", "Material": "copper", "Inner Radius": 12, "Outer Radius": 16,
+                                  "Height": 8, "Wire Diameter": 1, "Turns": 10, "Coil Pit(deg)": 9, "Occupation(%)": 0},
                 "Mid Winding": {"Turns": 8, "Coil Pit(deg)": 0.1, "Occupation(%)": 0},
                 "Inner Winding": {"Turns": 12, "Coil Pit(deg)": 0.1, "Occupation(%)": 0}
             }
@@ -2184,9 +2168,17 @@ class Primitives3D(Primitives, object):
             "Similar Layer": {"Similar": True, "Different": False},
             "Mode": {"Differential": True, "Common": False},
             "Wire Section": {"None": False, "Hexagon": False, "Octagon": True, "Circle": False},
-            "Core": {"Name": "Core", "Inner Radius": 11, "Outer Radius": 17, "Height": 7, "Chamfer": 0.8},
+            "Core": {
+                "Name": "Core",
+                "Material": "ferrite",
+                "Inner Radius": 11,
+                "Outer Radius": 17,
+                "Height": 7,
+                "Chamfer": 0.8,
+            },
             "Outer Winding": {
                 "Name": "Winding",
+                "Material": "copper",
                 "Inner Radius": 12,
                 "Outer Radius": 16,
                 "Height": 8,
@@ -2246,12 +2238,44 @@ class Primitives3D(Primitives, object):
             values["Core"]["Name"] = "Core"
 
         try:
+            core_material = str(values["Core"]["Material"])
+            if len(core_material) > 0:
+                if self.materials.checkifmaterialexists(core_material):
+                    values["Core"]["Material"] = core_material
+                else:
+                    self.logger.error(
+                        "%s is not in the material library."
+                        " It can be add using the method add_material" % core_material
+                    )
+                    values["Core"]["Material"] = "ferrite"
+        except:
+            self.logger.warning("Core Material must be a non-null string. A default material Core has been set.")
+            values["Core"]["Material"] = "ferrite"
+
+        try:
             winding_name = str(values["Outer Winding"]["Name"])
             if len(winding_name) > 0:
                 values["Outer Winding"]["Name"] = winding_name
         except:
             self.logger.warning("Outer Winding Name must be a non-null string. A default name Winding has been set.")
             values["Outer Winding"]["Name"] = "Winding"
+
+        try:
+            winding_material = str(values["Outer Winding"]["Material"])
+            if len(winding_material) > 0:
+                if self.materials.checkifmaterialexists(winding_material):
+                    values["Outer Winding"]["Material"] = winding_material
+                else:
+                    self.logger.error(
+                        "%s is not in the material library."
+                        " It can be add using the method add_material" % winding_material
+                    )
+                    values["Outer Winding"]["Material"] = "copper"
+        except:
+            self.logger.warning(
+                "Outer Winding Material must be a non-null string." " A default material Winding has been set."
+            )
+            values["Outer Winding"]["Material"] = "copper"
 
         in_rad_core, are_inequations_checkable = self._check_value_type(
             values["Core"]["Inner Radius"],

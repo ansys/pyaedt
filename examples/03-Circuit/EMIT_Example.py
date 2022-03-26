@@ -1,6 +1,6 @@
 """
-EMIT Example
-------------
+EMIT: Antenna Example
+---------------------
 This tutorial shows how you can use PyAEDT to create a project in EMIT.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/emit.png'
@@ -13,10 +13,12 @@ from pyaedt import Desktop
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Change NonGraphical Boolean to False to open AEDT in graphical mode
 # With NewThread = False, an existing instance of AEDT will be used, if
-# available. This example will use AEDT 2021.2
+# available. This example will use AEDT 2022R1. However this example is supposed to work
+# on AEDT 2022R2 and on.
+
 NonGraphical = False
 NewThread = False
-desktop_version = "2021.2"
+desktop_version = "2022.1"
 
 
 ###############################################################################

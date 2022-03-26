@@ -1,9 +1,8 @@
 """
-PCB and EDB in HFSS 3D Layout
------------------------------
+Hfss 3D Layout: PCB and EDB in 3D Layout
+----------------------------------------
 This example shows how to use HFSS 3D Layout combined with EDB to interact with a layout.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/edb2.png'
 
 
 import os
@@ -34,11 +33,11 @@ aedt_file = targetfile[:-12] + "aedt"
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# This example launches AEDT 2021.2 in graphical model.
+# This example launches AEDT 2022R1 in graphical model.
 
 # This example uses SI units.
 
-desktopVersion = "2021.2"
+desktopVersion = "2022.1"
 
 
 ###############################################################################
@@ -81,6 +80,8 @@ h3d.modeler.change_net_visibility(visible=False)
 # This examples shows only the two specified nets.
 
 h3d.modeler.change_net_visibility(["A0_GPIO", "A0_MUX"], visible=True)
+
+h3d.modeler.edb.core_nets.plot(["A0_GPIO", "A0_MUX"])
 
 ###############################################################################
 # Show All Layers

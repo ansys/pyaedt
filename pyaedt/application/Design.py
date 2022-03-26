@@ -460,12 +460,8 @@ class Design(object):
         self._post = None
         self._materials = None
         self._variable_manager = None
-        self.opti_parametric = None
-        self.opti_optimization = None
-        self.opti_doe = None
-        self.opti_designxplorer = None
-        self.opti_sensitivity = None
-        self.opti_statistical = None
+        self.parametrics = None
+        self.optimizations = None
         self.native_components = None
         self._mesh = None
 
@@ -1043,6 +1039,90 @@ class Design(object):
         return self._desktop_install_dir
 
     @pyaedt_function_handler()
+    def get_oo_name(self, aedt_object, object_name):
+        """Return the Object Oriented AEDT Properties names.
+
+        Parameters
+        ----------
+        aedt_object : object
+            AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
+        object_name : str
+            Path to the object list. Example `"DesginName\Boundaries"`.
+
+        Returns
+        -------
+        list
+            Values returned by method if any.
+        """
+        try:
+            return aedt_object.GetChildObject(object_name).GetChildNames()
+        except:
+            return False
+
+    @pyaedt_function_handler()
+    def get_oo_object(self, aedt_object, object_name):
+        """Return the Object Oriented AEDT Object.
+
+        Parameters
+        ----------
+        aedt_object : object
+            AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
+        object_name : str
+            Path to the object list. Example `"DesginName\Boundaries"`.
+
+        Returns
+        -------
+        object
+            Aedt Object if Any.
+        """
+        try:
+            return aedt_object.GetChildObject(object_name)
+        except:
+            return False
+
+    @pyaedt_function_handler()
+    def get_oo_properties(self, aedt_object, object_name):
+        """Return the Object Oriented AEDT Object Properties.
+
+        Parameters
+        ----------
+        aedt_object : object
+            AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
+        object_name : str
+            Path to the object list. Example `"DesginName\Boundaries"`.
+
+        Returns
+        -------
+        list
+            Values returned by method if any.
+        """
+        try:
+            return aedt_object.GetChildObject(object_name).GetPropNames()
+        except:
+            return False
+
+    @pyaedt_function_handler()
+    def get_oo_property_value(self, aedt_object, object_name, prop_name):
+        """Return the Object Oriented AEDT Object Properties.
+
+        Parameters
+        ----------
+        aedt_object : object
+            AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
+        object_name : str
+            Path to the object list. Example `"DesginName\Boundaries"`.
+
+        Returns
+        -------
+        list
+            Values returned by method if any.
+        """
+        try:
+            return aedt_object.GetChildObject(object_name).GetPropValue(prop_name)
+        except:
+            return False
+
+    @pyaedt_function_handler()
     def export_profile(self, setup_name, variation_string="", file_path=None):
         """Export a solution profile to a PROF file.
 
@@ -1069,7 +1149,10 @@ class Design(object):
         """
         if not file_path:
             file_path = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prop")
-        self.odesign.ExportProfile(setup_name, variation_string, file_path)
+        try:
+            self.odesign.ExportProfile(setup_name, variation_string, file_path)
+        except:
+            self.odesign.ExportProfile(setup_name, variation_string, file_path, True)
         self.logger.info("Exported Profile to file {}".format(file_path))
         return file_path
 
