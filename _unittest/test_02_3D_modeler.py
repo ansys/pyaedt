@@ -495,7 +495,25 @@ class TestClass(BasisTest, object):
         assert first_line.insert_segment(
             position_list=first_points, segment=PolylineSegment("Spline", num_points=3), segment_number=3
         )
-        self.add_app.get_oo_properties(self.aedtapp.modeler.oeditor, "Polyline1")
+
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, first_line.name + "\\CreatePolyline:1", "Number of curves"
+            )
+            == "2"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, first_line.name + "\\CreatePolyline:1", "Number of segments"
+            )
+            == "0"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, first_line.name + "\\CreatePolyline:1", "Number of points"
+            )
+            == "4"
+        )
 
         second_points = [[3.0, 2.0, 0], [3.0, 3.0, 1.0], [3.0, 4.0, 1.0]]
         second_line = self.aedtapp.modeler.create_polyline([[0, 0, 0], second_points[0]])
@@ -509,6 +527,53 @@ class TestClass(BasisTest, object):
             segment_number=3,
         )
 
-        import pdb
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1", "Number of curves"
+            )
+            == "3"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1", "Number of segments"
+            )
+            == "0"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1", "Number of points"
+            )
+            == "8"
+        )
 
-        pdb.set_trace()
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment0", "Segment Type"
+            )
+            == "Spline"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment1", "Segment Type"
+            )
+            == "Line"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment2", "Segment Type"
+            )
+            == "Spline"
+        )
+
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment0", "Number of segments"
+            )
+            == "3"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment2", "Number of segments"
+            )
+            == "5"
+        )
