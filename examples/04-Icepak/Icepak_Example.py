@@ -1,6 +1,6 @@
 """
-Graphic Card Thermal Analysis
------------------------------
+Icepak: Graphic Card Thermal Analysis
+-------------------------------------
 This example shows how you can use PyAEDT to create an Graphic Card setup in Icepak and postprocess results.
 The example file is an Icepak Project with a model already created and with materials assigned.
 """

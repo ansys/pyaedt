@@ -1,6 +1,6 @@
 """
-Wiring a Rectifier with Capacitive Filter in Twin Builder
-------------------------------------------
+TwinBuilder: Wiring a Rectifier with Capacitive Filter in Twin Builder
+----------------------------------------------------------------------
 This example shows how you can use PyAEDT to create a Twin Builder design
 and run a Twin Builder time-domain simulation.
 """

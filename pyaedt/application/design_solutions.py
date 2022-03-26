@@ -320,7 +320,7 @@ solutions_types = {
             "options": None,
             "report_type": "Modal Solution Data",
             "default_setup": 4,
-            "default_adaptive": None,
+            "default_adaptive": "Sweep",
         },
     },
     "Icepak": {

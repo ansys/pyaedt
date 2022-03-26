@@ -1,6 +1,6 @@
 """
-IPC 2581 Export
----------------
+Edb: IPC 2581 Export
+--------------------
 This example shows how to use PyAEDT to Export an IPC2581 file.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/ipc2581.png'

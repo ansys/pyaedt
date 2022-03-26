@@ -417,7 +417,7 @@ class EmitComponent(object):
 
         Args:
             property_filter (dict, optional): Only return nodes with all
-            the property name,value pairs of this dict. Defaults to {}
+            the property name, value pairs of this dict. Defaults to ``None``
             which returns all nodes.
 
         Returns:

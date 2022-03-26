@@ -1,6 +1,6 @@
 """
-EMIT Example
-------------
+EMIT: Hfss Coupling Example
+---------------------------
 This tutorial shows how you can use PyAEDT to open an AEDT project with
 an HFSS design, create an EMIT design in the project, then link the HFSS design
 as a coupling link in the EMIT design.

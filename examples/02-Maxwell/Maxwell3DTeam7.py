@@ -1,6 +1,6 @@
 """
-Maxwell 3D symmetrical Conductor with a Hole
---------------------------------------------
+Maxwell 3d: Symmetrical Conductor with a Hole
+---------------------------------------------
 This example uses PyAEDT to setup the TEAM 7 problem.
 This is solved using the Maxwell 3D Eddy Current solver.
 """

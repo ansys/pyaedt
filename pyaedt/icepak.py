@@ -1451,14 +1451,14 @@ class Icepak(FieldAnalysisIcepak):
             String containing the frequency to map. The default is ``None``.
             The value must be ``None`` for Eigenmode analysis.
         surface_objects : list, optional
-            List of objects in the source that are metals. The default is ``[]``.
+            List of objects in the source that are metals. The default is ``None``.
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case the
             source from the same project is used.
         paramlist :list, optional
-            List of all parameters in the EM to map. The default is ``[]``.
+            List of all parameters in the EM to map. The default is ``None``.
         object_list : list, optional
-            List of objects. The default is ``[]``.
+            List of objects. The default is ``None``.
 
         Returns
         -------
@@ -1758,7 +1758,7 @@ class Icepak(FieldAnalysisIcepak):
         variation : str, optional
             The default is ``""``.
         variationlist : list, optional
-            The default is ``[]``.
+            The default is ``None``.
 
         Returns
         -------

@@ -1,6 +1,6 @@
 """
-Schematic Creation and Analysis
--------------------------------
+Circuit: Schematic Creation and Analysis
+----------------------------------------
 This example shows how you can use PyAEDT to create a Circuit design
 and run a Nexxim time-domain simulation.
 """
