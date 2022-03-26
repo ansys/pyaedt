@@ -27,7 +27,7 @@ project_path = os.path.join(workdir, generate_unique_name("pyaedt_q2d_example") 
 # ~~~~~~~~~~~~~~~~~~~
 # This example launches AEDT 2022.1 in graphical mode.
 
-# This example use SI units.
+# This example uses SI units.
 
 
 q = Q2d(projectname=project_path, designname="differential_stripline",
