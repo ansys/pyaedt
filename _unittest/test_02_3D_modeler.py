@@ -495,6 +495,7 @@ class TestClass(BasisTest, object):
         assert first_line.insert_segment(
             position_list=first_points, segment=PolylineSegment("Spline", num_points=3), segment_number=3
         )
+        self.add_app.get_oo_properties(self.aedtapp.modeler.oeditor, "Polyline1")
 
         second_points = [[3.0, 2.0, 0], [3.0, 3.0, 1.0], [3.0, 4.0, 1.0]]
         second_line = self.aedtapp.modeler.create_polyline([[0, 0, 0], second_points[0]])
@@ -507,3 +508,7 @@ class TestClass(BasisTest, object):
             segment=PolylineSegment("Spline", num_points=5),
             segment_number=3,
         )
+
+        import pdb
+
+        pdb.set_trace()
