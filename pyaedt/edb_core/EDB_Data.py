@@ -2123,7 +2123,7 @@ class EDBPadstackInstance(object):
         layer_name : str
             Name of the layer on which to create the polygon.
 
-        return_points : bool
+        return_points : bool, optional
             If `True` does not create the rectangle and just returns a list containing the rectangle vertices.
             Default is `False`.
 
