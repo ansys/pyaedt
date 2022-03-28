@@ -195,10 +195,7 @@ class AedtLogger(object):
     def logger(self):
         """Aedt Logger object."""
         if self._log_on_file:
-            try:
-                return logging.getLogger(__name__)
-            except:
-                return None
+            return logging.getLogger(__name__)
         else:
             return None  # pragma: no cover
 
@@ -317,13 +314,13 @@ class AedtLogger(object):
         """
         self.add_message(0, message_text, level)
 
-    def add_debug_message(self, type, message_text):
+    def add_debug_message(self, message_type, message_text):
         """
         Parameterized message to the message manager to specify the type and project or design level.
 
         Parameters
         ----------
-        type : int
+        message_type : int
             Type of the message. Options are:
 
             * ``0`` : Info
@@ -340,19 +337,19 @@ class AedtLogger(object):
 
         # Print to stdout and to logger
         if self._log_on_file:
-            if type == 0 and self.logger:
+            if message_type == 0 and self.logger:
                 self.logger.debug(message_text)
-            elif type == 1 and self.logger:
+            elif message_type == 1 and self.logger:
                 self.logger.warning(message_text)
-            elif type == 2 and self.logger:
+            elif message_type == 2 and self.logger:
                 self.logger.error(message_text)
 
-    def add_message(self, type, message_text, level=None, proj_name=None, des_name=None):
+    def add_message(self, message_type, message_text, level=None, proj_name=None, des_name=None):
         """Add a message to the message manager to specify the type and project or design level.
 
         Parameters
         ----------
-        type : int
+        message_type : int
             Type of the message. Options are:
             * ``0`` : Info
             * ``1`` : Warning
@@ -388,7 +385,7 @@ class AedtLogger(object):
             if des_name and ";" in des_name:
                 des_name = des_name[des_name.find(";") + 1 :]
             try:
-                self._desktop.AddMessage(proj_name, des_name, type, message_text)
+                self._desktop.AddMessage(proj_name, des_name, message_type, message_text)
             except:
                 print("pyaedt info: Failed in Adding Desktop Message")
 
@@ -397,18 +394,18 @@ class AedtLogger(object):
 
         # Print to stdout and to logger
         if self._log_on_screen:
-            if type == 0:
+            if message_type == 0:
                 print("pyaedt info: {}".format(message_text))
-            elif type == 1:
+            elif message_type == 1:
                 print("pyaedt warning: {}".format(message_text))
-            elif type == 2:
+            elif message_type == 2:
                 print("pyaedt error: {}".format(message_text))
         if self._log_on_file:
-            if type == 0 and self.logger:
+            if message_type == 0 and self.logger:
                 self.logger.debug(message_text)
-            elif type == 1 and self.logger:
+            elif message_type == 1 and self.logger:
                 self.logger.warning(message_text)
-            elif type == 2 and self.logger:
+            elif message_type == 2 and self.logger:
                 self.logger.error(message_text)
 
     def clear_messages(self, proj_name=None, des_name=None, level=2):
