@@ -1,9 +1,8 @@
 """
-EDB Geometry Creation
----------------------
+Edb: Geometry Creation
+----------------------
 This example shows how to use EDB to create a layout.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/3dlayout.png'
 
 ###############################################################################
 # Import the EDB Layout Object
@@ -69,6 +68,7 @@ if edb:
     edb.core_padstack.place_padstack([35e-3, -5e-3], "MyVia")
     edb.core_padstack.place_padstack([45e-3, -5e-3], "MyVia")
 
+edb.core_nets.plot(None)
 
 ###############################################################################
 # Save and Close EDB

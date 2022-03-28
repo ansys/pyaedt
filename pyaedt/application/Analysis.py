@@ -376,7 +376,8 @@ class Analysis(Design, object):
                 except:
                     sweeps = []
                 for sw in sweeps:
-                    sweep_list.append(el + " : " + sw)
+                    if el + " : " + sw not in sweep_list:
+                        sweep_list.append(el + " : " + sw)
         return sweep_list
 
     @property
@@ -624,7 +625,11 @@ class Analysis(Design, object):
         elif not sweep_name:
             self.logger.warning("No Sweep defined.")
             return False
-        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
+        if (
+            self.solution_type == "HFSS3DLayout"
+            or self.solution_type == "HFSS 3D Layout Design"
+            or self.design_type == "2D Extractor"
+        ):
             try:
                 return list(self.osolution.ListVariations("{0} : {1}".format(setup_name, sweep_name)))
             except:

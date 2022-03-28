@@ -1,6 +1,6 @@
 """
-Parametric Via Creation
------------------------
+Edb: Parametric Via Creation
+----------------------------
 This example shows how to use EDB to create a layout.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/viawizard.png'

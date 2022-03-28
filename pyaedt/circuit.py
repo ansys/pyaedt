@@ -372,7 +372,7 @@ class Circuit(FieldAnalysisCircuit, object):
         return True
 
     @pyaedt_function_handler()
-    def read_ibis(self, path):
+    def get_ibis_model_from_file(self, path):
         """Create an IBIS model based on the data contained in an IBIS file.
 
         Parameters
@@ -386,8 +386,9 @@ class Circuit(FieldAnalysisCircuit, object):
             IBIS object exposing all data from the IBIS file.
         """
 
-        reader = ibis_reader.IbisReader()
-        return reader.read_project(path, self)
+        reader = ibis_reader.IbisReader(path, self)
+        reader.parse_ibis_file()
+        return reader.ibis_model
 
     @pyaedt_function_handler()
     def create_schematic_from_mentor_netlist(self, file_to_import):

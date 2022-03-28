@@ -32,9 +32,7 @@ class TestClass(BasisTest, object):
         self.local_scratch.copyfolder(example_project2, self.target_path2)
 
     def teardown_class(self):
-        self.edbapp.close_edb()
-        self.local_scratch.remove()
-        del self.edbapp
+        BasisTest.my_teardown(self)
 
     def test_00_export_ipc2581(self):
         ipc_path = os.path.join(self.local_scratch.path, "test.xml")
@@ -877,12 +875,22 @@ class TestClass(BasisTest, object):
         edb_padstacks = Edb(
             edbpath=os.path.join(self.local_scratch.path, "padstacks2.aedb"),
             edbversion=desktop_version,
-            isreadonly=True,
+            isreadonly=False,
         )
         for i in range(7):
             padstack_instance = list(edb_padstacks.core_padstack.padstack_instances.values())[i]
             result = padstack_instance.create_rectangle_in_pad("s")
             assert result
+            points = padstack_instance.create_rectangle_in_pad("s", return_points=True)
+            assert len(points) == 4
+            assert len(points[0]) == 2
+        # for i in range(8, 10):
+        #     padstack_instance = list(edb_padstacks.core_padstack.padstack_instances.values())[i]
+        #     result = padstack_instance.create_rectangle_in_pad("g")
+        #     assert result
+        #     points = padstack_instance.create_rectangle_in_pad("g", return_points=True)
+        #     assert len(points) == 4
+        #     assert len(points[0]) == 2
         edb_padstacks.close_edb()
 
     def test_81_edb_with_dxf(self):

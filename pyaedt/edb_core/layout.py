@@ -95,7 +95,10 @@ class EdbLayout(object):
             layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
             for el in layoutObjectInstances.Items:
                 try:
-                    self._prims.append(EDBPrimitives(el.GetLayoutObj(), self._pedb))
+                    if el.GetLayoutObj():
+                        # prim = EDBPrimitives(el.GetLayoutObj(), self._pedb)
+                        # if prim:
+                        self._prims.append(EDBPrimitives(el.GetLayoutObj(), self._pedb))
                 except:
                     continue
             for lay in self.layers:

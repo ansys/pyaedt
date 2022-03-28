@@ -73,6 +73,24 @@ class TestClass(BasisTest, object):
             export_gif=True,
         )
         assert os.path.exists(model_gif.gif_file)
+        model_gif2 = self.aedtapp.post.animate_fields_from_aedtplt_2(
+            quantityname="Mag_E",
+            object_list=cutlist,
+            plottype="CutPlane",
+            meshplot=False,
+            setup_name=self.aedtapp.nominal_adaptive,
+            intrinsic_dict={"Freq": "5GHz", "Phase": "0deg"},
+            project_path=self.local_scratch.path,
+            variation_variable="Phase",
+            variation_list=phases,
+            show=False,
+            export_gif=False,
+        )
+        model_gif2.gif_file = os.path.join(self.aedtapp.working_directory, "test2.gif")
+        model_gif2.camera_position = [0, 50, 200]
+        model_gif2.focal_point = [0, 50, 0]
+        model_gif2.animate()
+        assert os.path.exists(model_gif2.gif_file)
 
     @pytest.mark.skipif(config["build_machine"] == True, reason="Not running in non-graphical mode")
     def test_02_export_fields(self):

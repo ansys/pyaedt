@@ -438,9 +438,11 @@ class ModelPlotter(object):
         self.range_max = None
         self.image_file = None
         self._camera_position = "yz"
+        self._view_up = (0.0, 1.0, 0.0)
+        self._focal_point = (0.0, 0.0, 0.0)
         self._roll_angle = 0
-        self._azimuth_angle = 45
-        self._elevation_angle = 20
+        self._azimuth_angle = 0
+        self._elevation_angle = 0
         self._zoom = 1
         self._isometric_view = True
         self.bounding_box = True
@@ -466,12 +468,58 @@ class ModelPlotter(object):
         self._isometric_view = value
 
     @property
+    def view_up(self):
+        """Get/Set the camera view axis. It disables the default iso view.
+
+        Parameters
+        ----------
+        value : tuple
+            Value of camera view position.
+
+        Returns
+        -------
+        tuple
+        """
+        return self._view_up
+
+    @view_up.setter
+    def view_up(self, value):
+        if isinstance(value, list):
+            self._view_up = tuple(value)
+        else:
+            self._view_up = value
+        self.isometric_view = False
+
+    @property
+    def focal_point(self):
+        """Get/Set the camera focal point value. It disables the default iso view.
+
+        Parameters
+        ----------
+        value : tuple
+            Value of focal point position.
+
+        Returns
+        -------
+        tuple
+        """
+        return self._focal_point
+
+    @focal_point.setter
+    def focal_point(self, value):
+        if isinstance(value, list):
+            self._focal_point = tuple(value)
+        else:
+            self._focal_point = value
+        self.isometric_view = False
+
+    @property
     def camera_position(self):
         """Get/Set the camera position value. It disables the default iso view.
 
         Parameters
         ----------
-        value : str
+        value : str or tuple
             Value of camera position. One of `"xy"`, `"xz"`,`"yz"`.
 
         Returns
@@ -482,7 +530,10 @@ class ModelPlotter(object):
 
     @camera_position.setter
     def camera_position(self, value):
-        self._camera_position = value
+        if isinstance(value, list):
+            self._camera_position = tuple(value)
+        else:
+            self._camera_position = value
         self.isometric_view = False
 
     @property
@@ -1211,7 +1262,13 @@ class ModelPlotter(object):
         self.pv.set_focus(self.pv.mesh.center)
 
         if not self.isometric_view:
-            self.pv.camera_position = self.camera_position
+            if isinstance(self.camera_position, (tuple, list)):
+                self.pv.camera.position = self.camera_position
+                self.pv.camera.focal_point = self.focal_point
+                self.pv.camera.viewup = self.view_up
+            else:
+                self.pv.camera_position = self.camera_position
+                self.pv.camera.focal_point = self.focal_point
             self.pv.camera.azimuth += self.azimuth_angle
             self.pv.camera.roll += self.roll_angle
             self.pv.camera.elevation += self.elevation_angle
@@ -1309,7 +1366,12 @@ class ModelPlotter(object):
                 labels.append([m.name, "red"])
             self.pv.add_legend(labels=labels, bcolor=None, face="circle", size=[0.15, 0.15])
         if not self.isometric_view:
-            self.pv.camera_position = self.camera_position
+            if isinstance(self.camera_position, (tuple, list)):
+                self.pv.camera.position = self.camera_position
+                self.pv.camera.focal_point = self.focal_point
+                self.pv.camera.up = self.view_up
+            else:
+                self.pv.camera_position = self.camera_position
             self.pv.camera.azimuth += self.azimuth_angle
             self.pv.camera.roll += self.roll_angle
             self.pv.camera.elevation += self.elevation_angle
