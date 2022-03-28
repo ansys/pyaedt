@@ -192,6 +192,7 @@ class TestClass(BasisTest, object):
         assert layers.add_layer("NewLayer", "TOP", "copper", "air", "10um", 0, roughness_enabled=True)
         assert layers.add_layer("NewLayer2", None, "pec", "air", "0um", 0)
         assert layers.add_layer("NewLayer3", "BOT", "copper", "air", "0um", 0, negative_layer=True)
+        assert layers.add_layer("NewLayer3", "BOT", "Duroid (tm)", "1.5mm", layerType=1)
 
     def test_11_add_dielectric(self):
         diel = self.edbapp.core_stackup.create_dielectric("MyDiel", 3.3, 0.02)
