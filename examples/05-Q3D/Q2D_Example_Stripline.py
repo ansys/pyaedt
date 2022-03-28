@@ -35,7 +35,6 @@ q = Q2d(projectname=project_path, designname="differential_stripline",
 
 ###############################################################################
 # Create variables
-# ~~~~~~~~~~~~~~~~~
 
 e_factor = "e_factor"
 sig_w = "sig_bot_w"
