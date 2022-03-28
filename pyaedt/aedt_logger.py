@@ -124,7 +124,6 @@ class AedtLogger(object):
         self.level = level
         self.filename = filename or settings.logger_file_path
         settings.logger_file_path = self.filename
-        logging.basicConfig()
         self._global = logging.getLogger("Global")
         self._file_handler = None
         self._std_out_handler = None

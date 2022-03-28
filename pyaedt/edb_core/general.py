@@ -20,7 +20,6 @@ except ImportError:
     if os.name != "posix":
         warnings.warn("This module requires pythonnet.")
 
-logging.basicConfig()
 logger = logging.getLogger(__name__)
 
 
