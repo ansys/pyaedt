@@ -568,7 +568,7 @@ class TestClass(BasisTest, object):
     def test_25_create_parametrics(self):
         self.aedtapp["w1"] = "10mm"
         self.aedtapp["w2"] = "2mm"
-        setup1 = self.aedtapp.parametrics.add({"w1": "LIN 0.1mm 20mm 0.2mm"})
+        setup1 = self.aedtapp.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
         assert setup1
         assert setup1.add_variation("w2", "0.1mm", 10, 11)
         assert setup1.add_calculation(
@@ -619,27 +619,33 @@ class TestClass(BasisTest, object):
 
     def test_27_create_doe(self):
         setup2 = self.aedtapp.optimizations.add("db(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DXDOE")
+        assert setup2.add_variation("w1", 0.1, 10, 51)
         assert setup2
         assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
         assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
 
     def test_28A_create_dx(self):
         setup2 = self.aedtapp.optimizations.add(None, {"w1": "1mm", "w2": "2mm"}, optim_type="optiSLang")
+        assert setup2.add_variation("w1", 0.1, 10, 51)
+        assert not setup2.add_variation("w3", 0.1, 10, 51)
         assert setup2
         assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
     def test_28B_create_dx(self):
         setup2 = self.aedtapp.optimizations.add(None, {"w1": "1mm", "w2": "2mm"}, optim_type="DesignExplorer")
+        assert setup2.add_variation("w1", 0.1, 10, 51)
         assert setup2
         assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
     def test_29_create_sensitivity(self):
         setup2 = self.aedtapp.optimizations.add("db(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Sensitivity")
+        assert setup2.add_variation("w1", 0.1, 10, 51)
         assert setup2
         assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
     def test_29_create_statistical(self):
         setup2 = self.aedtapp.optimizations.add("db(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Statistical")
+        assert setup2.add_variation("w1", 0.1, 10, 0.1, "LinearStep")
         assert setup2
         assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
