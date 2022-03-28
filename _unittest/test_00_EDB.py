@@ -32,9 +32,7 @@ class TestClass(BasisTest, object):
         self.local_scratch.copyfolder(example_project2, self.target_path2)
 
     def teardown_class(self):
-        self.edbapp.close_edb()
-        self.local_scratch.remove()
-        del self.edbapp
+        BasisTest.my_teardown(self)
 
     def test_00_export_ipc2581(self):
         ipc_path = os.path.join(self.local_scratch.path, "test.xml")
