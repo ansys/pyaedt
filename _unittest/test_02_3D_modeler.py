@@ -3,6 +3,7 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import pyaedt_unittest_check_desktop_error
 from pyaedt.application.Design import DesignCache
 from pyaedt.modeler.Modeler import FaceCoordinateSystem
+from pyaedt.modeler.Primitives import PolylineSegment
 
 try:
     import pytest  # noqa: F401
@@ -486,3 +487,93 @@ class TestClass(BasisTest, object):
         cs4 = self.aedtapp.modeler.create_coordinate_system(name="CSP4", mode="zxz", phi=43, theta="126deg", psi=0)
         tol = 1e-9
         assert sum([abs(x1 - x2) for (x1, x2) in zip(cs3.quaternion, cs4.quaternion)]) < tol
+
+    def test_49_sweep_along_path(self):
+        self.aedtapp.modeler.set_working_coordinate_system("Global")
+        first_points = [[1.0, 1.0, 0], [1.0, 2.0, 1.0], [1.0, 3.0, 1.0]]
+        first_line = self.aedtapp.modeler.create_polyline([[0.0, 0.0, 0.0], first_points[0]])
+        assert first_line.insert_segment(
+            position_list=first_points, segment=PolylineSegment("Spline", num_points=3), segment_number=3
+        )
+
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, first_line.name + "\\CreatePolyline:1", "Number of curves"
+            )
+            == "2"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, first_line.name + "\\CreatePolyline:1", "Number of segments"
+            )
+            == "0"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, first_line.name + "\\CreatePolyline:1", "Number of points"
+            )
+            == "4"
+        )
+
+        second_points = [[3.0, 2.0, 0], [3.0, 3.0, 1.0], [3.0, 4.0, 1.0]]
+        second_line = self.aedtapp.modeler.create_polyline([[0, 0, 0], second_points[0]])
+        assert second_line.insert_segment(
+            position_list=second_points, segment=PolylineSegment("Spline", num_points=3), segment_number=5
+        )
+
+        assert second_line.insert_segment(
+            position_list=[[-3.0, 4.0, 1.0], [-3.0, 5.0, 3.0], [-3.0, 6.0, 1.0], [-3.0, 7.0, 2.0], [0, 0, 0]],
+            segment=PolylineSegment("Spline", num_points=5),
+            segment_number=3,
+        )
+
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1", "Number of curves"
+            )
+            == "3"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1", "Number of segments"
+            )
+            == "0"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1", "Number of points"
+            )
+            == "8"
+        )
+
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment0", "Segment Type"
+            )
+            == "Spline"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment1", "Segment Type"
+            )
+            == "Line"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment2", "Segment Type"
+            )
+            == "Spline"
+        )
+
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment0", "Number of segments"
+            )
+            == "3"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment2", "Number of segments"
+            )
+            == "5"
+        )
