@@ -316,7 +316,7 @@ class CommonOptimetrics(object):
         for el in list(ranges.keys()):
             if el not in ["Freq", "Distance", "Time", "Phase", "Theta", "Phi"]:
                 try:
-                    dx_variables[el] = self._app[dx_variables]
+                    dx_variables[el] = self._app[el]
                 except:
                     pass
         if not dx_variables:
@@ -997,12 +997,13 @@ class OptimizationSetups(object):
             is_goal=True,
         )
         setup.props["Sim. Setups"] = [setupname]
-        setup.props["Goals"]["Goal"] = sweepdefinition
+        if calculation:
+            setup.props["Goals"]["Goal"] = sweepdefinition
         dx_variables = {}
         for el in list(ranges.keys()):
             if el not in ["Freq", "Distance", "Time", "Phase", "Theta", "Phi"]:
                 try:
-                    dx_variables[el] = self._app[dx_variables]
+                    dx_variables[el] = self._app[el]
                 except:
                     pass
         if not dx_variables:
@@ -1021,9 +1022,9 @@ class OptimizationSetups(object):
                 self._app.activate_variable_sensitivity(v)
             elif optim_type == "OptiStatistical":
                 self._app.activate_variable_statistical(v)
-        if optim_type == "OptiDXDOE":
+        if optim_type == "OptiDXDOE" and calculation:
             setup.props["CostFunctionGoals"]["Goal"] = sweepdefinition
-        if optim_type in ["OptiDesignExplorer", "optiSLang"]:
+        if optim_type in ["OptiDesignExplorer", "optiSLang"] and calculation:
             setup.props["Sweeps"]["SweepDefinition"] = []
             for l, k in dx_variables.items():
                 arg = OrderedDict({"Variable": l, "Data": k, "OffsetF1": False, "Synchronize": 0})
