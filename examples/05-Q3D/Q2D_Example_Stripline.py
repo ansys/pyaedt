@@ -136,7 +136,6 @@ q.assign_single_conductor(
     name=obj.name, target_objects=[obj], conductor_type="SignalLine", solve_option="SolveOnBoundary", unit="mm"
 )
 
-# ~~~~~~~~~~~~~~~~~
 # Reference ground
 obj = [q.modeler.get_object_from_name(i) for i in ["co_gnd_left", "co_gnd_right", "ref_gnd_u", "ref_gnd_l"]]
 q.assign_single_conductor(
