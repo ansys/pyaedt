@@ -2145,7 +2145,6 @@ class EDBPadstackInstance(object):
         padstack_center = self.position
         rotation = self.rotation  # in radians
         padstack_name = self.padstack_definition
-        transform = self._edb_padstackinstance.GetComponent().GetTransform()
         try:
             padstack = self._pedb.core_padstack.padstacks[padstack_name]
         except KeyError:  # pragma: no cover
@@ -2270,10 +2269,10 @@ class EDBPadstackInstance(object):
             return False
         path = self._pedb.core_primitives.Shape("polygon", points=rect)
         pdata = self._pedb.core_primitives.shape_to_polygon_data(path)
-        pdata = transform.TransformPolygon(pdata)
         new_rect = []
         for point in pdata.Points:
-            new_rect.append([point.X.ToDouble(), point.Y.ToDouble()])
+            p_transf = self._edb_padstackinstance.GetComponent().GetTransform().TransformPoint(point)
+            new_rect.append([p_transf.X.ToDouble(), p_transf.Y.ToDouble()])
         if return_points:
             return new_rect
         else:
