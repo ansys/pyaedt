@@ -1012,18 +1012,18 @@ class Components(object):
         return False
 
     @pyaedt_function_handler()
-    def set_solder_ball(self, component="", sball_diam="100um", sball_height="150um"):
+    def set_solder_ball(self, component, sball_diam="", sball_height=""):
         """Set cylindrical solder balls on a given component.
 
         Parameters
         ----------
-        componentname : str or EDB component
+        component : str or EDB component
             Name of the discret component.
 
-        sball_diam  : str, float
+        sball_diam  : str, float, optional
             Diameter of the solder ball.
 
-        sball_height : str, float
+        sball_height : str, float, optional
             Height of the solder ball.
 
         Returns
@@ -1041,10 +1041,19 @@ class Components(object):
         """
         if not isinstance(component, self._edb.Cell.Hierarchy.Component):
             edb_cmp = self.get_component_by_name(component)
+            cmp = self.components[component]
         else:
             edb_cmp = component
+            cmp = self.components[edb_cmp.GetName()]
         if edb_cmp:
             cmp_type = edb_cmp.GetComponentType()
+            if bool(not sball_diam + sball_height):
+                pin1 = list(cmp.pins.values())[0].pin
+                pin_layers = pin1.GetPadstackDef().GetData().GetLayerNames()
+                pad_params = self._padstack.get_pad_parameters(pin=pin1, layername=pin_layers[0], pad_type=0)
+                _sb_diam = min([self._get_edb_value(val).ToDouble() for val in pad_params[1]])
+                sball_diam = _sb_diam
+                sball_height = sball_diam
             if cmp_type == self._edb.Definition.ComponentType.IC:
                 ic_cmp_property = edb_cmp.GetComponentProperty().Clone()
                 ic_die_prop = ic_cmp_property.GetDieProperty().Clone()

@@ -625,6 +625,7 @@ class TestClass(BasisTest, object):
 
     def test_69_create_solder_balls_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U2A5")
+        assert self.edbapp.core_components.set_solder_ball("U2A5", "100um", "150um")
 
     @pytest.mark.skipif(is_ironpython, reason="This Test uses Matplotlib that is not supported by Ironpython")
     def test_70_plot_on_matplotlib(self):
