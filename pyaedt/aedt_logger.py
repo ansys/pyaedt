@@ -348,18 +348,15 @@ class AedtLogger(object):
                 self.logger.error(message_text)
 
     def add_message(self, type, message_text, level=None, proj_name=None, des_name=None):
-        """
-        Pass a parameterized message to the message manager to specify the type and project or design level.
+        """Add a message to the message manager to specify the type and project or design level.
 
         Parameters
         ----------
         type : int
             Type of the message. Options are:
-
             * ``0`` : Info
             * ``1`` : Warning
             * ``2`` : Error
-
         message_text : str
             Text to display as the message.
         level : str, optional
@@ -371,7 +368,6 @@ class AedtLogger(object):
             Name of the project.
         des_name : str, optional
             Name of the design.
-
         """
         if not proj_name:
             proj_name = ""
