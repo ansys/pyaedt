@@ -8,7 +8,10 @@ from pyaedt import settings
 
 log_path = os.path.join(tempfile.gettempdir(), "test.log")
 if os.path.exists(os.path.join(tempfile.gettempdir(), "test.log")):
-    os.remove(log_path)
+    try:
+        os.remove(log_path)
+    except:
+        pass
 settings.logger_file_path = log_path
 
 from pyaedt.generic.general_methods import is_ironpython
