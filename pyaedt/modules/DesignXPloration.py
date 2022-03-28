@@ -601,7 +601,7 @@ class SetupOpti(CommonOptimetrics, object):
         )
 
     @pyaedt_function_handler()
-    def set_variable(
+    def add_variation(
         self,
         variable_name,
         min_value,
@@ -611,7 +611,7 @@ class SetupOpti(CommonOptimetrics, object):
         max_step=None,
         use_manufacturable=False,
     ):
-        """Define Variable to be included and its range.
+        """Add a new variable as input for the optimization and defines its ranges.
 
         Parameters
         ----------

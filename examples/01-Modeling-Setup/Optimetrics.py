@@ -75,7 +75,7 @@ sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 # This example creates a sensitivity analysis with output calculations.
 
 sweep2 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Sensitivity")
-sweep2.set_variable("w1", 0.1, 3, 0.5)
+sweep2.add_variation("w1", 0.1, 3, 0.5)
 sweep2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
 ###############################################################################
