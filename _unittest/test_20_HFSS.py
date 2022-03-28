@@ -568,7 +568,7 @@ class TestClass(BasisTest, object):
     def test_25_create_parametrics(self):
         self.aedtapp["w1"] = "10mm"
         self.aedtapp["w2"] = "2mm"
-        setup1 = self.aedtapp.parametrics.add({"w1": "LIN 0.1mm 20mm 0.2mm"})
+        setup1 = self.aedtapp.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
         assert setup1
         assert setup1.add_variation("w2", "0.1mm", 10, 11)
         assert setup1.add_calculation(
