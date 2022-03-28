@@ -860,6 +860,24 @@ class TestClass(BasisTest, object):
             chip_edb.close_edb()
             laminate_edb.close_edb()
 
+    def test_79g_get_placement_vector(self):
+        board_edb = Edb(os.path.join(local_path, "example_models", "invert_board.aedb"), edbversion=desktop_version)
+        package_edb = Edb(os.path.join(local_path, "example_models", "package2.aedb"), edbversion=desktop_version)
+        try:
+            laminate_cmp = board_edb.core_components.get_component_by_name("U100")
+            chip_cmp = package_edb.core_components.get_component_by_name("BGA")
+            result, vector, rotation, solder_ball_height = board_edb.core_components.get_component_placement_vector(
+                chip_cmp, laminate_cmp, "A12", "A14", "A12", "A14", True
+            )
+            assert result
+            assert abs(rotation) < 1e-9
+            assert abs(solder_ball_height - 315e-6) < 1e-9
+            assert abs(vector[0] + 48.7e-3) < 10e-9
+            assert abs(vector[1] - 59.7e-3) < 10e-9
+        finally:
+            package_edb.close_edb()
+            board_edb.close_edb()
+
     def test_80_edb_without_path(self):
         edbapp_without_path = Edb(edbversion=desktop_version, isreadonly=False)
         time.sleep(2)
