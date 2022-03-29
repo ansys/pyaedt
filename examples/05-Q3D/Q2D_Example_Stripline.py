@@ -178,11 +178,11 @@ a.plot(snapshot_path=os.path.join(workdir, "plot.jpg")) # Save plot as jpg
 
 # Create parametric sweep and analyze
 
-parametric = q.parametrics.add({"sig_bot_w": "LIN 75um 100um 5um"})
+parametric = q.parametrics.add("sig_bot_w", 75, 100, 5, "LinearStep")
 parametric.add_variation("sig_gap", "100um", "200um", 5,variation_type="LinearCount")
 q.analyze_setup(name=parametric.name)
 
 ###############################################################################
 # Save the project and exit
 q.save_project()
-q.close_desktop()
+q.release_desktop()
