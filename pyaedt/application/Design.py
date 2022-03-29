@@ -10,7 +10,6 @@ from __future__ import absolute_import  # noreorder
 
 import gc
 import json
-import logging
 import os
 import random
 import re
@@ -370,7 +369,6 @@ class Design(object):
         self._design_type = design_type
         self._desktop = main_module.oDesktop
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
-        self._messenger = self._logger._messenger
         self._aedt_version = self._desktop.GetVersion()[0:6]
         self._odesign = None
         self._oproject = None
@@ -2672,7 +2670,7 @@ class Design(object):
                 new_design = self._oproject.InsertDesign(
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
-        logging.getLogger().info("Added design '%s' of type %s.", unique_design_name, design_type)
+        self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()
         if ";" in name:
             self.odesign = name.split(";")[1]
