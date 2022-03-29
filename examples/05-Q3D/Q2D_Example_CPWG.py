@@ -13,24 +13,21 @@ from pyaedt.generic.general_methods import generate_unique_name
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch
+# You can change the Boolean parameter ``non_graphical`` to ``False`` to launch
 # AEDT in graphical mode.
 
-NonGraphical = True
+non_graphical = True
 
 ###############################################################################
 # Launch AEDT and Q2D
-# ~~~~~~~~~~~~~~~~~~~
 # This example launches AEDT 2022.1 in graphical mode.
-
 # This example use SI units.
 
-q = Q2d(specified_version="2022.1", non_graphical=NonGraphical, new_desktop_session=True,
+q = Q2d(specified_version="2022.1", non_graphical=non_graphical, new_desktop_session=True,
         projectname=generate_unique_name("pyaedt_q2d_example"), designname="coplanar_waveguide")
 
 ###############################################################################
 # Create variables
-# ~~~~~~~~~~~~~~~~
 
 e_factor = "e_factor"
 sig_bot_w = "sig_bot_w"
@@ -58,7 +55,6 @@ model_w = "{}*2+{}*2+{}".format(co_gnd_w, clearance, sig_bot_w)
 
 ###############################################################################
 # Create Primitives
-# ~~~~~~~~~~~~~~~~~
 # Define layer heights
 
 layer_1_lh = 0
@@ -77,7 +73,6 @@ q.modeler.move([base_line_obj], ["{}+{}".format(co_gnd_w, clearance), 0, 0])
 
 ###############################################################################
 # Create coplanar ground
-# ~~~~~~~~~~~~~~~~~~~~~~~
 
 base_line_obj = q.modeler.create_polyline([[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_left")
 top_line_obj = q.modeler.create_polyline([[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
@@ -92,18 +87,18 @@ q.modeler.move([base_line_obj], ["{}+{}*2+{}".format(co_gnd_w, clearance, sig_bo
 
 ###############################################################################
 # Create reference ground plane
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 q.modeler.create_rectangle(position=[0, layer_1_lh, 0], dimension_list=[model_w, cond_h], name="ref_gnd")
 
 ###############################################################################
 # Create dielectric
-# ~~~~~~~~~~~~~~~~~
+
 q.modeler.create_rectangle(
     position=[0, layer_1_uh, 0], dimension_list=[model_w, d_h], name="Dielectric", matname="FR4_epoxy"
 )
+
 ###############################################################################
 # Create conformal coating
-# ~~~~~~~~~~~~~~~~~~~~~~~~
 
 sm_obj_list = []
 for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
@@ -132,7 +127,6 @@ sm_obj.name = "solder_mask"
 
 ###############################################################################
 # Assign conductors
-# ~~~~~~~~~~~~~~~~~
 # Signal
 
 obj = q.modeler.get_object_from_name("signal")
@@ -142,7 +136,7 @@ q.assign_single_conductor(
 
 ###############################################################################
 # Reference ground
-# ~~~~~~~~~~~~~~~~
+
 obj = [q.modeler.get_object_from_name(i) for i in ["co_gnd_left", "co_gnd_right", "ref_gnd"]]
 q.assign_single_conductor(
     name="gnd", target_objects=obj, conductor_type="ReferenceGround", solve_option="SolveOnBoundary", unit="mm"
