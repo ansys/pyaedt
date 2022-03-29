@@ -1387,7 +1387,8 @@ class Edb(object):
             if simulation_setup.do_cutout_subdesign:
                 self.logger.info("Cuting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
                 ### to continue
-                success, cutout = self.create_cutout() builder.CutoutSubdesign(setupInfo.NetSetup, setupInfo.Cutout, setupInfo.Options)
+                success, cutout = self.create_cutout(simulation_setup.)
+                #builder.CutoutSubdesign(setupInfo.NetSetup, setupInfo.Cutout, setupInfo.Options)
                 if success:
                     Logger.Info("Cutout processed as: {0}".format(cutout.GetName()))
                     # delete the original
