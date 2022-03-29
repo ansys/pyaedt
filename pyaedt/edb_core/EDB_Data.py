@@ -1237,11 +1237,16 @@ class EDBLayers(object):
                     lcNew.AddLayerTop(newLayer)
         # lcNew = self._edb.Cell.LayerCollection()
         # newLayers.Reverse()
-        if not self._active_layout.SetLayerCollection(lcNew):
+        # if not self._active_layout.SetLayerCollection(lcNew):
+        #    self._logger.error("Failed to set new layers when updating the stackup information.")
+        #    return False
+        self._update_edb_objects()
+        try:
+            added_layer = self.layers[layerName]
+            return True, added_layer
+        except:
             self._logger.error("Failed to set new layers when updating the stackup information.")
             return False
-        self._update_edb_objects()
-        return True
 
     def add_outline_layer(self, outline_name="Outline"):
         """
