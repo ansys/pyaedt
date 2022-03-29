@@ -624,6 +624,44 @@ def recursive_glob(startpath, filepattern):
     ]
 
 
+@pyaedt_function_handler()
+def number_aware_string_key(s):
+    """Return a key for sorting strings that treats embedded digit sequences as integers.
+
+    Parameters
+    ----------
+    s : str
+        String from which to calculate key
+
+    Returns
+    -------
+    tuple
+        Tuple of key entries
+    """
+
+    def is_digit(c):
+        return "0" <= c and c <= "9"
+
+    result = []
+    i = 0
+    while i < len(s):
+        if is_digit(s[i]):
+            j = i + 1
+            while j < len(s) and is_digit(s[j]):
+                j += 1
+            key = int(s[i:j])
+            result.append(key)
+            i = j
+        else:
+            j = i + 1
+            while j < len(s) and not is_digit(s[j]):
+                j += 1
+            key = s[i:j]
+            result.append(key)
+            i = j
+    return tuple(result)
+
+
 class Settings(object):
     """Class that manages all PyAEDT Environment Variables and global settings."""
 
