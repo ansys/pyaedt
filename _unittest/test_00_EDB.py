@@ -189,15 +189,10 @@ class TestClass(BasisTest, object):
 
     def test_10_add_layer(self):
         layers = self.edbapp.core_stackup.stackup_layers
-        check_1, layer_1 = layers.add_layer("NewLayer", "TOP", "copper", "air", "10um", 0, roughness_enabled=True)
-        assert check_1
-        check_2, layer_2 = layers.add_layer("NewLayer2", None, "pec", "air", "0um", 0)
-        assert check_2
-        check_3, layer_3 = layers.add_layer("NewLayer3", "NewLayer2", "copper", "air", "0um", 0, negative_layer=True)
-        assert check_3
-        check_4, layer_4 = layers.add_layer("NewLayer4", "NewLayer3", "Duroid (tm)", thickness="1.5mm", layerType=1)
-        assert check_4
-        assert layer_4.thickness_value == 0.0015
+        assert layers.add_layer("NewLayer", "TOP", "copper", "air", "10um", 0, roughness_enabled=True)
+        assert layers.add_layer("NewLayer2", None, "pec", "air", "0um", 0)
+        assert layers.add_layer("NewLayer3", "NewLayer2", "copper", "air", "0um", 0, negative_layer=True)
+        assert layers.add_layer("NewLayer4", "NewLayer3", "Duroid (tm)", thickness="1.5mm", layerType=1)
 
     def test_11_add_dielectric(self):
         diel = self.edbapp.core_stackup.create_dielectric("MyDiel", 3.3, 0.02)
@@ -579,7 +574,8 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_primitives.create_path(path, "TOP")
 
     def test_60_create_outline(self):
-        assert self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
+        check, layer = self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
+        assert check
         assert not self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
 
     def test_61_create_edb(self):
@@ -1073,13 +1069,13 @@ class TestClass(BasisTest, object):
         assert comp.type == "Other"
 
     def test_84_negative_properties_test(self):
-        layer = self.edbapp.core_stackup.stackup_layers["TOP"]
+        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
         if not layer.negative_layer_value:
             layer.negative_layer_value = True
         assert layer.negative_layer_value
 
     def test_85_roughness_property_test(self):
-        layer = self.edbapp.core_stackup.stackup_layers["TOP"]
+        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
         if not layer.roughness_enabled_value:
             layer.roughness_enabled_value = True
         assert layer.roughness_enabled_value

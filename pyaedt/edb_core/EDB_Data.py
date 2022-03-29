@@ -1241,8 +1241,7 @@ class EDBLayers(object):
             self._logger.error("Failed to set new layers when updating the stackup information.")
             return False
         self._update_edb_objects()
-        added_layer = self.layers[layerName]
-        return True, added_layer
+        return True
 
     def add_outline_layer(self, outline_name="Outline"):
         """
