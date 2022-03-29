@@ -2795,6 +2795,7 @@ class CircuitComponent(object):
 
     @property
     def _property_data(self):
+        """Property Data List."""
         try:
             return list(self._circuit_components.o_component_manager.GetData(self.name.split("@")[1]))
         except:
