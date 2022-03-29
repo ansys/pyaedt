@@ -255,6 +255,35 @@ def download_sbr(destination=None):
     return _download_file("sbr", "Cassegrain.aedt", destination)
 
 
+def download_sbr_time(destination=None):
+    """Download an example of SBR+ Time domain animation and return the def path.
+
+    Examples files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+
+    Parameters
+    ----------
+    destination : str, optional
+        Path where files will be downloaded. Optional. Default is user temp folder.
+
+    Returns
+    -------
+    str
+        Path to the example file.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file
+
+    >>> from pyaedt import examples
+    >>> path = examples.download_sbr_time()
+    >>> path
+    'C:/Users/user/AppData/local/temp/pyaedtexamples/sbr/poc_scat_small.aedt'
+    """
+
+    return _download_file("sbr", "poc_scat_small.aedt", destination)
+
+
 def download_icepak(destination=None):
     """Download an example of Icepak Array and return the def path.
 

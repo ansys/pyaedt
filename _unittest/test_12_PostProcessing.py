@@ -25,6 +25,7 @@ except ImportError:
 test_project_name = "coax_setup_solved"
 test_field_name = "Potter_Horn"
 test_circuit_name = "Switching_Speed_FET_And_Diode"
+sbr_file = "poc_scat_small"
 
 
 class TestClass(BasisTest, object):
@@ -37,6 +38,7 @@ class TestClass(BasisTest, object):
             self, project_name=test_circuit_name, design_name="Diode", application=Circuit
         )
         self.diff_test = Circuit(designname="diff", projectname=self.circuit_test.project_name)
+        self.sbr_test = BasisTest.add_app(self, project_name=sbr_file)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -399,3 +401,28 @@ class TestClass(BasisTest, object):
         self.aedtapp.save_project()
         app2 = Hfss(self.aedtapp.project_name)
         assert len(app2.post.field_plots) == len(self.aedtapp.post.field_plots)
+
+    @pytest.mark.skipif(is_ironpython, reason="plot_scene method is not supported in ironpython")
+    def test_55_time_plot(self):
+        self.sbr_test.analyze_nominal()
+        solution_data = self.sbr_test.post.get_solution_data(
+            expressions=["NearEX", "NearEY", "NearEZ"],
+            variations={"_u": ["All"], "_v": ["All"], "Freq": ["All"]},
+            context="Near_Field",
+            report_category="Near Fields",
+        )
+        assert solution_data
+        t_matrix = solution_data.ifft("NearE", window=True)
+        assert t_matrix.any()
+        frames_list = solution_data.ifft_to_file(
+            coord_system_center=[-0.15, 0, 0], db_val=True, csv_dir=os.path.join(self.sbr_test.working_directory, "csv")
+        )
+        assert os.path.exists(frames_list)
+        self.sbr_test.post.plot_scene(
+            frames_list,
+            os.path.join(self.sbr_test.working_directory, "animation.gif"),
+            norm_index=5,
+            dy_rng=35,
+            show=False,
+        )
+        assert os.path.exists(os.path.join(self.sbr_test.working_directory, "animation.gif"))
