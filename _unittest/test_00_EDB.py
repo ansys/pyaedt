@@ -199,8 +199,6 @@ class TestClass(BasisTest, object):
         assert check_4
         assert layer_4.thickness_value == 0.0015
 
-
-
     def test_11_add_dielectric(self):
         diel = self.edbapp.core_stackup.create_dielectric("MyDiel", 3.3, 0.02)
         assert diel
