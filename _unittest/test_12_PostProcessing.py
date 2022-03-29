@@ -5,6 +5,8 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from pyaedt import Circuit
 from pyaedt import Hfss
+from pyaedt import Q2d
+from pyaedt import Q3d
 from pyaedt.generic.general_methods import is_ironpython
 
 # Import required modules
@@ -26,6 +28,7 @@ test_project_name = "coax_setup_solved"
 test_field_name = "Potter_Horn"
 test_circuit_name = "Switching_Speed_FET_And_Diode"
 sbr_file = "poc_scat_small"
+q3d_file = "via_gsg"
 
 
 class TestClass(BasisTest, object):
@@ -39,6 +42,8 @@ class TestClass(BasisTest, object):
         )
         self.diff_test = Circuit(designname="diff", projectname=self.circuit_test.project_name)
         self.sbr_test = BasisTest.add_app(self, project_name=sbr_file)
+        self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d)
+        self.q2dtest = Q2d(projectname=q3d_file)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -426,3 +431,13 @@ class TestClass(BasisTest, object):
             show=False,
         )
         assert os.path.exists(os.path.join(self.sbr_test.working_directory, "animation.gif"))
+
+    def test_56_test_export_q3d_results(self):
+        self.q3dtest.analyze_nominal()
+        assert os.path.exists(self.q3dtest.export_convergence("Setup1"))
+        assert os.path.exists(self.q3dtest.export_profile("Setup1"))
+
+    def test_57_test_export_q2d_results(self):
+        self.q2dtest.analyze_nominal()
+        assert os.path.exists(self.q2dtest.export_convergence("Setup1"))
+        assert os.path.exists(self.q2dtest.export_profile("Setup1"))

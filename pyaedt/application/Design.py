@@ -1145,13 +1145,49 @@ class Design(object):
 
         >>> oDesign.ExportProfile
         """
+
         if not file_path:
             file_path = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prop")
-        try:
-            self.odesign.ExportProfile(setup_name, variation_string, file_path)
-        except:
-            self.odesign.ExportProfile(setup_name, variation_string, file_path, True)
-        self.logger.info("Exported Profile to file {}".format(file_path))
+        if not variation_string:
+            val_str = []
+            for el, val in self.available_variations.nominal_w_values_dict.items():
+                val_str.append("{}={}".format(el, val))
+            variation_string = ",".join(val_str)
+        if self.design_type == "2D Extractor":
+            for setup in self.setups:
+                if setup.name == setup_name:
+                    if "CGDataBlock" in setup.props:
+                        file_path = os.path.splitext(file_path)[0] + "CG" + os.path.splitext(file_path)[1]
+                        self.odesign.ExportProfile(setup_name, variation_string, "CG", file_path, True)
+                        self.logger.info("Exported Profile to file {}".format(file_path))
+                    if "RLDataBlock" in setup.props:
+                        file_path = os.path.splitext(file_path)[0] + "RL" + os.path.splitext(file_path)[1]
+                        self.odesign.ExportProfile(setup_name, variation_string, "RL", file_path, True)
+                        self.logger.info("Exported Profile to file {}".format(file_path))
+                    break
+        elif self.design_type == "Q3D Extractor":
+            for setup in self.setups:
+                if setup.name == setup_name:
+                    if "Cap" in setup.props:
+                        file_path = os.path.splitext(file_path)[0] + "CG" + os.path.splitext(file_path)[1]
+                        self.odesign.ExportProfile(setup_name, variation_string, "CG", file_path, True)
+                        self.logger.info("Exported Profile to file {}".format(file_path))
+                    if "AC" in setup.props:
+                        file_path = os.path.splitext(file_path)[0] + "ACRL" + os.path.splitext(file_path)[1]
+                        self.odesign.ExportProfile(setup_name, variation_string, "AC RL", file_path, True)
+                        self.logger.info("Exported Profile to file {}".format(file_path))
+                    if "DC" in setup.props:
+                        file_path = os.path.splitext(file_path)[0] + "DC" + os.path.splitext(file_path)[1]
+                        self.odesign.ExportProfile(setup_name, variation_string, "DC RL", file_path, True)
+                        self.logger.info("Exported Profile to file {}".format(file_path))
+
+                    break
+        else:
+            try:
+                self.odesign.ExportProfile(setup_name, variation_string, file_path)
+            except:
+                self.odesign.ExportProfile(setup_name, variation_string, file_path, True)
+            self.logger.info("Exported Profile to file {}".format(file_path))
         return file_path
 
     @pyaedt_function_handler()

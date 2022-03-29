@@ -1,9 +1,9 @@
 import logging
 import sys
 
+from pyaedt import is_ironpython
 from pyaedt import log_handler
 from pyaedt import settings
-
 
 message_levels = {"Global": 0, "Project": 1, "Design": 2}
 
@@ -124,6 +124,8 @@ class AedtLogger(object):
         self.level = level
         self.filename = filename or settings.logger_file_path
         settings.logger_file_path = self.filename
+        if is_ironpython:
+            logging.basicConfig()
         self._global = logging.getLogger("Global")
         self._file_handler = None
         self._std_out_handler = None
