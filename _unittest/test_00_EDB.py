@@ -574,8 +574,7 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_primitives.create_path(path, "TOP")
 
     def test_60_create_outline(self):
-        check, layer = self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
-        assert check
+        assert self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
         assert not self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
 
     def test_61_create_edb(self):
