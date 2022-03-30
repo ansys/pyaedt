@@ -100,6 +100,9 @@ class TestClass(BasisTest, object):
             report_category="Standard",
             subdesign_id=myedb.id,
         )
+        new_report = self.aedtapp.post.templates.standard(insertions)
+        new_report.sub_design_id = myedb.id
+        assert new_report.create()
 
     def test_07_add_hfss_component(self):
         my_model, myname = self.aedtapp.modeler.schematic.create_field_model(

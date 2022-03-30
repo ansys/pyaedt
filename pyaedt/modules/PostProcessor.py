@@ -18,6 +18,7 @@ from collections import OrderedDict
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
+import pyaedt.modules.report_templates as rt
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.general_methods import _retry_ntimes, is_ironpython
 from pyaedt.generic.general_methods import generate_unique_name
@@ -33,6 +34,326 @@ if not is_ironpython:
             "The NumPy module is required to run some functionalities of PostProcess.\n"
             "Install with \n\npip install numpy\n\nRequires CPython."
         )
+
+
+TEMPLATES_BY_DESIGN = {
+    "HFSS": [
+        "Modal Solution Data",
+        "Terminal Solution Data",
+        "EigenMode Parameters",
+        "Fields",
+        "FarField",
+        "Emissions",
+        "NearField",
+    ],
+    "Maxwell 3D": ["Standard", "Fields"],
+    "Maxwell 2D": ["Standard", "Fields"],
+    "Icepak": ["Monitor", "Fields"],
+    "Circuit Design": ["Standard", "Eye Diagram"],
+    "HFSS 3D Layout": ["Standard", "Fields"],
+    "Mechanical": ["Standard", "Fields"],
+    "Q3D Extractor": ["Matrix", "Fields"],
+    "2D Extractor": ["Matrix", "Fields"],
+    "Twin Builder": ["Standard"],
+}
+
+
+class REPORTS(object):
+    """Provides the names of default solution types."""
+
+    def __init__(self, post_app, design_type):
+        self._post_app = post_app
+        self._design_type = design_type
+        self._templates = TEMPLATES_BY_DESIGN.get(self._design_type, None)
+
+    def standard(self, expressions=None, setup_name=None):
+        """Create a Standard or Default Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> cir = Circuit(my_project)
+        >>> report = cir.post.templates.standard("dB(S(1,1))", "LNA")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Standard" in self._templates:
+            rep = rt.Standard(self._post_app, "Standard", setup_name)
+            rep.expressions = expressions
+            return rep
+        elif self._post_app._app.design_solutions.report_type:
+            rep = rt.Standard(self._post_app, self._post_app._app.design_solutions.report_type, setup_name)
+            rep.expressions = expressions
+            return rep
+        return None
+
+    def monitor(self, expressions=None, setup_name=None):
+        """Create a Icepak Monitor Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> cir = Circuit(my_project)
+        >>> report = cir.post.templates.standard("dB(S(1,1))", "LNA")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Monitor" in self._templates:
+            rep = rt.Standard(self._post_app, "Monitor", setup_name)
+            rep.expressions = expressions
+            return rep
+        return None
+
+    def fields(self, expressions=None, setup_name=None, polyline=None):
+        """Create a Field Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Fields`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.templates.fields("Mag_E", "Setup : LastAdaptive", "Polyline1")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Fields" in self._templates:
+            rep = rt.Fields(self._post_app, "Fields", setup_name)
+            rep.expressions = expressions
+            rep.polyline = polyline
+            return rep
+        return None
+
+    def far_field(self, expressions=None, setup_name=None, sphere_name=None):
+        """Create a Field Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.FarField`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.templates.far_field("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
+        >>> report.primary_sweep = "Phi"
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "FarField" in self._templates:
+            rep = rt.FarField(self._post_app, "Far Fields", setup_name)
+            rep.expressions = expressions
+            rep.far_field_sphere = sphere_name
+            return rep
+        return None
+
+    def near_field(self, expressions=None, setup_name=None, near_field_name=None):
+        """Create a Field Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.NearField`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.templates.near_field("GainTotal", "Setup : LastAdaptive", "NF_1")
+        >>> report.primary_sweep = "Phi"
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "NearField" in self._templates:
+            rep = rt.NearField(self._post_app, "Near Fields", setup_name)
+            rep.expressions = expressions
+            return rep
+        return None
+
+    def modal_solution(self, expressions=None, setup_name=None):
+        """Create a Standard or Default Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.templates.modal_solution("dB(S(1,1))")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Modal Solution Data" in self._templates:
+            rep = rt.Standard(self._post_app, "Modal Solution Data", setup_name)
+            rep.expressions = expressions
+            return rep
+        return None
+
+    def terminal_solution(self, expressions=None, setup_name=None):
+        """Create a Standard or Default Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.templates.terminal_solution("dB(S(1,1))")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Terminal Solution Data" in self._templates:
+            rep = rt.Standard(self._post_app, "Terminal Solution Data", setup_name)
+            rep.expressions = expressions
+            return rep
+        return None
+
+    def eigenmode(self, expressions=None, setup_name=None):
+        """Create a Standard or Default Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.templates.eigenmode("dB(S(1,1))")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "EigenMode Parameters" in self._templates:
+            rep = rt.Standard(self._post_app, "EigenMode Parameters", setup_name)
+            rep.expressions = expressions
+            return rep
+        return None
+
+    def eye_diagram(self, expressions=None, setup_name=None):
+        """Create a Standard or Default Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> cir= Circuit()
+        >>> new_eye = cir.post.templates.eye_diagram("V(Vout)")
+        >>> new_eye.unit_interval = "1e-9s"
+        >>> new_eye.time_stop = "100ns"
+        >>> new_eye.create()
+
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Eye Diagram" in self._templates:
+            rep = rt.EyeDiagram(self._post_app, "Eye Diagram", setup_name)
+            rep.expressions = expressions
+            return rep
+        return None
 
 
 orientation_to_view = {
@@ -1437,6 +1758,16 @@ class PostProcessorCommon(object):
         self._oeditor = self.modeler.oeditor
         self._oreportsetup = self._odesign.GetModule("ReportSetup")
         self._scratch = Scratch(self._app.temp_directory, volatile=True)
+        self.reports = []
+        self.templates = REPORTS(self, self._app.design_type)
+
+    @pyaedt_function_handler()
+    def _init_reports(self):
+        names = self._app.get_oo_name(self._app._odesign, "Reports")
+        if names:
+            for name in names:
+                obj = self._app.get_oo_object(self._app.odesign, "Reports\\{}".format(name))
+                report_type = obj.Get_Type()
 
     @property
     def oreportsetup(self):
