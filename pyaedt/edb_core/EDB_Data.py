@@ -576,7 +576,7 @@ class EDBLayer(object):
         """
         if self._layer_type == 0 or self._layer_type == 2:
             try:
-                self._filling_material_name = self._layer.GetFillMaterial()
+                self._filling_material_name = self._layer.GetFillMaterial().ToString()
             except:
                 pass
             return self._filling_material_name
@@ -598,10 +598,11 @@ class EDBLayer(object):
         bool
             True if the layer is negative, else False.
         """
-        try:
-            self._negative_layer = self._layer.GetNegative()
-        except:
-            pass
+        if self._layer_type == 0 or self._layer_type == 2:
+            try:
+                self._negative_layer = self._layer.GetNegative()
+            except:
+                pass
         return self._negative_layer
 
     @negative_layer_value.setter
@@ -619,10 +620,11 @@ class EDBLayer(object):
         bool
             True if the layer has roughness, else False.
         """
-        try:
-            self._roughness_enabled = self._layer.IsRoughnessEnabled()
-        except:
-            pass
+        if self._layer_type == 0 or self._layer_type == 2:
+            try:
+                self._roughness_enabled = self._layer.IsRoughnessEnabled()
+            except:
+                pass
         return self._roughness_enabled
 
     @roughness_enabled_value.setter
