@@ -1103,4 +1103,3 @@ class TestClass(BasisTest, object):
         core_stackup._logger.warning("Is it working?")
         layers._logger.warning("Is it working?")
         layer._logger.warning("Is it working?")
-
