@@ -1093,3 +1093,13 @@ class TestClass(BasisTest, object):
     def test_89_layer_type_property_test(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
         assert layer.layer_type == 0
+
+    def test_91_loggers_test(self):
+        core_stackup = self.edbapp.core_stackup
+        layers = self.edbapp.core_stackup.stackup_layers
+        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
+        self.edbapp.logger.warning("Is it working?")
+        core_stackup._logger.warning("Is it working?")
+        layers._logger.warning("Is it working?")
+        layer._logger.warning("Is it working?")
+

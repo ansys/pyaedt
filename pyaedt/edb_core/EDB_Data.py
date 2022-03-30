@@ -473,7 +473,7 @@ class EDBLayer(object):
     @property
     def _logger(self):
         """Logger."""
-        return self._pedblayers.logger
+        return self._pedblayers._logger
 
     def _get_edb_value(self, value):
         """Get Edb Value."""
@@ -936,7 +936,7 @@ class EDBLayers(object):
     @property
     def _logger(self):
         """Logger."""
-        return self._pedbstackup.logger
+        return self._pedbstackup._logger
 
     @property
     def _stackup_methods(self):
