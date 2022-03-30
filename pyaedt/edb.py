@@ -25,7 +25,7 @@ except ImportError:  # pragma: no cover
 from pyaedt import settings
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder, SimulationConfiguration
-from pyaedt.generic.constants import CutoutSubdesignType
+from pyaedt.generic.constants import CutoutSubdesignType, SolverType
 from pyaedt.generic.general_methods import (
     pyaedt_function_handler,
     env_path,
@@ -882,7 +882,7 @@ class Edb(object):
 
     def create_cutout(
         self,
-        signal_list,
+        signal_list=[],
         reference_list=["GND"],
         extent_type="Conforming",
         expansion_size=0.002,
@@ -1379,97 +1379,51 @@ class Edb(object):
         return [[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()], [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]]
 
     @pyaedt_function_handler()
-    def build_simulation_project(self, output_aedb=None, simulation_setup=None):
-        self.logger.info("Building simulation project using EDB. Output file: {0}".format(output_aedb))
+    def build_simulation_project(self, simulation_setup=None):
+        self.logger.info("Building simulation project")
         try:
             if not simulation_setup or not isinstance(simulation_setup, SimulationConfiguration):
                 return False
             if simulation_setup.do_cutout_subdesign:
-                self.logger.info("Cuting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
-                ### to continue
-                success, cutout = self.create_cutout(simulation_setup.)
-                #builder.CutoutSubdesign(setupInfo.NetSetup, setupInfo.Cutout, setupInfo.Options)
-                if success:
-                    Logger.Info("Cutout processed as: {0}".format(cutout.GetName()))
+                self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
+                old_cell_name = self.active_cell.GetName()
+                if self.create_cutout(simulation_setup=simulation_setup):
+                    self.logger.info("Cutout processed")
                     # delete the original
-                    builder.cell.Delete()
-                    builder.cell = cutout
-                    builder.layout = cutout.GetLayout()
+                    #old_cell = self._edb.Cell.FindByName(self._db, 0, old_cell_name)
+                    #if not old_cell:
+                    #    old_cell.Delete()
                 else:
-                    Logger.Error("Cutout failed")
-
-            # if solver == 'SiWave':
-            cfg_build_utils.SetupNetClasses(setupInfo, builder)
-
-            if setupInfo.KeepANFPortsAndPinGroups:
-                # Use port/pin groups from cmp file (loaded by anf translator)
-                # Forcing circuit ports to avoid random gap ports creation after translation
-                Logger.Info("Configure circuit ports for existing ports")
-                for term in builder.layout.Terminals:
-                    term.SetIsCircuitPort(True)
+                    self.logger.error("Cutout failed")
+            if simulation_setup.keep_anf_ports_and_pin_groups:
+                self.logger.info("Configure circuit ports for existing ports")
+                map(lambda port: port.SetIsCircuitPort(True), list(self.active_layout.Terminals))
             else:
-                # Anstranslator can create ports and pin groups from the cmp file.
-                # These need to be removed for HFSS so that we have a clean starting point for the cfg file to create HFSS coax ports.
-                Logger.Info("Discarding existing ports")
-                for term in builder.layout.Terminals:
-                    term.Delete()
-                for pg in builder.layout.PinGroups:
-                    pg.Delete()
-                '''
-                ?????
-                '''
-                if setupInfo.ComponentSetup:
-                    Logger.Info("Configuring  component interfaces for HFSS")
-                    if not builder.ConfigureComponentInterfacesForHfss(setupInfo.ComponentSetup, None,
-                                                                       setupInfo.Options):
-                        raise RuntimeError("Failed to configure component interfaces for HFSS")
-
-                Logger.Info("Creating ports for signal nets")
-                if not builder.CreatePadstackInstanceTerminals(setupInfo.NetSetup, setupInfo.Options,
-                                                               setupInfo.ComponentSetup):
-                    raise RuntimeError("Failed to create ports")
-            Logger.Info("Number of ports: {}".format(cfg_build_utils.GetPortsNumber(builder)))
-
-            if solver == 'Hfss3D':
-                Logger.Info("Configure HFSS extents")
-                cfg_build_utils.ConfigureHfssExtents(setupInfo, builder)
-
-            Logger.Info("Configure analysis setup")
-            if solver == 'SiWave':
-                status = cfg_build_utils.ConfigureSiwAnalysisSetup(setupInfo, builder)
-            elif solver == 'Hfss3D':
-                status = cfg_build_utils.ConfigureHfssAnalysisSetup(setupInfo, builder)
-            if not status:
-                Logger.Error("Failed to configure analysis setup")
-
-            cfg_build_utils.SetCoaxPortAttributes(setupInfo, builder)
-
-            # For intermediate layers for Package merged on Board
-            # if solver == 'Hfss3D':
-            #    cfg_build_utils.SetupCoplanarInstances(setupInfo, builder)
-
-            # If TrimRefSize is activated to reduce the ref plane surface it will deactivate the automatic reference plane size.
-            # If the intention is to reduce the parasitic effect from the ref plane, we recommend using Pin groups with circuits ports e.g. Use_Siwave_project = KeepANFPortsAndPinGroups
-
-            if setupInfo.TrimRefSize:
-                Logger.Info('Trimming the reference plane for coaxial ports: {0}'.format(bool(setupInfo.TrimRefSize)))
-                cfg_build_utils.TrimComponentReferenceSize(setupInfo, builder, False)
-
-            if setupInfo.DefeatureLayout:
-                # Defeaturing the layout with replacing voids to circles, correct misalignment and defeatuer polygon based on sufrace deviation criteria
-                cfg_build_utils.LayoutDefeaturing(setupInfo, builder)
-
-            builder.CloseEDB(True)
-        except edb.EDBException as e:
-            Logger.Error(e.ToString())
-            sys.exit(1)
-        except Exception as e:
-            Logger.Error(e.message)
-            Logger.Error(traceback.print_exc())
-            sys.exit(1)
+                self.logger.info("Deleting existing ports")
+                map(lambda port: port.Delete(), list(self.active_layout.Terminals))
+                map(lambda pg: pg.Delete(), list(self.active_layout.PinGroups))
+                self.logger.info("Creating ports for signal nets")
+                map(lambda cmp: self.core_components.create_port_on_component(cmp,
+                        net_list=simulation_setup.signal_nets, do_pingroup=False,
+                        reference_net=simulation_setup.power_nets), simulation_setup.coax_instances)
+            self.logger.info("Number of ports: {}".format(self.core_hfss.get_ports_number()))
+            if simulation_setup.solver_type == SolverType.Hfss3dLayout:
+                self.logger.info("Configure HFSS extents")
+                self.core_hfss.configure_hfss_extents(simulation_setup)
+            self.logger.info("Configure analysis setup")
+            if simulation_setup.solver_type == SolverType.Siwave:
+                if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):
+                    self.logger.error("Failed to configure Siwave simulation setup.")
+            elif simulation_setup.solver_type == SolverType.Hfss3dLayout:
+                if not self.core_hfss.configure_hfss_analysis_setup(simulation_setup):
+                    self.logger.error("Failed to configure HFSS simulatiom setup.")
+            self.core_hfss.set_coax_port_attributes(simulation_setup)
+            if simulation_setup.trim_reference_size:
+                self.logger.info('Trimming the reference plane for coaxial ports: {0}'.
+                                 format(bool(simulation_setup.trim_reference_size)))
+                self.core_hfss.trim_component_reference_size(simulation_setup)
+            if simulation_setup.defeature_layout:
+                self.core_hfss.layout_defeaturing(simulation_setup)
+            return True
         except:
-            Logger.Error("Unhandled exception in anf_to_aedb")
-            Logger.Error(traceback.print_exc())
-            sys.exit(1)
-
-        Logger.Info("anf_to_aedb SIWave analysis setup complete")
+            return False

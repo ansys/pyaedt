@@ -519,7 +519,8 @@ class Components(object):
 
     @pyaedt_function_handler()
     def create_port_on_component(
-        self, component, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="gnd"
+        self, component, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="gnd",
+            solder_ball_height=None
     ):
         """Create ports on given component.
 
@@ -578,10 +579,13 @@ class Components(object):
         pin_layers = cmp_pins[0].GetPadstackDef().GetData().GetLayerNames()
 
         if port_type == SourceType.CoaxPort:
-            pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
-            sball_diam = min([self._edb_value(val).ToDouble() for val in pad_params[1]])
-            sb_height = sball_diam
-            self.set_solder_ball(component, sb_height, sball_diam)
+            if not solder_ball_height:
+                pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
+                sball_diam = min([self._edb_value(val).ToDouble() for val in pad_params[1]])
+                solder_ball_height = sball_diam
+            else:
+                sball_diam = solder_ball_height
+            self.set_solder_ball(component, solder_ball_height, sball_diam)
             for pin in cmp_pins:
                 self._padstack.create_coax_port(pin)
 

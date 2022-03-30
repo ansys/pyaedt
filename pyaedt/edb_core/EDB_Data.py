@@ -9,6 +9,7 @@ from pyaedt.generic.constants import BasisOrder
 from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import RadiationBoxType
 from pyaedt.generic.constants import SweepType
+from pyaedt.generic.constants import SolverType
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -133,7 +134,6 @@ class EDBNetsData(object):
         self._app.core_nets.plot(
             self.name, layers=layers, show_legend=show_legend, save_plot=save_plot, outline=outline, size=size
         )
-
 
 class EDBPrimitives(object):
     """Manages EDB functionalities for a primitives.
@@ -2612,6 +2612,7 @@ class SimulationConfiguration(object):
     SnapLengthThreshold = '2.5um'
     DcMinPlaneAreaToMesh = '8mil2'
     MaxInitMeshEdgeLength = '14.5mil'
+    SolverType = 'Hfss'
     SignalLayersProperties = ['surface:0.0::::', '4f:0.0::::', '3f:0.0::::', '2f:0.0::::', '1fco:0.0::::',
     '1bco:0.0::::', '2b:0.0::::', '3b:0.0::::', '4b:0.0::::', 'base:0.0::::', ]
     """
@@ -2684,6 +2685,7 @@ class SimulationConfiguration(object):
         self._truncate_airbox_at_ground = False
         self._use_radiation_boundary = True
         self._do_cutout_subdesign = True
+        self._solver_type = SolverType.Hfss
         self._read_cfg()
 
     @property
@@ -3280,6 +3282,15 @@ class SimulationConfiguration(object):
             self._truncate_airbox_at_ground = value
 
     @property
+    def solver_type(self):
+        return self._solver_type
+
+    @solver_type.setter
+    def solver_type(self, value):
+        if isinstance(value, SolverType):
+            self._solver_type = value
+
+    @property
     def use_radiation_boundary(self):
         return self._use_radiation_boundary
 
@@ -3318,6 +3329,9 @@ class SimulationConfiguration(object):
                 print("missing parameter for layer {0}".format(lp[0]))
 
     def _read_cfg(self):
+        """Configuration file reader.
+
+        """
 
         if not os.path.exists(self._filename):
             raise Exception("{} does not exist.".format(self._filename))
@@ -3472,6 +3486,23 @@ class SimulationConfiguration(object):
                                 self.etching_factor_instances = self._get_list_value(value)
                             elif i.startswith("DoCutoutSubdesign"):
                                 self.do_cutout_subdesign = self._get_list_value(value)
+                            elif i.startswith("SolverType"):
+                                if value.lower().startswith("hfss"):
+                                    self.solver_type = SolverType.Hfss
+                                if value.lower().startswith("hfss3dlayout"):
+                                    self.solver_type = SolverType.Hfss3dLayout
+                                elif value.lower().startswith("siwave"):
+                                    self.solver_type = SolverType.Siwave
+                                elif value.lower().startswith("q3d"):
+                                    self.solver_type = SolverType.Q3D
+                                elif value.lower().startswith("nexxim"):
+                                    self.solver_type = SolverType.Nexxim
+                                elif value.lower().startswith("maxwell"):
+                                    self.solver_type = SolverType.Maxwell
+                                elif value.lower().startswith("twinbuilder"):
+                                    self.solver_type = SolverType.TwinBuilder
+                                else:
+                                    self.solver_type = SolverType.Hfss3dLayout
                         else:
                             print("Unprocessed line in cfg file: {0}".format(line))
                     else:
