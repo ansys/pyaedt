@@ -451,8 +451,8 @@ class EDBLayer(object):
         self._etch_factor = None
         self._material_name = None
         self._filling_material_name = None
-        self._negative_layer = None
-        self._roughness_enabled = None
+        self._negative_layer = False
+        self._roughness_enabled = False
         self._lower_elevation = None
         self._upper_elevation = None
         self._top_bottom_association = None
