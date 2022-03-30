@@ -1051,11 +1051,6 @@ class EDBLayers(object):
         self._stackup_mode = self.layer_collection.GetMode()
         return self._stackup_mode
 
-    @property
-    def _logger(self):
-        """Logger."""
-        return self._pedbstackup.logger
-
     @pyaedt_function_handler()
     def _int_to_layer_types(self, val):
         if int(val) == 0:

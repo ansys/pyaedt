@@ -71,7 +71,7 @@ class EdbStackup(object):
     @property
     def _logger(self):
         """ """
-        return self._pedb._logger
+        return self._pedb.logger
 
     @property
     def stackup_layers(self):
