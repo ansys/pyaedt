@@ -576,7 +576,7 @@ class EDBLayer(object):
         """
         if self._layer_type == 0 or self._layer_type == 2:
             try:
-                self._filling_material_name = self._layer.GetFillMaterial().ToString()
+                self._filling_material_name = self._layer.GetFillMaterial()
             except:
                 pass
             return self._filling_material_name
