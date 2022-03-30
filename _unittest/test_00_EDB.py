@@ -1093,4 +1093,3 @@ class TestClass(BasisTest, object):
     def test_89_layer_type_property_test(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
         assert layer.layer_type == 0
-
