@@ -940,15 +940,17 @@ class Edb(object):
 
         if extent_type == "Conforming":
             _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, True, use_round_corner, 1
             )
         else:
             _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
+                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, True, use_round_corner, 1
             )
 
         # Create new cutout cell/design
-        _cutout = self.active_cell.CutOut(net_signals, _netsClip, _poly)
+        included_nets = convert_py_list_to_net_list([net for net in list(self.active_layout.Nets) if net.GetName() in
+                         [*signal_list, *reference_list]])
+        _cutout = self.active_cell.CutOut(included_nets, _netsClip, _poly, True)
 
         # Analysis setups do not come over with the clipped design copy,
         # so add the analysis setups from the original here.
