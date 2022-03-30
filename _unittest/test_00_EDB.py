@@ -1088,7 +1088,8 @@ class TestClass(BasisTest, object):
 
     def test_88_material_property_test(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
-        assert layer.material_name == "TOP"
+        layer.material_name = "copper"
+        assert layer.material_name == "copper"
 
     def test_89_layer_type_property_test(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
