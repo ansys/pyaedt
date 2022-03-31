@@ -2685,7 +2685,7 @@ class SimulationConfiguration(object):
         self._truncate_airbox_at_ground = False
         self._use_radiation_boundary = True
         self._do_cutout_subdesign = True
-        self._solver_type = SolverType.Hfss
+        self._solver_type = SolverType.Hfss3dLayout
         self._read_cfg()
 
     @property
@@ -3287,7 +3287,7 @@ class SimulationConfiguration(object):
 
     @solver_type.setter
     def solver_type(self, value):
-        if isinstance(value, SolverType):
+        if isinstance(value, int):
             self._solver_type = value
 
     @property
@@ -3487,20 +3487,21 @@ class SimulationConfiguration(object):
                             elif i.startswith("DoCutoutSubdesign"):
                                 self.do_cutout_subdesign = self._get_list_value(value)
                             elif i.startswith("SolverType"):
-                                if value.lower().startswith("hfss"):
-                                    self.solver_type = SolverType.Hfss
-                                if value.lower().startswith("hfss3dlayout"):
-                                    self.solver_type = SolverType.Hfss3dLayout
+                                (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout) = range(0, 7)
+                                if value.lower() == "hfss":
+                                    self.solver_type = 0
+                                if value.lower() == "hfss3dlayout":
+                                    self.solver_type = 6
                                 elif value.lower().startswith("siwave"):
-                                    self.solver_type = SolverType.Siwave
+                                    self.solver_type = 1
                                 elif value.lower().startswith("q3d"):
-                                    self.solver_type = SolverType.Q3D
+                                    self.solver_type = 2
                                 elif value.lower().startswith("nexxim"):
-                                    self.solver_type = SolverType.Nexxim
+                                    self.solver_type = 4
                                 elif value.lower().startswith("maxwell"):
-                                    self.solver_type = SolverType.Maxwell
+                                    self.solver_type = 3
                                 elif value.lower().startswith("twinbuilder"):
-                                    self.solver_type = SolverType.TwinBuilder
+                                    self.solver_type = 5
                                 else:
                                     self.solver_type = SolverType.Hfss3dLayout
                         else:

@@ -6,6 +6,7 @@ import math
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.edb_core.general import convert_pytuple_to_nettuple
 from pyaedt.generic.constants import convert_freq_string_to_float
 from pyaedt.generic.constants import RadiationBoxType
 from pyaedt.generic.constants import SweepType
@@ -796,18 +797,20 @@ class EdbHfss(object):
             hfss_extent.ExtentType = self._edb.Utility.HFSSExtentInfoType.Conforming
         else:
             hfss_extent.ExtentType = self._edb.Utility.HFSSExtentInfoType.ConvexHull
-        # DielectricExtentSize = System.Tuple.Create(0.01, True)
-        hfss_extent.DielectricExtentSize = (simulation_setup.dielectric_extent, True)
+        hfss_extent.DielectricExtentSize = convert_pytuple_to_nettuple((simulation_setup.dielectric_extent, True))
         # AirBoxHorizontalExtent = System.Tuple.Create(0.04, True)
-        hfss_extent.AirBoxHorizontalExtent = (simulation_setup.airbox_horizontal_extent, True)
+        hfss_extent.AirBoxHorizontalExtent = convert_pytuple_to_nettuple((simulation_setup.airbox_horizontal_extent,
+                                                                          True))
         # AirBoxNegativeVerticalExtent = System.Tuple.Create(0.1, True)
-        hfss_extent.AirBoxNegativeVerticalExtent = (simulation_setup.airbox_negative_vertical_extent, True)
+        hfss_extent.AirBoxNegativeVerticalExtent = convert_pytuple_to_nettuple((
+            simulation_setup.airbox_negative_vertical_extent, True))
         # AirBoxPositiveVerticalExtent = System.Tuple.Create(0.1, True)
-        hfss_extent.AirBoxPositiveVerticalExtent = (simulation_setup.airbox_positive_vertical_extent, True)
+        hfss_extent.AirBoxPositiveVerticalExtent = convert_pytuple_to_nettuple((
+            simulation_setup.airbox_positive_vertical_extent, True))
         hfss_extent.HonorUserDielectric = simulation_setup.honor_user_dielectric
         hfss_extent.TruncateAirBoxAtGround = simulation_setup.truncate_airbox_at_ground
-        hfss_extent.UseRadiationBoundary = simulation_setup.use_radiation_boundary
-        return self._cell.SetHFSSExtentInfo(hfss_extent)
+        hfss_extent.UseOpenRegion = simulation_setup.use_radiation_boundary
+        return self._active_layout.GetCell().SetHFSSExtentInfo(hfss_extent)
 
     @pyaedt_function_handler()
     def configure_hfss_analysis_setup(self, simulation_setup=None):
