@@ -946,60 +946,6 @@ class EdbLayout(object):
             return False
 
     @pyaedt_function_handler()
-    def get_all_primitives(self):
-        """Returns primitives from the layout.
-               Circles, polygons, voids and traces are returns
-
-        Parameters
-        ----------
-        None.
-
-        Returns
-        -------
-        List of primitives in this order:
-            polygons, voids, traces, circles
-
-        """
-        circles = []
-        poly = []
-        voids = []
-        traces = []
-
-        for p in self._active_layout.Primitives:
-            if p.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Polygon:
-                if not p.GetIsNegative():
-                    poly.append(p)
-                if p.GetIsNegative():
-                    voids.append(p)
-            if p.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Path:
-                traces.append(p)
-            if p.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Circle:
-                circles.append(p)
-        return poly, voids, traces, circles
-
-    @pyaedt_function_handler()
-    def get_poly_with_voids(self, list_poly):
-        """
-        Returns the list of polygons having voids defined.
-
-        Parameters
-        ----------
-        list_poly : list of Polygons
-
-        Returns
-        -------
-        List of Polygons with voids.
-
-        """
-        if list_poly is None:
-            return False
-        poly_with_voids = []
-        for p in list_poly:
-            if p.HasVoids():
-                poly_with_voids.append(p)
-        return poly_with_voids
-
-    @pyaedt_function_handler()
     def _trim_polygon_points(self, points, minimum_distance):
         pts_list = []
         ind = 0

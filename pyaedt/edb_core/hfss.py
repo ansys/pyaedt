@@ -1002,7 +1002,7 @@ class EdbHfss(object):
             as argument."
             )
             return False
-        net_names = [net.GetName() for net in list(self._active_layout.Nets) if not net.IsPwrGnd]
+        net_names = [net.GetName() for net in list(self._active_layout.Nets) if not net.IsPowerGround()]
         cmp_names = (
             simulation_setup.coax_instances
             if simulation_setup.coax_instances
@@ -1016,18 +1016,18 @@ class EdbHfss(object):
                 continue
             terms = [obj for obj in list(cmp.LayoutObjs) if obj.GetObjType() == self._edb.Cell.LayoutObjType.Terminal]
             for nn in net_names:
-                for tt in list(map(lambda term: term.GetNet().GetName() == nn)):
-                    if not tt.SetImpedance("50ohm"):
+                for tt in [term for term in terms if term.GetNet().GetName() == nn]:
+                    if not tt.SetImpedance(self._pedb.edb_value("50ohm")):
                         self._logger.warning("Could not set terminal {0} impedance as 50ohm".format(tt.GetName()))
                         continue
-                    nparts = tt.GetName().split(".")
-                    if nparts[1] == nn:
-                        new_name = ".".join([nparts[0], nparts[2], nparts[1]])
-                        # rename comp.net.pin --> comp.pin.net (as in ports created in edt GUI)
-                        self._logger.info("rename port {0} --> {1}".format(tt.GetName(), new_name))
-                        if not tt.SetName(new_name):
-                            self._logger.warning("Could not rename terminal {0} as {1}".format(tt.GetName(), new_name))
-                            continue
+                    #nparts = tt.GetName().split(".")
+                    #if nparts[1] == nn:
+                    #new_name = "{}.{}.{}".format(tt.GetComponent().GetName(), tt.GetName(), tt.GetNet().GetName())
+                    # rename comp.net.pin --> comp.pin.net (as in ports created in edt GUI)
+                    #self._logger.info("rename port {0} --> {1}".format(tt.GetName(), new_name))
+                    #if not tt.SetName(new_name):
+                    #    self._logger.warning("Could not rename terminal {0} as {1}".format(tt.GetName(), new_name))
+                    #    continue
                     ii += 1
 
             if not simulation_setup.use_default_coax_port_radial_extension:
@@ -1124,12 +1124,8 @@ class EdbHfss(object):
             self._logger.error("Layout defeaturing requires an EDB_Data.SimulationConfiguration object as argument.")
             return False
         self._logger.info("Starting Layout Defeaturing")
-        polygon_list, voids_list, traces_list, circles = self._pedb.core_layout.get_all_primitives()
-        self._logger.info("Number of Polygons Found: {0}".format(str(polygon_list.Count)))
-        self._logger.info("Number of Voids Found: {0}".format(str(voids_list.Count)))
-        self._logger.info("Number of Traces Found: {0}".format(str(traces_list.Count)))
-        self._logger.info("Number of Circles Found: {0}".format(str(circles.Count)))
-        polygon_with_voids = self._pedb.core_layout.get_poly_with_voids(polygon_list)
+        polygon_list = self._pedb.core_primitives.polygons
+        #polygon_with_voids = self._pedb.core_layout.get_poly_with_voids(polygon_list)
         self._logger.info("Number of Polygons with Voids Found: {0}".format(str(polygon_with_voids.Count)))
         for _poly in polygon_list:
             voids_from_current_poly = _poly.Voids

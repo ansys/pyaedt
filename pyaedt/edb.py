@@ -949,7 +949,7 @@ class Edb(object):
 
         # Create new cutout cell/design
         included_nets = convert_py_list_to_net_list([net for net in list(self.active_layout.Nets) if net.GetName() in
-                         [*signal_list, *reference_list]])
+                         signal_list + reference_list])
         _cutout = self.active_cell.CutOut(included_nets, _netsClip, _poly, True)
 
         # Analysis setups do not come over with the clipped design copy,
@@ -1397,17 +1397,21 @@ class Edb(object):
                     #    old_cell.Delete()
                 else:
                     self.logger.error("Cutout failed")
-            if simulation_setup.keep_anf_ports_and_pin_groups:
-                self.logger.info("Configure circuit ports for existing ports")
-                map(lambda port: port.SetIsCircuitPort(True), list(self.active_layout.Terminals))
-            else:
-                self.logger.info("Deleting existing ports")
-                map(lambda port: port.Delete(), list(self.active_layout.Terminals))
-                map(lambda pg: pg.Delete(), list(self.active_layout.PinGroups))
-                self.logger.info("Creating ports for signal nets")
-                map(lambda cmp: self.core_components.create_port_on_component(cmp,
-                        net_list=simulation_setup.signal_nets, do_pingroup=False,
-                        reference_net=simulation_setup.power_nets), simulation_setup.coax_instances)
+            # if simulation_setup.keep_anf_ports_and_pin_groups:
+            #     self.logger.info("Configure circuit ports for existing ports")
+            #     map(lambda port: port.SetIsCircuitPort(True), list(self.active_layout.Terminals))
+            #else:
+            self.logger.info("Deleting existing ports")
+            map(lambda port: port.Delete(), list(self.active_layout.Terminals))
+            map(lambda pg: pg.Delete(), list(self.active_layout.PinGroups))
+            self.logger.info("Creating ports for signal nets")
+            for cmp in simulation_setup.coax_instances:
+                self.core_components.create_port_on_component(cmp,
+                    net_list=simulation_setup.signal_nets, do_pingroup=False,
+                    reference_net=simulation_setup.power_nets)
+                #map(lambda cmp: self.core_components.create_port_on_component(cmp,
+                #        net_list=simulation_setup.signal_nets, do_pingroup=False,
+                #        reference_net=simulation_setup.power_nets), simulation_setup.coax_instances)
             self.logger.info("Number of ports: {}".format(self.core_hfss.get_ports_number()))
             if simulation_setup.solver_type == SolverType.Hfss3dLayout:
                 self.logger.info("Configure HFSS extents")
@@ -1424,8 +1428,8 @@ class Edb(object):
                 self.logger.info('Trimming the reference plane for coaxial ports: {0}'.
                                  format(bool(simulation_setup.trim_reference_size)))
                 self.core_hfss.trim_component_reference_size(simulation_setup)
-            if simulation_setup.defeature_layout:
-                self.core_hfss.layout_defeaturing(simulation_setup)
+            #if simulation_setup.defeature_layout:
+            #    self.core_hfss.layout_defeaturing(simulation_setup)
             return True
         except:
             return False
