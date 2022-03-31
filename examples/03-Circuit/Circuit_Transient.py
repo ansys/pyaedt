@@ -74,7 +74,7 @@ cir.analyze_setup("TransientRun")
 # PostProcessing outside AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # get_solution_data allows user to get solutions and plot outside AEDT without need of UI.
-
+cir.post.create_report("V(Vout)", domain="Time")
 solutions = cir.post.get_solution_data("V(Vout)", domain="Time")
 solutions.plot()
 
@@ -87,6 +87,8 @@ solutions.plot()
 new_report = cir.post.reports_by_category.standard("V(Vout)")
 new_report.domain = "Time"
 new_report.create()
+new_report.add_cartesian_y_marker(0)
+new_report.add_limit_line_from_points([60,80],[1,1],"ns")
 new_report.time_start = "20ns"
 new_report.time_stop = "100ns"
 new_report.create()

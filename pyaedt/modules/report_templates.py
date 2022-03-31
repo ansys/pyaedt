@@ -1,5 +1,6 @@
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
 class CommonReport(object):
@@ -20,6 +21,17 @@ class CommonReport(object):
         self.matrix = None
         self.polyline = None
         self.expressions = None
+        self._plot_name = None
+        self._is_created = True
+
+    @property
+    def plot_name(self):
+        return self._plot_name
+
+    @plot_name.setter
+    def plot_name(self, name):
+        self._plot_name = name
+        self._is_created = False
 
     @property
     def primary_sweep(self):
@@ -150,12 +162,15 @@ class CommonReport(object):
     @pyaedt_function_handler()
     def create(self, plot_name=None):
         if not plot_name:
-            plot_name = generate_unique_name("Plot")
+            if self._is_created:
+                self.plot_name = generate_unique_name("Plot")
+        else:
+            self.plot_name = plot_name
         if self.setup not in self._post._app.existing_analysis_sweeps:
             self._post._app.logger.error("Setup doesn't exist in this design.")
             return False
         self._post.oreportsetup.CreateReport(
-            plot_name,
+            self.plot_name,
             self.report_category,
             self.report_type,
             self.setup,
@@ -164,6 +179,8 @@ class CommonReport(object):
             self._trace_info,
         )
         self._post.plots.append(self)
+        self._is_created = True
+
         return True
 
     @pyaedt_function_handler()
@@ -177,6 +194,142 @@ class CommonReport(object):
             self._post._app.logger.error("No Data Available. Check inputs")
             return False
         return solution_data
+
+    @pyaedt_function_handler()
+    def add_limit_line_from_points(self, x_list, y_list, x_units="", y_units="", y_axis=1):
+        """Add a Cartesian Limit Line from point lists.
+
+        Parameters
+        ----------
+        x_list : list
+            List of float inputs.
+        y_list : list
+            List of float y values.
+        x_units : str
+            x list units.
+        y_units : str
+            y list units.
+        y_axis : int, optional
+            Y axis. Default is `"Y1"`.
+
+        Returns
+        -------
+        bool
+        """
+        x_list = [GeometryOperators.parse_dim_arg(str(i) + x_units) for i in x_list]
+        y_list = [GeometryOperators.parse_dim_arg(str(i) + y_units) for i in y_list]
+        if self.plot_name and self._is_created:
+            xvals = ["NAME:XValues"]
+            xvals.extend(x_list)
+            yvals = ["NAME:YValues"]
+            yvals.extend(y_list)
+            self._post.oreportsetup.AddCartesianLimitLine(
+                self.plot_name,
+                [
+                    "NAME:CartesianLimitLine",
+                    xvals,
+                    "XUnits:=",
+                    x_units,
+                    yvals,
+                    "YUnits:=",
+                    y_units,
+                    "YAxis:=",
+                    "Y{}".format(y_axis),
+                ],
+            )
+            return True
+        return False
+
+    @pyaedt_function_handler()
+    def add_limit_line_from_equation(self, start_x, stop_x, step, equation="x", units="GHz", y_axis=1):
+        """Add a Cartesian Limit Line from point lists.
+
+        Parameters
+        ----------
+        start_x : float
+            Start X value.
+        stop_x : float
+            Stop X value.
+        step : float
+            X step value.
+        equation : str
+            Y equation to apply. Default is Y=X.
+        units : str
+            X axis units. Default is "GHz".
+        y_axis : str, optional
+            Y axis. Default is `"Y1"`.
+
+        Returns
+        -------
+        bool
+        """
+        if self.plot_name and self._is_created:
+            self._post.oreportsetup.AddCartesianLimitLineFromEquation(
+                self.plot_name,
+                [
+                    "NAME:CartesianLimitLineFromEquation",
+                    "YAxis:=",
+                    y_axis,
+                    "Start:=",
+                    str(start_x) + units,
+                    "Stop:=",
+                    str(stop_x) + units,
+                    "Step:=",
+                    str(step) + units,
+                    "Equation:=",
+                    equation,
+                ],
+            )
+            return True
+        return False
+
+    @pyaedt_function_handler()
+    def add_cartesian_x_marker(self, val, name=None):
+        """Add a cartesian X Marker.
+
+        Parameters
+        ----------
+        val : str
+            Value to apply with units.
+        name : str, optional
+            Marker Name
+
+        Returns
+        -------
+        str
+            Marker name if created.
+        """
+        if not name:
+            name = generate_unique_name("MX")
+            self._post.oreportsetup.AddCartesianXMarker(self.plot_name, name, GeometryOperators.parse_dim_arg(val))
+            return name
+        return ""
+
+    @pyaedt_function_handler()
+    def add_cartesian_y_marker(self, val, name=None, y_axis=1):
+        """Add a cartesian Y Marker.
+
+        Parameters
+        ----------
+        val : str
+            Value to apply with units.
+        name : str, optional
+            Marker Name
+        y_axis : str, optional
+            Y axis. Default is `"Y1"`.
+
+        Returns
+        -------
+        str
+            Marker name if created.
+        """
+        if not name:
+            name = generate_unique_name("MY")
+            self._post.oreportsetup.AddCartesianYMarker(
+                self.plot_name, name, "Y{}".format(y_axis), GeometryOperators.parse_dim_arg(val), ""
+            )
+            return name
+        return ""
 
 
 class Standard(CommonReport):
@@ -390,9 +543,12 @@ class EyeDiagram(CommonReport):
     @pyaedt_function_handler()
     def create(self, plot_name=None):
         if not plot_name:
-            plot_name = generate_unique_name("Plot")
+            if self._is_created:
+                self.plot_name = generate_unique_name("Plot")
+        else:
+            self.plot_name = plot_name
         self._post.oreportsetup.CreateReport(
-            plot_name,
+            self.plot_name,
             self.report_category,
             self.report_type,
             self.setup,
@@ -419,6 +575,7 @@ class EyeDiagram(CommonReport):
             ],
         )
         self._post.plots.append(self)
+        self._is_created = True
         return True
 
 

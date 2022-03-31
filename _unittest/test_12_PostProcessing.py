@@ -211,6 +211,11 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
+        assert new_report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
+        assert new_report.add_cartesian_x_marker("3GHz")
+        assert new_report.add_cartesian_y_marker("-55")
+        assert new_report.add_limit_line_from_equation(1, 20, 0.5, "GHz")
+
         data = self.aedtapp.post.get_solution_data("S(1,1)")
         assert data.primary_sweep == "Freq"
         assert data.expressions[0] == "S(1,1)"
