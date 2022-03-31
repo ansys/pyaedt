@@ -4,6 +4,8 @@ from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
 class CommonReport(object):
+    """Common Report Class."""
+
     def __init__(self, app, report_category, setup_name):
         self._post = app
         self.report_category = report_category
@@ -26,6 +28,12 @@ class CommonReport(object):
 
     @property
     def plot_name(self):
+        """Set/Get the Plot Name.
+
+        Returns
+        -------
+        str
+        """
         return self._plot_name
 
     @plot_name.setter
@@ -102,6 +110,12 @@ class CommonReport(object):
 
     @property
     def domain(self):
+        """Get/Set the Plot Domain.
+
+        Returns
+        -------
+        str
+        """
         return self._domain
 
     @domain.setter
@@ -118,6 +132,14 @@ class CommonReport(object):
 
     @property
     def report_type(self):
+        """Get/Set the report Type. Available values are `"3D Polar Plot"`, `"3D Spherical Plot"`,
+        `"Radiation Pattern"`, `"Rectangular Plot"`, `"Data Table"`,
+        `"Smith Chart"`, `"Rectangular Contour Plot"`.
+
+        Returns
+        -------
+        str
+        """
         return self._report_type
 
     @report_type.setter
@@ -161,6 +183,17 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def create(self, plot_name=None):
+        """Create a new Report.
+
+        Parameters
+        ----------
+        plot_name : str, optional
+            Set optionally the plot name
+
+        Returns
+        -------
+        Bool
+        """
         if not plot_name:
             if self._is_created:
                 self.plot_name = generate_unique_name("Plot")
@@ -185,6 +218,13 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def get_solution_data(self):
+        """Get the Report solution Data.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.PostProcessor.SolutionData`
+            `Solution Data object.
+        """
         solution_data = self._post.get_solution_data_per_variation(
             self.report_category, self.setup, self._context, self.variations, self.expressions
         )
@@ -196,8 +236,8 @@ class CommonReport(object):
         return solution_data
 
     @pyaedt_function_handler()
-    def add_limit_line_from_points(self, x_list, y_list, x_units="", y_units="", y_axis=1):
-        """Add a Cartesian Limit Line from point lists.
+    def add_limit_line_from_points(self, x_list, y_list, x_units="", y_units="", y_axis=1):  # pragma: no cover
+        """Add a Cartesian Limit Line from point lists. This method works only in graphical mode.
 
         Parameters
         ----------
@@ -241,8 +281,10 @@ class CommonReport(object):
         return False
 
     @pyaedt_function_handler()
-    def add_limit_line_from_equation(self, start_x, stop_x, step, equation="x", units="GHz", y_axis=1):
-        """Add a Cartesian Limit Line from point lists.
+    def add_limit_line_from_equation(
+        self, start_x, stop_x, step, equation="x", units="GHz", y_axis=1
+    ):  # pragma: no cover
+        """Add a Cartesian Limit Line from point lists. This method works only in graphical mode.
 
         Parameters
         ----------
@@ -284,8 +326,8 @@ class CommonReport(object):
         return False
 
     @pyaedt_function_handler()
-    def add_cartesian_x_marker(self, val, name=None):
-        """Add a cartesian X Marker.
+    def add_cartesian_x_marker(self, val, name=None):  # pragma: no cover
+        """Add a cartesian X Marker. This method works only in graphical mode.
 
         Parameters
         ----------
@@ -306,8 +348,8 @@ class CommonReport(object):
         return ""
 
     @pyaedt_function_handler()
-    def add_cartesian_y_marker(self, val, name=None, y_axis=1):
-        """Add a cartesian Y Marker.
+    def add_cartesian_y_marker(self, val, name=None, y_axis=1):  # pragma: no cover
+        """Add a cartesian Y Marker. This method works only in graphical mode.
 
         Parameters
         ----------
@@ -333,6 +375,8 @@ class CommonReport(object):
 
 
 class Standard(CommonReport):
+    """Standard Report Class that fits most of the application standard reports."""
+
     def __init__(self, app, report_category, setup_name):
         CommonReport.__init__(self, app, report_category, setup_name)
         self.expressions = None
@@ -418,6 +462,8 @@ class Standard(CommonReport):
 
 
 class Fields(CommonReport):
+    """General Fields Class."""
+
     def __init__(self, app, report_type, setup_name):
         CommonReport.__init__(self, app, report_type, setup_name)
         self.domain = "Sweep"
@@ -434,6 +480,8 @@ class Fields(CommonReport):
 
 
 class NearField(CommonReport):
+    """Near Field Report Class."""
+
     def __init__(self, app, report_type, setup_name):
         CommonReport.__init__(self, app, report_type, setup_name)
         self.domain = "Sweep"
@@ -445,6 +493,8 @@ class NearField(CommonReport):
 
 
 class FarField(CommonReport):
+    """FarField Report Class."""
+
     def __init__(self, app, report_type, setup_name):
         CommonReport.__init__(self, app, report_type, setup_name)
         self.domain = "Sweep"
@@ -464,6 +514,8 @@ class FarField(CommonReport):
 
 
 class EyeDiagram(CommonReport):
+    """Eye Diagram Report Class."""
+
     def __init__(self, app, report_type, setup_name):
         CommonReport.__init__(self, app, report_type, setup_name)
         self.domain = "Time"
@@ -542,6 +594,17 @@ class EyeDiagram(CommonReport):
 
     @pyaedt_function_handler()
     def create(self, plot_name=None):
+        """Create a new Eye Diagram Report.
+
+        Parameters
+        ----------
+        plot_name : str, optional
+            Optional Plot name.
+
+        Returns
+        -------
+        bool
+        """
         if not plot_name:
             if self._is_created:
                 self.plot_name = generate_unique_name("Plot")
@@ -580,6 +643,8 @@ class EyeDiagram(CommonReport):
 
 
 class Emission(CommonReport):
+    """Emission Report Class."""
+
     def __init__(self, app, report_type, setup_name):
         CommonReport.__init__(self, app, report_type, setup_name)
         self.domain = "Sweep"

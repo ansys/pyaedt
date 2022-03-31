@@ -90,7 +90,7 @@ TEMPLATES_BY_NAME = {
 }
 
 
-class REPORTS(object):
+class Reports(object):
     """Provides the names of default solution types."""
 
     def __init__(self, post_app, design_type):
@@ -98,6 +98,7 @@ class REPORTS(object):
         self._design_type = design_type
         self._templates = TEMPLATES_BY_DESIGN.get(self._design_type, None)
 
+    @pyaedt_function_handler()
     def standard(self, expressions=None, setup_name=None):
         """Create a Standard or Default Report object.
 
@@ -131,8 +132,9 @@ class REPORTS(object):
             rep = rt.Standard(self._post_app, self._post_app._app.design_solutions.report_type, setup_name)
             rep.expressions = expressions
             return rep
-        return None
+        return
 
+    @pyaedt_function_handler()
     def monitor(self, expressions=None, setup_name=None):
         """Create an Icepak Monitor Report object.
 
@@ -161,8 +163,9 @@ class REPORTS(object):
             rep = rt.Standard(self._post_app, "Monitor", setup_name)
             rep.expressions = expressions
             return rep
-        return None
+        return
 
+    @pyaedt_function_handler()
     def fields(self, expressions=None, setup_name=None, polyline=None):
         """Create a Field Report object.
 
@@ -193,8 +196,9 @@ class REPORTS(object):
             rep.expressions = expressions
             rep.polyline = polyline
             return rep
-        return None
+        return
 
+    @pyaedt_function_handler()
     def cg_fields(self, expressions=None, setup_name=None, polyline=None):
         """Create a CG Field Report object in Q3d and Q2D.
 
@@ -225,8 +229,9 @@ class REPORTS(object):
             rep.expressions = expressions
             rep.polyline = polyline
             return rep
-        return None
+        return
 
+    @pyaedt_function_handler()
     def dc_fields(self, expressions=None, setup_name=None, polyline=None):
         """Create a DC Field Report object in Q3d.
 
@@ -257,8 +262,9 @@ class REPORTS(object):
             rep.expressions = expressions
             rep.polyline = polyline
             return rep
-        return None
+        return
 
+    @pyaedt_function_handler()
     def rl_fields(self, expressions=None, setup_name=None, polyline=None):
         """Create an AC RL Field Report object in Q3d and Q2D.
 
@@ -292,8 +298,9 @@ class REPORTS(object):
             rep.expressions = expressions
             rep.polyline = polyline
             return rep
-        return None
+        return
 
+    @pyaedt_function_handler()
     def far_field(self, expressions=None, setup_name=None, sphere_name=None):
         """Create a Field Report object.
 
@@ -325,8 +332,9 @@ class REPORTS(object):
             rep.expressions = expressions
             rep.far_field_sphere = sphere_name
             return rep
-        return None
+        return
 
+    @pyaedt_function_handler()
     def near_field(self, expressions=None, setup_name=None, near_field_name=None):
         """Create a Field Report object.
 
@@ -357,8 +365,9 @@ class REPORTS(object):
             rep = rt.NearField(self._post_app, "Near Fields", setup_name)
             rep.expressions = expressions
             return rep
-        return None
+        return
 
+    @pyaedt_function_handler()
     def modal_solution(self, expressions=None, setup_name=None):
         """Create a Standard or Default Report object.
 
@@ -388,8 +397,9 @@ class REPORTS(object):
             rep = rt.Standard(self._post_app, "Modal Solution Data", setup_name)
             rep.expressions = expressions
             return rep
-        return None
+        return
 
+    @pyaedt_function_handler()
     def terminal_solution(self, expressions=None, setup_name=None):
         """Create a Standard or Default Report object.
 
@@ -419,8 +429,9 @@ class REPORTS(object):
             rep = rt.Standard(self._post_app, "Terminal Solution Data", setup_name)
             rep.expressions = expressions
             return rep
-        return None
+        return
 
+    @pyaedt_function_handler()
     def eigenmode(self, expressions=None, setup_name=None):
         """Create a Standard or Default Report object.
 
@@ -450,8 +461,9 @@ class REPORTS(object):
             rep = rt.Standard(self._post_app, "EigenMode Parameters", setup_name)
             rep.expressions = expressions
             return rep
-        return None
+        return
 
+    @pyaedt_function_handler()
     def eye_diagram(self, expressions=None, setup_name=None):
         """Create a Standard or Default Report object.
 
@@ -483,7 +495,7 @@ class REPORTS(object):
             rep = rt.EyeDiagram(self._post_app, "Eye Diagram", setup_name)
             rep.expressions = expressions
             return rep
-        return None
+        return
 
 
 orientation_to_view = {
@@ -1889,7 +1901,7 @@ class PostProcessorCommon(object):
         self._oreportsetup = self._odesign.GetModule("ReportSetup")
         self._scratch = Scratch(self._app.temp_directory, volatile=True)
         self.plots = []
-        self.reports_by_category = REPORTS(self, self._app.design_type)
+        self.reports_by_category = Reports(self, self._app.design_type)
 
     @pyaedt_function_handler()
     def _init_reports(self):
