@@ -462,6 +462,14 @@ class TestClass(BasisTest, object):
         assert os.path.exists(self.q3dtest.export_profile("Setup1"))
         new_report = self.q3dtest.post.templates.standard(self.q3dtest.get_traces_for_plot())
         assert new_report.create()
+        self.q3dtest.modeler.create_polyline([[0, -5, 0.425], [0.5, 5, 0.5]], name="Poly1", non_model=True)
+        new_report = self.q3dtest.post.templates.cg_fields("SmoothQ", polyline="Polyline1")
+        assert new_report.create()
+        new_report = self.q3dtest.post.templates.rl_fields("Mag_SurfaceJac", polyline="Polyline1")
+        assert new_report.create()
+        new_report = self.q3dtest.post.templates.dc_fields("Mag_VolumeJdc", polyline="Polyline1")
+        assert new_report.create()
+        assert len(self.q3dtest.post.reports) == 4
 
     def test_57_test_export_q2d_results(self):
         self.q2dtest.analyze_nominal()
@@ -469,3 +477,9 @@ class TestClass(BasisTest, object):
         assert os.path.exists(self.q2dtest.export_profile("Setup1"))
         new_report = self.q2dtest.post.templates.standard(self.q2dtest.get_traces_for_plot())
         assert new_report.create()
+        self.q2dtest.modeler.create_polyline([[-1.9, -0.1, 0], [-1.2, -0.2, 0]], name="Poly1", non_model=True)
+        new_report = self.q2dtest.post.templates.cg_fields("Mag_E", polyline="Poly1")
+        assert new_report.create()
+        new_report = self.q2dtest.post.templates.rl_fields("Mag_H", polyline="Poly1")
+        assert new_report.create()
+        assert len(self.q2dtest.post.reports) == 3

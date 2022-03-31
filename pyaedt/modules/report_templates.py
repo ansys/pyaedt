@@ -9,8 +9,10 @@ class CommonReport(object):
         self.setup = setup_name
         self._report_type = "Rectangular Plot"
         self._domain = "Sweep"
-        self.primary_sweep = "Freq"
-        self.secondary_sweep = None
+        self._primary_sweep = "Freq"
+        self._secondary_sweep = None
+        self.primary_sweep_range = ["All"]
+        self.secondary_sweep_range = ["All"]
         self.variations = {"Freq": ["All"]}
         for el, k in self._post._app.available_variations.nominal_w_values_dict.items():
             self.variations[el] = k
@@ -18,6 +20,38 @@ class CommonReport(object):
         self.matrix = None
         self.polyline = None
         self.expressions = None
+
+    @property
+    def primary_sweep(self):
+        """Return the Report Primary Sweep.
+
+        Returns
+        -------
+        str
+        """
+        return self._primary_sweep
+
+    @primary_sweep.setter
+    def primary_sweep(self, val):
+        if val == self._secondary_sweep:
+            self._secondary_sweep = self._primary_sweep
+        self._primary_sweep = val
+
+    @property
+    def secondary_sweep(self):
+        """Return the Report (optional) Secondary Sweep.
+
+        Returns
+        -------
+        str
+        """
+        return self._secondary_sweep
+
+    @secondary_sweep.setter
+    def secondary_sweep(self, val):
+        if val == self._primary_sweep:
+            self._primary_sweep = self._secondary_sweep
+        self._secondary_sweep = val
 
     @property
     def _context(self):
@@ -95,18 +129,10 @@ class CommonReport(object):
         sweep_list = []
         if self.primary_sweep:
             sweep_list.append(self.primary_sweep + ":=")
-            if self.primary_sweep in sweeps:
-                if type(sweeps[self.primary_sweep]) is list:
-                    sweep_list.append(sweeps[self.primary_sweep])
-                else:
-                    sweep_list.append([sweeps[self.primary_sweep]])
+            sweep_list.append(self.primary_sweep_range)
         if self.secondary_sweep:
             sweep_list.append(self.secondary_sweep + ":=")
-            if self.secondary_sweep in sweeps:
-                if type(sweeps[self.secondary_sweep]) is list:
-                    sweep_list.append(sweeps[self.secondary_sweep])
-                else:
-                    sweep_list.append([sweeps[self.secondary_sweep]])
+            sweep_list.append(self.secondary_sweep_range)
         for el in sweeps:
             if el in [self.primary_sweep, self.secondary_sweep]:
                 continue
@@ -115,12 +141,19 @@ class CommonReport(object):
                 sweep_list.append(sweeps[el])
             else:
                 sweep_list.append([sweeps[el]])
+        for el in list(self._post._app.available_variations.nominal_w_values_dict.keys()):
+            if el not in sweeps:
+                sweep_list.append(el + ":=")
+                sweep_list.append(["Nominal"])
         return sweep_list
 
     @pyaedt_function_handler()
     def create(self, plot_name=None):
         if not plot_name:
             plot_name = generate_unique_name("Plot")
+        if self.setup not in self._post._app.existing_analysis_sweeps:
+            self._post._app.logger.error("Setup doesn't exist in this design.")
+            return False
         self._post.oreportsetup.CreateReport(
             plot_name,
             self.report_category,
