@@ -798,13 +798,10 @@ class EdbHfss(object):
         else:
             hfss_extent.ExtentType = self._edb.Utility.HFSSExtentInfoType.ConvexHull
         hfss_extent.DielectricExtentSize = convert_pytuple_to_nettuple((simulation_setup.dielectric_extent, True))
-        # AirBoxHorizontalExtent = System.Tuple.Create(0.04, True)
         hfss_extent.AirBoxHorizontalExtent = convert_pytuple_to_nettuple((simulation_setup.airbox_horizontal_extent,
                                                                           True))
-        # AirBoxNegativeVerticalExtent = System.Tuple.Create(0.1, True)
         hfss_extent.AirBoxNegativeVerticalExtent = convert_pytuple_to_nettuple((
             simulation_setup.airbox_negative_vertical_extent, True))
-        # AirBoxPositiveVerticalExtent = System.Tuple.Create(0.1, True)
         hfss_extent.AirBoxPositiveVerticalExtent = convert_pytuple_to_nettuple((
             simulation_setup.airbox_positive_vertical_extent, True))
         hfss_extent.HonorUserDielectric = simulation_setup.honor_user_dielectric
