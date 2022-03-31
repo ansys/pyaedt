@@ -1,6 +1,6 @@
 """
-Plot Nets with Matplotlib
--------------------------
+Edb: Plot Nets with Matplotlib
+------------------------------
 This example shows how to use EDB Class to plot a net or a layout.
 """
 

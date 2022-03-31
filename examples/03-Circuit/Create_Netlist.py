@@ -1,6 +1,6 @@
 """
-Netlist to Schematic Import
----------------------------
+Circuit: Netlist to Schematic Import
+------------------------------------
 # This example shows how to import Netlist data into a
 # Circuit design. Supported Netlist files are HSPICE and,
 # partially, Mentor.

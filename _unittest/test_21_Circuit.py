@@ -289,6 +289,8 @@ class TestClass(BasisTest, object):
         mycap = self.aedtapp.modeler.components.create_capacitor("C100", 1e-12)
         myind2 = self.aedtapp.modeler.components.create_inductor("L101", 1e-9)
         port = self.aedtapp.modeler.components.create_interface_port("Port1")
+        assert not myind2.model_name
+        assert not myind2.model_data
         assert self.aedtapp.modeler.schematic.connect_components_in_series([myind, myres.composed_name])
         assert self.aedtapp.modeler.schematic.connect_components_in_parallel([mycap, port, myind2.id])
 
@@ -298,8 +300,13 @@ class TestClass(BasisTest, object):
         t1 = self.aedtapp.modeler.schematic.create_touchsthone_component(touch)
         assert t1
         assert len(t1.pins) == 6
+        assert t1.model_data
+        t1.model_data.props["NexximCustomization"]["Passivity"] = 7
+        assert t1.model_data.update()
         t2 = self.aedtapp.modeler.schematic.create_touchsthone_component(touch)
         assert t2
+        t2.model_data.props["NexximCustomization"]["Passivity"] = 0
+        assert t2.model_data.update()
 
     def test_25_zoom_to_fit(self):
         self.aedtapp.insert_design("zoom_test")

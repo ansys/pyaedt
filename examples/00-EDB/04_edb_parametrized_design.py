@@ -1,9 +1,8 @@
 """
-Fully parameterized design
---------------------------
+Edb: Fully parameterized design
+-------------------------------
 This example shows how to use HFSS 3D Layout to create and solve a parametric design.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/parametrized_edb.png'
 
 ###############################################################################
 # Import the `Hfss3dlayout` Object
@@ -315,6 +314,9 @@ rectangle(lower_left_corner=[0.0, "-$pcb_w/2"], upper_right_corner=["$pcb_len", 
     "bottom", "gnd"
 )
 
+##########################
+# Plotting the Edb
+edb.core_nets.plot(None)
 ##########################
 # saving edb
 edb.save_edb()

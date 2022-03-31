@@ -16,8 +16,12 @@ if os.name == "posix" and is_ironpython:
 else:
     import subprocess
 
-import rpyc
-from rpyc import ThreadedServer
+if is_ironpython:
+    import pyaedt.third_party.ironpython.rpyc_27 as rpyc
+    from pyaedt.third_party.ironpython.rpyc_27 import ThreadedServer
+else:
+    import rpyc
+    from rpyc import ThreadedServer
 
 from pyaedt import Edb
 from pyaedt import Hfss
@@ -763,7 +767,7 @@ class GlobalService(rpyc.Service):
         # (to finalize the service, if needed)
         pass
 
-    def exposed_start_service(self, hostname, beta_options=None):
+    def exposed_start_service(self, hostname, beta_options=None, use_aedt_relative_path=False):
         """Starts a new Pyaedt Service and start listen.
 
         Returns
@@ -798,14 +802,19 @@ class GlobalService(rpyc.Service):
                         lines = f1.readlines()
                         for line in lines:
                             f.write(line)
+                if not use_aedt_relative_path:
+                    aedt_exe = os.path.join(ansysem_path, executable)
+                else:
+                    aedt_exe = executable
                 if non_graphical:
                     ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION,SF159726_SCRIPTOBJECT"
                     if beta_options:
                         for option in range(beta_options.__len__()):
                             if beta_options[option] not in ng_feature:
                                 ng_feature += "," + beta_options[option]
+
                     command = [
-                        os.path.join(ansysem_path, executable),
+                        aedt_exe,
                         ng_feature,
                         "-ng",
                         "-RunScriptAndExit",
@@ -817,7 +826,7 @@ class GlobalService(rpyc.Service):
                         for option in range(beta_options.__len__()):
                             if beta_options[option] not in ng_feature:
                                 ng_feature += "," + beta_options[option]
-                    command = [os.path.join(ansysem_path, executable), ng_feature, "-RunScriptAndExit", dest_file]
+                    command = [aedt_exe, ng_feature, "-RunScriptAndExit", dest_file]
                 print(command)
                 subprocess.Popen(command)
                 return port

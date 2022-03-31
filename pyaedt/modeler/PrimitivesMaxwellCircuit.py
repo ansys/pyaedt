@@ -67,7 +67,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         value : float, optional
             Value for the resistor. The default is ``50``.
         location : list of float, optional
-            Position on the X axis and Y axis.
+            Position on the X axis and Y axis. The default is ``None``.
         angle : float, optional
             Angle of rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -110,7 +110,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         value : float, optional
             Value for the inductor. The default is ``50``.
         location : list of float, optional
-            Position on the X axis and Y axis.
+            Position on the X axis and Y axis. The default is ``None``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -189,7 +189,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         compname : str, optional
             Name of the diode. The default is ``None``.
         location : list of float, optional
-            Position on the X axis and Y axis.
+            Position on the X axis and Y axis. The default is ``None``.
         angle : float, optional
             Angle of rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional

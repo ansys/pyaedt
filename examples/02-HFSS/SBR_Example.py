@@ -1,6 +1,6 @@
 """
-HFSS to SBR+ Coupling
----------------------
+Sbr+: HFSS to SBR+ Coupling
+---------------------------
 This example shows how you can use PyAEDT to create an SBR+ project from Hfss
 antenna and run a simulation.
 """

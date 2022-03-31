@@ -3,7 +3,8 @@ import logging
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
-from pyaedt.application.MessageManager import AEDTMessageManager
+from pyaedt import settings
+from pyaedt.aedt_logger import AedtLogger
 
 try:
     import pytest
@@ -16,8 +17,8 @@ LOGGER = logging.getLogger(__name__)
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        # Test the global _messenger before opening the desktop
-        msg = AEDTMessageManager()
+        # Test the global messenger before opening the desktop
+        msg = AedtLogger()
         msg.clear_messages()
         msg.add_info_message("Test desktop level - Info")
         msg.add_info_message("Test desktop level - Info", level="Design")
@@ -30,15 +31,16 @@ class TestClass(BasisTest, object):
         # assert len(msg.messages.project_level) == 0
         # assert len(msg.messages.design_level) == 0
         msg.clear_messages(level=0)
-        BasisTest.add_app(self)
+        self.aedtapp = BasisTest.add_app(self)
         msg.clear_messages(level=3)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
 
-    @pytest.mark.skipif(config["build_machine"], reason="Issue on Build machine")
+    @pytest.mark.skipif(config["NonGraphical"], reason="Messages not functional in non-graphical mode")
     def test_01_get_messages(self):  # pragma: no cover
-        msg = self.aedtapp._messenger
+        settings.enable_desktop_logs = True
+        msg = self.aedtapp.logger
         msg.clear_messages(level=3)
         msg.add_info_message("Test Info design level")
         msg.add_info_message("Test Info project level", "Project")
@@ -46,11 +48,12 @@ class TestClass(BasisTest, object):
         assert len(msg.messages.global_level) >= 1
         assert len(msg.messages.project_level) >= 1
         assert len(msg.messages.design_level) >= 1
-        pass
+        settings.enable_desktop_logs = False
 
-    @pytest.mark.skipif(config["build_machine"], reason="Issue on Build machine")
+    @pytest.mark.skipif(config["NonGraphical"], reason="Messages not functional in non-graphical mode")
     def test_02_messaging(self):  # pragma: no cover
-        msg = self.aedtapp._messenger
+        settings.enable_desktop_logs = True
+        msg = self.aedtapp.logger
         msg.clear_messages(level=3)
         msg.add_info_message("Test Info")
         msg.add_info_message("Test Info", "Project")
@@ -67,3 +70,4 @@ class TestClass(BasisTest, object):
         assert len(msg.messages.global_level) >= 5
         assert len(msg.messages.project_level) >= 5
         assert len(msg.messages.design_level) >= 4
+        settings.enable_desktop_logs = False

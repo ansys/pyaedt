@@ -64,8 +64,10 @@ class Edb(object):
     ----------
     edbpath : str, optional
         Full path to the ``aedb`` folder. The variable can also contain
-        the path to a layout to import. Allowed formarts are BRD,
+        the path to a layout to import. Allowed formats are BRD,
         XML (IPC2581), GDS, and DXF. The default is ``None``.
+        For GDS import the Ansys control file (also XML) should have the same
+        name as the GDS file except, of course, for the file extension.
     cellname : str, optional
         Name of the cell to select. The default is ``None``.
     isreadonly : bool, optional
@@ -88,10 +90,14 @@ class Edb(object):
     >>> from pyaedt import Edb
     >>> app = Edb()
 
-    Create an `Edb` object and open the specified project.
+    Create an ``Edb`` object and open the specified project.
 
     >>> app = Edb("myfile.aedb")
 
+    Create an ``Edb`` object from GDS and control files.
+    The XML control file resides in the same directory as the GDS file: (myfile.xml).
+
+    >>> app = Edb("/path/to/file/myfile.gds")
     """
 
     def __init__(
@@ -480,12 +486,19 @@ class Edb(object):
                 command += ".exe"
         if not working_dir:
             working_dir = os.path.dirname(input_file)
-        cmd_translator = '"{}" "{}" "{}"'.format(command, input_file, os.path.join(working_dir, aedb_name))
-        cmd_translator += ' -l="{}"'.format(os.path.join(working_dir, "Translator.log"))
+        if os.name == "posix":
+            cmd_translator = "{} {} {}".format(command, input_file, os.path.join(working_dir, aedb_name))
+            cmd_translator += " -l={}".format(os.path.join(working_dir, "Translator.log"))
+        else:
+            cmd_translator = '"{}" "{}" "{}"'.format(command, input_file, os.path.join(working_dir, aedb_name))
+            cmd_translator += ' -l="{}"'.format(os.path.join(working_dir, "Translator.log"))
         if not use_ppe:
             cmd_translator += " -ppe=false"
         if control_file and input_file[-3:] == "gds":
-            cmd_translator += ' -c="{}"'.format(control_file)
+            if os.name == "posix":
+                cmd_translator += " -c={}".format(control_file)
+            else:
+                cmd_translator += ' -c="{}"'.format(control_file)
         p = subprocess.Popen(cmd_translator)
         p.wait()
         if not os.path.exists(os.path.join(working_dir, aedb_name)):

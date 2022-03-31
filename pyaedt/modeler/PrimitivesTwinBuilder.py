@@ -130,7 +130,7 @@ class TwinBuilderComponents(CircuitComponents):
         value : float, optional
             Value for the inductor. The default is ``50``.
         location : list of float, optional
-            Position on the X axis and Y axis.
+            Position on the X axis and Y axis. The default is ``None``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional

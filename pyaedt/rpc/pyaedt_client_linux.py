@@ -3,10 +3,15 @@ import os
 
 os.environ["PYAEDT_IRONPYTHON_SERVER"] = "1"
 sys.path.append(pyaedt_path)
-sys.path.insert(0, os.path.join(pyaedt_path, "pyaedt", "third_party", "ironpython"))
+#sys.path.insert(0, os.path.join(pyaedt_path, "pyaedt", "third_party", "ironpython"))
+from pyaedt import is_ironpython
 
-from pyaedt.rpc.rpyc_services import PyaedtServiceWindows
-from rpyc import OneShotServer
+if is_ironpython:
+    from pyaedt.rpc.rpyc_services import PyaedtServiceWindows
+    from pyaedt.third_party.ironpython.rpyc_27 import OneShotServer
+else:
+    from pyaedt.rpc.rpyc_services import PyaedtServiceWindows
+    from rpyc import OneShotServer
 
 safe_attrs = {
     "__abs__",

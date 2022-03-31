@@ -45,7 +45,6 @@ if os.name == "nt":
     IsWindows = True
 else:
     IsWindows = False
-logger = logging.getLogger(__name__)
 
 if is_ironpython:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
@@ -170,6 +169,8 @@ def force_close_desktop():
     """
     Module = sys.modules["__main__"]
     pid = Module.oDesktop.GetProcessID()
+    logger = logging.getLogger(__name__)
+
     if pid > 0:
         try:
             projects = Module.oDesktop.GetProjectList()
@@ -294,7 +295,6 @@ class Desktop:
         if "oDesktop" in dir():  # pragma: no cover
             self.release_on_exit = False
             self._main.oDesktop = oDesktop
-            settings.aedt_version = oDesktop.GetVersion()[0:6]
             try:
                 settings.non_graphical = oDesktop.GetIsNonGraphical()
             except:
@@ -310,7 +310,6 @@ class Desktop:
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
             self._main.student_version, version_key, version = self._set_version(specified_version, student_version)
-            settings.aedt_version = version_key
             if _com == "ironpython":  # pragma: no cover
                 print("Launching PyAEDT outside AEDT with IronPython.")
                 self._init_ironpython(non_graphical, new_desktop_session, version)
@@ -326,6 +325,8 @@ class Desktop:
         self._logger.info("pyaedt v%s", self._main.pyaedt_version)
         self._logger.info("Python version %s", sys.version)
         self.odesktop = self._main.oDesktop
+        settings.aedt_version = self.odesktop.GetVersion()[0:6]
+
         if _com == "ironpython":
             sys.path.append(
                 os.path.join(self._main.sDesktopinstallDirectory, "common", "commonfiles", "IronPython", "DLLs")

@@ -5,6 +5,8 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from pyaedt import Circuit
 from pyaedt import Hfss
+from pyaedt import Q2d
+from pyaedt import Q3d
 from pyaedt.generic.general_methods import is_ironpython
 
 # Import required modules
@@ -25,6 +27,8 @@ except ImportError:
 test_project_name = "coax_setup_solved"
 test_field_name = "Potter_Horn"
 test_circuit_name = "Switching_Speed_FET_And_Diode"
+sbr_file = "poc_scat_small"
+q3d_file = "via_gsg"
 
 
 class TestClass(BasisTest, object):
@@ -37,6 +41,9 @@ class TestClass(BasisTest, object):
             self, project_name=test_circuit_name, design_name="Diode", application=Circuit
         )
         self.diff_test = Circuit(designname="diff", projectname=self.circuit_test.project_name)
+        self.sbr_test = BasisTest.add_app(self, project_name=sbr_file)
+        self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d)
+        self.q2dtest = Q2d(projectname=q3d_file)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -73,6 +80,24 @@ class TestClass(BasisTest, object):
             export_gif=True,
         )
         assert os.path.exists(model_gif.gif_file)
+        model_gif2 = self.aedtapp.post.animate_fields_from_aedtplt_2(
+            quantityname="Mag_E",
+            object_list=cutlist,
+            plottype="CutPlane",
+            meshplot=False,
+            setup_name=self.aedtapp.nominal_adaptive,
+            intrinsic_dict={"Freq": "5GHz", "Phase": "0deg"},
+            project_path=self.local_scratch.path,
+            variation_variable="Phase",
+            variation_list=phases,
+            show=False,
+            export_gif=False,
+        )
+        model_gif2.gif_file = os.path.join(self.aedtapp.working_directory, "test2.gif")
+        model_gif2.camera_position = [0, 50, 200]
+        model_gif2.focal_point = [0, 50, 0]
+        model_gif2.animate()
+        assert os.path.exists(model_gif2.gif_file)
 
     @pytest.mark.skipif(config["build_machine"] == True, reason="Not running in non-graphical mode")
     def test_02_export_fields(self):
@@ -381,3 +406,38 @@ class TestClass(BasisTest, object):
         self.aedtapp.save_project()
         app2 = Hfss(self.aedtapp.project_name)
         assert len(app2.post.field_plots) == len(self.aedtapp.post.field_plots)
+
+    @pytest.mark.skipif(is_ironpython, reason="plot_scene method is not supported in ironpython")
+    def test_55_time_plot(self):
+        self.sbr_test.analyze_nominal()
+        solution_data = self.sbr_test.post.get_solution_data(
+            expressions=["NearEX", "NearEY", "NearEZ"],
+            variations={"_u": ["All"], "_v": ["All"], "Freq": ["All"]},
+            context="Near_Field",
+            report_category="Near Fields",
+        )
+        assert solution_data
+        t_matrix = solution_data.ifft("NearE", window=True)
+        assert t_matrix.any()
+        frames_list = solution_data.ifft_to_file(
+            coord_system_center=[-0.15, 0, 0], db_val=True, csv_dir=os.path.join(self.sbr_test.working_directory, "csv")
+        )
+        assert os.path.exists(frames_list)
+        self.sbr_test.post.plot_scene(
+            frames_list,
+            os.path.join(self.sbr_test.working_directory, "animation.gif"),
+            norm_index=5,
+            dy_rng=35,
+            show=False,
+        )
+        assert os.path.exists(os.path.join(self.sbr_test.working_directory, "animation.gif"))
+
+    def test_56_test_export_q3d_results(self):
+        self.q3dtest.analyze_nominal()
+        assert os.path.exists(self.q3dtest.export_convergence("Setup1"))
+        assert os.path.exists(self.q3dtest.export_profile("Setup1"))
+
+    def test_57_test_export_q2d_results(self):
+        self.q2dtest.analyze_nominal()
+        assert os.path.exists(self.q2dtest.export_convergence("Setup1"))
+        assert os.path.exists(self.q2dtest.export_profile("Setup1"))

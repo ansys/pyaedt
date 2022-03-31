@@ -1018,6 +1018,127 @@ class Q2d(QExtractor, object):
         return True
 
     @pyaedt_function_handler()
+    def export_w_elements(self, analyze=False, export_folder=None):
+        """Export all available W-elements to files.
+
+        Parameters
+        ----------
+        analyze : bool, optional
+            Whether to analyze before export. Solutions must be present for the design.
+            The default is ``False``.
+        export_folder : str, optional
+            Full path to the folder to export files into. The default is ``None``, in
+            which case the working directory is used.
+
+        Returns
+        -------
+        list
+            List of all exported files.
+        """
+        exported_files = []
+        if not export_folder:
+            export_folder = self.working_directory
+        if not os.path.exists(export_folder):
+            os.makedirs(export_folder)
+        if analyze:
+            self.analyze_all()
+        setups = self.oanalysis.GetSetups()
+
+        for s in setups:
+            sweeps = self.oanalysis.GetSweeps(s)
+            if not sweeps:
+                sweeps = ["LastAdaptive"]
+            for sweep in sweeps:
+                variation_array = self.list_of_variations(s, sweep)
+                solution_name = "{} : {}".format(s, sweep)
+                if len(variation_array) == 1:
+                    try:
+                        export_file = "{}_{}_{}.sp".format(self.project_name, s, sweep)
+                        export_path = os.path.join(export_folder, export_file)
+                        subckt_name = "w_{}".format(self.project_name)
+                        self.oanalysis.ExportCircuit(
+                            solution_name,
+                            variation_array[0],
+                            export_path,
+                            [
+                                "NAME:CircuitData",
+                                "MatrixName:=",
+                                "Original",
+                                "NumberOfCells:=",
+                                "1",
+                                "UserHasChangedSettings:=",
+                                True,
+                                "IncludeCap:=",
+                                False,
+                                "IncludeCond:=",
+                                False,
+                                ["NAME:CouplingLimits", "CouplingLimitType:=", "None"],
+                                "IncludeR:=",
+                                False,
+                                "IncludeL:=",
+                                False,
+                                "ExportDistributed:=",
+                                True,
+                                "LumpedLength:=",
+                                "1meter",
+                                "RiseTime:=",
+                                "1e-09s",
+                            ],
+                            subckt_name,
+                            "WElement",
+                            0,
+                        )
+                        exported_files.append(export_path)
+                        self.logger.info("Exported W-element: %s", export_path)
+                    except:  # pragma: no cover
+                        self.logger.warning("Export W-element failed")
+                else:
+                    varCount = 0
+                    for variation in variation_array:
+                        varCount += 1
+                        try:
+                            export_file = "{}_{}_{}_{}.sp".format(self.project_name, s, sweep, varCount)
+                            export_path = os.path.join(export_folder, export_file)
+                            subckt_name = "w_{}_{}".format(self.project_name, varCount)
+                            self.oanalysis.ExportCircuit(
+                                solution_name,
+                                variation,
+                                export_path,
+                                [
+                                    "NAME:CircuitData",
+                                    "MatrixName:=",
+                                    "Original",
+                                    "NumberOfCells:=",
+                                    "1",
+                                    "UserHasChangedSettings:=",
+                                    True,
+                                    "IncludeCap:=",
+                                    False,
+                                    "IncludeCond:=",
+                                    False,
+                                    ["NAME:CouplingLimits", "CouplingLimitType:=", "None"],
+                                    "IncludeR:=",
+                                    False,
+                                    "IncludeL:=",
+                                    False,
+                                    "ExportDistributed:=",
+                                    True,
+                                    "LumpedLength:=",
+                                    "1meter",
+                                    "RiseTime:=",
+                                    "1e-09s",
+                                ],
+                                subckt_name,
+                                "WElement",
+                                0,
+                            )
+                            exported_files.append(export_path)
+                            self.logger.info("Exported W-element: %s", export_path)
+                        except:  # pragma: no cover
+                            self.logger.warning("Export W-element failed")
+        return exported_files
+
+    @pyaedt_function_handler()
     def toggle_conductor_type(self, conductor_name, new_type):
         """Change the conductor type.
 

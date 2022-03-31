@@ -32,7 +32,7 @@ class BoundaryProps(OrderedDict):
         OrderedDict.__init__(self)
         if props:
             for key, value in props.items():
-                if isinstance(value, (OrderedDict, OrderedDict)):
+                if isinstance(value, (OrderedDict, dict)):
                     OrderedDict.__setitem__(self, key, BoundaryProps(boundary, value))
                 else:
                     OrderedDict.__setitem__(self, key, value)
