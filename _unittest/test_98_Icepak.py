@@ -235,9 +235,9 @@ class TestClass(BasisTest, object):
         self.aedtapp.analyze_nominal()
 
     def test_17_post_processing(self):
-        rep = self.aedtapp.post.templates.monitor(["monitor_surf.Temperature", "monitor_point.Temperature"])
+        rep = self.aedtapp.post.reports_by_category.monitor(["monitor_surf.Temperature", "monitor_point.Temperature"])
         assert rep.create()
-        assert len(self.aedtapp.post.reports) == 1
+        assert len(self.aedtapp.post.plots) == 1
 
     def test_17_get_output_variable(self):
         value = self.aedtapp.get_output_variable("OutputVariable1")

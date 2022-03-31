@@ -209,7 +209,7 @@ class TestClass(BasisTest, object):
 
     def test_09_manipulate_report(self):
         assert self.aedtapp.post.create_report("dB(S(1,1))")
-        new_report = self.aedtapp.post.templates.modal_solution("dB(S(1,1))")
+        new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
         data = self.aedtapp.post.get_solution_data("S(1,1)")
         assert data.primary_sweep == "Freq"
@@ -229,10 +229,14 @@ class TestClass(BasisTest, object):
             context="3D",
             report_category="Far Fields",
         )
-        new_report = self.field_test.post.templates.far_field("db(RealizedGainTotal)", self.field_test.nominal_adaptive)
+        new_report = self.field_test.post.reports_by_category.far_field(
+            "db(RealizedGainTotal)", self.field_test.nominal_adaptive
+        )
         new_report.variations = variations
         new_report.report_type = "3D Polar Plot"
         new_report.far_field_sphere = "3D"
+        assert new_report.create()
+        new_report.report_type = "Rectangular Contour Plot"
         assert new_report.create()
         data = self.field_test.post.get_solution_data(
             "GainTotal",
@@ -259,7 +263,7 @@ class TestClass(BasisTest, object):
             context="Poly1",
             report_category="Fields",
         )
-        new_report = self.field_test.post.templates.fields("Mag_H", self.field_test.nominal_adaptive)
+        new_report = self.field_test.post.reports_by_category.fields("Mag_H", self.field_test.nominal_adaptive)
         new_report.variations = variations2
         new_report.polyline = "Poly1"
         assert new_report.create()
@@ -272,7 +276,7 @@ class TestClass(BasisTest, object):
             variations=variations,
             plot_type="Smith Chart",
         )
-        new_report = self.field_test.post.templates.modal_solution("S(1,1)")
+        new_report = self.field_test.post.reports_by_category.modal_solution("S(1,1)")
         new_report.plot_type = "Smith Chart"
         assert new_report.create()
         pass
@@ -344,12 +348,14 @@ class TestClass(BasisTest, object):
         self.circuit_test.analyze_setup("LNA")
         self.circuit_test.analyze_setup("Transient")
         assert self.circuit_test.post.create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA")
-        new_report = self.circuit_test.post.templates.standard(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA")
+        new_report = self.circuit_test.post.reports_by_category.standard(
+            ["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA"
+        )
         assert new_report.create()
         data1 = self.circuit_test.post.get_solution_data(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA")
         assert data1.primary_sweep == "Freq"
         assert self.circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
-        new_report = self.circuit_test.post.templates.standard(["V(net_11)"], "Transient")
+        new_report = self.circuit_test.post.reports_by_category.standard(["V(net_11)"], "Transient")
         new_report.domain = "Time"
         assert new_report.create()
         data2 = self.circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Time")
@@ -369,7 +375,7 @@ class TestClass(BasisTest, object):
             primary_sweep_variable="l1",
             context="Differential Pairs",
         )
-        new_report = self.diff_test.post.templates.standard("dB(S(1,1))")
+        new_report = self.diff_test.post.reports_by_category.standard("dB(S(1,1))")
         new_report.differential_pairs = True
         assert new_report.create()
         assert new_report.get_solution_data()
@@ -460,26 +466,35 @@ class TestClass(BasisTest, object):
         self.q3dtest.analyze_nominal()
         assert os.path.exists(self.q3dtest.export_convergence("Setup1"))
         assert os.path.exists(self.q3dtest.export_profile("Setup1"))
-        new_report = self.q3dtest.post.templates.standard(self.q3dtest.get_traces_for_plot())
+        new_report = self.q3dtest.post.reports_by_category.standard(self.q3dtest.get_traces_for_plot())
         assert new_report.create()
         self.q3dtest.modeler.create_polyline([[0, -5, 0.425], [0.5, 5, 0.5]], name="Poly1", non_model=True)
-        new_report = self.q3dtest.post.templates.cg_fields("SmoothQ", polyline="Polyline1")
+        new_report = self.q3dtest.post.reports_by_category.cg_fields("SmoothQ", polyline="Polyline1")
         assert new_report.create()
-        new_report = self.q3dtest.post.templates.rl_fields("Mag_SurfaceJac", polyline="Polyline1")
+        new_report = self.q3dtest.post.reports_by_category.rl_fields("Mag_SurfaceJac", polyline="Polyline1")
         assert new_report.create()
-        new_report = self.q3dtest.post.templates.dc_fields("Mag_VolumeJdc", polyline="Polyline1")
+        new_report = self.q3dtest.post.reports_by_category.dc_fields("Mag_VolumeJdc", polyline="Polyline1")
         assert new_report.create()
-        assert len(self.q3dtest.post.reports) == 4
+        assert len(self.q3dtest.post.plots) == 4
 
     def test_57_test_export_q2d_results(self):
         self.q2dtest.analyze_nominal()
         assert os.path.exists(self.q2dtest.export_convergence("Setup1"))
         assert os.path.exists(self.q2dtest.export_profile("Setup1"))
-        new_report = self.q2dtest.post.templates.standard(self.q2dtest.get_traces_for_plot())
+        new_report = self.q2dtest.post.reports_by_category.standard(self.q2dtest.get_traces_for_plot())
         assert new_report.create()
         self.q2dtest.modeler.create_polyline([[-1.9, -0.1, 0], [-1.2, -0.2, 0]], name="Poly1", non_model=True)
-        new_report = self.q2dtest.post.templates.cg_fields("Mag_E", polyline="Poly1")
+        new_report = self.q2dtest.post.reports_by_category.cg_fields("Mag_E", polyline="Poly1")
         assert new_report.create()
-        new_report = self.q2dtest.post.templates.rl_fields("Mag_H", polyline="Poly1")
+        new_report = self.q2dtest.post.reports_by_category.rl_fields("Mag_H", polyline="Poly1")
         assert new_report.create()
-        assert len(self.q2dtest.post.reports) == 3
+        assert len(self.q2dtest.post.plots) == 3
+
+    def test_58_test_no_report(self):
+        assert not self.aedtapp.post.reports_by_category.eye_diagram()
+        assert not self.q3dtest.post.reports_by_category.modal_solution()
+        assert not self.q3dtest.post.reports_by_category.terminal_solution()
+        assert not self.q2dtest.post.reports_by_category.far_field()
+        assert not self.q2dtest.post.reports_by_category.near_field()
+        assert self.aedtapp.post.reports_by_category.eigenmode()
+        assert not self.q2dtest.post.reports_by_category.eigenmode()

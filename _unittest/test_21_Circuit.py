@@ -100,7 +100,7 @@ class TestClass(BasisTest, object):
             report_category="Standard",
             subdesign_id=myedb.id,
         )
-        new_report = self.aedtapp.post.templates.standard(insertions)
+        new_report = self.aedtapp.post.reports_by_category.standard(insertions)
         new_report.sub_design_id = myedb.id
         assert new_report.create()
 

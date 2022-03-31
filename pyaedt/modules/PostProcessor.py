@@ -117,7 +117,7 @@ class REPORTS(object):
 
         >>> from pyaedt import Circuit
         >>> cir = Circuit(my_project)
-        >>> report = cir.post.templates.standard("dB(S(1,1))", "LNA")
+        >>> report = cir.post.reports_by_category.standard("dB(S(1,1))", "LNA")
         >>> report.create()
         >>> solutions = report.get_solution_data()
         """
@@ -152,7 +152,7 @@ class REPORTS(object):
 
         >>> from pyaedt import Icepak
         >>> ipk = Icepak(my_project)
-        >>> report = ipk.post.templates.monitor(["monitor_surf.Temperature","monitor_point.Temperature"])
+        >>> report = ipk.post.reports_by_category.monitor(["monitor_surf.Temperature","monitor_point.Temperature"])
         >>> report = report.create()
         """
         if not setup_name:
@@ -182,7 +182,7 @@ class REPORTS(object):
 
         >>> from pyaedt import Hfss
         >>> app = Hfss(my_project)
-        >>> report = app.post.templates.fields("Mag_E", "Setup : LastAdaptive", "Polyline1")
+        >>> report = app.post.reports_by_category.fields("Mag_E", "Setup : LastAdaptive", "Polyline1")
         >>> report.create()
         >>> solutions = report.get_solution_data()
         """
@@ -214,7 +214,7 @@ class REPORTS(object):
 
         >>> from pyaedt import Q3d
         >>> app = Q3d(my_project)
-        >>> report = app.post.templates.cg_fields("SmoothQ", "Setup : LastAdaptive", "Polyline1")
+        >>> report = app.post.reports_by_category.cg_fields("SmoothQ", "Setup : LastAdaptive", "Polyline1")
         >>> report.create()
         >>> solutions = report.get_solution_data()
         """
@@ -246,7 +246,7 @@ class REPORTS(object):
 
         >>> from pyaedt import Q3d
         >>> app = Q3d(my_project)
-        >>> report = app.post.templates.dc_fields("Mag_VolumeJdc", "Setup : LastAdaptive", "Polyline1")
+        >>> report = app.post.reports_by_category.dc_fields("Mag_VolumeJdc", "Setup : LastAdaptive", "Polyline1")
         >>> report.create()
         >>> solutions = report.get_solution_data()
         """
@@ -278,7 +278,7 @@ class REPORTS(object):
 
         >>> from pyaedt import Q3d
         >>> app = Q3d(my_project)
-        >>> report = app.post.templates.rl_fields("Mag_SurfaceJac", "Setup : LastAdaptive", "Polyline1")
+        >>> report = app.post.reports_by_category.rl_fields("Mag_SurfaceJac", "Setup : LastAdaptive", "Polyline1")
         >>> report.create()
         >>> solutions = report.get_solution_data()
         """
@@ -313,7 +313,7 @@ class REPORTS(object):
 
         >>> from pyaedt import Hfss
         >>> app = Hfss(my_project)
-        >>> report = app.post.templates.far_field("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
+        >>> report = app.post.reports_by_category.far_field("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
         >>> report.primary_sweep = "Phi"
         >>> report.create()
         >>> solutions = report.get_solution_data()
@@ -346,7 +346,7 @@ class REPORTS(object):
 
         >>> from pyaedt import Hfss
         >>> app = Hfss(my_project)
-        >>> report = app.post.templates.near_field("GainTotal", "Setup : LastAdaptive", "NF_1")
+        >>> report = app.post.reports_by_category.near_field("GainTotal", "Setup : LastAdaptive", "NF_1")
         >>> report.primary_sweep = "Phi"
         >>> report.create()
         >>> solutions = report.get_solution_data()
@@ -378,7 +378,7 @@ class REPORTS(object):
 
         >>> from pyaedt import Hfss
         >>> app = Hfss(my_project)
-        >>> report = app.post.templates.modal_solution("dB(S(1,1))")
+        >>> report = app.post.reports_by_category.modal_solution("dB(S(1,1))")
         >>> report.create()
         >>> solutions = report.get_solution_data()
         """
@@ -409,7 +409,7 @@ class REPORTS(object):
 
         >>> from pyaedt import Hfss
         >>> app = Hfss(my_project)
-        >>> report = app.post.templates.terminal_solution("dB(S(1,1))")
+        >>> report = app.post.reports_by_category.terminal_solution("dB(S(1,1))")
         >>> report.create()
         >>> solutions = report.get_solution_data()
         """
@@ -440,7 +440,7 @@ class REPORTS(object):
 
         >>> from pyaedt import Hfss
         >>> app = Hfss(my_project)
-        >>> report = app.post.templates.eigenmode("dB(S(1,1))")
+        >>> report = app.post.reports_by_category.eigenmode("dB(S(1,1))")
         >>> report.create()
         >>> solutions = report.get_solution_data()
         """
@@ -471,7 +471,7 @@ class REPORTS(object):
 
         >>> from pyaedt import Circuit
         >>> cir= Circuit()
-        >>> new_eye = cir.post.templates.eye_diagram("V(Vout)")
+        >>> new_eye = cir.post.reports_by_category.eye_diagram("V(Vout)")
         >>> new_eye.unit_interval = "1e-9s"
         >>> new_eye.time_stop = "100ns"
         >>> new_eye.create()
@@ -1888,8 +1888,8 @@ class PostProcessorCommon(object):
         self._oeditor = self.modeler.oeditor
         self._oreportsetup = self._odesign.GetModule("ReportSetup")
         self._scratch = Scratch(self._app.temp_directory, volatile=True)
-        self.reports = []
-        self.templates = REPORTS(self, self._app.design_type)
+        self.plots = []
+        self.reports_by_category = REPORTS(self, self._app.design_type)
 
     @pyaedt_function_handler()
     def _init_reports(self):
@@ -2704,7 +2704,7 @@ class PostProcessorCommon(object):
         elif self.post_solution_type in ["Q3D Extractor", "2D Extractor"] and context:
             report.matrix = context
         elif report_category == "Far Fields":
-            if not context and self.field_setups:
+            if not context and self._app._field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
             else:
                 report.far_field_sphere = context
@@ -2864,7 +2864,7 @@ class PostProcessorCommon(object):
         elif self.post_solution_type in ["Q3D Extractor", "2D Extractor"] and context:
             report.matrix = context
         elif report_category == "Far Fields":
-            if not context and self.field_setups:
+            if not context and self._app.field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
             else:
                 report.far_field_sphere = context

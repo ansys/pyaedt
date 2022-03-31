@@ -1,32 +1,111 @@
-import os
+"""
+Circuit: Transient Analysis and Eye Plot
+----------------------------------------
+This example shows how you can use PyAEDT to create a Circuit design
+and run a Nexxim time-domain simulation and create an eye diagram.
+"""
 
+
+###############################################################################
+# Launch AEDT and Circuit
+# ~~~~~~~~~~~~~~~~~~~~~~~
+# This examples launches AEDT 2022R1 in graphical mode.
+
+
+import os
+from matplotlib import pyplot as plt
+import numpy as np
 from pyaedt import Circuit
 
 cir = Circuit(specified_version="2022.1", new_desktop_session=True)
-cir.desktop_install_dir
+
+
+###############################################################################
+# Ibis file
+# ~~~~~~~~~
+# This method allow user to read an ibis file and place a buffer into the schematic.
+
 ibis = cir.get_ibis_model_from_file(os.path.join(cir.desktop_install_dir, 'buflib' ,'IBIS', 'u26a_800.ibs'))
 ibs = ibis.buffers["DQ_u26a_800"].insert(0, 0)
-ibs.parameters["BitPattern"]
+
+###############################################################################
+# Transmission Line Ideal
+# ~~~~~~~~~~~~~~~~~~~~~~~
+# This method allow user to place an ideal TL and parametrize it.
+
 tr1 = cir.modeler.components.components_catalog["Ideal Distributed:TRLK_NX"].place("tr1")
 tr1.parameters["P"] = "50mm"
+
+###############################################################################
+# Resistor and Ground
+# ~~~~~~~~~~~~~~~~~~~
+# This methods allow user to place a resistor and ground in schematic.
+
 res = cir.modeler.components.create_resistor("R1", "1Meg")
 gnd1 = cir.modeler.components.create_gnd()
-tr1.parameters["P"] = "50mm"
+
+
+###############################################################################
+# Schematic connection
+# ~~~~~~~~~~~~~~~~~~~~
+# connect_to_component method easily allow to connect element in schematic.
 tr1.pins[0].connect_to_component(ibs.pins[0])
 tr1.pins[1].connect_to_component(res.pins[0])
 res.pins[1].connect_to_component(gnd1.pins[0])
+
+###############################################################################
+# Probe
+# ~~~~~
+# Add a probe and rename it to vout.
 pr1 = cir.modeler.components.components_catalog["Probes:VPROBE"].place("vout")
 pr1.parameters["Name"] = "Vout"
 pr1.pins[0].connect_to_component(res.pins[0])
+
+###############################################################################
+# Setup and Run
+# ~~~~~~~~~~~~~
+# Create a Transient analysis and run it.
 trans_setup = cir.create_setup("TransientRun", "NexximTransient")
 trans_setup.props["TransientData"] = ["0.01ns", "200ns"]
-
 cir.analyze_setup("TransientRun")
+
+
+###############################################################################
+# PostProcessing outside AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# get_solution_data allows user to get solutions and plot outside AEDT without need of UI.
+
 solutions = cir.post.get_solution_data("V(Vout)", domain="Time")
 solutions.plot()
 
-from matplotlib import pyplot as plt
-import numpy as np
+###############################################################################
+# PostProcessing inside AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# new_report object is fully customizable and usable with most of available report in AEDT.
+# Standard is the main one used in Circuit and Twin Builder.
+
+new_report = cir.post.reports_by_category.standard("V(Vout)")
+new_report.domain = "Time"
+new_report.create()
+new_report.time_start = "20ns"
+new_report.time_stop = "100ns"
+new_report.create()
+sol = new_report.get_solution_data()
+sol.plot()
+
+###############################################################################
+# Eye Diagram inside AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~
+# new_report object can be used also to create an eye diagram report in AEDT.
+new_eye = cir.post.reports_by_category.eye_diagram("V(Vout)")
+new_eye.unit_interval = "1e-9s"
+new_eye.time_stop = "100ns"
+new_eye.create()
+
+###############################################################################
+# Eye Diagram outside AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# matplotlib and get_solution_data can be used together to build custom plot outside AEDT.
 
 unit_interval = 1
 offset = 0.25
@@ -51,26 +130,12 @@ for a, b in zip(t, ys):
     bn = np.array(b)
     cellst = np.append(cellst, an)
     cellsv = np.append(cellsv, bn)
-# plt.hist2d(cellst.T,  cellsv.T, (50, 50), cmap="inferno",zorder=10, alpha =0.5)
-# plt.colorbar()
-plt.plot(cellst.T,  cellsv.T,zorder=0)
+plt.plot(cellst.T,  cellsv.T, zorder=0)
 plt.show()
 
 
-new_report = cir.post.templates.standard("V(Vout)")
-new_report.domain = "Time"
-new_report.create()
-new_report.time_start = "20ns"
-new_report.time_stop = "100ns"
-new_report.create()
-sol = new_report.get_solution_data()
-sol.plot()
+###############################################################################
+# Release Desktop and Close AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-new_eye = cir.post.templates.eye_diagram("V(Vout)")
-new_eye.unit_interval = "1e-9s"
-new_eye.time_stop = "100ns"
-new_eye.create()
-
-cir.post.create_report("V(Vout)", domain="Time")
-
-cir.release_desktop(False, False)
+cir.release_desktop()

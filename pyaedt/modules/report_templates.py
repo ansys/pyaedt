@@ -163,7 +163,7 @@ class CommonReport(object):
             self._convert_dict_to_report_sel(self.variations),
             self._trace_info,
         )
-        self._post.reports.append(self)
+        self._post.plots.append(self)
         return True
 
     @pyaedt_function_handler()
@@ -418,7 +418,7 @@ class EyeDiagram(CommonReport):
                 self.eye_meas_pont,
             ],
         )
-        self._post.reports.append(self)
+        self._post.plots.append(self)
         return True
 
 
