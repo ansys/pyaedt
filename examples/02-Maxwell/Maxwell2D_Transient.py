@@ -1,6 +1,6 @@
 """
-Transient Winding Analysis
---------------------------
+Maxwell 2d: Transient Winding Analysis
+--------------------------------------
 This example shows how you can use PyAEDT to create a project in Maxwell 2D
 and run a transient simulation. It runs only on Windows using CPython.
 
@@ -35,7 +35,7 @@ non_graphical = True
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example inserts a Maxwell 2D design and then saves the project.
 
-maxwell_2d = Maxwell2d(solution_type="TransientXY", specified_version="2021.2", non_graphical=non_graphical)
+maxwell_2d = Maxwell2d(solution_type="TransientXY", specified_version="2022.1", non_graphical=non_graphical)
 project_dir = maxwell_2d.generate_temp_project_directory("Example")
 maxwell_2d.save_project(os.path.join(project_dir, "M2d.aedt"))
 
@@ -118,8 +118,17 @@ animatedGif = maxwell_2d.post.animate_fields_from_aedtplt_2(
     variation_variable="Time",
     variation_list=timesteps,
     show=False,
-    export_gif=True,
+    export_gif=False,
 )
+animatedGif.isometric_view = False
+animatedGif.camera_position = [15, 15, 80]
+animatedGif.focal_point = [15, 15, 0]
+animatedGif.roll_angle = 0
+animatedGif.elevation_angle = 0
+animatedGif.azimuth_angle = 0
+# Set off_screen to False to visualize the animation.
+# animatedGif.off_screen = False
+animatedGif.animate()
 
 ###############################################################################
 # Postprocessing

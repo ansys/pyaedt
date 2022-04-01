@@ -1,6 +1,6 @@
 """
-IPC 2581 Export
----------------
+Edb: IPC 2581 Export
+--------------------
 This example shows how to use PyAEDT to Export an IPC2581 file.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/ipc2581.png'
@@ -38,9 +38,9 @@ print(targetfile)
 # Launch EDB
 # ~~~~~~~~~~
 # This example launches the :class:`pyaedt.Edb` class.
-# This example uses EDB 2021.2 and uses SI units.
+# This example uses EDB 2022R1 and uses SI units.
 
-edb = Edb(edbpath=targetfile, edbversion="2021.2")
+edb = Edb(edbpath=targetfile, edbversion="2022.1")
 
 
 ###############################################################################

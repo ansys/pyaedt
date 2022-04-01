@@ -384,7 +384,7 @@ class Circuit(FieldAnalysisCircuit, object):
         return True
 
     @pyaedt_function_handler()
-    def read_ibis(self, path):
+    def get_ibis_model_from_file(self, path):
         """Create an IBIS model based on the data contained in an IBIS file.
 
         Parameters
@@ -398,8 +398,9 @@ class Circuit(FieldAnalysisCircuit, object):
             IBIS object exposing all data from the IBIS file.
         """
 
-        reader = ibis_reader.IbisReader()
-        return reader.read_project(path, self)
+        reader = ibis_reader.IbisReader(path, self)
+        reader.parse_ibis_file()
+        return reader.ibis_model
 
     @pyaedt_function_handler()
     def create_schematic_from_mentor_netlist(self, file_to_import):
@@ -775,10 +776,10 @@ class Circuit(FieldAnalysisCircuit, object):
             which exports the file to the working directory.
         variation : list, optional
             List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
-            The default is ``[]``.
+            The default is ``None``.
         variations_value : list, optional
             List of all parameter variation values. For example, ``["22cel", "100"]``.
-            The default is ``[]``.
+            The default is ``None``.
 
         Returns
         -------

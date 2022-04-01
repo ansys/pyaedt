@@ -1092,7 +1092,7 @@ class TestClass(BasisTest, object):
     @pyaedt_unittest_check_desktop_error
     def test_73_make_winding(self):
         chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
-        winding_list = self.aedtapp.modeler._make_winding("Winding", "", "", 29.9, 52.1, 22.2, 2, 5, 15, chamfer, True)
+        winding_list = self.aedtapp.modeler._make_winding("Winding", "copper", 29.9, 52.1, 22.2, 5, 15, chamfer, True)
         assert isinstance(winding_list, list)
         assert isinstance(winding_list[0], Object3d)
         assert isinstance(winding_list[1], list)
@@ -1102,8 +1102,7 @@ class TestClass(BasisTest, object):
         chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
         winding_list = self.aedtapp.modeler._make_double_linked_winding(
             "Double_Winding",
-            "",
-            "",
+            "copper",
             27.7,
             54.3,
             26.6,
@@ -1125,8 +1124,7 @@ class TestClass(BasisTest, object):
         chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
         winding_list = self.aedtapp.modeler._make_triple_linked_winding(
             "Triple_Winding",
-            "",
-            "",
+            "copper",
             25.5,
             56.5,
             31.0,
@@ -1201,7 +1199,7 @@ class TestClass(BasisTest, object):
         )
 
         # Test that an exception is raised if the name of the polyline is not provided.
-        # We can't use with.pytest.raises pattern bellow because IronPython does not support pytest.
+        # We can't use with.pytest.raises pattern below because IronPython does not support pytest.
         try:
             self.aedtapp.modeler.create_helix(
                 polyline_name="",

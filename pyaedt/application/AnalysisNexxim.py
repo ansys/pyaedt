@@ -185,7 +185,7 @@ class FieldAnalysisCircuit(Analysis):
         Parameters
         ----------
         excitation_names : list, optional
-            List of excitations. The default is ``[]``, in which case
+            List of excitations. The default is ``None``, in which case
             the return losses for all excitations are to be provided.
             For example ``["1", "2"]``.
         excitation_name_prefix : string, optional

@@ -1,6 +1,6 @@
 """
-Spiral Inductor
----------------
+Hfss: Spiral Inductor
+---------------------
 This example shows how you can use PyAEDT to create a spiral inductor, solve it and plot results.
 """
 
@@ -13,9 +13,9 @@ from pyaedt import Hfss, constants
 
 
 #############################################################
-# Launch Hfss 2021.2 in non graphical mode.
+# Launch Hfss 2022R1 in non graphical mode.
 # Change units to micron
-hfss = Hfss(specified_version="2021.2", non_graphical=False, designname="A1")
+hfss = Hfss(specified_version="2022.1", non_graphical=False, designname="A1")
 hfss.modeler.model_units = "um"
 p = hfss.modeler
 

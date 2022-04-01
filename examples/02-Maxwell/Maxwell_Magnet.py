@@ -1,6 +1,6 @@
 """
-3D Magnet DC Analysis
----------------------
+Maxwell 3d: Magnet DC Analysis
+------------------------------
 This example shows how you can use PyAEDT to create a Maxwell DC Analysis,
 compute mass center and move Coordinate Systems.
 """
@@ -16,8 +16,8 @@ if not os.path.exists(tmpfold):
 ###############################################################################
 # Launch AEDT in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2021.2 in graphical mode.
-m3d = Maxwell3d(specified_version="2021.2", new_desktop_session=True)
+# This examples launches AEDT 2022R1 in graphical mode.
+m3d = Maxwell3d(specified_version="2022.1", new_desktop_session=True)
 
 
 ###############################################################################
