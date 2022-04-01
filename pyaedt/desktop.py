@@ -360,7 +360,7 @@ class Desktop:
                 print("Launching PyAEDT outside AEDT with IronPython.")
                 self._init_ironpython(non_graphical, new_desktop_session, version)
             elif _com == "pythonnet_v3":
-                if StrictVersion(version_key) < StrictVersion("2022.2.0") or not settings.use_22r2_grpc_api:
+                if StrictVersion(version_key) < StrictVersion("2022.2.0") or not settings.use_grpc_api:
                     print("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
                     self._init_cpython(
                         non_graphical, new_desktop_session, version, self._main.student_version, version_key
@@ -614,21 +614,18 @@ class Desktop:
         if new_aedt_session:
             ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, "", self.port)
         else:
+            # Local server running
             if not self.machine and _check_grpc_port(self.port):
-                self.machine = "localhost"
-            elif self.machine in [
-                "localhost",
-                "127.0.0.1",
-                socket.getfqdn(),
-                socket.getfqdn().split(".")[0],
-            ] and not _check_grpc_port(self.port):
-                self.machine = ""
-            elif self.machine and self.machine not in [
-                "localhost",
-                "127.0.0.1",
-                socket.getfqdn(),
-                socket.getfqdn().split(".")[0],
-            ]:
+                self.machine = socket.getfqdn()
+            # Local Server
+            elif self.machine in ["localhost", "127.0.0.1", socket.getfqdn(), socket.getfqdn().split(".")[0]]:
+                # No AEDT started
+                if not _check_grpc_port(self.port):
+                    self.machine = ""
+                # AEDT existing
+                else:
+                    self.machine = socket.getfqdn()
+            elif self.machine not in ["localhost", "127.0.0.1", socket.getfqdn(), socket.getfqdn().split(".")[0]]:
                 settings.remote_api = True
             ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
 
