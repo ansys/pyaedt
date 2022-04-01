@@ -1,6 +1,6 @@
 """
-Hfss: Choke
------------
+HFSS: Choke
+--------------
 This example shows how you can use PyAEDT to create an choke setup in HFSS.
 """
 
@@ -23,20 +23,21 @@ if not os.path.exists(temp_folder):
 # Launch AEDT in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This examples launches AEDT 2022.1 in graphical mode.
-version = "2022.1"
-non_graphical = True
+
+
+desktop = Desktop("2022.1", non_graphical=False, new_desktop_session=True)
 
 ###############################################################################
 # Launch HFSS in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches HFSS 2021.2 in graphical mode.
+# This examples launches HFSS 2022.1 in graphical mode.
 
-hfss = Hfss(solution_type="Terminal", specified_version=version, non_graphical=non_graphical, new_desktop_session=True)
+hfss = Hfss(solution_type="Terminal")
 
 ###############################################################################
 # Rules and information of use
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The dictionary values is containing the different parameters of the core and the windings which composed
+# The dictionary values is containing the different parameters of the core and the windings which compose
 # the choke. The main structure of the dictionary must not be changed, i.e the dictionary has primary keys
 # ("Number of Windings", "Layer", "Layer Type", etc...) which have dictionaries as values, these dictionaries
 # keys are the secondary keys of the dictionary values ("1", "2", "3", "4", "Simple", etc...).
@@ -196,9 +197,8 @@ hfss.create_linear_count_sweep(
 ###############################################################################
 # Save the project
 # ----------------
+
 hfss.save_project(os.path.join(temp_folder, "My_HFSS_Choke.aedt"))
-hfss.modeler.fit_all()
-hfss.plot(os.path.join(hfss.working_directory, "Image.jpg"))
 
 
 ###############################################################################
@@ -208,6 +208,7 @@ hfss.plot(os.path.join(hfss.working_directory, "Image.jpg"))
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before exiting.
 
-
+"""
 if os.name != "posix":
-    hfss.release_desktop()
+    desktop.release_desktop()
+"""
