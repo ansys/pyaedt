@@ -830,11 +830,11 @@ class EdbHfss(object):
                                argument"
             )
             return False
-        adapt = self._edb._SimSetup.Data.AdaptiveFrequencyData()
+        adapt = self._pedb.simsetupdata.AdaptiveFrequencyData()
         adapt.AdaptiveFrequency = simulation_setup.mesh_freq
         adapt.MaxPasses = int(simulation_setup.max_num_passes)
-        adapt.MaxDelta = simulation_setup.max_mag_delta_s
-        simsetup_info = self._pedb.simsetupdata.SimSetupInfo[self._pedb.simsetupdata.Data.HFSSSimulationSettings]()
+        adapt.MaxDelta = str(simulation_setup.max_mag_delta_s)
+        simsetup_info = self._pedb.simsetupdata.SimSetupInfo[self._pedb.simsetupdata.HFSSSimulationSettings]()
         simsetup_info.Name = simulation_setup.setup_name
 
         simsetup_info.SimulationSettings.CurveApproxSettings.ArcAngle = simulation_setup.arc_angle
@@ -842,11 +842,13 @@ class EdbHfss(object):
             simulation_setup.use_arc_to_chord_error
         )
         simsetup_info.SimulationSettings.CurveApproxSettings.ArcToChordError = simulation_setup.arc_to_chord_error
-        simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Clear()  # clear the default adapt
-        simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Add(adapt)
-        simsetup_info.SimulationSettings.InitialMeshSettings.LambdaRefine = (
-            simulation_setup.do_lambda_refinement
-        )  # True
+        if is_ironpython:
+            simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Clear()
+            simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Add(adapt)
+        else:
+            list(simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList).clear()
+            list(simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList).append(adapt)
+        simsetup_info.SimulationSettings.InitialMeshSettings.LambdaRefine = (simulation_setup.do_lambda_refinement)
         simsetup_info.SimulationSettings.InitialMeshSettings.UseDefaultLambda = True
         simsetup_info.SimulationSettings.AdaptiveSettings.MaxRefinePerPass = 30
         simsetup_info.SimulationSettings.AdaptiveSettings.MinPasses = simulation_setup.min_num_passes  # 1
@@ -862,35 +864,44 @@ class EdbHfss(object):
         simsetup_info.SimulationSettings.DefeatureSettings.DefeatureAbsLength = simulation_setup.defeature_abs_length
 
         try:
-            sweep = self._edb._SimSetup.Data.SweepData(simulation_setup.sweep_name)
+            sweep = self._pedb.simsetupdata.SweepData(simulation_setup.sweep_name)
             sweep.IsDiscrete = False
             sweep.UseQ3DForDC = simulation_setup.use_q3d_for_dc
             if simulation_setup.keep_anf_ports_and_pin_groups:
                 sweep.UseQ3DForDC = False
-            sweep.RelativeSError = simulation_setup.relative_error  # 0.005
+            sweep.RelativeSError = simulation_setup.relative_error
             sweep.InterpUsePortImpedance = False
-            sweep.EnforceCausality = (self._convert_freq_string_to_float(simulation_setup.start_frequency) - 0) < 1e-9
+            sweep.EnforceCausality = simulation_setup.start_frequency
             # sweep.EnforceCausality = False
-            sweep.EnforcePassivity = simulation_setup.enforce_passivity  # True
-            sweep.PassivityTolerance = simulation_setup.passivity_tolerance  # 0.0001
-            sweep.Frequencies.Clear()  # clear defaults
+            sweep.EnforcePassivity = simulation_setup.enforce_passivity
+            sweep.PassivityTolerance = simulation_setup.passivity_tolerance
+            if is_ironpython:
+                sweep.Frequencies.Clear()
+            else:
+                list(sweep.Frequencies).clear()
             if simulation_setup.sweep_type == SweepType.LogCount:  # setup_info.SweepType == 'DecadeCount'
                 self._setup_decade_count_sweep(
                     sweep, simulation_setup.start_frequency, simulation_setup.stop_freq, simulation_setup.decade_count
                 )  # Added DecadeCount as a new attribute
 
             else:
-                sweep.Frequencies = self._edb._SimSetup.Data.SweepData.SetFrequencies(
-                    simulation_setup.start_frequency, simulation_setup.stop_freq, simulation_setup.step_freq
-                )
-
-            simsetup_info.SweepDataList.Add(sweep)
+                if is_ironpython:
+                    sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
+                        simulation_setup.start_frequency, simulation_setup.stop_freq, simulation_setup.step_freq)
+                else:
+                    sweep.Frequencies = convert_py_list_to_net_list(self._pedb.simsetupdata.SweepData.SetFrequencies(
+                        simulation_setup.start_frequency, simulation_setup.stop_freq, simulation_setup.step_freq
+                    ))
+            if is_ironpython:
+                simsetup_info.SweepDataList.Add(sweep)
+            else:
+                simsetup_info.SweepDataList = convert_py_list_to_net_list([sweep])
         except Exception as err:
             self._logger.error("Exception in Sweep configuration: {0}".format(err))
 
         sim_setup = self._edb.Utility.HFSSSimulationSetup(simsetup_info)
 
-        return self._cell.AddSimulationSetup(sim_setup)
+        return self._active_layout.GetCell().AddSimulationSetup(sim_setup)
 
     def _setup_decade_count_sweep(self, sweep, start_freq="1", stop_freq="1MHz", decade_count="10"):
         start_f = convert_freq_string_to_float(start_freq)
