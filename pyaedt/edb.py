@@ -1392,9 +1392,9 @@ class Edb(object):
                 if self.create_cutout(simulation_setup=simulation_setup):
                     self.logger.info("Cutout processed")
                     # delete the original
-                    #old_cell = self._edb.Cell.FindByName(self._db, 0, old_cell_name)
-                    #if not old_cell:
-                    #    old_cell.Delete()
+                    old_cell = self.active_cell.FindByName(self._db, 0, old_cell_name)
+                    if old_cell:
+                        old_cell.Delete()
                 else:
                     self.logger.error("Cutout failed")
             # if simulation_setup.keep_anf_ports_and_pin_groups:
