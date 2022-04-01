@@ -45,7 +45,6 @@ if os.name == "nt":
     IsWindows = True
 else:
     IsWindows = False
-logger = logging.getLogger(__name__)
 
 if is_ironpython:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
@@ -170,6 +169,8 @@ def force_close_desktop():
     """
     Module = sys.modules["__main__"]
     pid = Module.oDesktop.GetProcessID()
+    logger = logging.getLogger(__name__)
+
     if pid > 0:
         try:
             projects = Module.oDesktop.GetProjectList()

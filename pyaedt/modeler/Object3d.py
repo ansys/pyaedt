@@ -17,6 +17,7 @@ import random
 import re
 import string
 import warnings
+from collections import OrderedDict
 
 from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
@@ -49,6 +50,111 @@ rgb_color_codes = {
     "copper": (184, 115, 51),
     "stainless steel": (224, 223, 219),
 }
+
+
+@pyaedt_function_handler()
+def _arg2dict(arg, dict_out):
+    if arg[0] == "NAME:DimUnits" or "NAME:Point" in arg[0]:
+        if arg[0][5:] in dict_out:
+            if isinstance(dict_out[arg[0][5:]][0], (list, tuple)):
+                dict_out[arg[0][5:]].append(list(arg[1:]))
+            else:
+                dict_out[arg[0][5:]] = [dict_out[arg[0][5:]]]
+                dict_out[arg[0][5:]].append(list(arg[1:]))
+        else:
+            dict_out[arg[0][5:]] = list(arg[1:])
+    elif arg[0][:5] == "NAME:":
+        top_key = arg[0][5:]
+        dict_in = OrderedDict()
+        i = 1
+        while i < len(arg):
+            if arg[i][0][:5] == "NAME:" and (
+                isinstance(arg[i], (list, tuple)) or str(type(arg[i])) == r"<type 'List'>"
+            ):
+                _arg2dict(list(arg[i]), dict_in)
+                i += 1
+            elif arg[i][-2:] == ":=":
+                if str(type(arg[i + 1])) == r"<type 'List'>":
+                    if arg[i][:-2] in dict_in:
+                        dict_in[arg[i][:-2]].append(list(arg[i + 1]))
+                    else:
+                        dict_in[arg[i][:-2]] = list(arg[i + 1])
+                else:
+                    if arg[i][:-2] in dict_in:
+                        if isinstance(dict_in[arg[i][:-2]], list):
+                            dict_in[arg[i][:-2]].append(arg[i + 1])
+                        else:
+                            dict_in[arg[i][:-2]] = [dict_in[arg[i][:-2]]]
+                            dict_in[arg[i][:-2]].append(arg[i + 1])
+                    else:
+                        dict_in[arg[i][:-2]] = arg[i + 1]
+
+                i += 2
+            else:
+                raise ValueError("Incorrect data argument format")
+        if top_key in dict_out:
+            if isinstance(dict_out[top_key], list):
+                dict_out[top_key].append(dict_in)
+            else:
+                dict_out[top_key] = [dict_out[top_key], dict_in]
+        else:
+            dict_out[top_key] = dict_in
+    else:
+        raise ValueError("Incorrect data argument format")
+
+
+@pyaedt_function_handler()
+def _dict2arg(d, arg_out):
+    """
+
+    Parameters
+    ----------
+    d :
+
+    arg_out :
+
+
+    Returns
+    -------
+
+    """
+    for k, v in d.items():
+        if "_pyaedt" in k:
+            continue
+        if k == "Point" or k == "DimUnits":
+            if isinstance(v[0], (list, tuple)):
+                for e in v:
+                    arg = ["NAME:" + k, e[0], e[1]]
+                    arg_out.append(arg)
+            else:
+                arg = ["NAME:" + k, v[0], v[1]]
+                arg_out.append(arg)
+        elif k == "Range":
+            if isinstance(v[0], (list, tuple)):
+                for e in v:
+                    arg_out.append(k + ":=")
+                    arg_out.append([i for i in e])
+            else:
+                arg_out.append(k + ":=")
+                arg_out.append([i for i in v])
+        elif isinstance(v, (OrderedDict, dict)):
+            arg = ["NAME:" + k]
+            _dict2arg(v, arg)
+            arg_out.append(arg)
+        elif v is None:
+            arg_out.append(["NAME:" + k])
+        elif type(v) is list and len(v) > 0 and isinstance(v[0], (OrderedDict, dict)):
+            for el in v:
+                arg = ["NAME:" + k]
+                _dict2arg(el, arg)
+                arg_out.append(arg)
+
+        else:
+            arg_out.append(k + ":=")
+            if type(v) is EdgePrimitive or type(v) is FacePrimitive or type(v) is VertexPrimitive:
+                arg_out.append(v.id)
+            else:
+                arg_out.append(v)
 
 
 def _uname(name=None):
@@ -1594,7 +1700,7 @@ class Object3d(object):
         >>> oEditor.ChangeProperty
 
         """
-        if self._part_coordinate_system is not None:
+        if self._part_coordinate_system is not None and not isinstance(self._part_coordinate_system, int):
             return self._part_coordinate_system
         if "Orientation" in self.valid_properties:
             self._part_coordinate_system = _retry_ntimes(
@@ -2629,6 +2735,31 @@ class ComponentParameters(dict):
         self._tab = tab
 
 
+class ModelParameters(object):
+    def update(self):
+        """Update the model properties.
+
+        Returns
+        -------
+        bool
+        """
+        try:
+            a = OrderedDict({})
+            a[self.name] = self.props
+            arg = ["NAME:" + self.name]
+            _dict2arg(self.props, arg)
+            self._component._circuit_components.o_model_manager.EditWithComps(self.name, arg, [])
+            return True
+        except:
+            self._component._circuit_components.logger.warning("Failed to update model %s ", self.name)
+            return False
+
+    def __init__(self, component, name, props):
+        self.props = props
+        self._component = component
+        self.name = name
+
+
 class CircuitComponent(object):
     """Manages circuit components."""
 
@@ -2644,7 +2775,7 @@ class CircuitComponent(object):
         self.name = ""
         self._circuit_components = circuit_components
         self.m_Editor = self._circuit_components._oeditor
-        self.modelName = None
+        self._modelName = None
         self.status = "Active"
         self.component = None
         self.id = 0
@@ -2660,6 +2791,45 @@ class CircuitComponent(object):
         self.InstanceName = None
         self._pins = None
         self._parameters = {}
+        self._model_data = {}
+
+    @property
+    def _property_data(self):
+        """Property Data List."""
+        try:
+            return list(self._circuit_components.o_component_manager.GetData(self.name.split("@")[1]))
+        except:
+            return []
+
+    @property
+    def model_name(self):
+        """Return Model Name if present.
+
+        Returns
+        -------
+        str
+        """
+        if self._property_data and "ModelDefName:=" in self._property_data:
+            return self._property_data[self._property_data.index("ModelDefName:=") + 1]
+        return None
+
+    @property
+    def model_data(self):
+        """Return the model data if the component has one.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.ModelParameters`
+        """
+        """Return the model data if the component has one.
+        """
+        if self._model_data:
+            return self._model_data
+        if self.model_name:
+            _parameters = OrderedDict({})
+            _arg2dict(list(self._circuit_components.o_model_manager.GetData(self.model_name)), _parameters)
+            self._model_data = ModelParameters(self, self.model_name, _parameters[self.model_name])
+        return self._model_data
 
     @property
     def parameters(self):

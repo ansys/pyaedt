@@ -698,3 +698,66 @@ class PostProcessor(Post):
             X, Y, Z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.5
         )
         fig1.set_size_inches(10, 10)
+
+    @pyaedt_function_handler()
+    def plot_scene(self, frames_list, output_gif_path, norm_index=0, dy_rng=0, fps=30, show=True):
+        """Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
+
+
+        Parameters
+        ----------
+        frames_list : list or str
+            File list containing animation frames to plot in csv format or
+            path to a txt index file containing full path to csv files.
+        output_gif_path : str
+            Full path to output gif file.
+        norm_index : int, optional
+            Pick the frame to use to normalize your images.
+            Data is already saved as dB : 100 for usual traffic scenes.
+        dy_rng : int, optional
+            Specify how many dB below you would like to specify the range_min.
+            Tweak this a couple of times with small number of frames.
+        fps : int, optional
+            Frames per Second.
+        show : bool, optional
+            Either if show or only export gif.
+
+        Returns
+        -------
+
+        """
+        if isinstance(frames_list, str) and os.path.exists(frames_list):
+            with open(frames_list, "r") as f:
+                lines = f.read()
+                temp_list = lines.splitlines()
+            frames_paths_list = [i for i in temp_list]
+        elif isinstance(frames_list, str):
+            self.logger.error("Path doesn't exists")
+            return False
+        else:
+            frames_paths_list = frames_list
+        scene = self.plot_model_obj(show=False)
+
+        norm_data = np.loadtxt(frames_paths_list[norm_index], skiprows=1, delimiter=",")
+        norm_val = norm_data[:, -1]
+        v_max = np.max(norm_val)
+        v_min = v_max - dy_rng
+        scene.add_frames_from_file(frames_paths_list, log_scale=False, color_map="jet", header_lines=1, opacity=0.8)
+
+        # Specifying the attributes of the scene through the ModelPlotter object
+        scene.off_screen = not show
+        scene.isometric_view = False
+        scene.range_min = v_min
+        scene.range_max = v_max
+        scene.show_grid = False
+        scene.windows_size = [1920, 1080]
+        scene.show_legend = False
+        scene.show_bounding_box = False
+        scene.legend = False
+        scene.frame_per_seconds = fps
+        scene.camera_position = "yz"
+        scene.zoom = 2
+        scene.bounding_box = False
+        scene.color_bar = False
+        scene.gif_file = output_gif_path  # This gif may be a bit slower so we can speed it up a bit
+        scene.animate()

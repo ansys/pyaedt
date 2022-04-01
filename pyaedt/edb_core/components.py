@@ -467,26 +467,23 @@ class Components(object):
         if hosting_component_pin2:
             h_pin2 = self._get_edb_pin_from_pin_name(hosting_component, hosting_component_pin2)
             h_pin2_pos = self.get_pin_position(h_pin2)
-        #
-        vector = [h_pin1_pos[0] - m_pin1_pos[0], h_pin1_pos[1] - m_pin1_pos[1]]
+
+        if flipped:
+            m_pin1_pos[1] *= -1.0
+            m_pin2_pos[1] *= -1.0
+
         vector1 = GeometryOperators.v_points(m_pin1_pos, m_pin2_pos)
         vector2 = GeometryOperators.v_points(h_pin1_pos, h_pin2_pos)
-        multiplier = 1
-        if flipped:
-            multiplier = -1
-        vector1[1] = multiplier * vector1[1]
 
         rotation = GeometryOperators.v_angle_sign_2D(vector1, vector2, False)
-        if rotation != 0.0:
-            x_v2 = m_pin1_pos[0] * math.cos(rotation) + multiplier * m_pin1_pos[1] * math.sin(rotation)
-            y_v2 = -1 * m_pin1_pos[0] * math.sin(rotation) + multiplier * m_pin1_pos[1] * math.cos(rotation)
-            new_vector = [x_v2, y_v2]
-            vector = [h_pin1_pos[0] - new_vector[0], h_pin1_pos[1] - new_vector[1]]
+        offset_from_x = m_pin1_pos[0] * math.cos(rotation) + m_pin1_pos[1] * math.sin(rotation)
+        offset_from_y = -1 * m_pin1_pos[0] * math.sin(rotation) + m_pin1_pos[1] * math.cos(rotation)
+        vector = [h_pin1_pos[0] - offset_from_x, h_pin1_pos[1] - offset_from_y]
 
-        if vector:
-            solder_ball_height = self.get_solder_ball_height(mounted_component)
+        solder_ball_height = self.get_solder_ball_height(mounted_component)
+        if isinstance(solder_ball_height, float):
             return True, vector, rotation, solder_ball_height
-        self._logger.warning("Failed to compute vector.")
+        self._logger.warning("Failed to compute solder ball height.")
         return False, [0, 0], 0, 0
 
     @pyaedt_function_handler()
