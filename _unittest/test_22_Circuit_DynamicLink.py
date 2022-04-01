@@ -214,9 +214,13 @@ class TestClass(BasisTest, object):
             hfss, solution_name="Setup2 : Sweep", tline_port="1"
         )
 
-    @pytest.mark.skipif(config["desktopVersion"] >= "2022.2" and config["use_grpc"], reason="Not working with grpc")
+    # @pytest.mark.skipif(config["desktopVersion"] >= "2022.2" and config["use_grpc"], reason="Not working with grpc")
     def test_11_siwave_link(self):
         model = os.path.join(local_path, "example_models", "Galileo_um.siw")
-        siw_comp = self.aedtapp.modeler.schematic.add_siwave_dynamic_link(model)
+        model_out = self.local_scratch.copyfile(model)
+        self.local_scratch.copyfolder(
+            model + "averesults", os.path.join(self.local_scratch.path, "Galileo_um.siwaveresults")
+        )
+        siw_comp = self.aedtapp.modeler.schematic.add_siwave_dynamic_link(model_out)
         assert siw_comp
         assert len(siw_comp.pins) == 2
