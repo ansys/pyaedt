@@ -1073,8 +1073,8 @@ class TestClass(BasisTest, object):
 
     def test_85_roughness_property_test(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
-        layer.roughness_enabled_value = True
-        assert layer.roughness_enabled_value
+        layer.roughness_enabled = True
+        assert layer.roughness_enabled
 
     def test_86_thickness_property_test(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]

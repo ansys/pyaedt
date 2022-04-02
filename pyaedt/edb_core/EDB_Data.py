@@ -612,7 +612,7 @@ class EDBLayer(object):
             self.update_layers()
 
     @property
-    def roughness_enabled_value(self):
+    def roughness_enabled(self):
         """Roughness enabled.
 
         Returns
@@ -627,8 +627,8 @@ class EDBLayer(object):
                 pass
         return self._roughness_enabled
 
-    @roughness_enabled_value.setter
-    def roughness_enabled_value(self, value):
+    @roughness_enabled.setter
+    def roughness_enabled(self, value):
         if self._layer_type == 0 or self._layer_type == 2:
             self._roughness_enabled = value
             self.update_layers()
