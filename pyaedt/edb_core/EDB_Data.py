@@ -590,7 +590,7 @@ class EDBLayer(object):
             self.update_layers()
 
     @property
-    def negative_layer_value(self):
+    def negative_layer(self):
         """Negative layer.
 
         Returns
@@ -605,8 +605,8 @@ class EDBLayer(object):
                 pass
         return self._negative_layer
 
-    @negative_layer_value.setter
-    def negative_layer_value(self, value):
+    @negative_layer.setter
+    def negative_layer(self, value):
         if self._layer_type == 0 or self._layer_type == 2:
             self._negative_layer = value
             self.update_layers()

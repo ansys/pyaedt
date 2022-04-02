@@ -1068,8 +1068,8 @@ class TestClass(BasisTest, object):
 
     def test_84_negative_properties_test(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
-        layer.negative_layer_value = True
-        assert layer.negative_layer_value
+        layer.negative_layer = True
+        assert layer.negative_layer
 
     def test_85_roughness_property_test(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
