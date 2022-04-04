@@ -1072,6 +1072,7 @@ class EDBLayers(object):
             Thickness value, including units. The default is ``"35um"``.
         layerType :
             Type of the layer. The default is ``0``, which is a signal layer.
+            ``1`` is a dielectric layer.
         etchMap : optional
             Etch value if any. The default is ``None``.
 
