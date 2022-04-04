@@ -1401,10 +1401,10 @@ class Edb(object):
         -------
         tuple
             tuple containing the ``SetVariableValue`` result and variable server.
+
         """
         if "$" in variable_name:
             var_server = self.db.GetVariableServer()
-            print(var_server)
         else:
             var_server = self.active_cell.GetVariableServer()
         variables = var_server.GetAllVariableNames()
