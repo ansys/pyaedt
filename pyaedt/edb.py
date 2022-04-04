@@ -1406,7 +1406,7 @@ class Edb(object):
             map(lambda pg: pg.Delete(), list(self.active_layout.PinGroups))
             self.logger.info("Creating ports for signal nets")
             if simulation_setup.solver_type == SolverType.Hfss3dLayout:
-                for cmp in simulation_setup.coax_instances:
+                for cmp in simulation_setup.components:
                     self.core_components.create_port_on_component(cmp,
                                                                   net_list=simulation_setup.signal_nets,
                                                                   do_pingroup=False,
