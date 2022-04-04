@@ -482,7 +482,7 @@ class EdbHfss(object):
             port_name = "{}_{}_{}".format(refdes, net_name, pin.pin.GetName())
 
         if self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
-                self._active_layout, edb_net, port_name, edb_pin, edb_layer):
+            self._active_layout, edb_net, port_name, edb_pin, edb_layer):
             return port_name
         else:
             return False
