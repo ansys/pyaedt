@@ -1388,7 +1388,7 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def change_design_variable_value(self, variable_name, variable_value):
-        """Change a design variable value
+        """Change a design variable value.
 
         Parameters
         ----------
@@ -1401,6 +1401,14 @@ class Edb(object):
         -------
         tuple
             tuple containing the ``SetVariableValue`` result and variable server.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edb_app = Edb()
+        >>> boolean, ant_length = edb_app.add_design_variable("ant_length", "1cm")
+        >>> boolean, ant_length = edb_app.change_design_variable_value("ant_length", "1m")
 
         """
         if "$" in variable_name:
