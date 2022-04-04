@@ -2561,13 +2561,12 @@ class SimulationConfiguration(object):
     omitted the default values will be applied.
     Example of configuration file:
 
-    generateSoledBalls = 'True'
-    signalNets = ['net1', 'net2']
-    powerNets = ['gnd']
-    coax_components = []
-    coax_instances = []
-    coaxSolderBallsDiams = ['0.077mm', '0.077mm']
-    KeepANFPortsAndPinGroups='False'
+    SolverType = 'Hfss3DLayout'
+    GenerateSolerdBalls = 'True'
+    SignalNets = ['net1', 'net2']
+    PowerNets = ['gnd']
+    Components = []
+    SolderBallsDiams = ['0.077mm', '0.077mm']
     UseDefaultCoaxPortRadialExtentFactor='True'
     TrimRefSize='False'
     CutoutSubdesignType='Conformal'
@@ -2612,7 +2611,6 @@ class SimulationConfiguration(object):
     SnapLengthThreshold = '2.5um'
     DcMinPlaneAreaToMesh = '8mil2'
     MaxInitMeshEdgeLength = '14.5mil'
-    SolverType = 'Hfss'
     SignalLayersProperties = ['surface:0.0::::', '4f:0.0::::', '3f:0.0::::', '2f:0.0::::', '1fco:0.0::::',
     '1bco:0.0::::', '2b:0.0::::', '3b:0.0::::', '4b:0.0::::', 'base:0.0::::', ]
     """
@@ -2623,10 +2621,8 @@ class SimulationConfiguration(object):
         self._generate_solder_balls = True
         self._signal_nets = []
         self._power_nets = []
-        self._component_with_coaxial_ports = []
-        self._coax_instances = []
+        self._components = []
         self._coax_solder_ball_diameter = []
-        self._keep_anf_ports_and_pin_groups = True
         self._use_default_coax_port_radial_extension = True
         self._trim_reference_size = False
         self._cutout_subdesign_type = CutoutSubdesignType.Conformal  # Conformal
@@ -2643,9 +2639,9 @@ class SimulationConfiguration(object):
         self._sweep_name = "Sweep1"
         self._radiation_box = RadiationBoxType.ConvexHull  # 'ConvexHull'
         self._start_frequency = "0.0GHz"  # 0.0
-        self._stop_freq = "10.001GHz"  # 10e9
+        self._stop_freq = "10.0GHz"  # 10e9
         self._sweep_type = SweepType.Linear  # 'Linear'
-        self._step_freq = "0.040004GHz"  # 10e6
+        self._step_freq = "0.025GHz"  # 10e6
         self._decade_count = 100  # Newly Added
         self._mesh_freq = "3GHz"  # 5e9
         self._max_num_passes = 30
@@ -2725,22 +2721,13 @@ class SimulationConfiguration(object):
             self._power_nets = value
 
     @property
-    def component_with_coaxial_ports(self):
-        return self._component_with_coaxial_ports
+    def components(self):
+        return self._components
 
-    @component_with_coaxial_ports.setter
-    def component_with_coaxial_ports(self, value):
+    @components.setter
+    def components(self, value):
         if isinstance(value, list):
-            self._component_with_coaxial_ports = value
-
-    @property
-    def coax_instances(self):
-        return self._coax_instances
-
-    @coax_instances.setter
-    def coax_instances(self, value):
-        if isinstance(value, list):
-            self._coax_instances = value
+            self._components = value
 
     @property
     def coax_solder_ball_diameter(self):
@@ -2750,15 +2737,6 @@ class SimulationConfiguration(object):
     def coax_solder_ball_diameter(self, value):
         if isinstance(value, list):
             self._coax_solder_ball_diameter = value
-
-    @property
-    def keep_anf_ports_and_pin_groups(self):
-        return self._keep_anf_ports_and_pin_groups
-
-    @keep_anf_ports_and_pin_groups.setter
-    def keep_anf_ports_and_pin_groups(self, value):
-        if isinstance(value, bool):
-            self._keep_anf_ports_and_pin_groups = value
 
     @property
     def use_default_coax_port_radial_extension(self):
@@ -2795,8 +2773,6 @@ class SimulationConfiguration(object):
     def cutout_subdesign_type(self, value):
         if isinstance(value, CutoutSubdesignType):
             self._cutout_subdesign_type = value
-        # if isinstance(value, str):
-        #     self._cutout_subdesign_type = value
 
     @property
     def cutout_subdesign_expansion(self):
@@ -2905,8 +2881,6 @@ class SimulationConfiguration(object):
     def radiation_box(self, value):
         if isinstance(value, RadiationBoxType):
             self._radiation_box = value
-        # if isinstance(value, str):
-        #     self._radiation_box = value
 
     @property
     def start_frequency(self):
@@ -2999,8 +2973,6 @@ class SimulationConfiguration(object):
     def basis_order(self, value):
         if isinstance(value, BasisOrder):
             self._basis_order = value
-        # if isinstance(value, str):
-        #     self._basis_order = value
 
     @property
     def do_lambda_refinement(self):
@@ -3344,20 +3316,16 @@ class SimulationConfiguration(object):
                         if line.find("="):
                             i, prop_value = line.strip().split("=")
                             value = prop_value.replace("'", "").strip()
-                            if i.startswith("generateSolderBalls"):
+                            if i.startswith("GenerateSolderBalls"):
                                 self.generate_solder_balls = self._get_bool_value(value)
-                            elif i.startswith("signalNets"):
+                            elif i.startswith("SignalNets"):
                                 self.signal_nets = self._get_list_value(value)
-                            elif i.startswith("powerNets"):
+                            elif i.startswith("PowerNets"):
                                 self.power_nets = self._get_list_value(value)
-                            elif i.startswith("coax_components"):
+                            elif i.startswith("Components"):
                                 self.component_with_coaxial_ports = self._get_list_value(value)
-                            elif i.startswith("coax_instances"):
-                                self.coax_instances = self._get_list_value(value)
                             elif i.startswith("coaxSolderBallsDiams"):
                                 self.coax_solder_ball_diameter = self._get_list_value(value)
-                            elif i.startswith("KeepANFPortsAndPinGroups"):
-                                self.keep_anf_ports_and_pin_groups = self._get_bool_value(value)
                             elif i.startswith("UseDefaultCoaxPortRadialExtentFactor"):
                                 self.signal_nets = self._get_bool_value(value)
                             elif i.startswith("TrimRefSize"):

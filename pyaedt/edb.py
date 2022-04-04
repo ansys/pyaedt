@@ -1405,18 +1405,18 @@ class Edb(object):
             map(lambda port: port.Delete(), list(self.active_layout.Terminals))
             map(lambda pg: pg.Delete(), list(self.active_layout.PinGroups))
             self.logger.info("Creating ports for signal nets")
-            for cmp in simulation_setup.coax_instances:
-                self.core_components.create_port_on_component(cmp,
-                    net_list=simulation_setup.signal_nets, do_pingroup=False,
-                    reference_net=simulation_setup.power_nets)
-                #map(lambda cmp: self.core_components.create_port_on_component(cmp,
-                #        net_list=simulation_setup.signal_nets, do_pingroup=False,
-                #        reference_net=simulation_setup.power_nets), simulation_setup.coax_instances)
-            self.logger.info("Number of ports: {}".format(self.core_hfss.get_ports_number()))
             if simulation_setup.solver_type == SolverType.Hfss3dLayout:
+                for cmp in simulation_setup.coax_instances:
+                    self.core_components.create_port_on_component(cmp,
+                                                                  net_list=simulation_setup.signal_nets,
+                                                                  do_pingroup=False,
+                                                                  reference_net=simulation_setup.power_nets)
+                self.logger.info("Number of ports: {}".format(self.core_hfss.get_ports_number()))
                 self.logger.info("Configure HFSS extents")
                 self.core_hfss.configure_hfss_extents(simulation_setup)
-            self.logger.info("Configure analysis setup")
+            if simulation_setup.solver_type == SolverType.Siwave:
+                pass
+            self.logger.info("Configuring analysis setup")
             if simulation_setup.solver_type == SolverType.Siwave:
                 if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):
                     self.logger.error("Failed to configure Siwave simulation setup.")
