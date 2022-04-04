@@ -466,9 +466,9 @@ class EdbHfss(object):
         pin = comp.pins[pin_number]
         edb_net = pin.pin.GetNet()
         edb_pin = pin.pin
-       if is_ironpython:
+        if is_ironpython:
                _, from_layer, to_layer = edb_pin.GetLayerRange()
-       else:
+        else:
                _, from_layer, to_layer = edb_pin.GetLayerRange(None, None)
 
         if from_layer == comp.placement_layer:
