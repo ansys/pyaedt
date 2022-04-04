@@ -1387,6 +1387,38 @@ class Edb(object):
             return True, var_server
 
     @pyaedt_function_handler()
+    def change_design_variable_value(self, variable_name, variable_value):
+        """Change a design variable value
+
+        Parameters
+        ----------
+        variable_name : str
+            Name of the variable.
+        variable_value : str, float
+            Value of the variable with units.
+
+        Returns
+        -------
+        tuple
+            tuple containing the ``SetVariableValue`` result and variable server.
+        """
+        if "$" in variable_name:
+            var_server = self.db.GetVariableServer()
+            print(var_server)
+        else:
+            var_server = self.active_cell.GetVariableServer()
+        variables = var_server.GetAllVariableNames()
+        if variable_name in list(variables):
+            var_server.SetVariableValue(variable_name, self.edb_value(variable_value))
+            self.logger.info("Parameter %s was created.", variable_name)
+            return True, var_server
+        else:
+            self.logger.error(
+                "Parameter %s doesn't exist. You can create it using method add_design_variable.", variable_name
+            )
+            return False
+
+    @pyaedt_function_handler()
     def get_bounding_box(self):
         """Retrieve the layout bounding box.
 

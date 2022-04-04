@@ -1103,3 +1103,20 @@ class TestClass(BasisTest, object):
         core_stackup._logger.warning("Is it working?")
         layers._logger.warning("Is it working?")
         layer._logger.warning("Is it working?")
+
+    def test_92_change_design_variable_value(self):
+        boolean, ant_length = self.edbapp.add_design_variable("ant_length", "1cm")
+        assert boolean
+        assert ant_length
+        changed_variable_1 = self.edbapp.change_design_variable_value("ant_length", "1m")
+        if isinstance(changed_variable_1, tuple):
+            changed_variable_done, ant_length_value = changed_variable_1
+            assert changed_variable_done
+        else:
+            assert changed_variable_1
+        changed_variable_2 = self.edbapp.change_design_variable_value("elephant_length", "1m")
+        if isinstance(changed_variable_2, tuple):
+            changed_variable_done, elephant_length_value = changed_variable_2
+            assert not changed_variable_done
+        else:
+            assert not changed_variable_2
