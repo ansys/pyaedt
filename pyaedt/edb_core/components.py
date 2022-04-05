@@ -599,24 +599,20 @@ class Components(object):
                     ref_pin_group_term = self.terminal
                 else:
                     ref_pin_group = self.create_pingroup_from_pins(ref_pins)
-                    ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group[1])
-                    if not ref_pin_group[0]:
+                    if not ref_pin_group:
                         return False
-                ref_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-                ref_pin_group_term.SetIsCircuitPort(True)
+                    ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group)
+                    if not ref_pin_group_term:
+                        return False
                 for net in net_list:
                     pins = [pin for pin in cmp_pins if pin.GetNet().GetName() == net]
                     pin_group = self.create_pingroup_from_pins(pins)
-                    if pin_group[0]:
-                        pingroups.append(pin_group[1])
-                pg_terminal = []
-                for pg in pingroups:
-                    pg_term = self._create_pin_group_terminal(pg)
-                    pg_terminal.append(pg_term)
-                for term in pg_terminal:
-                    term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-                    term.SetIsCircuitPort(True)
-                    term.SetReferenceTerminal(ref_pin_group_term)
+                    if not pin_group:
+                        return False
+                    pin_group_term = self._create_pin_group_terminal(pin_group)
+                    if pin_group_term:
+                        pin_group_term.SetReferenceTerminal(ref_pin_group_term)
+
             else:
                 for net in net_list:
                     pins = [pin for pin in cmp_pins if pin.GetNet().GetName().lower() == net]
@@ -713,6 +709,13 @@ class Components(object):
             pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
                 self._active_layout, pin.GetNet(), term_name, pingroup, isref
             )
+            pingroup_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+            pingroup_term.SetIsCircuitPort(True)
+            pin = list(pingroup.GetPins())[0]
+            ref_pin_start_layer, ref_pin_stop_layer = self._pedb.core_padstack._get_pin_layer_range(pin)
+            pingroup_term.SetLayer(ref_pin_start_layer)
+            pingroup_term.SetGroup(pin.GetComponent())
+            pingroup_term.SetPinGroup(pingroup)
             return pingroup_term
         else:
             return False
@@ -909,13 +912,12 @@ class Components(object):
 
         """
         if len(pins) < 1:
-            self._logger.error("No pins specified for pin group %s", group_name)
+            self._logger.warning("No pins available for pin group %s", group_name)
             return (False, None)
         if group_name is None:
             cmp_name = pins[0].GetComponent().GetName()
             net_name = pins[0].GetNet().GetName()
             group_name = self._edb.Cell.Hierarchy.PinGroup.GetUniqueName(self._active_layout)
-            #group_name = generate_unique_name("{}_{}".format(cmp_name, net_name))
         pingroup = _retry_ntimes(
             10,
             self._edb.Cell.Hierarchy.PinGroup.Create,
@@ -924,11 +926,11 @@ class Components(object):
             convert_py_list_to_net_list(pins),
         )
         if pingroup.IsNull():
-            return (False, None)
+            return False
         else:
             pingroup.SetNet(pins[0].GetNet())
             pingroup.SetGroup(pins[0].GetComponent())
-            return (True, pingroup)
+            return pingroup
 
     @pyaedt_function_handler()
     def delete_single_pin_rlc(self):

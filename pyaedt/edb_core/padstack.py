@@ -482,6 +482,18 @@ class EdbPadstacks(object):
         return padstackname
 
     @pyaedt_function_handler()
+    def _get_pin_layer_range(self, pin):
+        if not is_ironpython:
+            res, fromlayer, tolayer = pin.GetLayerRange(None, None)
+
+        else:
+            res, fromlayer, tolayer = pin.GetLayerRange()
+        if res:
+            return fromlayer, tolayer
+        else:
+            return False
+
+    @pyaedt_function_handler()
     def duplicate_padstack(self, target_padstack_name, new_padstack_name=""):
         """Duplicate a padstack.
 
