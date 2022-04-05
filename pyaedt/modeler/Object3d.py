@@ -1700,7 +1700,7 @@ class Object3d(object):
         >>> oEditor.ChangeProperty
 
         """
-        if self._part_coordinate_system is not None:
+        if self._part_coordinate_system is not None and not isinstance(self._part_coordinate_system, int):
             return self._part_coordinate_system
         if "Orientation" in self.valid_properties:
             self._part_coordinate_system = _retry_ntimes(

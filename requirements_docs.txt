@@ -2,7 +2,7 @@ recommonmark
 matplotlib
 imageio>=2.5.0
 imageio-ffmpeg
-pyvista
+pyvista<=0.33.3
 numpy
 Sphinx==4.0.3
 sphinx-autobuild

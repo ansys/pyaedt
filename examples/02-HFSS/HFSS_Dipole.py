@@ -118,7 +118,36 @@ hfss.post.create_report(
 )
 
 ###############################################################################
-# Postprocessing
+# Postprocessing using report objects
+# -----------------------------------
+# Another way to create a plot is using report_by_category.
+# This gives more freedom to the user in report creation.
+
+new_report = hfss.post.reports_by_category.far_field("db(RealizedGainTotal)", hfss.nominal_adaptive, "3D")
+new_report.variations = variations
+new_report.primary_sweep = "Theta"
+new_report.create("Realized2D")
+
+###############################################################################
+# Multiple Reports
+# ----------------
+# The same object new_report can be used to create multiple reports.
+# In this example a 2d and a 3d polar plot is created.
+
+new_report.report_type = "3D Polar Plot"
+new_report.secondary_sweep = "Phi"
+new_report.create("Realized3D")
+
+###############################################################################
+# Solution Data
+# -------------
+# The same object new_report can be used to get solution data and post process or plot outside AEDT.
+
+solution_data = new_report.get_solution_data()
+solution_data.plot()
+
+###############################################################################
+# Far Field Plot
 # --------------
 # Create post processing variable and assign to new coordinate system.
 # A post processing variable can be created directly from setter
@@ -128,35 +157,39 @@ hfss["post_x"] = 2
 hfss.variable_manager.set_variable("y_post", 1, postprocessing=True)
 hfss.modeler.create_coordinate_system(["post_x", "y_post", 0], name="CS_Post")
 hfss.insert_infinite_sphere(custom_coordinate_system="CS_Post", name="Sphere_Custom")
+
 ###############################################################################
-# Postprocessing
-# --------------
+# Get Solution Data
+# -----------------
 # The same report can be obtained outside electronic desktop with the
 # following commands.
 
-solutions = hfss.post.get_solution_data(
-    "GainTotal",
-    hfss.nominal_adaptive,
-    variations,
-    primary_sweep_variable="Theta",
-    context="3D",
-    report_category="Far Fields",
-)
-
-solutions_custom = hfss.post.get_solution_data(
-    "GainTotal",
-    hfss.nominal_adaptive,
-    variations,
-    primary_sweep_variable="Theta",
-    context="Sphere_Custom",
-    report_category="Far Fields",
-)
+new_report = hfss.post.reports_by_category.far_field("GainTotal", hfss.nominal_adaptive, "3D")
+new_report.primary_sweep = "Theta"
+new_report.far_field_sphere = "3D"
+solutions = new_report.get_solution_data()
+# solutions = hfss.post.get_solution_data(
+#     "GainTotal",
+#     hfss.nominal_adaptive,
+#     variations,
+#     primary_sweep_variable="Theta",
+#     context="3D",
+#     report_category="Far Fields",
+# )
+#
+# solutions_custom = hfss.post.get_solution_data(
+#     "GainTotal",
+#     hfss.nominal_adaptive,
+#     variations,
+#     primary_sweep_variable="Theta",
+#     context="Sphere_Custom",
+#     report_category="Far Fields",
+# )
 
 ###############################################################################
 # 3D Plot
 # -------
 # plot_3d method created a 3d plot using matplotlib.
-
 solutions.plot_3d()
 
 ###############################################################################
@@ -164,6 +197,8 @@ solutions.plot_3d()
 # -------
 # plot_3d method created a 3d plot using matplotlib.
 
+new_report.far_field_sphere = "Sphere_Custom"
+solutions_custom = new_report.get_solution_data()
 solutions_custom.plot_3d()
 
 ###############################################################################
