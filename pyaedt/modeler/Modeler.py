@@ -1850,7 +1850,7 @@ class GeometryModeler(Modeler, object):
 
         offset = self.find_point_around(objectname, start, sheet_dim, cs)
         p1 = self.create_polyline([start, offset])
-        p2 = p1.clone().translate(vector)
+        p2 = p1.clone().move(vector)
         self.connect([p1, p2])
 
         return p1
@@ -1914,10 +1914,10 @@ class GeometryModeler(Modeler, object):
         l2 = out[1].length
         if l1 < l2:
             vect_t = [i * (vfactor - 1) for i in vect]
-            self.translate(port_edges[0], vect_t)
+            self.move(port_edges[0], vect_t)
         else:
             vect_t = [i * (1 - vfactor) for i in vect]
-            self.translate(port_edges[1], vect_t)
+            self.move(port_edges[1], vect_t)
 
         self.connect(port_edges)
         list_unite = [sheet_name]
@@ -2935,6 +2935,9 @@ class GeometryModeler(Modeler, object):
     @pyaedt_function_handler()
     def translate(self, objid, vector):
         """Translate objects from a list.
+
+        .. deprecated:: 0.4.0
+           Use :func:`move` instead.
 
         Parameters
         ----------

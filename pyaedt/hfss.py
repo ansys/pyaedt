@@ -3009,7 +3009,7 @@ class Hfss(FieldAnalysis3D, object):
         self,
         sheet,
         deemb=0,
-        axisdir=0,
+        axisdir=None,
         impedance=50,
         nummodes=1,
         portname=None,
@@ -3025,9 +3025,11 @@ class Hfss(FieldAnalysis3D, object):
         deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            Position of the port. It is used to auto evaluate the integration line.
+            If set to ``None`` the integration line is not defined.
+            It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is 0 for ``Application.AxisDir.XNeg``.
+            The default is ``None`` and no integration line is defined.
         impedance : float, optional
             Port impedance. The default is ``50``.
         nummodes : int, optional
@@ -3077,9 +3079,10 @@ class Hfss(FieldAnalysis3D, object):
         else:
             oname = ""
         if "Modal" in self.solution_type:
-
-            refid, int_start, int_stop = self._get_reference_and_integration_points(sheet, axisdir, oname)
-
+            if axisdir:
+                _, int_start, int_stop = self._get_reference_and_integration_points(sheet, axisdir, oname)
+            else:
+                int_start = int_stop = None
             portname = self._get_unique_source_name(portname, "Port")
 
             return self._create_waveport_driven(
@@ -3653,6 +3656,7 @@ class Hfss(FieldAnalysis3D, object):
     @pyaedt_function_handler()
     def thicken_port_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
         """Create thickened sheets over a list of input port sheets.
+        This method is built to work with the output of ``modeler.find_port_faces``.
 
         Parameters
         ----------
@@ -3670,7 +3674,8 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         Dict
-            For each input sheet returns the port IDs where thickened sheets were created.
+            For each input sheet returns the port IDs where thickened sheets were created
+            if the name contains the word "Vacuum".
 
         References
         ----------
@@ -3719,7 +3724,7 @@ class Hfss(FieldAnalysis3D, object):
                     ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(l) + "mm", "BothSides:=", False],
                 )
                 # aedt_bounding_box2 = self._oeditor.GetModelBoundingBox()
-                aedt_bounding_box2 = self.modeler.primitives.get_model_bounding_box()
+                aedt_bounding_box2 = self.modeler.get_model_bounding_box()
 
                 self._odesign.Undo()
 
