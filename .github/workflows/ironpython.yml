@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: 'Run Unit Tests in Ironpython'
-        timeout-minutes: 30
+        timeout-minutes: 40
         run: |
           $process = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
 
