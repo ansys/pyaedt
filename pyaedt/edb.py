@@ -25,7 +25,7 @@ except ImportError:  # pragma: no cover
 from pyaedt import settings
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder, SimulationConfiguration
-from pyaedt.generic.constants import CutoutSubdesignType, SolverType
+from pyaedt.generic.constants import CutoutSubdesignType, SolverType, SourceType
 from pyaedt.generic.general_methods import (
     pyaedt_function_handler,
     env_path,
@@ -1391,16 +1391,11 @@ class Edb(object):
                 old_cell_name = self.active_cell.GetName()
                 if self.create_cutout(simulation_setup=simulation_setup):
                     self.logger.info("Cutout processed")
-                    # delete the original
                     old_cell = self.active_cell.FindByName(self._db, 0, old_cell_name)
                     if old_cell:
                         old_cell.Delete()
                 else:
                     self.logger.error("Cutout failed")
-            # if simulation_setup.keep_anf_ports_and_pin_groups:
-            #     self.logger.info("Configure circuit ports for existing ports")
-            #     map(lambda port: port.SetIsCircuitPort(True), list(self.active_layout.Terminals))
-            #else:
             self.logger.info("Deleting existing ports")
             map(lambda port: port.Delete(), list(self.active_layout.Terminals))
             map(lambda pg: pg.Delete(), list(self.active_layout.PinGroups))
@@ -1410,24 +1405,30 @@ class Edb(object):
                     self.core_components.create_port_on_component(cmp,
                                                                   net_list=simulation_setup.signal_nets,
                                                                   do_pingroup=False,
-                                                                  reference_net=simulation_setup.power_nets)
+                                                                  reference_net=simulation_setup.power_nets,
+                                                                  port_type=SourceType.CoaxPort)
+                if not self.core_hfss.set_coax_port_attributes(simulation_setup):
+                    self.logger.error("Failed to configure coaxial port attributes.")
                 self.logger.info("Number of ports: {}".format(self.core_hfss.get_ports_number()))
                 self.logger.info("Configure HFSS extents")
+                if simulation_setup.trim_reference_size:
+                    self.logger.info('Trimming the reference plane for coaxial ports: {0}'.
+                                     format(bool(simulation_setup.trim_reference_size)))
+                    self.core_hfss.trim_component_reference_size(simulation_setup)
                 self.core_hfss.configure_hfss_extents(simulation_setup)
-            if simulation_setup.solver_type == SolverType.Siwave:
-                pass
-            self.logger.info("Configuring analysis setup")
-            if simulation_setup.solver_type == SolverType.Siwave:
-                if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):
-                    self.logger.error("Failed to configure Siwave simulation setup.")
-            elif simulation_setup.solver_type == SolverType.Hfss3dLayout:
                 if not self.core_hfss.configure_hfss_analysis_setup(simulation_setup):
                     self.logger.error("Failed to configure HFSS simulatiom setup.")
-            self.core_hfss.set_coax_port_attributes(simulation_setup)
-            if simulation_setup.trim_reference_size:
-                self.logger.info('Trimming the reference plane for coaxial ports: {0}'.
-                                 format(bool(simulation_setup.trim_reference_size)))
-                self.core_hfss.trim_component_reference_size(simulation_setup)
+            if simulation_setup.solver_type == SolverType.Siwave:
+                for cmp in simulation_setup.components:
+                    self.core_components.create_port_on_component(cmp,
+                                                                  net_list=simulation_setup.signal_nets,
+                                                                  do_pingroup=True,
+                                                                  reference_net=simulation_setup.power_nets,
+                                                                  port_type=SourceType.CircPort)
+                self.logger.info("Configuring analysis setup")
+                if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):
+                    self.logger.error("Failed to configure Siwave simulation setup.")
+
             #if simulation_setup.defeature_layout:
             #    self.core_hfss.layout_defeaturing(simulation_setup)
             return True

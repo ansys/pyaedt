@@ -3323,7 +3323,7 @@ class SimulationConfiguration(object):
                             elif i.startswith("PowerNets"):
                                 self.power_nets = self._get_list_value(value)
                             elif i.startswith("Components"):
-                                self.component_with_coaxial_ports = self._get_list_value(value)
+                                self.components = self._get_list_value(value)
                             elif i.startswith("coaxSolderBallsDiams"):
                                 self.coax_solder_ball_diameter = self._get_list_value(value)
                             elif i.startswith("UseDefaultCoaxPortRadialExtentFactor"):

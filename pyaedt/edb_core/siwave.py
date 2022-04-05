@@ -8,6 +8,7 @@ import warnings
 
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.generic.constants import SweepType
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
@@ -1289,13 +1290,8 @@ class EdbSiwave(object):
         # use the SimSetupData classes directly
         if not isinstance(simulation_setup, SimulationConfiguration):
             return False
-        adapt = self._edb._SimSetup.Data.AdaptiveFrequencyData()
-        adapt.AdaptiveFrequency = simulation_setup.mesh_freq
-        adapt.MaxPasses = int(simulation_setup.max_num_passes)
-        adapt.MaxDelta = simulation_setup.max_mag_delta_s
-
         simsetup_info = self._pedb.simsetupdata.SimSetupInfo[
-            self._pedb.simsetupdata.Data.SIwave.SIWSimulationSettings
+            self._pedb.simsetupdata.SIwave.SIWSimulationSettings
         ]()
         simsetup_info.Name = simulation_setup.setup_name
         simsetup_info.SimulationSettings.AdvancedSettings.PerformERC = False
@@ -1305,7 +1301,7 @@ class EdbSiwave(object):
                 simulation_setup.include_inter_plane_coupling
             )
         if abs(simulation_setup.xtalk_threshold):
-            simsetup_info.SimulationSettings.AdvancedSettings.XtalkThreshold = simulation_setup.xtalk_threshold
+            simsetup_info.SimulationSettings.AdvancedSettings.XtalkThreshold = str(simulation_setup.xtalk_threshold)
         if simulation_setup.min_void_area:
             simsetup_info.SimulationSettings.AdvancedSettings.MinVoidArea = simulation_setup.min_void_area
         if simulation_setup.min_pad_area_to_mesh:
@@ -1336,51 +1332,37 @@ class EdbSiwave(object):
             simsetup_info.SimulationSettings.DCAdvancedSettings.MaxInitMeshEdgeLength = (
                 simulation_setup.max_init_mesh_edge_length
             )
-
-        """
-        simSetupInfo.SimulationSettings.CurveApproxSettings.ArcAngle = setup_info.ArcAngle
-        simSetupInfo.SimulationSettings.CurveApproxSettings.UseArcToChordError = setup_info.UseArcToChordError
-        simSetupInfo.SimulationSettings.CurveApproxSettings.ArcToChordError = setup_info.ArcToChordError
-        simSetupInfo.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Clear()  # clear the default adapt
-        simSetupInfo.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Add(adapt)
-        simSetupInfo.SimulationSettings.InitialMeshSettings.LambdaRefine = True
-        simSetupInfo.SimulationSettings.InitialMeshSettings.UseDefaultLambda = True
-        simSetupInfo.SimulationSettings.AdaptiveSettings.MaxRefinePerPass = 30
-        simSetupInfo.SimulationSettings.AdaptiveSettings.MinPasses = 1
-        simSetupInfo.SimulationSettings.AdaptiveSettings.MinConvergedPasses = 1
-        simSetupInfo.SimulationSettings.HFSSSolverSettings.OrderBasis = -1  # e.g. mixed
-        simSetupInfo.SimulationSettings.HFSSSolverSettings.UseHFSSIterativeSolver = False
-        simSetupInfo.SimulationSettings.DefeatureSettings.UseDefeature = False  # set True when using defeature ratio
-        simSetupInfo.SimulationSettings.DefeatureSettings.UseDefeatureAbsLength = True
-        simSetupInfo.SimulationSettings.DefeatureSettings.DefeatureAbsLength = setup_info.DefeatureAbsLength
-        """
-
         try:
-            sweep = self._edb._SimSetup.Data.SweepData(simulation_setup.sweep_name)
+            sweep = self._pedb.simsetupdata.SweepData(simulation_setup.sweep_name)
             sweep.IsDiscrete = False  # need True for package??
             sweep.UseQ3DForDC = simulation_setup.use_q3d_for_dc
-            if simulation_setup.keep_anf_ports_and_pin_groups:
-                sweep.UseQ3DForDC = False
-            # else:
-            #    sweep.UseQ3DForDC = True
             sweep.RelativeSError = simulation_setup.relative_error  # 0.005
             sweep.InterpUsePortImpedance = False
             sweep.EnforceCausality = (self._convert_freq_string_to_float(simulation_setup.start_frequency) - 0) < 1e-9
-            # sweep.EnforceCausality = False
             sweep.EnforcePassivity = simulation_setup.enforce_passivity  # True
             sweep.PassivityTolerance = simulation_setup.passivity_tolerance  # 0.0001
-            sweep.Frequencies.Clear()  # clear defaults
+            if is_ironpython:
+                sweep.Frequencies.Clear()
+            else:
+                list(sweep.Frequencies).clear()
+              # clear defaults
             if simulation_setup.sweep_type == SweepType.LogCount:  # setup_info.SweepType == 'DecadeCount'
                 self._setup_decade_count_sweep(
                     sweep, simulation_setup.start_frequency, simulation_setup.stop_freq, simulation_setup.decade_count
                 )  # Added DecadeCount as a new attribute
 
             else:
-                sweep.Frequencies = self._edb._SimSetup.Data.SweepData.SetFrequencies(
-                    simulation_setup.start_frequency, simulation_setup.stop_freq, simulation_setup.step_freq
-                )
-
-            simsetup_info.SweepDataList.Add(sweep)
+                if is_ironpython:
+                    sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
+                        simulation_setup.start_frequency, simulation_setup.stop_freq, simulation_setup.step_freq)
+                else:
+                    sweep.Frequencies = convert_py_list_to_net_list(self._pedb.simsetupdata.SweepData.SetFrequencies(
+                        simulation_setup.start_frequency, simulation_setup.stop_freq, simulation_setup.step_freq
+                    ))
+            if is_ironpython:
+                simsetup_info.SweepDataList.Add(sweep)
+            else:
+                simsetup_info.SweepDataList = convert_py_list_to_net_list([sweep])
         except Exception as err:
             self._logger.error("Exception in Sweep configuration: {0}".format(err))
 

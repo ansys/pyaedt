@@ -867,8 +867,6 @@ class EdbHfss(object):
             sweep = self._pedb.simsetupdata.SweepData(simulation_setup.sweep_name)
             sweep.IsDiscrete = False
             sweep.UseQ3DForDC = simulation_setup.use_q3d_for_dc
-            if simulation_setup.keep_anf_ports_and_pin_groups:
-                sweep.UseQ3DForDC = False
             sweep.RelativeSError = simulation_setup.relative_error
             sweep.InterpUsePortImpedance = False
             sweep.EnforceCausality = simulation_setup.start_frequency
@@ -1015,8 +1013,8 @@ class EdbHfss(object):
             return False
         net_names = [net.GetName() for net in list(self._active_layout.Nets) if not net.IsPowerGround()]
         cmp_names = (
-            simulation_setup.coax_instances
-            if simulation_setup.coax_instances
+            simulation_setup.components
+            if simulation_setup.components
             else [gg.GetName() for gg in self._active_layout.Groups]
         )
         ii = 0
@@ -1031,14 +1029,6 @@ class EdbHfss(object):
                     if not tt.SetImpedance(self._pedb.edb_value("50ohm")):
                         self._logger.warning("Could not set terminal {0} impedance as 50ohm".format(tt.GetName()))
                         continue
-                    #nparts = tt.GetName().split(".")
-                    #if nparts[1] == nn:
-                    #new_name = "{}.{}.{}".format(tt.GetComponent().GetName(), tt.GetName(), tt.GetNet().GetName())
-                    # rename comp.net.pin --> comp.pin.net (as in ports created in edt GUI)
-                    #self._logger.info("rename port {0} --> {1}".format(tt.GetName(), new_name))
-                    #if not tt.SetName(new_name):
-                    #    self._logger.warning("Could not rename terminal {0} as {1}".format(tt.GetName(), new_name))
-                    #    continue
                     ii += 1
 
             if not simulation_setup.use_default_coax_port_radial_extension:
@@ -1057,6 +1047,7 @@ class EdbHfss(object):
                         for tt in terms:
                             self._builder.SetHfssSolverOption(tt, "Radial Extent Factor", radial_factor)
                             self._builder.SetHfssSolverOption(tt, "Layer Alignment", "Upper")  # ensure this is also set
+        return True
 
     @pyaedt_function_handler()
     def _get_terminals_bbox(self, comp, l_inst, terminals_only):

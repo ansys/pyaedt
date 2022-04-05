@@ -594,7 +594,9 @@ class Components(object):
             if do_pingroup:
                 pingroups = []
                 if len(ref_pins) == 1:
-                    ref_pin_group_term = self._create_terminal(ref_pins[0])
+                    self.create_terminal = self._create_terminal(ref_pins[0])
+                    self.terminal = self.create_terminal
+                    ref_pin_group_term = self.terminal
                 else:
                     ref_pin_group = self.create_pingroup_from_pins(ref_pins)
                     ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group[1])
@@ -702,15 +704,18 @@ class Components(object):
         -------
         Edb pin group terminal.
         """
-
-        layout = pingroup.GetLayout()
-        cmp_name = pingroup.GetComponent().GetName()
-        net_name = pingroup.GetNet().GetName()
-        term_name = pingroup.GetUniqueName(layout, "Pingroup_{0}_{1}".format(cmp_name, net_name))
-        pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
-            self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
-        )
-        return pingroup_term
+        pin = list(pingroup.GetPins())[0]
+        if pin:
+            layout = self._active_layout
+            cmp_name = pin.GetComponent().GetName()
+            net_name = pin.GetNet().GetName()
+            term_name = generate_unique_name("Pingroup_{0}_{1}".format(cmp_name, net_name))
+            pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
+                self._active_layout, pin.GetNet(), term_name, pingroup, isref
+            )
+            return pingroup_term
+        else:
+            return False
 
     @pyaedt_function_handler()
     def _is_top_component(self, cmp):
@@ -909,7 +914,8 @@ class Components(object):
         if group_name is None:
             cmp_name = pins[0].GetComponent().GetName()
             net_name = pins[0].GetNet().GetName()
-            group_name = generate_unique_name("{}_{}_".format(cmp_name, net_name), n=3)
+            group_name = self._edb.Cell.Hierarchy.PinGroup.GetUniqueName(self._active_layout)
+            #group_name = generate_unique_name("{}_{}".format(cmp_name, net_name))
         pingroup = _retry_ntimes(
             10,
             self._edb.Cell.Hierarchy.PinGroup.Create,
@@ -921,6 +927,7 @@ class Components(object):
             return (False, None)
         else:
             pingroup.SetNet(pins[0].GetNet())
+            pingroup.SetGroup(pins[0].GetComponent())
             return (True, pingroup)
 
     @pyaedt_function_handler()
