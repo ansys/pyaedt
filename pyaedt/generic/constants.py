@@ -134,7 +134,7 @@ def convert_freq_string_to_float(frequency_string):
     frequency_string : str
         The string value to convert.
 
-    Returns :
+    Returns
     -------
     float
         converted value if succeeded, False when failed.
