@@ -1366,7 +1366,7 @@ class Edb(object):
         variable_value : str, float
             Value of the variable with units.
         is_parameter : bool, optional
-            The default is ``True`` to add the variable as parameter default.
+            The default is ``True`` to add the variable as a parameter default.
             If ``False``, the variable is added as a local variable.
 
         Returns
