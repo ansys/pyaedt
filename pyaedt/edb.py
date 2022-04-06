@@ -1365,7 +1365,7 @@ class Edb(object):
             Name of the variable, if it begins by a "$", it will be a "Project Variable".
         variable_value : str, float
             Value of the variable with units.
-        is_parameter : bool
+        is_parameter : bool, optional
             True to add a "Parameter Default", False for a "Local Variable"
 
         Returns
