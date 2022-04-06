@@ -7,12 +7,12 @@ from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.general import convert_pytuple_to_nettuple
-from pyaedt.generic.constants import convert_freq_string_to_float
 from pyaedt.generic.constants import RadiationBoxType
 from pyaedt.generic.constants import SweepType
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
 class EdbHfss(object):
@@ -938,13 +938,13 @@ class EdbHfss(object):
         return self._active_layout.GetCell().AddSimulationSetup(sim_setup)
 
     def _setup_decade_count_sweep(self, sweep, start_freq="1", stop_freq="1MHz", decade_count="10"):
-        start_f = convert_freq_string_to_float(start_freq)
+        start_f = GeometryOperators.parse_dim_arg(start_freq)
         if start_f == 0.0:
             start_f = 10
             self._logger.warning("Decade Count sweep does not support DC value, defaulting starting frequency to 10Hz")
 
-        stop_f = convert_freq_string_to_float(stop_freq)
-        decade_cnt = convert_freq_string_to_float(decade_count)
+        stop_f = GeometryOperators.parse_dim_arg(stop_freq)
+        decade_cnt = GeometryOperators.parse_dim_arg(decade_count)
         freq = start_f
         sweep.Frequencies.Add(str(freq))
 

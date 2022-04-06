@@ -126,45 +126,6 @@ def _resolve_unit_system(unit_system_1, unit_system_2, operation):
     except KeyError:
         return ""
 
-
-def convert_freq_string_to_float(frequency_string):
-    """Convert a frequency string valye to float. Auto evaluate the unit and returns the value in Hz as float.
-
-    Parameters
-    ----------
-    frequency_string : str
-        The string value to convert.
-
-    Returns
-    -------
-    float
-        converted value if succeeded, False when failed.
-    """
-    try:
-        freq_float = float(frequency_string)
-        return freq_float
-    except:
-        freq = frequency_string.lower()
-        for unit in ["hz", "khz", "mhz", "ghz", "thz"]:
-            try:
-                freq_float = float(freq.strip(unit))
-                if unit == "hz":
-                    return freq_float
-                elif unit == "khz":
-                    return freq_float * 1e3
-                elif unit == "mhz":
-                    return freq_float * 1e6
-                elif unit == "ghz":
-                    return freq_float * 1e9
-                elif unit == "thz":
-                    return freq_float * 1e12
-                else:
-                    pass
-            except:
-                pass
-        return False
-
-
 def unit_converter(value, unit_system="Length", input_units="meter", output_units="mm"):
     """Convert Unit in specified Unit System.
 

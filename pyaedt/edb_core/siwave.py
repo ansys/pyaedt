@@ -13,7 +13,7 @@ from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
-
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 try:
     from System import String
@@ -1341,7 +1341,7 @@ class EdbSiwave(object):
             sweep.UseQ3DForDC = simulation_setup.use_q3d_for_dc
             sweep.RelativeSError = simulation_setup.relative_error
             sweep.InterpUsePortImpedance = False
-            sweep.EnforceCausality = (self._convert_freq_string_to_float(simulation_setup.start_frequency) - 0) < 1e-9
+            sweep.EnforceCausality = (GeometryOperators.parse_dim_arg(simulation_setup.start_frequency) - 0) < 1e-9
             sweep.EnforcePassivity = simulation_setup.enforce_passivity
             sweep.PassivityTolerance = simulation_setup.passivity_tolerance
             if is_ironpython:
@@ -1371,40 +1371,15 @@ class EdbSiwave(object):
 
     def _setup_decade_count_sweep(self, sweep, start_freq, stop_freq, decade_count):
         import math
-        start_f = self._convert_freq_string_to_float(start_freq)
+        start_f = GeometryOperators.parse_dim_arg(start_freq)
         if start_f == 0.0:
             start_f = 10
             self._logger.warning("Decade Count sweep does not support DC value, defaulting starting frequency to 10Hz")
 
-        stop_f = self._convert_freq_string_to_float(stop_freq)
-        decade_cnt = self._convert_freq_string_to_float(decade_count)
+        stop_f = GeometryOperators.parse_dim_arg(stop_freq)
+        decade_cnt = GeometryOperators.parse_dim_arg(decade_count)
         freq = start_f
         sweep.Frequencies.Add(str(freq))
         while freq < stop_f:
             freq = freq * math.pow(10, 1.0 / decade_cnt)
             sweep.Frequencies.Add(str(freq))
-
-    def _convert_freq_string_to_float(self, freq_string):
-        try:
-            freq_float = float(freq_string)
-            return freq_float
-        except:
-            freq = freq_string.lower()
-            for unit in ["hz", "khz", "mhz", "ghz", "thz"]:
-                try:
-                    freq_float = float(freq.strip(unit))
-                    if unit == "hz":
-                        return freq_float
-                    elif unit == "khz":
-                        return freq_float * 1e3
-                    elif unit == "mhz":
-                        return freq_float * 1e6
-                    elif unit == "ghz":
-                        return freq_float * 1e9
-                    elif unit == "thz":
-                        return freq_float * 1e12
-                    else:
-                        pass
-                except:
-                    pass
-            return False
