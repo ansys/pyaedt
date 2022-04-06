@@ -1356,39 +1356,55 @@ class Edb(object):
         return True
 
     @pyaedt_function_handler()
-    def add_design_variable(self, variable_name, variable_value):
+    def add_design_variable(self, variable_name, variable_value, is_parameter=False):
         """Add a design variable.
 
         Parameters
         ----------
         variable_name : str
-            Name of the variable.
+            Name of the variable, if it begins by a "$", it will be a "Project Variable".
         variable_value : str, float
             Value of the variable with units.
+        is_parameter : bool
+            True to add a "Parameter Default", False for a "Local Variable"
 
         Returns
         -------
         tuple
             tuple containing the ``AddVariable`` result and variable server.
         """
-        is_parameter = True
         if "$" in variable_name:
-            var_server = self.db.GetVariableServer()
-            is_parameter = False
+            if variable_name.index("$") == 0:
+                var_server = self.db.GetVariableServer()
+                is_parameter = False
+                string_message = ["Creating Project Variable %s", "Project Variable %s exists. Using it."]
+            else:
+                var_server = self.active_cell.GetVariableServer()
+                self.logger.warning(
+                    "The character $ must be placed at the beginning of your variable name,"
+                    " to make it a Project Variable"
+                )
+
+                string_message = ["Creating Local Variable %s", "Local Variable %s exists. Using it."]
         else:
             var_server = self.active_cell.GetVariableServer()
+            string_message = ["Creating Local Variable %s", "Local Variable %s exists. Using it."]
         variables = var_server.GetAllVariableNames()
         if variable_name in list(variables):
-            self.logger.warning("Parameter %s exists. Using it.", variable_name)
+            if var_server.IsVariableParameter(variable_name):
+                string_message[1] = "Parameter Default %s exists. Using it."
+            self.logger.warning(string_message[1], variable_name)
             return False, var_server
         else:
-            self.logger.info("Creating parameter %s.", variable_name)
+            if is_parameter:
+                string_message[0] = "Creating Parameter Default %s"
+            self.logger.info(string_message[0], variable_name)
             var_server.AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
             return True, var_server
 
     @pyaedt_function_handler()
     def change_design_variable_value(self, variable_name, variable_value):
-        """Change a design variable value.
+        """Change a variable value.
 
         Parameters
         ----------
@@ -1412,18 +1428,39 @@ class Edb(object):
 
         """
         if "$" in variable_name:
-            var_server = self.db.GetVariableServer()
+            if variable_name.index("$") == 0:
+                var_server = self.db.GetVariableServer()
+                string_message = [
+                    "Value of the Project Variable %s has been changed from %s to %s.",
+                    "Project Variable %s doesn't exist. You can create it using method add_design_variable.",
+                ]
+            else:
+                var_server = self.active_cell.GetVariableServer()
+                string_message = [
+                    "Value of the Local Variable %s has been changed from %s to %s.",
+                    "Local Variable or Parameter Default %s doesn't exist."
+                    " You can create it using method add_design_variable.",
+                ]
         else:
             var_server = self.active_cell.GetVariableServer()
+            string_message = [
+                "Value of the Local Variable %s has been changed from %s to %s.",
+                "Local Variable or Parameter Default %s doesn't exist."
+                " You can create it using method add_design_variable.",
+            ]
         variables = var_server.GetAllVariableNames()
         if variable_name in list(variables):
+            out_value = self.edb.Utility.Value("")
+            bool_result, previous_value = var_server.GetVariableValue(variable_name, out_value)
             var_server.SetVariableValue(variable_name, self.edb_value(variable_value))
-            self.logger.info("Parameter %s was created.", variable_name)
+            if var_server.IsVariableParameter(variable_name):
+                string_message[0] = "Value of the Parameter Default %s has been changed from %s to %s."
+            self.logger.info(
+                string_message[0], variable_name, previous_value, variable_value
+            )
             return True, var_server
         else:
-            self.logger.error(
-                "Parameter %s doesn't exist. You can create it using method add_design_variable.", variable_name
-            )
+            self.logger.error(string_message[1], variable_name)
             return False
 
     @pyaedt_function_handler()
