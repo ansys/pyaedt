@@ -1462,11 +1462,11 @@ class Edb(object):
         variables = var_server.GetAllVariableNames()
         if variable_name in list(variables):
             out_value = self.edb.Utility.Value("")
-            value_tuple = var_server.GetVariableValue(variable_name, out_value)
+            tuple_value = var_server.GetVariableValue(variable_name, out_value)
             var_server.SetVariableValue(variable_name, self.edb_value(variable_value))
             if var_server.IsVariableParameter(variable_name):
                 string_message[0] = "Value of the Parameter Default %s has been changed from %s to %s."
-            self.logger.info(string_message[0], variable_name, value_tuple[1], variable_value)
+            self.logger.info(string_message[0], variable_name, tuple_value[1], variable_value)
             return True, var_server
         else:
             self.logger.error(string_message[1], variable_name)
