@@ -79,6 +79,174 @@ def is_float(istring):
         return 0
 
 
+@pyaedt_function_handler()
+def plot_polar_chart(
+    plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None
+):
+    """Create a matplotlib polar plot based on a list of data.
+
+    Parameters
+    ----------
+    plot_data : list of list
+        List of plot data. Every item has to be in the following format
+        `[x points, y points, label]`.
+    size : tuple, optional
+        Image size in pixel (width, height).
+    show_legend : bool
+        Either to show legend or not.
+    xlabel : str
+        Plot X label.
+    ylabel : str
+        Plot Y label.
+    title : str
+        Plot Title label.
+    snapshot_path : str
+        Full path to image file if a snapshot is needed.
+    """
+    dpi = 100.0
+
+    ax = plt.subplot(111, projection="polar")
+
+    try:
+        len(plot_data)
+    except:
+        plot_data = convert_remote_object(plot_data)
+
+    label_id = 1
+    legend = []
+    for object in plot_data:
+        if len(object) == 3:
+            label = object[2]
+        else:
+            label = "Trace " + str(label_id)
+        theta = np.array(object[0])
+        r = np.array(object[1])
+        ax.plot(theta, r)
+        ax.grid(True)
+        ax.set_theta_zero_location("N")
+        ax.set_theta_direction(-1)
+        legend.append(label)
+        label_id += 1
+
+    ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
+    if show_legend:
+        ax.legend(legend)
+
+    fig = plt.gcf()
+    fig.set_size_inches(size[0] / dpi, size[1] / dpi)
+    if snapshot_path:
+        fig.savefig(snapshot_path)
+    else:
+        fig.show()
+    return fig
+
+
+@pyaedt_function_handler()
+def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None):
+    """Create a matplotlib 3D plot based on a list of data.
+
+    Parameters
+    ----------
+    plot_data : list of list
+        List of plot data. Every item has to be in the following format
+        `[x points, y points, z points, label]`.
+    size : tuple, optional
+        Image size in pixel (width, height).
+    xlabel : str
+        Plot X label.
+    ylabel : str
+        Plot Y label.
+    title : str
+        Plot Title label.
+    snapshot_path : str
+        Full path to image file if a snapshot is needed.
+
+    Returns
+    -------
+    :class:`matplotlib.plt`
+        Matplotlib fig object.
+    """
+    dpi = 100.0
+    dpi = 100.0
+
+    ax = plt.subplot(111, projection="3d")
+
+    try:
+        len(plot_data)
+    except:
+        plot_data = convert_remote_object(plot_data)
+    THETA, PHI = np.meshgrid(plot_data[0], plot_data[1])
+    R = np.array(plot_data[2])
+    X = R * np.sin(THETA) * np.cos(PHI)
+    Y = R * np.sin(THETA) * np.sin(PHI)
+    Z = R * np.cos(THETA)
+    ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
+
+    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.5)
+    fig = plt.gcf()
+    fig.set_size_inches(size[0] / dpi, size[1] / dpi)
+    if snapshot_path:
+        fig.savefig(snapshot_path)
+    else:
+        fig.show()
+    return fig
+
+
+@pyaedt_function_handler()
+def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
+    """Create a matplotlib plot based on a list of data.
+
+    Parameters
+    ----------
+    plot_data : list of list
+        List of plot data. Every item has to be in the following format
+        `[x points, y points, label]`.
+    size : tuple, optional
+        Image size in pixel (width, height).
+    show_legend : bool
+        Either to show legend or not.
+    xlabel : str
+        Plot X label.
+    ylabel : str
+        Plot Y label.
+    title : str
+        Plot Title label.
+    snapshot_path : str
+        Full path to image file if a snapshot is needed.
+
+    Returns
+    -------
+    :class:`matplotlib.plt`
+        Matplotlib fig object.
+    """
+    dpi = 100.0
+    figsize = (size[0] / dpi, size[1] / dpi)
+    fig, ax = plt.subplots(figsize=figsize)
+    try:
+        len(plot_data)
+    except:
+        plot_data = convert_remote_object(plot_data)
+    label_id = 1
+    for object in plot_data:
+        if len(object) == 3:
+            label = object[2]
+        else:
+            label = "Trace " + str(label_id)
+        ax.plot(np.array(object[0]), np.array(object[1]), label=label)
+        label_id += 1
+
+    ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
+    if show_legend:
+        ax.legend()
+
+    if snapshot_path:
+        fig.savefig(snapshot_path)
+    else:
+        fig.show()
+    return fig
+
+
+@pyaedt_function_handler()
 def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
     """Create a matplotlib plot based on a list of data.
 
@@ -99,6 +267,11 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
         Plot Title label.
     snapshot_path : str
         Full path to image file if a snapshot is needed.
+
+    Returns
+    -------
+    :class:`matplotlib.plt`
+        Matplotlib fig object.
     """
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
@@ -239,8 +412,8 @@ class ModelPlotter(object):
     >>> model.add_object(r'D:\Simulation\antenna.obj', (200,20,255), 0.6, "in")
     >>> model.add_object(r'D:\Simulation\helix.obj', (0,255,0), 0.5, "in")
     >>> frames = [r'D:\Simulation\helic_antenna.csv', r'D:\Simulation\helic_antenna_10.fld',
-    >>>           r'D:\Simulation\helic_antenna_20.fld', r'D:\Simulation\helic_antenna_30.fld',
-    >>>           r'D:\Simulation\helic_antenna_40.fld']
+    ...           r'D:\Simulation\helic_antenna_20.fld', r'D:\Simulation\helic_antenna_30.fld',
+    ...           r'D:\Simulation\helic_antenna_40.fld']
     >>> model.gif_file = r"D:\Simulation\animation.gif"
     >>> model.animate()
     """
@@ -266,9 +439,11 @@ class ModelPlotter(object):
         self.range_max = None
         self.image_file = None
         self._camera_position = "yz"
+        self._view_up = (0.0, 1.0, 0.0)
+        self._focal_point = (0.0, 0.0, 0.0)
         self._roll_angle = 0
-        self._azimuth_angle = 45
-        self._elevation_angle = 20
+        self._azimuth_angle = 0
+        self._elevation_angle = 0
         self._zoom = 1
         self._isometric_view = True
         self.bounding_box = True
@@ -294,12 +469,58 @@ class ModelPlotter(object):
         self._isometric_view = value
 
     @property
+    def view_up(self):
+        """Get/Set the camera view axis. It disables the default iso view.
+
+        Parameters
+        ----------
+        value : tuple
+            Value of camera view position.
+
+        Returns
+        -------
+        tuple
+        """
+        return self._view_up
+
+    @view_up.setter
+    def view_up(self, value):
+        if isinstance(value, list):
+            self._view_up = tuple(value)
+        else:
+            self._view_up = value
+        self.isometric_view = False
+
+    @property
+    def focal_point(self):
+        """Get/Set the camera focal point value. It disables the default iso view.
+
+        Parameters
+        ----------
+        value : tuple
+            Value of focal point position.
+
+        Returns
+        -------
+        tuple
+        """
+        return self._focal_point
+
+    @focal_point.setter
+    def focal_point(self, value):
+        if isinstance(value, list):
+            self._focal_point = tuple(value)
+        else:
+            self._focal_point = value
+        self.isometric_view = False
+
+    @property
     def camera_position(self):
         """Get/Set the camera position value. It disables the default iso view.
 
         Parameters
         ----------
-        value : str
+        value : str or tuple
             Value of camera position. One of `"xy"`, `"xz"`,`"yz"`.
 
         Returns
@@ -310,7 +531,10 @@ class ModelPlotter(object):
 
     @camera_position.setter
     def camera_position(self, value):
-        self._camera_position = value
+        if isinstance(value, list):
+            self._camera_position = tuple(value)
+        else:
+            self._camera_position = value
         self.isometric_view = False
 
     @property
@@ -1039,7 +1263,13 @@ class ModelPlotter(object):
         self.pv.set_focus(self.pv.mesh.center)
 
         if not self.isometric_view:
-            self.pv.camera_position = self.camera_position
+            if isinstance(self.camera_position, (tuple, list)):
+                self.pv.camera.position = self.camera_position
+                self.pv.camera.focal_point = self.focal_point
+                self.pv.camera.viewup = self.view_up
+            else:
+                self.pv.camera_position = self.camera_position
+                self.pv.camera.focal_point = self.focal_point
             self.pv.camera.azimuth += self.azimuth_angle
             self.pv.camera.roll += self.roll_angle
             self.pv.camera.elevation += self.elevation_angle
@@ -1137,7 +1367,12 @@ class ModelPlotter(object):
                 labels.append([m.name, "red"])
             self.pv.add_legend(labels=labels, bcolor=None, face="circle", size=[0.15, 0.15])
         if not self.isometric_view:
-            self.pv.camera_position = self.camera_position
+            if isinstance(self.camera_position, (tuple, list)):
+                self.pv.camera.position = self.camera_position
+                self.pv.camera.focal_point = self.focal_point
+                self.pv.camera.up = self.view_up
+            else:
+                self.pv.camera_position = self.camera_position
             self.pv.camera.azimuth += self.azimuth_angle
             self.pv.camera.roll += self.roll_angle
             self.pv.camera.elevation += self.elevation_angle

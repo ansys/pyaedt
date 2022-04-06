@@ -44,10 +44,8 @@ class EdbPadstacks(object):
         """ """
         return self._pedb.edb
 
-    @property
-    def _edb_value(self):
-        """ """
-        return self._pedb.edb_value
+    def _get_edb_value(self, value):
+        return self._pedb.edb_value(value)
 
     @property
     def _active_layout(self):
@@ -209,7 +207,7 @@ class EdbPadstacks(object):
             psdef = padstackInst.GetPadstackDef()
         newdefdata = self._edb.Definition.PadstackDefData(psdef.GetData())
         newdefdata.SetSolderBallShape(self._edb.Definition.SolderballShape.Cylinder)
-        newdefdata.SetSolderBallParameter(self._edb_value(ballDiam), self._edb_value(ballDiam))
+        newdefdata.SetSolderBallParameter(self._get_edb_value(ballDiam), self._get_edb_value(ballDiam))
         sball_placement = (
             self._edb.Definition.SolderballPlacement.AbovePadstack
             if isTopPlaced
@@ -327,7 +325,7 @@ class EdbPadstacks(object):
         return geom_type, parameters, offset_x, offset_y, rot
 
     @pyaedt_function_handler()
-    def get_via_instance_from_net(self, net_list=[]):
+    def get_via_instance_from_net(self, net_list=None):
         """Get the list for Edb vias from net name list.
 
         Parameters
@@ -341,6 +339,9 @@ class EdbPadstacks(object):
         list of Edb.Cell.Primitive.PadstackInstance
             list of EDB vias.
         """
+        if net_list == None:
+            net_list = []
+
         if not isinstance(net_list, list):
             net_list = [net_list]
         layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
@@ -410,9 +411,9 @@ class EdbPadstacks(object):
         str
             Name of the padstack if the operation is successful.
         """
-        holediam = self._edb_value(holediam)
-        paddiam = self._edb_value(paddiam)
-        antipaddiam = self._edb_value(antipaddiam)
+        holediam = self._get_edb_value(holediam)
+        paddiam = self._get_edb_value(paddiam)
+        antipaddiam = self._get_edb_value(antipaddiam)
 
         if not padstackname:
             padstackname = generate_unique_name("VIA")
@@ -420,17 +421,17 @@ class EdbPadstacks(object):
         padstackData = self._edb.Definition.PadstackDefData.Create()
         ptype = self._edb.Definition.PadGeometryType.Circle
         holparam = Array[type(holediam)]([holediam])
-        value0 = self._edb_value("0.0")
-        x_size = self._edb_value(x_size)
-        y_size = self._edb_value(y_size)
-        corner_radius = self._edb_value(corner_radius)
-        offset_x = self._edb_value(offset_x)
-        offset_y = self._edb_value(offset_y)
-        rotation = self._edb_value(rotation)
+        value0 = self._get_edb_value("0.0")
+        x_size = self._get_edb_value(x_size)
+        y_size = self._get_edb_value(y_size)
+        corner_radius = self._get_edb_value(corner_radius)
+        offset_x = self._get_edb_value(offset_x)
+        offset_y = self._get_edb_value(offset_y)
+        rotation = self._get_edb_value(rotation)
 
         padstackData.SetHoleParameters(ptype, holparam, value0, value0, value0)
 
-        padstackData.SetHolePlatingPercentage(self._edb_value(20.0))
+        padstackData.SetHolePlatingPercentage(self._get_edb_value(20.0))
         padstackData.SetHoleRange(self._edb.Definition.PadstackHoleRange.UpperPadToLowerPad)
         padstackData.SetMaterial("copper")
         layers = list(self._pedb.core_stackup.signal_layers.keys())
@@ -563,9 +564,9 @@ class EdbPadstacks(object):
         for pad in list(self.padstacks.keys()):
             if pad == definition_name:
                 padstack = self.padstacks[pad].edb_padstack
-        position = self._edb.Geometry.PointData(self._edb_value(position[0]), self._edb_value(position[1]))
+        position = self._edb.Geometry.PointData(self._get_edb_value(position[0]), self._get_edb_value(position[1]))
         net = self._pedb.core_nets.find_or_create_net(net_name)
-        rotation = self._edb_value(rotation * math.pi / 180)
+        rotation = self._get_edb_value(rotation * math.pi / 180)
         sign_layers = list(self._pedb.core_stackup.signal_layers.keys())
         if not fromlayer:
             fromlayer = self._pedb.core_stackup.signal_layers[sign_layers[-1]]._layer
@@ -606,8 +607,8 @@ class EdbPadstacks(object):
         """
         pad_type = self._edb.Definition.PadType.RegularPad
         pad_geo = self._edb.Definition.PadGeometryType.Circle
-        vals = self._edb_value(0)
-        params = convert_py_list_to_net_list([self._edb_value(0)])
+        vals = self._get_edb_value(0)
+        params = convert_py_list_to_net_list([self._get_edb_value(0)])
         p1 = self.padstacks[padstack_name].edb_padstack.GetData()
         newPadstackDefinitionData = self._edb.Definition.PadstackDefData(p1)
 
@@ -683,18 +684,18 @@ class EdbPadstacks(object):
         pad_shape = shape_dict[pad_shape]
         if not isinstance(pad_params, list):
             pad_params = [pad_params]
-        pad_params = convert_py_list_to_net_list([self._edb_value(i) for i in pad_params])
-        pad_x_offset = self._edb_value(pad_x_offset)
-        pad_y_offset = self._edb_value(pad_y_offset)
-        pad_rotation = self._edb_value(pad_rotation)
+        pad_params = convert_py_list_to_net_list([self._get_edb_value(i) for i in pad_params])
+        pad_x_offset = self._get_edb_value(pad_x_offset)
+        pad_y_offset = self._get_edb_value(pad_y_offset)
+        pad_rotation = self._get_edb_value(pad_rotation)
 
         antipad_shape = shape_dict[antipad_shape]
         if not isinstance(antipad_params, list):
             antipad_params = [antipad_params]
-        antipad_params = convert_py_list_to_net_list([self._edb_value(i) for i in antipad_params])
-        antipad_x_offset = self._edb_value(antipad_x_offset)
-        antipad_y_offset = self._edb_value(antipad_y_offset)
-        antipad_rotation = self._edb_value(antipad_rotation)
+        antipad_params = convert_py_list_to_net_list([self._get_edb_value(i) for i in antipad_params])
+        antipad_x_offset = self._get_edb_value(antipad_x_offset)
+        antipad_y_offset = self._get_edb_value(antipad_y_offset)
+        antipad_rotation = self._get_edb_value(antipad_rotation)
 
         p1 = self.padstacks[padstack_name].edb_padstack.GetData()
         new_padstack_def = self._edb.Definition.PadstackDefData(p1)

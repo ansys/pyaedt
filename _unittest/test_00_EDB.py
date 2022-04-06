@@ -5,6 +5,7 @@ import time
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.generic.constants import SourceType
 
 # Setup paths for module imports
 # Import required modules
@@ -945,3 +946,17 @@ class TestClass(BasisTest, object):
 
         sim_config = SimulationConfiguration(cfg_file)
         assert self.edbapp.build_simulation_project(sim_config)
+    def test_83_set_component_type(self):
+        comp = self.edbapp.core_components.components["R2L18"]
+        comp.type = "Resistor"
+        assert comp.type == "Resistor"
+        comp.type = "Inductor"
+        assert comp.type == "Inductor"
+        comp.type = "Capacitor"
+        assert comp.type == "Capacitor"
+        comp.type = "IO"
+        assert comp.type == "IO"
+        comp.type = "IC"
+        assert comp.type == "IC"
+        comp.type = "Other"
+        assert comp.type == "Other"

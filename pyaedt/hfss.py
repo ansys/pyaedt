@@ -3755,7 +3755,7 @@ class Hfss(FieldAnalysis3D, object):
                         fa2 = self.modeler.get_face_area(int(f))
                         faceoriginal = [float(i) for i in faceCenter]
                         # dist = mat.sqrt(sum([(a*a-b*b) for a,b in zip(faceCenter, fc2)]))
-                        if abs(fa2 - maxarea) < tol ** 2 and (
+                        if abs(fa2 - maxarea) < tol**2 and (
                             abs(faceoriginal[2] - fc2[2]) > tol
                             or abs(faceoriginal[1] - fc2[1]) > tol
                             or abs(faceoriginal[0] - fc2[0]) > tol
@@ -4282,8 +4282,8 @@ class Hfss(FieldAnalysis3D, object):
         time_sweep = self.modeler._arg_with_dim(tsweep, "s")
         time_stop = self.modeler._arg_with_dim(tstop, "s")
         sweep_range = "LIN {} {} {}".format(time_start, time_stop, time_sweep)
-        return self.opti_parametric.add_parametric_setup(
-            time_var, sweep_range, setupname, parametricname=parametric_name
+        return self.parametrics.add(
+            time_var, tstart, time_stop, tsweep, "LinearStep", setupname, parametricname=parametric_name
         )
 
     @pyaedt_function_handler()

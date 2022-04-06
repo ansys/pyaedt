@@ -17,7 +17,7 @@ rpyc >= 5.0.1; python_version > '2.7'
 # optional
 # #############################################################################
 
-pyvista
+pyvista <= 0.33.3; python_version > '2.7'
 # License: MIT
 
 matplotlib

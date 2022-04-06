@@ -1,6 +1,6 @@
 """
-Maxwell 3D symmetrical Conductor with a Hole
---------------------------------------------
+Maxwell 3d: Symmetrical Conductor with a Hole
+---------------------------------------------
 This example uses PyAEDT to setup the TEAM 7 problem.
 This is solved using the Maxwell 3D Eddy Current solver.
 """
@@ -18,7 +18,7 @@ import os
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 7 Asymmetric Conductor"
 Solver = "EddyCurrent"
-DesktopVersion = "2021.2"
+DesktopVersion = "2022.1"
 
 M3D = Maxwell3d(
     projectname=Project_Name, designname=Design_Name, solution_type=Solver, specified_version=DesktopVersion
@@ -119,20 +119,9 @@ M3D.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=
 # Turn off displacement currents for all parts
 # NB, Eddy effect setting is regardless ignored for stranded conductor type used in Coil
 
-test = M3D.odesign.GetModule("BoundarySetup")
-test.SetEddyEffect(
-    [
-        "NAME:Eddy Effect Setting",
-        [
-            "NAME:EddyEffectVector",
-            ["NAME:Data", "Object Name:=", "Plate", "Eddy Effect:=", True, "Displacement Current:=", False],
-            ["NAME:Data", "Object Name:=", "Coil", "Eddy Effect:=", False, "Displacement Current:=", False],
-            ["NAME:Data", "Object Name:=", "Region", "Eddy Effect:=", False, "Displacement Current:=", False],
-            ["NAME:Data", "Object Name:=", "Line_A1_B1mesh", "Eddy Effect:=", False, "Displacement Current:=", False],
-            ["NAME:Data", "Object Name:=", "Line_A2_B2mesh", "Eddy Effect:=", False, "Displacement Current:=", False],
-        ],
-    ]
-)
+M3D.eddy_effects_on("Plate")
+M3D.eddy_effects_on(["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"], False)
+
 
 ################################################################################
 # Use Fields Calculator to create an expression for Z Component of B in Gauss
@@ -313,42 +302,34 @@ for item in dataset_range:
     if item % 2 == 0:
         plotname = dataset[item][0:3] + "Along the Line" + dataset[item][2:9] + ", " + dataset[item][9:12] + "Hz"
         if dataset[item][9:12] == "000":
-            Plot.CreateReport(
-                plotname,
-                "Fields",
-                "Rectangular Plot",
-                "Setup1 : LastAdaptive",
-                ["Context:=", "Line_" + dataset[item][3:8], "PointCount:=", 1001],
-                [
-                    "Distance:=",
-                    ["All"],
-                    "Freq:=",
-                    [str(dc_freq) + "Hz"],
-                    "Phase:=",
-                    ["0deg"],
-                    "Coil_Excitation:=",
-                    ["All"],
-                ],
-                ["X Component:=", "Distance", "Y Component:=", [dataset[item][0:2]]],
+            variations = {
+                "Distance": ["All"],
+                "Freq": [str(dc_freq) + "Hz"],
+                "Phase": ["0deg"],
+                "Coil_Excitation": ["All"],
+            }
+            M3D.post.create_report(
+                plotname=plotname,
+                report_category="Fields",
+                context="Line_" + dataset[item][3:8],
+                primary_sweep_variable="Distance",
+                variations=variations,
+                expressions=dataset[item][0:2],
             )
         else:
-            Plot.CreateReport(
-                plotname,
-                "Fields",
-                "Rectangular Plot",
-                "Setup1 : LastAdaptive",
-                ["Context:=", "Line_" + dataset[item][3:8], "PointCount:=", 1001],
-                [
-                    "Distance:=",
-                    ["All"],
-                    "Freq:=",
-                    [dataset[item][9:12] + "Hz"],
-                    "Phase:=",
-                    ["0deg", "90deg"],
-                    "Coil_Excitation:=",
-                    ["All"],
-                ],
-                ["X Component:=", "Distance", "Y Component:=", [dataset[item][0:2]]],
+            variations = {
+                "Distance": ["All"],
+                "Freq": [dataset[item][9:12] + "Hz"],
+                "Phase": ["0deg", "90deg"],
+                "Coil_Excitation": ["All"],
+            }
+            M3D.post.create_report(
+                plotname=plotname,
+                report_category="Fields",
+                context="Line_" + dataset[item][3:8],
+                primary_sweep_variable="Distance",
+                variations=variations,
+                expressions=dataset[item][0:2],
             )
 
         # Import test data into the correct plot and overlay it with simulation results.

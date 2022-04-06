@@ -30,6 +30,7 @@
   },
   "Core": {
     "Name": "Core",
+    "Material": "ferrite",
     "Inner Radius": 20,
     "Outer Radius": 50,
     "Height": 20,
@@ -37,6 +38,7 @@
   },
   "Outer Winding": {
     "Name": "Winding",
+    "Material": "copper",
     "Inner Radius": 20,
     "Outer Radius": 50,
     "Height": 20,

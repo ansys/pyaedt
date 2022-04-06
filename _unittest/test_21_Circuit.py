@@ -80,9 +80,29 @@ class TestClass(BasisTest, object):
             "Test1", [1, 2], parameter_list=["Author:=", "NumTerminals:="], parameter_value=["pyaedt", 2]
         )
 
-    def test_06_add_3dlayout_component(self):
+    def test_06a_create_setup(self):
+        setup_name = "LNA"
+        LNA_setup = self.aedtapp.create_setup(setup_name)
+        assert LNA_setup.name == "LNA"
+
+    def test_06b_add_3dlayout_component(self):
         myedb = self.aedtapp.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
         assert type(myedb.id) is int
+        ports = myedb.pins
+        tx = ports
+        rx = ports
+        insertions = ["dB(S({},{}))".format(i.name, j.name) for i, j in zip(tx, rx)]
+        assert self.aedtapp.post.create_report(
+            insertions,
+            self.aedtapp.nominal_adaptive,
+            plotname="Insertion Losses",
+            plot_type="Rectangular Plot",
+            report_category="Standard",
+            subdesign_id=myedb.id,
+        )
+        new_report = self.aedtapp.post.reports_by_category.standard(insertions)
+        new_report.sub_design_id = myedb.id
+        assert new_report.create()
 
     def test_07_add_hfss_component(self):
         my_model, myname = self.aedtapp.modeler.schematic.create_field_model(
@@ -91,9 +111,6 @@ class TestClass(BasisTest, object):
         assert type(my_model) is int
 
     def test_07a_push_excitation(self):
-        setup_name = "LNA"
-        LNA_setup = self.aedtapp.create_setup(setup_name)
-        assert LNA_setup
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=False)
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=True)
 
@@ -104,6 +121,7 @@ class TestClass(BasisTest, object):
 
     def test_09_import_netlist(self):
         self.aedtapp.insert_design("SchematicImport")
+        self.aedtapp.modeler.schematic.limits_mils = 5000
         assert self.aedtapp.create_schematic_from_netlist(os.path.join(self.local_scratch.path, netlist1))
 
     def test_10_import_touchstone(self):
@@ -162,6 +180,10 @@ class TestClass(BasisTest, object):
         assert data.data_real()
         assert data.data_imag()
         assert data.data_db()
+
+        data_with_verbose = read_touchstone(os.path.join(self.local_scratch.path, touchstone), verbose=True)
+        assert max(data_with_verbose.data_magnitude()) > 0.37
+        assert max(data_with_verbose.data_magnitude()) < 0.38
 
     def test_17_create_setup(self):
         setup_name = "Dom_LNA"
@@ -270,6 +292,8 @@ class TestClass(BasisTest, object):
         mycap = self.aedtapp.modeler.components.create_capacitor("C100", 1e-12)
         myind2 = self.aedtapp.modeler.components.create_inductor("L101", 1e-9)
         port = self.aedtapp.modeler.components.create_interface_port("Port1")
+        assert not myind2.model_name
+        assert not myind2.model_data
         assert self.aedtapp.modeler.schematic.connect_components_in_series([myind, myres.composed_name])
         assert self.aedtapp.modeler.schematic.connect_components_in_parallel([mycap, port, myind2.id])
 
@@ -279,8 +303,13 @@ class TestClass(BasisTest, object):
         t1 = self.aedtapp.modeler.schematic.create_touchsthone_component(touch)
         assert t1
         assert len(t1.pins) == 6
+        assert t1.model_data
+        t1.model_data.props["NexximCustomization"]["Passivity"] = 7
+        assert t1.model_data.update()
         t2 = self.aedtapp.modeler.schematic.create_touchsthone_component(touch)
         assert t2
+        t2.model_data.props["NexximCustomization"]["Passivity"] = 0
+        assert t2.model_data.update()
 
     def test_25_zoom_to_fit(self):
         self.aedtapp.insert_design("zoom_test")

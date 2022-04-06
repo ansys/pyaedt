@@ -120,9 +120,9 @@ class FieldAnalysisCircuit(Analysis):
         References
         ----------
 
-        >>> oModule.GetExcitations
+        >>> oModule.GetAllPorts
         """
-        ports = [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts()]
+        ports = [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts() if "IPort@" in p]
         return ports
 
     @property
@@ -175,13 +175,13 @@ class FieldAnalysisCircuit(Analysis):
         return spar
 
     @pyaedt_function_handler()
-    def get_all_return_loss_list(self, excitation_names=[], excitation_name_prefix=""):
+    def get_all_return_loss_list(self, excitation_names=None, excitation_name_prefix=""):
         """Retrieve a list of all return losses for a list of exctitations.
 
         Parameters
         ----------
         excitation_names : list, optional
-            List of excitations. The default is ``[]``, in which case
+            List of excitations. The default is ``None``, in which case
             the return losses for all excitations are to be provided.
             For example ``["1", "2"]``.
         excitation_name_prefix : string, optional
@@ -198,6 +198,9 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oEditor.GetAllPorts
         """
+        if excitation_names == None:
+            excitation_names = []
+
         if not excitation_names:
             excitation_names = self.excitations
         if excitation_name_prefix:
@@ -208,7 +211,7 @@ class FieldAnalysisCircuit(Analysis):
         return spar
 
     @pyaedt_function_handler()
-    def get_all_insertion_loss_list(self, trlist=[], reclist=[], tx_prefix="", rx_prefix=""):
+    def get_all_insertion_loss_list(self, trlist=None, reclist=None, tx_prefix="", rx_prefix=""):
         """Retrieve a list of all insertion losses from two lists of excitations (driver and receiver).
 
         Parameters
@@ -234,6 +237,11 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oEditor.GetAllPorts
         """
+        if trlist == None:
+            trlist = []
+        if reclist == None:
+            reclist = []
+
         spar = []
         if not trlist:
             trlist = [i for i in self.excitations if tx_prefix in i]
@@ -280,7 +288,7 @@ class FieldAnalysisCircuit(Analysis):
         return next
 
     @pyaedt_function_handler()
-    def get_fext_xtalk_list(self, trlist=[], reclist=[], tx_prefix="", rx_prefix="", skip_same_index_couples=True):
+    def get_fext_xtalk_list(self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", skip_same_index_couples=True):
         """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
 
         Parameters
@@ -312,6 +320,11 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oEditor.GetAllPorts
         """
+        if trlist == None:
+            trlist = []
+        if reclist == None:
+            reclist = []
+
         fext = []
         if not trlist:
             trlist = [i for i in self.excitations if tx_prefix in i]

@@ -19,6 +19,11 @@ They are accessible through the ``post`` property:
 
     # this call return a SolutionData Object
     my_data = post.get_report_data(expression=trace_names)
+
+    # this call return a new Standard Report Object and creates one or multiple report from it.
+    standard_report = post.report_by_category.standard("db(S(1,1))")
+    standard_report.create()
+    sols = standard_report.get_solution_data()
     ...
 
 .. note::
@@ -40,4 +45,10 @@ They are accessible through the ``post`` property:
    PostProcessor.SolutionData
    PostProcessor.FieldPlot
    AdvancedPostProcessing.ModelPlotter
+   report_templates.Standard
+   report_templates.Fields
+   report_templates.NearField
+   report_templates.FarField
+   report_templates.EyeDiagram
+   report_templates.Emission
 

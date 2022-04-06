@@ -1,6 +1,6 @@
 """
-Spiral Inductor
----------------
+Hfss: Spiral Inductor
+---------------------
 This example shows how you can use PyAEDT to create a spiral inductor, solve it and plot results.
 """
 
@@ -9,14 +9,13 @@ This example shows how you can use PyAEDT to create a spiral inductor, solve it 
 #
 
 import os
-import matplotlib.pyplot as plt
 from pyaedt import Hfss, constants
 
 
 #############################################################
-# Launch Hfss 2021.2 in non graphical mode.
+# Launch Hfss 2022R1 in non graphical mode.
 # Change units to micron
-hfss = Hfss(specified_version="2021.2", non_graphical=False, designname="A1")
+hfss = Hfss(specified_version="2022.1", non_graphical=False, designname="A1")
 hfss.modeler.model_units = "um"
 p = hfss.modeler
 
@@ -125,33 +124,17 @@ hfss.analyze_all()
 
 ################################################################
 # Get Report Data and plot it on matplotlib.
-# Inductance.
+# Inductance and Quality Factor Formulas.
 L_formula = "1e9*im(1/Y(1,1))/(2*pi*freq)"
-x = hfss.post.get_report_data(L_formula)
-
-plt.plot(x.sweeps["Freq"], x.data_real(L_formula))
-
-plt.grid()
-plt.xlabel("Freq")
-plt.ylabel("L(nH)")
-plt.show()
-
-plt.clf()
-
+Q_formula = "im(Y(1,1))/re(Y(1,1))"
 
 ################################################################
 # Get Report Data and plot it on matplotlib.
-# Quality Factor.
+# Save and close the project.
 
-Q_formula = "im(Y(1,1))/re(Y(1,1))"
-x = hfss.post.get_report_data(Q_formula)
-hfss.save_project()
+x = hfss.post.get_solution_data([L_formula, Q_formula])
+x.plot([L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q")
 
-plt.plot(x.sweeps["Freq"], x.data_real(Q_formula))
-plt.grid()
-plt.xlabel("Freq")
-plt.ylabel("Q")
-plt.show()
 
 ################################################################
 # Get Report Data and plot it on matplotlib.

@@ -1,6 +1,6 @@
 """
-Busbar Analysis
----------------
+Q3d: Busbar Analysis
+--------------------
 This example shows how you can use PyAEDT to create a busbar design in
 in Q3D and run a simulation.
 """
@@ -16,17 +16,17 @@ from pyaedt import Q3d
 # You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch
 # AEDT in graphical mode.
 
-NonGraphical = True
+NonGraphical = False
 
 ###############################################################################
 # Launch AEDT and Q3D
 # ~~~~~~~~~~~~~~~~~~~
-# This example launches AEDT 2021.2 in graphical mode.
+# This example launches AEDT 2022R1 in graphical mode.
 
 # This example use SI units.
 
 
-q = Q3d(specified_version="2021.2", non_graphical=NonGraphical, new_desktop_session=True)
+q = Q3d(specified_version="2022.1", non_graphical=NonGraphical, new_desktop_session=True)
 
 ###############################################################################
 # Create Primitives
@@ -104,8 +104,12 @@ print(q.net_sources("Bar3"))
 # This command adds a setup to the project and defines the adaptive frequency
 # value.
 
-q.create_setup(props={"AdaptiveFreq": "100MHz"})
-
+setup1 = q.create_setup(props={"AdaptiveFreq": "100MHz"})
+sw1 = setup1.add_sweep()
+sw1.props["RangeStart"] = "1MHz"
+sw1.props["RangeEnd"] = "100MHz"
+sw1.props["RangeStep"] = "5MHz"
+sw1.update()
 
 ###############################################################################
 # Get Curves for plot
@@ -137,9 +141,10 @@ q.analyze_nominal()
 # ~~~~~~~~~~~~~~~
 # This command get the report data into a Data Structure that allows to manipulate them.
 
-a = q.post.get_report_data(expression=data_plot_self, domain=["Context:=", "Original"])
+a = q.post.get_solution_data(expressions=data_plot_self, context="Original")
 a.sweeps["Freq"]
 a.data_magnitude()
+a.plot()
 
 ###############################################################################
 # Close AEDT

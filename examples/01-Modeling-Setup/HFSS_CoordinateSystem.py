@@ -1,6 +1,6 @@
 """
-Coordinate System Creation
---------------------------
+General: Coordinate System Creation
+-----------------------------------
 This example shows how you can use PyAEDT to create and modify coordinate systems in the modeler.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/coordinate_system.png'
@@ -21,10 +21,10 @@ if not os.path.exists(temp_folder):
 ###############################################################################
 # Launch AEDT in Graphical Mode
 # -----------------------------
-# This example launches AEDT 2021.2 in graphical mode.
+# This example launches AEDT 2022R1 in graphical mode.
 
 nongraphical = False
-d = Desktop("2021.2", non_graphical=nongraphical, new_desktop_session=True)
+d = Desktop("2022.1", non_graphical=nongraphical, new_desktop_session=True)
 
 ###############################################################################
 # Insert an HFSS Design
@@ -122,7 +122,7 @@ cs5 = hfss.modeler.create_coordinate_system(name="CS5", mode="axisrotation", u=[
 
 ###############################################################################
 # Create a Face Coordinate System
-# -------------------------------------------------------------------
+# -------------------------------
 # Face coordinate systems are bound to an object face.
 # Here we create first a box and then a Face Coordinate System is defined on one of its faces.
 # To create the face coordinate system a reference face, the axis starting and ending points must be specified.
@@ -134,7 +134,7 @@ fcs1 = hfss.modeler.create_face_coordinate_system(
 
 ###############################################################################
 # Create a Face Coordinate System centered on the face
-# -------------------------------------------------------------------
+# ----------------------------------------------------
 # Here we create a Face Coordinate System centered on the face and with the X axis pointing to the edge vertex.
 fcs2 = hfss.modeler.create_face_coordinate_system(
     face=face, origin=face, axis_position=face.edges[0].vertices[0], name="FCS2"
@@ -142,7 +142,7 @@ fcs2 = hfss.modeler.create_face_coordinate_system(
 
 ###############################################################################
 # Swap the X and Y axis of a Face coordinate system
-# -------------------------------------------------------------------
+# -------------------------------------------------
 # As default the X axis is pointing `axis_position`. Optionally the Y axis can be selected.
 fcs3 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_position=face.edges[0], axis="Y")
 
@@ -150,8 +150,8 @@ fcs3 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_p
 fcs3.props["WhichAxis"] = "X"
 
 ###############################################################################
-# Apply a rotation around the Z axis.
-# -------------------------------------------------------------------
+# Apply a rotation around the Z axis
+# ----------------------------------
 # The Z axis of a Face Coordinate System is always orthogonal to the face.
 # A rotation can be applied at definition. The rotation is expressed in degrees.
 fcs4 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_position=face.edges[1], rotation=10.3)
@@ -161,7 +161,7 @@ fcs4.props["ZRotationAngle"] = "3deg"
 
 ###############################################################################
 # Apply an offset to the X and Y axis of a Face coordinate system
-# -------------------------------------------------------------------
+# ---------------------------------------------------------------
 # The offset is respect the Face Coordinate System itself.
 fcs5 = hfss.modeler.create_face_coordinate_system(
     face=face, origin=face, axis_position=face.edges[2], offset=[0.5, 0.3]
@@ -173,7 +173,7 @@ fcs5.props["YOffset"] = "0.1mm"
 
 ###############################################################################
 # Create a coordinate system relative to a Face coordinate system
-# -------------------------------------------------------------------
+# ---------------------------------------------------------------
 # Coordinate Systems and Face Coordinate Systems interact each other.
 face = box.faces[1]
 fcs6 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_position=face.edges[0])
@@ -214,7 +214,6 @@ print("CS5 :", p2)
 ###############################################################################
 # Close AEDT
 # ----------
-# ~~~~~~~~~~
 # After the simulaton is completed, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before exiting.

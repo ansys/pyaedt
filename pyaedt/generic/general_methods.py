@@ -14,10 +14,6 @@ import traceback
 from collections import OrderedDict
 from functools import update_wrapper
 
-try:
-    logger = logging.getLogger("Global")
-except:
-    logger = logging.getLogger(__name__)
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
 inside_desktop = True
@@ -42,12 +38,8 @@ class MethodNotSupportedError(Exception):
 def _write_mes(mes_text):
     mes_text = str(mes_text)
     parts = [mes_text[i : i + 250] for i in range(0, len(mes_text), 250)]
-    if logger:
-        for el in parts:
-            logger.error(el)
-    elif settings.enable_screen_logs:
-        for el in parts:
-            print(el)
+    for el in parts:
+        settings.logger.error(el)
 
 
 def _exception(ex_info, func, args, kwargs, message="Type Error"):
@@ -212,7 +204,7 @@ def _log_method(func, new_args, new_kwargs):
         if new_kwargs:
             message.append(line_begin2 + str(new_kwargs)[1:-1])
     for m in message:
-        logger.debug(m)
+        settings.logger.debug(m)
 
 
 def pyaedt_function_handler(direct_func=None):
@@ -286,7 +278,7 @@ def _function_handler_wrapper(user_function):
                     print("**************************************************************")
                     print("")
                 if settings.enable_file_logs:
-                    logger.error(message)
+                    settings.logger.error(message)
                 return False
             except BaseException:
                 _exception(sys.exc_info(), user_function, args, kwargs, "General or AEDT Error")
@@ -624,6 +616,44 @@ def recursive_glob(startpath, filepattern):
     ]
 
 
+@pyaedt_function_handler()
+def number_aware_string_key(s):
+    """Return a key for sorting strings that treats embedded digit sequences as integers.
+
+    Parameters
+    ----------
+    s : str
+        String from which to calculate key
+
+    Returns
+    -------
+    tuple
+        Tuple of key entries
+    """
+
+    def is_digit(c):
+        return "0" <= c and c <= "9"
+
+    result = []
+    i = 0
+    while i < len(s):
+        if is_digit(s[i]):
+            j = i + 1
+            while j < len(s) and is_digit(s[j]):
+                j += 1
+            key = int(s[i:j])
+            result.append(key)
+            i = j
+        else:
+            j = i + 1
+            while j < len(s) and not is_digit(s[j]):
+                j += 1
+            key = s[i:j]
+            result.append(key)
+            i = j
+    return tuple(result)
+
+
 class Settings(object):
     """Class that manages all PyAEDT Environment Variables and global settings."""
 
@@ -643,6 +673,14 @@ class Settings(object):
         self._enable_error_handler = True
         self._non_graphical = False
         self.aedt_version = None
+
+    @property
+    def logger(self):
+        """Return the active logger."""
+        try:
+            return logging.getLogger("Global")
+        except:
+            return logging.getLogger(__name__)
 
     @property
     def non_graphical(self):

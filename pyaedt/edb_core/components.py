@@ -105,9 +105,8 @@ class Components(object):
     def _builder(self):
         return self._pedb.builder
 
-    @property
-    def _edb_value(self):
-        return self._pedb.edb_value
+    def _get_edb_value(self, value):
+        return self._pedb.edb_value(value)
 
     @property
     def _edbutils(self):
@@ -519,8 +518,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def create_port_on_component(
-        self, component, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="gnd",
-            solder_ball_height=None
+        self, component, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="gnd"
     ):
         """Create ports on given component.
 
@@ -700,25 +698,15 @@ class Components(object):
         -------
         Edb pin group terminal.
         """
-        pin = list(pingroup.GetPins())[0]
-        if pin:
-            layout = self._active_layout
-            cmp_name = pin.GetComponent().GetName()
-            net_name = pin.GetNet().GetName()
-            term_name = generate_unique_name("Pingroup_{0}_{1}".format(cmp_name, net_name))
-            pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
-                self._active_layout, pin.GetNet(), term_name, pingroup, isref
-            )
-            pingroup_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-            pingroup_term.SetIsCircuitPort(True)
-            pin = list(pingroup.GetPins())[0]
-            ref_pin_start_layer, ref_pin_stop_layer = self._pedb.core_padstack._get_pin_layer_range(pin)
-            pingroup_term.SetLayer(ref_pin_start_layer)
-            pingroup_term.SetGroup(pin.GetComponent())
-            pingroup_term.SetPinGroup(pingroup)
-            return pingroup_term
-        else:
-            return False
+
+        layout = pingroup.GetLayout()
+        cmp_name = pingroup.GetComponent().GetName()
+        net_name = pingroup.GetNet().GetName()
+        term_name = pingroup.GetUniqueName(layout, "Pingroup_{0}_{1}".format(cmp_name, net_name))
+        pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
+            self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
+        )
+        return pingroup_term
 
     @pyaedt_function_handler()
     def _is_top_component(self, cmp):
@@ -912,12 +900,12 @@ class Components(object):
 
         """
         if len(pins) < 1:
-            self._logger.warning("No pins available for pin group %s", group_name)
+            self._logger.error("No pins specified for pin group %s", group_name)
             return (False, None)
         if group_name is None:
             cmp_name = pins[0].GetComponent().GetName()
             net_name = pins[0].GetNet().GetName()
-            group_name = self._edb.Cell.Hierarchy.PinGroup.GetUniqueName(self._active_layout)
+            group_name = generate_unique_name("{}_{}_".format(cmp_name, net_name), n=3)
         pingroup = _retry_ntimes(
             10,
             self._edb.Cell.Hierarchy.PinGroup.Create,
@@ -926,11 +914,10 @@ class Components(object):
             convert_py_list_to_net_list(pins),
         )
         if pingroup.IsNull():
-            return False
+            return (False, None)
         else:
             pingroup.SetNet(pins[0].GetNet())
-            pingroup.SetGroup(pins[0].GetComponent())
-            return pingroup
+            return (True, pingroup)
 
     @pyaedt_function_handler()
     def delete_single_pin_rlc(self):
@@ -1059,10 +1046,19 @@ class Components(object):
         """
         if not isinstance(component, self._edb.Cell.Hierarchy.Component):
             edb_cmp = self.get_component_by_name(component)
+            cmp = self.components[component]
         else:
             edb_cmp = component
+            cmp = self.components[edb_cmp.GetName()]
         if edb_cmp:
             cmp_type = edb_cmp.GetComponentType()
+            if bool(not sball_diam + sball_height):
+                pin1 = list(cmp.pins.values())[0].pin
+                pin_layers = pin1.GetPadstackDef().GetData().GetLayerNames()
+                pad_params = self._padstack.get_pad_parameters(pin=pin1, layername=pin_layers[0], pad_type=0)
+                _sb_diam = min([self._get_edb_value(val).ToDouble() for val in pad_params[1]])
+                sball_diam = _sb_diam
+                sball_height = sball_diam
             if cmp_type == self._edb.Definition.ComponentType.IC:
                 ic_cmp_property = edb_cmp.GetComponentProperty().Clone()
                 ic_die_prop = ic_cmp_property.GetDieProperty().Clone()
@@ -1071,8 +1067,8 @@ class Components(object):
                 ic_cmp_property.SetDieProperty(ic_die_prop)
 
                 ic_solder_ball_prop = ic_cmp_property.GetSolderBallProperty().Clone()
-                ic_solder_ball_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam))
-                ic_solder_ball_prop.SetHeight(self._edb_value(sball_height))
+                ic_solder_ball_prop.SetDiameter(self._get_edb_value(sball_diam), self._get_edb_value(sball_diam))
+                ic_solder_ball_prop.SetHeight(self._get_edb_value(sball_height))
                 ic_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
                 ic_cmp_property.SetSolderBallProperty(ic_solder_ball_prop)
 
@@ -1085,8 +1081,8 @@ class Components(object):
             elif cmp_type == self._edb.Definition.ComponentType.IO:
                 io_cmp_prop = edb_cmp.GetComponentProperty().Clone()
                 io_solder_ball_prop = io_cmp_prop.GetSolderBallProperty().Clone()
-                io_solder_ball_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam))
-                io_solder_ball_prop.SetHeight(self._edb_value(sball_height))
+                io_solder_ball_prop.SetDiameter(self._get_edb_value(sball_diam), self._get_edb_value(sball_diam))
+                io_solder_ball_prop.SetHeight(self._get_edb_value(sball_height))
                 io_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
                 io_cmp_prop.SetSolderBallProperty(io_solder_ball_prop)
                 io_port_prop = io_cmp_prop.GetPortProperty().Clone()
@@ -1097,14 +1093,14 @@ class Components(object):
             elif cmp_type == self._edb.Definition.ComponentType.Other:
                 other_cmp_prop = edb_cmp.GetComponentProperty().Clone()
                 other_solder_ball_prop = other_cmp_prop.GetSolderBallProperty().Clone()
-                other_solder_ball_prop.SetDiameter(self._edb_value(sball_diam), self._edb_value(sball_diam))
-                other_solder_ball_prop.SetHeight(self._edb_value(sball_height))
+                other_solder_ball_prop.SetDiameter(self._get_edb_value(sball_diam), self._get_edb_value(sball_diam))
+                other_solder_ball_prop.SetHeight(self._get_edb_value(sball_height))
                 other_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
                 other_cmp_prop.SetSolderBallProperty(other_solder_ball_prop)
                 other_port_prop = other_cmp_prop.GetPortProperty().Clone()
                 other_port_prop.SetReferenceSizeAuto(True)
                 other_cmp_prop.SetPortProperty(other_port_prop)
-                edb_cmp.SetComponentProperty(other_port_prop)
+                edb_cmp.SetComponentProperty(other_cmp_prop)
             else:
                 return False
         else:

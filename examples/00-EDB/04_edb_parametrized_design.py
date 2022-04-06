@@ -1,15 +1,14 @@
 """
-Fully parameterized design
---------------------------
+Edb: Fully parameterized design
+-------------------------------
 This example shows how to use HFSS 3D Layout to create and solve a parametric design.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/parametrized_edb.png'
 
 ###############################################################################
 # Import the `Hfss3dlayout` Object
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example imports the `Hfss3dlayout` object and initializes it on version
-# 2021.1.
+# 2022.1.
 
 import tempfile
 from pyaedt import Edb
@@ -20,7 +19,7 @@ import os
 tmpfold = tempfile.gettempdir()
 aedb_path = os.path.join(tmpfold, generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = Edb(edbpath=aedb_path, edbversion="2021.2")
+edb = Edb(edbpath=aedb_path, edbversion="2022.1")
 var_server = edb.active_cell.GetVariableServer()
 
 
@@ -316,13 +315,16 @@ rectangle(lower_left_corner=[0.0, "-$pcb_w/2"], upper_right_corner=["$pcb_len", 
 )
 
 ##########################
+# Plotting the Edb
+edb.core_nets.plot(None)
+##########################
 # saving edb
 edb.save_edb()
 edb.close_edb()
 
 ##########################
 # opening edb in aedt
-h3d = Hfss3dLayout(projectname=os.path.join(aedb_path, "edb.def"), specified_version="2021.2", non_graphical=False)
+h3d = Hfss3dLayout(projectname=os.path.join(aedb_path, "edb.def"), specified_version="2022.1", non_graphical=False)
 
 ##########################
 # creating wave ports

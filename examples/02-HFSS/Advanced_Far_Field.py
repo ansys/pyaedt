@@ -1,6 +1,6 @@
 """
-Advanced Far Field Postprocessing Example
------------------------------------------
+Hfss: Advanced Far Field Postprocessing
+---------------------------------------
 This example shows how to use advanced postprocessing functions to create plots
 using Matplotlib without opening the HFSS user interface.
 This examples runs only on Windows using CPython.
@@ -35,14 +35,13 @@ from pyaedt.generic.general_methods import remove_project_lock
 
 import numpy as np
 import matplotlib.pyplot as plt
-import math
 
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example launches AEDT 2021.2 in graphical mode.
+# This example launches AEDT 2022R1 in graphical mode.
 
-desktopVersion = "2021.2"
+desktopVersion = "2022.1"
 NonGraphical = False
 NewThread = False
 desktop = Desktop(desktopVersion, NonGraphical, NewThread)
@@ -184,44 +183,16 @@ vals = hfss.post.get_far_field_data(
     setup_sweep_name=hfss.nominal_sweep, expression="RealizedGainTotal", domain="Elevation"
 )
 
+###############################################################################
+# Polar Plot
+# ~~~~~~~~~~
+vals.plot(math_formula="db20", is_polar=True)
 
-def Polar_Plot(Phase=0, Freq=76):
-    """
-    id=0
-    """
-    ax = plt.subplot(111, projection="polar")
-    legend = []
-    Phase = int(Phase)
-    Freq = int(Freq)
-    f_list = [Freq]
-    p_list = [Phase]
-    if Freq == 75:
-        f_list = vals.sweeps["Freq"]
-    if Phase == -90:
-        p_list = vals.sweeps["Phi"]
-    for i in f_list:
-        for j in p_list:
-            vals.nominal_sweeps["Phi"] = j
-            vals.nominal_sweeps["Freq"] = i
-            theta = np.array(vals.to_degrees(vals.sweeps["Theta"]))
-            r = np.array(vals.data_db())
-            ax.plot(theta, r)
-            ax.grid(True)
-            ax.set_theta_zero_location("N")
-            ax.set_theta_direction(-1)
-            legend.append(
-                "Phi:" + str(vals.nominal_sweeps["Phi"]) + " Freq:" + str(round(vals.nominal_sweeps["Freq"])) + "GHz"
-            )
-    ax.legend(legend)
-    ax.set_title("Realized Gain Total", va="bottom")
-    fig = plt.gcf()
-    fig.set_size_inches(22.5, 22.5)
+###############################################################################
+#  Scalar Plot
+# ~~~~~~~~~~~~
+vals.plot(math_formula="db20", is_polar=False)
 
-
-Polar_Plot()
-
-# interact(Polar_Plot, Phase=widgets.FloatSlider(value=0, min=-90, max=90, step=90),
-#          Freq=widgets.FloatSlider(value=76, min=75, max=77, step=1))
 
 ###############################################################################
 # Generate Plot Using Phi as the Primary Sweep
@@ -232,34 +203,8 @@ vals3d = hfss.post.get_far_field_data(
     setup_sweep_name=hfss.nominal_sweep, expression="RealizedGainTotal", domain="Infinite Sphere1"
 )
 
-legend = []
-Freq = 76
-vals3d.nominal_sweeps["Freq"] = Freq
-vals3d.primary_sweep = "Theta"
-vals3d.nominal_sweeps["Theta"] = 45
-theta = np.array((vals3d.sweeps["Theta"]))
-phi = np.array((vals3d.sweeps["Phi"]))
-r = []
-i = 0
-phi1 = []
-theta1 = [i * math.pi / 180 for i in theta]
-for el in vals3d.sweeps["Phi"]:
-    vals3d.nominal_sweeps["Phi"] = el
-    phi1.append(el * math.pi / 180)
-    r.append(vals3d.data_magnitude())
-THETA, PHI = np.meshgrid(theta1, phi1)
+vals3d.plot_3d()
 
-R = np.array(r)
-X = R * np.sin(THETA) * np.cos(PHI)
-Y = R * np.sin(THETA) * np.sin(PHI)
-
-Z = R * np.cos(THETA)
-fig1 = plt.figure()
-ax1 = fig1.add_subplot(1, 1, 1, projection="3d")
-plot = ax1.plot_surface(
-    X, Y, Z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.5
-)
-fig1.set_size_inches(22.5, 22.5)
 
 #######################################
 # Close the HFSS Project and AEDT

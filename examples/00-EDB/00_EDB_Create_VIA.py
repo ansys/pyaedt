@@ -1,14 +1,13 @@
 """
-EDB Geometry Creation
----------------------
+Edb: Geometry Creation
+----------------------
 This example shows how to use EDB to create a layout.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/3dlayout.png'
 
 ###############################################################################
 # Import the EDB Layout Object
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example imports the EDB layout object and initializes it on version 2021.2.
+# This example imports the EDB layout object and initializes it on version 2022R1.
 
 import time
 import os
@@ -21,7 +20,7 @@ start = time.time()
 tmpfold = tempfile.gettempdir()
 aedb_path = os.path.join(tmpfold, generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = Edb(edbpath=aedb_path, edbversion="2021.2")
+edb = Edb(edbpath=aedb_path, edbversion="2022.1")
 
 ###############################################################################
 # Create a Stackup
@@ -69,6 +68,7 @@ if edb:
     edb.core_padstack.place_padstack([35e-3, -5e-3], "MyVia")
     edb.core_padstack.place_padstack([45e-3, -5e-3], "MyVia")
 
+edb.core_nets.plot(None)
 
 ###############################################################################
 # Save and Close EDB

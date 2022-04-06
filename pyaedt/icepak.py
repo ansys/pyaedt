@@ -1432,10 +1432,10 @@ class Icepak(FieldAnalysisIcepak):
         setupname="Setup1",
         sweepname="LastAdaptive",
         map_frequency=None,
-        surface_objects=[],
+        surface_objects=None,
         source_project_name=None,
-        paramlist=[],
-        object_list=[],
+        paramlist=None,
+        object_list=None,
     ):
         """Map EM losses to an Icepak design.
 
@@ -1451,14 +1451,14 @@ class Icepak(FieldAnalysisIcepak):
             String containing the frequency to map. The default is ``None``.
             The value must be ``None`` for Eigenmode analysis.
         surface_objects : list, optional
-            List of objects in the source that are metals. The default is ``[]``.
+            List of objects in the source that are metals. The default is ``None``.
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case the
             source from the same project is used.
         paramlist :list, optional
-            List of all parameters in the EM to map. The default is ``[]``.
+            List of all parameters in the EM to map. The default is ``None``.
         object_list : list, optional
-            List of objects. The default is ``[]``.
+            List of objects. The default is ``None``.
 
         Returns
         -------
@@ -1470,6 +1470,13 @@ class Icepak(FieldAnalysisIcepak):
 
         >>> oModule.AssignEMLoss
         """
+        if surface_objects == None:
+            surface_objects = []
+        if paramlist == None:
+            paramlist = []
+        if object_list == None:
+            object_list = []
+
         self.logger.info("Mapping HFSS EM losses.")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
@@ -1730,7 +1737,7 @@ class Icepak(FieldAnalysisIcepak):
         geometryType="Volume",
         quantity="Temperature",
         variation="",
-        variationlist=[],
+        variationlist=None,
     ):
         """Export a fields summary of all objects.
 
@@ -1751,7 +1758,7 @@ class Icepak(FieldAnalysisIcepak):
         variation : str, optional
             The default is ``""``.
         variationlist : list, optional
-            The default is ``[]``.
+            The default is ``None``.
 
         Returns
         -------
@@ -1764,6 +1771,9 @@ class Icepak(FieldAnalysisIcepak):
         >>> oModule.EditFieldsSummarySetting
         >>> oModule.ExportFieldsSummary
         """
+        if variationlist == None:
+            variationlist = []
+
         all_objs = list(self.modeler.oeditor.GetObjectsInGroup("Solids"))
         all_objs_NonModeled = list(self.modeler.oeditor.GetObjectsInGroup("Non Model"))
         all_objs_model = [item for item in all_objs if item not in all_objs_NonModeled]
