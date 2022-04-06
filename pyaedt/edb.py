@@ -1372,6 +1372,17 @@ class Edb(object):
         -------
         tuple
             tuple containing the ``AddVariable`` result and variable server.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edb_app = Edb()
+        >>> boolean_1, ant_length = edb_app.add_design_variable("my_local_variable", "1cm")
+        >>> boolean_2, para_length = edb_app.change_design_variable_value("my_parameter", "1m", is_parameter=True
+        >>> boolean_3, project_length = edb_app.change_design_variable_value("$my_project_variable", "1m")
+
+
         """
         if "$" in variable_name:
             if variable_name.index("$") == 0:
