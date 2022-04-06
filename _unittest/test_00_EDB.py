@@ -420,7 +420,6 @@ class TestClass(BasisTest, object):
         result, var_server = self.edbapp.add_design_variable("$my_project_variable", "3mm")
         assert not result
 
-
     def test_45_delete_net(self):
         nets_deleted = self.edbapp.core_nets.delete_nets("A0_N")
         assert "A0_N" in nets_deleted
