@@ -1362,16 +1362,17 @@ class Edb(object):
         Parameters
         ----------
         variable_name : str
-            Name of the variable, if it begins by a "$", it will be a "Project Variable".
+            Name of the variable. To be added as a project variable, the name must begin with ``$``.
         variable_value : str, float
             Value of the variable with units.
         is_parameter : bool, optional
-            True to add a "Parameter Default", False for a "Local Variable"
+            Whether the variable is a parameter. The default is ``True``. If ``False``, the parameter is
+            added as a local variable.
 
         Returns
         -------
         tuple
-            tuple containing the ``AddVariable`` result and variable server.
+            Tuple containing the ``AddVariable`` result and variable server.
 
         Examples
         --------
@@ -1427,7 +1428,7 @@ class Edb(object):
         Returns
         -------
         tuple
-            tuple containing the ``SetVariableValue`` result and variable server.
+            Tuple containing the ``SetVariableValue`` result and variable server.
 
         Examples
         --------
