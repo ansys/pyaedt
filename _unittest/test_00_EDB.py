@@ -4,6 +4,7 @@ import time
 
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
+from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 
 # Setup paths for module imports
 # Import required modules
@@ -922,3 +923,25 @@ class TestClass(BasisTest, object):
         finally:
             chipEdb.close_edb()
             laminateEdb.close_edb()
+
+    def test_83_build_siwave_project_from_config_file(self):
+        #edbapp = BasisTest.add_edb(self, test_project_name)
+        cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
+        with open(cfg_file, 'w') as f:
+            f.writelines('SolverType = \'Siwave\'\n')
+            f.writelines('PowerNets = [\'GND\']\n')
+            f.writelines('Components = [\'U2A5\', \'U1B5\']')
+
+        sim_config = SimulationConfiguration(cfg_file)
+        assert self.edbapp.build_simulation_project(sim_config)
+
+    def test_84_build_hfss_project_from_config_file(self):
+        #edbapp = BasisTest.add_edb(self, test_project_name)
+        cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
+        with open(cfg_file, 'w') as f:
+            f.writelines('SolverType = \'Hfss3dLayout\'\n')
+            f.writelines('PowerNets = [\'GND\']\n')
+            f.writelines('Components = [\'U2A5\', \'U1B5\']')
+
+        sim_config = SimulationConfiguration(cfg_file)
+        assert self.edbapp.build_simulation_project(sim_config)

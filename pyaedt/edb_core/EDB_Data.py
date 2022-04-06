@@ -3314,7 +3314,8 @@ class SimulationConfiguration(object):
         """
 
         if not os.path.exists(self._filename):
-            raise Exception("{} does not exist.".format(self._filename))
+            #raise Exception("{} does not exist.".format(self._filename))
+            pass
 
         try:
             with open(self._filename) as cfg_file:
