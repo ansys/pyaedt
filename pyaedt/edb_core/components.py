@@ -677,6 +677,52 @@ class Components(object):
         return closest_pin
 
     @pyaedt_function_handler()
+    def deactivate_rlc_component(self, component=None, create_circuit_port=False):
+        """Deactivate RLC component with possibility to replace them by circuit port.
+
+        Parameters
+        ----------
+        component : str
+            Component Refdes
+
+        create_circuit_port : bool
+            True, Component is converted into circuit port, False is just deactivated
+
+        Returns
+        -------
+        bool
+            True when succeeded, False when failed.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb_folder = r'C:\my_edb_folder.aedb'
+        >>> edb = Edb(edb_folder)
+        >>> for cmp in list(edb.core_components.components.keys()):
+        >>>     edb.core_components.deactivate_rlc_component(component=cmp, create_circuit_port=False)
+        >>> edb.save_edb()
+        >>> edb.close_edb()
+        """
+        if not component:
+            return False
+        if isinstance(component, str):
+            component = self.components[component]
+            if not component:
+                self._logger.error("component {} not found.".format(component))
+                return False
+            if not component.edbcomponent.GetComponentType() in [1, 2, 3]:
+                self._logger.info("Component {} passed to deactivate is not an RLC.".format(component.refdes))
+                return False
+        if create_circuit_port:
+            _cmp = convert_py_list_to_net_list([component.refdes])
+            self._components_methods.AddPortOnRlcComponent(self._active_layout, _cmp)
+        else:
+            self._components_methods.DeactivateRlcComponent(component.edbcomponent)
+
+        return True
+
+
+    @pyaedt_function_handler()
     def _create_pin_group_terminal(self, pingroup, isref=False):
         """Creates edb pin group terminal from given edb pin group.
 
