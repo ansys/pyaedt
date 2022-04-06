@@ -596,7 +596,7 @@ class EDBLayer(object):
         Returns
         -------
         bool
-            True if the layer is negative, else False.
+            ``True`` when negative, ``False`` otherwise..
         """
         if self._layer_type == 0 or self._layer_type == 2:
             try:
@@ -618,7 +618,7 @@ class EDBLayer(object):
         Returns
         -------
         bool
-            True if the layer has roughness, else False.
+            ``True`` if the layer has roughness, ``False`` otherwise.
         """
         if self._layer_type == 0 or self._layer_type == 2:
             try:
@@ -789,6 +789,10 @@ class EDBLayer(object):
         fillMaterialMap :
 
         thicknessMap :
+
+        negativeMap :
+
+        roughnessMap :
 
         layerTypeMap :
 
@@ -1134,6 +1138,10 @@ class EDBLayers(object):
             Thickness value, including units. The default is ``"35um"``.
         layerType :
             Type of the layer. The default is ``0``, which is a signal layer.
+        negative_layer : bool, optional
+            ``True`` when negative, ``False`` otherwise.
+        roughness_enabled : bool, optional
+            ``True`` if the layer has roughness, ``False`` otherwise.
         etchMap : optional
             Etch value if any. The default is ``None``.
 

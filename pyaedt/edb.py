@@ -1389,27 +1389,27 @@ class Edb(object):
             if variable_name.index("$") == 0:
                 var_server = self.db.GetVariableServer()
                 is_parameter = False
-                string_message = ["Creating Project Variable %s", "Project Variable %s exists. Using it."]
+                string_message = ["Creating project variable %s.", "Project variable %s exists. Using it."]
             else:
                 var_server = self.active_cell.GetVariableServer()
                 self.logger.warning(
-                    "The character $ must be placed at the beginning of your variable name,"
-                    " to make it a Project Variable"
+                    "The character ``$`` must be placed at the beginning of your variable name,"
+                    " to make it a project variable."
                 )
 
-                string_message = ["Creating Local Variable %s", "Local Variable %s exists. Using it."]
+                string_message = ["Creating local variable %s.", "Local variable %s exists. Using it."]
         else:
             var_server = self.active_cell.GetVariableServer()
-            string_message = ["Creating Local Variable %s", "Local Variable %s exists. Using it."]
+            string_message = ["Creating local variable %s.", "Local variable %s exists. Using it."]
         variables = var_server.GetAllVariableNames()
         if variable_name in list(variables):
             if var_server.IsVariableParameter(variable_name):
-                string_message[1] = "Parameter Default %s exists. Using it."
+                string_message[1] = "Parameter default %s exists. Using it."
             self.logger.warning(string_message[1], variable_name)
             return False, var_server
         else:
             if is_parameter:
-                string_message[0] = "Creating Parameter Default %s"
+                string_message[0] = "Creating parameter default %s"
             self.logger.info(string_message[0], variable_name)
             var_server.AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
             return True, var_server
@@ -1443,21 +1443,21 @@ class Edb(object):
             if variable_name.index("$") == 0:
                 var_server = self.db.GetVariableServer()
                 string_message = [
-                    "Value of the Project Variable %s has been changed from %s to %s.",
-                    "Project Variable %s doesn't exist. You can create it using method add_design_variable.",
+                    "Value of the project variable %s has been changed from %s to %s.",
+                    "Project variable %s doesn't exist. You can create it using method add_design_variable.",
                 ]
             else:
                 var_server = self.active_cell.GetVariableServer()
                 string_message = [
-                    "Value of the Local Variable %s has been changed from %s to %s.",
-                    "Local Variable or Parameter Default %s doesn't exist."
+                    "Value of the local variable %s has been changed from %s to %s.",
+                    "Local variable or parameter default %s doesn't exist."
                     " You can create it using method add_design_variable.",
                 ]
         else:
             var_server = self.active_cell.GetVariableServer()
             string_message = [
-                "Value of the Local Variable %s has been changed from %s to %s.",
-                "Local Variable or Parameter Default %s doesn't exist."
+                "Value of the local variable %s has been changed from %s to %s.",
+                "Local variable or parameter default %s doesn't exist."
                 " You can create it using method add_design_variable.",
             ]
         variables = var_server.GetAllVariableNames()
@@ -1466,7 +1466,7 @@ class Edb(object):
             tuple_value = var_server.GetVariableValue(variable_name, out_value)
             var_server.SetVariableValue(variable_name, self.edb_value(variable_value))
             if var_server.IsVariableParameter(variable_name):
-                string_message[0] = "Value of the Parameter Default %s has been changed from %s to %s."
+                string_message[0] = "Value of the parameter default %s has been changed from %s to %s."
             self.logger.info(string_message[0], variable_name, tuple_value[1], variable_value)
             return True, var_server
         else:
