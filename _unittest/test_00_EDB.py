@@ -1116,7 +1116,7 @@ class TestClass(BasisTest, object):
 
     def test_92_change_design_variable_value(self):
         self.edbapp.add_design_variable("ant_length", "1cm")
-        self.edbapp.add_design_variable("my_parameter", "1mm", is_parameter=True)
+        self.edbapp.add_design_variable("my_parameter_default", "1mm", is_parameter=True)
         self.edbapp.add_design_variable("$my_project_variable", "1mm")
         changed_variable_1 = self.edbapp.change_design_variable_value("ant_length", "1m")
         if isinstance(changed_variable_1, tuple):
@@ -1130,7 +1130,7 @@ class TestClass(BasisTest, object):
             assert not changed_variable_done
         else:
             assert not changed_variable_2
-        changed_variable_3 = self.edbapp.change_design_variable_value("my_parameter", "1m")
+        changed_variable_3 = self.edbapp.change_design_variable_value("my_parameter_default", "1m")
         if isinstance(changed_variable_3, tuple):
             changed_variable_done, my_parameter_value = changed_variable_3
             assert changed_variable_done
