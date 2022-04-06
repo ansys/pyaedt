@@ -2558,9 +2558,8 @@ class EdbBuilder(object):
 class SimulationConfiguration(object):
     """Data class used to parse s simulation configuration file. The configuration file is ASCII and supports all type
     of inputs to setup and automated any kind of SI or PI simulation both with HFSS 3D layout and Siwave. If field are
-    omitted the default values will be applied.
+    omitted the default values will be applied. This class can be instanciated directly from
     Example of configuration file:
-
     SolverType = 'Hfss3DLayout'
     GenerateSolerdBalls = 'True'
     SignalNets = ['net1', 'net2']
@@ -2611,10 +2610,8 @@ class SimulationConfiguration(object):
     SnapLengthThreshold = '2.5um'
     DcMinPlaneAreaToMesh = '8mil2'
     MaxInitMeshEdgeLength = '14.5mil'
-    SignalLayersProperties = ['surface:0.0::::', '4f:0.0::::', '3f:0.0::::', '2f:0.0::::', '1fco:0.0::::',
-    '1bco:0.0::::', '2b:0.0::::', '3b:0.0::::', '4b:0.0::::', 'base:0.0::::', ]
+    SignalLayersProperties = []
     """
-
     def __init__(self, filename):
         self._filename = filename
         self._setup_name = "Pyaedt_setup"
@@ -3302,7 +3299,18 @@ class SimulationConfiguration(object):
 
     def _read_cfg(self):
         """Configuration file reader.
+        Examples
+        --------
 
+        >>> from pyaedt import Edb
+        >>> from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+        >>> config_file = path_configuration_file
+        >>> source_file = path_to_edb_folder
+        >>> edb = Edb(source_file)
+        >>> sim_setup = SimulationConfiguration(config_file)
+        >>> edb.build_simulation_project(sim_setup)
+        >>> edb.save_edb()
+        >>> edb.close_edb()
         """
 
         if not os.path.exists(self._filename):

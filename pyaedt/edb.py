@@ -1382,6 +1382,18 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def build_simulation_project(self, simulation_setup=None):
+        """Build a ready to solve simulation project.
+
+        Parameters
+        ----------
+        simulation_setup : EDB_Data.SimulationConfiguratiom object.
+            SimulationConfiguration object which can be instanciated or directly with loading a configuration file.
+
+        Returns
+        -------
+        bool
+            True when succeeded, False otherwise.
+        """
         self.logger.info("Building simulation project")
         try:
             if not simulation_setup or not isinstance(simulation_setup, SimulationConfiguration):

@@ -1281,13 +1281,17 @@ class EdbSiwave(object):
 
     @pyaedt_function_handler()
     def configure_siw_analysis_setup(self, simulation_setup=None):
-        # if not setup_info.HfssSetup:
-        #    return True # nothing to do
+        """Configure Siwave analysis setup.
+        Parameters
+        ----------
+        simulation_setup :
+            Edb_DATA.SimulationConfiguration object
 
-        # use the builder utility
-        # return builder.ConfigureHfssSimulationSetup(setup_info.HfssSetup)
-
-        # use the SimSetupData classes directly
+        Returns
+        -------
+            bool
+            True when succeeded, False when failed.
+        """
         if not isinstance(simulation_setup, SimulationConfiguration):
             return False
         simsetup_info = self._pedb.simsetupdata.SimSetupInfo[
@@ -1306,7 +1310,7 @@ class EdbSiwave(object):
             simsetup_info.SimulationSettings.AdvancedSettings.MinVoidArea = simulation_setup.min_void_area
         if simulation_setup.min_pad_area_to_mesh:
             simsetup_info.SimulationSettings.AdvancedSettings.MinPadAreaToMesh = simulation_setup.min_pad_area_to_mesh
-        if simulation_setup.min_plane_area_to_mesh:  # Newly Added this attribute in Simulation Configuration
+        if simulation_setup.min_plane_area_to_mesh:
             simsetup_info.SimulationSettings.AdvancedSettings.MinPlaneAreaToMesh = (
                 simulation_setup.min_plane_area_to_mesh
             )
@@ -1336,21 +1340,19 @@ class EdbSiwave(object):
             sweep = self._pedb.simsetupdata.SweepData(simulation_setup.sweep_name)
             sweep.IsDiscrete = False  # need True for package??
             sweep.UseQ3DForDC = simulation_setup.use_q3d_for_dc
-            sweep.RelativeSError = simulation_setup.relative_error  # 0.005
+            sweep.RelativeSError = simulation_setup.relative_error
             sweep.InterpUsePortImpedance = False
             sweep.EnforceCausality = (self._convert_freq_string_to_float(simulation_setup.start_frequency) - 0) < 1e-9
-            sweep.EnforcePassivity = simulation_setup.enforce_passivity  # True
-            sweep.PassivityTolerance = simulation_setup.passivity_tolerance  # 0.0001
+            sweep.EnforcePassivity = simulation_setup.enforce_passivity
+            sweep.PassivityTolerance = simulation_setup.passivity_tolerance
             if is_ironpython:
                 sweep.Frequencies.Clear()
             else:
                 list(sweep.Frequencies).clear()
-              # clear defaults
-            if simulation_setup.sweep_type == SweepType.LogCount:  # setup_info.SweepType == 'DecadeCount'
+            if simulation_setup.sweep_type == SweepType.LogCount:
                 self._setup_decade_count_sweep(
                     sweep, simulation_setup.start_frequency, simulation_setup.stop_freq, simulation_setup.decade_count
-                )  # Added DecadeCount as a new attribute
-
+                )
             else:
                 if is_ironpython:
                     sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
@@ -1365,14 +1367,11 @@ class EdbSiwave(object):
                 simsetup_info.SweepDataList = convert_py_list_to_net_list([sweep])
         except Exception as err:
             self._logger.error("Exception in Sweep configuration: {0}".format(err))
-
         sim_setup = self._edb.Utility.SIWaveSimulationSetup(simsetup_info)
-
         return self._cell.AddSimulationSetup(sim_setup)
 
     def _setup_decade_count_sweep(self, sweep, start_freq, stop_freq, decade_count):
         import math
-
         start_f = self._convert_freq_string_to_float(start_freq)
         if start_f == 0.0:
             start_f = 10
@@ -1382,7 +1381,6 @@ class EdbSiwave(object):
         decade_cnt = self._convert_freq_string_to_float(decade_count)
         freq = start_f
         sweep.Frequencies.Add(str(freq))
-
         while freq < stop_f:
             freq = freq * math.pow(10, 1.0 / decade_cnt)
             sweep.Frequencies.Add(str(freq))

@@ -988,11 +988,7 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def set_coax_port_attributes(self, simulation_setup=None):
-        """1) Rename all ports using the following convention:
-                PORT_<component>_<ii_count>@<net>
-                For consistency with previous automation, if possible iterate in cfg-file order.
-
-            2) Set coaxial ports with 0.125*sball_diam radial extent factor
+        """Set coaxial port attribute with forcing default impedance to 50 Ohms and adjusting the coaxial extent radius
 
         Parameters
         ----------
