@@ -23,7 +23,7 @@ from pyaedt.generic.constants import _resolve_unit_system
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SI_UNITS
 from pyaedt.generic.constants import unit_system
-from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import is_number, is_array
 
 
 class CSVDataset:
@@ -653,7 +653,9 @@ class VariableManager(object):
                 all_names[variable_name] = variable_expression
                 try:
                     value = Variable(variable_expression)
-                    if independent and is_number(value.value):
+                    if is_array(value.value):
+                        var_dict[variable_name] = value
+                    elif independent and is_number(value.value):
                         var_dict[variable_name] = value
                     elif dependent and isinstance(value.value, str):
                         float_value = self._app.get_evaluated_value(variable_name)
@@ -1057,6 +1059,8 @@ class Variable(object):
     @property
     def numeric_value(self):
         """Numeric part of the expression as a float value."""
+        if is_array(self._value):
+            return self._value
         if is_number(self._value):
             try:
                 scale = AEDT_UNITS[self.unit_system][self._units]

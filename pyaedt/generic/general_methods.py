@@ -11,13 +11,13 @@ import string
 import sys
 import time
 import traceback
+import ast
 from collections import OrderedDict
 from functools import update_wrapper
 
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
 inside_desktop = True
-import sys
 
 try:
     import ScriptEnv
@@ -503,6 +503,18 @@ def is_number(a):
     else:
         return False
     # return str(a).replace(".", "").replace("+", "").replace("-", "").replace("e","").replace("E","").isnumeric()
+
+
+def is_array(a):
+    try:
+        v = ast.literal_eval(a)
+    except ValueError:
+        return False
+    else:
+        if type(v) is list:
+            return True
+        else:
+            return False
 
 
 def is_project_locked(project_path):
