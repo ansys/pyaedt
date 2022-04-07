@@ -722,7 +722,7 @@ class Components(object):
                 return False
         else:
             if not component.edbcomponent.GetComponentType() in [1, 2, 3]:
-                self._logger.info("Component {} passed to deactivate is not an RLC.".format(component.refdes))
+                self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
                 return False
         if create_circuit_port:
             _cmp = convert_py_list_to_net_list([component.refdes])
