@@ -489,7 +489,7 @@ class EdbHfss(object):
             return False
 
     @pyaedt_function_handler()
-    def create_coax_port_on_component_per_net(self, refdes, net_name, port_name=""):
+    def create_coax_port_on_component_per_net(self, reference_designator, net_name, port_name=""):
         """Create a coaxial port on a component pin.
 
         Parameters
