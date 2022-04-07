@@ -1145,13 +1145,12 @@ class EdbHfss(object):
 
         Parameters
         ----------
-        simulation_setup :
-            Edb_DATA.SimulationConfiguration object
+        simulation_setup : Edb_DATA.SimulationConfiguration object
 
         Returns
         -------
         bool
-            True when succeeded, False when failed.
+            ``True`` when successful, ``False`` when failed.
 
         """
         if not isinstance(simulation_setup, SimulationConfiguration):
