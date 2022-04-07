@@ -905,7 +905,7 @@ class EdbLayout(object):
         Returns
         -------
         bool
-            ``True`` is successful.
+            ``True`` when successful, ``False`` when failed.
         """
         try:
             if setup_info:
