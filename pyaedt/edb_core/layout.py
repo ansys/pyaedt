@@ -930,7 +930,6 @@ class EdbLayout(object):
             nb_pts_removed = 0
             surf_dev = 0
             new_poly = None
-            # print(setup_info.MaxSufDev)
             while (surf_dev < max_surface_deviation and pts_list.Count > 16 and minimum_distance < 1000e-6) and float(
                 nb_pts_removed
             ) / float(nb_ini_pts) < 0.4:
