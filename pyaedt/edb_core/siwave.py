@@ -1289,7 +1289,7 @@ class EdbSiwave(object):
         Returns
         -------
             bool
-            True when succeeded, False when failed.
+            ``True`` when successful, ``False`` when failed.
         """
         if not isinstance(simulation_setup, SimulationConfiguration):
             return False
