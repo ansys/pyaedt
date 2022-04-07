@@ -479,7 +479,7 @@ class EdbHfss(object):
         net_name = pin.net_name
 
         if not port_name:
-            port_name = "{}_{}_{}".format(refdes, net_name, pin.pin.GetName())
+            port_name = "{}_{}_{}".format(reference_designator, net_name, pin.pin.GetName())
 
         if self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
             self._active_layout, edb_net, port_name, edb_pin, edb_layer
@@ -510,7 +510,7 @@ class EdbHfss(object):
             if pin.net_name == net_name:
                 pin_number = pnum
                 break
-        return self.create_coax_port_on_component_per_pin(refdes, pin_number, port_name)
+        return self.create_coax_port_on_component_per_pin(reference_designator, pin_number, port_name)
 
     @pyaedt_function_handler()
     def create_hfss_ports_on_padstack(self, pinpos, portname=None):
