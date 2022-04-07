@@ -1176,7 +1176,7 @@ class EdbHfss(object):
                         )
                     else:
                         self._logger.info(
-                            "Defeaturing Polygon {0}: Void {1}".format(str(_poly.GetId()), str(void.GetId()))
+                            "Defeaturing polygon {0}: void {1}".format(str(_poly.GetId()), str(void.GetId()))
                         )
                         new_void_data = self._pedb.core_layout.defeature_polygon(
                             setup_info=simulation_setup, poly=void_data
