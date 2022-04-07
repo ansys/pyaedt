@@ -79,7 +79,7 @@ except ImportError:
     select_module = None
 
     def select(*args):
-        raise ImportError("select not supported on this platform")
+        raise ImportError("Select is not supported on this platform.")
 
 else:
     # jython
