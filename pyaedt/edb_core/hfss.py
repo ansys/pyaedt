@@ -504,7 +504,7 @@ class EdbHfss(object):
         -------
 
         """
-        comp = self._pedb.core_components.components[refdes]
+        comp = self._pedb.core_components.components[reference_designator]
         pin_number = ""
         for pnum, pin in comp.pins.items():
             if pin.net_name == net_name:
