@@ -686,7 +686,7 @@ class Components(object):
             Reference designator of the RLC component.
 
         create_circuit_port : bool, optional
-            Whether to replace the deactivated RLC component to a circuit port. The default
+            Whether to replace the deactivated RLC component with a circuit port. The default
             is ``False``.
 
         Returns
