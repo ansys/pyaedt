@@ -1159,7 +1159,7 @@ class EdbHfss(object):
         self._logger.info("Starting Layout Defeaturing")
         polygon_list = self._pedb.core_primitives.polygons
         #polygon_with_voids = self._pedb.core_layout.get_poly_with_voids(polygon_list)
-        self._logger.info("Number of Polygons with Voids Found: {0}".format(str(polygon_with_voids.Count)))
+        self._logger.info("Number of polygons with voids found: {0}".format(str(polygon_with_voids.Count)))
         for _poly in polygon_list:
             voids_from_current_poly = _poly.Voids
             new_poly_data = self._pedb.core_layout.defeature_polygon(setup_info=simulation_setup, poly=_poly)
