@@ -636,7 +636,7 @@ class Components(object):
         """
 
         res, pin_position, pin_rot = pin.GetPositionAndRotation(
-            self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0
+            self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)), 0.0
         )
         if not is_ironpython:
             res, from_layer, to_layer = pin.GetLayerRange(None, None)
@@ -667,13 +667,13 @@ class Components(object):
 
         """
         res, pin_position, pin_rot = pin.GetPositionAndRotation(
-            self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0
+            self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)), 0.0
         )
         distance = 1e3
         closest_pin = ref_pinlist[0]
         for ref_pin in ref_pinlist:
             res, ref_pin_position, ref_pin_rot = ref_pin.GetPositionAndRotation(
-                self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)), 0.0
+                self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)), 0.0
             )
             temp_distance = pin_position.Distance(ref_pin_position)
             if temp_distance < distance:
@@ -699,7 +699,8 @@ class Components(object):
         layout = pingroup.GetLayout()
         cmp_name = pingroup.GetComponent().GetName()
         net_name = pingroup.GetNet().GetName()
-        term_name = pingroup.GetUniqueName(layout, "Pingroup_{0}_{1}".format(cmp_name, net_name))
+        term_name = generate_unique_name("Pingroup_{0}_{1}".format(cmp_name, net_name))
+        #term_name = pingroup.GetUniqueName(layout, "Pingroup_{0}_{1}".format(cmp_name, net_name))
         pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
             self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
         )
@@ -900,9 +901,7 @@ class Components(object):
             self._logger.error("No pins specified for pin group %s", group_name)
             return (False, None)
         if group_name is None:
-            cmp_name = pins[0].GetComponent().GetName()
-            net_name = pins[0].GetNet().GetName()
-            group_name = generate_unique_name("{}_{}_".format(cmp_name, net_name), n=3)
+            group_name = self._edb.Cell.Hierarchy.PinGroup.GetUniqueName(self._active_layout)
         pingroup = _retry_ntimes(
             10,
             self._edb.Cell.Hierarchy.PinGroup.Create,
@@ -911,10 +910,10 @@ class Components(object):
             convert_py_list_to_net_list(pins),
         )
         if pingroup.IsNull():
-            return (False, None)
+            return False
         else:
             pingroup.SetNet(pins[0].GetNet())
-            return (True, pingroup)
+            return pingroup
 
     @pyaedt_function_handler()
     def delete_single_pin_rlc(self):
