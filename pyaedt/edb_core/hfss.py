@@ -452,7 +452,7 @@ class EdbHfss(object):
 
         Parameters
         ----------
-        refdes : str
+        reference_designator : str
             Reference designator of the component.
         pin_number : str
             Pin number.
