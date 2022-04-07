@@ -1365,7 +1365,7 @@ class EdbSiwave(object):
             else:
                 simsetup_info.SweepDataList = convert_py_list_to_net_list([sweep])
         except Exception as err:
-            self._logger.error("Exception in Sweep configuration: {0}".format(err))
+            self._logger.error("Exception in sweep configuration: {0}".format(err))
         sim_setup = self._edb.Utility.SIWaveSimulationSetup(simsetup_info)
         return self._cell.AddSimulationSetup(sim_setup)
 
