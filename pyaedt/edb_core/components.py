@@ -1329,13 +1329,11 @@ class Components(object):
         elif pinName:
             if not isinstance(pinName, list):
                 pinName = [pinName]
-            pins = [
-                p
-                for p in list(component.LayoutObjs)
-                if int(p.GetObjType()) == 1
-                   and p.IsLayoutPin()
-                   and (self.get_aedt_pin_name(p) in pinName or p.GetName() in pinName)
-            ]
+            pins = [p for p in list(component.LayoutObjs)
+                    if int(p.GetObjType()) == 1
+                    and p.IsLayoutPin()
+                    and (self.get_aedt_pin_name(p) in pinName or p.GetName() in pinName)
+                    ]
         else:
             pins = [p for p in list(component.LayoutObjs) if int(p.GetObjType()) == 1 and p.IsLayoutPin()]
         return pins
