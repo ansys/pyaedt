@@ -1141,7 +1141,7 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def layout_defeaturing(self, simulation_setup=None):
-        """Defeature layout with reducing the number of points for polygons based on surface deviation criteria.
+        """Defeature the layout by reducing the number of points for polygons based on surface deviation criteria.
 
         Parameters
         ----------
