@@ -917,7 +917,7 @@ class EdbLayout(object):
             if len(poly_data) <= 16:
                 # defeaturing skipped for polygons with less than 16 points
                 self._logger.info(
-                    "Polygon {} skipped for defeaturing because number of point is less than 16. ".format(poly.GetId())
+                    "Polygon {} is skipped for defeaturing because its number of point is less than 16. ".format(poly.GetId())
                 )
                 return poly_data
 
