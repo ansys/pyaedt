@@ -897,7 +897,7 @@ class EdbLayout(object):
             ``maximum_surface_deviation`` value.
 
         poly : Edb Polygon primitive
-            polygon to defeature
+            Polygon to defeature.
 
         max_surface_deviation : float
             Maximum surface deviation criteria.
