@@ -1129,7 +1129,7 @@ class EdbHfss(object):
         Returns
         -------
         int
-            The number of ports.
+           Number of ports.
 
         """
         port_list = []
