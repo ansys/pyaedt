@@ -893,7 +893,8 @@ class EdbLayout(object):
         Parameters
         ----------
         setup_info : EDB_Data_SimulatiomConfiguratio object.
-            When setup_info argument provided, will overwrite the maximum_surface_deviation value.
+            When the ``setup_info`` argument is provided, it overwrites the
+            ``maximum_surface_deviation`` value.
 
         poly : Edb Polygon primitive
             polygon to defeature
