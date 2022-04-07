@@ -992,7 +992,7 @@ class EdbLayout(object):
         Returns
         -------
         bool
-            True when succeeded, False when Failed.
+            ``True`` when successful, ``False`` when failed.
 
 
         """
