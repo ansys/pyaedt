@@ -1374,7 +1374,7 @@ class EdbSiwave(object):
         start_f = GeometryOperators.parse_dim_arg(start_freq)
         if start_f == 0.0:
             start_f = 10
-            self._logger.warning("Decade Count sweep does not support DC value, defaulting starting frequency to 10Hz")
+            self._logger.warning("Decade count sweep does not support a DC value. Defaulting starting frequency to 10Hz.")
 
         stop_f = GeometryOperators.parse_dim_arg(stop_freq)
         decade_cnt = GeometryOperators.parse_dim_arg(decade_count)
