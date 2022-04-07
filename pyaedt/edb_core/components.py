@@ -708,7 +708,7 @@ class Components(object):
         if isinstance(component, str):
             component = self.components[component]
             if not component:
-                self._logger.error("component {} not found.".format(component))
+                self._logger.error("component %s not found.", component)
                 return False
         if is_ironpython:
             component_type = component.edbcomponent.GetComponentType()
