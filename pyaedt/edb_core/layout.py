@@ -943,8 +943,8 @@ class EdbLayout(object):
                     surf_dev = abs(init_surf - current_surf) / init_surf
                     minimum_distance = minimum_distance + defeaturing_step
             self._logger.info(
-                "Defeaturing Polygon {0}: Final Surface Deviation = {1} ,  Maximum Distance(um) = {2}, "
-                "Number of Points removed = {3}/{4}".format(
+                "Defeaturing polygon {0}: Final surface deviation = {1} , Maximum distance(um) = {2}, "
+                "Number of points removed = {3}/{4}".format(
                     str(poly.GetId()), str(surf_dev), str(minimum_distance * 1e6), str(nb_pts_removed), str(nb_ini_pts)
                 )
             )
