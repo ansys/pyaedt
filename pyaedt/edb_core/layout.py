@@ -888,7 +888,7 @@ class EdbLayout(object):
 
     @pyaedt_function_handler()
     def defeature_polygon(self, setup_info, poly, max_surface_deviation=0.001):
-        """Defeature polygon based on maximum surface deviation criteria.
+        """Defeature the polygon based on the maximum surface deviation criteria.
 
         Parameters
         ----------
