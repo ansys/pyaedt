@@ -494,7 +494,7 @@ class EdbHfss(object):
 
         Parameters
         ----------
-        refdes : str
+        reference_designator : str
             Reference designator of the component.
         net_name : str
             Name of the net.
