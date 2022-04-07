@@ -678,7 +678,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def deactivate_rlc_component(self, component=None, create_circuit_port=False):
-        """Deactivate RLC component with a possibility to covert to a circuit port.
+        """Deactivate RLC component with a possibility to convert to a circuit port.
 
         Parameters
         ----------
