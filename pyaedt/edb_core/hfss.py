@@ -457,9 +457,12 @@ class EdbHfss(object):
         pin_number : str
             Pin number.
         port_name : str, optional
-            Name of the net. If not specified, a name will be automatically assigned.
+            Name of the net. The default is ``""``, in which case a name is automatically
+            assigned.
+            
         Returns
         -------
+        Port name when successful; ``False`` otherwise.
 
         """
         comp = self._pedb.core_components.components[reference_designator]
