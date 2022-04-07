@@ -398,14 +398,14 @@ class Components(object):
 
     @pyaedt_function_handler()
     def get_component_placement_vector(
-            self,
-            mounted_component,
-            hosting_component,
-            mounted_component_pin1,
-            mounted_component_pin2,
-            hosting_component_pin1,
-            hosting_component_pin2,
-            flipped=False,
+        self,
+        mounted_component,
+        hosting_component,
+        mounted_component_pin1,
+        mounted_component_pin2,
+        hosting_component_pin1,
+        hosting_component_pin2,
+        flipped=False,
     ):
         """Get the placement vector between 2 components.
 
@@ -510,7 +510,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def create_port_on_component(
-            self, component, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="gnd"
+        self, component, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="gnd"
     ):
         """Create ports on given component.
 
@@ -712,9 +712,11 @@ class Components(object):
                 return False
         if is_ironpython:
             component_type = component.edbcomponent.GetComponentType()
-            if (component_type == self._edb.Definition.ComponentType.Other or
-                    component_type == self._edb.Definition.ComponentType.IC or
-                    component_type == self._edb.Definition.ComponentType.IO):
+            if (
+                component_type == self._edb.Definition.ComponentType.Other
+                or component_type == self._edb.Definition.ComponentType.IC
+                or component_type == self._edb.Definition.ComponentType.IO
+            ):
                 self._logger.info("Component {} passed to deactivate is not an RLC.".format(component.refdes))
                 return False
         else:
@@ -1207,7 +1209,7 @@ class Components(object):
             rlcModel = self._edb.Cell.Hierarchy.PinPairModel()
             rlcModel.SetPinPairRlc(pinPair, rlc)
             if not edbRlcComponentProperty.SetModel(rlcModel) or not edbComponent.SetComponentProperty(
-                    edbRlcComponentProperty
+                edbRlcComponentProperty
             ):
                 self._logger.error("Failed to set RLC model on component")
                 return False
@@ -1223,7 +1225,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def update_rlc_from_bom(
-            self, bom_file, delimiter=";", valuefield="Func des", comptype="Prod name", refdes="Pos / Place"
+        self, bom_file, delimiter=";", valuefield="Func des", comptype="Prod name", refdes="Pos / Place"
     ):
         """Update the EDC core component values (RLCs) with values coming from a BOM file.
 
@@ -1329,11 +1331,13 @@ class Components(object):
         elif pinName:
             if not isinstance(pinName, list):
                 pinName = [pinName]
-            pins = [p for p in list(component.LayoutObjs)
-                    if int(p.GetObjType()) == 1
-                    and p.IsLayoutPin()
-                    and (self.get_aedt_pin_name(p) in pinName or p.GetName() in pinName)
-                    ]
+            pins = [
+                p
+                for p in list(component.LayoutObjs)
+                if int(p.GetObjType()) == 1
+                and p.IsLayoutPin()
+                and (self.get_aedt_pin_name(p) in pinName or p.GetName() in pinName)
+            ]
         else:
             pins = [p for p in list(component.LayoutObjs) if int(p.GetObjType()) == 1 and p.IsLayoutPin()]
         return pins
