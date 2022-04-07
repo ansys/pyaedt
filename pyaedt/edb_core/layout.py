@@ -983,7 +983,8 @@ class EdbLayout(object):
     @pyaedt_function_handler()
     def setup_net_classes(self, simulation_setup=None):
         """
-        Define nets listed as power ground nets in simulation_setup.
+        Define nets listed as power ground nets in the ``simulation_setup`` object.
+        
         Parameters
         ----------
         simulation_setup : simulation_setup EDB_Data.SimulationConfiguration object
