@@ -506,7 +506,7 @@ class FlipChipOrientation(object):
     (Up, Down) = range(0, 2)
 
 class SolverType(object):
-    """Solver type class."""
+    """Provides solver type classes."""
 
     (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout) = range(0, 7)
 
