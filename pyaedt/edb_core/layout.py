@@ -900,7 +900,7 @@ class EdbLayout(object):
             Polygon to defeature.
 
         max_surface_deviation : float, optional
-            Maximum surface deviation criteria.
+            Maximum surface deviation criteria. The default is ``0.001``.
 
         Returns
         -------
