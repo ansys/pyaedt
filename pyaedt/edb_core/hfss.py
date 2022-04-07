@@ -462,7 +462,7 @@ class EdbHfss(object):
         -------
 
         """
-        comp = self._pedb.core_components.components[refdes]
+        comp = self._pedb.core_components.components[reference_designator]
         pin = comp.pins[pin_number]
         edb_net = pin.pin.GetNet()
         edb_pin = pin.pin
