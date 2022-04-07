@@ -718,9 +718,7 @@ class Components(object):
             self._components_methods.AddPortOnRlcComponent(self._active_layout, _cmp)
         else:
             self._components_methods.DeactivateRlcComponent(component.edbcomponent)
-
         return True
-
 
     @pyaedt_function_handler()
     def _create_pin_group_terminal(self, pingroup, isref=False):
