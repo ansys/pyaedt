@@ -700,7 +700,6 @@ class Components(object):
         cmp_name = pingroup.GetComponent().GetName()
         net_name = pingroup.GetNet().GetName()
         term_name = generate_unique_name("Pingroup_{0}_{1}".format(cmp_name, net_name))
-        #term_name = pingroup.GetUniqueName(layout, "Pingroup_{0}_{1}".format(cmp_name, net_name))
         pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
             self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
         )
