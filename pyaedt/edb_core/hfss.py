@@ -502,7 +502,9 @@ class EdbHfss(object):
         net_name : str
             Name of the net.
         port_name : str, optional
-            Name of the net. If not specified, a name will be automatically assigned.
+            Name of the net. The default is ``""``, in which case a name is automatically
+            assigned.
+           
         Returns
         -------
 
