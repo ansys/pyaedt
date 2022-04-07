@@ -946,6 +946,7 @@ class TestClass(BasisTest, object):
 
         sim_config = SimulationConfiguration(cfg_file)
         assert self.edbapp.build_simulation_project(sim_config)
+
     def test_83_set_component_type(self):
         comp = self.edbapp.core_components.components["R2L18"]
         comp.type = "Resistor"
