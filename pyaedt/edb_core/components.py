@@ -697,8 +697,8 @@ class Components(object):
         Examples
         --------
         >>> from pyaedt import Edb
-        >>> edb_folder = r'C:\my_edb_folder.aedb'
-        >>> edb = Edb(edb_folder)
+        >>> edb_file = r'C:\my_edb_file.aedb'
+        >>> edb = Edb(edb_file)
         >>> for cmp in list(edb.core_components.components.keys()):
         >>>     edb.core_components.deactivate_rlc_component(component=cmp, create_circuit_port=False)
         >>> edb.save_edb()
