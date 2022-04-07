@@ -18,7 +18,7 @@ try:
 
 except ImportError:
     if os.name != "posix":
-        warnings.warn('This module requires the "pythonnet" package.')
+        warnings.warn('This module requires the Python.NET package.')
 
 
 class EdbLayout(object):
