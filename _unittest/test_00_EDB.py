@@ -1093,5 +1093,5 @@ class TestClass(BasisTest, object):
         assert comp.type == "Other"
 
     def test_85_deactivate_rlc(self):
-        cmp = list(self.edbapp.core_components.components.keys())[0]
-        assert self.edbapp.core_components.deactivate_rlc_component(component=cmp, create_circuit_port=True)
+        assert self.edbapp.core_components.deactivate_rlc_component(component='C1', create_circuit_port=True)
+        assert self.edbapp.core_components.deactivate_rlc_component(component='C2', create_circuit_port=False)

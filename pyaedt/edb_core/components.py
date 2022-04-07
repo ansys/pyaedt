@@ -710,6 +710,14 @@ class Components(object):
             if not component:
                 self._logger.error("component {} not found.".format(component))
                 return False
+        if is_ironpython:
+            component_type = component.edbcomponent.GetComponentType()
+            if (component_type == self._edb.Definition.ComponentType.Other or
+                component_type == self._edb.Definition.ComponentType.IC or
+                component_type == self._edb.Definition.ComponentType.IO):
+                self._logger.info("Component {} passed to deactivate is not an RLC.".format(component.refdes))
+                return False
+        else:
             if not component.edbcomponent.GetComponentType() in [1, 2, 3]:
                 self._logger.info("Component {} passed to deactivate is not an RLC.".format(component.refdes))
                 return False
