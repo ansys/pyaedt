@@ -691,7 +691,7 @@ class Components(object):
         Returns
         -------
         bool
-            True when succeeded, False when failed.
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
