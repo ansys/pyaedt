@@ -1389,7 +1389,7 @@ class Edb(object):
             if variable_name.index("$") == 0:
                 var_server = self.db.GetVariableServer()
                 is_parameter = False
-                string_message = ["Creating project variable %s.", "Project variable %s exists. Using it."]
+                string_message = ["Creating project variable %s.", "Project variable %s exists. You can use it."]
             else:
                 var_server = self.active_cell.GetVariableServer()
                 self.logger.warning(
@@ -1397,14 +1397,14 @@ class Edb(object):
                     " to make it a project variable."
                 )
 
-                string_message = ["Creating local variable %s.", "Local variable %s exists. Using it."]
+                string_message = ["Creating local variable %s.", "Local variable %s exists. You can use it."]
         else:
             var_server = self.active_cell.GetVariableServer()
-            string_message = ["Creating local variable %s.", "Local variable %s exists. Using it."]
+            string_message = ["Creating local variable %s.", "Local variable %s exists. You can use it."]
         variables = var_server.GetAllVariableNames()
         if variable_name in list(variables):
             if var_server.IsVariableParameter(variable_name):
-                string_message[1] = "Parameter default %s exists. Using it."
+                string_message[1] = "Parameter default %s exists. You can use it."
             self.logger.warning(string_message[1], variable_name)
             return False, var_server
         else:
