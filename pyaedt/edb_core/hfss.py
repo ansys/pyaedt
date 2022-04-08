@@ -441,18 +441,79 @@ class EdbHfss(object):
         if not isinstance(net_list, list):
             net_list = [net_list]
         for ref in ref_des_list:
-            for pinname, pin in self._pedb.core_components.components[ref].pins.items():
-                if pin.net_name in net_list and pin.pin.IsLayoutPin():
-                    port_name = "{}_{}_{}".format(ref, pin.net_name, pin.pin.GetName())
-                    if is_ironpython:
-                        res, fromLayer_pos, toLayer_pos = pin.pin.GetLayerRange()  # pragma: no cover
-                    else:
-                        res, fromLayer_pos, toLayer_pos = pin.pin.GetLayerRange(None, None)
-                    if self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
-                        self._active_layout, pin.pin.GetNet(), port_name, pin.pin, toLayer_pos
-                    ):
-                        coax.append(port_name)
+            for net_name in net_list:
+                port_name = self.create_coax_port_on_component_per_net(ref, net_name)
+                coax.append(port_name)
         return coax
+
+    @pyaedt_function_handler()
+    def create_coax_port_on_component_per_pin(self, reference_designator, pin_number, port_name=""):
+        """Create a coaxial port on a component per pin.
+
+        Parameters
+        ----------
+        reference_designator : str
+            Reference designator of the component.
+        pin_number : str
+            Pin number.
+        port_name : str, optional
+            Name of the net. The default is ``""``, in which case a name is automatically assigned.
+
+        Returns
+        -------
+        Port name when successful; ``False`` otherwise.
+        """
+        comp = self._pedb.core_components.components[reference_designator]
+        pin = comp.pins[pin_number]
+        edb_net = pin.pin.GetNet()
+        edb_pin = pin.pin
+        if is_ironpython:
+            _, from_layer, to_layer = edb_pin.GetLayerRange()
+        else:
+            _, from_layer, to_layer = edb_pin.GetLayerRange(None, None)
+
+        if from_layer == comp.placement_layer:
+            edb_layer = from_layer
+        else:
+            edb_layer = to_layer
+
+        net_name = pin.net_name
+
+        if not port_name:
+            port_name = "{}_{}_{}".format(reference_designator, net_name, pin.pin.GetName())
+
+        if self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
+            self._active_layout, edb_net, port_name, edb_pin, edb_layer
+        ):
+            return port_name
+        else:
+            return False
+
+    @pyaedt_function_handler()
+    def create_coax_port_on_component_per_net(self, reference_designator, net_name, port_name=""):
+        """Create a coaxial port on a component pin.
+
+        Parameters
+        ----------
+        reference_designator : str
+            Reference designator of the component.
+        net_name : str
+            Name of the net.
+        port_name : str, optional
+            Name of the net. The default is ``""``, in which case a name is automatically assigned.
+
+        Returns
+        -------
+        bool
+            `Port name when successful; ``False`` otherwise.
+        """
+        comp = self._pedb.core_components.components[reference_designator]
+        pin_number = ""
+        for pnum, pin in comp.pins.items():
+            if pin.net_name == net_name:
+                pin_number = pnum
+                break
+        return self.create_coax_port_on_component_per_pin(reference_designator, pin_number, port_name)
 
     @pyaedt_function_handler()
     def create_hfss_ports_on_padstack(self, pinpos, portname=None):
