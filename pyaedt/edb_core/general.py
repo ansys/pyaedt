@@ -45,6 +45,7 @@ def convert_netdict_to_pydict(dict_in):
         pydict[key] = dict_in[key]
     return pydict
 
+
 @pyaedt_function_handler()
 def convert_pytuple_to_nettuple(tuple):
     """Convert a python tuple into .NET tuple
@@ -57,6 +58,7 @@ def convert_pytuple_to_nettuple(tuple):
     .Net Tuple
     """
     return Tuple.Create(tuple[0], tuple[1])
+
 
 @pyaedt_function_handler()
 def convert_pydict_to_netdict(dict):

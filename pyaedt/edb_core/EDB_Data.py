@@ -112,7 +112,14 @@ class EDBNetsData(object):
         return comps
 
     @pyaedt_function_handler()
-    def plot(self, layers=None, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)):
+    def plot(
+        self,
+        layers=None,
+        show_legend=True,
+        save_plot=None,
+        outline=None,
+        size=(2000, 1000),
+    ):
         """Plot a Net to Matplotlib 2D Chart.
 
         Parameters
@@ -132,8 +139,14 @@ class EDBNetsData(object):
         """
 
         self._app.core_nets.plot(
-            self.name, layers=layers, show_legend=show_legend, save_plot=save_plot, outline=outline, size=size
+            self.name,
+            layers=layers,
+            show_legend=show_legend,
+            save_plot=save_plot,
+            outline=outline,
+            size=size,
         )
+
 
 class EDBPrimitives(object):
     """Manages EDB functionalities for a primitives.
@@ -399,9 +412,13 @@ class EDBPrimitives(object):
             try:
                 self.primitive_object.SetNet(val)
             except:
-                raise AttributeError("Value inserted not found. Input has to be layer name or net object.")
+                raise AttributeError(
+                    "Value inserted not found. Input has to be layer name or net object."
+                )
         else:
-            raise AttributeError("Value inserted not found. Input has to be layer name or net object.")
+            raise AttributeError(
+                "Value inserted not found. Input has to be layer name or net object."
+            )
 
     @property
     def layer(self):
@@ -427,9 +444,13 @@ class EDBPrimitives(object):
             try:
                 self.primitive_object.SetLayer(val)
             except:
-                raise AttributeError("Value inserted not found. Input has to be layer name or layer object.")
+                raise AttributeError(
+                    "Value inserted not found. Input has to be layer name or layer object."
+                )
         else:
-            raise AttributeError("Value inserted not found. Input has to be layer name or layer object.")
+            raise AttributeError(
+                "Value inserted not found. Input has to be layer name or layer object."
+            )
 
     @pyaedt_function_handler()
     def delete(self):
@@ -673,7 +694,14 @@ class EDBLayer(object):
             self.update_layers()
 
     @pyaedt_function_handler()
-    def plot(self, nets=None, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)):
+    def plot(
+        self,
+        nets=None,
+        show_legend=True,
+        save_plot=None,
+        outline=None,
+        size=(2000, 1000),
+    ):
         """Plot a Layer to Matplotlib 2D Chart.
 
         Parameters
@@ -720,7 +748,16 @@ class EDBLayer(object):
             pass
 
     @pyaedt_function_handler()
-    def update_layer_vals(self, layerName, newLayer, etchMap, materialMap, fillMaterialMap, thicknessMap, layerTypeMap):
+    def update_layer_vals(
+        self,
+        layerName,
+        newLayer,
+        etchMap,
+        materialMap,
+        fillMaterialMap,
+        thicknessMap,
+        layerTypeMap,
+    ):
         """Update layer properties.
 
         Parameters
@@ -795,7 +832,9 @@ class EDBLayer(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        thisLC = self._edb.Cell.LayerCollection(self._active_layout.GetLayerCollection())
+        thisLC = self._edb.Cell.LayerCollection(
+            self._active_layout.GetLayerCollection()
+        )
         layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         layers.reverse()
         newLayers = List[self._edb.Cell.Layer]()
@@ -827,8 +866,12 @@ class EDBLayer(object):
 
         lcNew = self._edb.Cell.LayerCollection()
         newLayers.Reverse()
-        if not lcNew.AddLayers(newLayers) or not self._active_layout.SetLayerCollection(lcNew):
-            self._logger.error("Failed to set new layers when updating the stackup information.")
+        if not lcNew.AddLayers(newLayers) or not self._active_layout.SetLayerCollection(
+            lcNew
+        ):
+            self._logger.error(
+                "Failed to set new layers when updating the stackup information."
+            )
             return False
         self._pedblayers._update_edb_objects()
         time.sleep(1)
@@ -918,7 +961,9 @@ class EDBLayers(object):
         list
             List of EDB layers.
         """
-        allLayers = list(list(self.layer_collection.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
+        allLayers = list(
+            list(self.layer_collection.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet))
+        )
         allStackuplayers = filter(
             lambda lyr: (lyr.GetLayerType() == self._edb.Cell.LayerType.DielectricLayer)
             or (
@@ -927,7 +972,10 @@ class EDBLayers(object):
             ),
             allLayers,
         )
-        return sorted(allStackuplayers, key=lambda lyr=self._edb.Cell.StackupLayer: lyr.GetLowerElevation())
+        return sorted(
+            allStackuplayers,
+            key=lambda lyr=self._edb.Cell.StackupLayer: lyr.GetLowerElevation(),
+        )
 
     @property
     def signal_layers(self):
@@ -1093,7 +1141,9 @@ class EDBLayers(object):
 
         if not layers or not start_layer:
             if int(layerType) > 2:
-                newLayer = self._edb.Cell.Layer(layerName, self._int_to_layer_types(layerType))
+                newLayer = self._edb.Cell.Layer(
+                    layerName, self._int_to_layer_types(layerType)
+                )
                 # newLayers.Add(newLayer)
                 lcNew.AddLayerTop(newLayer)
             else:
@@ -1111,7 +1161,13 @@ class EDBLayers(object):
                 )
                 self._edb_object[layerName] = EDBLayer(newLayer, self._pedbstackup)
                 newLayer = self._edb_object[layerName].update_layer_vals(
-                    layerName, newLayer, etchMap, material, fillMaterial, thickness, self._int_to_layer_types(layerType)
+                    layerName,
+                    newLayer,
+                    etchMap,
+                    material,
+                    fillMaterial,
+                    thickness,
+                    self._int_to_layer_types(layerType),
                 )
                 newLayer.SetLowerElevation(self._get_edb_value(el))
 
@@ -1167,7 +1223,9 @@ class EDBLayers(object):
         # lcNew = self._edb.Cell.LayerCollection()
         # newLayers.Reverse()
         if not self._active_layout.SetLayerCollection(lcNew):
-            self._logger.error("Failed to set new layers when updating the stackup information.")
+            self._logger.error(
+                "Failed to set new layers when updating the stackup information."
+            )
             return False
         self._update_edb_objects()
         return True
@@ -1181,7 +1239,9 @@ class EDBLayers(object):
         bool
             "True" if succeeded
         """
-        outlineLayer = self._edb.Cell.Layer.FindByName(self._active_layout.GetLayerCollection(), outline_name)
+        outlineLayer = self._edb.Cell.Layer.FindByName(
+            self._active_layout.GetLayerCollection(), outline_name
+        )
         if outlineLayer.IsNull():
             return self.add_layer(
                 outline_name,
@@ -1206,7 +1266,9 @@ class EDBLayers(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        thisLC = self._edb.Cell.LayerCollection(self._pedbstackup._active_layout.GetLayerCollection())
+        thisLC = self._edb.Cell.LayerCollection(
+            self._pedbstackup._active_layout.GetLayerCollection()
+        )
         layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         layers.reverse()
         newLayers = List[self._edb.Cell.Layer]()
@@ -1222,8 +1284,12 @@ class EDBLayers(object):
                 newLayers.Add(newLayer)
         lcNew = self._edb.Cell.LayerCollection()
         newLayers.Reverse()
-        if not lcNew.AddLayers(newLayers) or not self._pedbstackup._active_layout.SetLayerCollection(lcNew):
-            self._logger.error("Failed to set new layers when updating the stackup information.")
+        if not lcNew.AddLayers(
+            newLayers
+        ) or not self._pedbstackup._active_layout.SetLayerCollection(lcNew):
+            self._logger.error(
+                "Failed to set new layers when updating the stackup information."
+            )
             return False
         self._update_edb_objects()
         return True
@@ -1285,7 +1351,9 @@ class EDBPadProperties(object):
         int
             Type of the geometry.
         """
-        padparams = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
+        padparams = self._padstack_methods.GetPadParametersValue(
+            self._edb_padstack, self.layer_name, self.pad_type
+        )
         return int(padparams.Item1)
 
     @geometry_type.setter
@@ -1319,7 +1387,9 @@ class EDBPadProperties(object):
         list
             List of parameters.
         """
-        pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
+        pad_values = self._padstack_methods.GetPadParametersValue(
+            self._edb_padstack, self.layer_name, self.pad_type
+        )
         return [i.ToDouble() for i in pad_values.Item2]
 
     @property
@@ -1348,7 +1418,9 @@ class EDBPadProperties(object):
         list
             List of parameters.
         """
-        pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
+        pad_values = self._padstack_methods.GetPadParametersValue(
+            self._edb_padstack, self.layer_name, self.pad_type
+        )
         return [i.ToString() for i in pad_values.Item2]
 
     @parameters.setter
@@ -1369,7 +1441,9 @@ class EDBPadProperties(object):
         str
             Offset for the X axis.
         """
-        pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
+        pad_values = self._padstack_methods.GetPadParametersValue(
+            self._edb_padstack, self.layer_name, self.pad_type
+        )
         return pad_values.Item3.ToString()
 
     @offset_x.setter
@@ -1386,7 +1460,9 @@ class EDBPadProperties(object):
         str
             Offset for the Y axis.
         """
-        pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
+        pad_values = self._padstack_methods.GetPadParametersValue(
+            self._edb_padstack, self.layer_name, self.pad_type
+        )
         return pad_values.Item4.ToString()
 
     @offset_y.setter
@@ -1403,7 +1479,9 @@ class EDBPadProperties(object):
         str
             Value for the rotation.
         """
-        pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
+        pad_values = self._padstack_methods.GetPadParametersValue(
+            self._edb_padstack, self.layer_name, self.pad_type
+        )
         return pad_values.Item5.ToString()
 
     @rotation.setter
@@ -1453,7 +1531,14 @@ class EDBPadProperties(object):
 
     @pyaedt_function_handler()
     def _update_pad_parameters_parameters(
-        self, layer_name=None, pad_type=None, geom_type=None, params=None, offsetx=None, offsety=None, rotation=None
+        self,
+        layer_name=None,
+        pad_type=None,
+        geom_type=None,
+        params=None,
+        offsetx=None,
+        offsety=None,
+        rotation=None,
     ):
         """Update padstack parameters.
 
@@ -1480,7 +1565,9 @@ class EDBPadProperties(object):
             ``True`` when successful, ``False`` when failed.
         """
         originalPadstackDefinitionData = self._edb_padstack.GetData()
-        newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
+        newPadstackDefinitionData = self._edb.Definition.PadstackDefData(
+            originalPadstackDefinitionData
+        )
         if not pad_type:
             pad_type = self.pad_type
         if not geom_type:
@@ -1535,8 +1622,12 @@ class EDBPadstack(object):
         self.thermalpad_by_layer = {}
         for layer in self.via_layers:
             self.pad_by_layer[layer] = EDBPadProperties(edb_padstack, layer, 0, self)
-            self.antipad_by_layer[layer] = EDBPadProperties(edb_padstack, layer, 1, self)
-            self.thermalpad_by_layer[layer] = EDBPadProperties(edb_padstack, layer, 2, self)
+            self.antipad_by_layer[layer] = EDBPadProperties(
+                edb_padstack, layer, 1, self
+            )
+            self.thermalpad_by_layer[layer] = EDBPadProperties(
+                edb_padstack, layer, 2, self
+            )
         pass
 
     @property
@@ -1600,7 +1691,9 @@ class EDBPadstack(object):
             value0 = self._get_edb_value("0.0")
             ptype = self._edb.Definition.PadGeometryType.Circle
             HoleParam = Array[type(value0)]([])
-            out = viaData.GetHoleParametersValue(ptype, HoleParam, value0, value0, value0)
+            out = viaData.GetHoleParametersValue(
+                ptype, HoleParam, value0, value0, value0
+            )
         return out
 
     @property
@@ -1616,7 +1709,9 @@ class EDBPadstack(object):
         return self._hole_parameters
 
     @pyaedt_function_handler()
-    def _update_hole_parameters(self, hole_type=None, params=None, offsetx=None, offsety=None, rotation=None):
+    def _update_hole_parameters(
+        self, hole_type=None, params=None, offsetx=None, offsety=None, rotation=None
+    ):
         """Update hole parameters.
 
         Parameters
@@ -1638,7 +1733,9 @@ class EDBPadstack(object):
             ``True`` when successful, ``False`` when failed.
         """
         originalPadstackDefinitionData = self.edb_padstack.GetData()
-        newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
+        newPadstackDefinitionData = self._edb.Definition.PadstackDefData(
+            originalPadstackDefinitionData
+        )
         if not hole_type:
             hole_type = self.hole_type
         if not params:
@@ -1769,7 +1866,9 @@ class EDBPadstack(object):
     def hole_plating_ratio(self, ratio):
 
         originalPadstackDefinitionData = self.edb_padstack.GetData()
-        newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
+        newPadstackDefinitionData = self._edb.Definition.PadstackDefData(
+            originalPadstackDefinitionData
+        )
         newPadstackDefinitionData.SetHolePlatingPercentage(self._get_edb_value(ratio))
         self.edb_padstack.SetData(newPadstackDefinitionData)
 
@@ -1816,7 +1915,9 @@ class EDBPadstack(object):
     def material(self, materialname):
 
         originalPadstackDefinitionData = self.edb_padstack.GetData()
-        newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
+        newPadstackDefinitionData = self._edb.Definition.PadstackDefData(
+            originalPadstackDefinitionData
+        )
         newPadstackDefinitionData.SetMaterial(materialname)
         self.edb_padstack.SetData(newPadstackDefinitionData)
 
@@ -1873,7 +1974,9 @@ class EDBPadstackInstance(object):
             _,
             depth,
             diameter,
-        ) = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, val, False)
+        ) = self._edb_padstackinstance.GetBackDrillParametersLayerValue(
+            layer, val, False
+        )
         return depth.GetName(), diameter.ToString()
 
     @property
@@ -1891,7 +1994,9 @@ class EDBPadstackInstance(object):
             _,
             depth,
             diameter,
-        ) = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, val, True)
+        ) = self._edb_padstackinstance.GetBackDrillParametersLayerValue(
+            layer, val, True
+        )
         return depth.GetName(), diameter.ToString()
 
     @property
@@ -1904,7 +2009,9 @@ class EDBPadstackInstance(object):
             Name of the starting layer.
         """
         layer = self._pedb.edb.Cell.Layer("", 1)
-        _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
+        _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(
+            layer, layer
+        )
         return start_layer.GetName()
 
     @start_layer.setter
@@ -1923,7 +2030,9 @@ class EDBPadstackInstance(object):
             Name of the stopping layer.
         """
         layer = self._pedb.edb.Cell.Layer("", 1)
-        _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
+        _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(
+            layer, layer
+        )
         return stop_layer.GetName()
 
     @stop_layer.setter
@@ -1974,7 +2083,9 @@ class EDBPadstackInstance(object):
         list
             List of ``[x, y]``` coordinates for the padstack instance position.
         """
-        point_data = self._pedb.edb.Geometry.PointData(self._pedb.edb_value(0.0), self._pedb.edb_value(0.0))
+        point_data = self._pedb.edb.Geometry.PointData(
+            self._pedb.edb_value(0.0), self._pedb.edb_value(0.0)
+        )
         if is_ironpython:
             out = self._edb_padstackinstance.GetPositionAndRotationValue()
         else:
@@ -1994,7 +2105,9 @@ class EDBPadstackInstance(object):
         float
             Rotatation value for the padstack instance.
         """
-        point_data = self._pedb.edb.Geometry.PointData(self._pedb.edb_value(0.0), self._pedb.edb_value(0.0))
+        point_data = self._pedb.edb.Geometry.PointData(
+            self._pedb.edb_value(0.0), self._pedb.edb_value(0.0)
+        )
         if is_ironpython:
             out = self._edb_padstackinstance.GetPositionAndRotationValue()
         else:
@@ -2051,7 +2164,9 @@ class EDBPadstackInstance(object):
         point_data = self._pedb.core_primitives._edb.Geometry.PointData(x_pos, y_pos)
 
         voids = []
-        for prim in self._pedb.core_primitives.get_primitives(net_name, layer_name, is_void=True):
+        for prim in self._pedb.core_primitives.get_primitives(
+            net_name, layer_name, is_void=True
+        ):
             if prim.primitive_object.GetPolygonData().PointInPolygon(point_data):
                 voids.append(prim)
         return voids
@@ -2087,7 +2202,11 @@ class EDBPadstackInstance(object):
         float
             Lower elavation of the placement layer.
         """
-        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetLowerElevation()
+        return (
+            self._edb_padstackinstance.GetGroup()
+            .GetPlacementLayer()
+            .GetLowerElevation()
+        )
 
     @property
     def upper_elevation(self):
@@ -2098,7 +2217,11 @@ class EDBPadstackInstance(object):
         float
            Upper elevation of the placement layer.
         """
-        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetUpperElevation()
+        return (
+            self._edb_padstackinstance.GetGroup()
+            .GetPlacementLayer()
+            .GetUpperElevation()
+        )
 
     @property
     def top_bottom_association(self):
@@ -2115,7 +2238,11 @@ class EDBPadstackInstance(object):
             * 4 Number of top/bottom association type.
             * -1 Undefined.
         """
-        return int(self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetTopBottomAssociation())
+        return int(
+            self._edb_padstackinstance.GetGroup()
+            .GetPlacementLayer()
+            .GetTopBottomAssociation()
+        )
 
     @pyaedt_function_handler()
     def create_rectangle_in_pad(self, layer_name, return_points=False):
@@ -2194,7 +2321,12 @@ class EDBPadstackInstance(object):
             p2 = [-s2, s2]
             p3 = [-s2, -s2]
             p4 = [s2, -s2]
-            rect = [_translate(_rotate(p1)), _translate(_rotate(p2)), _translate(_rotate(p3)), _translate(_rotate(p4))]
+            rect = [
+                _translate(_rotate(p1)),
+                _translate(_rotate(p2)),
+                _translate(_rotate(p3)),
+                _translate(_rotate(p4)),
+            ]
         elif pad_shape == 3:
             # Rectangle
             x_size = float(params[0])
@@ -2205,7 +2337,12 @@ class EDBPadstackInstance(object):
             p2 = [-sx2, sy2]
             p3 = [-sx2, -sy2]
             p4 = [sx2, -sy2]
-            rect = [_translate(_rotate(p1)), _translate(_rotate(p2)), _translate(_rotate(p3)), _translate(_rotate(p4))]
+            rect = [
+                _translate(_rotate(p1)),
+                _translate(_rotate(p2)),
+                _translate(_rotate(p3)),
+                _translate(_rotate(p4)),
+            ]
         elif pad_shape == 4:
             # Oval
             x_size = params[0]
@@ -2222,7 +2359,12 @@ class EDBPadstackInstance(object):
             p2 = [-sx - k, sy + k]
             p3 = [-sx - k, -sy - k]
             p4 = [sx + k, -sy - k]
-            rect = [_translate(_rotate(p1)), _translate(_rotate(p2)), _translate(_rotate(p3)), _translate(_rotate(p4))]
+            rect = [
+                _translate(_rotate(p1)),
+                _translate(_rotate(p2)),
+                _translate(_rotate(p3)),
+                _translate(_rotate(p4)),
+            ]
         elif pad_shape == 5:
             # Bullet
             x_size = params[0]
@@ -2239,7 +2381,12 @@ class EDBPadstackInstance(object):
             p2 = [-x_size * 0.5, sy + k]
             p3 = [-x_size * 0.5, -sy - k]
             p4 = [sx + k, -sy - k]
-            rect = [_translate(_rotate(p1)), _translate(_rotate(p2)), _translate(_rotate(p3)), _translate(_rotate(p4))]
+            rect = [
+                _translate(_rotate(p1)),
+                _translate(_rotate(p2)),
+                _translate(_rotate(p3)),
+                _translate(_rotate(p4)),
+            ]
         elif pad_shape == 6:
             # N-Sided Polygon
             size = params[0]
@@ -2250,7 +2397,12 @@ class EDBPadstackInstance(object):
             p2 = [0.0, apothem]
             p3 = [-apothem, 0.0]
             p4 = [0.0, -apothem]
-            rect = [_translate(_rotate(p1)), _translate(_rotate(p2)), _translate(_rotate(p3)), _translate(_rotate(p4))]
+            rect = [
+                _translate(_rotate(p1)),
+                _translate(_rotate(p2)),
+                _translate(_rotate(p3)),
+                _translate(_rotate(p4)),
+            ]
         elif pad_shape == 0 and polygon_data is not None:
             # Polygon
             points = []
@@ -2264,7 +2416,9 @@ class EDBPadstackInstance(object):
                 i += 1
             xpoly, ypoly = zip(*points)
             polygon = [list(xpoly), list(ypoly)]
-            rectangles = GeometryOperators.find_largest_rectangle_inside_polygon(polygon)
+            rectangles = GeometryOperators.find_largest_rectangle_inside_polygon(
+                polygon
+            )
             rect = rectangles[0]
             for i in range(4):
                 rect[i] = _translate(_rotate(rect[i]))
@@ -2275,13 +2429,19 @@ class EDBPadstackInstance(object):
         pdata = self._pedb.core_primitives.shape_to_polygon_data(path)
         new_rect = []
         for point in pdata.Points:
-            p_transf = self._edb_padstackinstance.GetComponent().GetTransform().TransformPoint(point)
+            p_transf = (
+                self._edb_padstackinstance.GetComponent()
+                .GetTransform()
+                .TransformPoint(point)
+            )
             new_rect.append([p_transf.X.ToDouble(), p_transf.Y.ToDouble()])
         if return_points:
             return new_rect
         else:
             path = self._pedb.core_primitives.Shape("polygon", points=new_rect)
-            created_polygon = self._pedb.core_primitives.create_polygon(path, layer_name)
+            created_polygon = self._pedb.core_primitives.create_polygon(
+                path, layer_name
+            )
             return created_polygon
 
 
@@ -2432,7 +2592,8 @@ class EDBComponent(object):
         pins = [
             p
             for p in self.edbcomponent.LayoutObjs
-            if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin()
+            if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
+            and p.IsLayoutPin()
         ]
         return pins
 
@@ -2661,6 +2822,7 @@ class SimulationConfiguration(object):
     MaxInitMeshEdgeLength = '14.5mil'
     SignalLayersProperties = []
     """
+
     def __init__(self, filename):
         self._filename = filename
         self._setup_name = "Pyaedt_setup"
@@ -3342,7 +3504,9 @@ class SimulationConfiguration(object):
         for lay in signal_properties:
             lp = lay.split(":")
             try:
-                self.signal_layers_properties.update({lp[0]: [lp[1], lp[2], lp[3], lp[4], lp[5]]})
+                self.signal_layers_properties.update(
+                    {lp[0]: [lp[1], lp[2], lp[3], lp[4], lp[5]]}
+                )
             except:
                 print("missing parameter for layer {0}".format(lp[0]))
 
@@ -3363,7 +3527,7 @@ class SimulationConfiguration(object):
         """
 
         if not os.path.exists(self._filename):
-            #raise Exception("{} does not exist.".format(self._filename))
+            # raise Exception("{} does not exist.".format(self._filename))
             pass
 
         try:
@@ -3383,22 +3547,34 @@ class SimulationConfiguration(object):
                             elif i.startswith("Components"):
                                 self.components = self._get_list_value(value)
                             elif i.startswith("coaxSolderBallsDiams"):
-                                self.coax_solder_ball_diameter = self._get_list_value(value)
+                                self.coax_solder_ball_diameter = self._get_list_value(
+                                    value
+                                )
                             elif i.startswith("UseDefaultCoaxPortRadialExtentFactor"):
                                 self.signal_nets = self._get_bool_value(value)
                             elif i.startswith("TrimRefSize"):
                                 self.trim_reference_size = self._get_bool_value(value)
                             elif i.startswith("CutoutSubdesignType"):
                                 if value.lower().startswith("conformal"):
-                                    self.cutout_subdesign_type = CutoutSubdesignType.Conformal
+                                    self.cutout_subdesign_type = (
+                                        CutoutSubdesignType.Conformal
+                                    )
                                 elif value.lower().startswith("boundingbox"):
-                                    self.cutout_subdesign_type = CutoutSubdesignType.BoundingBox
+                                    self.cutout_subdesign_type = (
+                                        CutoutSubdesignType.BoundingBox
+                                    )
                                 else:
-                                    print("Unprocessed value for CutoutSubdesignType '{0}'".format(value))
+                                    print(
+                                        "Unprocessed value for CutoutSubdesignType '{0}'".format(
+                                            value
+                                        )
+                                    )
                             elif i.startswith("CutoutSubdesignExpansion"):
                                 self.cutout_subdesign_expansion = float(value)
                             elif i.startswith("CutoutSubdesignRoundCorners"):
-                                self.cutout_subdesign_round_corner = self._get_bool_value(value)
+                                self.cutout_subdesign_round_corner = (
+                                    self._get_bool_value(value)
+                                )
                             elif i.startswith("SweepInterpolating"):
                                 self.sweep_interpolating = self._get_bool_value(value)
                             elif i.startswith("UseQ3DForDC"):
@@ -3425,7 +3601,11 @@ class SimulationConfiguration(object):
                                 elif value.lower().startswith("convexhull"):
                                     self.radiation_box = RadiationBoxType.ConvexHull
                                 else:
-                                    print("Unprocessed value for RadiationBox '{0}'".format(value))
+                                    print(
+                                        "Unprocessed value for RadiationBox '{0}'".format(
+                                            value
+                                        )
+                                    )
                             elif i.startswith("StartFreq"):
                                 self.start_frequency = value
                             elif i.startswith("StopFreq"):
@@ -3436,7 +3616,11 @@ class SimulationConfiguration(object):
                                 elif value.lower().startswith("logcount"):
                                     self.sweep_type = SweepType.LogCount
                                 else:
-                                    print("Unprocessed value for SweepType '{0}'".format(value))
+                                    print(
+                                        "Unprocessed value for SweepType '{0}'".format(
+                                            value
+                                        )
+                                    )
                             elif i.startswith("StepFreq"):
                                 self.step_freq = value
                             elif i.startswith("DecadeCount"):
@@ -3459,7 +3643,11 @@ class SimulationConfiguration(object):
                                 elif value.lower().startswith("second"):  # double
                                     self.basis_order = BasisOrder.Double
                                 else:
-                                    print("Unprocessed value for BasisOrder '{0}'".format(value))
+                                    print(
+                                        "Unprocessed value for BasisOrder '{0}'".format(
+                                            value
+                                        )
+                                    )
                             elif i.startswith("DoLambdaRefinement"):
                                 self.do_lambda_refinement = self._get_bool_value(value)
                             elif i.startswith("ArcAngle"):
@@ -3469,7 +3657,9 @@ class SimulationConfiguration(object):
                             elif i.startswith("MaxArcPoints"):
                                 self.max_arc_points = int(value)
                             elif i.startswith("UseArcToChordError"):
-                                self.use_arc_to_chord_error = self._get_bool_value(value)
+                                self.use_arc_to_chord_error = self._get_bool_value(
+                                    value
+                                )
                             elif i.startswith("ArcToChordError"):
                                 self.arc_to_chord_error = value
                             elif i.startswith("DefeatureAbsLength"):
@@ -3481,13 +3671,21 @@ class SimulationConfiguration(object):
                             elif i.startswith("MaxSufDev"):
                                 self.max_suf_dev = float(value)
                             elif i.startswith("ProcessPadstackDefinitions"):
-                                self.process_padstack_definitions = self._get_bool_value(value)
+                                self.process_padstack_definitions = (
+                                    self._get_bool_value(value)
+                                )
                             elif i.startswith("ReturnCurrentDistribution"):
-                                self.return_current_distribution = self._get_bool_value(value)
+                                self.return_current_distribution = self._get_bool_value(
+                                    value
+                                )
                             elif i.startswith("IgnoreNonFunctionalPads"):
-                                self.ignore_non_functional_pads = self._get_bool_value(value)
+                                self.ignore_non_functional_pads = self._get_bool_value(
+                                    value
+                                )
                             elif i.startswith("IncludeInterPlaneCoupling"):
-                                self.include_inter_plane_coupling = self._get_bool_value(value)
+                                self.include_inter_plane_coupling = (
+                                    self._get_bool_value(value)
+                                )
                             elif i.startswith("XtalkThreshold"):
                                 self.xtalk_threshold = float(value)
                             elif i.startswith("MinVoidArea"):
@@ -3503,17 +3701,31 @@ class SimulationConfiguration(object):
                             elif i.startswith("MaxInitMeshEdgeLength"):
                                 self.max_init_mesh_edge_length = value
                             elif i.startswith("SignalLayersProperties"):
-                                self._parse_signal_layer_properties(self._get_list_value(value))
+                                self._parse_signal_layer_properties(
+                                    self._get_list_value(value)
+                                )
                             elif i.startswith("coplanar_instances"):
                                 self.coplanar_instances = self._get_list_value(value)
                             elif i.startswith("SignalLayersEtching"):
-                                self.signal_layer_etching_instances = self._get_list_value(value)
+                                self.signal_layer_etching_instances = (
+                                    self._get_list_value(value)
+                                )
                             elif i.startswith("EtchingFactor"):
-                                self.etching_factor_instances = self._get_list_value(value)
+                                self.etching_factor_instances = self._get_list_value(
+                                    value
+                                )
                             elif i.startswith("DoCutoutSubdesign"):
                                 self.do_cutout_subdesign = self._get_list_value(value)
                             elif i.startswith("SolverType"):
-                                (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout) = range(0, 7)
+                                (
+                                    Hfss,
+                                    Siwave,
+                                    Q3D,
+                                    Maxwell,
+                                    Nexxim,
+                                    TwinBuilder,
+                                    Hfss3dLayout,
+                                ) = range(0, 7)
                                 if value.lower() == "hfss":
                                     self.solver_type = 0
                                 if value.lower() == "hfss3dlayout":
