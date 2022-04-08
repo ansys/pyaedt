@@ -2806,7 +2806,7 @@ class Primitives(object):
         for i, edge_i in enumerate(candidate_edges[:-1]):
             vertex1_i = edge_i.vertices[0].position
             midpoint_i = edge_i.midpoint
-            for j, edge_j in enumerate(candidate_edges[i + 1:]):
+            for j, edge_j in enumerate(candidate_edges[i + 1 :]):
                 midpoint_j = edge_j.midpoint
                 area = GeometryOperators.get_triangle_area(midpoint_i, midpoint_j, vertex1_i)
                 if area < tol**2:
