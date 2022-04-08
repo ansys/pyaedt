@@ -927,9 +927,9 @@ class TestClass(BasisTest, object):
     def test_83_build_siwave_project_from_config_file(self):
         cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
         with open(cfg_file, 'w') as f:
-            f.writelines('SolverType = \'Siwave\'\n')
-            f.writelines('PowerNets = [\'GND\']\n')
-            f.writelines('Components = [\'U2A5\', \'U1B5\']')
+            f.writelines("SolverType = 'Siwave'\n")
+            f.writelines("PowerNets = ['GND']\n")
+            f.writelines("Components = ['U2A5', 'U1B5']")
 
         sim_config = SimulationConfiguration(cfg_file)
         assert self.edbapp.build_simulation_project(sim_config)
@@ -937,9 +937,9 @@ class TestClass(BasisTest, object):
     def test_84_build_hfss_project_from_config_file(self):
         cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
         with open(cfg_file, 'w') as f:
-            f.writelines('SolverType = \'Hfss3dLayout\'\n')
-            f.writelines('PowerNets = [\'GND\']\n')
-            f.writelines('Components = [\'U2A5\', \'U1B5\']')
+            f.writelines("SolverType = 'Hfss3dLayout'\n")
+            f.writelines("PowerNets = ['GND']\n")
+            f.writelines("Components = ['U2A5', 'U1B5']")
 
         sim_config = SimulationConfiguration(cfg_file)
         assert self.edbapp.build_simulation_project(sim_config)
