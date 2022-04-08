@@ -1413,7 +1413,7 @@ class Edb(object):
         Parameters
         ----------
         simulation_setup : EDB_Data.SimulationConfiguratiom object.
-            SimulationConfiguration object which can be instanciated or directly with loading a configuration file.
+            SimulationConfiguration object which can be instantiated or directly with loading a configuration file.
 
         Returns
         -------

@@ -5,7 +5,6 @@ import time
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
-from pyaedt.generic.constants import SourceType
 
 # Setup paths for module imports
 # Import required modules
@@ -926,7 +925,6 @@ class TestClass(BasisTest, object):
             laminateEdb.close_edb()
 
     def test_83_build_siwave_project_from_config_file(self):
-        #edbapp = BasisTest.add_edb(self, test_project_name)
         cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
         with open(cfg_file, 'w') as f:
             f.writelines('SolverType = \'Siwave\'\n')
@@ -937,7 +935,6 @@ class TestClass(BasisTest, object):
         assert self.edbapp.build_simulation_project(sim_config)
 
     def test_84_build_hfss_project_from_config_file(self):
-        #edbapp = BasisTest.add_edb(self, test_project_name)
         cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
         with open(cfg_file, 'w') as f:
             f.writelines('SolverType = \'Hfss3dLayout\'\n')
@@ -947,7 +944,7 @@ class TestClass(BasisTest, object):
         sim_config = SimulationConfiguration(cfg_file)
         assert self.edbapp.build_simulation_project(sim_config)
 
-    def test_83_set_component_type(self):
+    def test_85_set_component_type(self):
         comp = self.edbapp.core_components.components["R2L18"]
         comp.type = "Resistor"
         assert comp.type == "Resistor"
