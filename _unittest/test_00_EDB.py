@@ -333,7 +333,7 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_components.delete_component("R1")
 
     def test_36_create_coax_port(self):
-        assert self.edbapp.core_hfss.create_coax_port_on_component("U2A5", ["RSVD_0", "V1P0_SO"])
+        assert self.edbapp.core_hfss.create_coax_port_on_component("U2A5", ["RSVD_0", "V1P0_S0"])
 
     def test_37_create_circuit_port(self):
         initial_len = len(self.edbapp.core_padstack.pingroups)
@@ -1091,6 +1091,10 @@ class TestClass(BasisTest, object):
         assert comp.type == "IC"
         comp.type = "Other"
         assert comp.type == "Other"
+
+    def test_84_create_coax_port_on_component_pin(self):
+        assert self.edbapp.core_hfss.create_coax_port_on_component_per_pin("U1A1", "D1", "port1")
+        assert self.edbapp.core_hfss.create_coax_port_on_component_per_net("U1A1", "M_DQS_N<1>", "port2")
 
     def test_85_deactivate_rlc(self):
         assert self.edbapp.core_components.deactivate_rlc_component(component="C1", create_circuit_port=True)
