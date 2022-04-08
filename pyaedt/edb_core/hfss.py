@@ -91,9 +91,7 @@ class EdbHfss(object):
             return {}
 
     @pyaedt_function_handler()
-    def create_circuit_port_on_pin(
-        self, pos_pin, neg_pin, impedance=50, port_name=None
-    ):
+    def create_circuit_port_on_pin(self, pos_pin, neg_pin, impedance=50, port_name=None):
         """Create Circuit Port on Pin.
 
         Parameters
@@ -118,14 +116,10 @@ class EdbHfss(object):
             Port Name.
 
         """
-        return self._pedb.core_siwave.create_circuit_port_on_pin(
-            pos_pin, neg_pin, impedance, port_name
-        )
+        return self._pedb.core_siwave.create_circuit_port_on_pin(pos_pin, neg_pin, impedance, port_name)
 
     @pyaedt_function_handler()
-    def create_voltage_source_on_pin(
-        self, pos_pin, neg_pin, voltage_value=3.3, phase_value=0, source_name=""
-    ):
+    def create_voltage_source_on_pin(self, pos_pin, neg_pin, voltage_value=3.3, phase_value=0, source_name=""):
         """Create a voltage source.
 
         Parameters
@@ -159,9 +153,7 @@ class EdbHfss(object):
         )
 
     @pyaedt_function_handler()
-    def create_current_source_on_pin(
-        self, pos_pin, neg_pin, current_value=0.1, phase_value=0, source_name=""
-    ):
+    def create_current_source_on_pin(self, pos_pin, neg_pin, current_value=0.1, phase_value=0, source_name=""):
         """Create a current source.
 
         Parameters
@@ -223,9 +215,7 @@ class EdbHfss(object):
         >>> pins =edbapp.core_components.get_pin_from_component("U2A5")
         >>> edbapp.core_hfss.create_resistor_on_pin(pins[0], pins[1],50,"res_name")
         """
-        return self._pedb.core_siwave.create_resistor_on_pin(
-            pos_pin, neg_pin, rvalue, resistor_name
-        )
+        return self._pedb.core_siwave.create_resistor_on_pin(pos_pin, neg_pin, rvalue, resistor_name)
 
     @pyaedt_function_handler()
     def create_circuit_port_on_net(
@@ -468,9 +458,7 @@ class EdbHfss(object):
                             toLayer_pos,
                         ) = pin.pin.GetLayerRange()  # pragma: no cover
                     else:
-                        res, fromLayer_pos, toLayer_pos = pin.pin.GetLayerRange(
-                            None, None
-                        )
+                        res, fromLayer_pos, toLayer_pos = pin.pin.GetLayerRange(None, None)
                     if self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
                         self._active_layout,
                         pin.pin.GetNet(),
@@ -564,9 +552,7 @@ class EdbHfss(object):
             temp_nets = []
             for nn in nets:
                 if isinstance(nn, str):
-                    temp_nets.append(
-                        self._edb.Cell.Net.FindByName(self._active_layout, nn)
-                    )
+                    temp_nets.append(self._edb.Cell.Net.FindByName(self._active_layout, nn))
                 elif isinstance(nn, self._edb.Cell.Net):
                     temp_nets.append(nn)
             nets = temp_nets
@@ -577,13 +563,9 @@ class EdbHfss(object):
         if nets:
             if isinstance(reference_layer, str):
                 try:
-                    reference_layer = self._pedb.core_stackup.signal_layers[
-                        reference_layer
-                    ]._layer
+                    reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
                 except:
-                    raise Exception(
-                        "Failed to get the layer {}".format(reference_layer)
-                    )
+                    raise Exception("Failed to get the layer {}".format(reference_layer))
             if not isinstance(reference_layer, self._edb.Cell.ILayerReadOnly):
                 return False
             layout = nets[0].GetLayout()
@@ -591,16 +573,12 @@ class EdbHfss(object):
             for net in nets:
                 net_primitives = list(net.Primitives)
                 net_paths = [
-                    pp
-                    for pp in net_primitives
-                    if pp.GetPrimitiveType()
-                    == self._edb.Cell.Primitive.PrimitiveType.Path
+                    pp for pp in net_primitives if pp.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Path
                 ]
                 net_poly = [
                     pp
                     for pp in net_primitives
-                    if pp.GetPrimitiveType()
-                    == self._edb.Cell.Primitive.PrimitiveType.Polygon
+                    if pp.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Polygon
                 ]
                 for path in net_paths:
                     trace_path_pts = list(path.GetCenterLine().Points)
@@ -619,9 +597,7 @@ class EdbHfss(object):
                                         self._get_edb_value(_pt[0]),
                                         self._get_edb_value(_pt[1]),
                                     )
-                                    if not self._hfss_terminals.CreateEdgePort(
-                                        path, pt, reference_layer, port_name
-                                    ):
+                                    if not self._hfss_terminals.CreateEdgePort(path, pt, reference_layer, port_name):
                                         raise Exception(
                                             "edge port creation failed on point {}, {}".format(
                                                 str(pt.X.ToDouble()),
@@ -642,9 +618,7 @@ class EdbHfss(object):
                                         path, pt, reference_layer, port_name
                                     ):  # pragma: no cover
                                         raise Exception(
-                                            "edge port creation failed on point {}, {}".format(
-                                                str(pt[0]), str(_pt[1])
-                                            )
+                                            "edge port creation failed on point {}, {}".format(str(pt[0]), str(_pt[1]))
                                         )
                 for poly in net_poly:
                     pt_list = list(poly.GetPolygonData().Points)
@@ -655,15 +629,11 @@ class EdbHfss(object):
                         or round(pt.Y.ToDouble(), digit_resolution) in layout_bbox
                     ]
                     pt_at_left = [
-                        pt
-                        for pt in points_at_border
-                        if round(pt.X.ToDouble(), digit_resolution) == layout_bbox[0]
+                        pt for pt in points_at_border if round(pt.X.ToDouble(), digit_resolution) == layout_bbox[0]
                     ]
                     pt_at_left_values = [pt.Y.ToDouble() for pt in pt_at_left]
                     if pt_at_left_values:
-                        left_edge_length = abs(
-                            max(pt_at_left_values) - min(pt_at_left_values)
-                        )
+                        left_edge_length = abs(max(pt_at_left_values) - min(pt_at_left_values))
                         if polygon_trace_threshhold >= left_edge_length > 0:
                             if return_points_only:
                                 edges_pts.append(pt_at_left)
@@ -675,22 +645,14 @@ class EdbHfss(object):
                                     reference_layer,
                                     port_name,
                                 ):  # pragma: no cover
-                                    raise Exception(
-                                        "Failed to create port on polygon {}".format(
-                                            poly.GetName()
-                                        )
-                                    )
+                                    raise Exception("Failed to create port on polygon {}".format(poly.GetName()))
 
                     pt_at_bottom = [
-                        pt
-                        for pt in points_at_border
-                        if round(pt.Y.ToDouble(), digit_resolution) == layout_bbox[1]
+                        pt for pt in points_at_border if round(pt.Y.ToDouble(), digit_resolution) == layout_bbox[1]
                     ]
                     pt_at_bottom_values = [pt.X.ToDouble() for pt in pt_at_bottom]
                     if pt_at_bottom_values:
-                        bot_edge_length = abs(
-                            max(pt_at_bottom_values) - min(pt_at_bottom_values)
-                        )
+                        bot_edge_length = abs(max(pt_at_bottom_values) - min(pt_at_bottom_values))
                         if polygon_trace_threshhold >= bot_edge_length > 0:
                             if return_points_only:
                                 edges_pts.append(pt_at_bottom)
@@ -702,22 +664,14 @@ class EdbHfss(object):
                                     reference_layer,
                                     port_name,
                                 ):  # pragma: no cover
-                                    raise Exception(
-                                        "Failed to create port on polygon {}".format(
-                                            poly.GetName()
-                                        )
-                                    )
+                                    raise Exception("Failed to create port on polygon {}".format(poly.GetName()))
 
                     pt_at_right = [
-                        pt
-                        for pt in points_at_border
-                        if round(pt.X.ToDouble(), digit_resolution) == layout_bbox[2]
+                        pt for pt in points_at_border if round(pt.X.ToDouble(), digit_resolution) == layout_bbox[2]
                     ]
                     pt_at_right_values = [pt.Y.ToDouble() for pt in pt_at_right]
                     if pt_at_right_values:
-                        right_edge_length = abs(
-                            max(pt_at_right_values) - min(pt_at_right_values)
-                        )
+                        right_edge_length = abs(max(pt_at_right_values) - min(pt_at_right_values))
                         if polygon_trace_threshhold >= right_edge_length > 0:
                             if return_points_only:
                                 edges_pts.append(pt_at_right)
@@ -729,22 +683,14 @@ class EdbHfss(object):
                                     reference_layer,
                                     port_name,
                                 ):  # pragma: no cover
-                                    raise Exception(
-                                        "Failed to create port on polygon {}".format(
-                                            poly.GetName()
-                                        )
-                                    )
+                                    raise Exception("Failed to create port on polygon {}".format(poly.GetName()))
 
                     pt_at_top = [
-                        pt
-                        for pt in points_at_border
-                        if round(pt.Y.ToDouble(), digit_resolution) == layout_bbox[3]
+                        pt for pt in points_at_border if round(pt.Y.ToDouble(), digit_resolution) == layout_bbox[3]
                     ]
                     pt_at_top_values = [pt.X.ToDouble() for pt in pt_at_top]
                     if pt_at_top_values:
-                        top_edge_length = abs(
-                            max(pt_at_top_values) - min(pt_at_top_values)
-                        )
+                        top_edge_length = abs(max(pt_at_top_values) - min(pt_at_top_values))
                         if polygon_trace_threshhold >= top_edge_length > 0:
                             if return_points_only:
                                 edges_pts.append(pt - pt_at_top)
@@ -756,11 +702,7 @@ class EdbHfss(object):
                                     reference_layer,
                                     port_name,
                                 ):  # pragma: no cover
-                                    raise Exception(
-                                        "Failed to create port on polygon {}".format(
-                                            poly.GetName()
-                                        )
-                                    )
+                                    raise Exception("Failed to create port on polygon {}".format(poly.GetName()))
             if return_points_only:
                 return edges_pts
         return True
@@ -788,9 +730,7 @@ class EdbHfss(object):
         for lobj in layout_obj_instances.Items:
             lobj_bbox = lobj.GetLayoutInstanceContext().GetBBox(False)
             tuple_list.append(lobj_bbox)
-        _bbox = self._edb.Geometry.PolygonData.GetBBoxOfBoxes(
-            convert_py_list_to_net_list(tuple_list)
-        )
+        _bbox = self._edb.Geometry.PolygonData.GetBBoxOfBoxes(convert_py_list_to_net_list(tuple_list))
         layout_bbox = [
             round(_bbox.Item1.X.ToDouble(), digit_resolution),
             round(_bbox.Item1.Y.ToDouble(), digit_resolution),
@@ -846,42 +786,29 @@ class EdbHfss(object):
 
         layout = self._active_layout
         l_inst = layout.GetLayoutInstance()
-        edb_power_nets = list(
-            map(lambda net: self._pedb.core_nets.find_or_create_net(net), power_nets)
-        )
+        edb_power_nets = list(map(lambda net: self._pedb.core_nets.find_or_create_net(net), power_nets))
         for inst in component_list:
             comp = self._edb.Cell.Hierarchy.Component.FindByName(layout, inst)
             if comp.IsNull():
-                self._logger.warning(
-                    "SetupCoplanarInstances: could not find {0}".format(inst)
-                )
+                self._logger.warning("SetupCoplanarInstances: could not find {0}".format(inst))
                 continue
             # Get the portLayer based on the component's pin placement
             cmp_layer = self._edb.Cell.Hierarchy.Component.GetPlacementLayer(comp)
             # Get the bbox of the comp
-            bb = self._edb.Geometry.PolygonData.CreateFromBBox(
-                l_inst.GetLayoutObjInstance(comp, None).GetBBox()
-            )
+            bb = self._edb.Geometry.PolygonData.CreateFromBBox(l_inst.GetLayoutObjInstance(comp, None).GetBBox())
             bb_c = bb.GetBoundingCircleCenter()
             # Expand x5 to create testing polygon...
             bb.Scale(5, bb_c)
             # Find the closest pin in the Ground/Power nets...
-            hit = l_inst.FindLayoutObjInstance(
-                bb, cmp_layer, convert_py_list_to_net_list(edb_power_nets)
-            )
+            hit = l_inst.FindLayoutObjInstance(bb, cmp_layer, convert_py_list_to_net_list(edb_power_nets))
             all_hits = [list(hit.Item1.Items) + list(hit.Item2.Items)]
             hit_pinsts = [
                 obj
                 for obj in all_hits
-                if obj.GetLayoutObj().GetObjType()
-                == self._edb.Cell.LayoutObjType.PadstackInstance
+                if obj.GetLayoutObj().GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
             ]
             if not hit_pinsts:
-                self._logger.error(
-                    "SetupCoplanarInstances: could not find a pin in the vicinity of {0}".format(
-                        inst
-                    )
-                )
+                self._logger.error("SetupCoplanarInstances: could not find a pin in the vicinity of {0}".format(inst))
                 continue
             # Iterate each pin in the component that's on the signal nets and create a CircuitPort
             pin_list = [
@@ -903,9 +830,7 @@ class EdbHfss(object):
                         ref_pt = this_c
                         ref_dist = this_dist
 
-                port_nm = "PORT_{0}_{1}@{2}".format(
-                    comp.GetName(), ii, pin.GetNet().GetName()
-                )
+                port_nm = "PORT_{0}_{1}@{2}".format(comp.GetName(), ii, pin.GetNet().GetName())
                 ## TO complete and check for embefing in create_port_on_component
                 ###########################
                 ###########################
@@ -935,9 +860,7 @@ class EdbHfss(object):
             True when succeeded, False when failed.
         """
         if not isinstance(simulation_setup, SimulationConfiguration):
-            self._logger.error(
-                "Configure HFSS extent requires EDB_Data.SimulationConfiguration object"
-            )
+            self._logger.error("Configure HFSS extent requires EDB_Data.SimulationConfiguration object")
             return False
         hfss_extent = self._edb.Utility.HFSSExtentInfo()
         if simulation_setup.radiation_box == RadiationBoxType.BoundingBox:
@@ -946,9 +869,7 @@ class EdbHfss(object):
             hfss_extent.ExtentType = self._edb.Utility.HFSSExtentInfoType.Conforming
         else:
             hfss_extent.ExtentType = self._edb.Utility.HFSSExtentInfoType.ConvexHull
-        hfss_extent.DielectricExtentSize = convert_pytuple_to_nettuple(
-            (simulation_setup.dielectric_extent, True)
-        )
+        hfss_extent.DielectricExtentSize = convert_pytuple_to_nettuple((simulation_setup.dielectric_extent, True))
         hfss_extent.AirBoxHorizontalExtent = convert_pytuple_to_nettuple(
             (simulation_setup.airbox_horizontal_extent, True)
         )
@@ -988,56 +909,34 @@ class EdbHfss(object):
         adapt.AdaptiveFrequency = simulation_setup.mesh_freq
         adapt.MaxPasses = int(simulation_setup.max_num_passes)
         adapt.MaxDelta = str(simulation_setup.max_mag_delta_s)
-        simsetup_info = self._pedb.simsetupdata.SimSetupInfo[
-            self._pedb.simsetupdata.HFSSSimulationSettings
-        ]()
+        simsetup_info = self._pedb.simsetupdata.SimSetupInfo[self._pedb.simsetupdata.HFSSSimulationSettings]()
         simsetup_info.Name = simulation_setup.setup_name
 
-        simsetup_info.SimulationSettings.CurveApproxSettings.ArcAngle = (
-            simulation_setup.arc_angle
-        )
+        simsetup_info.SimulationSettings.CurveApproxSettings.ArcAngle = simulation_setup.arc_angle
         simsetup_info.SimulationSettings.CurveApproxSettings.UseArcToChordError = (
             simulation_setup.use_arc_to_chord_error
         )
-        simsetup_info.SimulationSettings.CurveApproxSettings.ArcToChordError = (
-            simulation_setup.arc_to_chord_error
-        )
+        simsetup_info.SimulationSettings.CurveApproxSettings.ArcToChordError = simulation_setup.arc_to_chord_error
         if is_ironpython:
             simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Clear()
-            simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Add(
-                adapt
-            )
+            simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Add(adapt)
         else:
-            list(
-                simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList
-            ).clear()
-            list(
-                simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList
-            ).append(adapt)
-        simsetup_info.SimulationSettings.InitialMeshSettings.LambdaRefine = (
-            simulation_setup.do_lambda_refinement
-        )
+            list(simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList).clear()
+            list(simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList).append(adapt)
+        simsetup_info.SimulationSettings.InitialMeshSettings.LambdaRefine = simulation_setup.do_lambda_refinement
         simsetup_info.SimulationSettings.InitialMeshSettings.UseDefaultLambda = True
         simsetup_info.SimulationSettings.AdaptiveSettings.MaxRefinePerPass = 30
-        simsetup_info.SimulationSettings.AdaptiveSettings.MinPasses = (
-            simulation_setup.min_num_passes
-        )  # 1
+        simsetup_info.SimulationSettings.AdaptiveSettings.MinPasses = simulation_setup.min_num_passes  # 1
         simsetup_info.SimulationSettings.AdaptiveSettings.MinConvergedPasses = 1
         simsetup_info.SimulationSettings.HFSSSolverSettings.OrderBasis = (
             simulation_setup.basis_order
         )  # -1  # e.g. mixed
-        simsetup_info.SimulationSettings.HFSSSolverSettings.UseHFSSIterativeSolver = (
-            False
-        )
-        simsetup_info.SimulationSettings.DefeatureSettings.UseDefeature = (
-            False  # set True when using defeature ratio
-        )
+        simsetup_info.SimulationSettings.HFSSSolverSettings.UseHFSSIterativeSolver = False
+        simsetup_info.SimulationSettings.DefeatureSettings.UseDefeature = False  # set True when using defeature ratio
         simsetup_info.SimulationSettings.DefeatureSettings.UseDefeatureAbsLength = (
             simulation_setup.defeature_layout
         )  # True
-        simsetup_info.SimulationSettings.DefeatureSettings.DefeatureAbsLength = (
-            simulation_setup.defeature_abs_length
-        )
+        simsetup_info.SimulationSettings.DefeatureSettings.DefeatureAbsLength = simulation_setup.defeature_abs_length
 
         try:
             sweep = self._pedb.simsetupdata.SweepData(simulation_setup.sweep_name)
@@ -1053,9 +952,7 @@ class EdbHfss(object):
                 sweep.Frequencies.Clear()
             else:
                 list(sweep.Frequencies).clear()
-            if (
-                simulation_setup.sweep_type == SweepType.LogCount
-            ):  # setup_info.SweepType == 'DecadeCount'
+            if simulation_setup.sweep_type == SweepType.LogCount:  # setup_info.SweepType == 'DecadeCount'
                 self._setup_decade_count_sweep(
                     sweep,
                     simulation_setup.start_frequency,
@@ -1065,12 +962,10 @@ class EdbHfss(object):
 
             else:
                 if is_ironpython:
-                    sweep.Frequencies = (
-                        self._pedb.simsetupdata.SweepData.SetFrequencies(
-                            simulation_setup.start_frequency,
-                            simulation_setup.stop_freq,
-                            simulation_setup.step_freq,
-                        )
+                    sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
+                        simulation_setup.start_frequency,
+                        simulation_setup.stop_freq,
+                        simulation_setup.step_freq,
                     )
                 else:
                     sweep.Frequencies = convert_py_list_to_net_list(
@@ -1091,15 +986,11 @@ class EdbHfss(object):
 
         return self._active_layout.GetCell().AddSimulationSetup(sim_setup)
 
-    def _setup_decade_count_sweep(
-        self, sweep, start_freq="1", stop_freq="1MHz", decade_count="10"
-    ):
+    def _setup_decade_count_sweep(self, sweep, start_freq="1", stop_freq="1MHz", decade_count="10"):
         start_f = GeometryOperators.parse_dim_arg(start_freq)
         if start_f == 0.0:
             start_f = 10
-            self._logger.warning(
-                "Decade Count sweep does not support DC value, defaulting starting frequency to 10Hz"
-            )
+            self._logger.warning("Decade Count sweep does not support DC value, defaulting starting frequency to 10Hz")
 
         stop_f = GeometryOperators.parse_dim_arg(stop_freq)
         decade_cnt = GeometryOperators.parse_dim_arg(decade_count)
@@ -1111,9 +1002,7 @@ class EdbHfss(object):
             sweep.Frequencies.Add(str(freq))
 
     @pyaedt_function_handler()
-    def trim_component_reference_size(
-        self, simulation_setup=None, trim_to_terminals=False
-    ):
+    def trim_component_reference_size(self, simulation_setup=None, trim_to_terminals=False):
         """Trim the common component reference to the minimally acceptable size.
 
         Parameters
@@ -1203,11 +1092,7 @@ class EdbHfss(object):
             as argument."
             )
             return False
-        net_names = [
-            net.GetName()
-            for net in list(self._active_layout.Nets)
-            if not net.IsPowerGround()
-        ]
+        net_names = [net.GetName() for net in list(self._active_layout.Nets) if not net.IsPowerGround()]
         cmp_names = (
             simulation_setup.components
             if simulation_setup.components
@@ -1217,23 +1102,13 @@ class EdbHfss(object):
         for cc in cmp_names:
             cmp = self._edb.Cell.Hierarchy.Component.FindByName(self._active_layout, cc)
             if cmp.IsNull():
-                self._logger.warning(
-                    "RenamePorts: could not find component {0}".format(cc)
-                )
+                self._logger.warning("RenamePorts: could not find component {0}".format(cc))
                 continue
-            terms = [
-                obj
-                for obj in list(cmp.LayoutObjs)
-                if obj.GetObjType() == self._edb.Cell.LayoutObjType.Terminal
-            ]
+            terms = [obj for obj in list(cmp.LayoutObjs) if obj.GetObjType() == self._edb.Cell.LayoutObjType.Terminal]
             for nn in net_names:
                 for tt in [term for term in terms if term.GetNet().GetName() == nn]:
                     if not tt.SetImpedance(self._pedb.edb_value("50ohm")):
-                        self._logger.warning(
-                            "Could not set terminal {0} impedance as 50ohm".format(
-                                tt.GetName()
-                            )
-                        )
+                        self._logger.warning("Could not set terminal {0} impedance as 50ohm".format(tt.GetName()))
                         continue
                     ii += 1
 
@@ -1253,16 +1128,10 @@ class EdbHfss(object):
                         diam2,
                     ) = cmp_prop.GetSolderBallProperty().GetDiameter()
                     if success and diam1 > 0:
-                        radial_factor = "{0}meter".format(
-                            radial_factor_multiplier * diam1
-                        )
+                        radial_factor = "{0}meter".format(radial_factor_multiplier * diam1)
                         for tt in terms:
-                            self._builder.SetHfssSolverOption(
-                                tt, "Radial Extent Factor", radial_factor
-                            )
-                            self._builder.SetHfssSolverOption(
-                                tt, "Layer Alignment", "Upper"
-                            )  # ensure this is also set
+                            self._builder.SetHfssSolverOption(tt, "Radial Extent Factor", radial_factor)
+                            self._builder.SetHfssSolverOption(tt, "Layer Alignment", "Upper")  # ensure this is also set
         return True
 
     @pyaedt_function_handler()
@@ -1270,9 +1139,7 @@ class EdbHfss(object):
         terms_loi = []
         if terminals_only:
             term_list = [
-                obj
-                for obj in list(comp.LayoutObjs)
-                if obj.GetObjType() == self._edb.Cell.LayoutObjType.Terminal
+                obj for obj in list(comp.LayoutObjs) if obj.GetObjType() == self._edb.Cell.LayoutObjType.Terminal
             ]
             for tt in term_list:
                 success, p_inst, lyr = tt.GetParameters()
@@ -1300,17 +1167,9 @@ class EdbHfss(object):
             ur = [bb.Item2.X.ToDouble(), bb.Item2.Y.ToDouble()]
             # dim = 0.26 * max(abs(UR[0]-LL[0]), abs(UR[1]-LL[1]))  # 0.25 corresponds to the default 0.5
             # Radial Extent Factor, so set slightly larger to avoid validation errors
-            dim = 0.30 * max(
-                abs(ur[0] - ll[0]), abs(ur[1] - ll[1])
-            )  # 0.25 corresponds to the default 0.5
-            terms_bbox.append(
-                self._edb.Geometry.PolygonData(
-                    ll[0] - dim, ll[1] - dim, ur[0] + dim, ur[1] + dim
-                )
-            )
-        return self._edb.Geometry.PolygonData.GetBBoxOfPolygons(
-            convert_py_list_to_net_list(terms_bbox)
-        )
+            dim = 0.30 * max(abs(ur[0] - ll[0]), abs(ur[1] - ll[1]))  # 0.25 corresponds to the default 0.5
+            terms_bbox.append(self._edb.Geometry.PolygonData(ll[0] - dim, ll[1] - dim, ur[0] + dim, ur[1] + dim))
+        return self._edb.Geometry.PolygonData.GetBBoxOfPolygons(convert_py_list_to_net_list(terms_bbox))
 
     @pyaedt_function_handler()
     def get_ports_number(self):
@@ -1348,23 +1207,15 @@ class EdbHfss(object):
 
         """
         if not isinstance(simulation_setup, SimulationConfiguration):
-            self._logger.error(
-                "Layout defeaturing requires an EDB_Data.SimulationConfiguration object as argument."
-            )
+            self._logger.error("Layout defeaturing requires an EDB_Data.SimulationConfiguration object as argument.")
             return False
         self._logger.info("Starting Layout Defeaturing")
         polygon_list = self._pedb.core_primitives.polygons
         # polygon_with_voids = self._pedb.core_layout.get_poly_with_voids(polygon_list)
-        self._logger.info(
-            "Number of polygons with voids found: {0}".format(
-                str(polygon_with_voids.Count)
-            )
-        )
+        self._logger.info("Number of polygons with voids found: {0}".format(str(polygon_with_voids.Count)))
         for _poly in polygon_list:
             voids_from_current_poly = _poly.Voids
-            new_poly_data = self._pedb.core_layout.defeature_polygon(
-                setup_info=simulation_setup, poly=_poly
-            )
+            new_poly_data = self._pedb.core_layout.defeature_polygon(setup_info=simulation_setup, poly=_poly)
             _poly.SetPolygonData(new_poly_data)
             if len(voids_from_current_poly) > 0:
                 for void in voids_from_current_poly:
@@ -1378,9 +1229,7 @@ class EdbHfss(object):
                         )
                     else:
                         self._logger.info(
-                            "Defeaturing polygon {0}: void {1}".format(
-                                str(_poly.GetId()), str(void.GetId())
-                            )
+                            "Defeaturing polygon {0}: void {1}".format(str(_poly.GetId()), str(void.GetId()))
                         )
                         new_void_data = self._pedb.core_layout.defeature_polygon(
                             setup_info=simulation_setup, poly=void_data

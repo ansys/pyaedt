@@ -973,8 +973,9 @@ class Edb(object):
             )
 
         # Create new cutout cell/design
-        included_nets = convert_py_list_to_net_list([net for net in list(self.active_layout.Nets) if net.GetName() in
-                         signal_list + reference_list])
+        included_nets = convert_py_list_to_net_list(
+            [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list + reference_list]
+        )
         _cutout = self.active_cell.CutOut(included_nets, _netsClip, _poly, True)
 
         # Analysis setups do not come over with the clipped design copy,
@@ -1439,34 +1440,41 @@ class Edb(object):
             self.logger.info("Creating ports for signal nets")
             if simulation_setup.solver_type == SolverType.Hfss3dLayout:
                 for cmp in simulation_setup.components:
-                    self.core_components.create_port_on_component(cmp,
-                                                                  net_list=simulation_setup.signal_nets,
-                                                                  do_pingroup=False,
-                                                                  reference_net=simulation_setup.power_nets,
-                                                                  port_type=SourceType.CoaxPort)
+                    self.core_components.create_port_on_component(
+                        cmp,
+                        net_list=simulation_setup.signal_nets,
+                        do_pingroup=False,
+                        reference_net=simulation_setup.power_nets,
+                        port_type=SourceType.CoaxPort,
+                    )
                 if not self.core_hfss.set_coax_port_attributes(simulation_setup):
                     self.logger.error("Failed to configure coaxial port attributes.")
                 self.logger.info("Number of ports: {}".format(self.core_hfss.get_ports_number()))
                 self.logger.info("Configure HFSS extents")
                 if simulation_setup.trim_reference_size:
-                    self.logger.info('Trimming the reference plane for coaxial ports: {0}'.
-                                     format(bool(simulation_setup.trim_reference_size)))
+                    self.logger.info(
+                        "Trimming the reference plane for coaxial ports: {0}".format(
+                            bool(simulation_setup.trim_reference_size)
+                        )
+                    )
                     self.core_hfss.trim_component_reference_size(simulation_setup)
                 self.core_hfss.configure_hfss_extents(simulation_setup)
                 if not self.core_hfss.configure_hfss_analysis_setup(simulation_setup):
                     self.logger.error("Failed to configure HFSS simulatiom setup.")
             if simulation_setup.solver_type == SolverType.Siwave:
                 for cmp in simulation_setup.components:
-                    self.core_components.create_port_on_component(cmp,
-                                                                  net_list=simulation_setup.signal_nets,
-                                                                  do_pingroup=True,
-                                                                  reference_net=simulation_setup.power_nets,
-                                                                  port_type=SourceType.CircPort)
+                    self.core_components.create_port_on_component(
+                        cmp,
+                        net_list=simulation_setup.signal_nets,
+                        do_pingroup=True,
+                        reference_net=simulation_setup.power_nets,
+                        port_type=SourceType.CircPort,
+                    )
                 self.logger.info("Configuring analysis setup")
                 if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):
                     self.logger.error("Failed to configure Siwave simulation setup.")
 
-            #if simulation_setup.defeature_layout:
+            # if simulation_setup.defeature_layout:
             #    self.core_hfss.layout_defeaturing(simulation_setup)
             return True
         except:

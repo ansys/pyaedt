@@ -126,6 +126,7 @@ def _resolve_unit_system(unit_system_1, unit_system_2, operation):
     except KeyError:
         return ""
 
+
 def unit_converter(value, unit_system="Length", input_units="meter", output_units="mm"):
     """Convert unit in specified unit system.
 
@@ -505,10 +506,12 @@ class FlipChipOrientation(object):
 
     (Up, Down) = range(0, 2)
 
+
 class SolverType(object):
     """Provides solver type classes."""
 
     (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout) = range(0, 7)
+
 
 class CutoutSubdesignType(object):
     (Conformal, BoundingBox) = range(0, 2)
