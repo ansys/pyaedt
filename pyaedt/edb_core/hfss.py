@@ -849,6 +849,7 @@ class EdbHfss(object):
     @pyaedt_function_handler()
     def configure_hfss_extents(self, simulation_setup=None):
         """Configure HFSS extent box.
+
         Parameters
         ----------
         simulation_setup :
@@ -859,6 +860,7 @@ class EdbHfss(object):
         bool
             True when succeeded, False when failed.
         """
+
         if not isinstance(simulation_setup, SimulationConfiguration):
             self._logger.error("Configure HFSS extent requires EDB_Data.SimulationConfiguration object")
             return False
@@ -1073,12 +1075,12 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def set_coax_port_attributes(self, simulation_setup=None):
-        """Set coaxial port attribute with forcing default impedance to 50 Ohms and adjusting the coaxial extent radius
+        """Set coaxial port attribute with forcing default impedance to 50 Ohms and adjusting the coaxial extent radius.
 
         Parameters
         ----------
         simulation_setup :
-            Edb_DATA.SimulationConfiguration object
+            Edb_DATA.SimulationConfiguration object.
 
         Returns
         -------

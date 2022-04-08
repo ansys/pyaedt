@@ -784,6 +784,17 @@ class EdbStackup(object):
 
     @pyaedt_function_handler()
     def set_etching_layers(self, simulation_setup=None):
+        """Set the etching layer parameters for a layout stackup.
+
+        Parameters
+        ----------
+        simulation_setup : EDB_DATA_SimulationConfiguration object.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         if not isinstance(simulation_setup, SimulationConfiguration):
             return False
         cell = self._builder.cell

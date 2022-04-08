@@ -1311,6 +1311,7 @@ class EdbSiwave(object):
             bool
             ``True`` when successful, ``False`` when failed.
         """
+
         if not isinstance(simulation_setup, SimulationConfiguration):
             return False
         simsetup_info = self._pedb.simsetupdata.SimSetupInfo[self._pedb.simsetupdata.SIwave.SIWSimulationSettings]()
