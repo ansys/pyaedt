@@ -286,3 +286,9 @@ h3d.create_linear_count_sweep(
 # h3d.analyze_nominal()
 
 h3d.release_desktop()
+
+###################################################################################
+# Note that the ground nets are only connected to each other due
+# to the wave ports.  The problem with poor grounding can be seen in the
+# S-parameters. Try to modify this script to add ground vias and eliminate
+# the resonance.
