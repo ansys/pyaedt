@@ -1304,7 +1304,7 @@ class EdbSiwave(object):
         Parameters
         ----------
         simulation_setup :
-            Edb_DATA.SimulationConfiguration object
+            Edb_DATA.SimulationConfiguration object.
 
         Returns
         -------
