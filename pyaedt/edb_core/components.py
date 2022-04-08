@@ -1217,7 +1217,7 @@ class Components(object):
             rlc.IsParallel = isparallel
             if res_value is not None:
                 rlc.REnabled = True
-                rlc.R = self._edb_value(res_value)
+                rlc.R = self._get_edb_value(res_value)
             if ind_value is not None:
                 rlc.LEnabled = True
                 rlc.L = self._edb_value(ind_value)
