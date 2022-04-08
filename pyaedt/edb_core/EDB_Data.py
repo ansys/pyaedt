@@ -8,8 +8,8 @@ from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import BasisOrder
 from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import RadiationBoxType
-from pyaedt.generic.constants import SweepType
 from pyaedt.generic.constants import SolverType
+from pyaedt.generic.constants import SweepType
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -2677,7 +2677,7 @@ class EdbBuilder(object):
 class SimulationConfiguration(object):
     """Data class used to parse s simulation configuration file. The configuration file is ASCII and supports all type
     of inputs to setup and automated any kind of SI or PI simulation both with HFSS 3D layout and Siwave. If field are
-    omitted the default values will be applied. This class can be instanciated directly from
+    omitted the default values will be applied. This class can be instantiated directly from
     Example of configuration file:
     SolverType = 'Hfss3DLayout'
     GenerateSolerdBalls = 'True'
