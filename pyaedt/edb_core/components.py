@@ -690,6 +690,61 @@ class Components(object):
         return closest_pin
 
     @pyaedt_function_handler()
+    def deactivate_rlc_component(self, component=None, create_circuit_port=False):
+        """Deactivate RLC component with a possibility to convert to a circuit port.
+
+        Parameters
+        ----------
+        component : str
+            Reference designator of the RLC component.
+
+        create_circuit_port : bool, optional
+            Whether to replace the deactivated RLC component with a circuit port. The default
+            is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb_file = r'C:\my_edb_file.aedb'
+        >>> edb = Edb(edb_file)
+        >>> for cmp in list(edb.core_components.components.keys()):
+        >>>     edb.core_components.deactivate_rlc_component(component=cmp, create_circuit_port=False)
+        >>> edb.save_edb()
+        >>> edb.close_edb()
+        """
+        if not component:
+            return False
+        if isinstance(component, str):
+            component = self.components[component]
+            if not component:
+                self._logger.error("component %s not found.", component)
+                return False
+        if is_ironpython:
+            component_type = component.edbcomponent.GetComponentType()
+            if (
+                component_type == self._edb.Definition.ComponentType.Other
+                or component_type == self._edb.Definition.ComponentType.IC
+                or component_type == self._edb.Definition.ComponentType.IO
+            ):
+                self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
+                return False
+        else:
+            if not component.edbcomponent.GetComponentType() in [1, 2, 3]:
+                self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
+                return False
+        if create_circuit_port:
+            _cmp = convert_py_list_to_net_list([component.refdes])
+            self._components_methods.AddPortOnRlcComponent(self._active_layout, _cmp)
+        else:
+            self._components_methods.DeactivateRlcComponent(component.edbcomponent)
+        return True
+
+    @pyaedt_function_handler()
     def _create_pin_group_terminal(self, pingroup, isref=False):
         """Creates edb pin group terminal from given edb pin group.
 
