@@ -457,13 +457,11 @@ class EdbHfss(object):
         pin_number : str
             Pin number.
         port_name : str, optional
-            Name of the net. The default is ``""``, in which case a name is automatically
-            assigned.
-            
+            Name of the net. The default is ``""``, in which case a name is automatically assigned.
+
         Returns
         -------
         Port name when successful; ``False`` otherwise.
-
         """
         comp = self._pedb.core_components.components[reference_designator]
         pin = comp.pins[pin_number]
@@ -502,12 +500,12 @@ class EdbHfss(object):
         net_name : str
             Name of the net.
         port_name : str, optional
-            Name of the net. The default is ``""``, in which case a name is automatically
-            assigned.
-           
+            Name of the net. The default is ``""``, in which case a name is automatically assigned.
+
         Returns
         -------
-
+        bool
+            `Port name when successful; ``False`` otherwise.
         """
         comp = self._pedb.core_components.components[reference_designator]
         pin_number = ""
