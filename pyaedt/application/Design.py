@@ -1625,7 +1625,7 @@ class Design(object):
         -------
 
         """
-        if "$" in variable_name:
+        if variable_name.startswith("$"):
             tab = "NAME:ProjectVariableTab"
             propserver = "ProjectVariables"
         else:
@@ -1716,7 +1716,7 @@ class Design(object):
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Optimization", variable_name, min_val, max_val)
-        if "$" in variable_name:
+        if variable_name.startswith("$"):
             self.oproject.ChangeProperty(arg)
         else:
             self.odesign.ChangeProperty(arg)

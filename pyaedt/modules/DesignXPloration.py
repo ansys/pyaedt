@@ -1119,7 +1119,7 @@ class OptimizationSetups(object):
                 self._app.activate_variable_statistical(v)
         if optim_type == "OptiDXDOE" and calculation:
             setup.props["CostFunctionGoals"]["Goal"] = sweepdefinition
-        if optim_type in ["OptiDesignExplorer", "optiSLang"] and calculation:
+        if optim_type in ["OptiDesignExplorer", "optiSLang"]:
             setup.props["Sweeps"]["SweepDefinition"] = []
             for l, k in dx_variables.items():
                 arg = OrderedDict({"Variable": l, "Data": k, "OffsetF1": False, "Synchronize": 0})
