@@ -20,7 +20,6 @@ tmpfold = tempfile.gettempdir()
 aedb_path = os.path.join(tmpfold, generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
 edb = Edb(edbpath=aedb_path, edbversion="2022.1")
-var_server = edb.active_cell.GetVariableServer()
 
 ###############################################################################
 # Define Parameters
