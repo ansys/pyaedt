@@ -1080,7 +1080,7 @@ class Components(object):
 
         Parameters
         ----------
-        componentname : str or EDB component
+        component_name : str or EDB component
             Name of the discret component.
 
         sball_diam  : str, float
