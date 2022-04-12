@@ -3415,7 +3415,7 @@ class SimulationConfiguration(object):
             try:
                 self.signal_layers_properties.update({lp[0]: [lp[1], lp[2], lp[3], lp[4], lp[5]]})
             except:
-                print("missing parameter for layer {0}".format(lp[0]))
+                print("Missing parameter for layer {0}".format(lp[0]))
 
     def _read_cfg(self):
         """Configuration file reader.
