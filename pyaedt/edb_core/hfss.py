@@ -1,5 +1,5 @@
 """
-This module contains the `EdbHfss` class.
+This module contains the ``EdbHfss`` class.
 """
 import math
 
