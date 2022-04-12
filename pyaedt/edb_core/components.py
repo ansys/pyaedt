@@ -1086,7 +1086,7 @@ class Components(object):
         sball_diam  : str, float, optional
             Diameter of the solder ball.
 
-        sball_height : str, float
+        sball_height : str, float, optional
             Height of the solder ball.
 
         Returns
