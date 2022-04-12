@@ -1301,6 +1301,7 @@ class EdbSiwave(object):
     @pyaedt_function_handler()
     def configure_siw_analysis_setup(self, simulation_setup=None):
         """Configure Siwave analysis setup.
+
         Parameters
         ----------
         simulation_setup :
