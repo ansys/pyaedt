@@ -1418,7 +1418,7 @@ class Edb(object):
         Returns
         -------
         bool
-            True when succeeded, False otherwise.
+            ``True`` when successful, False when ``Failed``.
         """
         self.logger.info("Building simulation project.")
         try:
