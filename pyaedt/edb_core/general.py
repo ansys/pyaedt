@@ -51,7 +51,7 @@ def convert_pytuple_to_nettuple(tuple):
     """Convert a Python tuple into a .NET tuple
     Parameters
     ----------
-    tuple = python tuple
+    tuple : python tuple
 
     Returns
     -------
