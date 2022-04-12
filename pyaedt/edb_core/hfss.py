@@ -459,7 +459,7 @@ class EdbHfss(object):
                         ) = pin.pin.GetLayerRange()
                     else:
                         res, from_layer_pos, to_layer_pos = pin.pin.GetLayerRange(None, None)
-                    if res and self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
+                    if res and from_layer_pos and self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
                         self._active_layout,
                         pin.pin.GetNet(),
                         port_name,
@@ -1145,7 +1145,7 @@ class EdbHfss(object):
             ]
             for tt in term_list:
                 success, p_inst, lyr = tt.GetParameters()
-                if success:
+                if success and lyr:
                     loi = l_inst.GetLayoutObjInstance(p_inst, None)
                     terms_loi.append(loi)
         else:

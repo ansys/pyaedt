@@ -786,7 +786,7 @@ class EdbLayout(object):
 
         def __init__(
             self,
-            type="unknown",
+            type="_unknown_",
             pointA=None,
             pointB=None,
             centerPoint=None,
@@ -960,7 +960,6 @@ class EdbLayout(object):
             for pt in pts:
                 pts_list.append(pt)
             nb_ini_pts = len(pts_list)
-            ind = 0
             minimum_distance = defeaturing_step  # 1e-6
             init_surf = poly_data.Area()
             nb_pts_removed = 0
