@@ -1228,7 +1228,7 @@ class EdbSiwave(object):
             self._active_layout,
             pos_node_net,
             pos_pingroup_term_name,
-            pos_pin_group[1],
+            pos_pin_group,
             False,
         )
         time.sleep(0.5)
@@ -1238,7 +1238,7 @@ class EdbSiwave(object):
             self._active_layout,
             neg_node_net,
             neg_pingroup_term_name,
-            neg_pin_group[1],
+            neg_pin_group,
             False,
         )
 

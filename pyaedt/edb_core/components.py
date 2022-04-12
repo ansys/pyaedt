@@ -1220,7 +1220,7 @@ class Components(object):
                 rlc.R = self._get_edb_value(res_value)
             if ind_value is not None:
                 rlc.LEnabled = True
-                rlc.L = self._edb_value(ind_value)
+                rlc.L = self._get_edb_value(ind_value)
             if cap_value is not None:
                 rlc.CEnabled = True
                 rlc.C = self._get_edb_value(cap_value)
@@ -1426,7 +1426,7 @@ class Components(object):
             res, pt_pos, rot_pos = pin.GetPositionAndRotation()
         else:
             res, pt_pos, rot_pos = pin.GetPositionAndRotation(
-                self._edb.Geometry.PointData(self._edb_value(0.0), self._edb_value(0.0)),
+                self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)),
                 0.0,
             )
         if pin.GetComponent().IsNull():
@@ -1434,8 +1434,8 @@ class Components(object):
         else:
             transformed_pt_pos = pin.GetComponent().GetTransform().TransformPoint(pt_pos)
         pin_xy = self._edb.Geometry.PointData(
-            self._edb_value(str(transformed_pt_pos.X.ToDouble())),
-            self._edb_value(str(transformed_pt_pos.Y.ToDouble())),
+            self._get_edb_value(str(transformed_pt_pos.X.ToDouble())),
+            self._get_edb_value(str(transformed_pt_pos.Y.ToDouble())),
         )
         return [pin_xy.X.ToDouble(), pin_xy.Y.ToDouble()]
 

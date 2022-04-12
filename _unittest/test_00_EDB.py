@@ -959,9 +959,8 @@ class TestClass(BasisTest, object):
         comp.type = "Other"
         assert comp.type == "Other"
 
-    def test_84_create_coax_port_on_component_pin(self):
-        assert self.edbapp.core_hfss.create_coax_port_on_component_per_pin("U1A1", "D1", "port1")
-        assert self.edbapp.core_hfss.create_coax_port_on_component_per_net("U1A1", "M_DQS_N<1>", "port2")
+    def test_84_create_coax_port_on_component(self):
+        assert self.edbapp.core_hfss.create_coax_port_on_component("U1A1", "M_DQS_N<1>")
 
     def test_85_deactivate_rlc(self):
         assert self.edbapp.core_components.deactivate_rlc_component(component="C1", create_circuit_port=True)
