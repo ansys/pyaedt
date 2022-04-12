@@ -1450,7 +1450,7 @@ class Edb(object):
                 if not self.core_hfss.set_coax_port_attributes(simulation_setup):
                     self.logger.error("Failed to configure coaxial port attributes.")
                 self.logger.info("Number of ports: {}".format(self.core_hfss.get_ports_number()))
-                self.logger.info("Configure HFSS extents")
+                self.logger.info("Configure HFSS extents.")
                 if simulation_setup.trim_reference_size:
                     self.logger.info(
                         "Trimming the reference plane for coaxial ports: {0}".format(
