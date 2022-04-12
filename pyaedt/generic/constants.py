@@ -675,7 +675,20 @@ class SETUPS(object):
         TransientTemperatureAndFlow,
         TransientTemperatureOnly,
         TransientFlowOnly,
-    ) = range(0, 39)
+        DFIG,
+        TPIM,
+        SPIM,
+        TPSM,
+        BLDC,
+        ASSM,
+        PMDC,
+        SRM,
+        LSSM,
+        UNIM,
+        DCM,
+        CPSM,
+        NSSM,
+    ) = range(0, 52)
 
 
 class CoordinateSystemAxis(object):

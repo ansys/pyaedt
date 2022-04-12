@@ -28,7 +28,28 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.disable_modelcreation("LSSM")
         assert self.aedtapp.enable_modelcreation("WRIM")
 
+    def test_03_getchangeproperty(self):
+        # test increment statorOD by 1mm
+        self.aedtapp.disable_modelcreation("ASSM")
+        statorOD = self.aedtapp.stator["Outer Diameter"]
+        assert statorOD
+        self.aedtapp.stator["Outer Diameter"] = statorOD + "+1mm"
+
     def test_06a_create_setup(self):
+        # Note: this is not a perfect test, because the aedtapp.setups
+        #  accumulate incorrectly with each create_setup command
+        # first test GRM (use Inner-Rotor Induction Machine)
+        assert self.aedtapp.enable_modelcreation("IRIM")
         mysetup = self.aedtapp.create_setup()
         mysetup.props["RatedOutputPower"] = "100W"
-        assert mysetup.update()
+        assert mysetup.update()  # update only needed for assertion
+        # second test ASSM setup
+        assert self.aedtapp.disable_modelcreation("ASSM")
+        mysetup = self.aedtapp.create_setup()
+        mysetup.props["RatedSpeed"] = "3600rpm"
+        assert mysetup.update()  # update only needed for assertion
+        # third test TPSM/SYNM setup
+        assert self.aedtapp.disable_modelcreation("TPSM")
+        mysetup = self.aedtapp.create_setup()
+        mysetup.props["RatedVoltage"] = "208V"
+        assert mysetup.update()  # update only needed for assertion
