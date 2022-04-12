@@ -71,6 +71,9 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_padstack.get_via_instance_from_net("GND")
         assert not self.edbapp.core_padstack.get_via_instance_from_net(["GND2"])
 
+    def test_01C_create_coax_port_on_component(self):
+        assert self.edbapp.core_hfss.create_coax_port_on_component("U1A1", "M_DQS_N<1>")
+
     def test_02_get_properties(self):
         assert len(self.edbapp.core_components.components) > 0
         assert len(self.edbapp.core_components.inductors) > 0
@@ -958,9 +961,6 @@ class TestClass(BasisTest, object):
         assert comp.type == "IC"
         comp.type = "Other"
         assert comp.type == "Other"
-
-    def test_84_create_coax_port_on_component(self):
-        assert self.edbapp.core_hfss.create_coax_port_on_component("U1A1", "M_DQS_N<1>")
 
     def test_85_deactivate_rlc(self):
         assert self.edbapp.core_components.deactivate_rlc_component(component="C1", create_circuit_port=True)
