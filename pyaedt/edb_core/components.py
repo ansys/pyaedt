@@ -533,7 +533,7 @@ class Components(object):
             EDB component or str component name.
 
         net_list : str or list of string.
-            The list of nets where ports have to be created on the component.
+            List of nets where ports must be created on the component.
             If net is not part of the component this one will be skipped.
 
         port_type : SourceType enumerator, CoaxPort or CircuitPort
