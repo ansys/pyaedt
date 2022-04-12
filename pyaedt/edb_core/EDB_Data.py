@@ -3585,15 +3585,6 @@ class SimulationConfiguration(object):
                             elif i.startswith("DoCutoutSubdesign"):
                                 self.do_cutout_subdesign = self._get_list_value(value)
                             elif i.startswith("SolverType"):
-                                (
-                                    Hfss,
-                                    Siwave,
-                                    Q3D,
-                                    Maxwell,
-                                    Nexxim,
-                                    TwinBuilder,
-                                    Hfss3dLayout,
-                                ) = range(0, 7)
                                 if value.lower() == "hfss":
                                     self.solver_type = 0
                                 if value.lower() == "hfss3dlayout":
