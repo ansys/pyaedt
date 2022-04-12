@@ -786,7 +786,7 @@ class EdbLayout(object):
 
         def __init__(
             self,
-            type="_unknown_",
+            type="unknown",
             pointA=None,
             pointB=None,
             centerPoint=None,
