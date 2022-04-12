@@ -1428,7 +1428,7 @@ class Edb(object):
                 self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
                 old_cell_name = self.active_cell.GetName()
                 if self.create_cutout(simulation_setup=simulation_setup):
-                    self.logger.info("Cutout processed")
+                    self.logger.info("Cutout processed.")
                     old_cell = self.active_cell.FindByName(self._db, 0, old_cell_name)
                     if old_cell:
                         old_cell.Delete()
