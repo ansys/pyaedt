@@ -1420,7 +1420,7 @@ class Edb(object):
         bool
             True when succeeded, False otherwise.
         """
-        self.logger.info("Building simulation project")
+        self.logger.info("Building simulation project.")
         try:
             if not simulation_setup or not isinstance(simulation_setup, SimulationConfiguration):
                 return False
