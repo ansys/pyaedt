@@ -3419,6 +3419,7 @@ class SimulationConfiguration(object):
 
     def _read_cfg(self):
         """Configuration file reader.
+        
         Examples
         --------
 
