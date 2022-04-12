@@ -449,24 +449,24 @@ class EdbHfss(object):
             net_list = [net_list]
         for ref in ref_des_list:
             for pin in self._pedb.core_components.components[ref].pins.items():
-                if pin.net_name in net_list and pin.pin.IsLayoutPin():
-                    port_name = "{}_{}_{}".format(ref, pin.net_name, pin.pin.GetName())
+                if pin[1].net_name in net_list and pin[1].pin.IsLayoutPin():
+                    port_name = "{}_{}_{}".format(ref, pin[1].net_name, pin[1].pin.GetName())
                     if is_ironpython:
                         (
                             res,
                             from_layer_pos,
                             to_layer_pos,
-                        ) = pin.pin.GetLayerRange()
+                        ) = pin[1].pin.GetLayerRange()
                     else:
-                        res, from_layer_pos, to_layer_pos = pin.pin.GetLayerRange(None, None)
+                        res, from_layer_pos, to_layer_pos = pin[1].pin.GetLayerRange(None, None)
                     if (
                         res
                         and from_layer_pos
                         and self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
                             self._active_layout,
-                            pin.pin.GetNet(),
+                            pin[1].pin.GetNet(),
                             port_name,
-                            pin.pin,
+                            pin[1].pin,
                             to_layer_pos,
                         )
                     ):
