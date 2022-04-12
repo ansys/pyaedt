@@ -448,23 +448,23 @@ class EdbHfss(object):
         if not isinstance(net_list, list):
             net_list = [net_list]
         for ref in ref_des_list:
-            for pinname, pin in self._pedb.core_components.components[ref].pins.items():
+            for pin in self._pedb.core_components.components[ref].pins.items():
                 if pin.net_name in net_list and pin.pin.IsLayoutPin():
                     port_name = "{}_{}_{}".format(ref, pin.net_name, pin.pin.GetName())
                     if is_ironpython:
                         (
                             res,
-                            fromLayer_pos,
-                            toLayer_pos,
-                        ) = pin.pin.GetLayerRange()  # pragma: no cover
+                            from_layer_pos,
+                            to_layer_pos,
+                        ) = pin.pin.GetLayerRange()
                     else:
-                        res, fromLayer_pos, toLayer_pos = pin.pin.GetLayerRange(None, None)
-                    if self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
+                        res, from_layer_pos, to_layer_pos = pin.pin.GetLayerRange(None, None)
+                    if res and self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
                         self._active_layout,
                         pin.pin.GetNet(),
                         port_name,
                         pin.pin,
-                        toLayer_pos,
+                        to_layer_pos,
                     ):
                         coax.append(port_name)
         return coax
@@ -786,7 +786,7 @@ class EdbHfss(object):
 
         layout = self._active_layout
         l_inst = layout.GetLayoutInstance()
-        edb_power_nets = list(map(lambda net: self._pedb.core_nets.find_or_create_net(net), power_nets))
+        edb_power_nets = [self._pedb.core_nets.find_or_create_net(net) for net in power_nets]
         for inst in component_list:
             comp = self._edb.Cell.Hierarchy.Component.FindByName(layout, inst)
             if comp.IsNull():
@@ -1129,7 +1129,7 @@ class EdbHfss(object):
                         diam1,
                         diam2,
                     ) = cmp_prop.GetSolderBallProperty().GetDiameter()
-                    if success and diam1 > 0:
+                    if success and diam1 and diam2 > 0:
                         radial_factor = "{0}meter".format(radial_factor_multiplier * diam1)
                         for tt in terms:
                             self._builder.SetHfssSolverOption(tt, "Radial Extent Factor", radial_factor)

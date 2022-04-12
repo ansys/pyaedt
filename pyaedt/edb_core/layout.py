@@ -379,14 +379,14 @@ class EdbLayout(object):
 
     @pyaedt_function_handler()
     def create_path(
-        self,
-        path_list,
-        layer_name,
-        width=1,
-        net_name="",
-        start_cap_style="Round",
-        end_cap_style="Round",
-        corner_style="Round",
+            self,
+            path_list,
+            layer_name,
+            width=1,
+            net_name="",
+            start_cap_style="Round",
+            end_cap_style="Round",
+            corner_style="Round",
     ):
         """
         Create a path based on a list of points.
@@ -651,11 +651,11 @@ class EdbLayout(object):
             endPoint = [self._get_edb_value(i) for i in endPoint]
             if len(endPoint) == 2:
                 is_parametric = (
-                    is_parametric
-                    or startPoint[0].IsParametric()
-                    or startPoint[1].IsParametric()
-                    or endPoint[0].IsParametric()
-                    or endPoint[1].IsParametric()
+                        is_parametric
+                        or startPoint[0].IsParametric()
+                        or startPoint[1].IsParametric()
+                        or endPoint[0].IsParametric()
+                        or endPoint[1].IsParametric()
                 )
                 arc = self._edb.Geometry.ArcData(
                     self._edb.Geometry.PointData(
@@ -670,13 +670,13 @@ class EdbLayout(object):
                 arcs.append(arc)
             elif len(endPoint) == 5:
                 is_parametric = (
-                    is_parametric
-                    or startPoint[0].IsParametric()
-                    or startPoint[1].IsParametric()
-                    or endPoint[0].IsParametric()
-                    or endPoint[1].IsParametric()
-                    or endPoint[3].IsParametric()
-                    or endPoint[4].IsParametric()
+                        is_parametric
+                        or startPoint[0].IsParametric()
+                        or startPoint[1].IsParametric()
+                        or endPoint[0].IsParametric()
+                        or endPoint[1].IsParametric()
+                        or endPoint[3].IsParametric()
+                        or endPoint[4].IsParametric()
                 )
                 rotationDirection = self._edb.Geometry.RotationDirection.Colinear
                 if endPoint[2].ToString() == "cw":
@@ -785,14 +785,14 @@ class EdbLayout(object):
         """
 
         def __init__(
-            self,
-            type="unknown",
-            pointA=None,
-            pointB=None,
-            centerPoint=None,
-            radius=None,
-            points=None,
-            properties={},
+                self,
+                type="unknown",
+                pointA=None,
+                pointB=None,
+                centerPoint=None,
+                radius=None,
+                points=None,
+                properties={},
         ):
             self.type = type
             self.pointA = pointA
@@ -804,11 +804,11 @@ class EdbLayout(object):
 
     @pyaedt_function_handler()
     def parametrize_trace_width(
-        self,
-        nets_name,
-        layers_name=None,
-        parameter_name="trace_width",
-        variable_value=None,
+            self,
+            nets_name,
+            layers_name=None,
+            parameter_name="trace_width",
+            variable_value=None,
     ):
         """Parametrize a Trace on specific layer or all stackup.
 
@@ -967,7 +967,7 @@ class EdbLayout(object):
             surf_dev = 0
             new_poly = None
             while (surf_dev < max_surface_deviation and pts_list.Count > 16 and minimum_distance < 1000e-6) and float(
-                nb_pts_removed
+                    nb_pts_removed
             ) / float(nb_ini_pts) < 0.4:
                 pts_list, nb_pts_removed = self._trim_polygon_points(pts, minimum_distance)
                 new_poly = self._edb.Geometry.PolygonData(pts_list, True)
@@ -1041,7 +1041,8 @@ class EdbLayout(object):
         net_list = list(self._active_layout.Nets)
         power_net_list = [net for net in self._active_layout.Nets if net.GetName() in simulation_setup.power_nets]
         map(lambda obj: obj.SetIsPowerGround(False), net_list)
-        map(lambda obj: self._set_power_net(obj), power_net_list)
+        for net in power_net_list:
+            self._set_power_net(net)
         return True
 
     @pyaedt_function_handler()

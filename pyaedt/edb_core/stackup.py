@@ -807,24 +807,24 @@ class EdbStackup(object):
 
         if simulation_setup.signal_layer_etching_instances:
             for layer in signal_layers:
-                if not Lay.GetName() in simulation_setup.signal_layer_etching_instances:
+                if not layer.GetName() in simulation_setup.signal_layer_etching_instances:
                     self._logger.error(
                         "Signal layer {0} is not found in the etching layers specified in the cfg, "
-                        "skipping the etching factor assignment".format(Lay.GetName())
+                        "skipping the etching factor assignment".format(layer.GetName())
                     )
                     # cloning the same signal layer to keep a valid layout
-                    new_signal_lay = Lay.Clone()
+                    new_signal_lay = layer.Clone()
                 else:
-                    new_signal_lay = Lay.Clone()
+                    new_signal_lay = layer.Clone()
                     new_signal_lay.SetEtchFactorEnabled(True)
                     etching_factor = float(
                         simulation_setup.etching_factor_instances[
-                            simulation_setup.signal_layer_etching_instances.index(Lay.GetName())
+                            simulation_setup.signal_layer_etching_instances.index(layer.GetName())
                         ]
                     )
                     new_signal_lay.SetEtchFactor(etching_factor)
                     self._logger.info(
-                        "Setting etching factor {0} on layer {1}".format(str(etching_factor), Lay.GetName())
+                        "Setting etching factor {0} on layer {1}".format(str(etching_factor), layer.GetName())
                     )
 
                 new_layers.Add(new_signal_lay)
