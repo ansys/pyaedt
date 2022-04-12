@@ -936,8 +936,8 @@ class Edb(object):
         open_cutout_at_end : bool, optional
             Whether to open the cutout at the end. The default
             is ``True``.
-        simulation_setup : EDB_Data.SimulationConfiguration object
-            When used will overwrite the other parameters
+        simulation_setup : EDB_Data.SimulationConfiguration object, optional
+            Simulation setup to use to overwrite the other parameters. The default is ``None``.
 
         Returns
         -------
