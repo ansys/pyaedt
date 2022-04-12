@@ -1081,7 +1081,7 @@ class Components(object):
         Parameters
         ----------
         component_name : str or EDB component
-            Name of the discret component.
+            Name of the discrete component.
 
         sball_diam  : str, float
             Diameter of the solder ball.
