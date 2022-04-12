@@ -538,7 +538,7 @@ class Components(object):
 
         port_type : SourceType enumerator, CoaxPort or CircuitPort
             Type of port to create. ``CoaxPort``automatically generates solder balls.
-            CircuitPort will generate circuit ports on pins belonging to the net list.
+            ``CircuitPort`` generates circuit ports on pins belonging to the net list.
 
         do_pingroup : bool
             True activate pingroup during port creation (only used with combination of CoaxPort),
