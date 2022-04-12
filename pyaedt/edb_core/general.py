@@ -55,7 +55,7 @@ def convert_pytuple_to_nettuple(tuple):
 
     Returns
     -------
-    .Net Tuple
+    .NET tuple.
     """
     return Tuple.Create(tuple[0], tuple[1])
 
