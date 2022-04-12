@@ -801,7 +801,6 @@ class EdbStackup(object):
         this_lc = self._edb.Cell.LayerCollection(cell.GetLayout().GetLayerCollection())
         all_layers = list(this_lc.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet))
 
-        # SignalLayers = list(allLayers.Where(lambda lyr: lyr.GetLayerType() == edb.Cell.LayerType.SignalLayer))
         signal_layers = [lay for lay in all_layers if lay.GetLayerType() == self._edb.Cell.LayerType.SignalLayer]
 
         new_layers = list(all_layers.Where(lambda lyr: lyr.GetLayerType() != self._edb.Cell.LayerType.SignalLayer))
