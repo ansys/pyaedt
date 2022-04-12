@@ -1180,14 +1180,14 @@ RmxprtDefault = [
     ("RatedSpeed", "1000rpm"),
     ("OperatingTemperature", "75cel"),
 ]
-"""RMxprt Default setup properties and default values"""
+"""RMxprt Default setup properties and default values."""
 
 GRM = RmxprtDefault + [
     ("RatedPowerFactor", "0.8"),
     ("Frequency", "60Hz"),
     ("CapacitivePowerFactor", False),
 ]
-"""RMxprt GRM (Generic Rotating Machine) setup properties and default values"""
+"""RMxprt GRM (Generic Rotating Machine) setup properties and default values."""
 
 DFIG = [
     ("Enabled", True),
@@ -1201,15 +1201,15 @@ DFIG = [
     ("Frequency", "60Hz"),
     ("CapacitivePowerFactor", False),
 ]
-"""RMxprt DFIG (Doubly-fed induction generator) setup properties"""
+"""RMxprt DFIG (Doubly-fed induction generator) setup properties."""
 
 TPIM = RmxprtDefault + [("Frequency", "60Hz"), ("WindingConnection", 0)]
-"""RMxprt TPIM (Three-Phase Induction Machine) setup properties"""
+"""RMxprt TPIM (Three-Phase Induction Machine) setup properties."""
 
 SPIM = RmxprtDefault + [
     ("Frequency", "60Hz"),
 ]
-"""RMxprt SPIM (Single-Phase Induction Machine setup properties"""
+"""RMxprt SPIM (Single-Phase Induction Machine setup properties."""
 
 TPSM = [
     ("Enabled", True),
@@ -1226,7 +1226,7 @@ TPSM = [
     ("InputExcitingCurrent", False),
     ("ExcitingCurrent", "0A"),
 ]
-"""RMxprt TPSM=SYNM (Three-phase Synchronous Machine/Generator) setup properties"""
+"""RMxprt TPSM=SYNM (Three-phase Synchronous Machine/Generator) setup properties."""
 
 NSSM = TPSM  # Non-salient Synchronous Machine defaults, same as salient synch mach
 
@@ -1240,12 +1240,12 @@ ASSM = BLDC = PMDC = SRM = RmxprtDefault
 LSSM = RmxprtDefault + [
     ("WindingConnection", False),
 ]
-"""RMxprt LSSM (Line-start Synchronous Machine) setup properties"""
+"""RMxprt LSSM (Line-start Synchronous Machine) setup properties."""
 
 UNIM = RmxprtDefault + [
     ("Frequency", "60Hz"),
 ]
-"""RMxprt UNIM (Universal Machine) setup properties"""
+"""RMxprt UNIM (Universal Machine) setup properties."""
 
 DCM = [
     ("Enabled", True),
@@ -1260,7 +1260,7 @@ DCM = [
     ("ExcitingVoltage", "100V"),
     ("SeriesResistance", "1ohm"),
 ]
-"""RMxprt DCM (DC Machine/Generator) setup properties"""
+"""RMxprt DCM (DC Machine/Generator) setup properties."""
 
 CPSM = [
     ("Enabled", True),
@@ -1274,7 +1274,7 @@ CPSM = [
     ("InputExcitingCurrent", False),
     ("ExcitingCurrent", "0A"),
 ]
-"""RMxprt CPSM (Claw-pole synchronous machine/generator) setup properties"""
+"""RMxprt CPSM (Claw-pole synchronous machine/generator) setup properties."""
 
 TR = []
 
