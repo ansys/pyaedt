@@ -771,7 +771,7 @@ class EdbStackup(object):
         dielectric_thickness="100um",
         dielectric_material="FR4_epoxy",
         soldermask=True,
-        soldermask_thickness="20um"
+        soldermask_thickness="20um",
     ):
         """Create a symmetric stackup.
 
@@ -799,8 +799,9 @@ class EdbStackup(object):
             return False
 
         if soldermask:
-            self.stackup_layers.add_layer("SMB", None, "SolderMask", thickness=soldermask_thickness,
-                                          layerType=1)
+            self.stackup_layers.add_layer(
+                "SMB", None, "SolderMask", thickness=soldermask_thickness, layerType=1
+            )
             layer_name = "BOTTOM"
             self.stackup_layers.add_layer(layer_name, "SMB", fillMaterial="SolderMask", thickness=outer_layer_thickness)
         else:
@@ -815,7 +816,7 @@ class EdbStackup(object):
             layer_name = new_layer_name
             new_layer_name = "L" + str(layer - 1)
             self.stackup_layers.add_layer(
-                new_layer_name, layer_name, "copper", dielectric_material,inner_layer_thickness
+                new_layer_name, layer_name, "copper", dielectric_material, inner_layer_thickness
             )
             layer_name = new_layer_name
 
@@ -831,7 +832,8 @@ class EdbStackup(object):
                 new_layer_name, layer_name, fillMaterial="SolderMask", thickness=outer_layer_thickness
             )
             layer_name = new_layer_name
-            self.stackup_layers.add_layer("SMT", layer_name, "SolderMask", thickness=soldermask_thickness, layerType=1
+            self.stackup_layers.add_layer(
+                "SMT", layer_name, "SolderMask", thickness=soldermask_thickness, layerType=1
                                           )
         else:
             new_layer_name = "TOP"
