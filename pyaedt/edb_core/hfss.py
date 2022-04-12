@@ -459,12 +459,16 @@ class EdbHfss(object):
                         ) = pin.pin.GetLayerRange()
                     else:
                         res, from_layer_pos, to_layer_pos = pin.pin.GetLayerRange(None, None)
-                    if res and from_layer_pos and self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
-                        self._active_layout,
-                        pin.pin.GetNet(),
-                        port_name,
-                        pin.pin,
-                        to_layer_pos,
+                    if (
+                        res
+                        and from_layer_pos
+                        and self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
+                            self._active_layout,
+                            pin.pin.GetNet(),
+                            port_name,
+                            pin.pin,
+                            to_layer_pos,
+                        )
                     ):
                         coax.append(port_name)
         return coax
