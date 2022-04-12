@@ -1223,7 +1223,7 @@ class Components(object):
                 rlc.L = self._edb_value(ind_value)
             if cap_value is not None:
                 rlc.CEnabled = True
-                rlc.C = self._edb_value(cap_value)
+                rlc.C = self._get_edb_value(cap_value)
             pinPair = self._edb.Utility.PinPair(fromPin.GetName(), toPin.GetName())
             rlcModel = self._edb.Cell.Hierarchy.PinPairModel()
             rlcModel.SetPinPairRlc(pinPair, rlc)
