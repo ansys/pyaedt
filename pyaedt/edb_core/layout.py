@@ -510,6 +510,81 @@ class EdbLayout(object):
             return polygon
 
     @pyaedt_function_handler()
+    def create_rectangle(
+        self,
+        layer_name,
+        net_name="",
+        lower_left_point="",
+        upper_right_point="",
+        center_point="",
+        width="",
+        height="",
+        representation_type="LowerLeftUpperRight",
+        corner_radius="0mm",
+        rotation="0deg",
+    ):
+        """Create rectangle
+
+        Parameters
+        ----------
+        layer_name : str
+            Name of the layer on which to create the rectangle.
+        net_name : str
+            Name of the net. The default is ``""``.
+        lower_left_point : list
+            Lower left point when ``representation_type="LowerLeftUpperRight"``. The default is ``""``.
+        upper_right_point : list
+            Upper right point when ``representation_type="LowerLeftUpperRight"``. The default is ``""``.
+        center_point : list
+            Center point when ``representation_type="CenterWidthHeight"``. The default is ``""``.
+        width : str
+            Width of the rectangle when ``representation_type="CenterWidthHeight"``. The default is ``""``.
+        height : str
+            Height of the rectangle when ``representation_type="CenterWidthHeight"``. The default is ``""``.
+        representation_type : str, optional
+            Type of the rectangle representation. The default is ``LowerLeftUpperRight``. Options are
+            ``"LowerLeftUpperRight"`` and ``"CenterWidthHeight"``.
+        corner_radius : str, optional
+            Radius of the rectangle corner. The default is ``"0mm"``.
+        rotation : str, optional
+            Rotation of the rectangle. The default is ``"0deg"``.
+
+        Returns
+        -------
+        bool
+            Rectangle when successful, ``False`` when failed.
+        """
+        edb_net = self._pedb.core_nets.find_or_create_net(net_name)
+        if representation_type == "LowerLeftUpperRight":
+            rep_type = self._edb.Cell.Primitive.RectangleRepresentationType.LowerLeftUpperRight
+            return self._edb.Cell.Primitive.Rectangle.Create(
+                self._active_layout,
+                layer_name,
+                edb_net,
+                rep_type,
+                self._get_edb_value(lower_left_point[0]),
+                self._get_edb_value(lower_left_point[1]),
+                self._get_edb_value(upper_right_point[0]),
+                self._get_edb_value(upper_right_point[1]),
+                self._get_edb_value(corner_radius),
+                self._get_edb_value(rotation),
+            )
+        else:
+            rep_type = self._edb.Cell.Primitive.RectangleRepresentationType.CenterWidthHeight
+            return self._edb.Cell.Primitive.Rectangle.Create(
+                self._active_layout,
+                layer_name,
+                edb_net,
+                rep_type,
+                self._get_edb_value(center_point[0]),
+                self._get_edb_value(center_point[1]),
+                self._get_edb_value(width),
+                self._get_edb_value(height),
+                self._get_edb_value(corner_radius),
+                self._get_edb_value(rotation),
+            )
+
+    @pyaedt_function_handler()
     def get_primitives(self, net_name=None, layer_name=None, prim_type=None, is_void=False):
         """Get primitives by conditions.
 
