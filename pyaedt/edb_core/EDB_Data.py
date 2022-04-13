@@ -120,7 +120,7 @@ class EDBNetsData(object):
         outline=None,
         size=(2000, 1000),
     ):
-        """Plot a Net to Matplotlib 2D Chart.
+        """Plot a net to Matplotlib 2D chart.
 
         Parameters
         ----------
