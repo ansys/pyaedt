@@ -799,9 +799,7 @@ class EdbStackup(object):
             return False
 
         if soldermask:
-            self.stackup_layers.add_layer(
-                "SMB", None, "SolderMask", thickness=soldermask_thickness, layerType=1
-            )
+            self.stackup_layers.add_layer("SMB", None, "SolderMask", thickness=soldermask_thickness, layerType=1)
             layer_name = "BOTTOM"
             self.stackup_layers.add_layer(layer_name, "SMB", fillMaterial="SolderMask", thickness=outer_layer_thickness)
         else:
@@ -832,9 +830,7 @@ class EdbStackup(object):
                 new_layer_name, layer_name, fillMaterial="SolderMask", thickness=outer_layer_thickness
             )
             layer_name = new_layer_name
-            self.stackup_layers.add_layer(
-                "SMT", layer_name, "SolderMask", thickness=soldermask_thickness, layerType=1
-                                          )
+            self.stackup_layers.add_layer("SMT", layer_name, "SolderMask", thickness=soldermask_thickness, layerType=1)
         else:
             new_layer_name = "TOP"
             self.stackup_layers.add_layer(
