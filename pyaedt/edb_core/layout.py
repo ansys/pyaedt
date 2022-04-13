@@ -786,14 +786,14 @@ class EdbLayout(object):
 
         def __init__(
             self,
-            type="unknown",  # noqa: W0622
+            type="unknown",
             pointA=None,
             pointB=None,
             centerPoint=None,
             radius=None,
             points=None,
             properties={},
-        ):
+        ):  # noqa: W0622
             self.type = type
             self.pointA = pointA
             self.pointB = pointB
