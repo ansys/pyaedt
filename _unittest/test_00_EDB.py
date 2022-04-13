@@ -1104,5 +1104,10 @@ class TestClass(BasisTest, object):
         from pyaedt import Edb as local_edb
 
         app_edb = local_edb(edbversion="2022.1")
+        assert not app_edb.core_stackup.create_symmetric_stackup(9)
         assert app_edb.core_stackup.create_symmetric_stackup(8)
+        app_edb.close_edb()
+
+        app_edb = local_edb(edbversion="2022.1")
+        assert app_edb.core_stackup.create_symmetric_stackup(8, soldermask=False)
         app_edb.close_edb()
