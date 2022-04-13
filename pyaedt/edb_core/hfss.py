@@ -853,7 +853,7 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def configure_hfss_extents(self, simulation_setup=None):
-        """Configure HFSS extent box.
+        """Configure the HFSS extent box.
 
         Parameters
         ----------
