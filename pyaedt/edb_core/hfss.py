@@ -815,7 +815,7 @@ class EdbHfss(object):
             if not hit_pinsts:
                 self._logger.error("SetupCoplanarInstances: could not find a pin in the vicinity of {0}".format(inst))
                 continue
-            # Iterate each pin in the component that's on the signal nets and create a CircuitPort
+            # Iterate each pin in the component that's on the signal nets and create a circuit port
             pin_list = [
                 obj
                 for obj in list(comp.LayoutObjs)
