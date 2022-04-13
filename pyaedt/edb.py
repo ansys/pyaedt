@@ -21,7 +21,7 @@ try:
     from System.Collections.Generic import List
 except ImportError:  # pragma: no cover
     if os.name != "posix":
-        warnings.warn("Pythonnet is needed to run PyAEDT.")
+        warnings.warn("Python.NET is needed to run PyAEDT.")
 from pyaedt import settings
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder, SimulationConfiguration
@@ -1408,12 +1408,13 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def build_simulation_project(self, simulation_setup=None):
-        """Build a ready to solve simulation project.
+        """Build a ready-to-solve simulation project.
 
         Parameters
         ----------
         simulation_setup : EDB_Data.SimulationConfiguratiom object.
-            SimulationConfiguration object which can be instantiated or directly with loading a configuration file.
+            SimulationConfiguration object that can be instantiated or directly loaded with a
+            configuration file.
 
         Returns
         -------
@@ -1433,11 +1434,11 @@ class Edb(object):
                     if old_cell:
                         old_cell.Delete()
                 else:
-                    self.logger.error("Cutout failed")
-            self.logger.info("Deleting existing ports")
+                    self.logger.error("Cutout failed.")
+            self.logger.info("Deleting existing ports.")
             map(lambda port: port.Delete(), list(self.active_layout.Terminals))
             map(lambda pg: pg.Delete(), list(self.active_layout.PinGroups))
-            self.logger.info("Creating ports for signal nets")
+            self.logger.info("Creating ports for signal nets.")
             if simulation_setup.solver_type == SolverType.Hfss3dLayout:
                 for cmp in simulation_setup.components:
                     self.core_components.create_port_on_component(
@@ -1460,7 +1461,7 @@ class Edb(object):
                     self.core_hfss.trim_component_reference_size(simulation_setup)
                 self.core_hfss.configure_hfss_extents(simulation_setup)
                 if not self.core_hfss.configure_hfss_analysis_setup(simulation_setup):
-                    self.logger.error("Failed to configure HFSS simulatiom setup.")
+                    self.logger.error("Failed to configure HFSS simulation setup.")
             if simulation_setup.solver_type == SolverType.Siwave:
                 for cmp in simulation_setup.components:
                     self.core_components.create_port_on_component(
@@ -1470,7 +1471,7 @@ class Edb(object):
                         reference_net=simulation_setup.power_nets,
                         port_type=SourceType.CircPort,
                     )
-                self.logger.info("Configuring analysis setup")
+                self.logger.info("Configuring analysis setup.")
                 if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):
                     self.logger.error("Failed to configure Siwave simulation setup.")
 

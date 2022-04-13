@@ -788,7 +788,7 @@ class EdbStackup(object):
 
         Parameters
         ----------
-        simulation_setup : EDB_DATA_SimulationConfiguration object.
+        simulation_setup : EDB_DATA_SimulationConfiguration object
 
         Returns
         -------

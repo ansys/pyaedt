@@ -926,7 +926,7 @@ class EdbLayout(object):
 
         Parameters
         ----------
-        setup_info : EDB_Data_SimulatiomConfiguratio object.
+        setup_info : EDB_Data_SimulatiomConfiguratio object
             When the ``setup_info`` argument is provided, it overwrites the
             ``maximum_surface_deviation`` value.
 
@@ -949,7 +949,7 @@ class EdbLayout(object):
             pts = poly_data.Points
             defeaturing_step = 1e-6
             if len(poly_data) <= 16:
-                # defeaturing skipped for polygons with less than 16 points
+                # Defeaturing skipped for polygons with less than 16 points
                 self._logger.info(
                     "Polygon {} is skipped for defeaturing because its number of point is less than 16. ".format(
                         poly.GetId()

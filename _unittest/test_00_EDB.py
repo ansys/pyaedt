@@ -605,7 +605,7 @@ class TestClass(BasisTest, object):
     def test_69_create_solder_balls_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U2A5")
 
-    @pytest.mark.skipif(is_ironpython, reason="This Test uses Matplotlib that is not supported by Ironpython")
+    @pytest.mark.skipif(is_ironpython, reason="This test uses Matplotlib, which is not supported by IronPython.")
     def test_70_plot_on_matplotlib(self):
         local_png = os.path.join(self.local_scratch.path, "test.png")
         self.edbapp.core_nets.plot(None, None, save_plot=local_png)

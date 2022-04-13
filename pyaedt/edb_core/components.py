@@ -534,10 +534,10 @@ class Components(object):
 
         net_list : str or list of string.
             List of nets where ports must be created on the component.
-            If net is not part of the component this one will be skipped.
+            If the net is not part of the component, this parameter is skipped.
 
         port_type : SourceType enumerator, CoaxPort or CircuitPort
-            Type of port to create. ``CoaxPort``automatically generates solder balls.
+            Type of port to create. ``CoaxPort`` generates solder balls.
             ``CircuitPort`` generates circuit ports on pins belonging to the net list.
 
         do_pingroup : bool
