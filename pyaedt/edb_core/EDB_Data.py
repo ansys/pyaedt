@@ -3395,7 +3395,7 @@ class SimulationConfiguration(object):
         elif val in ("n", "no", "f", "false", "off", "0"):
             return False
         else:
-            raise ValueError("invalid truth value %r" % (val,))
+            raise ValueError("Invalid truth value %r" % (val,))
 
     def _get_list_value(self, value):
         value = value.strip("[]")
