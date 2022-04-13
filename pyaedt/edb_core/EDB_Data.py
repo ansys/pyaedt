@@ -3062,344 +3062,344 @@ class SimulationConfiguration(object):
         return self._mesh_freq
 
     @mesh_freq.setter
-    def mesh_freq(self, value):
+    def mesh_freq(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._mesh_freq = value
 
     @property
-    def max_num_passes(self):
+    def max_num_passes(self):  # pragma: no cover
         return self._max_num_passes
 
     @max_num_passes.setter
-    def max_num_passes(self, value):
+    def max_num_passes(self, value):  # pragma: no cover
         if isinstance(value, int):
             self._max_num_passes = value
 
     @property
-    def max_mag_delta_s(self):
+    def max_mag_delta_s(self):  # pragma: no cover
         return self._max_mag_delta_s
 
     @max_mag_delta_s.setter
-    def max_mag_delta_s(self, value):
+    def max_mag_delta_s(self, value):  # pragma: no cover
         if isinstance(value, float):
             self._max_mag_delta_s = value
 
     @property
-    def min_num_passes(self):
+    def min_num_passes(self):  # pragma: no cover
         return self._min_num_passes
 
     @min_num_passes.setter
-    def min_num_passes(self, value):
+    def min_num_passes(self, value):  # pragma: no cover
         if isinstance(value, int):
             self._min_num_passes = value
 
     @property
-    def basis_order(self):
+    def basis_order(self):  # pragma: no cover
         return self._basis_order
 
     @basis_order.setter
-    def basis_order(self, value):
+    def basis_order(self, value):  # pragma: no cover
         if isinstance(value, BasisOrder):
             self._basis_order = value
 
     @property
-    def do_lambda_refinement(self):
+    def do_lambda_refinement(self):  # pragma: no cover
         return self._do_lambda_refinement
 
     @do_lambda_refinement.setter
-    def do_lambda_refinement(self, value):
+    def do_lambda_refinement(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._do_lambda_refinement = value
 
     @property
-    def arc_angle(self):
+    def arc_angle(self):  # pragma: no cover
         return self._arc_angle
 
     @arc_angle.setter
-    def arc_angle(self, value):
+    def arc_angle(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._arc_angle = value
 
     @property
-    def start_azimuth(self):
+    def start_azimuth(self):  # pragma: no cover
         return self._start_azimuth
 
     @start_azimuth.setter
-    def start_azimuth(self, value):
+    def start_azimuth(self, value):  # pragma: no cover
         if isinstance(value, float):
             self._start_azimuth = value
 
     @property
-    def max_arc_points(self):
+    def max_arc_points(self):  # pragma: no cover
         return self._max_arc_points
 
     @max_arc_points.setter
-    def max_arc_points(self, value):
+    def max_arc_points(self, value):  # pragma: no cover
         if isinstance(value, int):
             self._max_arc_points = value
 
     @property
-    def use_arc_to_chord_error(self):
+    def use_arc_to_chord_error(self):  # pragma: no cover
         return self._use_arc_to_chord_error
 
     @use_arc_to_chord_error.setter
-    def use_arc_to_chord_error(self, value):
+    def use_arc_to_chord_error(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._use_arc_to_chord_error = value
 
     @property
-    def arc_to_chord_error(self):
+    def arc_to_chord_error(self):  # pragma: no cover
         return self._arc_to_chord_error
 
     @arc_to_chord_error.setter
-    def arc_to_chord_error(self, value):
+    def arc_to_chord_error(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._arc_to_chord_error = value
 
     @property
-    def defeature_abs_length(self):
+    def defeature_abs_length(self):  # pragma: no cover
         return self._defeature_abs_length
 
     @defeature_abs_length.setter
-    def defeature_abs_length(self, value):
+    def defeature_abs_length(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._defeature_abs_length = value
 
     @property
-    def defeature_layout(self):
+    def defeature_layout(self):  # pragma: no cover
         return self._defeature_layout
 
     @defeature_layout.setter
-    def defeature_layout(self, value):
+    def defeature_layout(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._defeature_layout = value
 
     @property
-    def minimum_void_surface(self):
+    def minimum_void_surface(self):  # pragma: no cover
         return self._minimum_void_surface
 
     @minimum_void_surface.setter
-    def minimum_void_surface(self, value):
+    def minimum_void_surface(self, value):  # pragma: no cover
         if isinstance(value, float):
             self._minimum_void_surface = value
 
     @property
-    def max_suf_dev(self):
+    def max_suf_dev(self):  # pragma: no cover
         return self._max_suf_dev
 
     @max_suf_dev.setter
-    def max_suf_dev(self, value):
+    def max_suf_dev(self, value):  # pragma: no cover
         if isinstance(value, float):
             self._max_suf_dev = value
 
     @property
-    def process_padstack_definitions(self):
+    def process_padstack_definitions(self):  # pragma: no cover
         return self._process_padstack_definitions
 
     @process_padstack_definitions.setter
-    def process_padstack_definitions(self, value):
+    def process_padstack_definitions(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._process_padstack_definitions = value
 
     @property
-    def return_current_distribution(self):
+    def return_current_distribution(self):  # pragma: no cover
         return self._return_current_distribution
 
     @return_current_distribution.setter
-    def return_current_distribution(self, value):
+    def return_current_distribution(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._return_current_distribution = value
 
     @property
-    def ignore_non_functional_pads(self):
+    def ignore_non_functional_pads(self):  # pragma: no cover
         return self._ignore_non_functional_pads
 
     @ignore_non_functional_pads.setter
-    def ignore_non_functional_pads(self, value):
+    def ignore_non_functional_pads(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._ignore_non_functional_pads = value
 
     @property
-    def include_inter_plane_coupling(self):
+    def include_inter_plane_coupling(self):  # pragma: no cover
         return self._include_inter_plane_coupling
 
     @include_inter_plane_coupling.setter
-    def include_inter_plane_coupling(self, value):
+    def include_inter_plane_coupling(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._include_inter_plane_coupling = value
 
     @property
-    def xtalk_threshold(self):
+    def xtalk_threshold(self):  # pragma: no cover
         return self._xtalk_threshold
 
     @xtalk_threshold.setter
-    def xtalk_threshold(self, value):
+    def xtalk_threshold(self, value):  # pragma: no cover
         if isinstance(value, float):
             self._xtalk_threshold = value
 
     @property
-    def min_void_area(self):
+    def min_void_area(self):  # pragma: no cover
         return self._min_void_area
 
     @min_void_area.setter
-    def min_void_area(self, value):
+    def min_void_area(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._min_void_area = value
 
     @property
-    def min_pad_area_to_mesh(self):
+    def min_pad_area_to_mesh(self):  # pragma: no cover
         return self._min_pad_area_to_mesh
 
     @min_pad_area_to_mesh.setter
-    def min_pad_area_to_mesh(self, value):
+    def min_pad_area_to_mesh(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._min_pad_area_to_mesh = value
 
     @property
-    def snap_length_threshold(self):
+    def snap_length_threshold(self):  # pragma: no cover
         return self._snap_length_threshold
 
     @snap_length_threshold.setter
-    def snap_length_threshold(self, value):
+    def snap_length_threshold(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._snap_length_threshold = value
 
     @property
-    def min_plane_area_to_mesh(self):
+    def min_plane_area_to_mesh(self):  # pragma: no cover
         return self._min_plane_area_to_mesh
 
     @min_plane_area_to_mesh.setter
-    def min_plane_area_to_mesh(self, value):
+    def min_plane_area_to_mesh(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._min_plane_area_to_mesh = value
 
     @property
-    def dc_min_plane_area_to_mesh(self):
+    def dc_min_plane_area_to_mesh(self):  # pragma: no cover
         return self._dc_min_plane_area_to_mesh
 
     @dc_min_plane_area_to_mesh.setter
-    def dc_min_plane_area_to_mesh(self, value):
+    def dc_min_plane_area_to_mesh(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._dc_min_plane_area_to_mesh = value
 
     @property
-    def max_init_mesh_edge_length(self):
+    def max_init_mesh_edge_length(self):  # pragma: no cover
         return self._max_init_mesh_edge_length
 
     @max_init_mesh_edge_length.setter
-    def max_init_mesh_edge_length(self, value):
+    def max_init_mesh_edge_length(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._max_init_mesh_edge_length = value
 
     @property
-    def signal_layers_properties(self):
+    def signal_layers_properties(self):  # pragma: no cover
         return self._signal_layers_properties
 
     @signal_layers_properties.setter
-    def signal_layers_properties(self, value):
+    def signal_layers_properties(self, value):  # pragma: no cover
         if isinstance(value, dict):
             self._signal_layers_properties = value
 
     @property
-    def coplanar_instances(self):
+    def coplanar_instances(self):  # pragma: no cover
         return self._coplanar_instances
 
     @coplanar_instances.setter
-    def coplanar_instances(self, value):
+    def coplanar_instances(self, value):  # pragma: no cover
         if isinstance(value, list):
             self._coplanar_instances = value
 
     @property
-    def signal_layer_etching_instances(self):
+    def signal_layer_etching_instances(self):  # pragma: no cover
         return self._signal_layer_etching_instances
 
     @signal_layer_etching_instances.setter
-    def signal_layer_etching_instances(self, value):
+    def signal_layer_etching_instances(self, value):  # pragma: no cover
         if isinstance(value, list):
             self._signal_layer_etching_instances = value
 
     @property
-    def etching_factor_instances(self):
+    def etching_factor_instances(self):  # pragma: no cover
         return self._etching_factor_instances
 
     @etching_factor_instances.setter
-    def etching_factor_instances(self, value):
+    def etching_factor_instances(self, value):  # pragma: no cover
         if isinstance(value, list):
             self._etching_factor_instances = value
 
     @property
-    def dielectric_extent(self):
+    def dielectric_extent(self):  # pragma: no cover
         return self._dielectric_extent
 
     @dielectric_extent.setter
-    def dielectric_extent(self, value):
+    def dielectric_extent(self, value):  # pragma: no cover
         if isinstance(value, float):
             self._dielectric_extent = value
 
     @property
-    def airbox_horizontal_extent(self):
+    def airbox_horizontal_extent(self):  # pragma: no cover
         return self._airbox_horizontal_extent
 
     @airbox_horizontal_extent.setter
-    def airbox_horizontal_extent(self, value):
+    def airbox_horizontal_extent(self, value):  # pragma: no cover
         if isinstance(value, float):
             self._airbox_horizontal_extent = value
 
     @property
-    def airbox_negative_vertical_extent(self):
+    def airbox_negative_vertical_extent(self):  # pragma: no cover
         return self._airbox_negative_vertical_extent
 
     @airbox_negative_vertical_extent.setter
-    def airbox_negative_vertical_extent(self, value):
+    def airbox_negative_vertical_extent(self, value):  # pragma: no cover
         if isinstance(value, float):
             self._airbox_negative_vertical_extent = value
 
     @property
-    def airbox_positive_vertical_extent(self):
+    def airbox_positive_vertical_extent(self):  # pragma: no cover
         return self._airbox_positive_vertical_extent
 
     @airbox_positive_vertical_extent.setter
-    def airbox_positive_vertical_extent(self, value):
+    def airbox_positive_vertical_extent(self, value):  # pragma: no cover
         if isinstance(value, float):
             self._airbox_positive_vertical_extent = value
 
     @property
-    def honor_user_dielectric(self):
+    def honor_user_dielectric(self):  # pragma: no cover
         return self._honor_user_dielectric
 
     @honor_user_dielectric.setter
-    def honor_user_dielectric(self, value):
+    def honor_user_dielectric(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._honor_user_dielectric = value
 
     @property
-    def truncate_airbox_at_ground(self):
+    def truncate_airbox_at_ground(self):  # pragma: no cover
         return self._truncate_airbox_at_ground
 
     @truncate_airbox_at_ground.setter
-    def truncate_airbox_at_ground(self, value):
+    def truncate_airbox_at_ground(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._truncate_airbox_at_ground = value
 
     @property
-    def solver_type(self):
+    def solver_type(self):  # pragma: no cover
         return self._solver_type
 
     @solver_type.setter
-    def solver_type(self, value):
+    def solver_type(self, value):  # pragma: no cover
         if isinstance(value, int):
             self._solver_type = value
 
     @property
-    def use_radiation_boundary(self):
+    def use_radiation_boundary(self):  # pragma: no cover
         return self._use_radiation_boundary
 
     @use_radiation_boundary.setter
-    def use_radiation_boundary(self, value):
+    def use_radiation_boundary(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._use_radiation_boundary = value
 
-    def _get_bool_value(self, value):
+    def _get_bool_value(self, value):  # pragma: no cover
         val = value.lower()
         if val in ("y", "yes", "t", "true", "on", "1"):
             return True
@@ -3408,7 +3408,7 @@ class SimulationConfiguration(object):
         else:
             raise ValueError("Invalid truth value %r" % (val,))
 
-    def _get_list_value(self, value):
+    def _get_list_value(self, value):  # pragma: no cover
         value = value.strip("[]")
         if len(value) == 0:
             return []
@@ -3420,7 +3420,7 @@ class SimulationConfiguration(object):
                 prop_values = [value.strip()]
             return prop_values
 
-    def _parse_signal_layer_properties(self, signal_properties):
+    def _parse_signal_layer_properties(self, signal_properties):  # pragma: no cover
         for lay in signal_properties:
             lp = lay.split(":")
             try:
@@ -3428,7 +3428,7 @@ class SimulationConfiguration(object):
             except:
                 print("Missing parameter for layer {0}".format(lp[0]))
 
-    def _read_cfg(self):
+    def _read_cfg(self):  # pragma: no cover
         """Configuration file reader.
 
         Examples
