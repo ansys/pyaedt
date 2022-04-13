@@ -35,7 +35,7 @@ class TestClass(BasisTest, object):
         assert statorOD
         self.aedtapp.stator["Outer Diameter"] = statorOD + "+1mm"
 
-    def test_06a_create_setup(self):
+    def test_04_create_setup(self):
         # Note: this is not a perfect test, because the aedtapp.setups
         #  accumulate incorrectly with each create_setup command
         # first test GRM (use Inner-Rotor Induction Machine)
