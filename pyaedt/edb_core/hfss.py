@@ -475,7 +475,7 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def create_hfss_ports_on_padstack(self, pinpos, portname=None):
-        """Create a HFSS port on a padstack.
+        """Create an HFSS port on a padstack.
 
         Parameters
         ----------
