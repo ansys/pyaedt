@@ -1423,7 +1423,7 @@ class Edb(object):
         """
         self.logger.info("Building simulation project.")
         try:
-            if not simulation_setup or not isinstance(simulation_setup, SimulationConfiguration):# pragma: no cover
+            if not simulation_setup or not isinstance(simulation_setup, SimulationConfiguration):  # pragma: no cover
                 return False
             if simulation_setup.do_cutout_subdesign:
                 self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
@@ -1433,7 +1433,7 @@ class Edb(object):
                     old_cell = self.active_cell.FindByName(self._db, 0, old_cell_name)
                     if old_cell:
                         old_cell.Delete()
-                else:# pragma: no cover
+                else:  # pragma: no cover
                     self.logger.error("Cutout failed.")
             self.logger.info("Deleting existing ports.")
             map(lambda port: port.Delete(), list(self.active_layout.Terminals))
@@ -1448,7 +1448,7 @@ class Edb(object):
                         reference_net=simulation_setup.power_nets,
                         port_type=SourceType.CoaxPort,
                     )
-                if not self.core_hfss.set_coax_port_attributes(simulation_setup):# pragma: no cover
+                if not self.core_hfss.set_coax_port_attributes(simulation_setup):  # pragma: no cover
                     self.logger.error("Failed to configure coaxial port attributes.")
                 self.logger.info("Number of ports: {}".format(self.core_hfss.get_ports_number()))
                 self.logger.info("Configure HFSS extents.")
@@ -1472,7 +1472,7 @@ class Edb(object):
                         port_type=SourceType.CircPort,
                     )
                 self.logger.info("Configuring analysis setup.")
-                if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):# pragma: no cover
+                if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
                     self.logger.error("Failed to configure Siwave simulation setup.")
 
             # if simulation_setup.defeature_layout:
