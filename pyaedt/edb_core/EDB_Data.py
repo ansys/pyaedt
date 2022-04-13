@@ -227,33 +227,33 @@ class EDBPrimitives(object):
             x2 = p1[0]
             y2 = p1[1]
             h *= -1
-        xa = (x2-x1) / 2
-        ya = (y2-y1) / 2
+        xa = (x2 - x1) / 2
+        ya = (y2 - y1) / 2
         xo = x1 + xa
         yo = y1 + ya
-        a = math.sqrt(xa**2 + ya**2)
+        a = math.sqrt(xa ** 2 + ya ** 2)
         if a < tol:
             return [], []
-        r = (a**2)/(2*h) + h/2
-        if abs(r-a) < tol:
+        r = (a ** 2) / (2 * h) + h / 2
+        if abs(r - a) < tol:
             b = 0
             th = 2 * math.asin(1)  # chord angle
         else:
-            b = math.sqrt(r**2 - a**2)
-            th = 2 * math.asin(a/r)  # chord angle
+            b = math.sqrt(r ** 2 - a ** 2)
+            th = 2 * math.asin(a / r)  # chord angle
 
         # center of the circle
-        xc = xo + b*ya/a
-        yc = yo - b*xa/a
+        xc = xo + b * ya / a
+        yc = yo - b * xa / a
 
-        alpha = math.atan2((y1-yc), (x1-xc))
+        alpha = math.atan2((y1 - yc), (x1 - xc))
         xr = []
         yr = []
         for i in range(n):
             i += 1
-            dth = (float(i)/(n+1)) * th
-            xi = xc + r * math.cos(alpha-dth)
-            yi = yc + r * math.sin(alpha-dth)
+            dth = (float(i) / (n + 1)) * th
+            xi = xc + r * math.cos(alpha - dth)
+            yi = yc + r * math.sin(alpha - dth)
             xr.append(xi)
             yr.append(yi)
 
@@ -277,9 +277,9 @@ class EDBPrimitives(object):
                 # i += 1
             else:
                 arc_h = point.GetArcHeight().ToDouble()
-                p1 = [my_net_points[i-1].X.ToDouble(), my_net_points[i-1].Y.ToDouble()]
-                if i+1 < len(my_net_points):
-                    p2 = [my_net_points[i+1].X.ToDouble(), my_net_points[i+1].Y.ToDouble()]
+                p1 = [my_net_points[i - 1].X.ToDouble(), my_net_points[i - 1].Y.ToDouble()]
+                if i + 1 < len(my_net_points):
+                    p2 = [my_net_points[i + 1].X.ToDouble(), my_net_points[i + 1].Y.ToDouble()]
                 else:
                     p2 = [my_net_points[0].X.ToDouble(), my_net_points[0].Y.ToDouble()]
                 x_arc, y_arc = self._eval_arc_points(p1, p2, arc_h, num)
@@ -516,13 +516,16 @@ class EDBLayer(object):
         """
         if not self._layer_type:
             self._layer_type = self._layer.GetLayerType()
-        return self._stackup_methods._layer_types_to_int(self._layer_type)
+        return self._pedblayers._layer_types_to_int(self._layer_type)
 
     @layer_type.setter
     def layer_type(self, value):
-
-        self._layer_type = value
-        self.update_layers()
+        if type(value) is not type(self._layer_type):
+            self._layer_type = self._pedblayers._int_to_layer_types(value)
+            self.update_layers()
+        else:
+            self._layer_type = value
+            self.update_layers()
 
     @property
     def material_name(self):
@@ -765,16 +768,16 @@ class EDBLayer(object):
 
     @pyaedt_function_handler()
     def update_layer_vals(
-        self,
-        layerName,
-        newLayer,
-        etchMap,
-        materialMap,
-        fillMaterialMap,
-        thicknessMap,
-        negativeMap,
-        roughnessMap,
-        layerTypeMap,
+            self,
+            layerName,
+            newLayer,
+            etchMap,
+            materialMap,
+            fillMaterialMap,
+            thicknessMap,
+            negativeMap,
+            roughnessMap,
+            layerTypeMap,
     ):
         """Update layer properties.
 
@@ -986,10 +989,10 @@ class EDBLayers(object):
         allLayers = list(list(self.layer_collection.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         allStackuplayers = filter(
             lambda lyr: (lyr.GetLayerType() == self._edb.Cell.LayerType.DielectricLayer)
-            or (
-                lyr.GetLayerType() == self._edb.Cell.LayerType.SignalLayer
-                or lyr.GetLayerType() == self._edb.Cell.LayerType.ConductingLayer
-            ),
+                        or (
+                                lyr.GetLayerType() == self._edb.Cell.LayerType.SignalLayer
+                                or lyr.GetLayerType() == self._edb.Cell.LayerType.ConductingLayer
+                        ),
             allLayers,
         )
         return sorted(allStackuplayers, key=lambda lyr=self._edb.Cell.StackupLayer: lyr.GetLowerElevation())
@@ -1006,8 +1009,8 @@ class EDBLayers(object):
         self._signal_layers = OrderedDict({})
         for layer, edblayer in self.layers.items():
             if (
-                edblayer._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or edblayer._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                    edblayer._layer_type == self._edb.Cell.LayerType.SignalLayer
+                    or edblayer._layer_type == self._edb.Cell.LayerType.ConductingLayer
             ):
                 self._signal_layers[layer] = edblayer
         return self._signal_layers
@@ -1125,6 +1128,8 @@ class EDBLayers(object):
                 return 16
             elif layer_type == self.layer_types.OutlineLayer:
                 return 18
+        elif isinstance(layer_type, int):
+            return layer_type
 
     @stackup_mode.setter
     def stackup_mode(self, value):
@@ -1146,16 +1151,16 @@ class EDBLayers(object):
 
     @pyaedt_function_handler()
     def add_layer(
-        self,
-        layerName,
-        start_layer=None,
-        material="copper",
-        fillMaterial="",
-        thickness="35um",
-        layerType=0,
-        negative_layer=False,
-        roughness_enabled=False,
-        etchMap=None,
+            self,
+            layerName,
+            start_layer=None,
+            material="copper",
+            fillMaterial="",
+            thickness="35um",
+            layerType=0,
+            negative_layer=False,
+            roughness_enabled=False,
+            etchMap=None,
     ):
         """Add a layer after a specific layer.
 
@@ -1565,7 +1570,7 @@ class EDBPadProperties(object):
 
     @pyaedt_function_handler()
     def _update_pad_parameters_parameters(
-        self, layer_name=None, pad_type=None, geom_type=None, params=None, offsetx=None, offsety=None, rotation=None
+            self, layer_name=None, pad_type=None, geom_type=None, params=None, offsetx=None, offsety=None, rotation=None
     ):
         """Update padstack parameters.
 
