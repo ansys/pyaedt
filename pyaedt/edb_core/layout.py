@@ -793,7 +793,7 @@ class EdbLayout(object):
             radius=None,
             points=None,
             properties={},
-        ):
+        ):  # noqa: W0622
             self.type = type
             self.pointA = pointA
             self.pointB = pointB
