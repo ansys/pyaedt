@@ -694,7 +694,7 @@ class EDBLayer(object):
         outline=None,
         size=(2000, 1000),
     ):
-        """Plot a Layer to Matplotlib 2D Chart.
+        """Plot a layer to a Matplotlib 2D chart.
 
         Parameters
         ----------
