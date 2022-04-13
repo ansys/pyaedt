@@ -757,7 +757,7 @@ class EdbHfss(object):
 
         Parameters
         ----------
-        signal_nets : list, optional if simulation_setup provided.
+        signal_nets : list, optional if simulation_setup is provided
             The list of signal net names. will be ignored if simulation_setup object is provided
 
         power_nets : list optional if simulatiom_setup provided.
