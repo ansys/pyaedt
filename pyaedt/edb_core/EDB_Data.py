@@ -574,7 +574,7 @@ class EDBLayer(object):
         str
             Name of the filling material if it exists.
         """
-        if self._layer_type == 0 or self._layer_type == 2:
+        if self._layer_type == self._edb.Cell.LayerType.SignalLayer or self._layer_type == self._edb.Cell.LayerType.ConductingLayer:
             try:
                 self._filling_material_name = self._layer.GetFillMaterial()
             except:
@@ -585,7 +585,7 @@ class EDBLayer(object):
     @filling_material_name.setter
     def filling_material_name(self, value):
 
-        if self._layer_type == 0 or self._layer_type == 2:
+        if self._layer_type == self._edb.Cell.LayerType.SignalLayer or self._layer_type == self._edb.Cell.LayerType.ConductingLayer:
             self._filling_material_name = value
             self.update_layers()
 
@@ -598,7 +598,7 @@ class EDBLayer(object):
         bool
             ``True`` when negative, ``False`` otherwise..
         """
-        if self._layer_type == 0 or self._layer_type == 2:
+        if self._layer_type == self._edb.Cell.LayerType.SignalLayer or self._layer_type == self._edb.Cell.LayerType.ConductingLayer:
             try:
                 self._negative_layer = self._layer.GetNegative()
             except:
@@ -607,7 +607,7 @@ class EDBLayer(object):
 
     @negative_layer.setter
     def negative_layer(self, value):
-        if self._layer_type == 0 or self._layer_type == 2:
+        if self._layer_type == self._edb.Cell.LayerType.SignalLayer or self._layer_type == self._edb.Cell.LayerType.ConductingLayer:
             self._negative_layer = value
             self.update_layers()
 
@@ -620,7 +620,7 @@ class EDBLayer(object):
         bool
             ``True`` if the layer has roughness, ``False`` otherwise.
         """
-        if self._layer_type == 0 or self._layer_type == 2:
+        if self._layer_type == self._edb.Cell.LayerType.SignalLayer or self._layer_type == self._edb.Cell.LayerType.ConductingLayer:
             try:
                 self._roughness_enabled = self._layer.IsRoughnessEnabled()
             except:
@@ -629,7 +629,7 @@ class EDBLayer(object):
 
     @roughness_enabled.setter
     def roughness_enabled(self, value):
-        if self._layer_type == 0 or self._layer_type == 2:
+        if self._layer_type == self._edb.Cell.LayerType.SignalLayer or self._layer_type == self._edb.Cell.LayerType.ConductingLayer:
             self._roughness_enabled = value
             self.update_layers()
 
@@ -751,7 +751,7 @@ class EDBLayer(object):
             self._name = self._layer.GetName()
             self._layer_type = self._layer.GetLayerType()
             self._thickness = self._layer.GetThicknessValue().ToString()
-            if self._layer_type == 0 or self._layer_type == 2:
+            if self._layer_type == self._edb.Cell.LayerType.SignalLayer or self._layer_type == self._edb.Cell.LayerType.ConductingLayer:
                 self._etch_factor = self._layer.GetEtchFactor().ToString()
                 self._filling_material_name = self._layer.GetFillMaterial()
                 self._negative_layer = self._layer.GetNegative()
