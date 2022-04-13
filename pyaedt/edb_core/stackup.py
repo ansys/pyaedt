@@ -812,7 +812,6 @@ class EdbStackup(object):
                         "Signal layer {0} is not found in the etching layers specified in the cfg, "
                         "skipping the etching factor assignment".format(layer.GetName())
                     )
-                    # cloning the same signal layer to keep a valid layout
                     new_signal_lay = layer.Clone()
                 else:
                     new_signal_lay = layer.Clone()
