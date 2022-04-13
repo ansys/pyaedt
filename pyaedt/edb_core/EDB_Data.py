@@ -1090,6 +1090,41 @@ class EDBLayers(object):
         elif int(val) == 18:
             return self.layer_types.OutlineLayer
 
+    @pyaedt_function_handler()
+    def _layer_types_to_int(self, layer_type):
+        if layer_type == self.layer_types.SignalLayer:
+            return 0
+        elif layer_type == self.layer_types.DielectricLayer:
+            return 1
+        elif layer_type == self.layer_types.ConductingLayer:
+            return 2
+        elif layer_type == self.layer_types.AirlinesLayer:
+            return 3
+        elif layer_type == self.layer_types.ErrorsLayer:
+            return 4
+        elif layer_type == self.layer_types.SymbolLayer:
+            return 5
+        elif layer_type == self.layer_types.MeasureLayer:
+            return 6
+        elif layer_type == self.layer_types.AssemblyLayer:
+            return 8
+        elif layer_type == self.layer_types.SilkscreenLayer:
+            return 9
+        elif layer_type == self.layer_types.SolderMaskLayer:
+            return 10
+        elif layer_type == self.layer_types.SolderPasteLayer:
+            return 11
+        elif layer_type == self.layer_types.GlueLayer:
+            return 12
+        elif layer_type == self.layer_types.WirebondLayer:
+            return 13
+        elif layer_type == self.layer_types.UserLayer:
+            return 14
+        elif layer_type == self.layer_types.SIwaveHFSSSolverRegions:
+            return 16
+        elif layer_type == self.layer_types.OutlineLayer:
+            return 18
+
     @stackup_mode.setter
     def stackup_mode(self, value):
 
