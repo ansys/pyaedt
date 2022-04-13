@@ -2813,12 +2813,12 @@ class SimulationConfiguration(object):
         self._read_cfg()
 
     @property
-    def generate_solder_balls(self):# pragma: no cover
+    def generate_solder_balls(self):  # pragma: no cover
         return self._generate_solder_balls
 
     @generate_solder_balls.setter
     def generate_solder_balls(self, value):
-        if isinstance(value, bool):# pragma: no cover
+        if isinstance(value, bool):  # pragma: no cover
             self._generate_solder_balls = value
 
     @property
@@ -2827,7 +2827,7 @@ class SimulationConfiguration(object):
 
     @signal_nets.setter
     def signal_nets(self, value):
-        if isinstance(value, list):# pragma: no cover
+        if isinstance(value, list):  # pragma: no cover
             self._signal_nets = value
 
     @property
@@ -2836,7 +2836,7 @@ class SimulationConfiguration(object):
 
     @setup_name.setter
     def setup_name(self, value):
-        if isinstance(value, str):# pragma: no cover
+        if isinstance(value, str):  # pragma: no cover
             self._setup_name = value
 
     @property
@@ -2858,11 +2858,11 @@ class SimulationConfiguration(object):
             self._components = value
 
     @property
-    def coax_solder_ball_diameter(self):# pragma: no cover
+    def coax_solder_ball_diameter(self):  # pragma: no cover
         return self._coax_solder_ball_diameter
 
     @coax_solder_ball_diameter.setter
-    def coax_solder_ball_diameter(self, value):# pragma: no cover
+    def coax_solder_ball_diameter(self, value):  # pragma: no cover
         if isinstance(value, list):
             self._coax_solder_ball_diameter = value
 
@@ -2871,7 +2871,7 @@ class SimulationConfiguration(object):
         return self._use_default_coax_port_radial_extension
 
     @use_default_coax_port_radial_extension.setter
-    def use_default_coax_port_radial_extension(self, value):# pragma: no cover
+    def use_default_coax_port_radial_extension(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._use_default_coax_port_radial_extension = value
 
@@ -2880,7 +2880,7 @@ class SimulationConfiguration(object):
         return self._trim_reference_size
 
     @trim_reference_size.setter
-    def trim_reference_size(self, value):# pragma: no cover
+    def trim_reference_size(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._trim_reference_size = value
 
@@ -2889,7 +2889,7 @@ class SimulationConfiguration(object):
         return self._do_cutout_subdesign
 
     @do_cutout_subdesign.setter
-    def do_cutout_subdesign(self, value):# pragma: no cover
+    def do_cutout_subdesign(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._do_cutout_subdesign = value
 
@@ -2898,7 +2898,7 @@ class SimulationConfiguration(object):
         return self._cutout_subdesign_type
 
     @cutout_subdesign_type.setter
-    def cutout_subdesign_type(self, value):# pragma: no cover
+    def cutout_subdesign_type(self, value):  # pragma: no cover
         if isinstance(value, CutoutSubdesignType):
             self._cutout_subdesign_type = value
 
@@ -2907,7 +2907,7 @@ class SimulationConfiguration(object):
         return self._cutout_subdesign_expansion
 
     @cutout_subdesign_expansion.setter
-    def cutout_subdesign_expansion(self, value):# pragma: no cover
+    def cutout_subdesign_expansion(self, value):  # pragma: no cover
         if isinstance(value, float):
             self._cutout_subdesign_expansion = value
 
@@ -2916,144 +2916,144 @@ class SimulationConfiguration(object):
         return self._cutout_subdesign_round_corner
 
     @cutout_subdesign_round_corner.setter
-    def cutout_subdesign_round_corner(self, value):# pragma: no cover
+    def cutout_subdesign_round_corner(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._cutout_subdesign_round_corner = value
 
     @property
-    def sweep_interpolating(self):# pragma: no cover
+    def sweep_interpolating(self):  # pragma: no cover
         return self._sweep_interpolating
 
     @sweep_interpolating.setter
-    def sweep_interpolating(self, value):# pragma: no cover
+    def sweep_interpolating(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._sweep_interpolating = value
 
     @property
-    def use_q3d_for_dc(self):# pragma: no cover
+    def use_q3d_for_dc(self):  # pragma: no cover
         return self._use_q3d_for_dc
 
     @use_q3d_for_dc.setter
-    def use_q3d_for_dc(self, value):# pragma: no cover
+    def use_q3d_for_dc(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._use_q3d_for_dc = value
 
     @property
-    def relative_error(self):# pragma: no cover
+    def relative_error(self):  # pragma: no cover
         return self._relative_error
 
     @relative_error.setter
-    def relative_error(self, value):# pragma: no cover
+    def relative_error(self, value):  # pragma: no cover
         if isinstance(value, float):
             self._relative_error = value
 
     @property
-    def use_error_z0(self):# pragma: no cover
+    def use_error_z0(self):  # pragma: no cover
         return self._use_error_z0
 
     @use_error_z0.setter
-    def use_error_z0(self, value):# pragma: no cover
+    def use_error_z0(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._use_error_z0 = value
 
     @property
-    def percentage_error_z0(self):# pragma: no cover
+    def percentage_error_z0(self):  # pragma: no cover
         return self._percentage_error_z0
 
     @percentage_error_z0.setter
-    def percentage_error_z0(self, value):# pragma: no cover
+    def percentage_error_z0(self, value):  # pragma: no cover
         if isinstance(value, float):
             self._percentage_error_z0 = value
 
     @property
-    def enforce_causality(self):# pragma: no cover
+    def enforce_causality(self):  # pragma: no cover
         return self._enforce_causality
 
     @enforce_causality.setter
-    def enforce_causality(self, value):# pragma: no cover
+    def enforce_causality(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._enforce_causality = value
 
     @property
-    def enforce_passivity(self):# pragma: no cover
+    def enforce_passivity(self):  # pragma: no cover
         return self._enforce_passivity
 
     @enforce_passivity.setter
-    def enforce_passivity(self, value):# pragma: no cover
+    def enforce_passivity(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._enforce_passivity = value
 
     @property
-    def passivity_tolerance(self):# pragma: no cover
+    def passivity_tolerance(self):  # pragma: no cover
         return self._passivity_tolerance
 
     @passivity_tolerance.setter
-    def passivity_tolerance(self, value):# pragma: no cover
+    def passivity_tolerance(self, value):  # pragma: no cover
         if isinstance(value, float):
             self._passivity_tolerance = value
 
     @property
-    def sweep_name(self):# pragma: no cover
+    def sweep_name(self):  # pragma: no cover
         return self._sweep_name
 
     @sweep_name.setter
-    def sweep_name(self, value):# pragma: no cover
+    def sweep_name(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._sweep_name = value
 
     @property
-    def radiation_box(self):# pragma: no cover
+    def radiation_box(self):  # pragma: no cover
         return self._radiation_box
 
     @radiation_box.setter
-    def radiation_box(self, value):# pragma: no cover
+    def radiation_box(self, value):  # pragma: no cover
         if isinstance(value, RadiationBoxType):
             self._radiation_box = value
 
     @property
-    def start_frequency(self):# pragma: no cover
+    def start_frequency(self):  # pragma: no cover
         return self._start_frequency
 
     @start_frequency.setter
-    def start_frequency(self, value):# pragma: no cover
+    def start_frequency(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._start_frequency = value
 
     @property
-    def stop_freq(self):# pragma: no cover
+    def stop_freq(self):  # pragma: no cover
         return self._stop_freq
 
     @stop_freq.setter
-    def stop_freq(self, value):# pragma: no cover
+    def stop_freq(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._stop_freq = value
 
     @property
-    def sweep_type(self):# pragma: no cover
+    def sweep_type(self):  # pragma: no cover
         return self._sweep_type
 
     @sweep_type.setter
-    def sweep_type(self, value):# pragma: no cover
+    def sweep_type(self, value):  # pragma: no cover
         if isinstance(value, SweepType):
             self._sweep_type = value
         # if isinstance(value, str):
         #     self._sweep_type = value
 
     @property
-    def step_freq(self):# pragma: no cover
+    def step_freq(self):  # pragma: no cover
         return self._step_freq
 
     @step_freq.setter
-    def step_freq(self, value):# pragma: no cover
+    def step_freq(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._step_freq = value
 
     @property
-    def decade_count(self):# pragma: no cover
+    def decade_count(self):  # pragma: no cover
         return self._decade_count
 
     @decade_count.setter
-    def decade_count(self, value):# pragma: no cover
+    def decade_count(self, value):  # pragma: no cover
         if isinstance(value, int):
             self._decade_count = value
 
