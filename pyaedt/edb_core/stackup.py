@@ -173,8 +173,7 @@ class EdbStackup(object):
         if self._edb.Definition.MaterialDef.FindByName(self._db, name).IsNull():
             material_def = self._edb.Definition.MaterialDef.Create(self._db, name)
             material_def.SetProperty(
-                self._edb.Definition.MaterialPropertyId.Conductivity,
-                self._get_edb_value(conductivity),
+                self._edb.Definition.MaterialPropertyId.Conductivity, self._get_edb_value(conductivity)
             )
             return material_def
         return False
@@ -222,8 +221,7 @@ class EdbStackup(object):
         material_def.SetFrequencyRange(lower_freqency, higher_frequency)
         material_def.SetLossTangentAtHighLowFrequency(loss_tangent_low, loss_tangent_high)
         material_def.SetRelativePermitivityAtHighLowFrequency(
-            self._get_edb_value(relative_permittivity_low),
-            self._get_edb_value(relative_permittivity_high),
+            self._get_edb_value(relative_permittivity_low), self._get_edb_value(relative_permittivity_high)
         )
         return self._add_dielectric_material_model(name, material_def)
 
@@ -423,9 +421,7 @@ class EdbStackup(object):
             edb_cell = list_cells[0]
         self._active_layout.GetCell().SetBlackBox(True)
         cell_inst2 = self._edb.Cell.Hierarchy.CellInstance.Create(
-            edb_cell.GetLayout(),
-            self._active_layout.GetCell().GetName(),
-            self._active_layout,
+            edb_cell.GetLayout(), self._active_layout.GetCell().GetName(), self._active_layout
         )
         cell_trans = cell_inst2.GetTransform()
         cell_trans.SetRotationValue(_angle)
@@ -519,9 +515,7 @@ class EdbStackup(object):
             edb_cell = list_cells[0]
         self._active_layout.GetCell().SetBlackBox(True)
         cell_inst2 = self._edb.Cell.Hierarchy.CellInstance.Create(
-            edb_cell.GetLayout(),
-            self._active_layout.GetCell().GetName(),
-            self._active_layout,
+            edb_cell.GetLayout(), self._active_layout.GetCell().GetName(), self._active_layout
         )
 
         stackup_target = edb_cell.GetLayout().GetLayerCollection()
@@ -551,19 +545,11 @@ class EdbStackup(object):
             source_stack_bot = None
             source_stack_bot_elevation = Double(0.0)
             res = stackup_target.GetTopBottomStackupLayers(
-                sig_set,
-                target_top,
-                target_top_elevation,
-                target_bottom,
-                target_bottom_elevation,
+                sig_set, target_top, target_top_elevation, target_bottom, target_bottom_elevation
             )
 
             res_s = stackup_source.GetTopBottomStackupLayers(
-                sig_set,
-                source_stack_top,
-                source_stack_top_elevation,
-                source_stack_bot,
-                source_stack_bot_elevation,
+                sig_set, source_stack_top, source_stack_top_elevation, source_stack_bot, source_stack_bot_elevation
             )
             target_top_elevation = res[2]
             target_bottom_elevation = res[4]
@@ -588,9 +574,7 @@ class EdbStackup(object):
         point_loc = self._edb.Geometry.Point3DData(zero_data, zero_data, zero_data)
         point_from = self._edb.Geometry.Point3DData(one_data, zero_data, zero_data)
         point_to = self._edb.Geometry.Point3DData(
-            self._get_edb_value(math.cos(_angle)),
-            self._get_edb_value(-1 * math.sin(_angle)),
-            zero_data,
+            self._get_edb_value(math.cos(_angle)), self._get_edb_value(-1 * math.sin(_angle)), zero_data
         )
         cell_inst2.Set3DTransformation(point_loc, point_from, point_to, rotation, point3d_t)
         return True
@@ -781,6 +765,81 @@ class EdbStackup(object):
             )
         h_stackup = abs(float(topz) - float(bottomz))
         return topl.GetName(), topz, bottoml.GetName(), bottomz
+
+    def create_symmetric_stackup(
+        self,
+        layer_count,
+        inner_layer_thickness="17um",
+        outer_layer_thickness="50um",
+        dielectric_thickness="100um",
+        dielectric_material="FR4_epoxy",
+        soldermask=True,
+        soldermask_thickness="20um",
+    ):
+        """Create a symmetric stackup.
+
+        Parameters
+        ----------
+        layer_count : int
+            Number of layer count.
+        inner_layer_thickness : str, float, optional
+            Thickness of inner conductor layer.
+        outer_layer_thickness : str, float, optional
+            Thickness of outer conductor layer.
+        dielectric_thickness : str, float, optional
+            Thickness of dielectric layer.
+        dielectric_material : str, optional
+            Material of dielectric layer.
+        soldermask : bool, optional
+            Whether to create soldermask layers. The default is``True``.
+        soldermask_thickness : str, optional
+            Thickness of soldermask layer.
+        Returns
+        -------
+        bool
+        """
+        if not layer_count % 2 == 0:
+            return False
+
+        if soldermask:
+            self.stackup_layers.add_layer("SMB", None, "SolderMask", thickness=soldermask_thickness, layerType=1)
+            layer_name = "BOTTOM"
+            self.stackup_layers.add_layer(layer_name, "SMB", fillMaterial="SolderMask", thickness=outer_layer_thickness)
+        else:
+            layer_name = "BOTTOM"
+            self.stackup_layers.add_layer(layer_name, fillMaterial="Air", thickness=outer_layer_thickness)
+
+        for layer in range(layer_count - 1, 1, -1):
+            new_layer_name = "D" + str(layer - 1)
+            self.stackup_layers.add_layer(
+                new_layer_name, layer_name, dielectric_material, thickness=dielectric_thickness, layerType=1
+            )
+            layer_name = new_layer_name
+            new_layer_name = "L" + str(layer - 1)
+            self.stackup_layers.add_layer(
+                new_layer_name, layer_name, "copper", dielectric_material, inner_layer_thickness
+            )
+            layer_name = new_layer_name
+
+        new_layer_name = "D1"
+        self.stackup_layers.add_layer(
+            new_layer_name, layer_name, dielectric_material, thickness=dielectric_thickness, layerType=1
+        )
+        layer_name = new_layer_name
+
+        if soldermask:
+            new_layer_name = "TOP"
+            self.stackup_layers.add_layer(
+                new_layer_name, layer_name, fillMaterial="SolderMask", thickness=outer_layer_thickness
+            )
+            layer_name = new_layer_name
+            self.stackup_layers.add_layer("SMT", layer_name, "SolderMask", thickness=soldermask_thickness, layerType=1)
+        else:
+            new_layer_name = "TOP"
+            self.stackup_layers.add_layer(
+                new_layer_name, layer_name, fillMaterial="Air", thickness=outer_layer_thickness
+            )
+        return True
 
     @pyaedt_function_handler()
     def set_etching_layers(self, simulation_setup=None):

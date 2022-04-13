@@ -1107,7 +1107,18 @@ class EDBLayers(object):
         thickness : str, optional
             Thickness value, including units. The default is ``"35um"``.
         layerType :
-            Type of the layer. The default is ``0``, which is a signal layer.
+            Type of the layer. The default is ``0``
+            ``0``: Signal layer.
+            ``1``: Dielectric layer.
+            ``2``: Conducting plane layer.
+            ``3``: Airline layer.
+            ``4``: Error layer.
+            ``5``: Symbol layer.
+            ``6``: Measure layer.
+            ``8``: Assembly layer.
+            ``9``: Silkscreen layer.
+            ``10``: Solder Mask layer.
+            ``11``: Solder Paste layer.
         etchMap : optional
             Etch value if any. The default is ``None``.
 
