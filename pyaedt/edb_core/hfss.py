@@ -761,7 +761,8 @@ class EdbHfss(object):
             List of signal net names. This list is ignored if a ``simulation_setup`` object is provided.
 
         power_nets : list optional if simulatiom_setup provided.
-            The list of power net names. will be ignored if simulation_setup object is provided
+            List of power net names. This list is ignored if a ``simulation_setup`` object
+            is provided.
 
         component_list : list optional if simulatiom_setup provided.
             The list of component names. will be ignored if simulation_setup object is provided
