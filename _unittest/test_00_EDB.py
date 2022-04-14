@@ -977,3 +977,9 @@ class TestClass(BasisTest, object):
         app_edb = local_edb(edbversion="2022.1")
         assert app_edb.core_stackup.create_symmetric_stackup(8, soldermask=False)
         app_edb.close_edb()
+
+    def test_87_create_rectangle(self):
+        assert self.edbapp.core_primitives.create_rectangle("TOP", "SIG1", ["0", "0"], ["2mm", "3mm"])
+        assert self.edbapp.core_primitives.create_rectangle(
+            "TOP", "SIG2", center_point=["0", "0"], width="4mm", height="5mm", representation_type="CenterWidthHeight"
+        )
