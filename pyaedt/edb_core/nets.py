@@ -259,7 +259,11 @@ class EdbNets(object):
                     if label not in label_colors:
                         color = path.layer.GetColor()
                         try:
-                            c = (float(color.Item1 / 255), float(color.Item2 / 255), float(color.Item3 / 255))
+                            c = (
+                                float(color.Item1 / 255),
+                                float(color.Item2 / 255),
+                                float(color.Item3 / 255),
+                            )
                             label_colors[label] = c
                         except:
                             label_colors[label] = list(CSS4_COLORS.keys())[color_index]
@@ -314,7 +318,11 @@ class EdbNets(object):
                     if label not in label_colors:
                         color = poly.GetLayer().GetColor()
                         try:
-                            c = (float(color.Item1 / 255), float(color.Item2 / 255), float(color.Item3 / 255))
+                            c = (
+                                float(color.Item1 / 255),
+                                float(color.Item2 / 255),
+                                float(color.Item3 / 255),
+                            )
                             label_colors[label] = c
                         except:
                             label_colors[label] = list(CSS4_COLORS.keys())[color_index]
@@ -346,7 +354,14 @@ class EdbNets(object):
 
     @pyaedt_function_handler()
     def plot(
-        self, nets, layers=None, color_by_net=False, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)
+        self,
+        nets,
+        layers=None,
+        color_by_net=False,
+        show_legend=True,
+        save_plot=None,
+        outline=None,
+        size=(2000, 1000),
     ):
         """Plot a Net to Matplotlib 2D Chart.
 
@@ -379,7 +394,15 @@ class EdbNets(object):
             color_by_net,
             outline,
         )
-        plot_matplotlib(object_lists, size, show_legend, "X (m)", "Y (m)", self._pedb.active_cell.GetName(), save_plot)
+        plot_matplotlib(
+            object_lists,
+            size,
+            show_legend,
+            "X (m)",
+            "Y (m)",
+            self._pedb.active_cell.GetName(),
+            save_plot,
+        )
 
     @pyaedt_function_handler()
     def is_power_gound_net(self, netname_list):
@@ -497,7 +520,14 @@ class EdbNets(object):
             pins = self._pedb.core_components.get_pin_from_component(component=refdes, netName=el[2])
             el.append("-".join([i.GetName() for i in pins]))
 
-        component_list_columns = ["refdes", "pin_name", "net_name", "component_type", "component_partname", "pin_list"]
+        component_list_columns = [
+            "refdes",
+            "pin_name",
+            "net_name",
+            "component_type",
+            "component_partname",
+            "pin_list",
+        ]
         return component_list, component_list_columns, net_group
 
     @pyaedt_function_handler()
