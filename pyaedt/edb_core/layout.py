@@ -523,7 +523,7 @@ class EdbLayout(object):
         corner_radius="0mm",
         rotation="0deg",
     ):
-        """Create rectangle
+        """Create rectangle.
 
         Parameters
         ----------
