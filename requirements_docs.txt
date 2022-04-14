@@ -4,7 +4,7 @@ imageio>=2.5.0
 imageio-ffmpeg
 pyvista<=0.33.3
 numpy
-Sphinx==4.0.3
+Sphinx==4.5.0
 sphinx-autobuild
 https://github.com/numpy/numpydoc/archive/main.zip  # need latest
 sphinxcontrib-websupport
