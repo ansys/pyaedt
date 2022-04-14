@@ -722,17 +722,18 @@ class EDBLayer(object):
         """
         if self._layer_type == 0 or self._layer_type == 2:
             try:
-                self._etch_factor = self._layer.GetEtchFactor().ToString()
+                self._etch_factor = float(self._layer.GetEtchFactor().ToString())
+                return self._etch_factor
             except:
                 pass
-            return self._etch_factor
         return 0
 
     @etch_factor.setter
     def etch_factor(self, value):
-
+        if value is None:
+            value = 0
         if self._layer_type == 0 or self._layer_type == 2:
-            self._etch_factor = value
+            self._etch_factor = float(value)
             self.update_layers()
 
     @pyaedt_function_handler()
@@ -776,7 +777,7 @@ class EDBLayer(object):
                 self._layer_type == self._edb.Cell.LayerType.SignalLayer
                 or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
             ):
-                self._etch_factor = self._layer.GetEtchFactor().ToString()
+                self._etch_factor = float(self._layer.GetEtchFactor().ToString())
                 self._filling_material_name = self._layer.GetFillMaterial()
                 self._negative_layer = self._layer.GetNegative()
                 self._roughness_enabled = self._layer.IsRoughnessEnabled()
@@ -830,6 +831,7 @@ class EDBLayer(object):
 
         try:
             newLayer.SetLayerType(layerTypeMap)
+            print("succeed!")
         except:
             self._logger.error("Layer %s has unknown type %s.", layerName, layerTypeMap)
             return False
@@ -843,13 +845,16 @@ class EDBLayer(object):
             newLayer.SetNegative(negativeMap)
         if roughnessMap:
             newLayer.SetRoughnessEnabled(roughnessMap)
-        if etchMap and layerTypeMap == 0 or layerTypeMap == 2:
+        if isinstance(etchMap, float) and (layerTypeMap == 0 or layerTypeMap == 2):
             etchVal = float(etchMap)
         else:
             etchVal = 0.0
         if etchVal != 0.0:
             newLayer.SetEtchFactorEnabled(True)
             newLayer.SetEtchFactor(self._get_edb_value(etchVal))
+        else:
+            newLayer.SetEtchFactor(self._get_edb_value(etchVal))
+            newLayer.SetEtchFactorEnabled(False)
         return newLayer
 
     @pyaedt_function_handler()

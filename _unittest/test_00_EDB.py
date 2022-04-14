@@ -1076,36 +1076,39 @@ class TestClass(BasisTest, object):
         comp.type = "Other"
         assert comp.type == "Other"
 
-    def test_84_negative_properties_test(self):
+    def test_84_negative_properties(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
         layer.negative_layer = True
         assert layer.negative_layer
 
-    def test_85_roughness_property_test(self):
+    def test_85_roughness_property(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
         layer.roughness_enabled = True
         assert layer.roughness_enabled
 
-    def test_86_thickness_property_test(self):
+    def test_86_thickness_property(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
         layer.thickness_value = 35e-6
         assert layer.thickness_value == 35e-6
 
-    def test_87_filling_material_property_test(self):
+    def test_87_filling_material_property(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
         layer.filling_material_name = "air"
         assert layer.filling_material_name == "air"
 
-    def test_88_material_property_test(self):
+    def test_88_material_property(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
         layer.material_name = "copper"
         assert layer.material_name == "copper"
 
-    def test_89_layer_type_property_test(self):
+    def test_89_layer_type_property(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
+        layer.layer_type = 1
+        assert layer.layer_type == 1
+        layer.layer_type = 0
         assert layer.layer_type == 0
 
-    def test_91_loggers_test(self):
+    def test_91_loggers(self):
         core_stackup = self.edbapp.core_stackup
         layers = self.edbapp.core_stackup.stackup_layers
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
@@ -1148,3 +1151,31 @@ class TestClass(BasisTest, object):
             assert not changed_variable_done
         else:
             assert not changed_variable_5
+
+    def test_93_etch_factor(self):
+        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
+        self.edbapp.core_stackup.stackup_layers.add_layer(layerName="added_layer", etchMap=1.1)
+        added_layer = self.edbapp.core_stackup.stackup_layers.layers["added_layer"]
+        assert layer.etch_factor == 0
+        layer.etch_factor = "1"
+        print(type(layer._etch_factor))
+        assert layer.etch_factor == 1
+        layer.etch_factor = 1.1
+        assert layer.etch_factor == 1.1
+        layer.etch_factor = None
+        assert layer.etch_factor == 0.00000
+        assert added_layer.etch_factor == 1.1
+
+    def test_94_int_to_layer_types(self):
+        stackup = self.edbapp.core_stackup.stackup_layers
+        signal_layer = stackup._int_to_layer_types(0)
+        assert signal_layer == stackup.layer_types.SignalLayer
+        dielectric_layer = stackup._int_to_layer_types(1)
+        assert dielectric_layer == stackup.layer_types.DielectricLayer
+
+    def test_94_layer_types_to_int(self):
+        stackup = self.edbapp.core_stackup.stackup_layers
+        signal_layer = stackup._layer_types_to_int(stackup.layer_types.SignalLayer)
+        assert signal_layer == 0
+        dielectric_layer = stackup._layer_types_to_int(stackup.layer_types.DielectricLayer)
+        assert dielectric_layer == 1
