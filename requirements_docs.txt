@@ -3,7 +3,8 @@ matplotlib
 imageio>=2.5.0
 imageio-ffmpeg
 pyvista<=0.33.3
-numpydoc==1.2.1
+numpy
+numpydoc
 Sphinx==4.5.0
 sphinx-autobuild
 sphinxcontrib-websupport
