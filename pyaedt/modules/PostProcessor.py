@@ -2713,7 +2713,7 @@ class PostProcessorCommon(object):
         report.point_number = polyline_points
         if context == "Differential Pairs":
             report.differential_pairs = True
-        elif self.post_solution_type in ["Q3D Extractor", "2D Extractor"] and context:
+        elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
             report.matrix = context
         elif report_category == "Far Fields":
             if not context and self._app._field_setups:
@@ -2873,7 +2873,7 @@ class PostProcessorCommon(object):
         report.point_number = polyline_points
         if context == "Differential Pairs":
             report.differential_pairs = True
-        elif self.post_solution_type in ["Q3D Extractor", "2D Extractor"] and context:
+        elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
             report.matrix = context
         elif report_category == "Far Fields":
             if not context and self._app.field_setups:

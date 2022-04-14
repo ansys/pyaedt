@@ -191,6 +191,10 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 excitations = excitation_list
             else:
                 excitations = self._app.excitations
+                if self._app.design_type == "HFSS":
+                    exc = self._app.get_oo_name(self._app.odesign, "Excitations")
+                    if exc and exc[0] not in self._app.excitations:
+                        excitations.extend(exc)
             arg2.append("Excitations:="), arg2.append(excitations)
         meshops = [el.name for el in self._app.mesh.meshoperations]
         arg2.append("MeshOperations:="), arg2.append(meshops)

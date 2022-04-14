@@ -46,6 +46,15 @@ class RMXprtModule(object):
         return True
 
     @pyaedt_function_handler()
+    def __getitem__(self, parameter_name):
+        prop_server = self.get_prop_server(parameter_name)
+        separator = ":" if prop_server else ""
+        val = self._oeditor.GetPropertyValue(
+            self.component, "{0}{1}{2}".format(self.component, separator, prop_server), parameter_name
+        )
+        return val
+
+    @pyaedt_function_handler()
     def set_rmxprt_parameter(self, parameter_name, value):
         """Modify a parameter value.
 

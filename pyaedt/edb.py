@@ -21,10 +21,11 @@ try:
     from System.Collections.Generic import List
 except ImportError:  # pragma: no cover
     if os.name != "posix":
-        warnings.warn("Pythonnet is needed to run PyAEDT.")
+        warnings.warn("Python.NET is needed to run PyAEDT.")
 from pyaedt import settings
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
-from pyaedt.edb_core.EDB_Data import EdbBuilder
+from pyaedt.edb_core.EDB_Data import EdbBuilder, SimulationConfiguration
+from pyaedt.generic.constants import CutoutSubdesignType, SolverType, SourceType
 from pyaedt.generic.general_methods import (
     pyaedt_function_handler,
     env_path,
@@ -906,13 +907,14 @@ class Edb(object):
 
     def create_cutout(
         self,
-        signal_list,
+        signal_list=[],
         reference_list=["GND"],
         extent_type="Conforming",
         expansion_size=0.002,
         use_round_corner=False,
         output_aedb_path=None,
         open_cutout_at_end=True,
+        simulation_setup=None,
     ):
         """Create a cutout and save it to a new AEDB file.
 
@@ -934,6 +936,8 @@ class Edb(object):
         open_cutout_at_end : bool, optional
             Whether to open the cutout at the end. The default
             is ``True``.
+        simulation_setup : EDB_Data.SimulationConfiguration object, optional
+            Simulation setup to use to overwrite the other parameters. The default is ``None``.
 
         Returns
         -------
@@ -941,34 +945,38 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        _signal_nets = []
+
+        if simulation_setup and isinstance(simulation_setup, SimulationConfiguration):
+            signal_list = simulation_setup.signal_nets
+            reference_list = simulation_setup.power_nets
+            if simulation_setup.cutout_subdesign_type == CutoutSubdesignType.Conformal:
+                extent_type = "Conforming"
+                expansion_size = float(simulation_setup.cutout_subdesign_expansion)
+                use_round_corner = bool(simulation_setup.cutout_subdesign_round_corner)
+
         # validate nets in layout
-        for _sig in signal_list:
-            _netobj = self.edb.Cell.Net.FindByName(self.active_layout, _sig)
-            _signal_nets.append(_netobj)
-
-        _ref_nets = []
+        net_signals = convert_py_list_to_net_list(
+            [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list]
+        )
         # validate references in layout
-        for _ref in reference_list:
-            _netobj = self.edb.Cell.Net.FindByName(self.active_layout, _ref)
-            _ref_nets.append(_netobj)
+        _netsClip = convert_py_list_to_net_list(
+            [net for net in list(self.active_layout.Nets) if net.GetName() in reference_list]
+        )
 
-        _netsClip = [
-            self.edb.Cell.Net.FindByName(self.active_layout, reference_list[i]) for i, p in enumerate(reference_list)
-        ]
-        _netsClip = convert_py_list_to_net_list(_netsClip)
-        net_signals = convert_py_list_to_net_list(_signal_nets)
         if extent_type == "Conforming":
             _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, True, use_round_corner, 1
             )
         else:
             _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
+                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, True, use_round_corner, 1
             )
 
         # Create new cutout cell/design
-        _cutout = self.active_cell.CutOut(net_signals, _netsClip, _poly)
+        included_nets = convert_py_list_to_net_list(
+            [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list + reference_list]
+        )
+        _cutout = self.active_cell.CutOut(included_nets, _netsClip, _poly, True)
 
         # Analysis setups do not come over with the clipped design copy,
         # so add the analysis setups from the original here.
@@ -1397,3 +1405,78 @@ class Edb(object):
         """
         bbox = self.edbutils.HfssUtilities.GetBBox(self.active_layout)
         return [[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()], [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]]
+
+    @pyaedt_function_handler()
+    def build_simulation_project(self, simulation_setup=None):
+        """Build a ready-to-solve simulation project.
+
+        Parameters
+        ----------
+        simulation_setup : EDB_Data.SimulationConfiguratiom object.
+            SimulationConfiguration object that can be instantiated or directly loaded with a
+            configuration file.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, False when ``Failed``.
+        """
+        self.logger.info("Building simulation project.")
+        try:
+            if not simulation_setup or not isinstance(simulation_setup, SimulationConfiguration):  # pragma: no cover
+                return False
+            if simulation_setup.do_cutout_subdesign:
+                self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
+                old_cell_name = self.active_cell.GetName()
+                if self.create_cutout(simulation_setup=simulation_setup):
+                    self.logger.info("Cutout processed.")
+                    old_cell = self.active_cell.FindByName(self._db, 0, old_cell_name)
+                    if old_cell:
+                        old_cell.Delete()
+                else:  # pragma: no cover
+                    self.logger.error("Cutout failed.")
+            self.logger.info("Deleting existing ports.")
+            map(lambda port: port.Delete(), list(self.active_layout.Terminals))
+            map(lambda pg: pg.Delete(), list(self.active_layout.PinGroups))
+            self.logger.info("Creating ports for signal nets.")
+            if simulation_setup.solver_type == SolverType.Hfss3dLayout:
+                for cmp in simulation_setup.components:
+                    self.core_components.create_port_on_component(
+                        cmp,
+                        net_list=simulation_setup.signal_nets,
+                        do_pingroup=False,
+                        reference_net=simulation_setup.power_nets,
+                        port_type=SourceType.CoaxPort,
+                    )
+                if not self.core_hfss.set_coax_port_attributes(simulation_setup):  # pragma: no cover
+                    self.logger.error("Failed to configure coaxial port attributes.")
+                self.logger.info("Number of ports: {}".format(self.core_hfss.get_ports_number()))
+                self.logger.info("Configure HFSS extents.")
+                if simulation_setup.trim_reference_size:  # pragma: no cover
+                    self.logger.info(
+                        "Trimming the reference plane for coaxial ports: {0}".format(
+                            bool(simulation_setup.trim_reference_size)
+                        )
+                    )
+                    self.core_hfss.trim_component_reference_size(simulation_setup)  # pragma: no cover
+                self.core_hfss.configure_hfss_extents(simulation_setup)
+                if not self.core_hfss.configure_hfss_analysis_setup(simulation_setup):
+                    self.logger.error("Failed to configure HFSS simulation setup.")
+            if simulation_setup.solver_type == SolverType.Siwave:
+                for cmp in simulation_setup.components:
+                    self.core_components.create_port_on_component(
+                        cmp,
+                        net_list=simulation_setup.signal_nets,
+                        do_pingroup=True,
+                        reference_net=simulation_setup.power_nets,
+                        port_type=SourceType.CircPort,
+                    )
+                self.logger.info("Configuring analysis setup.")
+                if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
+                    self.logger.error("Failed to configure Siwave simulation setup.")
+
+            # if simulation_setup.defeature_layout:
+            #    self.core_hfss.layout_defeaturing(simulation_setup)
+            return True
+        except:  # pragma: no cover
+            return False

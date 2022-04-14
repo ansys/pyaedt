@@ -121,6 +121,8 @@ class CommonReport(object):
     @domain.setter
     def domain(self, domain):
         self._domain = domain
+        if self._post._app.design_type in ["Maxwell 3D", "Maxwell 2D"]:
+            return
         if self.primary_sweep == "Freq" and domain == "Time":
             self.primary_sweep = "Time"
             self.variations.pop("Freq", None)
