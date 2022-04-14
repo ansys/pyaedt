@@ -8,6 +8,8 @@ from pyaedt import Hfss
 from pyaedt import Q2d
 from pyaedt import Q3d
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.plot import _parse_aedtplt
+from pyaedt.generic.plot import _parse_streamline
 
 # Import required modules
 # Setup paths for module imports
@@ -549,3 +551,17 @@ class TestClass(BasisTest, object):
         assert not self.q2dtest.post.reports_by_category.near_field()
         assert self.aedtapp.post.reports_by_category.eigenmode()
         assert not self.q2dtest.post.reports_by_category.eigenmode()
+
+    def test_59_test_parse_vector(self):
+        local_path = os.path.dirname(os.path.realpath(__file__))
+
+        out = _parse_aedtplt(os.path.join(local_path, "example_models", "test_vector.aedtplt"))
+        assert isinstance(out[0], list)
+        assert isinstance(out[1], list)
+        assert isinstance(out[2], list)
+        assert isinstance(out[3], bool)
+
+    def test_60_test_parse_vector(self):
+        local_path = os.path.dirname(os.path.realpath(__file__))
+        out = _parse_streamline(os.path.join(local_path, "example_models", "test_streamline.aedtplt"))
+        assert isinstance(out, list)
