@@ -1076,39 +1076,55 @@ class TestClass(BasisTest, object):
         comp.type = "Other"
         assert comp.type == "Other"
 
-    def test_84_negative_properties(self):
+    def test_85_deactivate_rlc(self):
+        assert self.edbapp.core_components.deactivate_rlc_component(component="C1", create_circuit_port=True)
+        assert self.edbapp.core_components.deactivate_rlc_component(component="C2", create_circuit_port=False)
+
+    def test_86_create_symmetric_stackup(self):
+        from pyaedt import Edb as local_edb
+
+        app_edb = local_edb(edbversion="2022.1")
+        assert not app_edb.core_stackup.create_symmetric_stackup(9)
+        assert app_edb.core_stackup.create_symmetric_stackup(8)
+        app_edb.close_edb()
+
+        app_edb = local_edb(edbversion="2022.1")
+        assert app_edb.core_stackup.create_symmetric_stackup(8, soldermask=False)
+        app_edb.close_edb()
+
+    def test_87_negative_properties(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
         layer.negative_layer = True
         assert layer.negative_layer
 
-    def test_85_roughness_property(self):
+    def test_88_roughness_property(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
         layer.roughness_enabled = True
         assert layer.roughness_enabled
 
-    def test_86_thickness_property(self):
+    def test_89_thickness_property(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
         layer.thickness_value = 35e-6
         assert layer.thickness_value == 35e-6
 
-    def test_87_filling_material_property(self):
+    def test_90_filling_material_property(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
         layer.filling_material_name = "air"
         assert layer.filling_material_name == "air"
 
-    def test_88_material_property(self):
+    def test_91_material_property(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
         layer.material_name = "copper"
         assert layer.material_name == "copper"
 
-    def test_89_layer_type_property(self):
+    def test_92_layer_type_property(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
         layer.layer_type = 1
         assert layer.layer_type == 1
         layer.layer_type = 0
         assert layer.layer_type == 0
 
-    def test_91_loggers(self):
+    def test_93_loggers(self):
         core_stackup = self.edbapp.core_stackup
         layers = self.edbapp.core_stackup.stackup_layers
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
@@ -1117,7 +1133,7 @@ class TestClass(BasisTest, object):
         layers._logger.warning("Is it working?")
         layer._logger.warning("Is it working?")
 
-    def test_92_change_design_variable_value(self):
+    def test_94_change_design_variable_value(self):
         self.edbapp.add_design_variable("ant_length", "1cm")
         self.edbapp.add_design_variable("my_parameter_default", "1mm", is_parameter=True)
         self.edbapp.add_design_variable("$my_project_variable", "1mm")
@@ -1152,7 +1168,7 @@ class TestClass(BasisTest, object):
         else:
             assert not changed_variable_5
 
-    def test_93_etch_factor(self):
+    def test_95_etch_factor(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
         self.edbapp.core_stackup.stackup_layers.add_layer(layerName="added_layer", etchMap=1.1)
         added_layer = self.edbapp.core_stackup.stackup_layers.layers["added_layer"]
@@ -1166,14 +1182,14 @@ class TestClass(BasisTest, object):
         assert layer.etch_factor == 0.00000
         assert added_layer.etch_factor == 1.1
 
-    def test_94_int_to_layer_types(self):
+    def test_96_int_to_layer_types(self):
         stackup = self.edbapp.core_stackup.stackup_layers
         signal_layer = stackup._int_to_layer_types(0)
         assert signal_layer == stackup.layer_types.SignalLayer
         dielectric_layer = stackup._int_to_layer_types(1)
         assert dielectric_layer == stackup.layer_types.DielectricLayer
 
-    def test_94_layer_types_to_int(self):
+    def test_97_layer_types_to_int(self):
         stackup = self.edbapp.core_stackup.stackup_layers
         signal_layer = stackup._layer_types_to_int(stackup.layer_types.SignalLayer)
         assert signal_layer == 0
