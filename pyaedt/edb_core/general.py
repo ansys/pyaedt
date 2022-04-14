@@ -16,9 +16,11 @@ try:
 
     clr.AddReference("System.Collections")
     from System.Collections.Generic import List
+    from System import Tuple
+
 except ImportError:
     if os.name != "posix":
-        warnings.warn("This module requires pythonnet.")
+        warnings.warn("This module requires Python.NET.")
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +44,20 @@ def convert_netdict_to_pydict(dict_in):
     for key in dict_in.Keys:
         pydict[key] = dict_in[key]
     return pydict
+
+
+@pyaedt_function_handler()
+def convert_pytuple_to_nettuple(_tuple):
+    """Convert a Python tuple into a .NET tuple.
+    Parameters
+    ----------
+    tuple : Python tuple
+
+    Returns
+    -------
+    .NET tuple.
+    """
+    return Tuple.Create(_tuple[0], _tuple[1])
 
 
 @pyaedt_function_handler()
