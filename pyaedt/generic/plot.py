@@ -1060,60 +1060,6 @@ class ModelPlotter(object):
         filedata.point_data[self.fields[-1].label] = np.array(fields_data)
         self.fields[-1]._cached_polydata = filedata
 
-    # @pyaedt_function_handler()
-    # def _triangle_vertex(self, elements_nodes, num_nodes_per_element, take_all_nodes=True):
-    #     trg_vertex = []
-    #     if num_nodes_per_element == 10 and take_all_nodes:
-    #         for e in elements_nodes:
-    #             trg_vertex.append([e[0], e[1], e[3]])
-    #             trg_vertex.append([e[1], e[2], e[4]])
-    #             trg_vertex.append([e[1], e[4], e[3]])
-    #             trg_vertex.append([e[3], e[4], e[5]])
-    #
-    #             trg_vertex.append([e[9], e[6], e[8]])
-    #             trg_vertex.append([e[6], e[0], e[3]])
-    #             trg_vertex.append([e[6], e[3], e[8]])
-    #             trg_vertex.append([e[8], e[3], e[5]])
-    #
-    #             trg_vertex.append([e[9], e[7], e[8]])
-    #             trg_vertex.append([e[7], e[2], e[4]])
-    #             trg_vertex.append([e[7], e[4], e[8]])
-    #             trg_vertex.append([e[8], e[4], e[5]])
-    #
-    #             trg_vertex.append([e[9], e[7], e[6]])
-    #             trg_vertex.append([e[7], e[2], e[1]])
-    #             trg_vertex.append([e[7], e[1], e[6]])
-    #             trg_vertex.append([e[6], e[1], e[0]])
-    #     elif num_nodes_per_element == 10 and not take_all_nodes:
-    #         for e in elements_nodes:
-    #             trg_vertex.append([e[0], e[2], e[5]])
-    #             trg_vertex.append([e[9], e[0], e[5]])
-    #             trg_vertex.append([e[9], e[2], e[0]])
-    #             trg_vertex.append([e[9], e[2], e[5]])
-    #
-    #     elif num_nodes_per_element == 6 and not take_all_nodes:
-    #         for e in elements_nodes:
-    #             trg_vertex.append([e[0], e[2], e[5]])
-    #
-    #     elif num_nodes_per_element == 6 and take_all_nodes:
-    #         for e in elements_nodes:
-    #             trg_vertex.append([e[0], e[1], e[3]])
-    #             trg_vertex.append([e[1], e[2], e[4]])
-    #             trg_vertex.append([e[1], e[4], e[3]])
-    #             trg_vertex.append([e[3], e[4], e[5]])
-    #
-    #     elif num_nodes_per_element == 4 and take_all_nodes:
-    #         for e in elements_nodes:
-    #             trg_vertex.append([e[0], e[1], e[3]])
-    #             trg_vertex.append([e[1], e[2], e[3]])
-    #             trg_vertex.append([e[0], e[1], e[2]])
-    #             trg_vertex.append([e[0], e[2], e[3]])
-    #
-    #     elif num_nodes_per_element == 3:
-    #         trg_vertex = elements_nodes
-    #
-    #     return trg_vertex
-
     @pyaedt_function_handler()
     def _read_mesh_files(self, read_frames=False):
         for cad in self.objects:
