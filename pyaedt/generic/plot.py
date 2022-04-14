@@ -153,7 +153,6 @@ def _parse_aedtplt(filepath):
             if drawing_found:
                 l_tmp.append(line)
                 continue
-    surf = None
     for drawing_lines in lines:
         bounding = []
         elements = []
@@ -210,17 +209,16 @@ def _parse_aedtplt(filepath):
         trg_vertex = _triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes)
         # remove duplicates
         nodup_list = [list(i) for i in list(set([frozenset(t) for t in trg_vertex]))]
-        sols_vertex = []
         log = True
         if solution:
             if isinstance(solution[0], list):
                 temps = []
-                for i in range(len(solution)):
+                for sol in solution:
                     sv = {}
                     sv_i = {}
                     sv = defaultdict(lambda: 0, sv)
                     sv_i = defaultdict(lambda: 1, sv_i)
-                    for els, s in zip(elements_nodes, solution[i]):
+                    for els, s in zip(elements_nodes, sol):
                         for el in els:
                             sv[el] = (sv[el] + s) / sv_i[el]
                             sv_i[el] = 2
