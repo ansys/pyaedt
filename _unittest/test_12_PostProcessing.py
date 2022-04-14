@@ -563,5 +563,5 @@ class TestClass(BasisTest, object):
 
     def test_60_test_parse_vector(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
-        out = _parse_streamline(os.path.join(local_path, "example_models", "test_streamline.aedtplt"))
+        out = _parse_streamline(os.path.join(local_path, "example_models", "test_streamline.fldplt"))
         assert isinstance(out, list)
