@@ -560,6 +560,7 @@ class TestClass(BasisTest, object):
         assert isinstance(out[1], list)
         assert isinstance(out[2], list)
         assert isinstance(out[3], bool)
+        assert _parse_aedtplt(os.path.join(local_path, "example_models", "test_vector_no_solutions.aedtplt"))
 
     def test_60_test_parse_vector(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
