@@ -346,7 +346,12 @@ class TestClass(BasisTest, object):
         x1 = GeometryOperators.parse_dim_arg(self.aedtapp["test2"], variable_manager=self.aedtapp.variable_manager)
         assert x1 == 11
 
-    def test_14_maxwell_circuit_variables(self):
+    def test_14_intrinsics(self):
+        self.aedtapp["fc"] = "Freq"
+        assert self.aedtapp["fc"] == "Freq"
+        assert self.aedtapp.variable_manager.dependent_variables["fc"].numeric_value == "Freq"
+
+    def test_15_maxwell_circuit_variables(self):
         mc = MaxwellCircuit()
         mc["var2"] = "10mm"
         assert mc["var2"] == "10.0mm"
