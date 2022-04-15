@@ -42,6 +42,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.application.Variables import decompose_variable_value
 
 if sys.version_info.major > 2:
     import base64
@@ -3152,11 +3153,21 @@ class Design(object):
         >>> M3D["p3"] = "P1 * p2"
         >>> eval_p3 = M3D.get_evaluated_value("p3")
         """
+        if self.design_type == "Maxwell Circuit":
+            if "$" in variable_name:
+                val_units = self._oproject.GetVariableValue(variable_name)
+            else:
+                val_units = self._odesign.GetVariableValue(variable_name)
+            val, units = decompose_variable_value(val_units)
+            try:
+                float(val)
+                return float(val)
+            except:
+                return val_units
         if not variation:
             variation_string = self._odesign.GetNominalVariation()
         else:
             variation_string = self.design_variation(variation_string=variation)
-
         si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
         if units:
             scale = AEDT_UNITS[unit_system(units)][units]
