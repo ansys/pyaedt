@@ -1453,9 +1453,9 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         ----------
         objects : list of int or str or :class:`pyaedt.modeler.Object3d.Object3d`
             List of objects to apply end connection.
-        resistance : float or str
+        resistance : float or str, optional
             Resistance value. If float is provided then it is assumed in Ohm.
-        inductance : float or str
+        inductance : float or str, optional
             Inductance value. If float is provided then it is assumed in Henry.
         bound_name : str, optional
             Name of the End connection boundary.
@@ -1480,14 +1480,14 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         if not bound_name:
             bound_name = generate_unique_name("EndConnection")
 
-        props2 = OrderedDict(
+        props = OrderedDict(
             {
                 "Objects": objects,
                 "ResistanceValue": self.modeler._arg_with_dim(resistance, "ohm"),
                 "InductanceValue": self.modeler._arg_with_dim(inductance, "H"),
             }
         )
-        bound = BoundaryObject(self, bound_name, props2, "EndConnection")
+        bound = BoundaryObject(self, bound_name, props, "EndConnection")
         if bound.create():
             self.boundaries.append(bound)
             return bound
