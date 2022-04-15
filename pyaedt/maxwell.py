@@ -78,7 +78,7 @@ class Maxwell(object):
         return design_file
 
     @pyaedt_function_handler()
-    def change_simmetry_multiplier(self, value=1):
+    def change_symmetry_multiplier(self, value=1):
         """Set the Design Symmetry Multiplier to the selected value.
 
         Parameters
