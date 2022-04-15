@@ -158,17 +158,17 @@ def release_desktop(close_projects=True, close_desktop=True):
 
     """
 
-    Module = sys.modules["__main__"]
-    if "oDesktop" not in dir(Module):
+    _main = sys.modules["__main__"]
+    if "oDesktop" not in dir(_main):
         _delete_objects()
         return False
     else:
-        desktop = Module.oDesktop
+        desktop = _main.oDesktop
         if close_projects:
             projects = desktop.GetProjectList()
             for project in projects:
                 desktop.CloseProject(project)
-        pid = Module.oDesktop.GetProcessID()
+        pid = _main.oDesktop.GetProcessID()
         if not is_ironpython:
             if settings.aedt_version >= "2022.2":
                 import ScriptEnv
@@ -178,7 +178,7 @@ def release_desktop(close_projects=True, close_desktop=True):
                 i = 0
                 scopeID = 5
                 while i <= scopeID:
-                    Module.COMUtil.ReleaseCOMObjectScope(Module.COMUtil.PInvokeProxyAPI, i)
+                    _main.COMUtil.ReleaseCOMObjectScope(_main.COMUtil.PInvokeProxyAPI, i)
                     i += 1
             _delete_objects()
 
@@ -547,7 +547,7 @@ class Desktop:
         base_path = self._main.sDesktopinstallDirectory
         sys.path.append(base_path)
         sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
-        launch_msg = "Launching AEDT installation {}.".format(base_path)
+        launch_msg = "AEDT installation Path {}.".format(base_path)
         print(launch_msg)
         print("===================================================================================")
         clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
@@ -598,25 +598,26 @@ class Desktop:
             self._dispatch_win32(version)
 
     def _init_cpython_new(self, non_graphical, new_aedt_session, version, student_version):
-        if new_aedt_session or not self.port:
-            self.port = _find_free_port()
-            self.machine = ""
         base_path = self._main.sDesktopinstallDirectory
         sys.path.append(base_path)
         sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
-        launch_msg = "Launching AEDT installation {}".format(base_path)
+        import ScriptEnv
+
+        launch_msg = "AEDT installation Path {}".format(base_path)
         print(launch_msg)
         print("===================================================================================")
         print("pyaedt info: Launching AEDT with PyDesktopPlugin.")
-
-        import ScriptEnv
+        if new_aedt_session or not self.port:
+            self.port = _find_free_port()
+            self.machine = ""
 
         if new_aedt_session:
             ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, "", self.port)
         else:
             # Local server running
-            if not self.machine and _check_grpc_port(self.port):
-                self.machine = socket.getfqdn()
+            if not self.machine:
+                if _check_grpc_port(self.port):
+                    self.machine = socket.getfqdn()
             # Local Server
             elif self.machine in ["localhost", "127.0.0.1", socket.getfqdn(), socket.getfqdn().split(".")[0]]:
                 # No AEDT started
@@ -629,18 +630,9 @@ class Desktop:
                 settings.remote_api = True
             ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
 
-        # if non_graphical or new_aedt_session or not processID:
-        #     # Force new object if no non-graphical instance is running or if there is not an already existing process.
-        #     ScriptEnv._doInitialize(non_graphical)
-        # else:
-        #     machineName = 'SJOebutest02'
-        #     portNum = 50052
-        #     ScriptEnv.Initialize('Ansoft.ElectronicsDesktop', False, machineName,portNum)
-        Module = sys.modules["__main__"]
-
-        if "oAnsoftApplication" in dir(Module):
+        if "oAnsoftApplication" in dir(self._main):
             self._main.isoutsideDesktop = True
-            self._main.oDesktop = Module.oAnsoftApplication.GetAppDesktop()
+            self._main.oDesktop = self._main.oAnsoftApplication.GetAppDesktop()
             _t = self._main.oDesktop.GetTempDirectory()
             _proc = self._main.oDesktop.GetProcessID()
             if non_graphical:
