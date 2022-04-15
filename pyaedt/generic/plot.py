@@ -199,10 +199,10 @@ def _parse_aedtplt(filepath):
         elements = elements[2:]
         element_type = elements[0]
         num_nodes_per_element = elements[4]
-        hl = 5  # header length
+        header_length = 5
         elements_nodes = []
-        for i in range(0, len(elements), num_nodes_per_element + hl):
-            elements_nodes.append([elements[i + hl + n] for n in range(num_nodes_per_element)])
+        for i in range(0, len(elements), num_nodes_per_element + header_length):
+            elements_nodes.append([elements[i + header_length + n] for n in range(num_nodes_per_element)])
         if solution:
             take_all_nodes = True  # solution case
         else:
