@@ -1258,7 +1258,7 @@ class EDBLayers(object):
         Returns
         -------
         :class:`pyaedt.edb_core.EDB_Data.EDBLayer`
-            Layer Object.
+            Layer Object for stackup layers. Boolean otherwise (True in case of success).
         """
         thisLC = self._pedbstackup._active_layout.GetLayerCollection()
         layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
@@ -1353,8 +1353,10 @@ class EDBLayers(object):
         allLayers = [
             i.GetName() for i in list(list(self.layer_collection.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         ]
-        if layerName in allLayers:
+        if layerName in self.layers:
             return self.layers[layerName]
+        elif layerName in allLayers:
+            return True
         return False
 
     def add_outline_layer(self, outline_name="Outline"):
