@@ -3160,9 +3160,8 @@ class Design(object):
                 val_units = self._odesign.GetVariableValue(variable_name)
             val, units = decompose_variable_value(val_units)
             try:
-                float(val)
                 return float(val)
-            except:
+            except ValueError:
                 return val_units
         if not variation:
             variation_string = self._odesign.GetNominalVariation()
