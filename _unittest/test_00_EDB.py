@@ -1073,8 +1073,7 @@ class TestClass(BasisTest, object):
 
     def test_95_etch_factor(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
-        self.edbapp.core_stackup.stackup_layers.add_layer(layerName="added_layer", etchMap=1.1)
-        added_layer = self.edbapp.core_stackup.stackup_layers.layers["added_layer"]
+        added_layer = self.edbapp.core_stackup.stackup_layers.add_layer(layerName="added_layer", etchMap=1.1)
         assert layer.etch_factor == 0
         layer.etch_factor = "1"
         print(type(layer._etch_factor))
