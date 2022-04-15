@@ -166,8 +166,9 @@ class TestClass(BasisTest, object):
 
     def test_10_add_layer(self):
         layers = self.edbapp.core_stackup.stackup_layers
-        assert layers.add_layer("NewLayer", "TOP", "copper", "air", "10um", 0)
+        assert layers.add_layer("NewLayer", "TOP", "copper", "air", "10um", 0, roughness_enabled=True)
         assert layers.add_layer("NewLayer2", None, "pec", "air", "0um", 0)
+        assert layers.add_layer("NewLayer3", None, "copper", "air", "0um", 0, negative_layer=True)
 
     def test_11_add_dielectric(self):
         diel = self.edbapp.core_stackup.create_dielectric("MyDiel", 3.3, 0.02)
@@ -378,13 +379,23 @@ class TestClass(BasisTest, object):
         )
 
     def test_44a_assign_variable(self):
-        result, var_server = self.edbapp.add_design_variable("myvar", "1mm")
+        result, var_server = self.edbapp.add_design_variable("my_variable", "1mm")
         assert result
         assert var_server
-        result, var_server = self.edbapp.add_design_variable("myvar", "1mm")
+        result, var_server = self.edbapp.add_design_variable("my_variable", "1mm")
         assert not result
         assert self.edbapp.core_primitives.parametrize_trace_width("A0_N")
         assert self.edbapp.core_primitives.parametrize_trace_width("A0_N_R")
+        result, var_server = self.edbapp.add_design_variable("my_parameter", "2mm", True)
+        assert result
+        assert var_server.IsVariableParameter("my_parameter")
+        result, var_server = self.edbapp.add_design_variable("my_parameter", "2mm", True)
+        assert not result
+        result, var_server = self.edbapp.add_design_variable("$my_project_variable", "3mm")
+        assert result
+        assert var_server
+        result, var_server = self.edbapp.add_design_variable("$my_project_variable", "3mm")
+        assert not result
 
     def test_45_delete_net(self):
         nets_deleted = self.edbapp.core_nets.delete_nets("A0_N")
@@ -978,8 +989,111 @@ class TestClass(BasisTest, object):
         assert app_edb.core_stackup.create_symmetric_stackup(8, soldermask=False)
         app_edb.close_edb()
 
-    def test_87_create_rectangle(self):
+    def test_86B_create_rectangle(self):
         assert self.edbapp.core_primitives.create_rectangle("TOP", "SIG1", ["0", "0"], ["2mm", "3mm"])
         assert self.edbapp.core_primitives.create_rectangle(
             "TOP", "SIG2", center_point=["0", "0"], width="4mm", height="5mm", representation_type="CenterWidthHeight"
         )
+
+    def test_87_negative_properties(self):
+        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
+        layer.negative_layer = True
+        assert layer.negative_layer
+
+    def test_88_roughness_property(self):
+        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
+        layer.roughness_enabled = True
+        assert layer.roughness_enabled
+
+    def test_89_thickness_property(self):
+        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
+        layer.thickness_value = 35e-6
+        assert layer.thickness_value == 35e-6
+
+    def test_90_filling_material_property(self):
+        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
+        layer.filling_material_name = "air"
+        assert layer.filling_material_name == "air"
+
+    def test_91_material_property(self):
+        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
+        layer.material_name = "copper"
+        assert layer.material_name == "copper"
+
+    def test_92_layer_type_property(self):
+        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
+        layer.layer_type = 1
+        assert layer.layer_type == 1
+        layer.layer_type = 0
+        assert layer.layer_type == 0
+
+    def test_93_loggers(self):
+        core_stackup = self.edbapp.core_stackup
+        layers = self.edbapp.core_stackup.stackup_layers
+        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
+        self.edbapp.logger.warning("Is it working?")
+        core_stackup._logger.warning("Is it working?")
+        layers._logger.warning("Is it working?")
+        layer._logger.warning("Is it working?")
+
+    def test_94_change_design_variable_value(self):
+        self.edbapp.add_design_variable("ant_length", "1cm")
+        self.edbapp.add_design_variable("my_parameter_default", "1mm", is_parameter=True)
+        self.edbapp.add_design_variable("$my_project_variable", "1mm")
+        changed_variable_1 = self.edbapp.change_design_variable_value("ant_length", "1m")
+        if isinstance(changed_variable_1, tuple):
+            changed_variable_done, ant_length_value = changed_variable_1
+            assert changed_variable_done
+        else:
+            assert changed_variable_1
+        changed_variable_2 = self.edbapp.change_design_variable_value("elephant_length", "1m")
+        if isinstance(changed_variable_2, tuple):
+            changed_variable_done, elephant_length_value = changed_variable_2
+            assert not changed_variable_done
+        else:
+            assert not changed_variable_2
+        changed_variable_3 = self.edbapp.change_design_variable_value("my_parameter_default", "1m")
+        if isinstance(changed_variable_3, tuple):
+            changed_variable_done, my_parameter_value = changed_variable_3
+            assert changed_variable_done
+        else:
+            assert changed_variable_3
+        changed_variable_4 = self.edbapp.change_design_variable_value("$my_project_variable", "1m")
+        if isinstance(changed_variable_4, tuple):
+            changed_variable_done, my_project_variable_value = changed_variable_4
+            assert changed_variable_done
+        else:
+            assert changed_variable_4
+        changed_variable_5 = self.edbapp.change_design_variable_value("$my_parameter", "1m")
+        if isinstance(changed_variable_5, tuple):
+            changed_variable_done, my_project_variable_value = changed_variable_4
+            assert not changed_variable_done
+        else:
+            assert not changed_variable_5
+
+    def test_95_etch_factor(self):
+        layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
+        added_layer = self.edbapp.core_stackup.stackup_layers.add_layer(layerName="added_layer", etchMap=1.1)
+        assert layer.etch_factor == 0
+        layer.etch_factor = "1"
+        print(type(layer._etch_factor))
+        assert layer.etch_factor == 1
+        layer.etch_factor = 1.1
+        assert layer.etch_factor == 1.1
+        layer.etch_factor = None
+        assert layer.etch_factor == 0.00000
+        assert added_layer.etch_factor == 1.1
+
+    def test_96_int_to_layer_types(self):
+        stackup = self.edbapp.core_stackup.stackup_layers
+        signal_layer = stackup._int_to_layer_types(0)
+        assert signal_layer == stackup.layer_types.SignalLayer
+        dielectric_layer = stackup._int_to_layer_types(1)
+        assert dielectric_layer == stackup.layer_types.DielectricLayer
+
+    def test_97_layer_types_to_int(self):
+        stackup = self.edbapp.core_stackup.stackup_layers
+        signal_layer = stackup._layer_types_to_int(stackup.layer_types.SignalLayer)
+        assert signal_layer == 0
+        dielectric_layer = stackup._layer_types_to_int(stackup.layer_types.DielectricLayer)
+        assert dielectric_layer == 1
