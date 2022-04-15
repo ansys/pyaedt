@@ -13,6 +13,7 @@ from pyaedt.edb_core.EDB_Data import EDBLayers
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 
 try:
     from System import Double
@@ -143,10 +144,12 @@ class EdbStackup(object):
         if self._edb.Definition.MaterialDef.FindByName(self._db, name).IsNull():
             material_def = self._edb.Definition.MaterialDef.Create(self._db, name)
             material_def.SetProperty(
-                self._edb.Definition.MaterialPropertyId.Permittivity, self._get_edb_value(permittivity)
+                self._edb.Definition.MaterialPropertyId.Permittivity,
+                self._get_edb_value(permittivity),
             )
             material_def.SetProperty(
-                self._edb.Definition.MaterialPropertyId.DielectricLossTangent, self._get_edb_value(loss_tangent)
+                self._edb.Definition.MaterialPropertyId.DielectricLossTangent,
+                self._get_edb_value(loss_tangent),
             )
             return material_def
         return False
@@ -762,3 +765,134 @@ class EdbStackup(object):
             )
         h_stackup = abs(float(topz) - float(bottomz))
         return topl.GetName(), topz, bottoml.GetName(), bottomz
+
+    def create_symmetric_stackup(
+        self,
+        layer_count,
+        inner_layer_thickness="17um",
+        outer_layer_thickness="50um",
+        dielectric_thickness="100um",
+        dielectric_material="FR4_epoxy",
+        soldermask=True,
+        soldermask_thickness="20um",
+    ):
+        """Create a symmetric stackup.
+
+        Parameters
+        ----------
+        layer_count : int
+            Number of layer count.
+        inner_layer_thickness : str, float, optional
+            Thickness of inner conductor layer.
+        outer_layer_thickness : str, float, optional
+            Thickness of outer conductor layer.
+        dielectric_thickness : str, float, optional
+            Thickness of dielectric layer.
+        dielectric_material : str, optional
+            Material of dielectric layer.
+        soldermask : bool, optional
+            Whether to create soldermask layers. The default is``True``.
+        soldermask_thickness : str, optional
+            Thickness of soldermask layer.
+        Returns
+        -------
+        bool
+        """
+        if not layer_count % 2 == 0:
+            return False
+
+        if soldermask:
+            self.stackup_layers.add_layer("SMB", None, "SolderMask", thickness=soldermask_thickness, layerType=1)
+            layer_name = "BOTTOM"
+            self.stackup_layers.add_layer(layer_name, "SMB", fillMaterial="SolderMask", thickness=outer_layer_thickness)
+        else:
+            layer_name = "BOTTOM"
+            self.stackup_layers.add_layer(layer_name, fillMaterial="Air", thickness=outer_layer_thickness)
+
+        for layer in range(layer_count - 1, 1, -1):
+            new_layer_name = "D" + str(layer - 1)
+            self.stackup_layers.add_layer(
+                new_layer_name, layer_name, dielectric_material, thickness=dielectric_thickness, layerType=1
+            )
+            layer_name = new_layer_name
+            new_layer_name = "L" + str(layer - 1)
+            self.stackup_layers.add_layer(
+                new_layer_name, layer_name, "copper", dielectric_material, inner_layer_thickness
+            )
+            layer_name = new_layer_name
+
+        new_layer_name = "D1"
+        self.stackup_layers.add_layer(
+            new_layer_name, layer_name, dielectric_material, thickness=dielectric_thickness, layerType=1
+        )
+        layer_name = new_layer_name
+
+        if soldermask:
+            new_layer_name = "TOP"
+            self.stackup_layers.add_layer(
+                new_layer_name, layer_name, fillMaterial="SolderMask", thickness=outer_layer_thickness
+            )
+            layer_name = new_layer_name
+            self.stackup_layers.add_layer("SMT", layer_name, "SolderMask", thickness=soldermask_thickness, layerType=1)
+        else:
+            new_layer_name = "TOP"
+            self.stackup_layers.add_layer(
+                new_layer_name, layer_name, fillMaterial="Air", thickness=outer_layer_thickness
+            )
+        return True
+
+    @pyaedt_function_handler()
+    def set_etching_layers(self, simulation_setup=None):
+        """Set the etching layer parameters for a layout stackup.
+
+        Parameters
+        ----------
+        simulation_setup : EDB_DATA_SimulationConfiguration object
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not isinstance(simulation_setup, SimulationConfiguration):
+            return False
+        cell = self._builder.cell
+        this_lc = self._edb.Cell.LayerCollection(cell.GetLayout().GetLayerCollection())
+        all_layers = list(this_lc.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet))
+
+        signal_layers = [lay for lay in all_layers if lay.GetLayerType() == self._edb.Cell.LayerType.SignalLayer]
+
+        new_layers = list(all_layers.Where(lambda lyr: lyr.GetLayerType() != self._edb.Cell.LayerType.SignalLayer))
+
+        if simulation_setup.signal_layer_etching_instances:
+            for layer in signal_layers:
+                if not layer.GetName() in simulation_setup.signal_layer_etching_instances:
+                    self._logger.error(
+                        "Signal layer {0} is not found in the etching layers specified in the cfg, "
+                        "skipping the etching factor assignment".format(layer.GetName())
+                    )
+                    new_signal_lay = layer.Clone()
+                else:
+                    new_signal_lay = layer.Clone()
+                    new_signal_lay.SetEtchFactorEnabled(True)
+                    etching_factor = float(
+                        simulation_setup.etching_factor_instances[
+                            simulation_setup.signal_layer_etching_instances.index(layer.GetName())
+                        ]
+                    )
+                    new_signal_lay.SetEtchFactor(etching_factor)
+                    self._logger.info(
+                        "Setting etching factor {0} on layer {1}".format(str(etching_factor), layer.GetName())
+                    )
+
+                new_layers.Add(new_signal_lay)
+
+            layers_with_etching = self._edb.Cell.LayerCollection()
+            if not layers_with_etching.AddLayers(new_layers):
+                return False
+
+            if not cell.GetLayout().SetLayerCollection(layers_with_etching):
+                return False
+
+            return True
+        return True

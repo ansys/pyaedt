@@ -157,16 +157,19 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             allcs = self.oeditor.GetCoordinateSystems()
         arg.append("IncludedCS:="), arg.append(allcs)
         arg.append("ReferenceCS:="), arg.append(activecs)
-        variables = variables_to_include
+        par_description = []
+        if variables_to_include:
+            variables = variables_to_include
+        else:
+            variables = self._app._variable_manager.independent_variable_names
+        for el in variables:
+            par_description.append(el + ":=")
+            par_description.append("")
         arg.append("IncludedParameters:="), arg.append(variables)
         variables = self._app._variable_manager.dependent_variable_names
-        par_description = []
-        for el in variables:
-            par_description.append(el)
-            par_description.append("")
         arg.append("IncludedDependentParameters:="), arg.append(variables)
         for el in variables:
-            par_description.append(el)
+            par_description.append(el + ":=")
             par_description.append("")
         arg.append("ParameterDescription:="), arg.append(par_description)
         arg.append("IsLicensed:="), arg.append(False)
@@ -191,6 +194,11 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 excitations = excitation_list
             else:
                 excitations = self._app.excitations
+                if self._app.design_type == "HFSS":
+                    exc = self._app.get_oo_name(self._app.odesign, "Excitations")
+                    if exc and exc[0] not in self._app.excitations:
+                        excitations.extend(exc)
+            excitations = list(set([i.split(":")[0] for i in excitations]))
             arg2.append("Excitations:="), arg2.append(excitations)
         meshops = [el.name for el in self._app.mesh.meshoperations]
         arg2.append("MeshOperations:="), arg2.append(meshops)
