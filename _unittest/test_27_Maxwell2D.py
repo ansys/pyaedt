@@ -124,7 +124,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.mesh.initial_mesh_settings
         assert self.aedtapp.mesh.initial_mesh_settings.props
         assert self.aedtapp.change_design_settings({"Multiplier": 2})
-        assert self.aedtapp.change_simmetry_multiplier(1)
+        assert self.aedtapp.change_symmetry_multiplier(1)
 
     def test_18_end_connection(self):
         self.aedtapp.insert_design("EndConnection")
