@@ -3156,8 +3156,10 @@ class Design(object):
             variation_string = self._odesign.GetNominalVariation()
         else:
             variation_string = self.design_variation(variation_string=variation)
-
-        si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
+        try:
+            si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
+        except:
+            si_value = self._odesign.GetVariableValue(variable_name)
         if units:
             scale = AEDT_UNITS[unit_system(units)][units]
             if isinstance(scale, tuple):

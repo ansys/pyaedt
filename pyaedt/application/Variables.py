@@ -1062,10 +1062,12 @@ class Variable(object):
                 scale = AEDT_UNITS[self.unit_system][self._units]
             except KeyError:
                 scale = 1
-        if isinstance(scale, tuple):
-            return scale[0](self._value, True)
+            if isinstance(scale, tuple):
+                return scale[0](self._value, True)
+            else:
+                return self._value / scale
         else:
-            return self._value / scale
+            return self._value
 
     @property
     def string_value(self):

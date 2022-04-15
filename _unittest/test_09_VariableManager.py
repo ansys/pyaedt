@@ -344,3 +344,8 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.variable_manager.set_variable("test2", "test_post1+1", postprocessing=True)
         x1 = GeometryOperators.parse_dim_arg(self.aedtapp["test2"], variable_manager=self.aedtapp.variable_manager)
         assert x1 == 11
+
+    def test_14_intrinsics(self):
+        self.aedtapp["fc"] = "Freq"
+        assert self.aedtapp["fc"] == "Freq"
+        assert self.aedtapp.variable_manager.dependent_variables["fc"].numeric_value == "Freq"
