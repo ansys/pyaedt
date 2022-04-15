@@ -552,6 +552,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.post.reports_by_category.eigenmode()
         assert not self.q2dtest.post.reports_by_category.eigenmode()
 
+    @pytest.mark.skipif(is_ironpython, reason="Not supported in Ironpython")
     def test_59_test_parse_vector(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -562,6 +563,7 @@ class TestClass(BasisTest, object):
         assert isinstance(out[3], bool)
         assert _parse_aedtplt(os.path.join(local_path, "example_models", "test_vector_no_solutions.aedtplt"))
 
+    @pytest.mark.skipif(is_ironpython, reason="Not supported in Ironpython")
     def test_60_test_parse_vector(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
         out = _parse_streamline(os.path.join(local_path, "example_models", "test_streamline.fldplt"))
