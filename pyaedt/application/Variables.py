@@ -644,7 +644,7 @@ class VariableManager(object):
         var_dict = {}
         all_names = {}
         for obj in object_list:
-            if self._app._is_object_oriented_enabled():
+            if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
                 listvar = list(obj.GetChildObject("Variables").GetChildNames())
             else:
                 listvar = list(obj.GetVariables())
@@ -799,11 +799,15 @@ class VariableManager(object):
             raise Exception("Unhandled input type to the design property or project variable.")  # pragma: no cover
 
         # Get all design and project variables in lower case for a case-sensitive comparison
-        if self._app._is_object_oriented_enabled():
+        if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
             var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
         else:
             var_list = list(desktop_object.GetVariables())  # pragma: no cover
         lower_case_vars = [var_name.lower() for var_name in var_list]
+        if self._app.design_type == "Maxwell Circuit" and "$" not in variable_name:
+            prop_server = "Instance:{}".format(desktop_object.GetName())
+        else:
+            prop_server = "{0}Variables".format(var_type)
 
         if variable_name.lower() not in lower_case_vars:
             try:
@@ -812,7 +816,7 @@ class VariableManager(object):
                         "NAME:AllTabs",
                         [
                             "NAME:{0}VariableTab".format(var_type),
-                            ["NAME:PropServers", "{0}Variables".format(var_type)],
+                            ["NAME:PropServers", prop_server],
                             [
                                 "NAME:NewProps",
                                 [
@@ -842,7 +846,7 @@ class VariableManager(object):
                             "NAME:AllTabs",
                             [
                                 "NAME:{}VariableTab".format(var_type),
-                                ["NAME:PropServers", "{}Variables".format(var_type)],
+                                ["NAME:PropServers", prop_server],
                                 [
                                     "NAME:ChangedProps",
                                     [
@@ -866,7 +870,7 @@ class VariableManager(object):
                     "NAME:AllTabs",
                     [
                         "NAME:{}VariableTab".format(var_type),
-                        ["NAME:PropServers", "{}Variables".format(var_type)],
+                        ["NAME:PropServers", prop_server],
                         [
                             "NAME:ChangedProps",
                             [
@@ -884,7 +888,7 @@ class VariableManager(object):
                     ],
                 ]
             )
-        if self._app._is_object_oriented_enabled():
+        if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
             var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
         else:
             var_list = list(desktop_object.GetVariables())  # pragma: no cover
@@ -957,7 +961,7 @@ class VariableManager(object):
         """
         desktop_object = self.aedt_object(var_name)
         var_type = "Project" if desktop_object == self._oproject else "Local"
-        if self._app._is_object_oriented_enabled():
+        if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
             var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
         else:
             var_list = list(desktop_object.GetVariables())  # pragma: no cover
