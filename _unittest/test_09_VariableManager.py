@@ -53,6 +53,7 @@ class TestClass(BasisTest, object):
         self.aedtapp["Var1"] = 3
         self.aedtapp["Var2"] = "12deg"
         self.aedtapp["Var3"] = "Var1 * Var2"
+
         self.aedtapp["$PrjVar1"] = "2*pi"
         self.aedtapp["$PrjVar2"] = 45
         self.aedtapp["$PrjVar3"] = "sqrt(34 * $PrjVar2/$PrjVar1 )"

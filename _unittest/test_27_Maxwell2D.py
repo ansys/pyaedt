@@ -123,6 +123,8 @@ class TestClass(BasisTest, object):
     def test_17_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
         assert self.aedtapp.mesh.initial_mesh_settings.props
+        assert self.aedtapp.change_design_settings({"Multiplier": 2})
+        assert self.aedtapp.change_symmetry_multiplier(1)
 
     def test_18_end_connection(self):
         self.aedtapp.insert_design("EndConnection")
