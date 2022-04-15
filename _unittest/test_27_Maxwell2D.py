@@ -123,3 +123,5 @@ class TestClass(BasisTest, object):
     def test_17_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
         assert self.aedtapp.mesh.initial_mesh_settings.props
+        assert self.aedtapp.change_design_settings({"Multiplier": 2})
+        assert self.aedtapp.change_simmetry_multiplier(1)

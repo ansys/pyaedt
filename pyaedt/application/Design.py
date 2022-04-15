@@ -2337,6 +2337,26 @@ class Design(object):
         return False
 
     @pyaedt_function_handler()
+    def change_design_settings(self, settings):
+        """Set Design Settings.
+
+        Parameters
+        ----------
+        settings : dict
+            Dictionary of settings with value to apply.
+
+        Returns
+        -------
+        bool
+        """
+        arg = ["NAME:Design Settings Data"]
+        for k, v in settings.items():
+            arg.append(k + ":=")
+            arg.append(v)
+        self.odesign.SetDesignSettings(arg)
+        return True
+
+    @pyaedt_function_handler()
     def change_automatically_use_causal_materials(self, lossy_dielectric=True):
         """Enable or disable the automatic use of causal materials for lossy dielectrics.
 
@@ -2360,8 +2380,7 @@ class Design(object):
             self.logger.info("Enabling Automatic use of causal materials")
         else:
             self.logger.info("Disabling Automatic use of causal materials")
-        self.odesign.SetDesignSettings(["NAME:Design Settings Data", "Calculate Lossy Dielectrics:=", lossy_dielectric])
-        return True
+        return self.change_design_settings({"Calculate Lossy Dielectrics": lossy_dielectric})
 
     @pyaedt_function_handler()
     def change_material_override(self, material_override=True):
@@ -2387,8 +2406,7 @@ class Design(object):
             self.logger.info("Enabling Material Override")
         else:
             self.logger.info("Disabling Material Override")
-        self.odesign.SetDesignSettings(["NAME:Design Settings Data", "Allow Material Override:=", material_override])
-        return True
+        return self.change_design_settings({"Allow Material Override": material_override})
 
     @pyaedt_function_handler()
     def change_validation_settings(
