@@ -1,15 +1,15 @@
 # #############################################################################
 # requirements
 # #############################################################################
-pywin32 >= 303; python_version > '2.7'
+pywin32==303; python_version > '2.7'
 # https://github.com/mhammond/pywin32
 # License: PSF
 
-pythonnet >= 2.4.0; python_version > '2.7'
+pythonnet==2.5.2; python_version > '2.7'
 # https://github.com/pythonnet/pythonnet
 # License: MIT
 
-rpyc >= 5.0.1; python_version > '2.7'
+rpyc==5.1.0; python_version > '2.7'
 # https://github.com/tomerfiliba-org/rpyc
 # License: MIT
 
@@ -17,15 +17,15 @@ rpyc >= 5.0.1; python_version > '2.7'
 # optional
 # #############################################################################
 
-pyvista <= 0.33.3; python_version > '2.7'
+pyvista==0.33.3; python_version > '2.7'
 # License: MIT
 
-matplotlib
+matplotlib==3.5.1
 # License: https://github.com/matplotlib/matplotlib/blob/master/LICENSE/LICENSE
 # License: PSF
 
-numpy
+numpy==1.22.3
 # License: BSD-3-Clause License
 
-ipython
+ipython==8.2.0
 # License: BSD-3-Clause License
