@@ -66,3 +66,13 @@ class TestClass(BasisTest, object):
         assert band.enabled
         band.enabled = False
         assert not band.enabled
+
+    @pytest.mark.skipif(config["NonGraphical"], reason="Not functional in non-graphical mode")
+    @pytest.mark.skipif(config["desktopVersion"] < "2021.2", reason="Skipped on versions lower than 2021.2")
+    def test_couplings(self):
+        self.aedtapp = BasisTest.add_app(self, project_name="Cell Phone RFI Desense", application=Emit)
+        links = self.aedtapp.couplings.linkable_design_names
+        assert len(links) == 0
+        for link in self.aedtapp.couplings.coupling_names:
+            assert link == "ATA_Analysis"
+            self.aedtapp.couplings.update_link(link)

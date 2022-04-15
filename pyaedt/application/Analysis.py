@@ -625,7 +625,11 @@ class Analysis(Design, object):
         elif not sweep_name:
             self.logger.warning("No Sweep defined.")
             return False
-        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
+        if (
+            self.solution_type == "HFSS3DLayout"
+            or self.solution_type == "HFSS 3D Layout Design"
+            or self.design_type == "2D Extractor"
+        ):
             try:
                 return list(self.osolution.ListVariations("{0} : {1}".format(setup_name, sweep_name)))
             except:
@@ -672,6 +676,8 @@ class Analysis(Design, object):
             excitations = len(self.oexcitation.GetAllPortsList())
         elif self.design_type == "2D Extractor":
             excitations = self.oboundary.GetNumExcitations("SignalLine")
+        elif self.design_type == "Q3D Extractor":
+            excitations = self.oboundary.GetNumExcitations("Source")
         else:
             excitations = self.oboundary.GetNumExcitations()
         reportnames = self.post.oreportsetup.GetAllReportNames()
@@ -681,8 +687,11 @@ class Analysis(Design, object):
             export_path = os.path.join(
                 export_folder, "{0}_{1}_{2}.csv".format(self.project_name, self.design_name, name_no_space)
             )
-            self.post.oreportsetup.ExportToFile(str(report_name), export_path)
-            self.logger.info("Export Data: {}".format(export_path))
+            try:
+                self.post.oreportsetup.ExportToFile(str(report_name), export_path)
+                self.logger.info("Export Data: {}".format(export_path))
+            except:
+                pass
             exported_files.append(export_path)
 
         for s in setups:
@@ -796,8 +805,43 @@ class Analysis(Design, object):
         """
         if not file_path:
             file_path = os.path.join(self.working_directory, generate_unique_name("Convergence") + ".prop")
-        self.odesign.ExportConvergence(setup_name, variation_string, file_path)
-        self.logger.info("Export Convergence to  %s", file_path)
+        if not variation_string:
+            val_str = []
+            for el, val in self.available_variations.nominal_w_values_dict.items():
+                val_str.append("{}={}".format(el, val))
+            variation_string = ",".join(val_str)
+        if self.design_type == "2D Extractor":
+            for setup in self.setups:
+                if setup.name == setup_name:
+                    if "CGDataBlock" in setup.props:
+                        file_path = os.path.splitext(file_path)[0] + "CG" + os.path.splitext(file_path)[1]
+                        self.odesign.ExportConvergence(setup_name, variation_string, "CG", file_path, True)
+                        self.logger.info("Export Convergence to  %s", file_path)
+                    if "RLDataBlock" in setup.props:
+                        file_path = os.path.splitext(file_path)[0] + "RL" + os.path.splitext(file_path)[1]
+                        self.odesign.ExportConvergence(setup_name, variation_string, "RL", file_path, True)
+                        self.logger.info("Export Convergence to  %s", file_path)
+
+                    break
+        elif self.design_type == "Q3D Extractor":
+            for setup in self.setups:
+                if setup.name == setup_name:
+                    if "Cap" in setup.props:
+                        file_path = os.path.splitext(file_path)[0] + "CG" + os.path.splitext(file_path)[1]
+                        self.odesign.ExportConvergence(setup_name, variation_string, "CG", file_path, True)
+                        self.logger.info("Export Convergence to  %s", file_path)
+                    if "AC" in setup.props:
+                        file_path = os.path.splitext(file_path)[0] + "ACRL" + os.path.splitext(file_path)[1]
+                        self.odesign.ExportConvergence(setup_name, variation_string, "AC RL", file_path, True)
+                        self.logger.info("Export Convergence to  %s", file_path)
+                    if "DC" in setup.props:
+                        file_path = os.path.splitext(file_path)[0] + "DC" + os.path.splitext(file_path)[1]
+                        self.odesign.ExportConvergence(setup_name, variation_string, "DC RL", file_path, True)
+                        self.logger.info("Export Convergence to  %s", file_path)
+                    break
+        else:
+            self.odesign.ExportConvergence(setup_name, variation_string, file_path)
+            self.logger.info("Export Convergence to  %s", file_path)
         return file_path
 
     @pyaedt_function_handler()

@@ -18,12 +18,485 @@ from collections import OrderedDict
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
+import pyaedt.modules.report_templates as rt
 from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.general_methods import _retry_ntimes, is_ironpython
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.plot import plot_2d_chart, plot_polar_chart, plot_3d_chart
+
+if not is_ironpython:
+    try:
+        import numpy as np
+    except ImportError:
+        warnings.warn(
+            "The NumPy module is required to run some functionalities of PostProcess.\n"
+            "Install with \n\npip install numpy\n\nRequires CPython."
+        )
+
+
+TEMPLATES_BY_DESIGN = {
+    "HFSS": [
+        "Modal Solution Data",
+        "Terminal Solution Data",
+        "EigenMode Parameters",
+        "Fields",
+        "Far Fields",
+        "Emissions",
+        "Near Fields",
+    ],
+    "Maxwell 3D": [
+        "Transient",
+        "EddyCurrent",
+        "Magnetostatic",
+        "Electrostatic",
+        "DCConduction",
+        "ElectroDCConduction",
+        "ElectricTransient",
+        "Fields",
+    ],
+    "Maxwell 2D": [
+        "Transient",
+        "EddyCurrent",
+        "Magnetostatic",
+        "Electrostatic",
+        "ElectricTransient",
+        "ElectroDCConduction",
+        "Fields",
+    ],
+    "Icepak": ["Monitor", "Fields"],
+    "Circuit Design": ["Standard", "Eye Diagram"],
+    "HFSS 3D Layout": ["Standard", "Fields"],
+    "Mechanical": ["Standard", "Fields"],
+    "Q3D Extractor": ["Matrix", "CG Fields", "DC R/L Fields", "AC R/L Fields"],
+    "2D Extractor": ["Matrix", "CG Fields", "RL Fields"],
+    "Twin Builder": ["Standard"],
+}
+TEMPLATES_BY_NAME = {
+    "Standard": rt.Standard,
+    "Modal Solution Data": rt.Standard,
+    "Terminal Solution Data": rt.Standard,
+    "Fields": rt.Fields,
+    "CG Fields": rt.Fields,
+    "DC R/L Fields": rt.Fields,
+    "AC R/L Fields": rt.Fields,
+    "Matrix": rt.Standard,
+    "Monitor": rt.Standard,
+    "Far Fields": rt.FarField,
+    "Near Fields": rt.NearField,
+    "Eye Diagram": rt.EyeDiagram,
+    "EigenMode Parameters": rt.Standard,
+}
+
+
+class Reports(object):
+    """Provides the names of default solution types."""
+
+    def __init__(self, post_app, design_type):
+        self._post_app = post_app
+        self._design_type = design_type
+        self._templates = TEMPLATES_BY_DESIGN.get(self._design_type, None)
+
+    @pyaedt_function_handler()
+    def standard(self, expressions=None, setup_name=None):
+        """Create a Standard or Default Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> cir = Circuit(my_project)
+        >>> report = cir.post.reports_by_category.standard("dB(S(1,1))", "LNA")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Standard" in self._templates:
+            rep = rt.Standard(self._post_app, "Standard", setup_name)
+            rep.expressions = expressions
+            return rep
+        elif self._post_app._app.design_solutions.report_type:
+            rep = rt.Standard(self._post_app, self._post_app._app.design_solutions.report_type, setup_name)
+            rep.expressions = expressions
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def monitor(self, expressions=None, setup_name=None):
+        """Create an Icepak Monitor Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak(my_project)
+        >>> report = ipk.post.reports_by_category.monitor(["monitor_surf.Temperature","monitor_point.Temperature"])
+        >>> report = report.create()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Monitor" in self._templates:
+            rep = rt.Standard(self._post_app, "Monitor", setup_name)
+            rep.expressions = expressions
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def fields(self, expressions=None, setup_name=None, polyline=None):
+        """Create a Field Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Fields`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.reports_by_category.fields("Mag_E", "Setup : LastAdaptive", "Polyline1")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Fields" in self._templates:
+            rep = rt.Fields(self._post_app, "Fields", setup_name)
+            rep.expressions = expressions
+            rep.polyline = polyline
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def cg_fields(self, expressions=None, setup_name=None, polyline=None):
+        """Create a CG Field Report object in Q3d and Q2D.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Fields`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Q3d
+        >>> app = Q3d(my_project)
+        >>> report = app.post.reports_by_category.cg_fields("SmoothQ", "Setup : LastAdaptive", "Polyline1")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "CG Fields" in self._templates:
+            rep = rt.Fields(self._post_app, "CG Fields", setup_name)
+            rep.expressions = expressions
+            rep.polyline = polyline
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def dc_fields(self, expressions=None, setup_name=None, polyline=None):
+        """Create a DC Field Report object in Q3d.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Fields`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Q3d
+        >>> app = Q3d(my_project)
+        >>> report = app.post.reports_by_category.dc_fields("Mag_VolumeJdc", "Setup : LastAdaptive", "Polyline1")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "DC R/L Fields" in self._templates:
+            rep = rt.Fields(self._post_app, "DC R/L Fields", setup_name)
+            rep.expressions = expressions
+            rep.polyline = polyline
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def rl_fields(self, expressions=None, setup_name=None, polyline=None):
+        """Create an AC RL Field Report object in Q3d and Q2D.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Fields`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Q3d
+        >>> app = Q3d(my_project)
+        >>> report = app.post.reports_by_category.rl_fields("Mag_SurfaceJac", "Setup : LastAdaptive", "Polyline1")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "AC R/L Fields" in self._templates or "RL Fields" in self._templates:
+            if self._post_app._app.design_type == "Q3D Extractor":
+                rep = rt.Fields(self._post_app, "AC R/L Fields", setup_name)
+            else:
+                rep = rt.Fields(self._post_app, "RL Fields", setup_name)
+            rep.expressions = expressions
+            rep.polyline = polyline
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def far_field(self, expressions=None, setup_name=None, sphere_name=None):
+        """Create a Field Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.FarField`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.reports_by_category.far_field("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
+        >>> report.primary_sweep = "Phi"
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Far Fields" in self._templates:
+            rep = rt.FarField(self._post_app, "Far Fields", setup_name)
+            rep.expressions = expressions
+            rep.far_field_sphere = sphere_name
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def near_field(self, expressions=None, setup_name=None, near_field_name=None):
+        """Create a Field Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.NearField`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.reports_by_category.near_field("GainTotal", "Setup : LastAdaptive", "NF_1")
+        >>> report.primary_sweep = "Phi"
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Near Fields" in self._templates:
+            rep = rt.NearField(self._post_app, "Near Fields", setup_name)
+            rep.expressions = expressions
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def modal_solution(self, expressions=None, setup_name=None):
+        """Create a Standard or Default Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.reports_by_category.modal_solution("dB(S(1,1))")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Modal Solution Data" in self._templates:
+            rep = rt.Standard(self._post_app, "Modal Solution Data", setup_name)
+            rep.expressions = expressions
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def terminal_solution(self, expressions=None, setup_name=None):
+        """Create a Standard or Default Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.reports_by_category.terminal_solution("dB(S(1,1))")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Terminal Solution Data" in self._templates:
+            rep = rt.Standard(self._post_app, "Terminal Solution Data", setup_name)
+            rep.expressions = expressions
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def eigenmode(self, expressions=None, setup_name=None):
+        """Create a Standard or Default Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.reports_by_category.eigenmode("dB(S(1,1))")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "EigenMode Parameters" in self._templates:
+            rep = rt.Standard(self._post_app, "EigenMode Parameters", setup_name)
+            rep.expressions = expressions
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def eye_diagram(self, expressions=None, setup_name=None):
+        """Create a Standard or Default Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> cir= Circuit()
+        >>> new_eye = cir.post.reports_by_category.eye_diagram("V(Vout)")
+        >>> new_eye.unit_interval = "1e-9s"
+        >>> new_eye.time_stop = "100ns"
+        >>> new_eye.create()
+
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Eye Diagram" in self._templates:
+            rep = rt.EyeDiagram(self._post_app, "Eye Diagram", setup_name)
+            rep.expressions = expressions
+            return rep
+        return
+
 
 orientation_to_view = {
     "isometric": "iso",
@@ -70,6 +543,7 @@ class SolutionData(object):
             except:
                 self.nominal_sweeps[e] = None
         self._init_solutions_data()
+        self._ifft = None
 
     @property
     def sweeps(self):
@@ -761,6 +1235,158 @@ class SolutionData(object):
             title = "Simulation Results Plot"
         return plot_3d_chart(data_plot, size, xlabel, ylabel, title, snapshot_path)
 
+    @pyaedt_function_handler()
+    def ifft(self, curve_header="NearE", u_axis="_u", v_axis="_v", window=False):
+        """Create IFFT of given complex data.
+
+        Parameters
+        ----------
+        curve_header : curve header. Solution data must contain 3 curves with X, Y and Z components of curve header.
+        u_axis : str, optional
+            U Axis name. Default is Hfss name "_u"
+        v_axis : str, optional
+            V Axis name. Default is Hfss name "_v"
+        window : bool, optional
+            Either if Hanning windowing has to be applied.
+
+        Returns
+        -------
+        List
+            IFFT Matrix.
+        """
+        if is_ironpython:
+            return False
+        u = self.sweeps[u_axis]
+        if v_axis:
+            v = self.sweeps[v_axis]
+        freq = self.sweeps["Freq"]
+        vals_real_Ex = [j for j in self.solutions_data_real[curve_header + "X"].values()]
+        vals_imag_Ex = [j for j in self.solutions_data_imag[curve_header + "X"].values()]
+        vals_real_Ey = [j for j in self.solutions_data_real[curve_header + "Y"].values()]
+        vals_imag_Ey = [j for j in self.solutions_data_imag[curve_header + "Y"].values()]
+        vals_real_Ez = [j for j in self.solutions_data_real[curve_header + "Z"].values()]
+        vals_imag_Ez = [j for j in self.solutions_data_imag[curve_header + "Z"].values()]
+
+        E_realx = np.reshape(vals_real_Ex, (len(freq), len(v), len(u)))
+        E_imagx = np.reshape(vals_imag_Ex, (len(freq), len(v), len(u)))
+        E_realy = np.reshape(vals_real_Ey, (len(freq), len(v), len(u)))
+        E_imagy = np.reshape(vals_imag_Ey, (len(freq), len(v), len(u)))
+        E_realz = np.reshape(vals_real_Ez, (len(freq), len(v), len(u)))
+        E_imagz = np.reshape(vals_imag_Ez, (len(freq), len(v), len(u)))
+
+        Temp_E_compx = E_realx + 1j * E_imagx  # Here is the complex FD data matrix, ready for transforming
+        Temp_E_compy = E_realy + 1j * E_imagy
+        Temp_E_compz = E_realz + 1j * E_imagz
+
+        E_compx = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
+        E_compy = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
+        E_compz = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
+        if window:
+            timewin = np.hanning(len(freq))
+
+            for row in range(0, len(v)):
+                for col in range(0, len(u)):
+                    E_compx[:, row, col] = np.multiply(Temp_E_compx[:, row, col], timewin)
+                    E_compy[:, row, col] = np.multiply(Temp_E_compy[:, row, col], timewin)
+                    E_compz[:, row, col] = np.multiply(Temp_E_compz[:, row, col], timewin)
+        else:
+            E_compx = Temp_E_compx
+            E_compy = Temp_E_compy
+            E_compz = Temp_E_compz
+
+        E_time_x = np.fft.ifft(np.fft.fftshift(E_compx, 0), len(freq), 0, None)
+        E_time_y = np.fft.ifft(np.fft.fftshift(E_compy, 0), len(freq), 0, None)
+        E_time_z = np.fft.ifft(np.fft.fftshift(E_compz, 0), len(freq), 0, None)
+        E_time = np.zeros((np.size(freq), np.size(v), np.size(u)))
+        for i in range(0, len(freq)):
+            E_time[i, :, :] = np.abs(
+                np.sqrt(np.square(E_time_x[i, :, :]) + np.square(E_time_y[i, :, :]) + np.square(E_time_z[i, :, :]))
+            )
+        self._ifft = E_time
+
+        return self._ifft
+
+    @pyaedt_function_handler()
+    def ifft_to_file(
+        self,
+        u_axis="_u",
+        v_axis="_v",
+        coord_system_center=None,
+        db_val=False,
+        num_frames=None,
+        csv_dir=None,
+        name_str="res_",
+    ):
+        """Save IFFT Matrix to a list of csv files (one per time step).
+
+        Parameters
+        ----------
+        u_axis : str, optional
+            U Axis name. Default is Hfss name "_u"
+        v_axis : str, optional
+            V Axis name. Default is Hfss name "_v"
+        coord_system_center : list, optional
+            List of UV GlobalCS Center.
+        db_val : bool, optional
+            Either if data has to be exported in db or not.
+        num_frames : int, optional
+            Number of frames to export.
+        csv_dir : str
+            Output path
+        name_str : str, optional
+            csv file header.
+
+        Returns
+        -------
+        str
+            Path to file containing the list of csv files.
+        """
+        if not coord_system_center:
+            coord_system_center = [0, 0, 0]
+        t_matrix = self._ifft
+        x_c_list = self.sweeps[u_axis]
+        y_c_list = self.sweeps[v_axis]
+        adj_x = coord_system_center[0]
+        adj_y = coord_system_center[1]
+        adj_z = coord_system_center[2]
+        if num_frames:
+            frames = num_frames
+        else:
+            frames = t_matrix.shape[0]
+        csv_list = []
+        if os.path.exists(csv_dir):
+            files = [os.path.join(csv_dir, f) for f in os.listdir(csv_dir) if name_str in f and ".csv" in f]
+            for file in files:
+                os.remove(file)
+        else:
+            os.mkdir(csv_dir)
+
+        for frame in range(frames):
+            output = os.path.join(csv_dir, name_str + str(frame) + ".csv")
+            list_full = [["x", "y", "z", "val"]]
+            for i, y in enumerate(y_c_list):
+
+                for j, x in enumerate(x_c_list):
+                    y_coord = y + adj_y
+                    x_coord = x + adj_x
+                    z_coord = adj_z
+                    if db_val:
+                        val = 10.0 * np.log10(np.abs(t_matrix[frame, i, j]))
+                    else:
+                        val = t_matrix[frame, i, j]
+                    row_lst = [x_coord, y_coord, z_coord, val]
+                    list_full.append(row_lst)
+            write_csv(output, list_full, delimiter=",")
+            csv_list.append(output)
+
+        txt_file_name = csv_dir + "fft_list.txt"
+        textfile = open(txt_file_name, "w")
+
+        for element in csv_list:
+            textfile.write(element + "\n")
+        textfile.close()
+        return txt_file_name
+
 
 class FieldPlot:
     """Creates and edits field plots.
@@ -1274,6 +1900,16 @@ class PostProcessorCommon(object):
         self._oeditor = self.modeler.oeditor
         self._oreportsetup = self._odesign.GetModule("ReportSetup")
         self._scratch = Scratch(self._app.temp_directory, volatile=True)
+        self.plots = []
+        self.reports_by_category = Reports(self, self._app.design_type)
+
+    @pyaedt_function_handler()
+    def _init_reports(self):
+        names = self._app.get_oo_name(self._app._odesign, "Reports")
+        if names:
+            for name in names:
+                obj = self._app.get_oo_object(self._app.odesign, "Reports\\{}".format(name))
+                report_type = obj.Get_Type()
 
     @property
     def oreportsetup(self):
@@ -2052,33 +2688,74 @@ class PostProcessorCommon(object):
         ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
         ... )
         """
-
-        out = self._get_report_inputs(
-            expressions=expressions,
-            setup_sweep_name=setup_sweep_name,
-            domain=domain,
-            variations=variations,
-            primary_sweep_variable=primary_sweep_variable,
-            secondary_sweep_variable=secondary_sweep_variable,
-            report_category=report_category,
-            plot_type=plot_type,
-            context=context,
-            subdesign_id=subdesign_id,
-            polyline_points=polyline_points,
-            plotname=plotname,
-        )
-        if not out:
+        if not report_category and not self._app.design_solutions.report_type:
+            self.logger.error("Solution not supported")
             return False
-        self.oreportsetup.CreateReport(
-            out[0],
-            out[1],
-            out[2],
-            out[3],
-            out[4],
-            _convert_dict_to_report_sel(out[5]),
-            out[6],
-        )
-        return True
+        elif not report_category:
+            report_category = self._app.design_solutions.report_type
+        if report_category in TEMPLATES_BY_NAME:
+            report_class = TEMPLATES_BY_NAME[report_category]
+        elif "Fields" in report_category:
+            report_class = TEMPLATES_BY_NAME["Fields"]
+        else:
+            report_class = TEMPLATES_BY_NAME["Standard"]
+        if not setup_sweep_name:
+            setup_sweep_name = self._app.nominal_sweep
+        report = report_class(self, report_category, setup_sweep_name)
+        report.expressions = expressions
+        report.domain = domain
+        report.primary_sweep = primary_sweep_variable
+        report.secondary_sweep = secondary_sweep_variable
+        if variations:
+            report.variations = variations
+        report.report_type = plot_type
+        report.sub_design_id = subdesign_id
+        report.point_number = polyline_points
+        if context == "Differential Pairs":
+            report.differential_pairs = True
+        elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
+            report.matrix = context
+        elif report_category == "Far Fields":
+            if not context and self._app._field_setups:
+                report.far_field_sphere = self._app.field_setups[0].name
+            else:
+                report.far_field_sphere = context
+        elif report_category == "Near Fields":
+            report.near_field = context
+        elif context:
+            if context in self.modeler.line_names:
+                report.polyline = context
+
+        result = report.create(plotname)
+        if result:
+            return report
+        return False
+        # out = self._get_report_inputs(
+        #     expressions=expressions,
+        #     setup_sweep_name=setup_sweep_name,
+        #     domain=domain,
+        #     variations=variations,
+        #     primary_sweep_variable=primary_sweep_variable,
+        #     secondary_sweep_variable=secondary_sweep_variable,
+        #     report_category=report_category,
+        #     plot_type=plot_type,
+        #     context=context,
+        #     subdesign_id=subdesign_id,
+        #     polyline_points=polyline_points,
+        #     plotname=plotname,
+        # )
+        # if not out:
+        #     return False
+        # self.oreportsetup.CreateReport(
+        #     out[0],
+        #     out[1],
+        #     out[2],
+        #     out[3],
+        #     out[4],
+        #     _convert_dict_to_report_sel(out[5]),
+        #     out[6],
+        # )
+        # return True
 
     @pyaedt_function_handler()
     def get_solution_data(
@@ -2173,26 +2850,64 @@ class PostProcessorCommon(object):
         >>> data3.plot("InputCurrent(PHA)")
 
         """
-        out = self._get_report_inputs(
-            expressions=expressions,
-            setup_sweep_name=setup_sweep_name,
-            domain=domain,
-            variations=variations,
-            primary_sweep_variable=primary_sweep_variable,
-            report_category=report_category,
-            context=context,
-            subdesign_id=subdesign_id,
-            polyline_points=polyline_points,
-            only_get_method=True,
-        )
-
-        solution_data = self.get_solution_data_per_variation(out[1], out[3], out[4], out[5], expressions)
-        if primary_sweep_variable:
-            solution_data.primary_sweep = primary_sweep_variable
-        if not solution_data:
-            warnings.warn("No Data Available. Check inputs")
+        if not report_category and not self._app.design_solutions.report_type:
+            self.logger.error("Solution not supported")
             return False
-        return solution_data
+        elif not report_category:
+            report_category = self._app.design_solutions.report_type
+        if report_category in TEMPLATES_BY_NAME:
+            report_class = TEMPLATES_BY_NAME[report_category]
+        elif "Fields" in report_category:
+            report_class = TEMPLATES_BY_NAME["Fields"]
+        else:
+            report_class = TEMPLATES_BY_NAME["Standard"]
+        if not setup_sweep_name:
+            setup_sweep_name = self._app.nominal_sweep
+        report = report_class(self, report_category, setup_sweep_name)
+        report.expressions = expressions
+        report.domain = domain
+        report.primary_sweep = primary_sweep_variable
+        if variations:
+            report.variations = variations
+        report.sub_design_id = subdesign_id
+        report.point_number = polyline_points
+        if context == "Differential Pairs":
+            report.differential_pairs = True
+        elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
+            report.matrix = context
+        elif report_category == "Far Fields":
+            if not context and self._app.field_setups:
+                report.far_field_sphere = self._app.field_setups[0].name
+            else:
+                report.far_field_sphere = context
+        elif report_category == "Near Fields":
+            report.near_field = context
+        elif context:
+            if context in self.modeler.line_names:
+                report.polyline = context
+
+        return report.get_solution_data()
+
+        # out = self._get_report_inputs(
+        #     expressions=expressions,
+        #     setup_sweep_name=setup_sweep_name,
+        #     domain=domain,
+        #     variations=variations,
+        #     primary_sweep_variable=primary_sweep_variable,
+        #     report_category=report_category,
+        #     context=context,
+        #     subdesign_id=subdesign_id,
+        #     polyline_points=polyline_points,
+        #     only_get_method=True,
+        # )
+        #
+        # solution_data = self.get_solution_data_per_variation(out[1], out[3], out[4], out[5], expressions)
+        # if primary_sweep_variable:
+        #     solution_data.primary_sweep = primary_sweep_variable
+        # if not solution_data:
+        #     warnings.warn("No Data Available. Check inputs")
+        #     return False
+        # return solution_data
 
 
 class PostProcessor(PostProcessorCommon, object):

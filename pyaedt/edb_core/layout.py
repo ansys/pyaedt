@@ -6,6 +6,7 @@ import os
 import warnings
 
 from pyaedt.edb_core.EDB_Data import EDBPrimitives
+from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -13,9 +14,11 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 try:
     from System import Tuple
 
+    # from System.Collections.Generic import List
+
 except ImportError:
     if os.name != "posix":
-        warnings.warn('This module requires the "pythonnet" package.')
+        warnings.warn("This module requires the Python.NET package.")
 
 
 class EdbLayout(object):
@@ -95,7 +98,10 @@ class EdbLayout(object):
             layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
             for el in layoutObjectInstances.Items:
                 try:
-                    self._prims.append(EDBPrimitives(el.GetLayoutObj(), self._pedb))
+                    if el.GetLayoutObj():
+                        # prim = EDBPrimitives(el.GetLayoutObj(), self._pedb)
+                        # if prim:
+                        self._prims.append(EDBPrimitives(el.GetLayoutObj(), self._pedb))
                 except:
                     continue
             for lay in self.layers:
@@ -507,6 +513,81 @@ class EdbLayout(object):
             return polygon
 
     @pyaedt_function_handler()
+    def create_rectangle(
+        self,
+        layer_name,
+        net_name="",
+        lower_left_point="",
+        upper_right_point="",
+        center_point="",
+        width="",
+        height="",
+        representation_type="LowerLeftUpperRight",
+        corner_radius="0mm",
+        rotation="0deg",
+    ):
+        """Create rectangle.
+
+        Parameters
+        ----------
+        layer_name : str
+            Name of the layer on which to create the rectangle.
+        net_name : str
+            Name of the net. The default is ``""``.
+        lower_left_point : list
+            Lower left point when ``representation_type="LowerLeftUpperRight"``. The default is ``""``.
+        upper_right_point : list
+            Upper right point when ``representation_type="LowerLeftUpperRight"``. The default is ``""``.
+        center_point : list
+            Center point when ``representation_type="CenterWidthHeight"``. The default is ``""``.
+        width : str
+            Width of the rectangle when ``representation_type="CenterWidthHeight"``. The default is ``""``.
+        height : str
+            Height of the rectangle when ``representation_type="CenterWidthHeight"``. The default is ``""``.
+        representation_type : str, optional
+            Type of the rectangle representation. The default is ``LowerLeftUpperRight``. Options are
+            ``"LowerLeftUpperRight"`` and ``"CenterWidthHeight"``.
+        corner_radius : str, optional
+            Radius of the rectangle corner. The default is ``"0mm"``.
+        rotation : str, optional
+            Rotation of the rectangle. The default is ``"0deg"``.
+
+        Returns
+        -------
+        bool
+            Rectangle when successful, ``False`` when failed.
+        """
+        edb_net = self._pedb.core_nets.find_or_create_net(net_name)
+        if representation_type == "LowerLeftUpperRight":
+            rep_type = self._edb.Cell.Primitive.RectangleRepresentationType.LowerLeftUpperRight
+            return self._edb.Cell.Primitive.Rectangle.Create(
+                self._active_layout,
+                layer_name,
+                edb_net,
+                rep_type,
+                self._get_edb_value(lower_left_point[0]),
+                self._get_edb_value(lower_left_point[1]),
+                self._get_edb_value(upper_right_point[0]),
+                self._get_edb_value(upper_right_point[1]),
+                self._get_edb_value(corner_radius),
+                self._get_edb_value(rotation),
+            )
+        else:
+            rep_type = self._edb.Cell.Primitive.RectangleRepresentationType.CenterWidthHeight
+            return self._edb.Cell.Primitive.Rectangle.Create(
+                self._active_layout,
+                layer_name,
+                edb_net,
+                rep_type,
+                self._get_edb_value(center_point[0]),
+                self._get_edb_value(center_point[1]),
+                self._get_edb_value(width),
+                self._get_edb_value(height),
+                self._get_edb_value(corner_radius),
+                self._get_edb_value(rotation),
+            )
+
+    @pyaedt_function_handler()
     def get_primitives(self, net_name=None, layer_name=None, prim_type=None, is_void=False):
         """Get primitives by conditions.
 
@@ -556,9 +637,19 @@ class EdbLayout(object):
             if not void_circle.is_void:
                 continue
             if is_ironpython:  # pragma: no cover
-                res, center_x, center_y, radius = void_circle.primitive_object.GetParameters()
+                (
+                    res,
+                    center_x,
+                    center_y,
+                    radius,
+                ) = void_circle.primitive_object.GetParameters()
             else:
-                res, center_x, center_y, radius = void_circle.primitive_object.GetParameters(0.0, 0.0, 0.0)
+                (
+                    res,
+                    center_x,
+                    center_y,
+                    radius,
+                ) = void_circle.primitive_object.GetParameters(0.0, 0.0, 0.0)
             cloned_circle = self._edb.Cell.Primitive.Circle.Create(
                 self._active_layout,
                 void_circle.layer_name,
@@ -607,7 +698,10 @@ class EdbLayout(object):
         elif shape.type == "rectangle":
             return self._createPolygonDataFromRectangle(shape)
         else:
-            self._logger.error("Unsupported shape type %s when creating a polygon primitive.", shape.type)
+            self._logger.error(
+                "Unsupported shape type %s when creating a polygon primitive.",
+                shape.type,
+            )
             return None
 
     @pyaedt_function_handler()
@@ -640,10 +734,12 @@ class EdbLayout(object):
                 )
                 arc = self._edb.Geometry.ArcData(
                     self._edb.Geometry.PointData(
-                        self._get_edb_value(startPoint[0].ToDouble()), self._get_edb_value(startPoint[1].ToDouble())
+                        self._get_edb_value(startPoint[0].ToDouble()),
+                        self._get_edb_value(startPoint[1].ToDouble()),
                     ),
                     self._edb.Geometry.PointData(
-                        self._get_edb_value(endPoint[0].ToDouble()), self._get_edb_value(endPoint[1].ToDouble())
+                        self._get_edb_value(endPoint[0].ToDouble()),
+                        self._get_edb_value(endPoint[1].ToDouble()),
                     ),
                 )
                 arcs.append(arc)
@@ -667,14 +763,17 @@ class EdbLayout(object):
                     return None
                 arc = self._edb.Geometry.ArcData(
                     self._edb.Geometry.PointData(
-                        self._get_edb_value(startPoint[0].ToDouble()), self._get_edb_value(startPoint[1].ToDouble())
+                        self._get_edb_value(startPoint[0].ToDouble()),
+                        self._get_edb_value(startPoint[1].ToDouble()),
                     ),
                     self._edb.Geometry.PointData(
-                        self._get_edb_value(endPoint[0].ToDouble()), self._get_edb_value(endPoint[1].ToDouble())
+                        self._get_edb_value(endPoint[0].ToDouble()),
+                        self._get_edb_value(endPoint[1].ToDouble()),
                     ),
                     rotationDirection,
                     self._edb.Geometry.PointData(
-                        self._get_edb_value(endPoint[3].ToDouble()), self._get_edb_value(endPoint[4].ToDouble())
+                        self._get_edb_value(endPoint[3].ToDouble()),
+                        self._get_edb_value(endPoint[4].ToDouble()),
                     ),
                 )
                 arcs.append(arc)
@@ -761,8 +860,15 @@ class EdbLayout(object):
         """
 
         def __init__(
-            self, type="unknown", pointA=None, pointB=None, centerPoint=None, radius=None, points=None, properties={}
-        ):
+            self,
+            type="unknown",  # noqa
+            pointA=None,
+            pointB=None,
+            centerPoint=None,
+            radius=None,
+            points=None,
+            properties={},
+        ):  # noqa
             self.type = type
             self.pointA = pointA
             self.pointB = pointB
@@ -772,7 +878,13 @@ class EdbLayout(object):
             self.properties = properties
 
     @pyaedt_function_handler()
-    def parametrize_trace_width(self, nets_name, layers_name=None, parameter_name="trace_width", variable_value=None):
+    def parametrize_trace_width(
+        self,
+        nets_name,
+        layers_name=None,
+        parameter_name="trace_width",
+        variable_value=None,
+    ):
         """Parametrize a Trace on specific layer or all stackup.
 
         Parameters
@@ -859,7 +971,10 @@ class EdbLayout(object):
                             if int(item.GetIntersectionType(void.GetPolygonData())) == 2:
                                 item.AddHole(void.GetPolygonData())
                     poly = self._edb.Cell.Primitive.Polygon.Create(
-                        self._active_layout, lay, self._pedb.core_nets.nets[net].net_object, item
+                        self._active_layout,
+                        lay,
+                        self._pedb.core_nets.nets[net].net_object,
+                        item,
                     )
                 list_to_delete = [i for i in poly_by_nets[net]]
                 for v in all_voids:
@@ -883,3 +998,133 @@ class EdbLayout(object):
                     self._pedb.core_padstack.remove_pads_from_padstack(pad)
         self.update_primitives()
         return True
+
+    @pyaedt_function_handler()
+    def defeature_polygon(self, setup_info, poly, max_surface_deviation=0.001):
+        """Defeature the polygon based on the maximum surface deviation criteria.
+
+        Parameters
+        ----------
+        setup_info : EDB_Data_SimulatiomConfiguratio object
+            When the ``setup_info`` argument is provided, it overwrites the
+            ``maximum_surface_deviation`` value.
+
+        poly : Edb Polygon primitive
+            Polygon to defeature.
+
+        max_surface_deviation : float, optional
+            Maximum surface deviation criteria. The default is ``0.001``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            if setup_info:
+                max_surface_deviation = setup_info.max_suf_dev
+            poly_data = poly.GetPolygonData()
+            pts_list = []
+            pts = poly_data.Points
+            defeaturing_step = 1e-6
+            if len(poly_data) <= 16:
+                # Defeaturing skipped for polygons with less than 16 points
+                self._logger.info(
+                    "Polygon {} is skipped for defeaturing because its number of point is less than 16. ".format(
+                        poly.GetId()
+                    )
+                )
+                return poly_data
+
+            for pt in pts:
+                pts_list.append(pt)
+            nb_ini_pts = len(pts_list)
+            minimum_distance = defeaturing_step  # 1e-6
+            init_surf = poly_data.Area()
+            nb_pts_removed = 0
+            surf_dev = 0
+            new_poly = None
+            while (surf_dev < max_surface_deviation and pts_list.Count > 16 and minimum_distance < 1000e-6) and float(
+                nb_pts_removed
+            ) / float(nb_ini_pts) < 0.4:
+                pts_list, nb_pts_removed = self._trim_polygon_points(pts, minimum_distance)
+                new_poly = self._edb.Geometry.PolygonData(pts_list, True)
+                current_surf = new_poly.Area()
+                if current_surf == 0:
+                    surf_dev = 1
+                else:
+                    surf_dev = abs(init_surf - current_surf) / init_surf
+                    minimum_distance = minimum_distance + defeaturing_step
+            self._logger.info(
+                "Defeaturing polygon {0}: Final surface deviation = {1} , Maximum distance(um) = {2}, "
+                "Number of points removed = {3}/{4}".format(
+                    str(poly.GetId()),
+                    str(surf_dev),
+                    str(minimum_distance * 1e6),
+                    str(nb_pts_removed),
+                    str(nb_ini_pts),
+                )
+            )
+            return new_poly
+        except:
+            return False
+
+    @pyaedt_function_handler()
+    def _trim_polygon_points(self, points, minimum_distance):
+        pts_list = []
+        ind = 0
+
+        nb_pts_removed = 0
+        for pt in points:
+            pts_list.append(pt)
+        # NbIniPts = pts_list.Count
+
+        while ind < pts_list.Count - 2:
+            pts_list, nb_pts_removed = self._get_point_list_with_minimum_distance(
+                pts_list, minimum_distance, ind, nb_pts_removed
+            )
+            ind = ind + 1
+
+        return pts_list, nb_pts_removed
+
+    @pyaedt_function_handler()
+    def _get_point_list_with_minimum_distance(self, pts_list, minimum_distance, ind, nb_pts_removed):
+        pt_ind = ind + 1
+        while pts_list[ind].Distance(pts_list[pt_ind]) < minimum_distance and pt_ind < pts_list.Count - 2:
+            pts_list.RemoveAt(pt_ind)
+            nb_pts_removed += 1
+            pt_ind += 1
+
+        return pts_list, nb_pts_removed
+
+    @pyaedt_function_handler()
+    def setup_net_classes(self, simulation_setup=None):
+        """
+        Define nets listed as power ground nets in the ``simulation_setup`` object.
+
+        Parameters
+        ----------
+        simulation_setup : simulation_setup EDB_Data.SimulationConfiguration object
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+
+        """
+        if not isinstance(simulation_setup, SimulationConfiguration):
+            return False
+
+        net_list = list(self._active_layout.Nets)
+        power_net_list = [net for net in self._active_layout.Nets if net.GetName() in simulation_setup.power_nets]
+        map(lambda obj: obj.SetIsPowerGround(False), net_list)
+        for net in power_net_list:
+            self._set_power_net(net)
+        return True
+
+    @pyaedt_function_handler()
+    def _set_power_net(self, net):
+        if isinstance(net, self._edb.Cell.Net):
+            net.SetIsPowerGround(True)
+            self._logger.info("NET: {} set to power/ground class".format(net.GetName()))

@@ -1206,11 +1206,8 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
 
     @property
     def xy_plane(self):
-        """Maxwell 2D plane between `"XY"` and `"about Z"`."""
-        if self.design_solutions.xy_plane == "XY":
-            return True
-        else:
-            return False
+        """Maxwell 2D plane between `True` and `False`."""
+        return self.design_solutions.xy_plane
 
     @xy_plane.setter
     @pyaedt_function_handler()
@@ -1444,3 +1441,53 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             else:
                 return bound, False
         return False, False
+
+    @pyaedt_function_handler()
+    def assign_end_connection(self, objects, resistance=0, inductance=0, bound_name=None):
+        """Assign End connection to a list of objects.
+
+        Parameters
+        ----------
+        objects : list of int or str or :class:`pyaedt.modeler.Object3d.Object3d`
+            List of objects to apply end connection.
+        resistance : float or str, optional
+            Resistance value. If float is provided then it is assumed in Ohm.
+            The default value is "0ohm".
+        inductance : float or str, optional
+            Inductance value. If float is provided then it is assumed in Henry.
+            The default value is "0H".
+        bound_name : str, optional
+            Name of the End connection boundary.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            New created object.
+
+        References
+        ----------
+
+        >>> oModule.AssignEndConnection
+        """
+        if self.solution_type not in ["EddyCurrent", "Transient"]:
+            self.logger.error("Excitation applicable only to Eddy current or Transient Solver.")
+            return False
+        if len(objects) < 2:
+            self.logger.error("At least 2 objects are needed.")
+            return False
+        objects = self.modeler.convert_to_selections(objects, True)
+        if not bound_name:
+            bound_name = generate_unique_name("EndConnection")
+
+        props = OrderedDict(
+            {
+                "Objects": objects,
+                "ResistanceValue": self.modeler._arg_with_dim(resistance, "ohm"),
+                "InductanceValue": self.modeler._arg_with_dim(inductance, "H"),
+            }
+        )
+        bound = BoundaryObject(self, bound_name, props, "EndConnection")
+        if bound.create():
+            self.boundaries.append(bound)
+            return bound
+        return False

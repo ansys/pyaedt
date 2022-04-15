@@ -3,6 +3,7 @@ import os
 import tempfile
 import time
 import warnings
+from collections import defaultdict
 from datetime import datetime
 
 from pyaedt import pyaedt_function_handler
@@ -79,6 +80,195 @@ def is_float(istring):
         return 0
 
 
+def _triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes=True):
+    trg_vertex = []
+    if num_nodes_per_element == 10 and take_all_nodes:
+        for e in elements_nodes:
+            trg_vertex.append([e[0], e[1], e[3]])
+            trg_vertex.append([e[1], e[2], e[4]])
+            trg_vertex.append([e[1], e[4], e[3]])
+            trg_vertex.append([e[3], e[4], e[5]])
+
+            trg_vertex.append([e[9], e[6], e[8]])
+            trg_vertex.append([e[6], e[0], e[3]])
+            trg_vertex.append([e[6], e[3], e[8]])
+            trg_vertex.append([e[8], e[3], e[5]])
+
+            trg_vertex.append([e[9], e[7], e[8]])
+            trg_vertex.append([e[7], e[2], e[4]])
+            trg_vertex.append([e[7], e[4], e[8]])
+            trg_vertex.append([e[8], e[4], e[5]])
+
+            trg_vertex.append([e[9], e[7], e[6]])
+            trg_vertex.append([e[7], e[2], e[1]])
+            trg_vertex.append([e[7], e[1], e[6]])
+            trg_vertex.append([e[6], e[1], e[0]])
+
+    elif num_nodes_per_element == 10 and not take_all_nodes:
+        for e in elements_nodes:
+            trg_vertex.append([e[0], e[2], e[5]])
+            trg_vertex.append([e[9], e[0], e[5]])
+            trg_vertex.append([e[9], e[2], e[0]])
+            trg_vertex.append([e[9], e[2], e[5]])
+
+    elif num_nodes_per_element == 6 and not take_all_nodes:
+        for e in elements_nodes:
+            trg_vertex.append([e[0], e[2], e[5]])
+
+    elif num_nodes_per_element == 6 and take_all_nodes:
+        for e in elements_nodes:
+            trg_vertex.append([e[0], e[1], e[3]])
+            trg_vertex.append([e[1], e[2], e[4]])
+            trg_vertex.append([e[1], e[4], e[3]])
+            trg_vertex.append([e[3], e[4], e[5]])
+
+    elif num_nodes_per_element == 4 and take_all_nodes:
+        for e in elements_nodes:
+            trg_vertex.append([e[0], e[1], e[3]])
+            trg_vertex.append([e[1], e[2], e[3]])
+            trg_vertex.append([e[0], e[1], e[2]])
+            trg_vertex.append([e[0], e[2], e[3]])
+
+    elif num_nodes_per_element == 3:
+        trg_vertex = elements_nodes
+
+    return trg_vertex
+
+
+def _parse_aedtplt(filepath):
+    lines = []
+    vertices = []
+    faces = []
+    scalars = []
+    with open(filepath, "r") as f:
+        drawing_found = False
+        for line in f:
+            if "$begin Drawing" in line:
+                drawing_found = True
+                l_tmp = []
+                continue
+            if "$end Drawing" in line:
+                lines.append(l_tmp)
+                drawing_found = False
+                continue
+            if drawing_found:
+                l_tmp.append(line)
+                continue
+    for drawing_lines in lines:
+        bounding = []
+        elements = []
+        nodes_list = []
+        solution = []
+        for l in drawing_lines:
+            if "BoundingBox(" in l:
+                bounding = l[l.find("(") + 1 : -2].split(",")
+                bounding = [i.strip() for i in bounding]
+            if "Elements(" in l:
+                elements = l[l.find("(") + 1 : -2].split(",")
+                elements = [int(i.strip()) for i in elements]
+            if "Nodes(" in l:
+                nodes_list = l[l.find("(") + 1 : -2].split(",")
+                nodes_list = [float(i.strip()) for i in nodes_list]
+            if "ElemSolution(" in l:
+                # convert list of strings to list of floats
+                sols = l[l.find("(") + 1 : -2].split(",")
+                sols = [is_float(value) for value in sols]
+                # sols = [float(i.strip()) for i in sols]
+                num_solution_per_element = int(sols[2])
+                num_elements = elements[1]
+                num_nodes = elements[6]
+                sols = sols[3:]
+                if num_nodes == num_solution_per_element or num_solution_per_element // num_nodes < 3:
+                    sols = [
+                        sols[i : i + num_solution_per_element] for i in range(0, len(sols), num_solution_per_element)
+                    ]
+                    solution = [sum(i) / num_solution_per_element for i in sols]
+                else:
+                    sols = [
+                        sols[i : i + num_solution_per_element] for i in range(0, len(sols), num_solution_per_element)
+                    ]
+                    solution = [
+                        [sum(i[::3]) / num_solution_per_element * 3 for i in sols],
+                        [sum(i[1::3]) / num_solution_per_element * 3 for i in sols],
+                        [sum(i[2::3]) / num_solution_per_element * 3 for i in sols],
+                    ]
+
+        nodes = [[nodes_list[i], nodes_list[i + 1], nodes_list[i + 2]] for i in range(0, len(nodes_list), 3)]
+        num_nodes = elements[0]
+        num_elements = elements[1]
+        elements = elements[2:]
+        element_type = elements[0]
+        num_nodes_per_element = elements[4]
+        header_length = 5
+        elements_nodes = []
+        for i in range(0, len(elements), num_nodes_per_element + header_length):
+            elements_nodes.append([elements[i + header_length + n] for n in range(num_nodes_per_element)])
+        if solution:
+            take_all_nodes = True  # solution case
+        else:
+            take_all_nodes = False  # mesh case
+        trg_vertex = _triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes)
+        # remove duplicates
+        nodup_list = [list(i) for i in list(set([frozenset(t) for t in trg_vertex]))]
+        log = True
+        if solution:
+            if isinstance(solution[0], list):
+                temps = []
+                for sol in solution:
+                    sv = {}
+                    sv_i = {}
+                    sv = defaultdict(lambda: 0, sv)
+                    sv_i = defaultdict(lambda: 1, sv_i)
+                    for els, s in zip(elements_nodes, sol):
+                        for el in els:
+                            sv[el] = (sv[el] + s) / sv_i[el]
+                            sv_i[el] = 2
+                    temps.append(np.array([sv[v] for v in sorted(sv.keys())]))
+            else:
+                sv = {}
+                sv_i = {}
+                sv = defaultdict(lambda: 0, sv)
+                sv_i = defaultdict(lambda: 1, sv_i)
+
+                for els, s in zip(elements_nodes, solution):
+                    for el in els:
+                        sv[el] = (sv[el] + s) / sv_i[el]
+                        sv_i[el] = 2
+                temps = np.array([sv[v] for v in sorted(sv.keys())])
+            scalars.append(temps)
+            if np.min(temps) <= 0:
+                log = False
+        array = [[3] + [j - 1 for j in i] for i in nodup_list]
+
+        faces.append(np.hstack(array))
+        vertices.append(np.array(nodes))
+        # surf = pv.PolyData(vertices, faces)
+
+        # surf.point_data[field.label] = temps
+    # field.log = log
+    # field._cached_polydata = surf
+    return vertices, faces, scalars, log
+
+
+def _parse_streamline(filepath):
+    streamlines = []
+    with open(filepath, "r") as f:
+        lines = f.read().splitlines()
+        new_line = False
+        streamline = []
+        for line in lines:
+            if "Streamline: " in line:
+                new_line = True
+                if streamline:
+                    streamlines.append(streamline)
+                    streamline = []
+
+            elif new_line:
+                streamline.append(line.split(" "))
+    return streamlines
+
+
+@pyaedt_function_handler()
 def plot_polar_chart(
     plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None
 ):
@@ -367,7 +557,7 @@ class FieldClass(object):
         log_scale=True,
         coordinate_units="meter",
         opacity=1,
-        color_map="rainbow",
+        color_map="jet",
         label="Field",
         tolerance=1e-3,
         headers=2,
@@ -387,6 +577,8 @@ class FieldClass(object):
         self.header_lines = headers
         self.show_edge = show_edge
         self._is_frame = False
+        self.is_vector = False
+        self.vector_scale = 1.0
 
 
 class ModelPlotter(object):
@@ -719,7 +911,7 @@ class ModelPlotter(object):
         log_scale=True,
         coordinate_units="meter",
         opacity=1,
-        color_map="rainbow",
+        color_map="jet",
         label_name="Field",
         surface_mapping_tolerance=1e-3,
         header_lines=2,
@@ -773,7 +965,7 @@ class ModelPlotter(object):
         log_scale=True,
         coordinate_units="meter",
         opacity=1,
-        color_map="rainbow",
+        color_map="jet",
         label_name="Field",
         surface_mapping_tolerance=1e-3,
         header_lines=2,
@@ -826,7 +1018,7 @@ class ModelPlotter(object):
         log_scale=True,
         coordinate_units="meter",
         opacity=1,
-        color_map="rainbow",
+        color_map="jet",
         label_name="Field",
         surface_mapping_tolerance=1e-3,
         show_edges=True,
@@ -868,60 +1060,6 @@ class ModelPlotter(object):
         self.fields[-1]._cached_polydata = filedata
 
     @pyaedt_function_handler()
-    def _triangle_vertex(self, elements_nodes, num_nodes_per_element, take_all_nodes=True):
-        trg_vertex = []
-        if num_nodes_per_element == 10 and take_all_nodes:
-            for e in elements_nodes:
-                trg_vertex.append([e[0], e[1], e[3]])
-                trg_vertex.append([e[1], e[2], e[4]])
-                trg_vertex.append([e[1], e[4], e[3]])
-                trg_vertex.append([e[3], e[4], e[5]])
-
-                trg_vertex.append([e[9], e[6], e[8]])
-                trg_vertex.append([e[6], e[0], e[3]])
-                trg_vertex.append([e[6], e[3], e[8]])
-                trg_vertex.append([e[8], e[3], e[5]])
-
-                trg_vertex.append([e[9], e[7], e[8]])
-                trg_vertex.append([e[7], e[2], e[4]])
-                trg_vertex.append([e[7], e[4], e[8]])
-                trg_vertex.append([e[8], e[4], e[5]])
-
-                trg_vertex.append([e[9], e[7], e[6]])
-                trg_vertex.append([e[7], e[2], e[1]])
-                trg_vertex.append([e[7], e[1], e[6]])
-                trg_vertex.append([e[6], e[1], e[0]])
-        elif num_nodes_per_element == 10 and not take_all_nodes:
-            for e in elements_nodes:
-                trg_vertex.append([e[0], e[2], e[5]])
-                trg_vertex.append([e[9], e[0], e[5]])
-                trg_vertex.append([e[9], e[2], e[0]])
-                trg_vertex.append([e[9], e[2], e[5]])
-
-        elif num_nodes_per_element == 6 and not take_all_nodes:
-            for e in elements_nodes:
-                trg_vertex.append([e[0], e[2], e[5]])
-
-        elif num_nodes_per_element == 6 and take_all_nodes:
-            for e in elements_nodes:
-                trg_vertex.append([e[0], e[1], e[3]])
-                trg_vertex.append([e[1], e[2], e[4]])
-                trg_vertex.append([e[1], e[4], e[3]])
-                trg_vertex.append([e[3], e[4], e[5]])
-
-        elif num_nodes_per_element == 4 and take_all_nodes:
-            for e in elements_nodes:
-                trg_vertex.append([e[0], e[1], e[3]])
-                trg_vertex.append([e[1], e[2], e[3]])
-                trg_vertex.append([e[0], e[1], e[2]])
-                trg_vertex.append([e[0], e[2], e[3]])
-
-        elif num_nodes_per_element == 3:
-            trg_vertex = elements_nodes
-
-        return trg_vertex
-
-    @pyaedt_function_handler()
     def _read_mesh_files(self, read_frames=False):
         for cad in self.objects:
             if not cad._cached_polydata:
@@ -936,99 +1074,30 @@ class ModelPlotter(object):
         for field in obj_to_iterate:
             if field.path and not field._cached_polydata:
                 if ".aedtplt" in field.path:
-                    lines = []
-                    with open(field.path, "r") as f:
-                        drawing_found = False
-                        for line in f:
-                            if "$begin Drawing" in line:
-                                drawing_found = True
-                                l_tmp = []
-                                continue
-                            if "$end Drawing" in line:
-                                lines.append(l_tmp)
-                                drawing_found = False
-                                continue
-                            if drawing_found:
-                                l_tmp.append(line)
-                                continue
-                    surf = None
-                    for drawing_lines in lines:
-                        bounding = []
-                        elements = []
-                        nodes_list = []
-                        solution = []
-                        for l in drawing_lines:
-                            if "BoundingBox(" in l:
-                                bounding = l[l.find("(") + 1 : -2].split(",")
-                                bounding = [i.strip() for i in bounding]
-                            if "Elements(" in l:
-                                elements = l[l.find("(") + 1 : -2].split(",")
-                                elements = [int(i.strip()) for i in elements]
-                            if "Nodes(" in l:
-                                nodes_list = l[l.find("(") + 1 : -2].split(",")
-                                nodes_list = [float(i.strip()) for i in nodes_list]
-                            if "ElemSolution(" in l:
-                                # convert list of strings to list of floats
-                                sols = l[l.find("(") + 1 : -2].split(",")
-                                sols = [is_float(value) for value in sols]
+                    vertices, faces, scalars, log1 = _parse_aedtplt(field.path)
+                    fields_vals = pv.PolyData(vertices[0], faces[0])
+                    field._cached_polydata = fields_vals
+                    if isinstance(scalars[0], list):
+                        vector_scale = (max(fields_vals.bounds) - min(fields_vals.bounds)) / (
+                            50 * (np.vstack(scalars[0]).max() - np.vstack(scalars[0]).min())
+                        )
 
-                                # sols = [float(i.strip()) for i in sols]
-                                num_solution_per_element = int(sols[2])
-                                sols = sols[3:]
-                                sols = [
-                                    sols[i : i + num_solution_per_element]
-                                    for i in range(0, len(sols), num_solution_per_element)
-                                ]
-                                solution = [sum(i) / num_solution_per_element for i in sols]
+                        field._cached_polydata["vectors"] = np.vstack(scalars[0]).T * vector_scale
+                        field.label = "Vector " + field.label
+                        field._cached_polydata.point_data[field.label] = np.array(
+                            [np.linalg.norm(x) for x in np.vstack(scalars[0]).T]
+                        )
 
-                        nodes = [
-                            [nodes_list[i], nodes_list[i + 1], nodes_list[i + 2]] for i in range(0, len(nodes_list), 3)
-                        ]
-                        num_nodes = elements[0]
-                        num_elements = elements[1]
-                        elements = elements[2:]
-                        element_type = elements[0]
-                        num_nodes_per_element = elements[4]
-                        hl = 5  # header length
-                        elements_nodes = []
-                        for i in range(0, len(elements), num_nodes_per_element + hl):
-                            elements_nodes.append([elements[i + hl + n] for n in range(num_nodes_per_element)])
-                        if solution:
-                            take_all_nodes = True  # solution case
-                        else:
-                            take_all_nodes = False  # mesh case
-                        trg_vertex = self._triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes)
-                        # remove duplicates
-                        nodup_list = [list(i) for i in list(set([frozenset(t) for t in trg_vertex]))]
-                        sols_vertex = []
-                        if solution:
-                            sv = {}
-                            for els, s in zip(elements_nodes, solution):
-                                for el in els:
-                                    if el in sv:
-                                        sv[el] = (sv[el] + s) / 2
-                                    else:
-                                        sv[el] = s
-                            sols_vertex = [sv[v] for v in sorted(sv.keys())]
-                        array = [[3] + [j - 1 for j in i] for i in nodup_list]
-                        faces = np.hstack(array)
-                        vertices = np.array(nodes)
-                        surf = pv.PolyData(vertices, faces)
-                        if sols_vertex:
-                            temps = np.array(sols_vertex)
-                            mean = np.mean(temps)
-                            std = np.std(temps)
-                            if np.min(temps) > 0:
-                                log = True
-                            else:
-                                log = False
-                            surf.point_data[field.label] = temps
-                    field.log = log
-                    field._cached_polydata = surf
+                        field.is_vector = True
+                    else:
+                        field._cached_polydata.point_data[field.label] = scalars[0]
+                        field.is_vector = False
+                    field.log = log1
                 else:
                     points = []
                     nodes = []
                     values = []
+                    is_vector = False
                     with open(field.path, "r") as f:
                         try:
                             lines = f.read().splitlines()[field.header_lines :]
@@ -1044,9 +1113,18 @@ class ModelPlotter(object):
                         except:
                             lines = []
                         for line in lines:
-                            tmp = line.split(delimiter)
+                            tmp = line.strip().split(delimiter)
+                            if len(tmp) < 4:
+                                continue
                             nodes.append([float(tmp[0]), float(tmp[1]), float(tmp[2])])
-                            values.append(float(tmp[3]))
+                            if len(tmp) == 6:
+                                values.append([float(tmp[3]), float(tmp[4]), float(tmp[5])])
+                                is_vector = True
+                            elif len(tmp) == 9:
+                                values.append([float(tmp[3]), float(tmp[5]), float(tmp[7])])
+                                is_vector = True
+                            else:
+                                values.append(float(tmp[3]))
                     if nodes:
                         try:
                             conv = 1 / AEDT_UNITS["Length"][self.units]
@@ -1054,8 +1132,17 @@ class ModelPlotter(object):
                             conv = 1
                         vertices = np.array(nodes) * conv
                         filedata = pv.PolyData(vertices)
-                        filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
-                        filedata.point_data[field.label] = np.array(values)
+                        if is_vector:
+                            vector_scale = (max(filedata.bounds) - min(filedata.bounds)) / (
+                                20 * (np.vstack(values).max() - np.vstack(values).min())
+                            )
+                            filedata["vectors"] = np.vstack(values) * vector_scale
+                            field.label = "Vector " + field.label
+                            filedata.point_data[field.label] = np.array([np.linalg.norm(x) for x in np.vstack(values)])
+                            field.is_vector = True
+                        else:
+                            filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
+                            filedata.point_data[field.label] = np.array(values)
                         field._cached_polydata = filedata
 
     @pyaedt_function_handler()
@@ -1228,7 +1315,19 @@ class ModelPlotter(object):
                 position_y=2,
             )
         for field in self._fields:
-            if self.range_max is not None and self.range_min is not None:
+            if field.is_vector:
+                field._cached_polydata.set_active_vectors("vectors")
+                field._cached_polydata["vectors"] = field._cached_polydata["vectors"] * field.vector_scale
+                self.pv.add_mesh(
+                    field._cached_polydata.arrows,
+                    scalars=field.label,
+                    log_scale=field.log_scale,
+                    scalar_bar_args=sargs,
+                    cmap=field.color_map,
+                )
+                field._cached_polydata["vectors"] = field._cached_polydata["vectors"] / field.vector_scale
+
+            elif self.range_max is not None and self.range_min is not None:
                 field._cached_mesh = self.pv.add_mesh(
                     field._cached_polydata,
                     scalars=field.label,

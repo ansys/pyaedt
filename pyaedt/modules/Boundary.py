@@ -32,7 +32,7 @@ class BoundaryProps(OrderedDict):
         OrderedDict.__init__(self)
         if props:
             for key, value in props.items():
-                if isinstance(value, (OrderedDict, OrderedDict)):
+                if isinstance(value, (OrderedDict, dict)):
                     OrderedDict.__setitem__(self, key, BoundaryProps(boundary, value))
                 else:
                     OrderedDict.__setitem__(self, key, value)
@@ -455,6 +455,8 @@ class BoundaryObject(BoundaryCommon, object):
             )
         elif self.type == "SBRTxRxSettings":
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())
+        elif self.type == "EndConnection":
+            self._app.oboundary.AssignEndConnection(self._get_args())
         else:
             return False
         return True
@@ -573,6 +575,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())  # pragma: no cover
         elif self.type == "FloquetPort":
             self._app.oboundary.EditFloquetPort(self._boundary_name, self._get_args())  # pragma: no cover
+        elif self.type == "EndConnection":
+            self._app.oboundary.EditEndConnection(self._boundary_name, self._get_args())
         else:
             return False  # pragma: no cover
         self._boundary_name = self.name

@@ -58,3 +58,10 @@ class TestClass(BasisTest, object):
         ibis.buffers["RDQS#_u26a_800_modified"].add()
         buffer = ibis.buffers["RDQS#_u26a_800_modified"].insert(0.1016, 0.05334, 0.0)
         assert buffer.name == "CompInst@RDQS#_u26a_800_modified"
+
+    def test_02_read_ibis_from_circuit(self):
+        ibis_model = self.aedtapp.get_ibis_model_from_file(
+            os.path.join(local_path, "example_models", "u26a_800_modified.ibs")
+        )
+        assert len(ibis_model.components) == 6
+        assert len(ibis_model.models) == 17

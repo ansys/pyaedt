@@ -62,7 +62,7 @@ hfss.create_linear_step_sweep(
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example creates a simple parametrics analysis with output calculations.
 
-sweep = hfss.parametrics.add({"w2": "LIN 90mm 200mm 5mm"})
+sweep = hfss.parametrics.add("w2", 90, 200, 5)
 sweep.add_variation("w1", 0.1, 2, 10)
 sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
 sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
@@ -75,6 +75,7 @@ sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 # This example creates a sensitivity analysis with output calculations.
 
 sweep2 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Sensitivity")
+sweep2.add_variation("w1", 0.1, 3, 0.5)
 sweep2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
 ###############################################################################
@@ -85,6 +86,7 @@ sweep2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 # This example creates an optimization based on goals and calculations.
 
 sweep3 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
+
 sweep3.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 sweep3.add_goal(calculation="dB(S(1,1))", ranges={"Freq": ("2.6GHz", "5GHz")})
 sweep3.add_goal(

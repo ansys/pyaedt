@@ -478,9 +478,14 @@ class Components(object):
 
         rotation = GeometryOperators.v_angle_sign_2D(vector1, vector2, False)
         if rotation != 0.0:
-            x_v2 = m_pin1_pos[0] * math.cos(rotation) + multiplier * m_pin1_pos[1] * math.sin(rotation)
-            y_v2 = -1 * m_pin1_pos[0] * math.sin(rotation) + multiplier * m_pin1_pos[1] * math.cos(rotation)
-            new_vector = [x_v2, y_v2]
+            layinst = mounted_component.GetLayout().GetLayoutInstance()
+            cmpinst = layinst.GetLayoutObjInstance(mounted_component, None)
+            center = cmpinst.GetCenter()
+            center_double = [center.X.ToDouble(), center.Y.ToDouble()]
+            vector_center = GeometryOperators.v_points(center_double, m_pin1_pos)
+            x_v2 = vector_center[0] * math.cos(rotation) + multiplier * vector_center[1] * math.sin(rotation)
+            y_v2 = -1 * vector_center[0] * math.sin(rotation) + multiplier * vector_center[1] * math.cos(rotation)
+            new_vector = [x_v2 + center_double[0], y_v2 + center_double[1]]
             vector = [h_pin1_pos[0] - new_vector[0], h_pin1_pos[1] - new_vector[1]]
 
         if vector:
@@ -513,7 +518,12 @@ class Components(object):
 
     @pyaedt_function_handler()
     def create_port_on_component(
-        self, component, net_list, port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="gnd"
+        self,
+        component,
+        net_list,
+        port_type=SourceType.CoaxPort,
+        do_pingroup=True,
+        reference_net="gnd",
     ):
         """Create ports on given component.
 
@@ -523,12 +533,12 @@ class Components(object):
             EDB component or str component name.
 
         net_list : str or list of string.
-            The list of nets where ports have to be created on the component.
-            If net is not part of the component this one will be skipped.
+            List of nets where ports must be created on the component.
+            If the net is not part of the component, this parameter is skipped.
 
-        port_type : SourceType enumerator, CoaxPort or CircPort
-            Define the type of port to be created. CoaxPort will auto generate solder balls.
-            CircPort will generate circuit ports on pins belonging to the net list.
+        port_type : SourceType enumerator, CoaxPort or CircuitPort
+            Type of port to create. ``CoaxPort`` generates solder balls.
+            ``CircuitPort`` generates circuit ports on pins belonging to the net list.
 
         do_pingroup : bool
             True activate pingroup during port creation (only used with combination of CoaxPort),
@@ -548,9 +558,8 @@ class Components(object):
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder")
         >>> net_list = ["M_DQ<1>", "M_DQ<2>", "M_DQ<3>", "M_DQ<4>", "M_DQ<5>"]
-        >>> edbapp.core_components.create_port_on_component(component="U2A5", net_list=net_list,
-        ...                                                 port_type=SourceType.CoaxPort,
-        ...                                                 do_pingroup=False, reference_net="GND")
+        >>> edbapp.core_components.create_port_on_component(cmp="U2A5", net_list=net_list,
+        >>> port_type=SourceType.CoaxPort, do_pingroup=False, refnet="GND")
 
         """
         if isinstance(component, self._edb.Cell.Hierarchy.Component):
@@ -574,9 +583,9 @@ class Components(object):
 
         if port_type == SourceType.CoaxPort:
             pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
-            sball_diam = min([self._get_edb_value(val).ToDouble() for val in pad_params[1]])
-            sb_height = sball_diam
-            self.set_solder_ball(component, sb_height, sball_diam)
+            sball_diam = min([self._pedb.edb_value(val).ToDouble() for val in pad_params[1]])
+            solder_ball_height = sball_diam
+            self.set_solder_ball(component, solder_ball_height, sball_diam)
             for pin in cmp_pins:
                 self._padstack.create_coax_port(pin)
 
@@ -585,27 +594,25 @@ class Components(object):
             if do_pingroup:
                 pingroups = []
                 if len(ref_pins) == 1:
-                    ref_pin_group_term = self._create_terminal(ref_pins[0])
+                    self.create_terminal = self._create_terminal(ref_pins[0])
+                    self.terminal = self.create_terminal
+                    ref_pin_group_term = self.terminal
                 else:
                     ref_pin_group = self.create_pingroup_from_pins(ref_pins)
-                    ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group[1])
-                    if not ref_pin_group[0]:
+                    if not ref_pin_group:
                         return False
-                ref_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-                ref_pin_group_term.SetIsCircuitPort(True)
+                    ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group)
+                    if not ref_pin_group_term:
+                        return False
                 for net in net_list:
                     pins = [pin for pin in cmp_pins if pin.GetNet().GetName() == net]
                     pin_group = self.create_pingroup_from_pins(pins)
-                    if pin_group[0]:
-                        pingroups.append(pin_group[1])
-                pg_terminal = []
-                for pg in pingroups:
-                    pg_term = self._create_pin_group_terminal(pg)
-                    pg_terminal.append(pg_term)
-                for term in pg_terminal:
-                    term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-                    term.SetIsCircuitPort(True)
-                    term.SetReferenceTerminal(ref_pin_group_term)
+                    if not pin_group:
+                        return False
+                    pin_group_term = self._create_pin_group_terminal(pin_group)
+                    if pin_group_term:
+                        pin_group_term.SetReferenceTerminal(ref_pin_group_term)
+
             else:
                 for net in net_list:
                     pins = [pin for pin in cmp_pins if pin.GetNet().GetName().lower() == net]
@@ -634,7 +641,8 @@ class Components(object):
         """
 
         res, pin_position, pin_rot = pin.GetPositionAndRotation(
-            self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)), 0.0
+            self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)),
+            0.0,
         )
         if not is_ironpython:
             res, from_layer, to_layer = pin.GetLayerRange(None, None)
@@ -665,19 +673,76 @@ class Components(object):
 
         """
         res, pin_position, pin_rot = pin.GetPositionAndRotation(
-            self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)), 0.0
+            self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)),
+            0.0,
         )
         distance = 1e3
         closest_pin = ref_pinlist[0]
         for ref_pin in ref_pinlist:
             res, ref_pin_position, ref_pin_rot = ref_pin.GetPositionAndRotation(
-                self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)), 0.0
+                self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)),
+                0.0,
             )
             temp_distance = pin_position.Distance(ref_pin_position)
             if temp_distance < distance:
                 distance = temp_distance
                 closest_pin = ref_pin
         return closest_pin
+
+    @pyaedt_function_handler()
+    def deactivate_rlc_component(self, component=None, create_circuit_port=False):
+        """Deactivate RLC component with a possibility to convert to a circuit port.
+
+        Parameters
+        ----------
+        component : str
+            Reference designator of the RLC component.
+
+        create_circuit_port : bool, optional
+            Whether to replace the deactivated RLC component with a circuit port. The default
+            is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb_file = r'C:\my_edb_file.aedb'
+        >>> edb = Edb(edb_file)
+        >>> for cmp in list(edb.core_components.components.keys()):
+        >>>     edb.core_components.deactivate_rlc_component(component=cmp, create_circuit_port=False)
+        >>> edb.save_edb()
+        >>> edb.close_edb()
+        """
+        if not component:
+            return False
+        if isinstance(component, str):
+            component = self.components[component]
+            if not component:
+                self._logger.error("component %s not found.", component)
+                return False
+        if is_ironpython:
+            component_type = component.edbcomponent.GetComponentType()
+            if (
+                component_type == self._edb.Definition.ComponentType.Other
+                or component_type == self._edb.Definition.ComponentType.IC
+                or component_type == self._edb.Definition.ComponentType.IO
+            ):
+                self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
+                return False
+        else:
+            if not component.edbcomponent.GetComponentType() in [1, 2, 3]:
+                self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
+                return False
+        if create_circuit_port:
+            _cmp = convert_py_list_to_net_list([component.refdes])
+            self._components_methods.AddPortOnRlcComponent(self._active_layout, _cmp)
+        else:
+            self._components_methods.DeactivateRlcComponent(component.edbcomponent)
+        return True
 
     @pyaedt_function_handler()
     def _create_pin_group_terminal(self, pingroup, isref=False):
@@ -697,7 +762,7 @@ class Components(object):
         layout = pingroup.GetLayout()
         cmp_name = pingroup.GetComponent().GetName()
         net_name = pingroup.GetNet().GetName()
-        term_name = pingroup.GetUniqueName(layout, "Pingroup_{0}_{1}".format(cmp_name, net_name))
+        term_name = generate_unique_name("Pingroup_{0}_{1}".format(cmp_name, net_name))
         pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
             self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
         )
@@ -898,9 +963,7 @@ class Components(object):
             self._logger.error("No pins specified for pin group %s", group_name)
             return (False, None)
         if group_name is None:
-            cmp_name = pins[0].GetComponent().GetName()
-            net_name = pins[0].GetNet().GetName()
-            group_name = generate_unique_name("{}_{}_".format(cmp_name, net_name), n=3)
+            group_name = self._edb.Cell.Hierarchy.PinGroup.GetUniqueName(self._active_layout)
         pingroup = _retry_ntimes(
             10,
             self._edb.Cell.Hierarchy.PinGroup.Create,
@@ -909,10 +972,10 @@ class Components(object):
             convert_py_list_to_net_list(pins),
         )
         if pingroup.IsNull():
-            return (False, None)
+            return False
         else:
             pingroup.SetNet(pins[0].GetNet())
-            return (True, pingroup)
+            return pingroup
 
     @pyaedt_function_handler()
     def delete_single_pin_rlc(self):
@@ -1017,13 +1080,13 @@ class Components(object):
 
         Parameters
         ----------
-        componentname : str or EDB component
-            Name of the discret component.
+        component_name : str or EDB component
+            Name of the discrete component.
 
-        sball_diam  : str, float
+        sball_diam  : str, float, optional
             Diameter of the solder ball.
 
-        sball_height : str, float
+        sball_height : str, float, optional
             Height of the solder ball.
 
         Returns
@@ -1041,10 +1104,19 @@ class Components(object):
         """
         if not isinstance(component, self._edb.Cell.Hierarchy.Component):
             edb_cmp = self.get_component_by_name(component)
+            cmp = self.components[component]
         else:
             edb_cmp = component
+            cmp = self.components[edb_cmp.GetName()]
         if edb_cmp:
             cmp_type = edb_cmp.GetComponentType()
+            if bool(not sball_diam + sball_height):
+                pin1 = list(cmp.pins.values())[0].pin
+                pin_layers = pin1.GetPadstackDef().GetData().GetLayerNames()
+                pad_params = self._padstack.get_pad_parameters(pin=pin1, layername=pin_layers[0], pad_type=0)
+                _sb_diam = min([self._get_edb_value(val).ToDouble() for val in pad_params[1]])
+                sball_diam = _sb_diam
+                sball_height = sball_diam
             if cmp_type == self._edb.Definition.ComponentType.IC:
                 ic_cmp_property = edb_cmp.GetComponentProperty().Clone()
                 ic_die_prop = ic_cmp_property.GetDieProperty().Clone()
@@ -1086,14 +1158,21 @@ class Components(object):
                 other_port_prop = other_cmp_prop.GetPortProperty().Clone()
                 other_port_prop.SetReferenceSizeAuto(True)
                 other_cmp_prop.SetPortProperty(other_port_prop)
-                edb_cmp.SetComponentProperty(other_port_prop)
+                edb_cmp.SetComponentProperty(other_cmp_prop)
             else:
                 return False
         else:
             return False
 
     @pyaedt_function_handler()
-    def set_component_rlc(self, componentname, res_value=None, ind_value=None, cap_value=None, isparallel=False):
+    def set_component_rlc(
+        self,
+        componentname,
+        res_value=None,
+        ind_value=None,
+        cap_value=None,
+        isparallel=False,
+    ):
         """Update values for an RLC component.
 
         Parameters
@@ -1165,7 +1244,12 @@ class Components(object):
 
     @pyaedt_function_handler()
     def update_rlc_from_bom(
-        self, bom_file, delimiter=";", valuefield="Func des", comptype="Prod name", refdes="Pos / Place"
+        self,
+        bom_file,
+        delimiter=";",
+        valuefield="Func des",
+        comptype="Prod name",
+        refdes="Pos / Place",
     ):
         """Update the EDC core component values (RLCs) with values coming from a BOM file.
 
@@ -1342,7 +1426,8 @@ class Components(object):
             res, pt_pos, rot_pos = pin.GetPositionAndRotation()
         else:
             res, pt_pos, rot_pos = pin.GetPositionAndRotation(
-                self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)), 0.0
+                self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)),
+                0.0,
             )
         if pin.GetComponent().IsNull():
             transformed_pt_pos = pt_pos
@@ -1592,10 +1677,34 @@ class Components(object):
             ]
             l0_min = l0.index(min(l0))
             p1 = []
-            p1.append([positions_to_short[i + 1][0] - delta_pins[i + 1], positions_to_short[i + 1][1], 0])
-            p1.append([positions_to_short[i + 1][0] + delta_pins[i + 1], positions_to_short[i + 1][1], 0])
-            p1.append([positions_to_short[i + 1][0], positions_to_short[i + 1][1] - delta_pins[i + 1], 0])
-            p1.append([positions_to_short[i + 1][0], positions_to_short[i + 1][1] + delta_pins[i + 1], 0])
+            p1.append(
+                [
+                    positions_to_short[i + 1][0] - delta_pins[i + 1],
+                    positions_to_short[i + 1][1],
+                    0,
+                ]
+            )
+            p1.append(
+                [
+                    positions_to_short[i + 1][0] + delta_pins[i + 1],
+                    positions_to_short[i + 1][1],
+                    0,
+                ]
+            )
+            p1.append(
+                [
+                    positions_to_short[i + 1][0],
+                    positions_to_short[i + 1][1] - delta_pins[i + 1],
+                    0,
+                ]
+            )
+            p1.append(
+                [
+                    positions_to_short[i + 1][0],
+                    positions_to_short[i + 1][1] + delta_pins[i + 1],
+                    0,
+                ]
+            )
             p1.append([positions_to_short[i + 1][0], positions_to_short[i + 1][1], 0])
 
             l1 = [

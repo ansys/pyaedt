@@ -1,6 +1,7 @@
 import math
 import warnings
 
+
 RAD2DEG = 180.0 / math.pi
 DEG2RAD = math.pi / 180
 HOUR2SEC = 3600.0
@@ -127,7 +128,7 @@ def _resolve_unit_system(unit_system_1, unit_system_2, operation):
 
 
 def unit_converter(value, unit_system="Length", input_units="meter", output_units="mm"):
-    """Convert Unit in specified Unit System.
+    """Convert unit in specified unit system.
 
     Parameters
     ----------
@@ -506,6 +507,28 @@ class FlipChipOrientation(object):
     (Up, Down) = range(0, 2)
 
 
+class SolverType(object):
+    """Provides solver type classes."""
+
+    (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout) = range(0, 7)
+
+
+class CutoutSubdesignType(object):
+    (Conformal, BoundingBox) = range(0, 2)
+
+
+class RadiationBoxType(object):
+    (Conformal, BoundingBox, ConvexHull) = range(0, 3)
+
+
+class SweepType(object):
+    (Linear, LogCount) = range(0, 2)
+
+
+class BasisOrder(object):
+    (Mixed, Zero, single, Double) = range(0, 4)
+
+
 class SourceType(object):
     """Type of excitation enumerator."""
 
@@ -674,7 +697,20 @@ class SETUPS(object):
         TransientTemperatureAndFlow,
         TransientTemperatureOnly,
         TransientFlowOnly,
-    ) = range(0, 39)
+        DFIG,
+        TPIM,
+        SPIM,
+        TPSM,
+        BLDC,
+        ASSM,
+        PMDC,
+        SRM,
+        LSSM,
+        UNIM,
+        DCM,
+        CPSM,
+        NSSM,
+    ) = range(0, 52)
 
 
 class CoordinateSystemAxis(object):

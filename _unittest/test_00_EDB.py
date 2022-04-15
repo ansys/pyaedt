@@ -4,7 +4,7 @@ import time
 
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
-from pyaedt.generic.constants import SourceType
+from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 
 # Setup paths for module imports
 # Import required modules
@@ -67,35 +67,12 @@ class TestClass(BasisTest, object):
         assert isinstance(parameters[1], list)
         assert isinstance(parameters[0], int)
 
-    def test_01A_create_ports(self):
-        pins = self.edbapp.core_components.get_pin_from_component("J1")
-        nets = self.edbapp.core_components.get_nets_from_pin_list(pins)
-        assert len(nets) == 6
-        assert "IO13_ICSP_R" in nets
-        assert "V5_ALW_ON" in nets
-        assert "GND" in nets
-        assert "IO11_ICSP_R" in nets
-        assert "RESET_N_SHLD" in nets
-        assert "IO12_ICSP_R" in nets
-
-        assert self.edbapp.core_components.create_port_on_component(
-            component="J1", net_list=nets[:2], port_type=SourceType.CoaxPort, do_pingroup=True, reference_net="GND"
-        )
-        assert self.edbapp.core_components.create_port_on_component(
-            component="J1", net_list=nets[3], port_type=SourceType.CoaxPort, do_pingroup=False, reference_net="GND"
-        )
-        assert self.edbapp.core_components.create_port_on_component(
-            component="J1", net_list=nets[-2:], port_type=SourceType.CircPort, do_pingroup=False, reference_net="GND"
-        )
-
     def test_01B_get_vias_from_nets(self):
         assert self.edbapp.core_padstack.get_via_instance_from_net("GND")
         assert not self.edbapp.core_padstack.get_via_instance_from_net(["GND2"])
 
-    def test_01C_create_lumped_port_at_location(self):
-        assert self.edbapp.core_hfss.create_lumped_port_on_trace(
-            nets="M_DQ<11>", reference_layer="GND", point_list=[(17.169892e-3, 38.874954e-3)]
-        )
+    def test_01C_create_coax_port_on_component(self):
+        assert self.edbapp.core_hfss.create_coax_port_on_component("U1A1", "M_DQS_N<1>")
 
     def test_02_get_properties(self):
         assert len(self.edbapp.core_components.components) > 0
@@ -336,7 +313,7 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_components.delete_component("R1")
 
     def test_36_create_coax_port(self):
-        assert self.edbapp.core_hfss.create_coax_port_on_component("U2A5", ["RSVD_0", "V1P0_SO"])
+        assert self.edbapp.core_hfss.create_coax_port_on_component("U2A5", ["RSVD_0", "V1P0_S0"])
 
     def test_37_create_circuit_port(self):
         initial_len = len(self.edbapp.core_padstack.pingroups)
@@ -639,7 +616,7 @@ class TestClass(BasisTest, object):
     def test_69_create_solder_balls_on_component(self):
         assert self.edbapp.core_components.set_solder_ball("U2A5")
 
-    @pytest.mark.skipif(is_ironpython, reason="This Test uses Matplotlib that is not supported by Ironpython")
+    @pytest.mark.skipif(is_ironpython, reason="This test uses Matplotlib, which is not supported by IronPython.")
     def test_70_plot_on_matplotlib(self):
         local_png = os.path.join(self.local_scratch.path, "test.png")
         self.edbapp.core_nets.plot(None, None, save_plot=local_png)
@@ -771,106 +748,6 @@ class TestClass(BasisTest, object):
         assert len(vector) == 2
         edb2.close_edb()
         del edb2
-
-    def test_79b_get_placement_vector(self):
-        laminate_edb = Edb(
-            os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb"), edbversion=desktop_version
-        )
-        chip_edb = Edb(os.path.join(local_path, "example_models", "chip.aedb"), edbversion=desktop_version)
-        try:
-            laminate_cmp = laminate_edb.core_components.get_component_by_name("U3")
-            chip_cmp = chip_edb.core_components.get_component_by_name("U1")
-            result, vector, rotation, solder_ball_height = laminate_edb.core_components.get_component_placement_vector(
-                chip_cmp, laminate_cmp, "1", "2", "1", "2", True
-            )
-            assert result
-            assert abs(rotation - math.pi / 2) < 1e-9
-            assert solder_ball_height == 0
-            assert abs(vector[0] - 0.5e-3) < 1e-9
-            assert abs(vector[1] + 0.5e-3) < 1e-9
-        finally:
-            chip_edb.close_edb()
-            laminate_edb.close_edb()
-
-    def test_79c_get_placement_vector(self):
-        laminate_edb = Edb(
-            os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb"), edbversion=desktop_version
-        )
-        chip_edb = Edb(os.path.join(local_path, "example_models", "chip.aedb"), edbversion=desktop_version)
-        try:
-            laminate_cmp = laminate_edb.core_components.get_component_by_name("U1")
-            chip_cmp = chip_edb.core_components.get_component_by_name("U1")
-            result, vector, rotation, solder_ball_height = laminate_edb.core_components.get_component_placement_vector(
-                chip_cmp, laminate_cmp, "1", "2", "1", "2"
-            )
-            assert result
-            assert abs(rotation) < 1e-9
-            assert solder_ball_height == 0
-            assert abs(vector[0]) < 1e-9
-            assert abs(vector[1]) < 1e-9
-        finally:
-            chip_edb.close_edb()
-            laminate_edb.close_edb()
-
-    def test_79d_get_placement_vector_offset(self):
-        laminate_edb = Edb(
-            os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb"), edbversion=desktop_version
-        )
-        chip_edb = Edb(os.path.join(local_path, "example_models", "chip_offset.aedb"), edbversion=desktop_version)
-        try:
-            laminate_cmp = laminate_edb.core_components.get_component_by_name("U3")
-            chip_cmp = chip_edb.core_components.get_component_by_name("U1")
-            result, vector, rotation, solder_ball_height = laminate_edb.core_components.get_component_placement_vector(
-                chip_cmp, laminate_cmp, "1", "4", "1", "4", True
-            )
-            assert result
-            assert abs(rotation - math.pi / 2) < 1e-9
-            assert solder_ball_height == 0
-            assert abs(vector[0] - 0.2e-3) < 1e-9
-            assert abs(vector[1] + 0.8e-3) < 1e-9
-        finally:
-            chip_edb.close_edb()
-            laminate_edb.close_edb()
-
-    def test_79e_get_placement_vector_offset(self):
-        laminate_edb = Edb(
-            os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb"), edbversion=desktop_version
-        )
-        chip_edb = Edb(os.path.join(local_path, "example_models", "chip_offset.aedb"), edbversion=desktop_version)
-        try:
-            laminate_cmp = laminate_edb.core_components.get_component_by_name("U1")
-            chip_cmp = chip_edb.core_components.get_component_by_name("U1")
-            result, vector, rotation, solder_ball_height = laminate_edb.core_components.get_component_placement_vector(
-                chip_cmp, laminate_cmp, "1", "4", "1", "4"
-            )
-            assert result
-            assert abs(rotation) < 1e-9
-            assert solder_ball_height == 0
-            assert abs(vector[0] - 0.3e-3) < 1e-9
-            assert abs(vector[1] - 0.3e-3) < 1e-9
-        finally:
-            chip_edb.close_edb()
-            laminate_edb.close_edb()
-
-    def test_79f_get_placement_vector_offset(self):
-        laminate_edb = Edb(
-            os.path.join(local_path, "example_models", "lam_for_top_place.aedb"), edbversion=desktop_version
-        )
-        chip_edb = Edb(os.path.join(local_path, "example_models", "chip_offset.aedb"), edbversion=desktop_version)
-        try:
-            laminate_cmp = laminate_edb.core_components.get_component_by_name("U3")
-            chip_cmp = chip_edb.core_components.get_component_by_name("U1")
-            result, vector, rotation, solder_ball_height = laminate_edb.core_components.get_component_placement_vector(
-                chip_cmp, laminate_cmp, "1", "4", "1", "4", False
-            )
-            assert result
-            assert abs(rotation - math.pi / 2) < 1e-9
-            assert solder_ball_height == 0
-            assert abs(vector[0] - 0.8e-3) < 1e-9
-            assert abs(vector[1] + 0.8e-3) < 1e-9
-        finally:
-            chip_edb.close_edb()
-            laminate_edb.close_edb()
 
     def test_80_edb_without_path(self):
         edbapp_without_path = Edb(edbversion=desktop_version, isreadonly=False)
@@ -1061,7 +938,27 @@ class TestClass(BasisTest, object):
             chipEdb.close_edb()
             laminateEdb.close_edb()
 
-    def test_83_set_component_type(self):
+    def test_83_build_siwave_project_from_config_file(self):
+        cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
+        with open(cfg_file, "w") as f:
+            f.writelines("SolverType = 'Siwave'\n")
+            f.writelines("PowerNets = ['GND']\n")
+            f.writelines("Components = ['U2A5', 'U1B5']")
+
+        sim_config = SimulationConfiguration(cfg_file)
+        assert self.edbapp.build_simulation_project(sim_config)
+
+    def test_84_build_hfss_project_from_config_file(self):
+        cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
+        with open(cfg_file, "w") as f:
+            f.writelines("SolverType = 'Hfss3dLayout'\n")
+            f.writelines("PowerNets = ['GND']\n")
+            f.writelines("Components = ['U2A5', 'U1B5']")
+
+        sim_config = SimulationConfiguration(cfg_file)
+        assert self.edbapp.build_simulation_project(sim_config)
+
+    def test_85_set_component_type(self):
         comp = self.edbapp.core_components.components["R2L18"]
         comp.type = "Resistor"
         assert comp.type == "Resistor"
@@ -1091,6 +988,12 @@ class TestClass(BasisTest, object):
         app_edb = local_edb(edbversion="2022.1")
         assert app_edb.core_stackup.create_symmetric_stackup(8, soldermask=False)
         app_edb.close_edb()
+
+    def test_86B_create_rectangle(self):
+        assert self.edbapp.core_primitives.create_rectangle("TOP", "SIG1", ["0", "0"], ["2mm", "3mm"])
+        assert self.edbapp.core_primitives.create_rectangle(
+            "TOP", "SIG2", center_point=["0", "0"], width="4mm", height="5mm", representation_type="CenterWidthHeight"
+        )
 
     def test_87_negative_properties(self):
         layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]

@@ -10,7 +10,6 @@ from __future__ import absolute_import  # noreorder
 
 import gc
 import json
-import logging
 import os
 import random
 import re
@@ -370,7 +369,6 @@ class Design(object):
         self._design_type = design_type
         self._desktop = main_module.oDesktop
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
-        self._messenger = self._logger._messenger
         self._aedt_version = self._desktop.GetVersion()[0:6]
         self._odesign = None
         self._oproject = None
@@ -1147,13 +1145,49 @@ class Design(object):
 
         >>> oDesign.ExportProfile
         """
+
         if not file_path:
             file_path = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prop")
-        try:
-            self.odesign.ExportProfile(setup_name, variation_string, file_path)
-        except:
-            self.odesign.ExportProfile(setup_name, variation_string, file_path, True)
-        self.logger.info("Exported Profile to file {}".format(file_path))
+        if not variation_string:
+            val_str = []
+            for el, val in self.available_variations.nominal_w_values_dict.items():
+                val_str.append("{}={}".format(el, val))
+            variation_string = ",".join(val_str)
+        if self.design_type == "2D Extractor":
+            for setup in self.setups:
+                if setup.name == setup_name:
+                    if "CGDataBlock" in setup.props:
+                        file_path = os.path.splitext(file_path)[0] + "CG" + os.path.splitext(file_path)[1]
+                        self.odesign.ExportProfile(setup_name, variation_string, "CG", file_path, True)
+                        self.logger.info("Exported Profile to file {}".format(file_path))
+                    if "RLDataBlock" in setup.props:
+                        file_path = os.path.splitext(file_path)[0] + "RL" + os.path.splitext(file_path)[1]
+                        self.odesign.ExportProfile(setup_name, variation_string, "RL", file_path, True)
+                        self.logger.info("Exported Profile to file {}".format(file_path))
+                    break
+        elif self.design_type == "Q3D Extractor":
+            for setup in self.setups:
+                if setup.name == setup_name:
+                    if "Cap" in setup.props:
+                        file_path = os.path.splitext(file_path)[0] + "CG" + os.path.splitext(file_path)[1]
+                        self.odesign.ExportProfile(setup_name, variation_string, "CG", file_path, True)
+                        self.logger.info("Exported Profile to file {}".format(file_path))
+                    if "AC" in setup.props:
+                        file_path = os.path.splitext(file_path)[0] + "ACRL" + os.path.splitext(file_path)[1]
+                        self.odesign.ExportProfile(setup_name, variation_string, "AC RL", file_path, True)
+                        self.logger.info("Exported Profile to file {}".format(file_path))
+                    if "DC" in setup.props:
+                        file_path = os.path.splitext(file_path)[0] + "DC" + os.path.splitext(file_path)[1]
+                        self.odesign.ExportProfile(setup_name, variation_string, "DC RL", file_path, True)
+                        self.logger.info("Exported Profile to file {}".format(file_path))
+
+                    break
+        else:
+            try:
+                self.odesign.ExportProfile(setup_name, variation_string, file_path)
+            except:
+                self.odesign.ExportProfile(setup_name, variation_string, file_path, True)
+            self.logger.info("Exported Profile to file {}".format(file_path))
         return file_path
 
     @pyaedt_function_handler()
@@ -2672,7 +2706,7 @@ class Design(object):
                 new_design = self._oproject.InsertDesign(
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
-        logging.getLogger().info("Added design '%s' of type %s.", unique_design_name, design_type)
+        self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()
         if ";" in name:
             self.odesign = name.split(";")[1]
@@ -3122,8 +3156,10 @@ class Design(object):
             variation_string = self._odesign.GetNominalVariation()
         else:
             variation_string = self.design_variation(variation_string=variation)
-
-        si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
+        try:
+            si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
+        except:
+            si_value = self._odesign.GetVariableValue(variable_name)
         if units:
             scale = AEDT_UNITS[unit_system(units)][units]
             if isinstance(scale, tuple):
