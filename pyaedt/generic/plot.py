@@ -103,6 +103,7 @@ def _triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes=True)
             trg_vertex.append([e[7], e[2], e[1]])
             trg_vertex.append([e[7], e[1], e[6]])
             trg_vertex.append([e[6], e[1], e[0]])
+
     elif num_nodes_per_element == 10 and not take_all_nodes:
         for e in elements_nodes:
             trg_vertex.append([e[0], e[2], e[5]])
