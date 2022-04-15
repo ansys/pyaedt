@@ -125,3 +125,17 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.mesh.initial_mesh_settings.props
         assert self.aedtapp.change_design_settings({"Multiplier": 2})
         assert self.aedtapp.change_simmetry_multiplier(1)
+
+    def test_18_end_connection(self):
+        self.aedtapp.insert_design("EndConnection")
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.TransientXY
+        rect = self.aedtapp.modeler.create_rectangle([0, 0, 0], [5, 5], matname="aluminum")
+        rect2 = self.aedtapp.modeler.create_rectangle([15, 20, 0], [5, 5], matname="aluminum")
+        bound = self.aedtapp.assign_end_connection([rect, rect2])
+        assert bound
+        assert bound.props["ResistanceValue"] == "0ohm"
+        bound.props["InductanceValue"] = "5H"
+        assert bound.props["InductanceValue"] == "5H"
+        assert not self.aedtapp.assign_end_connection([rect])
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        assert not self.aedtapp.assign_end_connection([rect, rect2])
