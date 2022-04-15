@@ -1474,7 +1474,10 @@ class Edb(object):
         variables = var_server.GetAllVariableNames()
         if variable_name in list(variables):
             out_value = self.edb.Utility.Value("")
-            tuple_value = var_server.GetVariableValue(variable_name, out_value)
+            if is_ironpython:
+                tuple_value = var_server.GetVariableValue(variable_name)
+            else:
+                tuple_value = var_server.GetVariableValue(variable_name, out_value)
             var_server.SetVariableValue(variable_name, self.edb_value(variable_value))
             if var_server.IsVariableParameter(variable_name):
                 string_message[0] = "Value of the parameter default %s has been changed from %s to %s."
