@@ -737,7 +737,10 @@ class EDBLayer(object):
         float
             Etch factor if it exists, 0 otherwise.
         """
-        if self._layer_type == 0 or self._layer_type == 2:
+        if (
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+        ):
             try:
                 self._etch_factor = float(self._layer.GetEtchFactor().ToString())
                 return self._etch_factor
@@ -749,7 +752,10 @@ class EDBLayer(object):
     def etch_factor(self, value):
         if value is None:
             value = 0
-        if self._layer_type == 0 or self._layer_type == 2:
+        if (
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+        ):
             self._etch_factor = float(value)
             self.update_layers()
 
