@@ -84,6 +84,7 @@ class Maxwell(object):
         Parameters
         ----------
         value : int, optional
+            Value used as the Design Symmetry Multiplier coefficient. The default value is ``1``.
 
         Returns
         -------
