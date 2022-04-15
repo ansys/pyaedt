@@ -83,7 +83,7 @@ class Maxwell(object):
 
         Parameters
         ----------
-        value : int
+        value : int, optional
 
         Returns
         -------
