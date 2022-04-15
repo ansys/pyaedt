@@ -7,6 +7,7 @@ from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.application.Variables import Variable
 from pyaedt.generic.general_methods import isclose
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt import MaxwellCircuit
 
 # Import required modules
 
@@ -350,3 +351,12 @@ class TestClass(BasisTest, object):
         self.aedtapp["fc"] = "Freq"
         assert self.aedtapp["fc"] == "Freq"
         assert self.aedtapp.variable_manager.dependent_variables["fc"].numeric_value == "Freq"
+
+    def test_15_maxwell_circuit_variables(self):
+        mc = MaxwellCircuit()
+        mc["var2"] = "10mm"
+        assert mc["var2"] == "10.0mm"
+        v_circuit = mc.variable_manager
+        var_circuit = v_circuit.variable_names
+        assert "var2" in var_circuit
+        assert v_circuit.independent_variables["var2"].units == "mm"
