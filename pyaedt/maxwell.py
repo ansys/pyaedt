@@ -1455,8 +1455,10 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             List of objects to apply end connection.
         resistance : float or str, optional
             Resistance value. If float is provided then it is assumed in Ohm.
+            The default value is "0ohm".
         inductance : float or str, optional
             Inductance value. If float is provided then it is assumed in Henry.
+            The default value is "0H".
         bound_name : str, optional
             Name of the End connection boundary.
 
