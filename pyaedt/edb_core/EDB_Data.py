@@ -874,7 +874,7 @@ class EDBLayer(object):
             newLayer.SetNegative(negativeMap)
         if roughnessMap:
             newLayer.SetRoughnessEnabled(roughnessMap)
-        if isinstance(etchMap, float) and (layerTypeMap == 0 or layerTypeMap == 2):
+        if isinstance(etchMap, float) and int(layerTypeMap) in [0, 2]:
             etchVal = float(etchMap)
         else:
             etchVal = 0.0
