@@ -8,6 +8,8 @@ from pyaedt import Hfss
 from pyaedt import Q2d
 from pyaedt import Q3d
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.plot import _parse_aedtplt
+from pyaedt.generic.plot import _parse_streamline
 
 # Import required modules
 # Setup paths for module imports
@@ -356,6 +358,27 @@ class TestClass(BasisTest, object):
         assert os.path.exists(plot_obj.image_file)
 
     @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
+    def test_14B_Field_Ploton_Vector(self):
+        cutlist = ["Global:XY"]
+        setup_name = self.aedtapp.existing_analysis_sweeps[0]
+        quantity_name = "Vector_E"
+        intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
+        self.aedtapp.logger.info("Generating the plot")
+        plot1 = self.aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
+        plot1.IsoVal = "Tone"
+        assert plot1.update_field_plot_settings()
+        self.aedtapp.logger.info("Generating the image")
+        plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
+            plot1.name,
+            project_path=self.local_scratch.path,
+            meshplot=False,
+            imageformat="jpg",
+            view="isometric",
+            show=False,
+        )
+        assert os.path.exists(plot_obj.image_file)
+
+    @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
     def test_15_export_plot(self):
         obj = self.aedtapp.post.plot_model_obj(
             show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg")
@@ -528,3 +551,20 @@ class TestClass(BasisTest, object):
         assert not self.q2dtest.post.reports_by_category.near_field()
         assert self.aedtapp.post.reports_by_category.eigenmode()
         assert not self.q2dtest.post.reports_by_category.eigenmode()
+
+    @pytest.mark.skipif(is_ironpython, reason="Not supported in Ironpython")
+    def test_59_test_parse_vector(self):
+        local_path = os.path.dirname(os.path.realpath(__file__))
+
+        out = _parse_aedtplt(os.path.join(local_path, "example_models", "test_vector.aedtplt"))
+        assert isinstance(out[0], list)
+        assert isinstance(out[1], list)
+        assert isinstance(out[2], list)
+        assert isinstance(out[3], bool)
+        assert _parse_aedtplt(os.path.join(local_path, "example_models", "test_vector_no_solutions.aedtplt"))
+
+    @pytest.mark.skipif(is_ironpython, reason="Not supported in Ironpython")
+    def test_60_test_parse_vector(self):
+        local_path = os.path.dirname(os.path.realpath(__file__))
+        out = _parse_streamline(os.path.join(local_path, "example_models", "test_streamline.fldplt"))
+        assert isinstance(out, list)
