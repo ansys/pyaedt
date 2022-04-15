@@ -279,9 +279,9 @@ def decompose_variable_value(variable_value, full_variables={}):
             if loc:
                 loc_units = loc.span()[0]
                 extract_units = variable_value[loc_units:]
-                chars = set("+-*/()[]")
+                chars = set("+*/()[]")
                 if any((c in chars) for c in extract_units):
-                    return variable_value, ""
+                    return variable_value, units
                 try:
                     float_value = float(variable_value[0:loc_units])
                     units = extract_units
