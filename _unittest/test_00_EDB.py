@@ -1090,6 +1090,34 @@ class TestClass(BasisTest, object):
         assert signal_layer == stackup.layer_types.SignalLayer
         dielectric_layer = stackup._int_to_layer_types(1)
         assert dielectric_layer == stackup.layer_types.DielectricLayer
+        conducting_layer = stackup._layer_types_to_int(2)
+        assert conducting_layer == stackup.layer_types.ConductingLayer
+        airlines_layer = stackup._layer_types_to_int(3)
+        assert airlines_layer == stackup.layer_types.AirlinesLayer
+        errors_layer = stackup._layer_types_to_int(4)
+        assert errors_layer == stackup.layer_types.ErrorsLayer
+        symbol_layer = stackup._layer_types_to_int(5)
+        assert symbol_layer == stackup.layer_types.SymbolLayer
+        measure_layer = stackup._layer_types_to_int(6)
+        assert measure_layer == stackup.layer_types.MeasureLayer
+        assembly_layer = stackup._layer_types_to_int(8)
+        assert assembly_layer == stackup.layer_types.AssemblyLayer
+        silkscreen_layer = stackup._layer_types_to_int(9)
+        assert silkscreen_layer == stackup.layer_types.SilkscreenLayer
+        solder_mask_layer = stackup._layer_types_to_int(10)
+        assert solder_mask_layer == stackup.layer_types.SolderMaskLayer
+        solder_paste_layer = stackup._layer_types_to_int(11)
+        assert solder_paste_layer == stackup.layer_types.SolderPasteLayer
+        glue_layer = stackup._layer_types_to_int(12)
+        assert glue_layer == stackup.layer_types.GlueLayer
+        wirebond_layer = stackup._layer_types_to_int(13)
+        assert wirebond_layer == stackup.layer_types.WirebondLayer
+        user_layer = stackup._layer_types_to_int(14)
+        assert user_layer == stackup.layer_types.UserLayer
+        siwave_hfss_solver_regions = stackup._layer_types_to_int(16)
+        assert siwave_hfss_solver_regions == stackup.layer_types.SIwaveHFSSSolverRegions
+        outline_layer = stackup._layer_types_to_int(18)
+        assert outline_layer == stackup.layer_types.OutlineLayer
 
     def test_97_layer_types_to_int(self):
         stackup = self.edbapp.core_stackup.stackup_layers
@@ -1097,3 +1125,31 @@ class TestClass(BasisTest, object):
         assert signal_layer == 0
         dielectric_layer = stackup._layer_types_to_int(stackup.layer_types.DielectricLayer)
         assert dielectric_layer == 1
+        conducting_layer = stackup._layer_types_to_int(stackup.layer_types.ConductingLayer)
+        assert conducting_layer == 2
+        airlines_layer = stackup._layer_types_to_int(stackup.layer_types.AirlinesLayer)
+        assert airlines_layer == 3
+        errors_layer = stackup._layer_types_to_int(stackup.layer_types.ErrorsLayer)
+        assert errors_layer == 4
+        symbol_layer = stackup._layer_types_to_int(stackup.layer_types.SymbolLayer)
+        assert symbol_layer == 5
+        measure_layer = stackup._layer_types_to_int(stackup.layer_types.MeasureLayer)
+        assert measure_layer == 6
+        assembly_layer = stackup._layer_types_to_int(stackup.layer_types.AssemblyLayer)
+        assert assembly_layer == 8
+        silkscreen_layer = stackup._layer_types_to_int(stackup.layer_types.SilkscreenLayer)
+        assert silkscreen_layer == 9
+        solder_mask_layer = stackup._layer_types_to_int(stackup.layer_types.SolderMaskLayer)
+        assert solder_mask_layer == 10
+        solder_paste_layer = stackup._layer_types_to_int(stackup.layer_types.SolderPasteLayer)
+        assert solder_paste_layer == 11
+        glue_layer = stackup._layer_types_to_int(stackup.layer_types.GlueLayer)
+        assert glue_layer == 12
+        wirebond_layer = stackup._layer_types_to_int(stackup.layer_types.WirebondLayer)
+        assert wirebond_layer == 13
+        user_layer = stackup._layer_types_to_int(stackup.layer_types.UserLayer)
+        assert user_layer == 14
+        siwave_hfss_solver_regions = stackup._layer_types_to_int(stackup.layer_types.SIwaveHFSSSolverRegions)
+        assert siwave_hfss_solver_regions == 16
+        outline_layer = stackup._layer_types_to_int(stackup.layer_types.OutlineLayer)
+        assert outline_layer == 18
