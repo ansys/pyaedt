@@ -417,7 +417,7 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignBalloon(self._get_args())
         elif self.type == "Winding" or self.type == "Winding Group":
             self._app.oboundary.AssignWindingGroup(self._get_args())
-        elif self.type == "VectorPotential":
+        elif self.type == "Vector Potential":
             self._app.oboundary.AssignVectorPotential(self._get_args())
         elif self.type == "CoilTerminal" or self.type == "Coil Terminal":
             self._app.oboundary.AssignCoilTerminal(self._get_args())
@@ -553,7 +553,7 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.Current(self._boundary_name, self._get_args())
         elif self.type == "Winding" or self.type == "Winding Group":
             self._app.oboundary.EditWindingGroup(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "VectorPotential":
+        elif self.type == "Vector Potential":
             self._app.oboundary.EditVectorPotential(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "CoilTerminal" or self.type == "Coil Terminal":
             self._app.oboundary.EditCoilTerminal(self._boundary_name, self._get_args())

@@ -3,6 +3,7 @@ import os
 import re
 
 from pyaedt.application.Analysis import Analysis
+from pyaedt.generic.configurations import Configurations
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -91,6 +92,17 @@ class FieldAnalysisIcepak(Analysis, object):
         self._modeler = Modeler3D(self)
         self._mesh = IcepakMesh(self)
         self._post = PostProcessor(self)
+        self._configurations = Configurations(self)
+
+    @property
+    def configurations(self):
+        """Property to import and export configuration files.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.configurations.Configurations`
+        """
+        return self._configurations
 
     @property
     def osolution(self):

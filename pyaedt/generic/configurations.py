@@ -239,7 +239,7 @@ class Configurations(object):
                 for object in self._app.modeler.objects.values():
                     for e in object.edges:
                         if e.id == edge:
-                            self._map_dict_value(dict_out, edge, [object.name, e.center])
+                            self._map_dict_value(dict_out, edge, [object.name, e.midpoint])
 
     @pyaedt_function_handler()
     def _convert_objects(self, props, mapping):
@@ -266,7 +266,7 @@ class Configurations(object):
             new_list = []
             for edge in props["Edges"]:
                 for e in self._app.modeler[mapping[str(edge)][0]].edges:
-                    if GeometryOperators.points_distance(e.center, mapping[str(edge)][1]) < self.tolerance:
+                    if GeometryOperators.points_distance(e.midpoint, mapping[str(edge)][1]) < self.tolerance:
                         new_list.append(e.id)
             props["Edges"] = new_list
 
@@ -293,7 +293,7 @@ class Configurations(object):
         if name in self._app.modeler.object_names:
             arg = ["NAME:AllTabs", ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", name]]]
             arg2 = ["NAME:ChangedProps"]
-            if self._app.modeler[name].is3d:
+            if self._app.modeler[name].is3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
                 arg2.append(["NAME:Material", "Value:=", chr(34) + val["Material"] + chr(34)])
                 arg2.append(["NAME:Solve Inside", "Value:=", val["SolveInside"]])
             arg2.append(["NAME:Model", "Value:=", val["Model"]])
@@ -317,16 +317,23 @@ class Configurations(object):
         if update:
             return
         bound = BoundaryObject(self._app, name, props, props["BoundType"])
+        if bound.props.get("Independent", None):
+            for b in self._app.boundaries:
+                if b.type == "Independent" and b.props.get("ID", 999) == bound.props["Independent"]:
+                    bound.auto_update = False
+                    bound.props["Independent"] = b.name
+                    bound.auto_update = True
         if bound.create():
             self._app.boundaries.append(bound)
             if props["BoundType"] in ["Coil Terminal", "Coil", "CoilTerminal"]:
                 winding_name = ""
-                for bound in self._app.boundaries:
-                    if bound.props.get("ID", 999) == props.get("ParentBndID", -1):
-                        winding_name = bound.name
+                for b in self._app.boundaries:
+                    if b.props.get("ID", 999) == props.get("ParentBndID", -1):
+                        winding_name = b.name
                         break
                 if winding_name:
                     self._app.add_winding_coils(winding_name, name)
+
             self._app.logger.info("Boundary Operation {} added.".format(name))
         else:
             self._app.logger.warning("Failed to add Boundary {} ".format(name))
@@ -385,7 +392,7 @@ class Configurations(object):
             dict_in = json.load(json_file)
         if not apply_config:
             return dict_in
-        if self.export_materials:
+        if self.export_materials and dict_in.get("datasets", None):
             if "datasets" in list(dict_in.keys()):
                 for el, val in dict_in["datasets"].items():
                     numcol = len(val["Coordinates"]["DimUnits"])
@@ -406,7 +413,7 @@ class Configurations(object):
                     self._app.create_dataset(
                         el[1:], xunit=xunit, yunit=yunit, zunit=zunit, xlist=xval, ylist=yval, zlist=zval
                     )
-
+        if self.export_materials and dict_in.get("materials", None):
             for el, val in dict_in["materials"].items():
                 if el.lower() in list(self._app.materials.material_keys.keys()):
                     newname = generate_unique_name(el)
@@ -416,23 +423,256 @@ class Configurations(object):
                 newmat = Material(self._app, newname, val)
                 newmat.update()
                 self._app.materials.material_keys[newname] = newmat
-        if self.coordinate_systems and dict_in["coordinatesystems"]:
+        if self.coordinate_systems and dict_in.get("coordinatesystems", None):
             for name, props in dict_in["coordinatesystems"].items():
                 self._update_coordinate_system(name, props)
-        if self.object_properties and dict_in["objects"]:
+        if self.object_properties and dict_in.get("objects", None):
             for obj, val in dict_in["objects"].items():
                 self._update_object(obj, val)
             self._app.logger.info("Object Properties updated.")
-        if self.boundaries and dict_in["boundaries"]:
+        if self.boundaries and dict_in.get("boundaries", None):
             sort_order = sorted(dict_in["boundaries"], key=lambda x: dict_in["boundaries"][x].get("ID", 999))
             for name in sort_order:
                 self._convert_objects(dict_in["boundaries"][name], dict_in["mapping"])
                 self._update_boundaries(name, dict_in["boundaries"][name])
-        if self.mesh_operations and dict_in["mesh"]:
+        # TODO implement MeshRegion handler
+        if self.mesh_operations and dict_in.get("mesh", None):
             for name, props in dict_in["mesh"].items():
                 self._convert_objects(props, dict_in["mapping"])
                 self._update_mesh(name, props)
-        if self.setups and dict_in["setups"]:
+        if self.setups and dict_in.get("setups", None):
+            for setup, props in dict_in["setups"].items():
+                self._update_setup(setup, props)
+        return dict_in
+
+    @pyaedt_function_handler()
+    def export_config(self, config_file=None):
+        """Export current design properties to json file.
+
+        Parameters
+        ----------
+        config_file : str, optional
+            Full path to json file. If `None`, then the config file will be saved in working directory.
+
+        Returns
+        -------
+        str
+            Exported config file.
+        """
+        if not config_file:
+            config_file = os.path.join(self._app.working_directory, generate_unique_name(self._app.design_name))
+        dict_out = {}
+        if self.setups and self._app.setups:
+            dict_out["setups"] = {}
+            for setup in self._app.setups:
+                dict_out["setups"][setup.name] = setup.props
+        if self.optimizations and self._app.optimizations.setups:
+            dict_out["optimizations"] = {}
+            for setup in self._app.optimizations.setups:
+                dict_out["optimizations"][setup.name] = setup.props
+        if self.parametrics and self._app.parametrics.setups:
+            dict_out["parametrics"] = {}
+            for setup in self._app.parametrics.setups:
+                dict_out["parametrics"][setup.name] = setup.props
+        if self.boundaries and self._app.boundaries:
+            dict_out["boundaries"] = {}
+            dict_out["mapping"] = {}
+            for boundary in self._app.boundaries:
+                dict_out["boundaries"][boundary.name] = boundary.props
+                self._map_object(boundary.props, dict_out)
+        if self.coordinate_systems and self._app.modeler.coordinate_systems:
+            dict_out["coordinatesystems"] = {}
+            for cs in self._app.modeler.coordinate_systems:
+                dict_out["coordinatesystems"][cs.name] = cs.props
+        if self.object_properties:
+            dict_out["objects"] = {}
+            for obj, val in self._app.modeler.objects.items():
+                dict_out["objects"][val.name] = {}
+                if self._app.modeler[val.name].is3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
+                    dict_out["objects"][val.name]["Material"] = val.material_name
+                    dict_out["objects"][val.name]["SolveInside"] = val.solve_inside
+                dict_out["objects"][val.name]["Model"] = val.model
+                dict_out["objects"][val.name]["Group"] = val.group_name
+                dict_out["objects"][val.name]["Transparency"] = val.transparency
+                dict_out["objects"][val.name]["Color"] = val.color
+                dict_out["objects"][val.name]["CoordinateSystem"] = val.part_coordinate_system
+        # TODO implement MeshRegion handler
+        # if self.mesh_operations and self._app.mesh.meshregions:
+        #     dict_out["mesh"] = {}
+        #     for mesh in self._app.mesh.meshoperations:
+        #         dict_out["mesh"][mesh.name] = mesh.props
+        #         self._map_object(mesh.props, dict_out)
+        if self.export_materials:
+            output_dict = {}
+            for el, val in self._app.materials.material_keys.items():
+                output_dict[el] = copy.deepcopy(val._props)
+            out_list = []
+            find_datasets(output_dict, out_list)
+            datasets = OrderedDict()
+            for ds in out_list:
+                if ds in list(self._app.project_datasets.keys()):
+                    d = self._app.project_datasets[ds]
+                    if d.z:
+                        datasets[ds] = OrderedDict(
+                            {
+                                "Coordinates": OrderedDict(
+                                    {
+                                        "DimUnits": [d.xunit, d.yunit, d.zunit],
+                                        "Points": [val for tup in zip(d.x, d.y, d.z) for val in tup],
+                                    }
+                                )
+                            }
+                        )
+                    else:
+                        datasets[ds] = OrderedDict(
+                            {
+                                "Coordinates": OrderedDict(
+                                    {
+                                        "DimUnits": [d.xunit, d.yunit],
+                                        "Points": [val for tup in zip(d.x, d.y) for val in tup],
+                                    }
+                                )
+                            }
+                        )
+            dict_out["materials"] = output_dict
+            if datasets:
+                dict_out["datasets"] = datasets
+
+        # update the json if it exists already
+        if os.path.exists(config_file):
+            with open(config_file, "r") as json_file:
+                dict_in = json.load(json_file)
+            for k, v in dict_in.items():
+                if k not in dict_out:
+                    dict_out[k] = v
+                elif isinstance(v, dict):
+                    for i, j in v.items():
+                        if i not in dict_out[k]:
+                            dict_out[k][i] = j
+        # write the updated json to file
+        with open(config_file, "w") as outfile:
+            json.dump(dict_out, outfile, indent=4)
+            self._app.logger.info("Configuration file {} exported correctly.".format(config_file))
+        return config_file
+
+
+class ConfigurationsIcepak(Configurations):
+    """Configuration Class.
+    It enables to export and import configuration options to be applied on a new/existing design.
+    """
+
+    def __init__(self, app):
+        Configurations.__init__(self, app)
+
+    @pyaedt_function_handler()
+    def _update_object(self, name, val):
+        if name in self._app.modeler.object_names:
+            arg = ["NAME:AllTabs", ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", name]]]
+            arg2 = ["NAME:ChangedProps"]
+            arg2.append(["NAME:Material", "Value:=", chr(34) + val["Material"] + chr(34)])
+            arg2.append(["NAME:Solve Inside", "Value:=", val["SolveInside"]])
+            arg2.append(
+                [
+                    "NAME:Surface Material",
+                    "Value:=",
+                    chr(34) + val.get("SurfaceMaterial", "Steel-oxidised-surface") + chr(34),
+                ]
+            )
+            arg2.append(["NAME:Model", "Value:=", val["Model"]])
+            if val["Group"]:
+                arg2.append(["NAME:Group", "Value:=", val["Group"]])
+            arg2.append(["NAME:Transparent", "Value:=", val["Transparency"]])
+            arg2.append(["NAME:Color", "R:=", val["Color"][0], "G:=", val["Color"][1], "B:=", val["Color"][1]])
+            arg2.append(["NAME:Orientation", "Value:=", val["CoordinateSystem"]])
+            arg[1].append(arg2)
+            self._app.modeler.oeditor.ChangeProperty(arg)
+
+    @pyaedt_function_handler()
+    def _update_mesh(self, name, props):
+        update = False
+        for mesh_el in self._app.mesh.meshoperations:
+            if mesh_el.name == name:
+                if not self.skip_if_exists:
+                    mesh_el.props = props
+                    mesh_el.update()
+                update = True
+        if update:
+            return
+        bound = MeshOperation(self._app.mesh, name, props, props["Type"])
+        if bound.create():
+            self._app.mesh.meshoperations.append(bound)
+            self._app.logger.info("mesh Operation {} added.".format(name))
+        else:
+            self._app.logger.warning("Failed to add Mesh {} ".format(name))
+
+    @pyaedt_function_handler()
+    def import_config(self, config_file, apply_config=True):
+        """Import configuration settings from a json file and apply it to the current design.
+
+        Parameters
+        ----------
+        config_file : str
+            Full path to json file.
+        apply_config : bool, optional
+            Define if imported json has to be applied to the current design or not.
+
+        Returns
+        -------
+        dict
+            Config dictionary.
+        """
+        with open(config_file) as json_file:
+            dict_in = json.load(json_file)
+        if not apply_config:
+            return dict_in
+        if self.export_materials and dict_in.get("datasets", None):
+            if "datasets" in list(dict_in.keys()):
+                for el, val in dict_in["datasets"].items():
+                    numcol = len(val["Coordinates"]["DimUnits"])
+                    xunit = val["Coordinates"]["DimUnits"][0]
+                    yunit = val["Coordinates"]["DimUnits"][1]
+                    zunit = ""
+
+                    new_list = [
+                        val["Coordinates"]["Points"][i : i + numcol]
+                        for i in range(0, len(val["Coordinates"]["Points"]), numcol)
+                    ]
+                    xval = new_list[0]
+                    yval = new_list[1]
+                    zval = None
+                    if numcol > 2:
+                        zunit = val["Coordinates"]["DimUnits"][2]
+                        zval = new_list[2]
+                    self._app.create_dataset(
+                        el[1:], xunit=xunit, yunit=yunit, zunit=zunit, xlist=xval, ylist=yval, zlist=zval
+                    )
+        if self.export_materials and dict_in.get("materials", None):
+            for el, val in dict_in["materials"].items():
+                if el.lower() in list(self._app.materials.material_keys.keys()):
+                    newname = generate_unique_name(el)
+                    self._app.logger.warning("Material %s already exists. Renaming to %s", el, newname)
+                else:
+                    newname = el
+                newmat = Material(self._app, newname, val)
+                newmat.update()
+                self._app.materials.material_keys[newname] = newmat
+        if self.coordinate_systems and dict_in.get("coordinatesystems", None):
+            for name, props in dict_in["coordinatesystems"].items():
+                self._update_coordinate_system(name, props)
+        if self.object_properties and dict_in.get("objects", None):
+            for obj, val in dict_in["objects"].items():
+                self._update_object(obj, val)
+            self._app.logger.info("Object Properties updated.")
+        if self.boundaries and dict_in.get("boundaries", None):
+            sort_order = sorted(dict_in["boundaries"], key=lambda x: dict_in["boundaries"][x].get("ID", 999))
+            for name in sort_order:
+                self._convert_objects(dict_in["boundaries"][name], dict_in["mapping"])
+                self._update_boundaries(name, dict_in["boundaries"][name])
+        if self.mesh_operations and dict_in.get("mesh", None):
+            for name, props in dict_in["mesh"].items():
+                self._convert_objects(props, dict_in["mapping"])
+                self._update_mesh(name, props)
+        if self.setups and dict_in.get("setups", None):
             for setup, props in dict_in["setups"].items():
                 self._update_setup(setup, props)
         return dict_in
@@ -481,17 +721,19 @@ class Configurations(object):
             for obj, val in self._app.modeler.objects.items():
                 dict_out["objects"][val.name] = {}
                 dict_out["objects"][val.name]["Material"] = val.material_name
+                dict_out["objects"][val.name]["SurfaceMaterial"] = val.surface_material_name
                 dict_out["objects"][val.name]["SolveInside"] = val.solve_inside
                 dict_out["objects"][val.name]["Model"] = val.model
                 dict_out["objects"][val.name]["Group"] = val.group_name
                 dict_out["objects"][val.name]["Transparency"] = val.transparency
                 dict_out["objects"][val.name]["Color"] = val.color
                 dict_out["objects"][val.name]["CoordinateSystem"] = val.part_coordinate_system
-        if self.mesh_operations and self._app.mesh.meshoperations:
-            dict_out["mesh"] = {}
-            for mesh in self._app.mesh.meshoperations:
-                dict_out["mesh"][mesh.name] = mesh.props
-                self._map_object(mesh.props, dict_out)
+        # TODO implement MeshRegion handler
+        # if self.mesh_operations and self._app.mesh.meshoperations:
+        #     dict_out["mesh"] = {}
+        #     for mesh in self._app.mesh.meshoperations:
+        #         dict_out["mesh"][mesh.name] = mesh.props
+        #         self._map_object(mesh.props, dict_out)
         if self.export_materials:
             output_dict = {}
             for el, val in self._app.materials.material_keys.items():
@@ -529,4 +771,5 @@ class Configurations(object):
                 dict_out["datasets"] = datasets
         with open(config_file, "w") as outfile:
             json.dump(dict_out, outfile, indent=4)
+            self._app.logger.info("Configuration file {} exported correctly.".format(config_file))
         return config_file

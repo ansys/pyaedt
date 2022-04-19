@@ -111,6 +111,8 @@ class MeshOperation(object):
             self._meshicepak.omeshmodule.AssignMeshOperation(self._get_args())
         elif self.type == "CurvatureExtraction":
             self._meshicepak.omeshmodule.AssignCurvatureExtractionOp(self._get_args())
+        elif self.type == "CylindricalGap":
+            self._meshicepak.omeshmodule.AssignCylindricalGapOp(self._get_args())
         else:
             return False
         return True
@@ -159,7 +161,8 @@ class MeshOperation(object):
             self._meshicepak.omeshmodule.EditSBRCurvatureExtractionOp(self.name, self._get_args())
         elif self.type == "InitialMeshSettings":
             self._meshicepak.omeshmodule.InitialMeshSettings(self._get_args())
-
+        elif self.type == "CylindricalGap":
+            self._meshicepak.omeshmodule.EditCylindricalGapOp(self.name, self._get_args())
         else:
             return False
         return True
