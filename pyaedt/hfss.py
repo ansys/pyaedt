@@ -3608,8 +3608,80 @@ class Hfss(FieldAnalysis3D, object):
         )
 
     @pyaedt_function_handler()
+    def edit_sources(
+        self, excitations, include_port_post_processing=True, max_available_power=None, use_incident_voltage=False
+    ):
+        """Set up the power loaded for Hfss Post-Processing in multiple sources simultaneously.
+
+        Parameters
+        ----------
+        excitations : dict
+            Dictionary of input sources to modify module and phase.
+            Dictionary values can be:
+            - 1 Value to setup 0deg as default
+            - 2 values tuple or list (magnitude and phase) or
+            - 3 values (magnitude, phase and termination flag) for Terminal Solution in case of incident voltage usage.
+
+        Returns
+        -------
+        bool
+
+        Examples
+        --------
+        >>> sources = {"Port1:1": ("0W", "0deg"), "Port2:1": ("1W", "90deg")}
+        >>> hfss.edit_sources(sources, include_port_post_processing=True)
+
+        >>> sources = {"Box2_T1": ("0V", "0deg", True), "Box1_T1": ("1V", "90deg")}
+        >>> hfss.edit_sources(sources, max_available_power="2W", use_incident_voltage=True)
+        """
+        data = {i: ("0W", "0deg", False) for i in self.excitations}
+        for key, value in excitations.items():
+            data[key] = value
+        setting = []
+        for key, vals in data.items():
+            if isinstance(vals, str):
+                power = vals
+                phase = "0deg"
+            else:
+                power = vals[0]
+                if len(vals) == 1:
+                    phase = "0deg"
+                else:
+                    phase = vals[1]
+            if isinstance(vals, (list, tuple)) and len(vals) == 3:
+                terminated = vals[2]
+            else:
+                terminated = False
+            if use_incident_voltage and self.solution_type == "Terminal":
+                setting.append(["Name:=", key, "Terminated:=", terminated, "Magnitude:=", power, "Phase:=", phase])
+            else:
+                setting.append(["Name:=", key, "Magnitude:=", power, "Phase:=", phase])
+        argument = []
+        if self.solution_type == "Terminal":
+            argument.extend(["UseIncidentVoltage:=", use_incident_voltage])
+
+        argument.extend(
+            [
+                "IncludePortPostProcessing:=",
+                include_port_post_processing,
+                "SpecifySystemPower:=",
+                True if max_available_power else False,
+            ]
+        )
+
+        if max_available_power:
+            argument.append("Incident Power:=")
+            argument.append(max_available_power)
+
+        args = [argument]
+        args.extend(setting)
+        for arg in args:
+            self.osolution.EditSources(arg)
+        return True
+
+    @pyaedt_function_handler()
     def edit_source(self, portandmode, powerin, phase="0deg"):
-        """Set up the power loaded to the filter for thermal analysis.
+        """Set up the power loaded for Hfss Post-Processing.
 
         Parameters
         ----------

@@ -351,7 +351,7 @@ class EdbLayout(object):
 
         if not origin:
             origin = [center[0] + float(x1) * 10000, center[1] + float(y1) * 10000]
-        self._pedb.add_design_variable(offset_name, 0.0)
+        self._pedb.add_design_variable(offset_name, 0.0, is_parameter=True)
         i = 0
         continue_iterate = True
         prev_point = None
@@ -915,13 +915,17 @@ class EdbLayout(object):
                         if not var_server:
                             if not variable_value:
                                 variable_value = p.GetWidth()
-                            result, var_server = self._pedb.add_design_variable(parameter_name, variable_value)
+                            result, var_server = self._pedb.add_design_variable(
+                                parameter_name, variable_value, is_parameter=True
+                            )
                         p.SetWidth(self._pedb.edb_value(parameter_name))
                     elif p.GetLayer().GetName() in layers_name:
                         if not var_server:
                             if not variable_value:
                                 variable_value = p.GetWidth()
-                            result, var_server = self._pedb.add_design_variable(parameter_name, variable_value)
+                            result, var_server = self._pedb.add_design_variable(
+                                parameter_name, variable_value, is_parameter=True
+                            )
                         p.SetWidth(self._pedb.edb_value(parameter_name))
         return True
 
