@@ -1,6 +1,6 @@
 recommonmark==0.7.1
 matplotlib==3.5.1
-imageio==2.16.2
+imageio==2.17.0
 imageio-ffmpeg==0.4.7
 pyvista==0.33.3
 numpydoc==1.2.1
