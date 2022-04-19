@@ -202,7 +202,6 @@ m3d.save_project(os.path.join(temp_folder, "My_Maxwell3d_Choke.aedt"))
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before exiting.
 
-"""
+
 if os.name != "posix":
     m3d.release_desktop()
-"""
