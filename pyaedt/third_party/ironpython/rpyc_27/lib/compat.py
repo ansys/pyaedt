@@ -79,8 +79,7 @@ except ImportError:
     select_module = None
 
     def select(*args):
-        raise ImportError("select not supported on this platform")
-
+        raise ImportError("Select is not supported on this platform.")
 
 else:
     # jython
@@ -206,7 +205,6 @@ if sys.version_info >= (3, 2):
         if blocking and timeout.finite:
             return lock.acquire(blocking, timeout.timeleft())
         return lock.acquire(blocking)
-
 
 else:
 

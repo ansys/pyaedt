@@ -20,299 +20,229 @@ tmpfold = tempfile.gettempdir()
 aedb_path = os.path.join(tmpfold, generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
 edb = Edb(edbpath=aedb_path, edbversion="2022.1")
-var_server = edb.active_cell.GetVariableServer()
+
+###############################################################################
+# Define Parameters
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+params = {"$ms_width": "0.4mm",
+          "$sl_width": "0.2mm",
+          "$ms_spacing": "0.2mm",
+          "$sl_spacing": "0.1mm",
+          "$via_spacing": "0.5mm",
+          "$via_diam": "0.3mm",
+          "$pad_diam": "0.6mm",
+          "$anti_pad_diam": "0.7mm",
+          "$pcb_len": "30mm",
+          "$pcb_w": "5mm",
+          "$x_size": "1.2mm",
+          "$y_size": "1mm",
+          "$corner_rad": "0.5mm"}
+
+for par_name in params:
+    edb.add_design_variable(par_name, params[par_name])
+
+######################################################################
+# Define stackup layers from bottom to top.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Stackup definition
+# Note that layer_type = (0:signal, 1:dielectric)
+
+layers = [{"name": "bottom", "layer_type": 0, "thickness": "35um", "material": "copper"},
+          {"name": "diel_3", "layer_type": 1, "thickness": "275um", "material": "FR4_epoxy"},
+          {"name": "sig_2", "layer_type": 0, "thickness": "35um", "material": "copper"},
+          {"name": "diel_2", "layer_type": 1, "thickness": "275um", "material": "FR4_epoxy"},
+          {"name": "sig_1", "layer_type": 0, "thickness": "35um", "material": "copper"},
+          {"name": "diel_1", "layer_type": 1, "thickness": "275um", "material": "FR4_epoxy"},
+          {"name": "top", "layer_type": 0, "thickness": "35um", "material": "copper"}]
 
 
-class via_def:
-    def __init__(
-        self,
-        name="via_def",
-        hole_diam="",
-        pad_diam="",
-        anti_pad_diam="",
-        start_layer="top",
-        stop_layer="bottom",
-        antipad_shape="Circle",
-        x_size="",
-        y_size="",
-        corner_rad="",
-    ):
-        self.name = name
-        self.hole_diam = hole_diam
-        self.pad_diam = pad_diam
-        self.anti_pad_diam = anti_pad_diam
-        self.start_layer = start_layer
-        self.stop_layer = stop_layer
-        self.anti_pad_shape = antipad_shape
-        self.x_size = x_size
-        self.y_size = y_size
-        self.corner_rad = corner_rad
+# Create EDB stackup.
+# Bottom layer
 
-    def add_via_def_to_edb(self):
-        edb.core_padstack.create_padstack(
-            padstackname=self.name,
-            holediam=self.hole_diam,
-            paddiam=self.pad_diam,
-            antipaddiam=self.anti_pad_diam,
-            startlayer=self.start_layer,
-            endlayer=self.stop_layer,
-            antipad_shape=self.anti_pad_shape,
-            x_size=self.x_size,
-            y_size=self.y_size,
-            corner_radius=self.corner_rad,
+edb.core_stackup.stackup_layers.add_layer(layers[0]["name"],
+                                          layerType=layers[0]["layer_type"],
+                                          thickness=layers[0]["thickness"],
+                                          material=layers[0]["material"])  # Insert first layer
+# All subsequent layers
+
+for n in range(len(layers)-1):
+    edb.core_stackup.stackup_layers.add_layer(layers[n+1]["name"],
+                                              layers[n]["name"],
+                                              layerType=layers[n+1]["layer_type"],
+                                              thickness=layers[n+1]["thickness"],
+                                              material=layers[n+1]["material"])
+
+###############################################################################
+# Create parameterized padstack for the signal via.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+signal_via_padstack = "automated_via"
+edb.core_padstack.create_padstack(
+            padstackname=signal_via_padstack,
+            holediam="$via_diam",
+            paddiam="$pad_diam",
+            antipaddiam="",
+            startlayer="top",
+            endlayer="bottom",
+            antipad_shape="Bullet",
+            x_size="$x_size",
+            y_size="$y_size",
+            corner_radius="$corner_rad",
         )
 
+###############################################################################
+# Net names. There are only two signal nets.
 
-class via_instance:
-    def __init__(self, pos_x="", pos_y="", rotation=0.0, net_name=""):
-        self.pos_x = pos_x
-        self.pos_y = pos_y
-        self.rotation = rotation
-        self.pos = [self.pos_x, self.pos_y]
-        self.net_name = net_name
+net_p = "p"
+net_n = "n"
 
-    def place_via(self, viadef=via_def()):
-        edb_padstanck_inst = edb.core_padstack.place_padstack(
-            position=self.pos,
-            definition_name=viadef.name,
-            net_name=self.net_name,
+###############################################################################
+# Place signal vias:
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+edb.core_padstack.place_padstack(
+            position=["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
+            definition_name=signal_via_padstack,
+            net_name=net_p,
             via_name="",
-            rotation=self.rotation,
-            fromlayer=viadef.start_layer,
-            tolayer=viadef.stop_layer,
-        )
+            rotation=90.0,
+            fromlayer=layers[-1]["name"],
+            tolayer=layers[0]["name"],)
 
+edb.core_padstack.place_padstack(
+            position=["2*$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
+            definition_name=signal_via_padstack,
+            net_name=net_p,
+            via_name="",
+            rotation=90.0,
+            fromlayer=layers[-1]["name"],
+            tolayer=layers[0]["name"],)
 
-class line:
-    def __init__(self, width="0.0", point_list=None, layer="", net_name=""):
-        if point_list is None:
-            point_list = [[0.0, 0.0], [1e-3, 0.0]]
-        self.point_list = point_list
-        self.width = width
-        self.layer = layer
-        self.net_name = net_name
+edb.core_padstack.place_padstack(
+            position=["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
+            definition_name=signal_via_padstack,
+            net_name=net_n,
+            via_name="",
+            rotation=-90.0,
+            fromlayer=layers[-1]["name"],
+            tolayer=layers[0]["name"],)
 
-    def place_line(self):
-        path = edb.core_primitives.Shape("polygon", points=self.point_list)
-        edb_path = edb.core_primitives.create_path(
-            path, self.layer, self.width, self.net_name, start_cap_style="Flat", end_cap_style="Flat"
-        )
-        return edb_path
+edb.core_padstack.place_padstack(
+            position=["2*$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
+            definition_name=signal_via_padstack,
+            net_name=net_n,
+            via_name="",
+            rotation=-90.0,
+            fromlayer=layers[-1]["name"],
+            tolayer=layers[0]["name"],)
 
+# ##################################
+# # Draw parameterized traces.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class rectangle:
-    def __init__(self, lower_left_corner=[], upper_right_corner=[], voids=None):
-        self.lower_left_corner = lower_left_corner
-        self.upper_right_corner = upper_right_corner
-        self.voids = voids
+# Trace width and routing. Microstrip-Stripline-Microstrip.
+# Applies to both p and n nets.
 
-    def place_rectangle(self, layer_name="top", net_name=""):
-        pts = [
-            [self.lower_left_corner[0], self.lower_left_corner[1]],
-            [self.upper_right_corner[0], self.lower_left_corner[1]],
-            [self.upper_right_corner[0], self.upper_right_corner[1]],
-            [self.lower_left_corner[0], self.upper_right_corner[1]],
-        ]
-        shape = edb.core_primitives.Shape("polygon", points=pts)
-        if self.voids:
-            shape_void = [edb.core_primitives.Shape("polygon", points=self.voids)]
-        else:
-            shape_void = []
-        edb.core_primitives.create_polygon(main_shape=shape, layer_name=layer_name, voids=shape_void, net_name=net_name)
+width = ["$ms_width", "$sl_width", "$ms_width"]                       # Trace width, n and p
+route_layer = [layers[-1]["name"], layers[4]["name"], layers[-1]["name"]]    # Routing layer, n and p
 
-    def get_variable_value(self, variable_name=""):
-        value = edb.edb_value()
-        var_value = var_server.get_variable_value(variable_name, value)
-        return value.ToDouble()
+# Define points for three traces in the "p" net.
 
+points_p = [
+           [["0.0", "($ms_width+$ms_spacing)/2"],
+            ["$pcb_len/3-2*$via_spacing", "($ms_width+$ms_spacing)/2"],
+            ["$pcb_len/3-$via_spacing", "($ms_width+$ms_spacing+$via_spacing)/2"],
+            ["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
+           ],
+           [["$pcb_len/3", "($ms_width+$sl_spacing+$via_spacing)/2"],
+            ["$pcb_len/3+$via_spacing", "($ms_width+$sl_spacing+$via_spacing)/2"],
+            ["$pcb_len/3+2*$via_spacing", "($sl_width+$sl_spacing)/2"],
+            ["2*$pcb_len/3-2*$via_spacing", "($sl_width+$sl_spacing)/2"],
+            ["2*$pcb_len/3-$via_spacing", "($ms_width+$sl_spacing+$via_spacing)/2"],
+            ["2*$pcb_len/3", "($ms_width+$sl_spacing+$via_spacing)/2"],
+           ],
+           [["2*$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
+            ["2*$pcb_len/3+$via_spacing", "($ms_width+$ms_spacing+$via_spacing)/2"],
+            ["2*$pcb_len/3+2*$via_spacing", "($ms_width+$ms_spacing)/2"],
+            ["$pcb_len", "($ms_width+$ms_spacing)/2"],
+           ],
+          ]
 
-####################
-# Layer stackup
-#
-if edb:
-    edb.core_stackup.stackup_layers.add_layer("bottom")
-    edb.core_stackup.stackup_layers.add_layer(
-        "dielectric", "bottom", layerType=1, thickness="275um", material="FR4_epoxy"
-    )
-    edb.core_stackup.stackup_layers.add_layer("sig2", "dielectric")
-    edb.core_stackup.stackup_layers.add_layer("Diel_2", "sig2", layerType=1, thickness="275um", material="FR4_epoxy")
-    edb.core_stackup.stackup_layers.add_layer("sig1", "Diel_2")
-    edb.core_stackup.stackup_layers.add_layer("Diel_1", "sig1", layerType=1, thickness="275um", material="FR4_epoxy")
-    edb.core_stackup.stackup_layers.add_layer("top", "Diel_1")
+# Define points for three traces in the "n" net.
 
-####################
-# Design variables
-#
-edb.add_design_variable("$line_width", "0.5mm")
-edb.add_design_variable("$line2_width", "0.5mm")
-edb.add_design_variable("$line_spacing", "0.2mm")
-edb.add_design_variable("$via_spacing", "0.5mm")
-edb.add_design_variable("$via_diam", "0.3mm")
-edb.add_design_variable("$pad_diam", "0.6mm")
-edb.add_design_variable("$anti_pad_diam", "0.7mm")
-edb.add_design_variable("$pcb_len", "30mm")
-edb.add_design_variable("$pcb_w", "5mm")
-edb.add_design_variable("$x_size", "1.2mm")
-edb.add_design_variable("$y_size", "1mm")
-edb.add_design_variable("$corner_rad", "0.5mm")
+points_n = [
+          [["0.0", "-($ms_width+$ms_spacing)/2"],
+           ["$pcb_len/3-2*$via_spacing", "-($ms_width+$ms_spacing)/2"],
+           ["$pcb_len/3-$via_spacing", "-($ms_width+$ms_spacing+$via_spacing)/2"],
+           ["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
+          ],
+          [["$pcb_len/3", "-($ms_width+$sl_spacing+$via_spacing)/2"],
+           ["$pcb_len/3+$via_spacing", "-($ms_width+$sl_spacing+$via_spacing)/2"],
+           ["$pcb_len/3+2*$via_spacing", "-($ms_width+$sl_spacing)/2"],
+           ["2*$pcb_len/3-2*$via_spacing", "-($ms_width+$sl_spacing)/2"],
+           ["2*$pcb_len/3-$via_spacing", "-($ms_width+$sl_spacing+$via_spacing)/2"],
+           ["2*$pcb_len/3", "-($ms_width+$sl_spacing+$via_spacing)/2"],
+          ],
+          [["2*$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing)/2"],
+           ["2*$pcb_len/3 + $via_spacing", "-($ms_width+$ms_spacing+$via_spacing)/2"],
+           ["2*$pcb_len/3 + 2*$via_spacing", "-($ms_width+$ms_spacing)/2"],
+           ["$pcb_len", "-($ms_width + $ms_spacing)/2"],
+          ],
+         ]
 
-#################
-# Via definition
-#
-viadef1 = via_def(
-    name="automated_via",
-    hole_diam="$via_diam",
-    pad_diam="$pad_diam",
-    antipad_shape="Bullet",
-    x_size="$x_size",
-    y_size="$y_size",
-    corner_rad="$corner_rad",
-)
-viadef1.add_via_def_to_edb()
+# Add traces to the edb...
 
-###################
-# line creation
-#
-net_name = "strip_line_p"
-net_name2 = "strip_line_n"
+for n in range(len(points_p)):
+    path_p = edb.core_primitives.Shape("polygon", points=points_p[n])
+    edb.core_primitives.create_path(path_p, route_layer[n], width[n], net_name=net_p,
+                                    start_cap_style="Flat", end_cap_style="Flat")
+    path_n = edb.core_primitives.Shape("polygon", points=points_n[n])
+    edb.core_primitives.create_path(path_n, route_layer[n], width[n], net_name=net_n,
+                                    start_cap_style="Flat", end_cap_style="Flat")
 
-######################
-# line placement
-#
-seg1_p = line(width="$line_width", net_name=net_name, layer="top")
+################################################################################
+# Draw ground polygons
 
-seg1_p.point_list = [
-    ["0.0", "($line_width+$line_spacing)/2"],
-    ["$pcb_len/3-2*$via_spacing", "($line_width+$line_spacing)/2"],
-    ["$pcb_len/3-$via_spacing", "($line_width+$line_spacing+$via_spacing)/2"],
-    ["$pcb_len/3", "($line_width+$line_spacing+$via_spacing)/2"],
-]
-seg1_p.place_line()
-path_port_1p = edb.core_primitives.primitives[-1]
+gnd_poly = [[0.0, "-$pcb_w/2"],
+            ["$pcb_len", "-$pcb_w/2"],
+            ["$pcb_len", "$pcb_w/2"],
+            [0.0, "$pcb_w/2"]]
+gnd_shape = edb.core_primitives.Shape("polygon", points=gnd_poly)
 
-####################
-# via placement
-#
+# void in ground for traces on the signal routing layer.
 
-via_instance(
-    pos_x="$pcb_len/3", pos_y="($line_width+$line_spacing+$via_spacing)/2", rotation=90, net_name=net_name
-).place_via(viadef1)
+void_poly = [["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
+             ["$pcb_len/3 + $via_spacing", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
+             ["$pcb_len/3 + 2*$via_spacing",
+             "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
+             ["2*$pcb_len/3 - 2*$via_spacing",
+             "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
+             ["2*$pcb_len/3 - $via_spacing",
+             "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
+             ["2*$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
+             ["2*$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2"],
+             ["2*$pcb_len/3 - $via_spacing", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2"],
+             ["2*$pcb_len/3 - 2*$via_spacing", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
+             ["$pcb_len/3 + 2*$via_spacing", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"],
+             ["$pcb_len/3 + $via_spacing", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2"],
+             ["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2+$via_spacing/2"],
+             ["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2"]]
 
-####################
-# line creation
-#
-seg2_p = line(width="$line2_width", net_name=net_name, layer="sig1")
-seg2_p.point_list = [
-    ["$pcb_len/3", "($line_width+$line_spacing+$via_spacing)/2"],
-    ["$pcb_len/3+$via_spacing", "($line_width+$line_spacing+$via_spacing)/2"],
-    ["$pcb_len/3+2*$via_spacing", "($line_width+$line_spacing)/2"],
-    ["2*$pcb_len/3-2*$via_spacing", "($line_width+$line_spacing)/2"],
-    ["2*$pcb_len/3-$via_spacing", "($line_width+$line_spacing+$via_spacing)/2"],
-    ["2*$pcb_len/3", "($line_width+$line_spacing+$via_spacing)/2"],
-]
-seg2_p.place_line()
+void_shape = edb.core_primitives.Shape("polygon", points=void_poly)
 
-##################
-# Via placement
-#
-via_instance(
-    pos_x="2*$pcb_len/3", pos_y="($line_width+$line_spacing+$via_spacing)/2", rotation=90, net_name=net_name
-).place_via(viadef1)
+# Add ground layers.
 
-####################
-# line creation
-#
+for layer in layers[1:-1]:
 
-seg3_p = line(width="$line_width", net_name=net_name, layer="top")
-seg3_p.point_list = [
-    ["2*$pcb_len/3", "($line_width+$line_spacing+$via_spacing)/2"],
-    ["2*$pcb_len/3+$via_spacing", "($line_width+$line_spacing+$via_spacing)/2"],
-    ["2*$pcb_len/3+2*$via_spacing", "($line_width+$line_spacing)/2"],
-    ["$pcb_len", "($line_width+$line_spacing)/2"],
-]
-seg3_p.place_line()
-path_port_2p = edb.core_primitives.primitives[-1]
+    # add void if the layer is the signal routing layer.
+    void = [void_shape] if layer["name"] == route_layer[1] else []
 
-##################
-# line n
-#
-# line creation
-seg1_n = line(width="$line_width", net_name=net_name2, layer="top")
-
-seg1_n.point_list = [
-    ["0.0", "-($line_width+$line_spacing)/2"],
-    ["$pcb_len/3-2*$via_spacing", "-($line_width+$line_spacing)/2"],
-    ["$pcb_len/3-$via_spacing", "-($line_width+$line_spacing+$via_spacing)/2"],
-    ["$pcb_len/3", "-($line_width+$line_spacing+$via_spacing)/2"],
-]
-seg1_n.place_line()
-
-##################
-# via placement
-#
-
-via_instance(
-    pos_x="$pcb_len/3", pos_y="-($line_width+$line_spacing+$via_spacing)/2", rotation=-90, net_name=net_name2
-).place_via(viadef1)
-
-##################
-# line creation
-#
-
-seg2_n = line(width="$line2_width", net_name=net_name2, layer="sig1")
-seg2_n.point_list = [
-    ["$pcb_len/3", "-($line_width+$line_spacing+$via_spacing)/2"],
-    ["$pcb_len/3+$via_spacing", "-($line_width+$line_spacing+$via_spacing)/2"],
-    ["$pcb_len/3+2*$via_spacing", "-($line_width+$line_spacing)/2"],
-    ["2*$pcb_len/3-2*$via_spacing", "-($line_width+$line_spacing)/2"],
-    ["2*$pcb_len/3-$via_spacing", "-($line_width+$line_spacing+$via_spacing)/2"],
-    ["2*$pcb_len/3", "-($line_width+$line_spacing+$via_spacing)/2"],
-]
-seg2_n.place_line()
-
-##################
-# via placement
-#
-
-via_instance(
-    pos_x="2*$pcb_len/3", pos_y="-($line_width+$line_spacing+$via_spacing)/2", rotation=-90, net_name=net_name2
-).place_via(viadef1)
-
-####################
-# line creation
-
-seg3_p = line(width="$line_width", net_name=net_name2, layer="top")
-seg3_p.point_list = [
-    ["2*$pcb_len/3", "-($line_width+$line_spacing+$via_spacing)/2"],
-    ["2*$pcb_len/3+$via_spacing", "-($line_width+$line_spacing+$via_spacing)/2"],
-    ["2*$pcb_len/3+2*$via_spacing", "-($line_width+$line_spacing)/2"],
-    ["$pcb_len", "-($line_width+$line_spacing)/2"],
-]
-seg3_p.place_line()
-##########################
-# GND plane
-#
-
-rectangle(
-    lower_left_corner=[0.0, "-$pcb_w/2"],
-    upper_right_corner=["$pcb_len", "$pcb_w/2"],
-    voids=[
-        ["$pcb_len/3", "-($line_width+$line_spacing+$via_spacing+$anti_pad_diam)/2"],
-        ["2*$pcb_len/3", "-($line_width+$line_spacing+$via_spacing+$anti_pad_diam)/2"],
-        ["2*$pcb_len/3", "($line_width+$line_spacing+$via_spacing+$anti_pad_diam)/2"],
-        ["$pcb_len/3", "($line_width+$line_spacing+$via_spacing+$anti_pad_diam)/2"],
-    ],
-).place_rectangle("sig1", "gnd")
-
-gnd_plane = edb.core_primitives.primitives[-1]
-#
-rectangle(lower_left_corner=[0.0, "-$pcb_w/2"], upper_right_corner=["$pcb_len", "$pcb_w/2"]).place_rectangle(
-    "sig2", "gnd"
-)
-
-rectangle(lower_left_corner=[0.0, "-$pcb_w/2"], upper_right_corner=["$pcb_len", "$pcb_w/2"]).place_rectangle(
-    "bottom", "gnd"
-)
+    edb.core_primitives.create_polygon(main_shape=gnd_shape,
+                                       layer_name=layer["name"],
+                                       voids=void,
+                                       net_name="gnd")
 
 ##########################
 # Plotting the Edb
@@ -322,18 +252,18 @@ edb.core_nets.plot(None)
 edb.save_edb()
 edb.close_edb()
 
-##########################
-# opening edb in aedt
+###############################################
+# opening edb in Electronics Desktop
 h3d = Hfss3dLayout(projectname=os.path.join(aedb_path, "edb.def"), specified_version="2022.1", non_graphical=False)
 
-##########################
-# creating wave ports
+###############################################
+# create wave ports
 
-h3d.create_wave_port_from_two_conductors(["line_0", "line_3"], [0, 0])
-h3d.create_wave_port_from_two_conductors(["line_5", "line_2"], [5, 5])
+h3d.create_wave_port_from_two_conductors(["line_0", "line_1"], [0, 0])
+h3d.create_wave_port_from_two_conductors(["line_4", "line_5"], [5, 5])
 
 ##########################
-# adding hfss simulation setup
+# adding HFSS simulation setup
 
 setup = h3d.create_setup()
 h3d.create_linear_count_sweep(
@@ -350,7 +280,14 @@ h3d.create_linear_count_sweep(
     use_q3d_for_dc=False,
 )
 
-##########################
-# start hfss solver. Uncomment to solve
+##############################################
+# start the HFSS solver. Uncomment to solve
 # h3d.analyze_nominal()
+
 h3d.release_desktop()
+
+###################################################################################
+# Note that the ground nets are only connected to each other due
+# to the wave ports.  The problem with poor grounding can be seen in the
+# S-parameters. Try to modify this script to add ground vias and eliminate
+# the resonance.

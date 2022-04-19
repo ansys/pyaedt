@@ -97,6 +97,9 @@ numpydoc_validation_exclude = {  # set of regex
     r"\.AEDTMessageManager.add_message$",  # bad SS05
 }
 
+# Favicon
+html_favicon = "favicon.png"
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 

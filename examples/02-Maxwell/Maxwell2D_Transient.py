@@ -136,7 +136,7 @@ animatedGif.animate()
 # The same report can be obtained outside electronic desktop with the
 # following commands.
 
-solutions = maxwell_2d.post.get_solution_data("InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time")
+solutions = maxwell_2d.post.get_solution_data("InputCurrent(PHA)", primary_sweep_variable="Time")
 solutions.plot()
 
 ###############################################
