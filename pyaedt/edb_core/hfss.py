@@ -1036,13 +1036,13 @@ class EdbHfss(object):
             )
             return False
 
-        if not simulation_setup.coax_instances:
+        if not simulation_setup.components:
             return
 
         layout = self._cell.GetLayout()
         l_inst = layout.GetLayoutInstance()
 
-        for inst in simulation_setup.coax_instances:
+        for inst in simulation_setup.components:
             comp = self._edb.Cell.Hierarchy.Component.FindByName(layout, inst)
             if comp.IsNull():
                 continue
