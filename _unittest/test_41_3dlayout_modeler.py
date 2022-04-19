@@ -2,6 +2,7 @@ import os
 import time
 
 from _unittest.conftest import BasisTest
+from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 from _unittest.conftest import scratch_path
@@ -415,6 +416,7 @@ class TestClass(BasisTest, object):
         new_material = self.aedtapp.materials.duplicate_material("FirstMaterial", "SecondMaterial")
         assert new_material.name == "secondmaterial"
 
+    @pytest.mark.skipif(config["use_grpc"], reason="Crashing AEDT on GRPC")
     def test30_expand(self):
         self.aedtapp.modeler.create_rectangle("Bottom", [20, 20], [50, 50], name="rect_1")
         self.aedtapp.modeler.create_line("Bottom", [[25, 25], [40, 40]], name="line_3")
