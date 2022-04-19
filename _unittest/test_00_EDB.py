@@ -1090,33 +1090,33 @@ class TestClass(BasisTest, object):
         assert signal_layer == stackup.layer_types.SignalLayer
         dielectric_layer = stackup._int_to_layer_types(1)
         assert dielectric_layer == stackup.layer_types.DielectricLayer
-        conducting_layer = stackup._layer_types_to_int(2)
+        conducting_layer = stackup._int_to_layer_types(2)
         assert conducting_layer == stackup.layer_types.ConductingLayer
-        airlines_layer = stackup._layer_types_to_int(3)
+        airlines_layer = stackup._int_to_layer_types(3)
         assert airlines_layer == stackup.layer_types.AirlinesLayer
-        errors_layer = stackup._layer_types_to_int(4)
+        errors_layer = stackup._int_to_layer_types(4)
         assert errors_layer == stackup.layer_types.ErrorsLayer
-        symbol_layer = stackup._layer_types_to_int(5)
+        symbol_layer = stackup._int_to_layer_types(5)
         assert symbol_layer == stackup.layer_types.SymbolLayer
-        measure_layer = stackup._layer_types_to_int(6)
+        measure_layer = stackup._int_to_layer_types(6)
         assert measure_layer == stackup.layer_types.MeasureLayer
-        assembly_layer = stackup._layer_types_to_int(8)
+        assembly_layer = stackup._int_to_layer_types(8)
         assert assembly_layer == stackup.layer_types.AssemblyLayer
-        silkscreen_layer = stackup._layer_types_to_int(9)
+        silkscreen_layer = stackup._int_to_layer_types(9)
         assert silkscreen_layer == stackup.layer_types.SilkscreenLayer
-        solder_mask_layer = stackup._layer_types_to_int(10)
+        solder_mask_layer = stackup._int_to_layer_types(10)
         assert solder_mask_layer == stackup.layer_types.SolderMaskLayer
-        solder_paste_layer = stackup._layer_types_to_int(11)
+        solder_paste_layer = stackup._int_to_layer_types(11)
         assert solder_paste_layer == stackup.layer_types.SolderPasteLayer
-        glue_layer = stackup._layer_types_to_int(12)
+        glue_layer = stackup._int_to_layer_types(12)
         assert glue_layer == stackup.layer_types.GlueLayer
-        wirebond_layer = stackup._layer_types_to_int(13)
+        wirebond_layer = stackup._int_to_layer_types(13)
         assert wirebond_layer == stackup.layer_types.WirebondLayer
-        user_layer = stackup._layer_types_to_int(14)
+        user_layer = stackup._int_to_layer_types(14)
         assert user_layer == stackup.layer_types.UserLayer
-        siwave_hfss_solver_regions = stackup._layer_types_to_int(16)
+        siwave_hfss_solver_regions = stackup._int_to_layer_types(16)
         assert siwave_hfss_solver_regions == stackup.layer_types.SIwaveHFSSSolverRegions
-        outline_layer = stackup._layer_types_to_int(18)
+        outline_layer = stackup._int_to_layer_types(18)
         assert outline_layer == stackup.layer_types.OutlineLayer
 
     def test_97_layer_types_to_int(self):
