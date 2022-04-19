@@ -419,7 +419,7 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignWindingGroup(self._get_args())
         elif self.type == "VectorPotential":
             self._app.oboundary.AssignVectorPotential(self._get_args())
-        elif self.type == "CoilTerminal":
+        elif self.type == "CoilTerminal" or self.type == "Coil Terminal":
             self._app.oboundary.AssignCoilTerminal(self._get_args())
         elif self.type == "Coil":
             self._app.oboundary.AssignCoil(self._get_args())
@@ -437,13 +437,13 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignSingleSignalLine(self._get_args())
         elif self.type == "ReferenceGround":
             self._app.oboundary.AssignSingleReferenceGround(self._get_args())
-        elif self.type == "CircuitPort":
+        elif self.type == "Circuit Port":
             self._app.oboundary.AssignCircuitPort(self._get_args())
-        elif self.type == "LumpedPort":
+        elif self.type == "Lumped Port":
             self._app.oboundary.AssignLumpedPort(self._get_args())
-        elif self.type == "WavePort":
+        elif self.type == "Wave Port":
             self._app.oboundary.AssignWavePort(self._get_args())
-        elif self.type == "FloquetPort":
+        elif self.type == "Floquet Port":
             self._app.oboundary.AssignFloquetPort(self._get_args())
         elif self.type == "AutoIdentify":
             self._app.oboundary.AutoIdentifyPorts(
@@ -555,7 +555,7 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditWindingGroup(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "VectorPotential":
             self._app.oboundary.EditVectorPotential(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "CoilTerminal":
+        elif self.type == "CoilTerminal" or self.type == "Coil Terminal":
             self._app.oboundary.EditCoilTerminal(self._boundary_name, self._get_args())
         elif self.type == "Coil":
             self._app.oboundary.EditCoil(self._boundary_name, self._get_args())
@@ -565,15 +565,15 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
         elif self.type == "SignalNet" or self.type == "GroundNet" or self.type == "FloatingNet":
             self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
-        elif self.type in ["CircuitPort", "Circuit Port"]:
+        elif self.type in "Circuit Port":
             self._app.oboundary.EditCircuitPort(self._boundary_name, self._get_args())
-        elif self.type in ["LumpedPort", "Lumped Port"]:
+        elif self.type in "Lumped Port":
             self._app.oboundary.EditLumpedPort(self._boundary_name, self._get_args())
-        elif self.type in ["WavePort", "Wave Port"]:
+        elif self.type in "Wave Port":
             self._app.oboundary.EditWavePort(self._boundary_name, self._get_args())
         elif self.type == "SetSBRTxRxSettings":
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())  # pragma: no cover
-        elif self.type == "FloquetPort":
+        elif self.type == "Floquet Port":
             self._app.oboundary.EditFloquetPort(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "EndConnection":
             self._app.oboundary.EditEndConnection(self._boundary_name, self._get_args())

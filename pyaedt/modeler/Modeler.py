@@ -713,7 +713,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
 
         if name:
             self.name = name
-        else:
+        elif not self.name:
             self.name = generate_unique_name("CS")
 
         originX = self._dim_arg(origin[0], self.model_units)
