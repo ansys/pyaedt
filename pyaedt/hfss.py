@@ -3671,16 +3671,19 @@ class Hfss(FieldAnalysis3D, object):
         return True
 
     @pyaedt_function_handler()
-    def edit_source(self, portandmode, powerin, phase="0deg"):
+    def edit_source(self, portandmode=None, powerin="1W", phase="0deg"):
         """Set up the power loaded for Hfss Post-Processing.
 
         Parameters
         ----------
-        portandmode : str
+        portandmode : str, optional
             Port name and mode. For example, ``"Port1:1"``.
-        powerin : str
+            It must be defined if solution type is other than Eigenmodal. It is ignored for solution type Eigenmodal.
+        powerin : str, optional
             Power in Watts or the project variable to put as stored energy in the project.
+            The default is ``"1W"``.
         phase : str, optional
+            Phase of the excitation.
             The default is ``"0deg"``.
 
         Returns
@@ -3706,13 +3709,16 @@ class Hfss(FieldAnalysis3D, object):
         >>> wave_port = hfss.create_wave_port_from_sheet(sheet, 5, hfss.AxisDir.XNeg, 40,
         ...                                              2, "SheetWavePort", True)
         >>> hfss.edit_source("SheetWavePort" + ":1", "10W")
-        pyaedt info: Setting up power to Eigenmode 10W
+        pyaedt info: Setting up power to "SheetWavePort:1" = 10W
         True
 
         """
 
-        self.logger.info("Setting up power to Eigenmode " + powerin)
         if self.solution_type != "Eigenmode":
+            if portandmode is None:
+                self.logger.error("Port and Mode must be defined for solution type {}".format(self.solution_type))
+                return False
+            self.logger.info("Setting up power to \"{}\" = {}".format(portandmode, powerin))
             self.osolution.EditSources(
                 [
                     ["IncludePortPostProcessing:=", True, "SpecifySystemPower:=", False],
@@ -3720,6 +3726,7 @@ class Hfss(FieldAnalysis3D, object):
                 ]
             )
         else:
+            self.logger.info("Setting up power to Eigenmode = {}".format(powerin))
             self.osolution.EditSources(
                 [["FieldType:=", "EigenStoredEnergy"], ["Name:=", "Modes", "Magnitudes:=", [powerin]]]
             )
