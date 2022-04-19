@@ -42,6 +42,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.application.Variables import decompose_variable_value
 
 if sys.version_info.major > 2:
     import base64
@@ -2337,6 +2338,26 @@ class Design(object):
         return False
 
     @pyaedt_function_handler()
+    def change_design_settings(self, settings):
+        """Set Design Settings.
+
+        Parameters
+        ----------
+        settings : dict
+            Dictionary of settings with value to apply.
+
+        Returns
+        -------
+        bool
+        """
+        arg = ["NAME:Design Settings Data"]
+        for k, v in settings.items():
+            arg.append(k + ":=")
+            arg.append(v)
+        self.odesign.SetDesignSettings(arg)
+        return True
+
+    @pyaedt_function_handler()
     def change_automatically_use_causal_materials(self, lossy_dielectric=True):
         """Enable or disable the automatic use of causal materials for lossy dielectrics.
 
@@ -2360,8 +2381,7 @@ class Design(object):
             self.logger.info("Enabling Automatic use of causal materials")
         else:
             self.logger.info("Disabling Automatic use of causal materials")
-        self.odesign.SetDesignSettings(["NAME:Design Settings Data", "Calculate Lossy Dielectrics:=", lossy_dielectric])
-        return True
+        return self.change_design_settings({"Calculate Lossy Dielectrics": lossy_dielectric})
 
     @pyaedt_function_handler()
     def change_material_override(self, material_override=True):
@@ -2387,8 +2407,7 @@ class Design(object):
             self.logger.info("Enabling Material Override")
         else:
             self.logger.info("Disabling Material Override")
-        self.odesign.SetDesignSettings(["NAME:Design Settings Data", "Allow Material Override:=", material_override])
-        return True
+        return self.change_design_settings({"Allow Material Override": material_override})
 
     @pyaedt_function_handler()
     def change_validation_settings(
@@ -3152,12 +3171,25 @@ class Design(object):
         >>> M3D["p3"] = "P1 * p2"
         >>> eval_p3 = M3D.get_evaluated_value("p3")
         """
+        if self.design_type == "Maxwell Circuit":
+            if "$" in variable_name:
+                val_units = self._oproject.GetVariableValue(variable_name)
+            else:
+                val_units = self._odesign.GetVariableValue(variable_name)
+            val, units = decompose_variable_value(val_units)
+            try:
+                return float(val)
+            except ValueError:
+                return val_units
         if not variation:
             variation_string = self._odesign.GetNominalVariation()
         else:
             variation_string = self.design_variation(variation_string=variation)
+        try:
+            si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
+        except:
+            si_value = self._odesign.GetVariableValue(variable_name)
 
-        si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
         if units:
             scale = AEDT_UNITS[unit_system(units)][units]
             if isinstance(scale, tuple):

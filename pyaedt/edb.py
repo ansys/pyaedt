@@ -1364,8 +1364,70 @@ class Edb(object):
         return True
 
     @pyaedt_function_handler()
-    def add_design_variable(self, variable_name, variable_value):
+    def add_design_variable(self, variable_name, variable_value, is_parameter=False):
         """Add a design variable.
+
+        Parameters
+        ----------
+        variable_name : str
+            Name of the variable. To be added as a project variable, the name must begin with ``$``.
+        variable_value : str, float
+            Value of the variable with units.
+        is_parameter : bool, optional
+            Whether to add the variable as a local variable. The default is ``False``.
+            When ``True``, the variable is added as a parameter default.
+
+        Returns
+        -------
+        tuple
+            Tuple containing the ``AddVariable`` result and variable server.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edb_app = Edb()
+        >>> boolean_1, ant_length = edb_app.add_design_variable("my_local_variable", "1cm")
+        >>> boolean_2, para_length = edb_app.change_design_variable_value("my_parameter", "1m", is_parameter=True
+        >>> boolean_3, project_length = edb_app.change_design_variable_value("$my_project_variable", "1m")
+
+
+        """
+        if "$" in variable_name:
+            if variable_name.index("$") == 0:
+                var_server = self.db.GetVariableServer()
+                is_parameter = False
+                string_message = [
+                    "Creating project variable %s.",
+                    "Project variable %s already exists. You can use it.",
+                ]
+            else:
+                var_server = self.active_cell.GetVariableServer()
+                self.logger.warning(
+                    "The character ``$`` must be placed at the beginning of your variable name,"
+                    " to make it a project variable."
+                )
+
+                string_message = ["Creating local variable %s.", "Local variable %s already exists. You can use it."]
+        else:
+            var_server = self.active_cell.GetVariableServer()
+            string_message = ["Creating local variable %s.", "Local variable %s already exists. You can use it."]
+        variables = var_server.GetAllVariableNames()
+        if variable_name in list(variables):
+            if var_server.IsVariableParameter(variable_name):
+                string_message[1] = "Parameter default %s already exists. You can use it."
+            self.logger.warning(string_message[1], variable_name)
+            return False, var_server
+        else:
+            if is_parameter:
+                string_message[0] = "Creating parameter default %s"
+            self.logger.info(string_message[0], variable_name)
+            var_server.AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
+            return True, var_server
+
+    @pyaedt_function_handler()
+    def change_design_variable_value(self, variable_name, variable_value):
+        """Change a variable value.
 
         Parameters
         ----------
@@ -1377,22 +1439,53 @@ class Edb(object):
         Returns
         -------
         tuple
-            tuple containing the ``AddVariable`` result and variable server.
+            Tuple containing the ``SetVariableValue`` result and variable server.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edb_app = Edb()
+        >>> boolean, ant_length = edb_app.add_design_variable("ant_length", "1cm")
+        >>> boolean, ant_length = edb_app.change_design_variable_value("ant_length", "1m")
+
         """
-        is_parameter = True
         if "$" in variable_name:
-            var_server = self.db.GetVariableServer()
-            is_parameter = False
+            if variable_name.index("$") == 0:
+                var_server = self.db.GetVariableServer()
+                string_message = [
+                    "Value of the project variable %s has been changed from %s to %s.",
+                    "Project variable %s doesn't exist. You can create it using method add_design_variable.",
+                ]
+            else:
+                var_server = self.active_cell.GetVariableServer()
+                string_message = [
+                    "Value of the local variable %s has been changed from %s to %s.",
+                    "Local variable or parameter default %s doesn't exist."
+                    " You can create it using method add_design_variable.",
+                ]
         else:
             var_server = self.active_cell.GetVariableServer()
+            string_message = [
+                "Value of the local variable %s has been changed from %s to %s.",
+                "Local variable or parameter default %s doesn't exist."
+                " You can create it using method add_design_variable.",
+            ]
         variables = var_server.GetAllVariableNames()
         if variable_name in list(variables):
-            self.logger.warning("Parameter %s exists. Using it.", variable_name)
-            return False, var_server
-        else:
-            self.logger.info("Creating parameter %s.", variable_name)
-            var_server.AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
+            out_value = self.edb.Utility.Value("")
+            if is_ironpython:
+                tuple_value = var_server.GetVariableValue(variable_name)
+            else:
+                tuple_value = var_server.GetVariableValue(variable_name, out_value)
+            var_server.SetVariableValue(variable_name, self.edb_value(variable_value))
+            if var_server.IsVariableParameter(variable_name):
+                string_message[0] = "Value of the parameter default %s has been changed from %s to %s."
+            self.logger.info(string_message[0], variable_name, tuple_value[1], variable_value)
             return True, var_server
+        else:
+            self.logger.error(string_message[1], variable_name)
+            return False
 
     @pyaedt_function_handler()
     def get_bounding_box(self):
