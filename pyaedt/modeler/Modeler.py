@@ -1010,6 +1010,12 @@ class GeometryModeler(Modeler, object):
                             id2name[cs_id] = name
                             name2refid[name] = cs[ds]["ReferenceCoordSystemID"]
                             coord.append(CoordinateSystem(self, props, name))
+                            if "ZXZ" in props["Mode"]:
+                                coord[-1].mode = "zxz"
+                            elif "ZYZ" in props["Mode"]:
+                                coord[-1].mode = "zyz"
+                            else:
+                                coord[-1].mode = "axis"
                         elif cs[ds]["OperationType"] == "CreateFaceCoordinateSystem":
                             name = cs[ds]["Attributes"]["Name"]
                             cs_id = cs[ds]["ID"]
@@ -1052,6 +1058,12 @@ class GeometryModeler(Modeler, object):
                                 id2name[cs_id] = name
                                 name2refid[name] = el["ReferenceCoordSystemID"]
                                 coord.append(CoordinateSystem(self, props, name))
+                                if "ZXZ" in props["Mode"]:
+                                    coord[-1].mode = "zxz"
+                                elif "ZYZ" in props["Mode"]:
+                                    coord[-1].mode = "zyz"
+                                else:
+                                    coord[-1].mode = "axis"
                             elif el["OperationType"] == "CreateFaceCoordinateSystem":
                                 name = el["Attributes"]["Name"]
                                 cs_id = el["ID"]

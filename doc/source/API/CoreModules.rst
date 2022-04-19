@@ -70,7 +70,7 @@ optimetrics setups.
    :toctree: _autosummary
    :nosignatures:
 
-   ParametericSetups
+   ParametricSetups
    OptimizationSetups
    SetupParam
    SetupOpti

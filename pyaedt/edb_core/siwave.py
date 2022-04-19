@@ -6,10 +6,14 @@ import os
 import time
 import warnings
 
+from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.generic.constants import SweepType
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 try:
     from System import String
@@ -431,8 +435,16 @@ class EdbSiwave(object):
             res, fromLayer_pos, toLayer_pos = pos_pin.GetLayerRange()
             res, fromLayer_neg, toLayer_neg = neg_pin.GetLayerRange()
         else:
-            res, fromLayer_pos, toLayer_pos = source.positive_node.node_pins.GetLayerRange(None, None)
-            res, fromLayer_neg, toLayer_neg = source.negative_node.node_pins.GetLayerRange(None, None)
+            (
+                res,
+                fromLayer_pos,
+                toLayer_pos,
+            ) = source.positive_node.node_pins.GetLayerRange(None, None)
+            (
+                res,
+                fromLayer_neg,
+                toLayer_neg,
+            ) = source.negative_node.node_pins.GetLayerRange(None, None)
         pos_pingroup_terminal = _retry_ntimes(
             10,
             self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,
@@ -773,7 +785,10 @@ class EdbSiwave(object):
         neg_node_pins = self._pedb.core_components.get_pin_from_component(negative_component_name, negative_net_name)
         if port_name == "":
             port_name = "Port_{}_{}_{}_{}".format(
-                positive_component_name, positive_net_name, negative_component_name, negative_net_name
+                positive_component_name,
+                positive_net_name,
+                negative_component_name,
+                negative_net_name,
             )
         circuit_port.name = port_name
         circuit_port.positive_node.component_node = pos_node_cmp
@@ -841,7 +856,10 @@ class EdbSiwave(object):
 
         if source_name == "":
             source_name = "Vsource_{}_{}_{}_{}".format(
-                positive_component_name, positive_net_name, negative_component_name, negative_net_name
+                positive_component_name,
+                positive_net_name,
+                negative_component_name,
+                negative_net_name,
             )
         voltage_source.name = source_name
         voltage_source.positive_node.component_node = pos_node_cmp
@@ -909,7 +927,10 @@ class EdbSiwave(object):
 
         if source_name == "":
             source_name = "Port_{}_{}_{}_{}".format(
-                positive_component_name, positive_net_name, negative_component_name, negative_net_name
+                positive_component_name,
+                positive_net_name,
+                negative_component_name,
+                negative_net_name,
             )
         current_source.name = source_name
         current_source.positive_node.component_node = pos_node_cmp
@@ -972,7 +993,10 @@ class EdbSiwave(object):
 
         if resistor_name == "":
             resistor_name = "Port_{}_{}_{}_{}".format(
-                positive_component_name, positive_net_name, negative_component_name, negative_net_name
+                positive_component_name,
+                positive_net_name,
+                negative_component_name,
+                negative_net_name,
             )
         resistor.name = resistor_name
         resistor.positive_node.component_node = pos_node_cmp
@@ -1204,7 +1228,7 @@ class EdbSiwave(object):
             self._active_layout,
             pos_node_net,
             pos_pingroup_term_name,
-            pos_pin_group[1],
+            pos_pin_group,
             False,
         )
         time.sleep(0.5)
@@ -1214,7 +1238,7 @@ class EdbSiwave(object):
             self._active_layout,
             neg_node_net,
             neg_pingroup_term_name,
-            neg_pin_group[1],
+            neg_pin_group,
             False,
         )
 
@@ -1273,3 +1297,122 @@ class EdbSiwave(object):
         else:
             pass
         return pos_pingroup_terminal.GetName()
+
+    @pyaedt_function_handler()
+    def configure_siw_analysis_setup(self, simulation_setup=None):
+        """Configure Siwave analysis setup.
+
+        Parameters
+        ----------
+        simulation_setup :
+            Edb_DATA.SimulationConfiguration object.
+
+        Returns
+        -------
+            bool
+            ``True`` when successful, ``False`` when failed.
+        """
+
+        if not isinstance(simulation_setup, SimulationConfiguration):
+            return False
+        simsetup_info = self._pedb.simsetupdata.SimSetupInfo[self._pedb.simsetupdata.SIwave.SIWSimulationSettings]()
+        simsetup_info.Name = simulation_setup.setup_name
+        simsetup_info.SimulationSettings.AdvancedSettings.PerformERC = False
+        simsetup_info.SimulationSettings.UseCustomSettings = True
+        if simulation_setup.include_inter_plane_coupling:
+            simsetup_info.SimulationSettings.AdvancedSettings.IncludeInterPlaneCoupling = (
+                simulation_setup.include_inter_plane_coupling
+            )
+        if abs(simulation_setup.xtalk_threshold):
+            simsetup_info.SimulationSettings.AdvancedSettings.XtalkThreshold = str(simulation_setup.xtalk_threshold)
+        if simulation_setup.min_void_area:
+            simsetup_info.SimulationSettings.AdvancedSettings.MinVoidArea = simulation_setup.min_void_area
+        if simulation_setup.min_pad_area_to_mesh:
+            simsetup_info.SimulationSettings.AdvancedSettings.MinPadAreaToMesh = simulation_setup.min_pad_area_to_mesh
+        if simulation_setup.min_plane_area_to_mesh:
+            simsetup_info.SimulationSettings.AdvancedSettings.MinPlaneAreaToMesh = (
+                simulation_setup.min_plane_area_to_mesh
+            )
+        if simulation_setup.snap_length_threshold:
+            simsetup_info.SimulationSettings.AdvancedSettings.SnapLengthThreshold = (
+                simulation_setup.snap_length_threshold
+            )
+        if simulation_setup.return_current_distribution:
+            simsetup_info.SimulationSettings.AdvancedSettings.ReturnCurrentDistribution = (
+                simulation_setup.return_current_distribution
+            )
+        if simulation_setup.ignore_non_functional_pads:
+            simsetup_info.SimulationSettings.AdvancedSettings.IgnoreNonFunctionalPads = (
+                simulation_setup.ignore_non_functional_pads
+            )
+        if simulation_setup.dc_min_plane_area_to_mesh:
+            simsetup_info.SimulationSettings.DCAdvancedSettings.DcMinPlaneAreaToMesh = (
+                simulation_setup.dc_min_plane_area_to_mesh
+            )
+        if simulation_setup.min_void_area:
+            simsetup_info.SimulationSettings.DCAdvancedSettings.DcMinVoidAreaToMesh = simulation_setup.min_void_area
+        if simulation_setup.max_init_mesh_edge_length:
+            simsetup_info.SimulationSettings.DCAdvancedSettings.MaxInitMeshEdgeLength = (
+                simulation_setup.max_init_mesh_edge_length
+            )
+        try:
+            sweep = self._pedb.simsetupdata.SweepData(simulation_setup.sweep_name)
+            sweep.IsDiscrete = False  # need True for package??
+            sweep.UseQ3DForDC = simulation_setup.use_q3d_for_dc
+            sweep.RelativeSError = simulation_setup.relative_error
+            sweep.InterpUsePortImpedance = False
+            sweep.EnforceCausality = (GeometryOperators.parse_dim_arg(simulation_setup.start_frequency) - 0) < 1e-9
+            sweep.EnforcePassivity = simulation_setup.enforce_passivity
+            sweep.PassivityTolerance = simulation_setup.passivity_tolerance
+            if is_ironpython:
+                sweep.Frequencies.Clear()
+            else:
+                list(sweep.Frequencies).clear()
+            if simulation_setup.sweep_type == SweepType.LogCount:
+                self._setup_decade_count_sweep(
+                    sweep,
+                    simulation_setup.start_frequency,
+                    simulation_setup.stop_freq,
+                    simulation_setup.decade_count,
+                )
+            else:
+                if is_ironpython:
+                    sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
+                        simulation_setup.start_frequency,
+                        simulation_setup.stop_freq,
+                        simulation_setup.step_freq,
+                    )
+                else:
+                    sweep.Frequencies = convert_py_list_to_net_list(
+                        self._pedb.simsetupdata.SweepData.SetFrequencies(
+                            simulation_setup.start_frequency,
+                            simulation_setup.stop_freq,
+                            simulation_setup.step_freq,
+                        )
+                    )
+            if is_ironpython:
+                simsetup_info.SweepDataList.Add(sweep)
+            else:
+                simsetup_info.SweepDataList = convert_py_list_to_net_list([sweep])
+        except Exception as err:
+            self._logger.error("Exception in sweep configuration: {0}".format(err))
+        sim_setup = self._edb.Utility.SIWaveSimulationSetup(simsetup_info)
+        return self._cell.AddSimulationSetup(sim_setup)
+
+    def _setup_decade_count_sweep(self, sweep, start_freq, stop_freq, decade_count):
+        import math
+
+        start_f = GeometryOperators.parse_dim_arg(start_freq)
+        if start_f == 0.0:
+            start_f = 10
+            self._logger.warning(
+                "Decade count sweep does not support a DC value. Defaulting starting frequency to 10Hz."
+            )
+
+        stop_f = GeometryOperators.parse_dim_arg(stop_freq)
+        decade_cnt = GeometryOperators.parse_dim_arg(decade_count)
+        freq = start_f
+        sweep.Frequencies.Add(str(freq))
+        while freq < stop_f:
+            freq = freq * math.pow(10, 1.0 / decade_cnt)
+            sweep.Frequencies.Add(str(freq))

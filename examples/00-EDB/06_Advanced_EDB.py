@@ -188,9 +188,9 @@ giva_angle_rad = gvia_angle / 180 * np.pi
 edb.add_design_variable("$via_hole_size", "0.3mm")
 edb.add_design_variable("$antipaddiam", "0.7mm")
 edb.add_design_variable("$paddiam", "0.5mm")
-edb.add_design_variable("via_pitch", "1mm")
-edb.add_design_variable("trace_in_width", "0.2mm")
-edb.add_design_variable("trace_out_width", "0.1mm")
+edb.add_design_variable("via_pitch", "1mm", is_parameter=True)
+edb.add_design_variable("trace_in_width", "0.2mm", is_parameter=True)
+edb.add_design_variable("trace_out_width", "0.1mm", is_parameter=True)
 
 ##################################################################################
 # Padstack Creation

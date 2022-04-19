@@ -7,6 +7,7 @@ from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.application.Variables import Variable
 from pyaedt.generic.general_methods import isclose
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt import MaxwellCircuit
 
 # Import required modules
 
@@ -53,6 +54,7 @@ class TestClass(BasisTest, object):
         self.aedtapp["Var1"] = 3
         self.aedtapp["Var2"] = "12deg"
         self.aedtapp["Var3"] = "Var1 * Var2"
+
         self.aedtapp["$PrjVar1"] = "2*pi"
         self.aedtapp["$PrjVar2"] = 45
         self.aedtapp["$PrjVar3"] = "sqrt(34 * $PrjVar2/$PrjVar1 )"
@@ -344,3 +346,17 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.variable_manager.set_variable("test2", "test_post1+1", postprocessing=True)
         x1 = GeometryOperators.parse_dim_arg(self.aedtapp["test2"], variable_manager=self.aedtapp.variable_manager)
         assert x1 == 11
+
+    def test_14_intrinsics(self):
+        self.aedtapp["fc"] = "Freq"
+        assert self.aedtapp["fc"] == "Freq"
+        assert self.aedtapp.variable_manager.dependent_variables["fc"].numeric_value == "Freq"
+
+    def test_15_maxwell_circuit_variables(self):
+        mc = MaxwellCircuit()
+        mc["var2"] = "10mm"
+        assert mc["var2"] == "10.0mm"
+        v_circuit = mc.variable_manager
+        var_circuit = v_circuit.variable_names
+        assert "var2" in var_circuit
+        assert v_circuit.independent_variables["var2"].units == "mm"

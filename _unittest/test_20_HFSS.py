@@ -332,6 +332,16 @@ class TestClass(BasisTest, object):
 
     def test_07_set_power(self):
         assert self.aedtapp.edit_source("sheet1_Port" + ":1", "10W")
+        assert self.aedtapp.edit_sources(
+            {"sheet1_Port" + ":1": "10W", "sheet2_Port:1": ("20W", "20deg")},
+            include_port_post_processing=True,
+            max_available_power="40W",
+        )
+        assert self.aedtapp.edit_sources(
+            {"sheet1_Port" + ":1": "10W", "sheet2_Port:1": ("20W", "0deg", True)},
+            include_port_post_processing=True,
+            use_incident_voltage=True,
+        )
 
     def test_08_create_circuit_port_from_edges(self):
         plane = self.aedtapp.PLANE.XY
