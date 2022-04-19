@@ -392,6 +392,12 @@ class Configurations(object):
             dict_in = json.load(json_file)
         if not apply_config:
             return dict_in
+        if dict_in.get("variables", None):
+            for k, v in dict_in["variables"].items():
+                self._app.variable_manager.set_variable(k, v)
+        if dict_in.get("postprocessing_variables", None):
+            for k, v in dict_in["postprocessing_variables"].items():
+                self._app.variable_manager.set_variable(k, v, postprocessing=True)
         if self.export_materials and dict_in.get("datasets", None):
             if "datasets" in list(dict_in.keys()):
                 for el, val in dict_in["datasets"].items():
@@ -446,26 +452,33 @@ class Configurations(object):
         return dict_in
 
     @pyaedt_function_handler()
-    def export_config(self, config_file=None):
-        """Export current design properties to json file.
+    def _export_variables(self, dict_out):
+        if self._app.variable_manager.independent_variables:
+            dict_out["variables"] = {}
+        post_vars = self._app.variable_manager.post_processing_variables
+        if post_vars:
+            dict_out["postprocessing_variables"] = {}
+        for k, v in self._app.variable_manager.independent_variables.items():
+            if k not in post_vars:
+                dict_out["variables"][k] = v.string_value
+        for k, v in self._app.variable_manager.dependent_variables.items():
+            if k not in post_vars:
+                dict_out["variables"][k] = v.expression
+        for k, v in post_vars.items():
+            try:
+                dict_out["postprocessing_variables"][k] = v.expression
+            except AttributeError:
+                dict_out["postprocessing_variables"][k] = v.string_value
 
-        Parameters
-        ----------
-        config_file : str, optional
-            Full path to json file. If `None`, then the config file will be saved in working directory.
-
-        Returns
-        -------
-        str
-            Exported config file.
-        """
-        if not config_file:
-            config_file = os.path.join(self._app.working_directory, generate_unique_name(self._app.design_name))
-        dict_out = {}
+    @pyaedt_function_handler()
+    def _export_setups(self, dict_out):
         if self.setups and self._app.setups:
             dict_out["setups"] = {}
             for setup in self._app.setups:
                 dict_out["setups"][setup.name] = setup.props
+
+    @pyaedt_function_handler()
+    def _export_optimizations(self, dict_out):
         if self.optimizations and self._app.optimizations.setups:
             dict_out["optimizations"] = {}
             for setup in self._app.optimizations.setups:
@@ -474,16 +487,25 @@ class Configurations(object):
             dict_out["parametrics"] = {}
             for setup in self._app.parametrics.setups:
                 dict_out["parametrics"][setup.name] = setup.props
+
+    @pyaedt_function_handler()
+    def _export_boundaries(self, dict_out):
         if self.boundaries and self._app.boundaries:
             dict_out["boundaries"] = {}
             dict_out["mapping"] = {}
             for boundary in self._app.boundaries:
                 dict_out["boundaries"][boundary.name] = boundary.props
                 self._map_object(boundary.props, dict_out)
+
+    @pyaedt_function_handler()
+    def _export_coordinate_systems(self, dict_out):
         if self.coordinate_systems and self._app.modeler.coordinate_systems:
             dict_out["coordinatesystems"] = {}
             for cs in self._app.modeler.coordinate_systems:
                 dict_out["coordinatesystems"][cs.name] = cs.props
+
+    @pyaedt_function_handler()
+    def _export_objects(self, dict_out):
         if self.object_properties:
             dict_out["objects"] = {}
             for obj, val in self._app.modeler.objects.items():
@@ -496,12 +518,17 @@ class Configurations(object):
                 dict_out["objects"][val.name]["Transparency"] = val.transparency
                 dict_out["objects"][val.name]["Color"] = val.color
                 dict_out["objects"][val.name]["CoordinateSystem"] = val.part_coordinate_system
-        # TODO implement MeshRegion handler
-        # if self.mesh_operations and self._app.mesh.meshregions:
-        #     dict_out["mesh"] = {}
-        #     for mesh in self._app.mesh.meshoperations:
-        #         dict_out["mesh"][mesh.name] = mesh.props
-        #         self._map_object(mesh.props, dict_out)
+
+    @pyaedt_function_handler()
+    def _export_mesh(self, dict_out):
+        if self.mesh_operations and self._app.mesh.meshoperations:
+            dict_out["mesh"] = {}
+            for mesh in self._app.mesh.meshoperations:
+                dict_out["mesh"][mesh.name] = mesh.props
+                self._map_object(mesh.props, dict_out)
+
+    @pyaedt_function_handler()
+    def _export_materials(self, dict_out):
         if self.export_materials:
             output_dict = {}
             for el, val in self._app.materials.material_keys.items():
@@ -538,6 +565,32 @@ class Configurations(object):
             if datasets:
                 dict_out["datasets"] = datasets
 
+    @pyaedt_function_handler()
+    def export_config(self, config_file=None):
+        """Export current design properties to json file.
+
+        Parameters
+        ----------
+        config_file : str, optional
+            Full path to json file. If `None`, then the config file will be saved in working directory.
+
+        Returns
+        -------
+        str
+            Exported config file.
+        """
+        if not config_file:
+            config_file = os.path.join(self._app.working_directory, generate_unique_name(self._app.design_name))
+        dict_out = {}
+
+        self._export_variables(dict_out)
+        self._export_setups(dict_out)
+        self._export_optimizations(dict_out)
+        self._export_boundaries(dict_out)
+        self._export_coordinate_systems(dict_out)
+        self._export_objects(dict_out)
+        self._export_mesh(dict_out)
+        self._export_materials(dict_out)
         # update the json if it exists already
         if os.path.exists(config_file):
             with open(config_file, "r") as json_file:
@@ -678,98 +731,25 @@ class ConfigurationsIcepak(Configurations):
         return dict_in
 
     @pyaedt_function_handler()
-    def export_config(self, config_file=None):
-        """Export current design properties to json file.
-
-        Parameters
-        ----------
-        config_file : str, optional
-            Full path to json file. If `None`, then the config file will be saved in working directory.
-
-        Returns
-        -------
-        str
-            Exported config file.
-        """
-        if not config_file:
-            config_file = os.path.join(self._app.working_directory, generate_unique_name(self._app.design_name))
-        dict_out = {}
-        if self.setups and self._app.setups:
-            dict_out["setups"] = {}
-            for setup in self._app.setups:
-                dict_out["setups"][setup.name] = setup.props
-        if self.optimizations and self._app.optimizations.setups:
-            dict_out["optimizations"] = {}
-            for setup in self._app.optimizations.setups:
-                dict_out["optimizations"][setup.name] = setup.props
-        if self.parametrics and self._app.parametrics.setups:
-            dict_out["parametrics"] = {}
-            for setup in self._app.parametrics.setups:
-                dict_out["parametrics"][setup.name] = setup.props
-        if self.boundaries and self._app.boundaries:
-            dict_out["boundaries"] = {}
-            dict_out["mapping"] = {}
-            for boundary in self._app.boundaries:
-                dict_out["boundaries"][boundary.name] = boundary.props
-                self._map_object(boundary.props, dict_out)
-        if self.coordinate_systems and self._app.modeler.coordinate_systems:
-            dict_out["coordinatesystems"] = {}
-            for cs in self._app.modeler.coordinate_systems:
-                dict_out["coordinatesystems"][cs.name] = cs.props
+    def _export_objects(self, dict_out):
         if self.object_properties:
             dict_out["objects"] = {}
             for obj, val in self._app.modeler.objects.items():
                 dict_out["objects"][val.name] = {}
-                dict_out["objects"][val.name]["Material"] = val.material_name
                 dict_out["objects"][val.name]["SurfaceMaterial"] = val.surface_material_name
+                dict_out["objects"][val.name]["Material"] = val.material_name
                 dict_out["objects"][val.name]["SolveInside"] = val.solve_inside
                 dict_out["objects"][val.name]["Model"] = val.model
                 dict_out["objects"][val.name]["Group"] = val.group_name
                 dict_out["objects"][val.name]["Transparency"] = val.transparency
                 dict_out["objects"][val.name]["Color"] = val.color
                 dict_out["objects"][val.name]["CoordinateSystem"] = val.part_coordinate_system
-        # TODO implement MeshRegion handler
-        # if self.mesh_operations and self._app.mesh.meshoperations:
+
+    @pyaedt_function_handler()
+    def _export_mesh(self, dict_out):
+        # if self.mesh_operations and self._app.mesh.meshregions:
         #     dict_out["mesh"] = {}
         #     for mesh in self._app.mesh.meshoperations:
         #         dict_out["mesh"][mesh.name] = mesh.props
         #         self._map_object(mesh.props, dict_out)
-        if self.export_materials:
-            output_dict = {}
-            for el, val in self._app.materials.material_keys.items():
-                output_dict[el] = copy.deepcopy(val._props)
-            out_list = []
-            find_datasets(output_dict, out_list)
-            datasets = OrderedDict()
-            for ds in out_list:
-                if ds in list(self._app.project_datasets.keys()):
-                    d = self._app.project_datasets[ds]
-                    if d.z:
-                        datasets[ds] = OrderedDict(
-                            {
-                                "Coordinates": OrderedDict(
-                                    {
-                                        "DimUnits": [d.xunit, d.yunit, d.zunit],
-                                        "Points": [val for tup in zip(d.x, d.y, d.z) for val in tup],
-                                    }
-                                )
-                            }
-                        )
-                    else:
-                        datasets[ds] = OrderedDict(
-                            {
-                                "Coordinates": OrderedDict(
-                                    {
-                                        "DimUnits": [d.xunit, d.yunit],
-                                        "Points": [val for tup in zip(d.x, d.y) for val in tup],
-                                    }
-                                )
-                            }
-                        )
-            dict_out["materials"] = output_dict
-            if datasets:
-                dict_out["datasets"] = datasets
-        with open(config_file, "w") as outfile:
-            json.dump(dict_out, outfile, indent=4)
-            self._app.logger.info("Configuration file {} exported correctly.".format(config_file))
-        return config_file
+        pass
