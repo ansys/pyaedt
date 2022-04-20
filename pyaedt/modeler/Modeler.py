@@ -4327,7 +4327,7 @@ class GeometryModeler(Modeler, object):
 
     @pyaedt_function_handler()
     def move_face(self, faces, offset=1.0):
-        """Move an input face or a list of input faces of an specific object.
+        """Move an input face or a list of input faces of a specific object.
 
         This method moves a face or a list of faces which belong to the same solid.
 
