@@ -4326,18 +4326,15 @@ class GeometryModeler(Modeler, object):
         return True
 
     @pyaedt_function_handler()
-    def move_face(self, selection, faces=None, offset=1.0):
+    def move_face(self, faces, offset=1.0):
         """Moves an input face or a list of input faces of an specific object.
 
         This method moves a face or a list of faces which belong to the same solid.
 
         Parameters
         ----------
-        selection : objectname
-            Name of the object.
-        faces : list, optional
+        faces : list
             List of Face ID or List of :class:`pyaedt.modeler.Object3d.FacePrimitive` object or mixed.
-            If None, all Faces are selected
         offset : float, optional
              Offset to apply in model units. The default is ``1.0``.
 
@@ -4352,29 +4349,16 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.MoveFaces
 
         """
-        if selection in self.object_names:
-            if faces:
-                if isinstance(faces, list):
-                    face_id = []
-                    for face_list in faces:
-                        if isinstance(face_list, FacePrimitive):
-                            face_id.append(face_list.id)
-                        else:
-                            face_id.append(face_list)
-                else:
-                    if isinstance(faces, FacePrimitive):
-                        face_id = [faces.id]
-                    else:
-                        face_id = [faces]
-            else:
-                obj_id = self.object_id_dict["sheet2"]
-                all_faces = self.objects[obj_id].faces
-                face_id = []
-                for face_list in all_faces:
-                    face_id.append(face_list.id)
 
+        face_selection = self.convert_to_selections(faces, True)
+        selection = []
+        for f in face_selection:
+            selection.append(self.oeditor.GetObjectNameByFaceID(f))
+        result = all(element == selection[0] for element in selection)
+
+        if result:
             self._oeditor.MoveFaces(
-                ["NAME:Selections", "Selections:=", selection, "NewPartsModelFlag:=", "Model"],
+                ["NAME:Selections", "Selections:=", selection[0], "NewPartsModelFlag:=", "Model"],
                 [
                     "NAME:Parameters",
                     [
@@ -4390,13 +4374,13 @@ class GeometryModeler(Modeler, object):
                         "MoveVectorZ:=",
                         "0mm",
                         "FacesToMove:=",
-                        face_id,
+                        face_selection,
                     ],
                 ],
             )
             return True
         else:
-            self.logger.error("Wrong object Name")
+            self.logger.error("Faces do not belong to the same object")
             return False
 
     def __get__(self, instance, owner):

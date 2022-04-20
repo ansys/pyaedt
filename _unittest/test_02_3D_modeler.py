@@ -118,18 +118,10 @@ class TestClass(BasisTest, object):
         assert status
         status = self.aedtapp.modeler.automatic_thicken_sheets(id6, 3, False)
         assert status
-        status = self.aedtapp.modeler.move_face("sheet2")
+        status = self.aedtapp.modeler.move_face([id6.faces[0].id, id6.faces[2]])
         assert status
-        status = self.aedtapp.modeler.move_face("sheet2", id6.faces)
-        assert status
-        status = self.aedtapp.modeler.move_face("sheet2", id6.faces[0])
-        assert status
-        status = self.aedtapp.modeler.move_face("sheet2", [id6.faces[0].id, id6.faces[1].id])
-        assert status
-        status = self.aedtapp.modeler.move_face("sheet2", id6.faces[0].id)
-        assert status
-        status = self.aedtapp.modeler.move_face("sheet2", [id6.faces[0].id, id6.faces[2]])
-        assert status
+        status = self.aedtapp.modeler.move_face([id6.faces[0].id, id5.faces[0]])
+        assert not status
 
     @pyaedt_unittest_check_desktop_error
     def test_11_split(self):
