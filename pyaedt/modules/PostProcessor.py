@@ -510,6 +510,8 @@ orientation_to_view = {
 
 @pyaedt_function_handler()
 def _convert_dict_to_report_sel(sweeps):
+    if isinstance(sweeps, list):
+        return sweeps
     sweep_list = []
     for el in sweeps:
         sweep_list.append(el + ":=")
