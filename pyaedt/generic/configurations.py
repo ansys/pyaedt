@@ -282,11 +282,33 @@ class Configurations(object):
         if update:
             return
         cs = CoordinateSystem(self._app.modeler, props, name)
-        if cs.create():
+        try:
+            cs._modeler.oeditor.CreateRelativeCS(cs._orientation, cs._attributes)
+            cs.ref_cs = props["Reference CS"]
+            cs.update()
             self._app.logger.info("Coordinate System {} added.".format(name))
-            self._app.modeler.coordinate_systems.append(cs)
-        else:
+        except:
             self._app.logger.warning("Failed to add CS {} ".format(name))
+
+    @pyaedt_function_handler()
+    def _update_face_coordinate_system(self, name, props):
+        pass
+        # update = False
+        # for cs in self._app.modeler.coordinate_systems:
+        #     if cs.name == name:
+        #         if not self.skip_if_exists:
+        #             cs.props = props
+        #             cs.update()
+        #         update = True
+        # if update:
+        #     return
+        # cs = FaceCoordinateSystem(self._app.modeler, props, name)
+        # try:
+        #     cs._modeler.oeditor.CreateFaceCS(cs._face_paramenters, cs._attributes)
+        #     cs._modeler.coordinate_systems.append(cs)
+        #     self._app.logger.info("Face Coordinate System {} added.".format(name))
+        # except:
+        #     self._app.logger.warning("Failed to add CS {} ".format(name))
 
     @pyaedt_function_handler()
     def _update_object(self, name, val):
@@ -432,6 +454,9 @@ class Configurations(object):
         if self.coordinate_systems and dict_in.get("coordinatesystems", None):
             for name, props in dict_in["coordinatesystems"].items():
                 self._update_coordinate_system(name, props)
+            for name, props in dict_in["facecoordinatesystems"].items():
+                self._convert_objects(dict_in["facecoordinatesystems"][name], dict_in["mapping"])
+                self._update_face_coordinate_system(name, props)
         if self.object_properties and dict_in.get("objects", None):
             for obj, val in dict_in["objects"].items():
                 self._update_object(obj, val)
@@ -501,8 +526,13 @@ class Configurations(object):
     def _export_coordinate_systems(self, dict_out):
         if self.coordinate_systems and self._app.modeler.coordinate_systems:
             dict_out["coordinatesystems"] = {}
+            dict_out["facecoordinatesystems"] = {}
             for cs in self._app.modeler.coordinate_systems:
-                dict_out["coordinatesystems"][cs.name] = cs.props
+                if isinstance(cs, CoordinateSystem):
+                    dict_out["coordinatesystems"][cs.name] = cs.props
+                    dict_out["coordinatesystems"][cs.name]["Reference CS"] = cs.ref_cs
+                # elif isinstance(cs, FaceCoordinateSystem):
+                #     dict_out["facecoordinatesystems"][cs.name] = cs.props
 
     @pyaedt_function_handler()
     def _export_objects(self, dict_out):

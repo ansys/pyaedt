@@ -356,7 +356,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
         self.props = CsProps(self, parameters)
         self._modeler.oeditor.CreateFaceCS(self._face_paramenters, self._attributes)
-
+        self._modeler.coordinate_systems.append(self)
         return True
 
     @pyaedt_function_handler()
@@ -791,11 +791,10 @@ class CoordinateSystem(BaseCoordinateSystem, object):
 
         self.props = CsProps(self, orientationParameters)
         self._modeler.oeditor.CreateRelativeCS(self._orientation, self._attributes)
+        self._modeler.coordinate_systems.append(self)
         # this workaround is necessary because the reference CS is ignored at creation, it needs to be modified later
         self.ref_cs = reference_cs
-        self.update()
-
-        return True
+        return self.update()
 
     @property
     def quaternion(self):
@@ -1086,7 +1085,10 @@ class GeometryModeler(Modeler, object):
                                                 break
                                 elif isinstance(geometry_part, list):
                                     for gp in geometry_part:
-                                        op = gp["Operations"]["FaceCSHolderOperation"]
+                                        try:
+                                            op = gp["Operations"]["FaceCSHolderOperation"]
+                                        except KeyError:
+                                            continue
                                         if isinstance(op, (OrderedDict, dict)):
                                             if op["ID"] == op_id:
                                                 props = op["FaceCSParameters"]
@@ -1103,50 +1105,6 @@ class GeometryModeler(Modeler, object):
                 if isinstance(cs, CoordinateSystem):
                     try:
                         cs.ref_cs = id2name[name2refid[cs.name]]
-                        if cs.props["Mode"] == "Axis/Position":
-                            x1 = GeometryOperators.parse_dim_arg(
-                                cs.props["XAxisXvec"], variable_manager=self._app.variable_manager
-                            )
-                            x2 = GeometryOperators.parse_dim_arg(
-                                cs.props["XAxisYvec"], variable_manager=self._app.variable_manager
-                            )
-                            x3 = GeometryOperators.parse_dim_arg(
-                                cs.props["XAxisZvec"], variable_manager=self._app.variable_manager
-                            )
-                            y1 = GeometryOperators.parse_dim_arg(
-                                cs.props["YAxisXvec"], variable_manager=self._app.variable_manager
-                            )
-                            y2 = GeometryOperators.parse_dim_arg(
-                                cs.props["YAxisYvec"], variable_manager=self._app.variable_manager
-                            )
-                            y3 = GeometryOperators.parse_dim_arg(
-                                cs.props["YAxisZvec"], variable_manager=self._app.variable_manager
-                            )
-                            x, y, z = GeometryOperators.pointing_to_axis([x1, x2, x3], [y1, y2, y3])
-                            a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
-                            cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
-                        elif cs.props["Mode"] == "Euler Angle ZXZ":
-                            a = GeometryOperators.parse_dim_arg(
-                                cs.props["Phi"], variable_manager=self._app.variable_manager
-                            )
-                            b = GeometryOperators.parse_dim_arg(
-                                cs.props["Theta"], variable_manager=self._app.variable_manager
-                            )
-                            g = GeometryOperators.parse_dim_arg(
-                                cs.props["Psi"], variable_manager=self._app.variable_manager
-                            )
-                            cs.quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
-                        elif cs.props["Mode"] == "Euler Angle ZYZ":
-                            a = GeometryOperators.parse_dim_arg(
-                                cs.props["Phi"], variable_manager=self._app.variable_manager
-                            )
-                            b = GeometryOperators.parse_dim_arg(
-                                cs.props["Theta"], variable_manager=self._app.variable_manager
-                            )
-                            g = GeometryOperators.parse_dim_arg(
-                                cs.props["Psi"], variable_manager=self._app.variable_manager
-                            )
-                            cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
                     except:
                         pass
         return coord
@@ -1432,7 +1390,6 @@ class GeometryModeler(Modeler, object):
                 u=u,
             )
             if result:
-                self.coordinate_systems.append(cs)
                 return cs
         return False
 
@@ -1503,7 +1460,6 @@ class GeometryModeler(Modeler, object):
             )
 
             if result:
-                self.coordinate_systems.append(cs)
                 return cs
         return False
 
