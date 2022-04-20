@@ -114,12 +114,12 @@ class EDBNetsData(object):
 
     @pyaedt_function_handler()
     def plot(
-            self,
-            layers=None,
-            show_legend=True,
-            save_plot=None,
-            outline=None,
-            size=(2000, 1000),
+        self,
+        layers=None,
+        show_legend=True,
+        save_plot=None,
+        outline=None,
+        size=(2000, 1000),
     ):
         """Plot a net to Matplotlib 2D chart.
 
@@ -596,8 +596,8 @@ class EDBLayer(object):
             Name of the filling material if it exists.
         """
         if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
                 self._filling_material_name = self._layer.GetFillMaterial()
@@ -610,8 +610,8 @@ class EDBLayer(object):
     def filling_material_name(self, value):
 
         if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             self._filling_material_name = value
             self.update_layers()
@@ -626,8 +626,8 @@ class EDBLayer(object):
             ``True`` when negative, ``False`` otherwise..
         """
         if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
                 self._negative_layer = self._layer.GetNegative()
@@ -638,8 +638,8 @@ class EDBLayer(object):
     @negative_layer.setter
     def negative_layer(self, value):
         if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             self._negative_layer = value
             self.update_layers()
@@ -654,8 +654,8 @@ class EDBLayer(object):
             ``True`` if the layer has roughness, ``False`` otherwise.
         """
         if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
                 self._roughness_enabled = self._layer.IsRoughnessEnabled()
@@ -666,8 +666,8 @@ class EDBLayer(object):
     @roughness_enabled.setter
     def roughness_enabled(self, value):
         if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             self._roughness_enabled = value
             self.update_layers()
@@ -739,8 +739,8 @@ class EDBLayer(object):
             Etch factor if it exists, 0 otherwise.
         """
         if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
                 self._etch_factor = float(self._layer.GetEtchFactor().ToString())
@@ -754,20 +754,20 @@ class EDBLayer(object):
         if value is None:
             value = 0
         if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             self._etch_factor = float(value)
             self.update_layers()
 
     @pyaedt_function_handler()
     def plot(
-            self,
-            nets=None,
-            show_legend=True,
-            save_plot=None,
-            outline=None,
-            size=(2000, 1000),
+        self,
+        nets=None,
+        show_legend=True,
+        save_plot=None,
+        outline=None,
+        size=(2000, 1000),
     ):
         """Plot a layer to a Matplotlib 2D chart.
 
@@ -805,8 +805,8 @@ class EDBLayer(object):
             self._layer_type = self._layer.GetLayerType()
             self._thickness = self._layer.GetThicknessValue().ToString()
             if (
-                    self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                    or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
             ):
                 self._etch_factor = float(self._layer.GetEtchFactor().ToString())
                 self._filling_material_name = self._layer.GetFillMaterial()
@@ -821,16 +821,16 @@ class EDBLayer(object):
 
     @pyaedt_function_handler()
     def update_layer_vals(
-            self,
-            layerName,
-            newLayer,
-            etchMap,
-            materialMap,
-            fillMaterialMap,
-            thicknessMap,
-            negativeMap,
-            roughnessMap,
-            layerTypeMap,
+        self,
+        layerName,
+        newLayer,
+        etchMap,
+        materialMap,
+        fillMaterialMap,
+        thicknessMap,
+        negativeMap,
+        roughnessMap,
+        layerTypeMap,
     ):
         """Update layer properties.
 
@@ -1045,10 +1045,10 @@ class EDBLayers(object):
         allLayers = list(list(self.layer_collection.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         allStackuplayers = filter(
             lambda lyr: (lyr.GetLayerType() == self._edb.Cell.LayerType.DielectricLayer)
-                        or (
-                                lyr.GetLayerType() == self._edb.Cell.LayerType.SignalLayer
-                                or lyr.GetLayerType() == self._edb.Cell.LayerType.ConductingLayer
-                        ),
+            or (
+                lyr.GetLayerType() == self._edb.Cell.LayerType.SignalLayer
+                or lyr.GetLayerType() == self._edb.Cell.LayerType.ConductingLayer
+            ),
             allLayers,
         )
         return sorted(
@@ -1068,8 +1068,8 @@ class EDBLayers(object):
         self._signal_layers = OrderedDict({})
         for layer, edblayer in self.layers.items():
             if (
-                    edblayer._layer_type == self._edb.Cell.LayerType.SignalLayer
-                    or edblayer._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                edblayer._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or edblayer._layer_type == self._edb.Cell.LayerType.ConductingLayer
             ):
                 self._signal_layers[layer] = edblayer
         return self._signal_layers
@@ -1210,16 +1210,16 @@ class EDBLayers(object):
 
     @pyaedt_function_handler()
     def add_layer(
-            self,
-            layerName,
-            start_layer=None,
-            material="copper",
-            fillMaterial="",
-            thickness="35um",
-            layerType=0,
-            negative_layer=False,
-            roughness_enabled=False,
-            etchMap=None,
+        self,
+        layerName,
+        start_layer=None,
+        material="copper",
+        fillMaterial="",
+        thickness="35um",
+        layerType=0,
+        negative_layer=False,
+        roughness_enabled=False,
+        etchMap=None,
     ):
         """Add a layer after a specific layer.
 
@@ -1641,14 +1641,14 @@ class EDBPadProperties(object):
 
     @pyaedt_function_handler()
     def _update_pad_parameters_parameters(
-            self,
-            layer_name=None,
-            pad_type=None,
-            geom_type=None,
-            params=None,
-            offsetx=None,
-            offsety=None,
-            rotation=None,
+        self,
+        layer_name=None,
+        pad_type=None,
+        geom_type=None,
+        params=None,
+        offsetx=None,
+        offsety=None,
+        rotation=None,
     ):
         """Update padstack parameters.
 
@@ -3810,131 +3810,131 @@ class SimulationConfiguration(object):
             f = open(input_file)
             json_dict = json.load(f)
             for kk in json_dict.keys():
-                if kk == 'filename_':
+                if kk == "filename_":
                     self.filename_ = json_dict[kk]
-                elif kk == 'setup_name_':
+                elif kk == "setup_name_":
                     self.setup_name = json_dict[kk]
-                elif kk == 'generate_solder_balls_':
+                elif kk == "generate_solder_balls_":
                     self.generate_solder_balls_ = json_dict[kk]
-                elif kk == 'signal_nets_':
+                elif kk == "signal_nets_":
                     self.signal_nets_ = json_dict[kk]
-                elif kk == 'power_nets_':
+                elif kk == "power_nets_":
                     self.power_nets_ = json_dict[kk]
-                elif kk == 'components_':
+                elif kk == "components_":
                     self.components_ = json_dict[kk]
-                elif kk == 'coax_solder_ball_diameter_':
+                elif kk == "coax_solder_ball_diameter_":
                     self.coax_solder_ball_diameter_ = json_dict[kk]
-                elif kk == 'use_default_coax_port_radial_extension_':
+                elif kk == "use_default_coax_port_radial_extension_":
                     self.use_default_coax_port_radial_extension_ = json_dict[kk]
-                elif kk == 'trim_reference_size_':
+                elif kk == "trim_reference_size_":
                     self.trim_reference_size_ = json_dict[kk]
-                elif kk == 'cutout_subdesign_type_':
+                elif kk == "cutout_subdesign_type_":
                     self.cutout_subdesign_type_ = json_dict[kk]
-                elif kk == 'cutout_subdesign_round_corner_':
+                elif kk == "cutout_subdesign_round_corner_":
                     self.cutout_subdesign_round_corner_ = json_dict[kk]
-                elif kk == 'sweep_interpolating_':
+                elif kk == "sweep_interpolating_":
                     self.sweep_interpolating_ = json_dict[kk]
-                elif kk == 'use_q3d_for_dc_':
+                elif kk == "use_q3d_for_dc_":
                     self.use_q3d_for_dc_ = json_dict[kk]
-                elif kk == 'relative_error_':
+                elif kk == "relative_error_":
                     self.relative_error_ = json_dict[kk]
-                elif kk == 'use_error_z0_':
+                elif kk == "use_error_z0_":
                     self.use_error_z0_ = json_dict[kk]
-                elif kk == 'enforce_causality_':
+                elif kk == "enforce_causality_":
                     self.enforce_causality_ = json_dict[kk]
-                elif kk == 'enforce_passivity_':
+                elif kk == "enforce_passivity_":
                     self.enforce_passivity_ = json_dict[kk]
-                elif kk == 'passivity_tolerance_':
+                elif kk == "passivity_tolerance_":
                     self.passivity_tolerance_ = json_dict[kk]
-                elif kk == 'sweep_name_':
+                elif kk == "sweep_name_":
                     self.sweep_name_ = json_dict[kk]
-                elif kk == 'radiation_box_':
+                elif kk == "radiation_box_":
                     self.radiation_box_ = json_dict[kk]
-                elif kk == 'start_frequency_':
+                elif kk == "start_frequency_":
                     self.start_frequency_ = json_dict[kk]
-                elif kk == 'stop_freq_':
+                elif kk == "stop_freq_":
                     self.stop_freq_ = json_dict[kk]
-                elif kk == 'sweep_type_':
+                elif kk == "sweep_type_":
                     self.sweep_type_ = json_dict[kk]
-                elif kk == 'step_freq_':
+                elif kk == "step_freq_":
                     self.step_freq_ = json_dict[kk]
-                elif kk == 'decade_count_':
+                elif kk == "decade_count_":
                     self.decade_count_ = json_dict[kk]
-                elif kk == 'mesh_freq_':
+                elif kk == "mesh_freq_":
                     self.mesh_freq_ = json_dict[kk]
-                elif kk == 'max_num_passes_':
+                elif kk == "max_num_passes_":
                     self.max_num_passes_ = json_dict[kk]
-                elif kk == 'max_mag_delta_s_':
+                elif kk == "max_mag_delta_s_":
                     self.max_mag_delta_s_ = json_dict[kk]
-                elif kk == 'min_num_passes_':
+                elif kk == "min_num_passes_":
                     self.min_num_passes_ = json_dict[kk]
-                elif kk == 'basis_order_':
+                elif kk == "basis_order_":
                     self.basis_order_ = json_dict[kk]
-                elif kk == 'do_lambda_refinement_':
+                elif kk == "do_lambda_refinement_":
                     self.do_lambda_refinement_ = json_dict[kk]
-                elif kk == 'arc_angle_':
+                elif kk == "arc_angle_":
                     self.arc_angle_ = json_dict[kk]
-                elif kk == 'start_azimuth_':
+                elif kk == "start_azimuth_":
                     self.start_azimuth_ = json_dict[kk]
-                elif kk == 'max_arc_points_':
+                elif kk == "max_arc_points_":
                     self.max_arc_points_ = json_dict[kk]
-                elif kk == 'use_arc_to_chord_error_':
+                elif kk == "use_arc_to_chord_error_":
                     self.use_arc_to_chord_error_ = json_dict[kk]
-                elif kk == 'defeature_abs_length_':
+                elif kk == "defeature_abs_length_":
                     self.defeature_abs_length_ = json_dict[kk]
-                elif kk == 'defeature_layout_':
+                elif kk == "defeature_layout_":
                     self.defeature_layout_ = json_dict[kk]
-                elif kk == 'minimum_void_surface_':
+                elif kk == "minimum_void_surface_":
                     self.minimum_void_surface_ = json_dict[kk]
-                elif kk == 'max_suf_dev_':
+                elif kk == "max_suf_dev_":
                     self.max_suf_dev_ = json_dict[kk]
-                elif kk == 'process_padstack_definitions_':
+                elif kk == "process_padstack_definitions_":
                     self.process_padstack_definitions_ = json_dict[kk]
-                elif kk == 'return_current_distribution_':
+                elif kk == "return_current_distribution_":
                     self.return_current_distribution_ = json_dict[kk]
-                elif kk == 'ignore_non_functional_pads_':
+                elif kk == "ignore_non_functional_pads_":
                     self.ignore_non_functional_pads_ = json_dict[kk]
-                elif kk == 'include_inter_plane_coupling_':
+                elif kk == "include_inter_plane_coupling_":
                     self.include_inter_plane_coupling_ = json_dict[kk]
-                elif kk == 'xtalk_threshold_':
+                elif kk == "xtalk_threshold_":
                     self.xtalk_threshold_ = json_dict[kk]
-                elif kk == 'min_void_area_':
+                elif kk == "min_void_area_":
                     self.min_void_area_ = json_dict[kk]
-                elif kk == 'min_pad_area_to_mesh_':
+                elif kk == "min_pad_area_to_mesh_":
                     self.min_pad_area_to_mesh_ = json_dict[kk]
-                elif kk == 'snap_length_threshold_':
+                elif kk == "snap_length_threshold_":
                     self.snap_length_threshold_ = json_dict[kk]
-                elif kk == 'min_plane_area_to_mesh_':
+                elif kk == "min_plane_area_to_mesh_":
                     self.min_plane_area_to_mesh_ = json_dict[kk]
-                elif kk == 'dc_min_plane_area_to_mesh_':
+                elif kk == "dc_min_plane_area_to_mesh_":
                     self.dc_min_plane_area_to_mesh_ = json_dict[kk]
-                elif kk == 'max_init_mesh_edge_length_':
+                elif kk == "max_init_mesh_edge_length_":
                     self.max_init_mesh_edge_length_ = json_dict[kk]
-                elif kk == 'signal_layers_properties_':
+                elif kk == "signal_layers_properties_":
                     self.signal_layers_properties_ = json_dict[kk]
-                elif kk == 'coplanar_instances_':
+                elif kk == "coplanar_instances_":
                     self.coplanar_instances_ = json_dict[kk]
-                elif kk == 'signal_layer_etching_instances_':
+                elif kk == "signal_layer_etching_instances_":
                     self.signal_layer_etching_instances_ = json_dict[kk]
-                elif kk == 'etching_factor_instances_':
+                elif kk == "etching_factor_instances_":
                     self.etching_factor_instances_ = json_dict[kk]
-                elif kk == 'dielectric_extent_':
+                elif kk == "dielectric_extent_":
                     self.dielectric_extent_ = json_dict[kk]
-                elif kk == 'airbox_horizontal_extent_':
+                elif kk == "airbox_horizontal_extent_":
                     self.airbox_horizontal_extent_ = json_dict[kk]
-                elif kk == 'airbox_negative_vertical_extent_':
+                elif kk == "airbox_negative_vertical_extent_":
                     self.airbox_negative_vertical_extent_ = json_dict[kk]
-                elif kk == 'airbox_positive_vertical_extent_':
+                elif kk == "airbox_positive_vertical_extent_":
                     self.airbox_positive_vertical_extent_ = json_dict[kk]
-                elif kk == 'honor_user_dielectric_':
+                elif kk == "honor_user_dielectric_":
                     self.honor_user_dielectric_ = json_dict[kk]
-                elif kk == 'truncate_airbox_at_ground_':
+                elif kk == "truncate_airbox_at_ground_":
                     self.truncate_airbox_at_ground_ = json_dict[kk]
-                elif kk == 'use_radiation_boundary_':
+                elif kk == "use_radiation_boundary_":
                     self.use_radiation_boundary_ = json_dict[kk]
-                elif kk == 'do_cutout_subdesign_':
+                elif kk == "do_cutout_subdesign_":
                     self.do_cutout_subdesign_ = json_dict[kk]
-                elif kk == 'solver_type_':
+                elif kk == "solver_type_":
                     self.solver_type_ = json_dict[kk]
                 else:
                     pass
