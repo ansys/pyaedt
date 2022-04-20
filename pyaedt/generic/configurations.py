@@ -3,6 +3,7 @@ import json
 import os
 from collections import OrderedDict
 
+from pyaedt import __version__
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -218,9 +219,7 @@ class Configurations(object):
         self._skip_if_exists = val
 
     def _map_dict_value(self, dict_out, key, value):
-        if not dict_out.get("mapping"):
-            dict_out["mapping"] = {}
-        dict_out["mapping"][key] = value
+        dict_out["general"]["object_mapping"][key] = value
 
     @pyaedt_function_handler()
     def _map_object(self, props, dict_out):
@@ -414,12 +413,20 @@ class Configurations(object):
             dict_in = json.load(json_file)
         if not apply_config:
             return dict_in
-        if dict_in.get("variables", None):
-            for k, v in dict_in["variables"].items():
+        try:
+            self._app.modeler.model_units = dict_in["general"]["model_units"]
+        except KeyError:
+            pass
+        try:
+            for k, v in dict_in["general"]["variables"].items():
                 self._app.variable_manager.set_variable(k, v)
-        if dict_in.get("postprocessing_variables", None):
-            for k, v in dict_in["postprocessing_variables"].items():
+        except KeyError:
+            pass
+        try:
+            for k, v in dict_in["general"]["postprocessing_variables"].items():
                 self._app.variable_manager.set_variable(k, v, postprocessing=True)
+        except KeyError:
+            pass
         if self.export_materials and dict_in.get("datasets", None):
             if "datasets" in list(dict_in.keys()):
                 for el, val in dict_in["datasets"].items():
@@ -455,7 +462,7 @@ class Configurations(object):
             for name, props in dict_in["coordinatesystems"].items():
                 self._update_coordinate_system(name, props)
             for name, props in dict_in["facecoordinatesystems"].items():
-                self._convert_objects(dict_in["facecoordinatesystems"][name], dict_in["mapping"])
+                self._convert_objects(dict_in["facecoordinatesystems"][name], dict_in["general"]["object_mapping"])
                 self._update_face_coordinate_system(name, props)
         if self.object_properties and dict_in.get("objects", None):
             for obj, val in dict_in["objects"].items():
@@ -464,12 +471,12 @@ class Configurations(object):
         if self.boundaries and dict_in.get("boundaries", None):
             sort_order = sorted(dict_in["boundaries"], key=lambda x: dict_in["boundaries"][x].get("ID", 999))
             for name in sort_order:
-                self._convert_objects(dict_in["boundaries"][name], dict_in["mapping"])
+                self._convert_objects(dict_in["boundaries"][name], dict_in["general"]["object_mapping"])
                 self._update_boundaries(name, dict_in["boundaries"][name])
         # TODO implement MeshRegion handler
         if self.mesh_operations and dict_in.get("mesh", None):
             for name, props in dict_in["mesh"].items():
-                self._convert_objects(props, dict_in["mapping"])
+                self._convert_objects(props, dict_in["general"]["object_mapping"])
                 self._update_mesh(name, props)
         if self.setups and dict_in.get("setups", None):
             for setup, props in dict_in["setups"].items():
@@ -478,22 +485,25 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def _export_variables(self, dict_out):
-        if self._app.variable_manager.independent_variables:
-            dict_out["variables"] = {}
+        dict_out["general"] = {}
+        dict_out["general"]["pyaedt_version"] = __version__
+        dict_out["general"]["model_units"] = self._app.modeler.model_units
+        dict_out["general"]["design_name"] = self._app.design_name
+        dict_out["general"]["variables"] = {}
+        dict_out["general"]["postprocessing_variables"] = {}
+        dict_out["general"]["object_mapping"] = {}
         post_vars = self._app.variable_manager.post_processing_variables
-        if post_vars:
-            dict_out["postprocessing_variables"] = {}
         for k, v in self._app.variable_manager.independent_variables.items():
             if k not in post_vars:
-                dict_out["variables"][k] = v.string_value
+                dict_out["general"]["variables"][k] = v.string_value
         for k, v in self._app.variable_manager.dependent_variables.items():
             if k not in post_vars:
-                dict_out["variables"][k] = v.expression
+                dict_out["general"]["variables"][k] = v.expression
         for k, v in post_vars.items():
             try:
-                dict_out["postprocessing_variables"][k] = v.expression
+                dict_out["general"]["postprocessing_variables"][k] = v.expression
             except AttributeError:
-                dict_out["postprocessing_variables"][k] = v.string_value
+                dict_out["general"]["postprocessing_variables"][k] = v.string_value
 
     @pyaedt_function_handler()
     def _export_setups(self, dict_out):
@@ -517,7 +527,7 @@ class Configurations(object):
     def _export_boundaries(self, dict_out):
         if self.boundaries and self._app.boundaries:
             dict_out["boundaries"] = {}
-            dict_out["mapping"] = {}
+            dict_out["general"]["object_mapping"] = {}
             for boundary in self._app.boundaries:
                 dict_out["boundaries"][boundary.name] = boundary.props
                 self._map_object(boundary.props, dict_out)
@@ -622,16 +632,21 @@ class Configurations(object):
         self._export_mesh(dict_out)
         self._export_materials(dict_out)
         # update the json if it exists already
+
         if os.path.exists(config_file):
             with open(config_file, "r") as json_file:
                 dict_in = json.load(json_file)
-            for k, v in dict_in.items():
-                if k not in dict_out:
-                    dict_out[k] = v
-                elif isinstance(v, dict):
-                    for i, j in v.items():
-                        if i not in dict_out[k]:
-                            dict_out[k][i] = j
+            try:
+                if dict_in["general"]["pyaedt_version"] == __version__:
+                    for k, v in dict_in.items():
+                        if k not in dict_out:
+                            dict_out[k] = v
+                        elif isinstance(v, dict):
+                            for i, j in v.items():
+                                if i not in dict_out[k]:
+                                    dict_out[k][i] = j
+            except KeyError:
+                pass
         # write the updated json to file
         with open(config_file, "w") as outfile:
             json.dump(dict_out, outfile, indent=4)
@@ -749,11 +764,11 @@ class ConfigurationsIcepak(Configurations):
         if self.boundaries and dict_in.get("boundaries", None):
             sort_order = sorted(dict_in["boundaries"], key=lambda x: dict_in["boundaries"][x].get("ID", 999))
             for name in sort_order:
-                self._convert_objects(dict_in["boundaries"][name], dict_in["mapping"])
+                self._convert_objects(dict_in["boundaries"][name], dict_in["general"]["object_mapping"])
                 self._update_boundaries(name, dict_in["boundaries"][name])
         if self.mesh_operations and dict_in.get("mesh", None):
             for name, props in dict_in["mesh"].items():
-                self._convert_objects(props, dict_in["mapping"])
+                self._convert_objects(props, dict_in["general"]["object_mapping"])
                 self._update_mesh(name, props)
         if self.setups and dict_in.get("setups", None):
             for setup, props in dict_in["setups"].items():
