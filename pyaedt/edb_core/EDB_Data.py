@@ -3,7 +3,7 @@ import os
 import time
 import json
 import warnings
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
 
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import BasisOrder
