@@ -611,12 +611,11 @@ class SolutionData(object):
         self.solutions_data_imag = self._solution_data_imag()
         self.solutions_data_mag = {}
         self.units_data = {}
-        for expression in self.expressions:
-            if len(self._original_data) > 1:
-                for data in self._original_data:
-                    for v in data.GetDesignVariableNames():
-                        if v not in self._sweeps_names:
-                            self._sweeps_names.append(v)
+        if len(self._original_data) > 1:
+            for data in self._original_data:
+                for v in data.GetDesignVariableNames():
+                    if v not in self._sweeps_names:
+                        self._sweeps_names.append(v)
         for expr in self.expressions:
             self.solutions_data_mag[expr] = {}
             self.units_data[expr] = self.nominal_variation.GetDataUnits(expr)
@@ -664,39 +663,6 @@ class SolutionData(object):
     @pyaedt_function_handler()
     def _solution_data_real(self):
         """ """
-        # sols_data = {}
-        # for expression in self.expressions:
-        #     combinations = []
-        #     if len(self._original_data) == 1:
-        #         solution = list(self.nominal_variation.GetRealDataValues(expression, False))
-        #     else:
-        #         solution = []
-        #         for data in self._original_data:
-        #             for v in data.GetDesignVariableNames():
-        #                 if v not in self._sweeps_names:
-        #                     self._sweeps[v] = []
-        #                     self._sweeps_names.append(v)
-        #                     self.nominal_sweeps[v] = data.GetDesignVariableValue(v)
-        #                     self.units_sweeps[v] = data.GetDesignVariableUnits(v)
-        #             comb = []
-        #             for v in reversed(data.GetDesignVariableNames()):
-        #                 if data.GetDesignVariableValue(v) not in self._sweeps[v]:
-        #                     self._sweeps[v].append(data.GetDesignVariableValue(v))
-        #                 comb.append(data.GetDesignVariableValue(v))
-        #             combinations.append(comb)
-        #             solution.extend(list(data.GetRealDataValues(expression, False)))
-        #     values = []
-        #     for el in reversed(self._sweeps_names):
-        #         values.append(self.sweeps[el])
-        #
-        #     solution_Data = {}
-        #     i = 0
-        #     for t in itertools.product(*values):
-        #         if not combinations or (combinations and list(t[: len(combinations[0])]) in combinations):
-        #             solution_Data[t] = solution[i]
-        #             i += 1
-        #     sols_data[expression] = solution_Data
-        # return sols_data
         sols_data = {}
         for expression in self.expressions:
             combinations = []
@@ -753,13 +719,12 @@ class SolutionData(object):
                         solution.extend(list(data.GetImagDataValues(expression, False)))
             else:
                 solution = None
-            for data in self._original_data:
-                comb = []
-                for v in reversed(data.GetDesignVariableNames()):
-                    if data.GetDesignVariableValue(v) not in self._sweeps[v]:
-                        self._sweeps[v].append(data.GetDesignVariableValue(v))
-                    comb.append(data.GetDesignVariableValue(v))
-                combinations.append(comb)
+            if len(self._original_data) > 1:
+                for data in self._original_data:
+                    comb = []
+                    for v in reversed(data.GetDesignVariableNames()):
+                        comb.append(data.GetDesignVariableValue(v))
+                    combinations.append(comb)
             values = []
             for el in reversed(self._sweeps_names):
                 values.append(self.sweeps[el])
@@ -847,19 +812,15 @@ class SolutionData(object):
         for it in self.nominal_sweeps:
             temp.append(self.nominal_sweeps[it])
         temp = list(reversed(temp))
-        try:
-            solution_Data = self.solutions_data_mag[expression]
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
+        solution_Data = self.solutions_data_mag[expression]
+        sol = []
+        position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
+        for el in self.sweeps[self.primary_sweep]:
+            temp[position] = el
+            try:
                 sol.append(solution_Data[tuple(temp)])
-        except:
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
-                sol.append(0)
+            except KeyError:
+                sol.append(1e-15)
         if convert_to_SI and self._quantity(self.units_data[expression]):
             sol = self._convert_list_to_SI(
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
@@ -1012,19 +973,15 @@ class SolutionData(object):
         for it in self.nominal_sweeps:
             temp.append(self.nominal_sweeps[it])
         temp = list(reversed(temp))
-        try:
-            solution_Data = self.solutions_data_real[expression]
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
+        solution_Data = self.solutions_data_real[expression]
+        sol = []
+        position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
+        for el in self.sweeps[self.primary_sweep]:
+            temp[position] = el
+            try:
                 sol.append(solution_Data[tuple(temp)])
-        except:
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
-                sol.append(0)
+            except KeyError:
+                sol.append(1e-15)
         if convert_to_SI and self._quantity(self.units_data[expression]):
             sol = self._convert_list_to_SI(
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
@@ -1055,19 +1012,15 @@ class SolutionData(object):
         for it in self.nominal_sweeps:
             temp.append(self.nominal_sweeps[it])
         temp = list(reversed(temp))
-        try:
-            solution_Data = self.solutions_data_imag[expression]
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
+        solution_Data = self.solutions_data_imag[expression]
+        sol = []
+        position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
+        for el in self.sweeps[self.primary_sweep]:
+            temp[position] = el
+            try:
                 sol.append(solution_Data[tuple(temp)])
-        except:
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
-                sol.append(0)
+            except KeyError:
+                sol.append(1e-15)
         if convert_to_SI and self._quantity(self.units_data[expression]):
             sol = self._convert_list_to_SI(
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
