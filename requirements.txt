@@ -29,7 +29,3 @@ numpy
 
 ipython
 # License: BSD-3-Clause License
-
-func_timeout
-# License: GNU Lesser General Public
-

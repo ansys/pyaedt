@@ -57,7 +57,6 @@ class GeneticAlgorithm(object):
     design or create a new HFSS design if one does not exist.
 
     >>>import numpy as np
-    >>>import matplotlib.pyplot as plt
     >>>from pyaedt.generic.python_optimizers import GeneticAlgorithm as ga
     >>> def f(X):
     >>>     return np.sum(X)
@@ -239,7 +238,7 @@ class GeneticAlgorithm(object):
                 np.savetxt(self.population_file, pop, delimiter=",")
 
             if self.progress_bar:
-                self.progress(t, self.iterate, status="GA is running...\n")
+                self.progress(t, self.iterate, status="GA is running...")
             # Sort
             pop = pop[pop[:, self.dim].argsort()]
 
