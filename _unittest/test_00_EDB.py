@@ -1097,3 +1097,10 @@ class TestClass(BasisTest, object):
         assert signal_layer == 0
         dielectric_layer = stackup._layer_types_to_int(stackup.layer_types.DielectricLayer)
         assert dielectric_layer == 1
+
+    def test_98_export_import_json_for_config(self):
+        sim_config = SimulationConfiguration()
+        json_file = os.path.join(self.local_scratch.path, "test.json")
+        assert sim_config.export_json(json_file)
+        test_import = SimulationConfiguration()
+        assert test_import.import_json(json_file)

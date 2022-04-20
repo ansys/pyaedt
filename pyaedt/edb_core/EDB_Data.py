@@ -1,8 +1,9 @@
 import math
 import os
 import time
+import json
 import warnings
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import BasisOrder
@@ -113,12 +114,12 @@ class EDBNetsData(object):
 
     @pyaedt_function_handler()
     def plot(
-        self,
-        layers=None,
-        show_legend=True,
-        save_plot=None,
-        outline=None,
-        size=(2000, 1000),
+            self,
+            layers=None,
+            show_legend=True,
+            save_plot=None,
+            outline=None,
+            size=(2000, 1000),
     ):
         """Plot a net to Matplotlib 2D chart.
 
@@ -595,8 +596,8 @@ class EDBLayer(object):
             Name of the filling material if it exists.
         """
         if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
                 self._filling_material_name = self._layer.GetFillMaterial()
@@ -609,8 +610,8 @@ class EDBLayer(object):
     def filling_material_name(self, value):
 
         if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             self._filling_material_name = value
             self.update_layers()
@@ -625,8 +626,8 @@ class EDBLayer(object):
             ``True`` when negative, ``False`` otherwise..
         """
         if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
                 self._negative_layer = self._layer.GetNegative()
@@ -637,8 +638,8 @@ class EDBLayer(object):
     @negative_layer.setter
     def negative_layer(self, value):
         if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             self._negative_layer = value
             self.update_layers()
@@ -653,8 +654,8 @@ class EDBLayer(object):
             ``True`` if the layer has roughness, ``False`` otherwise.
         """
         if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
                 self._roughness_enabled = self._layer.IsRoughnessEnabled()
@@ -665,8 +666,8 @@ class EDBLayer(object):
     @roughness_enabled.setter
     def roughness_enabled(self, value):
         if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             self._roughness_enabled = value
             self.update_layers()
@@ -738,8 +739,8 @@ class EDBLayer(object):
             Etch factor if it exists, 0 otherwise.
         """
         if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
                 self._etch_factor = float(self._layer.GetEtchFactor().ToString())
@@ -753,20 +754,20 @@ class EDBLayer(object):
         if value is None:
             value = 0
         if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             self._etch_factor = float(value)
             self.update_layers()
 
     @pyaedt_function_handler()
     def plot(
-        self,
-        nets=None,
-        show_legend=True,
-        save_plot=None,
-        outline=None,
-        size=(2000, 1000),
+            self,
+            nets=None,
+            show_legend=True,
+            save_plot=None,
+            outline=None,
+            size=(2000, 1000),
     ):
         """Plot a layer to a Matplotlib 2D chart.
 
@@ -804,8 +805,8 @@ class EDBLayer(object):
             self._layer_type = self._layer.GetLayerType()
             self._thickness = self._layer.GetThicknessValue().ToString()
             if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                    self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                    or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
             ):
                 self._etch_factor = float(self._layer.GetEtchFactor().ToString())
                 self._filling_material_name = self._layer.GetFillMaterial()
@@ -820,16 +821,16 @@ class EDBLayer(object):
 
     @pyaedt_function_handler()
     def update_layer_vals(
-        self,
-        layerName,
-        newLayer,
-        etchMap,
-        materialMap,
-        fillMaterialMap,
-        thicknessMap,
-        negativeMap,
-        roughnessMap,
-        layerTypeMap,
+            self,
+            layerName,
+            newLayer,
+            etchMap,
+            materialMap,
+            fillMaterialMap,
+            thicknessMap,
+            negativeMap,
+            roughnessMap,
+            layerTypeMap,
     ):
         """Update layer properties.
 
@@ -1044,10 +1045,10 @@ class EDBLayers(object):
         allLayers = list(list(self.layer_collection.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         allStackuplayers = filter(
             lambda lyr: (lyr.GetLayerType() == self._edb.Cell.LayerType.DielectricLayer)
-            or (
-                lyr.GetLayerType() == self._edb.Cell.LayerType.SignalLayer
-                or lyr.GetLayerType() == self._edb.Cell.LayerType.ConductingLayer
-            ),
+                        or (
+                                lyr.GetLayerType() == self._edb.Cell.LayerType.SignalLayer
+                                or lyr.GetLayerType() == self._edb.Cell.LayerType.ConductingLayer
+                        ),
             allLayers,
         )
         return sorted(
@@ -1067,8 +1068,8 @@ class EDBLayers(object):
         self._signal_layers = OrderedDict({})
         for layer, edblayer in self.layers.items():
             if (
-                edblayer._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or edblayer._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                    edblayer._layer_type == self._edb.Cell.LayerType.SignalLayer
+                    or edblayer._layer_type == self._edb.Cell.LayerType.ConductingLayer
             ):
                 self._signal_layers[layer] = edblayer
         return self._signal_layers
@@ -1209,16 +1210,16 @@ class EDBLayers(object):
 
     @pyaedt_function_handler()
     def add_layer(
-        self,
-        layerName,
-        start_layer=None,
-        material="copper",
-        fillMaterial="",
-        thickness="35um",
-        layerType=0,
-        negative_layer=False,
-        roughness_enabled=False,
-        etchMap=None,
+            self,
+            layerName,
+            start_layer=None,
+            material="copper",
+            fillMaterial="",
+            thickness="35um",
+            layerType=0,
+            negative_layer=False,
+            roughness_enabled=False,
+            etchMap=None,
     ):
         """Add a layer after a specific layer.
 
@@ -1640,14 +1641,14 @@ class EDBPadProperties(object):
 
     @pyaedt_function_handler()
     def _update_pad_parameters_parameters(
-        self,
-        layer_name=None,
-        pad_type=None,
-        geom_type=None,
-        params=None,
-        offsetx=None,
-        offsety=None,
-        rotation=None,
+            self,
+            layer_name=None,
+            pad_type=None,
+            geom_type=None,
+            params=None,
+            offsetx=None,
+            offsety=None,
+            rotation=None,
     ):
         """Update padstack parameters.
 
@@ -2881,661 +2882,662 @@ class SimulationConfiguration(object):
     SignalLayersProperties = []
     """
 
-    def __init__(self, filename):
-        self._filename = filename
-        self._setup_name = "Pyaedt_setup"
-        self._generate_solder_balls = True
-        self._signal_nets = []
-        self._power_nets = []
-        self._components = []
-        self._coax_solder_ball_diameter = []
-        self._use_default_coax_port_radial_extension = True
-        self._trim_reference_size = False
-        self._cutout_subdesign_type = CutoutSubdesignType.Conformal  # Conformal
-        self._cutout_subdesign_expansion = 0.1
-        self._cutout_subdesign_round_corner = True
-        self._sweep_interpolating = True
-        self._use_q3d_for_dc = False
-        self._relative_error = 0.5
-        self._use_error_z0 = False
-        self._percentage_error_z0 = 1
-        self._enforce_causality = True
-        self._enforce_passivity = True
-        self._passivity_tolerance = 0.0001
-        self._sweep_name = "Sweep1"
-        self._radiation_box = RadiationBoxType.ConvexHull  # 'ConvexHull'
-        self._start_frequency = "0.0GHz"  # 0.0
-        self._stop_freq = "10.0GHz"  # 10e9
-        self._sweep_type = SweepType.Linear  # 'Linear'
-        self._step_freq = "0.025GHz"  # 10e6
-        self._decade_count = 100  # Newly Added
-        self._mesh_freq = "3GHz"  # 5e9
-        self._max_num_passes = 30
-        self._max_mag_delta_s = 0.03
-        self._min_num_passes = 1
-        self._basis_order = BasisOrder.Mixed  # 'Mixed'
-        self._do_lambda_refinement = True
-        self._arc_angle = "30deg"  # 30
-        self._start_azimuth = 0
-        self._max_arc_points = 8
-        self._use_arc_to_chord_error = True
-        self._arc_to_chord_error = "1um"  # 1e-6
-        self._defeature_abs_length = "1um"  # 1e-6
-        self._defeature_layout = True
-        self._minimum_void_surface = 0
-        self._max_suf_dev = 1e-3
-        self._process_padstack_definitions = False
-        self._return_current_distribution = True
-        self._ignore_non_functional_pads = True
-        self._include_inter_plane_coupling = True
-        self._xtalk_threshold = -50
-        self._min_void_area = "0.01mm2"
-        self._min_pad_area_to_mesh = "0.01mm2"
-        self._snap_length_threshold = "2.5um"
-        self._min_plane_area_to_mesh = "4mil2"  # Newly Added
-        self._dc_min_plane_area_to_mesh = "8mil2"
-        self._max_init_mesh_edge_length = "14.5mil"
-        self._signal_layers_properties = {}
-        self._coplanar_instances = []
-        self._signal_layer_etching_instances = []
-        self._etching_factor_instances = []
-        self._dielectric_extent = 0.01
-        self._airbox_horizontal_extent = 0.04
-        self._airbox_negative_vertical_extent = 0.1
-        self._airbox_positive_vertical_extent = 0.1
-        self._honor_user_dielectric = False
-        self._truncate_airbox_at_ground = False
-        self._use_radiation_boundary = True
-        self._do_cutout_subdesign = True
-        self._solver_type = SolverType.Hfss3dLayout
-        self._read_cfg()
+    def __init__(self, filename=None):
+        self.filename_ = filename
+        self.setup_name_ = "Pyaedt_setup"
+        self.generate_solder_balls_ = True
+        self.signal_nets_ = []
+        self.power_nets_ = []
+        self.components_ = []
+        self.coax_solder_ball_diameter_ = []
+        self.use_default_coax_port_radial_extension_ = True
+        self.trim_reference_size_ = False
+        self.cutout_subdesign_type_ = CutoutSubdesignType.Conformal  # Conformal
+        self.cutout_subdesign_expansion_ = 0.1
+        self.cutout_subdesign_round_corner_ = True
+        self.sweep_interpolating_ = True
+        self.use_q3d_for_dc_ = False
+        self.relative_error_ = 0.5
+        self.use_error_z0_ = False
+        self.percentage_error_z0_ = 1
+        self.enforce_causality_ = True
+        self.enforce_passivity_ = True
+        self.passivity_tolerance_ = 0.0001
+        self.sweep_name_ = "Sweep1"
+        self.radiation_box_ = RadiationBoxType.ConvexHull  # 'ConvexHull'
+        self.start_frequency_ = "0.0GHz"  # 0.0
+        self.stop_freq_ = "10.0GHz"  # 10e9
+        self.sweep_type_ = SweepType.Linear  # 'Linear'
+        self.step_freq_ = "0.025GHz"  # 10e6
+        self.decade_count_ = 100  # Newly Added
+        self.mesh_freq_ = "3GHz"  # 5e9
+        self.max_num_passes_ = 30
+        self.max_mag_delta_s_ = 0.03
+        self.min_num_passes_ = 1
+        self.basis_order_ = BasisOrder.Mixed  # 'Mixed'
+        self.do_lambda_refinement_ = True
+        self.arc_angle_ = "30deg"  # 30
+        self.start_azimuth_ = 0
+        self.max_arc_points_ = 8
+        self.use_arc_to_chord_error_ = True
+        self.arc_to_chord_error_ = "1um"  # 1e-6
+        self.defeature_abs_length_ = "1um"  # 1e-6
+        self.defeature_layout_ = False
+        self.minimum_void_surface_ = 0
+        self.max_suf_dev_ = 1e-3
+        self.process_padstack_definitions_ = False
+        self.return_current_distribution_ = True
+        self.ignore_non_functional_pads_ = True
+        self.include_inter_plane_coupling_ = True
+        self.xtalk_threshold_ = -50
+        self.min_void_area_ = "0.01mm2"
+        self.min_pad_area_to_mesh_ = "0.01mm2"
+        self.snap_length_threshold_ = "2.5um"
+        self.min_plane_area_to_mesh_ = "4mil2"  # Newly Added
+        self.dc_min_plane_area_to_mesh_ = "8mil2"
+        self.max_init_mesh_edge_length_ = "14.5mil"
+        self.signal_layers_properties_ = {}
+        self.coplanar_instances_ = []
+        self.signal_layer_etching_instances_ = []
+        self.etching_factor_instances_ = []
+        self.dielectric_extent_ = 0.01
+        self.airbox_horizontal_extent_ = 0.04
+        self.airbox_negative_vertical_extent_ = 0.1
+        self.airbox_positive_vertical_extent_ = 0.1
+        self.honor_user_dielectric_ = False
+        self.truncate_airbox_at_ground_ = False
+        self.use_radiation_boundary_ = True
+        self.do_cutout_subdesign_ = True
+        self.solver_type_ = SolverType.Hfss3dLayout
+        if filename:
+            self._read_cfg()
 
     @property
     def generate_solder_balls(self):  # pragma: no cover
-        return self._generate_solder_balls
+        return self.generate_solder_balls_
 
     @generate_solder_balls.setter
     def generate_solder_balls(self, value):
         if isinstance(value, bool):  # pragma: no cover
-            self._generate_solder_balls = value
+            self.generate_solder_balls_ = value
 
     @property
     def signal_nets(self):
-        return self._signal_nets
+        return self.signal_nets_
 
     @signal_nets.setter
     def signal_nets(self, value):
         if isinstance(value, list):  # pragma: no cover
-            self._signal_nets = value
+            self.signal_nets_ = value
 
     @property
     def setup_name(self):
-        return self._setup_name
+        return self.setup_name_
 
     @setup_name.setter
     def setup_name(self, value):
         if isinstance(value, str):  # pragma: no cover
-            self._setup_name = value
+            self.setup_name_ = value
 
     @property
     def power_nets(self):
-        return self._power_nets
+        return self.power_nets_
 
     @power_nets.setter
     def power_nets(self, value):
         if isinstance(value, list):
-            self._power_nets = value
+            self.power_nets_ = value
 
     @property
     def components(self):
-        return self._components
+        return self.components_
 
     @components.setter
     def components(self, value):
         if isinstance(value, list):
-            self._components = value
+            self.components_ = value
 
     @property
     def coax_solder_ball_diameter(self):  # pragma: no cover
-        return self._coax_solder_ball_diameter
+        return self.coax_solder_ball_diameter_
 
     @coax_solder_ball_diameter.setter
     def coax_solder_ball_diameter(self, value):  # pragma: no cover
         if isinstance(value, list):
-            self._coax_solder_ball_diameter = value
+            self.coax_solder_ball_diameter_ = value
 
     @property
     def use_default_coax_port_radial_extension(self):
-        return self._use_default_coax_port_radial_extension
+        return self.use_default_coax_port_radial_extension_
 
     @use_default_coax_port_radial_extension.setter
     def use_default_coax_port_radial_extension(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._use_default_coax_port_radial_extension = value
+            self.use_default_coax_port_radial_extension_ = value
 
     @property
     def trim_reference_size(self):
-        return self._trim_reference_size
+        return self.trim_reference_size_
 
     @trim_reference_size.setter
     def trim_reference_size(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._trim_reference_size = value
+            self.trim_reference_size_ = value
 
     @property
     def do_cutout_subdesign(self):
-        return self._do_cutout_subdesign
+        return self.do_cutout_subdesign_
 
     @do_cutout_subdesign.setter
     def do_cutout_subdesign(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._do_cutout_subdesign = value
+            self.do_cutout_subdesign_ = value
 
     @property
     def cutout_subdesign_type(self):
-        return self._cutout_subdesign_type
+        return self.cutout_subdesign_type_
 
     @cutout_subdesign_type.setter
     def cutout_subdesign_type(self, value):  # pragma: no cover
         if isinstance(value, CutoutSubdesignType):
-            self._cutout_subdesign_type = value
+            self.cutout_subdesign_type_ = value
 
     @property
     def cutout_subdesign_expansion(self):
-        return self._cutout_subdesign_expansion
+        return self.cutout_subdesign_expansion_
 
     @cutout_subdesign_expansion.setter
     def cutout_subdesign_expansion(self, value):  # pragma: no cover
         if isinstance(value, float):
-            self._cutout_subdesign_expansion = value
+            self.cutout_subdesign_expansion_ = value
 
     @property
     def cutout_subdesign_round_corner(self):
-        return self._cutout_subdesign_round_corner
+        return self.cutout_subdesign_round_corner_
 
     @cutout_subdesign_round_corner.setter
     def cutout_subdesign_round_corner(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._cutout_subdesign_round_corner = value
+            self.cutout_subdesign_round_corner_ = value
 
     @property
     def sweep_interpolating(self):  # pragma: no cover
-        return self._sweep_interpolating
+        return self.sweep_interpolating_
 
     @sweep_interpolating.setter
     def sweep_interpolating(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._sweep_interpolating = value
+            self.sweep_interpolating_ = value
 
     @property
     def use_q3d_for_dc(self):  # pragma: no cover
-        return self._use_q3d_for_dc
+        return self.use_q3d_for_dc_
 
     @use_q3d_for_dc.setter
     def use_q3d_for_dc(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._use_q3d_for_dc = value
+            self.use_q3d_for_dc_ = value
 
     @property
     def relative_error(self):  # pragma: no cover
-        return self._relative_error
+        return self.relative_error_
 
     @relative_error.setter
     def relative_error(self, value):  # pragma: no cover
         if isinstance(value, float):
-            self._relative_error = value
+            self.relative_error_ = value
 
     @property
     def use_error_z0(self):  # pragma: no cover
-        return self._use_error_z0
+        return self.use_error_z0_
 
     @use_error_z0.setter
     def use_error_z0(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._use_error_z0 = value
+            self.use_error_z0_ = value
 
     @property
     def percentage_error_z0(self):  # pragma: no cover
-        return self._percentage_error_z0
+        return self.percentage_error_z0_
 
     @percentage_error_z0.setter
     def percentage_error_z0(self, value):  # pragma: no cover
         if isinstance(value, float):
-            self._percentage_error_z0 = value
+            self.percentage_error_z0_ = value
 
     @property
     def enforce_causality(self):  # pragma: no cover
-        return self._enforce_causality
+        return self.enforce_causality_
 
     @enforce_causality.setter
     def enforce_causality(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._enforce_causality = value
+            self.enforce_causality_ = value
 
     @property
     def enforce_passivity(self):  # pragma: no cover
-        return self._enforce_passivity
+        return self.enforce_passivity_
 
     @enforce_passivity.setter
     def enforce_passivity(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._enforce_passivity = value
+            self.enforce_passivity_ = value
 
     @property
     def passivity_tolerance(self):  # pragma: no cover
-        return self._passivity_tolerance
+        return self.passivity_tolerance_
 
     @passivity_tolerance.setter
     def passivity_tolerance(self, value):  # pragma: no cover
         if isinstance(value, float):
-            self._passivity_tolerance = value
+            self.passivity_tolerance_ = value
 
     @property
     def sweep_name(self):  # pragma: no cover
-        return self._sweep_name
+        return self.sweep_name_
 
     @sweep_name.setter
     def sweep_name(self, value):  # pragma: no cover
         if isinstance(value, str):
-            self._sweep_name = value
+            self.sweep_name_ = value
 
     @property
     def radiation_box(self):  # pragma: no cover
-        return self._radiation_box
+        return self.radiation_box_
 
     @radiation_box.setter
     def radiation_box(self, value):  # pragma: no cover
         if isinstance(value, RadiationBoxType):
-            self._radiation_box = value
+            self.radiation_box_ = value
 
     @property
     def start_frequency(self):  # pragma: no cover
-        return self._start_frequency
+        return self.start_frequency_
 
     @start_frequency.setter
     def start_frequency(self, value):  # pragma: no cover
         if isinstance(value, str):
-            self._start_frequency = value
+            self.start_frequency_ = value
 
     @property
     def stop_freq(self):  # pragma: no cover
-        return self._stop_freq
+        return self.stop_freq_
 
     @stop_freq.setter
     def stop_freq(self, value):  # pragma: no cover
         if isinstance(value, str):
-            self._stop_freq = value
+            self.stop_freq_ = value
 
     @property
     def sweep_type(self):  # pragma: no cover
-        return self._sweep_type
+        return self.sweep_type_
 
     @sweep_type.setter
     def sweep_type(self, value):  # pragma: no cover
         if isinstance(value, SweepType):
-            self._sweep_type = value
+            self.sweep_type_ = value
         # if isinstance(value, str):
         #     self._sweep_type = value
 
     @property
     def step_freq(self):  # pragma: no cover
-        return self._step_freq
+        return self.step_freq_
 
     @step_freq.setter
     def step_freq(self, value):  # pragma: no cover
         if isinstance(value, str):
-            self._step_freq = value
+            self.step_freq_ = value
 
     @property
     def decade_count(self):  # pragma: no cover
-        return self._decade_count
+        return self.decade_count_
 
     @decade_count.setter
     def decade_count(self, value):  # pragma: no cover
         if isinstance(value, int):
-            self._decade_count = value
+            self.decade_count_ = value
 
     @property
     def mesh_freq(self):
-        return self._mesh_freq
+        return self.mesh_freq_
 
     @mesh_freq.setter
     def mesh_freq(self, value):  # pragma: no cover
         if isinstance(value, str):
-            self._mesh_freq = value
+            self.mesh_freq_ = value
 
     @property
     def max_num_passes(self):  # pragma: no cover
-        return self._max_num_passes
+        return self.max_num_passes_
 
     @max_num_passes.setter
     def max_num_passes(self, value):  # pragma: no cover
         if isinstance(value, int):
-            self._max_num_passes = value
+            self.max_num_passes_ = value
 
     @property
     def max_mag_delta_s(self):  # pragma: no cover
-        return self._max_mag_delta_s
+        return self.max_mag_delta_s_
 
     @max_mag_delta_s.setter
     def max_mag_delta_s(self, value):  # pragma: no cover
         if isinstance(value, float):
-            self._max_mag_delta_s = value
+            self.max_mag_delta_s_ = value
 
     @property
     def min_num_passes(self):  # pragma: no cover
-        return self._min_num_passes
+        return self.min_num_passes_
 
     @min_num_passes.setter
     def min_num_passes(self, value):  # pragma: no cover
         if isinstance(value, int):
-            self._min_num_passes = value
+            self.min_num_passes_ = value
 
     @property
     def basis_order(self):  # pragma: no cover
-        return self._basis_order
+        return self.basis_order_
 
     @basis_order.setter
     def basis_order(self, value):  # pragma: no cover
         if isinstance(value, BasisOrder):
-            self._basis_order = value
+            self.basis_order_ = value
 
     @property
     def do_lambda_refinement(self):  # pragma: no cover
-        return self._do_lambda_refinement
+        return self.do_lambda_refinement_
 
     @do_lambda_refinement.setter
     def do_lambda_refinement(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._do_lambda_refinement = value
+            self.do_lambda_refinement_ = value
 
     @property
     def arc_angle(self):  # pragma: no cover
-        return self._arc_angle
+        return self.arc_angle_
 
     @arc_angle.setter
     def arc_angle(self, value):  # pragma: no cover
         if isinstance(value, str):
-            self._arc_angle = value
+            self.arc_angle_ = value
 
     @property
     def start_azimuth(self):  # pragma: no cover
-        return self._start_azimuth
+        return self.start_azimuth_
 
     @start_azimuth.setter
     def start_azimuth(self, value):  # pragma: no cover
         if isinstance(value, float):
-            self._start_azimuth = value
+            self.start_azimuth_ = value
 
     @property
     def max_arc_points(self):  # pragma: no cover
-        return self._max_arc_points
+        return self.max_arc_points_
 
     @max_arc_points.setter
     def max_arc_points(self, value):  # pragma: no cover
         if isinstance(value, int):
-            self._max_arc_points = value
+            self.max_arc_points_ = value
 
     @property
     def use_arc_to_chord_error(self):  # pragma: no cover
-        return self._use_arc_to_chord_error
+        return self.use_arc_to_chord_error_
 
     @use_arc_to_chord_error.setter
     def use_arc_to_chord_error(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._use_arc_to_chord_error = value
+            self.use_arc_to_chord_error_ = value
 
     @property
     def arc_to_chord_error(self):  # pragma: no cover
-        return self._arc_to_chord_error
+        return self.arc_to_chord_error_
 
     @arc_to_chord_error.setter
     def arc_to_chord_error(self, value):  # pragma: no cover
         if isinstance(value, str):
-            self._arc_to_chord_error = value
+            self.arc_to_chord_error_ = value
 
     @property
     def defeature_abs_length(self):  # pragma: no cover
-        return self._defeature_abs_length
+        return self.defeature_abs_length_
 
     @defeature_abs_length.setter
     def defeature_abs_length(self, value):  # pragma: no cover
         if isinstance(value, str):
-            self._defeature_abs_length = value
+            self.defeature_abs_length_ = value
 
     @property
     def defeature_layout(self):  # pragma: no cover
-        return self._defeature_layout
+        return self.defeature_layout_
 
     @defeature_layout.setter
     def defeature_layout(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._defeature_layout = value
+            self.defeature_layout_ = value
 
     @property
     def minimum_void_surface(self):  # pragma: no cover
-        return self._minimum_void_surface
+        return self.minimum_void_surface_
 
     @minimum_void_surface.setter
     def minimum_void_surface(self, value):  # pragma: no cover
         if isinstance(value, float):
-            self._minimum_void_surface = value
+            self.minimum_void_surface_ = value
 
     @property
     def max_suf_dev(self):  # pragma: no cover
-        return self._max_suf_dev
+        return self.max_suf_dev_
 
     @max_suf_dev.setter
     def max_suf_dev(self, value):  # pragma: no cover
         if isinstance(value, float):
-            self._max_suf_dev = value
+            self.max_suf_dev_ = value
 
     @property
     def process_padstack_definitions(self):  # pragma: no cover
-        return self._process_padstack_definitions
+        return self.process_padstack_definitions_
 
     @process_padstack_definitions.setter
     def process_padstack_definitions(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._process_padstack_definitions = value
+            self.process_padstack_definitions_ = value
 
     @property
     def return_current_distribution(self):  # pragma: no cover
-        return self._return_current_distribution
+        return self.return_current_distribution_
 
     @return_current_distribution.setter
     def return_current_distribution(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._return_current_distribution = value
+            self.return_current_distribution_ = value
 
     @property
     def ignore_non_functional_pads(self):  # pragma: no cover
-        return self._ignore_non_functional_pads
+        return self.ignore_non_functional_pads_
 
     @ignore_non_functional_pads.setter
     def ignore_non_functional_pads(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._ignore_non_functional_pads = value
+            self.ignore_non_functional_pads_ = value
 
     @property
     def include_inter_plane_coupling(self):  # pragma: no cover
-        return self._include_inter_plane_coupling
+        return self.include_inter_plane_coupling_
 
     @include_inter_plane_coupling.setter
     def include_inter_plane_coupling(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._include_inter_plane_coupling = value
+            self.include_inter_plane_coupling_ = value
 
     @property
     def xtalk_threshold(self):  # pragma: no cover
-        return self._xtalk_threshold
+        return self.xtalk_threshold_
 
     @xtalk_threshold.setter
     def xtalk_threshold(self, value):  # pragma: no cover
         if isinstance(value, float):
-            self._xtalk_threshold = value
+            self.xtalk_threshold_ = value
 
     @property
     def min_void_area(self):  # pragma: no cover
-        return self._min_void_area
+        return self.min_void_area_
 
     @min_void_area.setter
     def min_void_area(self, value):  # pragma: no cover
         if isinstance(value, str):
-            self._min_void_area = value
+            self.min_void_area_ = value
 
     @property
     def min_pad_area_to_mesh(self):  # pragma: no cover
-        return self._min_pad_area_to_mesh
+        return self.min_pad_area_to_mesh_
 
     @min_pad_area_to_mesh.setter
     def min_pad_area_to_mesh(self, value):  # pragma: no cover
         if isinstance(value, str):
-            self._min_pad_area_to_mesh = value
+            self.min_pad_area_to_mesh_ = value
 
     @property
     def snap_length_threshold(self):  # pragma: no cover
-        return self._snap_length_threshold
+        return self.snap_length_threshold_
 
     @snap_length_threshold.setter
     def snap_length_threshold(self, value):  # pragma: no cover
         if isinstance(value, str):
-            self._snap_length_threshold = value
+            self.snap_length_threshold_ = value
 
     @property
     def min_plane_area_to_mesh(self):  # pragma: no cover
-        return self._min_plane_area_to_mesh
+        return self.min_plane_area_to_mesh_
 
     @min_plane_area_to_mesh.setter
     def min_plane_area_to_mesh(self, value):  # pragma: no cover
         if isinstance(value, str):
-            self._min_plane_area_to_mesh = value
+            self.min_plane_area_to_mesh_ = value
 
     @property
     def dc_min_plane_area_to_mesh(self):  # pragma: no cover
-        return self._dc_min_plane_area_to_mesh
+        return self.dc_min_plane_area_to_mesh_
 
     @dc_min_plane_area_to_mesh.setter
     def dc_min_plane_area_to_mesh(self, value):  # pragma: no cover
         if isinstance(value, str):
-            self._dc_min_plane_area_to_mesh = value
+            self.dc_min_plane_area_to_mesh_ = value
 
     @property
     def max_init_mesh_edge_length(self):  # pragma: no cover
-        return self._max_init_mesh_edge_length
+        return self.max_init_mesh_edge_length_
 
     @max_init_mesh_edge_length.setter
     def max_init_mesh_edge_length(self, value):  # pragma: no cover
         if isinstance(value, str):
-            self._max_init_mesh_edge_length = value
+            self.max_init_mesh_edge_length_ = value
 
     @property
     def signal_layers_properties(self):  # pragma: no cover
-        return self._signal_layers_properties
+        return self.signal_layers_properties_
 
     @signal_layers_properties.setter
     def signal_layers_properties(self, value):  # pragma: no cover
         if isinstance(value, dict):
-            self._signal_layers_properties = value
+            self.signal_layers_properties_ = value
 
     @property
     def coplanar_instances(self):  # pragma: no cover
-        return self._coplanar_instances
+        return self.coplanar_instances_
 
     @coplanar_instances.setter
     def coplanar_instances(self, value):  # pragma: no cover
         if isinstance(value, list):
-            self._coplanar_instances = value
+            self.coplanar_instances_ = value
 
     @property
     def signal_layer_etching_instances(self):  # pragma: no cover
-        return self._signal_layer_etching_instances
+        return self.signal_layer_etching_instances_
 
     @signal_layer_etching_instances.setter
     def signal_layer_etching_instances(self, value):  # pragma: no cover
         if isinstance(value, list):
-            self._signal_layer_etching_instances = value
+            self.signal_layer_etching_instances_ = value
 
     @property
     def etching_factor_instances(self):  # pragma: no cover
-        return self._etching_factor_instances
+        return self.etching_factor_instances_
 
     @etching_factor_instances.setter
     def etching_factor_instances(self, value):  # pragma: no cover
         if isinstance(value, list):
-            self._etching_factor_instances = value
+            self.etching_factor_instances_ = value
 
     @property
     def dielectric_extent(self):  # pragma: no cover
-        return self._dielectric_extent
+        return self.dielectric_extent_
 
     @dielectric_extent.setter
     def dielectric_extent(self, value):  # pragma: no cover
         if isinstance(value, float):
-            self._dielectric_extent = value
+            self.dielectric_extent_ = value
 
     @property
     def airbox_horizontal_extent(self):  # pragma: no cover
-        return self._airbox_horizontal_extent
+        return self.airbox_horizontal_extent_
 
     @airbox_horizontal_extent.setter
     def airbox_horizontal_extent(self, value):  # pragma: no cover
         if isinstance(value, float):
-            self._airbox_horizontal_extent = value
+            self.airbox_horizontal_extent_ = value
 
     @property
     def airbox_negative_vertical_extent(self):  # pragma: no cover
-        return self._airbox_negative_vertical_extent
+        return self.airbox_negative_vertical_extent_
 
     @airbox_negative_vertical_extent.setter
     def airbox_negative_vertical_extent(self, value):  # pragma: no cover
         if isinstance(value, float):
-            self._airbox_negative_vertical_extent = value
+            self.airbox_negative_vertical_extent_ = value
 
     @property
     def airbox_positive_vertical_extent(self):  # pragma: no cover
-        return self._airbox_positive_vertical_extent
+        return self.airbox_positive_vertical_extent_
 
     @airbox_positive_vertical_extent.setter
     def airbox_positive_vertical_extent(self, value):  # pragma: no cover
         if isinstance(value, float):
-            self._airbox_positive_vertical_extent = value
+            self.airbox_positive_vertical_extent_ = value
 
     @property
     def honor_user_dielectric(self):  # pragma: no cover
-        return self._honor_user_dielectric
+        return self.honor_user_dielectric_
 
     @honor_user_dielectric.setter
     def honor_user_dielectric(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._honor_user_dielectric = value
+            self.honor_user_dielectric_ = value
 
     @property
     def truncate_airbox_at_ground(self):  # pragma: no cover
-        return self._truncate_airbox_at_ground
+        return self.truncate_airbox_at_ground_
 
     @truncate_airbox_at_ground.setter
     def truncate_airbox_at_ground(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._truncate_airbox_at_ground = value
+            self.truncate_airbox_at_ground_ = value
 
     @property
     def solver_type(self):  # pragma: no cover
-        return self._solver_type
+        return self.solver_type_
 
     @solver_type.setter
     def solver_type(self, value):  # pragma: no cover
         if isinstance(value, int):
-            self._solver_type = value
+            self.solver_type_ = value
 
     @property
     def use_radiation_boundary(self):  # pragma: no cover
-        return self._use_radiation_boundary
+        return self.use_radiation_boundary_
 
     @use_radiation_boundary.setter
     def use_radiation_boundary(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._use_radiation_boundary = value
+            self.use_radiation_boundary_ = value
 
     def _get_bool_value(self, value):  # pragma: no cover
         val = value.lower()
@@ -3583,12 +3585,12 @@ class SimulationConfiguration(object):
         >>> edb.close_edb()
         """
 
-        if not os.path.exists(self._filename):
+        if not os.path.exists(self.filename_):
             # raise Exception("{} does not exist.".format(self._filename))
             pass
 
         try:
-            with open(self._filename) as cfg_file:
+            with open(self.filename_) as cfg_file:
                 cfg_lines = cfg_file.read().split("\n")
                 for line in cfg_lines:
                     if line.strip() != "":
@@ -3757,3 +3759,185 @@ class SimulationConfiguration(object):
         except EnvironmentError as e:
             print("Error reading cfg file: {}".format(e.message))
             raise
+
+    def export_json(self, output_file):
+        """Export Json file from SimulationConfiguration object.
+
+        Parameters
+        ----------
+        output_file : str
+            Json file name.
+
+        Returns
+        -------
+        bool
+            True when succeeded False when file name not provided.
+
+        Examples
+        --------
+
+        >>> from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+        >>> config = SimulationConfiguration()
+        >>> config.export_json(r"C:\Temp\test_json\test.json")
+        """
+        if output_file:
+            with open(output_file, "w") as write_file:
+                json.dump(self.__dict__, write_file)
+            return True
+        else:
+            return False
+
+    def import_json(self, input_file):
+        """Import Json file into SimulationConfiguration object.
+
+        Parameters
+        ----------
+        input_file : str
+            Json file name.
+
+        Returns
+        -------
+        bool
+            True when succeeded False when file name not provided.
+
+        Examples
+        --------
+        >>> from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+        >>> test = SimulationConfiguration()
+        >>> test.import_json(r"C:\Temp\test_json\test.json")
+        """
+        if input_file:
+            f = open(input_file)
+            json_dict = json.load(f)
+            for kk in json_dict.keys():
+                if kk == 'filename_':
+                    self.filename_ = json_dict[kk]
+                elif kk == 'setup_name_':
+                    self.setup_name = json_dict[kk]
+                elif kk == 'generate_solder_balls_':
+                    self.generate_solder_balls_ = json_dict[kk]
+                elif kk == 'signal_nets_':
+                    self.signal_nets_ = json_dict[kk]
+                elif kk == 'power_nets_':
+                    self.power_nets_ = json_dict[kk]
+                elif kk == 'components_':
+                    self.components_ = json_dict[kk]
+                elif kk == 'coax_solder_ball_diameter_':
+                    self.coax_solder_ball_diameter_ = json_dict[kk]
+                elif kk == 'use_default_coax_port_radial_extension_':
+                    self.use_default_coax_port_radial_extension_ = json_dict[kk]
+                elif kk == 'trim_reference_size_':
+                    self.trim_reference_size_ = json_dict[kk]
+                elif kk == 'cutout_subdesign_type_':
+                    self.cutout_subdesign_type_ = json_dict[kk]
+                elif kk == 'cutout_subdesign_round_corner_':
+                    self.cutout_subdesign_round_corner_ = json_dict[kk]
+                elif kk == 'sweep_interpolating_':
+                    self.sweep_interpolating_ = json_dict[kk]
+                elif kk == 'use_q3d_for_dc_':
+                    self.use_q3d_for_dc_ = json_dict[kk]
+                elif kk == 'relative_error_':
+                    self.relative_error_ = json_dict[kk]
+                elif kk == 'use_error_z0_':
+                    self.use_error_z0_ = json_dict[kk]
+                elif kk == 'enforce_causality_':
+                    self.enforce_causality_ = json_dict[kk]
+                elif kk == 'enforce_passivity_':
+                    self.enforce_passivity_ = json_dict[kk]
+                elif kk == 'passivity_tolerance_':
+                    self.passivity_tolerance_ = json_dict[kk]
+                elif kk == 'sweep_name_':
+                    self.sweep_name_ = json_dict[kk]
+                elif kk == 'radiation_box_':
+                    self.radiation_box_ = json_dict[kk]
+                elif kk == 'start_frequency_':
+                    self.start_frequency_ = json_dict[kk]
+                elif kk == 'stop_freq_':
+                    self.stop_freq_ = json_dict[kk]
+                elif kk == 'sweep_type_':
+                    self.sweep_type_ = json_dict[kk]
+                elif kk == 'step_freq_':
+                    self.step_freq_ = json_dict[kk]
+                elif kk == 'decade_count_':
+                    self.decade_count_ = json_dict[kk]
+                elif kk == 'mesh_freq_':
+                    self.mesh_freq_ = json_dict[kk]
+                elif kk == 'max_num_passes_':
+                    self.max_num_passes_ = json_dict[kk]
+                elif kk == 'max_mag_delta_s_':
+                    self.max_mag_delta_s_ = json_dict[kk]
+                elif kk == 'min_num_passes_':
+                    self.min_num_passes_ = json_dict[kk]
+                elif kk == 'basis_order_':
+                    self.basis_order_ = json_dict[kk]
+                elif kk == 'do_lambda_refinement_':
+                    self.do_lambda_refinement_ = json_dict[kk]
+                elif kk == 'arc_angle_':
+                    self.arc_angle_ = json_dict[kk]
+                elif kk == 'start_azimuth_':
+                    self.start_azimuth_ = json_dict[kk]
+                elif kk == 'max_arc_points_':
+                    self.max_arc_points_ = json_dict[kk]
+                elif kk == 'use_arc_to_chord_error_':
+                    self.use_arc_to_chord_error_ = json_dict[kk]
+                elif kk == 'defeature_abs_length_':
+                    self.defeature_abs_length_ = json_dict[kk]
+                elif kk == 'defeature_layout_':
+                    self.defeature_layout_ = json_dict[kk]
+                elif kk == 'minimum_void_surface_':
+                    self.minimum_void_surface_ = json_dict[kk]
+                elif kk == 'max_suf_dev_':
+                    self.max_suf_dev_ = json_dict[kk]
+                elif kk == 'process_padstack_definitions_':
+                    self.process_padstack_definitions_ = json_dict[kk]
+                elif kk == 'return_current_distribution_':
+                    self.return_current_distribution_ = json_dict[kk]
+                elif kk == 'ignore_non_functional_pads_':
+                    self.ignore_non_functional_pads_ = json_dict[kk]
+                elif kk == 'include_inter_plane_coupling_':
+                    self.include_inter_plane_coupling_ = json_dict[kk]
+                elif kk == 'xtalk_threshold_':
+                    self.xtalk_threshold_ = json_dict[kk]
+                elif kk == 'min_void_area_':
+                    self.min_void_area_ = json_dict[kk]
+                elif kk == 'min_pad_area_to_mesh_':
+                    self.min_pad_area_to_mesh_ = json_dict[kk]
+                elif kk == 'snap_length_threshold_':
+                    self.snap_length_threshold_ = json_dict[kk]
+                elif kk == 'min_plane_area_to_mesh_':
+                    self.min_plane_area_to_mesh_ = json_dict[kk]
+                elif kk == 'dc_min_plane_area_to_mesh_':
+                    self.dc_min_plane_area_to_mesh_ = json_dict[kk]
+                elif kk == 'max_init_mesh_edge_length_':
+                    self.max_init_mesh_edge_length_ = json_dict[kk]
+                elif kk == 'signal_layers_properties_':
+                    self.signal_layers_properties_ = json_dict[kk]
+                elif kk == 'coplanar_instances_':
+                    self.coplanar_instances_ = json_dict[kk]
+                elif kk == 'signal_layer_etching_instances_':
+                    self.signal_layer_etching_instances_ = json_dict[kk]
+                elif kk == 'etching_factor_instances_':
+                    self.etching_factor_instances_ = json_dict[kk]
+                elif kk == 'dielectric_extent_':
+                    self.dielectric_extent_ = json_dict[kk]
+                elif kk == 'airbox_horizontal_extent_':
+                    self.airbox_horizontal_extent_ = json_dict[kk]
+                elif kk == 'airbox_negative_vertical_extent_':
+                    self.airbox_negative_vertical_extent_ = json_dict[kk]
+                elif kk == 'airbox_positive_vertical_extent_':
+                    self.airbox_positive_vertical_extent_ = json_dict[kk]
+                elif kk == 'honor_user_dielectric_':
+                    self.honor_user_dielectric_ = json_dict[kk]
+                elif kk == 'truncate_airbox_at_ground_':
+                    self.truncate_airbox_at_ground_ = json_dict[kk]
+                elif kk == 'use_radiation_boundary_':
+                    self.use_radiation_boundary_ = json_dict[kk]
+                elif kk == 'do_cutout_subdesign_':
+                    self.do_cutout_subdesign_ = json_dict[kk]
+                elif kk == 'solver_type_':
+                    self.solver_type_ = json_dict[kk]
+                else:
+                    pass
+            return True
+        else:
+            return False
