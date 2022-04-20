@@ -3788,7 +3788,7 @@ class SimulationConfiguration(object):
         >>> config = SimulationConfiguration()
         >>> config.export_json(r"C:\Temp\test_json\test.json")
         """
-        dict_out ={}
+        dict_out = {}
         for k, v in self.__dict__.items():
             if k[0] == "_":
                 dict_out[k[1:]] = v
