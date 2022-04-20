@@ -121,7 +121,7 @@ class TestClass(BasisTest, object):
         status = self.aedtapp.modeler.move_face([id6.faces[0].id, id6.faces[2]])
         assert status
         status = self.aedtapp.modeler.move_face([id6.faces[0].id, id5.faces[0]])
-        assert not status
+        assert status
 
     @pyaedt_unittest_check_desktop_error
     def test_11_split(self):

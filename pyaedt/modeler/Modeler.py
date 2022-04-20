@@ -4327,7 +4327,7 @@ class GeometryModeler(Modeler, object):
 
     @pyaedt_function_handler()
     def move_face(self, faces, offset=1.0):
-        """Moves an input face or a list of input faces of an specific object.
+        """Move an input face or a list of input faces of an specific object.
 
         This method moves a face or a list of faces which belong to the same solid.
 
@@ -4351,37 +4351,41 @@ class GeometryModeler(Modeler, object):
         """
 
         face_selection = self.convert_to_selections(faces, True)
-        selection = []
+        selection = {}
         for f in face_selection:
-            selection.append(self.oeditor.GetObjectNameByFaceID(f))
-        result = all(element == selection[0] for element in selection)
+            if self.oeditor.GetObjectNameByFaceID(f) in selection:
+                selection[self.oeditor.GetObjectNameByFaceID(f)].append(f)
+            else:
+                selection[self.oeditor.GetObjectNameByFaceID(f)] = [f]
 
-        if result:
-            self._oeditor.MoveFaces(
-                ["NAME:Selections", "Selections:=", selection[0], "NewPartsModelFlag:=", "Model"],
+        arg1 = [
+            "NAME:Selections",
+            "Selections:=",
+            self.convert_to_selections(list(selection.keys()), False),
+            "NewPartsModelFlag:=",
+            "Model",
+        ]
+        arg2 = ["NAME:Parameters"]
+        for el in list(selection.keys()):
+            arg2.append(
                 [
-                    "NAME:Parameters",
-                    [
-                        "NAME:MoveFacesParameters",
-                        "MoveAlongNormalFlag:=",
-                        True,
-                        "OffsetDistance:=",
-                        str(offset) + self.model_units,
-                        "MoveVectorX:=",
-                        "0mm",
-                        "MoveVectorY:=",
-                        "0mm",
-                        "MoveVectorZ:=",
-                        "0mm",
-                        "FacesToMove:=",
-                        face_selection,
-                    ],
-                ],
+                    "NAME:MoveFacesParameters",
+                    "MoveAlongNormalFlag:=",
+                    True,
+                    "OffsetDistance:=",
+                    str(offset) + self.model_units,
+                    "MoveVectorX:=",
+                    "0mm",
+                    "MoveVectorY:=",
+                    "0mm",
+                    "MoveVectorZ:=",
+                    "0mm",
+                    "FacesToMove:=",
+                    selection[el],
+                ]
             )
-            return True
-        else:
-            self.logger.error("Faces do not belong to the same object")
-            return False
+        self._oeditor.MoveFaces(arg1, arg2)
+        return True
 
     def __get__(self, instance, owner):
         self._app = instance
