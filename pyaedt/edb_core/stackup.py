@@ -487,19 +487,30 @@ class EdbStackup(object):
         ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
         ...                                   )
         """
-        # if flipped_stackup and place_on_top or (not flipped_stackup and not place_on_top):
         _angle = angle * math.pi / 180.0
 
         if solder_height <= 0:
             if flipped_stackup and not place_on_top or (place_on_top and not flipped_stackup):
-                lay = list(self.signal_layers.keys())[0]
-                solder_height = self._get_solder_height(lay)
-                self._remove_solder_pec(lay)
+                minimum_elevation = None
+                for lay in self.signal_layers.values():
+                    if minimum_elevation is None:
+                        minimum_elevation = lay.lower_elevation
+                    elif lay.lower_elevation > minimum_elevation:
+                        break
+                    lay_solder_height = self._get_solder_height(lay.name)
+                    solder_height = max(lay_solder_height, solder_height)
+                    self._remove_solder_pec(lay.name)
             else:
-                lay = list(self.signal_layers.keys())[-1]
-
-                solder_height = self._get_solder_height(lay)
-                self._remove_solder_pec(lay)
+                maximum_elevation = None
+                layers_from_the_top = sorted(self.signal_layers.values(), key=lambda lay: -lay.upper_elevation)
+                for lay in layers_from_the_top:
+                    if maximum_elevation is None:
+                        maximum_elevation = lay.upper_elevation
+                    elif lay.upper_elevation < maximum_elevation:
+                        break
+                    lay_solder_height = self._get_solder_height(lay.name)
+                    solder_height = max(lay_solder_height, solder_height)
+                    self._remove_solder_pec(lay.name)
 
         rotation = self._get_edb_value(0.0)
         if flipped_stackup:

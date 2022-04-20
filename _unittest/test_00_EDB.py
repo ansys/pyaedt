@@ -899,7 +899,7 @@ class TestClass(BasisTest, object):
             chipEdb.close_edb()
             laminateEdb.close_edb()
 
-    def test_82c_place_on_bottom_of_lam_with_mold_solder(self):
+    def test_82d_place_on_bottom_of_lam_with_mold_solder(self):
         laminateEdb = Edb(os.path.join(local_path, "example_models", "lam_with_mold.aedb"), edbversion=desktop_version)
         chipEdb = Edb(os.path.join(local_path, "example_models", "chip_solder.aedb"), edbversion=desktop_version)
         try:
@@ -1097,10 +1097,3 @@ class TestClass(BasisTest, object):
         assert signal_layer == 0
         dielectric_layer = stackup._layer_types_to_int(stackup.layer_types.DielectricLayer)
         assert dielectric_layer == 1
-
-    def test_98_export_import_json_for_config(self):
-        sim_config = SimulationConfiguration()
-        json_file = os.path.join(self.local_scratch.path, "test.json")
-        assert sim_config.export_json(json_file)
-        test_import = SimulationConfiguration()
-        assert test_import.import_json(json_file)
