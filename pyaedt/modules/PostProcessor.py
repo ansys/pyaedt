@@ -19,7 +19,6 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
 import pyaedt.modules.report_templates as rt
-from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.general_methods import _retry_ntimes, is_ironpython
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -1899,7 +1898,7 @@ class PostProcessorCommon(object):
         self._app = app
         self._oeditor = self.modeler.oeditor
         self._oreportsetup = self._odesign.GetModule("ReportSetup")
-        self._scratch = Scratch(self._app.temp_directory, volatile=True)
+        self._scratch = self._app.working_directory
         self.plots = []
         self.reports_by_category = Reports(self, self._app.design_type)
 
