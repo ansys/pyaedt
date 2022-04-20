@@ -15,10 +15,10 @@ import sys
 import warnings
 from collections import OrderedDict
 
+import pyaedt.modules.report_templates as rt
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
-import pyaedt.modules.report_templates as rt
 from pyaedt.generic.general_methods import _retry_ntimes, is_ironpython
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -611,6 +611,12 @@ class SolutionData(object):
         self.solutions_data_imag = self._solution_data_imag()
         self.solutions_data_mag = {}
         self.units_data = {}
+        for expression in self.expressions:
+            if len(self._original_data) > 1:
+                for data in self._original_data:
+                    for v in data.GetDesignVariableNames():
+                        if v not in self._sweeps_names:
+                            self._sweeps_names.append(v)
         for expr in self.expressions:
             self.solutions_data_mag[expr] = {}
             self.units_data[expr] = self.nominal_variation.GetDataUnits(expr)
@@ -658,6 +664,39 @@ class SolutionData(object):
     @pyaedt_function_handler()
     def _solution_data_real(self):
         """ """
+        # sols_data = {}
+        # for expression in self.expressions:
+        #     combinations = []
+        #     if len(self._original_data) == 1:
+        #         solution = list(self.nominal_variation.GetRealDataValues(expression, False))
+        #     else:
+        #         solution = []
+        #         for data in self._original_data:
+        #             for v in data.GetDesignVariableNames():
+        #                 if v not in self._sweeps_names:
+        #                     self._sweeps[v] = []
+        #                     self._sweeps_names.append(v)
+        #                     self.nominal_sweeps[v] = data.GetDesignVariableValue(v)
+        #                     self.units_sweeps[v] = data.GetDesignVariableUnits(v)
+        #             comb = []
+        #             for v in reversed(data.GetDesignVariableNames()):
+        #                 if data.GetDesignVariableValue(v) not in self._sweeps[v]:
+        #                     self._sweeps[v].append(data.GetDesignVariableValue(v))
+        #                 comb.append(data.GetDesignVariableValue(v))
+        #             combinations.append(comb)
+        #             solution.extend(list(data.GetRealDataValues(expression, False)))
+        #     values = []
+        #     for el in reversed(self._sweeps_names):
+        #         values.append(self.sweeps[el])
+        #
+        #     solution_Data = {}
+        #     i = 0
+        #     for t in itertools.product(*values):
+        #         if not combinations or (combinations and list(t[: len(combinations[0])]) in combinations):
+        #             solution_Data[t] = solution[i]
+        #             i += 1
+        #     sols_data[expression] = solution_Data
+        # return sols_data
         sols_data = {}
         for expression in self.expressions:
             combinations = []
@@ -665,11 +704,12 @@ class SolutionData(object):
                 solution = list(self.nominal_variation.GetRealDataValues(expression, False))
             else:
                 solution = []
+                extendes_sweep_names = []
                 for data in self._original_data:
                     for v in data.GetDesignVariableNames():
-                        if v not in self._sweeps_names:
+                        if v not in extendes_sweep_names:
                             self._sweeps[v] = []
-                            self._sweeps_names.append(v)
+                            extendes_sweep_names.append(v)
                             self.nominal_sweeps[v] = data.GetDesignVariableValue(v)
                             self.units_sweeps[v] = data.GetDesignVariableUnits(v)
                     comb = []
@@ -682,13 +722,19 @@ class SolutionData(object):
             values = []
             for el in reversed(self._sweeps_names):
                 values.append(self.sweeps[el])
-
             solution_Data = {}
             i = 0
-            for t in itertools.product(*values):
-                if not combinations or (combinations and list(t[: len(combinations[0])]) in combinations):
-                    solution_Data[t] = solution[i]
-                    i += 1
+            if combinations:
+                for comb in combinations:
+                    for t in itertools.product(*values):
+
+                        solution_Data[tuple(comb + list(t))] = solution[i]
+                        i += 1
+            else:
+                for t in itertools.product(*values):
+                    if not combinations:
+                        solution_Data[t] = solution[i]
+                        i += 1
             sols_data[expression] = solution_Data
         return sols_data
 
@@ -704,28 +750,39 @@ class SolutionData(object):
                 else:
                     solution = []
                     for data in self._original_data:
-                        comb = []
-                        for v in reversed(data.GetDesignVariableNames()):
-                            if data.GetDesignVariableValue(v) not in self._sweeps[v]:
-                                self._sweeps[v].append(data.GetDesignVariableValue(v))
-                            comb.append(data.GetDesignVariableValue(v))
-                        combinations.append(comb)
                         solution.extend(list(data.GetImagDataValues(expression, False)))
             else:
                 solution = None
+            for data in self._original_data:
+                comb = []
+                for v in reversed(data.GetDesignVariableNames()):
+                    if data.GetDesignVariableValue(v) not in self._sweeps[v]:
+                        self._sweeps[v].append(data.GetDesignVariableValue(v))
+                    comb.append(data.GetDesignVariableValue(v))
+                combinations.append(comb)
             values = []
             for el in reversed(self._sweeps_names):
                 values.append(self.sweeps[el])
 
             solution_Data = {}
             i = 0
-            for t in itertools.product(*values):
-                if not combinations or (combinations and list(t[: len(combinations[0])]) in combinations):
-                    if solution:
-                        solution_Data[t] = solution[i]
-                    else:
-                        solution_Data[t] = 0
-                    i += 1
+            if combinations:
+                for comb in combinations:
+                    for t in itertools.product(*values):
+                        if solution:
+                            solution_Data[tuple(comb + list(t))] = solution[i]
+                        else:
+                            solution_Data[tuple(comb + list(t))] = 0
+
+                        i += 1
+            else:
+                for t in itertools.product(*values):
+                    if not combinations:
+                        if solution:
+                            solution_Data[t] = solution[i]
+                        else:
+                            solution_Data[t] = 0
+                        i += 1
             sols_data[expression] = solution_Data
         return sols_data
 
