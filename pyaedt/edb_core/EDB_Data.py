@@ -3788,7 +3788,7 @@ class SimulationConfiguration(object):
             return False
 
     def import_json(self, input_file):
-        """Import Json file into SimulationConfiguration object.
+        """Import Json file into SimulationConfiguration object instance.
 
         Parameters
         ----------
