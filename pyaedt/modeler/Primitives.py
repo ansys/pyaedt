@@ -3466,17 +3466,17 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _pos_with_arg(self, pos, units=None):
-        posx = self._arg_with_dim(pos[0], units)
+        xpos = self._arg_with_dim(pos[0], units)
         if len(pos) < 2:
-            posy = self._arg_with_dim(0, units)
+            ypos = self._arg_with_dim(0, units)
         else:
-            posy = self._arg_with_dim(pos[1], units)
+            ypos = self._arg_with_dim(pos[1], units)
         if len(pos) < 3:
-            posz = self._arg_with_dim(0, units)
+            zpos = self._arg_with_dim(0, units)
         else:
-            posz = self._arg_with_dim(pos[2], units)
+            zpos = self._arg_with_dim(pos[2], units)
 
-        return posx, posy, posz
+        return xpos, ypos, zpos
 
     @pyaedt_function_handler()
     def _str_list(self, theList):
