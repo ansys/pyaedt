@@ -47,8 +47,8 @@ class TestClass(BasisTest, object):
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         app.close_project(saveproject=False)
-        assert isinstance(out[0], dict)
-        assert out[1]
+        assert isinstance(out, dict)
+        assert app.configurations.results.global_import_success
 
     def test_02_q3d_export(self):
         conf_file = self.q3dtest.configurations.export_config()
@@ -60,8 +60,8 @@ class TestClass(BasisTest, object):
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         app.close_project(saveproject=False)
-        assert isinstance(out[0], dict)
-        assert out[1]
+        assert isinstance(out, dict)
+        assert app.configurations.results.global_import_success
 
     def test_03_q2d_export(self):
         conf_file = self.q2dtest.configurations.export_config()
@@ -73,8 +73,8 @@ class TestClass(BasisTest, object):
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         app.close_project(saveproject=False)
-        assert isinstance(out[0], dict)
-        assert out[1]
+        assert isinstance(out, dict)
+        assert app.configurations.results.global_import_success
 
     def test_04_icepak(self):
         box1 = self.icepak.modeler.create_box([0, 0, 0], [10, 10, 10])
@@ -91,5 +91,5 @@ class TestClass(BasisTest, object):
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         app.close_project(saveproject=False)
-        assert isinstance(out[0], dict)
-        assert out[1]
+        assert isinstance(out, dict)
+        assert app.configurations.results.global_import_success
