@@ -2,6 +2,7 @@ import copy
 import json
 import os
 from collections import OrderedDict
+from datetime import datetime
 
 from pyaedt import __version__
 from pyaedt.generic.general_methods import _create_json_file
@@ -10,6 +11,8 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Modeler import CoordinateSystem
 from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.DesignXPloration import SetupOpti
+from pyaedt.modules.DesignXPloration import SetupParam
 from pyaedt.modules.MaterialLib import Material
 from pyaedt.modules.Mesh import MeshOperation
 
@@ -355,7 +358,7 @@ class Configurations(object):
             if val.get("Transparency", None):
                 arg2.append(["NAME:Transparent", "Value:=", val["Transparency"]])
             if val.get("Color", None):
-                arg2.append(["NAME:Color", "R:=", val["Color"][0], "G:=", val["Color"][1], "B:=", val["Color"][1]])
+                arg2.append(["NAME:Color", "R:=", val["Color"][0], "G:=", val["Color"][1], "B:=", val["Color"][2]])
             if val.get("CoordinateSystem", None):
                 arg2.append(["NAME:Orientation", "Value:=", val["CoordinateSystem"]])
             arg[1].append(arg2)
@@ -430,6 +433,40 @@ class Configurations(object):
             return True
         else:
             self._app.logger.warning("Failed to add Setup {} ".format(name))
+            return False
+
+    @pyaedt_function_handler()
+    def _update_optimetrics(self, name, props):
+        for setup_el in self._app.optimizations.setups:
+            if setup_el.name == name:
+                if not self.skip_if_exists:
+                    setup_el.props = props
+                    setup_el.update()
+                return True
+        setup = SetupOpti(self._app, name, optim_type=props.get("SetupType", None))
+        if setup.create():
+            self._app.optimizations.setups.append(setup)
+            self._app.logger.info("Optim {} added.".format(name))
+            return True
+        else:
+            self._app.logger.warning("Failed to add Optim {} ".format(name))
+            return False
+
+    @pyaedt_function_handler()
+    def _update_parametrics(self, name, props):
+        for setup_el in self._app.parametrics.setups:
+            if setup_el.name == name:
+                if not self.skip_if_exists:
+                    setup_el.props = props
+                    setup_el.update()
+                return True
+        setup = SetupParam(self._app, name, optim_type=props.get("SetupType", None))
+        if setup.create():
+            self._app.optimizations.setups.append(setup)
+            self._app.logger.info("Optim {} added.".format(name))
+            return True
+        else:
+            self._app.logger.warning("Failed to add Optim {} ".format(name))
             return False
 
     @pyaedt_function_handler()
@@ -528,17 +565,29 @@ class Configurations(object):
             for setup, props in dict_in["setups"].items():
                 if not self._update_setup(setup, props):
                     success = False
+        if self.optimizations and dict_in.get("optimizations", None):
+            for setup, props in dict_in["optimizations"].items():
+                if not self._update_optimetrics(setup, props):
+                    success = False
+        if self.optimizations and dict_in.get("parametrics", None):
+            for setup, props in dict_in["parametrics"].items():
+                if not self._update_parametrics(setup, props):
+                    success = False
         return dict_in, success
 
     @pyaedt_function_handler()
-    def _export_variables(self, dict_out):
+    def _export_general(self, dict_out):
         dict_out["general"] = {}
         dict_out["general"]["pyaedt_version"] = __version__
         dict_out["general"]["model_units"] = self._app.modeler.model_units
         dict_out["general"]["design_name"] = self._app.design_name
+        dict_out["general"]["date"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        dict_out["general"]["object_mapping"] = {}
+
+    @pyaedt_function_handler()
+    def _export_variables(self, dict_out):
         dict_out["general"]["variables"] = {}
         dict_out["general"]["postprocessing_variables"] = {}
-        dict_out["general"]["object_mapping"] = {}
         post_vars = self._app.variable_manager.post_processing_variables
         for k, v in self._app.variable_manager.independent_variables.items():
             if k not in post_vars:
@@ -567,10 +616,14 @@ class Configurations(object):
             dict_out["optimizations"] = {}
             for setup in self._app.optimizations.setups:
                 dict_out["optimizations"][setup.name] = setup.props
+                if not setup.props.get("SetupType", None):
+                    dict_out["optimizations"][setup.name]["SetupType"] = setup.soltype
         if self.parametrics and self._app.parametrics.setups:
             dict_out["parametrics"] = {}
             for setup in self._app.parametrics.setups:
                 dict_out["parametrics"][setup.name] = setup.props
+                if not setup.props.get("SetupType", None):
+                    dict_out["parametrics"][setup.name]["SetupType"] = setup.soltype
 
     @pyaedt_function_handler()
     def _export_boundaries(self, dict_out):
@@ -676,6 +729,7 @@ class Configurations(object):
             )
         dict_out = {}
 
+        self._export_general(dict_out)
         self._export_variables(dict_out)
         self._export_setups(dict_out)
         self._export_optimizations(dict_out)
@@ -688,7 +742,10 @@ class Configurations(object):
 
         if os.path.exists(config_file):
             with open(config_file, "r") as json_file:
-                dict_in = json.load(json_file)
+                try:
+                    dict_in = json.load(json_file)
+                except:
+                    dict_in = {}
             try:
                 if dict_in["general"]["pyaedt_version"] == __version__:
                     for k, v in dict_in.items():
@@ -702,7 +759,9 @@ class Configurations(object):
                 pass
         # write the updated json to file
         if _create_json_file(dict_out, config_file):
+            self._app.logger.info("Json file {} created correctly.".format(config_file))
             return config_file
+        self._app.logger.error("Error creating json file {}.".format(config_file))
         return False
 
 
