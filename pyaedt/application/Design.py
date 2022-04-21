@@ -1631,7 +1631,7 @@ class Design(object):
             propserver = "ProjectVariables"
         else:
             tab = "NAME:LocalVariableTab"
-            if self.design_type == "Circuit Design":
+            if self.design_type in ["HFSS 3D Layout Design", "Circuit Design"]:
                 if variable_name in self.odesign.GetProperties("DefinitionParameterTab", "LocalVariables"):
                     tab = "NAME:DefinitionParameterTab"
 
@@ -2964,7 +2964,7 @@ class Design(object):
             varnames = self.oproject.GetProperties("ProjectVariableTab", "ProjectVariables")
         if export_design:
             desnames = self.odesign.GetProperties("LocalVariableTab", "LocalVariables")
-            if self.design_type == "Circuit Design":
+            if self.design_type in ["HFSS 3D Layout Design", "Circuit Design"]:
                 desnames.extend(self.odesign.GetProperties("DefinitionParameterTab", "LocalVariables"))
         list_full = [["Name", "Value"]]
         for el in varnames:

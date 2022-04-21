@@ -779,7 +779,7 @@ class VariableManager(object):
         test = desktop_object.GetName()
         proj_name = self._oproject.GetName()
         var_type = "Project" if "$" in variable_name[0] else "Local"
-        if circuit_parameter and self._app.design_type == "Circuit Design":
+        if circuit_parameter and self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design"]:
             tab_name = "DefinitionParameterTab"
         else:
             tab_name = "{0}VariableTab".format(var_type)
