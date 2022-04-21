@@ -361,6 +361,7 @@ dist/
 /htmlcov/
 /coverage.xml
 /_unittest/local_config.json
+test-output.xml
 
 # Scratch Jupyter Notebooks
 scratch_notebooks/
@@ -376,3 +377,4 @@ edb.def\+
 model.index.bak
 model.index.tmp
 model.index\+
+

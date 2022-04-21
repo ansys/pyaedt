@@ -249,12 +249,12 @@ class CircuitComponents(object):
         >>> oEditor.CreateIPort
         """
         if location:
-            posx, posy = location[0], location[1]
+            xpos, ypos = location[0], location[1]
         else:
-            posx, posy = self._get_location(location)
+            xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
         arg1 = ["NAME:IPortProps", "Name:=", name, "Id:=", id]
-        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", angle, "Flip:=", False]
+        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         id = self._oeditor.CreateIPort(arg1, arg2)
 
         id = int(id.split(";")[1])

@@ -445,9 +445,9 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                     origin[2] -= wg_thickness
                     origin[1] -= wg_thickness
             centers = [f.center for f in airbox.faces]
-            posx = [i[wg_direction_axis] for i in centers]
-            mini = posx.index(min(posx))
-            maxi = posx.index(max(posx))
+            xpos = [i[wg_direction_axis] for i in centers]
+            mini = xpos.index(min(xpos))
+            maxi = xpos.index(max(xpos))
             if create_sheets_on_openings:
                 p1 = self.create_object_from_face(airbox.faces[mini].id)
                 p2 = self.create_object_from_face(airbox.faces[maxi].id)
