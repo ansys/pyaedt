@@ -3,7 +3,7 @@ import os
 import re
 
 from pyaedt.application.Analysis import Analysis
-from pyaedt.generic.configurations import Configurations
+from pyaedt.generic.configurations import ConfigurationsIcepak
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -92,7 +92,7 @@ class FieldAnalysisIcepak(Analysis, object):
         self._modeler = Modeler3D(self)
         self._mesh = IcepakMesh(self)
         self._post = PostProcessor(self)
-        self._configurations = Configurations(self)
+        self._configurations = ConfigurationsIcepak(self)
 
     @property
     def configurations(self):
@@ -304,7 +304,7 @@ class FieldAnalysisIcepak(Analysis, object):
         >>> oEditor.Export
         """
         if not object_list:
-            allObjects = self.modeler.object_names
+            allObjects = [i for i in self.modeler.object_names]
             if removed_objects:
                 for rem in removed_objects:
                     allObjects.remove(rem)
@@ -312,7 +312,7 @@ class FieldAnalysisIcepak(Analysis, object):
                 if "Region" in allObjects:
                     allObjects.remove("Region")
         else:
-            allObjects = object_list[:]
+            allObjects = self.modeler.convert_to_selections(object_list, True)
 
         self.logger.info("Exporting {} objects".format(len(allObjects)))
         major = -1

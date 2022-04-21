@@ -2718,6 +2718,8 @@ class Design(object):
             new_design = self._oproject.InsertDesign(
                 "RMxprt", unique_design_name, "Model Creation Inner-Rotor Induction Machine", ""
             )
+        elif design_type == "Icepak":
+            new_design = self._oproject.InsertDesign("Icepak", unique_design_name, "SteadyState TemperatureAndFlow", "")
         else:
             if design_type == "HFSS" and self._aedt_version < "2021.2":
                 new_design = self._oproject.InsertDesign(design_type, unique_design_name, "DrivenModal", "")

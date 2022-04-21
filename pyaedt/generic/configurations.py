@@ -4,6 +4,7 @@ import os
 from collections import OrderedDict
 
 from pyaedt import __version__
+from pyaedt.generic.general_methods import _create_json_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -22,8 +23,18 @@ def find_datasets(d, out_list):
             val = a
             if str(type(a)) == r"<type 'List'>":
                 val = list(a)
-            if "pwl(" in str(val):
-                out_list.append(a[a.find("$") : a.find(",")])
+            if isinstance(val, list):
+                for el in val:
+                    try:
+                        if "pwl" in el["free_form_value"]:
+                            out_list.append(
+                                el["free_form_value"][el["free_form_value"].find("$") : el["free_form_value"].find(",")]
+                            )
+                    except:
+                        pass
+            elif isinstance(val, str):
+                if "pwl" in val:
+                    out_list.append(val[val.find("$") : val.find(",")])
 
 
 class Configurations(object):
@@ -256,9 +267,25 @@ class Configurations(object):
         elif "Faces" in props:
             new_list = []
             for face in props["Faces"]:
-                for f in self._app.modeler[mapping[str(face)][0]].faces:
-                    if GeometryOperators.points_distance(f.center, mapping[str(face)][1]) < self.tolerance:
-                        new_list.append(f.id)
+                try:
+                    f_id = self._app.modeler.oeditor.GetFaceByPosition(
+                        [
+                            "NAME:FaceParameters",
+                            "BodyName:=",
+                            mapping[str(face)][0],
+                            "XPosition:=",
+                            self._app.modeler._arg_with_dim(mapping[str(face)][1][0], self._app.modeler.model_units),
+                            "YPosition:=",
+                            self._app.modeler._arg_with_dim(mapping[str(face)][1][1], self._app.modeler.model_units),
+                            "ZPosition:=",
+                            self._app.modeler._arg_with_dim(mapping[str(face)][1][2], self._app.modeler.model_units),
+                        ]
+                    )
+                    new_list.append(f_id)
+                except:
+                    for f in self._app.modeler[mapping[str(face)][0]].faces:
+                        if GeometryOperators.points_distance(f.center, mapping[str(face)][1]) < self.tolerance:
+                            new_list.append(f.id)
             props["Faces"] = new_list
 
         elif "Edges" in props:
@@ -279,15 +306,17 @@ class Configurations(object):
                     cs.update()
                 update = True
         if update:
-            return
+            return True
         cs = CoordinateSystem(self._app.modeler, props, name)
         try:
             cs._modeler.oeditor.CreateRelativeCS(cs._orientation, cs._attributes)
             cs.ref_cs = props["Reference CS"]
             cs.update()
             self._app.logger.info("Coordinate System {} added.".format(name))
+            return True
         except:
             self._app.logger.warning("Failed to add CS {} ".format(name))
+            return False
 
     @pyaedt_function_handler()
     def _update_face_coordinate_system(self, name, props):
@@ -315,16 +344,26 @@ class Configurations(object):
             arg = ["NAME:AllTabs", ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", name]]]
             arg2 = ["NAME:ChangedProps"]
             if self._app.modeler[name].is3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
-                arg2.append(["NAME:Material", "Value:=", chr(34) + val["Material"] + chr(34)])
-                arg2.append(["NAME:Solve Inside", "Value:=", val["SolveInside"]])
-            arg2.append(["NAME:Model", "Value:=", val["Model"]])
-            if val["Group"]:
+                if val.get("Material", None):
+                    arg2.append(["NAME:Material", "Value:=", chr(34) + val["Material"] + chr(34)])
+                if val.get("SolveInside", None):
+                    arg2.append(["NAME:Solve Inside", "Value:=", val["SolveInside"]])
+            if val.get("Model", None):
+                arg2.append(["NAME:Model", "Value:=", val["Model"]])
+            if val.get("Group", None):
                 arg2.append(["NAME:Group", "Value:=", val["Group"]])
-            arg2.append(["NAME:Transparent", "Value:=", val["Transparency"]])
-            arg2.append(["NAME:Color", "R:=", val["Color"][0], "G:=", val["Color"][1], "B:=", val["Color"][1]])
-            arg2.append(["NAME:Orientation", "Value:=", val["CoordinateSystem"]])
+            if val.get("Transparency", None):
+                arg2.append(["NAME:Transparent", "Value:=", val["Transparency"]])
+            if val.get("Color", None):
+                arg2.append(["NAME:Color", "R:=", val["Color"][0], "G:=", val["Color"][1], "B:=", val["Color"][1]])
+            if val.get("CoordinateSystem", None):
+                arg2.append(["NAME:Orientation", "Value:=", val["CoordinateSystem"]])
             arg[1].append(arg2)
-            self._app.modeler.oeditor.ChangeProperty(arg)
+            try:
+                self._app.modeler.oeditor.ChangeProperty(arg)
+                return True
+            except:
+                return False
 
     @pyaedt_function_handler()
     def _update_boundaries(self, name, props):
@@ -334,9 +373,7 @@ class Configurations(object):
                 if not self.skip_if_exists:
                     bound.props = props
                     bound.update()
-                update = True
-        if update:
-            return
+                return True
         bound = BoundaryObject(self._app, name, props, props["BoundType"])
         if bound.props.get("Independent", None):
             for b in self._app.boundaries:
@@ -356,8 +393,10 @@ class Configurations(object):
                     self._app.add_winding_coils(winding_name, name)
 
             self._app.logger.info("Boundary Operation {} added.".format(name))
+            return True
         else:
             self._app.logger.warning("Failed to add Boundary {} ".format(name))
+            return False
 
     @pyaedt_function_handler()
     def _update_mesh(self, name, props):
@@ -367,15 +406,15 @@ class Configurations(object):
                 if not self.skip_if_exists:
                     mesh_el.props = props
                     mesh_el.update()
-                update = True
-        if update:
-            return
+                return True
         bound = MeshOperation(self._app.mesh, name, props, props["Type"])
         if bound.create():
             self._app.mesh.meshoperations.append(bound)
             self._app.logger.info("mesh Operation {} added.".format(name))
+            return True
         else:
             self._app.logger.warning("Failed to add Mesh {} ".format(name))
+            return False
 
     @pyaedt_function_handler()
     def _update_setup(self, name, props):
@@ -385,13 +424,13 @@ class Configurations(object):
                 if not self.skip_if_exists:
                     setup_el.props = props
                     setup_el.update()
-                update = True
-        if update:
-            return
+                return True
         if self._app.create_setup(name, props["SetupType"], props):
             self._app.logger.info("Setup {} added.".format(name))
+            return True
         else:
             self._app.logger.warning("Failed to add Setup {} ".format(name))
+            return False
 
     @pyaedt_function_handler()
     def import_config(self, config_file, apply_config=True):
@@ -406,9 +445,10 @@ class Configurations(object):
 
         Returns
         -------
-        dict
+        dict, bool
             Config dictionary.
         """
+        success = True
         with open(config_file) as json_file:
             dict_in = json.load(json_file)
         if not apply_config:
@@ -416,17 +456,18 @@ class Configurations(object):
         try:
             self._app.modeler.model_units = dict_in["general"]["model_units"]
         except KeyError:
-            pass
+            success = False
         try:
             for k, v in dict_in["general"]["variables"].items():
                 self._app.variable_manager.set_variable(k, v)
         except KeyError:
-            pass
+            success = False
         try:
             for k, v in dict_in["general"]["postprocessing_variables"].items():
                 self._app.variable_manager.set_variable(k, v, postprocessing=True)
         except KeyError:
-            pass
+            success = False
+
         if self.export_materials and dict_in.get("datasets", None):
             if "datasets" in list(dict_in.keys()):
                 for el, val in dict_in["datasets"].items():
@@ -445,9 +486,10 @@ class Configurations(object):
                     if numcol > 2:
                         zunit = val["Coordinates"]["DimUnits"][2]
                         zval = new_list[2]
-                    self._app.create_dataset(
+                    if not self._app.create_dataset(
                         el[1:], xunit=xunit, yunit=yunit, zunit=zunit, xlist=xval, ylist=yval, zlist=zval
-                    )
+                    ):
+                        success = False
         if self.export_materials and dict_in.get("materials", None):
             for el, val in dict_in["materials"].items():
                 if el.lower() in list(self._app.materials.material_keys.keys()):
@@ -460,28 +502,33 @@ class Configurations(object):
                 self._app.materials.material_keys[newname] = newmat
         if self.coordinate_systems and dict_in.get("coordinatesystems", None):
             for name, props in dict_in["coordinatesystems"].items():
-                self._update_coordinate_system(name, props)
+                if not self._update_coordinate_system(name, props):
+                    success = False
             for name, props in dict_in["facecoordinatesystems"].items():
                 self._convert_objects(dict_in["facecoordinatesystems"][name], dict_in["general"]["object_mapping"])
                 self._update_face_coordinate_system(name, props)
         if self.object_properties and dict_in.get("objects", None):
             for obj, val in dict_in["objects"].items():
-                self._update_object(obj, val)
+                if not self._update_object(obj, val):
+                    success = False
             self._app.logger.info("Object Properties updated.")
         if self.boundaries and dict_in.get("boundaries", None):
             sort_order = sorted(dict_in["boundaries"], key=lambda x: dict_in["boundaries"][x].get("ID", 999))
             for name in sort_order:
                 self._convert_objects(dict_in["boundaries"][name], dict_in["general"]["object_mapping"])
-                self._update_boundaries(name, dict_in["boundaries"][name])
+                if not self._update_boundaries(name, dict_in["boundaries"][name]):
+                    success = False
         # TODO implement MeshRegion handler
         if self.mesh_operations and dict_in.get("mesh", None):
             for name, props in dict_in["mesh"].items():
                 self._convert_objects(props, dict_in["general"]["object_mapping"])
-                self._update_mesh(name, props)
+                if not self._update_mesh(name, props):
+                    success = False
         if self.setups and dict_in.get("setups", None):
             for setup, props in dict_in["setups"].items():
-                self._update_setup(setup, props)
-        return dict_in
+                if not self._update_setup(setup, props):
+                    success = False
+        return dict_in, success
 
     @pyaedt_function_handler()
     def _export_variables(self, dict_out):
@@ -511,6 +558,8 @@ class Configurations(object):
             dict_out["setups"] = {}
             for setup in self._app.setups:
                 dict_out["setups"][setup.name] = setup.props
+                if not setup.props.get("SetupType", None):
+                    dict_out["setups"][setup.name]["SetupType"] = setup.setuptype
 
     @pyaedt_function_handler()
     def _export_optimizations(self, dict_out):
@@ -530,6 +579,8 @@ class Configurations(object):
             dict_out["general"]["object_mapping"] = {}
             for boundary in self._app.boundaries:
                 dict_out["boundaries"][boundary.name] = boundary.props
+                if not boundary.props.get("BoundType", None):
+                    dict_out["boundaries"][boundary.name]["BoundType"] = boundary.type
                 self._map_object(boundary.props, dict_out)
 
     @pyaedt_function_handler()
@@ -620,7 +671,9 @@ class Configurations(object):
             Exported config file.
         """
         if not config_file:
-            config_file = os.path.join(self._app.working_directory, generate_unique_name(self._app.design_name))
+            config_file = os.path.join(
+                self._app.working_directory, generate_unique_name(self._app.design_name) + ".json"
+            )
         dict_out = {}
 
         self._export_variables(dict_out)
@@ -648,10 +701,9 @@ class Configurations(object):
             except KeyError:
                 pass
         # write the updated json to file
-        with open(config_file, "w") as outfile:
-            json.dump(dict_out, outfile, indent=4)
-            self._app.logger.info("Configuration file {} exported correctly.".format(config_file))
-        return config_file
+        if _create_json_file(dict_out, config_file):
+            return config_file
+        return False
 
 
 class ConfigurationsIcepak(Configurations):
@@ -667,8 +719,10 @@ class ConfigurationsIcepak(Configurations):
         if name in self._app.modeler.object_names:
             arg = ["NAME:AllTabs", ["NAME:Geometry3DAttributeTab", ["NAME:PropServers", name]]]
             arg2 = ["NAME:ChangedProps"]
-            arg2.append(["NAME:Material", "Value:=", chr(34) + val["Material"] + chr(34)])
-            arg2.append(["NAME:Solve Inside", "Value:=", val["SolveInside"]])
+            if val.get("Material", None):
+                arg2.append(["NAME:Material", "Value:=", chr(34) + val["Material"] + chr(34)])
+            if val.get("SolveInside", None):
+                arg2.append(["NAME:Solve Inside", "Value:=", val["SolveInside"]])
             arg2.append(
                 [
                     "NAME:Surface Material",
@@ -676,14 +730,22 @@ class ConfigurationsIcepak(Configurations):
                     chr(34) + val.get("SurfaceMaterial", "Steel-oxidised-surface") + chr(34),
                 ]
             )
-            arg2.append(["NAME:Model", "Value:=", val["Model"]])
-            if val["Group"]:
+            if val.get("Model", None):
+                arg2.append(["NAME:Model", "Value:=", val["Model"]])
+            if val.get("Group", None):
                 arg2.append(["NAME:Group", "Value:=", val["Group"]])
-            arg2.append(["NAME:Transparent", "Value:=", val["Transparency"]])
-            arg2.append(["NAME:Color", "R:=", val["Color"][0], "G:=", val["Color"][1], "B:=", val["Color"][1]])
-            arg2.append(["NAME:Orientation", "Value:=", val["CoordinateSystem"]])
+            if val.get("Transparency", None):
+                arg2.append(["NAME:Transparent", "Value:=", val["Transparency"]])
+            if val.get("Color", None):
+                arg2.append(["NAME:Color", "R:=", val["Color"][0], "G:=", val["Color"][1], "B:=", val["Color"][1]])
+            if val.get("CoordinateSystem", None):
+                arg2.append(["NAME:Orientation", "Value:=", val["CoordinateSystem"]])
             arg[1].append(arg2)
-            self._app.modeler.oeditor.ChangeProperty(arg)
+            try:
+                self._app.modeler.oeditor.ChangeProperty(arg)
+                return True
+            except:
+                return False
 
     @pyaedt_function_handler()
     def _update_mesh(self, name, props):
@@ -702,78 +764,7 @@ class ConfigurationsIcepak(Configurations):
             self._app.logger.info("mesh Operation {} added.".format(name))
         else:
             self._app.logger.warning("Failed to add Mesh {} ".format(name))
-
-    @pyaedt_function_handler()
-    def import_config(self, config_file, apply_config=True):
-        """Import configuration settings from a json file and apply it to the current design.
-
-        Parameters
-        ----------
-        config_file : str
-            Full path to json file.
-        apply_config : bool, optional
-            Define if imported json has to be applied to the current design or not.
-
-        Returns
-        -------
-        dict
-            Config dictionary.
-        """
-        with open(config_file) as json_file:
-            dict_in = json.load(json_file)
-        if not apply_config:
-            return dict_in
-        if self.export_materials and dict_in.get("datasets", None):
-            if "datasets" in list(dict_in.keys()):
-                for el, val in dict_in["datasets"].items():
-                    numcol = len(val["Coordinates"]["DimUnits"])
-                    xunit = val["Coordinates"]["DimUnits"][0]
-                    yunit = val["Coordinates"]["DimUnits"][1]
-                    zunit = ""
-
-                    new_list = [
-                        val["Coordinates"]["Points"][i : i + numcol]
-                        for i in range(0, len(val["Coordinates"]["Points"]), numcol)
-                    ]
-                    xval = new_list[0]
-                    yval = new_list[1]
-                    zval = None
-                    if numcol > 2:
-                        zunit = val["Coordinates"]["DimUnits"][2]
-                        zval = new_list[2]
-                    self._app.create_dataset(
-                        el[1:], xunit=xunit, yunit=yunit, zunit=zunit, xlist=xval, ylist=yval, zlist=zval
-                    )
-        if self.export_materials and dict_in.get("materials", None):
-            for el, val in dict_in["materials"].items():
-                if el.lower() in list(self._app.materials.material_keys.keys()):
-                    newname = generate_unique_name(el)
-                    self._app.logger.warning("Material %s already exists. Renaming to %s", el, newname)
-                else:
-                    newname = el
-                newmat = Material(self._app, newname, val)
-                newmat.update()
-                self._app.materials.material_keys[newname] = newmat
-        if self.coordinate_systems and dict_in.get("coordinatesystems", None):
-            for name, props in dict_in["coordinatesystems"].items():
-                self._update_coordinate_system(name, props)
-        if self.object_properties and dict_in.get("objects", None):
-            for obj, val in dict_in["objects"].items():
-                self._update_object(obj, val)
-            self._app.logger.info("Object Properties updated.")
-        if self.boundaries and dict_in.get("boundaries", None):
-            sort_order = sorted(dict_in["boundaries"], key=lambda x: dict_in["boundaries"][x].get("ID", 999))
-            for name in sort_order:
-                self._convert_objects(dict_in["boundaries"][name], dict_in["general"]["object_mapping"])
-                self._update_boundaries(name, dict_in["boundaries"][name])
-        if self.mesh_operations and dict_in.get("mesh", None):
-            for name, props in dict_in["mesh"].items():
-                self._convert_objects(props, dict_in["general"]["object_mapping"])
-                self._update_mesh(name, props)
-        if self.setups and dict_in.get("setups", None):
-            for setup, props in dict_in["setups"].items():
-                self._update_setup(setup, props)
-        return dict_in
+        return True
 
     @pyaedt_function_handler()
     def _export_objects(self, dict_out):
