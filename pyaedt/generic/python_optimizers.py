@@ -16,7 +16,10 @@ class GeneticAlgorithm(object):
         The Objective function to be minimized. This implementation minimizes the given objective function.
     dim : int
         Number of variables
-    goal : float
+    reference_file : str, optional
+        Reference file to create the cromosomes. If it is not specified, the function should create the cromose.
+    goal : float, optional
+        If after 'max_iteration_no_improv' iterations the goal is not improvedaf, the algorithm stops
     var_type: str
         Type of the optimization variables. The default is 'bool'.
         Other options are: 'int' if all variables are integer, and 'real' if all variables are
@@ -70,6 +73,7 @@ class GeneticAlgorithm(object):
         self,
         function,
         dim,
+        reference_file=None,
         population_file=None,
         goal=0,
         var_type="bool",
@@ -204,6 +208,7 @@ class GeneticAlgorithm(object):
         self.best_variable = []
         self.output_dict = {}
         self.pop = []
+        self.reference_file = reference_file
 
     def run(self):
         """Implements the genetic algorithm"""
@@ -432,7 +437,7 @@ class GeneticAlgorithm(object):
         return x
 
     def evaluate(self):
-        return self.function(self.temp)
+        return self.function(self.temp, self.reference_file)
 
     def sim(self, X):
         self.temp = X.copy()
