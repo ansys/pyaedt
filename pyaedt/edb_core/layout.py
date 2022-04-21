@@ -380,7 +380,7 @@ class EdbLayout(object):
     @pyaedt_function_handler()
     def create_path(
         self,
-        point_list,
+        path_list,
         layer_name,
         width=1,
         net_name="",
@@ -393,7 +393,7 @@ class EdbLayout(object):
 
         Parameters
         ----------
-        point_list : list
+        path_list : list
             List of points.
         layer_name : str
             Name of the layer on which to create the path.
@@ -439,7 +439,7 @@ class EdbLayout(object):
             corner_style = self._edb.Cell.Primitive.PathCornerStyle.MiterCorner  # pragma: no cover
 
         pointlists = [
-            self._edb.Geometry.PointData(self._get_edb_value(i[0]), self._get_edb_value(i[1])) for i in point_list
+            self._edb.Geometry.PointData(self._get_edb_value(i[0]), self._get_edb_value(i[1])) for i in path_list.points
         ]
         polygonData = self._edb.Geometry.PolygonData(convert_py_list_to_net_list(pointlists), False)
         polygon = self._edb.Cell.Primitive.Path.Create(
