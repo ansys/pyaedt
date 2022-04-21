@@ -1,4 +1,5 @@
 import os
+import random
 import re
 import warnings
 
@@ -83,18 +84,15 @@ class NexximComponents(CircuitComponents):
     def add_new_subcircuit(self, location=None, angle=0, name=None, nested_subcircuit_id=None):
         if not name:
             name = generate_unique_name("Circuit")
-        try:
-            id = int(self._app.design_name.split("/")[1]) + 1
-        except:
-            id = 1
-        if nested_subcircuit_id:
-            name = self._app.design_name.split("/")[0] + nested_subcircuit_id
-        else:
-            name = self._app.design_name.split("/")[0] + nested_subcircuit_id
 
-        self._app.odesign.InsertDesign(
-            "Circuit Design", name, "", self._app.design_name.replace("/", ":U") + ":" + str(id)
-        )
+        if nested_subcircuit_id:
+            parent_name = "{}:{}:{}".format(
+                self._app.design_name.split("/")[0], nested_subcircuit_id, random.randint(1, 10000)
+            )
+        else:
+            parent_name = "{}:{}".format(self._app.design_name.split("/")[0], ":U" + str(random.randint(1, 10000)))
+
+        self._app.odesign.InsertDesign("Circuit Design", name, "", parent_name)
         self.refresh_all_ids()
         for el in self.components:
             if name in self.components[el].composed_name:
