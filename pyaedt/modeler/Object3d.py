@@ -2791,6 +2791,7 @@ class CircuitComponent(object):
         self.InstanceName = None
         self._pins = None
         self._parameters = {}
+        self._component_info = {}
         self._model_data = {}
 
     @property
@@ -2857,6 +2858,28 @@ class CircuitComponent(object):
             _parameters[j] = propval
         self._parameters = ComponentParameters(self, tab, _parameters)
         return self._parameters
+
+    @property
+    def component_info(self):
+        """Component Parameters.
+
+        References
+        ----------
+
+        >>> oEditor.GetProperties
+        >>> oEditor.GetPropertyValue
+        """
+        if self._component_info or self._circuit_components._app.design_type != "Circuit Design":
+            return self._component_info
+        _component_info = {}
+        tab = "Component"
+        proparray = self.m_Editor.GetProperties(tab, self.composed_name)
+
+        for j in proparray:
+            propval = _retry_ntimes(10, self.m_Editor.GetPropertyValue, tab, self.composed_name, j)
+            _component_info[j] = propval
+        self._component_info = ComponentParameters(self, tab, _component_info)
+        return self._component_info
 
     @property
     def pins(self):

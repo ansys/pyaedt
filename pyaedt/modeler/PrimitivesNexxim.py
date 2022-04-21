@@ -80,6 +80,40 @@ class NexximComponents(CircuitComponents):
         return self._components_catalog
 
     @pyaedt_function_handler()
+    def add_new_subcircuit(self, location=None, angle=0, name=None):
+        if not name:
+            name = generate_unique_name("Circuit")
+        self._app.odesign.InsertDesign("Circuit Design", name, "", self._app.design_name)
+        self.refresh_all_ids()
+        for el in self.components:
+            if name in self.components[el].composed_name:
+                if location:
+                    self.components[el] = location
+                if angle:
+                    self.components[el].angle = angle
+                return self.components[el]
+        return False
+
+    @pyaedt_function_handler()
+    def duplicate(self, component, location=None, angle=0, flip=False):
+        comp_names = []
+        if isinstance(component, CircuitComponent):
+            comp_names.append(component.composed_name)
+        else:
+            comp_names.append(component)
+        self._modeler.oeditor.Copy(["NAME:Selections", "Selections:=", comp_names])
+        location = self._get_location(location)
+        self._modeler.oeditor.Paste(
+            ["NAME:Attributes", "Page:=", 1, "X:=", location[0], "Y:=", location[1], "Angle:=", angle, "Flip:=", flip]
+        )
+        ids = [id for id in list(self.components.keys())]
+        self.refresh_all_ids()
+        id_new = [id for id in list(self.components.keys()) if id not in ids]
+        if id_new:
+            return self.components[id_new[0]]
+        return False
+
+    @pyaedt_function_handler()
     def connect_components_in_series(self, components_to_connect):
         """Connect schematic components in series.
 

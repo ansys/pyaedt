@@ -1631,6 +1631,10 @@ class Design(object):
             propserver = "ProjectVariables"
         else:
             tab = "NAME:LocalVariableTab"
+            if self.design_type == "Circuit Design":
+                if variable_name in self.odesign.GetProperties("DefinitionParameterTab", "LocalVariables"):
+                    tab = "NAME:DefinitionParameterTab"
+
             propserver = "LocalVariables"
         arg2 = ["NAME:" + optimetrics_type, "Included:=", enable]
         if min_val:
@@ -2960,6 +2964,8 @@ class Design(object):
             varnames = self.oproject.GetProperties("ProjectVariableTab", "ProjectVariables")
         if export_design:
             desnames = self.odesign.GetProperties("LocalVariableTab", "LocalVariables")
+            if self.design_type == "Circuit Design":
+                desnames.extend(self.odesign.GetProperties("DefinitionParameterTab", "LocalVariables"))
         list_full = [["Name", "Value"]]
         for el in varnames:
             value = self.oproject.GetVariableValue(el)
@@ -3295,6 +3301,12 @@ class Design(object):
                     "ModelCreation" == self._design_type
                 ), "Error: Specified design is not of type {}.".format(self._design_type)
             return True
+        elif ":" in des_name:
+            try:
+                self._odesign = self._oproject.SetActiveDesign(des_name)
+                return True
+            except:
+                return des_name
         else:
             return des_name
 
