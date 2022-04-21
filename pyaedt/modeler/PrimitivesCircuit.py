@@ -977,10 +977,11 @@ class CircuitComponents(object):
                     o.name = name[0]
                     if len(name) == 2:
                         o.schematic_id = name[1]
+                        objID = int(o.schematic_id)
                     else:
                         o.id = int(name[1])
                         o.schematic_id = name[2]
-                    objID = o.id
+                        objID = o.id
                     self.components[objID] = o
         return len(self.components)
 
