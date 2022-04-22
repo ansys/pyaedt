@@ -1322,3 +1322,5 @@ class TestClass(BasisTest, object):
         assert duplicated_fr4_epoxy
         duplicated_pec = stack_up.duplicate_material("copper", "my_new_pec")
         assert duplicated_pec
+        non_duplicated = stack_up.duplicate_material("my_nonexistent_mat", "nothing")
+        assert not non_duplicated
