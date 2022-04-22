@@ -273,7 +273,9 @@ class EdbStackup(object):
 
     @pyaedt_function_handler()
     def duplicate_material(self, material_name, new_material_name):
-        """Create an EDB material with the same properties than a sys library material.
+        """Duplicate a material from the database.
+        It duplicates the 5 following properties permittivity, permeability, conductivity, dielectriclosstangent,
+        magneticlosstangent.
 
         Parameters
         ----------
@@ -284,7 +286,8 @@ class EdbStackup(object):
 
         Returns
         -------
-        The EDB material.
+        EDB material : class: 'Ansys.Ansoft.Edb.Definition.MaterialDef'
+
 
         Examples
         --------
@@ -302,17 +305,13 @@ class EdbStackup(object):
             if is_ironpython:
                 permittivity = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permittivity)
                 permeability = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permeability)
-                print(permeability)
                 conductivity = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Conductivity)
-                print(conductivity)
                 dielectric_loss_tangent = original_material.GetProperty(
                     self._edb.Definition.MaterialPropertyId.DielectricLossTangent
                 )
-                print(dielectric_loss_tangent)
                 magnetic_loss_tangent = original_material.GetProperty(
                     self._edb.Definition.MaterialPropertyId.MagneticLossTangent
                 )
-                print(magnetic_loss_tangent)
             else:
                 out_value_1 = self._edb.Utility.Value("1")
                 out_value_2 = self._edb.Utility.Value("2")
