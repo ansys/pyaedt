@@ -228,10 +228,13 @@ class TestClass(BasisTest, object):
 
     def test_27_odesktop(self):
         if is_ironpython:
+
             assert str(type(self.aedtapp.odesktop)) in ["<type 'ADesktopWrapper'>", "<type 'ADispatchWrapper'>"]
         else:
-            assert str(type(self.aedtapp.odesktop)) in ["<class 'win32com.client.CDispatch'>",
-                                                        '<class \'PyDesktopPlugin.AedtObjWrapper\'>']
+            assert str(type(self.aedtapp.odesktop)) in [
+                "<class 'win32com.client.CDispatch'>",
+                "<class 'PyDesktopPlugin.AedtObjWrapper'>",
+            ]
 
     def test_28_get_pyaedt_app(self):
         app = get_pyaedt_app(self.aedtapp.project_name, self.aedtapp.design_name)
