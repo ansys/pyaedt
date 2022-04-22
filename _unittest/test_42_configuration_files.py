@@ -65,6 +65,7 @@ class TestClass(BasisTest, object):
 
     def test_03_q2d_export(self):
         conf_file = self.q2dtest.configurations.export_config()
+
         assert os.path.exists(conf_file)
         filename = self.q2dtest.design_name
         file_path = os.path.join(self.q2dtest.working_directory, filename + ".step")
@@ -75,6 +76,42 @@ class TestClass(BasisTest, object):
         app.close_project(saveproject=False)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
+        self.q2dtest.configurations.options.unset_all_export()
+        assert not self.q2dtest.configurations.options.export_materials
+        assert not self.q2dtest.configurations.options.export_setups
+        assert not self.q2dtest.configurations.options.export_variables
+        assert not self.q2dtest.configurations.options.export_boundaries
+        assert not self.q2dtest.configurations.options.export_optimizations
+        assert not self.q2dtest.configurations.options.export_mesh_operations
+        assert not self.q2dtest.configurations.options._export_object_properties
+        assert not self.q2dtest.configurations.options.export_parametrics
+        self.q2dtest.configurations.options.set_all_export()
+        assert self.q2dtest.configurations.options.export_materials
+        assert self.q2dtest.configurations.options.export_setups
+        assert self.q2dtest.configurations.options.export_variables
+        assert self.q2dtest.configurations.options.export_boundaries
+        assert self.q2dtest.configurations.options.export_optimizations
+        assert self.q2dtest.configurations.options.export_mesh_operations
+        assert self.q2dtest.configurations.options.export_object_properties
+        assert self.q2dtest.configurations.options.export_parametrics
+        self.q2dtest.configurations.options.unset_all_import()
+        assert not self.q2dtest.configurations.options.import_materials
+        assert not self.q2dtest.configurations.options.import_setups
+        assert not self.q2dtest.configurations.options.import_variables
+        assert not self.q2dtest.configurations.options.import_boundaries
+        assert not self.q2dtest.configurations.options.import_optimizations
+        assert not self.q2dtest.configurations.options.import_mesh_operations
+        assert not self.q2dtest.configurations.options.import_object_properties
+        assert not self.q2dtest.configurations.options.import_parametrics
+        self.q2dtest.configurations.options.set_all_import()
+        assert self.q2dtest.configurations.options.import_materials
+        assert self.q2dtest.configurations.options.import_setups
+        assert self.q2dtest.configurations.options.import_variables
+        assert self.q2dtest.configurations.options.import_boundaries
+        assert self.q2dtest.configurations.options.import_optimizations
+        assert self.q2dtest.configurations.options.import_mesh_operations
+        assert self.q2dtest.configurations.options.import_object_properties
+        assert self.q2dtest.configurations.options.import_parametrics
 
     def test_04_icepak(self):
         box1 = self.icepak.modeler.create_box([0, 0, 0], [10, 10, 10])
