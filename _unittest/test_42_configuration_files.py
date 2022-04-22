@@ -120,6 +120,8 @@ class TestClass(BasisTest, object):
         self.icepak.assign_openings(air_faces=region.bottom_face_x.id)
         self.icepak.create_setup()
         conf_file = self.icepak.configurations.export_config()
+        self.icepak.modeler.create_coordinate_system([10, 1, 10])
+        conf_file = self.icepak.configurations.export_config()
         assert os.path.exists(conf_file)
         filename = self.icepak.design_name
         file_path = os.path.join(self.icepak.working_directory, filename + ".step")

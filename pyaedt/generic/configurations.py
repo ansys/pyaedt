@@ -1081,27 +1081,22 @@ class Configurations(object):
             if ds in list(self._app.project_datasets.keys()):
                 d = self._app.project_datasets[ds]
                 if d.z:
-                    datasets[ds] = OrderedDict(
-                        {
-                            "Coordinates": OrderedDict(
-                                {
-                                    "DimUnits": [d.xunit, d.yunit, d.zunit],
-                                    "Points": [val for tup in zip(d.x, d.y, d.z) for val in tup],
-                                }
-                            )
-                        }
-                    )
+                    units = [d.xunit, d.yunit, d.zunit]
+                    points = [val for tup in zip(d.x, d.y, d.z) for val in tup]
                 else:
-                    datasets[ds] = OrderedDict(
-                        {
-                            "Coordinates": OrderedDict(
-                                {
-                                    "DimUnits": [d.xunit, d.yunit],
-                                    "Points": [val for tup in zip(d.x, d.y) for val in tup],
-                                }
-                            )
-                        }
-                    )
+                    units = [d.xunit, d.yunit]
+                    points = [val for tup in zip(d.x, d.y) for val in tup]
+                datasets[ds] = OrderedDict(
+                    {
+                        "Coordinates": OrderedDict(
+                            {
+                                "DimUnits": units,
+                                "Points": points,
+                            }
+                        )
+                    }
+                )
+
         dict_out["materials"] = output_dict
         if datasets:
             dict_out["datasets"] = datasets
@@ -1222,22 +1217,23 @@ class ConfigurationsIcepak(Configurations):
 
     @pyaedt_function_handler()
     def _update_mesh_operations(self, name, props):
-        update = False
-        for mesh_el in self._app.mesh.meshoperations:
-            if mesh_el.name == name:
-                if not self.options.skip_import_if_exists:
-                    mesh_el.props = props
-                    mesh_el.update()
-                update = True
-        if update:
-            return
-        bound = MeshOperation(self._app.mesh, name, props, props["Type"])
-        if bound.create():
-            self._app.mesh.meshoperations.append(bound)
-            self._app.logger.info("mesh Operation {} added.".format(name))
-        else:
-            self._app.logger.warning("Failed to add Mesh {} ".format(name))
-        return True
+        pass
+        # update = False
+        # for mesh_el in self._app.mesh.meshoperations:
+        #     if mesh_el.name == name:
+        #         if not self.options.skip_import_if_exists:
+        #             mesh_el.props = props
+        #             mesh_el.update()
+        #         update = True
+        # if update:
+        #     return
+        # bound = MeshOperation(self._app.mesh, name, props, props["Type"])
+        # if bound.create():
+        #     self._app.mesh.meshoperations.append(bound)
+        #     self._app.logger.info("mesh Operation {} added.".format(name))
+        # else:
+        #     self._app.logger.warning("Failed to add Mesh {} ".format(name))
+        # return True
 
     @pyaedt_function_handler()
     def _export_objects_properties(self, dict_out):
