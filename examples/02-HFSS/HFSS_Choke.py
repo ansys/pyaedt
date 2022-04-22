@@ -9,7 +9,6 @@ import tempfile
 import os
 
 from pyaedt import generate_unique_name
-from pyaedt import Desktop
 from pyaedt import Hfss
 from pyaedt.modules.Mesh import Mesh
 
@@ -191,6 +190,8 @@ hfss.create_linear_count_sweep(
 # ----------------
 
 hfss.save_project(os.path.join(temp_folder, "My_HFSS_Choke.aedt"))
+hfss.modeler.fit_all()
+hfss.plot(os.path.join(hfss.working_directory, "Image.jpg"))
 
 
 ###############################################################################
