@@ -315,7 +315,7 @@ class Hfss(FieldAnalysis3D, object):
         props["ShowReporterFilter"] = False
         props["ReporterFilter"] = [True]
         props["Impedance"] = str(impedance) + "ohm"
-        return self._create_boundary(portname, props, "LumpedPort")
+        return self._create_boundary(portname, props, "Lumped Port")
 
     @pyaedt_function_handler()
     def _create_port_terminal(self, objectname, int_line_stop, portname, renorm=True, deembed=None, iswaveport=False):
@@ -347,9 +347,9 @@ class Hfss(FieldAnalysis3D, object):
                 except:
                     self.logger.warning("Failed To rename terminals.")
             if iswaveport:
-                boundary.type = "WavePort"
+                boundary.type = "Wave Port"
             else:
-                boundary.type = "LumpedPort"
+                boundary.type = "Lumped Port"
             props["Faces"] = [objectname]
             if iswaveport:
                 props["NumModes"] = 1
@@ -393,7 +393,7 @@ class Hfss(FieldAnalysis3D, object):
             props["RenormImp"] = renorm_imp
         else:
             props["TerminalIDList"] = []
-        return self._create_boundary(name, props, "CircuitPort")
+        return self._create_boundary(name, props, "Circuit Port")
 
     @pyaedt_function_handler()
     def _create_waveport_driven(
@@ -461,7 +461,7 @@ class Hfss(FieldAnalysis3D, object):
         props["ShowReporterFilter"] = False
         props["ReporterFilter"] = report_filter
         props["UseAnalyticAlignment"] = False
-        return self._create_boundary(portname, props, "WavePort")
+        return self._create_boundary(portname, props, "Wave Port")
 
     @pyaedt_function_handler()
     def assigncoating(
@@ -2028,7 +2028,7 @@ class Hfss(FieldAnalysis3D, object):
         --------
 
         Create two boxes that will be used to create a wave port
-        named ``'WavePort'``.
+        named ``'Wave Port'``.
 
         >>> box1 = hfss.modeler.create_box([0,0,0], [10,10,5],
         ...                                           "BoxWave1", "copper")
@@ -2036,7 +2036,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                           "BoxWave2", "copper")
         >>> wave_port = hfss.create_wave_port_between_objects("BoxWave1", "BoxWave2",
         ...                                                   hfss.AxisDir.XNeg, 50, 1,
-        ...                                                   "WavePort", False)
+        ...                                                   "Wave Port", False)
         pyaedt info: Connection Correctly created
 
         """
@@ -2165,7 +2165,7 @@ class Hfss(FieldAnalysis3D, object):
         props["LatticeBVector"]["End"] = lattice_b_end
         if not portname:
             portname = generate_unique_name("Floquet")
-        return self._create_boundary(portname, props, "FloquetPort")
+        return self._create_boundary(portname, props, "Floquet Port")
 
     @pyaedt_function_handler()
     def assign_lattice_pair(

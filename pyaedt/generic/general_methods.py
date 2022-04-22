@@ -3,6 +3,7 @@ import datetime
 import fnmatch
 import inspect
 import itertools
+import json
 import logging
 import os
 import random
@@ -652,6 +653,25 @@ def number_aware_string_key(s):
             result.append(key)
             i = j
     return tuple(result)
+
+
+@pyaedt_function_handler()
+def _create_json_file(json_dict, full_json_path):
+    if not is_ironpython:
+        with open(full_json_path, "w") as fp:
+            json.dump(json_dict, fp, indent=4)
+    else:
+        temp_path = full_json_path.replace(".json", "_temp.json")
+        with open(temp_path, "w") as fp:
+            json.dump(json_dict, fp, indent=4)
+        with open(temp_path, "r") as file:
+            filedata = file.read()
+        filedata = filedata.replace("True", "true")
+        filedata = filedata.replace("False", "false")
+        with open(full_json_path, "w") as file:
+            file.write(filedata)
+        os.remove(temp_path)
+    return True
 
 
 class Settings(object):
