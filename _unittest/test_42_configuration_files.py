@@ -37,9 +37,6 @@ class TestClass(BasisTest, object):
         self.aedtapp.mesh.assign_length_mesh("inner")
         conf_file = self.aedtapp.configurations.export_config()
         assert os.path.exists(conf_file)
-        import shutil
-
-        shutil.copy(conf_file, "C:\\temp\\test.json")
         filename = self.aedtapp.design_name
         file_path = os.path.join(self.aedtapp.working_directory, filename + ".step")
         self.aedtapp.export_3d_model(filename, self.aedtapp.working_directory, ".step", [], [])
