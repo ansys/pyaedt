@@ -1261,7 +1261,7 @@ class ConfigurationsIcepak(Configurations):
     @pyaedt_function_handler()
     def _export_objects_properties(self, dict_out):
         dict_out["objects"] = {}
-        for obj, val in self._app.modeler.objects.items():
+        for val in self._app.modeler.objects.values():
             dict_out["objects"][val.name] = {}
             dict_out["objects"][val.name]["SurfaceMaterial"] = val.surface_material_name
             dict_out["objects"][val.name]["Material"] = val.material_name
