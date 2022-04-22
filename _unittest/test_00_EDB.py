@@ -1314,7 +1314,18 @@ class TestClass(BasisTest, object):
         outline_layer = stackup._layer_types_to_int(stackup.layer_types.OutlineLayer)
         assert outline_layer == 18
 
-    def test_98_duplicate_material(self):
+    def test_98_export_import_json_for_config(self):
+        sim_config = SimulationConfiguration()
+        json_file = os.path.join(self.local_scratch.path, "test.json")
+        sim_config._filename = json_file
+        sim_config.arc_angle = "90deg"
+        assert sim_config.export_json(json_file)
+        test_import = SimulationConfiguration()
+        assert test_import.import_json(json_file)
+        assert test_import.arc_angle == "90deg"
+        assert test_import._filename == json_file
+
+    def test_99_duplicate_material(self):
         stack_up = self.edbapp.core_stackup
         duplicated_copper = stack_up.duplicate_material("copper", "my_new_copper")
         assert duplicated_copper
@@ -1322,3 +1333,4 @@ class TestClass(BasisTest, object):
         assert duplicated_fr4_epoxy
         duplicated_pec = stack_up.duplicate_material("copper", "my_new_pec")
         assert duplicated_pec
+
