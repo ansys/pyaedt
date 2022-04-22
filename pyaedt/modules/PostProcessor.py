@@ -15,11 +15,10 @@ import sys
 import warnings
 from collections import OrderedDict
 
+import pyaedt.modules.report_templates as rt
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
-import pyaedt.modules.report_templates as rt
-from pyaedt.generic.filesystem import Scratch
 from pyaedt.generic.general_methods import _retry_ntimes, is_ironpython
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -511,6 +510,8 @@ orientation_to_view = {
 
 @pyaedt_function_handler()
 def _convert_dict_to_report_sel(sweeps):
+    if isinstance(sweeps, list):
+        return sweeps
     sweep_list = []
     for el in sweeps:
         sweep_list.append(el + ":=")
@@ -610,6 +611,11 @@ class SolutionData(object):
         self.solutions_data_imag = self._solution_data_imag()
         self.solutions_data_mag = {}
         self.units_data = {}
+        if len(self._original_data) > 1:
+            for data in self._original_data:
+                for v in data.GetDesignVariableNames():
+                    if v not in self._sweeps_names:
+                        self._sweeps_names.append(v)
         for expr in self.expressions:
             self.solutions_data_mag[expr] = {}
             self.units_data[expr] = self.nominal_variation.GetDataUnits(expr)
@@ -664,11 +670,12 @@ class SolutionData(object):
                 solution = list(self.nominal_variation.GetRealDataValues(expression, False))
             else:
                 solution = []
+                extendes_sweep_names = []
                 for data in self._original_data:
                     for v in data.GetDesignVariableNames():
-                        if v not in self._sweeps_names:
+                        if v not in extendes_sweep_names:
                             self._sweeps[v] = []
-                            self._sweeps_names.append(v)
+                            extendes_sweep_names.append(v)
                             self.nominal_sweeps[v] = data.GetDesignVariableValue(v)
                             self.units_sweeps[v] = data.GetDesignVariableUnits(v)
                     comb = []
@@ -681,13 +688,19 @@ class SolutionData(object):
             values = []
             for el in reversed(self._sweeps_names):
                 values.append(self.sweeps[el])
-
             solution_Data = {}
             i = 0
-            for t in itertools.product(*values):
-                if not combinations or (combinations and list(t[: len(combinations[0])]) in combinations):
-                    solution_Data[t] = solution[i]
-                    i += 1
+            if combinations:
+                for comb in combinations:
+                    for t in itertools.product(*values):
+
+                        solution_Data[tuple(comb + list(t))] = solution[i]
+                        i += 1
+            else:
+                for t in itertools.product(*values):
+                    if not combinations:
+                        solution_Data[t] = solution[i]
+                        i += 1
             sols_data[expression] = solution_Data
         return sols_data
 
@@ -703,28 +716,38 @@ class SolutionData(object):
                 else:
                     solution = []
                     for data in self._original_data:
-                        comb = []
-                        for v in reversed(data.GetDesignVariableNames()):
-                            if data.GetDesignVariableValue(v) not in self._sweeps[v]:
-                                self._sweeps[v].append(data.GetDesignVariableValue(v))
-                            comb.append(data.GetDesignVariableValue(v))
-                        combinations.append(comb)
                         solution.extend(list(data.GetImagDataValues(expression, False)))
             else:
                 solution = None
+            if len(self._original_data) > 1:
+                for data in self._original_data:
+                    comb = []
+                    for v in reversed(data.GetDesignVariableNames()):
+                        comb.append(data.GetDesignVariableValue(v))
+                    combinations.append(comb)
             values = []
             for el in reversed(self._sweeps_names):
                 values.append(self.sweeps[el])
 
             solution_Data = {}
             i = 0
-            for t in itertools.product(*values):
-                if not combinations or (combinations and list(t[: len(combinations[0])]) in combinations):
-                    if solution:
-                        solution_Data[t] = solution[i]
-                    else:
-                        solution_Data[t] = 0
-                    i += 1
+            if combinations:
+                for comb in combinations:
+                    for t in itertools.product(*values):
+                        if solution:
+                            solution_Data[tuple(comb + list(t))] = solution[i]
+                        else:
+                            solution_Data[tuple(comb + list(t))] = 0
+
+                        i += 1
+            else:
+                for t in itertools.product(*values):
+                    if not combinations:
+                        if solution:
+                            solution_Data[t] = solution[i]
+                        else:
+                            solution_Data[t] = 0
+                        i += 1
             sols_data[expression] = solution_Data
         return sols_data
 
@@ -789,19 +812,15 @@ class SolutionData(object):
         for it in self.nominal_sweeps:
             temp.append(self.nominal_sweeps[it])
         temp = list(reversed(temp))
-        try:
-            solution_Data = self.solutions_data_mag[expression]
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
+        solution_Data = self.solutions_data_mag[expression]
+        sol = []
+        position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
+        for el in self.sweeps[self.primary_sweep]:
+            temp[position] = el
+            try:
                 sol.append(solution_Data[tuple(temp)])
-        except:
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
-                sol.append(0)
+            except KeyError:
+                sol.append(1e-15)
         if convert_to_SI and self._quantity(self.units_data[expression]):
             sol = self._convert_list_to_SI(
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
@@ -954,19 +973,15 @@ class SolutionData(object):
         for it in self.nominal_sweeps:
             temp.append(self.nominal_sweeps[it])
         temp = list(reversed(temp))
-        try:
-            solution_Data = self.solutions_data_real[expression]
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
+        solution_Data = self.solutions_data_real[expression]
+        sol = []
+        position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
+        for el in self.sweeps[self.primary_sweep]:
+            temp[position] = el
+            try:
                 sol.append(solution_Data[tuple(temp)])
-        except:
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
-                sol.append(0)
+            except KeyError:
+                sol.append(1e-15)
         if convert_to_SI and self._quantity(self.units_data[expression]):
             sol = self._convert_list_to_SI(
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
@@ -997,19 +1012,15 @@ class SolutionData(object):
         for it in self.nominal_sweeps:
             temp.append(self.nominal_sweeps[it])
         temp = list(reversed(temp))
-        try:
-            solution_Data = self.solutions_data_imag[expression]
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
+        solution_Data = self.solutions_data_imag[expression]
+        sol = []
+        position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
+        for el in self.sweeps[self.primary_sweep]:
+            temp[position] = el
+            try:
                 sol.append(solution_Data[tuple(temp)])
-        except:
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
-                sol.append(0)
+            except KeyError:
+                sol.append(1e-15)
         if convert_to_SI and self._quantity(self.units_data[expression]):
             sol = self._convert_list_to_SI(
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
@@ -1899,7 +1910,7 @@ class PostProcessorCommon(object):
         self._app = app
         self._oeditor = self.modeler.oeditor
         self._oreportsetup = self._odesign.GetModule("ReportSetup")
-        self._scratch = Scratch(self._app.temp_directory, volatile=True)
+        self._scratch = self._app.working_directory
         self.plots = []
         self.reports_by_category = Reports(self, self._app.design_type)
 
@@ -4054,8 +4065,8 @@ class PostProcessor(PostProcessorCommon, object):
         """
         # Set up arguments list for createReport function
         if not dir:
-            dir = self._scratch.path
-            self.logger.debug("Using scratch path {}".format(self._scratch.path))
+            dir = self._scratch
+            self.logger.debug("Using scratch path {}".format(self._scratch))
 
         assert os.path.exists(dir), "Specified directory does not exist: {}".format(dir)
 

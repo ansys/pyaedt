@@ -188,17 +188,17 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return val
 
     def _pos_with_arg(self, pos, units=None):
-        posx = self._arg_with_dim(pos[0], units)
+        xpos = self._arg_with_dim(pos[0], units)
         if len(pos) < 2:
-            posy = self._arg_with_dim(0, units)
+            ypos = self._arg_with_dim(0, units)
         else:
-            posy = self._arg_with_dim(pos[1], units)
+            ypos = self._arg_with_dim(pos[1], units)
         if len(pos) < 3:
-            posz = self._arg_with_dim(0, units)
+            zpos = self._arg_with_dim(0, units)
         else:
-            posz = self._arg_with_dim(pos[2], units)
+            zpos = self._arg_with_dim(pos[2], units)
 
-        return posx, posy, posz
+        return xpos, ypos, zpos
 
     @pyaedt_function_handler()
     def change_property(self, property_object, property_name, property_value, property_tab="BaseElementTab"):
@@ -252,14 +252,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 ]
             )
         elif isinstance(property_value, (str, float, int)):
-            posx = self._arg_with_dim(property_value, self.model_units)
+            xpos = self._arg_with_dim(property_value, self.model_units)
             self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
                         "NAME:" + property_tab,
                         ["NAME:PropServers", property_object],
-                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", posx]],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", xpos]],
                     ],
                 ]
             )

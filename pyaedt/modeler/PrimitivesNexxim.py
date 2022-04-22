@@ -198,7 +198,7 @@ class NexximComponents(CircuitComponents):
         return False
 
     @pyaedt_function_handler()
-    def create_field_model(self, design_name, solution_name, pin_names, model_type="hfss", posx=0, posy=1):
+    def create_field_model(self, design_name, solution_name, pin_names, model_type="hfss"):
         """Create a field model.
 
         Parameters
@@ -211,10 +211,6 @@ class NexximComponents(CircuitComponents):
             List of the pin names.
         model_type : str, optional
             Type of the model. The default is ``"hfss"``.
-        posx : float, optional
-            Position on the X axis. The default is ``0``.
-        posy : float, optional.
-            Position on the Y axis. The default is ``1``.
 
         Returns
         -------

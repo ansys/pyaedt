@@ -4325,6 +4325,68 @@ class GeometryModeler(Modeler, object):
                         # self.modeler_oproject.ClearMessages()
         return True
 
+    @pyaedt_function_handler()
+    def move_face(self, faces, offset=1.0):
+        """Move an input face or a list of input faces of a specific object.
+
+        This method moves a face or a list of faces which belong to the same solid.
+
+        Parameters
+        ----------
+        faces : list
+            List of Face ID or List of :class:`pyaedt.modeler.Object3d.FacePrimitive` object or mixed.
+        offset : float, optional
+             Offset to apply in model units. The default is ``1.0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.MoveFaces
+
+        """
+
+        face_selection = self.convert_to_selections(faces, True)
+        selection = {}
+        for f in face_selection:
+            if self.oeditor.GetObjectNameByFaceID(f) in selection:
+                selection[self.oeditor.GetObjectNameByFaceID(f)].append(f)
+            else:
+                selection[self.oeditor.GetObjectNameByFaceID(f)] = [f]
+
+        arg1 = [
+            "NAME:Selections",
+            "Selections:=",
+            self.convert_to_selections(list(selection.keys()), False),
+            "NewPartsModelFlag:=",
+            "Model",
+        ]
+        arg2 = ["NAME:Parameters"]
+        for el in list(selection.keys()):
+            arg2.append(
+                [
+                    "NAME:MoveFacesParameters",
+                    "MoveAlongNormalFlag:=",
+                    True,
+                    "OffsetDistance:=",
+                    str(offset) + self.model_units,
+                    "MoveVectorX:=",
+                    "0mm",
+                    "MoveVectorY:=",
+                    "0mm",
+                    "MoveVectorZ:=",
+                    "0mm",
+                    "FacesToMove:=",
+                    selection[el],
+                ]
+            )
+        self._oeditor.MoveFaces(arg1, arg2)
+        return True
+
     def __get__(self, instance, owner):
         self._app = instance
         return self
