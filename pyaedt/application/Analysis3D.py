@@ -3,6 +3,7 @@ import os
 import warnings
 
 from pyaedt.application.Analysis import Analysis
+from pyaedt.generic.configurations import Configurations
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -89,6 +90,17 @@ class FieldAnalysis3D(Analysis, object):
         self._modeler = Modeler3D(self)
         self._mesh = Mesh(self)
         self._post = PostProcessor(self)
+        self._configurations = Configurations(self)
+
+    @property
+    def configurations(self):
+        """Property to import and export configuration files.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.configurations.Configurations`
+        """
+        return self._configurations
 
     @property
     def osolution(self):

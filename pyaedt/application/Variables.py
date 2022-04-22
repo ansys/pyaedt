@@ -441,6 +441,35 @@ class VariableManager(object):
         return self._variable_dict([self._oproject])
 
     @property
+    def post_processing_variables(self):
+        """Post Processing variables.
+
+        Returns
+        -------
+        dict
+            Dictionary of the post processing variables (constant numeric
+            values) available to the design.
+
+        References
+        ----------
+
+        >>> oProject.GetVariables
+        >>> oDesign.GetVariables
+        >>> oProject.GetChildObject("Variables").GetChildNames
+        >>> oDesign.GetChildObject("Variables").GetChildNames
+        """
+        try:
+            all_post_vars = list(self._odesign.GetPostProcessingVariables())
+        except:
+            all_post_vars = []
+        out = self.design_variables
+        post_vars = {}
+        for k, v in out.items():
+            if k in all_post_vars:
+                post_vars[k] = v
+        return post_vars
+
+    @property
     def independent_variables(self):
         """Independent variables.
 

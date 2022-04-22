@@ -1375,7 +1375,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
             props2 = OrderedDict({"Objects": input_edge, "Value": str(vectorvalue), "CoordinateSystem": ""})
         else:
             props2 = OrderedDict({"Edges": input_edge, "Value": str(vectorvalue), "CoordinateSystem": ""})
-        bound = BoundaryObject(self, bound_name, props2, "VectorPotential")
+        bound = BoundaryObject(self, bound_name, props2, "Vector Potential")
 
         if bound.create():
             self.boundaries.append(bound)

@@ -60,7 +60,7 @@ class Setup(object):
         self.auto_update = False
         self._app = None
         self.p_app = app
-        if not solutiontype:
+        if not solutiontype or solutiontype not in self.p_app.design_solutions._solution_options:
             self.setuptype = self.p_app.design_solutions.default_setup
         elif isinstance(solutiontype, int):
             self.setuptype = solutiontype
