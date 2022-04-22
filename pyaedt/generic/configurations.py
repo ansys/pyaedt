@@ -33,7 +33,7 @@ def _find_datasets(d, out_list):
                             out_list.append(
                                 el["free_form_value"][el["free_form_value"].find("$") : el["free_form_value"].find(",")]
                             )
-                    except:
+                    except KeyError:
                         pass
             elif isinstance(val, str):
                 if "pwl" in val:
@@ -595,34 +595,34 @@ class Configurations(object):
     @pyaedt_function_handler()
     def _map_object(self, props, dict_out):
         if "Objects" in props:
-            for object in props["Objects"]:
-                if isinstance(object, int):
-                    self._map_dict_value(dict_out, object, self._app.modeler.objects[object].name)
+            for obj in props["Objects"]:
+                if isinstance(obj, int):
+                    self._map_dict_value(dict_out, obj, self._app.modeler.objects[obj].name)
         elif "Faces" in props:
             for face in props["Faces"]:
-                for object in self._app.modeler.objects.values():
-                    for f in object.faces:
+                for obj in self._app.modeler.objects.values():
+                    for f in obj.faces:
                         if f.id == face:
-                            self._map_dict_value(dict_out, face, [object.name, f.center])
+                            self._map_dict_value(dict_out, face, [obj.name, f.center])
         elif "Edges" in props:
             for edge in props["Edges"]:
-                for object in self._app.modeler.objects.values():
-                    for e in object.edges:
+                for obj in self._app.modeler.objects.values():
+                    for e in obj.edges:
                         if e.id == edge:
-                            self._map_dict_value(dict_out, edge, [object.name, e.midpoint])
+                            self._map_dict_value(dict_out, edge, [obj.name, e.midpoint])
 
     @pyaedt_function_handler()
     def _convert_objects(self, props, mapping):
         if "Objects" in props:
             new_list = []
-            for object in props["Objects"]:
-                if isinstance(object, int):
+            for obj in props["Objects"]:
+                if isinstance(obj, int):
                     try:
-                        new_list.append(mapping[str(object)])
-                    except:
+                        new_list.append(mapping[str(obj)])
+                    except KeyError:
                         pass
                 else:
-                    new_list.append(object)
+                    new_list.append(obj)
             props["Objects"] = new_list
         elif "Faces" in props:
             new_list = []
