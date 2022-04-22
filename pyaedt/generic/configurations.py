@@ -33,7 +33,7 @@ def _find_datasets(d, out_list):
                             out_list.append(
                                 el["free_form_value"][el["free_form_value"].find("$") : el["free_form_value"].find(",")]
                             )
-                    except KeyError:
+                    except (KeyError, TypeError):
                         pass
             elif isinstance(val, str):
                 if "pwl" in val:
@@ -526,6 +526,7 @@ class ConfigurationsOptions(object):
         for prop in vars(self):
             if prop.startswith("_export_"):
                 setattr(self, prop, False)
+        return True
 
     @pyaedt_function_handler()
     def set_all_export(self):
@@ -538,6 +539,7 @@ class ConfigurationsOptions(object):
         for prop in vars(self):
             if prop.startswith("_export_"):
                 setattr(self, prop, True)
+        return True
 
     @pyaedt_function_handler()
     def unset_all_import(self):
@@ -563,6 +565,7 @@ class ConfigurationsOptions(object):
         for prop in vars(self):
             if prop.startswith("_import_"):
                 setattr(self, prop, True)
+        return True
 
 
 class ImportResults(object):
@@ -613,8 +616,9 @@ class Configurations(object):
         self.options = ConfigurationsOptions()
         self.results = ImportResults()
 
+    @staticmethod
     @pyaedt_function_handler()
-    def _map_dict_value(self, dict_out, key, value):
+    def _map_dict_value(dict_out, key, value):
         dict_out["general"]["object_mapping"][key] = value
 
     @pyaedt_function_handler()
@@ -667,7 +671,7 @@ class Configurations(object):
                         ]
                     )
                     new_list.append(f_id)
-                except:
+                except Exception:
                     for f in self._app.modeler[mapping[str(face)][0]].faces:
                         if (
                             GeometryOperators.points_distance(f.center, mapping[str(face)][1])
@@ -702,7 +706,7 @@ class Configurations(object):
             cs.update()
             self._app.logger.info("Coordinate System {} added.".format(name))
             return True
-        except:
+        except Exception:
             self._app.logger.warning("Failed to add CS {} ".format(name))
             return False
 
@@ -722,7 +726,7 @@ class Configurations(object):
     #         cs._modeler.oeditor.CreateFaceCS(cs._face_paramenters, cs._attributes)
     #         cs._modeler.coordinate_systems.append(cs)
     #         self._app.logger.info("Face Coordinate System {} added.".format(name))
-    #     except:
+    #     except Exception:
     #         self._app.logger.warning("Failed to add CS {} ".format(name))
 
     @pyaedt_function_handler()
@@ -749,7 +753,7 @@ class Configurations(object):
             try:
                 self._app.modeler.oeditor.ChangeProperty(arg)
                 return True
-            except:
+            except Exception:
                 return False
 
     @pyaedt_function_handler()
@@ -1069,7 +1073,7 @@ class Configurations(object):
     @pyaedt_function_handler()
     def _export_objects_properties(self, dict_out):
         dict_out["objects"] = {}
-        for obj, val in self._app.modeler.objects.items():
+        for val in self._app.modeler.objects.values():
             dict_out["objects"][val.name] = {}
             if self._app.modeler[val.name].is3d or self._app.design_type in ["Maxwell 2D", "2D Extractor"]:
                 dict_out["objects"][val.name]["Material"] = val.material_name
@@ -1172,7 +1176,7 @@ class Configurations(object):
             with open(config_file, "r") as json_file:
                 try:
                     dict_in = json.load(json_file)
-                except:
+                except Exception:
                     dict_in = {}
             try:
                 if dict_in["general"]["pyaedt_version"] == __version__:
@@ -1231,7 +1235,7 @@ class ConfigurationsIcepak(Configurations):
             try:
                 self._app.modeler.oeditor.ChangeProperty(arg)
                 return True
-            except:
+            except Exception:
                 return False
 
     @pyaedt_function_handler()
