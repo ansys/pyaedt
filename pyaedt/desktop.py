@@ -76,7 +76,7 @@ def _check_grpc_port(port, machine_name=""):
         if not machine_name:
             machine_name = socket.getfqdn()
         s.connect((machine_name, port))
-    except socket.error as e:
+    except socket.error:
         return False
     else:
         s.close()
@@ -89,7 +89,7 @@ def _find_free_port(port_start=50001, port_end=60000):
     for port in list_ports:
         try:
             s.connect((socket.getfqdn(), port))
-        except socket.error as e:
+        except socket.error:
             return port
         else:
             s.close()
@@ -633,8 +633,6 @@ class Desktop:
         if "oAnsoftApplication" in dir(self._main):
             self._main.isoutsideDesktop = True
             self._main.oDesktop = self._main.oAnsoftApplication.GetAppDesktop()
-            _t = self._main.oDesktop.GetTempDirectory()
-            _proc = self._main.oDesktop.GetProcessID()
             if non_graphical:
                 settings.enable_desktop_logs = False
             if student_version:
