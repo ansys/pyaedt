@@ -475,8 +475,7 @@ class DesignSolution(object):
     @property
     def solution_type(self):
         """Get/Set the Solution Type of the active Design."""
-        if self._design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design", "EMIT",
-                                 "Q3D Extractor"]:
+        if self._design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design", "EMIT", "Q3D Extractor"]:
             self._solution_type = solutions_defaults[self._design_type]
         elif self._odesign:
             try:
@@ -491,8 +490,13 @@ class DesignSolution(object):
     @pyaedt_function_handler()
     def solution_type(self, value):
         if value is None:
-            if self._design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design", "EMIT",
-                                     "Q3D Extractor"]:
+            if self._design_type in [
+                "Circuit Design",
+                "Twin Builder",
+                "HFSS 3D Layout Design",
+                "EMIT",
+                "Q3D Extractor",
+            ]:
                 self._solution_type = solutions_defaults[self._design_type]
             elif self._odesign:
                 try:
