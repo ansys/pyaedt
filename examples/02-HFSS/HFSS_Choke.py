@@ -202,4 +202,4 @@ hfss.save_project(os.path.join(temp_folder, "My_HFSS_Choke.aedt"))
 
 
 if os.name != "posix":
-    desktop.release_desktop()
+    hfss.release_desktop()
