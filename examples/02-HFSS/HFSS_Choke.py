@@ -20,19 +20,11 @@ if not os.path.exists(temp_folder):
     os.mkdir(temp_folder)
 
 ###############################################################################
-# Launch AEDT in Graphical Mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2022.1 in graphical mode.
-
-
-desktop = Desktop("2022.1", non_graphical=False, new_desktop_session=True)
-
-###############################################################################
 # Launch HFSS in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This examples launches HFSS 2022.1 in graphical mode.
 
-hfss = Hfss(solution_type="Terminal")
+hfss = Hfss(specified_version="2022.1", non_graphical=False, new_desktop_session=True,solution_type="Terminal")
 
 ###############################################################################
 # Rules and information of use
