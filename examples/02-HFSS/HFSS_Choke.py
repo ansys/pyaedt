@@ -24,7 +24,7 @@ if not os.path.exists(temp_folder):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This examples launches HFSS 2022.1 in graphical mode.
 
-hfss = Hfss(specified_version="2022.1", non_graphical=False, new_desktop_session=True,solution_type="Terminal")
+hfss = Hfss(specified_version="2022.1", non_graphical=False, new_desktop_session=True, solution_type="Terminal")
 
 ###############################################################################
 # Rules and information of use
