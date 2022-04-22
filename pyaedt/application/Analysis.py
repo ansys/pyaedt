@@ -84,6 +84,8 @@ class Analysis(Design, object):
         new_desktop_session,
         close_on_exit,
         student_version,
+        machine="",
+        port=0,
     ):
         self.setups = []
         Design.__init__(
@@ -97,8 +99,9 @@ class Analysis(Design, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
-
         self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:

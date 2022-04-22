@@ -693,6 +693,23 @@ class Settings(object):
         self._enable_error_handler = True
         self._non_graphical = False
         self.aedt_version = None
+        self.remote_api = False
+        self._use_grpc_api = False
+
+    @property
+    def use_grpc_api(self):
+        """Set/Get 20222R2 GPRC API usage or Legacy COM Objectr.
+
+        Returns
+        -------
+        bool
+        """
+        return self._use_grpc_api
+
+    @use_grpc_api.setter
+    def use_grpc_api(self, val):
+        """Set/Get 20222R2 GPRC API usage or Legacy COM Objectr."""
+        self._use_grpc_api = val
 
     @property
     def logger(self):

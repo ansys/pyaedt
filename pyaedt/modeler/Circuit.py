@@ -3,9 +3,9 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Modeler import Modeler
-from pyaedt.modeler.Object3d import _dim_arg
 from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
+from pyaedt.modeler.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.PrimitivesEmit import EmitComponents
 from pyaedt.modeler.PrimitivesMaxwellCircuit import MaxwellCircuitComponents
 from pyaedt.modeler.PrimitivesNexxim import NexximComponents
@@ -115,6 +115,24 @@ class ModelerCircuit(Modeler):
             pos2 = self.components.get_pin_location(secondcomponent, pins2[pinnum_second - 1])
         self.components.create_wire([pos1, pos2])
         return True
+
+    @pyaedt_function_handler()
+    def _get_components_selections(self, selections, return_as_list=True):
+        sels = []
+        if not isinstance(selections, list):
+            selections = [selections]
+        for sel in selections:
+            if isinstance(sel, int):
+                sels.append(self.schematic.components[sel].composed_name)
+            elif isinstance(sel, (CircuitComponent, EmitComponent)):
+                sels.append(sel.composed_name)
+            else:
+                for el in list(self.schematic.components.values()):
+                    if sel in [el.InstanceName, el.composed_name, el.name]:
+                        sels.append(el.composed_name)
+        if not return_as_list:
+            return ", ".join(sels)
+        return sels
 
 
 class ModelerNexxim(ModelerCircuit):
@@ -241,19 +259,10 @@ class ModelerNexxim(ModelerCircuit):
 
         >>> oEditor.Move
         """
-        if not isinstance(selections, list):
-            selections = [selections]
-        sels = []
-        for sel in selections:
-            if isinstance(sel, int):
-                sels.append(self.schematic.components[sel].composed_name)
-            elif isinstance(sel, CircuitComponent):
-                sels.append(sel.composed_name)
-            else:
-                for el in list(self.schematic.components.values()):
-                    if sel == el.InstanceName or el.composed_name or el.name:
-                        sels.append(el.composed_name)
-
+        sels = self._get_components_selections(selections)
+        if not sels:
+            self.logger.error("No Component Found.")
+            return False
         x_location = AEDT_UNITS["Length"][units] * float(pos[0])
         y_location = AEDT_UNITS["Length"][units] * float(pos[1])
 
@@ -294,18 +303,17 @@ class ModelerNexxim(ModelerCircuit):
 
         >>> oEditor.Rotate
         """
-        sels = []
-        for sel in selections:
-            for el in list(self.components.components.values()):
-                if sel == el.InstanceName:
-                    sels.append(self.components.components[el.id].composed_name)
+        sels = self._get_components_selections(selections)
+        if not sels:
+            self.logger.error("No Component Found.")
+            return False
 
         self.oeditor.Rotate(
             ["NAME:Selections", "Selections:=", sels],
             [
                 "NAME:RotateParameters",
                 "Degrees:=",
-                _dim_arg(degrees, "°"),
+                degrees,
                 "Disconnect:=",
                 False,
                 "Rubberband:=",

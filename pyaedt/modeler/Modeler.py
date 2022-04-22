@@ -1182,7 +1182,7 @@ class GeometryModeler(Modeler, object):
                 return "2D"
             else:
                 return "3D"
-        except Exception:
+        except:
             if self.design_type == "2D Extractor":
                 return "2D"
             else:
