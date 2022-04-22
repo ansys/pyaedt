@@ -35,6 +35,8 @@ class FieldAnalysisEmit(Design):
         new_desktop_session=True,
         close_on_exit=True,
         student_version=False,
+        machine="",
+        port=0,
     ):
         Design.__init__(
             self,
@@ -47,6 +49,8 @@ class FieldAnalysisEmit(Design):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine=machine,
+            port=machine,
         )
         self.solution_type = solution_type
         self.oanalysis = None

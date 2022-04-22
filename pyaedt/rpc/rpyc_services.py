@@ -54,7 +54,7 @@ def check_port(port):
         try:
             s.bind((socket.getfqdn(), port))
             check = True
-        except socket.error as e:
+        except socket.error:
             port += 1
             # stop search at port 30000 (range search 18000 30000 is more then enough for rpc)
             if port > 29999:

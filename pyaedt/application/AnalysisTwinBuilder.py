@@ -52,6 +52,8 @@ class AnalysisTwinBuilder(Analysis):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
 
         Analysis.__init__(
@@ -66,6 +68,8 @@ class AnalysisTwinBuilder(Analysis):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
         self.solution_type = solution_type
         self._modeler = ModelerTwinBuilder(self)

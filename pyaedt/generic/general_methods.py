@@ -1,8 +1,10 @@
+import ast
 import csv
 import datetime
 import fnmatch
 import inspect
 import itertools
+import json
 import logging
 import os
 import random
@@ -11,7 +13,6 @@ import string
 import sys
 import time
 import traceback
-import ast
 from collections import OrderedDict
 from functools import update_wrapper
 
@@ -666,6 +667,25 @@ def number_aware_string_key(s):
     return tuple(result)
 
 
+@pyaedt_function_handler()
+def _create_json_file(json_dict, full_json_path):
+    if not is_ironpython:
+        with open(full_json_path, "w") as fp:
+            json.dump(json_dict, fp, indent=4)
+    else:
+        temp_path = full_json_path.replace(".json", "_temp.json")
+        with open(temp_path, "w") as fp:
+            json.dump(json_dict, fp, indent=4)
+        with open(temp_path, "r") as file:
+            filedata = file.read()
+        filedata = filedata.replace("True", "true")
+        filedata = filedata.replace("False", "false")
+        with open(full_json_path, "w") as file:
+            file.write(filedata)
+        os.remove(temp_path)
+    return True
+
+
 class Settings(object):
     """Class that manages all PyAEDT Environment Variables and global settings."""
 
@@ -685,6 +705,23 @@ class Settings(object):
         self._enable_error_handler = True
         self._non_graphical = False
         self.aedt_version = None
+        self.remote_api = False
+        self._use_grpc_api = False
+
+    @property
+    def use_grpc_api(self):
+        """Set/Get 20222R2 GPRC API usage or Legacy COM Objectr.
+
+        Returns
+        -------
+        bool
+        """
+        return self._use_grpc_api
+
+    @use_grpc_api.setter
+    def use_grpc_api(self, val):
+        """Set/Get 20222R2 GPRC API usage or Legacy COM Objectr."""
+        self._use_grpc_api = val
 
     @property
     def logger(self):

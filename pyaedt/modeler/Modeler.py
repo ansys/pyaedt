@@ -356,7 +356,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
         self.props = CsProps(self, parameters)
         self._modeler.oeditor.CreateFaceCS(self._face_paramenters, self._attributes)
-
+        self._modeler.coordinate_systems.append(self)
         return True
 
     @pyaedt_function_handler()
@@ -713,7 +713,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
 
         if name:
             self.name = name
-        else:
+        elif not self.name:
             self.name = generate_unique_name("CS")
 
         originX = self._dim_arg(origin[0], self.model_units)
@@ -791,11 +791,10 @@ class CoordinateSystem(BaseCoordinateSystem, object):
 
         self.props = CsProps(self, orientationParameters)
         self._modeler.oeditor.CreateRelativeCS(self._orientation, self._attributes)
+        self._modeler.coordinate_systems.append(self)
         # this workaround is necessary because the reference CS is ignored at creation, it needs to be modified later
         self.ref_cs = reference_cs
-        self.update()
-
-        return True
+        return self.update()
 
     @property
     def quaternion(self):
@@ -1086,7 +1085,10 @@ class GeometryModeler(Modeler, object):
                                                 break
                                 elif isinstance(geometry_part, list):
                                     for gp in geometry_part:
-                                        op = gp["Operations"]["FaceCSHolderOperation"]
+                                        try:
+                                            op = gp["Operations"]["FaceCSHolderOperation"]
+                                        except KeyError:
+                                            continue
                                         if isinstance(op, (OrderedDict, dict)):
                                             if op["ID"] == op_id:
                                                 props = op["FaceCSParameters"]
@@ -1103,50 +1105,6 @@ class GeometryModeler(Modeler, object):
                 if isinstance(cs, CoordinateSystem):
                     try:
                         cs.ref_cs = id2name[name2refid[cs.name]]
-                        if cs.props["Mode"] == "Axis/Position":
-                            x1 = GeometryOperators.parse_dim_arg(
-                                cs.props["XAxisXvec"], variable_manager=self._app.variable_manager
-                            )
-                            x2 = GeometryOperators.parse_dim_arg(
-                                cs.props["XAxisYvec"], variable_manager=self._app.variable_manager
-                            )
-                            x3 = GeometryOperators.parse_dim_arg(
-                                cs.props["XAxisZvec"], variable_manager=self._app.variable_manager
-                            )
-                            y1 = GeometryOperators.parse_dim_arg(
-                                cs.props["YAxisXvec"], variable_manager=self._app.variable_manager
-                            )
-                            y2 = GeometryOperators.parse_dim_arg(
-                                cs.props["YAxisYvec"], variable_manager=self._app.variable_manager
-                            )
-                            y3 = GeometryOperators.parse_dim_arg(
-                                cs.props["YAxisZvec"], variable_manager=self._app.variable_manager
-                            )
-                            x, y, z = GeometryOperators.pointing_to_axis([x1, x2, x3], [y1, y2, y3])
-                            a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
-                            cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
-                        elif cs.props["Mode"] == "Euler Angle ZXZ":
-                            a = GeometryOperators.parse_dim_arg(
-                                cs.props["Phi"], variable_manager=self._app.variable_manager
-                            )
-                            b = GeometryOperators.parse_dim_arg(
-                                cs.props["Theta"], variable_manager=self._app.variable_manager
-                            )
-                            g = GeometryOperators.parse_dim_arg(
-                                cs.props["Psi"], variable_manager=self._app.variable_manager
-                            )
-                            cs.quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
-                        elif cs.props["Mode"] == "Euler Angle ZYZ":
-                            a = GeometryOperators.parse_dim_arg(
-                                cs.props["Phi"], variable_manager=self._app.variable_manager
-                            )
-                            b = GeometryOperators.parse_dim_arg(
-                                cs.props["Theta"], variable_manager=self._app.variable_manager
-                            )
-                            g = GeometryOperators.parse_dim_arg(
-                                cs.props["Psi"], variable_manager=self._app.variable_manager
-                            )
-                            cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
                     except:
                         pass
         return coord
@@ -1224,7 +1182,7 @@ class GeometryModeler(Modeler, object):
                 return "2D"
             else:
                 return "3D"
-        except Exception:
+        except:
             if self.design_type == "2D Extractor":
                 return "2D"
             else:
@@ -1432,7 +1390,6 @@ class GeometryModeler(Modeler, object):
                 u=u,
             )
             if result:
-                self.coordinate_systems.append(cs)
                 return cs
         return False
 
@@ -1503,7 +1460,6 @@ class GeometryModeler(Modeler, object):
             )
 
             if result:
-                self.coordinate_systems.append(cs)
                 return cs
         return False
 
@@ -3636,7 +3592,8 @@ class GeometryModeler(Modeler, object):
 
         warnings.warn(
             "`load_objects_bytype` is deprecated and will be removed in version 0.5.0. "
-            "Use `get_objects_in_group` method instead.", DeprecationWarning
+            "Use `get_objects_in_group` method instead.",
+            DeprecationWarning,
         )
 
         objNames = list(self.oeditor.GetObjectsInGroup(obj_type))
@@ -3822,7 +3779,7 @@ class GeometryModeler(Modeler, object):
                 healing = True
             warnings.warn(
                 "Assigning `0` or `1` to `healing` option is deprecated. Assign `True` or `False` instead.",
-                DeprecationWarning
+                DeprecationWarning,
             )
 
         vArg1 = ["NAME:NativeBodyParameters"]
@@ -4151,9 +4108,7 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Import
         """
-        warnings.warn(
-            "`load_hfss` is deprecated. Use `import_3d_cad` method instead.", DeprecationWarning
-        )
+        warnings.warn("`load_hfss` is deprecated. Use `import_3d_cad` method instead.", DeprecationWarning)
         self.import_3d_cad(cadfile, healing=True)
         return True
 
@@ -4349,6 +4304,68 @@ class GeometryModeler(Modeler, object):
                     except:
                         self.logger.info("done")
                         # self.modeler_oproject.ClearMessages()
+        return True
+
+    @pyaedt_function_handler()
+    def move_face(self, faces, offset=1.0):
+        """Move an input face or a list of input faces of a specific object.
+
+        This method moves a face or a list of faces which belong to the same solid.
+
+        Parameters
+        ----------
+        faces : list
+            List of Face ID or List of :class:`pyaedt.modeler.Object3d.FacePrimitive` object or mixed.
+        offset : float, optional
+             Offset to apply in model units. The default is ``1.0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.MoveFaces
+
+        """
+
+        face_selection = self.convert_to_selections(faces, True)
+        selection = {}
+        for f in face_selection:
+            if self.oeditor.GetObjectNameByFaceID(f) in selection:
+                selection[self.oeditor.GetObjectNameByFaceID(f)].append(f)
+            else:
+                selection[self.oeditor.GetObjectNameByFaceID(f)] = [f]
+
+        arg1 = [
+            "NAME:Selections",
+            "Selections:=",
+            self.convert_to_selections(list(selection.keys()), False),
+            "NewPartsModelFlag:=",
+            "Model",
+        ]
+        arg2 = ["NAME:Parameters"]
+        for el in list(selection.keys()):
+            arg2.append(
+                [
+                    "NAME:MoveFacesParameters",
+                    "MoveAlongNormalFlag:=",
+                    True,
+                    "OffsetDistance:=",
+                    str(offset) + self.model_units,
+                    "MoveVectorX:=",
+                    "0mm",
+                    "MoveVectorY:=",
+                    "0mm",
+                    "MoveVectorZ:=",
+                    "0mm",
+                    "FacesToMove:=",
+                    selection[el],
+                ]
+            )
+        self._oeditor.MoveFaces(arg1, arg2)
         return True
 
     # def __get__(self, instance, owner):

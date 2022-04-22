@@ -84,6 +84,8 @@ class Analysis(Design, object):
         new_desktop_session,
         close_on_exit,
         student_version,
+        machine="",
+        port=0,
     ):
         self.setups = []
         Design.__init__(
@@ -97,8 +99,9 @@ class Analysis(Design, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
-
         self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:
@@ -1368,7 +1371,7 @@ class Analysis(Design, object):
         expression :
             Value for the variable.
         solution :
-            Name of te solution in the format `"setup_name : sweep_name"`.
+            Name of the solution in the format `"setup_name : sweep_name"`.
             If `None`, the first available solution is used. Default is `None`.
 
         Returns
@@ -1385,9 +1388,7 @@ class Analysis(Design, object):
         if solution is None:
             solution = self.existing_analysis_sweeps[0]
         if variable in self.output_variables:
-            oModule.EditOutputVariable(
-                variable, expression, variable, solution, self.solution_type, []
-            )
+            oModule.EditOutputVariable(variable, expression, variable, solution, self.solution_type, [])
         else:
             oModule.CreateOutputVariable(variable, expression, solution, self.solution_type, [])
         return True
@@ -1401,7 +1402,7 @@ class Analysis(Design, object):
         variable : str
             Name of the variable.
         solution :
-            Name of te solution in the format `"setup_name : sweep_name"`.
+            Name of the solution in the format `"setup_name : sweep_name"`.
             If `None`, the first available solution is used. Default is `None`.
 
         Returns
