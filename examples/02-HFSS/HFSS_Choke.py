@@ -190,6 +190,8 @@ hfss.create_linear_count_sweep(
 # ----------------
 
 hfss.save_project(os.path.join(temp_folder, "My_HFSS_Choke.aedt"))
+hfss.modeler.fit_all()
+hfss.plot(export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
 
 
 ###############################################################################

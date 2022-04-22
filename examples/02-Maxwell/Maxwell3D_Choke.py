@@ -193,15 +193,16 @@ setup.add_eddy_current_sweep(range_type="LinearCount", start=100, end=1000, coun
 # ----------------
 
 m3d.save_project(os.path.join(temp_folder, "My_Maxwell3d_Choke.aedt"))
+m3d.modeler.fit_all()
+m3d.plot(export_path=os.path.join(m3d.working_directory, "Image.jpg"), plot_air_objects=True)
 
 
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton is completed, you can close AEDT or release it using the
+# After the simulation is completed, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before exiting.
-
 
 if os.name != "posix":
     m3d.release_desktop()
