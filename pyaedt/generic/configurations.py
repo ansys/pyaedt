@@ -37,7 +37,7 @@ def _find_datasets(d, out_list):
                         pass
             elif isinstance(val, str):
                 if "pwl" in val:
-                    out_list.append(val[val.find("$"): val.find(",")])
+                    out_list.append(val[val.find("$") : val.find(",")])
 
 
 class ConfigurationsOptions(object):
@@ -566,7 +566,7 @@ class ImportResults(object):
 
     @property
     def global_import_success(self):
-        """Returns ``True`` if all imports are succesfull. It returns ``False`` otherwise.
+        """Returns ``True`` if all imports are successful. It returns ``False`` otherwise.
 
         Returns
         -------
@@ -644,7 +644,10 @@ class Configurations(object):
                     new_list.append(f_id)
                 except:
                     for f in self._app.modeler[mapping[str(face)][0]].faces:
-                        if GeometryOperators.points_distance(f.center, mapping[str(face)][1]) < self.options.object_mapping_tolerance:
+                        if (
+                            GeometryOperators.points_distance(f.center, mapping[str(face)][1])
+                            < self.options.object_mapping_tolerance
+                        ):
                             new_list.append(f.id)
             props["Faces"] = new_list
 
@@ -652,7 +655,10 @@ class Configurations(object):
             new_list = []
             for edge in props["Edges"]:
                 for e in self._app.modeler[mapping[str(edge)][0]].edges:
-                    if GeometryOperators.points_distance(e.midpoint, mapping[str(edge)][1]) < self.options.object_mapping_tolerance:
+                    if (
+                        GeometryOperators.points_distance(e.midpoint, mapping[str(edge)][1])
+                        < self.options.object_mapping_tolerance
+                    ):
                         new_list.append(e.id)
             props["Edges"] = new_list
 
@@ -1111,7 +1117,7 @@ class Configurations(object):
         config_file : str, optional
             Full path to json file. If ``None``, then the config file will be saved in working directory.
         overwrite : bool, optional
-            If ``True`` the json file will be overwritten if already exising.
+            If ``True`` the json file will be overwritten if already existing.
             If ``False`` and the version is compatible, the data in the existing file will be updated.
             Default is ``False``.
 

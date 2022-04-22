@@ -2,7 +2,7 @@
 General: Configuration Files
 ----------------------------
 This example shows how you can use PyAEDT to export config files and reuse to import in a new project.
-Configuration file is actuallu supported by the following applications:
+Configuration file is actually supported by the following applications:
 * Hfss
 * Q2d and Q3d
 * Maxwell
