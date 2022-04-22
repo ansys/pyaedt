@@ -41,8 +41,8 @@ def _find_datasets(d, out_list):
 
 
 class ConfigurationsOptions(object):
-    """Options class for the configurations
-    User can enable or disable import export components"""
+    """Options class for the configurations.
+    User can enable or disable import export components."""
 
     def __init__(self):
         self._object_mapping_tolerance = 1e-9
@@ -517,24 +517,49 @@ class ConfigurationsOptions(object):
 
     @pyaedt_function_handler()
     def unset_all_export(self):
+        """Set all export properties to `False`.
+
+        Returns
+        -------
+        bool
+        """
         for prop in vars(self):
             if prop.startswith("_export_"):
                 setattr(self, prop, False)
 
     @pyaedt_function_handler()
     def set_all_export(self):
+        """Set all export properties to `True`.
+
+        Returns
+        -------
+        bool
+        """
         for prop in vars(self):
             if prop.startswith("_export_"):
                 setattr(self, prop, True)
 
     @pyaedt_function_handler()
     def unset_all_import(self):
+        """Set all import properties to `False`.
+
+        Returns
+        -------
+        bool
+        """
         for prop in vars(self):
             if prop.startswith("_import_"):
                 setattr(self, prop, False)
+        return True
 
     @pyaedt_function_handler()
     def set_all_import(self):
+        """Set all import properties to `True`.
+
+        Returns
+        -------
+        bool
+        """
         for prop in vars(self):
             if prop.startswith("_import_"):
                 setattr(self, prop, True)
@@ -664,15 +689,12 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def _update_coordinate_systems(self, name, props):
-        update = False
         for cs in self._app.modeler.coordinate_systems:
             if cs.name == name:
                 if not self.options.skip_import_if_exists:
                     cs.props = props
                     cs.update()
-                update = True
-        if update:
-            return True
+                return True
         cs = CoordinateSystem(self._app.modeler, props, name)
         try:
             cs._modeler.oeditor.CreateRelativeCS(cs._orientation, cs._attributes)
@@ -732,7 +754,6 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def _update_boundaries(self, name, props):
-        update = False
         for bound in self._app.boundaries:
             if bound and bound.name == name:
                 if not self.options.skip_import_if_exists:
@@ -765,7 +786,6 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def _update_mesh_operations(self, name, props):
-        update = False
         for mesh_el in self._app.mesh.meshoperations:
             if mesh_el.name == name:
                 if not self.options.skip_import_if_exists:
@@ -783,7 +803,6 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def _update_setup(self, name, props):
-        update = False
         for setup_el in self._app.setups:
             if setup_el.name == name:
                 if not self.options.skip_import_if_exists:
