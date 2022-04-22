@@ -18,7 +18,7 @@ from pyaedt.modules.Mesh import MeshOperation
 
 
 def _find_datasets(d, out_list):
-    for k, v in d.items():
+    for v in list(d.values()):
         if isinstance(v, (dict, OrderedDict)):
             _find_datasets(v, out_list)
         else:
