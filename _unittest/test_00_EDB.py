@@ -1313,3 +1313,14 @@ class TestClass(BasisTest, object):
         assert siwave_hfss_solver_regions == 16
         outline_layer = stackup._layer_types_to_int(stackup.layer_types.OutlineLayer)
         assert outline_layer == 18
+
+    def test_98_export_import_json_for_config(self):
+        sim_config = SimulationConfiguration()
+        json_file = os.path.join(self.local_scratch.path, "test.json")
+        sim_config._filename = json_file
+        sim_config.arc_angle = "90deg"
+        assert sim_config.export_json(json_file)
+        test_import = SimulationConfiguration()
+        assert test_import.import_json(json_file)
+        assert test_import.arc_angle == "90deg"
+        assert test_import._filename == json_file

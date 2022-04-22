@@ -1,3 +1,4 @@
+import json
 import math
 import os
 import time
@@ -2881,7 +2882,7 @@ class SimulationConfiguration(object):
     SignalLayersProperties = []
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename=None):
         self._filename = filename
         self._setup_name = "Pyaedt_setup"
         self._generate_solder_balls = True
@@ -2949,6 +2950,15 @@ class SimulationConfiguration(object):
         self._do_cutout_subdesign = True
         self._solver_type = SolverType.Hfss3dLayout
         self._read_cfg()
+
+    @property
+    def filename(self):  # pragma: no cover
+        return self._filename
+
+    @filename.setter
+    def filename(self, value):
+        if isinstance(value, str):  # pragma: no cover
+            self._filename = value
 
     @property
     def generate_solder_balls(self):  # pragma: no cover
@@ -3583,12 +3593,12 @@ class SimulationConfiguration(object):
         >>> edb.close_edb()
         """
 
-        if not os.path.exists(self._filename):
-            # raise Exception("{} does not exist.".format(self._filename))
-            pass
+        if not self.filename or not os.path.exists(self.filename):
+            # raise Exception("{} does not exist.".format(self.filename))
+            return
 
         try:
-            with open(self._filename) as cfg_file:
+            with open(self.filename) as cfg_file:
                 cfg_lines = cfg_file.read().split("\n")
                 for line in cfg_lines:
                     if line.strip() != "":
@@ -3757,3 +3767,65 @@ class SimulationConfiguration(object):
         except EnvironmentError as e:
             print("Error reading cfg file: {}".format(e.message))
             raise
+
+    def export_json(self, output_file):
+        """Export Json file from SimulationConfiguration object.
+
+        Parameters
+        ----------
+        output_file : str
+            Json file name.
+
+        Returns
+        -------
+        bool
+            True when succeeded False when file name not provided.
+
+        Examples
+        --------
+
+        >>> from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+        >>> config = SimulationConfiguration()
+        >>> config.export_json(r"C:\Temp\test_json\test.json")
+        """
+        dict_out = {}
+        for k, v in self.__dict__.items():
+            if k[0] == "_":
+                dict_out[k[1:]] = v
+            else:
+                dict_out[k] = v
+        if output_file:
+            with open(output_file, "w") as write_file:
+                json.dump(dict_out, write_file, indent=4)
+            return True
+        else:
+            return False
+
+    def import_json(self, input_file):
+        """Import Json file into SimulationConfiguration object instance.
+
+        Parameters
+        ----------
+        input_file : str
+            Json file name.
+
+        Returns
+        -------
+        bool
+            True when succeeded False when file name not provided.
+
+        Examples
+        --------
+        >>> from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+        >>> test = SimulationConfiguration()
+        >>> test.import_json(r"C:\Temp\test_json\test.json")
+        """
+        if input_file:
+            f = open(input_file)
+            json_dict = json.load(f)
+            for k, v in json_dict.items():
+                self.__setattr__(k, v)
+            self.filename = input_file
+            return True
+        else:
+            return False
