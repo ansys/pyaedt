@@ -360,8 +360,9 @@ class Design(object):
         self.close_on_exit = close_on_exit
 
         if "pyaedt_initialized" not in dir(main_module):
-            desktop = Desktop(specified_version, non_graphical, new_desktop_session, close_on_exit, student_version,
-                              machine, port)
+            desktop = Desktop(
+                specified_version, non_graphical, new_desktop_session, close_on_exit, student_version, machine, port
+            )
             self._logger = desktop.logger
             self.release_on_exit = True
         else:
@@ -1344,7 +1345,7 @@ class Design(object):
         ----------
         value :
 
-        sUnits : optional
+        units : optional
              The default is ``None``.
 
         Returns

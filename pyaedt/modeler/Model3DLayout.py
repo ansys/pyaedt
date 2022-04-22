@@ -2,6 +2,7 @@ import os
 import re
 from warnings import warn
 
+from pyaedt import settings
 from pyaedt.edb import Edb
 from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
@@ -14,12 +15,10 @@ from pyaedt.modeler.Object3d import ComponentsSubCircuit3DLayout
 from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout
 from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
 from pyaedt.modules.LayerStackup import Layers
-from pyaedt import settings
 
 
 class Modeler3DLayout(Modeler, Primitives3DLayout):
     """Manages Modeler 3D layouts.
-
     This class is inherited in the caller application and is accessible through the modeler variable
     object (for example, ``hfss3dlayout.modeler``).
 

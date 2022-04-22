@@ -100,9 +100,8 @@ class Analysis(Design, object):
             close_on_exit,
             student_version,
             machine,
-            port
+            port,
         )
-
         self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:

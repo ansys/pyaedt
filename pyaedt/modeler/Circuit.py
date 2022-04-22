@@ -3,10 +3,10 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Modeler import Modeler
-from pyaedt.modeler.Object3d import _dim_arg
 from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
-from pyaedt.modeler.PrimitivesEmit import EmitComponents, EmitComponent
+from pyaedt.modeler.PrimitivesEmit import EmitComponent
+from pyaedt.modeler.PrimitivesEmit import EmitComponents
 from pyaedt.modeler.PrimitivesMaxwellCircuit import MaxwellCircuitComponents
 from pyaedt.modeler.PrimitivesNexxim import NexximComponents
 from pyaedt.modeler.PrimitivesTwinBuilder import TwinBuilderComponents
@@ -133,6 +133,7 @@ class ModelerCircuit(Modeler):
         if not return_as_list:
             return ", ".join(sels)
         return sels
+
 
 class ModelerNexxim(ModelerCircuit):
     """ModelerNexxim class.

@@ -228,7 +228,6 @@ class TestClass(BasisTest, object):
 
     def test_27_odesktop(self):
         if is_ironpython:
-
             assert str(type(self.aedtapp.odesktop)) in ["<type 'ADesktopWrapper'>", "<type 'ADispatchWrapper'>"]
         else:
             assert str(type(self.aedtapp.odesktop)) in [
