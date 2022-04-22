@@ -633,6 +633,7 @@ class Desktop:
         if "oAnsoftApplication" in dir(self._main):
             self._main.isoutsideDesktop = True
             self._main.oDesktop = self._main.oAnsoftApplication.GetAppDesktop()
+            _proc = self._main.oDesktop.GetProcessID()
             if non_graphical:
                 settings.enable_desktop_logs = False
             if student_version:
