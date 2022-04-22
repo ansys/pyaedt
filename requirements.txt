@@ -9,7 +9,7 @@ pythonnet==2.5.2; python_version > '2.7'
 # https://github.com/pythonnet/pythonnet
 # License: MIT
 
-rpyc==5.0.1; python_version > '2.7'
+rpyc==5.1.0; python_version > '2.7'
 # https://github.com/tomerfiliba-org/rpyc
 # License: MIT
 
