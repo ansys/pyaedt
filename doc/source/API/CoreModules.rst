@@ -105,7 +105,7 @@ Actually the configuration covers the following applications:
 The sections covered are:
 
 * Variables
-* Mesh Operations ( except Icepak)
+* Mesh Operations (except Icepak)
 * Setup and Optimetrics
 * Material Properties
 * Object Properties
