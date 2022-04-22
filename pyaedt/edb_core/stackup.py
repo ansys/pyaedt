@@ -272,6 +272,81 @@ class EdbStackup(object):
         return self._add_dielectric_material_model(name, material_def)
 
     @pyaedt_function_handler()
+    def duplicate_material(self, material_name, new_material_name):
+        """Create an EDB material with the same properties than a sys library material.
+
+        Parameters
+        ----------
+        material_name : str
+            Name of the existing material.
+        new_material_name : str
+            Name of the new duplicated material.
+
+        Returns
+        -------
+        The EDB material.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edb_app = Edb()
+        >>> my_material = edb_app.core_stackup.duplicate_material("copper", "my_new_material")
+
+        """
+        if self._edb.Definition.MaterialDef.FindByName(self._db, material_name).IsNull():
+            self._logger.error("This material doesn't exists.")
+        else:
+            original_material = self._edb.Definition.MaterialDef.FindByName(self._db, material_name)
+            print(original_material)
+            if is_ironpython:
+                permittivity = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permittivity)
+                permeability = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permeability)
+                print(permeability)
+                conductivity = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Conductivity)
+                print(conductivity)
+                dielectric_loss_tangent = original_material.GetProperty(
+                    self._edb.Definition.MaterialPropertyId.DielectricLossTangent
+                )
+                print(dielectric_loss_tangent)
+                magnetic_loss_tangent = original_material.GetProperty(
+                    self._edb.Definition.MaterialPropertyId.MagneticLossTangent
+                )
+                print(magnetic_loss_tangent)
+            else:
+                out_value_1 = self._edb.Utility.Value("1")
+                out_value_2 = self._edb.Utility.Value("2")
+                out_value_3 = self._edb.Utility.Value("3")
+                out_value_4 = self._edb.Utility.Value("4")
+                out_value_5 = self._edb.Utility.Value("5")
+                permittivity = original_material.GetProperty(
+                    self._edb.Definition.MaterialPropertyId.Permittivity, out_value_1
+                )
+                permeability = original_material.GetProperty(
+                    self._edb.Definition.MaterialPropertyId.Permeability, out_value_2
+                )
+                conductivity = original_material.GetProperty(
+                    self._edb.Definition.MaterialPropertyId.Conductivity, out_value_3
+                )
+                dielectric_loss_tangent = original_material.GetProperty(
+                    self._edb.Definition.MaterialPropertyId.DielectricLossTangent, out_value_4
+                )
+                magnetic_loss_tangent = original_material.GetProperty(
+                    self._edb.Definition.MaterialPropertyId.MagneticLossTangent, out_value_5
+                )
+            edb_material = self._edb.Definition.MaterialDef.Create(self._db, new_material_name)
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Permittivity, permittivity[1])
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Permeability, permeability[1])
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Conductivity, conductivity[1])
+            edb_material.SetProperty(
+                self._edb.Definition.MaterialPropertyId.DielectricLossTangent, dielectric_loss_tangent[1]
+            )
+            edb_material.SetProperty(
+                self._edb.Definition.MaterialPropertyId.MagneticLossTangent, magnetic_loss_tangent[1]
+            )
+            return edb_material
+
+    @pyaedt_function_handler()
     def _get_solder_height(self, layer_name):
         for el, val in self._pedb.core_components.components.items():
             if val.solder_ball_height and val.placement_layer == layer_name:
