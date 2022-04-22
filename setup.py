@@ -29,7 +29,7 @@ if sys.version_info >= (3, 9):
     install_requires = [
         "jupyterlab;platform_system=='Linux'",
         "pywin32 >= 303;platform_system=='Windows'",
-        "rpyc==5.0.1",
+        "rpyc==5.1.0",
         "pyvista>=0.34.1",
         "numpy",
         "ipython",
@@ -41,7 +41,7 @@ elif sys.version_info >= (3, 0):
         "pywin32 >= 303;platform_system=='Windows'",
         "pythonnet >= 2.5.2;platform_system=='Windows'",
         "jupyterlab;platform_system=='Linux'",
-        "rpyc==5.0.1",
+        "rpyc==5.1.0",
         "pyvista>=0.34.1",
         "numpy",
         "ipython",
