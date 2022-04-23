@@ -294,7 +294,7 @@ class EdbStackup(object):
 
         >>> from pyaedt import Edb
         >>> edb_app = Edb()
-        >>> my_material = edb_app.core_stackup.duplicate_material("copper", "my_new_material")
+        >>> my_material = edb_app.core_stackup.duplicate_material("copper", "my_new_copper")
 
         """
         if self._edb.Definition.MaterialDef.FindByName(self._db, material_name).IsNull():
