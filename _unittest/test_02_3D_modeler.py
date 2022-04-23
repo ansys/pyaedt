@@ -245,7 +245,7 @@ class TestClass(BasisTest, object):
     def test_31_set_objects_unmodel(self):
         assert self.aedtapp.modeler.set_object_model_state("Second_airbox", False)
 
-    def test_32_aaa(self):
+    def test_32_find_port_faces(self):
         wg_x = self.aedtapp.modeler.create_waveguide([0, 5000, 0], self.aedtapp.AXIS.Y, wg_length=1000, wg_thickness=40)
         port1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.ZX, [-40, 5000, -40], [346.7, 613.4])
         port2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.ZX, [-40, 6000, -40], [346.7, 613.4])
