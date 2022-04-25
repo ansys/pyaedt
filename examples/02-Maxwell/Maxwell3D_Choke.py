@@ -23,21 +23,23 @@ if not os.path.exists(temp_folder):
 # Launch AEDT in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This examples launches AEDT 2022.1 in graphical mode.
+
 version = "2022.1"
-non_graphical = True
+non_graphical = False
 
 ###############################################################################
-# Launch HFSS in Graphical Mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches HFSS 2021.2 in graphical mode.
+# Launch Maxwell3D in Graphical Mode
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This examples launches Maxwell3D 2022.1 in graphical mode.
 
-m3d = Maxwell3d(solution_type="EddyCurrent", specified_version=version, non_graphical=non_graphical,
-                new_desktop_session=True)
+m3d = Maxwell3d(
+    solution_type="EddyCurrent", specified_version=version, non_graphical=non_graphical, new_desktop_session=True
+)
 
 ###############################################################################
 # Rules and information of use
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The dictionary values is containing the different parameters of the core and the windings which composed
+# The dictionary values is containing the different parameters of the core and the windings which compose
 # the choke. The main structure of the dictionary must not be changed, i.e the dictionary has primary keys
 # ("Number of Windings", "Layer", "Layer Type", etc...) which have dictionaries as values, these dictionaries
 # keys are the secondary keys of the dictionary values ("1", "2", "3", "4", "Simple", etc...).
@@ -192,16 +194,15 @@ setup.add_eddy_current_sweep(range_type="LinearCount", start=100, end=1000, coun
 
 m3d.save_project(os.path.join(temp_folder, "My_Maxwell3d_Choke.aedt"))
 m3d.modeler.fit_all()
-m3d.plot(os.path.join(m3d.working_directory, "Image.jpg"))
+m3d.plot(export_path=os.path.join(m3d.working_directory, "Image.jpg"), plot_air_objects=True)
 
 
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton is completed, you can close AEDT or release it using the
+# After the simulation is completed, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before exiting.
-
 
 if os.name != "posix":
     m3d.release_desktop()
