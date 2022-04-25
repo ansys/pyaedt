@@ -108,6 +108,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.insert_design("Motion")
         self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.TransientZ
         self.aedtapp.xy_plane = True
+        self.aedtapp.model_depth = 2.0
         self.aedtapp.modeler.create_circle([0, 0, 0], 10, name="Circle_inner")
         self.aedtapp.modeler.create_circle([0, 0, 0], 30, name="Circle_outer")
         bound = self.aedtapp.assign_rotate_motion("Circle_outer", positive_limit=300, mechanical_transient=True)
