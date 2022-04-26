@@ -928,21 +928,18 @@ class EdbHfss(object):
             simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Clear()
             simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Add(adapt)
         else:
-            simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList = \
-                convert_py_list_to_net_list([adapt])
+            simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList = convert_py_list_to_net_list(
+                [adapt]
+            )
         simsetup_info.SimulationSettings.InitialMeshSettings.LambdaRefine = simulation_setup.do_lambda_refinement
         simsetup_info.SimulationSettings.InitialMeshSettings.UseDefaultLambda = True
         simsetup_info.SimulationSettings.AdaptiveSettings.MaxRefinePerPass = 30
         simsetup_info.SimulationSettings.AdaptiveSettings.MinPasses = simulation_setup.min_num_passes
         simsetup_info.SimulationSettings.AdaptiveSettings.MinConvergedPasses = 1
-        simsetup_info.SimulationSettings.HFSSSolverSettings.OrderBasis = (
-            simulation_setup.basis_order
-        )
+        simsetup_info.SimulationSettings.HFSSSolverSettings.OrderBasis = simulation_setup.basis_order
         simsetup_info.SimulationSettings.HFSSSolverSettings.UseHFSSIterativeSolver = False
         simsetup_info.SimulationSettings.DefeatureSettings.UseDefeature = False  # set True when using defeature ratio
-        simsetup_info.SimulationSettings.DefeatureSettings.UseDefeatureAbsLength = (
-            simulation_setup.defeature_layout
-        )
+        simsetup_info.SimulationSettings.DefeatureSettings.UseDefeatureAbsLength = simulation_setup.defeature_layout
         simsetup_info.SimulationSettings.DefeatureSettings.DefeatureAbsLength = simulation_setup.defeature_abs_length
 
         try:
