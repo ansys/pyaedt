@@ -48,9 +48,9 @@ def load_keyword_in_aedt_file(filename, keyword):
 # precompile all Regular expressions
 _remove_quotes = re.compile(r"^'(.*?)'$")
 _split_list_elements = re.compile(",(?=(?:[^']*'[^']*')*[^']*$)")
-_round_bracket_list = re.compile(r"^(?P<KEY1>[^\s]+?)\((?P<LIST1>.+)\)|^'(?P<KEY2>.+?\s.+)'(?<=')\((?P<LIST2>.+)\)")
+_round_bracket_list = re.compile(r"^(?P<SKEY1>\S+?)\((?P<LIST1>.+)\)|^'(?P<SKEY2>.+?\s.+)'(?<=')\((?P<LIST2>.+)\)")
 _square_bracket_list = re.compile(
-    r"^(?P<KEY1>[^\s]+?)\[\d+:(?P<LIST1>.+)\]|^'(?P<KEY2>.+?\s.+)'(?<=')\[\d+:(?P<LIST2>.+)\]"
+    r"^(?P<SKEY1>\S+?)\[\d+:(?P<LIST1>.+)\]|^'(?P<SKEY2>.+?\s.+)'(?<=')\[\d+:(?P<LIST2>.+)\]"
 )
 _key_parse = re.compile(r"(^'(?P<KEY1>.+?)')(?<=')=(?P<VAL1>.+$)|(?P<KEY2>^.+?)=(?P<VAL2>.+$)")
 _value_parse1 = re.compile(r"\s")
@@ -59,6 +59,7 @@ _begin_search = re.compile(r"\$begin '(.+)'")
 
 # set recognized keywords
 _recognized_keywords = ["CurvesInfo"]
+_recognized_subkeys = ["simple("]
 
 # global variables
 _all_lines = []
@@ -78,7 +79,7 @@ def _parse_value(v):
     -------
 
     """
-    #  parse the value 'v'
+    #  duck typing parse of the value 'v'
     if v is None:
         pv = v
     elif v == "true":
@@ -120,6 +121,32 @@ def _separate_list_elements(v):
     return l2
 
 
+def _decode_recognized_subkeys(sk, d):
+    """Special decodings for sub-keys belonging to _recognized_subkeys
+
+    Parameters
+    ----------
+    sk : str
+        dictionary sub-key recognized
+
+    d : dict
+        Active dictionary.
+
+    Returns
+    -------
+    bool
+        Returns ``True`` if it finds and decode a recognized value.
+
+    """
+    if sk.startswith(_recognized_subkeys[0]):  # 'simple(' is at the beginning of the value
+        m = _round_bracket_list.search(sk)
+        if m and m.group("SKEY1") == "simple":  # extra verification. SKEY2 is with spaces, so it's not considered here.
+            elems = _separate_list_elements(m.group("LIST1"))
+            d[elems[0]] = str(elems[1])  # convert to string as it is dedicated to material props
+            return True
+    return False
+
+
 def _decode_value_and_save(k, v, d):
     """
 
@@ -131,39 +158,39 @@ def _decode_value_and_save(k, v, d):
 
     d :
 
-
-    Returns
-    -------
-
     """
     # save key 'k', value 'v' in dict 'd'
-    # create a list for key(l1, l2, l3)
-    # create a list for key[n: 1, 2, ...n]
-
+    # create a list for subkey(l1, l2, l3)
+    # create a list for subkey[n: 1, 2, ...n]
+    # send recognized sub-keys to _decode_recognized_subkeys
+    for rsk in _recognized_subkeys:
+        if rsk in k:  # here we simply search if one of the _recognized_subkeys is in k
+            if _decode_recognized_subkeys(k, d):  # the exact search is done inside the _decode_recognized_subkeys
+                return  # if there is a match we stop the _decode_value_and_save, otherwise we keep going
     m = _round_bracket_list.search(k)
-    if m and m.group("KEY1"):
+    if m and m.group("SKEY1"):
         v = _separate_list_elements(m.group("LIST1"))
-        k = m.group("KEY1")
+        k = m.group("SKEY1")
         d[k] = v
-    elif m and m.group("KEY2"):
+    elif m and m.group("SKEY2"):
         v = _separate_list_elements(m.group("LIST2"))
-        k = m.group("KEY2")
+        k = m.group("SKEY2")
         d[k] = v
     else:
         m = _square_bracket_list.search(k)
-        if m and m.group("KEY1"):
+        if m and m.group("SKEY1"):
             v = _separate_list_elements(m.group("LIST1"))
-            k = m.group("KEY1")
+            k = m.group("SKEY1")
             d[k] = v
-        elif m and m.group("KEY2"):
+        elif m and m.group("SKEY2"):
             v = _separate_list_elements(m.group("LIST2"))
-            k = m.group("KEY2")
+            k = m.group("SKEY2")
             d[k] = v
         else:
             d[k] = _parse_value(v)
 
 
-def _decode_recognized_key(keyword, l, d):
+def _decode_recognized_key(keyword, line, d):
     """Special decodings for keys belonging to  _recognized_keywords
 
     Parameters
@@ -171,7 +198,7 @@ def _decode_recognized_key(keyword, l, d):
     keyword : str
         dictionary key recognized
 
-    l : str
+    line : str
         Line.
 
     d : dict
@@ -181,23 +208,23 @@ def _decode_recognized_key(keyword, l, d):
 
     """
     if keyword == _recognized_keywords[0]:  # 'CurvesInfo'
-        m = re.search(r"\'(\d+)\'\((.*)\)$", l)
+        m = re.search(r"\'(\d+)\'\((.*)\)$", line)
         if m:
             k = m.group(1)
             v = m.group(2)
             v2 = v.replace("\\'", '"')
             v3 = _separate_list_elements(v2)
             d[k] = v3
-    else:
+    else:  # pragma: no cover
         raise AttributeError("Keyword {} is supposed to be in the recognized_keywords list".format(keyword))
 
 
-def _decode_key(l, d):
+def _decode_key(line, d):
     """
 
     Parameters
     ----------
-    l : str
+    line : str
         Line.
 
     d : dict
@@ -206,7 +233,7 @@ def _decode_key(l, d):
     -------
 
     """
-    m = _key_parse.search(l)
+    m = _key_parse.search(line)
     if m and m.group("KEY1"):  # key btw ''
         value = m.group("VAL1")
         if "\\'" in value:
@@ -219,7 +246,7 @@ def _decode_key(l, d):
             key = m.group("KEY1")
             _decode_value_and_save(key, value, d)
         else:  # spaces in value without quotes
-            key = l
+            key = line
             value = None
             _decode_value_and_save(key, value, d)
     elif m and m.group("KEY2"):  # key without ''
@@ -233,11 +260,11 @@ def _decode_key(l, d):
             key = m.group("KEY2")
             _decode_value_and_save(key, value, d)
         else:  # spaces in value without quotes
-            key = l
+            key = line
             value = None
             _decode_value_and_save(key, value, d)
     else:  # no = sign found
-        key = l
+        key = line
         value = None
         _decode_value_and_save(key, value, d)
 
