@@ -2901,7 +2901,7 @@ class SimulationConfiguration(object):
         self._use_error_z0 = False
         self._percentage_error_z0 = 1
         self._enforce_causality = True
-        self._enforce_passivity = True
+        self._enforce_passivity = False
         self._passivity_tolerance = 0.0001
         self._sweep_name = "Sweep1"
         self._radiation_box = RadiationBoxType.ConvexHull  # 'ConvexHull'
@@ -3742,7 +3742,7 @@ class SimulationConfiguration(object):
                             elif i.startswith("EtchingFactor"):
                                 self.etching_factor_instances = self._get_list_value(value)
                             elif i.startswith("DoCutoutSubdesign"):
-                                self.do_cutout_subdesign = self._get_list_value(value)
+                                self.do_cutout_subdesign = self._get_bool_value(value)
                             elif i.startswith("SolverType"):
                                 if value.lower() == "hfss":
                                     self.solver_type = 0
