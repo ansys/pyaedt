@@ -191,7 +191,7 @@ hfss.create_linear_count_sweep(
 
 hfss.save_project(os.path.join(temp_folder, "My_HFSS_Choke.aedt"))
 hfss.modeler.fit_all()
-hfss.plot(export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
+hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
 
 
 ###############################################################################
@@ -201,7 +201,7 @@ hfss.plot(export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_ai
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before exiting.
 
-"""
+
 if os.name != "posix":
     hfss.release_desktop()
-"""
+
