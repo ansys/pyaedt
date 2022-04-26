@@ -142,6 +142,8 @@ def _decode_recognized_subkeys(sk, d):
         m = _round_bracket_list.search(sk)
         if m and m.group("SKEY1") == "simple":  # extra verification. SKEY2 is with spaces, so it's not considered here.
             elems = _separate_list_elements(m.group("LIST1"))
+            if elems[0] == "thermal_expansion_coeffcient":
+                elems[0] = "thermal_expansion_coefficient"  # fix a typo in the amat files. AEDT supports both strings!
             d[elems[0]] = str(elems[1])  # convert to string as it is dedicated to material props
             return True
     return False
