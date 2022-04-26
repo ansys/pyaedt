@@ -55,6 +55,13 @@ class FieldAnalysisCircuit(Analysis):
 
     @pyaedt_function_handler()
     def push_down(self, component_name):
+        """Push-down
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         out_name = ""
         if isinstance(component_name, CircuitComponent):
             out_name = self.design_name + ":" + component_name.component_info["RefDes"]
@@ -75,12 +82,20 @@ class FieldAnalysisCircuit(Analysis):
 
     @pyaedt_function_handler()
     def pop_up(self):
+        """Pop-up
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         try:
             parent_name = self.odesign.GetName().split(";")[1].split("/")[0]
             self.oproject.SetActiveDesign(parent_name)
             self.__init__(projectname=self.project_name, designname=parent_name)
         except:
             return False
+        return True
 
     @property
     def post(self):

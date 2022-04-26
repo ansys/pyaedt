@@ -82,6 +82,25 @@ class NexximComponents(CircuitComponents):
 
     @pyaedt_function_handler()
     def add_new_subcircuit(self, location=None, angle=0, name=None, nested_subcircuit_id=None):
+        """Add a new subcircuit to the design.
+
+        Parameters
+        ----------
+        location : list of float, optional
+            Position on the X axis and Y axis.
+        angle : float, optional
+            Angle rotation in degrees. The default is ``0``.
+        name : str, optional
+            name of the Design. The default is ``None``, in which case
+            a unique name will be generated.
+        nested_subcircuit_id : str, optional
+            id of nested subcircuit.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent` Circuit Component Object
+        when successful or False when fails.
+        """
         if not name:
             name = generate_unique_name("Circuit")
 
@@ -105,6 +124,24 @@ class NexximComponents(CircuitComponents):
 
     @pyaedt_function_handler()
     def duplicate(self, component, location=None, angle=0, flip=False):
+        """Add a new subcircuit to the design.
+
+        Parameters
+        ----------
+        component : class:`pyaedt.modeler.Object3d.CircuitComponent` Circuit Component Object
+            Component to duplicate.
+        location : list of float, optional
+            Position on the X axis and Y axis.
+        angle : float, optional
+            Angle rotation in degrees. The default is ``0``.
+        flip : bool, optional
+            Whether the component should be flipped or not. Default value is False.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent` Circuit Component Object
+        when successful or False when fails.
+        """
         comp_names = []
         if isinstance(component, CircuitComponent):
             comp_names.append(component.composed_name)
