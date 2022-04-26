@@ -2,6 +2,7 @@ import os
 import re
 from warnings import warn
 
+from pyaedt import settings
 from pyaedt.edb import Edb
 from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
@@ -18,7 +19,6 @@ from pyaedt.modules.LayerStackup import Layers
 
 class Modeler3DLayout(Modeler, Primitives3DLayout):
     """Manages Modeler 3D layouts.
-
     This class is inherited in the caller application and is accessible through the modeler variable
     object (for example, ``hfss3dlayout.modeler``).
 
@@ -81,6 +81,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
              EDB.
 
         """
+        if settings.remote_api:
+            return self._edb
         if not self._edb:
             self._edb = None
             if os.path.exists(self._edb_file) or (inside_desktop and is_ironpython):

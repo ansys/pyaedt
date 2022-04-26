@@ -159,7 +159,7 @@ class Edb(object):
                     edbpath = os.path.join(edbpath, generate_unique_name("layout") + ".aedb")
                 self.logger.info("No EDB is provided. Creating a new EDB {}.".format(edbpath))
             self.edbpath = edbpath
-            if isaedtowned and inside_desktop:
+            if isaedtowned and (inside_desktop or settings.remote_api):
                 self.open_edb_inside_aedt()
             elif edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
                 self.edbpath = edbpath[:-4] + ".aedb"

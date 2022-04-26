@@ -3,6 +3,7 @@ import os
 import re
 
 from pyaedt.application.Analysis import Analysis
+from pyaedt.generic.configurations import ConfigurationsIcepak
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -72,6 +73,8 @@ class FieldAnalysisIcepak(Analysis, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
         Analysis.__init__(
             self,
@@ -85,12 +88,25 @@ class FieldAnalysisIcepak(Analysis, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
         self._osolution = self._odesign.GetModule("Solutions")
         self._oboundary = self._odesign.GetModule("BoundarySetup")
         self._modeler = Modeler3D(self)
         self._mesh = IcepakMesh(self)
         self._post = PostProcessor(self)
+        self._configurations = ConfigurationsIcepak(self)
+
+    @property
+    def configurations(self):
+        """Property to import and export configuration files.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.configurations.Configurations`
+        """
+        return self._configurations
 
     @property
     def osolution(self):
@@ -292,7 +308,7 @@ class FieldAnalysisIcepak(Analysis, object):
         >>> oEditor.Export
         """
         if not object_list:
-            allObjects = self.modeler.object_names
+            allObjects = [i for i in self.modeler.object_names]
             if removed_objects:
                 for rem in removed_objects:
                     allObjects.remove(rem)
@@ -300,7 +316,7 @@ class FieldAnalysisIcepak(Analysis, object):
                 if "Region" in allObjects:
                     allObjects.remove("Region")
         else:
-            allObjects = object_list[:]
+            allObjects = self.modeler.convert_to_selections(object_list, True)
 
         self.logger.info("Exporting {} objects".format(len(allObjects)))
         major = -1

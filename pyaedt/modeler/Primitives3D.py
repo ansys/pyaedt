@@ -2559,8 +2559,9 @@ class Primitives3D(Primitives, object):
                 values["Inner Winding"]["Occupation(%)"] = occ
 
             if create_another_file:
-                spl_path = json_file.split(".")
-                with open(spl_path[0] + "_Corrected.json", "w") as outfile:
+                root_path, extension_path = os.path.splitext(json_file)
+                new_path = root_path + "_Corrected" + extension_path
+                with open(new_path, "w") as outfile:
                     json.dump(values, outfile)
             else:
                 with open(json_file, "w") as outfile:

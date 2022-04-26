@@ -1738,8 +1738,7 @@ class Primitives(object):
         """
         if objects is None:
             objects = self.object_names
-        elif not isinstance(objects, list):
-            objects = [objects]
+        objects = self._modeler.convert_to_selections(objects, return_list=True)
         for el in objects:
             if el not in self.object_names and not list(self._oeditor.GetObjectsInGroup(el)):
                 objects.remove(el)
@@ -2669,7 +2668,7 @@ class Primitives(object):
             try:
                 edgeID = int(self._oeditor.GetEdgeByPosition(vArg1))
                 return edgeID
-            except Exception as e:
+            except:
                 pass
 
     @pyaedt_function_handler()
