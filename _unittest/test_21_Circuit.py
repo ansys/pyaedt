@@ -53,6 +53,9 @@ class TestClass(BasisTest, object):
         mycap = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12, location=[0.6, 0.2])
         assert type(mycap.id) is int
         assert mycap.parameters["C"] == "1e-12"
+        tol = 1e-12
+        assert abs(mycap.pins[0].location[1] - 0.20066) < tol
+        assert abs(mycap.pins[0].location[0] - 0.5943600000000001) < tol
 
     def test_04_getpin_names(self):
         mycap2 = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12)
@@ -172,7 +175,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.move("L100", [0, 200], "mil")
 
     def test_15_rotate(self):
-        assert self.aedtapp.modeler.rotate("Port1")
+        assert self.aedtapp.modeler.rotate("IPort@Port1")
 
     def test_16_read_touchstone(self):
         data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))

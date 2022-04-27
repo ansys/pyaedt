@@ -70,7 +70,7 @@ solutions_types = {
             "options": None,
             "report_type": "Magnetostatic",
             "default_setup": 6,
-            "default_adaptive": None,
+            "default_adaptive": "LastAdaptive",
         },
         "EddyCurrent": {
             "name": "EddyCurrent",
@@ -475,7 +475,9 @@ class DesignSolution(object):
     @property
     def solution_type(self):
         """Get/Set the Solution Type of the active Design."""
-        if self._odesign:
+        if self._design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design", "EMIT", "Q3D Extractor"]:
+            self._solution_type = solutions_defaults[self._design_type]
+        elif self._odesign:
             try:
                 self._solution_type = self._odesign.GetSolutionType()
             except:
@@ -488,7 +490,15 @@ class DesignSolution(object):
     @pyaedt_function_handler()
     def solution_type(self, value):
         if value is None:
-            if self._odesign:
+            if self._design_type in [
+                "Circuit Design",
+                "Twin Builder",
+                "HFSS 3D Layout Design",
+                "EMIT",
+                "Q3D Extractor",
+            ]:
+                self._solution_type = solutions_defaults[self._design_type]
+            elif self._odesign:
                 try:
                     self._solution_type = self._odesign.GetSolutionType()
                 except:

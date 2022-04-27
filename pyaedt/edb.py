@@ -159,7 +159,7 @@ class Edb(object):
                     edbpath = os.path.join(edbpath, generate_unique_name("layout") + ".aedb")
                 self.logger.info("No EDB is provided. Creating a new EDB {}.".format(edbpath))
             self.edbpath = edbpath
-            if isaedtowned and inside_desktop:
+            if isaedtowned and (inside_desktop or settings.remote_api):
                 self.open_edb_inside_aedt()
             elif edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
                 self.edbpath = edbpath[:-4] + ".aedb"
@@ -1513,6 +1513,19 @@ class Edb(object):
         -------
         bool
             ``True`` when successful, False when ``Failed``.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+        >>> config_file = path_configuration_file
+        >>> source_file = path_to_edb_folder
+        >>> edb = Edb(source_file)
+        >>> sim_setup = SimulationConfiguration(config_file)
+        >>> edb.build_simulation_project(sim_setup)
+        >>> edb.save_edb()
+        >>> edb.close_edb()
         """
         self.logger.info("Building simulation project.")
         try:

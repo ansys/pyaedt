@@ -1469,7 +1469,7 @@ class Object3d(object):
         if not self._id:
             try:
                 self._id = self._primitives._oeditor.GetObjectIDByName(self._m_name)
-            except Exception as e:
+            except:
                 return None
         return self._id
 
