@@ -2656,7 +2656,7 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        bool
+        :class:`pyaedt.modules.report_templates.Standard`
             ``True`` when successful, ``False`` when failed.
 
 
