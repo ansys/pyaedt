@@ -503,7 +503,7 @@ class Reports(object):
 
         Parameters
         ----------
-        expressions : str or list
+        expressions : str or list, optional
             Expression List.
         setup_name : str, optional
             Setup Name.
