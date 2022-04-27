@@ -81,7 +81,7 @@ class TestClass(BasisTest, object):
     def test_06_eddycurrent(self):
         assert self.aedtapp.eddy_effects_on(["Plate"])
 
-    def test_07_setup(self):
+    def test_07a_setup(self):
         adaptive_frequency = "200Hz"
         Setup = self.aedtapp.create_setup()
         Setup.props["MaximumPasses"] = 12
@@ -102,6 +102,19 @@ class TestClass(BasisTest, object):
         assert Setup.disable()
         assert Setup.enable()
         assert self.aedtapp.setup_ctrlprog(Setup.name)
+
+    def test_07b_create_parametrics(self):
+        self.aedtapp["w1"] = "10mm"
+        self.aedtapp["w2"] = "2mm"
+        setup1 = self.aedtapp.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
+        assert setup1
+        expression = "re(FluxLinkage(" + self.aedtapp.excitations[2] + "))"
+        assert setup1.add_calculation(
+            calculation=expression,
+            ranges={"Freq": "200Hz"},
+            report_type="EddyCurrent",
+            solution=self.aedtapp.existing_analysis_sweeps[0],
+        )
 
     def test_08_setup_ctrlprog_with_file(self):
         transient_setup = self.aedtapp.create_setup()
