@@ -5,10 +5,10 @@ This module contains the `EdbStackup` class.
 
 from __future__ import absolute_import  # noreorder
 
+
 import math
 import os
 import warnings
-import clr
 
 from pyaedt.edb_core.EDB_Data import EDBLayers
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -17,6 +17,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 
 try:
+    import clr
     from System import Double
 except ImportError:
     if os.name != "posix":
