@@ -325,42 +325,40 @@ class EdbStackup(object):
                 magnetic_loss_tangent_temp = original_material.GetProperty(
                     self._edb.Definition.MaterialPropertyId.MagneticLossTangent, magnetic_loss_tangent_box
                 )
-                permittivity = [permittivity_temp[0], permittivity_box]
-                permeability = [permeability_temp[0], permeability_box]
-                conductivity = [conductivity_temp[0], conductivity_box]
-                dielectric_loss_tangent = [dielectric_loss_tangent_temp[0], dielectric_loss_tangent_box]
-                magnetic_loss_tangent = [magnetic_loss_tangent_temp[0], magnetic_loss_tangent_box]
+                permittivity = float(permittivity_box)
+                permeability = float(permeability_box)
+                conductivity = float(conductivity_box)
+                dielectric_loss_tangent = float(dielectric_loss_tangent_box)
+                magnetic_loss_tangent = float(magnetic_loss_tangent_box)
             else:
                 out_value_1 = self._edb.Utility.Value("1")
                 out_value_2 = self._edb.Utility.Value("2")
                 out_value_3 = self._edb.Utility.Value("3")
                 out_value_4 = self._edb.Utility.Value("4")
                 out_value_5 = self._edb.Utility.Value("5")
-                permittivity = original_material.GetProperty(
+                bool_1, permittivity = original_material.GetProperty(
                     self._edb.Definition.MaterialPropertyId.Permittivity, out_value_1
                 )
-                permeability = original_material.GetProperty(
+                bool_2, permeability = original_material.GetProperty(
                     self._edb.Definition.MaterialPropertyId.Permeability, out_value_2
                 )
-                conductivity = original_material.GetProperty(
+                bool_3, conductivity = original_material.GetProperty(
                     self._edb.Definition.MaterialPropertyId.Conductivity, out_value_3
                 )
-                dielectric_loss_tangent = original_material.GetProperty(
+                bool_4, dielectric_loss_tangent = original_material.GetProperty(
                     self._edb.Definition.MaterialPropertyId.DielectricLossTangent, out_value_4
                 )
-                magnetic_loss_tangent = original_material.GetProperty(
+                bool_5, magnetic_loss_tangent = original_material.GetProperty(
                     self._edb.Definition.MaterialPropertyId.MagneticLossTangent, out_value_5
                 )
             edb_material = self._edb.Definition.MaterialDef.Create(self._db, new_material_name)
-            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Permittivity, permittivity[1])
-            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Permeability, permeability[1])
-            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Conductivity, conductivity[1])
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Permittivity, permittivity)
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Permeability, permeability)
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Conductivity, conductivity)
             edb_material.SetProperty(
-                self._edb.Definition.MaterialPropertyId.DielectricLossTangent, dielectric_loss_tangent[1]
+                self._edb.Definition.MaterialPropertyId.DielectricLossTangent, dielectric_loss_tangent
             )
-            edb_material.SetProperty(
-                self._edb.Definition.MaterialPropertyId.MagneticLossTangent, magnetic_loss_tangent[1]
-            )
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.MagneticLossTangent, magnetic_loss_tangent)
             return edb_material
 
     @pyaedt_function_handler()
