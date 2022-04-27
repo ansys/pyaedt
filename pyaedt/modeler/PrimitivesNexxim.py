@@ -138,7 +138,7 @@ class NexximComponents(CircuitComponents):
         Parameters
         ----------
         component : class:`pyaedt.modeler.Object3d.CircuitComponent` Circuit Component Object
-            Component to duplicate integer.
+            Component to duplicate.
         location : list of float, optional
             Position on the X axis and Y axis.
         angle : float, optional
