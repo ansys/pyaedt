@@ -65,12 +65,12 @@ TEMPLATES_BY_DESIGN = {
         "Fields",
     ],
     "Icepak": ["Monitor", "Fields"],
-    "Circuit Design": ["Standard", "Eye Diagram"],
-    "HFSS 3D Layout": ["Standard", "Fields"],
+    "Circuit Design": ["Standard", "Eye Diagram", "Spectral"],
+    "HFSS 3D Layout": ["Standard", "Fields", "Spectral"],
     "Mechanical": ["Standard", "Fields"],
     "Q3D Extractor": ["Matrix", "CG Fields", "DC R/L Fields", "AC R/L Fields"],
     "2D Extractor": ["Matrix", "CG Fields", "RL Fields"],
-    "Twin Builder": ["Standard"],
+    "Twin Builder": ["Standard", "Spectral"],
 }
 TEMPLATES_BY_NAME = {
     "Standard": rt.Standard,
@@ -86,6 +86,7 @@ TEMPLATES_BY_NAME = {
     "Near Fields": rt.NearField,
     "Eye Diagram": rt.EyeDiagram,
     "EigenMode Parameters": rt.Standard,
+    "Spectral": rt.Spectral,
 }
 
 
@@ -492,6 +493,38 @@ class Reports(object):
             setup_name = self._post_app._app.nominal_sweep
         if "Eye Diagram" in self._templates:
             rep = rt.EyeDiagram(self._post_app, "Eye Diagram", setup_name)
+            rep.expressions = expressions
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def spectral(self, expressions=None, setup_name=None):
+        """Create a Spectral Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Spectrum`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> cir= Circuit()
+        >>> new_eye = cir.post.reports_by_category.spectral("V(Vout)")
+        >>> new_eye.create()
+
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Spectral" in self._templates:
+            rep = rt.Spectral(self._post_app, "Spectrum", setup_name)
             rep.expressions = expressions
             return rep
         return
@@ -2699,7 +2732,9 @@ class PostProcessorCommon(object):
         ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
         ... )
         """
-        if not report_category and not self._app.design_solutions.report_type:
+        if domain == "Spectral":
+            report_category = "Spectral"
+        elif not report_category and not self._app.design_solutions.report_type:
             self.logger.error("Solution not supported")
             return False
         elif not report_category:
@@ -2861,6 +2896,8 @@ class PostProcessorCommon(object):
         >>> data3.plot("InputCurrent(PHA)")
 
         """
+        if domain == "Spectral":
+            report_category = "Spectral"
         if not report_category and not self._app.design_solutions.report_type:
             self.logger.error("Solution not supported")
             return False
