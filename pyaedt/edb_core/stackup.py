@@ -17,6 +17,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 
 try:
+    import clr
     from System import Double
 except ImportError:
     if os.name != "posix":
