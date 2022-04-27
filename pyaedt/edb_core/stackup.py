@@ -309,19 +309,20 @@ class EdbStackup(object):
                 conductivity_box = clr.StrongBox[float]()
                 dielectric_loss_tangent_box = clr.StrongBox[float]()
                 magnetic_loss_tangent_box = clr.StrongBox[float]()
-                permittivity_temp = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permittivity,
-                                                                  permittivity_box)
-                permeability_temp = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permeability,
-                                                                  permeability_box)
-                conductivity_temp = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Conductivity,
-                                                                  conductivity_box)
+                permittivity_temp = original_material.GetProperty(
+                    self._edb.Definition.MaterialPropertyId.Permittivity, permittivity_box
+                )
+                permeability_temp = original_material.GetProperty(
+                    self._edb.Definition.MaterialPropertyId.Permeability, permeability_box
+                )
+                conductivity_temp = original_material.GetProperty(
+                    self._edb.Definition.MaterialPropertyId.Conductivity, conductivity_box
+                )
                 dielectric_loss_tangent_temp = original_material.GetProperty(
-                    self._edb.Definition.MaterialPropertyId.DielectricLossTangent,
-                    dielectric_loss_tangent_box
+                    self._edb.Definition.MaterialPropertyId.DielectricLossTangent, dielectric_loss_tangent_box
                 )
                 magnetic_loss_tangent_temp = original_material.GetProperty(
-                    self._edb.Definition.MaterialPropertyId.MagneticLossTangent,
-                    magnetic_loss_tangent_box
+                    self._edb.Definition.MaterialPropertyId.MagneticLossTangent, magnetic_loss_tangent_box
                 )
                 permittivity = [permittivity_temp[0], permittivity_box]
                 permeability = [permeability_temp[0], permeability_box]
