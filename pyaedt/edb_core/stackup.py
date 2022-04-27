@@ -310,15 +310,9 @@ class EdbStackup(object):
                 conductivity_box = clr.StrongBox[float]()
                 dielectric_loss_tangent_box = clr.StrongBox[float]()
                 magnetic_loss_tangent_box = clr.StrongBox[float]()
-                original_material.GetProperty(
-                    self._edb.Definition.MaterialPropertyId.Permittivity, permittivity_box
-                )
-                original_material.GetProperty(
-                    self._edb.Definition.MaterialPropertyId.Permeability, permeability_box
-                )
-                original_material.GetProperty(
-                    self._edb.Definition.MaterialPropertyId.Conductivity, conductivity_box
-                )
+                original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permittivity, permittivity_box)
+                original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permeability, permeability_box)
+                original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Conductivity, conductivity_box)
                 original_material.GetProperty(
                     self._edb.Definition.MaterialPropertyId.DielectricLossTangent, dielectric_loss_tangent_box
                 )
