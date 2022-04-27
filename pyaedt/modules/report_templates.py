@@ -650,3 +650,135 @@ class Emission(CommonReport):
     def __init__(self, app, report_type, setup_name):
         CommonReport.__init__(self, app, report_type, setup_name)
         self.domain = "Sweep"
+
+
+class Spectral(CommonReport):
+    """Spectral Report from Transient data."""
+
+    def __init__(self, app, report_type, setup_name):
+        CommonReport.__init__(self, app, report_type, setup_name)
+        self.domain = "Spectral"
+        self.algorithm = "FFT"
+        self.time_start = "0ns"
+        self.time_stop = "200ns"
+        self.window = "Rectangular"
+        self.kaiser_coeff = 0
+        self.adjust_coherent_gain = True
+        self.max_freq = "10MHz"
+        self.plot_continous_spectrum = False
+        self.primary_sweep = "Spectrum"
+
+    @property
+    def _context(self):
+        if self.algorithm == "FFT":
+            it = "1"
+        elif self.algorithm == "Fourier Integration":
+            it = "0"
+        else:
+            it = "2"
+        WT = {
+            "Rectangular": "0",
+            "Bartlett": "1",
+            "Blackman": "2",
+            "Hamming": "3",
+            "Hanning": "4",
+            "Kaiser": "5",
+            "Welch": "6",
+            "Weber": "7",
+            "Lanzcos": "8",
+        }
+        wt = WT[self.window]
+        arg = [
+            "NAME:Context",
+            "SimValueContext:=",
+            [
+                2,
+                0,
+                2,
+                0,
+                False,
+                False,
+                -1,
+                1,
+                0,
+                1,
+                1,
+                "",
+                0,
+                0,
+                "CP",
+                False,
+                "1" if self.plot_continous_spectrum else "0",
+                "IT",
+                False,
+                it,
+                "MF",
+                False,
+                self.max_freq,
+                "NUMLEVELS",
+                False,
+                "0",
+                "TE",
+                False,
+                self.time_stop,
+                "TS",
+                False,
+                self.time_start,
+                "WT",
+                False,
+                wt,
+                "WW",
+                False,
+                "100",
+                "KP",
+                False,
+                str(self.kaiser_coeff),
+                "CG",
+                False,
+                "1" if self.adjust_coherent_gain else "0",
+            ],
+        ]
+        return arg
+
+    @property
+    def _trace_info(self):
+        if isinstance(self.expressions, list):
+            return self.expressions
+        else:
+            return [self.expressions]
+
+    @pyaedt_function_handler()
+    def create(self, plot_name=None):
+        """Create a new Eye Diagram Report.
+
+        Parameters
+        ----------
+        plot_name : str, optional
+            Optional Plot name.
+
+        Returns
+        -------
+        bool
+        """
+        if not plot_name:
+            if self._is_created:
+                self.plot_name = generate_unique_name("Plot")
+        else:
+            self.plot_name = plot_name
+        self._post.oreportsetup.CreateReport(
+            self.plot_name,
+            self.report_category,
+            self.report_type,
+            self.setup,
+            self._context,
+            self._convert_dict_to_report_sel(self.variations),
+            [
+                "X Component:=",
+                self.primary_sweep,
+                "Y Component:=",
+                self._trace_info,
+            ],
+        )
+        self._post.plots.append(self)
+        self._is_created = True
+        return True

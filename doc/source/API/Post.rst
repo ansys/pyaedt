@@ -51,4 +51,5 @@ They are accessible through the ``post`` property:
    report_templates.FarField
    report_templates.EyeDiagram
    report_templates.Emission
+   report_templates.Spectral
 
