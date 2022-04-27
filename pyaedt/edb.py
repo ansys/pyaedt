@@ -1518,6 +1518,7 @@ class Edb(object):
         try:
             if not simulation_setup or not isinstance(simulation_setup, SimulationConfiguration):  # pragma: no cover
                 return False
+            self.core_nets.sort_nets(simulation_setup)
             if simulation_setup.do_cutout_subdesign:
                 self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
                 old_cell_name = self.active_cell.GetName()
