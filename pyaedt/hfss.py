@@ -330,9 +330,11 @@ class Hfss(FieldAnalysis3D, object):
         return self._create_boundary(portname, props, "Lumped Port")
 
     @pyaedt_function_handler()
-    def _create_port_terminal(self, objectname, int_line_stop, portname, renorm=True, deembed=None, iswaveport=False):
+    def _create_port_terminal(
+        self, objectname, int_line_stop, portname, renorm=True, deembed=None, iswaveport=False, impedance=None
+    ):
         ref_conductors = self.modeler.convert_to_selections(int_line_stop, True)
-        props = OrderedDict({})
+        props = OrderedDict()
         props["Faces"] = int(objectname)
         props["IsWavePort"] = iswaveport
         props["ReferenceConductors"] = ref_conductors
@@ -342,10 +344,24 @@ class Hfss(FieldAnalysis3D, object):
         if boundary:
             new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
             terminals = [i for i in new_ports if i not in ports]
-            id = 1
-            for terminal in terminals:
-                new_name = portname + "_T" + str(id)
-                id += 1
+            for count, terminal in enumerate(terminals, start=1):
+                if impedance:
+                    properties = [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:HfssTab",
+                            ["NAME:PropServers", "BoundarySetup:" + terminal],
+                            [
+                                "NAME:ChangedProps",
+                                ["NAME:Terminal Renormalizing Impedance", "Value:=", str(impedance) + "ohm"],
+                            ],
+                        ],
+                    ]
+                    try:
+                        self.odesign.ChangeProperty(properties)
+                    except:  # pragma: no cover
+                        self.logger.warning("Failed to change terminal impedance.")
+                new_name = portname + "_T" + str(count)
                 properties = [
                     "NAME:AllTabs",
                     [
@@ -356,8 +372,9 @@ class Hfss(FieldAnalysis3D, object):
                 ]
                 try:
                     self.odesign.ChangeProperty(properties)
-                except:
-                    self.logger.warning("Failed To rename terminals.")
+                except:  # pragma: no cover
+                    self.logger.warning("Failed to rename terminal {}.".format(terminal))
+
             if iswaveport:
                 boundary.type = "Wave Port"
             else:
@@ -1628,7 +1645,13 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     deembed = None
                 return self._create_port_terminal(
-                    faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=False
+                    faces[0],
+                    endobject,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=False,
+                    impedance=impedance,
                 )
         return False  # pragma: no cover
 
@@ -2076,7 +2099,13 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     deembed = deembed_dist
                 return self._create_port_terminal(
-                    faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=True
+                    faces[0],
+                    endobject,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=True,
+                    impedance=impedance,
                 )
         return False  # pragma: no cover
 
@@ -2530,7 +2559,13 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     deembed = deembed_dist
                 return self._create_port_terminal(
-                    faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=True
+                    faces[0],
+                    endobject,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=True,
+                    impedance=impedance,
                 )
         return False
 
@@ -3115,7 +3150,13 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     deembed = deemb
                 return self._create_port_terminal(
-                    faces, terminal_references, portname, renorm=renorm, deembed=deembed, iswaveport=True
+                    faces,
+                    terminal_references,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=True,
+                    impedance=impedance,
                 )
             else:
                 self.logger.error("Reference conductors are missing.")
@@ -3198,7 +3239,13 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     deembed = None
                 port = self._create_port_terminal(
-                    faces, reference_object_list, portname, renorm=renorm, deembed=deembed, iswaveport=False
+                    faces,
+                    reference_object_list,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=False,
+                    impedance=impedance,
                 )
 
             return port
