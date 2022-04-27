@@ -1513,6 +1513,19 @@ class Edb(object):
         -------
         bool
             ``True`` when successful, False when ``Failed``.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+        >>> config_file = path_configuration_file
+        >>> source_file = path_to_edb_folder
+        >>> edb = Edb(source_file)
+        >>> sim_setup = SimulationConfiguration(config_file)
+        >>> edb.build_simulation_project(sim_setup)
+        >>> edb.save_edb()
+        >>> edb.close_edb()
         """
         self.logger.info("Building simulation project.")
         try:
