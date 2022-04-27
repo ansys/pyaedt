@@ -463,13 +463,13 @@ class Standard(CommonReport):
         return ctxt
 
     @pyaedt_function_handler()
-    def _change_property(self, tabname, property_name, property):
+    def _change_property(self, tabname, property_name, property_val):
         if not self._is_created:
             self._post._app.logger.error("Plot has not been created. Create it and then change the properties.")
             return False
         arg = [
             "NAME:AllTabs",
-            ["NAME:" + tabname, ["NAME:PropServers", "{}:{}".format(self.plot_name, property_name)], property],
+            ["NAME:" + tabname, ["NAME:PropServers", "{}:{}".format(self.plot_name, property_name)], property_val],
         ]
         self._post.oreportsetup.ChangeProperty(arg)
         return True
