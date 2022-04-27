@@ -317,6 +317,9 @@ class TestClass(BasisTest, object):
         assert new_report.create()
         assert new_report.add_limit_line_from_equation(1, 20, 0.5, "GHz")
 
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2022.2", reason="Not Working in non-graphical in version lower than 2022.2"
+    )
     def test_09f_edit_properties(self):
         report = self.aedtapp.post.create_report("dB(S(1,1))")
         assert report.edit_grid()
