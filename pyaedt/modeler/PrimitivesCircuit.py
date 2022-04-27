@@ -223,7 +223,7 @@ class CircuitComponents(object):
            Use :func:`Circuit.modeler.schematic.create_interface_port` instead.
         """
         warnings.warn("`create_iport` is deprecated. Use `create_interface_port` instead.", DeprecationWarning)
-        return self.create_interface_port(name, posx, posy, angle)
+        return self.create_interface_port(name, [posx, posy], angle)
 
     @pyaedt_function_handler()
     def create_interface_port(self, name, location=[], angle=0):
