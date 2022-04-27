@@ -1192,7 +1192,7 @@ class EdbHfss(object):
            Number of ports.
 
         """
-        return len([term for term in list(self._active_layout.Terminals) if term.GetBoundaryType() == 0])
+        return len([term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0])
 
     @pyaedt_function_handler()
     def layout_defeaturing(self, simulation_setup=None):
