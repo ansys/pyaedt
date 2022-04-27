@@ -368,23 +368,6 @@ class TestClass(BasisTest, object):
     def test_31_duplicate(self):
         subcircuit = self.aedtapp.modeler.schematic.add_new_subcircuit(location=[0.0, 0.0])
         new_subcircuit = self.aedtapp.modeler.schematic.duplicate(subcircuit.composed_name, location=[0.0508, 0.0])
-        a = [
-            "ciao,",
-            "ciao,",
-            "ciao,",
-            "ciao,",
-            "ciao,",
-            "ciao,",
-            "ciao,",
-            "ciao,",
-            "ciao,",
-            "ciao,",
-            "ciao,",
-            "ciao,",
-            "ciao,",
-            "ciao,",
-            "ciao,",
-        ]
         assert type(new_subcircuit.location) is list
         assert type(new_subcircuit.id) is int
         assert new_subcircuit.location[0] == "1900mil"
