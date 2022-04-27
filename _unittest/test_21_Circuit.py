@@ -373,3 +373,19 @@ class TestClass(BasisTest, object):
         assert new_subcircuit.location[0] == "1900mil"
         assert new_subcircuit.location[1] == "-100mil"
         assert new_subcircuit.angle == 0.0
+
+    def test_32_push_down(self):
+        subcircuit = self.aedtapp.modeler.schematic.add_new_subcircuit(location=[0.0, 0.0])
+        active_project_name_1 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        self.aedtapp.pop_up()
+        assert self.aedtapp.push_down(subcircuit)
+        active_project_name_2 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        assert active_project_name_1 == active_project_name_2
+
+    def test_33_pop_up(self):
+        assert self.aedtapp.pop_up()
+        active_project_name_1 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        self.aedtapp.modeler.schematic.add_new_subcircuit(location=[0.0, 0.0])
+        assert self.aedtapp.pop_up()
+        active_project_name_2 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        assert active_project_name_1 == active_project_name_2
