@@ -82,7 +82,7 @@ class NexximComponents(CircuitComponents):
 
     @pyaedt_function_handler()
     def add_new_subcircuit(self, location=None, angle=0, name=None, nested_subcircuit_id=None):
-        """Add a new subcircuit to the design.
+        """Add a new Circuit subcircuit to the design.
 
         Parameters
         ----------
@@ -91,15 +91,21 @@ class NexximComponents(CircuitComponents):
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         name : str, optional
-            name of the Design. The default is ``None``, in which case
+            Name of the Design. The default is ``None``, in which case
             a unique name will be generated.
         nested_subcircuit_id : str, optional
-            id of nested subcircuit.
+            Id of nested subcircuit.
+            Example `"U1"`.
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent` Circuit Component Object
-        when successful or False when fails.
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object when successful or False when fails.
+
+        Examples
+        --------
+        >>> from pyaedt import Circuit
+        >>> cir = Circuit()
         """
         if not name:
             name = generate_unique_name("Circuit")
@@ -125,6 +131,9 @@ class NexximComponents(CircuitComponents):
     @pyaedt_function_handler()
     def duplicate(self, component, location=None, angle=0, flip=False):
         """Add a new subcircuit to the design.
+
+        .. note::
+            This works only in graphical mode.
 
         Parameters
         ----------

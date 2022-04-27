@@ -55,7 +55,12 @@ class FieldAnalysisCircuit(Analysis):
 
     @pyaedt_function_handler()
     def push_down(self, component_name):
-        """Push-down
+        """Push-down to the child component and reinitialize the Circuit object.
+
+        Parameters
+        ----------
+        component_name : str or :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Component to initialize.
 
         Returns
         -------
@@ -82,7 +87,7 @@ class FieldAnalysisCircuit(Analysis):
 
     @pyaedt_function_handler()
     def pop_up(self):
-        """Pop-up
+        """Pop-up to parent Circuit design and reinitialize Circuit object.
 
         Returns
         -------
