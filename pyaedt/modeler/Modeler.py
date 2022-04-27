@@ -1660,7 +1660,11 @@ class GeometryModeler(Modeler, object):
         str
             Name of the sheet.
         list
-            List of the points.
+            List of float values of the first edge midpoint.
+            Point in ``[x, y, z]`` coordinates.
+        list
+            List of float values of the second edge midpoint.
+            Point in ``[x, y, z]`` coordinates.
 
         """
         out, parallel = self.find_closest_edges(startobj, endobject, axisdir)

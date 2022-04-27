@@ -104,6 +104,11 @@ class TestClass(BasisTest, object):
         assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", "Motor_EM_R2019R3.jpg"))
 
     @pyaedt_unittest_check_desktop_error
+    def test_14a_model_depth(self):
+        self.aedtapp.model_depth = 2.0
+        assert self.aedtapp.change_design_settings({"ModelDepth": 3})
+
+    @pyaedt_unittest_check_desktop_error
     def test_15_assign_movement(self):
         self.aedtapp.insert_design("Motion")
         self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.TransientZ

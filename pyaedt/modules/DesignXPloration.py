@@ -284,7 +284,12 @@ class CommonOptimetrics(object):
         if setupname not in self.props["Sim. Setups"]:
             self.props["Sim. Setups"].append(setupname)
         domain = "Time"
-        if "Freq" in ranges or "Phase" in ranges or "Theta" in ranges:
+        if (
+            "Freq" in ranges
+            or "Phase" in ranges
+            or "Theta" in ranges
+            or self._app.solution_type in ["Magnetostatic", "Electrostatic", "EddyCurrent", "DCConduction"]
+        ):
             domain = "Sweep"
         if not report_type:
             report_type = self._app.design_solutions.report_type

@@ -222,10 +222,11 @@ class Materials(object):
             return self.material_keys[materialname]
         else:
             material = Material(self, materialname, props)
-            material.update()
-            self.logger.info("Material has been added. Edit it to update in Desktop.")
-            self.material_keys[materialname] = material
-            return self.material_keys[materialname]
+            if material.update():
+                self.logger.info("Material has been added. Edit it to update in Desktop.")
+                self.material_keys[materialname] = material
+                return self.material_keys[materialname]
+        return False
 
     @pyaedt_function_handler()
     def add_surface_material(self, material_name, emissivity=None):
