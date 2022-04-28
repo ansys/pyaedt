@@ -2771,10 +2771,13 @@ class CircuitComponent(object):
         else:
             return self.name + ";" + str(self.schematic_id)
 
-    def __init__(self, circuit_components, units="mm", tabname="PassedParameterTab"):
+    def __init__(self, circuit_components, units="mm", tabname="PassedParameterTab", custom_editor=None):
         self.name = ""
         self._circuit_components = circuit_components
-        self.m_Editor = self._circuit_components._oeditor
+        if custom_editor:
+            self.m_Editor = custom_editor
+        else:
+            self.m_Editor = self._circuit_components._oeditor
         self._modelName = None
         self.status = "Active"
         self.component = None
@@ -2899,7 +2902,7 @@ class CircuitComponent(object):
         else:
             pins = _retry_ntimes(10, self.m_Editor.GetComponentPins, self.composed_name)
 
-            if not pins:
+            if not pins or pins is True:
                 return []
             for pin in pins:
                 if self._circuit_components._app.design_type != "Twin Builder":

@@ -124,7 +124,7 @@ class NexximComponents(CircuitComponents):
             oed = odes.SetActiveEditor("SchematicEditor")
             objs = oed.GetAllElements()
             match = [i for i in objs if name in i]
-            o = CircuitComponent(self, tabname=self.tab_name)
+            o = CircuitComponent(self, tabname=self.tab_name, custom_editor=oed)
             name = match[0].split(";")
             o.name = name[0]
             o.schematic_id = name[2]

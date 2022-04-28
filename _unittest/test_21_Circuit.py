@@ -385,6 +385,7 @@ class TestClass(BasisTest, object):
             location=[0.0, 0.0], nested_subcircuit_id=subcircuit_1.component_info["RefDes"]
         )
         assert subcircuit_2.component_info["RefDes"] == "U2"
+        subcircuit_2.pins
         assert self.aedtapp.push_down(subcircuit_1)
         active_project_name_2 = self.aedtapp.oproject.GetActiveDesign().GetName()
         assert active_project_name_1 == active_project_name_2
