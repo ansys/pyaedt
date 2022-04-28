@@ -541,10 +541,7 @@ class Maxwell(object):
         """
         assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to the Transient setup."
         names = list(self.omodelsetup.GetMotionSetupNames())
-        if not names:
-            motion_name = "MotionSetup1"
-        else:
-            motion_name = "MotionSetup" + str(len(names) + 1)
+        motion_name = "MotionSetup" + str(len(names) + 1)
         object_list = self.modeler.convert_to_selections(band_object, True)
         props = OrderedDict(
             {
