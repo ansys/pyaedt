@@ -421,7 +421,9 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
             label = object[2]
         else:
             label = "Trace " + str(label_id)
-        ax.plot(np.array(object[0]), np.array(object[1]), label=label)
+        x = [i for i, j in zip(object[0], object[1]) if j]
+        y = [i for i in object[1] if i]
+        ax.plot(np.array(x), np.array(y), label=label)
         label_id += 1
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)

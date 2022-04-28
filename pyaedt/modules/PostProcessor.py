@@ -687,6 +687,9 @@ class SolutionData(object):
                     self._sweeps_names.append(v)
                 else:
                     self._sweeps[v].append(data.GetDesignVariableValue(v))
+        for k, v in self._sweeps.items():
+            self._sweeps[k] = list(set(v))
+            self._sweeps[k].sort()
         self._sweeps_names.extend((reversed(names)))
         return self._sweeps
 
@@ -833,7 +836,7 @@ class SolutionData(object):
             try:
                 sol.append(solution_Data[tuple(temp)])
             except KeyError:
-                sol.append(1e-15)
+                sol.append(None)
         if convert_to_SI and self._quantity(self.units_data[expression]):
             sol = self._convert_list_to_SI(
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
@@ -891,6 +894,7 @@ class SolutionData(object):
 
         return [db10(i) for i in self.data_magnitude(expression, convert_to_SI)]
 
+    @pyaedt_function_handler()
     def data_db10(self, expression=None, convert_to_SI=False):
         """Retrieve the data in the database for an expression and convert in db10.
 
@@ -914,6 +918,7 @@ class SolutionData(object):
 
         return [db10(i) for i in self.data_magnitude(expression, convert_to_SI)]
 
+    @pyaedt_function_handler()
     def data_db20(self, expression=None, convert_to_SI=False):
         """Retrieve the data in the database for an expression and convert in db20.
 
@@ -937,6 +942,7 @@ class SolutionData(object):
 
         return [db20(i) for i in self.data_magnitude(expression, convert_to_SI)]
 
+    @pyaedt_function_handler()
     def data_phase(self, expression=None, radians=True):
         """Retrieve the phase part of the data for an expression.
 
@@ -962,6 +968,43 @@ class SolutionData(object):
             coefficient = 180 / math.pi
         return [coefficient * math.atan(k / i) for i, k in zip(self.data_real(expression), self.data_imag(expression))]
 
+    @pyaedt_function_handler()
+    def data_primary_sweep(self, expression=None):
+        """Retrieve the primary sweep for a given data and primary variable.
+        Parameters
+        ----------
+        expression : str, None
+            Name of the expression. The default is ``None``,
+            in which case the active expression is used.
+
+        Returns
+        -------
+        list
+            List of the primary sweep valid points for the expression.
+
+        """
+        if not expression:
+            expression = self.active_expression
+        temp = self._variation_tuple()
+
+        solution_Data = list(self._solutions_real[expression].keys())
+        sol = []
+        position = list(self._sweeps_names).index(self.primary_sweep)
+
+        for el in self._sweeps[self.primary_sweep]:
+            temp[position] = el
+            if tuple(temp) in solution_Data:
+                sol_dict = OrderedDict({})
+                i = 0
+                for l in self._sweeps_names:
+                    sol_dict[l] = temp[i]
+                    i += 1
+                sol.append(sol_dict)
+            else:
+                sol.append(None)
+        return sol
+
+    @pyaedt_function_handler()
     def data_real(self, expression=None, convert_to_SI=False):
         """Retrieve the real part of the data for an expression.
 
@@ -993,13 +1036,15 @@ class SolutionData(object):
             try:
                 sol.append(solution_Data[tuple(temp)])
             except KeyError:
-                sol.append(1e-15)
+                sol.append(None)
+
         if convert_to_SI and self._quantity(self.units_data[expression]):
             sol = self._convert_list_to_SI(
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
             )
         return sol
 
+    @pyaedt_function_handler()
     def data_imag(self, expression=None, convert_to_SI=False):
         """Retrieve the imaginary part of the data for an expression.
 
@@ -1030,7 +1075,7 @@ class SolutionData(object):
             try:
                 sol.append(solution_Data[tuple(temp)])
             except KeyError:
-                sol.append(1e-15)
+                sol.append(None)
         if convert_to_SI and self._quantity(self.units_data[expression]):
             sol = self._convert_list_to_SI(
                 sol, self._quantity(self.units_data[expression]), self.units_data[expression]
