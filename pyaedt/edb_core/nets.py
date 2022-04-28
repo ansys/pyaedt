@@ -270,9 +270,13 @@ class EdbNets(object):
                             color_index += 1
                             if color_index >= len(CSS4_COLORS):
                                 color_index = 0
-                        objects_lists.append([x, y, label_colors[label], label, 0.4, "fill"])
+                        objects_lists.append(
+                            [x, y, label_colors[label], label, 0.4, "fill"]
+                        )
                     else:
-                        objects_lists.append([x, y, label_colors[label], None, 0.4, "fill"])
+                        objects_lists.append(
+                            [x, y, label_colors[label], None, 0.4, "fill"]
+                        )
 
                 else:
                     label = "Net " + net_name
@@ -281,9 +285,13 @@ class EdbNets(object):
                         color_index += 1
                         if color_index >= len(CSS4_COLORS):
                             color_index = 0
-                        objects_lists.append([x, y, label_colors[label], label, 0.4, "fill"])
+                        objects_lists.append(
+                            [x, y, label_colors[label], label, 0.4, "fill"]
+                        )
                     else:
-                        objects_lists.append([x, y, label_colors[label], None, 0.4, "fill"])
+                        objects_lists.append(
+                            [x, y, label_colors[label], None, 0.4, "fill"]
+                        )
 
         for poly in self._pedb.core_primitives.polygons:
             if poly.is_void:
@@ -304,7 +312,9 @@ class EdbNets(object):
                 for void in poly.voids:
                     xvt, yvt = void.points()
                     if xvt:
-                        xv, yv = GeometryOperators.orient_polygon(xvt, yvt, clockwise=False)
+                        xv, yv = GeometryOperators.orient_polygon(
+                            xvt, yvt, clockwise=False
+                        )
                         tmpV = [(i, j) for i, j in zip(xv, yv)]
                         vertices.extend(tmpV)
                         tmpC = [2 for _ in tmpV]
@@ -330,11 +340,15 @@ class EdbNets(object):
                             if color_index >= len(CSS4_COLORS):
                                 color_index = 0
                         # create patch from path
-                        objects_lists.append([vertices, codes, label_colors[label], label, 0.4, "path"])
+                        objects_lists.append(
+                            [vertices, codes, label_colors[label], label, 0.4, "path"]
+                        )
 
                     else:
                         # create patch from path
-                        objects_lists.append([vertices, codes, label_colors[label], "", 0.4, "path"])
+                        objects_lists.append(
+                            [vertices, codes, label_colors[label], "", 0.4, "path"]
+                        )
 
                 else:
                     label = "Net " + net_name
@@ -344,10 +358,14 @@ class EdbNets(object):
                         if color_index >= len(CSS4_COLORS):
                             color_index = 0
                         # create patch from path
-                        objects_lists.append([vertices, codes, label_colors[label], label, 0.4, "path"])
+                        objects_lists.append(
+                            [vertices, codes, label_colors[label], label, 0.4, "path"]
+                        )
                     else:
                         # create patch from path
-                        objects_lists.append([vertices, codes, label_colors[label], "", 0.4, "path"])
+                        objects_lists.append(
+                            [vertices, codes, label_colors[label], "", 0.4, "path"]
+                        )
         end_time = time.time() - start_time
         self._logger.info("Nets Point Generation time %s seconds", round(end_time, 3))
         return objects_lists
@@ -363,13 +381,15 @@ class EdbNets(object):
         bool
             True when succeeded, False otherwise.
         """
-        if not isinstance(simulation_configuration_object, SimulationConfiguration):
+        if not isinstance(
+            simulation_configuration_object, SimulationConfiguration
+        ):  # pragma: no cover
             return False
         for net in simulation_configuration_object.power_nets:
-            if net in self.signal_nets:
+            if net in self.signal_nets:  # pragma: no cover
                 self.signal_nets[net].net_object.SetIsPowerGround(True)
         for net in simulation_configuration_object.signal_nets:
-            if net in self.power_nets:
+            if net in self.power_nets:  # pragma: no cover
                 self.power_nets[net].net_object.SetIsPowerGround(False)
         return True
 
@@ -538,7 +558,9 @@ class EdbNets(object):
 
             comp_partname = self._pedb.core_components._cmp[refdes].partname
             el.append(comp_partname)
-            pins = self._pedb.core_components.get_pin_from_component(component=refdes, netName=el[2])
+            pins = self._pedb.core_components.get_pin_from_component(
+                component=refdes, netName=el[2]
+            )
             el.append("-".join([i.GetName() for i in pins]))
 
         component_list_columns = [
