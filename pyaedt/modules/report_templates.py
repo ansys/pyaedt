@@ -3,6 +3,20 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
+class Traces(object):
+    """Trace Management Class."""
+
+    def __init__(self, report_setup, plot_name, trace_name, oo_object):
+        self._oreport_setup = report_setup
+        self.plot_name = plot_name
+        self.trace_name = trace_name
+        self._oo = oo_object
+
+    @property
+    def line_style(self):
+        return self._oo.GetPropValue("Line")
+
+
 class CommonReport(object):
     """Common Report Class."""
 
@@ -25,6 +39,27 @@ class CommonReport(object):
         self.expressions = None
         self._plot_name = None
         self._is_created = True
+
+    @property
+    def traces(self):
+        _traces = []
+        try:
+            oo = self._post.oreportsetup.GetChildObject(self._plot_name)
+            oo_names = self._post.oreportsetup.GetChildObject(self._plot_name).GetChildNames()
+        except:
+            return _traces
+        for el in oo_names:
+            if el in ["Legend", "Grid", "AxisX", "AxisY1", "Header", "General", "CartesianDisplayTypeProperty"]:
+                continue
+            try:
+                oo1 = oo.GetChildObject(el).GetChildNames()
+
+                for i in oo1:
+                    o_in = oo.GetChildObject(el).GetChildObject(i)
+                    _traces.append(Traces(self._post.oreportsetup, self._plot_name, "{}:{}".format(el, i), o_in))
+            except:
+                pass
+        return _traces
 
     @property
     def plot_name(self):

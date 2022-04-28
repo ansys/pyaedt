@@ -306,6 +306,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
+        new_report.traces
         assert new_report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
 
     @pytest.mark.skipif(
