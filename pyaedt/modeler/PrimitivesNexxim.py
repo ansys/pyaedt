@@ -1060,7 +1060,7 @@ class NexximComponents(CircuitComponents):
         while id < len(pin_lists):
             spicesintax += "%" + str(id) + " "
             id += 1
-        # spicesintax += symbol_name + " "
+            spicesintax += symbol_name + " "
         for el, val in zip(parameter_list, parameter_value):
             if "MOD" in el:
                 spicesintax += "@{} ".format(el)
