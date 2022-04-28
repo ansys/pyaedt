@@ -462,6 +462,488 @@ class Standard(CommonReport):
             ctxt = ["Domain:=", self.domain]
         return ctxt
 
+    @pyaedt_function_handler()
+    def _change_property(self, tabname, property_name, property_val):
+        if not self._is_created:
+            self._post._app.logger.error("Plot has not been created. Create it and then change the properties.")
+            return False
+        arg = [
+            "NAME:AllTabs",
+            ["NAME:" + tabname, ["NAME:PropServers", "{}:{}".format(self.plot_name, property_name)], property_val],
+        ]
+        self._post.oreportsetup.ChangeProperty(arg)
+        return True
+
+    @pyaedt_function_handler()
+    def edit_grid(
+        self,
+        minor_x=True,
+        minor_y=True,
+        major_x=True,
+        major_y=True,
+        style_minor="Solid",
+        style_major="Solid",
+        minor_color=(0, 0, 0),
+        major_color=(0, 0, 0),
+    ):
+        """Edit Plot Grid Settings.
+
+        Parameters
+        ----------
+        minor_x : bool, optional
+            Enable or Disable Minor X Grid. Default is `True`.
+        minor_y : bool, optional
+            Enable or Disable Minor Y Grid. Default is `True`.
+        major_x : bool, optional
+            Enable or Disable Major X Grid. Default is `True`.
+        major_y : bool, optional
+            Enable or Disable Major Y Grid. Default is `True`.
+        style_minor : str, optional
+            Minor Grid Style. Default is `"Solid"`.
+        style_major : str, optional
+            Major Grid Style. Default is `"Solid"`.
+        minor_color : tuple, optional
+            Tuple (R, G, B) color. Every item has to be an integer in range (0,255).
+        major_color : tuple, optional
+            Tuple (R, G, B) color. Every item has to be an integer in range (0,255).
+        Returns
+        -------
+        bool
+        """
+        props = ["NAME:ChangedProps"]
+        props.append(["NAME:Show minor X grid", "Value:=", minor_x])
+        props.append(["NAME:Show minor Y grid", "Value:=", minor_y])
+        props.append(["NAME:Show major X grid", "Value:=", major_x])
+        props.append(["NAME:Show major Y grid", "Value:=", major_y])
+        props.append(["NAME:Minor grid line style", "Value:=", style_minor])
+        props.append(["NAME:Major grid line style", "Value:=", style_major])
+        props.append(
+            ["NAME:Minor grid line color", "R:=", minor_color[0], "G:=", minor_color[1], "B:=", minor_color[2]]
+        )
+        props.append(
+            ["NAME:Major grid line color", "R:=", major_color[0], "G:=", major_color[1], "B:=", major_color[2]]
+        )
+        return self._change_property("Grid", "Grid", props)
+
+    @pyaedt_function_handler()
+    def edit_x_axis(self, font="Arial", font_size=12, italic=False, bold=False, color=(0, 0, 0), label=None):
+        """Edit X Axis  Settings.
+
+        Parameters
+        ----------
+        font : str, optional
+            Font Name. Default is `"Arial"`.
+        font_size : int, optional
+            Font title size. Default is `12`.
+        italic : bool, optional
+            Enable or Disable italic. Default is `True`.
+        bold : bool, optional
+            Enable or Disable bold. Default is `True`.
+        color : tuple, optional
+            Tuple (R, G, B) color. Every item has to be an integer in range (0,255).
+        label : str, optional
+            Axis plot name.
+
+        Returns
+        -------
+        bool
+        """
+        props = [
+            "NAME:ChangedProps",
+            [
+                "NAME:Text Font",
+                "Height:=",
+                -1 * font_size - 2,
+                "Width:=",
+                0,
+                "Escapement:=",
+                0,
+                "Orientation:=",
+                0,
+                "Weight:=",
+                700 if bold else 400,
+                "Italic:=",
+                255 if italic else 0,
+                "Underline:=",
+                0,
+                "StrikeOut:=",
+                0,
+                "CharSet:=",
+                0,
+                "OutPrecision:=",
+                3,
+                "ClipPrecision:=",
+                2,
+                "Quality:=",
+                1,
+                "PitchAndFamily:=",
+                34,
+                "FaceName:=",
+                font,
+                "R:=",
+                color[0],
+                "G:=",
+                color[1],
+                "B:=",
+                color[2],
+            ],
+        ]
+        if label:
+            props.append(["NAME:Name", "Value:=", label])
+
+        return self._change_property("Axis", "AxisX", props)
+
+    @pyaedt_function_handler()
+    def edit_x_axis_scaling(
+        self, linear_scaling=True, min_scale=None, max_scale=None, minor_tick_divs=5, min_spacing=None, units=None
+    ):
+        """Edit X Axis Scaling Settings.
+
+        Parameters
+        ----------
+        linear_scaling : bool, optional
+            Either if Linear or Log Scale will be used. Default is `True`.
+        min_scale : str, optional
+            Minimum scale value with units.
+        max_scale : str, optional
+            Maximum scale value with units.
+        minor_tick_divs : int, optional
+            Min Tick division. Default 5.
+        min_spacing : str, optional
+            Min spacing with units.
+        units :str, optional
+            Units in plot.
+
+        Returns
+        -------
+        bool
+        """
+        if linear_scaling:
+            props = ["NAME:ChangedProps", ["NAME:Axis Scaling", "Value:=", "Linear"]]
+        else:
+            props = ["NAME:ChangedProps", ["NAME:Axis Scaling", "Value:=", "Log"]]
+        if min_scale:
+            props.append(["NAME:Min", "Value:=", min_scale])
+        if max_scale:
+            props.append(["NAME:Max", "Value:=", max_scale])
+        if minor_tick_divs:
+            props.append(["NAME:Minor Tick Divs", "Value:=", str(minor_tick_divs)])
+        if min_spacing:
+            props.append(["NAME:Spacing", "Value:=", min_spacing])
+        if units:
+            props.append(["NAME:Units", "Value:=", units])
+        return self._change_property("Scaling", "AxisX", props)
+
+    @pyaedt_function_handler()
+    def edit_legend(
+        self, show_solution_name=True, show_variation_key=True, show_trace_name=True, back_color=(255, 255, 255)
+    ):
+        """Edit the plot Legend.
+
+        Parameters
+        ----------
+        show_solution_name : bool, optional
+            Either if Show or hide the Solution Name.
+        show_variation_key : bool, optional
+            Either if Show or hide the Variation key.
+        show_trace_name : bool, optional
+            Either if Show or hide the Trace Name.
+        back_color : tuple, optional
+            Legend Background Color.
+
+        Returns
+        -------
+
+        """
+        props = [
+            "NAME:ChangedProps",
+            ["NAME:Show Solution Name", "Value:=", show_solution_name],
+            ["NAME:Show Variation Key", "Value:=", show_variation_key],
+            ["NAME:Show Trace Name", "Value:=", show_trace_name],
+            ["NAME:Back Color", "R:=", back_color[0], "G:=", back_color[1], "B:=", back_color[2]],
+        ]
+        return self._change_property("Legend", "Legend", props)
+
+    @pyaedt_function_handler()
+    def edit_y_axis(
+        self, axis_name="Y1", font="Arial", font_size=12, italic=False, bold=False, color=(0, 0, 0), label=None
+    ):
+        """Edit Y Axis Settings.
+
+        Parameters
+        ----------
+        axis_name : str, optional
+            Name of Axis. Default is `"Y1"` main Y axis.
+        font : str, optional
+            Font Name. Default is `"Arial"`.
+        font_size : int, optional
+            Font title size. Default is `12`.
+        italic : bool, optional
+            Enable or Disable italic. Default is `True`.
+        bold : bool, optional
+            Enable or Disable bold. Default is `True`.
+        color : tuple, optional
+            Tuple (R, G, B) color. Every item has to be an integer in range (0,255).
+                linear_scaling : bool, optional
+            Either if Linear or Log Scale will be used. Default is `True`.
+        label : str, optional
+            Y axis label.
+        Returns
+        -------
+        bool
+        """
+        props = [
+            "NAME:ChangedProps",
+            [
+                "NAME:Text Font",
+                "Height:=",
+                -1 * font_size - 2,
+                "Width:=",
+                0,
+                "Escapement:=",
+                0,
+                "Orientation:=",
+                0,
+                "Weight:=",
+                700 if bold else 400,
+                "Italic:=",
+                255 if italic else 0,
+                "Underline:=",
+                0,
+                "StrikeOut:=",
+                0,
+                "CharSet:=",
+                0,
+                "OutPrecision:=",
+                3,
+                "ClipPrecision:=",
+                2,
+                "Quality:=",
+                1,
+                "PitchAndFamily:=",
+                34,
+                "FaceName:=",
+                font,
+                "R:=",
+                color[0],
+                "G:=",
+                color[1],
+                "B:=",
+                color[2],
+            ],
+        ]
+        if label:
+            props.append(["NAME:Name", "Value:=", label])
+
+        return self._change_property("Axis", "Axis" + axis_name, props)
+
+    @pyaedt_function_handler()
+    def edit_y_axis_scaling(
+        self,
+        axis_name="Y1",
+        linear_scaling=True,
+        min_scale=None,
+        max_scale=None,
+        minor_tick_divs=5,
+        min_spacing=None,
+        units=None,
+    ):
+        """Edit Y Axis Scaling Settings.
+
+        Parameters
+        ----------
+        linear_scaling : bool, optional
+            Either if Linear or Log Scale will be used. Default is `True`.
+        min_scale : str, optional
+            Minimum scale value with units.
+        max_scale : str, optional
+            Maximum scale value with units.
+        minor_tick_divs : int, optional
+            Min Tick division. Default 5.
+        min_spacing : str, optional
+            Min spacing with units.
+        units :str, optional
+            Units in plot.
+        Returns
+        -------
+        bool
+        """
+        if linear_scaling:
+            props = ["NAME:ChangedProps", ["NAME:Axis Scaling", "Value:=", "Linear"]]
+        else:
+            props = ["NAME:ChangedProps", ["NAME:Axis Scaling", "Value:=", "Log"]]
+        if min_scale:
+            props.append(["NAME:Min", "Value:=", min_scale])
+        if max_scale:
+            props.append(["NAME:Max", "Value:=", max_scale])
+        if minor_tick_divs:
+            props.append(["NAME:Minor Tick Divs", "Value:=", str(minor_tick_divs)])
+        if min_spacing:
+            props.append(["NAME:Spacing", "Value:=", min_spacing])
+        if units:
+            props.append(["NAME:Units", "Value:=", units])
+        return self._change_property("Scaling", "Axis" + axis_name, props)
+
+    @pyaedt_function_handler()
+    def edit_general_settings(
+        self,
+        background_color=(255, 255, 255),
+        plot_color=(255, 255, 255),
+        enable_y_stripes=True,
+        field_width=4,
+        precision=4,
+        use_scientific_notation=True,
+    ):
+        """Edit Plot General Settings.
+
+        Parameters
+        ----------
+        background_color : tuple, optional
+            Tuple (R, G, B) color. Every item has to be an integer in range (0,255).
+        plot_color : tuple, optional
+            Tuple (R, G, B) color. Every item has to be an integer in range (0,255).
+        enable_y_stripes : bool, optional
+            Enable/Disable Y Stripes.
+        field_width : int, optional
+            Field Width. Default is `4`.
+        precision : int, optional
+            Field Precision. Default is `4`.
+        use_scientific_notation : bool, optional
+            Either if Enable Scientific notation. Default is `True`.
+
+        Returns
+        -------
+        bool
+        """
+        props = [
+            "NAME:ChangedProps",
+            ["NAME:Back Color", "R:=", background_color[0], "G:=", background_color[1], "B:=", background_color[2]],
+            ["NAME:Plot Area Color", "R:=", plot_color[0], "G:=", plot_color[1], "B:=", plot_color[2]],
+            ["NAME:Enable Y Axis Stripes", "Value:=", enable_y_stripes],
+            ["NAME:Field Width", "Value:=", str(field_width)],
+            ["NAME:Precision", "Value:=", str(precision)],
+            ["NAME:Use Scientific Notation", "Value:=", use_scientific_notation],
+        ]
+        return self._change_property("General", "General", props)
+
+    @pyaedt_function_handler()
+    def edit_header(
+        self,
+        company_name="PyAEDT",
+        show_design_name=True,
+        font="Arial",
+        title_size=12,
+        subtitle_size=12,
+        italic=False,
+        bold=False,
+        color=(0, 0, 0),
+    ):
+        """Edit Chart Header.
+
+        Parameters
+        ----------
+        company_name : str, optional
+            Company Name.
+        show_design_name : bool, optional
+            Either if Show Design Name in plot.
+        font : str, optional
+            Font Name. Default is `"Arial"`.
+        title_size : int, optional
+            Font title size. Default is `12`.
+        subtitle_size : int, optional
+            Font subtitle size. Default is `12`.
+        italic : bool, optional
+            Enable or Disable italic. Default is `True`.
+        bold : bool, optional
+            Enable or Disable bold. Default is `True`.
+        color : tuple, optional
+            Tuple (R, G, B) color. Every item has to be an integer in range (0,255).
+
+        Returns
+        -------
+        bool
+        """
+        props = [
+            "NAME:ChangedProps",
+            [
+                "NAME:Title Font",
+                "Height:=",
+                -1 * title_size - 2,
+                "Width:=",
+                0,
+                "Escapement:=",
+                0,
+                "Orientation:=",
+                0,
+                "Weight:=",
+                700 if bold else 400,
+                "Italic:=",
+                255 if italic else 0,
+                "Underline:=",
+                0,
+                "StrikeOut:=",
+                0,
+                "CharSet:=",
+                0,
+                "OutPrecision:=",
+                3,
+                "ClipPrecision:=",
+                2,
+                "Quality:=",
+                1,
+                "PitchAndFamily:=",
+                34,
+                "FaceName:=",
+                font,
+                "R:=",
+                color[0],
+                "G:=",
+                color[1],
+                "B:=",
+                color[2],
+            ],
+            [
+                "NAME:Sub Title Font",
+                "Height:=",
+                -1 * subtitle_size - 2,
+                "Width:=",
+                0,
+                "Escapement:=",
+                0,
+                "Orientation:=",
+                0,
+                "Weight:=",
+                700 if bold else 400,
+                "Italic:=",
+                255 if italic else 0,
+                "Underline:=",
+                0,
+                "StrikeOut:=",
+                0,
+                "CharSet:=",
+                0,
+                "OutPrecision:=",
+                3,
+                "ClipPrecision:=",
+                2,
+                "Quality:=",
+                1,
+                "PitchAndFamily:=",
+                34,
+                "FaceName:=",
+                font,
+                "R:=",
+                color[0],
+                "G:=",
+                color[1],
+                "B:=",
+                color[2],
+            ],
+            ["NAME:Company Name", "Value:=", company_name],
+            ["NAME:Show Design Name", "Value:=", show_design_name],
+        ]
+        return self._change_property("Header", "Header", props)
+
 
 class Fields(CommonReport):
     """General Fields Class."""

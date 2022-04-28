@@ -317,6 +317,59 @@ class TestClass(BasisTest, object):
         assert new_report.create()
         assert new_report.add_limit_line_from_equation(1, 20, 0.5, "GHz")
 
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
+    )
+    def test_09f_edit_properties(self):
+        report = self.aedtapp.post.create_report("dB(S(1,1))")
+        assert report.edit_grid()
+        assert report.edit_grid(minor_x=False)
+        assert report.edit_grid(major_y=False)
+        assert report.edit_grid(major_color=(0, 0, 125))
+        assert report.edit_grid(major_color=(0, 255, 0))
+        assert report.edit_grid(style_major="Dot")
+        assert report.edit_x_axis(font="Courier", font_size=14, italic=True, bold=False, color=(0, 128, 0))
+        assert report.edit_y_axis(font="Courier", font_size=14, italic=True, bold=False, color=(0, 128, 0))
+        assert report.edit_x_axis(
+            font="Courier", font_size=14, italic=True, bold=False, color=(0, 128, 0), label="Freq"
+        )
+        assert report.edit_y_axis(
+            font="Courier", font_size=14, italic=True, bold=False, color=(0, 128, 0), label="Touchstone"
+        )
+
+        assert report.edit_x_axis_scaling(
+            linear_scaling=True,
+            min_scale="1GHz",
+            max_scale="5GHz",
+            minor_tick_divs=10,
+            min_spacing="0.5GHz",
+            units="MHz",
+        )
+        assert report.edit_y_axis_scaling(
+            linear_scaling=False, min_scale="-50", max_scale="10", minor_tick_divs=10, min_spacing="5"
+        )
+        assert report.edit_legend(
+            show_solution_name=True, show_variation_key=False, show_trace_name=False, back_color=(255, 255, 255)
+        )
+        assert report.edit_header(
+            company_name="PyAEDT",
+            show_design_name=True,
+            font="Arial",
+            title_size=12,
+            subtitle_size=12,
+            italic=False,
+            bold=False,
+            color=(0, 125, 125),
+        )
+        assert report.edit_general_settings(
+            background_color=(128, 255, 255),
+            plot_color=(255, 0, 255),
+            enable_y_stripes=True,
+            field_width=6,
+            precision=6,
+            use_scientific_notation=True,
+        )
+
     def test_10_delete_report(self):
         assert self.aedtapp.post.delete_report("MyNewScattering")
 
