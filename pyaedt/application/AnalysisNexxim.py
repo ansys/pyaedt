@@ -73,7 +73,7 @@ class FieldAnalysisCircuit(Analysis):
         elif "U" == component_name[0]:
             out_name = self.design_name + ":" + component_name
         elif ":" not in component_name:
-            for k, v in self.modeler.components.components:
+            for v in self.modeler.components.components:
                 if component_name == v.composed_name.split(";")[0].split("@")[1]:
                     out_name = self.design_name + ":" + v.component_info["RefDes"]
         else:
@@ -81,7 +81,7 @@ class FieldAnalysisCircuit(Analysis):
         try:
             self.oproject.SetActiveDesign(out_name)
             self.__init__(projectname=self.project_name, designname=out_name)
-        except:
+        except:  # pragma: no cover
             return False
         return True
 
