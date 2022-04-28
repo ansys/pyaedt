@@ -353,10 +353,14 @@ class EdbNets(object):
         return objects_lists
 
     @pyaedt_function_handler()
-    def sort_nets(self, simulation_configuration_object=None):
+    def classify_nets(self, simulation_configuration_object=None):
         """Sort nets based on SimulationConfiguration object.
         Nets specified as power/Ground or signal in the Simulation configuration object not initially sorted as
         this in EDB will be sorted accordingly.
+
+        Parameters
+        ----------
+        simulation_configuration_object : SimulationConfiguration object
 
         Returns
         -------
