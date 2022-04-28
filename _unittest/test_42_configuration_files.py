@@ -118,11 +118,21 @@ class TestClass(BasisTest, object):
         self.icepak.create_setup()
         conf_file = self.icepak.configurations.export_config()
         self.icepak.modeler.create_coordinate_system([10, 1, 10])
+        self.icepak.mesh.assign_mesh_region([box1.name])
+        self.icepak.mesh.global_mesh_region.MaxElementSizeX = "2mm"
+        self.icepak.mesh.global_mesh_region.MaxElementSizeY = "3mm"
+        self.icepak.mesh.global_mesh_region.MaxElementSizeZ = "4mm"
+        self.icepak.mesh.global_mesh_region.MaxSizeRatio = 2
+        self.icepak.mesh.global_mesh_region.UserSpecifiedSettings = True
+        self.icepak.mesh.global_mesh_region.UniformMeshParametersType = "XYZ Max Sizes"
+        self.icepak.mesh.global_mesh_region.MaxLevels = 2
+        self.icepak.mesh.global_mesh_region.BufferLayers = 1
+        self.icepak.mesh.global_mesh_region.update()
         conf_file = self.icepak.configurations.export_config()
         assert os.path.exists(conf_file)
         filename = self.icepak.design_name
         file_path = os.path.join(self.icepak.working_directory, filename + ".step")
-        self.icepak.export_3d_model(filename, self.icepak.working_directory, ".step", [box1], [])
+        self.icepak.export_3d_model(filename, self.icepak.working_directory, ".step", [], [])
         app = Icepak(projectname="new_proj_Ipk")
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
