@@ -365,7 +365,7 @@ class EdbNets(object):
         Returns
         -------
         bool
-            True when succeeded, False otherwise.
+            ``True`` when successful, ``False`` when failed.
         """
         if not isinstance(simulation_configuration_object, SimulationConfiguration):  # pragma: no cover
             return False
