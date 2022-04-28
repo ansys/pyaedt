@@ -1352,5 +1352,3 @@ class TestClass(BasisTest, object):
         assert dielectric_loss[1] == 0.02
         magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "FR4_epoxy")
         assert magnetic_loss[1] == 0
-
-

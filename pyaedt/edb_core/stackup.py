@@ -181,14 +181,14 @@ class EdbStackup(object):
 
     @pyaedt_function_handler()
     def create_debye_material(
-            self,
-            name,
-            relative_permittivity_low,
-            relative_permittivity_high,
-            loss_tangent_low,
-            loss_tangent_high,
-            lower_freqency,
-            higher_frequency,
+        self,
+        name,
+        relative_permittivity_low,
+        relative_permittivity_high,
+        loss_tangent_low,
+        loss_tangent_high,
+        lower_freqency,
+        higher_frequency,
     ):
         """Create a dielectric with the Debye model.
 
@@ -228,11 +228,11 @@ class EdbStackup(object):
 
     @pyaedt_function_handler()
     def create_multipole_debye_material(
-            self,
-            name,
-            frequencies,
-            relative_permittivities,
-            loss_tangents,
+        self,
+        name,
+        frequencies,
+        relative_permittivities,
+        loss_tangents,
     ):
         """Create a dielectric with the Multipole Debye model.
 
@@ -302,8 +302,14 @@ class EdbStackup(object):
             self._logger.error("This material doesn't exists.")
         else:
             permittivity = self.get_property_by_material_name("permittivity", material_name)
-            permeability = self.get_property_by_material_name("permeability", material_name,)
-            conductivity = self.get_property_by_material_name("conductivity", material_name,)
+            permeability = self.get_property_by_material_name(
+                "permeability",
+                material_name,
+            )
+            conductivity = self.get_property_by_material_name(
+                "conductivity",
+                material_name,
+            )
             dielectric_loss_tangent = self.get_property_by_material_name("dielectric_loss_tangent", material_name)
             magnetic_loss_tangent = self.get_property_by_material_name("magnetic_loss_tangent", material_name)
             edb_material = self._edb.Definition.MaterialDef.Create(self._db, new_material_name)
@@ -313,8 +319,9 @@ class EdbStackup(object):
             edb_material.SetProperty(
                 self._edb.Definition.MaterialPropertyId.DielectricLossTangent, dielectric_loss_tangent[0]
             )
-            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.MagneticLossTangent,
-                                     magnetic_loss_tangent[0])
+            edb_material.SetProperty(
+                self._edb.Definition.MaterialPropertyId.MagneticLossTangent, magnetic_loss_tangent[0]
+            )
             return edb_material
 
     @pyaedt_function_handler()
@@ -365,11 +372,13 @@ class EdbStackup(object):
                 elif property_name == "conductivity":
                     original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Conductivity, property_box)
                 elif property_name == "dielectric_loss_tangent":
-                    original_material.GetProperty(self._edb.Definition.MaterialPropertyId.DielectricLossTangent,
-                                                  property_box)
+                    original_material.GetProperty(
+                        self._edb.Definition.MaterialPropertyId.DielectricLossTangent, property_box
+                    )
                 elif property_name == "magnetic_loss_tangent":
-                    original_material.GetProperty(self._edb.Definition.MaterialPropertyId.MagneticLossTangent,
-                                                  property_box)
+                    original_material.GetProperty(
+                        self._edb.Definition.MaterialPropertyId.MagneticLossTangent, property_box
+                    )
                 else:
                     self._logger.error("Incorrect property name.")
                     return False
@@ -379,19 +388,24 @@ class EdbStackup(object):
                 out_value = self._edb.Utility.Value("value_name")
                 if property_name == "permittivity":
                     property_tuple = original_material.GetProperty(
-                        self._edb.Definition.MaterialPropertyId.Permittivity, out_value)
+                        self._edb.Definition.MaterialPropertyId.Permittivity, out_value
+                    )
                 elif property_name == "permeability":
                     property_tuple = original_material.GetProperty(
-                        self._edb.Definition.MaterialPropertyId.Permeability, out_value)
+                        self._edb.Definition.MaterialPropertyId.Permeability, out_value
+                    )
                 elif property_name == "conductivity":
                     property_tuple = original_material.GetProperty(
-                        self._edb.Definition.MaterialPropertyId.Conductivity, out_value)
+                        self._edb.Definition.MaterialPropertyId.Conductivity, out_value
+                    )
                 elif property_name == "dielectric_loss_tangent":
                     property_tuple = original_material.GetProperty(
-                        self._edb.Definition.MaterialPropertyId.DielectricLossTangent, out_value)
+                        self._edb.Definition.MaterialPropertyId.DielectricLossTangent, out_value
+                    )
                 elif property_name == "magnetic_loss_tangent":
                     property_tuple = original_material.GetProperty(
-                        self._edb.Definition.MaterialPropertyId.MagneticLossTangent, out_value)
+                        self._edb.Definition.MaterialPropertyId.MagneticLossTangent, out_value
+                    )
                 else:
                     self._logger.error("Incorrect property name.")
                     return False
@@ -442,7 +456,7 @@ class EdbStackup(object):
                         layer1 = el
                     if layer1 != layer:
                         self.stackup_layers.layers[layer1].thickness_value = (
-                                val.solder_ball_height - elevation + last_layer_thickess
+                            val.solder_ball_height - elevation + last_layer_thickess
                         )
                     elif val.solder_ball_height > elevation:
                         self.stackup_layers.add_layer(
@@ -464,7 +478,7 @@ class EdbStackup(object):
                         last_layer_thickess = self.stackup_layers.layers[el].thickness_value
                     if layer1 != layer:
                         self.stackup_layers.layers[layer1].thickness_value = (
-                                val.solder_ball_height - elevation + last_layer_thickess
+                            val.solder_ball_height - elevation + last_layer_thickess
                         )
                     elif val.solder_ball_height > elevation:
                         self.stackup_layers.add_layer(
@@ -478,13 +492,13 @@ class EdbStackup(object):
 
     @pyaedt_function_handler()
     def place_in_layout(
-            self,
-            edb,
-            angle=0.0,
-            offset_x=0.0,
-            offset_y=0.0,
-            flipped_stackup=True,
-            place_on_top=True,
+        self,
+        edb,
+        angle=0.0,
+        offset_x=0.0,
+        offset_y=0.0,
+        flipped_stackup=True,
+        place_on_top=True,
     ):
         """Place current Cell into another cell using layer placement method.
         Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
@@ -569,14 +583,14 @@ class EdbStackup(object):
 
     @pyaedt_function_handler()
     def place_in_layout_3d_placement(
-            self,
-            edb,
-            angle=0.0,
-            offset_x=0.0,
-            offset_y=0.0,
-            flipped_stackup=True,
-            place_on_top=True,
-            solder_height=0,
+        self,
+        edb,
+        angle=0.0,
+        offset_x=0.0,
+        offset_y=0.0,
+        flipped_stackup=True,
+        place_on_top=True,
+        solder_height=0,
     ):
         """Place current Cell into another cell using 3d placement method.
         Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
@@ -783,7 +797,7 @@ class EdbStackup(object):
                     if lay.GetName() == upper_ref_name
                 ][0]
                 via_layer_lower_elevation = (
-                        ref_layer_in_flipped_stackup.GetLowerElevation() + ref_layer_in_flipped_stackup.GetThickness()
+                    ref_layer_in_flipped_stackup.GetLowerElevation() + ref_layer_in_flipped_stackup.GetThickness()
                 )
                 cloned_via_layer.SetLowerElevation(self._get_edb_value(via_layer_lower_elevation))
                 new_lc.AddStackupLayerAtElevation(cloned_via_layer)
@@ -799,15 +813,15 @@ class EdbStackup(object):
                 cmp_prop = cmp.GetComponentProperty().Clone()
                 try:
                     if (
-                            cmp_prop.GetSolderBallProperty().GetPlacement()
-                            == self._edb.Definition.SolderballPlacement.AbovePadstack
+                        cmp_prop.GetSolderBallProperty().GetPlacement()
+                        == self._edb.Definition.SolderballPlacement.AbovePadstack
                     ):
                         sball_prop = cmp_prop.GetSolderBallProperty().Clone()
                         sball_prop.SetPlacement(self._edb.Definition.SolderballPlacement.BelowPadstack)
                         cmp_prop.SetSolderBallProperty(sball_prop)
                     elif (
-                            cmp_prop.GetSolderBallProperty().GetPlacement()
-                            == self._edb.Definition.SolderballPlacement.BelowPadstack
+                        cmp_prop.GetSolderBallProperty().GetPlacement()
+                        == self._edb.Definition.SolderballPlacement.BelowPadstack
                     ):
                         sball_prop = cmp_prop.GetSolderBallProperty().Clone()
                         sball_prop.SetPlacement(self._edb.Definition.SolderballPlacement.AbovePadstack)
@@ -906,14 +920,14 @@ class EdbStackup(object):
         return topl.GetName(), topz, bottoml.GetName(), bottomz
 
     def create_symmetric_stackup(
-            self,
-            layer_count,
-            inner_layer_thickness="17um",
-            outer_layer_thickness="50um",
-            dielectric_thickness="100um",
-            dielectric_material="FR4_epoxy",
-            soldermask=True,
-            soldermask_thickness="20um",
+        self,
+        layer_count,
+        inner_layer_thickness="17um",
+        outer_layer_thickness="50um",
+        dielectric_thickness="100um",
+        dielectric_material="FR4_epoxy",
+        soldermask=True,
+        soldermask_thickness="20um",
     ):
         """Create a symmetric stackup.
 
