@@ -118,18 +118,30 @@ class NexximComponents(CircuitComponents):
             parent_name = "{}:{}".format(self._app.design_name.split("/")[0], ":U" + str(random.randint(1, 10000)))
 
         self._app.odesign.InsertDesign("Circuit Design", name, "", parent_name)
+        if nested_subcircuit_id:
+            pname = "{}:{}".format(self._app.design_name.split("/")[0], nested_subcircuit_id)
+            odes = self._app.oproject.SetActiveDesign(pname)
+            oed = odes.SetActiveEditor("SchematicEditor")
+            objs = oed.GetAllElements()
+            match = [i for i in objs if name in i]
+            o = CircuitComponent(self, tabname=self.tab_name)
+            name = match[0].split(";")
+            o.name = name[0]
+            o.schematic_id = name[2]
+            o.id = int(name[1])
+            return o
         self.refresh_all_ids()
         for el in self.components:
             if name in self.components[el].composed_name:
                 if location:
                     self.components[el].location = location
-                if angle:
-                    self.components[el].angle = angle
+                if angle is not None:
+                    self.components[el].angle = self.arg_with_dim(angle, "°")
                 return self.components[el]
         return False
 
     @pyaedt_function_handler()
-    def duplicate(self, component, location=None, angle=0, flip=False):
+    def duplicate(self, component, location=None, angle=0, flip=False):  # pragma: no cover
         """Add a new subcircuit to the design.
 
         .. note::

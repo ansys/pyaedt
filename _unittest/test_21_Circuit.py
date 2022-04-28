@@ -357,17 +357,20 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")
 
     def test_30_create_subcircuit(self):
-        subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
+        subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0], angle=0)
         assert type(subcircuit.location) is list
         assert type(subcircuit.id) is int
+        assert subcircuit.component_info
         assert subcircuit.location[0] == "0.0mil"
         assert subcircuit.location[1] == "0.0mil"
         assert subcircuit.angle == 0.0
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Duplicate doesn't work in non-graphical.")
-    def test_31_duplicate(self):
+    def test_31_duplicate(self):  # pragma: no cover
         subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
-        new_subcircuit = self.aedtapp.modeler.schematic.duplicate(subcircuit.composed_name, location=[0.0508, 0.0])
+        new_subcircuit = self.aedtapp.modeler.schematic.duplicate(
+            subcircuit.composed_name, location=[0.0508, 0.0], angle=0
+        )
         assert type(new_subcircuit.location) is list
         assert type(new_subcircuit.id) is int
         assert new_subcircuit.location[0] == "1900mil"
@@ -375,10 +378,14 @@ class TestClass(BasisTest, object):
         assert new_subcircuit.angle == 0.0
 
     def test_32_push_down(self):
-        subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
+        subcircuit_1 = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
         active_project_name_1 = self.aedtapp.oproject.GetActiveDesign().GetName()
         self.aedtapp.pop_up()
-        assert self.aedtapp.push_down(subcircuit)
+        subcircuit_2 = self.aedtapp.modeler.schematic.create_subcircuit(
+            location=[0.0, 0.0], nested_subcircuit_id=subcircuit_1.component_info["RefDes"]
+        )
+        assert subcircuit_2.component_info["RefDes"] == "U2"
+        assert self.aedtapp.push_down(subcircuit_1)
         active_project_name_2 = self.aedtapp.oproject.GetActiveDesign().GetName()
         assert active_project_name_1 == active_project_name_2
 
