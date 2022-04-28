@@ -1320,7 +1320,37 @@ class TestClass(BasisTest, object):
         assert duplicated_copper
         duplicated_fr4_epoxy = stack_up.duplicate_material("FR4_epoxy", "my_new_FR4")
         assert duplicated_fr4_epoxy
-        duplicated_pec = stack_up.duplicate_material("copper", "my_new_pec")
+        duplicated_pec = stack_up.duplicate_material("pec", "my_new_pec")
         assert duplicated_pec
+        cloned_permittivity = stack_up.get_property_by_material_name("permittivity", "my_new_pec")
+        permittivity = stack_up.get_property_by_material_name("permittivity", "pec")
+        cloned_permeability = stack_up.get_property_by_material_name("permeability", "my_new_pec")
+        permeability = stack_up.get_property_by_material_name("permeability", "pec")
+        cloned_conductivity = stack_up.get_property_by_material_name("conductivity", "my_new_pec")
+        conductivity = stack_up.get_property_by_material_name("conductivity", "pec")
+        cloned_dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "my_new_pec")
+        dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "pec")
+        cloned_magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "my_new_pec")
+        magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "pec")
+        assert cloned_permittivity[1] == permittivity[1]
+        assert cloned_permeability[1] == permeability[1]
+        assert cloned_conductivity[1] == conductivity[1]
+        assert cloned_dielectric_loss[1] == dielectric_loss[1]
+        assert cloned_magnetic_loss[1] == magnetic_loss[1]
         non_duplicated = stack_up.duplicate_material("my_nonexistent_mat", "nothing")
         assert not non_duplicated
+
+    def test_100_get_property_by_material_name(self):
+        stack_up = self.edbapp.core_stackup
+        permittivity = stack_up.get_property_by_material_name("permittivity", "FR4_epoxy")
+        assert permittivity[1] == 4.4
+        permeability = stack_up.get_property_by_material_name("permeability", "FR4_epoxy")
+        assert permeability[1] == 0
+        conductivity = stack_up.get_property_by_material_name("conductivity", "copper")
+        assert conductivity[1] == 59590000
+        dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "FR4_epoxy")
+        assert dielectric_loss[1] == 0.02
+        magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "FR4_epoxy")
+        assert magnetic_loss[1] == 0
+
+

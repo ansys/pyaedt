@@ -5,7 +5,6 @@ This module contains the `EdbStackup` class.
 
 from __future__ import absolute_import  # noreorder
 
-
 import math
 import os
 import warnings
@@ -182,14 +181,14 @@ class EdbStackup(object):
 
     @pyaedt_function_handler()
     def create_debye_material(
-        self,
-        name,
-        relative_permittivity_low,
-        relative_permittivity_high,
-        loss_tangent_low,
-        loss_tangent_high,
-        lower_freqency,
-        higher_frequency,
+            self,
+            name,
+            relative_permittivity_low,
+            relative_permittivity_high,
+            loss_tangent_low,
+            loss_tangent_high,
+            lower_freqency,
+            higher_frequency,
     ):
         """Create a dielectric with the Debye model.
 
@@ -229,11 +228,11 @@ class EdbStackup(object):
 
     @pyaedt_function_handler()
     def create_multipole_debye_material(
-        self,
-        name,
-        frequencies,
-        relative_permittivities,
-        loss_tangents,
+            self,
+            name,
+            frequencies,
+            relative_permittivities,
+            loss_tangents,
     ):
         """Create a dielectric with the Multipole Debye model.
 
@@ -276,8 +275,8 @@ class EdbStackup(object):
     @pyaedt_function_handler()
     def duplicate_material(self, material_name, new_material_name):
         """Duplicate a material from the database.
-        It duplicates the 5 following properties permittivity, permeability, conductivity, dielectriclosstangent,
-        magneticlosstangent.
+        It duplicates these five properties: ``permittivity``, ``permeability``, ` conductivity,``
+        ``dielectriclosstangent``, and ``magneticlosstangent``.
 
         Parameters
         ----------
@@ -302,102 +301,103 @@ class EdbStackup(object):
         if self._edb.Definition.MaterialDef.FindByName(self._db, material_name).IsNull():
             self._logger.error("This material doesn't exists.")
         else:
-            permittivity = self.get_permittivity_by_material_name(material_name)
-            permeability = self.get_permeability_by_material_name(material_name)
-            conductivity = self.get_conductivity_by_material_name(material_name)
-            dielectric_loss_tangent = self.get_dielectric_loss_tan_by_material_name(material_name)
-            magnetic_loss_tangent = self.get_magnetic_loss_tan_by_material_name(material_name)
+            permittivity = self.get_property_by_material_name("permittivity", material_name)
+            permeability = self.get_property_by_material_name("permeability", material_name,)
+            conductivity = self.get_property_by_material_name("conductivity", material_name,)
+            dielectric_loss_tangent = self.get_property_by_material_name("dielectric_loss_tangent", material_name)
+            magnetic_loss_tangent = self.get_property_by_material_name("magnetic_loss_tangent", material_name)
             edb_material = self._edb.Definition.MaterialDef.Create(self._db, new_material_name)
-            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Permittivity, permittivity)
-            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Permeability, permeability)
-            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Conductivity, conductivity)
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Permittivity, permittivity[0])
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Permeability, permeability[0])
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Conductivity, conductivity[0])
             edb_material.SetProperty(
-                self._edb.Definition.MaterialPropertyId.DielectricLossTangent, dielectric_loss_tangent
+                self._edb.Definition.MaterialPropertyId.DielectricLossTangent, dielectric_loss_tangent[0]
             )
-            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.MagneticLossTangent, magnetic_loss_tangent)
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.MagneticLossTangent,
+                                     magnetic_loss_tangent[0])
             return edb_material
 
     @pyaedt_function_handler()
-    def get_permittivity_by_material_name(self, material_name):
-        if self._edb.Definition.MaterialDef.FindByName(self._db, material_name).IsNull():
-            self._logger.error("This material doesn't exists.")
-        else:
-            original_material = self._edb.Definition.MaterialDef.FindByName(self._db, material_name)
-            if is_ironpython:
-                permittivity_box = clr.StrongBox[float]()
-                original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permittivity, permittivity_box)
-                permittivity = permittivity_box
-            else:
-                out_value = self._edb.Utility.Value("value_name")
-                bool_1, permittivity = original_material.GetProperty(
-                    self._edb.Definition.MaterialPropertyId.Permittivity, out_value)
-            return permittivity
+    def get_property_by_material_name(self, property_name, material_name):
+        """Get a the property of a material.
 
-    @pyaedt_function_handler()
-    def get_permeability_by_material_name(self, material_name):
-        if self._edb.Definition.MaterialDef.FindByName(self._db, material_name).IsNull():
-            self._logger.error("This material doesn't exists.")
-        else:
-            original_material = self._edb.Definition.MaterialDef.FindByName(self._db, material_name)
-            if is_ironpython:
-                permeability_box = clr.StrongBox[float]()
-                original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permeability, permeability_box)
-                permeability = permeability_box
-            else:
-                out_value = self._edb.Utility.Value("value_name")
-                bool_1, permeability = original_material.GetProperty(
-                    self._edb.Definition.MaterialPropertyId.Permeability, out_value)
-            return permeability
+        Parameters
+        ----------
+        material_name : str
+            Name of the existing material.
+        property_name : str
+            Name of the material property.
+            ``permittivity``
+            ``permeability``
+            ``conductivity``
+            ``dielectric_loss_tangent``
+            ``magnetic_loss_tangent``
 
-    @pyaedt_function_handler()
-    def get_conductivity_by_material_name(self, material_name):
-        if self._edb.Definition.MaterialDef.FindByName(self._db, material_name).IsNull():
-            self._logger.error("This material doesn't exists.")
-        else:
-            original_material = self._edb.Definition.MaterialDef.FindByName(self._db, material_name)
-            if is_ironpython:
-                conductivity_box = clr.StrongBox[float]()
-                original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Conductivity, conductivity_box)
-                conductivity = conductivity_box
-            else:
-                out_value = self._edb.Utility.Value("value_name")
-                bool_1, conductivity = original_material.GetProperty(
-                    self._edb.Definition.MaterialPropertyId.Conductivity, out_value)
-            return conductivity
+        Returns
+        -------
+        A tuple of:
+            : class: 'Ansys.Ansoft.Edb.Utility.Value'
+                EDB Value.
+        and
+            float
+                the float value of the property.
 
-    @pyaedt_function_handler()
-    def get_dielectric_loss_tan_by_material_name(self, material_name):
-        if self._edb.Definition.MaterialDef.FindByName(self._db, material_name).IsNull():
-            self._logger.error("This material doesn't exists.")
-        else:
-            original_material = self._edb.Definition.MaterialDef.FindByName(self._db, material_name)
-            if is_ironpython:
-                dielectric_loss_box = clr.StrongBox[float]()
-                original_material.GetProperty(self._edb.Definition.MaterialPropertyId.DielectricLossTangent,
-                                              dielectric_loss_box)
-                dielectric_loss = dielectric_loss_box
-            else:
-                out_value = self._edb.Utility.Value("value_name")
-                bool_1, dielectric_loss = original_material.GetProperty(
-                    self._edb.Definition.MaterialPropertyId.DielectricLossTangent, out_value)
-            return dielectric_loss
 
-    @pyaedt_function_handler()
-    def get_magnetic_loss_tan_by_material_name(self, material_name):
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb_app = Edb()
+        >>> returned_tuple = edb_app.core_stackup.get_property_by_material_name("conductivity", "copper")
+        >>> edb_value = returned_tuple[0]
+        >>> float_value = returned_tuple[1]
+
+        """
         if self._edb.Definition.MaterialDef.FindByName(self._db, material_name).IsNull():
             self._logger.error("This material doesn't exists.")
         else:
             original_material = self._edb.Definition.MaterialDef.FindByName(self._db, material_name)
             if is_ironpython:
-                magnetic_loss_box = clr.StrongBox[float]()
-                original_material.GetProperty(self._edb.Definition.MaterialPropertyId.MagneticLossTangent,
-                                              magnetic_loss_box)
-                magnetic_loss = magnetic_loss_box
+                property_box = clr.StrongBox[float]()
+                if property_name == "permittivity":
+                    original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permittivity, property_box)
+                elif property_name == "permeability":
+                    original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permeability, property_box)
+                elif property_name == "conductivity":
+                    original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Conductivity, property_box)
+                elif property_name == "dielectric_loss_tangent":
+                    original_material.GetProperty(self._edb.Definition.MaterialPropertyId.DielectricLossTangent,
+                                                  property_box)
+                elif property_name == "magnetic_loss_tangent":
+                    original_material.GetProperty(self._edb.Definition.MaterialPropertyId.MagneticLossTangent,
+                                                  property_box)
+                else:
+                    self._logger.error("Incorrect property name.")
+                    return False
+                property_value = property_box
+                property_float = float(property_box.ToDouble())
             else:
                 out_value = self._edb.Utility.Value("value_name")
-                bool_1, magnetic_loss = original_material.GetProperty(
-                    self._edb.Definition.MaterialPropertyId.MagneticLossTangent, out_value)
-            return magnetic_loss
+                if property_name == "permittivity":
+                    property_tuple = original_material.GetProperty(
+                        self._edb.Definition.MaterialPropertyId.Permittivity, out_value)
+                elif property_name == "permeability":
+                    property_tuple = original_material.GetProperty(
+                        self._edb.Definition.MaterialPropertyId.Permeability, out_value)
+                elif property_name == "conductivity":
+                    property_tuple = original_material.GetProperty(
+                        self._edb.Definition.MaterialPropertyId.Conductivity, out_value)
+                elif property_name == "dielectric_loss_tangent":
+                    property_tuple = original_material.GetProperty(
+                        self._edb.Definition.MaterialPropertyId.DielectricLossTangent, out_value)
+                elif property_name == "magnetic_loss_tangent":
+                    property_tuple = original_material.GetProperty(
+                        self._edb.Definition.MaterialPropertyId.MagneticLossTangent, out_value)
+                else:
+                    self._logger.error("Incorrect property name.")
+                    return False
+                property_value = property_tuple[1]
+                property_float = float(property_tuple[1].ToDouble())
+            return property_value, property_float
 
     @pyaedt_function_handler()
     def _get_solder_height(self, layer_name):
@@ -442,7 +442,7 @@ class EdbStackup(object):
                         layer1 = el
                     if layer1 != layer:
                         self.stackup_layers.layers[layer1].thickness_value = (
-                            val.solder_ball_height - elevation + last_layer_thickess
+                                val.solder_ball_height - elevation + last_layer_thickess
                         )
                     elif val.solder_ball_height > elevation:
                         self.stackup_layers.add_layer(
@@ -464,7 +464,7 @@ class EdbStackup(object):
                         last_layer_thickess = self.stackup_layers.layers[el].thickness_value
                     if layer1 != layer:
                         self.stackup_layers.layers[layer1].thickness_value = (
-                            val.solder_ball_height - elevation + last_layer_thickess
+                                val.solder_ball_height - elevation + last_layer_thickess
                         )
                     elif val.solder_ball_height > elevation:
                         self.stackup_layers.add_layer(
@@ -478,13 +478,13 @@ class EdbStackup(object):
 
     @pyaedt_function_handler()
     def place_in_layout(
-        self,
-        edb,
-        angle=0.0,
-        offset_x=0.0,
-        offset_y=0.0,
-        flipped_stackup=True,
-        place_on_top=True,
+            self,
+            edb,
+            angle=0.0,
+            offset_x=0.0,
+            offset_y=0.0,
+            flipped_stackup=True,
+            place_on_top=True,
     ):
         """Place current Cell into another cell using layer placement method.
         Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
@@ -569,14 +569,14 @@ class EdbStackup(object):
 
     @pyaedt_function_handler()
     def place_in_layout_3d_placement(
-        self,
-        edb,
-        angle=0.0,
-        offset_x=0.0,
-        offset_y=0.0,
-        flipped_stackup=True,
-        place_on_top=True,
-        solder_height=0,
+            self,
+            edb,
+            angle=0.0,
+            offset_x=0.0,
+            offset_y=0.0,
+            flipped_stackup=True,
+            place_on_top=True,
+            solder_height=0,
     ):
         """Place current Cell into another cell using 3d placement method.
         Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
@@ -783,7 +783,7 @@ class EdbStackup(object):
                     if lay.GetName() == upper_ref_name
                 ][0]
                 via_layer_lower_elevation = (
-                    ref_layer_in_flipped_stackup.GetLowerElevation() + ref_layer_in_flipped_stackup.GetThickness()
+                        ref_layer_in_flipped_stackup.GetLowerElevation() + ref_layer_in_flipped_stackup.GetThickness()
                 )
                 cloned_via_layer.SetLowerElevation(self._get_edb_value(via_layer_lower_elevation))
                 new_lc.AddStackupLayerAtElevation(cloned_via_layer)
@@ -799,15 +799,15 @@ class EdbStackup(object):
                 cmp_prop = cmp.GetComponentProperty().Clone()
                 try:
                     if (
-                        cmp_prop.GetSolderBallProperty().GetPlacement()
-                        == self._edb.Definition.SolderballPlacement.AbovePadstack
+                            cmp_prop.GetSolderBallProperty().GetPlacement()
+                            == self._edb.Definition.SolderballPlacement.AbovePadstack
                     ):
                         sball_prop = cmp_prop.GetSolderBallProperty().Clone()
                         sball_prop.SetPlacement(self._edb.Definition.SolderballPlacement.BelowPadstack)
                         cmp_prop.SetSolderBallProperty(sball_prop)
                     elif (
-                        cmp_prop.GetSolderBallProperty().GetPlacement()
-                        == self._edb.Definition.SolderballPlacement.BelowPadstack
+                            cmp_prop.GetSolderBallProperty().GetPlacement()
+                            == self._edb.Definition.SolderballPlacement.BelowPadstack
                     ):
                         sball_prop = cmp_prop.GetSolderBallProperty().Clone()
                         sball_prop.SetPlacement(self._edb.Definition.SolderballPlacement.AbovePadstack)
@@ -906,14 +906,14 @@ class EdbStackup(object):
         return topl.GetName(), topz, bottoml.GetName(), bottomz
 
     def create_symmetric_stackup(
-        self,
-        layer_count,
-        inner_layer_thickness="17um",
-        outer_layer_thickness="50um",
-        dielectric_thickness="100um",
-        dielectric_material="FR4_epoxy",
-        soldermask=True,
-        soldermask_thickness="20um",
+            self,
+            layer_count,
+            inner_layer_thickness="17um",
+            outer_layer_thickness="50um",
+            dielectric_thickness="100um",
+            dielectric_material="FR4_epoxy",
+            soldermask=True,
+            soldermask_thickness="20um",
     ):
         """Create a symmetric stackup.
 
