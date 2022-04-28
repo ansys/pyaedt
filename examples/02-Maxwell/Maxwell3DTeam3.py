@@ -174,7 +174,7 @@ solutions = M3D.post.get_solution_data(
 # --------------
 # User can setup a sweep value and plot the solution.
 
-solutions.nominal_sweeps["Coil_Position"] = -0.02
+solutions.active_variation["Coil_Position"] = -0.02
 solutions.plot()
 
 ###############################################################################
@@ -182,7 +182,7 @@ solutions.plot()
 # --------------
 # User can change a sweep value and plot again.
 
-solutions.nominal_sweeps["Coil_Position"] = 0
+solutions.active_variation["Coil_Position"] = 0
 solutions.plot()
 
 

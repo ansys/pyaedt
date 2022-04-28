@@ -561,31 +561,46 @@ class SolutionData(object):
     def __init__(self, aedtdata):
         self._original_data = aedtdata
         self.number_of_variations = len(aedtdata)
+
         self._nominal_variation = None
         self._nominal_variation = self._original_data[0]
+        self.active_expression = self.expressions[0]
         self._sweeps = None
-        self._sweeps_names = list(self.nominal_variation.GetSweepNames())
+        self._sweeps_names = []
         self.update_sweeps()
-
+        self.variations = self._get_variations()
+        self.intrinsics = self._get_intrinsics()
+        self.active_intrinsic = OrderedDict({})
+        for k, v in self.intrinsics.items():
+            self.active_intrinsic[k] = v[0]
         self._primary_sweep = self._sweeps_names[0]
-        self.nominal_sweeps = {}
+        self.active_variation = self.variations[0]
         self.units_sweeps = {}
-        for e in self.sweeps.keys():
-            try:
-                self.nominal_sweeps[e] = self.sweeps[e][0]
-                self.units_sweeps[e] = self.nominal_variation.GetSweepUnits(e)
-            except:
-                self.nominal_sweeps[e] = None
         self._init_solutions_data()
         self._ifft = None
 
-    @property
-    def sweeps(self):
-        """Sweeps."""
-        return self._sweeps
+    @pyaedt_function_handler()
+    def _get_variations(self):
+        variations_lists = []
+        for data in self._original_data:
+            variations = OrderedDict({})
+            for v in data.GetDesignVariableNames():
+                variations[v] = data.GetDesignVariableValue(v)
+            variations_lists.append(variations)
+        return variations_lists
+
+    @pyaedt_function_handler()
+    def _get_intrinsics(self):
+        _sweeps = OrderedDict({})
+        intrinsics = [i for i in self._sweeps_names if i not in self.nominal_variation.GetDesignVariableNames()]
+        for el in intrinsics:
+            values = list(self.nominal_variation.GetSweepValues(el, False))
+            _sweeps[el] = [i for i in values]
+            _sweeps[el] = list(OrderedDict.fromkeys(_sweeps[el]))
+        return _sweeps
 
     @property
-    def sweeps_siunits(self):
+    def _sweeps_siunits(self):
         """SI units for the sweep."""
         data = {}
         for el in self._sweeps:
@@ -593,15 +608,6 @@ class SolutionData(object):
                 self._sweeps[el], self._quantity(self.units_sweeps[el]), self.units_sweeps[el]
             )
         return data
-
-    @property
-    def variations_value(self):
-        """Variation values for design variables."""
-        vars = self.nominal_variation.GetDesignVariableNames()
-        variationvals = {}
-        for v in vars:
-            variationvals[v] = self.nominal_variation.GetDesignVariableValue(v)
-        return variationvals
 
     @property
     def nominal_variation(self):
@@ -629,7 +635,7 @@ class SolutionData(object):
 
     @primary_sweep.setter
     def primary_sweep(self, ps):
-        if ps in self.sweeps.keys():
+        if ps in self._sweeps_names:
             self._primary_sweep = ps
 
     @property
@@ -640,9 +646,9 @@ class SolutionData(object):
 
     @pyaedt_function_handler()
     def _init_solutions_data(self):
-        self.solutions_data_real = self._solution_data_real()
-        self.solutions_data_imag = self._solution_data_imag()
-        self.solutions_data_mag = {}
+        self._solutions_real = self._solution_data_real()
+        self._solutions_imag = self._solution_data_imag()
+        self._solutions_mag = {}
         self.units_data = {}
         if len(self._original_data) > 1:
             for data in self._original_data:
@@ -650,11 +656,11 @@ class SolutionData(object):
                     if v not in self._sweeps_names:
                         self._sweeps_names.append(v)
         for expr in self.expressions:
-            self.solutions_data_mag[expr] = {}
+            self._solutions_mag[expr] = {}
             self.units_data[expr] = self.nominal_variation.GetDataUnits(expr)
-            for i in self.solutions_data_real[expr]:
-                self.solutions_data_mag[expr][i] = abs(
-                    complex(self.solutions_data_real[expr][i], self.solutions_data_imag[expr][i])
+            for i in self._solutions_real[expr]:
+                self._solutions_mag[expr][i] = abs(
+                    complex(self._solutions_real[expr][i], self._solutions_imag[expr][i])
                 )
 
     @pyaedt_function_handler()
@@ -667,11 +673,21 @@ class SolutionData(object):
             Updated sweeps.
         """
 
+        names = list(self.nominal_variation.GetSweepNames())
         self._sweeps = OrderedDict({})
-        for el in self._sweeps_names:
+
+        for el in names:
             values = list(self.nominal_variation.GetSweepValues(el, False))
             self._sweeps[el] = [i for i in values]
             self._sweeps[el] = list(OrderedDict.fromkeys(self._sweeps[el]))
+        for data in self._original_data:
+            for v in data.GetDesignVariableNames():
+                if v not in self._sweeps:
+                    self._sweeps[v] = [data.GetDesignVariableValue(v)]
+                    self._sweeps_names.append(v)
+                else:
+                    self._sweeps[v].append(data.GetDesignVariableValue(v))
+        self._sweeps_names.extend((reversed(names)))
         return self._sweeps
 
     @pyaedt_function_handler()
@@ -698,42 +714,20 @@ class SolutionData(object):
         """ """
         sols_data = {}
         for expression in self.expressions:
-            combinations = []
-            if len(self._original_data) == 1:
-                solution = list(self.nominal_variation.GetRealDataValues(expression, False))
-            else:
-                solution = []
-                extendes_sweep_names = []
-                for data in self._original_data:
-                    for v in data.GetDesignVariableNames():
-                        if v not in extendes_sweep_names:
-                            self._sweeps[v] = []
-                            extendes_sweep_names.append(v)
-                            self.nominal_sweeps[v] = data.GetDesignVariableValue(v)
-                            self.units_sweeps[v] = data.GetDesignVariableUnits(v)
-                    comb = []
-                    for v in reversed(data.GetDesignVariableNames()):
-                        if data.GetDesignVariableValue(v) not in self._sweeps[v]:
-                            self._sweeps[v].append(data.GetDesignVariableValue(v))
-                        comb.append(data.GetDesignVariableValue(v))
-                    combinations.append(comb)
-                    solution.extend(list(data.GetRealDataValues(expression, False)))
+
+            solution = []
+            for data in self._original_data:
+                solution.extend(list(data.GetRealDataValues(expression, False)))
             values = []
-            for el in reversed(self._sweeps_names):
-                values.append(self.sweeps[el])
+            for el in reversed(list(self.intrinsics.keys())):
+                values.append(self.intrinsics[el])
             solution_Data = {}
             i = 0
-            if combinations:
-                for comb in combinations:
-                    for t in itertools.product(*values):
-
-                        solution_Data[tuple(comb + list(t))] = solution[i]
-                        i += 1
-            else:
+            for comb in self.variations:
+                c = [comb[v] for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    if not combinations:
-                        solution_Data[t] = solution[i]
-                        i += 1
+                    solution_Data[tuple(c + list(t))] = solution[i]
+                    i += 1
             sols_data[expression] = solution_Data
         return sols_data
 
@@ -741,46 +735,25 @@ class SolutionData(object):
     def _solution_data_imag(self):
         """ """
         sols_data = {}
-        combinations = []
         for expression in self.expressions:
-            if self.nominal_variation.IsDataComplex(expression):
-                if len(self._original_data) == 1:
-                    solution = list(self.nominal_variation.GetImagDataValues(expression, False))
-                else:
-                    solution = []
-                    for data in self._original_data:
-                        solution.extend(list(data.GetImagDataValues(expression, False)))
-            else:
-                solution = None
-            if len(self._original_data) > 1:
-                for data in self._original_data:
-                    comb = []
-                    for v in reversed(data.GetDesignVariableNames()):
-                        comb.append(data.GetDesignVariableValue(v))
-                    combinations.append(comb)
-            values = []
-            for el in reversed(self._sweeps_names):
-                values.append(self.sweeps[el])
 
+            solution = []
+            for data in self._original_data:
+                if data.IsDataComplex(expression):
+                    solution.extend(list(data.GetImagDataValues(expression, False)))
+                else:
+                    l = len(list(data.GetRealDataValues(expression, False)))
+                    solution.extend([0] * l)
+            values = []
+            for el in reversed(list(self.intrinsics.keys())):
+                values.append(self.intrinsics[el])
             solution_Data = {}
             i = 0
-            if combinations:
-                for comb in combinations:
-                    for t in itertools.product(*values):
-                        if solution:
-                            solution_Data[tuple(comb + list(t))] = solution[i]
-                        else:
-                            solution_Data[tuple(comb + list(t))] = 0
-
-                        i += 1
-            else:
+            for comb in self.variations:
+                c = [comb[v] for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    if not combinations:
-                        if solution:
-                            solution_Data[t] = solution[i]
-                        else:
-                            solution_Data[t] = 0
-                        i += 1
+                    solution_Data[tuple(c + list(t))] = solution[i]
+                    i += 1
             sols_data[expression] = solution_Data
         return sols_data
 
@@ -819,6 +792,16 @@ class SolutionData(object):
         return [i * 2 * math.pi / 360 for i in input_list]
 
     @pyaedt_function_handler()
+    def _variation_tuple(self):
+        temp = []
+        for it in self._sweeps_names:
+            try:
+                temp.append(self.active_variation[it])
+            except:
+                temp.append(self.active_intrinsic[it])
+        return temp
+
+    @pyaedt_function_handler()
     def data_magnitude(self, expression=None, convert_to_SI=False):
         """Retrieve the data magnitude of an expression.
 
@@ -826,7 +809,7 @@ class SolutionData(object):
         ----------
         expression : str, optional
             Name of the expression. The default is ``None``, in which case the
-            first expression is used.
+            active expression is used.
         convert_to_SI : bool, optional
             Whether to convert the data to the SI unit system.
             The default is ``False``.
@@ -838,17 +821,14 @@ class SolutionData(object):
 
         """
         if not expression:
-            expression = self.expressions[0]
+            expression = self.active_expression
         elif expression not in self.expressions:
             return False
-        temp = []
-        for it in self.nominal_sweeps:
-            temp.append(self.nominal_sweeps[it])
-        temp = list(reversed(temp))
-        solution_Data = self.solutions_data_mag[expression]
+        temp = self._variation_tuple()
+        solution_Data = self._solutions_mag[expression]
         sol = []
-        position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-        for el in self.sweeps[self.primary_sweep]:
+        position = list(self._sweeps_names).index(self.primary_sweep)
+        for el in self._sweeps[self.primary_sweep]:
             temp[position] = el
             try:
                 sol.append(solution_Data[tuple(temp)])
@@ -895,7 +875,7 @@ class SolutionData(object):
         ----------
         expression : str, optional
             Name of the expression. The default is ``None``,
-            in which case the first expression is used.
+            in which case the active expression is used.
         convert_to_SI : bool, optional
             Whether to convert the data to the SI unit system.
             The default is ``False``.
@@ -907,7 +887,7 @@ class SolutionData(object):
 
         """
         if not expression:
-            expression = self.expressions[0]
+            expression = self.active_expression
 
         return [db10(i) for i in self.data_magnitude(expression, convert_to_SI)]
 
@@ -918,7 +898,7 @@ class SolutionData(object):
         ----------
         expression : str, optional
             Name of the expression. The default is ``None``,
-            in which case the first expression is used.
+            in which case the active expression is used.
         convert_to_SI : bool, optional
             Whether to convert the data to the SI unit system.
             The default is ``False``.
@@ -930,7 +910,7 @@ class SolutionData(object):
 
         """
         if not expression:
-            expression = self.expressions[0]
+            expression = self.active_expression
 
         return [db10(i) for i in self.data_magnitude(expression, convert_to_SI)]
 
@@ -941,7 +921,7 @@ class SolutionData(object):
         ----------
         expression : str, optional
             Name of the expression. The default is ``None``,
-            in which case the first expression is used.
+            in which case the active expression is used.
         convert_to_SI : bool, optional
             Whether to convert the data to the SI unit system.
             The default is ``False``.
@@ -953,7 +933,7 @@ class SolutionData(object):
 
         """
         if not expression:
-            expression = self.expressions[0]
+            expression = self.active_expression
 
         return [db20(i) for i in self.data_magnitude(expression, convert_to_SI)]
 
@@ -964,7 +944,7 @@ class SolutionData(object):
         ----------
         expression : str, None
             Name of the expression. The default is ``None``,
-            in which case the first expression is used.
+            in which case the active expression is used.
         radians : bool, optional
             Whether to convert the data into radians or degree.
             The default is ``True`` for radians.
@@ -976,7 +956,7 @@ class SolutionData(object):
 
         """
         if not expression:
-            expression = self.expressions[0]
+            expression = self.active_expression
         coefficient = 1
         if not radians:
             coefficient = 180 / math.pi
@@ -989,7 +969,7 @@ class SolutionData(object):
         ----------
         expression : str, None
             Name of the expression. The default is ``None``,
-            in which case the first expression is used.
+            in which case the active expression is used.
         convert_to_SI : bool, optional
             Whether to convert the data to the SI unit system.
             The default is ``False``.
@@ -1001,15 +981,14 @@ class SolutionData(object):
 
         """
         if not expression:
-            expression = self.expressions[0]
-        temp = []
-        for it in self.nominal_sweeps:
-            temp.append(self.nominal_sweeps[it])
-        temp = list(reversed(temp))
-        solution_Data = self.solutions_data_real[expression]
+            expression = self.active_expression
+        temp = self._variation_tuple()
+
+        solution_Data = self._solutions_real[expression]
         sol = []
-        position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-        for el in self.sweeps[self.primary_sweep]:
+        position = list(self._sweeps_names).index(self.primary_sweep)
+
+        for el in self._sweeps[self.primary_sweep]:
             temp[position] = el
             try:
                 sol.append(solution_Data[tuple(temp)])
@@ -1028,7 +1007,7 @@ class SolutionData(object):
         ----------
         expression : str, optional
             Name of the expression. The default is ``None``,
-            in which case the first expression is used.
+            in which case the active expression is used.
         convert_to_SI : bool, optional
             Whether to convert the data to the SI unit system.
             The default is ``False``.
@@ -1040,15 +1019,13 @@ class SolutionData(object):
 
         """
         if not expression:
-            expression = self.expressions[0]
-        temp = []
-        for it in self.nominal_sweeps:
-            temp.append(self.nominal_sweeps[it])
-        temp = list(reversed(temp))
-        solution_Data = self.solutions_data_imag[expression]
+            expression = self.active_expression
+        temp = self._variation_tuple()
+
+        solution_Data = self._solutions_imag[expression]
         sol = []
-        position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-        for el in self.sweeps[self.primary_sweep]:
+        position = list(self._sweeps_names).index(self.primary_sweep)
+        for el in self._sweeps[self.primary_sweep]:
             temp[position] = el
             try:
                 sol.append(solution_Data[tuple(temp)])
@@ -1068,7 +1045,7 @@ class SolutionData(object):
         ----------
         expression : str, optional
             Name of the expression. The default is ``None``,
-            in which case the first expression is used.
+            in which case the active expression is used.
 
         Returns
         -------
@@ -1076,8 +1053,8 @@ class SolutionData(object):
             ``True`` if the Solution Data for specific expression contains only real values.
         """
         if not expression:
-            expression = self.expressions[0]
-        for e, v in self.solutions_data_imag[expression].items():
+            expression = self.active_expression
+        for e, v in self._solutions_imag[expression].items():
             if float(v) != 0.0:
                 return False
         return True
@@ -1097,7 +1074,7 @@ class SolutionData(object):
         -------
         bool
         """
-        header = [el for el in reversed(self._sweeps_names)]
+        header = [el for el in self._sweeps_names]
         for el in self.expressions:
             if not self.is_real_only(el):
                 header.append(el + " (Real)")
@@ -1106,16 +1083,16 @@ class SolutionData(object):
                 header.append(el)
 
         list_full = [header]
-        for e, v in self.solutions_data_real[self.expressions[0]].items():
+        for e, v in self._solutions_real[self.active_expression].items():
             list_full.append(list(e))
         for el in self.expressions:
             i = 1
-            for e, v in self.solutions_data_real[el].items():
+            for e, v in self._solutions_real[el].items():
                 list_full[i].extend([v])
                 i += 1
             i = 1
             if not self.is_real_only(el):
-                for e, v in self.solutions_data_imag[el].items():
+                for e, v in self._solutions_imag[el].items():
                     list_full[i].extend([v])
                     i += 1
 
@@ -1166,7 +1143,7 @@ class SolutionData(object):
         if is_ironpython:
             return False  # pragma: no cover
         if not curves:
-            curves = [self.expressions[0]]
+            curves = [self.active_expression]
         if isinstance(curves, str):
             curves = [curves]
         data_plot = []
@@ -1174,9 +1151,9 @@ class SolutionData(object):
         if not math_formula:
             math_formula = "mag"
         if is_polar:
-            sw = self.to_radians(self.sweeps[sweep_name])
+            sw = self.to_radians(self._sweeps[sweep_name])
         else:
-            sw = self.sweeps[sweep_name]
+            sw = self._sweeps[sweep_name]
 
         for curve in curves:
             if math_formula == "re":
@@ -1245,15 +1222,15 @@ class SolutionData(object):
         if is_ironpython:
             return False  # pragma: no cover
         if not curve:
-            curve = self.expressions[0]
+            curve = self.active_expression
 
         if not math_formula:
             math_formula = "mag"
-        theta = self.to_radians(self.sweeps[x_axis])
+        theta = self.to_radians(self._sweeps[x_axis])
         phi = []
         r = []
-        for el in self.sweeps[y_axis]:
-            self.nominal_sweeps[y_axis] = el
+        for el in self._sweeps[y_axis]:
+            self.active_variation[y_axis] = el
             phi.append(el * math.pi / 180)
 
             if math_formula == "re":
@@ -1300,16 +1277,16 @@ class SolutionData(object):
         """
         if is_ironpython:
             return False
-        u = self.sweeps[u_axis]
+        u = self._sweeps[u_axis]
         if v_axis:
-            v = self.sweeps[v_axis]
-        freq = self.sweeps["Freq"]
-        vals_real_Ex = [j for j in self.solutions_data_real[curve_header + "X"].values()]
-        vals_imag_Ex = [j for j in self.solutions_data_imag[curve_header + "X"].values()]
-        vals_real_Ey = [j for j in self.solutions_data_real[curve_header + "Y"].values()]
-        vals_imag_Ey = [j for j in self.solutions_data_imag[curve_header + "Y"].values()]
-        vals_real_Ez = [j for j in self.solutions_data_real[curve_header + "Z"].values()]
-        vals_imag_Ez = [j for j in self.solutions_data_imag[curve_header + "Z"].values()]
+            v = self._sweeps[v_axis]
+        freq = self._sweeps["Freq"]
+        vals_real_Ex = [j for j in self._solutions_real[curve_header + "X"].values()]
+        vals_imag_Ex = [j for j in self._solutions_imag[curve_header + "X"].values()]
+        vals_real_Ey = [j for j in self._solutions_real[curve_header + "Y"].values()]
+        vals_imag_Ey = [j for j in self._solutions_imag[curve_header + "Y"].values()]
+        vals_real_Ez = [j for j in self._solutions_real[curve_header + "Z"].values()]
+        vals_imag_Ez = [j for j in self._solutions_imag[curve_header + "Z"].values()]
 
         E_realx = np.reshape(vals_real_Ex, (len(freq), len(v), len(u)))
         E_imagx = np.reshape(vals_imag_Ex, (len(freq), len(v), len(u)))
@@ -1388,8 +1365,8 @@ class SolutionData(object):
         if not coord_system_center:
             coord_system_center = [0, 0, 0]
         t_matrix = self._ifft
-        x_c_list = self.sweeps[u_axis]
-        y_c_list = self.sweeps[v_axis]
+        x_c_list = self._sweeps[u_axis]
+        y_c_list = self._sweeps[v_axis]
         adj_x = coord_system_center[0]
         adj_y = coord_system_center[1]
         adj_z = coord_system_center[2]
