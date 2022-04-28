@@ -2262,7 +2262,7 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        List
             List of faces IDs.
 
         References

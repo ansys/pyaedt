@@ -414,6 +414,26 @@ class TestClass(BasisTest, object):
         data2 = self.circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Time")
         assert data2.primary_sweep == "Time"
         assert data2.data_magnitude()
+        new_report = self.circuit_test.post.reports_by_category.spectral(["dB(V(net_11))"], "Transient")
+        new_report.window = "Hanning"
+        new_report.max_freq = "1GHz"
+        new_report.time_start = "1ns"
+        new_report.time_stop = "190ns"
+        new_report.plot_continous_spectrum = True
+        assert new_report.create()
+        new_report = self.circuit_test.post.reports_by_category.spectral(["dB(V(net_11))", "dB(V(Port1))"], "Transient")
+        new_report.window = "Kaiser"
+        new_report.adjust_coherent_gain = False
+        new_report.kaiser_coeff = 2
+        new_report.algorithm = "Fourier Transform"
+        new_report.max_freq = "1GHz"
+        new_report.time_start = "1ns"
+        new_report.time_stop = "190ns"
+        new_report.plot_continous_spectrum = False
+        assert new_report.create()
+        assert self.circuit_test.post.create_report(
+            ["dB(V(net_11))", "dB(V(Port1))"], domain="Spectral", setup_sweep_name="Transient"
+        )
         pass
 
     def test_18_diff_plot(self):
