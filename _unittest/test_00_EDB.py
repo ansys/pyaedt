@@ -1324,3 +1324,10 @@ class TestClass(BasisTest, object):
         assert test_import.import_json(json_file)
         assert test_import.arc_angle == "90deg"
         assert test_import._filename == json_file
+
+    def test_99_classify_nets(self):
+        sim_setup = SimulationConfiguration()
+        sim_setup.power_nets = ['RSVD_0', 'RSVD_1']
+        sim_setup.signal_nets = ['V3P3_S0']
+        self.edbapp.core_nets.classify_nets(sim_setup)
+
