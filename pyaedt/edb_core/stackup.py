@@ -303,7 +303,6 @@ class EdbStackup(object):
             self._logger.error("This material doesn't exists.")
         else:
             original_material = self._edb.Definition.MaterialDef.FindByName(self._db, material_name)
-            print(original_material)
             if is_ironpython:
                 permittivity_box = clr.StrongBox[float]()
                 permeability_box = clr.StrongBox[float]()
