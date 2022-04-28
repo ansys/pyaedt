@@ -16,18 +16,18 @@ circuit = Circuit(specified_version="2022.1")
 
 ###############################################################################
 # Add new subcircuit
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~
 # This example adds a new subcircuit to the previously created Circuit design
 # becoming the child circuit.
 # Then it pushes down into the child subcircuit.
 
-subcircuit = circuit.modeler.schematic.add_new_subcircuit([0.0, 0.0])
+subcircuit = circuit.modeler.schematic.create_subcircuit([0.0, 0.0])
 subcircuit_name = subcircuit.composed_name
 circuit.push_down(subcircuit)
 
 ###############################################################################
 # Subcircuit parameterization
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This method parameterizes the subcircuit and adds a resistor, inductor
 # and a capacitor with the value given by the parameters.
 # They are then connected in series.
@@ -46,10 +46,10 @@ circuit.pop_up()
 
 ###############################################################################
 # Subcircuit duplication
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~
 # The formerly created subcircuit is duplicated and new parameter value is set.
 
 new_comp = circuit.modeler.schematic.duplicate(subcircuit_name, [0.0512, 0])
 new_comp.parameters["R_val"] = "75ohm"
 
-circuit.release_desktop(False, False)
+circuit.release_desktop(True, True)

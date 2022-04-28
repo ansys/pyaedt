@@ -356,8 +356,8 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345")
         assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")
 
-    def test_30_add_new_subcircuit(self):
-        subcircuit = self.aedtapp.modeler.schematic.add_new_subcircuit(location=[0.0, 0.0])
+    def test_30_create_subcircuit(self):
+        subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
         assert type(subcircuit.location) is list
         assert type(subcircuit.id) is int
         assert subcircuit.location[0] == "0.0mil"
@@ -366,7 +366,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Duplicate doesn't work in non-graphical.")
     def test_31_duplicate(self):
-        subcircuit = self.aedtapp.modeler.schematic.add_new_subcircuit(location=[0.0, 0.0])
+        subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
         new_subcircuit = self.aedtapp.modeler.schematic.duplicate(subcircuit.composed_name, location=[0.0508, 0.0])
         assert type(new_subcircuit.location) is list
         assert type(new_subcircuit.id) is int
@@ -375,7 +375,7 @@ class TestClass(BasisTest, object):
         assert new_subcircuit.angle == 0.0
 
     def test_32_push_down(self):
-        subcircuit = self.aedtapp.modeler.schematic.add_new_subcircuit(location=[0.0, 0.0])
+        subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
         active_project_name_1 = self.aedtapp.oproject.GetActiveDesign().GetName()
         self.aedtapp.pop_up()
         assert self.aedtapp.push_down(subcircuit)
@@ -385,7 +385,7 @@ class TestClass(BasisTest, object):
     def test_33_pop_up(self):
         assert self.aedtapp.pop_up()
         active_project_name_1 = self.aedtapp.oproject.GetActiveDesign().GetName()
-        self.aedtapp.modeler.schematic.add_new_subcircuit(location=[0.0, 0.0])
+        self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
         assert self.aedtapp.pop_up()
         active_project_name_2 = self.aedtapp.oproject.GetActiveDesign().GetName()
         assert active_project_name_1 == active_project_name_2
