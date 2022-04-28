@@ -106,7 +106,7 @@ class TestClass(BasisTest, object):
     @pyaedt_unittest_check_desktop_error
     def test_14a_model_depth(self):
         self.aedtapp.model_depth = 2.0
-        assert self.aedtapp.change_design_settings({"ModelDepth": 3})
+        assert self.aedtapp.change_design_settings({"ModelDepth": "3mm"})
 
     @pyaedt_unittest_check_desktop_error
     def test_15_assign_movement(self):
