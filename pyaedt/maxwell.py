@@ -489,7 +489,6 @@ class Maxwell(object):
         inertia="1",
         damping=0,
         load_torque="0newton",
-        motion_name=None,
     ):
         """Assign a rotation motion to an object container.
 
@@ -529,8 +528,6 @@ class Maxwell(object):
         load_torque : float or str, optional
             Load force. The default is ``"0newton"``. If a float value is used,
             "NewtonMeter" units are applied.
-        motion_name : str, optional
-            Motion name. The default is ``None``.
 
         Returns
         -------
@@ -543,8 +540,11 @@ class Maxwell(object):
         >>> oModule.AssignBand
         """
         assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to the Transient setup."
-        if not motion_name:
-            motion_name = generate_unique_name("Motion")
+        names = list(self.omodelsetup.GetMotionSetupNames())
+        if not names:
+            motion_name = "MotionSetup1"
+        else:
+            motion_name = "MotionSetup" + str(len(names) + 1)
         object_list = self.modeler.convert_to_selections(band_object, True)
         props = OrderedDict(
             {
