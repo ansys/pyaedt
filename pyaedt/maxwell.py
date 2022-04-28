@@ -1261,7 +1261,9 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     @model_depth.setter
     def model_depth(self, value):
         """Set model depth."""
-        return self.change_design_settings({"ModelDepth": value})
+        return self.change_design_settings(
+            {"ModelDepth": self._modeler._arg_with_dim(value, self._modeler.model_units)}
+        )
 
     @pyaedt_function_handler()
     def generate_design_data(self, linefilter=None, objectfilter=None):
