@@ -2949,6 +2949,7 @@ class SimulationConfiguration(object):
         self._use_radiation_boundary = True
         self._do_cutout_subdesign = True
         self._solver_type = SolverType.Hfss3dLayout
+        self._output_aedb = None
         self._read_cfg()
 
     @property
@@ -3546,6 +3547,15 @@ class SimulationConfiguration(object):
     def use_radiation_boundary(self, value):  # pragma: no cover
         if isinstance(value, bool):
             self._use_radiation_boundary = value
+
+    @property
+    def output_aedb(self):  # pragma: no cover
+        return self._output_aedb
+
+    @output_aedb.setter
+    def output_aedb(self, value):  # pragma: no cover
+        if isinstance(value, str):
+            self._output_aedb = value
 
     def _get_bool_value(self, value):  # pragma: no cover
         val = value.lower()
