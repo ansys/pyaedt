@@ -2886,7 +2886,7 @@ class CircuitComponent(object):
 
     @property
     def pins(self):
-        """Pins of component.
+        """Pins of the component.
 
         Returns
         -------
