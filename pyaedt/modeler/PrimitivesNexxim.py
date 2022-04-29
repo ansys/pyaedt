@@ -156,7 +156,7 @@ class NexximComponents(CircuitComponents):
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         flip : bool, optional
-            Whether the component should be flipped or not. Default value is False.
+            Whether the component should be flipped. The default value is ``False``.
 
         Returns
         -------
