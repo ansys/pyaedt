@@ -971,14 +971,9 @@ class SolutionData(object):
             coefficient = 180 / math.pi
         return [coefficient * math.atan(k / i) for i, k in zip(self.data_real(expression), self.data_imag(expression))]
 
-    @pyaedt_function_handler()
-    def data_primary_sweep(self, expression=None):
+    @property
+    def primary_sweep_values(self):
         """Retrieve the primary sweep for a given data and primary variable.
-        Parameters
-        ----------
-        expression : str, None
-            Name of the expression. The default is ``None``,
-            in which case the active expression is used.
 
         Returns
         -------
@@ -986,8 +981,19 @@ class SolutionData(object):
             List of the primary sweep valid points for the expression.
 
         """
-        if not expression:
-            expression = self.active_expression
+        return self._sweeps[self.primary_sweep]
+
+    @property
+    def primary_sweep_variations(self):
+        """Retrieve the variations lists for a given primary variable.
+
+        Returns
+        -------
+        list
+            List of the primary sweep valid points for the expression.
+
+        """
+        expression = self.active_expression
         temp = self._variation_tuple()
 
         solution_Data = list(self._solutions_real[expression].keys())
