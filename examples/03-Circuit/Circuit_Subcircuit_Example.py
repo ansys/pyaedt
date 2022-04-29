@@ -2,7 +2,7 @@
 Circuit: Schematic Creation and Analysis
 ----------------------------------------
 This example shows how you can use PyAEDT to add a subcircuit to a Circuit design.
- Push down into the child subcircuit and Pop up to the parent design.
+ Push down into the child subcircuit and pop up to the parent design.
 """
 
 ###############################################################################
