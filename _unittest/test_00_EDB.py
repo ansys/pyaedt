@@ -1352,3 +1352,7 @@ class TestClass(BasisTest, object):
         assert dielectric_loss[1] == 0.02
         magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "FR4_epoxy")
         assert magnetic_loss[1] == 0
+        failing_test_1 = stack_up.get_property_by_material_name("magnetic_loss_tangent", "inexistent_material")
+        assert not failing_test_1
+        failing_test_2 = stack_up.get_property_by_material_name("none_property", "copper")
+        assert not failing_test_2

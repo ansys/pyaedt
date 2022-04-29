@@ -384,6 +384,7 @@ class EdbStackup(object):
                     return False
                 property_value = property_box
                 property_float = float(property_box)
+                return property_float, property_value
             else:
                 out_value = self._edb.Utility.Value("value_name")
                 if property_name == "permittivity":
@@ -411,7 +412,7 @@ class EdbStackup(object):
                     return False
                 property_value = property_tuple[1]
                 property_float = float(property_tuple[1].ToDouble())
-            return property_value, property_float
+                return property_value, property_float
 
     @pyaedt_function_handler()
     def _get_solder_height(self, layer_name):
