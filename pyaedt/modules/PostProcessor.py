@@ -583,6 +583,24 @@ class SolutionData(object):
         self._ifft = None
 
     @pyaedt_function_handler()
+    def set_active_variation(self, var_id=0):
+        """Set the active variations to one of available variations in self.variations.
+
+        Parameters
+        ----------
+        var_id : int
+            Index of Variations to assign.
+
+        Returns
+        -------
+        bool
+        """
+        if var_id < len(self.variations):
+            self.active_variation = self.variations[var_id]
+            return True
+        return False
+
+    @pyaedt_function_handler()
     def _get_variations(self):
         variations_lists = []
         for data in self._original_data:
