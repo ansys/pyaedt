@@ -731,7 +731,7 @@ class VariableManager(object):
             property or project variable. The default is ``False``, in
             which case this method is ignored.
         postprocessing : bool, optional
-            Whether to define a Post Processing Variable.
+            Whether to define a postprocessing variable.
              The default is ``False``, in which case the variable will not be defined as post processing.
         circuit_parameter : bool, optional
             Whether to define a Parameter in Circuit Design or local Parameter.
