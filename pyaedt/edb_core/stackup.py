@@ -383,7 +383,7 @@ class EdbStackup(object):
                     self._logger.error("Incorrect property name.")
                     return False
                 property_value = property_box
-                property_float = float(property_box.ToDouble())
+                property_float = float(property_box)
             else:
                 out_value = self._edb.Utility.Value("value_name")
                 if property_name == "permittivity":
