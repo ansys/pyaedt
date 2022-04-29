@@ -734,7 +734,7 @@ class VariableManager(object):
             Whether to define a postprocessing variable.
              The default is ``False``, in which case the variable is not used in postprocessing.
         circuit_parameter : bool, optional
-            Whether to define a Parameter in Circuit Design or local Parameter.
+            Whether to define a parameter in a circuit design or a local parameter.
              The default is ``True``, in which case a circuit variable is created as parameter default.
         Returns
         -------
