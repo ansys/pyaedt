@@ -1,20 +1,146 @@
+from pyaedt.generic.constants import LineStyle
+from pyaedt.generic.constants import SymbolStyle
+from pyaedt.generic.constants import TraceType
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
-class Traces(object):
+class LimitLine(object):
+    """Line Limit Management Class."""
+
+    def __init__(self, report_setup, trace_name):
+        self._oreport_setup = report_setup
+        self.line_name = trace_name
+        self.LINESTYLE = LineStyle()
+
+    @pyaedt_function_handler()
+    def _change_property(self, props_value):
+        self._oreport_setup.ChangeProperty(
+            ["NAME:AllTabs", ["NAME:Limit Line", ["NAME:PropServers", self.line_name], props_value]]
+        )
+        return True
+
+    @pyaedt_function_handler()
+    def set_line_properties(
+        self, style=None, width=None, hatch_above=None, violation_emphasis=None, hatch_pixels=None, color=None
+    ):
+        """Set Trace Properties.
+
+        Parameters
+        ----------
+        style : str or
+            Limit Line Style. LINESTYLE PROPERTY can be used
+        width : int
+            Limit Line width.
+        hatch_above : bool
+            Either if Hatch above the limit line or not.
+        violation_emphasis : bool
+            Either if to add violation emphasis or not.
+        hatch_pixels : int
+            Hatch pixel numbers.
+        color : tuple or list
+            Trace Color. a Tuple of (R,G,B) with int of [0,255] has to be provided.
+
+        Returns
+        -------
+        bool
+        """
+        props = ["NAME:ChangedProps"]
+        if style:
+            props.append(["NAME:Line Style", "Value:=", style])
+        if width and isinstance(width, (int, float)):
+            props.append(["NAME:Line Width", "Value:=", str(width)])
+        if hatch_above and isinstance(hatch_pixels, int):
+            props.append(["NAME:Hatch Above", "Value:=", hatch_above])
+        if hatch_pixels and isinstance(hatch_pixels, int):
+            props.append(["NAME:Hatch Pixels", "Value:=", str(hatch_pixels)])
+        if violation_emphasis:
+            props.append(["NAME:Violation Emphasis", "Value:=", violation_emphasis])
+        if color and isinstance(color, (list, tuple)) and len(color) == 3:
+            props.append(["NAME:Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
+        return self._change_property(props)
+
+
+class Trace(object):
     """Trace Management Class."""
 
-    def __init__(self, report_setup, plot_name, trace_name, oo_object):
+    def __init__(self, report_setup, trace_name):
         self._oreport_setup = report_setup
-        self.plot_name = plot_name
         self.trace_name = trace_name
-        self._oo = oo_object
+        self.LINESTYLE = LineStyle()
+        self.TRACETYPE = TraceType()
+        self.SYMBOLSTYLE = SymbolStyle()
 
-    @property
-    def line_style(self):
-        return self._oo.GetPropValue("Line")
+    @pyaedt_function_handler()
+    def _change_property(self, props_value):
+        self._oreport_setup.ChangeProperty(
+            ["NAME:AllTabs", ["NAME:Attributes", ["NAME:PropServers", self.trace_name], props_value]]
+        )
+        return True
+
+    @pyaedt_function_handler()
+    def set_trace_properties(self, trace_style=None, width=None, trace_type=None, color=None):
+        """Set Trace Properties.
+
+        Parameters
+        ----------
+        trace_style : str
+            Limit Line Style. LINESTYLE property can be used.
+        width : int
+            Trace Width.
+        trace_type : str
+           Trace Style. TRACETYPE property can be used.
+        color : tuple or list
+            Trace Color. a Tuple of (R,G,B) with int of [0,255] has to be provided.
+
+        Returns
+        -------
+        bool
+        """
+        props = ["NAME:ChangedProps"]
+        if trace_style:
+            props.append(["NAME:Line Style", "Value:=", trace_style])
+        if width and isinstance(width, (int, float)):
+            props.append(["NAME:Line Width", "Value:=", str(width)])
+        if trace_type:
+            props.append(["NAME:Trace Type", "Value:=", trace_type])
+        if color and isinstance(color, (list, tuple)) and len(color) == 3:
+            props.append(["NAME:Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
+        return self._change_property(props)
+
+    @pyaedt_function_handler()
+    def set_symbol_properties(self, show=True, style=None, show_arrows=None, fill=None, color=None):
+        """Set Symbol Properties.
+
+        Parameters
+        ----------
+        show : bool
+            Either is show or hide the Symbol.
+        style : str
+           Symbol Style. SYMBOLSTYLE property can be used.
+        show_arrows : bool
+            Either to show or hide arrows.
+        fill : bool
+            Either to fill or not the symbol.
+        color : tuple or list
+            Symbol Color. a Tuple of (R,G,B) with int of [0,255] has to be provided.
+
+
+        Returns
+        -------
+        bool
+        """
+        props = ["NAME:ChangedProps", ["NAME:Show Symbol", "Value:=", show]]
+        if style:
+            props.append(["NAME:Symbol Style", "Value:=", style])
+        if show_arrows:
+            props.append(["NAME:Show Arrows", "Value:=", show_arrows])
+        if fill:
+            props.append(["NAME:Fill Symbol", "Value:=", fill])
+        if color and isinstance(color, (list, tuple)) and len(color) == 3:
+            props.append(["NAME:Symbol Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
+        return self._change_property(props)
 
 
 class CommonReport(object):
@@ -42,6 +168,15 @@ class CommonReport(object):
 
     @property
     def traces(self):
+        """Return the list of available traces in report.
+
+        .. note::
+            This property works from 2022.1 on. It works in non graphical only from version 2022R2.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modules.report_templates.Traces`
+        """
         _traces = []
         try:
             oo = self._post.oreportsetup.GetChildObject(self._plot_name)
@@ -55,10 +190,32 @@ class CommonReport(object):
                 oo1 = oo.GetChildObject(el).GetChildNames()
 
                 for i in oo1:
-                    o_in = oo.GetChildObject(el).GetChildObject(i)
-                    _traces.append(Traces(self._post.oreportsetup, self._plot_name, "{}:{}".format(el, i), o_in))
+                    _traces.append(Trace(self._post.oreportsetup, "{}:{}:{}".format(self._plot_name, el, i)))
             except:
                 pass
+        return _traces
+
+    @property
+    def limit_lines(self):
+        """Return the list of available limit lines in report.
+
+        .. note::
+            This property works from 2022.1 on. It works in non graphical only from version 2022R2.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modules.report_templates.LimitLine`
+        """
+        _traces = []
+        try:
+            oo = self._post.oreportsetup.GetChildObject(self._plot_name)
+            oo_names = self._post.oreportsetup.GetChildObject(self._plot_name).GetChildNames()
+        except:
+            return _traces
+        for el in oo_names:
+            if "LimitLine" in el:
+                _traces.append(LimitLine(self._post.oreportsetup, "{}:{}".format(self._plot_name, el)))
+
         return _traces
 
     @property
@@ -409,93 +566,6 @@ class CommonReport(object):
             )
             return name
         return ""
-
-
-class Standard(CommonReport):
-    """Standard Report Class that fits most of the application standard reports."""
-
-    def __init__(self, app, report_category, setup_name):
-        CommonReport.__init__(self, app, report_category, setup_name)
-        self.expressions = None
-        self.sub_design_id = None
-        self.time_start = None
-        self.time_stop = None
-
-    @property
-    def _did(self):
-        if self.domain == "Sweep":
-            return 3
-        else:
-            return 1
-
-    @property
-    def _context(self):
-        ctxt = []
-        if self._post.post_solution_type in ["TR", "AC", "DC"]:
-            ctxt = [
-                "NAME:Context",
-                "SimValueContext:=",
-                [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0],
-            ]
-        elif self._post._app.design_type in ["Q3D Extractor", "2D Extractor"]:
-            if not self.matrix:
-                ctxt = ["Context:=", "Original"]
-            else:
-                ctxt = ["Context:=", self.matrix]
-        elif self._post.post_solution_type in ["HFSS3DLayout"]:
-            if self.differential_pairs:
-                ctxt = [
-                    "NAME:Context",
-                    "SimValueContext:=",
-                    [
-                        self._did,
-                        0,
-                        2,
-                        0,
-                        False,
-                        False,
-                        -1,
-                        1,
-                        0,
-                        1,
-                        1,
-                        "",
-                        0,
-                        0,
-                        "EnsDiffPairKey",
-                        False,
-                        "1",
-                        "IDIID",
-                        False,
-                        "1",
-                    ],
-                ]
-            else:
-                ctxt = [
-                    "NAME:Context",
-                    "SimValueContext:=",
-                    [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"],
-                ]
-        elif self._post.post_solution_type in ["NexximLNA", "NexximTransient"]:
-            ctxt = ["NAME:Context", "SimValueContext:=", [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
-            if self.sub_design_id:
-                ctxt_temp = ["NUMLEVELS", False, "1", "SUBDESIGNID", False, str(self.sub_design_id)]
-                for el in ctxt_temp:
-                    ctxt[2].append(el)
-            if self.differential_pairs:
-                ctxt_temp = ["USE_DIFF_PAIRS", False, "1"]
-                for el in ctxt_temp:
-                    ctxt[2].append(el)
-            if self.domain == "Time":
-                if self.time_start:
-                    ctxt[2].extend(["WS", False, self.time_start])
-                if self.time_stop:
-                    ctxt[2].extend(["WE", False, self.time_stop])
-        elif self.differential_pairs:
-            ctxt = ["Diff:=", "Differential Pairs", "Domain:=", self.domain]
-        else:
-            ctxt = ["Domain:=", self.domain]
-        return ctxt
 
     @pyaedt_function_handler()
     def _change_property(self, tabname, property_name, property_val):
@@ -978,6 +1048,93 @@ class Standard(CommonReport):
             ["NAME:Show Design Name", "Value:=", show_design_name],
         ]
         return self._change_property("Header", "Header", props)
+
+
+class Standard(CommonReport):
+    """Standard Report Class that fits most of the application standard reports."""
+
+    def __init__(self, app, report_category, setup_name):
+        CommonReport.__init__(self, app, report_category, setup_name)
+        self.expressions = None
+        self.sub_design_id = None
+        self.time_start = None
+        self.time_stop = None
+
+    @property
+    def _did(self):
+        if self.domain == "Sweep":
+            return 3
+        else:
+            return 1
+
+    @property
+    def _context(self):
+        ctxt = []
+        if self._post.post_solution_type in ["TR", "AC", "DC"]:
+            ctxt = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0],
+            ]
+        elif self._post._app.design_type in ["Q3D Extractor", "2D Extractor"]:
+            if not self.matrix:
+                ctxt = ["Context:=", "Original"]
+            else:
+                ctxt = ["Context:=", self.matrix]
+        elif self._post.post_solution_type in ["HFSS3DLayout"]:
+            if self.differential_pairs:
+                ctxt = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [
+                        self._did,
+                        0,
+                        2,
+                        0,
+                        False,
+                        False,
+                        -1,
+                        1,
+                        0,
+                        1,
+                        1,
+                        "",
+                        0,
+                        0,
+                        "EnsDiffPairKey",
+                        False,
+                        "1",
+                        "IDIID",
+                        False,
+                        "1",
+                    ],
+                ]
+            else:
+                ctxt = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"],
+                ]
+        elif self._post.post_solution_type in ["NexximLNA", "NexximTransient"]:
+            ctxt = ["NAME:Context", "SimValueContext:=", [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
+            if self.sub_design_id:
+                ctxt_temp = ["NUMLEVELS", False, "1", "SUBDESIGNID", False, str(self.sub_design_id)]
+                for el in ctxt_temp:
+                    ctxt[2].append(el)
+            if self.differential_pairs:
+                ctxt_temp = ["USE_DIFF_PAIRS", False, "1"]
+                for el in ctxt_temp:
+                    ctxt[2].append(el)
+            if self.domain == "Time":
+                if self.time_start:
+                    ctxt[2].extend(["WS", False, self.time_start])
+                if self.time_stop:
+                    ctxt[2].extend(["WE", False, self.time_stop])
+        elif self.differential_pairs:
+            ctxt = ["Diff:=", "Differential Pairs", "Domain:=", self.domain]
+        else:
+            ctxt = ["Domain:=", self.domain]
+        return ctxt
 
 
 class Fields(CommonReport):
