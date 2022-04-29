@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import random
 import re
 import warnings
 
@@ -112,10 +113,10 @@ class NexximComponents(CircuitComponents):
 
         if nested_subcircuit_id:
             parent_name = "{}:{}:{}".format(
-                self._app.design_name.split("/")[0], nested_subcircuit_id, os.urandom(10000)
+                self._app.design_name.split("/")[0], nested_subcircuit_id, random.randint(10000)
             )
         else:
-            parent_name = "{}:{}".format(self._app.design_name.split("/")[0], ":U" + str(os.urandom(1, 10000)))
+            parent_name = "{}:{}".format(self._app.design_name.split("/")[0], ":U" + str(random.randint(1, 10000)))
 
         self._app.odesign.InsertDesign("Circuit Design", name, "", parent_name)
         if nested_subcircuit_id:
