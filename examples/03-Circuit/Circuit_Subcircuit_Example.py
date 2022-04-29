@@ -31,7 +31,7 @@ circuit.push_down(subcircuit)
 # This method parameterizes the subcircuit and adds a resistor, inductor,
 # and a capacitor with the value given by the parameters.
 # They are then connected in series.
-# The pop_up method allows to get back to the parent design.
+# The ``pop_up`` method provides for getting back to the parent design.
 
 circuit.variable_manager.set_variable("R_val", "35ohm", circuit_parameter=True)
 circuit.variable_manager.set_variable("L_val", "1e-7H", circuit_parameter=True)
