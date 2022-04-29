@@ -2864,7 +2864,7 @@ class CircuitComponent(object):
 
     @property
     def component_info(self):
-        """Component Parameters.
+        """Component parameters.
 
         References
         ----------
