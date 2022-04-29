@@ -28,7 +28,7 @@ circuit.push_down(subcircuit)
 ###############################################################################
 # Subcircuit parameterization
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method parameterizes the subcircuit and adds a resistor, inductor
+# This method parameterizes the subcircuit and adds a resistor, inductor,
 # and a capacitor with the value given by the parameters.
 # They are then connected in series.
 # The pop_up method allows to get back to the parent design.
