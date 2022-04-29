@@ -365,7 +365,7 @@ class TestClass(BasisTest, object):
         assert subcircuit.location[1] == "0.0mil"
         assert subcircuit.angle == 0.0
 
-    @pytest.mark.skipif(config["NonGraphical"], reason="Duplicate doesn't work in non-graphical.")
+    @pytest.mark.skipif(config["NonGraphical"], reason="Duplicate doesn't work in non-graphical mode.")
     def test_31_duplicate(self):  # pragma: no cover
         subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
         new_subcircuit = self.aedtapp.modeler.schematic.duplicate(
