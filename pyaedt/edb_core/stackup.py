@@ -364,7 +364,7 @@ class EdbStackup(object):
             self._logger.error("This material doesn't exists.")
         else:
             original_material = self._edb.Definition.MaterialDef.FindByName(self._db, material_name)
-            if is_ironpython:
+            if is_ironpython: # pragma: no cover
                 property_box = clr.StrongBox[float]()
                 if property_name == "permittivity":
                     original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permittivity, property_box)
