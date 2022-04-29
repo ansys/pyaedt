@@ -113,7 +113,7 @@ class NexximComponents(CircuitComponents):
 
         if nested_subcircuit_id:
             parent_name = "{}:{}:{}".format(
-                self._app.design_name.split("/")[0], nested_subcircuit_id, random.randint(10000)
+                self._app.design_name.split("/")[0], nested_subcircuit_id, random.randint(1, 10000)
             )
         else:
             parent_name = "{}:{}".format(self._app.design_name.split("/")[0], ":U" + str(random.randint(1, 10000)))
