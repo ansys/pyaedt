@@ -100,7 +100,7 @@ class NexximComponents(CircuitComponents):
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.CircuitComponent`
-            Circuit Component Object when successful or False when fails.
+            Circuit Component Object when successful or ``False`` when failed.
 
         Examples
         --------
