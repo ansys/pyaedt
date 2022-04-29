@@ -161,7 +161,7 @@ class NexximComponents(CircuitComponents):
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.CircuitComponent` Circuit Component Object
-        when successful or False when fails.
+        when successful or ``False`` when failed.
         """
         comp_names = []
         if isinstance(component, CircuitComponent):
