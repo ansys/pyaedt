@@ -361,7 +361,7 @@ class EdbNets(object):
 
         Parameters
         ----------
-        simulation_configuration_object : SimulationConfiguration object
+        simulation_configuration_object : :class:`pyaedt.edb_core.EDB_Data.SimulationConfiguration`
 
         Returns
         -------
