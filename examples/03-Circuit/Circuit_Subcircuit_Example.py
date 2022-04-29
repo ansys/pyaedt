@@ -47,7 +47,7 @@ circuit.pop_up()
 ###############################################################################
 # Subcircuit duplication
 # ~~~~~~~~~~~~~~~~~~~~~~
-# The formerly created subcircuit is duplicated and new parameter value is set.
+# The formerly created subcircuit is duplicated, and a new parameter value is set.
 
 new_comp = circuit.modeler.schematic.duplicate(subcircuit_name, [0.0512, 0])
 new_comp.parameters["R_val"] = "75ohm"
