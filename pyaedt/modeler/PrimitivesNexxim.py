@@ -91,7 +91,7 @@ class NexximComponents(CircuitComponents):
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         name : str, optional
-            Name of the Design. The default is ``None``, in which case
+            Name of the design. The default is ``None``, in which case
             a unique name will be generated.
         nested_subcircuit_id : str, optional
             Id of nested subcircuit.
