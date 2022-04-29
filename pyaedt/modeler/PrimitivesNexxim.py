@@ -94,7 +94,7 @@ class NexximComponents(CircuitComponents):
             Name of the design. The default is ``None``, in which case
             a unique name is generated.
         nested_subcircuit_id : str, optional
-            Id of nested subcircuit.
+            ID of the nested subcircuit.
             Example `"U1"`.
 
         Returns
