@@ -326,7 +326,8 @@ class EdbStackup(object):
 
     @pyaedt_function_handler()
     def get_property_by_material_name(self, property_name, material_name):
-        """Get a the property of a material.
+        """Get the property of a material. If it is executed in ironpython,
+         you must only use the first element of the returned tuple, which is a float.
 
         Parameters
         ----------
