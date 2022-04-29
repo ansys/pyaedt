@@ -1178,6 +1178,7 @@ class ModelPlotter(object):
                 self.max_elements = (self.startpos - self.endpos) // (self.size + (self.size // 10))
                 self.i = self.max_elements
                 self.axes_color = axes_color
+                self.text = []
 
             def __call__(self, state):
                 self.plot.button_widgets = [self.plot.button_widgets[0]]
