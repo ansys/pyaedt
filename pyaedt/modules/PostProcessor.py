@@ -573,7 +573,10 @@ class SolutionData(object):
         self.active_intrinsic = OrderedDict({})
         for k, v in self.intrinsics.items():
             self.active_intrinsic[k] = v[0]
-        self._primary_sweep = self._sweeps_names[0]
+        if self.intrinsics:
+            self._primary_sweep = list(self.intrinsics.keys())[0]
+        else:
+            self._primary_sweep = self._sweeps_names[0]
         self.active_variation = self.variations[0]
         self.units_sweeps = {}
         self._init_solutions_data()
@@ -722,7 +725,7 @@ class SolutionData(object):
             for data in self._original_data:
                 solution.extend(list(data.GetRealDataValues(expression, False)))
             values = []
-            for el in reversed(list(self.intrinsics.keys())):
+            for el in list(self.intrinsics.keys()):
                 values.append(self.intrinsics[el])
             solution_Data = {}
             i = 0
@@ -748,7 +751,7 @@ class SolutionData(object):
                     l = len(list(data.GetRealDataValues(expression, False)))
                     solution.extend([0] * l)
             values = []
-            for el in reversed(list(self.intrinsics.keys())):
+            for el in list(self.intrinsics.keys()):
                 values.append(self.intrinsics[el])
             solution_Data = {}
             i = 0

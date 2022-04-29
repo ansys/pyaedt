@@ -137,7 +137,7 @@ class TestClass(BasisTest, object):
 
         my_data = self.aedtapp.post.get_report_data(expression=trace_names, families_dict=families)
         assert my_data
-        assert my_data.sweeps
+        assert my_data._sweeps
         assert my_data.expressions
         assert my_data.data_db(trace_names[0])
         assert my_data.data_imag(trace_names[0])
