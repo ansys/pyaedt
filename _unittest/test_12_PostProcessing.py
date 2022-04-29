@@ -137,7 +137,7 @@ class TestClass(BasisTest, object):
 
         my_data = self.aedtapp.post.get_report_data(expression=trace_names, families_dict=families)
         assert my_data
-        assert my_data.sweeps
+        assert my_data._sweeps
         assert my_data.expressions
         assert my_data.data_db(trace_names[0])
         assert my_data.data_imag(trace_names[0])
@@ -573,6 +573,10 @@ class TestClass(BasisTest, object):
             report_category="Near Fields",
         )
         assert solution_data
+        assert solution_data.primary_sweep_values
+        assert solution_data.primary_sweep_variations
+        assert solution_data.set_active_variation(0)
+        assert not solution_data.set_active_variation(99)
         t_matrix = solution_data.ifft("NearE", window=True)
         assert t_matrix.any()
         frames_list = solution_data.ifft_to_file(
