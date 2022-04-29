@@ -175,9 +175,9 @@ class NexximComponents(CircuitComponents):
         )
         ids = [id for id in list(self.components.keys())]
         self.refresh_all_ids()
-        id_new = [id for id in list(self.components.keys()) if id not in ids]
-        if id_new:
-            return self.components[id_new[0]]
+        new_ids = [id for id in list(self.components.keys()) if id not in ids]
+        if new_ids:
+            return self.components[new_ids[0]]
         return False
 
     @pyaedt_function_handler()
