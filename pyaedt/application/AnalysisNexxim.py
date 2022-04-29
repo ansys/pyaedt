@@ -104,7 +104,7 @@ class FieldAnalysisCircuit(Analysis):
 
     @property
     def post(self):
-        """PostProcessor.
+        """Postprocessor.
 
         Returns
         -------
