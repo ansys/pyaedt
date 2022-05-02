@@ -246,6 +246,7 @@ class TestClass(BasisTest, object):
         assert not desktop.change_registry_key("test_key", 2.0)
 
     def test_30_object_oriented(self):
+        self.aedtapp.set_active_design("myname")
         assert self.aedtapp.get_oo_name(self.aedtapp.oproject, "Variables")
         assert self.aedtapp.get_oo_name(self.aedtapp.odesign, "Variables")
         assert not self.aedtapp.get_oo_name(self.aedtapp.odesign, "Variables1")
