@@ -384,10 +384,10 @@ class TestClass(BasisTest, object):
         subcircuit_2 = self.aedtapp.modeler.schematic.create_subcircuit(
             location=[0.0, 0.0], nested_subcircuit_id=subcircuit_1.component_info["RefDes"]
         )
+        active_project_name_3 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        assert active_project_name_1 == active_project_name_3
         assert subcircuit_2.component_info["RefDes"] == "U2"
         assert self.aedtapp.push_down(subcircuit_1)
-        active_project_name_2 = self.aedtapp.oproject.GetActiveDesign().GetName()
-        assert active_project_name_1 == active_project_name_2
 
     def test_33_pop_up(self):
         assert self.aedtapp.pop_up()
