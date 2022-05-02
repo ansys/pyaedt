@@ -1314,13 +1314,59 @@ class TestClass(BasisTest, object):
         outline_layer = stackup._layer_types_to_int(stackup.layer_types.OutlineLayer)
         assert outline_layer == 18
 
-    def test_98_export_import_json_for_config(self):
-        sim_config = SimulationConfiguration()
-        json_file = os.path.join(self.local_scratch.path, "test.json")
-        sim_config._filename = json_file
-        sim_config.arc_angle = "90deg"
-        assert sim_config.export_json(json_file)
-        test_import = SimulationConfiguration()
-        assert test_import.import_json(json_file)
-        assert test_import.arc_angle == "90deg"
-        assert test_import._filename == json_file
+    def test_99_duplicate_material(self):
+        stack_up = self.edbapp.core_stackup
+        duplicated_copper = stack_up.duplicate_material("copper", "my_new_copper")
+        assert duplicated_copper
+        duplicated_fr4_epoxy = stack_up.duplicate_material("FR4_epoxy", "my_new_FR4")
+        assert duplicated_fr4_epoxy
+        duplicated_pec = stack_up.duplicate_material("pec", "my_new_pec")
+        assert duplicated_pec
+        cloned_permittivity = stack_up.get_property_by_material_name("permittivity", "my_new_pec")
+        permittivity = stack_up.get_property_by_material_name("permittivity", "pec")
+        cloned_permeability = stack_up.get_property_by_material_name("permeability", "my_new_pec")
+        permeability = stack_up.get_property_by_material_name("permeability", "pec")
+        cloned_conductivity = stack_up.get_property_by_material_name("conductivity", "my_new_pec")
+        conductivity = stack_up.get_property_by_material_name("conductivity", "pec")
+        cloned_dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "my_new_pec")
+        dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "pec")
+        cloned_magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "my_new_pec")
+        magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "pec")
+        if is_ironpython:  # pragma: no cover
+            assert cloned_permittivity[0] == permittivity[0]
+            assert cloned_permeability[0] == permeability[0]
+            assert cloned_conductivity[0] == conductivity[0]
+            assert cloned_dielectric_loss[0] == dielectric_loss[0]
+            assert cloned_magnetic_loss[0] == magnetic_loss[0]
+        else:
+            assert cloned_permittivity[1] == permittivity[1]
+            assert cloned_permeability[1] == permeability[1]
+            assert cloned_conductivity[1] == conductivity[1]
+            assert cloned_dielectric_loss[1] == dielectric_loss[1]
+            assert cloned_magnetic_loss[1] == magnetic_loss[1]
+        non_duplicated = stack_up.duplicate_material("my_nonexistent_mat", "nothing")
+        assert not non_duplicated
+
+    def test_100_get_property_by_material_name(self):
+        stack_up = self.edbapp.core_stackup
+        permittivity = stack_up.get_property_by_material_name("permittivity", "FR4_epoxy")
+        permeability = stack_up.get_property_by_material_name("permeability", "FR4_epoxy")
+        conductivity = stack_up.get_property_by_material_name("conductivity", "copper")
+        dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "FR4_epoxy")
+        magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "FR4_epoxy")
+        if is_ironpython:  # pragma: no cover
+            assert permittivity[0] == 4.4
+            assert permeability[0] == 0
+            assert conductivity[0] == 59590000
+            assert dielectric_loss[0] == 0.02
+            assert magnetic_loss[0] == 0
+        else:
+            assert permittivity[1] == 4.4
+            assert permeability[1] == 0
+            assert conductivity[1] == 59590000
+            assert dielectric_loss[1] == 0.02
+            assert magnetic_loss[1] == 0
+        failing_test_1 = stack_up.get_property_by_material_name("magnetic_loss_tangent", "inexistent_material")
+        assert not failing_test_1
+        failing_test_2 = stack_up.get_property_by_material_name("none_property", "copper")
+        assert not failing_test_2

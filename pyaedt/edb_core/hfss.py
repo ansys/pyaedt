@@ -1189,12 +1189,7 @@ class EdbHfss(object):
            Number of ports.
 
         """
-        port_list = []
-        for term in self._active_layout.Terminals:
-            if str(term.GetBoundaryType()) == "PortBoundary":
-                if "ref" not in term.GetName():
-                    port_list.append(term)
-        return len(port_list)
+        return len([term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0])
 
     @pyaedt_function_handler()
     def layout_defeaturing(self, simulation_setup=None):

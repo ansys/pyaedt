@@ -16,6 +16,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 
 try:
+    import clr
     from System import Double
 except ImportError:
     if os.name != "posix":
@@ -270,6 +271,149 @@ class EdbStackup(object):
             convert_py_list_to_net_list(loss_tangents),
         )
         return self._add_dielectric_material_model(name, material_def)
+
+    @pyaedt_function_handler()
+    def duplicate_material(self, material_name, new_material_name):
+        """Duplicate a material from the database.
+        It duplicates these five properties: ``permittivity``, ``permeability``, ` conductivity,``
+        ``dielectriclosstangent``, and ``magneticlosstangent``.
+
+        Parameters
+        ----------
+        material_name : str
+            Name of the existing material.
+        new_material_name : str
+            Name of the new duplicated material.
+
+        Returns
+        -------
+        EDB material : class: 'Ansys.Ansoft.Edb.Definition.MaterialDef'
+
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edb_app = Edb()
+        >>> my_material = edb_app.core_stackup.duplicate_material("copper", "my_new_copper")
+
+        """
+        if self._edb.Definition.MaterialDef.FindByName(self._db, material_name).IsNull():
+            self._logger.error("This material doesn't exists.")
+        else:
+            permittivity = self.get_property_by_material_name("permittivity", material_name)
+            permeability = self.get_property_by_material_name(
+                "permeability",
+                material_name,
+            )
+            conductivity = self.get_property_by_material_name(
+                "conductivity",
+                material_name,
+            )
+            dielectric_loss_tangent = self.get_property_by_material_name("dielectric_loss_tangent", material_name)
+            magnetic_loss_tangent = self.get_property_by_material_name("magnetic_loss_tangent", material_name)
+            edb_material = self._edb.Definition.MaterialDef.Create(self._db, new_material_name)
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Permittivity, permittivity[0])
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Permeability, permeability[0])
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Conductivity, conductivity[0])
+            edb_material.SetProperty(
+                self._edb.Definition.MaterialPropertyId.DielectricLossTangent, dielectric_loss_tangent[0]
+            )
+            edb_material.SetProperty(
+                self._edb.Definition.MaterialPropertyId.MagneticLossTangent, magnetic_loss_tangent[0]
+            )
+            return edb_material
+
+    @pyaedt_function_handler()
+    def get_property_by_material_name(self, property_name, material_name):
+        """Get the property of a material. If it is executed in ironpython,
+         you must only use the first element of the returned tuple, which is a float.
+
+        Parameters
+        ----------
+        material_name : str
+            Name of the existing material.
+        property_name : str
+            Name of the material property.
+            ``permittivity``
+            ``permeability``
+            ``conductivity``
+            ``dielectric_loss_tangent``
+            ``magnetic_loss_tangent``
+
+        Returns
+        -------
+        A tuple of:
+            : class: 'Ansys.Ansoft.Edb.Utility.Value'
+                EDB Value.
+        and
+            float
+                the float value of the property.
+
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb_app = Edb()
+        >>> returned_tuple = edb_app.core_stackup.get_property_by_material_name("conductivity", "copper")
+        >>> edb_value = returned_tuple[0]
+        >>> float_value = returned_tuple[1]
+
+        """
+        if self._edb.Definition.MaterialDef.FindByName(self._db, material_name).IsNull():
+            self._logger.error("This material doesn't exists.")
+        else:
+            original_material = self._edb.Definition.MaterialDef.FindByName(self._db, material_name)
+            if is_ironpython:  # pragma: no cover
+                property_box = clr.StrongBox[float]()
+                if property_name == "permittivity":
+                    original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permittivity, property_box)
+                elif property_name == "permeability":
+                    original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permeability, property_box)
+                elif property_name == "conductivity":
+                    original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Conductivity, property_box)
+                elif property_name == "dielectric_loss_tangent":
+                    original_material.GetProperty(
+                        self._edb.Definition.MaterialPropertyId.DielectricLossTangent, property_box
+                    )
+                elif property_name == "magnetic_loss_tangent":
+                    original_material.GetProperty(
+                        self._edb.Definition.MaterialPropertyId.MagneticLossTangent, property_box
+                    )
+                else:
+                    self._logger.error("Incorrect property name.")
+                    return False
+                property_value = property_box
+                property_float = float(property_box)
+                return property_float, property_value
+            else:
+                out_value = self._edb.Utility.Value("value_name")
+                if property_name == "permittivity":
+                    property_tuple = original_material.GetProperty(
+                        self._edb.Definition.MaterialPropertyId.Permittivity, out_value
+                    )
+                elif property_name == "permeability":
+                    property_tuple = original_material.GetProperty(
+                        self._edb.Definition.MaterialPropertyId.Permeability, out_value
+                    )
+                elif property_name == "conductivity":
+                    property_tuple = original_material.GetProperty(
+                        self._edb.Definition.MaterialPropertyId.Conductivity, out_value
+                    )
+                elif property_name == "dielectric_loss_tangent":
+                    property_tuple = original_material.GetProperty(
+                        self._edb.Definition.MaterialPropertyId.DielectricLossTangent, out_value
+                    )
+                elif property_name == "magnetic_loss_tangent":
+                    property_tuple = original_material.GetProperty(
+                        self._edb.Definition.MaterialPropertyId.MagneticLossTangent, out_value
+                    )
+                else:
+                    self._logger.error("Incorrect property name.")
+                    return False
+                property_value = property_tuple[1]
+                property_float = float(property_tuple[1].ToDouble())
+                return property_value, property_float
 
     @pyaedt_function_handler()
     def _get_solder_height(self, layer_name):
