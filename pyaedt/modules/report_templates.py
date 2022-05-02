@@ -186,7 +186,7 @@ class CommonReport(object):
 
         Returns
         -------
-        List of :class:`pyaedt.modules.report_templates.Traces`
+        list of :class:`pyaedt.modules.report_templates.Trace`
         """
         _traces = []
         try:
@@ -216,7 +216,7 @@ class CommonReport(object):
 
         Returns
         -------
-        List of :class:`pyaedt.modules.report_templates.LimitLine`
+        list of :class:`pyaedt.modules.report_templates.LimitLine`
         """
         _traces = []
         try:
