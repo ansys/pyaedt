@@ -733,6 +733,7 @@ class VariableManager(object):
         description=None,
         overwrite=True,
         postprocessing=False,
+        circuit_parameter=True,
     ):
         """Set the value of a design property or project variable.
 
@@ -758,7 +759,12 @@ class VariableManager(object):
             Whether to overwrite an existing value for the design
             property or project variable. The default is ``False``, in
             which case this method is ignored.
-
+        postprocessing : bool, optional
+            Whether to define a postprocessing variable.
+             The default is ``False``, in which case the variable is not used in postprocessing.
+        circuit_parameter : bool, optional
+            Whether to define a parameter in a circuit design or a local parameter.
+             The default is ``True``, in which case a circuit variable is created as a parameter default.
         Returns
         -------
         bool
@@ -802,6 +808,11 @@ class VariableManager(object):
         test = desktop_object.GetName()
         proj_name = self._oproject.GetName()
         var_type = "Project" if "$" in variable_name[0] else "Local"
+        if circuit_parameter and self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design"]:
+            tab_name = "DefinitionParameterTab"
+        else:
+            tab_name = "{0}VariableTab".format(var_type)
+
         prop_type = "VariableProp"
         if postprocessing or "post" in variable_name.lower()[0:5]:
             prop_type = "PostProcessingVariableProp"
@@ -838,6 +849,8 @@ class VariableManager(object):
         lower_case_vars = [var_name.lower() for var_name in var_list]
         if self._app.design_type == "Maxwell Circuit" and "$" not in variable_name:
             prop_server = "Instance:{}".format(desktop_object.GetName())
+        elif self._app.design_type == "Circuit Design" and circuit_parameter:
+            prop_server = "DefinitionParameters"
         else:
             prop_server = "{0}Variables".format(var_type)
 
@@ -847,7 +860,7 @@ class VariableManager(object):
                     [
                         "NAME:AllTabs",
                         [
-                            "NAME:{0}VariableTab".format(var_type),
+                            "NAME:{0}".format(tab_name),
                             ["NAME:PropServers", prop_server],
                             [
                                 "NAME:NewProps",
@@ -877,7 +890,7 @@ class VariableManager(object):
                         [
                             "NAME:AllTabs",
                             [
-                                "NAME:{}VariableTab".format(var_type),
+                                "NAME:{}".format(tab_name),
                                 ["NAME:PropServers", prop_server],
                                 [
                                     "NAME:ChangedProps",
@@ -901,7 +914,7 @@ class VariableManager(object):
                 [
                     "NAME:AllTabs",
                     [
-                        "NAME:{}VariableTab".format(var_type),
+                        "NAME:{}".format(tab_name),
                         ["NAME:PropServers", prop_server],
                         [
                             "NAME:ChangedProps",
