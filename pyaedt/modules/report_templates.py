@@ -86,24 +86,24 @@ class Trace(object):
     def set_trace_properties(self, trace_style=None, width=None, trace_type=None, color=None):
         """Set trace properties.
 
-        Parameters
-        ----------
-       trace_style : str, optional
-            Style for the trace line. The default is ``None``. You can also use
-            the ``LINESTYLE`` property.
-        width : int, optional
-            Width of the trace line. The default is ``None``.
-        trace_type : str
-           Type of the trace line. The default is ``None``. You can also use the ``TRACETYPE``
-           property.
-        color : tuple, list
-            Trace line color specified as a tuple (R,G,B) or a list of integers [0,255].
-            The default is ``None``.
+         Parameters
+         ----------
+        trace_style : str, optional
+             Style for the trace line. The default is ``None``. You can also use
+             the ``LINESTYLE`` property.
+         width : int, optional
+             Width of the trace line. The default is ``None``.
+         trace_type : str
+            Type of the trace line. The default is ``None``. You can also use the ``TRACETYPE``
+            property.
+         color : tuple, list
+             Trace line color specified as a tuple (R,G,B) or a list of integers [0,255].
+             The default is ``None``.
 
-        Returns
-        -------
-        bool
-           ``True`` when successful, ``False`` when failed.
+         Returns
+         -------
+         bool
+            ``True`` when successful, ``False`` when failed.
         """
         props = ["NAME:ChangedProps"]
         if trace_style:
@@ -220,7 +220,6 @@ class CommonReport(object):
         """
         _traces = []
         try:
-            oo = self._post.oreportsetup.GetChildObject(self._plot_name)
             oo_names = self._post.oreportsetup.GetChildObject(self._plot_name).GetChildNames()
         except:
             return _traces
@@ -1063,7 +1062,7 @@ class CommonReport(object):
 
 
 class Standard(CommonReport):
-    """Standard Report Class that fits most of the application standard reports."""
+    """Provides a reporting class that fits most of the application's standard reports."""
 
     def __init__(self, app, report_category, setup_name):
         CommonReport.__init__(self, app, report_category, setup_name)
