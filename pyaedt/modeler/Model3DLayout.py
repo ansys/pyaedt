@@ -6,6 +6,7 @@ from pyaedt import settings
 from pyaedt.edb import Edb
 from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
@@ -835,3 +836,24 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.oeditor.UpdateModels(args)
         self.logger.info("Spice Model Correctly assigned to {}.".format(component_name))
         return True
+
+    @pyaedt_function_handler()
+    def clip_plane(self, name=None):
+        """Create a clip plane in Layout.
+
+        .. note::
+            It works only in AEDT from 2022R2.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the clip plane.
+
+        Returns
+        -------
+
+        """
+        if not name:
+            name = generate_unique_name("CS")
+        self.oeditor.ClipPlane(name)
+        return name
