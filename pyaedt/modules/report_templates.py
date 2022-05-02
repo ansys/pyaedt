@@ -25,26 +25,29 @@ class LimitLine(object):
     def set_line_properties(
         self, style=None, width=None, hatch_above=None, violation_emphasis=None, hatch_pixels=None, color=None
     ):
-        """Set Trace Properties.
+        """Set trace properties.
 
         Parameters
         ----------
-        style : str or
-            Limit Line Style. LINESTYLE PROPERTY can be used
-        width : int
-            Limit Line width.
+        style : str, optional
+            Style for the limit line. The default is ``None``. You can also use
+            the ``LIFESTYLE`` property.
+        width : int, optional
+            Width of the limit line. The default is ``None``.
         hatch_above : bool
-            Either if Hatch above the limit line or not.
+           Whether the hatch is above the limit line. The default is ``None``.
         violation_emphasis : bool
-            Either if to add violation emphasis or not.
+            Whether to add violation emphasis. The default is ``None``.
         hatch_pixels : int
-            Hatch pixel numbers.
-        color : tuple or list
-            Trace Color. a Tuple of (R,G,B) with int of [0,255] has to be provided.
+            Number of pixels for the hatch. The default is ``None``.
+        color : tuple, list
+            Trace color specified as a tuple (R,G,B) or a list of integers [0,255].
+            The default is ``None``.
 
         Returns
         -------
         bool
+            "True`` when successful, ``False`` when failed.
         """
         props = ["NAME:ChangedProps"]
         if style:
@@ -63,7 +66,7 @@ class LimitLine(object):
 
 
 class Trace(object):
-    """Trace Management Class."""
+    """Provides trace management."""
 
     def __init__(self, report_setup, trace_name):
         self._oreport_setup = report_setup
@@ -81,22 +84,26 @@ class Trace(object):
 
     @pyaedt_function_handler()
     def set_trace_properties(self, trace_style=None, width=None, trace_type=None, color=None):
-        """Set Trace Properties.
+        """Set trace properties.
 
         Parameters
         ----------
-        trace_style : str
-            Limit Line Style. LINESTYLE property can be used.
-        width : int
-            Trace Width.
+       trace_style : str, optional
+            Style for the trace line. The default is ``None``. You can also use
+            the ``LINESTYLE`` property.
+        width : int, optional
+            Width of the trace line. The default is ``None``.
         trace_type : str
-           Trace Style. TRACETYPE property can be used.
-        color : tuple or list
-            Trace Color. a Tuple of (R,G,B) with int of [0,255] has to be provided.
+           Type of the trace line. The default is ``None``. You can also use the ``TRACETYPE``
+           property.
+        color : tuple, list
+            Trace line color specified as a tuple (R,G,B) or a list of integers [0,255].
+            The default is ``None``.
 
         Returns
         -------
         bool
+           ``True`` when successful, ``False`` when failed.
         """
         props = ["NAME:ChangedProps"]
         if trace_style:
@@ -111,25 +118,28 @@ class Trace(object):
 
     @pyaedt_function_handler()
     def set_symbol_properties(self, show=True, style=None, show_arrows=None, fill=None, color=None):
-        """Set Symbol Properties.
+        """Set symbol properties.
 
         Parameters
         ----------
-        show : bool
-            Either is show or hide the Symbol.
-        style : str
-           Symbol Style. SYMBOLSTYLE property can be used.
-        show_arrows : bool
-            Either to show or hide arrows.
-        fill : bool
-            Either to fill or not the symbol.
-        color : tuple or list
-            Symbol Color. a Tuple of (R,G,B) with int of [0,255] has to be provided.
+        show : bool, optional
+            Whether to show the symbol. The default is ``True``.
+        style : str, optional
+           Style of the style. The default is ``None``. You can also use the ``SYMBOLSTYLE``
+           property.
+        show_arrows : bool, optional
+            Whether to show arrows. The default is ``None``.
+        fill : bool, optional
+            Whether to fill the symbol with a color. The default is ``None``.
+        color : tuple, list
+            Symbol fill color specified as a tuple (R,G,B) or a list of integers [0,255].
+            The default is ``None``.
 
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         props = ["NAME:ChangedProps", ["NAME:Show Symbol", "Value:=", show]]
         if style:
@@ -144,7 +154,7 @@ class Trace(object):
 
 
 class CommonReport(object):
-    """Common Report Class."""
+    """Provides common reports."""
 
     def __init__(self, app, report_category, setup_name):
         self._post = app
@@ -168,10 +178,11 @@ class CommonReport(object):
 
     @property
     def traces(self):
-        """Return the list of available traces in report.
+        """Return the list of available traces in the report.
 
         .. note::
-            This property works from 2022.1 on. It works in non graphical only from version 2022R2.
+            This property works in version 2022 R1 and later. However, It works only in
+            non-graphical mode in version 2022 R2 and later.
 
         Returns
         -------
@@ -197,10 +208,11 @@ class CommonReport(object):
 
     @property
     def limit_lines(self):
-        """Return the list of available limit lines in report.
+        """Return the list of available limit lines in the report.
 
         .. note::
-            This property works from 2022.1 on. It works in non graphical only from version 2022R2.
+            This property works in version 2022 R1 and later. However, It works only in
+            non-graphical mode in version 2022 R2 and later.
 
         Returns
         -------

@@ -858,7 +858,7 @@ CSS4_COLORS = {
 
 
 class LineStyle(object):
-    """Trace Line Style Constants."""
+    """Provides trace line style constants."""
 
     (Solid, Dot, ShortDash, DotShortDash, Dash, DotDash, DotDot, DotDotDash, LongDash) = (
         "Solid",
@@ -874,7 +874,7 @@ class LineStyle(object):
 
 
 class TraceType(object):
-    """Trace Types Constants."""
+    """Provides trace type constants."""
 
     (Continuous, Discrete, StickZero, StickInfinity, BarZero, BarInfinity, Histogram, Step, Stair, Digital) = (
         "Continuous",
@@ -891,7 +891,7 @@ class TraceType(object):
 
 
 class SymbolStyle(object):
-    """Symbol Style Constants."""
+    """Provides symbol style constants."""
 
     (
         Box,
