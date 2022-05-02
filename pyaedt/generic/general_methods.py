@@ -707,6 +707,8 @@ class Settings(object):
         self.aedt_version = None
         self.remote_api = False
         self._use_grpc_api = False
+        self.machine = ""
+        self.port = 0
 
     @property
     def use_grpc_api(self):
