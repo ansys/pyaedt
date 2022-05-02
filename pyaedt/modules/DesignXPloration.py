@@ -265,7 +265,7 @@ class CommonOptimetrics(object):
     def _add_calculation(
         self,
         calculation,
-        ranges,
+        ranges=None,
         variables=None,
         solution=None,
         context=None,
@@ -284,12 +284,13 @@ class CommonOptimetrics(object):
         if setupname not in self.props["Sim. Setups"]:
             self.props["Sim. Setups"].append(setupname)
         domain = "Time"
-        if (
-            "Freq" in ranges
-            or "Phase" in ranges
-            or "Theta" in ranges
-            or self._app.solution_type in ["Magnetostatic", "Electrostatic", "EddyCurrent", "DCConduction"]
-        ):
+        if (ranges and ("Freq" in ranges or "Phase" in ranges or "Theta" in ranges)) or self._app.solution_type in [
+            "Magnetostatic",
+            "Electrostatic",
+            "EddyCurrent",
+            "DCConduction",
+            "Eigenmode",
+        ]:
             domain = "Sweep"
         if not report_type:
             report_type = self._app.design_solutions.report_type
@@ -482,7 +483,7 @@ class SetupOpti(CommonOptimetrics, object):
     def add_calculation(
         self,
         calculation,
-        ranges,
+        ranges=None,
         variables=None,
         solution=None,
         context=None,
@@ -496,10 +497,11 @@ class SetupOpti(CommonOptimetrics, object):
         ----------
         calculation : str, optional
             Name of the calculation.
-        ranges : dict
+        ranges : dict, optional
             Dictionary of ranges with respective values.
             Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
             It includes intrinsics like "Freq", "Time", "Theta", "Distance".
+            The default is ``None``, to be used e.g. in "Eigenmode" design type.
         solution : str, optional
             Type of the solution. The default is ``None``, in which case the default
             solution is used.

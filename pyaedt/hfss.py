@@ -4069,7 +4069,7 @@ class Hfss(FieldAnalysis3D, object):
             for setup in setups:
                 msg = str(setup)
                 val_list.append(msg)
-                if self.solution_type != "EigenMode":
+                if self.solution_type.lower() != "eigenmode":
                     sweepsname = self.oanalysis.GetSweeps(setup)
                     if sweepsname:
                         for sw in sweepsname:
