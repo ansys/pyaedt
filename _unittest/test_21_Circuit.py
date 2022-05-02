@@ -378,6 +378,7 @@ class TestClass(BasisTest, object):
         assert new_subcircuit.angle == 0.0
 
     def test_32_push_down(self):
+        self.aedtapp.insert_design("Circuit_Design_Push_Down")
         subcircuit_1 = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
         active_project_name_1 = self.aedtapp.oproject.GetActiveDesign().GetName()
         self.aedtapp.pop_up()
@@ -390,6 +391,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.push_down(subcircuit_1)
 
     def test_33_pop_up(self):
+        self.aedtapp.insert_design("Circuit_Design_Pop_Up")
         assert self.aedtapp.pop_up()
         active_project_name_1 = self.aedtapp.oproject.GetActiveDesign().GetName()
         self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
