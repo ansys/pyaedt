@@ -1180,6 +1180,7 @@ class ModelPlotter(object):
                 self.max_elements = (self.startpos - self.endpos) // (self.size + (self.size // 10))
                 self.i = self.max_elements
                 self.axes_color = axes_color
+                self.text = []
 
             def __call__(self, state):
                 self.plot.button_widgets = [self.plot.button_widgets[0]]
@@ -1352,8 +1353,7 @@ class ModelPlotter(object):
                 )
         if self.show_legend:
             self._add_buttons()
-        end = time.time() - start
-        files_list = []
+
         if self.show_axes:
             self.pv.show_axes()
         if self.show_grid and not self.is_notebook:
@@ -1449,8 +1449,7 @@ class ModelPlotter(object):
 
         self.pv.background_color = [i / 255 for i in self.background_color]
         self._read_mesh_files(read_frames=True)
-        end = time.time() - start
-        files_list = []
+
         axes_color = [0 if i >= 128 else 1 for i in self.background_color]
 
         if self.show_axes:
