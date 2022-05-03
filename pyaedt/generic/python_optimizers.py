@@ -56,8 +56,7 @@ class GeneticAlgorithm(object):
 
     Examples
     --------
-    Create an instance of HFSS and connect to an existing HFSS
-    design or create a new HFSS design if one does not exist.
+    Optimize a defined function using a genetic algorithm.
 
     >>>import numpy as np
     >>>from pyaedt.generic.python_optimizers import GeneticAlgorithm as ga
@@ -437,7 +436,10 @@ class GeneticAlgorithm(object):
         return x
 
     def evaluate(self):
-        return self.function(self.temp, self.reference_file)
+        if not self.reference_file:
+            return self.function(self.temp)
+        else:
+            return self.function(self.temp, self.reference_file)
 
     def sim(self, X):
         self.temp = X.copy()
