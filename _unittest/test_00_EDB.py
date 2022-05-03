@@ -1316,6 +1316,9 @@ class TestClass(BasisTest, object):
 
     def test_98_export_import_json_for_config(self):
         sim_config = SimulationConfiguration()
+        assert sim_config.output_aedb is None
+        sim_config.output_aedb = os.path.join(self.local_scratch.path, "test.aedb")
+        assert sim_config.output_aedb == os.path.join(self.local_scratch.path, "test.aedb")
         json_file = os.path.join(self.local_scratch.path, "test.json")
         sim_config._filename = json_file
         sim_config.arc_angle = "90deg"
