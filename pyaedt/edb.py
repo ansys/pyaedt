@@ -1534,7 +1534,7 @@ class Edb(object):
             if simulation_setup.do_cutout_subdesign:
                 self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
                 old_cell_name = self.active_cell.GetName()
-                if self.create_cutout(simulation_setup=simulation_setup):
+                if self.create_cutout(simulation_setup=simulation_setup, output_aedb_path=simulation_setup.output_aedb):
                     self.logger.info("Cutout processed.")
                     old_cell = self.active_cell.FindByName(self._db, 0, old_cell_name)
                     if old_cell:

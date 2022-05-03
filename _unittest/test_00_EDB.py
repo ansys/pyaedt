@@ -1370,3 +1370,17 @@ class TestClass(BasisTest, object):
         assert not failing_test_1
         failing_test_2 = stack_up.get_property_by_material_name("none_property", "copper")
         assert not failing_test_2
+
+    def test_98_export_import_json_for_config(self):
+        sim_config = SimulationConfiguration()
+        assert sim_config.output_aedb is None
+        sim_config.output_aedb = os.path.join(self.local_scratch.path, "test.aedb")
+        assert sim_config.output_aedb == os.path.join(self.local_scratch.path, "test.aedb")
+        json_file = os.path.join(self.local_scratch.path, "test.json")
+        sim_config._filename = json_file
+        sim_config.arc_angle = "90deg"
+        assert sim_config.export_json(json_file)
+        test_import = SimulationConfiguration()
+        assert test_import.import_json(json_file)
+        assert test_import.arc_angle == "90deg"
+        assert test_import._filename == json_file
