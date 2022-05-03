@@ -540,23 +540,24 @@ class Setup(object):
 
     @pyaedt_function_handler()
     def enable_adaptive_setup_single(self, freq=None, max_passes=None, max_delta_s=None):
-        """Enable Hfss Single Frequency Setup.
+        """Enable HFSS single frequency setup.
 
         Parameters
         ----------
-        freq : float, str
-            Frequency at which set the adaptive convergence. It can be float (GHz) or str.
-        max_passes : int
-            Maximum number of adaptive passes.
-        max_delta_s : float
-            Delta S Convergence criteria.
+        freq : float, str, optional
+            Frequency at which to set the adaptive convergence. The default is ``None``. You can enter a float value
+            in (GHz) or a string.
+        max_passes : int, optional
+            Maximum number of adaptive passes. The default is ``None``.
+        max_delta_s : float, optional
+            Delta S convergence criteria. The default is ``None``.
 
         Returns
         -------
         bool
         """
         if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
-            self._app.logger.error("Method applies only to Hfss Driven Solutions.")
+            self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
         self.auto_update = False
         self.props["SolveType"] = "Single"
@@ -573,7 +574,7 @@ class Setup(object):
 
     @pyaedt_function_handler()
     def enable_adaptive_setup_broadband(self, low_frequency, high_frquency, max_passes=6, max_delta_s=0.02):
-        """Enable Hfss Broadband Setup.
+        """Enable HFSS broadband setup.
 
         Parameters
         ----------
