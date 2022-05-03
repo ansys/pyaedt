@@ -2954,6 +2954,13 @@ class SimulationConfiguration(object):
 
     @property
     def filename(self):  # pragma: no cover
+        """Retrieve the file name loaded for mapping properties value.
+
+        Returns
+        -------
+        str
+            the absolute path for the filename.
+        """
         return self._filename
 
     @filename.setter
@@ -2963,6 +2970,13 @@ class SimulationConfiguration(object):
 
     @property
     def generate_solder_balls(self):  # pragma: no cover
+        """Retrieve the boolean for applying solder balls.
+
+        Returns
+        -------
+        bool
+            'True' when applied 'False' if not.
+        """
         return self._generate_solder_balls
 
     @generate_solder_balls.setter
@@ -2972,6 +2986,14 @@ class SimulationConfiguration(object):
 
     @property
     def signal_nets(self):
+        """Retrieve the list of signal net names.
+
+        Returns
+        -------
+        list[str]
+            List of signal net names.
+        """
+
         return self._signal_nets
 
     @signal_nets.setter
@@ -2981,6 +3003,13 @@ class SimulationConfiguration(object):
 
     @property
     def setup_name(self):
+        """Retrieve setup name for the simulation.
+
+        Returns
+        -------
+        str
+            Setup name.
+        """
         return self._setup_name
 
     @setup_name.setter
@@ -2990,6 +3019,13 @@ class SimulationConfiguration(object):
 
     @property
     def power_nets(self):
+        """Retrieve the list of power and reference net names.
+
+        Returns
+        -------
+        list[str]
+            List of the net name.
+        """
         return self._power_nets
 
     @power_nets.setter
@@ -2999,6 +3035,13 @@ class SimulationConfiguration(object):
 
     @property
     def components(self):
+        """Retrieve the list component name to be included in the simulation.
+
+        Returns
+        -------
+        list[str]
+            List of the component name.
+        """
         return self._components
 
     @components.setter
@@ -3008,6 +3051,13 @@ class SimulationConfiguration(object):
 
     @property
     def coax_solder_ball_diameter(self):  # pragma: no cover
+        """Retrieve the list of solder balls diameter values when the auto evaluated one is overwritten.
+
+        Returns
+        -------
+        list[float]
+            List of the solder balls diameter.
+        """
         return self._coax_solder_ball_diameter
 
     @coax_solder_ball_diameter.setter
@@ -3017,6 +3067,13 @@ class SimulationConfiguration(object):
 
     @property
     def use_default_coax_port_radial_extension(self):
+        """Retrieve the boolean for using the default coaxial port extension value.
+
+        Returns
+        -------
+        bool
+            'True' when the default value is used 'False' if not.
+        """
         return self._use_default_coax_port_radial_extension
 
     @use_default_coax_port_radial_extension.setter
@@ -3026,6 +3083,13 @@ class SimulationConfiguration(object):
 
     @property
     def trim_reference_size(self):
+        """Retrieve the trim reference size when used.
+
+        Returns
+        -------
+        float
+            The size value.
+        """
         return self._trim_reference_size
 
     @trim_reference_size.setter
@@ -3035,6 +3099,13 @@ class SimulationConfiguration(object):
 
     @property
     def do_cutout_subdesign(self):
+        """Retrieve boolean to perform the cutout during the project build.
+
+        Returns
+        -------
+            bool
+            'True' when clipping the design is applied 'False' is not.
+        """
         return self._do_cutout_subdesign
 
     @do_cutout_subdesign.setter
@@ -3044,6 +3115,12 @@ class SimulationConfiguration(object):
 
     @property
     def cutout_subdesign_type(self):
+        """Retrieve the CutoutSubdesignType selection for clipping the design.
+
+        Returns
+        -------
+        CutoutSubdesignType object
+        """
         return self._cutout_subdesign_type
 
     @cutout_subdesign_type.setter
@@ -3053,6 +3130,14 @@ class SimulationConfiguration(object):
 
     @property
     def cutout_subdesign_expansion(self):
+        """Retrieve expansion factor used for clipping the design.
+
+        Returns
+        -------
+            float
+            The value used as a ratio.
+        """
+
         return self._cutout_subdesign_expansion
 
     @cutout_subdesign_expansion.setter
@@ -3062,6 +3147,14 @@ class SimulationConfiguration(object):
 
     @property
     def cutout_subdesign_round_corner(self):
+        """Retrieve boolean to perform the design clipping using round corner for the extent generation.
+
+        Returns
+        -------
+            bool
+            'True' when using round corner, 'False' if not.
+        """
+
         return self._cutout_subdesign_round_corner
 
     @cutout_subdesign_round_corner.setter
@@ -3071,6 +3164,14 @@ class SimulationConfiguration(object):
 
     @property
     def sweep_interpolating(self):  # pragma: no cover
+        """Retrieve boolean to add a sweep interpolating sweep.
+
+        Returns
+        -------
+            bool
+            'True' when a sweep interpolating is defined, 'False' when a discrete one is defined instead.
+        """
+
         return self._sweep_interpolating
 
     @sweep_interpolating.setter
@@ -3080,6 +3181,14 @@ class SimulationConfiguration(object):
 
     @property
     def use_q3d_for_dc(self):  # pragma: no cover
+        """Retrieve boolean to Q3D solver for DC point value computation.
+
+        Returns
+        -------
+            bool
+            'True' when Q3D solver is used 'False' when interpolating value is used instead.
+        """
+
         return self._use_q3d_for_dc
 
     @use_q3d_for_dc.setter
@@ -3089,6 +3198,14 @@ class SimulationConfiguration(object):
 
     @property
     def relative_error(self):  # pragma: no cover
+        """Retrieve relative error used for the interpolating sweep convergence.
+
+        Returns
+        -------
+            float
+            The value of the error interpolating sweep to reach the convergence criteria.
+        """
+
         return self._relative_error
 
     @relative_error.setter
@@ -3098,6 +3215,14 @@ class SimulationConfiguration(object):
 
     @property
     def use_error_z0(self):  # pragma: no cover
+        """Retrieve value for the error on Z0 for the port.
+
+        Returns
+        -------
+            float
+            The Z0 value.
+        """
+
         return self._use_error_z0
 
     @use_error_z0.setter
@@ -3107,6 +3232,14 @@ class SimulationConfiguration(object):
 
     @property
     def percentage_error_z0(self):  # pragma: no cover
+        """Retrieve boolean to perform the cutout during the project build.
+
+        Returns
+        -------
+            bool
+            'True' when clipping the design is applied 'False' if not.
+        """
+
         return self._percentage_error_z0
 
     @percentage_error_z0.setter
@@ -3116,6 +3249,14 @@ class SimulationConfiguration(object):
 
     @property
     def enforce_causality(self):  # pragma: no cover
+        """Retrieve boolean to enforce causality for the frequency sweep.
+
+        Returns
+        -------
+            bool
+            'True' when causality is enforced 'False' if not.
+        """
+
         return self._enforce_causality
 
     @enforce_causality.setter
@@ -3125,6 +3266,13 @@ class SimulationConfiguration(object):
 
     @property
     def enforce_passivity(self):  # pragma: no cover
+        """Retrieve boolean to enforce passivity for the frequency sweep.
+
+        Returns
+        -------
+            bool
+            'True' when passivity is enforced 'False' if not.
+        """
         return self._enforce_passivity
 
     @enforce_passivity.setter
@@ -3134,6 +3282,13 @@ class SimulationConfiguration(object):
 
     @property
     def passivity_tolerance(self):  # pragma: no cover
+        """Retrieve the value for the passivity tolerance when used.
+
+        Returns
+        -------
+            float
+            The passivity tolerance criteria for the frequency sweep.
+        """
         return self._passivity_tolerance
 
     @passivity_tolerance.setter
@@ -3147,11 +3302,30 @@ class SimulationConfiguration(object):
 
     @sweep_name.setter
     def sweep_name(self, value):  # pragma: no cover
+        """Retrieve frequency sweep name.
+
+        Returns
+        -------
+            str
+            The name of the frequency sweep defined in the project.
+        """
+        if isinstance(value, str):
+            self._sweep_name = value
+
+    @sweep_name.setter
+    def sweep_name(self, value):
         if isinstance(value, str):
             self._sweep_name = value
 
     @property
     def radiation_box(self):  # pragma: no cover
+        """Retrieve RadiationBoxType object selection defined for the radiation box type.
+
+        Returns
+        -------
+            RadiationBoxType object
+            3 values can be chosen, Conformal, BoundingBox or ConvexHull.
+        """
         return self._radiation_box
 
     @radiation_box.setter
@@ -3161,6 +3335,13 @@ class SimulationConfiguration(object):
 
     @property
     def start_frequency(self):  # pragma: no cover
+        """Retrieve starting frequency for the frequency sweep.
+
+        Returns
+        -------
+            float
+            The value of the frequency point.
+        """
         return self._start_frequency
 
     @start_frequency.setter
@@ -3170,6 +3351,13 @@ class SimulationConfiguration(object):
 
     @property
     def stop_freq(self):  # pragma: no cover
+        """Retrieve stop frequency for the frequency sweep.
+
+        Returns
+        -------
+            float
+            The value of the frequency point.
+        """
         return self._stop_freq
 
     @stop_freq.setter
@@ -3179,6 +3367,13 @@ class SimulationConfiguration(object):
 
     @property
     def sweep_type(self):  # pragma: no cover
+        """Retrieve SweepType object for the frequency sweep.
+
+        Returns
+        -------
+            SweepType
+            The SweepType object,2 selections are supported Linear and LogCount.
+        """
         return self._sweep_type
 
     @sweep_type.setter
@@ -3190,6 +3385,13 @@ class SimulationConfiguration(object):
 
     @property
     def step_freq(self):  # pragma: no cover
+        """Retrieve step frequency for the frequency sweep.
+
+        Returns
+        -------
+            float
+            The value of the frequency point.
+        """
         return self._step_freq
 
     @step_freq.setter
@@ -3199,6 +3401,13 @@ class SimulationConfiguration(object):
 
     @property
     def decade_count(self):  # pragma: no cover
+        """Retrieve decade count number for the frequency sweep in case of a log sweep selected.
+
+        Returns
+        -------
+            int
+            The value of the decade count number.
+        """
         return self._decade_count
 
     @decade_count.setter
@@ -3208,6 +3417,13 @@ class SimulationConfiguration(object):
 
     @property
     def mesh_freq(self):
+        """Retrieve the meshing frequency for the HFSS adaptive convergence.
+
+        Returns
+        -------
+            float
+            The value of the frequency point.
+        """
         return self._mesh_freq
 
     @mesh_freq.setter
@@ -3217,6 +3433,13 @@ class SimulationConfiguration(object):
 
     @property
     def max_num_passes(self):  # pragma: no cover
+        """Retrieve maximum of points for the HFSS adaptive meshing.
+
+        Returns
+        -------
+            int
+            The maximum number of adaptive passes value.
+        """
         return self._max_num_passes
 
     @max_num_passes.setter
@@ -3226,6 +3449,13 @@ class SimulationConfiguration(object):
 
     @property
     def max_mag_delta_s(self):  # pragma: no cover
+        """Retrieve the magnitude of the delta S convergence criteria for the interpolating sweep.
+
+        Returns
+        -------
+            float
+            The value of convergence criteria.
+        """
         return self._max_mag_delta_s
 
     @max_mag_delta_s.setter
@@ -3235,6 +3465,13 @@ class SimulationConfiguration(object):
 
     @property
     def min_num_passes(self):  # pragma: no cover
+        """Retrieve the minimum number of adaptive passes for HFSS convergence.
+
+        Returns
+        -------
+            int
+            The value of minimum number of adaptive passes.
+        """
         return self._min_num_passes
 
     @min_num_passes.setter
@@ -3244,6 +3481,13 @@ class SimulationConfiguration(object):
 
     @property
     def basis_order(self):  # pragma: no cover
+        """Retrieve the BasisOrder object.
+
+        Returns
+        -------
+            BasisOrder class
+            This class supports 4 selections Mixed, Zero, single and Double for the HFSS order matrix.
+        """
         return self._basis_order
 
     @basis_order.setter
@@ -3253,6 +3497,13 @@ class SimulationConfiguration(object):
 
     @property
     def do_lambda_refinement(self):  # pragma: no cover
+        """Retrieve boolean to activate the lambda refinement.
+
+        Returns
+        -------
+            bool
+            'True' Enable the lambda meshing refinement with HFSS, 'False' deactivate.
+        """
         return self._do_lambda_refinement
 
     @do_lambda_refinement.setter
@@ -3262,6 +3513,13 @@ class SimulationConfiguration(object):
 
     @property
     def arc_angle(self):  # pragma: no cover
+        """Retrieve the value for the HFSS meshing arc angle.
+
+        Returns
+        -------
+            float
+            Value of the arc angle.
+        """
         return self._arc_angle
 
     @arc_angle.setter
@@ -3271,6 +3529,13 @@ class SimulationConfiguration(object):
 
     @property
     def start_azimuth(self):  # pragma: no cover
+        """Retrieve the value of the starting azimuth for the HFSS meshing.
+
+        Returns
+        -------
+            float
+            Value of the starting azimuth.
+        """
         return self._start_azimuth
 
     @start_azimuth.setter
@@ -3280,6 +3545,13 @@ class SimulationConfiguration(object):
 
     @property
     def max_arc_points(self):  # pragma: no cover
+        """Retrieve the value of the maximum arc points number for the HFSS meshing.
+
+        Returns
+        -------
+            int
+            Value of the maximum arc point number.
+        """
         return self._max_arc_points
 
     @max_arc_points.setter
@@ -3289,6 +3561,13 @@ class SimulationConfiguration(object):
 
     @property
     def use_arc_to_chord_error(self):  # pragma: no cover
+        """Retrieve the boolean for activating the arc to chord for HFSS meshing.
+
+        Returns
+        -------
+            bool
+            Activate when 'True', deactivated when 'False'.
+        """
         return self._use_arc_to_chord_error
 
     @use_arc_to_chord_error.setter
@@ -3298,6 +3577,13 @@ class SimulationConfiguration(object):
 
     @property
     def arc_to_chord_error(self):  # pragma: no cover
+        """Retrieve the value of arc to chord error for HFSS meshing.
+
+        Returns
+        -------
+            flot
+            Value of the arc to chord error.
+        """
         return self._arc_to_chord_error
 
     @arc_to_chord_error.setter
@@ -3307,6 +3593,13 @@ class SimulationConfiguration(object):
 
     @property
     def defeature_abs_length(self):  # pragma: no cover
+        """Retrieve the value of arc to chord for HFSS meshing.
+
+        Returns
+        -------
+            flot
+            Value of the arc to chord error.
+        """
         return self._defeature_abs_length
 
     @defeature_abs_length.setter
@@ -3316,6 +3609,15 @@ class SimulationConfiguration(object):
 
     @property
     def defeature_layout(self):  # pragma: no cover
+        """Retrieve the boolean to activate the layout defeaturing.This method has been developed to simplify polygons
+        with reducing the number of points to simplify the meshing with controlling its surface deviation. This method
+        should be used at last resort when other methods failed.
+
+        Returns
+        -------
+            bool
+            'True' when activated 'False when deactivated.
+        """
         return self._defeature_layout
 
     @defeature_layout.setter
@@ -3325,6 +3627,14 @@ class SimulationConfiguration(object):
 
     @property
     def minimum_void_surface(self):  # pragma: no cover
+        """Retrieve the minimum void surface to be considered for the layout defeaturing.
+        Voids below this value will be ignored.
+
+        Returns
+        -------
+            flot
+            Value of the minimum surface.
+        """
         return self._minimum_void_surface
 
     @minimum_void_surface.setter
@@ -3334,6 +3644,13 @@ class SimulationConfiguration(object):
 
     @property
     def max_suf_dev(self):  # pragma: no cover
+        """Retrieve the value for the maximum surface deviation for the layout defeaturing.
+
+        Returns
+        -------
+            flot
+            Value of maximum surface deviation.
+        """
         return self._max_suf_dev
 
     @max_suf_dev.setter
@@ -3343,6 +3660,13 @@ class SimulationConfiguration(object):
 
     @property
     def process_padstack_definitions(self):  # pragma: no cover
+        """Retrieve the boolean for activating the padstack defintion processing.
+
+        Returns
+        -------
+            flot
+            Value of the arc to chord error.
+        """
         return self._process_padstack_definitions
 
     @process_padstack_definitions.setter
@@ -3352,6 +3676,13 @@ class SimulationConfiguration(object):
 
     @property
     def return_current_distribution(self):  # pragma: no cover
+        """Boolean to activate the current distribution return with Siwave.
+
+        Returns
+        -------
+            flot
+            Value of the arc to chord error.
+        """
         return self._return_current_distribution
 
     @return_current_distribution.setter
@@ -3361,6 +3692,13 @@ class SimulationConfiguration(object):
 
     @property
     def ignore_non_functional_pads(self):  # pragma: no cover
+        """Boolean to ignore nonfunctional pads with Siwave.
+
+        Returns
+         -------
+            flot
+            Value of the arc to chord error.
+        """
         return self._ignore_non_functional_pads
 
     @ignore_non_functional_pads.setter
@@ -3370,6 +3708,13 @@ class SimulationConfiguration(object):
 
     @property
     def include_inter_plane_coupling(self):  # pragma: no cover
+        """Boolean to activate the inter-plane coupling with Siwave.
+
+        Returns
+        -------
+            bool
+            'True' activated 'False' deactivated.
+        """
         return self._include_inter_plane_coupling
 
     @include_inter_plane_coupling.setter
@@ -3379,6 +3724,15 @@ class SimulationConfiguration(object):
 
     @property
     def xtalk_threshold(self):  # pragma: no cover
+        """Return the value for Siwave cross talk threshold. THis value specifies the distance for the solver to
+        consider lines coupled during the cross-section computation. Decreasing the value below -60dB can
+        potentially cause solver failure.
+
+        Returns
+        -------
+            flot
+            Value of cross-talk threshold.
+        """
         return self._xtalk_threshold
 
     @xtalk_threshold.setter
@@ -3388,6 +3742,13 @@ class SimulationConfiguration(object):
 
     @property
     def min_void_area(self):  # pragma: no cover
+        """Retrieve the value of minimum void area to be considered by Siwave.
+
+        Returns
+        -------
+            flot
+            Value of the arc to chord error.
+        """
         return self._min_void_area
 
     @min_void_area.setter
@@ -3397,6 +3758,13 @@ class SimulationConfiguration(object):
 
     @property
     def min_pad_area_to_mesh(self):  # pragma: no cover
+        """Retrieve the value of minimum pad area to be meshed by Siwave.
+
+        Returns
+        -------
+            flot
+            Value of minimum pad surface.
+        """
         return self._min_pad_area_to_mesh
 
     @min_pad_area_to_mesh.setter
@@ -3406,6 +3774,13 @@ class SimulationConfiguration(object):
 
     @property
     def snap_length_threshold(self):  # pragma: no cover
+        """Retrieve the boolean to activate the snapping threshold feature.
+
+        Returns
+        -------
+            bool
+            'True' activate 'False' deactivated.
+        """
         return self._snap_length_threshold
 
     @snap_length_threshold.setter
@@ -3415,6 +3790,13 @@ class SimulationConfiguration(object):
 
     @property
     def min_plane_area_to_mesh(self):  # pragma: no cover
+        """Retrieve the minimum plane area to be meshed by Siwave.
+
+        Returns
+        -------
+            flot
+            Value of the minimum plane area.
+        """
         return self._min_plane_area_to_mesh
 
     @min_plane_area_to_mesh.setter
@@ -3424,6 +3806,13 @@ class SimulationConfiguration(object):
 
     @property
     def dc_min_plane_area_to_mesh(self):  # pragma: no cover
+        """Retrieve the value of the minimum plane area to be meshed by Siwave for DC solution.
+
+        Returns
+        -------
+            float
+            The value of the minimum plane area.
+        """
         return self._dc_min_plane_area_to_mesh
 
     @dc_min_plane_area_to_mesh.setter
@@ -3433,6 +3822,13 @@ class SimulationConfiguration(object):
 
     @property
     def max_init_mesh_edge_length(self):  # pragma: no cover
+        """Retrieve the value of the maximum initial mesh edges for Siwave.
+
+        Returns
+        -------
+            float
+            Value of the maximum initial mesh edge length.
+        """
         return self._max_init_mesh_edge_length
 
     @max_init_mesh_edge_length.setter
@@ -3442,6 +3838,13 @@ class SimulationConfiguration(object):
 
     @property
     def signal_layers_properties(self):  # pragma: no cover
+        """Retrieve the list of layers to have properties changes.
+
+        Returns
+        -------
+            list[str]
+            List of layer name.
+        """
         return self._signal_layers_properties
 
     @signal_layers_properties.setter
@@ -3451,6 +3854,13 @@ class SimulationConfiguration(object):
 
     @property
     def coplanar_instances(self):  # pragma: no cover
+        """Retrieve the list of component to be replaced by circuit ports (obsolete).
+
+        Returns
+        -------
+            list[str]
+            List of component name.
+        """
         return self._coplanar_instances
 
     @coplanar_instances.setter
@@ -3460,6 +3870,13 @@ class SimulationConfiguration(object):
 
     @property
     def signal_layer_etching_instances(self):  # pragma: no cover
+        """Retrieve the list of layers which has layer etching activated.
+
+        Returns
+        -------
+            list[str]
+            List of layer name.
+        """
         return self._signal_layer_etching_instances
 
     @signal_layer_etching_instances.setter
@@ -3469,6 +3886,13 @@ class SimulationConfiguration(object):
 
     @property
     def etching_factor_instances(self):  # pragma: no cover
+        """Retrieve the list of etching factor with associated layers.
+
+        Returns
+        -------
+            list[str]
+            list etching parameters with layer name.
+        """
         return self._etching_factor_instances
 
     @etching_factor_instances.setter
@@ -3478,6 +3902,13 @@ class SimulationConfiguration(object):
 
     @property
     def dielectric_extent(self):  # pragma: no cover
+        """Retrieve the value of dielectric extent.
+
+        Returns
+        -------
+            float
+            Value of the dielectric extent.
+        """
         return self._dielectric_extent
 
     @dielectric_extent.setter
@@ -3487,6 +3918,13 @@ class SimulationConfiguration(object):
 
     @property
     def airbox_horizontal_extent(self):  # pragma: no cover
+        """Retrieve the air box horizontal extent size for HFSS.
+
+        Returns
+        -------
+            float
+            Value of the air box horizontal extent.
+        """
         return self._airbox_horizontal_extent
 
     @airbox_horizontal_extent.setter
@@ -3496,6 +3934,13 @@ class SimulationConfiguration(object):
 
     @property
     def airbox_negative_vertical_extent(self):  # pragma: no cover
+        """Retrieve the air box negative vertical extent size for HFSS.
+
+        Returns
+        -------
+            float
+            Value of the air box negative vertical extent.
+        """
         return self._airbox_negative_vertical_extent
 
     @airbox_negative_vertical_extent.setter
@@ -3505,6 +3950,13 @@ class SimulationConfiguration(object):
 
     @property
     def airbox_positive_vertical_extent(self):  # pragma: no cover
+        """Retrieve the air box positive vertical extent size for HFSS.
+
+        Returns
+        -------
+            float
+            Value of the air box positive vertical extent.
+        """
         return self._airbox_positive_vertical_extent
 
     @airbox_positive_vertical_extent.setter
@@ -3514,6 +3966,13 @@ class SimulationConfiguration(object):
 
     @property
     def honor_user_dielectric(self):  # pragma: no cover
+        """Retrieve the boolean to activate the feature "'Honor user dielectric'".
+
+        Returns
+        -------
+            bool
+            "'True'" activated, "'False'" deactivated.
+        """
         return self._honor_user_dielectric
 
     @honor_user_dielectric.setter
@@ -3523,6 +3982,13 @@ class SimulationConfiguration(object):
 
     @property
     def truncate_airbox_at_ground(self):  # pragma: no cover
+        """Retrieve the boolean to truncate hfss air box at ground.
+
+        Returns
+        -------
+            bool
+            "'True'" activated, "'False'" deactivated.
+        """
         return self._truncate_airbox_at_ground
 
     @truncate_airbox_at_ground.setter
@@ -3532,6 +3998,13 @@ class SimulationConfiguration(object):
 
     @property
     def solver_type(self):  # pragma: no cover
+        """Retrieve the SolverType class to select the solver to be called during the project build.
+
+        Returns
+        -------
+            SolverType
+            selections are supported, Hfss3dLayout and Siwave.
+        """
         return self._solver_type
 
     @solver_type.setter
@@ -3541,6 +4014,13 @@ class SimulationConfiguration(object):
 
     @property
     def use_radiation_boundary(self):  # pragma: no cover
+        """Retrieve the boolean to use radiation boundary with HFSS.
+
+        Returns
+        -------
+            bool
+            "'True'" activated, "'False'" deactivated.
+        """
         return self._use_radiation_boundary
 
     @use_radiation_boundary.setter
@@ -3550,6 +4030,16 @@ class SimulationConfiguration(object):
 
     @property
     def output_aedb(self):  # pragma: no cover
+        """Retrieve the path for the output aedb folder. When provided will copy the initial aedb to the specified
+        path. This is used especially to preserve the initial project when several ines have to build based on the last
+        one. When the path is None, the initial project will be overwritten. So when cutout is applied mand you want to
+        preserve the project make sure you provide the full path for the new aedb folder if you need to preserve it.
+
+        Returns
+        -------
+            str
+            Absolute path for the created aedb folder.
+        """
         return self._output_aedb
 
     @output_aedb.setter
