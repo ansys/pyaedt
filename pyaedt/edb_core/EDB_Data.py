@@ -2153,7 +2153,7 @@ class EDBPadstackInstance(object):
         str
             Name of the starting layer.
         """
-        layer = self._pedb.edb.Cell.Layer("", self._pedb.Cell.LayerTypeSet.SignalLayerSet)
+        layer = self._pedb.edb.Cell.Layer("", self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet)
         _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
         if start_layer:
             return start_layer.GetName()
@@ -2174,7 +2174,7 @@ class EDBPadstackInstance(object):
         str
             Name of the stopping layer.
         """
-        layer = self._pedb.edb.Cell.Layer("", self._pedb.Cell.LayerTypeSet.SignalLayerSet)
+        layer = self._pedb.edb.Cell.Layer("", self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet)
         _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
         if stop_layer:
             return stop_layer.GetName()
