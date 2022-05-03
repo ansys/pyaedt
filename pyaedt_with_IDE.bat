@@ -12,7 +12,7 @@ for %%c in (%env_vars%) do (
     )
 )
 endlocal
-echo AEDT 21R1 or greater has to be installed
+echo AEDT 2021 R1 or later must be installed.
 pause
 EXIT /B
 
