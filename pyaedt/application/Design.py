@@ -2881,6 +2881,7 @@ class Design(object):
         self.save_project()
         self._close_edb()
         self._init_design(project_name=self.project_name, design_name=new_designname)
+        self.set_active_design(active_design)
 
         # return the pasted design name
         return new_designname
@@ -3337,8 +3338,9 @@ class Design(object):
         """Check solution consistency."""
         if self.design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design", "EMIT", "Q3D Extractor"]:
             return True
-        if self.design_solutions and self.design_solutions._solution_type:
-            return self.design_solutions._solution_type in self._odesign.GetSolutionType()
+        self.design_solutions._odesign = self._odesign
+        if self.design_solutions and self.design_solutions.solution_type:
+            return self.design_solutions.solution_type in self._odesign.GetSolutionType()
         else:
             return True
 
