@@ -638,11 +638,12 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> oEditor.GetObjectsByMaterial
         """
-        mats = self.materials.odefinition_manager.GetProjectMaterialNames()
-        cond = [i for i in mats if i.lower() in self.materials.conductors]
+        cond = self.materials.conductors
+
         obj_names = []
-        for el in cond:
-            obj_names += list(self._modeler.oeditor.GetObjectsByMaterial(el))
+        for obj_val in list(self.modeler.objects.values()):
+            if obj_val.material_name in cond:
+                obj_names.append(obj_val.name)
         return obj_names
 
     @pyaedt_function_handler()
@@ -659,8 +660,8 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.GetObjectsByMaterial
         """
         diel = self.materials.dielectrics
-        diel = [i.lower() for i in diel]
         obj_names = []
-        for el in diel:
-            obj_names += list(self._modeler.oeditor.GetObjectsByMaterial(el))
+        for obj_val in list(self.modeler.objects.values()):
+            if obj_val.material_name in diel:
+                obj_names.append(obj_val.name)
         return obj_names
