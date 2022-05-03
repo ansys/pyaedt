@@ -298,12 +298,18 @@ class Maxwell(object):
 
         >>> oModule.SetEddyEffect
         """
-        EddyVector = ["NAME:EddyEffectVector"]
-        for obj in object_list:
-            EddyVector.append(["NAME:Data", "Object Name:=", obj, "Eddy Effect:=", activate])
+        solid_objects_names = self.get_all_conductors_names()
 
-        oModule = self.odesign.GetModule("BoundarySetup")
-        oModule.SetEddyEffect(["NAME:Eddy Effect Setting", EddyVector])
+        EddyVector = ["NAME:EddyEffectVector"]
+        for obj in solid_objects_names:
+            if obj in object_list:
+                EddyVector.append(["NAME:Data", "Object Name:=", obj, "Eddy Effect:=", activate])
+            else:
+                EddyVector.append(
+                    ["NAME:Data", "Object Name:=", obj, "Eddy Effect:=", bool(self.oboundary.GetEddyEffect(obj))]
+                )
+
+        self.oboundary.SetEddyEffect(["NAME:Eddy Effect Setting", EddyVector])
         return True
 
     @pyaedt_function_handler()

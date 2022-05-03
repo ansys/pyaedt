@@ -638,8 +638,8 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> oEditor.GetObjectsByMaterial
         """
-        cond = self.materials.conductors
-        cond = [i.lower() for i in cond]
+        mats = self.materials.odefinition_manager.GetProjectMaterialNames()
+        cond = [i for i in mats if i.lower() in self.materials.conductors]
         obj_names = []
         for el in cond:
             obj_names += list(self._modeler.oeditor.GetObjectsByMaterial(el))
