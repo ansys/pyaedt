@@ -2154,7 +2154,10 @@ class EDBPadstackInstance(object):
             Name of the starting layer.
         """
         layer = self._pedb.edb.Cell.Layer("", self._pedb.edb.Cell.LayerType.SignalLayer)
-        _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
+        if is_ironpython:
+            _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange()
+        else:
+            _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
         if start_layer:
             return start_layer.GetName()
         return None
@@ -2175,7 +2178,10 @@ class EDBPadstackInstance(object):
             Name of the stopping layer.
         """
         layer = self._pedb.edb.Cell.Layer("", self._pedb.edb.Cell.LayerType.SignalLayer)
-        _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
+        if is_ironpython:
+            _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange()
+        else:
+            _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
         if stop_layer:
             return stop_layer.GetName()
         return None
