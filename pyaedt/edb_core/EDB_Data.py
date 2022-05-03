@@ -2155,7 +2155,9 @@ class EDBPadstackInstance(object):
         """
         layer = self._pedb.edb.Cell.Layer("", 1)
         _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
-        return start_layer.GetName()
+        if start_layer:
+            return start_layer.GetName()
+        return None
 
     @start_layer.setter
     def start_layer(self, layer_name):
@@ -2174,7 +2176,9 @@ class EDBPadstackInstance(object):
         """
         layer = self._pedb.edb.Cell.Layer("", 1)
         _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
-        return stop_layer.GetName()
+        if stop_layer:
+            return stop_layer.GetName()
+        return None
 
     @stop_layer.setter
     def stop_layer(self, layer_name):
