@@ -1,31 +1,27 @@
 @echo off
-if  "%ANSYSEM_ROOT222%" =="" (
-    if  "%ANSYSEM_ROOT221%" =="" (
-        if "%ANSYSEM_ROOT212%" =="" (
-            if "%ANSYSEM_ROOT211%" =="" (
-                echo AEDT 21R1 or greater has to be installed
-                pause
-                EXIT /B
-            ) else (
-                set aedt_path=%ANSYSEM_ROOT211%
-                set aedt_var=ANSYSEM_ROOT211
-                echo Found AEDT Version 21R1
-              )
-        ) else (
-         set aedt_path=%ANSYSEM_ROOT212%
-         set aedt_var=ANSYSEM_ROOT212
-         echo Found AEDT Version 21R2
-        )
-    ) else (
-        set aedt_path=%ANSYSEM_ROOT221%
-        set aedt_var=ANSYSEM_ROOT221
-        echo Found AEDT Version 22R1
-        )
-) else (
-        set aedt_path=%ANSYSEM_ROOT222%
-        set aedt_var=ANSYSEM_ROOT222
-        echo Found AEDT Version 22R2
+
+set env_vars=ANSYSEM_ROOT222 ANSYSEM_ROOT221 ANSYSEM_ROOT212 ANSYSEM_ROOT211
+setlocal enableextensions enabledelayedexpansion
+set latest_env_var_present=
+for %%c in (%env_vars%) do (
+    set env_var_name=%%c
+    if defined !env_var_name! (
+        set latest_env_var_present=!env_var_name!
+        GOTO :FOUND_ENV_VAR
+    )
 )
+endlocal
+echo AEDT 2021 R1 or later must be installed.
+pause
+EXIT /B
+
+:FOUND_ENV_VAR
+endlocal && set aedt_var=%latest_env_var_present%
+set version=%aedt_var:ANSYSEM_ROOT=%
+set version_pretty=20%version:~0,2% R%version:~2,1%
+set cmd=call echo %%%aedt_var%%%
+for /f "delims=" %%i in ('%cmd%') do set aedt_path=%%i
+echo Found AEDT %version_pretty% at %aedt_path%
 
 set /p run=Python or Jupyter?(0=Spyder, 1=Jupyter, 2=Console)
 setlocal enableDelayedExpansion
