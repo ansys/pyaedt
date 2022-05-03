@@ -722,7 +722,9 @@ class FarFieldSetup(FieldSetup, object):
     >>> from pyaedt import Hfss
     >>> hfss = Hfss()
     >>> sphere1 = hfss.insert_infinite_sphere()
-    >>> sphere1.props["ThetaStart"] = 45
+    >>> sphere1.props["ThetaStart"] = "-90deg"
+    >>> sphere1.props["ThetaStop"] = "90deg"
+    >>> sphere1.props["ThetaStep"] = "2deg"
     >>> sphere1.delete()
     """
 
