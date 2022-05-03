@@ -60,7 +60,7 @@ class Setup(object):
         self.auto_update = False
         self._app = None
         self.p_app = app
-        if not solutiontype or solutiontype not in self.p_app.design_solutions._solution_options:
+        if solutiontype is None:
             self.setuptype = self.p_app.design_solutions.default_setup
         elif isinstance(solutiontype, int):
             self.setuptype = solutiontype
@@ -555,7 +555,7 @@ class Setup(object):
         -------
         bool
         """
-        if self.setuptype != 1:
+        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to Hfss Driven Solutions.")
             return False
         self.auto_update = False
@@ -590,7 +590,7 @@ class Setup(object):
         -------
         bool
         """
-        if self.setuptype != 1:
+        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to Hfss Driven Solutions.")
             return False
         self.auto_update = False
@@ -623,7 +623,7 @@ class Setup(object):
         -------
         bool
         """
-        if self.setuptype != 1:
+        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to Hfss Driven Solutions.")
             return False
         self.auto_update = False

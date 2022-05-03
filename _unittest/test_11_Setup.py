@@ -31,7 +31,6 @@ class TestClass(BasisTest, object):
         assert setup1.props["Frequency"] == "3.5GHz"
         assert setup1.props["MaximumPasses"] == 10
         assert setup1.props["MaxDeltaS"] == 0.01
-
         setup1.disable()
         setup1.enable()
 
@@ -55,3 +54,16 @@ class TestClass(BasisTest, object):
         setup1.update()
         setup1.disable()
         setup1.enable()
+
+    def test_03_non_valid_setup(self):
+        self.aedtapp.duplicate_design("non_valid")
+        setup1 = self.aedtapp.create_setup("My_HFSS_Setup2", self.aedtapp.SETUPS.HFSSDrivenAuto)
+        assert not setup1.enable_adaptive_setup_multifrequency([1, 2, 3])
+        assert not setup1.enable_adaptive_setup_broadband(1, 2.5, 10, 0.01)
+        assert not setup1.enable_adaptive_setup_single(3.5)
+        sol = self.aedtapp.solution_type
+        self.aedtapp.solution_type = "Transient"
+        assert not setup1.enable_adaptive_setup_multifrequency([1, 2, 3])
+        assert not setup1.enable_adaptive_setup_broadband(1, 2.5, 10, 0.01)
+        assert not setup1.enable_adaptive_setup_single(3.5)
+        self.aedtapp.solution_type = sol
