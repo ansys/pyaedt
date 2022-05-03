@@ -556,6 +556,7 @@ class Setup(object):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
             self._app.logger.error("Method applies only to HFSS-driven solutions.")
@@ -592,9 +593,10 @@ class Setup(object):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
-            self._app.logger.error("Method applies only to Hfss Driven Solutions.")
+            self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
         self.auto_update = False
         self.props["SolveType"] = "BroadBand"
@@ -613,21 +615,23 @@ class Setup(object):
 
     @pyaedt_function_handler()
     def enable_adaptive_setup_multifrequency(self, frequencies, max_delta_s=0.02):
-        """Enable Hfss Multifrequency Setup.
+        """Enable HFSS multi-frequency setup.
 
         Parameters
         ----------
         frequencies : list
-            Frequency at which set the adaptive convergence. List entries can be float (GHz) or str.
-        max_delta_s : list or float
-            Delta S Convergence criteria.
+            Frequency at which to set the adaptive convergence. You can enter list entries
+            as float values in GHz or as strings.
+        max_delta_s : list, float
+            Delta S convergence criteria. The default is ``0.02``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
-            self._app.logger.error("Method applies only to Hfss Driven Solutions.")
+            self._app.logger.error("Method applies only to HFSS-driven solutions.")
             return False
         self.auto_update = False
         self.props["SolveType"] = "MultiFrequency"
