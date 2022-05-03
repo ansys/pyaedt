@@ -639,7 +639,10 @@ class Setup(object):
             else:
                 if isinstance(f, (int, float)):
                     f = "{}GHz".format(f)
-                self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s[i]]
+                try:
+                    self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s[i]]
+                except IndexError:
+                    self.props["MultipleAdaptiveFreqsSetup"][f] = [0.02]
             i += 1
         self.auto_update = True
         return self.update()
