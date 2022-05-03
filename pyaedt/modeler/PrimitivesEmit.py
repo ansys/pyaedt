@@ -1,4 +1,5 @@
 from collections import defaultdict
+from msilib.schema import Component
 
 from ..generic.general_methods import pyaedt_function_handler
 
@@ -231,6 +232,7 @@ class EmitComponent(object):
 
     def __init__(self, components, component_name):
         self.name = component_name
+        self.components = components
         self.oeditor = components.oeditor
         self.odesign = components.odesign
         self.root_prop_node = None
@@ -436,6 +438,33 @@ class EmitComponent(object):
                 filtered_nodes.append(node)
         return filtered_nodes
 
+    def get_connected_components(self):
+        """Get all components connected directly or indirectly to this component.
+
+        Returns:
+            list: All connected components.
+        """
+        # TODO(bkaylor): Is there a better way to get this?
+        #components_for_constructor = {
+        #    oeditor = self.oeditor,
+        #    odesign = self.odesign,
+        #}
+
+        components = []
+        to_search = [self.name]
+        while to_search: 
+            cursor = EmitComponent(self.components, to_search.pop())
+            ports = cursor.port_names()
+            
+            for port in ports:
+                connection_name, _ = cursor.port_connection(port)
+                if connection_name not in components and connection_name not in to_search:
+                    to_search.append(connection_name)
+            
+            components.append(cursor)
+        
+        return components
+
 
 @EmitComponent.register_subclass("Radio")
 class EmitRadioComponent(EmitComponent):
@@ -463,7 +492,11 @@ class EmitRadioComponent(EmitComponent):
     def has_rx_channels(self):
         nodes = self.get_prop_nodes({"Type": "RxSusceptibilityProfNode", "Enabled": "true"})
         return len(nodes) > 0
-
+    
+    # def get_connected_antennas(self):
+     #   components = super().get_connected_components()
+     #   antennas = filter(lambda component: component.type == "AntennaNode" , components)
+     #   return antennas
 
 class EmitComponentPropNode(object):
     def __init__(self, editor, design, parent_component, node_name):
