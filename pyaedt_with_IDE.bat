@@ -5,7 +5,6 @@ setlocal enableextensions enabledelayedexpansion
 set latest_env_var_present=
 for %%c in (%env_vars%) do (
     set env_var_name=%%c
-    set ver=!env_var_name:ANSYSEM_ROOT=!
     if defined !env_var_name! (
         set latest_env_var_present=!env_var_name!
         GOTO :FOUND_ENV_VAR
@@ -19,10 +18,10 @@ EXIT /B
 :FOUND_ENV_VAR
 endlocal && set aedt_var=%latest_env_var_present%
 set version=%aedt_var:ANSYSEM_ROOT=%
-set version_r=%version:~0,2%R%version:~2,1%
+set version_pretty=20%version:~0,2% R%version:~2,1%
 set cmd=call echo %%%aedt_var%%%
 for /f "delims=" %%i in ('%cmd%') do set aedt_path=%%i
-echo Found AEDT Version %version_r% at %aedt_path%
+echo Found AEDT %version_pretty% at %aedt_path%
 
 set /p run=Python or Jupyter?(0=Spyder, 1=Jupyter, 2=Console)
 setlocal enableDelayedExpansion
