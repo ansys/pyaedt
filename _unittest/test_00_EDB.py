@@ -511,7 +511,11 @@ class TestClass(BasisTest, object):
         output = os.path.join(self.local_scratch.path, "cutout2.aedb")
 
         assert self.edbapp.create_cutout_on_point_list(
-            points, nets_to_include=["GND", "V3P3_S0"], output_aedb_path=output, open_cutout_at_end=False
+            points,
+            nets_to_include=["GND", "V3P3_S0"],
+            output_aedb_path=output,
+            open_cutout_at_end=False,
+            include_partial_instances=True,
         )
         assert os.path.exists(os.path.join(output, "edb.def"))
 
@@ -630,6 +634,7 @@ class TestClass(BasisTest, object):
         assert len(padstack_instances)
         padstack_1 = list(padstack_instances.values())[0]
         assert padstack_1.id
+        assert isinstance(padstack_1.bounding_box, list)
 
     def test_73_duplicate_padstack(self):
         self.edbapp.core_padstack.duplicate_padstack(

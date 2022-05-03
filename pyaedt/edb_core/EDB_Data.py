@@ -1727,6 +1727,7 @@ class EDBPadstack(object):
         self.pad_by_layer = {}
         self.antipad_by_layer = {}
         self.thermalpad_by_layer = {}
+        self._bounding_box = []
         for layer in self.via_layers:
             self.pad_by_layer[layer] = EDBPadProperties(edb_padstack, layer, 0, self)
             self.antipad_by_layer[layer] = EDBPadProperties(edb_padstack, layer, 1, self)
@@ -2035,6 +2036,61 @@ class EDBPadstackInstance(object):
     def __init__(self, edb_padstackinstance, _pedb):
         self._edb_padstackinstance = edb_padstackinstance
         self._pedb = _pedb
+        self._bounding_box = []
+
+    @property
+    def bounding_box(self):
+        """Get Bounding Box of Padstack Instance.
+        Since this method is slow, bounding box is stored in a variable and reused.
+
+        Returns
+        -------
+        list of float
+        """
+        if self._bounding_box:
+            return self._bounding_box
+        bbox = (
+            self._edb_padstackinstance.GetLayout()
+            .GetLayoutInstance()
+            .GetLayoutObjInstance(self._edb_padstackinstance, None)
+            .GetBBox()
+        )
+        self._bounding_box = [
+            [bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()],
+            [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()],
+        ]
+        return self._bounding_box
+
+    @pyaedt_function_handler()
+    def in_polygon(self, polygon_data, include_partial=True):
+        """Check if Padstack Instance is in given polygon data.
+
+        Parameters
+        ----------
+        polygon_data : PolygonData Object
+        include_partial : bool, optional
+            Either if include partial intersecting instances or not.
+
+        Returns
+        -------
+        bool
+        """
+        plane = self._pedb.core_primitives.Shape("rectangle", pointA=self.bounding_box[0], pointB=self.bounding_box[1])
+        rectangle_data = self._pedb.core_primitives.shape_to_polygon_data(plane)
+        int_val = polygon_data.GetIntersectionType(rectangle_data)
+        # Intersection type:
+        # 0 = objects do not intersect
+        # 1 = this object fully inside other (no common contour points)
+        # 2 = other object fully inside this
+        # 3 = common contour points 4 = undefined intersection
+        if int_val == 0:
+            return False
+        elif include_partial:
+            return True
+        elif int_val < 3:
+            return True
+        else:
+            return False
 
     @property
     def pin(self):
