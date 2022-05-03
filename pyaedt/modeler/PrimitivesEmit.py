@@ -200,6 +200,30 @@ class EmitComponents(object):
         o._add_property("Type", comp_type)
         return o
 
+    def get_components_connected_to(self, starting_component):
+        """Get all components connected directly or indirectly to the given component.
+
+        Parameters:
+            starting_component: The component whos connections 
+
+        Returns:
+            list: All connected components.
+        """
+        components = []
+        to_search = [starting_component.name]
+        while to_search: 
+            cursor = EmitComponent(self, to_search.pop())
+            ports = cursor.port_names()
+            
+            for port in ports:
+                connection_name, _ = cursor.port_connection(port)
+                if connection_name not in components and connection_name not in to_search:
+                    to_search.append(connection_name)
+            
+            components.append(cursor)
+        
+        return components
+
 
 class EmitComponent(object):
     """A component in the EMIT schematic."""
@@ -232,7 +256,7 @@ class EmitComponent(object):
 
     def __init__(self, components, component_name):
         self.name = component_name
-        self.components = components
+        # self.components = components
         self.oeditor = components.oeditor
         self.odesign = components.odesign
         self.root_prop_node = None
@@ -444,12 +468,6 @@ class EmitComponent(object):
         Returns:
             list: All connected components.
         """
-        # TODO(bkaylor): Is there a better way to get this?
-        #components_for_constructor = {
-        #    oeditor = self.oeditor,
-        #    odesign = self.odesign,
-        #}
-
         components = []
         to_search = [self.name]
         while to_search: 
@@ -464,7 +482,6 @@ class EmitComponent(object):
             components.append(cursor)
         
         return components
-
 
 @EmitComponent.register_subclass("Radio")
 class EmitRadioComponent(EmitComponent):
