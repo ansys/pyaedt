@@ -3660,7 +3660,7 @@ class SimulationConfiguration(object):
 
     @property
     def process_padstack_definitions(self):  # pragma: no cover
-        """Retrieve the boolean for activating the padstack defintion processing.
+        """Retrieve the boolean for activating the padstack definition processing.
 
         Returns
         -------
@@ -4031,9 +4031,9 @@ class SimulationConfiguration(object):
     @property
     def output_aedb(self):  # pragma: no cover
         """Retrieve the path for the output aedb folder. When provided will copy the initial aedb to the specified
-        path. This is used especially to preserve the initial project when several ines have to build based on the last
-        one. When the path is None, the initial project will be overwritten. So when cutout is applied mand you want to
-        preserve the project make sure you provide the full path for the new aedb folder if you need to preserve it.
+        path. This is used especially to preserve the initial project when several files have to be build based on
+        the last one. When the path is None, the initial project will be overwritten. So when cutout is applied mand
+        you want to preserve the project make sure you provide the full path for the new aedb folder.
 
         Returns
         -------
