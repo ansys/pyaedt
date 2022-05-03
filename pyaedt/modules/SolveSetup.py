@@ -540,7 +540,7 @@ class Setup(object):
 
     @pyaedt_function_handler()
     def enable_adaptive_setup_single(self, freq=None, max_passes=None, max_delta_s=None):
-        """Enable Hfss Single Frequency Setup:
+        """Enable Hfss Single Frequency Setup.
 
         Parameters
         ----------
