@@ -35,7 +35,8 @@ non_graphical = True
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example inserts a Maxwell 2D design and then saves the project.
 
-maxwell_2d = Maxwell2d(solution_type="TransientXY", specified_version="2022.1", non_graphical=non_graphical)
+maxwell_2d = Maxwell2d(solution_type="TransientXY", specified_version="2022.1", non_graphical=non_graphical,
+                       new_desktop_session=True)
 project_dir = maxwell_2d.generate_temp_project_directory("Example")
 maxwell_2d.save_project(os.path.join(project_dir, "M2d.aedt"))
 
@@ -98,7 +99,7 @@ maxwell_2d.post.create_report(
 # ~~~~~~~~~~~~~~~
 # This command solves the model.
 
-maxwell_2d.analyze_nominal()
+maxwell_2d.analyze_nominal(use_auto_settings=False)
 
 ###############################################################################
 # Create the Output and Plot It Using PyVista

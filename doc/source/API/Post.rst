@@ -45,6 +45,8 @@ They are accessible through the ``post`` property:
    PostProcessor.SolutionData
    PostProcessor.FieldPlot
    AdvancedPostProcessing.ModelPlotter
+   report_templates.Trace
+   report_templates.LimitLine
    report_templates.Standard
    report_templates.Fields
    report_templates.NearField

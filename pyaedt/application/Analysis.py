@@ -1151,7 +1151,7 @@ class Analysis(Design, object):
         self.analyze_nominal()
 
     @pyaedt_function_handler()
-    def analyze_nominal(self, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None):
+    def analyze_nominal(self, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None, use_auto_settings=True):
         """Solve the nominal design.
 
         Parameters
@@ -1164,6 +1164,8 @@ class Analysis(Design, object):
             Number of simulation graphic processing units to use.
         acf_file : str, optional
             Full path to the custom ACF file.
+        use_auto_settings : bool, optional
+            Either if use or not auto settings in task/cores. It is not supported by all Setup.
 
         Returns
         -------
@@ -1176,7 +1178,7 @@ class Analysis(Design, object):
         >>> oDesign.Analyze
         """
 
-        return self.analyze_setup(self.analysis_setup, num_cores, num_tasks, num_gpu, acf_file)
+        return self.analyze_setup(self.analysis_setup, num_cores, num_tasks, num_gpu, acf_file, use_auto_settings)
 
     @pyaedt_function_handler()
     def generate_unique_setup_name(self, setup_name=None):
@@ -1461,7 +1463,7 @@ class Analysis(Design, object):
         return dict
 
     @pyaedt_function_handler()
-    def analyze_setup(self, name, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None):
+    def analyze_setup(self, name, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None, use_auto_settings=True):
         """Analyze a design setup.
 
         Parameters
@@ -1476,6 +1478,8 @@ class Analysis(Design, object):
             Number of simulation graphics processing units. The default is ``None.``
         acf_file : str, optional
             Full path to custom ACF file. The default is ``None.``
+        use_auto_settings : bool, optional
+            Either if use or not auto settings in task/cores. It is not supported by all Setup.
 
         Returns
         -------
@@ -1518,7 +1522,8 @@ class Analysis(Design, object):
             update_hpc_option(target_name, "ConfigName", config_name, True)
             update_hpc_option(target_name, "DesignType", self.design_type, True)
             if self.design_type == "Icepak":
-                update_hpc_option(target_name, "UseAutoSettings", self.design_type, False)
+                use_auto_settings = False
+            update_hpc_option(target_name, "UseAutoSettings", self.design_type, use_auto_settings)
             try:
                 self._desktop.SetRegistryFromFile(target_name)
                 self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name)
