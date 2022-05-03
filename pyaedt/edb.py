@@ -693,7 +693,7 @@ class Edb(object):
 
         Parameters
         ----------
-        val : str or float or int
+        val : str, float, int
 
 
         Returns
@@ -1078,7 +1078,7 @@ class Edb(object):
             List of nets to include in the cutout. The default is ``None``, in
             which case all nets are included.
         include_partial_instances : bool, optional
-            It checks for Padstack Instances that has bounding box  intersecting with Point List Polygon.
+            Whether to include padstack instances that have bounding boxes intersecting with point list polygons.
             This operation may slow down the cutout export.
 
         Returns
@@ -1140,7 +1140,7 @@ class Edb(object):
 
         if include_partial_instances:
             p_missing = [i for i in pinstance_to_add if i.id not in ids]
-            self.logger.info("Added {} Padstack Instances after cutout".format(len(p_missing)))
+            self.logger.info("Added {} padstack instances after cutout".format(len(p_missing)))
             for p in p_missing:
                 position = self.edb.Geometry.PointData(self.edb_value(p.position[0]), self.edb_value(p.position[1]))
                 net = self.core_nets.find_or_create_net(p.net_name)

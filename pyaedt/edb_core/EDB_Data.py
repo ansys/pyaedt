@@ -2040,8 +2040,8 @@ class EDBPadstackInstance(object):
 
     @property
     def bounding_box(self):
-        """Get Bounding Box of Padstack Instance.
-        Since this method is slow, bounding box is stored in a variable and reused.
+        """Get bounding box of the padstack instance.
+        Because this method is slow, the bounding box is stored in a variable and reused.
 
         Returns
         -------
@@ -2063,17 +2063,18 @@ class EDBPadstackInstance(object):
 
     @pyaedt_function_handler()
     def in_polygon(self, polygon_data, include_partial=True):
-        """Check if Padstack Instance is in given polygon data.
+        """Check if padstack Instance is in given polygon data.
 
         Parameters
         ----------
         polygon_data : PolygonData Object
         include_partial : bool, optional
-            Either if include partial intersecting instances or not.
+            Whether to include partial intersecting instances. The default is ``True``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         plane = self._pedb.core_primitives.Shape("rectangle", pointA=self.bounding_box[0], pointB=self.bounding_box[1])
         rectangle_data = self._pedb.core_primitives.shape_to_polygon_data(plane)
