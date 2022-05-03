@@ -1370,6 +1370,7 @@ class TestClass(BasisTest, object):
         assert not failing_test_1
         failing_test_2 = stack_up.get_property_by_material_name("none_property", "copper")
         assert not failing_test_2
+
     def test_98_export_import_json_for_config(self):
         sim_config = SimulationConfiguration()
         assert sim_config.output_aedb is None
