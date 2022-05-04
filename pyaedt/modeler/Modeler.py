@@ -4434,10 +4434,6 @@ class GeometryModeler(Modeler, object):
         self._oeditor.MoveEdges(arg1, arg2)
         return True
 
-    def __get__(self, instance, owner):
-        self._app = instance
-        return self
-
     class Position:
         """Position.
 
