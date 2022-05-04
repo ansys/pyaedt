@@ -1032,8 +1032,7 @@ class Configurations(object):
             dict_out["optimizations"] = {}
             for setup in self._app.optimizations.setups:
                 dict_out["optimizations"][setup.name] = setup.props
-                if not setup.props.get("SetupType", None):
-                    dict_out["optimizations"][setup.name]["SetupType"] = setup.soltype
+                dict_out["optimizations"][setup.name]["SetupType"] = setup.soltype
 
     @pyaedt_function_handler()
     def _export_parametrics(self, dict_out):
