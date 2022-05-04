@@ -928,21 +928,18 @@ class EdbHfss(object):
             simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Clear()
             simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList.Add(adapt)
         else:
-            list(simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList).clear()
-            list(simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList).append(adapt)
+            simsetup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList = convert_py_list_to_net_list(
+                [adapt]
+            )
         simsetup_info.SimulationSettings.InitialMeshSettings.LambdaRefine = simulation_setup.do_lambda_refinement
         simsetup_info.SimulationSettings.InitialMeshSettings.UseDefaultLambda = True
         simsetup_info.SimulationSettings.AdaptiveSettings.MaxRefinePerPass = 30
-        simsetup_info.SimulationSettings.AdaptiveSettings.MinPasses = simulation_setup.min_num_passes  # 1
+        simsetup_info.SimulationSettings.AdaptiveSettings.MinPasses = simulation_setup.min_num_passes
         simsetup_info.SimulationSettings.AdaptiveSettings.MinConvergedPasses = 1
-        simsetup_info.SimulationSettings.HFSSSolverSettings.OrderBasis = (
-            simulation_setup.basis_order
-        )  # -1  # e.g. mixed
+        simsetup_info.SimulationSettings.HFSSSolverSettings.OrderBasis = simulation_setup.basis_order
         simsetup_info.SimulationSettings.HFSSSolverSettings.UseHFSSIterativeSolver = False
         simsetup_info.SimulationSettings.DefeatureSettings.UseDefeature = False  # set True when using defeature ratio
-        simsetup_info.SimulationSettings.DefeatureSettings.UseDefeatureAbsLength = (
-            simulation_setup.defeature_layout
-        )  # True
+        simsetup_info.SimulationSettings.DefeatureSettings.UseDefeatureAbsLength = simulation_setup.defeature_layout
         simsetup_info.SimulationSettings.DefeatureSettings.DefeatureAbsLength = simulation_setup.defeature_abs_length
 
         try:
@@ -1192,12 +1189,7 @@ class EdbHfss(object):
            Number of ports.
 
         """
-        port_list = []
-        for term in self._active_layout.Terminals:
-            if str(term.GetBoundaryType()) == "PortBoundary":
-                if "ref" not in term.GetName():
-                    port_list.append(term)
-        return len(port_list)
+        return len([term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0])
 
     @pyaedt_function_handler()
     def layout_defeaturing(self, simulation_setup=None):

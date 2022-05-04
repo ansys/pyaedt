@@ -45,10 +45,13 @@ They are accessible through the ``post`` property:
    PostProcessor.SolutionData
    PostProcessor.FieldPlot
    AdvancedPostProcessing.ModelPlotter
+   report_templates.Trace
+   report_templates.LimitLine
    report_templates.Standard
    report_templates.Fields
    report_templates.NearField
    report_templates.FarField
    report_templates.EyeDiagram
    report_templates.Emission
+   report_templates.Spectral
 

@@ -5,6 +5,7 @@ from collections import OrderedDict
 from datetime import datetime
 
 from pyaedt import __version__
+from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.general_methods import _create_json_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -1022,8 +1023,7 @@ class Configurations(object):
             dict_out["setups"] = {}
             for setup in self._app.setups:
                 dict_out["setups"][setup.name] = setup.props
-                if not setup.props.get("SetupType", None):
-                    dict_out["setups"][setup.name]["SetupType"] = setup.setuptype
+                dict_out["setups"][setup.name]["SetupType"] = setup.setuptype
 
     @pyaedt_function_handler()
     def _export_optimizations(self, dict_out):
@@ -1031,8 +1031,7 @@ class Configurations(object):
             dict_out["optimizations"] = {}
             for setup in self._app.optimizations.setups:
                 dict_out["optimizations"][setup.name] = setup.props
-                if not setup.props.get("SetupType", None):
-                    dict_out["optimizations"][setup.name]["SetupType"] = setup.soltype
+                dict_out["optimizations"][setup.name]["SetupType"] = setup.soltype
 
     @pyaedt_function_handler()
     def _export_parametrics(self, dict_out):
@@ -1040,8 +1039,7 @@ class Configurations(object):
             dict_out["parametrics"] = {}
             for setup in self._app.parametrics.setups:
                 dict_out["parametrics"][setup.name] = setup.props
-                if not setup.props.get("SetupType", None):
-                    dict_out["parametrics"][setup.name]["SetupType"] = setup.soltype
+                dict_out["parametrics"][setup.name]["SetupType"] = setup.soltype
 
     @pyaedt_function_handler()
     def _export_boundaries(self, dict_out):
@@ -1240,23 +1238,33 @@ class ConfigurationsIcepak(Configurations):
 
     @pyaedt_function_handler()
     def _update_mesh_operations(self, name, props):
-        pass
-        # update = False
-        # for mesh_el in self._app.mesh.meshoperations:
-        #     if mesh_el.name == name:
-        #         if not self.options.skip_import_if_exists:
-        #             mesh_el.props = props
-        #             mesh_el.update()
-        #         update = True
-        # if update:
-        #     return
-        # bound = MeshOperation(self._app.mesh, name, props, props["Type"])
-        # if bound.create():
-        #     self._app.mesh.meshoperations.append(bound)
-        #     self._app.logger.info("mesh Operation {} added.".format(name))
-        # else:
-        #     self._app.logger.warning("Failed to add Mesh {} ".format(name))
-        # return True
+        if name == "Settings":
+            if not self.options.skip_import_if_exists:
+                for el in props:
+                    if el in self._app.mesh.global_mesh_region.__dict__:
+                        self._app.mesh.global_mesh_region.__dict__[el] = props[el]
+                return self._app.mesh.global_mesh_region.update()
+        for mesh_el in self._app.mesh.meshregions:
+            if mesh_el.name == name:
+                if not self.options.skip_import_if_exists:
+                    for el in props:
+                        if el in mesh_el.__dict__:
+                            mesh_el.__dict__[el] = props[el]
+                    return mesh_el.update()
+
+        bound = self._app.mesh.MeshRegion(
+            self._app.mesh.omeshmodule, self._app.mesh.boundingdimension, self._app.mesh._model_units
+        )
+        bound.name = name
+        for el in props:
+            if el in bound.__dict__:
+                bound.__dict__[el] = props[el]
+        if bound.create():
+            self._app.mesh.meshregions.append(bound)
+            self._app.logger.info("mesh Operation {} added.".format(name))
+        else:
+            self._app.logger.warning("Failed to add Mesh {} ".format(name))
+        return True
 
     @pyaedt_function_handler()
     def _export_objects_properties(self, dict_out):
@@ -1274,9 +1282,27 @@ class ConfigurationsIcepak(Configurations):
 
     @pyaedt_function_handler()
     def _export_mesh_operations(self, dict_out):
-        # if self._app.mesh.meshregions:
-        #     dict_out["mesh"] = {}
-        #     for mesh in self._app.mesh.meshoperations:
-        #         dict_out["mesh"][mesh.name] = mesh.props
-        #         self._map_object(mesh.props, dict_out)
+        dict_out["mesh"] = {}
+        args = ["NAME:Settings"]
+        if self._app.mesh.global_mesh_region.UserSpecifiedSettings:
+            args += self._app.mesh.global_mesh_region.manualsettings
+        else:
+            args += self._app.mesh.global_mesh_region.autosettings
+        mop = OrderedDict({})
+        _arg2dict(args, mop)
+        dict_out["mesh"]["Settings"] = mop["Settings"]
+        if self._app.mesh.meshregions:
+            for mesh in self._app.mesh.meshregions:
+                if mesh.name == "Settings":
+                    args = ["NAME:Settings"]
+                else:
+                    args = ["NAME:" + mesh.name, "Enable:=", mesh.Enable]
+                if mesh.UserSpecifiedSettings:
+                    args += mesh.manualsettings
+                else:
+                    args += mesh.autosettings
+                mop = OrderedDict({})
+                _arg2dict(args, mop)
+                dict_out["mesh"][mesh.name] = mop[mesh.name]
+                self._map_object(mop, dict_out)
         pass

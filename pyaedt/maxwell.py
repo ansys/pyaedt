@@ -298,12 +298,18 @@ class Maxwell(object):
 
         >>> oModule.SetEddyEffect
         """
-        EddyVector = ["NAME:EddyEffectVector"]
-        for obj in object_list:
-            EddyVector.append(["NAME:Data", "Object Name:=", obj, "Eddy Effect:=", activate])
+        solid_objects_names = self.get_all_conductors_names()
 
-        oModule = self.odesign.GetModule("BoundarySetup")
-        oModule.SetEddyEffect(["NAME:Eddy Effect Setting", EddyVector])
+        EddyVector = ["NAME:EddyEffectVector"]
+        for obj in solid_objects_names:
+            if obj in object_list:
+                EddyVector.append(["NAME:Data", "Object Name:=", obj, "Eddy Effect:=", activate])
+            else:
+                EddyVector.append(
+                    ["NAME:Data", "Object Name:=", obj, "Eddy Effect:=", bool(self.oboundary.GetEddyEffect(obj))]
+                )
+
+        self.oboundary.SetEddyEffect(["NAME:Eddy Effect Setting", EddyVector])
         return True
 
     @pyaedt_function_handler()
@@ -489,7 +495,6 @@ class Maxwell(object):
         inertia="1",
         damping=0,
         load_torque="0newton",
-        motion_name=None,
     ):
         """Assign a rotation motion to an object container.
 
@@ -529,8 +534,6 @@ class Maxwell(object):
         load_torque : float or str, optional
             Load force. The default is ``"0newton"``. If a float value is used,
             "NewtonMeter" units are applied.
-        motion_name : str, optional
-            Motion name. The default is ``None``.
 
         Returns
         -------
@@ -543,8 +546,8 @@ class Maxwell(object):
         >>> oModule.AssignBand
         """
         assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to the Transient setup."
-        if not motion_name:
-            motion_name = generate_unique_name("Motion")
+        names = list(self.omodelsetup.GetMotionSetupNames())
+        motion_name = "MotionSetup" + str(len(names) + 1)
         object_list = self.modeler.convert_to_selections(band_object, True)
         props = OrderedDict(
             {
@@ -1264,7 +1267,9 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
     @model_depth.setter
     def model_depth(self, value):
         """Set model depth."""
-        return self.change_design_settings({"ModelDepth": value})
+        return self.change_design_settings(
+            {"ModelDepth": self._modeler._arg_with_dim(value, self._modeler.model_units)}
+        )
 
     @pyaedt_function_handler()
     def generate_design_data(self, linefilter=None, objectfilter=None):

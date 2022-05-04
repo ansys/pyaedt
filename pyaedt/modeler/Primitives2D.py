@@ -161,7 +161,7 @@ class Primitives2D(Primitives, object):
 
         Returns
         -------
-        pyaedt.modeler.Object3d.Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
 
         References
         ----------

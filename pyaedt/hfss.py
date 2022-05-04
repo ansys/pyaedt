@@ -330,9 +330,11 @@ class Hfss(FieldAnalysis3D, object):
         return self._create_boundary(portname, props, "Lumped Port")
 
     @pyaedt_function_handler()
-    def _create_port_terminal(self, objectname, int_line_stop, portname, renorm=True, deembed=None, iswaveport=False):
+    def _create_port_terminal(
+        self, objectname, int_line_stop, portname, renorm=True, deembed=None, iswaveport=False, impedance=None
+    ):
         ref_conductors = self.modeler.convert_to_selections(int_line_stop, True)
-        props = OrderedDict({})
+        props = OrderedDict()
         props["Faces"] = int(objectname)
         props["IsWavePort"] = iswaveport
         props["ReferenceConductors"] = ref_conductors
@@ -342,10 +344,24 @@ class Hfss(FieldAnalysis3D, object):
         if boundary:
             new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
             terminals = [i for i in new_ports if i not in ports]
-            id = 1
-            for terminal in terminals:
-                new_name = portname + "_T" + str(id)
-                id += 1
+            for count, terminal in enumerate(terminals, start=1):
+                if impedance:
+                    properties = [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:HfssTab",
+                            ["NAME:PropServers", "BoundarySetup:" + terminal],
+                            [
+                                "NAME:ChangedProps",
+                                ["NAME:Terminal Renormalizing Impedance", "Value:=", str(impedance) + "ohm"],
+                            ],
+                        ],
+                    ]
+                    try:
+                        self.odesign.ChangeProperty(properties)
+                    except:  # pragma: no cover
+                        self.logger.warning("Failed to change terminal impedance.")
+                new_name = portname + "_T" + str(count)
                 properties = [
                     "NAME:AllTabs",
                     [
@@ -356,8 +372,9 @@ class Hfss(FieldAnalysis3D, object):
                 ]
                 try:
                     self.odesign.ChangeProperty(properties)
-                except:
-                    self.logger.warning("Failed To rename terminals.")
+                except:  # pragma: no cover
+                    self.logger.warning("Failed to rename terminal {}.".format(terminal))
+
             if iswaveport:
                 boundary.type = "Wave Port"
             else:
@@ -1628,7 +1645,13 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     deembed = None
                 return self._create_port_terminal(
-                    faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=False
+                    faces[0],
+                    endobject,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=False,
+                    impedance=impedance,
                 )
         return False  # pragma: no cover
 
@@ -2076,7 +2099,13 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     deembed = deembed_dist
                 return self._create_port_terminal(
-                    faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=True
+                    faces[0],
+                    endobject,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=True,
+                    impedance=impedance,
                 )
         return False  # pragma: no cover
 
@@ -2530,7 +2559,13 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     deembed = deembed_dist
                 return self._create_port_terminal(
-                    faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=True
+                    faces[0],
+                    endobject,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=True,
+                    impedance=impedance,
                 )
         return False
 
@@ -3021,7 +3056,7 @@ class Hfss(FieldAnalysis3D, object):
         self,
         sheet,
         deemb=0,
-        axisdir=0,
+        axisdir=None,
         impedance=50,
         nummodes=1,
         portname=None,
@@ -3032,14 +3067,16 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        sheet : str or int or :class:`pyaedt.modeler.Object3d.Object3d`
+        sheet : str or int or list or :class:`pyaedt.modeler.Object3d.Object3d`
             Name of the sheet.
         deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            Position of the port. It is used to auto evaluate the integration line.
+            If set to ``None`` the integration line is not defined.
+            It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is 0 for ``Application.AxisDir.XNeg``.
+            The default is ``None`` and no integration line is defined.
         impedance : float, optional
             Port impedance. The default is ``50``.
         nummodes : int, optional
@@ -3089,9 +3126,10 @@ class Hfss(FieldAnalysis3D, object):
         else:
             oname = ""
         if "Modal" in self.solution_type:
-
-            refid, int_start, int_stop = self._get_reference_and_integration_points(sheet, axisdir, oname)
-
+            if axisdir:
+                _, int_start, int_stop = self._get_reference_and_integration_points(sheet, axisdir, oname)
+            else:
+                int_start = int_stop = None
             portname = self._get_unique_source_name(portname, "Port")
 
             return self._create_waveport_driven(
@@ -3115,7 +3153,13 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     deembed = deemb
                 return self._create_port_terminal(
-                    faces, terminal_references, portname, renorm=renorm, deembed=deembed, iswaveport=True
+                    faces,
+                    terminal_references,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=True,
+                    impedance=impedance,
                 )
             else:
                 self.logger.error("Reference conductors are missing.")
@@ -3198,7 +3242,13 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     deembed = None
                 port = self._create_port_terminal(
-                    faces, reference_object_list, portname, renorm=renorm, deembed=deembed, iswaveport=False
+                    faces,
+                    reference_object_list,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=False,
+                    impedance=impedance,
                 )
 
             return port
@@ -3680,16 +3730,19 @@ class Hfss(FieldAnalysis3D, object):
         return True
 
     @pyaedt_function_handler()
-    def edit_source(self, portandmode, powerin, phase="0deg"):
+    def edit_source(self, portandmode=None, powerin="1W", phase="0deg"):
         """Set up the power loaded for Hfss Post-Processing.
 
         Parameters
         ----------
-        portandmode : str
+        portandmode : str, optional
             Port name and mode. For example, ``"Port1:1"``.
-        powerin : str
+            It must be defined if solution type is other than Eigenmodal. It is ignored for solution type Eigenmodal.
+        powerin : str, optional
             Power in Watts or the project variable to put as stored energy in the project.
+            The default is ``"1W"``.
         phase : str, optional
+            Phase of the excitation.
             The default is ``"0deg"``.
 
         Returns
@@ -3715,13 +3768,16 @@ class Hfss(FieldAnalysis3D, object):
         >>> wave_port = hfss.create_wave_port_from_sheet(sheet, 5, hfss.AxisDir.XNeg, 40,
         ...                                              2, "SheetWavePort", True)
         >>> hfss.edit_source("SheetWavePort" + ":1", "10W")
-        pyaedt info: Setting up power to Eigenmode 10W
+        pyaedt info: Setting up power to "SheetWavePort:1" = 10W
         True
 
         """
 
-        self.logger.info("Setting up power to Eigenmode " + powerin)
         if self.solution_type != "Eigenmode":
+            if portandmode is None:
+                self.logger.error("Port and Mode must be defined for solution type {}".format(self.solution_type))
+                return False
+            self.logger.info('Setting up power to "{}" = {}'.format(portandmode, powerin))
             self.osolution.EditSources(
                 [
                     ["IncludePortPostProcessing:=", True, "SpecifySystemPower:=", False],
@@ -3729,6 +3785,7 @@ class Hfss(FieldAnalysis3D, object):
                 ]
             )
         else:
+            self.logger.info("Setting up power to Eigenmode = {}".format(powerin))
             self.osolution.EditSources(
                 [["FieldType:=", "EigenStoredEnergy"], ["Name:=", "Modes", "Magnitudes:=", [powerin]]]
             )
@@ -3737,6 +3794,7 @@ class Hfss(FieldAnalysis3D, object):
     @pyaedt_function_handler()
     def thicken_port_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
         """Create thickened sheets over a list of input port sheets.
+        This method is built to work with the output of ``modeler.find_port_faces``.
 
         Parameters
         ----------
@@ -3753,8 +3811,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        list of int
-            List of the port IDs where thickened sheets were created.
+        Dict
+            For each input sheet returns the port IDs where thickened sheets were created
+            if the name contains the word "Vacuum".
 
         References
         ----------
@@ -3803,7 +3862,7 @@ class Hfss(FieldAnalysis3D, object):
                     ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(l) + "mm", "BothSides:=", False],
                 )
                 # aedt_bounding_box2 = self._oeditor.GetModelBoundingBox()
-                aedt_bounding_box2 = self.modeler.primitives.get_model_bounding_box()
+                aedt_bounding_box2 = self.modeler.get_model_bounding_box()
 
                 self._odesign.Undo()
 
@@ -4010,7 +4069,7 @@ class Hfss(FieldAnalysis3D, object):
             for setup in setups:
                 msg = str(setup)
                 val_list.append(msg)
-                if self.solution_type != "EigenMode":
+                if self.solution_type.lower() != "eigenmode":
                     sweepsname = self.oanalysis.GetSweeps(setup)
                     if sweepsname:
                         for sw in sweepsname:

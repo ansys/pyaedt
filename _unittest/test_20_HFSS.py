@@ -277,7 +277,7 @@ class TestClass(BasisTest, object):
         box_sweep = self.aedtapp.modeler.create_box([0, 0, 20], [10, 10, 5], "box_sweep", "Copper")
         box_sweep2 = self.aedtapp.modeler.create_box([0, 0, 30], [10, 10, 5], "box_sweep2", "Copper")
         port = self.aedtapp.create_wave_port_between_objects(
-            "box_sweep", "box_sweep2", self.aedtapp.AxisDir.XNeg, 50, 1, "WaveForSweep", False
+            "box_sweep", "box_sweep2", self.aedtapp.AxisDir.XNeg, 75, 1, "WaveForSweep", False
         )
         setup = self.aedtapp.create_setup(setupname="MySetupForSweep")
         sweep = setup.add_sweep()
@@ -672,7 +672,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.solution_type = "Terminal"
         assert self.aedtapp.create_wave_port_microstrip_between_objects(gnd.name, ms.name, portname="MS2", axisdir=1)
         assert self.aedtapp.create_wave_port_microstrip_between_objects(
-            gnd.name, ms.name, portname="MS3", axisdir=1, deembed_dist=1
+            gnd.name, ms.name, portname="MS3", axisdir=1, deembed_dist=1, impedance=77
         )
         self.aedtapp.solution_type = "Modal"
 
@@ -827,11 +827,11 @@ class TestClass(BasisTest, object):
         box2 = self.aedtapp.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig", matname="copper")
         sheet = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [-100, -100, 5], [200, 15], "port")
         port = self.aedtapp.create_lumped_port_between_objects(
-            box1, box2.name, self.aedtapp.AxisDir.XNeg, 50, "Lump1", True, False
+            box1, box2.name, self.aedtapp.AxisDir.XNeg, 75, "Lump1", True, False
         )
         assert "Lump1_T1" in self.aedtapp.excitations
         port2 = self.aedtapp.create_lumped_port_to_sheet(
-            sheet.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet", True, False, reference_object_list=[box1]
+            sheet.name, self.aedtapp.AxisDir.XNeg, 33, "Lump_sheet", True, False, reference_object_list=[box1]
         )
         assert port2.name + "_T1" in self.aedtapp.excitations
         port3 = self.aedtapp.create_lumped_port_between_objects(

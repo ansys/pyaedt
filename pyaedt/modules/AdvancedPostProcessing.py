@@ -672,9 +672,9 @@ class PostProcessor(Post):
         """
         legend = []
         Freq = nominal_value
-        solution_data.nominal_sweeps[nominal_sweep] = Freq
+        solution_data.active_variation[nominal_sweep] = Freq
         solution_data.primary_sweep = primary_sweep
-        solution_data.nominal_sweeps[primary_sweep] = 45
+        solution_data.active_variation[primary_sweep] = 45
         theta = np.array((solution_data.sweeps[primary_sweep]))
         phi = np.array((solution_data.sweeps[secondary_sweep]))
         r = []
@@ -682,7 +682,7 @@ class PostProcessor(Post):
         phi1 = []
         theta1 = [i * math.pi / 180 for i in theta]
         for el in solution_data.sweeps[secondary_sweep]:
-            solution_data.nominal_sweeps[secondary_sweep] = el
+            solution_data.active_variation[secondary_sweep] = el
             phi1.append(el * math.pi / 180)
             r.append(solution_data.data_magnitude())
         THETA, PHI = np.meshgrid(theta1, phi1)

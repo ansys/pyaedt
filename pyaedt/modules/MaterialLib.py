@@ -345,6 +345,7 @@ class Materials(object):
 
         newmat = Material(self, matname)
         index = "$ID" + matname
+        newmat.is_sweep_material = True
         self._app[index] = 0
         for el in mat_dict:
             if el in list(mat_dict.keys()):

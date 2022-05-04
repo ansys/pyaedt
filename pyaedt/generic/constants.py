@@ -855,3 +855,60 @@ CSS4_COLORS = {
     "cadetblue": "#5F9EA0",
     "plum": "#DDA0DD",
 }
+
+
+class LineStyle(object):
+    """Provides trace line style constants."""
+
+    (Solid, Dot, ShortDash, DotShortDash, Dash, DotDash, DotDot, DotDotDash, LongDash) = (
+        "Solid",
+        "Dot",
+        "ShortDash",
+        "DotShortDash",
+        "Dash",
+        "DotDash",
+        "DotDot",
+        "DotDotDash",
+        "LongDash",
+    )
+
+
+class TraceType(object):
+    """Provides trace type constants."""
+
+    (Continuous, Discrete, StickZero, StickInfinity, BarZero, BarInfinity, Histogram, Step, Stair, Digital) = (
+        "Continuous",
+        "Discrete",
+        "Stick Zero",
+        "Stick Infinity",
+        "Bar Zero",
+        "Bar Infinity",
+        "Histogram",
+        "Step",
+        "Stair",
+        "Digital",
+    )
+
+
+class SymbolStyle(object):
+    """Provides symbol style constants."""
+
+    (
+        Box,
+        Circle,
+        VerticalEllipse,
+        HorizontalEllipse,
+        VerticalUpTriangle,
+        VerticalDownTriangle,
+        HorizontalLeftTriangle,
+        HorizontalRightTriangle,
+    ) = (
+        "Box",
+        "Circle",
+        "VerticalEllipse",
+        "HorizontalEllipse",
+        "VerticalUpTriangle",
+        "VerticalDownTriangle",
+        "HorizontalLeftTriangle",
+        "HorizontalRightTriangle",
+    )

@@ -70,7 +70,7 @@ solutions_types = {
             "options": None,
             "report_type": "Magnetostatic",
             "default_setup": 6,
-            "default_adaptive": None,
+            "default_adaptive": "LastAdaptive",
         },
         "EddyCurrent": {
             "name": "EddyCurrent",
