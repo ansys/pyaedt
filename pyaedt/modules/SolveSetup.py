@@ -675,6 +675,7 @@ class SetupCircuit(object):
     """
 
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
+
         self.auto_update = False
         self._app = None
         self.p_app = app
