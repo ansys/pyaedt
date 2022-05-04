@@ -581,3 +581,10 @@ class TestClass(BasisTest, object):
             )
             == "5"
         )
+
+    def test_50_move_edge(self):
+        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "edge_movements")
+        assert not box1.faces[0].edges[0].move_along_normal(1)
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "edge_movements2")
+        assert self.aedtapp.modeler.move_edge([rect.edges[0], rect.edges[2]])
+        assert rect.faces[0].bottom_edge_x.move_along_normal()

@@ -114,8 +114,8 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_stackup.stackup_layers["TOP"]._builder
         assert self.edbapp.core_stackup.stackup_layers["TOP"].id
         assert (
-                isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int)
-                or str(type(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type)) == "<type 'LayerType'>"
+            isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int)
+            or str(type(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type)) == "<type 'LayerType'>"
         )
 
     def test_05_get_signal_layers(self):
@@ -221,20 +221,20 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_components.components["R1"].pinlist
         pinname = self.edbapp.core_components.components["R1"].pinlist[0].GetName()
         assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].lower_elevation
-                == self.edbapp.core_components.components["R1"].lower_elevation
+            self.edbapp.core_components.components["R1"].pins[pinname].lower_elevation
+            == self.edbapp.core_components.components["R1"].lower_elevation
         )
         assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].placement_layer
-                == self.edbapp.core_components.components["R1"].placement_layer
+            self.edbapp.core_components.components["R1"].pins[pinname].placement_layer
+            == self.edbapp.core_components.components["R1"].placement_layer
         )
         assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].upper_elevation
-                == self.edbapp.core_components.components["R1"].upper_elevation
+            self.edbapp.core_components.components["R1"].pins[pinname].upper_elevation
+            == self.edbapp.core_components.components["R1"].upper_elevation
         )
         assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].top_bottom_association
-                == self.edbapp.core_components.components["R1"].top_bottom_association
+            self.edbapp.core_components.components["R1"].pins[pinname].top_bottom_association
+            == self.edbapp.core_components.components["R1"].top_bottom_association
         )
         assert self.edbapp.core_components.components["R1"].pins[pinname].position
         assert self.edbapp.core_components.components["R1"].pins[pinname].rotation
@@ -318,8 +318,7 @@ class TestClass(BasisTest, object):
     def test_37_create_circuit_port(self):
         initial_len = len(self.edbapp.core_padstack.pingroups)
         assert (
-                self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50,
-                                                                   "test") == "test"
+            self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "test") == "test"
         )
         p2 = self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
         assert p2 != "test" and "test" in p2
@@ -1338,18 +1337,11 @@ class TestClass(BasisTest, object):
         dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "pec")
         cloned_magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "my_new_pec")
         magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "pec")
-        if is_ironpython:  # pragma: no cover
-            assert cloned_permittivity[0] == permittivity[0]
-            assert cloned_permeability[0] == permeability[0]
-            assert cloned_conductivity[0] == conductivity[0]
-            assert cloned_dielectric_loss[0] == dielectric_loss[0]
-            assert cloned_magnetic_loss[0] == magnetic_loss[0]
-        else:
-            assert cloned_permittivity[1] == permittivity[1]
-            assert cloned_permeability[1] == permeability[1]
-            assert cloned_conductivity[1] == conductivity[1]
-            assert cloned_dielectric_loss[1] == dielectric_loss[1]
-            assert cloned_magnetic_loss[1] == magnetic_loss[1]
+        assert cloned_permittivity == permittivity
+        assert cloned_permeability == permeability
+        assert cloned_conductivity == conductivity
+        assert cloned_dielectric_loss == dielectric_loss
+        assert cloned_magnetic_loss == magnetic_loss
         non_duplicated = stack_up.duplicate_material("my_nonexistent_mat", "nothing")
         assert not non_duplicated
 
@@ -1360,18 +1352,11 @@ class TestClass(BasisTest, object):
         conductivity = stack_up.get_property_by_material_name("conductivity", "copper")
         dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "FR4_epoxy")
         magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "FR4_epoxy")
-        if is_ironpython:  # pragma: no cover
-            assert permittivity[0] == 4.4
-            assert permeability[0] == 0
-            assert conductivity[0] == 59590000
-            assert dielectric_loss[0] == 0.02
-            assert magnetic_loss[0] == 0
-        else:
-            assert permittivity[1] == 4.4
-            assert permeability[1] == 0
-            assert conductivity[1] == 59590000
-            assert dielectric_loss[1] == 0.02
-            assert magnetic_loss[1] == 0
+        assert permittivity == 4.4
+        assert permeability == 0
+        assert conductivity == 59590000
+        assert dielectric_loss == 0.02
+        assert magnetic_loss == 0
         failing_test_1 = stack_up.get_property_by_material_name("magnetic_loss_tangent", "inexistent_material")
         assert not failing_test_1
         failing_test_2 = stack_up.get_property_by_material_name("none_property", "copper")

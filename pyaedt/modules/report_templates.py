@@ -441,7 +441,7 @@ class CommonReport(object):
         return solution_data
 
     @pyaedt_function_handler()
-    def add_limit_line_from_points(self, x_list, y_list, x_units="", y_units="", y_axis=1):  # pragma: no cover
+    def add_limit_line_from_points(self, x_list, y_list, x_units="", y_units="", y_axis="Y1"):  # pragma: no cover
         """Add a Cartesian Limit Line from point lists. This method works only in graphical mode.
 
         Parameters
@@ -479,7 +479,7 @@ class CommonReport(object):
                     "YUnits:=",
                     y_units,
                     "YAxis:=",
-                    "Y{}".format(y_axis),
+                    y_axis,
                 ],
             )
             return True
@@ -503,8 +503,8 @@ class CommonReport(object):
             Y equation to apply. Default is Y=X.
         units : str
             X axis units. Default is "GHz".
-        y_axis : str, optional
-            Y axis. Default is `"Y1"`.
+        y_axis : int, optional
+            Y axis. Default is `1`.
 
         Returns
         -------
