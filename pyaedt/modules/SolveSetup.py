@@ -64,6 +64,8 @@ class Setup(object):
             self.setuptype = self.p_app.design_solutions.default_setup
         elif isinstance(solutiontype, int):
             self.setuptype = solutiontype
+        elif solutiontype in SetupKeys.SetupNames:
+            self.setuptype = SetupKeys.SetupNames.index(solutiontype)
         else:
             self.setuptype = self.p_app.design_solutions._solution_options[solutiontype]["default_setup"]
 
@@ -680,6 +682,8 @@ class SetupCircuit(object):
             self.setuptype = self.p_app.design_solutions.default_setup
         elif isinstance(solutiontype, int):
             self.setuptype = solutiontype
+        elif solutiontype in SetupKeys.SetupNames:
+            self.setuptype = SetupKeys.SetupNames.index(solutiontype)
         else:
             self.setuptype = self.p_app.design_solutions._solution_options[solutiontype]["default_setup"]
         self._Name = "LinearFrequency"
