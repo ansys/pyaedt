@@ -693,7 +693,7 @@ class Edb(object):
 
         Parameters
         ----------
-        val : str, float int
+        val : str, float, int
 
 
         Returns
@@ -1060,13 +1060,14 @@ class Edb(object):
         output_aedb_path=None,
         open_cutout_at_end=True,
         nets_to_include=None,
+        include_partial_instances=False,
     ):
         """Create a cutout on a specified shape and save it to a new AEDB file.
 
         Parameters
         ----------
         point_list : list
-            List of points defining the cutout shape.
+            Points list defining the cutout shape.
         units : str
             Units of the point list. The default is ``"mm"``.
         output_aedb_path : str, optional
@@ -1076,6 +1077,9 @@ class Edb(object):
         nets_to_include : list, optional
             List of nets to include in the cutout. The default is ``None``, in
             which case all nets are included.
+        include_partial_instances : bool, optional
+            Whether to include padstack instances that have bounding boxes intersecting with point list polygons.
+            This operation may slow down the cutout export.
 
         Returns
         -------
@@ -1089,13 +1093,24 @@ class Edb(object):
         point_list = [[self.arg_with_dim(i[0], units), self.arg_with_dim(i[1], units)] for i in point_list]
         plane = self.core_primitives.Shape("polygon", points=point_list)
         polygonData = self.core_primitives.shape_to_polygon_data(plane)
-
         _ref_nets = []
         if nets_to_include:
             self.logger.info("Creating cutout on {} nets.".format(len(nets_to_include)))
         else:
             self.logger.info("Creating cutout on all nets.")  # pragma: no cover
 
+        # Check Padstack Instances overlapping the cutout
+        pinstance_to_add = []
+        if include_partial_instances:
+            if nets_to_include:
+                pinst = [
+                    i for i in list(self.core_padstack.padstack_instances.values()) if i.net_name in nets_to_include
+                ]
+            else:
+                pinst = [i for i in list(self.core_padstack.padstack_instances.values())]
+            for p in pinst:
+                if p.in_polygon(polygonData):
+                    pinstance_to_add.append(p)
         # validate references in layout
         for _ref in self.core_nets.nets:
             if nets_to_include:
@@ -1103,7 +1118,6 @@ class Edb(object):
                     _ref_nets.append(self.core_nets.nets[_ref].net_object)
             else:
                 _ref_nets.append(self.core_nets.nets[_ref].net_object)  # pragma: no cover
-        # TODO check and insert via check on polygon intersection
         voids = [p for p in self.core_primitives.circles if p.is_void]
         voids2 = [p for p in self.core_primitives.polygons if p.is_void]
         voids.extend(voids2)
@@ -1117,6 +1131,49 @@ class Edb(object):
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
         layout = _cutout.GetLayout()
+        cutout_obj_coll = layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        ids = []
+        for obj in cutout_obj_coll.Items:
+            lobj = obj.GetLayoutObj()
+            if type(lobj) is self.edb.Cell.Primitive.PadstackInstance:
+                ids.append(lobj.GetId())
+
+        if include_partial_instances:
+            p_missing = [i for i in pinstance_to_add if i.id not in ids]
+            self.logger.info("Added {} padstack instances after cutout".format(len(p_missing)))
+            for p in p_missing:
+                position = self.edb.Geometry.PointData(self.edb_value(p.position[0]), self.edb_value(p.position[1]))
+                net = self.core_nets.find_or_create_net(p.net_name)
+                rotation = self.edb_value(p.rotation)
+                sign_layers = list(self.core_stackup.signal_layers.keys())
+                if not p.start_layer:
+                    fromlayer = self.core_stackup.signal_layers[sign_layers[-1]]._layer
+                else:
+                    fromlayer = self.core_stackup.signal_layers[p.start_layer]._layer
+
+                if not p.stop_layer:
+                    tolayer = self.core_stackup.signal_layers[sign_layers[0]]._layer
+                else:
+                    tolayer = self.core_stackup.signal_layers[p.stop_layer]._layer
+                padstack = None
+                for pad in list(self.core_padstack.padstacks.keys()):
+                    if pad == p.padstack_definition:
+                        padstack = self.core_padstack.padstacks[pad].edb_padstack
+                        padstack_instance = self.edb.Cell.Primitive.PadstackInstance.Create(
+                            _cutout.GetLayout(),
+                            net,
+                            p.name,
+                            padstack,
+                            position,
+                            rotation,
+                            fromlayer,
+                            tolayer,
+                            None,
+                            None,
+                        )
+                        padstack_instance.SetIsLayoutPin(p.is_pin)
+                        break
+
         for void_circle in voids_to_add:
             if void_circle.type == "Circle":
                 if is_ironpython:  # pragma: no cover

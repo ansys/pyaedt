@@ -1728,6 +1728,7 @@ class EDBPadstack(object):
         self.pad_by_layer = {}
         self.antipad_by_layer = {}
         self.thermalpad_by_layer = {}
+        self._bounding_box = []
         for layer in self.via_layers:
             self.pad_by_layer[layer] = EDBPadProperties(edb_padstack, layer, 0, self)
             self.antipad_by_layer[layer] = EDBPadProperties(edb_padstack, layer, 1, self)
@@ -2036,6 +2037,62 @@ class EDBPadstackInstance(object):
     def __init__(self, edb_padstackinstance, _pedb):
         self._edb_padstackinstance = edb_padstackinstance
         self._pedb = _pedb
+        self._bounding_box = []
+
+    @property
+    def bounding_box(self):
+        """Get bounding box of the padstack instance.
+        Because this method is slow, the bounding box is stored in a variable and reused.
+
+        Returns
+        -------
+        list of float
+        """
+        if self._bounding_box:
+            return self._bounding_box
+        bbox = (
+            self._edb_padstackinstance.GetLayout()
+            .GetLayoutInstance()
+            .GetLayoutObjInstance(self._edb_padstackinstance, None)
+            .GetBBox()
+        )
+        self._bounding_box = [
+            [bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()],
+            [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()],
+        ]
+        return self._bounding_box
+
+    @pyaedt_function_handler()
+    def in_polygon(self, polygon_data, include_partial=True):
+        """Check if padstack Instance is in given polygon data.
+
+        Parameters
+        ----------
+        polygon_data : PolygonData Object
+        include_partial : bool, optional
+            Whether to include partial intersecting instances. The default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        plane = self._pedb.core_primitives.Shape("rectangle", pointA=self.bounding_box[0], pointB=self.bounding_box[1])
+        rectangle_data = self._pedb.core_primitives.shape_to_polygon_data(plane)
+        int_val = polygon_data.GetIntersectionType(rectangle_data)
+        # Intersection type:
+        # 0 = objects do not intersect
+        # 1 = this object fully inside other (no common contour points)
+        # 2 = other object fully inside this
+        # 3 = common contour points 4 = undefined intersection
+        if int_val == 0:
+            return False
+        elif include_partial:
+            return True
+        elif int_val < 3:
+            return True
+        else:
+            return False
 
     @property
     def pin(self):
@@ -2098,9 +2155,14 @@ class EDBPadstackInstance(object):
         str
             Name of the starting layer.
         """
-        layer = self._pedb.edb.Cell.Layer("", 1)
-        _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
-        return start_layer.GetName()
+        layer = self._pedb.edb.Cell.Layer("", self._pedb.edb.Cell.LayerType.SignalLayer)
+        if is_ironpython:
+            _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange()
+        else:
+            _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
+        if start_layer:
+            return start_layer.GetName()
+        return None
 
     @start_layer.setter
     def start_layer(self, layer_name):
@@ -2117,9 +2179,14 @@ class EDBPadstackInstance(object):
         str
             Name of the stopping layer.
         """
-        layer = self._pedb.edb.Cell.Layer("", 1)
-        _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
-        return stop_layer.GetName()
+        layer = self._pedb.edb.Cell.Layer("", self._pedb.edb.Cell.LayerType.SignalLayer)
+        if is_ironpython:
+            _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange()
+        else:
+            _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
+        if stop_layer:
+            return stop_layer.GetName()
+        return None
 
     @stop_layer.setter
     def stop_layer(self, layer_name):
