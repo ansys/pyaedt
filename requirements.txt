@@ -20,7 +20,7 @@ rpyc==5.1.0; python_version > '2.7'
 pyvista==0.34.1; python_version > '2.7'
 # License: MIT
 
-matplotlib==3.5.1
+matplotlib==3.5.2
 # License: https://github.com/matplotlib/matplotlib/blob/master/LICENSE/LICENSE
 # License: PSF
 
