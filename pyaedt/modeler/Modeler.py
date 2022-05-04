@@ -3558,7 +3558,7 @@ class GeometryModeler(Modeler, object):
 
         """
         faces = []
-        solids = [s for s in self.solid_objects if s.material_name != "vacuum" and s.model]
+        solids = [s for s in self.solid_objects if s.material_name not in ["vacuum", "air"] and s.model]
         for sheet_name in port_sheets:
             sheet = self[sheet_name]  # get the sheet object
             _, cloned = self.clone(sheet)
