@@ -2226,7 +2226,7 @@ class Primitives(object):
             if portonplane:
                 vect[divmod(axisdir, 3)[1]] = 0
             # TODO: can we avoid this translate operation - is there another way to check ?
-            self.modeler.translate(second_edge, vect)
+            self.modeler.move(second_edge, vect)
             p_check = second_edge.vertices[0].position
             p_check2 = second_edge.vertices[1].position
         # elif len(ver2) == 1:  # for circular edges with one vertex

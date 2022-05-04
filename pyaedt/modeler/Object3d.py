@@ -2126,15 +2126,18 @@ class Object3d(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pyaedt.modeler.Object3d.Object3d, bool
+            3D object.
+            ``False`` when failed.
 
         References
         ----------
 
         >>> oEditor.Mirror
         """
-        return self._primitives.modeler.mirror(self.id, position=position, vector=vector)
+        if self._primitives.modeler.mirror(self.id, position=position, vector=vector):
+            return self
+        return False
 
     @pyaedt_function_handler()
     def rotate(self, cs_axis, angle=90.0, unit="deg"):
@@ -2153,15 +2156,18 @@ class Object3d(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pyaedt.modeler.Object3d.Object3d, bool
+            3D object.
+            ``False`` when failed.
 
         References
         ----------
 
         >>> oEditor.Rotate
         """
-        return self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit)
+        if self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit):
+            return self
+        return False
 
     @pyaedt_function_handler()
     def move(self, vector):
@@ -2177,14 +2183,17 @@ class Object3d(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pyaedt.modeler.Object3d.Object3d, bool
+            3D object.
+            ``False`` when failed.
 
         References
         ----------
         >>> oEditor.Move
         """
-        return self._primitives.modeler.move(self.id, vector=vector)
+        if self._primitives.modeler.move(self.id, vector=vector):
+            return self
+        return False
 
     def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
         """Duplicate the object around the axis.
