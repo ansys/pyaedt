@@ -1148,6 +1148,19 @@ class Standard(CommonReport):
         return ctxt
 
 
+class AntennaParameters(Standard):
+    """Provides a reporting class that fits Antenna Parameters reports in HFSS plot."""
+
+    def __init__(self, app, report_category, setup_name, far_field_sphere=None):
+        Standard.__init__(self, app, report_category, setup_name)
+        self.far_field_sphere = far_field_sphere
+
+    @property
+    def _context(self):
+        ctxt = ["Context:=", self.far_field_sphere]
+        return ctxt
+
+
 class Fields(CommonReport):
     """General Fields Class."""
 
