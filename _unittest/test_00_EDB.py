@@ -1330,4 +1330,3 @@ class TestClass(BasisTest, object):
         sim_setup.power_nets = ["RSVD_0", "RSVD_1"]
         sim_setup.signal_nets = ["V3P3_S0"]
         self.edbapp.core_nets.classify_nets(sim_setup)
-
