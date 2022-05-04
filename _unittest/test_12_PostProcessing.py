@@ -239,8 +239,11 @@ class TestClass(BasisTest, object):
         new_report.report_type = "3D Polar Plot"
         new_report.far_field_sphere = "3D"
         assert new_report.create()
-        new_report.report_type = "Rectangular Contour Plot"
-        assert new_report.create()
+        new_report2 = self.field_test.post.reports_by_category.antenna_parameters(
+            "db(PeakRealizedGain)", self.field_test.nominal_adaptive, "3D"
+        )
+        new_report2.report_type = "Data Table"
+        assert new_report2.create()
         data = self.field_test.post.get_solution_data(
             "GainTotal",
             self.field_test.nominal_adaptive,
