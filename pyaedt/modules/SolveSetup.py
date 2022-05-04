@@ -587,10 +587,10 @@ class Setup(object):
             It can be float (GHz) or str.
         high_frquency : float, str
             Lower Frequency at which set the adaptive convergence. It can be float (GHz) or str.
-        max_passes : int
-            Maximum number of adaptive passes.
-        max_delta_s : float
-            Delta S Convergence criteria.
+        max_passes : int, optional
+            Maximum number of adaptive passes. The default is ``6``.
+        max_delta_s : float, optional
+            Delta S Convergence criteria. The default is ``0.02``.
 
         Returns
         -------
