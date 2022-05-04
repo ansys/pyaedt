@@ -1454,7 +1454,7 @@ class Expression(Variable, object):
         try:
             if re.search(r"^[\w+]+\[\w+].*", self._value):
                 var_obj = self._app._odesign.GetChildObject("Variables").GetChildObject(self._variable_name)
-                val, _ = decompose_variable_value(var_obj.Get_EvaluatedValue)
+                val, _ = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
                 return val
             else:
                 return Variable.numeric_value.fget(self)
