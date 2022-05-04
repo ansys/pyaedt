@@ -1023,8 +1023,7 @@ class Configurations(object):
             dict_out["setups"] = {}
             for setup in self._app.setups:
                 dict_out["setups"][setup.name] = setup.props
-                if not setup.props.get("SetupType", None):
-                    dict_out["setups"][setup.name]["SetupType"] = setup.setuptype
+                dict_out["setups"][setup.name]["SetupType"] = setup.setuptype
 
     @pyaedt_function_handler()
     def _export_optimizations(self, dict_out):
@@ -1040,8 +1039,7 @@ class Configurations(object):
             dict_out["parametrics"] = {}
             for setup in self._app.parametrics.setups:
                 dict_out["parametrics"][setup.name] = setup.props
-                if not setup.props.get("SetupType", None):
-                    dict_out["parametrics"][setup.name]["SetupType"] = setup.soltype
+                dict_out["parametrics"][setup.name]["SetupType"] = setup.soltype
 
     @pyaedt_function_handler()
     def _export_boundaries(self, dict_out):
