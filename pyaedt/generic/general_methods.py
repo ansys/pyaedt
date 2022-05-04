@@ -1,4 +1,3 @@
-import ast
 import csv
 import datetime
 import fnmatch
@@ -508,8 +507,8 @@ def is_number(a):
 
 def is_array(a):
     try:
-        v = ast.literal_eval(a)
-    except ValueError:
+        v = list(eval(a))
+    except (ValueError, TypeError, NameError):
         return False
     else:
         if type(v) is list:

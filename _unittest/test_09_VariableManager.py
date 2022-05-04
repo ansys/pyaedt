@@ -352,7 +352,16 @@ class TestClass(BasisTest, object):
         assert self.aedtapp["fc"] == "Freq"
         assert self.aedtapp.variable_manager.dependent_variables["fc"].numeric_value == "Freq"
 
-    def test_15_maxwell_circuit_variables(self):
+    def test_15_arrays(self):
+        self.aedtapp["arr_index"] = 0
+        self.aedtapp["arr1"] = "[1, 2, 3]"
+        self.aedtapp["arr2"] = [1, 2, 3]
+        self.aedtapp["getvalue1"] = "arr1[arr_index]"
+        self.aedtapp["getvalue2"] = "arr2[arr_index]"
+        assert self.aedtapp.variable_manager["getvalue1"].numeric_value == 1.0
+        assert self.aedtapp.variable_manager["getvalue2"].numeric_value == 1.0
+
+    def test_16_maxwell_circuit_variables(self):
         mc = MaxwellCircuit()
         mc["var2"] = "10mm"
         assert mc["var2"] == "10.0mm"
