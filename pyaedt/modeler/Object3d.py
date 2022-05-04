@@ -2559,11 +2559,6 @@ class Padstack(object):
             """Antipad."""
             return self._antipad
 
-        @property
-        def thermal(self):
-            """Thermal."""
-            return self._thermal
-
         @pad.setter
         def pad(self, value=None):
             if value:
