@@ -3,7 +3,7 @@ from __future__ import absolute_import  # noreorder
 import math
 import time
 
-from pyaedt.edb_core.EDB_Data import EDBNetsData
+from pyaedt.edb_core.EDB_Data import EDBNetsData, SimulationConfiguration
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
@@ -351,6 +351,32 @@ class EdbNets(object):
         end_time = time.time() - start_time
         self._logger.info("Nets Point Generation time %s seconds", round(end_time, 3))
         return objects_lists
+
+    @pyaedt_function_handler()
+    def classify_nets(self, simulation_configuration_object=None):
+        """Sort nets based on SimulationConfiguration object.
+        If nets specified as ``power/ground`` or ``signal`` in the simulation
+        configuration object are not initially sorted.
+        in EDB, they are sorted accordingly.
+
+        Parameters
+        ----------
+        simulation_configuration_object : :class:`pyaedt.edb_core.EDB_Data.SimulationConfiguration`
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not isinstance(simulation_configuration_object, SimulationConfiguration):  # pragma: no cover
+            return False
+        for net in simulation_configuration_object.power_nets:
+            if net in self.signal_nets:  # pragma: no cover
+                self.signal_nets[net].net_object.SetIsPowerGround(True)
+        for net in simulation_configuration_object.signal_nets:
+            if net in self.power_nets:  # pragma: no cover
+                self.power_nets[net].net_object.SetIsPowerGround(False)
+        return True
 
     @pyaedt_function_handler()
     def plot(
