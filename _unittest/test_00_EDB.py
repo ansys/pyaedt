@@ -114,8 +114,8 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_stackup.stackup_layers["TOP"]._builder
         assert self.edbapp.core_stackup.stackup_layers["TOP"].id
         assert (
-            isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int)
-            or str(type(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type)) == "<type 'LayerType'>"
+                isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int)
+                or str(type(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type)) == "<type 'LayerType'>"
         )
 
     def test_05_get_signal_layers(self):
@@ -221,20 +221,20 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_components.components["R1"].pinlist
         pinname = self.edbapp.core_components.components["R1"].pinlist[0].GetName()
         assert (
-            self.edbapp.core_components.components["R1"].pins[pinname].lower_elevation
-            == self.edbapp.core_components.components["R1"].lower_elevation
+                self.edbapp.core_components.components["R1"].pins[pinname].lower_elevation
+                == self.edbapp.core_components.components["R1"].lower_elevation
         )
         assert (
-            self.edbapp.core_components.components["R1"].pins[pinname].placement_layer
-            == self.edbapp.core_components.components["R1"].placement_layer
+                self.edbapp.core_components.components["R1"].pins[pinname].placement_layer
+                == self.edbapp.core_components.components["R1"].placement_layer
         )
         assert (
-            self.edbapp.core_components.components["R1"].pins[pinname].upper_elevation
-            == self.edbapp.core_components.components["R1"].upper_elevation
+                self.edbapp.core_components.components["R1"].pins[pinname].upper_elevation
+                == self.edbapp.core_components.components["R1"].upper_elevation
         )
         assert (
-            self.edbapp.core_components.components["R1"].pins[pinname].top_bottom_association
-            == self.edbapp.core_components.components["R1"].top_bottom_association
+                self.edbapp.core_components.components["R1"].pins[pinname].top_bottom_association
+                == self.edbapp.core_components.components["R1"].top_bottom_association
         )
         assert self.edbapp.core_components.components["R1"].pins[pinname].position
         assert self.edbapp.core_components.components["R1"].pins[pinname].rotation
@@ -318,7 +318,8 @@ class TestClass(BasisTest, object):
     def test_37_create_circuit_port(self):
         initial_len = len(self.edbapp.core_padstack.pingroups)
         assert (
-            self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "test") == "test"
+                self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50,
+                                                                   "test") == "test"
         )
         p2 = self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
         assert p2 != "test" and "test" in p2
@@ -511,7 +512,11 @@ class TestClass(BasisTest, object):
         output = os.path.join(self.local_scratch.path, "cutout2.aedb")
 
         assert self.edbapp.create_cutout_on_point_list(
-            points, nets_to_include=["GND", "V3P3_S0"], output_aedb_path=output, open_cutout_at_end=False
+            points,
+            nets_to_include=["GND", "V3P3_S0"],
+            output_aedb_path=output,
+            open_cutout_at_end=False,
+            include_partial_instances=True,
         )
         assert os.path.exists(os.path.join(output, "edb.def"))
 
@@ -630,6 +635,7 @@ class TestClass(BasisTest, object):
         assert len(padstack_instances)
         padstack_1 = list(padstack_instances.values())[0]
         assert padstack_1.id
+        assert isinstance(padstack_1.bounding_box, list)
 
     def test_73_duplicate_padstack(self):
         self.edbapp.core_padstack.duplicate_padstack(
@@ -1370,3 +1376,23 @@ class TestClass(BasisTest, object):
         assert not failing_test_1
         failing_test_2 = stack_up.get_property_by_material_name("none_property", "copper")
         assert not failing_test_2
+
+    def test_98_export_import_json_for_config(self):
+        sim_config = SimulationConfiguration()
+        assert sim_config.output_aedb is None
+        sim_config.output_aedb = os.path.join(self.local_scratch.path, "test.aedb")
+        assert sim_config.output_aedb == os.path.join(self.local_scratch.path, "test.aedb")
+        json_file = os.path.join(self.local_scratch.path, "test.json")
+        sim_config._filename = json_file
+        sim_config.arc_angle = "90deg"
+        assert sim_config.export_json(json_file)
+        test_import = SimulationConfiguration()
+        assert test_import.import_json(json_file)
+        assert test_import.arc_angle == "90deg"
+        assert test_import._filename == json_file
+
+    def test_99_classify_nets(self):
+        sim_setup = SimulationConfiguration()
+        sim_setup.power_nets = ["RSVD_0", "RSVD_1"]
+        sim_setup.signal_nets = ["V3P3_S0"]
+        self.edbapp.core_nets.classify_nets(sim_setup)
