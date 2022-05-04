@@ -80,6 +80,10 @@ class TestClass(BasisTest, object):
 
     def test_06_eddycurrent(self):
         assert self.aedtapp.eddy_effects_on(["Plate"])
+        oModule = self.aedtapp.odesign.GetModule("BoundarySetup")
+        assert oModule.GetEddyEffect("Plate")
+        self.aedtapp.eddy_effects_on(["Plate"], activate=False)
+        assert not oModule.GetEddyEffect("Plate")
 
     def test_07a_setup(self):
         adaptive_frequency = "200Hz"
