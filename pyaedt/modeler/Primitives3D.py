@@ -625,7 +625,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        pyaedt.modeler.Object3d.Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         References

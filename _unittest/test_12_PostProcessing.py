@@ -239,8 +239,11 @@ class TestClass(BasisTest, object):
         new_report.report_type = "3D Polar Plot"
         new_report.far_field_sphere = "3D"
         assert new_report.create()
-        new_report.report_type = "Rectangular Contour Plot"
-        assert new_report.create()
+        new_report2 = self.field_test.post.reports_by_category.antenna_parameters(
+            "db(PeakRealizedGain)", self.field_test.nominal_adaptive, "3D"
+        )
+        new_report2.report_type = "Data Table"
+        assert new_report2.create()
         data = self.field_test.post.get_solution_data(
             "GainTotal",
             self.field_test.nominal_adaptive,
@@ -314,7 +317,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
-        assert new_report.add_limit_line_from_equation(1, 20, 0.5, "GHz")
+        assert new_report.add_limit_line_from_equation(start_x=1, stop_x=20, step=0.5, units="GHz")
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
@@ -586,7 +589,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(is_ironpython, reason="plot_scene method is not supported in ironpython")
     def test_55_time_plot(self):
-        self.sbr_test.analyze_nominal()
+        self.sbr_test.analyze_nominal(use_auto_settings=False)
         solution_data = self.sbr_test.post.get_solution_data(
             expressions=["NearEX", "NearEY", "NearEZ"],
             variations={"_u": ["All"], "_v": ["All"], "Freq": ["All"]},

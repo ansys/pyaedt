@@ -301,27 +301,33 @@ class EdbStackup(object):
         if self._edb.Definition.MaterialDef.FindByName(self._db, material_name).IsNull():
             self._logger.error("This material doesn't exists.")
         else:
-            permittivity = self.get_property_by_material_name("permittivity", material_name)
-            permeability = self.get_property_by_material_name(
-                "permeability",
-                material_name,
+            permittivity = self._get_edb_value(self.get_property_by_material_name("permittivity", material_name))
+            permeability = self._get_edb_value(
+                self.get_property_by_material_name(
+                    "permeability",
+                    material_name,
+                )
             )
-            conductivity = self.get_property_by_material_name(
-                "conductivity",
-                material_name,
+            conductivity = self._get_edb_value(
+                self.get_property_by_material_name(
+                    "conductivity",
+                    material_name,
+                )
             )
-            dielectric_loss_tangent = self.get_property_by_material_name("dielectric_loss_tangent", material_name)
-            magnetic_loss_tangent = self.get_property_by_material_name("magnetic_loss_tangent", material_name)
+            dielectric_loss_tangent = self._get_edb_value(
+                self.get_property_by_material_name("dielectric_loss_tangent", material_name)
+            )
+            magnetic_loss_tangent = self._get_edb_value(
+                self.get_property_by_material_name("magnetic_loss_tangent", material_name)
+            )
             edb_material = self._edb.Definition.MaterialDef.Create(self._db, new_material_name)
-            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Permittivity, permittivity[0])
-            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Permeability, permeability[0])
-            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Conductivity, conductivity[0])
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Permittivity, permittivity)
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Permeability, permeability)
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.Conductivity, conductivity)
             edb_material.SetProperty(
-                self._edb.Definition.MaterialPropertyId.DielectricLossTangent, dielectric_loss_tangent[0]
+                self._edb.Definition.MaterialPropertyId.DielectricLossTangent, dielectric_loss_tangent
             )
-            edb_material.SetProperty(
-                self._edb.Definition.MaterialPropertyId.MagneticLossTangent, magnetic_loss_tangent[0]
-            )
+            edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.MagneticLossTangent, magnetic_loss_tangent)
             return edb_material
 
     @pyaedt_function_handler()
@@ -343,12 +349,8 @@ class EdbStackup(object):
 
         Returns
         -------
-        A tuple of:
-            : class: 'Ansys.Ansoft.Edb.Utility.Value'
-                EDB Value.
-        and
-            float
-                the float value of the property.
+        float
+            the float value of the property.
 
 
         Examples
@@ -383,9 +385,8 @@ class EdbStackup(object):
                 else:
                     self._logger.error("Incorrect property name.")
                     return False
-                property_value = property_box
                 property_float = float(property_box)
-                return property_float, property_value
+                return property_float
             else:
                 out_value = self._edb.Utility.Value("value_name")
                 if property_name == "permittivity":
@@ -411,9 +412,8 @@ class EdbStackup(object):
                 else:
                     self._logger.error("Incorrect property name.")
                     return False
-                property_value = property_tuple[1]
                 property_float = float(property_tuple[1].ToDouble())
-                return property_value, property_float
+                return property_float
 
     @pyaedt_function_handler()
     def _get_solder_height(self, layer_name):

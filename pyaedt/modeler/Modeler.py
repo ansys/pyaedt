@@ -4372,9 +4372,71 @@ class GeometryModeler(Modeler, object):
         self._oeditor.MoveFaces(arg1, arg2)
         return True
 
-    # def __get__(self, instance, owner):
-    #     self._app = instance
-    #     return self
+    @pyaedt_function_handler()
+    def move_edge(self, edges, offset=1.0):
+        """Move an input edge or a list of input edges of a specific object.
+
+        This method moves an edge or a list of edges which belong to the same solid.
+
+        Parameters
+        ----------
+        edges : list
+            List of Edge ID or List of :class:`pyaedt.modeler.Object3d.EdgePrimitive` object or mixed.
+        offset : float, optional
+             Offset to apply in model units. The default is ``1.0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.MoveEdges
+
+        """
+
+        edge_selection = self.convert_to_selections(edges, True)
+        selection = {}
+        for f in edge_selection:
+            if self.oeditor.GetObjectNameByEdgeID(f) in selection:
+                selection[self.oeditor.GetObjectNameByEdgeID(f)].append(f)
+            else:
+                selection[self.oeditor.GetObjectNameByEdgeID(f)] = [f]
+
+        arg1 = [
+            "NAME:Selections",
+            "Selections:=",
+            self.convert_to_selections(list(selection.keys()), False),
+            "NewPartsModelFlag:=",
+            "Model",
+        ]
+        arg2 = ["NAME:Parameters"]
+        for el in list(selection.keys()):
+            arg2.append(
+                [
+                    "NAME:MoveEdgesParameters",
+                    "MoveAlongNormalFlag:=",
+                    True,
+                    "OffsetDistance:=",
+                    str(offset) + self.model_units,
+                    "MoveVectorX:=",
+                    "0mm",
+                    "MoveVectorY:=",
+                    "0mm",
+                    "MoveVectorZ:=",
+                    "0mm",
+                    "EdgesToMove:=",
+                    selection[el],
+                ]
+            )
+        self._oeditor.MoveEdges(arg1, arg2)
+        return True
+
+    def __get__(self, instance, owner):
+        self._app = instance
+        return self
 
     class Position:
         """Position.
