@@ -64,6 +64,7 @@ class LimitLine(object):
             props.append(["NAME:Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
         return self._change_property(props)
 
+
 class Note(object):
     """Note Management Class."""
 
@@ -81,7 +82,18 @@ class Note(object):
 
     @pyaedt_function_handler()
     def set_note_properties(
-        self, text=None,  back_color=None, background_visibility=None, border_color=None, border_visibility=None, border_width=None, font="Arial", font_size=12, italic=False, bold=False, color=(0, 0, 0)
+        self,
+        text=None,
+        back_color=None,
+        background_visibility=None,
+        border_color=None,
+        border_visibility=None,
+        border_width=None,
+        font="Arial",
+        font_size=12,
+        italic=False,
+        bold=False,
+        color=(0, 0, 0),
     ):
         """Set note properties.
 
@@ -176,6 +188,7 @@ class Note(object):
         ]
         props.append(font_props)
         return self._change_property(props)
+
 
 class Trace(object):
     """Provides trace management."""
@@ -680,12 +693,11 @@ class CommonReport(object):
         note_name : string
             internal name of the note (optional).
 
-
         Returns
         -------
         bool
         """
-        noteName = generate_unique_name("Note",3)
+        noteName = generate_unique_name("Note", 3)
         if self.plot_name and self._is_created:
             self._post.oreportsetup.AddNote(
                 self.plot_name,
@@ -693,13 +705,18 @@ class CommonReport(object):
                     "NAME:NoteDataSource",
                     [
                         "NAME:NoteDataSource",
-                        "SourceName:="	, noteName,
-                        "HaveDefaultPos:="	, True,
-                        "DefaultXPos:="		, x_position,
-                        "DefaultYPos:="		, y_position,
-                        "String:="		, text
-                    ]
-                ]
+                        "SourceName:=",
+                        noteName,
+                        "HaveDefaultPos:=",
+                        True,
+                        "DefaultXPos:=",
+                        x_position,
+                        "DefaultYPos:=",
+                        y_position,
+                        "String:=",
+                        text,
+                    ],
+                ],
             )
             return True
         return False
@@ -1654,6 +1671,3 @@ class Spectral(CommonReport):
         self._post.plots.append(self)
         self._is_created = True
         return True
-
-
-
