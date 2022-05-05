@@ -697,7 +697,7 @@ class CommonReport(object):
         -------
         bool
         """
-        noteName = generate_unique_name("Note", 3)
+        noteName = generate_unique_name("Note", n=3)
         if self.plot_name and self._is_created:
             self._post.oreportsetup.AddNote(
                 self.plot_name,
