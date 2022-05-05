@@ -12,7 +12,7 @@ They are accessible through the ``modeler`` and ``modeler.objects`` property:
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2021.1",
+    app = Hfss(specified_version="2022.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
@@ -81,18 +81,6 @@ The ``Primitives`` module includes these classes:
 Primives objects are accessible through ``modeler`` property for
 EM Solver and ``modeler.components`` for circuit solvers.
 
-.. code:: python
-
-    from pyaedt import Circuit
-    app = Circuit(specified_version="2021.1",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
-
-    # this call return the NexximComponents Class
-    components = app.modeler.components
-
-    ...
-
 
 .. currentmodule:: pyaedt.modeler
 
@@ -108,6 +96,17 @@ EM Solver and ``modeler.components`` for circuit solvers.
    PrimitivesTwinBuilder.TwinBuilderComponents
    PrimitivesCircuit.CircuitComponents
 
+.. code:: python
+
+    from pyaedt import Circuit
+    app = Circuit(specified_version="2022.1",
+                 non_graphical=False, new_desktop_session=True,
+                 close_on_exit=True, student_version=False)
+
+    # this call return the NexximComponents Class
+    components = app.modeler.components
+
+    ...
 
 
 Objects
@@ -115,10 +114,25 @@ Objects
 Those classes define the objects properties for 3D and 2D Solvers (excluding ``Hfss3dLayout``).
 It contains all getter and setter to simplify object manipulation.
 
+
+.. currentmodule:: pyaedt.modeler
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   Object3d.Object3d
+   Object3d.FacePrimitive
+   Object3d.EdgePrimitive
+   Object3d.VertexPrimitive
+   Object3d.Point
+   Primitives.PolylineSegment
+   Primitives.Polyline
+
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2021.1",
+    app = Hfss(specified_version="2022.1",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
@@ -139,6 +153,10 @@ It contains all getter and setter to simplify object manipulation.
 
     ...
 
+Objects in Circuit
+~~~~~~~~~~~~~~~~~~
+Those classes define the objects properties for circuit tools.
+It contains all getter and setter to simplify object manipulation.
 
 .. currentmodule:: pyaedt.modeler
 
@@ -146,24 +164,13 @@ It contains all getter and setter to simplify object manipulation.
    :toctree: _autosummary
    :nosignatures:
 
-   Object3d.Object3d
-   Object3d.FacePrimitive
-   Object3d.EdgePrimitive
-   Object3d.VertexPrimitive
-   Object3d.Point
-   Primitives.PolylineSegment
-   Primitives.Polyline
-
-
-Objects in Circuit
-~~~~~~~~~~~~~~~~~~
-Those classes define the objects properties for circuit tools.
-It contains all getter and setter to simplify object manipulation.
+   Object3d.CircuitComponent
+   Object3d.CircuitPins
 
 .. code:: python
 
     from pyaedt import Circuit
-    app = Circuit(specified_version="2021.1",
+    app = Circuit(specified_version="2022.1",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
@@ -184,25 +191,28 @@ It contains all getter and setter to simplify object manipulation.
     ...
 
 
+Objects in Hfss3d Layout
+~~~~~~~~~~~~~~~~~~~~~~~~
+Those classes define the objects properties for ``Hfss3dLayout``.
+It contains all getter and setter to simplify object manipulation.
+
 .. currentmodule:: pyaedt.modeler
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   Object3d.CircuitComponent
-   Object3d.CircuitPins
-
-
-Objects in Hfss3d Layout
-~~~~~~~~~~~~~~~~~~~~~~~~
-Those classes define the objects properties for ``Hfss3dLayout``.
-It contains all getter and setter to simplify object manipulation.
+   Object3d.Objec3DLayout
+   Object3d.Components3DLayout
+   Object3d.Nets3DLayout
+   Object3d.Pins3DLayout
+   Object3d.Geometries3DLayout
+   Object3d.Padstack
 
 .. code:: python
 
     from pyaedt import Hfss3dLayout
-    app = Hfss3dLayout(specified_version="2021.1",
+    app = Hfss3dLayout(specified_version="2022.1",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
@@ -221,20 +231,6 @@ It contains all getter and setter to simplify object manipulation.
     ...
 
 
-.. currentmodule:: pyaedt.modeler
-
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
-
-   Object3d.Objec3DLayout
-   Object3d.Components3DLayout
-   Object3d.Nets3DLayout
-   Object3d.Pins3DLayout
-   Object3d.Geometries3DLayout
-   Object3d.Padstack
-
-
 Coordinate System and Geometry Operators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -242,22 +238,6 @@ This module contains all properties and methods needed to edit a
 Coordinate System and a set of useful Geometry Operators.
 CoordinateSystem Class is accessible through ``create_coordinate_system`` method or ``coordinate_systems`` list.
 GeometryOperators can be imported and used as it is made by static methods.
-
-
-.. code:: python
-
-    from pyaedt import Hfss
-    app = Hfss(specified_version="2021.1",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
-
-    # this call returns the CoordinateSystem Object lists
-    cs = app.modeler.coordinate_systems
-
-    # this call returns a CoordinateSystem Object
-    new_cs = app.modeler.create_coordinate_system()
-
-    ...
 
 
 .. currentmodule:: pyaedt.modeler
@@ -268,3 +248,19 @@ GeometryOperators can be imported and used as it is made by static methods.
 
    Modeler.CoordinateSystem
    GeometryOperators
+
+
+.. code:: python
+
+    from pyaedt import Hfss
+    app = Hfss(specified_version="2022.1",
+                 non_graphical=False, new_desktop_session=True,
+                 close_on_exit=True, student_version=False)
+
+    # this call returns the CoordinateSystem Object lists
+    cs = app.modeler.coordinate_systems
+
+    # this call returns a CoordinateSystem Object
+    new_cs = app.modeler.create_coordinate_system()
+
+    ...
