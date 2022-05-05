@@ -2,7 +2,7 @@ Configurations Files
 ~~~~~~~~~~~~~~~~~~~~
 This module contains all methods to export project settings to json file
 and import and apply settings to a new design.
-Actually the configuration covers the following applications:
+Currently the configuration covers the following applications:
 * Hfss
 * Q2d and Q3d
 * Maxwell

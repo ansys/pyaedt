@@ -15,7 +15,7 @@ It can be open and edited using ``Edb`` class.
 .. code:: python
 
     from pyaedt import Edb
-    # this call return the Edb Class initialized on 2022 R1
+    # this call returns the Edb Class initialized on 2022 R1
     edb = Edb(myedb, edbversion="2022.1")
 
     ...
@@ -47,19 +47,19 @@ information to AEDB files.
     from pyaedt import Edb
     edb = Edb(myedb, edbversion="2022.1")
 
-    # this call return the EdbHfss Class
+    # this call returns the EdbHfss Class
     comp = edb.core_hfss
 
-    # this call return the Components Class
+    # this call returns the Components Class
     comp = edb.core_components
 
-    # this call return the EdbSiwave Class
+    # this call returns the EdbSiwave Class
     comp = edb.core_siwave
 
-    # this call return the EdbPadstacks Class
+    # this call returns the EdbPadstacks Class
     comp = edb.core_padstack
 
-    # this call return the EdbStackup Class
+    # this call returns the EdbStackup Class
     comp = edb.core_stackup
 
     ...
@@ -93,9 +93,9 @@ Those classes are the container of Data read from edb file.
     from pyaedt import Edb
     edb = Edb(myedb, edbversion="2022.1")
 
-    # this call return the EDBLayers Class
+    # this call returns the EDBLayers Class
     layer = edb.core_stackup.stackup_layers
 
-    # this call return the EDBLayer Class
+    # this call returns the EDBLayer Class
     layer = edb.core_stackup.stackup_layers.layers["TOP"]
     ...
