@@ -2158,8 +2158,8 @@ class Design(object):
     @pyaedt_function_handler()
     def _close_edb(self):
         if self.design_type == "HFSS 3D Layout Design":  # pragma: no cover
-            if self.modeler and self.modeler.edb:
-                self.modeler.edb.close_edb()
+            if self.modeler and self.modeler._edb:
+                self.modeler._edb.close_edb()
 
     @pyaedt_function_handler()
     def create_dataset1d_design(self, dsname, xlist, ylist, xunit="", yunit=""):
@@ -2827,7 +2827,6 @@ class Design(object):
         >>> oDesign.RenameDesignInstance
         """
         self._odesign.RenameDesignInstance(self.design_name, new_name)
-        self.odesign = new_name
         return True
 
     @pyaedt_function_handler()
@@ -3040,8 +3039,6 @@ class Design(object):
         >>> oProject.Save
         >>> oProject.SaveAs
         """
-        msg_text = "Saving {0} Project".format(self.project_name)
-        self.logger.info(msg_text)
         if project_file and not os.path.exists(os.path.dirname(project_file)):
             os.makedirs(os.path.dirname(project_file))
         elif project_file:
@@ -3051,6 +3048,8 @@ class Design(object):
         if refresh_obj_ids_after_save:
             self.modeler.refresh_all_ids()
             self.modeler._refresh_all_ids_from_aedt_file()
+        msg_text = "Project {0} Saved correctly".format(self.project_name)
+        self.logger.info(msg_text)
         return True
 
     @pyaedt_function_handler()
