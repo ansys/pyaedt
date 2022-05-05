@@ -22,7 +22,7 @@ except ImportError:
 
 
 class EdbLayout(object):
-    """Manages EDB functionalities for layouts.
+    """Manages EDB methods for primitives management accessible from `Edb.core_primitives` property.
 
     Examples
     --------

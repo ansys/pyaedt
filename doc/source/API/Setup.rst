@@ -6,10 +6,20 @@ This section lists setup modules:
 * Setup3DLayout for ``Hfss3dLayout``
 Setup object is accessible through the ``create_setup`` method and ``setups`` object list.
 
+.. currentmodule:: pyaedt.modules.SolveSetup
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   Setup
+   Setup3DLayout
+   SetupCircuit
+
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2021.1",
+    app = Hfss(specified_version="2022.1",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
@@ -22,15 +32,6 @@ Setup object is accessible through the ``create_setup`` method and ``setups`` ob
 
     ...
 
-.. currentmodule:: pyaedt.modules.SolveSetup
-
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
-
-   Setup
-   Setup3DLayout
-   SetupCircuit
 
 Sweep Classes
 =============

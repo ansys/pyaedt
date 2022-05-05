@@ -130,7 +130,7 @@ Explicit Desktop Declaration and Error Management
     Launch AEDT 2021 R1 in non-graphical mode
 
     from pyaedt import Desktop, Circuit
-    with Desktop(specified_version="2021.1",
+    with Desktop(specified_version="2022.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False):
         circuit = Circuit()
@@ -149,7 +149,7 @@ Implicit Desktop Declaration and Error Management
     # Launch the latest installed version of AEDT in graphical mode
 
     from pyaedt import Circuit
-    with Circuit(specified_version="2021.2",
+    with Circuit(specified_version="2022.1",
                  non_graphical=False) as circuit:
         ...
         # Any error here will be caught by Desktop.
