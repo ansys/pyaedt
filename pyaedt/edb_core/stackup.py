@@ -24,7 +24,7 @@ except ImportError:
 
 
 class EdbStackup(object):
-    """Manages EDB functionalities for stackups.
+    """Manages EDB methods for stackup and material management accessible from `Edb.core_stackup` property.
 
     Examples
     --------

@@ -357,7 +357,7 @@ class ResistorSource(Source):
 
 
 class EdbSiwave(object):
-    """Manages EDB functionalities for SIwave.
+    """Manages EDB methods related to Siwave Setup accessible from `Edb.core_siwave` property.
 
     Parameters
     ----------
