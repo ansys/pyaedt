@@ -1,18 +1,3 @@
-Message Manager
-===============
-
-The PyAEDT API includes this class for AEDT and EDB message managers:
-
-.. currentmodule:: pyaedt.application.MessageManager
-
-
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
-
-   AEDTMessageManager
-
-
 LogHandler
 ~~~~~~~~~~
 This section lists modules for creating a handler to

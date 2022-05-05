@@ -64,6 +64,14 @@ class Icepak(FieldAnalysisIcepak):
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
         This parameter is ignored when Script is launched within AEDT.
+    machine : str, optional
+        Machine name to which connect the oDesktop Session. Works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+        If machine is `"localhost"` the server will also start if not present.
+    port : int, optional
+        Port number of which start the oDesktop communication on already existing server.
+        This parameter is ignored in new server creation. It works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
 
     Examples
     --------
@@ -118,6 +126,8 @@ class Icepak(FieldAnalysisIcepak):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
         FieldAnalysisIcepak.__init__(
             self,
@@ -131,6 +141,8 @@ class Icepak(FieldAnalysisIcepak):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
 
     def __enter__(self):
@@ -1145,7 +1157,7 @@ class Icepak(FieldAnalysisIcepak):
         center[1] -= hs_height / 2
         center[2] += hs_basethick
         self.modeler.set_working_coordinate_system("Global")
-        self.modeler.translate(list_to_move, center)
+        self.modeler.move(list_to_move, center)
         if plane_enum == self.PLANE.XY:
             self.modeler.rotate(list_to_move, self.AXIS.X, rotation)
         elif plane_enum == self.PLANE.ZX:
@@ -1432,10 +1444,10 @@ class Icepak(FieldAnalysisIcepak):
         setupname="Setup1",
         sweepname="LastAdaptive",
         map_frequency=None,
-        surface_objects=[],
+        surface_objects=None,
         source_project_name=None,
-        paramlist=[],
-        object_list=[],
+        paramlist=None,
+        object_list=None,
     ):
         """Map EM losses to an Icepak design.
 
@@ -1451,14 +1463,14 @@ class Icepak(FieldAnalysisIcepak):
             String containing the frequency to map. The default is ``None``.
             The value must be ``None`` for Eigenmode analysis.
         surface_objects : list, optional
-            List of objects in the source that are metals. The default is ``[]``.
+            List of objects in the source that are metals. The default is ``None``.
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case the
             source from the same project is used.
         paramlist :list, optional
-            List of all parameters in the EM to map. The default is ``[]``.
+            List of all parameters in the EM to map. The default is ``None``.
         object_list : list, optional
-            List of objects. The default is ``[]``.
+            List of objects. The default is ``None``.
 
         Returns
         -------
@@ -1470,6 +1482,13 @@ class Icepak(FieldAnalysisIcepak):
 
         >>> oModule.AssignEMLoss
         """
+        if surface_objects == None:
+            surface_objects = []
+        if paramlist == None:
+            paramlist = []
+        if object_list == None:
+            object_list = []
+
         self.logger.info("Mapping HFSS EM losses.")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
@@ -1730,7 +1749,7 @@ class Icepak(FieldAnalysisIcepak):
         geometryType="Volume",
         quantity="Temperature",
         variation="",
-        variationlist=[],
+        variationlist=None,
     ):
         """Export a fields summary of all objects.
 
@@ -1751,7 +1770,7 @@ class Icepak(FieldAnalysisIcepak):
         variation : str, optional
             The default is ``""``.
         variationlist : list, optional
-            The default is ``[]``.
+            The default is ``None``.
 
         Returns
         -------
@@ -1764,6 +1783,9 @@ class Icepak(FieldAnalysisIcepak):
         >>> oModule.EditFieldsSummarySetting
         >>> oModule.ExportFieldsSummary
         """
+        if variationlist == None:
+            variationlist = []
+
         all_objs = list(self.modeler.oeditor.GetObjectsInGroup("Solids"))
         all_objs_NonModeled = list(self.modeler.oeditor.GetObjectsInGroup("Non Model"))
         all_objs_model = [item for item in all_objs if item not in all_objs_NonModeled]

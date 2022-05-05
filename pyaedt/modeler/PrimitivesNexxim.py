@@ -1,8 +1,12 @@
+# -*- coding: utf-8 -*-
 import os
+import random
+import re
 import warnings
 
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
 from pyaedt.modeler.PrimitivesCircuit import ComponentCatalog
@@ -76,6 +80,106 @@ class NexximComponents(CircuitComponents):
         if not self._components_catalog:
             self._components_catalog = ComponentCatalog(self)
         return self._components_catalog
+
+    @pyaedt_function_handler()
+    def create_subcircuit(self, location=None, angle=0, name=None, nested_subcircuit_id=None):
+        """Add a new Circuit subcircuit to the design.
+
+        Parameters
+        ----------
+        location : list of float, optional
+            Position on the X axis and Y axis.
+        angle : float, optional
+            Angle rotation in degrees. The default is ``0``.
+        name : str, optional
+            Name of the design. The default is ``None``, in which case
+            a unique name is generated.
+        nested_subcircuit_id : str, optional
+            ID of the nested subcircuit.
+            Example `"U1"`.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object when successful or ``False`` when failed.
+
+        Examples
+        --------
+        >>> from pyaedt import Circuit
+        >>> cir = Circuit()
+        """
+        if not name:
+            name = generate_unique_name("Circuit")
+
+        if nested_subcircuit_id:
+            parent_name = "{}:{}:{}".format(
+                self._app.design_name.split("/")[0], nested_subcircuit_id, random.randint(1, 10000)
+            )
+        else:
+            parent_name = "{}:{}".format(self._app.design_name.split("/")[0], ":U" + str(random.randint(1, 10000)))
+
+        self._app.odesign.InsertDesign("Circuit Design", name, "", parent_name)
+        if nested_subcircuit_id:
+            pname = "{}:{}".format(self._app.design_name.split("/")[0], nested_subcircuit_id)
+            odes = self._app.oproject.SetActiveDesign(pname)
+            oed = odes.SetActiveEditor("SchematicEditor")
+            objs = oed.GetAllElements()
+            match = [i for i in objs if name in i]
+            o = CircuitComponent(self, tabname=self.tab_name, custom_editor=oed)
+            name = match[0].split(";")
+            o.name = name[0]
+            o.schematic_id = name[2]
+            o.id = int(name[1])
+            return o
+        self.refresh_all_ids()
+        for el in self.components:
+            if name in self.components[el].composed_name:
+                if location:
+                    self.components[el].location = location
+                if angle is not None:
+                    self.components[el].angle = self.arg_with_dim(angle, "°")
+                return self.components[el]
+        return False
+
+    @pyaedt_function_handler()
+    def duplicate(self, component, location=None, angle=0, flip=False):  # pragma: no cover
+        """Add a new subcircuit to the design.
+
+        .. note::
+            This works only in graphical mode.
+
+        Parameters
+        ----------
+        component : class:`pyaedt.modeler.Object3d.CircuitComponent` Circuit Component Object
+            Component to duplicate.
+        location : list of float, optional
+            Position on the X axis and Y axis.
+        angle : float, optional
+            Angle rotation in degrees. The default is ``0``.
+        flip : bool, optional
+            Whether the component should be flipped. The default value is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent` Circuit Component Object
+        when successful or ``False`` when failed.
+        """
+        comp_names = []
+        if isinstance(component, CircuitComponent):
+            comp_names.append(component.composed_name)
+        else:
+            comp_names.append(component)
+        self._modeler.oeditor.Copy(["NAME:Selections", "Selections:=", comp_names])
+        location = self._get_location(location)
+        self._modeler.oeditor.Paste(
+            ["NAME:Attributes", "Page:=", 1, "X:=", location[0], "Y:=", location[1], "Angle:=", angle, "Flip:=", flip]
+        )
+        ids = [id for id in list(self.components.keys())]
+        self.refresh_all_ids()
+        new_ids = [id for id in list(self.components.keys()) if id not in ids]
+        if new_ids:
+            return self.components[new_ids[0]]
+        return False
 
     @pyaedt_function_handler()
     def connect_components_in_series(self, components_to_connect):
@@ -196,7 +300,7 @@ class NexximComponents(CircuitComponents):
         return False
 
     @pyaedt_function_handler()
-    def create_field_model(self, design_name, solution_name, pin_names, model_type="hfss", posx=0, posy=1):
+    def create_field_model(self, design_name, solution_name, pin_names, model_type="hfss"):
         """Create a field model.
 
         Parameters
@@ -209,10 +313,6 @@ class NexximComponents(CircuitComponents):
             List of the pin names.
         model_type : str, optional
             Type of the model. The default is ``"hfss"``.
-        posx : float, optional
-            Position on the X axis. The default is ``0``.
-        posy : float, optional.
-            Position on the Y axis. The default is ``1``.
 
         Returns
         -------
@@ -528,7 +628,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_capacitor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_capacitor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
         Parameters
@@ -538,7 +638,7 @@ class NexximComponents(CircuitComponents):
         value : float, optional
             Capacitor value. The default is ``50``.
         location : list of float, optional
-            Position on the X axis and Y axis.
+            Position on the X axis and Y axis. The default is ``None``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -555,6 +655,10 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+
+        if location == None:
+            location = []
+
         cmpid = self.create_component(
             compname,
             component_library="Capacitors",
@@ -568,7 +672,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_voltage_dc(self, compname=None, value=1, location=[], angle=0, use_instance_id_netlist=False):
+    def create_voltage_dc(self, compname=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
         """Create a voltage DC source.
 
         Parameters
@@ -578,7 +682,7 @@ class NexximComponents(CircuitComponents):
         value : float, optional
             Voltage value. The default is ``50``.
         location : list of float, optional
-            Position on the X axis and Y axis.
+            Position on the X axis and Y axis. The default is ``None``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -595,6 +699,9 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location == None:
+            location = []
+
         cmpid = self.create_component(
             compname,
             component_library="Independent Sources",
@@ -755,7 +862,9 @@ class NexximComponents(CircuitComponents):
         cmpid.set_property("DC", value)
         return cmpid
 
-    def create_coupling_inductors(self, compname, l1, l2, value=1, location=[], angle=0, use_instance_id_netlist=False):
+    def create_coupling_inductors(
+        self, compname, l1, l2, value=1, location=None, angle=0, use_instance_id_netlist=False
+    ):
         """Create a coupling inductor.
 
         Parameters
@@ -769,7 +878,7 @@ class NexximComponents(CircuitComponents):
         value : float, optional
             Value for the coupling inductor. The default is ``1``.
         location : list of float, optional
-            Position on the X axis and Y axis.
+            Position on the X axis and Y axis. The default is ``None``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -786,6 +895,9 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location == None:
+            location = []
+
         cmpid = self.create_component(
             compname,
             component_library="Inductors",
@@ -923,7 +1035,15 @@ class NexximComponents(CircuitComponents):
 
     @pyaedt_function_handler()
     def create_new_component_from_symbol(
-        self, symbol_name, pin_lists, Refbase="U", parameter_list=[], parameter_value=[]
+        self,
+        symbol_name,
+        pin_lists,
+        time_stamp=1591858313,
+        description="",
+        refbase="x",
+        parameter_list=[],
+        parameter_value=[],
+        gref="",
     ):
         """Create a component from a symbol.
 
@@ -933,12 +1053,18 @@ class NexximComponents(CircuitComponents):
             Name of the symbol.
         pin_lists : list
             List of pin names.
-        Refbase : str, optional
+        time_stamp : int, optional
+            UTC time stamp.
+        description : str, optional
+            Component description.
+        refbase : str, optional
             Reference base. The default is ``"U"``.
         parameter_list : list
             List of parameters. The default is ``[]``.
         parameter_value : list
             List of parameter values. The default is ``[]``.
+        gref : str, optional
+            Global Reference
 
         Returns
         -------
@@ -962,7 +1088,7 @@ class NexximComponents(CircuitComponents):
                 "DataSource:=",
                 "",
                 "ModifiedOn:=",
-                1591858313,
+                time_stamp,
                 "Manufacturer:=",
                 "",
                 "Symbol:=",
@@ -972,7 +1098,7 @@ class NexximComponents(CircuitComponents):
                 "Footprint:=",
                 "",
                 "Description:=",
-                "",
+                description,
                 "InfoTopic:=",
                 "",
                 "InfoHelpFile:=",
@@ -990,7 +1116,7 @@ class NexximComponents(CircuitComponents):
                 "OriginalAuthor:=",
                 "",
                 "CreationDate:=",
-                1591858278,
+                time_stamp,
                 "ExampleFile:=",
                 "",
                 "HiddenComponent:=",
@@ -1003,7 +1129,7 @@ class NexximComponents(CircuitComponents):
             "CircuitEnv:=",
             0,
             "Refbase:=",
-            Refbase,
+            refbase,
             "NumParts:=",
             1,
             "ModSinceLib:=",
@@ -1016,29 +1142,32 @@ class NexximComponents(CircuitComponents):
         arg.append("CompExtID:=")
         arg.append(1)
         arg2 = ["NAME:Parameters"]
+
         for el, val in zip(parameter_list, parameter_value):
-            if type(val) is str:
+            if "MOD" in el:
                 arg2.append("TextValueProp:=")
                 arg2.append([el, "D", "", val])
             else:
-                arg2.append("ValueProp:=")
-                arg2.append([el, "D", "", val, False, ""])
+                arg2.append("ValuePropNU:=")
+                arg2.append([el, "D", "", str(val), 0, ""])
+
         arg2.append("ButtonProp:=")
         arg2.append(["CosimDefinition", "D", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []])
         arg2.append("MenuProp:=")
         arg2.append(["CoSimulator", "D", "", "DefaultNetlist", 0])
 
         arg.append(arg2)
-        spicesintax = Refbase + "@ID "
+        spicesintax = refbase + "@ID "
         id = 0
         while id < len(pin_lists):
             spicesintax += "%" + str(id) + " "
             id += 1
+            spicesintax += symbol_name + " "
         for el, val in zip(parameter_list, parameter_value):
             if "MOD" in el:
                 spicesintax += "@{} ".format(el)
             else:
-                spicesintax += "{}=@{} ".format(el, val)
+                spicesintax += "{}=@{} ".format(el, el)
 
         arg3 = [
             "NAME:CosimDefinitions",
@@ -1055,12 +1184,13 @@ class NexximComponents(CircuitComponents):
                 "Data:=",
                 ["Nexxim Circuit:=", spicesintax],
                 "GRef:=",
-                ["Nexxim Circuit:=", ""],
+                ["Nexxim Circuit:=", gref],
             ],
             "DefaultCosim:=",
             "DefaultNetlist",
         ]
         arg.append(arg3)
+        print(arg)
         self.o_component_manager.Add(arg)
         return True
 
@@ -1208,7 +1338,7 @@ class NexximComponents(CircuitComponents):
         solution_name : str, optional
             Name of the solution and sweep. The default is ``"Setup1 : Sweep"``.
         extrusion_length : float, str, optional
-            Extrusion length for 2D Models (q2d or Hfss). Default is `None`.
+            Extrusion length for 2D Models (q2d or Hfss) in model units. Default is `None`.
         enable_cable_modeling : bool, optional
             Either if the Hfss Cable modeling has to be enabled for 2D subcircuits.
         default_matrix : str, optional
@@ -1235,74 +1365,72 @@ class NexximComponents(CircuitComponents):
             comp_name = generate_unique_name(pyaedt_app.design_name)
         source_project_path = pyaedt_app.project_file
         source_design_name = pyaedt_app.design_name
-        matrix = None
-        if pyaedt_app.design_type == "HFSS":
-            pin_names = pyaedt_app.get_excitations_name()
-        elif pyaedt_app.design_type == "Q3D Extractor":
-            excts = list(pyaedt_app.oboundary.GetExcitations())
-            i = 0
-            sources = []
-            sinks = []
-            while i < len(excts):
-                if excts[i + 1] == "Source":
-                    sources.append(excts[i])
-                elif excts[i + 1] == "Sink":
-                    sinks.append(excts[i])
-                i += 2
-            pin_names = sources + sinks
-            matrix = ["NAME:Reduce Matrix Choices"] + list(pyaedt_app.omatrix.ListReduceMatrixes())
-        elif pyaedt_app.design_type == "2D Extractor":
-            excts = list(pyaedt_app.oboundary.GetExcitations())
-            pins = []
-            i = 0
-            while i < len(excts):
-                if excts[i + 1] != "ReferenceGround":
-                    pins.append(excts[i])
-                i += 2
-            pin_names = [i + "_in" for i in pins]
-            pin_names.append("Input_ref")
-            pin_names.extend([i + "_out" for i in pins])
-            pin_names.append("Output_ref")
-            matrix = ["NAME:Reduce Matrix Choices"] + list(pyaedt_app.omatrix.ListReduceMatrixes())
-        variables = {}
-        for k, v in pyaedt_app.variable_manager.variables.items():
-            variables[k] = v.string_value
+        # matrix = None
+        # if pyaedt_app.design_type == "HFSS":
+        #     pin_names = pyaedt_app.get_excitations_name()
+        # elif pyaedt_app.design_type == "Q3D Extractor":
+        #     excts = list(pyaedt_app.oboundary.GetExcitations())
+        #     i = 0
+        #     sources = []
+        #     sinks = []
+        #     while i < len(excts):
+        #         if excts[i + 1] == "Source":
+        #             sources.append(excts[i])
+        #         elif excts[i + 1] == "Sink":
+        #             sinks.append(excts[i])
+        #         i += 2
+        #     pin_names = sources + sinks
+        #     matrix = ["NAME:Reduce Matrix Choices"] + list(pyaedt_app.omatrix.ListReduceMatrixes())
+        # elif pyaedt_app.design_type == "2D Extractor":
+        #     excts = list(pyaedt_app.oboundary.GetExcitations())
+        #     pins = []
+        #     i = 0
+        #     while i < len(excts):
+        #         if excts[i + 1] != "ReferenceGround":
+        #             pins.append(excts[i])
+        #         i += 2
+        #     pin_names = [i + "_in" for i in pins]
+        #     pin_names.append("Input_ref")
+        #     pin_names.extend([i + "_out" for i in pins])
+        #     pin_names.append("Output_ref")
+        #     matrix = ["NAME:Reduce Matrix Choices"] + list(pyaedt_app.omatrix.ListReduceMatrixes())
+        # variables = {}
+        # for k, v in pyaedt_app.variable_manager.variables.items():
+        #     variables[k] = v.string_value
         if not solution_name:
             solution_name = pyaedt_app.nominal_sweep
-        comp = self._add_subcircuit_link(
-            comp_name=comp_name,
-            pin_names=pin_names,
-            source_project_path=source_project_path,
-            source_design_name=source_design_name,
-            solution_name=solution_name,
-            image_subcircuit_path="",
-            model_type=pyaedt_app.design_type,
-            variables=variables,
-            extrusion_length_q2d=extrusion_length,
-            matrix=matrix,
-            enable_cable_modeling=enable_cable_modeling,
-            default_matrix=default_matrix,
-        )
-
-        #
-        #
-        # self._app.odesign.AddDynamicLink(
-        #     source_design_name,
-        #     source_project_path,
-        #     comp_name,
-        #     solution_name,
-        #     tline_port,
-        #     default_matrix,
-        #     enable_cable_modeling,
-        #     "Pyaedt Dynamic Link",
+        # comp = self._add_subcircuit_link(
+        #     comp_name=comp_name,
+        #     pin_names=pin_names,
+        #     source_project_path=source_project_path,
+        #     source_design_name=source_design_name,
+        #     solution_name=solution_name,
+        #     image_subcircuit_path="",
+        #     model_type=pyaedt_app.design_type,
+        #     variables=variables,
+        #     extrusion_length_q2d=extrusion_length,
+        #     matrix=matrix,
+        #     enable_cable_modeling=enable_cable_modeling,
+        #     default_matrix=default_matrix,
         # )
+
+        self._app.odesign.AddDynamicLink(
+            source_design_name,
+            source_project_path,
+            comp_name,
+            solution_name,
+            tline_port,
+            default_matrix,
+            enable_cable_modeling,
+            "Pyaedt Dynamic Link",
+        )
         self.refresh_all_ids()
         for el in self.components:
             if comp_name in self.components[el].composed_name:
                 if extrusion_length:
-                    self.components[el].set_property("Length", extrusion_length)
+                    self.components[el].set_property("Length", self.arg_with_dim(extrusion_length))
                 if tline_port and extrusion_length:
-                    self.components[el].set_property("TLineLength", extrusion_length)
+                    self.components[el].set_property("TLineLength", self.arg_with_dim(extrusion_length))
                 return self.components[el]
         return False
 
@@ -1321,6 +1449,7 @@ class NexximComponents(CircuitComponents):
         matrix=None,
         enable_cable_modeling=False,
         default_matrix="Original",
+        simulate_solutions=False,
     ):
         """Add a subcircuit HFSS link.
 
@@ -1347,6 +1476,8 @@ class NexximComponents(CircuitComponents):
         extrusion_length_q2d : str, float optional
             Extrusion length for 2D Models. Default is 10 (in model units).
         matrix : list, optional
+        simulate_solutions : bool, optional
+            Either if simulate or interpolate solutions.
 
         Returns
         -------
@@ -1372,6 +1503,10 @@ class NexximComponents(CircuitComponents):
             model = "2dext"
             owner = "2DExtractor"
             icon_file = "2dextractor.bmp"
+        elif model_type.lower() == "siwave":
+            model = "siwave"
+            owner = "Siwave"
+            icon_file = ""
         designer_customization = self.get_comp_custom_settings(1, 0, 0, 1, 0, 0, "False", "", 1)
         nexxim_customization = self.get_comp_custom_settings(2, 3, 1, 3, 0, 0, "False", "", 2)
         hspice_customization = self.get_comp_custom_settings(3, 1, 2, 3, 0, 0, "False", "", 3)
@@ -1437,9 +1572,9 @@ class NexximComponents(CircuitComponents):
             "numberofports:=",
             len(pin_names),
             "Simulate:=",
-            False,
+            simulate_solutions,
             "CloseProject:=",
-            False,
+            model_type.lower() == "siwave",
             "SaveProject:=",
             True,
             "InterpY:=",
@@ -1449,7 +1584,7 @@ class NexximComponents(CircuitComponents):
             "IgnoreDepVars:=",
             False,
         ]
-        if owner == "HFSS":
+        if owner in ["HFSS", "Siwave"]:
             compInfo.extend(
                 [
                     "Renormalize:=",
@@ -1731,3 +1866,103 @@ class NexximComponents(CircuitComponents):
             DeprecationWarning,
         )
         return self._app.assign_voltage_sinusoidal_excitation_to_ports(ports, settings)
+
+    @pyaedt_function_handler()
+    def _parse_spice_model(self, model_path):
+        models = []
+        with open(model_path, "r") as f:
+            for line in f:
+                if ".subckt" in line.lower():
+                    pinNames = [i.strip() for i in re.split(" |\t", line) if i]
+                    models.append(pinNames[1])
+        return models
+
+    @pyaedt_function_handler()
+    def create_component_from_spicemodel(self, model_path, model_name=None, location=None):
+        """Create and place a new component based on a spice .lib file.
+
+        Parameters
+        ----------
+        model_path : str
+            Path to .lib file.
+        model_name : str, optional
+            Model name to import. If `None` the first subckt in the lib file will be placed.
+        location : list, optional
+            Position in the schematic of the new component.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
+        """
+        models = self._parse_spice_model(model_path)
+        if not model_name and models:
+            model_name = models[0]
+        elif model_name not in models:
+            return False
+        arg = ["NAME:Options", "Mode:=", 2, "Overwrite:=", False, "SupportsSimModels:=", False, "LoadOnly:=", False]
+        arg2 = ["NAME:Models"]
+        for el in models:
+            arg2.append(el + ":=")
+            if el == model_name:
+                arg2.append([True, "", "", False])
+            else:
+                arg2.append([False, "", "", False])
+        arg.append(arg2)
+        self.o_component_manager.ImportModelsFromFile(model_path, arg)
+
+        return self.create_component(
+            None,
+            component_library=None,
+            component_name=model_name,
+            location=location,
+        )
+
+    @pyaedt_function_handler()
+    def add_siwave_dynamic_link(self, model_path, solution_name=None, simulate_solutions=False):
+        """Add a siwave dinamyc link object.
+
+        Parameters
+        ----------
+        model_path : str
+            Full path to the .siw file.
+        solution_name : str, optional
+            Solution name.
+        simulate_solutions : bool, optional
+            Either if simulate or interpolate existing solutions.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
+        """
+        assert os.path.exists(model_path), "Project file doesn't exist"
+        comp_name = os.path.splitext(os.path.basename(model_path))[0]
+        results_path = model_path + "averesults"
+        solution = os.path.join(results_path, comp_name + ".asol")
+        out = load_entire_aedt_file(solution)
+        if not solution_name:
+            solution_name = list(out["Solutions"]["SYZSolutions"].keys())[0]
+        results_folder = os.path.join(
+            results_path,
+            out["Solutions"]["SYZSolutions"][solution_name]["DiskName"],
+            out["Solutions"]["SYZSolutions"][solution_name]["DiskName"] + ".syzinfo",
+        )
+
+        pin_names = []
+        with open(results_folder, "r") as f:
+            lines = f.read().splitlines()
+            for line in lines:
+                if line[:4] == "PORT":
+                    line_spit = line.split(" ")
+                    pin_names.append(line_spit[1])
+
+        return self._add_subcircuit_link(
+            comp_name,
+            pin_names,
+            model_path,
+            comp_name,
+            solution_name=solution_name,
+            model_type="siwave",
+            simulate_solutions=simulate_solutions,
+        )

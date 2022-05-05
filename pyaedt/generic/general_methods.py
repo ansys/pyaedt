@@ -3,6 +3,7 @@ import datetime
 import fnmatch
 import inspect
 import itertools
+import json
 import logging
 import os
 import random
@@ -14,14 +15,9 @@ import traceback
 from collections import OrderedDict
 from functools import update_wrapper
 
-try:
-    logger = logging.getLogger("Global")
-except:
-    logger = logging.getLogger(__name__)
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
 inside_desktop = True
-import sys
 
 try:
     import ScriptEnv
@@ -42,12 +38,8 @@ class MethodNotSupportedError(Exception):
 def _write_mes(mes_text):
     mes_text = str(mes_text)
     parts = [mes_text[i : i + 250] for i in range(0, len(mes_text), 250)]
-    if logger:
-        for el in parts:
-            logger.error(el)
-    elif settings.enable_screen_logs:
-        for el in parts:
-            print(el)
+    for el in parts:
+        settings.logger.error(el)
 
 
 def _exception(ex_info, func, args, kwargs, message="Type Error"):
@@ -212,7 +204,7 @@ def _log_method(func, new_args, new_kwargs):
         if new_kwargs:
             message.append(line_begin2 + str(new_kwargs)[1:-1])
     for m in message:
-        logger.debug(m)
+        settings.logger.debug(m)
 
 
 def pyaedt_function_handler(direct_func=None):
@@ -286,7 +278,7 @@ def _function_handler_wrapper(user_function):
                     print("**************************************************************")
                     print("")
                 if settings.enable_file_logs:
-                    logger.error(message)
+                    settings.logger.error(message)
                 return False
             except BaseException:
                 _exception(sys.exc_info(), user_function, args, kwargs, "General or AEDT Error")
@@ -513,6 +505,18 @@ def is_number(a):
     # return str(a).replace(".", "").replace("+", "").replace("-", "").replace("e","").replace("E","").isnumeric()
 
 
+def is_array(a):
+    try:
+        v = list(eval(a))
+    except (ValueError, TypeError, NameError):
+        return False
+    else:
+        if type(v) is list:
+            return True
+        else:
+            return False
+
+
 def is_project_locked(project_path):
     """Checks if an aedt project lock file exists.
 
@@ -624,6 +628,63 @@ def recursive_glob(startpath, filepattern):
     ]
 
 
+@pyaedt_function_handler()
+def number_aware_string_key(s):
+    """Return a key for sorting strings that treats embedded digit sequences as integers.
+
+    Parameters
+    ----------
+    s : str
+        String from which to calculate key
+
+    Returns
+    -------
+    tuple
+        Tuple of key entries
+    """
+
+    def is_digit(c):
+        return "0" <= c and c <= "9"
+
+    result = []
+    i = 0
+    while i < len(s):
+        if is_digit(s[i]):
+            j = i + 1
+            while j < len(s) and is_digit(s[j]):
+                j += 1
+            key = int(s[i:j])
+            result.append(key)
+            i = j
+        else:
+            j = i + 1
+            while j < len(s) and not is_digit(s[j]):
+                j += 1
+            key = s[i:j]
+            result.append(key)
+            i = j
+    return tuple(result)
+
+
+@pyaedt_function_handler()
+def _create_json_file(json_dict, full_json_path):
+    if not is_ironpython:
+        with open(full_json_path, "w") as fp:
+            json.dump(json_dict, fp, indent=4)
+    else:
+        temp_path = full_json_path.replace(".json", "_temp.json")
+        with open(temp_path, "w") as fp:
+            json.dump(json_dict, fp, indent=4)
+        with open(temp_path, "r") as file:
+            filedata = file.read()
+        filedata = filedata.replace("True", "true")
+        filedata = filedata.replace("False", "false")
+        with open(full_json_path, "w") as file:
+            file.write(filedata)
+        os.remove(temp_path)
+    return True
+
+
 class Settings(object):
     """Class that manages all PyAEDT Environment Variables and global settings."""
 
@@ -641,8 +702,44 @@ class Settings(object):
         self._enable_debug_internal_methods_logger = False
         self._enable_debug_logger = False
         self._enable_error_handler = True
-        self.non_graphical = False
+        self._non_graphical = False
         self.aedt_version = None
+        self.remote_api = False
+        self._use_grpc_api = False
+        self.machine = ""
+        self.port = 0
+
+    @property
+    def use_grpc_api(self):
+        """Set/Get 20222R2 GPRC API usage or Legacy COM Objectr.
+
+        Returns
+        -------
+        bool
+        """
+        return self._use_grpc_api
+
+    @use_grpc_api.setter
+    def use_grpc_api(self, val):
+        """Set/Get 20222R2 GPRC API usage or Legacy COM Objectr."""
+        self._use_grpc_api = val
+
+    @property
+    def logger(self):
+        """Return the active logger."""
+        try:
+            return logging.getLogger("Global")
+        except:
+            return logging.getLogger(__name__)
+
+    @property
+    def non_graphical(self):
+        """Return the non graphical flag."""
+        return self._non_graphical
+
+    @non_graphical.setter
+    def non_graphical(self, val):
+        self._non_graphical = val
 
     @property
     def enable_error_handler(self):

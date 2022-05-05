@@ -1,6 +1,6 @@
 """
-HFSS 3D Layout Parametric Via Analysis
---------------------------------------
+Hfss 3D Layout: Parametric Via Analysis
+---------------------------------------
 This example shows how to use HFSS 3D Layout to create and solve a parametric design.
 """
 # sphinx_gallery_thumbnail_path = 'Resources/3dlayout.png'
@@ -9,12 +9,12 @@ This example shows how to use HFSS 3D Layout to create and solve a parametric de
 # # Import the `Hfss3dlayout` Object
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example imports the `Hfss3dlayout` object and initializes it on version
-# 2021.2.
+# 2022R1.
 
 from pyaedt import Hfss3dLayout
 import os
 
-h3d = Hfss3dLayout(specified_version="2021.2", new_desktop_session=True, non_graphical=True)
+h3d = Hfss3dLayout(specified_version="2022.1", new_desktop_session=True, non_graphical=True)
 
 ###############################################################################
 # Set Up Parametric Variables
@@ -92,7 +92,17 @@ h3d.create_linear_count_sweep(
 
 h3d.analyze_nominal()
 traces = h3d.get_traces_for_plot(first_element_filter="Port1")
-h3d.post.create_rectangular_plot(traces, families_dict=h3d.available_variations.nominal_w_values_dict)
+h3d.post.create_report(traces, families_dict=h3d.available_variations.nominal_w_values_dict)
+
+###############################################################################
+# Create Report outside AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create Report using Matplotlib.
+traces = h3d.get_traces_for_plot(first_element_filter="Port1", category="S")
+
+solutions = h3d.post.get_solution_data(expressions=traces)
+solutions.plot(math_formula="db20")
+
 
 ###############################################################################
 # Close AEDT

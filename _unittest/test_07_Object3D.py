@@ -1,11 +1,13 @@
 # standard imports
 import math
 
-# Import required modules
-from pyaedt.generic.general_methods import isclose, time_fn
-from pyaedt.modeler.Object3d import FacePrimitive, _to_boolean, _uname
-
 from _unittest.conftest import BasisTest
+from pyaedt.generic.general_methods import isclose
+from pyaedt.generic.general_methods import time_fn
+from pyaedt.modeler.Object3d import _to_boolean
+from pyaedt.modeler.Object3d import _uname
+from pyaedt.modeler.Object3d import EdgePrimitive
+from pyaedt.modeler.Object3d import FacePrimitive
 
 
 class TestClass(BasisTest, object):
@@ -78,8 +80,12 @@ class TestClass(BasisTest, object):
         time_fn(self.create_copper_box_test_performance)
 
     def test_01_bounding_box(self):
+        l1 = len(self.aedtapp.modeler.solid_objects)
         o = self.create_copper_box()
-        a = o.color
+        assert len(self.aedtapp.modeler.solid_objects) == l1 + 1
+        assert len(self.aedtapp.modeler.sheet_objects) == 0
+        assert len(self.aedtapp.modeler.line_objects) == 0
+        assert isinstance(o.color, tuple)
         bb = o.bounding_box
         assert len(bb) == 6
 
@@ -216,6 +222,21 @@ class TestClass(BasisTest, object):
         assert isinstance(o.bottom_face_x, FacePrimitive)
         assert isinstance(o.bottom_face_y, FacePrimitive)
         assert isinstance(o.bottom_face_z, FacePrimitive)
+
+    def test_08C_top_edge(self):
+        o = self.create_copper_box()
+        assert isinstance(o.faces[0].top_edge_x, EdgePrimitive)
+        assert isinstance(o.faces[0].top_edge_y, EdgePrimitive)
+        assert isinstance(o.faces[0].top_edge_z, EdgePrimitive)
+        assert isinstance(o.top_edge_x, EdgePrimitive)
+        assert isinstance(o.top_edge_y, EdgePrimitive)
+        assert isinstance(o.top_edge_z, EdgePrimitive)
+
+    def test_08D_bottom_edge(self):
+        o = self.create_copper_cylinder()
+        assert isinstance(o.bottom_edge_x, EdgePrimitive)
+        assert isinstance(o.bottom_edge_y, EdgePrimitive)
+        assert isinstance(o.bottom_edge_z, EdgePrimitive)
 
     def test_09_to_boolean(self):
         assert _to_boolean(True)

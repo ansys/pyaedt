@@ -17,6 +17,7 @@ import random
 import re
 import string
 import warnings
+from collections import OrderedDict
 
 from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
@@ -49,6 +50,111 @@ rgb_color_codes = {
     "copper": (184, 115, 51),
     "stainless steel": (224, 223, 219),
 }
+
+
+@pyaedt_function_handler()
+def _arg2dict(arg, dict_out):
+    if arg[0] == "NAME:DimUnits" or "NAME:Point" in arg[0]:
+        if arg[0][5:] in dict_out:
+            if isinstance(dict_out[arg[0][5:]][0], (list, tuple)):
+                dict_out[arg[0][5:]].append(list(arg[1:]))
+            else:
+                dict_out[arg[0][5:]] = [dict_out[arg[0][5:]]]
+                dict_out[arg[0][5:]].append(list(arg[1:]))
+        else:
+            dict_out[arg[0][5:]] = list(arg[1:])
+    elif arg[0][:5] == "NAME:":
+        top_key = arg[0][5:]
+        dict_in = OrderedDict()
+        i = 1
+        while i < len(arg):
+            if arg[i][0][:5] == "NAME:" and (
+                isinstance(arg[i], (list, tuple)) or str(type(arg[i])) == r"<type 'List'>"
+            ):
+                _arg2dict(list(arg[i]), dict_in)
+                i += 1
+            elif arg[i][-2:] == ":=":
+                if str(type(arg[i + 1])) == r"<type 'List'>":
+                    if arg[i][:-2] in dict_in:
+                        dict_in[arg[i][:-2]].append(list(arg[i + 1]))
+                    else:
+                        dict_in[arg[i][:-2]] = list(arg[i + 1])
+                else:
+                    if arg[i][:-2] in dict_in:
+                        if isinstance(dict_in[arg[i][:-2]], list):
+                            dict_in[arg[i][:-2]].append(arg[i + 1])
+                        else:
+                            dict_in[arg[i][:-2]] = [dict_in[arg[i][:-2]]]
+                            dict_in[arg[i][:-2]].append(arg[i + 1])
+                    else:
+                        dict_in[arg[i][:-2]] = arg[i + 1]
+
+                i += 2
+            else:
+                raise ValueError("Incorrect data argument format")
+        if top_key in dict_out:
+            if isinstance(dict_out[top_key], list):
+                dict_out[top_key].append(dict_in)
+            else:
+                dict_out[top_key] = [dict_out[top_key], dict_in]
+        else:
+            dict_out[top_key] = dict_in
+    else:
+        raise ValueError("Incorrect data argument format")
+
+
+@pyaedt_function_handler()
+def _dict2arg(d, arg_out):
+    """
+
+    Parameters
+    ----------
+    d :
+
+    arg_out :
+
+
+    Returns
+    -------
+
+    """
+    for k, v in d.items():
+        if "_pyaedt" in k:
+            continue
+        if k == "Point" or k == "DimUnits":
+            if isinstance(v[0], (list, tuple)):
+                for e in v:
+                    arg = ["NAME:" + k, e[0], e[1]]
+                    arg_out.append(arg)
+            else:
+                arg = ["NAME:" + k, v[0], v[1]]
+                arg_out.append(arg)
+        elif k == "Range":
+            if isinstance(v[0], (list, tuple)):
+                for e in v:
+                    arg_out.append(k + ":=")
+                    arg_out.append([i for i in e])
+            else:
+                arg_out.append(k + ":=")
+                arg_out.append([i for i in v])
+        elif isinstance(v, (OrderedDict, dict)):
+            arg = ["NAME:" + k]
+            _dict2arg(v, arg)
+            arg_out.append(arg)
+        elif v is None:
+            arg_out.append(["NAME:" + k])
+        elif type(v) is list and len(v) > 0 and isinstance(v[0], (OrderedDict, dict)):
+            for el in v:
+                arg = ["NAME:" + k]
+                _dict2arg(el, arg)
+                arg_out.append(arg)
+
+        else:
+            arg_out.append(k + ":=")
+            if type(v) is EdgePrimitive or type(v) is FacePrimitive or type(v) is VertexPrimitive:
+                arg_out.append(v.id)
+            else:
+                arg_out.append(v)
 
 
 def _uname(name=None):
@@ -382,6 +488,48 @@ class EdgePrimitive(EdgeTypePrimitive, object):
     def __str__(self):
         return "EdgeId " + str(self.id)
 
+    @pyaedt_function_handler()
+    def create_object(self):
+        """Return A new object from the selected edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateObjectFromEdges
+        """
+        return self._object3d._primitives.create_object_from_edge(self)
+
+    @pyaedt_function_handler()
+    def move_along_normal(self, offset=1.0):
+        """Move this edge.
+        This method moves an edge which belong to the same solid.
+
+        Parameters
+        ----------
+        offset : float, optional
+             Offset to apply in model units. The default is ``1.0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.MoveEdges
+
+        """
+        if self._object3d.object_type == "Solid":
+            self._object3d.logger.error("Edge Movement applies only to 2D objects.")
+            return False
+        return self._object3d._primitives.move_edge(self, offset)
+
 
 class FacePrimitive(object):
     """Contains the face object within the AEDT Desktop Modeler."""
@@ -546,6 +694,107 @@ class FacePrimitive(object):
         """
         area = self._oeditor.GetFaceArea(self.id)
         return area
+
+    @property
+    def top_edge_z(self):
+        """Top edge in the Z direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        References
+        ----------
+
+        >>> oEditor.FaceCenter
+
+        """
+        try:
+            result = [(float(edge.midpoint[2]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_z(self):
+        """Bottom edge in the Z direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(edge.midpoint[2]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
+
+    @property
+    def top_edge_x(self):
+        """Top edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(edge.midpoint[0]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_x(self):
+        """Bottom edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(edge.midpoint[0]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
+
+    @property
+    def top_edge_y(self):
+        """Top edge in the Y direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(edge.midpoint[1]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_y(self):
+        """Bottom edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(edge.midpoint[1]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
 
     @pyaedt_function_handler()
     def is_on_bounding(self, tol=1e-9):
@@ -722,6 +971,22 @@ class FacePrimitive(object):
         else:
             return inv_norm
 
+    @pyaedt_function_handler()
+    def create_object(self):
+        """Return A new object from the selected face.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateObjectFromFaces
+        """
+        return self._object3d._primitives.create_object_from_face(self)
+
 
 class Object3d(object):
     """Manages object attributes for the AEDT 3D Modeler.
@@ -773,6 +1038,7 @@ class Object3d(object):
         self._part_coordinate_system = None
         self._model = None
         self._m_groupName = None
+        self._object_type = None
 
     @pyaedt_function_handler()
     def _bounding_box_unmodel(self):
@@ -948,7 +1214,7 @@ class Object3d(object):
         """Export the model to path.
 
         .. note::
-        Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
+           Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
 
         Parameters
         ----------
@@ -1129,6 +1395,107 @@ class Object3d(object):
         """
         try:
             result = [(float(face.center[1]), face) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
+
+    @property
+    def top_edge_z(self):
+        """Top edge in the Z direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        References
+        ----------
+
+        >>> oEditor.FaceCenter
+
+        """
+        try:
+            result = [(float(face.top_edge_z.midpoint[2]), face.top_edge_z) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_z(self):
+        """Bottom edge in the Z direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(face.bottom_edge_z.midpoint[2]), face.bottom_edge_z) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
+
+    @property
+    def top_edge_x(self):
+        """Top edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(face.top_edge_x.midpoint[0]), face.top_edge_x) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_x(self):
+        """Bottom edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(face.bottom_edge_x.midpoint[0]), face.bottom_edge_x) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
+
+    @property
+    def top_edge_y(self):
+        """Top edge in the Y direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(face.top_edge_y.midpoint[1]), face.top_edge_y) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_y(self):
+        """Bottom edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(face.bottom_edge_y.midpoint[1]), face.bottom_edge_y) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
         except:
@@ -1362,7 +1729,7 @@ class Object3d(object):
         if not self._id:
             try:
                 self._id = self._primitives._oeditor.GetObjectIDByName(self._m_name)
-            except Exception as e:
+            except:
                 return None
         return self._id
 
@@ -1381,13 +1748,16 @@ class Object3d(object):
             Type of the object.
 
         """
-        if self._m_name in self._primitives.solid_names:
+        if self._object_type:
+            return self._object_type
+        if self._m_name in list(self.m_Editor.GetObjectsInGroup("Solids")):
             self._object_type = "Solid"
-        else:
-            if self._m_name in self._primitives.sheet_names:
-                self._object_type = "Sheet"
-            elif self._m_name in self._primitives.line_names:
-                self._object_type = "Line"
+        elif self._m_name in list(self.m_Editor.GetObjectsInGroup("Sheets")):
+            self._object_type = "Sheet"
+        elif self._m_name in list(self.m_Editor.GetObjectsInGroup("Lines")):
+            self._object_type = "Line"
+        elif self._m_name in list(self.m_Editor.GetObjectsInGroup("Unclassified")):  # pragma: no cover
+            self._object_type = "Unclassified"  # pragma: no cover
         return self._object_type
 
     @property
@@ -1590,7 +1960,7 @@ class Object3d(object):
         >>> oEditor.ChangeProperty
 
         """
-        if self._part_coordinate_system is not None:
+        if self._part_coordinate_system is not None and not isinstance(self._part_coordinate_system, int):
             return self._part_coordinate_system
         if "Orientation" in self.valid_properties:
             self._part_coordinate_system = _retry_ntimes(
@@ -1756,15 +2126,18 @@ class Object3d(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pyaedt.modeler.Object3d.Object3d, bool
+            3D object.
+            ``False`` when failed.
 
         References
         ----------
 
         >>> oEditor.Mirror
         """
-        return self._primitives.modeler.mirror(self.id, position=position, vector=vector)
+        if self._primitives.modeler.mirror(self.id, position=position, vector=vector):
+            return self
+        return False
 
     @pyaedt_function_handler()
     def rotate(self, cs_axis, angle=90.0, unit="deg"):
@@ -1783,15 +2156,18 @@ class Object3d(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pyaedt.modeler.Object3d.Object3d, bool
+            3D object.
+            ``False`` when failed.
 
         References
         ----------
 
         >>> oEditor.Rotate
         """
-        return self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit)
+        if self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit):
+            return self
+        return False
 
     @pyaedt_function_handler()
     def move(self, vector):
@@ -1807,14 +2183,17 @@ class Object3d(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pyaedt.modeler.Object3d.Object3d, bool
+            3D object.
+            ``False`` when failed.
 
         References
         ----------
         >>> oEditor.Move
         """
-        return self._primitives.modeler.move(self.id, vector=vector)
+        if self._primitives.modeler.move(self.id, vector=vector):
+            return self
+        return False
 
     def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
         """Duplicate the object around the axis.
@@ -2200,11 +2579,6 @@ class Padstack(object):
                 self._pad = value
             else:
                 self._pad = Padstack.PDSHole(holetype="None", sizes=[])
-
-        @property
-        def antipad(self):
-            """Antipad."""
-            return self._antipad
 
         @antipad.setter
         def antipad(self, value=None):
@@ -2607,12 +2981,7 @@ class CircuitPins(object):
             return False
 
 
-class ComponentParameters(object):
-    """AEDT Circuit Component Internal Parameters."""
-
-    def __getitem__(self, key):
-        return self.parameters[key]
-
+class ComponentParameters(dict):
     def __setitem__(self, key, value):
         try:
             self._component.m_Editor.ChangeProperty(
@@ -2625,17 +2994,39 @@ class ComponentParameters(object):
                     ],
                 ]
             )
-            self.parameters[key] = value
+            dict.__setitem__(self, key, value)
         except:
-            self._component._circuit_components.logger.warning("Property %s has not been edited", key)
+            self._component._circuit_components.logger.warning("Property %s has not been edited.Check if readonly", key)
 
-    def __repr__(self):
-        return str(self.parameters)
-
-    def __init__(self, component, tab, params):
+    def __init__(self, component, tab, *args, **kw):
+        dict.__init__(self, *args, **kw)
         self._component = component
         self._tab = tab
-        self.parameters = params
+
+
+class ModelParameters(object):
+    def update(self):
+        """Update the model properties.
+
+        Returns
+        -------
+        bool
+        """
+        try:
+            a = OrderedDict({})
+            a[self.name] = self.props
+            arg = ["NAME:" + self.name]
+            _dict2arg(self.props, arg)
+            self._component._circuit_components.o_model_manager.EditWithComps(self.name, arg, [])
+            return True
+        except:
+            self._component._circuit_components.logger.warning("Failed to update model %s ", self.name)
+            return False
+
+    def __init__(self, component, name, props):
+        self.props = props
+        self._component = component
+        self.name = name
 
 
 class CircuitComponent(object):
@@ -2649,11 +3040,14 @@ class CircuitComponent(object):
         else:
             return self.name + ";" + str(self.schematic_id)
 
-    def __init__(self, circuit_components, units="mm", tabname="PassedParameterTab"):
+    def __init__(self, circuit_components, units="mm", tabname="PassedParameterTab", custom_editor=None):
         self.name = ""
         self._circuit_components = circuit_components
-        self.m_Editor = self._circuit_components._oeditor
-        self.modelName = None
+        if custom_editor:
+            self.m_Editor = custom_editor
+        else:
+            self.m_Editor = self._circuit_components._oeditor
+        self._modelName = None
         self.status = "Active"
         self.component = None
         self.id = 0
@@ -2669,6 +3063,46 @@ class CircuitComponent(object):
         self.InstanceName = None
         self._pins = None
         self._parameters = {}
+        self._component_info = {}
+        self._model_data = {}
+
+    @property
+    def _property_data(self):
+        """Property Data List."""
+        try:
+            return list(self._circuit_components.o_component_manager.GetData(self.name.split("@")[1]))
+        except:
+            return []
+
+    @property
+    def model_name(self):
+        """Return Model Name if present.
+
+        Returns
+        -------
+        str
+        """
+        if self._property_data and "ModelDefName:=" in self._property_data:
+            return self._property_data[self._property_data.index("ModelDefName:=") + 1]
+        return None
+
+    @property
+    def model_data(self):
+        """Return the model data if the component has one.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.ModelParameters`
+        """
+        """Return the model data if the component has one.
+        """
+        if self._model_data:
+            return self._model_data
+        if self.model_name:
+            _parameters = OrderedDict({})
+            _arg2dict(list(self._circuit_components.o_model_manager.GetData(self.model_name)), _parameters)
+            self._model_data = ModelParameters(self, self.model_name, _parameters[self.model_name])
+        return self._model_data
 
     @property
     def parameters(self):
@@ -2698,8 +3132,30 @@ class CircuitComponent(object):
         return self._parameters
 
     @property
+    def component_info(self):
+        """Component parameters.
+
+        References
+        ----------
+
+        >>> oEditor.GetProperties
+        >>> oEditor.GetPropertyValue
+        """
+        if self._component_info or self._circuit_components._app.design_type != "Circuit Design":
+            return self._component_info
+        _component_info = {}
+        tab = "Component"
+        proparray = self.m_Editor.GetProperties(tab, self.composed_name)
+
+        for j in proparray:
+            propval = _retry_ntimes(10, self.m_Editor.GetPropertyValue, tab, self.composed_name, j)
+            _component_info[j] = propval
+        self._component_info = ComponentParameters(self, tab, _component_info)
+        return self._component_info
+
+    @property
     def pins(self):
-        """Pins of component.
+        """Pins of the component.
 
         Returns
         -------
@@ -2715,12 +3171,12 @@ class CircuitComponent(object):
         else:
             pins = _retry_ntimes(10, self.m_Editor.GetComponentPins, self.composed_name)
 
-            if not pins:
+            if not pins or pins is True:
                 return []
             for pin in pins:
                 if self._circuit_components._app.design_type != "Twin Builder":
                     self._pins.append(CircuitPins(self, pin))
-                elif pin not in list(self.parameters.parameters.keys()):
+                elif pin not in list(self.parameters.keys()):
                     self._pins.append(CircuitPins(self, pin))
         return self._pins
 

@@ -6,12 +6,11 @@ from __future__ import absolute_import  # noreorder
 
 import copy
 import json
-import os
 
 from pyaedt.generic.DataHandlers import _arg2dict
+from pyaedt.generic.general_methods import _create_json_file
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Material import Material
 from pyaedt.modules.Material import MatProperties
@@ -223,10 +222,11 @@ class Materials(object):
             return self.material_keys[materialname]
         else:
             material = Material(self, materialname, props)
-            material.update()
-            self.logger.info("Material has been added. Edit it to update in Desktop.")
-            self.material_keys[materialname] = material
-            return self.material_keys[materialname]
+            if material.update():
+                self.logger.info("Material has been added. Edit it to update in Desktop.")
+                self.material_keys[materialname] = material
+                return self.material_keys[materialname]
+        return False
 
     @pyaedt_function_handler()
     def add_surface_material(self, material_name, emissivity=None):
@@ -345,6 +345,7 @@ class Materials(object):
 
         newmat = Material(self, matname)
         index = "$ID" + matname
+        newmat.is_sweep_material = True
         self._app[index] = 0
         for el in mat_dict:
             if el in list(mat_dict.keys()):
@@ -586,21 +587,7 @@ class Materials(object):
         json_dict["materials"] = output_dict
         if datasets:
             json_dict["datasets"] = datasets
-        if not is_ironpython:
-            with open(full_json_path, "w") as fp:
-                json.dump(json_dict, fp, indent=4)
-        else:
-            temp_path = full_json_path.replace(".json", "_temp.json")
-            with open(temp_path, "w") as fp:
-                json.dump(json_dict, fp, indent=4)
-            with open(temp_path, "r") as file:
-                filedata = file.read()
-            filedata = filedata.replace("True", "true")
-            filedata = filedata.replace("False", "false")
-            with open(full_json_path, "w") as file:
-                file.write(filedata)
-            os.remove(temp_path)
-        return True
+        return _create_json_file(json_dict, full_json_path)
 
     @pyaedt_function_handler()
     def import_materials_from_file(self, full_json_path):

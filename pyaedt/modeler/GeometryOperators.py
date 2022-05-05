@@ -99,8 +99,14 @@ class GeometryOperators(object):
             else:
                 scaling_factor = scale_units(m.group("unit"))
                 return float(m.group("number")) * scaling_factor / sunit
-        else:  # pragma: no cover
-            raise TypeError("String is no number")
+        else:
+            if variable_manager:
+                if not variable_manager.set_variable("temp_var", string):
+                    if not variable_manager.set_variable("temp_var", string, postprocessing=True):
+                        return string
+                value = variable_manager["temp_var"].value
+                del variable_manager["temp_var"]
+                return value
 
     @staticmethod
     @pyaedt_function_handler()
@@ -392,8 +398,8 @@ class GeometryOperators(object):
         """
         t = 0
         for i in a:
-            t += i ** 2
-        m = t ** 0.5
+            t += i**2
+        m = t**0.5
         return m
 
     @staticmethod
@@ -1909,7 +1915,7 @@ class GeometryOperators(object):
         float
 
         """
-        return math.ceil(math.degrees(angle) * 10 ** digits) / (10 ** digits)
+        return math.ceil(math.degrees(angle) * 10**digits) / (10**digits)
 
     @staticmethod
     @pyaedt_function_handler()
@@ -1928,7 +1934,7 @@ class GeometryOperators(object):
         float
 
         """
-        return math.ceil(math.radians(angle) * 10 ** digits) / (10 ** digits)
+        return math.ceil(math.radians(angle) * 10**digits) / (10**digits)
 
     @staticmethod
     @pyaedt_function_handler()
@@ -1947,7 +1953,7 @@ class GeometryOperators(object):
         float
 
         """
-        return math.floor(math.degrees(angle) * 10 ** digits) / (10 ** digits)
+        return math.floor(math.degrees(angle) * 10**digits) / (10**digits)
 
     @staticmethod
     @pyaedt_function_handler()
@@ -1966,4 +1972,4 @@ class GeometryOperators(object):
         float
 
         """
-        return math.floor(math.radians(angle) * 10 ** digits) / (10 ** digits)
+        return math.floor(math.radians(angle) * 10**digits) / (10**digits)

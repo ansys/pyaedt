@@ -235,6 +235,11 @@ class EmitComponent(object):
         self.odesign = components.odesign
         self.root_prop_node = None
 
+    @property
+    def composed_name(self):
+        """Component name. Needed for compatibility."""
+        return self.name
+
     @pyaedt_function_handler()
     def move_and_connect_to(self, component):
         """Move and connect this component to another component.
@@ -412,17 +417,20 @@ class EmitComponent(object):
         self.__dict__[property_name] = property_value
         return True
 
-    def get_prop_nodes(self, property_filter={}):
+    def get_prop_nodes(self, property_filter=None):
         """Get all property nodes that match a set of key,value pairs.
 
         Args:
             property_filter (dict, optional): Only return nodes with all
-            the property name,value pairs of this dict. Defaults to {}
+            the property name, value pairs of this dict. Defaults to ``None``
             which returns all nodes.
 
         Returns:
             list: All matching nodes (EmitComponentPropNode).
         """
+        if property_filter == None:
+            property_filter = {}
+
         filtered_nodes = []
         nodes_to_expand = [self.root_prop_node]
         while nodes_to_expand:

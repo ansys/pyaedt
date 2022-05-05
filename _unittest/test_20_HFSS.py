@@ -277,7 +277,7 @@ class TestClass(BasisTest, object):
         box_sweep = self.aedtapp.modeler.create_box([0, 0, 20], [10, 10, 5], "box_sweep", "Copper")
         box_sweep2 = self.aedtapp.modeler.create_box([0, 0, 30], [10, 10, 5], "box_sweep2", "Copper")
         port = self.aedtapp.create_wave_port_between_objects(
-            "box_sweep", "box_sweep2", self.aedtapp.AxisDir.XNeg, 50, 1, "WaveForSweep", False
+            "box_sweep", "box_sweep2", self.aedtapp.AxisDir.XNeg, 75, 1, "WaveForSweep", False
         )
         setup = self.aedtapp.create_setup(setupname="MySetupForSweep")
         sweep = setup.add_sweep()
@@ -332,6 +332,16 @@ class TestClass(BasisTest, object):
 
     def test_07_set_power(self):
         assert self.aedtapp.edit_source("sheet1_Port" + ":1", "10W")
+        assert self.aedtapp.edit_sources(
+            {"sheet1_Port" + ":1": "10W", "sheet2_Port:1": ("20W", "20deg")},
+            include_port_post_processing=True,
+            max_available_power="40W",
+        )
+        assert self.aedtapp.edit_sources(
+            {"sheet1_Port" + ":1": "10W", "sheet2_Port:1": ("20W", "0deg", True)},
+            include_port_post_processing=True,
+            use_incident_voltage=True,
+        )
 
     def test_08_create_circuit_port_from_edges(self):
         plane = self.aedtapp.PLANE.XY
@@ -568,42 +578,86 @@ class TestClass(BasisTest, object):
     def test_25_create_parametrics(self):
         self.aedtapp["w1"] = "10mm"
         self.aedtapp["w2"] = "2mm"
-        setup1 = self.aedtapp.opti_parametric.add_parametric_setup("w1", "LIN 0.1mm 20mm 0.2mm")
+        setup1 = self.aedtapp.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
         assert setup1
-        assert setup1.add_variation("w2", "LINC 0.1mm 10mm 11")
+        assert setup1.add_variation("w2", "0.1mm", 10, 11)
         assert setup1.add_calculation(
-            calculation="dB(S(1,1))", calculation_value="2.5GHz", reporttype="Modal Solution Data"
+            calculation="dB(S(1,1))", ranges={"Freq": "5GHz"}, solution="MySetupForSweep : LastAdaptive"
         )
+        assert setup1.name in self.aedtapp.get_oo_name(
+            self.aedtapp.odesign, r"Optimetrics".format(self.aedtapp.design_name)
+        )
+        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup1.name))
+        oo_calculation = oo.GetCalculationInfo()[0]
+        assert "Modal Solution Data" in oo_calculation
+        assert setup1.export_to_csv(os.path.join(self.local_scratch.path, "test.csv"))
+        assert os.path.exists(os.path.join(self.local_scratch.path, "test.csv"))
+        assert self.aedtapp.parametrics.add_from_file(
+            os.path.join(self.local_scratch.path, "test.csv"), "ParametricsfromFile"
+        )
+        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\ParametricsfromFile")
+        assert oo
 
     def test_26_create_optimization(self):
-        setup2 = self.aedtapp.opti_optimization.add_optimization("db(S(1,1))", "2.5GHz")
+        calculation = "db(S(Cir1,Cir1))"
+        setup2 = self.aedtapp.optimizations.add(calculation, ranges={"Freq": "2.5GHz"})
         assert setup2
-
-        assert setup2.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz")
-        assert setup2.add_goal(
-            calculation="dB(S(1,1))", calculation_value="2.6GHz", calculation_type="rd", calculation_stop="5GHz"
+        assert setup2.name in self.aedtapp.get_oo_name(
+            self.aedtapp.odesign, r"Optimetrics".format(self.aedtapp.design_name)
         )
+        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup2.name))
+        oo_calculation = oo.GetCalculationInfo()[0]
+        assert calculation in oo_calculation
+        assert self.aedtapp.nominal_sweep in oo_calculation
+        for el in oo_calculation:
+            if "NAME:Ranges" in el:
+                break
+        assert len(el) == 3
+        assert setup2.add_goal(calculation=calculation, ranges={"Freq": "2.6GHz"})
+        oo_calculation = oo.GetCalculationInfo()[0]
+        for el in reversed(oo_calculation):
+            if "NAME:Ranges" in el:
+                break
+        assert "2.6GHz" in el[2]
+        assert setup2.add_goal(calculation=calculation, ranges={"Freq": ("2.6GHz", "5GHZ")})
+        oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\{}".format(setup2.name))
+        oo_calculation = oo.GetCalculationInfo()[0]
+        for el in reversed(oo_calculation):
+            if "NAME:Ranges" in el:
+                break
+        assert "rd" in el[2]
 
     def test_27_create_doe(self):
-        setup2 = self.aedtapp.opti_doe.add_doe("db(S(1,1))", "2.5GHz")
+        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DXDOE")
+        assert setup2.add_variation("w1", 0.1, 10, 51)
         assert setup2
-        assert setup2.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz")
-        assert setup2.add_calculation(calculation="dB(S(1,1))", calculation_value="2.5GHz")
+        assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
+        assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
 
-    def test_28_create_dx(self):
-        setup2 = self.aedtapp.opti_designxplorer.add_dx_setup(["w1", "w2"], ["1mm", "2mm"])
+    def test_28A_create_dx(self):
+        setup2 = self.aedtapp.optimizations.add(None, {"w1": "1mm", "w2": "2mm"}, optim_type="optiSLang")
+        assert setup2.add_variation("w1", 0.1, 10, 51)
+        assert not setup2.add_variation("w3", 0.1, 10, 51)
         assert setup2
-        assert setup2.add_goal(calculation="dB(S(1,1))", calculation_value="2.6GHz")
+        assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
+
+    def test_28B_create_dx(self):
+        setup2 = self.aedtapp.optimizations.add(None, {"w1": "1mm", "w2": "2mm"}, optim_type="DesignExplorer")
+        assert setup2.add_variation("w1", 0.1, 10, 51)
+        assert setup2
+        assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
     def test_29_create_sensitivity(self):
-        setup2 = self.aedtapp.opti_sensitivity.add_sensitivity("db(S(1,1))", "2.5GHz")
+        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Sensitivity")
+        assert setup2.add_variation("w1", 0.1, 10, 51)
         assert setup2
-        assert setup2.add_calculation(calculation="dB(S(1,1))", calculation_value="2.6GHz")
+        assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
     def test_29_create_statistical(self):
-        setup2 = self.aedtapp.opti_statistical.add_statistical("db(S(1,1))", "2.5GHz")
+        setup2 = self.aedtapp.optimizations.add("db(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Statistical")
+        assert setup2.add_variation("w1", 0.1, 10, 0.1, "LinearStep")
         assert setup2
-        assert setup2.add_calculation(calculation="dB(S(1,1))", calculation_value="2.6GHz")
+        assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
     def test_30_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(6)
@@ -618,7 +672,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.solution_type = "Terminal"
         assert self.aedtapp.create_wave_port_microstrip_between_objects(gnd.name, ms.name, portname="MS2", axisdir=1)
         assert self.aedtapp.create_wave_port_microstrip_between_objects(
-            gnd.name, ms.name, portname="MS3", axisdir=1, deembed_dist=1
+            gnd.name, ms.name, portname="MS3", axisdir=1, deembed_dist=1, impedance=77
         )
         self.aedtapp.solution_type = "Modal"
 
@@ -754,6 +808,14 @@ class TestClass(BasisTest, object):
             polarization_angle=30,
         )
         assert bound.azimuth_start == "2deg"
+        self.aedtapp.create_setup()
+        sweep6 = self.aedtapp.optimizations.add(
+            calculation="RealizedGainTotal",
+            solution=self.aedtapp.nominal_adaptive,
+            ranges={"Freq": "5GHz", "Theta": "0deg", "Phi": "0deg"},
+            context=bound.name,
+        )
+        assert sweep6
 
     def test_45_set_autoopen(self):
         assert self.aedtapp.set_auto_open(True, "PML")
@@ -765,11 +827,11 @@ class TestClass(BasisTest, object):
         box2 = self.aedtapp.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig", matname="copper")
         sheet = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [-100, -100, 5], [200, 15], "port")
         port = self.aedtapp.create_lumped_port_between_objects(
-            box1, box2.name, self.aedtapp.AxisDir.XNeg, 50, "Lump1", True, False
+            box1, box2.name, self.aedtapp.AxisDir.XNeg, 75, "Lump1", True, False
         )
         assert "Lump1_T1" in self.aedtapp.excitations
         port2 = self.aedtapp.create_lumped_port_to_sheet(
-            sheet.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet", True, False, reference_object_list=[box1]
+            sheet.name, self.aedtapp.AxisDir.XNeg, 33, "Lump_sheet", True, False, reference_object_list=[box1]
         )
         assert port2.name + "_T1" in self.aedtapp.excitations
         port3 = self.aedtapp.create_lumped_port_between_objects(

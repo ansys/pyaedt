@@ -136,14 +136,14 @@ class CircuitComponents(object):
         if not location:
             xpos = self.current_position[0]
             ypos = self.current_position[1]
-            self.current_position[1] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[1]
-            if self.current_position[1] > self.limits_mils:
-                self.current_position[1] = 0
-                self.current_position[0] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[0]
         else:
             xpos = location[0]
             ypos = location[1]
             self.current_position = location
+        self.current_position[1] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[1]
+        if self.current_position[1] / AEDT_UNITS["Length"]["mil"] > self.limits_mils:
+            self.current_position[1] = 0
+            self.current_position[0] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[0]
         return xpos, ypos
 
     @pyaedt_function_handler()
@@ -189,6 +189,33 @@ class CircuitComponents(object):
         return True
 
     @pyaedt_function_handler()
+    def add_pin_iports(self, name, id_num):
+        """Add ports on pins.
+
+        Parameters
+        ----------
+        name : str
+            Name of the component.
+        id_num : int
+            ID of circuit component.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oeditor.AddPinIPorts
+        """
+        comp_id = "CompInst@" + name + ";" + str(id_num) + ";395"
+        arg1 = ["Name:Selections", "Selections:=", [comp_id]]
+        self._oeditor.AddPinIPorts(arg1)
+
+        return True
+
+    @pyaedt_function_handler()
     def create_iport(self, name, posx=0.1, posy=0.1, angle=0):
         """Create an interface port.
 
@@ -196,7 +223,7 @@ class CircuitComponents(object):
            Use :func:`Circuit.modeler.schematic.create_interface_port` instead.
         """
         warnings.warn("`create_iport` is deprecated. Use `create_interface_port` instead.", DeprecationWarning)
-        return self.create_interface_port(name, posx, posy, angle)
+        return self.create_interface_port(name, [posx, posy], angle)
 
     @pyaedt_function_handler()
     def create_interface_port(self, name, location=[], angle=0):
@@ -222,12 +249,12 @@ class CircuitComponents(object):
         >>> oEditor.CreateIPort
         """
         if location:
-            posx, posy = location[0], location[1]
+            xpos, ypos = location[0], location[1]
         else:
-            posx, posy = self._get_location(location)
+            xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
         arg1 = ["NAME:IPortProps", "Name:=", name, "Id:=", id]
-        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", angle, "Flip:=", False]
+        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         id = self._oeditor.CreateIPort(arg1, arg2)
 
         id = int(id.split(";")[1])
@@ -335,7 +362,7 @@ class CircuitComponents(object):
             model_name = os.path.splitext(os.path.basename(touchstone_full_path))[0]
         if model_name in list(self.o_model_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
-        num_terminal = int(touchstone_full_path[-2:-1])
+        num_terminal = int(os.path.splitext(touchstone_full_path)[1].lower().strip(".sp"))
         with open(touchstone_full_path, "r") as f:
             port_names = _parse_ports_name(f)
         image_subcircuit_path = os.path.normpath(
@@ -884,145 +911,6 @@ class CircuitComponents(object):
         return True
 
     @pyaedt_function_handler()
-    def create_new_component_from_symbol(
-        self, symbol_name, pin_lists, Refbase="U", parameter_list=[], parameter_value=[]
-    ):
-        """Create a component from a symbol.
-
-        Parameters
-        ----------
-        symbol_name : str
-            Name of the symbol.
-        pin_lists : list
-            List of the pins.
-        Refbase : str, optional
-            Reference base. The default is ``"U"``.
-        parameter_list : list, optional
-            List of the parameters. The default is ``[]``.
-        parameter_value : list, optional
-            List of the parameter values. The default is ``[]``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oComponentManager.Add
-        """
-        arg = [
-            "NAME:" + symbol_name,
-            "Info:=",
-            [
-                "Type:=",
-                0,
-                "NumTerminals:=",
-                5,
-                "DataSource:=",
-                "",
-                "ModifiedOn:=",
-                1591858313,
-                "Manufacturer:=",
-                "",
-                "Symbol:=",
-                symbol_name,
-                "ModelNames:=",
-                "",
-                "Footprint:=",
-                "",
-                "Description:=",
-                "",
-                "InfoTopic:=",
-                "",
-                "InfoHelpFile:=",
-                "",
-                "IconFile:=",
-                "",
-                "Library:=",
-                "",
-                "OriginalLocation:=",
-                "Project",
-                "IEEE:=",
-                "",
-                "Author:=",
-                "",
-                "OriginalAuthor:=",
-                "",
-                "CreationDate:=",
-                1591858278,
-                "ExampleFile:=",
-                "",
-                "HiddenComponent:=",
-                0,
-                "CircuitEnv:=",
-                0,
-                "GroupID:=",
-                0,
-            ],
-            "CircuitEnv:=",
-            0,
-            "Refbase:=",
-            Refbase,
-            "NumParts:=",
-            1,
-            "ModSinceLib:=",
-            True,
-        ]
-
-        for pin in pin_lists:
-            arg.append("Terminal:=")
-            arg.append([pin, pin, "A", False, 0, 1, "", "Electrical", "0"])
-        arg.append("CompExtID:=")
-        arg.append(1)
-        arg2 = ["NAME:Parameters"]
-        for el, val in zip(parameter_list, parameter_value):
-            if isinstance(val, str):
-                arg2.append("TextValueProp:=")
-                arg2.append([el, "D", "", val])
-            else:
-                arg2.append("ValueProp:=")
-                arg2.append([el, "D", "", val, False, ""])
-        arg2.append("ButtonProp:=")
-        arg2.append(["CosimDefinition", "D", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []])
-        arg2.append("MenuProp:=")
-        arg2.append(["CoSimulator", "D", "", "DefaultNetlist", 0])
-
-        arg.append(arg2)
-        spicesintax = Refbase + "@ID "
-        id = 0
-        while id < (len(pin_lists) - 1):
-            spicesintax += "%" + str(id) + " "
-            id += 1
-        for el in parameter_list:
-            spicesintax += "@{} ".format(el)
-
-        arg3 = [
-            "NAME:CosimDefinitions",
-            [
-                "NAME:CosimDefinition",
-                "CosimulatorType:=",
-                4,
-                "CosimDefName:=",
-                "DefaultNetlist",
-                "IsDefinition:=",
-                True,
-                "Connect:=",
-                True,
-                "Data:=",
-                ["Nexxim Circuit:=", spicesintax],
-                "GRef:=",
-                ["Nexxim Circuit:=", ""],
-            ],
-            "DefaultCosim:=",
-            "DefaultNetlist",
-        ]
-        arg.append(arg3)
-        self.o_component_manager.Add(arg)
-        return True
-
-    @pyaedt_function_handler()
     def enable_use_instance_name(self, component_library="Resistors", component_name="RES_"):
         """Enable the use of the instance name.
 
@@ -1089,10 +977,11 @@ class CircuitComponents(object):
                     o.name = name[0]
                     if len(name) == 2:
                         o.schematic_id = name[1]
+                        objID = int(o.schematic_id)
                     else:
                         o.id = int(name[1])
                         o.schematic_id = name[2]
-                    objID = o.id
+                        objID = o.id
                     self.components[objID] = o
         return len(self.components)
 

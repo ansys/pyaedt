@@ -36,7 +36,7 @@ HFSSDrivenAuto = [
 """HFSS automatic setup properties and default values."""
 
 HFSSDrivenDefault = [
-    ("AdaptMultipleFreqs", False),
+    ("SolveType", "Single"),
     ("MultipleAdaptiveFreqsSetup", multifreq),
     ("Frequency", "5GHz"),
     ("MaxDeltaS", 0.02),
@@ -174,6 +174,14 @@ Electrostatic = [
 ]
 """Maxwell electrostatic setup properties and default values."""
 
+subrange = [
+    ("SweepSetupType", "LinearStep"),
+    ("StartValue", "1e-08GHz"),
+    ("StopValue", "1e-06GHz"),
+    ("StepSize", "1e-08GHz"),
+]
+subranges = [("Subrange", subrange)]
+
 EddyCurrent = [
     ("Enabled", True),
     ("MeshLink", meshlink),
@@ -191,10 +199,7 @@ EddyCurrent = [
     ("SmoothBHCurve", False),
     ("Frequency", "60Hz"),
     ("HasSweepSetup", False),
-    ("SweepSetupType", "LinearStep"),
-    ("StartValue", "1e-08GHz"),
-    ("StopValue", "1e-06GHz"),
-    ("StepSize", "1e-08GHz"),
+    ("SweepRanges", subranges),
     ("UseHighOrderShapeFunc", False),
     ("UseMuLink", False),
 ]
@@ -1166,19 +1171,110 @@ MechStructural = [
 
 # TODO complete the list of templates for other Solvers
 
-GRM = [
+RmxprtDefault = [
     ("Enabled", True),
-    ("MeshLink", meshlink),
-    ("RatedOutputPower", "1W"),
-    ("RatedVoltage", "208V"),
-    ("RatedSpeed", "3600rpm"),
-    ("OperatingTemperature", "75cel"),
     ("OperationType", "Motor"),
     ("LoadType", "ConstPower"),
+    ("RatedOutputPower", "1kW"),
+    ("RatedVoltage", "100V"),
+    ("RatedSpeed", "1000rpm"),
+    ("OperatingTemperature", "75cel"),
+]
+"""RMxprt Default setup properties and default values."""
+
+GRM = RmxprtDefault + [
     ("RatedPowerFactor", "0.8"),
     ("Frequency", "60Hz"),
     ("CapacitivePowerFactor", False),
 ]
+"""RMxprt GRM (Generic Rotating Machine) setup properties and default values."""
+
+DFIG = [
+    ("Enabled", True),
+    ("RatedOutputPower", "1kW"),
+    ("RatedVoltage", "100V"),
+    ("RatedSpeed", "1000rpm"),
+    ("OperatingTemperature", "75cel"),
+    ("OperationType", "Wind Generator"),
+    ("LoadType", "InfiniteBus"),
+    ("RatedPowerFactor", "0.8"),
+    ("Frequency", "60Hz"),
+    ("CapacitivePowerFactor", False),
+]
+"""RMxprt DFIG (Doubly-fed induction generator) setup properties."""
+
+TPIM = RmxprtDefault + [("Frequency", "60Hz"), ("WindingConnection", 0)]
+"""RMxprt TPIM (Three-Phase Induction Machine) setup properties."""
+
+SPIM = RmxprtDefault + [
+    ("Frequency", "60Hz"),
+]
+"""RMxprt SPIM (Single-Phase Induction Machine setup properties."""
+
+TPSM = [
+    ("Enabled", True),
+    ("RatedOutputPower", "100"),
+    ("RatedVoltage", "100V"),
+    ("RatedSpeed", "1000rpm"),
+    ("OperatingTemperature", "75cel"),
+    ("OperationType", "Generator"),
+    ("LoadType", "InfiniteBus"),
+    ("RatedPowerFactor", 0.8),
+    ("WindingConnection", False),
+    ("ExciterEfficiency", 90),
+    ("StartingFieldResistance", "0ohm"),
+    ("InputExcitingCurrent", False),
+    ("ExcitingCurrent", "0A"),
+]
+"""RMxprt TPSM=SYNM (Three-phase Synchronous Machine/Generator) setup properties."""
+
+NSSM = TPSM  # Non-salient Synchronous Machine defaults, same as salient synch mach
+
+ASSM = BLDC = PMDC = SRM = RmxprtDefault
+# --- ALL USING RMxprt DEFAULT VALUES --- #
+# ASSM = Adjustable-speed Synchronous Machine
+# BLDC = Brushless DC Machine
+# PMDC = Permanent Magnet DC Machine
+# SRM = Switched Reluctance Machine
+
+LSSM = RmxprtDefault + [
+    ("WindingConnection", False),
+]
+"""RMxprt LSSM (Line-start Synchronous Machine) setup properties."""
+
+UNIM = RmxprtDefault + [
+    ("Frequency", "60Hz"),
+]
+"""RMxprt UNIM (Universal Machine) setup properties."""
+
+DCM = [
+    ("Enabled", True),
+    ("RatedOutputPower", "1kW"),
+    ("RatedVoltage", "100V"),
+    ("RatedSpeed", "1000rpm"),
+    ("OperatingTemperature", "75cel"),
+    ("OperationType", "Generator"),
+    ("LoadType", "InfiniteBus"),
+    ("FieldExcitingType", False),
+    ("DeterminedbyRatedSpeed", False),
+    ("ExcitingVoltage", "100V"),
+    ("SeriesResistance", "1ohm"),
+]
+"""RMxprt DCM (DC Machine/Generator) setup properties."""
+
+CPSM = [
+    ("Enabled", True),
+    ("RatedOutputPower", "100"),
+    ("RatedVoltage", "100V"),
+    ("RatedSpeed", "1000rpm"),
+    ("OperatingTemperature", "75cel"),
+    ("OperationType", "Generator"),
+    ("LoadType", "InfiniteBus"),
+    ("RatedPowerFactor", "0.8"),
+    ("InputExcitingCurrent", False),
+    ("ExcitingCurrent", "0A"),
+]
+"""RMxprt CPSM (Claw-pole synchronous machine/generator) setup properties."""
 
 TR = []
 
@@ -1833,6 +1929,19 @@ class SetupKeys(object):
         40: SiwaveDC3DLayout,
         41: SiwaveAC3DLayout,
         42: LNA3DLayout,
+        43: DFIG,
+        44: TPIM,
+        45: SPIM,
+        46: TPSM,
+        47: BLDC,
+        48: ASSM,
+        49: PMDC,
+        50: SRM,
+        51: LSSM,
+        52: UNIM,
+        53: DCM,
+        54: CPSM,
+        55: NSSM,
     }
 
     SetupNames = [
@@ -1879,4 +1988,41 @@ class SetupKeys(object):
         "SiwaveDC3DLayout",
         "SiwaveAC3DLayout",
         "LNA3DLayout",
+        "GRM",  # DFIG
+        "TPIM",
+        "SPIM",
+        "SYNM",  # TPSM/SYNM
+        "BLDC",
+        "ASSM",
+        "PMDC",
+        "SRM",
+        "LSSM",
+        "UNIM",
+        "DCM",
+        "CPSM",
+        "NSSM",
     ]
+
+
+class SetupProps(OrderedDict):
+    """AEDT Boundary Component Internal Parameters."""
+
+    def __setitem__(self, key, value):
+        OrderedDict.__setitem__(self, key, value)
+        if self._pyaedt_setup.auto_update:
+            res = self._pyaedt_setup.update()
+            if not res:
+                self._pyaedt_setup._app.logger.warning("Update of %s Failed. Check needed arguments", key)
+
+    def __init__(self, setup, props):
+        OrderedDict.__init__(self)
+        if props:
+            for key, value in props.items():
+                if isinstance(value, (dict, OrderedDict)):
+                    OrderedDict.__setitem__(self, key, SetupProps(setup, value))
+                else:
+                    OrderedDict.__setitem__(self, key, value)
+        self._pyaedt_setup = setup
+
+    def _setitem_without_update(self, key, value):
+        OrderedDict.__setitem__(self, key, value)

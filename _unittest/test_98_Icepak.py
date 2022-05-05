@@ -1,11 +1,12 @@
 # standard imports
 import os
 
-# Import required modules
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
+from _unittest.conftest import desktop_version
+from _unittest.conftest import local_path
+from _unittest.conftest import scratch_path
 from pyaedt import Icepak
-
-# Setup paths for module imports
-from _unittest.conftest import local_path, scratch_path, desktop_version, config, BasisTest
 
 try:
     import pytest  # noqa: F401
@@ -223,8 +224,20 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.create_output_variable("OutputVariable1", "abs(Variable1)")  # test creation
         assert self.aedtapp.create_output_variable("OutputVariable1", "asin(Variable1)")  # test update
 
+    def test_16_surface_monitor(self):
+        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
+        assert self.aedtapp.assign_surface_monitor("surf1", monitor_name="monitor_surf")
+
+    def test_16_point_monitor(self):
+        assert self.aedtapp.assign_point_monitor([0, 0, 0], monitor_name="monitor_point")
+
     def test_17_analyze(self):
         self.aedtapp.analyze_nominal()
+
+    def test_17_post_processing(self):
+        rep = self.aedtapp.post.reports_by_category.monitor(["monitor_surf.Temperature", "monitor_point.Temperature"])
+        assert rep.create()
+        assert len(self.aedtapp.post.plots) == 1
 
     def test_17_get_output_variable(self):
         value = self.aedtapp.get_output_variable("OutputVariable1")
@@ -322,13 +335,6 @@ class TestClass(BasisTest, object):
             thermal_condtion="Fixed Temperature",
             temperature="28cel",
         )
-
-    def test_37_surface_monitor(self):
-        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
-        assert self.aedtapp.assign_surface_monitor("surf1")
-
-    def test_38_point_monitor(self):
-        assert self.aedtapp.assign_point_monitor([0, 0, 0])
 
     def test_39_import_idf(self):
         self.aedtapp.insert_design("IDF")

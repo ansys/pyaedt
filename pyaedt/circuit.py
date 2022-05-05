@@ -53,6 +53,14 @@ class Circuit(FieldAnalysisCircuit, object):
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
         This parameter is ignored when Script is launched within AEDT.
+    machine : str, optional
+        Machine name to which connect the oDesktop Session. Works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+        If machine is `"localhost"` the server will also start if not present.
+    port : int, optional
+        Port number of which start the oDesktop communication on already existing server.
+        This parameter is ignored in new server creation. It works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
 
     Examples
     --------
@@ -101,6 +109,8 @@ class Circuit(FieldAnalysisCircuit, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
         FieldAnalysisCircuit.__init__(
             self,
@@ -114,6 +124,8 @@ class Circuit(FieldAnalysisCircuit, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
 
         self.onetwork_data_explorer = self._desktop.GetTool("NdExplorer")
@@ -264,7 +276,11 @@ class Circuit(FieldAnalysisCircuit, object):
                                 already_exist = True
                         if not already_exist:
                             self.modeler.schematic.create_new_component_from_symbol(
-                                parameter, pins, fields[0][0], parameter_list, parameter_value
+                                parameter,
+                                pins,
+                                refbase=fields[0][0],
+                                parameter_list=parameter_list,
+                                parameter_value=parameter_value,
                             )
                         mycomp = self.modeler.schematic.create_component(
                             fields[0],
@@ -295,7 +311,11 @@ class Circuit(FieldAnalysisCircuit, object):
                             already_exist = True
                     if not already_exist:
                         self.modeler.schematic.create_new_component_from_symbol(
-                            parameter, pins, fields[0][0], parameter_list, parameter_value
+                            parameter,
+                            pins,
+                            refbase=fields[0][0],
+                            parameter_list=parameter_list,
+                            parameter_value=parameter_value,
                         )
                     mycomp = self.modeler.schematic.create_component(
                         fields[0],
@@ -364,7 +384,7 @@ class Circuit(FieldAnalysisCircuit, object):
         return True
 
     @pyaedt_function_handler()
-    def read_ibis(self, path):
+    def get_ibis_model_from_file(self, path):
         """Create an IBIS model based on the data contained in an IBIS file.
 
         Parameters
@@ -378,8 +398,9 @@ class Circuit(FieldAnalysisCircuit, object):
             IBIS object exposing all data from the IBIS file.
         """
 
-        reader = ibis_reader.IbisReader()
-        return reader.read_project(path, self)
+        reader = ibis_reader.IbisReader(path, self)
+        reader.parse_ibis_file()
+        return reader.ibis_model
 
     @pyaedt_function_handler()
     def create_schematic_from_mentor_netlist(self, file_to_import):
@@ -741,7 +762,7 @@ class Circuit(FieldAnalysisCircuit, object):
         return portnames
 
     @pyaedt_function_handler()
-    def export_touchstone(self, solutionname, sweepname, filename=None, variation=[], variations_value=[]):
+    def export_touchstone(self, solutionname, sweepname, filename=None, variation=None, variations_value=None):
         """Export the Touchstone file to a local folder.
 
         Parameters
@@ -755,10 +776,10 @@ class Circuit(FieldAnalysisCircuit, object):
             which exports the file to the working directory.
         variation : list, optional
             List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
-            The default is ``[]``.
+            The default is ``None``.
         variations_value : list, optional
             List of all parameter variation values. For example, ``["22cel", "100"]``.
-            The default is ``[]``.
+            The default is ``None``.
 
         Returns
         -------
@@ -770,6 +791,11 @@ class Circuit(FieldAnalysisCircuit, object):
 
         >>> oDesign.ExportNetworkData
         """
+        if variation == None:
+            variation = []
+        if variations_value == None:
+            variations_value = []
+
         # Normalize the save path
         if not filename:
             appendix = ""
@@ -957,6 +983,7 @@ class Circuit(FieldAnalysisCircuit, object):
         curvenames,
         solution_name=None,
         variation_dict=None,
+        differential_pairs=False,
         subdesign_id=None,
     ):
         """
@@ -972,9 +999,10 @@ class Circuit(FieldAnalysisCircuit, object):
             Name of the solution. The default value is ``None``.
         variation_dict : dict, optional
             Dictionary of variation names. The default value is ``None``.
+        differential_pairs : bool, optional
+            Specify if the plot is on differential pairs traces. The default value is ``False``.
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. The default value is ``None``.
-
         Returns
         -------
         bool
@@ -991,14 +1019,11 @@ class Circuit(FieldAnalysisCircuit, object):
         if variation_dict:
             for el in variation_dict:
                 variations[el] = [variation_dict[el]]
-        ctxt = ["NAME:Context", "SimValueContext:=", [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
-        if subdesign_id:
-            ctxt_temp = ["NUMLEVELS", False, "0", "SUBDESIGNID", False, str(subdesign_id)]
-            for el in ctxt_temp:
-                ctxt[2].append(el)
-
-        return self.post.create_rectangular_plot(
-            curvenames, solution_name, variations, plotname=plot_name, context=ctxt
+        dif = None
+        if differential_pairs:
+            dif = "Differential Pairs"
+        return self.post.create_report(
+            curvenames, solution_name, variations=variations, plotname=plot_name, context=dif, subdesign_id=subdesign_id
         )
 
     @pyaedt_function_handler()

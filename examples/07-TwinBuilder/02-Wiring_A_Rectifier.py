@@ -1,6 +1,6 @@
 """
-Wiring a Rectifier with Capacitive Filter in Twin Builder
-------------------------------------------
+TwinBuilder: Wiring a Rectifier with Capacitive Filter in Twin Builder
+----------------------------------------------------------------------
 This example shows how you can use PyAEDT to create a Twin Builder design
 and run a Twin Builder time-domain simulation.
 """
@@ -17,14 +17,14 @@ from pyaedt import TwinBuilder
 ###############################################################################
 # Select Version and Launch Options
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example launches Twin Builder 2021.2 in graphical mode.
+# This example launches Twin Builder 2022R1 in graphical mode.
 
 # You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
 # Twin Builder in non graphical mode.
 # You can change the Boolean parameter ``new_thread`` to ``False`` to launch
 # Twin Builder in existing Desktop Session, if any.
 
-desktop_version = "2021.2"
+desktop_version = "2022.1"
 non_graphical = False
 new_thread = True
 
@@ -122,12 +122,12 @@ tb.analyze_setup("TR")
 # Get the values for the voltage on the capacitor in the RC Circuit
 
 E_Value = "V_AC.V"
-x = tb.post.get_report_data(E_Value, "TR", "Time", {"Time": ["All"]})
-plt.plot(x.sweeps["Time"], x.data_real(E_Value))
+x = tb.post.get_solution_data(E_Value, "TR", "Time")
+plt.plot(x.intrinsics["Time"], x.data_real(E_Value))
 
 R_Value = "RL.V"
-x = tb.post.get_report_data(R_Value, "TR", "Time", {"Time": ["All"]})
-plt.plot(x.sweeps["Time"], x.data_real(R_Value))
+x = tb.post.get_solution_data(R_Value, "TR", "Time")
+plt.plot(x.intrinsics["Time"], x.data_real(R_Value))
 
 plt.grid()
 plt.xlabel("Time")

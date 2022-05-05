@@ -64,6 +64,14 @@ class Hfss(FieldAnalysis3D, object):
         Whether to open the AEDT student version. The default is
         ``False``. This parameter is ignored when a script is launched
         within AEDT.
+    machine : str, optional
+        Machine name to which connect the oDesktop Session. Works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+        If machine is `"localhost"` the server will also start if not present.
+    port : int, optional
+        Port number of which start the oDesktop communication on already existing server.
+        This parameter is ignored in new server creation. It works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
 
     Examples
     --------
@@ -140,6 +148,8 @@ class Hfss(FieldAnalysis3D, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
         FieldAnalysis3D.__init__(
             self,
@@ -153,6 +163,8 @@ class Hfss(FieldAnalysis3D, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
         self.field_setups = self._get_rad_fields()
 
@@ -315,12 +327,14 @@ class Hfss(FieldAnalysis3D, object):
         props["ShowReporterFilter"] = False
         props["ReporterFilter"] = [True]
         props["Impedance"] = str(impedance) + "ohm"
-        return self._create_boundary(portname, props, "LumpedPort")
+        return self._create_boundary(portname, props, "Lumped Port")
 
     @pyaedt_function_handler()
-    def _create_port_terminal(self, objectname, int_line_stop, portname, renorm=True, deembed=None, iswaveport=False):
+    def _create_port_terminal(
+        self, objectname, int_line_stop, portname, renorm=True, deembed=None, iswaveport=False, impedance=None
+    ):
         ref_conductors = self.modeler.convert_to_selections(int_line_stop, True)
-        props = OrderedDict({})
+        props = OrderedDict()
         props["Faces"] = int(objectname)
         props["IsWavePort"] = iswaveport
         props["ReferenceConductors"] = ref_conductors
@@ -330,10 +344,24 @@ class Hfss(FieldAnalysis3D, object):
         if boundary:
             new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
             terminals = [i for i in new_ports if i not in ports]
-            id = 1
-            for terminal in terminals:
-                new_name = portname + "_T" + str(id)
-                id += 1
+            for count, terminal in enumerate(terminals, start=1):
+                if impedance:
+                    properties = [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:HfssTab",
+                            ["NAME:PropServers", "BoundarySetup:" + terminal],
+                            [
+                                "NAME:ChangedProps",
+                                ["NAME:Terminal Renormalizing Impedance", "Value:=", str(impedance) + "ohm"],
+                            ],
+                        ],
+                    ]
+                    try:
+                        self.odesign.ChangeProperty(properties)
+                    except:  # pragma: no cover
+                        self.logger.warning("Failed to change terminal impedance.")
+                new_name = portname + "_T" + str(count)
                 properties = [
                     "NAME:AllTabs",
                     [
@@ -344,12 +372,13 @@ class Hfss(FieldAnalysis3D, object):
                 ]
                 try:
                     self.odesign.ChangeProperty(properties)
-                except:
-                    self.logger.warning("Failed To rename terminals.")
+                except:  # pragma: no cover
+                    self.logger.warning("Failed to rename terminal {}.".format(terminal))
+
             if iswaveport:
-                boundary.type = "WavePort"
+                boundary.type = "Wave Port"
             else:
-                boundary.type = "LumpedPort"
+                boundary.type = "Lumped Port"
             props["Faces"] = [objectname]
             if iswaveport:
                 props["NumModes"] = 1
@@ -393,7 +422,7 @@ class Hfss(FieldAnalysis3D, object):
             props["RenormImp"] = renorm_imp
         else:
             props["TerminalIDList"] = []
-        return self._create_boundary(name, props, "CircuitPort")
+        return self._create_boundary(name, props, "Circuit Port")
 
     @pyaedt_function_handler()
     def _create_waveport_driven(
@@ -461,7 +490,7 @@ class Hfss(FieldAnalysis3D, object):
         props["ShowReporterFilter"] = False
         props["ReporterFilter"] = report_filter
         props["UseAnalyticAlignment"] = False
-        return self._create_boundary(portname, props, "WavePort")
+        return self._create_boundary(portname, props, "Wave Port")
 
     @pyaedt_function_handler()
     def assigncoating(
@@ -1616,7 +1645,13 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     deembed = None
                 return self._create_port_terminal(
-                    faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=False
+                    faces[0],
+                    endobject,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=False,
+                    impedance=impedance,
                 )
         return False  # pragma: no cover
 
@@ -2028,7 +2063,7 @@ class Hfss(FieldAnalysis3D, object):
         --------
 
         Create two boxes that will be used to create a wave port
-        named ``'WavePort'``.
+        named ``'Wave Port'``.
 
         >>> box1 = hfss.modeler.create_box([0,0,0], [10,10,5],
         ...                                           "BoxWave1", "copper")
@@ -2036,7 +2071,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                           "BoxWave2", "copper")
         >>> wave_port = hfss.create_wave_port_between_objects("BoxWave1", "BoxWave2",
         ...                                                   hfss.AxisDir.XNeg, 50, 1,
-        ...                                                   "WavePort", False)
+        ...                                                   "Wave Port", False)
         pyaedt info: Connection Correctly created
 
         """
@@ -2064,7 +2099,13 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     deembed = deembed_dist
                 return self._create_port_terminal(
-                    faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=True
+                    faces[0],
+                    endobject,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=True,
+                    impedance=impedance,
                 )
         return False  # pragma: no cover
 
@@ -2165,7 +2206,7 @@ class Hfss(FieldAnalysis3D, object):
         props["LatticeBVector"]["End"] = lattice_b_end
         if not portname:
             portname = generate_unique_name("Floquet")
-        return self._create_boundary(portname, props, "FloquetPort")
+        return self._create_boundary(portname, props, "Floquet Port")
 
     @pyaedt_function_handler()
     def assign_lattice_pair(
@@ -2518,7 +2559,13 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     deembed = deembed_dist
                 return self._create_port_terminal(
-                    faces[0], endobject, portname, renorm=renorm, deembed=deembed, iswaveport=True
+                    faces[0],
+                    endobject,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=True,
+                    impedance=impedance,
                 )
         return False
 
@@ -3009,7 +3056,7 @@ class Hfss(FieldAnalysis3D, object):
         self,
         sheet,
         deemb=0,
-        axisdir=0,
+        axisdir=None,
         impedance=50,
         nummodes=1,
         portname=None,
@@ -3020,14 +3067,16 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        sheet : str or int or :class:`pyaedt.modeler.Object3d.Object3d`
+        sheet : str or int or list or :class:`pyaedt.modeler.Object3d.Object3d`
             Name of the sheet.
         deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            Position of the port. It is used to auto evaluate the integration line.
+            If set to ``None`` the integration line is not defined.
+            It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is 0 for ``Application.AxisDir.XNeg``.
+            The default is ``None`` and no integration line is defined.
         impedance : float, optional
             Port impedance. The default is ``50``.
         nummodes : int, optional
@@ -3077,9 +3126,10 @@ class Hfss(FieldAnalysis3D, object):
         else:
             oname = ""
         if "Modal" in self.solution_type:
-
-            refid, int_start, int_stop = self._get_reference_and_integration_points(sheet, axisdir, oname)
-
+            if axisdir:
+                _, int_start, int_stop = self._get_reference_and_integration_points(sheet, axisdir, oname)
+            else:
+                int_start = int_stop = None
             portname = self._get_unique_source_name(portname, "Port")
 
             return self._create_waveport_driven(
@@ -3103,7 +3153,13 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     deembed = deemb
                 return self._create_port_terminal(
-                    faces, terminal_references, portname, renorm=renorm, deembed=deembed, iswaveport=True
+                    faces,
+                    terminal_references,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=True,
+                    impedance=impedance,
                 )
             else:
                 self.logger.error("Reference conductors are missing.")
@@ -3186,7 +3242,13 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     deembed = None
                 port = self._create_port_terminal(
-                    faces, reference_object_list, portname, renorm=renorm, deembed=deembed, iswaveport=False
+                    faces,
+                    reference_object_list,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=False,
+                    impedance=impedance,
                 )
 
             return port
@@ -3328,7 +3390,7 @@ class Hfss(FieldAnalysis3D, object):
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
         """
-        sheet_list = self.modeler.convert_to_selections(sheet_list)
+        sheet_list = self.modeler.convert_to_selections(sheet_list, True)
         if self.solution_type in ["Modal", "Terminal", "Transient Network", "SBR+"]:
             if not sourcename:
                 sourcename = generate_unique_name("PerfE")
@@ -3596,16 +3658,91 @@ class Hfss(FieldAnalysis3D, object):
         )
 
     @pyaedt_function_handler()
-    def edit_source(self, portandmode, powerin, phase="0deg"):
-        """Set up the power loaded to the filter for thermal analysis.
+    def edit_sources(
+        self, excitations, include_port_post_processing=True, max_available_power=None, use_incident_voltage=False
+    ):
+        """Set up the power loaded for Hfss Post-Processing in multiple sources simultaneously.
 
         Parameters
         ----------
-        portandmode : str
+        excitations : dict
+            Dictionary of input sources to modify module and phase.
+            Dictionary values can be:
+            - 1 Value to setup 0deg as default
+            - 2 values tuple or list (magnitude and phase) or
+            - 3 values (magnitude, phase and termination flag) for Terminal Solution in case of incident voltage usage.
+
+        Returns
+        -------
+        bool
+
+        Examples
+        --------
+        >>> sources = {"Port1:1": ("0W", "0deg"), "Port2:1": ("1W", "90deg")}
+        >>> hfss.edit_sources(sources, include_port_post_processing=True)
+
+        >>> sources = {"Box2_T1": ("0V", "0deg", True), "Box1_T1": ("1V", "90deg")}
+        >>> hfss.edit_sources(sources, max_available_power="2W", use_incident_voltage=True)
+        """
+        data = {i: ("0W", "0deg", False) for i in self.excitations}
+        for key, value in excitations.items():
+            data[key] = value
+        setting = []
+        for key, vals in data.items():
+            if isinstance(vals, str):
+                power = vals
+                phase = "0deg"
+            else:
+                power = vals[0]
+                if len(vals) == 1:
+                    phase = "0deg"
+                else:
+                    phase = vals[1]
+            if isinstance(vals, (list, tuple)) and len(vals) == 3:
+                terminated = vals[2]
+            else:
+                terminated = False
+            if use_incident_voltage and self.solution_type == "Terminal":
+                setting.append(["Name:=", key, "Terminated:=", terminated, "Magnitude:=", power, "Phase:=", phase])
+            else:
+                setting.append(["Name:=", key, "Magnitude:=", power, "Phase:=", phase])
+        argument = []
+        if self.solution_type == "Terminal":
+            argument.extend(["UseIncidentVoltage:=", use_incident_voltage])
+
+        argument.extend(
+            [
+                "IncludePortPostProcessing:=",
+                include_port_post_processing,
+                "SpecifySystemPower:=",
+                True if max_available_power else False,
+            ]
+        )
+
+        if max_available_power:
+            argument.append("Incident Power:=")
+            argument.append(max_available_power)
+
+        args = [argument]
+        args.extend(setting)
+        for arg in args:
+            self.osolution.EditSources(arg)
+        return True
+
+    @pyaedt_function_handler()
+    def edit_source(self, portandmode=None, powerin="1W", phase="0deg"):
+        """Set up the power loaded for Hfss Post-Processing.
+
+        Parameters
+        ----------
+        portandmode : str, optional
             Port name and mode. For example, ``"Port1:1"``.
-        powerin : str
+            It must be defined if solution type is other than Eigenmodal. It is ignored for solution type Eigenmodal.
+        powerin : str, optional
             Power in Watts or the project variable to put as stored energy in the project.
+            The default is ``"1W"``.
         phase : str, optional
+            Phase of the excitation.
             The default is ``"0deg"``.
 
         Returns
@@ -3631,13 +3768,16 @@ class Hfss(FieldAnalysis3D, object):
         >>> wave_port = hfss.create_wave_port_from_sheet(sheet, 5, hfss.AxisDir.XNeg, 40,
         ...                                              2, "SheetWavePort", True)
         >>> hfss.edit_source("SheetWavePort" + ":1", "10W")
-        pyaedt info: Setting up power to Eigenmode 10W
+        pyaedt info: Setting up power to "SheetWavePort:1" = 10W
         True
 
         """
 
-        self.logger.info("Setting up power to Eigenmode " + powerin)
         if self.solution_type != "Eigenmode":
+            if portandmode is None:
+                self.logger.error("Port and Mode must be defined for solution type {}".format(self.solution_type))
+                return False
+            self.logger.info('Setting up power to "{}" = {}'.format(portandmode, powerin))
             self.osolution.EditSources(
                 [
                     ["IncludePortPostProcessing:=", True, "SpecifySystemPower:=", False],
@@ -3645,6 +3785,7 @@ class Hfss(FieldAnalysis3D, object):
                 ]
             )
         else:
+            self.logger.info("Setting up power to Eigenmode = {}".format(powerin))
             self.osolution.EditSources(
                 [["FieldType:=", "EigenStoredEnergy"], ["Name:=", "Modes", "Magnitudes:=", [powerin]]]
             )
@@ -3653,6 +3794,7 @@ class Hfss(FieldAnalysis3D, object):
     @pyaedt_function_handler()
     def thicken_port_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
         """Create thickened sheets over a list of input port sheets.
+        This method is built to work with the output of ``modeler.find_port_faces``.
 
         Parameters
         ----------
@@ -3669,8 +3811,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        list of int
-            List of the port IDs where thickened sheets were created.
+        Dict
+            For each input sheet returns the port IDs where thickened sheets were created
+            if the name contains the word "Vacuum".
 
         References
         ----------
@@ -3719,7 +3862,7 @@ class Hfss(FieldAnalysis3D, object):
                     ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(l) + "mm", "BothSides:=", False],
                 )
                 # aedt_bounding_box2 = self._oeditor.GetModelBoundingBox()
-                aedt_bounding_box2 = self.modeler.primitives.get_model_bounding_box()
+                aedt_bounding_box2 = self.modeler.get_model_bounding_box()
 
                 self._odesign.Undo()
 
@@ -3755,7 +3898,7 @@ class Hfss(FieldAnalysis3D, object):
                         fa2 = self.modeler.get_face_area(int(f))
                         faceoriginal = [float(i) for i in faceCenter]
                         # dist = mat.sqrt(sum([(a*a-b*b) for a,b in zip(faceCenter, fc2)]))
-                        if abs(fa2 - maxarea) < tol ** 2 and (
+                        if abs(fa2 - maxarea) < tol**2 and (
                             abs(faceoriginal[2] - fc2[2]) > tol
                             or abs(faceoriginal[1] - fc2[1]) > tol
                             or abs(faceoriginal[0] - fc2[0]) > tol
@@ -3926,7 +4069,7 @@ class Hfss(FieldAnalysis3D, object):
             for setup in setups:
                 msg = str(setup)
                 val_list.append(msg)
-                if self.solution_type != "EigenMode":
+                if self.solution_type.lower() != "eigenmode":
                     sweepsname = self.oanalysis.GetSweeps(setup)
                     if sweepsname:
                         for sw in sweepsname:
@@ -3949,7 +4092,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        PlotName : str, optional
+        plot_name : str, optional
              Name of the plot. The default is ``"S Parameter Plot Nominal"``.
         sweep_name : str, optional
              Name of the sweep. The default is ``None``.
@@ -3981,48 +4124,19 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        Families = ["Freq:=", ["All"]]
-        if variations:
-            Families += variations
-        else:
-            Families += self.get_nominal_variation()
-        if not sweep_name:
-            sweep_name = self.existing_analysis_sweeps[1]
-        elif sweep_name not in self.existing_analysis_sweeps:
-            self.logger.error("Setup %s doesn't exist in the Setup list.", sweep_name)
-            return False
-        if not port_names:
-            port_names = self.excitations
-        full_matrix = False
-        if not port_excited:
-            port_excited = port_names
-            full_matrix = True
-        if type(port_names) is str:
-            port_names = [port_names]
-        if type(port_excited) is str:
-            port_excited = [port_excited]
-        list_y = []
-        for p in list(port_names):
-            for q in list(port_excited):
-                if not full_matrix:
-                    list_y.append("dB(S(" + p + "," + q + "))")
-                elif port_excited.index(q) >= port_names.index(p):
-                    list_y.append("dB(S(" + p + "," + q + "))")
-
-        Trace = ["X Component:=", "Freq", "Y Component:=", list_y]
-        solution_data = ""
+        solution_data = "Standard"
         if "Modal" in self.solution_type:
             solution_data = "Modal Solution Data"
         elif "Terminal" in self.solution_type:
             solution_data = "Terminal Solution Data"
-        if solution_data != "":
-            # run CreateReport function
-
-            self.post.oreportsetup.CreateReport(
-                plot_name, solution_data, "Rectangular Plot", sweep_name, ["Domain:=", "Sweep"], Families, Trace, []
-            )
-            return True
-        return False
+        if not port_names:
+            port_names = self.excitations
+        if not port_excited:
+            port_excited = port_names
+        traces = ["dB(S(" + p + "," + q + "))" for p, q in zip(list(port_names), list(port_excited))]
+        return self.post.create_report(
+            traces, sweep_name, variations=variations, report_category=solution_data, plotname=plot_name
+        )
 
     @pyaedt_function_handler()
     def create_qfactor_report(self, project_dir, outputlist, setupname, plotname, Xaxis="X"):
@@ -4276,6 +4390,7 @@ class Hfss(FieldAnalysis3D, object):
         doppler_ad_sampling_rate=20,
     ):
         setup1 = self.create_setup(setup_name, "SBR+")
+        setup1.auto_update = False
         setup1.props["IsSbrRangeDoppler"] = True
         del setup1.props["PTDUTDSimulationSettings"]
         del setup1.props["ComputeFarFields"]
@@ -4301,6 +4416,7 @@ class Hfss(FieldAnalysis3D, object):
             setup1.props["IncludeRangeVelocityCouplingEffect"] = include_coupling_effects
             setup1.props["SbrRangeDopplerA/DSamplingRate"] = self.modeler._arg_with_dim(doppler_ad_sampling_rate, "MHz")
         setup1.update()
+        setup1.auto_update = True
         return setup1
 
     @pyaedt_function_handler()
@@ -4309,8 +4425,8 @@ class Hfss(FieldAnalysis3D, object):
         time_sweep = self.modeler._arg_with_dim(tsweep, "s")
         time_stop = self.modeler._arg_with_dim(tstop, "s")
         sweep_range = "LIN {} {} {}".format(time_start, time_stop, time_sweep)
-        return self.opti_parametric.add_parametric_setup(
-            time_var, sweep_range, setupname, parametricname=parametric_name
+        return self.parametrics.add(
+            time_var, tstart, time_stop, tsweep, "LinearStep", setupname, parametricname=parametric_name
         )
 
     @pyaedt_function_handler()

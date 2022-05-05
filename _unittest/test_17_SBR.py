@@ -1,11 +1,9 @@
 import os
 
-# Import required modules
-
+from _unittest.conftest import BasisTest
+from _unittest.conftest import desktop_version
+from _unittest.conftest import local_path
 from pyaedt import Hfss
-
-# Setup paths for module imports
-from _unittest.conftest import local_path, BasisTest, desktop_version
 
 try:
     import pytest  # noqa: F401
@@ -127,7 +125,6 @@ class TestClass(BasisTest, object):
         assert "PulseSetup" in setup.name
         assert "PulseSweep" in sweep.name
         assert setup.props["SbrRangeDopplerWaveformType"] == "PulseDoppler"
-        assert sweep.props["Sim. Setups"] == [setup.name]
         assert sweep.props["Sim. Setups"] == [setup.name]
 
     def test_10_add_chirp_sweep(self):

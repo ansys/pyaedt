@@ -1,9 +1,10 @@
 # Setup paths for module imports
-from _unittest.conftest import desktop_version, local_path, BasisTest
 import os
 import tempfile
 
-# Import required modules
+from _unittest.conftest import BasisTest
+from _unittest.conftest import desktop_version
+from _unittest.conftest import local_path
 from pyaedt import Maxwell3d
 from pyaedt.generic.constants import SOLUTIONS
 
@@ -79,8 +80,12 @@ class TestClass(BasisTest, object):
 
     def test_06_eddycurrent(self):
         assert self.aedtapp.eddy_effects_on(["Plate"])
+        oModule = self.aedtapp.odesign.GetModule("BoundarySetup")
+        assert oModule.GetEddyEffect("Plate")
+        self.aedtapp.eddy_effects_on(["Plate"], activate=False)
+        assert not oModule.GetEddyEffect("Plate")
 
-    def test_07_setup(self):
+    def test_07a_setup(self):
         adaptive_frequency = "200Hz"
         Setup = self.aedtapp.create_setup()
         Setup.props["MaximumPasses"] = 12
@@ -88,11 +93,32 @@ class TestClass(BasisTest, object):
         Setup.props["MinimumConvergedPasses"] = 1
         Setup.props["PercentRefinement"] = 30
         Setup.props["Frequency"] = adaptive_frequency
+        dc_freq = 0.1
+        stop_freq = 10
+        count = 1
+        assert Setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, count, clear=True)
+        assert isinstance(Setup.props["SweepRanges"]["Subrange"], dict)
+        assert Setup.add_eddy_current_sweep("LinearCount", dc_freq, stop_freq, count, clear=False)
+        assert isinstance(Setup.props["SweepRanges"]["Subrange"], list)
+
         assert Setup.update()
         assert Setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
         assert Setup.disable()
         assert Setup.enable()
         assert self.aedtapp.setup_ctrlprog(Setup.name)
+
+    def test_07b_create_parametrics(self):
+        self.aedtapp["w1"] = "10mm"
+        self.aedtapp["w2"] = "2mm"
+        setup1 = self.aedtapp.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
+        assert setup1
+        expression = "re(FluxLinkage(" + self.aedtapp.excitations[2] + "))"
+        assert setup1.add_calculation(
+            calculation=expression,
+            ranges={"Freq": "200Hz"},
+            report_type="EddyCurrent",
+            solution=self.aedtapp.existing_analysis_sweeps[0],
+        )
 
     def test_08_setup_ctrlprog_with_file(self):
         transient_setup = self.aedtapp.create_setup()

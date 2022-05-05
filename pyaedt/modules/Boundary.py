@@ -15,6 +15,33 @@ from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import VertexPrimitive
 
 
+class BoundaryProps(OrderedDict):
+    """AEDT Boundary Component Internal Parameters."""
+
+    def __setitem__(self, key, value):
+        OrderedDict.__setitem__(self, key, value)
+        if self._pyaedt_boundary.auto_update:
+            if key in ["Edges", "Faces", "Objects"]:
+                res = self._pyaedt_boundary.update_assignment()
+            else:
+                res = self._pyaedt_boundary.update()
+            if not res:
+                self._pyaedt_boundary._app.logger.warning("Update of %s Failed. Check needed arguments", key)
+
+    def __init__(self, boundary, props):
+        OrderedDict.__init__(self)
+        if props:
+            for key, value in props.items():
+                if isinstance(value, (OrderedDict, dict)):
+                    OrderedDict.__setitem__(self, key, BoundaryProps(boundary, value))
+                else:
+                    OrderedDict.__setitem__(self, key, value)
+        self._pyaedt_boundary = boundary
+
+    def _setitem_without_update(self, key, value):
+        OrderedDict.__setitem__(self, key, value)
+
+
 class BoundaryCommon(object):
     """ """
 
@@ -72,50 +99,55 @@ class NativeComponentObject(BoundaryCommon, object):
     """
 
     def __init__(self, app, component_type, component_name, props):
+        self.auto_update = False
         self._app = app
         self.name = "InsertNativeComponentData"
         self.component_name = component_name
-        self.props = OrderedDict(
-            {
-                "TargetCS": "Global",
-                "SubmodelDefinitionName": self.component_name,
-                "ComponentPriorityLists": OrderedDict({}),
-                "NextUniqueID": 0,
-                "MoveBackwards": False,
-                "DatasetType": "ComponentDatasetType",
-                "DatasetDefinitions": OrderedDict({}),
-                "BasicComponentInfo": OrderedDict(
-                    {
-                        "ComponentName": self.component_name,
-                        "Company": "",
-                        "Company URL": "",
-                        "Model Number": "",
-                        "Help URL": "",
-                        "Version": "1.0",
-                        "Notes": "",
-                        "IconType": "",
-                    }
-                ),
-                "GeometryDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-                "DesignDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-                "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-                "MapInstanceParameters": "DesignVariable",
-                "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
-                + random_string(12, char_set="abcdef0123456789"),
-                "OriginFilePath": "",
-                "IsLocal": False,
-                "ChecksumString": "",
-                "ChecksumHistory": [],
-                "VersionHistory": [],
-                "NativeComponentDefinitionProvider": OrderedDict({"Type": component_type}),
-                "InstanceParameters": OrderedDict(
-                    {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""}
-                ),
-            }
+        self.props = BoundaryProps(
+            self,
+            OrderedDict(
+                {
+                    "TargetCS": "Global",
+                    "SubmodelDefinitionName": self.component_name,
+                    "ComponentPriorityLists": OrderedDict({}),
+                    "NextUniqueID": 0,
+                    "MoveBackwards": False,
+                    "DatasetType": "ComponentDatasetType",
+                    "DatasetDefinitions": OrderedDict({}),
+                    "BasicComponentInfo": OrderedDict(
+                        {
+                            "ComponentName": self.component_name,
+                            "Company": "",
+                            "Company URL": "",
+                            "Model Number": "",
+                            "Help URL": "",
+                            "Version": "1.0",
+                            "Notes": "",
+                            "IconType": "",
+                        }
+                    ),
+                    "GeometryDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+                    "DesignDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+                    "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+                    "MapInstanceParameters": "DesignVariable",
+                    "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
+                    + random_string(12, char_set="abcdef0123456789"),
+                    "OriginFilePath": "",
+                    "IsLocal": False,
+                    "ChecksumString": "",
+                    "ChecksumHistory": [],
+                    "VersionHistory": [],
+                    "NativeComponentDefinitionProvider": OrderedDict({"Type": component_type}),
+                    "InstanceParameters": OrderedDict(
+                        {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""}
+                    ),
+                }
+            ),
         )
         if props:
             self._update_props(self.props, props)
         self.native_properties = self.props["NativeComponentDefinitionProvider"]
+        self.auto_update = True
 
     @property
     def targetcs(self):
@@ -244,11 +276,23 @@ class BoundaryObject(BoundaryCommon, object):
     """
 
     def __init__(self, app, name, props, boundarytype):
+        self.auto_update = False
         self._app = app
-        self.name = name
-        self.props = props
+        self._name = name
+        self.props = BoundaryProps(self, OrderedDict(props))
         self.type = boundarytype
         self._boundary_name = self.name
+        self.auto_update = True
+
+    @property
+    def name(self):
+        """Boundary Name."""
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+        self.update()
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
@@ -373,9 +417,9 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignBalloon(self._get_args())
         elif self.type == "Winding" or self.type == "Winding Group":
             self._app.oboundary.AssignWindingGroup(self._get_args())
-        elif self.type == "VectorPotential":
+        elif self.type == "Vector Potential":
             self._app.oboundary.AssignVectorPotential(self._get_args())
-        elif self.type == "CoilTerminal":
+        elif self.type == "CoilTerminal" or self.type == "Coil Terminal":
             self._app.oboundary.AssignCoilTerminal(self._get_args())
         elif self.type == "Coil":
             self._app.oboundary.AssignCoil(self._get_args())
@@ -393,13 +437,13 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignSingleSignalLine(self._get_args())
         elif self.type == "ReferenceGround":
             self._app.oboundary.AssignSingleReferenceGround(self._get_args())
-        elif self.type == "CircuitPort":
+        elif self.type == "Circuit Port":
             self._app.oboundary.AssignCircuitPort(self._get_args())
-        elif self.type == "LumpedPort":
+        elif self.type == "Lumped Port":
             self._app.oboundary.AssignLumpedPort(self._get_args())
-        elif self.type == "WavePort":
+        elif self.type == "Wave Port":
             self._app.oboundary.AssignWavePort(self._get_args())
-        elif self.type == "FloquetPort":
+        elif self.type == "Floquet Port":
             self._app.oboundary.AssignFloquetPort(self._get_args())
         elif self.type == "AutoIdentify":
             self._app.oboundary.AutoIdentifyPorts(
@@ -411,6 +455,8 @@ class BoundaryObject(BoundaryCommon, object):
             )
         elif self.type == "SBRTxRxSettings":
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())
+        elif self.type == "EndConnection":
+            self._app.oboundary.AssignEndConnection(self._get_args())
         else:
             return False
         return True
@@ -433,7 +479,7 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditAperture(self._boundary_name, self._get_args())
         elif self.type == "Radiation":
             self._app.oboundary.EditRadiation(self._boundary_name, self._get_args())
-        elif self.type == "FiniteCond":
+        elif self.type in ["FiniteCond", "Finite Conductivity"]:
             self._app.oboundary.EditFiniteCond(self._boundary_name, self._get_args())
         elif self.type == "LumpedRLC":
             self._app.oboundary.EditLumpedRLC(self._boundary_name, self._get_args())
@@ -507,9 +553,9 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.Current(self._boundary_name, self._get_args())
         elif self.type == "Winding" or self.type == "Winding Group":
             self._app.oboundary.EditWindingGroup(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "VectorPotential":
+        elif self.type == "Vector Potential":
             self._app.oboundary.EditVectorPotential(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "CoilTerminal":
+        elif self.type == "CoilTerminal" or self.type == "Coil Terminal":
             self._app.oboundary.EditCoilTerminal(self._boundary_name, self._get_args())
         elif self.type == "Coil":
             self._app.oboundary.EditCoil(self._boundary_name, self._get_args())
@@ -519,16 +565,18 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
         elif self.type == "SignalNet" or self.type == "GroundNet" or self.type == "FloatingNet":
             self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
-        elif self.type in ["CircuitPort", "Circuit Port"]:
+        elif self.type in "Circuit Port":
             self._app.oboundary.EditCircuitPort(self._boundary_name, self._get_args())
-        elif self.type in ["LumpedPort", "Lumped Port"]:
+        elif self.type in "Lumped Port":
             self._app.oboundary.EditLumpedPort(self._boundary_name, self._get_args())
-        elif self.type in ["WavePort", "Wave Port"]:
+        elif self.type in "Wave Port":
             self._app.oboundary.EditWavePort(self._boundary_name, self._get_args())
         elif self.type == "SetSBRTxRxSettings":
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())  # pragma: no cover
-        elif self.type == "FloquetPort":
+        elif self.type == "Floquet Port":
             self._app.oboundary.EditFloquetPort(self._boundary_name, self._get_args())  # pragma: no cover
+        elif self.type == "EndConnection":
+            self._app.oboundary.EditEndConnection(self._boundary_name, self._get_args())
         else:
             return False  # pragma: no cover
         self._boundary_name = self.name
@@ -572,27 +620,19 @@ class FieldSetup(BoundaryCommon, object):
     >>> from pyaedt import Hfss
     >>> hfss = Hfss()
     >>> sphere1 = hfss.insert_infinite_sphere()
-    >>> sphere1.props["ThetaStart"] = 45
+    >>> sphere1.props["ThetaStart"] = "-90deg"
+    >>> sphere1.props["ThetaStop"] = "90deg"
+    >>> sphere1.props["ThetaStep"] = "2deg"
     >>> sphere1.delete()
     """
 
     def __init__(self, app, component_name, props, component_type):
+        self.auto_update = False
         self._app = app
         self.type = component_type
         self.name = component_name
-        self.props = OrderedDict({})
-        if props:
-            self._load_props(self.props, props)
-
-    def _load_props(self, d, u):
-        for k, v in u.items():
-            if isinstance(v, (dict, OrderedDict)):
-                if k not in d:
-                    d[k] = OrderedDict({})
-                d[k] = self._load_props(d[k], v)
-            else:
-                d[k] = v
-        return d
+        self.props = BoundaryProps(self, OrderedDict(props))
+        self.auto_update = True
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
@@ -682,7 +722,9 @@ class FarFieldSetup(FieldSetup, object):
     >>> from pyaedt import Hfss
     >>> hfss = Hfss()
     >>> sphere1 = hfss.insert_infinite_sphere()
-    >>> sphere1.props["ThetaStart"] = 45
+    >>> sphere1.props["ThetaStart"] = "-90deg"
+    >>> sphere1.props["ThetaStop"] = "90deg"
+    >>> sphere1.props["ThetaStep"] = "2deg"
     >>> sphere1.delete()
     """
 

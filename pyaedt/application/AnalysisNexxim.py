@@ -3,6 +3,7 @@ import warnings
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Circuit import ModelerNexxim
+from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 from pyaedt.modules.SolveSetup import SetupCircuit
 
@@ -33,6 +34,8 @@ class FieldAnalysisCircuit(Analysis):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
         Analysis.__init__(
             self,
@@ -46,15 +49,66 @@ class FieldAnalysisCircuit(Analysis):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
 
         self._modeler = ModelerNexxim(self)
         self._modeler.layout.init_padstacks()
         self._post = CircuitPostProcessor(self)
 
+    @pyaedt_function_handler()
+    def push_down(self, component_name):
+        """Push-down to the child component and reinitialize the Circuit object.
+
+        Parameters
+        ----------
+        component_name : str or :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Component to initialize.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        out_name = ""
+        if isinstance(component_name, CircuitComponent):
+            out_name = self.design_name + ":" + component_name.component_info["RefDes"]
+        elif "U" == component_name[0]:
+            out_name = self.design_name + ":" + component_name
+        elif ":" not in component_name:
+            for v in self.modeler.components.components:
+                if component_name == v.composed_name.split(";")[0].split("@")[1]:
+                    out_name = self.design_name + ":" + v.component_info["RefDes"]
+        else:
+            out_name = component_name
+        try:
+            self.oproject.SetActiveDesign(out_name)
+            self.__init__(projectname=self.project_name, designname=out_name)
+        except:  # pragma: no cover
+            return False
+        return True
+
+    @pyaedt_function_handler()
+    def pop_up(self):
+        """Pop-up to parent Circuit design and reinitialize Circuit object.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            parent_name = self.odesign.GetName().split(";")[1].split("/")[0]
+            self.oproject.SetActiveDesign(parent_name)
+            self.__init__(projectname=self.project_name, designname=parent_name)
+        except:
+            return False
+        return True
+
     @property
     def post(self):
-        """PostProcessor.
+        """Postprocessor.
 
         Returns
         -------
@@ -62,6 +116,16 @@ class FieldAnalysisCircuit(Analysis):
             PostProcessor object.
         """
         return self._post
+
+    @property
+    def existing_analysis_sweeps(self):
+        """Analysis setups.
+
+        References
+        ----------
+
+        >>> oModule.GetAllSolutionSetups"""
+        return self.existing_analysis_setups
 
     @property
     def existing_analysis_setups(self):
@@ -110,9 +174,9 @@ class FieldAnalysisCircuit(Analysis):
         References
         ----------
 
-        >>> oModule.GetExcitations
+        >>> oModule.GetAllPorts
         """
-        ports = [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts()]
+        ports = [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts() if "IPort@" in p]
         return ports
 
     @property
@@ -165,13 +229,13 @@ class FieldAnalysisCircuit(Analysis):
         return spar
 
     @pyaedt_function_handler()
-    def get_all_return_loss_list(self, excitation_names=[], excitation_name_prefix=""):
+    def get_all_return_loss_list(self, excitation_names=None, excitation_name_prefix=""):
         """Retrieve a list of all return losses for a list of exctitations.
 
         Parameters
         ----------
         excitation_names : list, optional
-            List of excitations. The default is ``[]``, in which case
+            List of excitations. The default is ``None``, in which case
             the return losses for all excitations are to be provided.
             For example ``["1", "2"]``.
         excitation_name_prefix : string, optional
@@ -188,6 +252,9 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oEditor.GetAllPorts
         """
+        if excitation_names == None:
+            excitation_names = []
+
         if not excitation_names:
             excitation_names = self.excitations
         if excitation_name_prefix:
@@ -198,7 +265,7 @@ class FieldAnalysisCircuit(Analysis):
         return spar
 
     @pyaedt_function_handler()
-    def get_all_insertion_loss_list(self, trlist=[], reclist=[], tx_prefix="", rx_prefix=""):
+    def get_all_insertion_loss_list(self, trlist=None, reclist=None, tx_prefix="", rx_prefix=""):
         """Retrieve a list of all insertion losses from two lists of excitations (driver and receiver).
 
         Parameters
@@ -224,6 +291,11 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oEditor.GetAllPorts
         """
+        if trlist == None:
+            trlist = []
+        if reclist == None:
+            reclist = []
+
         spar = []
         if not trlist:
             trlist = [i for i in self.excitations if tx_prefix in i]
@@ -270,7 +342,7 @@ class FieldAnalysisCircuit(Analysis):
         return next
 
     @pyaedt_function_handler()
-    def get_fext_xtalk_list(self, trlist=[], reclist=[], tx_prefix="", rx_prefix="", skip_same_index_couples=True):
+    def get_fext_xtalk_list(self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", skip_same_index_couples=True):
         """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
 
         Parameters
@@ -302,6 +374,11 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oEditor.GetAllPorts
         """
+        if trlist == None:
+            trlist = []
+        if reclist == None:
+            reclist = []
+
         fext = []
         if not trlist:
             trlist = [i for i in self.excitations if tx_prefix in i]
@@ -367,11 +444,10 @@ class FieldAnalysisCircuit(Analysis):
 
         name = self.generate_unique_setup_name(setupname)
         setup = SetupCircuit(self, setuptype, name)
-        setup.name = name
         setup.create()
         if props:
             for el in props:
-                setup.props[el] = props[el]
+                setup.props._setitem_without_update(el, props[el])
         setup.update()
         self.analysis_setup = name
         self.setups.append(setup)

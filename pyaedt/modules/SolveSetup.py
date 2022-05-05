@@ -19,6 +19,7 @@ from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SetupTemplates import SweepHFSS
 from pyaedt.modules.SetupTemplates import SweepHFSS3DLayout
 from pyaedt.modules.SetupTemplates import SweepQ3D
+from pyaedt.modules.SetupTemplates import SetupProps
 
 
 class Setup(object):
@@ -56,13 +57,15 @@ class Setup(object):
         return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"
 
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
-
+        self.auto_update = False
         self._app = None
         self.p_app = app
-        if not solutiontype:
+        if solutiontype is None:
             self.setuptype = self.p_app.design_solutions.default_setup
         elif isinstance(solutiontype, int):
             self.setuptype = solutiontype
+        elif solutiontype in SetupKeys.SetupNames:
+            self.setuptype = SetupKeys.SetupNames.index(solutiontype)
         else:
             self.setuptype = self.p_app.design_solutions._solution_options[solutiontype]["default_setup"]
 
@@ -73,6 +76,7 @@ class Setup(object):
             setup_template = SetupKeys.SetupTemplates[self.setuptype]
             for t in setup_template:
                 _tuple2dict(t, self.props)
+            self.props = SetupProps(self, self.props)
         else:
             try:
                 setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
@@ -97,9 +101,10 @@ class Setup(object):
                                 if isinstance(app[el], (OrderedDict, dict)):
                                     self.sweeps.append(SweepQ3D(self.omodule, setupname, el, props=app[el]))
                         setup_data.pop("Sweeps", None)
-                    self.props = OrderedDict(setup_data)
+                    self.props = SetupProps(self, OrderedDict(setup_data))
             except:
-                self.props = OrderedDict()
+                self.props = SetupProps(self, OrderedDict())
+        self.auto_update = True
 
     @pyaedt_function_handler()
     def create(self):
@@ -140,9 +145,12 @@ class Setup(object):
 
         >>> oModule.EditSetup
         """
+        legacy_update = self.auto_update
+        self.auto_update = False
         if update_dictionary:
             for el in update_dictionary:
                 self.props[el] = update_dictionary[el]
+        self.auto_update = legacy_update
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
 
@@ -405,7 +413,7 @@ class Setup(object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or :class:`pyaedt.modules.SetupTemplates.SweepQ3D`
             Sweep object.
 
         References
@@ -415,6 +423,9 @@ class Setup(object):
         """
         if not sweepname:
             sweepname = generate_unique_name("Sweep")
+        if self.setuptype == 7:
+            self._app.logger.warning("This method only applies to HFSS and Q3d. Use add_eddy_current_sweep method.")
+            return False
         if self.setuptype <= 4:
             sweep_n = SweepHFSS(self.omodule, self.name, sweepname, sweeptype)
         else:
@@ -473,6 +484,178 @@ class Setup(object):
         self.update()
         return True
 
+    @pyaedt_function_handler()
+    def add_eddy_current_sweep(self, range_type="LinearStep", start=0.1, end=100, count=0.1, units="Hz", clear=True):
+        """Create a Maxwell Eddy Current Sweep.
+
+        Parameters
+        ----------
+        range_type : str
+            Type of the subrange. Options are ``"LinearCount"``,
+            ``"LinearStep"``, ``"LogScale"`` and ``"SinglePoints"``.
+        start : float
+            Starting frequency.
+        end : float, optional
+            Stopping frequency. Required for ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
+        count : int or float, optional
+            Frequency count or frequency step. Required for ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
+        units : str, optional
+            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"Hz"``.
+
+        clear : boolean, optional
+            If set to ``True``, all other subranges will be suppressed except the current one under creation.
+            Default value is ``False``.
+
+        Returns
+        -------
+        bool
+        """
+
+        if self.setuptype != 7:
+            self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
+            return False
+        legacy_update = self.auto_update
+        self.auto_update = False
+        props = OrderedDict()
+        props["RangeType"] = range_type
+        props["RangeStart"] = "{}{}".format(start, units)
+        if range_type == "LinearStep":
+            props["RangeEnd"] = "{}{}".format(end, units)
+            props["RangeStep"] = "{}{}".format(count, units)
+        elif range_type == "LinearCount":
+            props["RangeEnd"] = "{}{}".format(end, units)
+            props["RangeCount"] = count
+        elif range_type == "LogScale":
+            props["RangeEnd"] = "{}{}".format(end, units)
+            props["RangeSamples"] = count
+        elif range_type == "SinglePoints":
+            props["RangeEnd"] = "{}{}".format(start, units)
+        if clear:
+            self.props["SweepRanges"]["Subrange"] = props
+        elif isinstance(self.props["SweepRanges"]["Subrange"], list):
+            self.props["SweepRanges"]["Subrange"].append(props)
+        else:
+            self.props["SweepRanges"]["Subrange"] = [self.props["SweepRanges"]["Subrange"], props]
+        self.update()
+        self.auto_update = legacy_update
+        return True
+
+    @pyaedt_function_handler()
+    def enable_adaptive_setup_single(self, freq=None, max_passes=None, max_delta_s=None):
+        """Enable HFSS single frequency setup.
+
+        Parameters
+        ----------
+        freq : float, str, optional
+            Frequency at which to set the adaptive convergence.
+            The default is ``None`` which will not update the value in setup.
+            You can enter a float value in (GHz) or a string.
+        max_passes : int, optional
+            Maximum number of adaptive passes. The default is ``None`` which will not update the value in setup.
+        max_delta_s : float, optional
+            Delta S convergence criteria. The default is ``None`` which will not update the value in setup.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+            self._app.logger.error("Method applies only to HFSS-driven solutions.")
+            return False
+        self.auto_update = False
+        self.props["SolveType"] = "Single"
+        if isinstance(freq, (int, float)):
+            freq = "{}GHz".format(freq)
+        if freq:
+            self.props["Frequency"] = freq
+        if max_passes:
+            self.props["MaximumPasses"] = max_passes
+        if max_delta_s:
+            self.props["MaxDeltaS"] = max_delta_s
+        self.auto_update = True
+        return self.update()
+
+    @pyaedt_function_handler()
+    def enable_adaptive_setup_broadband(self, low_frequency, high_frquency, max_passes=6, max_delta_s=0.02):
+        """Enable HFSS broadband setup.
+
+        Parameters
+        ----------
+        low_frequency : float, str
+            Lower Frequency at which set the adaptive convergence.
+            It can be float (GHz) or str.
+        high_frquency : float, str
+            Lower Frequency at which set the adaptive convergence. It can be float (GHz) or str.
+        max_passes : int, optional
+            Maximum number of adaptive passes. The default is ``6``.
+        max_delta_s : float, optional
+            Delta S Convergence criteria. The default is ``0.02``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+            self._app.logger.error("Method applies only to HFSS-driven solutions.")
+            return False
+        self.auto_update = False
+        self.props["SolveType"] = "BroadBand"
+        for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
+            del self.props["MultipleAdaptiveFreqsSetup"][el]
+        if isinstance(low_frequency, (int, float)):
+            low_frequency = "{}GHz".format(low_frequency)
+        if isinstance(high_frquency, (int, float)):
+            high_frquency = "{}GHz".format(high_frquency)
+        self.props["MultipleAdaptiveFreqsSetup"]["Low"] = low_frequency
+        self.props["MultipleAdaptiveFreqsSetup"]["High"] = high_frquency
+        self.props["MaximumPasses"] = max_passes
+        self.props["MaxDeltaS"] = max_delta_s
+        self.auto_update = True
+        return self.update()
+
+    @pyaedt_function_handler()
+    def enable_adaptive_setup_multifrequency(self, frequencies, max_delta_s=0.02):
+        """Enable HFSS multi-frequency setup.
+
+        Parameters
+        ----------
+        frequencies : list
+            Frequency at which to set the adaptive convergence. You can enter list entries
+            as float values in GHz or as strings.
+        max_delta_s : list, float
+            Delta S convergence criteria. The default is ``0.02``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+            self._app.logger.error("Method applies only to HFSS-driven solutions.")
+            return False
+        self.auto_update = False
+        self.props["SolveType"] = "MultiFrequency"
+        for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
+            del self.props["MultipleAdaptiveFreqsSetup"][el]
+        i = 0
+        for f in frequencies:
+            if isinstance(max_delta_s, float):
+                if isinstance(f, (int, float)):
+                    f = "{}GHz".format(f)
+                self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s]
+            else:
+                if isinstance(f, (int, float)):
+                    f = "{}GHz".format(f)
+                try:
+                    self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s[i]]
+                except IndexError:
+                    self.props["MultipleAdaptiveFreqsSetup"][f] = [0.02]
+            i += 1
+        self.auto_update = True
+        return self.update()
+
 
 class SetupCircuit(object):
     """Initializes, creates, and updates a circuit setup.
@@ -492,20 +675,25 @@ class SetupCircuit(object):
     """
 
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
+
+        self.auto_update = False
         self._app = None
         self.p_app = app
         if not solutiontype:
             self.setuptype = self.p_app.design_solutions.default_setup
         elif isinstance(solutiontype, int):
             self.setuptype = solutiontype
+        elif solutiontype in SetupKeys.SetupNames:
+            self.setuptype = SetupKeys.SetupNames.index(solutiontype)
         else:
             self.setuptype = self.p_app.design_solutions._solution_options[solutiontype]["default_setup"]
         self._Name = "LinearFrequency"
-        self.props = {}
+        props = {}
         if isnewsetup:
             setup_template = SetupKeys.SetupTemplates[self.setuptype]
             for t in setup_template:
-                _tuple2dict(t, self.props)
+                _tuple2dict(t, props)
+            self.props = SetupProps(self, props)
         else:
             try:
                 setups_data = self.p_app.design_properties["SimSetups"]["SimSetup"]
@@ -515,10 +703,12 @@ class SetupCircuit(object):
                     if setupname == setup["Name"]:
                         setup_data = setup
                         setup_data.pop("Sweeps", None)
-                        self.props = setup_data
+                        self.props = SetupProps(self, setup_data)
             except:
-                self.props = {}
-        self.name = setupname
+                self.props = SetupProps(self, OrderedDict())
+        self._Name = setupname
+        self.props["Name"] = setupname
+        self.auto_update = True
 
     @property
     def name(self):
@@ -652,6 +842,8 @@ class SetupCircuit(object):
         >>> oModule.EditVerifEyeAnalysis
         >>> oModule.EditAMIAnalysis
         """
+        legacy_update = self.auto_update
+        self.auto_update = False
         if update_dictionary:
             for el in update_dictionary:
                 self.props[el] = update_dictionary[el]
@@ -659,6 +851,7 @@ class SetupCircuit(object):
         soltype = SetupKeys.SetupNames[self.setuptype]
         _dict2arg(self.props, arg)
         self._setup(soltype, arg, False)
+        self.auto_update = legacy_update
         return True
 
     @pyaedt_function_handler()
@@ -1104,6 +1297,7 @@ class Setup3DLayout(object):
         return self._app.oanalysis
 
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
+        self.auto_update = False
         self._app = app
         if not solutiontype:
             self._solutiontype = self._app.design_solutions.default_setup
@@ -1118,6 +1312,7 @@ class Setup3DLayout(object):
             setup_template = SetupKeys.SetupTemplates[self._solutiontype]
             for t in setup_template:
                 _tuple2dict(t, self.props)
+            self.props = SetupProps(self, self.props)
         else:
             try:
                 setups_data = self._app.design_properties["Setup"]["Data"]
@@ -1129,14 +1324,10 @@ class Setup3DLayout(object):
                             if isinstance(app[el], (OrderedDict, dict)):
                                 self.sweeps.append(SweepHFSS3DLayout(self.omodule, setupname, el, props=app[el]))
 
-                    self.props = OrderedDict(setup_data)
+                    self.props = SetupProps(self, OrderedDict(setup_data))
             except:
-                self.props = OrderedDict()
-            #
-            # setup_data = self.omodule.GetSetupData(setupname)
-            # dict_data = OrderedDict()
-            # _arg2dict(setup_data, dict_data)
-            # self.props = dict_data[setupname]
+                self.props = SetupProps(self, OrderedDict())
+        self.auto_update = True
 
     @property
     def setup_type(self):
@@ -1173,7 +1364,7 @@ class Setup3DLayout(object):
         return True
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self, update_dictionary=None):
         """Update the setup based on the class arguments or a dictionary.
 
         Parameters
@@ -1191,6 +1382,9 @@ class Setup3DLayout(object):
 
         >>> oModule.Edit
         """
+        if update_dictionary:
+            for el in update_dictionary:
+                self.props._setitem_without_update(el, update_dictionary[el])
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
         self.omodule.Edit(self.name, arg)

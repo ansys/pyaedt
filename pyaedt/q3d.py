@@ -47,6 +47,8 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
         if Q3DType == "Q3D Extractor":
             FieldAnalysis3D.__init__(
@@ -61,6 +63,8 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
                 new_desktop_session,
                 close_on_exit,
                 student_version,
+                machine,
+                port,
             )
         else:
             FieldAnalysis2D.__init__(
@@ -75,6 +79,8 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
                 new_desktop_session,
                 close_on_exit,
                 student_version,
+                machine,
+                port,
             )
         self.omatrix = self.odesign.GetModule("ReduceMatrix")
         self.matrices = []
@@ -123,6 +129,53 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
             self.matrices.append(matrix)
         return matrix
 
+    @pyaedt_function_handler()
+    def get_traces_for_plot(
+        self,
+        get_self_terms=True,
+        get_mutual_terms=True,
+        first_element_filter=None,
+        second_element_filter=None,
+        category="C",
+    ):
+        """Retrieve a list of traces of specified designs ready to use in plot reports.
+
+        Parameters
+        ----------
+        get_self_terms : bool, optional
+            Whether to return self terms. The default is ``True``.
+        get_mutual_terms : bool, optional
+            Whether to return mutual terms. The default is ``True``.
+        first_element_filter : str, optional
+            Filter to apply to the first element of the equation. This parameter accepts ``*``
+            and ``?`` as special characters. The default is ``None``.
+        second_element_filter : str, optional
+            Filter to apply to the second element of the equation. This parameter accepts ``*``
+            and ``?`` as special characters. The default is ``None``.
+        category : str
+            Plot category name as in the report (including operator). The default is ``"C"`,
+            which is the plot category name for capacitance.
+
+        Returns
+        -------
+        list
+            Traces of specified designs ready to use in plot reports.
+
+        Examples
+        --------
+        >>> from pyaedt import Q3d
+        >>> hfss = Q3d(project_path)
+        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1",
+        ...                           second_element_filter="GND*", category="C")
+        """
+        return self.matrices[0].get_sources_for_plot(
+            get_self_terms=get_self_terms,
+            get_mutual_terms=get_mutual_terms,
+            first_element_filter=first_element_filter,
+            second_element_filter=second_element_filter,
+            category=category,
+        )
+
 
 class Q3d(QExtractor, object):
     """Provides the Q3D application interface.
@@ -165,6 +218,14 @@ class Q3d(QExtractor, object):
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
         This parameter is ignored when Script is launched within AEDT.
+    machine : str, optional
+        Machine name to which connect the oDesktop Session. Works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+        If machine is `"localhost"` the server will also start if not present.
+    port : int, optional
+        Port number of which start the oDesktop communication on already existing server.
+        This parameter is ignored in new server creation. It works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
 
     Examples
     --------
@@ -187,6 +248,8 @@ class Q3d(QExtractor, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
         QExtractor.__init__(
             self,
@@ -200,6 +263,8 @@ class Q3d(QExtractor, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ3D()
 
@@ -714,6 +779,14 @@ class Q2d(QExtractor, object):
     student_version : bool, optional
         Whether to open the AEDT student version. This parameter is
         ignored when Script is launched within AEDT.
+    machine : str, optional
+        Machine name to which connect the oDesktop Session. Works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+        If machine is `"localhost"` the server will also start if not present.
+    port : int, optional
+        Port number of which start the oDesktop communication on already existing server.
+        This parameter is ignored in new server creation. It works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
 
     Examples
     --------
@@ -752,6 +825,8 @@ class Q2d(QExtractor, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
         QExtractor.__init__(
             self,
@@ -765,6 +840,8 @@ class Q2d(QExtractor, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ2D()
 
@@ -788,7 +865,7 @@ class Q2d(QExtractor, object):
 
         Returns
         -------
-        pyaedt.modeler.Object3d.Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         References
@@ -969,6 +1046,127 @@ class Q2d(QExtractor, object):
         else:
             self.logger.info("No new nets identified")
         return True
+
+    @pyaedt_function_handler()
+    def export_w_elements(self, analyze=False, export_folder=None):
+        """Export all available W-elements to files.
+
+        Parameters
+        ----------
+        analyze : bool, optional
+            Whether to analyze before export. Solutions must be present for the design.
+            The default is ``False``.
+        export_folder : str, optional
+            Full path to the folder to export files into. The default is ``None``, in
+            which case the working directory is used.
+
+        Returns
+        -------
+        list
+            List of all exported files.
+        """
+        exported_files = []
+        if not export_folder:
+            export_folder = self.working_directory
+        if not os.path.exists(export_folder):
+            os.makedirs(export_folder)
+        if analyze:
+            self.analyze_all()
+        setups = self.oanalysis.GetSetups()
+
+        for s in setups:
+            sweeps = self.oanalysis.GetSweeps(s)
+            if not sweeps:
+                sweeps = ["LastAdaptive"]
+            for sweep in sweeps:
+                variation_array = self.list_of_variations(s, sweep)
+                solution_name = "{} : {}".format(s, sweep)
+                if len(variation_array) == 1:
+                    try:
+                        export_file = "{}_{}_{}.sp".format(self.project_name, s, sweep)
+                        export_path = os.path.join(export_folder, export_file)
+                        subckt_name = "w_{}".format(self.project_name)
+                        self.oanalysis.ExportCircuit(
+                            solution_name,
+                            variation_array[0],
+                            export_path,
+                            [
+                                "NAME:CircuitData",
+                                "MatrixName:=",
+                                "Original",
+                                "NumberOfCells:=",
+                                "1",
+                                "UserHasChangedSettings:=",
+                                True,
+                                "IncludeCap:=",
+                                False,
+                                "IncludeCond:=",
+                                False,
+                                ["NAME:CouplingLimits", "CouplingLimitType:=", "None"],
+                                "IncludeR:=",
+                                False,
+                                "IncludeL:=",
+                                False,
+                                "ExportDistributed:=",
+                                True,
+                                "LumpedLength:=",
+                                "1meter",
+                                "RiseTime:=",
+                                "1e-09s",
+                            ],
+                            subckt_name,
+                            "WElement",
+                            0,
+                        )
+                        exported_files.append(export_path)
+                        self.logger.info("Exported W-element: %s", export_path)
+                    except:  # pragma: no cover
+                        self.logger.warning("Export W-element failed")
+                else:
+                    varCount = 0
+                    for variation in variation_array:
+                        varCount += 1
+                        try:
+                            export_file = "{}_{}_{}_{}.sp".format(self.project_name, s, sweep, varCount)
+                            export_path = os.path.join(export_folder, export_file)
+                            subckt_name = "w_{}_{}".format(self.project_name, varCount)
+                            self.oanalysis.ExportCircuit(
+                                solution_name,
+                                variation,
+                                export_path,
+                                [
+                                    "NAME:CircuitData",
+                                    "MatrixName:=",
+                                    "Original",
+                                    "NumberOfCells:=",
+                                    "1",
+                                    "UserHasChangedSettings:=",
+                                    True,
+                                    "IncludeCap:=",
+                                    False,
+                                    "IncludeCond:=",
+                                    False,
+                                    ["NAME:CouplingLimits", "CouplingLimitType:=", "None"],
+                                    "IncludeR:=",
+                                    False,
+                                    "IncludeL:=",
+                                    False,
+                                    "ExportDistributed:=",
+                                    True,
+                                    "LumpedLength:=",
+                                    "1meter",
+                                    "RiseTime:=",
+                                    "1e-09s",
+                                ],
+                                subckt_name,
+                                "WElement",
+                                0,
+                            )
+                            exported_files.append(export_path)
+                            self.logger.info("Exported W-element: %s", export_path)
+                        except:  # pragma: no cover
+                            self.logger.warning("Export W-element failed")
+        return exported_files
 
     @pyaedt_function_handler()
     def toggle_conductor_type(self, conductor_name, new_type):

@@ -1,7 +1,9 @@
 # Setup paths for module imports
-from _unittest.conftest import BasisTest, pyaedt_unittest_check_desktop_error
-from pyaedt.modeler.Modeler import FaceCoordinateSystem
+from _unittest.conftest import BasisTest
+from _unittest.conftest import pyaedt_unittest_check_desktop_error
 from pyaedt.application.Design import DesignCache
+from pyaedt.modeler.Modeler import FaceCoordinateSystem
+from pyaedt.modeler.Primitives import PolylineSegment
 
 try:
     import pytest  # noqa: F401
@@ -115,6 +117,10 @@ class TestClass(BasisTest, object):
         status = self.aedtapp.modeler.thicken_sheet(id5, 3)
         assert status
         status = self.aedtapp.modeler.automatic_thicken_sheets(id6, 3, False)
+        assert status
+        status = self.aedtapp.modeler.move_face([id6.faces[0].id, id6.faces[2]])
+        assert status
+        status = self.aedtapp.modeler.move_face([id6.faces[0].id, id5.faces[0]])
         assert status
 
     @pyaedt_unittest_check_desktop_error
@@ -238,6 +244,15 @@ class TestClass(BasisTest, object):
 
     def test_31_set_objects_unmodel(self):
         assert self.aedtapp.modeler.set_object_model_state("Second_airbox", False)
+
+    def test_32_find_port_faces(self):
+        wg_x = self.aedtapp.modeler.create_waveguide([0, 5000, 0], self.aedtapp.AXIS.Y, wg_length=1000, wg_thickness=40)
+        port1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.ZX, [-40, 5000, -40], [346.7, 613.4])
+        port2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.ZX, [-40, 6000, -40], [346.7, 613.4])
+        faces_created = self.aedtapp.modeler.find_port_faces([port1.name, port2.name])
+        assert len(faces_created) == 4
+        assert "_Face1Vacuum" in faces_created[1]
+        assert "_Face1Vacuum" in faces_created[3]
 
     def test_33_duplicate_around_axis(self):
         id1 = self.aedtapp.modeler.create_box([10, 10, 10], [4, 5, 5])
@@ -485,3 +500,100 @@ class TestClass(BasisTest, object):
         cs4 = self.aedtapp.modeler.create_coordinate_system(name="CSP4", mode="zxz", phi=43, theta="126deg", psi=0)
         tol = 1e-9
         assert sum([abs(x1 - x2) for (x1, x2) in zip(cs3.quaternion, cs4.quaternion)]) < tol
+
+    def test_49_sweep_along_path(self):
+        self.aedtapp.modeler.set_working_coordinate_system("Global")
+        first_points = [[1.0, 1.0, 0], [1.0, 2.0, 1.0], [1.0, 3.0, 1.0]]
+        first_line = self.aedtapp.modeler.create_polyline([[0.0, 0.0, 0.0], first_points[0]])
+        assert first_line.insert_segment(
+            position_list=first_points, segment=PolylineSegment("Spline", num_points=3), segment_number=3
+        )
+
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, first_line.name + "\\CreatePolyline:1", "Number of curves"
+            )
+            == "2"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, first_line.name + "\\CreatePolyline:1", "Number of segments"
+            )
+            == "0"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, first_line.name + "\\CreatePolyline:1", "Number of points"
+            )
+            == "4"
+        )
+
+        second_points = [[3.0, 2.0, 0], [3.0, 3.0, 1.0], [3.0, 4.0, 1.0]]
+        second_line = self.aedtapp.modeler.create_polyline([[0, 0, 0], second_points[0]])
+        assert second_line.insert_segment(
+            position_list=second_points, segment=PolylineSegment("Spline", num_points=3), segment_number=5
+        )
+
+        assert second_line.insert_segment(
+            position_list=[[-3.0, 4.0, 1.0], [-3.0, 5.0, 3.0], [-3.0, 6.0, 1.0], [-3.0, 7.0, 2.0], [0, 0, 0]],
+            segment=PolylineSegment("Spline", num_points=5),
+            segment_number=3,
+        )
+
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1", "Number of curves"
+            )
+            == "3"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1", "Number of segments"
+            )
+            == "0"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1", "Number of points"
+            )
+            == "8"
+        )
+
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment0", "Segment Type"
+            )
+            == "Spline"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment1", "Segment Type"
+            )
+            == "Line"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment2", "Segment Type"
+            )
+            == "Spline"
+        )
+
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment0", "Number of segments"
+            )
+            == "3"
+        )
+        assert (
+            self.aedtapp.get_oo_property_value(
+                self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment2", "Number of segments"
+            )
+            == "5"
+        )
+
+    def test_50_move_edge(self):
+        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "edge_movements")
+        assert not box1.faces[0].edges[0].move_along_normal(1)
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "edge_movements2")
+        assert self.aedtapp.modeler.move_edge([rect.edges[0], rect.edges[2]])
+        assert rect.faces[0].bottom_edge_x.move_along_normal()

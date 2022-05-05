@@ -51,6 +51,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Whether to release AEDT on exit.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
+    machine : str, optional
+        Machine name to which connect the oDesktop Session. Works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+        If machine is `"localhost"` the server will also start if not present.
+    port : int, optional
+        Port number of which start the oDesktop communication on already existing server.
+        This parameter is ignored in new server creation. It works only on 2022R2.
+        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
 
     Examples
     --------
@@ -93,6 +101,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
         FieldAnalysis3DLayout.__init__(
             self,
@@ -106,6 +116,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
 
     def __enter__(self):
@@ -497,7 +509,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        PlotName : str, optional
+        plot_name : str, optional
             Name of the plot. The default is ``"S Parameter Plot Nominal"``.
         sweep_name : str, optional
             Name of the sweep. The default is ``None``.
@@ -518,38 +530,19 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oModule.CreateReport
         """
-        Families = ["Freq:=", ["All"]]
-        if variations:
-            Families += variations
-        else:
-            Families += self.get_nominal_variation()
-        if not sweep_name:
-            sweep_name = self.existing_analysis_sweeps[1]
-        if not port_names:
-            port_names = self.excitations
-        if not port_excited:
-            port_excited = port_names
-        Trace = [
-            "X Component:=",
-            "Freq",
-            "Y Component:=",
-            ["dB(S(" + p + "," + q + "))" for p, q in zip(list(port_names), list(port_excited))],
-        ]
-        solution_data = ""
+        solution_data = "Standard"
         if "Modal" in self.solution_type:
             solution_data = "Modal Solution Data"
         elif "Terminal" in self.solution_type:
             solution_data = "Terminal Solution Data"
-        elif self.solution_type == "HFSS3DLayout":
-            solution_data = "Standard"
-        if solution_data != "":
-            # run CreateReport function
-            self.post.oreportsetup.CreateReport(
-                plot_name, solution_data, "Rectangular Plot", sweep_name, ["Domain:=", "Sweep"], Families, Trace, []
-            )
-            return True
-        else:
-            return False
+        if not port_names:
+            port_names = self.excitations
+        if not port_excited:
+            port_excited = port_names
+        traces = ["dB(S(" + p + "," + q + "))" for p, q in zip(list(port_names), list(port_excited))]
+        return self.post.create_report(
+            traces, sweep_name, variations=variations, report_category=solution_data, plotname=plot_name
+        )
 
     @pyaedt_function_handler()
     def export_touchstone(self, solutionname, sweepname, filename, variation, variations_value):

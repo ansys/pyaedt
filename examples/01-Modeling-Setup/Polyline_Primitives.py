@@ -1,6 +1,6 @@
 """
-Polyline Creation
------------------
+General: Polyline Creation
+--------------------------
 This example shows how you can use PyAEDT to create and manipulate polylines.
 """
 
@@ -20,7 +20,7 @@ from pyaedt.modeler.Primitives import PolylineSegment
 # type to ``"mm"``.
 
 M3D = Maxwell3d(
-    solution_type="Transient", designname="test_polyline_3D", specified_version="2021.2", new_desktop_session=True
+    solution_type="Transient", designname="test_polyline_3D", specified_version="2022.1", new_desktop_session=True
 )
 M3D.modeler.model_units = "mm"
 prim3D = M3D.modeler

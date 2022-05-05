@@ -1,6 +1,7 @@
 import os
 
 from pyaedt.application.Analysis import Analysis
+from pyaedt.generic.configurations import Configurations
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Model2D import Modeler2D
@@ -68,6 +69,8 @@ class FieldAnalysis2D(Analysis):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
 
         Analysis.__init__(
@@ -82,6 +85,8 @@ class FieldAnalysis2D(Analysis):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
         self._osolution = self._odesign.GetModule("Solutions")
         self._oboundary = self._odesign.GetModule("BoundarySetup")
@@ -89,6 +94,17 @@ class FieldAnalysis2D(Analysis):
         self._modeler = Modeler2D(self)
         self._mesh = Mesh(self)
         self._post = PostProcessor(self)
+        self._configurations = Configurations(self)
+
+    @property
+    def configurations(self):
+        """Property to import and export configuration files.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.configurations.Configurations`
+        """
+        return self._configurations
 
     @property
     def osolution(self):

@@ -1,6 +1,6 @@
 """
-HFSS-Mechanical Multiphysics Analysis
--------------------------------------
+Multiphisics: HFSS-Mechanical Multiphysics Analysis
+---------------------------------------------------
 This example shows how to use Pyaedt to create a multiphysics workflow that includes Circuit, Hfss and Mechanical.
 """
 
@@ -34,7 +34,7 @@ shutil.copy2(project_full_name, project_temp_name)
 # ~~~~~~~~~~~
 # Starts Hfss and initialize the Pyaedt object.
 
-version = "2021.2"
+version = "2022.1"
 hfss = Hfss(project_temp_name, specified_version=version, non_graphical=False)
 pin_names = hfss.excitations
 
@@ -97,7 +97,6 @@ n_points = 1001
 unit = "GHz"
 sweep_list = ["LINC", str(bw_start) + unit, str(bw_stop) + unit, str(n_points)]
 LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
-LNA_setup.update()
 
 ###############################################################################
 # Solve and Push Excitation

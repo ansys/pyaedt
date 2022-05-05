@@ -3,6 +3,7 @@ import os
 import warnings
 
 from pyaedt.application.Analysis import Analysis
+from pyaedt.generic.configurations import Configurations
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -70,6 +71,8 @@ class FieldAnalysis3D(Analysis, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
         Analysis.__init__(
             self,
@@ -83,12 +86,25 @@ class FieldAnalysis3D(Analysis, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
         self._osolution = self._odesign.GetModule("Solutions")
         self._oboundary = self._odesign.GetModule("BoundarySetup")
         self._modeler = Modeler3D(self)
         self._mesh = Mesh(self)
         self._post = PostProcessor(self)
+        self._configurations = Configurations(self)
+
+    @property
+    def configurations(self):
+        """Property to import and export configuration files.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.configurations.Configurations`
+        """
+        return self._configurations
 
     @property
     def osolution(self):
@@ -426,7 +442,7 @@ class FieldAnalysis3D(Analysis, object):
         return self.export_3d_model(fileName, filePath, fileFormat, object_list, removed_objects)
 
     @pyaedt_function_handler()
-    def export_3d_model(self, fileName, filePath, fileFormat=".step", object_list=[], removed_objects=[]):
+    def export_3d_model(self, fileName, filePath, fileFormat=".step", object_list=None, removed_objects=None):
         """Export the 3D model.
 
         Parameters
@@ -438,9 +454,9 @@ class FieldAnalysis3D(Analysis, object):
         fileFormat : str, optional
             Format of the file. The default is ``".step"``.
         object_list : list, optional
-            List of objects to export. The default is ``[]``.
+            List of objects to export. The default is ``None``.
         removed_objects : list, optional
-            The default is ``[]``.
+            The default is ``None``.
 
         Returns
         -------
@@ -452,6 +468,12 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> oEditor.Export
         """
+
+        if object_list == None:
+            object_list = []
+        if removed_objects == None:
+            removed_objects = []
+
         if not object_list:
             allObjects = self.modeler.object_names
             if removed_objects:
@@ -617,10 +639,11 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.GetObjectsByMaterial
         """
         cond = self.materials.conductors
-        cond = [i.lower() for i in cond]
+
         obj_names = []
-        for el in cond:
-            obj_names += list(self._modeler.oeditor.GetObjectsByMaterial(el))
+        for obj_val in list(self.modeler.objects.values()):
+            if obj_val.material_name in cond:
+                obj_names.append(obj_val.name)
         return obj_names
 
     @pyaedt_function_handler()
@@ -637,8 +660,8 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.GetObjectsByMaterial
         """
         diel = self.materials.dielectrics
-        diel = [i.lower() for i in diel]
         obj_names = []
-        for el in diel:
-            obj_names += list(self._modeler.oeditor.GetObjectsByMaterial(el))
+        for obj_val in list(self.modeler.objects.values()):
+            if obj_val.material_name in diel:
+                obj_names.append(obj_val.name)
         return obj_names

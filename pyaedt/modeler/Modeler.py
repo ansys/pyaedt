@@ -27,6 +27,30 @@ from pyaedt.modeler.Object3d import Object3d
 from pyaedt.modeler.Object3d import VertexPrimitive
 
 
+class CsProps(OrderedDict):
+    """AEDT Cooardinate System Internal Parameters."""
+
+    def __setitem__(self, key, value):
+        OrderedDict.__setitem__(self, key, value)
+        if self._pyaedt_cs.auto_update:
+            res = self._pyaedt_cs.update()
+            if not res:
+                self._pyaedt_cs._app.logger.warning("Update of %s Failed. Check needed arguments", key)
+
+    def __init__(self, cs_object, props):
+        OrderedDict.__init__(self)
+        if props:
+            for key, value in props.items():
+                if isinstance(value, (dict, OrderedDict)):
+                    OrderedDict.__setitem__(self, key, CsProps(cs_object, value))
+                else:
+                    OrderedDict.__setitem__(self, key, value)
+        self._pyaedt_cs = cs_object
+
+    def _setitem_without_update(self, key, value):
+        OrderedDict.__setitem__(self, key, value)
+
+
 class BaseCoordinateSystem(object):
     """Base methods common to FaceCoordinateSystem and CoordinateSystem.
 
@@ -42,6 +66,7 @@ class BaseCoordinateSystem(object):
     """
 
     def __init__(self, modeler, name=None):
+        self.auto_update = True
         self._modeler = modeler
         self.model_units = self._modeler.model_units
         self.name = name
@@ -162,7 +187,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
     def __init__(self, modeler, props=None, name=None, face_id=None):
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.face_id = face_id
-        self.props = props
+        self.props = CsProps(self, props)
         try:  # pragma: no cover
             if "KernelVersion" in self.props:
                 del self.props["KernelVersion"]
@@ -329,9 +354,9 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         parameters["YOffset"] = self._dim_arg((offset[1]), self.model_units)
         parameters["AutoAxis"] = False
 
-        self.props = parameters
+        self.props = CsProps(self, parameters)
         self._modeler.oeditor.CreateFaceCS(self._face_paramenters, self._attributes)
-
+        self._modeler.coordinate_systems.append(self)
         return True
 
     @pyaedt_function_handler()
@@ -418,7 +443,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
     def __init__(self, modeler, props=None, name=None):
         BaseCoordinateSystem.__init__(self, modeler, name)
         self.model_units = self._modeler.model_units
-        self.props = props
+        self.props = CsProps(self, props)
         self.ref_cs = None
         self._quaternion = None
         self.mode = None
@@ -517,6 +542,8 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             ``True`` when successful, ``False`` when failed.
 
         """
+        legacy_update = self.auto_update
+        self.auto_update = False
         if mode_type == 0:  # "Axis/Position"
             if self.props and (self.props["Mode"] == "Euler Angle ZXZ" or self.props["Mode"] == "Euler Angle ZYZ"):
                 self.props["Mode"] = "Axis/Position"
@@ -594,6 +621,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
                 self.update()
         else:  # pragma: no cover
             raise ValueError('mode_type=0 for "Axis/Position", =1 for "Euler Angle ZXZ", =2 for "Euler Angle ZYZ"')
+        self.auto_update = legacy_update
         return True
 
     @pyaedt_function_handler()
@@ -685,7 +713,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
 
         if name:
             self.name = name
-        else:
+        elif not self.name:
             self.name = generate_unique_name("CS")
 
         originX = self._dim_arg(origin[0], self.model_units)
@@ -761,13 +789,12 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         else:  # pragma: no cover
             raise ValueError("Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation' ")
 
-        self.props = orientationParameters
+        self.props = CsProps(self, orientationParameters)
         self._modeler.oeditor.CreateRelativeCS(self._orientation, self._attributes)
+        self._modeler.coordinate_systems.append(self)
         # this workaround is necessary because the reference CS is ignored at creation, it needs to be modified later
         self.ref_cs = reference_cs
-        self.update()
-
-        return True
+        return self.update()
 
     @property
     def quaternion(self):
@@ -982,6 +1009,12 @@ class GeometryModeler(Modeler, object):
                             id2name[cs_id] = name
                             name2refid[name] = cs[ds]["ReferenceCoordSystemID"]
                             coord.append(CoordinateSystem(self, props, name))
+                            if "ZXZ" in props["Mode"]:
+                                coord[-1].mode = "zxz"
+                            elif "ZYZ" in props["Mode"]:
+                                coord[-1].mode = "zyz"
+                            else:
+                                coord[-1].mode = "axis"
                         elif cs[ds]["OperationType"] == "CreateFaceCoordinateSystem":
                             name = cs[ds]["Attributes"]["Name"]
                             cs_id = cs[ds]["ID"]
@@ -1024,6 +1057,12 @@ class GeometryModeler(Modeler, object):
                                 id2name[cs_id] = name
                                 name2refid[name] = el["ReferenceCoordSystemID"]
                                 coord.append(CoordinateSystem(self, props, name))
+                                if "ZXZ" in props["Mode"]:
+                                    coord[-1].mode = "zxz"
+                                elif "ZYZ" in props["Mode"]:
+                                    coord[-1].mode = "zyz"
+                                else:
+                                    coord[-1].mode = "axis"
                             elif el["OperationType"] == "CreateFaceCoordinateSystem":
                                 name = el["Attributes"]["Name"]
                                 cs_id = el["ID"]
@@ -1046,7 +1085,10 @@ class GeometryModeler(Modeler, object):
                                                 break
                                 elif isinstance(geometry_part, list):
                                     for gp in geometry_part:
-                                        op = gp["Operations"]["FaceCSHolderOperation"]
+                                        try:
+                                            op = gp["Operations"]["FaceCSHolderOperation"]
+                                        except KeyError:
+                                            continue
                                         if isinstance(op, (OrderedDict, dict)):
                                             if op["ID"] == op_id:
                                                 props = op["FaceCSParameters"]
@@ -1063,50 +1105,6 @@ class GeometryModeler(Modeler, object):
                 if isinstance(cs, CoordinateSystem):
                     try:
                         cs.ref_cs = id2name[name2refid[cs.name]]
-                        if cs.props["Mode"] == "Axis/Position":
-                            x1 = GeometryOperators.parse_dim_arg(
-                                cs.props["XAxisXvec"], variable_manager=self._app.variable_manager
-                            )
-                            x2 = GeometryOperators.parse_dim_arg(
-                                cs.props["XAxisYvec"], variable_manager=self._app.variable_manager
-                            )
-                            x3 = GeometryOperators.parse_dim_arg(
-                                cs.props["XAxisZvec"], variable_manager=self._app.variable_manager
-                            )
-                            y1 = GeometryOperators.parse_dim_arg(
-                                cs.props["YAxisXvec"], variable_manager=self._app.variable_manager
-                            )
-                            y2 = GeometryOperators.parse_dim_arg(
-                                cs.props["YAxisYvec"], variable_manager=self._app.variable_manager
-                            )
-                            y3 = GeometryOperators.parse_dim_arg(
-                                cs.props["YAxisZvec"], variable_manager=self._app.variable_manager
-                            )
-                            x, y, z = GeometryOperators.pointing_to_axis([x1, x2, x3], [y1, y2, y3])
-                            a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
-                            cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
-                        elif cs.props["Mode"] == "Euler Angle ZXZ":
-                            a = GeometryOperators.parse_dim_arg(
-                                cs.props["Phi"], variable_manager=self._app.variable_manager
-                            )
-                            b = GeometryOperators.parse_dim_arg(
-                                cs.props["Theta"], variable_manager=self._app.variable_manager
-                            )
-                            g = GeometryOperators.parse_dim_arg(
-                                cs.props["Psi"], variable_manager=self._app.variable_manager
-                            )
-                            cs.quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
-                        elif cs.props["Mode"] == "Euler Angle ZYZ":
-                            a = GeometryOperators.parse_dim_arg(
-                                cs.props["Phi"], variable_manager=self._app.variable_manager
-                            )
-                            b = GeometryOperators.parse_dim_arg(
-                                cs.props["Theta"], variable_manager=self._app.variable_manager
-                            )
-                            g = GeometryOperators.parse_dim_arg(
-                                cs.props["Psi"], variable_manager=self._app.variable_manager
-                            )
-                            cs.quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
                     except:
                         pass
         return coord
@@ -1184,7 +1182,7 @@ class GeometryModeler(Modeler, object):
                 return "2D"
             else:
                 return "3D"
-        except Exception:
+        except:
             if self.design_type == "2D Extractor":
                 return "2D"
             else:
@@ -1392,7 +1390,6 @@ class GeometryModeler(Modeler, object):
                 u=u,
             )
             if result:
-                self.coordinate_systems.append(cs)
                 return cs
         return False
 
@@ -1463,7 +1460,6 @@ class GeometryModeler(Modeler, object):
             )
 
             if result:
-                self.coordinate_systems.append(cs)
                 return cs
         return False
 
@@ -1664,7 +1660,11 @@ class GeometryModeler(Modeler, object):
         str
             Name of the sheet.
         list
-            List of the points.
+            List of float values of the first edge midpoint.
+            Point in ``[x, y, z]`` coordinates.
+        list
+            List of float values of the second edge midpoint.
+            Point in ``[x, y, z]`` coordinates.
 
         """
         out, parallel = self.find_closest_edges(startobj, endobject, axisdir)
@@ -1822,7 +1822,7 @@ class GeometryModeler(Modeler, object):
 
         offset = self.find_point_around(objectname, start, sheet_dim, cs)
         p1 = self.create_polyline([start, offset])
-        p2 = p1.clone().translate(vector)
+        p2 = p1.clone().move(vector)
         self.connect([p1, p2])
 
         return p1
@@ -1886,10 +1886,10 @@ class GeometryModeler(Modeler, object):
         l2 = out[1].length
         if l1 < l2:
             vect_t = [i * (vfactor - 1) for i in vect]
-            self.translate(port_edges[0], vect_t)
+            self.move(port_edges[0], vect_t)
         else:
             vect_t = [i * (1 - vfactor) for i in vect]
-            self.translate(port_edges[1], vect_t)
+            self.move(port_edges[1], vect_t)
 
         self.connect(port_edges)
         list_unite = [sheet_name]
@@ -2748,7 +2748,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        list
+        List
             List of six float values representing the bounding box
             in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
 
@@ -2815,8 +2815,8 @@ class GeometryModeler(Modeler, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        str
-            Name of objects cloned when successful.
+        List
+            List of names of objects cloned when successful.
 
         References
         ----------
@@ -2907,6 +2907,9 @@ class GeometryModeler(Modeler, object):
     @pyaedt_function_handler()
     def translate(self, objid, vector):
         """Translate objects from a list.
+
+        .. deprecated:: 0.4.0
+           Use :func:`move` instead.
 
         Parameters
         ----------
@@ -3197,266 +3200,6 @@ class GeometryModeler(Modeler, object):
         return self.create_region([x_pos, y_pos, z_pos, x_neg, y_neg, z_neg])
 
     @pyaedt_function_handler()
-    def create_coaxial(
-        self,
-        startingposition,
-        axis,
-        innerradius=1,
-        outerradius=2,
-        dielradius=1.8,
-        length=10,
-        matinner="copper",
-        matouter="copper",
-        matdiel="teflon_based",
-    ):
-        """Create a coaxial.
-
-        Parameters
-        ----------
-        startingposition : list
-            List of ``[x, y, z]`` coordinates for the starting position.
-        axis : int
-            Coordinate system AXIS (integer ``0`` for X, ``1`` for Y, ``2`` for Z) or
-            the :class:`Application.CoordinateSystemAxis` enumerator.
-        innerradius : float, optional
-            Inner coax radius. The default is ``1``.
-        outerradius : float, optional
-            Outer coax radius. The default is ``2``.
-        dielradius : float, optional
-            Dielectric coax radius. The default is ``1.8``.
-        length : float, optional
-            Coaxial length. The default is ``10``.
-        matinner : str, optional
-            Material for the inner coaxial. The default is ``"copper"``.
-        matouter : str, optional
-            Material for the outer coaxial. The default is ``"copper"``.
-        matdiel : str, optional
-            Material for the dielectric. The default is ``"teflon_based"``.
-
-        Returns
-        -------
-        tuple
-            Contains the inner, outer, and dielectric coax as
-            :class:`pyaedt.modeler.Object3d.Object3d` objects.
-
-        References
-        ----------
-
-        >>> oEditor.CreateCylinder
-        >>> oEditor.AssignMaterial
-
-
-        Examples
-        --------
-
-        This example shows how to create a Coaxial Along X Axis waveguide.
-
-        >>> from pyaedt import Hfss
-        >>> app = Hfss()
-        >>> position = [0,0,0]
-        >>> coax = app.modeler.create_coaxial(
-        ...    position, app.AXIS.X, innerradius=0.5, outerradius=0.8, dielradius=0.78, length=50
-        ... )
-
-        """
-        if not (outerradius > dielradius and dielradius > innerradius):
-            raise ValueError("Error in coaxial radius.")
-        inner = self.create_cylinder(axis, startingposition, innerradius, length, 0)
-        outer = self.create_cylinder(axis, startingposition, outerradius, length, 0)
-        diel = self.create_cylinder(axis, startingposition, dielradius, length, 0)
-        self.subtract(outer, inner)
-        self.subtract(outer, diel)
-        inner.material_name = matinner
-        outer.material_name = matouter
-        diel.material_name = matdiel
-
-        return inner, outer, diel
-
-    @pyaedt_function_handler()
-    def create_waveguide(
-        self,
-        origin,
-        wg_direction_axis,
-        wgmodel="WG0",
-        wg_length=100,
-        wg_thickness=None,
-        wg_material="aluminum",
-        parametrize_w=False,
-        parametrize_h=False,
-        create_sheets_on_openings=False,
-        name=None,
-    ):
-        """Create a standard waveguide and optionally parametrize `W` and `H`.
-
-        Available models are WG0.0, WG0, WG1, WG2, WG3, WG4, WG5, WG6,
-        WG7, WG8, WG9, WG9A, WG10, WG11, WG11A, WG12, WG13, WG14,
-        WG15, WR102, WG16, WG17, WG18, WG19, WG20, WG21, WG22, WG24,
-        WG25, WG26, WG27, WG28, WG29, WG29, WG30, WG31, and WG32.
-
-        Parameters
-        ----------
-        origin : list
-            List of ``[x, y, z]`` coordinates for the original position.
-        wg_direction_axis : int
-            Coordinate system axis (integer ``0`` for X, ``1`` for Y, ``2`` for Z) or
-            the :class:`Application.CoordinateSystemAxis` enumerator.
-        wgmodel : str, optional
-            Waveguide model. The default is ``"WG0"``.
-        wg_length : float, optional
-            Waveguide length. The default is ``100``.
-        wg_thickness : float, optional
-            Waveguide thickness. The default is ``None``, in which case the
-            thickness is `wg_height/20`.
-        wg_material : str, optional
-            Waveguide material. The default is ``"aluminum"``.
-        parametrize_w : bool, optional
-            Whether to parametrize `W`. The default is ``False``.
-        parametrize_h : bool, optional
-            Whether to parametrize `H`. The default is ``False``.
-        create_sheets_on_openings : bool, optional
-            Whether to create sheets on both openings. The default is ``False``.
-        name : str, optional
-            Name of the waveguide. The default is ``None``.
-
-        Returns
-        -------
-        tuple
-            Tuple of :class:`Object3d <pyaedt.modeler.Object3d.Object3d>`
-            objects created by the waveguide.
-
-        References
-        ----------
-
-        >>> oEditor.CreateBox
-        >>> oEditor.AssignMaterial
-
-
-        Examples
-        --------
-
-        This example shows how to create a WG9 waveguide.
-
-        >>> from pyaedt import Hfss
-        >>> app = Hfss()
-        >>> position = [0, 0, 0]
-        >>> wg1 = app.modeler.create_waveguide(position, app.AXIS.,
-        ...                                    wgmodel="WG9", wg_length=2000)
-
-
-        """
-        p1 = -1
-        p2 = -1
-        WG = {
-            "WG0.0": [584.2, 292.1],
-            "WG0": [533.4, 266.7],
-            "WG1": [457.2, 228.6],
-            "WG2": [381, 190.5],
-            "WG3": [292.1, 146.05],
-            "WG4": [247.65, 123.825],
-            "WG5": [195.58, 97.79],
-            "WG6": [165.1, 82.55],
-            "WG7": [129.54, 64.77],
-            "WG8": [109.22, 54.61],
-            "WG9": [88.9, 44.45],
-            "WG9A": [86.36, 43.18],
-            "WG10": [72.136, 34.036],
-            "WG11": [60.2488, 28.4988],
-            "WG11A": [58.166, 29.083],
-            "WG12": [47.5488, 22.1488],
-            "WG13": [40.386, 20.193],
-            "WG14": [34.8488, 15.7988],
-            "WG15": [28.4988, 12.6238],
-            "WR102": [25.908, 12.954],
-            "WG16": [22.86, 10.16],
-            "WG17": [19.05, 9.525],
-            "WG18": [15.7988, 7.8994],
-            "WG19": [12.954, 6.477],
-            "WG20": [0.668, 4.318],
-            "WG21": [8.636, 4.318],
-            "WG22": [7.112, 3.556],
-            "WG23": [5.6896, 2.8448],
-            "WG24": [4.7752, 2.3876],
-            "WG25": [3.7592, 1.8796],
-            "WG26": [3.0988, 1.5494],
-            "WG27": [2.54, 1.27],
-            "WG28": [2.032, 1.016],
-            "WG29": [1.651, 0.8255],
-            "WG30": [1.2954, 0.6477],
-            "WG31": [1.0922, 0.5461],
-            "WG32": [0.8636, 0.4318],
-        }
-
-        if wgmodel in WG:
-            wgwidth = WG[wgmodel][0]
-            wgheight = WG[wgmodel][1]
-            if not wg_thickness:
-                wg_thickness = wgheight / 20
-            if parametrize_h:
-                self._app[wgmodel + "_H"] = self._arg_with_dim(wgheight)
-                h = wgmodel + "_H"
-                hb = wgmodel + "_H + 2*" + self._arg_with_dim(wg_thickness)
-            else:
-                h = self._arg_with_dim(wgheight)
-                hb = self._arg_with_dim(wgheight) + " + 2*" + self._arg_with_dim(wg_thickness)
-
-            if parametrize_w:
-                self._app[wgmodel + "_W"] = self._arg_with_dim(wgwidth)
-                w = wgmodel + "_W"
-                wb = wgmodel + "_W + " + self._arg_with_dim(2 * wg_thickness)
-            else:
-                w = self._arg_with_dim(wgwidth)
-                wb = self._arg_with_dim(wgwidth) + " + 2*" + self._arg_with_dim(wg_thickness)
-            if wg_direction_axis == self._app.AXIS.Z:
-                airbox = self.create_box(origin, [w, h, wg_length])
-
-                if type(wg_thickness) is str:
-                    origin[0] = str(origin[0]) + "-" + wg_thickness
-                    origin[1] = str(origin[1]) + "-" + wg_thickness
-                else:
-                    origin[0] -= wg_thickness
-                    origin[1] -= wg_thickness
-
-            elif wg_direction_axis == self._app.AXIS.Y:
-                airbox = self.create_box(origin, [w, wg_length, h])
-
-                if type(wg_thickness) is str:
-                    origin[0] = str(origin[0]) + "-" + wg_thickness
-                    origin[2] = str(origin[2]) + "-" + wg_thickness
-                else:
-                    origin[0] -= wg_thickness
-                    origin[2] -= wg_thickness
-            else:
-                airbox = self.create_box(origin, [wg_length, w, h])
-
-                if type(wg_thickness) is str:
-                    origin[2] = str(origin[2]) + "-" + wg_thickness
-                    origin[1] = str(origin[1]) + "-" + wg_thickness
-                else:
-                    origin[2] -= wg_thickness
-                    origin[1] -= wg_thickness
-            centers = [f.center for f in airbox.faces]
-            posx = [i[wg_direction_axis] for i in centers]
-            mini = posx.index(min(posx))
-            maxi = posx.index(max(posx))
-            if create_sheets_on_openings:
-                p1 = self.create_object_from_face(airbox.faces[mini].id)
-                p2 = self.create_object_from_face(airbox.faces[maxi].id)
-            if not name:
-                name = generate_unique_name(wgmodel)
-            if wg_direction_axis == self._app.AXIS.Z:
-                wgbox = self.create_box(origin, [wb, hb, wg_length], name=name)
-            elif wg_direction_axis == self._app.AXIS.Y:
-                wgbox = self.create_box(origin, [wb, wg_length, hb], name=name)
-            else:
-                wgbox = self.create_box(origin, [wg_length, wb, hb], name=name)
-            self.subtract(wgbox, airbox, False)
-            wgbox.material_name = wg_material
-
-            return wgbox, p1, p2
-        else:
-            return None
-
-    @pyaedt_function_handler()
     def edit_region_dimensions(self, listvalues):
         """Modify the dimensions of the region.
 
@@ -3513,6 +3256,7 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.CreateEntityList
         """
+        fl = self.convert_to_selections(fl, True)
         self.oeditor.CreateEntityList(
             ["NAME:GeometryEntityListParameters", "EntityType:=", "Face", "EntityList:=", fl],
             ["NAME:Attributes", "Name:=", name],
@@ -3794,7 +3538,7 @@ class GeometryModeler(Modeler, object):
         return True
 
     @pyaedt_function_handler()
-    def find_port_faces(self, objs):
+    def find_port_faces(self, port_sheets):
         """Find the vaccums given a list of input sheets.
 
         Starting from a list of input sheets, this method creates a list of output sheets
@@ -3804,41 +3548,38 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objs : list
-            List of input sheets.
+        port_sheets : list
+            List of input sheets names.
 
         Returns
         -------
         List
-            List of output sheets (`2x len(objs)`).
+            List of output sheets (`2x len(port_sheets)`).
 
         """
         faces = []
-        id = 1
-        for obj in objs:
-            self.oeditor.Copy(["NAME:Selections", "Selections:=", obj])
-            originals = self.object_names
-            self.oeditor.Paste()
-            self.refresh_all_ids()
-            added = self.object_names
-            cloned = [i for i in added if i not in originals]
-            solids = self.get_all_solids_names()
-            self.subtract(cloned[0], ",".join(solids))
-            self.subtract(obj, cloned[0])
-            air = self.get_obj_id(cloned[0])
-            air.change_name(obj + "_Face1Vacuum")
-            faces.append(obj)
-            faces.append(obj + "_Face1Vacuum")
-            id += 1
+        solids = [s for s in self.solid_objects if s.material_name not in ["vacuum", "air"] and s.model]
+        for sheet_name in port_sheets:
+            sheet = self[sheet_name]  # get the sheet object
+            _, cloned = self.clone(sheet)
+            cloned = self[cloned[0]]
+            cloned.subtract(solids)
+            sheet.subtract(cloned)
+            cloned.name = sheet.name + "_Face1Vacuum"
+            faces.append(sheet.name)
+            faces.append(cloned.name)
         return faces
 
     @pyaedt_function_handler()
-    def load_objects_bytype(self, type):
+    def load_objects_bytype(self, obj_type):
         """Load all objects of a specified type.
+
+        .. deprecated:: 0.5.0
+           Use :func:`get_objects_in_group` property instead.
 
         Parameters
         ----------
-        type : str
+        obj_type : str
             Type of the objects to load. Options are
             ``"Solids"`` and ``"Sheets"``.
 
@@ -3852,7 +3593,14 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.GetObjectsInGroup
         """
-        objNames = list(self.oeditor.GetObjectsInGroup(type))
+
+        warnings.warn(
+            "`load_objects_bytype` is deprecated and will be removed in version 0.5.0. "
+            "Use `get_objects_in_group` method instead.",
+            DeprecationWarning,
+        )
+
+        objNames = list(self.oeditor.GetObjectsInGroup(obj_type))
         return objNames
 
     @pyaedt_function_handler()
@@ -3999,7 +3747,7 @@ class GeometryModeler(Modeler, object):
         return position_list
 
     @pyaedt_function_handler()
-    def import_3d_cad(self, filename, healing=0, refresh_all_ids=True):
+    def import_3d_cad(self, filename, healing=False, refresh_all_ids=True):
         """Import a CAD model.
 
         Parameters
@@ -4007,6 +3755,9 @@ class GeometryModeler(Modeler, object):
         filename : str
             Full path and name of the CAD file.
         healing : bool, optional
+            Whether to perform healing. The default is ``False``, in which
+            case healing is not performed.
+        healing : int, optional
             Whether to perform healing. The default is ``0``, in which
             case healing is not performed.
         refresh_all_ids : bool, optional
@@ -4024,8 +3775,19 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Import
         """
+
+        if isinstance(healing, int):
+            if healing == 0:
+                healing = False
+            else:
+                healing = True
+            warnings.warn(
+                "Assigning `0` or `1` to `healing` option is deprecated. Assign `True` or `False` instead.",
+                DeprecationWarning,
+            )
+
         vArg1 = ["NAME:NativeBodyParameters"]
-        vArg1.append("HealOption:="), vArg1.append(healing)
+        vArg1.append("HealOption:="), vArg1.append(1 if healing else 0)
         vArg1.append("Options:="), vArg1.append("-1")
         vArg1.append("FileType:="), vArg1.append("UnRecognized")
         vArg1.append("MaxStitchTol:="), vArg1.append(-1)
@@ -4331,6 +4093,9 @@ class GeometryModeler(Modeler, object):
     def load_hfss(self, cadfile):
         """Load HFSS.
 
+        .. deprecated:: 0.4.41
+           Use :func:`import_3d_cad` property instead.
+
         Parameters
         ----------
         cadfile : str
@@ -4347,7 +4112,8 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Import
         """
-        self.import_3d_cad(cadfile, 1)
+        warnings.warn("`load_hfss` is deprecated. Use `import_3d_cad` method instead.", DeprecationWarning)
+        self.import_3d_cad(cadfile, healing=True)
         return True
 
     @pyaedt_function_handler()
@@ -4544,9 +4310,129 @@ class GeometryModeler(Modeler, object):
                         # self.modeler_oproject.ClearMessages()
         return True
 
-    def __get__(self, instance, owner):
-        self._app = instance
-        return self
+    @pyaedt_function_handler()
+    def move_face(self, faces, offset=1.0):
+        """Move an input face or a list of input faces of a specific object.
+
+        This method moves a face or a list of faces which belong to the same solid.
+
+        Parameters
+        ----------
+        faces : list
+            List of Face ID or List of :class:`pyaedt.modeler.Object3d.FacePrimitive` object or mixed.
+        offset : float, optional
+             Offset to apply in model units. The default is ``1.0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.MoveFaces
+
+        """
+
+        face_selection = self.convert_to_selections(faces, True)
+        selection = {}
+        for f in face_selection:
+            if self.oeditor.GetObjectNameByFaceID(f) in selection:
+                selection[self.oeditor.GetObjectNameByFaceID(f)].append(f)
+            else:
+                selection[self.oeditor.GetObjectNameByFaceID(f)] = [f]
+
+        arg1 = [
+            "NAME:Selections",
+            "Selections:=",
+            self.convert_to_selections(list(selection.keys()), False),
+            "NewPartsModelFlag:=",
+            "Model",
+        ]
+        arg2 = ["NAME:Parameters"]
+        for el in list(selection.keys()):
+            arg2.append(
+                [
+                    "NAME:MoveFacesParameters",
+                    "MoveAlongNormalFlag:=",
+                    True,
+                    "OffsetDistance:=",
+                    str(offset) + self.model_units,
+                    "MoveVectorX:=",
+                    "0mm",
+                    "MoveVectorY:=",
+                    "0mm",
+                    "MoveVectorZ:=",
+                    "0mm",
+                    "FacesToMove:=",
+                    selection[el],
+                ]
+            )
+        self._oeditor.MoveFaces(arg1, arg2)
+        return True
+
+    @pyaedt_function_handler()
+    def move_edge(self, edges, offset=1.0):
+        """Move an input edge or a list of input edges of a specific object.
+
+        This method moves an edge or a list of edges which belong to the same solid.
+
+        Parameters
+        ----------
+        edges : list
+            List of Edge ID or List of :class:`pyaedt.modeler.Object3d.EdgePrimitive` object or mixed.
+        offset : float, optional
+             Offset to apply in model units. The default is ``1.0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.MoveEdges
+
+        """
+
+        edge_selection = self.convert_to_selections(edges, True)
+        selection = {}
+        for f in edge_selection:
+            if self.oeditor.GetObjectNameByEdgeID(f) in selection:
+                selection[self.oeditor.GetObjectNameByEdgeID(f)].append(f)
+            else:
+                selection[self.oeditor.GetObjectNameByEdgeID(f)] = [f]
+
+        arg1 = [
+            "NAME:Selections",
+            "Selections:=",
+            self.convert_to_selections(list(selection.keys()), False),
+            "NewPartsModelFlag:=",
+            "Model",
+        ]
+        arg2 = ["NAME:Parameters"]
+        for el in list(selection.keys()):
+            arg2.append(
+                [
+                    "NAME:MoveEdgesParameters",
+                    "MoveAlongNormalFlag:=",
+                    True,
+                    "OffsetDistance:=",
+                    str(offset) + self.model_units,
+                    "MoveVectorX:=",
+                    "0mm",
+                    "MoveVectorY:=",
+                    "0mm",
+                    "MoveVectorZ:=",
+                    "0mm",
+                    "EdgesToMove:=",
+                    selection[el],
+                ]
+            )
+        self._oeditor.MoveEdges(arg1, arg2)
+        return True
 
     class Position:
         """Position.

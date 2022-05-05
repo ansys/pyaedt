@@ -290,20 +290,28 @@ class TestClass(BasisTest, object):
     def test_17_create_object_from_edge(self):
         o = self.create_copper_cylinder()
         edges = o.edges
-        o = self.aedtapp.modeler.create_object_from_edge(edges[0])
-        assert o.id > 0
-        assert o.object_type == "Line"
-        assert o.is3d is False
+        o1 = self.aedtapp.modeler.create_object_from_edge(edges[0])
+        assert o1.id > 0
+        assert o1.object_type == "Line"
+        assert o1.is3d is False
+        o2 = self.aedtapp.modeler[o.name].edges[0].create_object()
+        assert o2.id > 0
+        assert o2.object_type == "Line"
+        assert o2.is3d is False
         pass
 
     @pyaedt_unittest_check_desktop_error
     def test_18_create_object_from_face(self):
         o = self.create_copper_cylinder()
         faces = o.faces
-        o = self.aedtapp.modeler.create_object_from_face(faces[0])
-        assert o.id > 0
-        assert o.object_type == "Sheet"
-        assert o.is3d is False
+        o1 = self.aedtapp.modeler.create_object_from_face(faces[0])
+        assert o1.id > 0
+        assert o1.object_type == "Sheet"
+        assert o1.is3d is False
+        o2 = self.aedtapp.modeler[o.name].faces[0].create_object()
+        assert o2.id > 0
+        assert o2.object_type == "Sheet"
+        assert o2.is3d is False
         pass
 
     @pyaedt_unittest_check_desktop_error
@@ -1092,7 +1100,7 @@ class TestClass(BasisTest, object):
     @pyaedt_unittest_check_desktop_error
     def test_73_make_winding(self):
         chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
-        winding_list = self.aedtapp.modeler._make_winding("Winding", "", "", 29.9, 52.1, 22.2, 2, 5, 15, chamfer, True)
+        winding_list = self.aedtapp.modeler._make_winding("Winding", "copper", 29.9, 52.1, 22.2, 5, 15, chamfer, True)
         assert isinstance(winding_list, list)
         assert isinstance(winding_list[0], Object3d)
         assert isinstance(winding_list[1], list)
@@ -1102,8 +1110,7 @@ class TestClass(BasisTest, object):
         chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
         winding_list = self.aedtapp.modeler._make_double_linked_winding(
             "Double_Winding",
-            "",
-            "",
+            "copper",
             27.7,
             54.3,
             26.6,
@@ -1125,8 +1132,7 @@ class TestClass(BasisTest, object):
         chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
         winding_list = self.aedtapp.modeler._make_triple_linked_winding(
             "Triple_Winding",
-            "",
-            "",
+            "copper",
             25.5,
             56.5,
             31.0,
@@ -1159,7 +1165,6 @@ class TestClass(BasisTest, object):
 
     @pyaedt_unittest_check_desktop_error
     def test_77_create_helix(self):
-
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
         udp3 = [10, 5, 0]
@@ -1201,7 +1206,7 @@ class TestClass(BasisTest, object):
         )
 
         # Test that an exception is raised if the name of the polyline is not provided.
-        # We can't use with.pytest.raises pattern bellow because IronPython does not support pytest.
+        # We can't use with.pytest.raises pattern below because IronPython does not support pytest.
         try:
             self.aedtapp.modeler.create_helix(
                 polyline_name="",

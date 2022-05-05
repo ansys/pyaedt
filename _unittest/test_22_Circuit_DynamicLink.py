@@ -1,8 +1,16 @@
 # standard imports
 import os
-from _unittest.conftest import local_path, config, desktop_version, BasisTest
 
-from pyaedt import Circuit, Q2d, Q3d, Hfss
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
+from _unittest.conftest import desktop_version
+from _unittest.conftest import local_path
+from pyaedt import Circuit
+from pyaedt import Hfss
+from pyaedt import Q2d
+from pyaedt import Q3d
+from pyaedt import settings
+
 
 try:
     import pytest
@@ -51,7 +59,9 @@ class TestClass(BasisTest, object):
                         ).encode()
                         found = True
                 outf.write(line + b"\n")
-        self.aedtapp = Circuit(self.test_project, specified_version=desktop_version)
+        self.aedtapp = Circuit(
+            self.test_project, specified_version=desktop_version, non_graphical=settings.non_graphical
+        )
         self.aedtapps.append(self.aedtapp)
 
     def teardown_class(self):
@@ -180,16 +190,37 @@ class TestClass(BasisTest, object):
         q2d = Q2d(self.q3d, specified_version=desktop_version)
         proj_path = self.q3d
         proj_name = q2d.project_name
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d, extrusion_length=25)
+        c1 = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q2d, extrusion_length=25)
+        assert c1
+        assert len(c1.pins) == 6
+        assert c1.parameters["Length"] == "25mm"
+        assert c1.parameters["r1"] == "0.3mm"
         if proj_name in self.aedtapp.project_list:
             proj_path = proj_name
         q3d = Q3d(proj_path, specified_version=desktop_version)
 
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(q3d, solution_name="Setup1 : LastAdaptive")
+        q3d_comp = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
+            q3d, solution_name="Setup1 : LastAdaptive"
+        )
+        assert q3d_comp
+        assert len(q3d_comp.pins) == 4
         hfss = Hfss(proj_path, specified_version=desktop_version)
 
-        assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup1 : Sweep")
+        hfss_comp = self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(hfss, solution_name="Setup1 : Sweep")
+        assert hfss_comp
+        assert len(hfss_comp.pins) == 2
         hfss = Hfss(proj_path, specified_version=desktop_version)
         assert self.aedtapp.modeler.schematic.add_subcircuit_dynamic_link(
             hfss, solution_name="Setup2 : Sweep", tline_port="1"
         )
+
+    # @pytest.mark.skipif(config["desktopVersion"] >= "2022.2" and config["use_grpc"], reason="Not working with grpc")
+    def test_11_siwave_link(self):
+        model = os.path.join(local_path, "example_models", "Galileo_um.siw")
+        model_out = self.local_scratch.copyfile(model)
+        self.local_scratch.copyfolder(
+            model + "averesults", os.path.join(self.local_scratch.path, "Galileo_um.siwaveresults")
+        )
+        siw_comp = self.aedtapp.modeler.schematic.add_siwave_dynamic_link(model_out)
+        assert siw_comp
+        assert len(siw_comp.pins) == 2

@@ -1,10 +1,10 @@
 # Setup paths for module imports
-import tempfile
-import os
 import io
 import logging
+import os
 import shutil
 import sys
+import tempfile
 
 try:
     import pytest

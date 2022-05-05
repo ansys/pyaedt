@@ -1,6 +1,6 @@
 """
-Maxwell 3D Bath Plate
----------------------
+Maxwell 3d: Bath Plate
+----------------------
 This example uses PyAEDT to setup the TEAM3 problem.
 This is solved using the Maxwell 3D Eddy Current solver
 """
@@ -18,7 +18,7 @@ from pyaedt import Maxwell3d
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 3 Bath Plate"
 Solver = "EddyCurrent"
-DesktopVersion = "2021.2"
+DesktopVersion = "2022.1"
 NonGraphical = False
 
 M3D = Maxwell3d(
@@ -40,7 +40,6 @@ M3D["Coil_Position"] = str(Coil_Position) + uom  # Creates a design variable in 
 ################################################################################
 # Create TEAM3 aluminium material for the ladder plate
 mat = M3D.materials.add_material("team3_aluminium")
-mat.update()
 mat.conductivity = 32780000
 
 ###############################################################################
@@ -98,10 +97,8 @@ M3D.plot(show=False, export_path=os.path.join(M3D.working_directory, "Image.jpg"
 Setup = M3D.create_setup(setupname="Setup1")
 Setup.props["Frequency"] = "200Hz"
 Setup.props["HasSweepSetup"] = True
-Setup.props["StartValue"] = "50Hz"
-Setup.props["StopValue"] = "200Hz"
-Setup.props["StepSize"] = "150Hz"
-Setup.update()
+Setup.add_eddy_current_sweep("LinearStep", 50, 200, 150, clear=True)
+
 
 ################################################################################
 # Adjust Eddy Effects for LadderPlate and SearchCoil
@@ -112,11 +109,10 @@ M3D.eddy_effects_on(["SearchCoil"], activate=False)
 ################################################################################
 # Add a linear parametric sweep for the two coil positions
 sweepname = "CoilSweep"
-param = M3D.opti_parametric.add_parametric_setup("Coil_Position", "LIN -20mm 0mm 20mm", parametricname=sweepname)
+param = M3D.parametrics.add("Coil_Position", -20, 0, 20, "LinearStep", parametricname=sweepname)
 param.props["ProdOptiSetupDataV2"]["SaveFields"] = True
 param.props["ProdOptiSetupDataV2"]["CopyMesh"] = False
 param.props["ProdOptiSetupDataV2"]["SolveWithCopiedMeshOnly"] = True
-param.update()
 
 # Solve the model, we solve the parametric sweep directly so results of all variations are available.
 M3D.analyze_setup(sweepname)
@@ -137,26 +133,58 @@ Fields.AddNamedExpression("Bz", "Fields")
 
 ###############################################################################
 # Plot mag(Bz) as a function of frequency for both coil positions
-Plot = M3D.odesign.GetModule("ReportSetup")
-Plot.CreateReport(
-    "mag(Bz) Along 'Line_AB' Offset Coil",
-    "Fields",
-    "Rectangular Plot",
-    "Setup1 : LastAdaptive",
-    ["Context:=", "Line_AB", "PointCount:=", 1001],
-    ["Distance:=", ["All"], "Freq:=", ["All"], "Phase:=", ["0deg"], "Coil_Position:=", ["-20mm"]],
-    ["X Component:=", "Distance-60mm", "Y Component:=", ["mag(Bz)"]],
+variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["-20mm"]}
+M3D.post.create_report(
+    expressions="mag(Bz)",
+    report_category="Fields",
+    context="Line_AB",
+    variations=variations,
+    primary_sweep_variable="Distance",
+    plotname="mag(Bz) Along 'Line_AB' Offset Coil",
 )
 
-Plot.CreateReport(
-    "mag(Bz) Along 'Line_AB' Centred Coil",
-    "Fields",
-    "Rectangular Plot",
-    "Setup1 : LastAdaptive",
-    ["Context:=", "Line_AB", "PointCount:=", 1001],
-    ["Distance:=", ["All"], "Freq:=", ["All"], "Phase:=", ["0deg"], "Coil_Position:=", ["0mm"]],
-    ["X Component:=", "Distance-60mm", "Y Component:=", ["mag(Bz)"]],
+variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["0mm"]}
+M3D.post.create_report(
+    expressions="mag(Bz)",
+    report_category="Fields",
+    context="Line_AB",
+    variations=variations,
+    primary_sweep_variable="Distance",
+    plotname="mag(Bz) Along 'Line_AB' Coil",
 )
+
+
+###############################################################################
+# Postprocessing
+# --------------
+# The same report can be obtained outside electronic desktop with the
+# following commands.
+variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["All"]}
+
+solutions = M3D.post.get_solution_data(
+    expressions="mag(Bz)",
+    report_category="Fields",
+    context="Line_AB",
+    variations=variations,
+    primary_sweep_variable="Distance",
+)
+
+###############################################################################
+# Postprocessing
+# --------------
+# User can setup a sweep value and plot the solution.
+
+solutions.active_variation["Coil_Position"] = -0.02
+solutions.plot()
+
+###############################################################################
+# Postprocessing
+# --------------
+# User can change a sweep value and plot again.
+
+solutions.active_variation["Coil_Position"] = 0
+solutions.plot()
+
 
 ###############################################################################
 # Create a plot Mag_J, the induced current density on the surface of the ladder plate

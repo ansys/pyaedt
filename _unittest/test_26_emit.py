@@ -1,8 +1,9 @@
 # Import required modules
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
 from pyaedt import Emit
-from pyaedt.modeler.PrimitivesEmit import EmitComponent, EmitComponents
-
-from _unittest.conftest import config, BasisTest
+from pyaedt.modeler.PrimitivesEmit import EmitComponent
+from pyaedt.modeler.PrimitivesEmit import EmitComponents
 
 try:
     import pytest
@@ -26,7 +27,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler
         assert self.aedtapp.oanalysis is None
 
-    @pytest.mark.skipif(config["build_machine"], reason="Not functional in non-graphical mode")
+    @pytest.mark.skipif(config["NonGraphical"], reason="Not functional in non-graphical mode")
     def test_create_components(self):
         radio = self.aedtapp.modeler.components.create_component("New Radio", "TestRadio")
         assert radio.name == "TestRadio"
@@ -35,7 +36,7 @@ class TestClass(BasisTest, object):
         assert antenna.name == "TestAntenna"
         assert isinstance(antenna, EmitComponent)
 
-    @pytest.mark.skipif(config["build_machine"], reason="Not functional in non-graphical mode")
+    @pytest.mark.skipif(config["NonGraphical"], reason="Not functional in non-graphical mode")
     @pytest.mark.skipif(config["desktopVersion"] < "2021.2", reason="Skipped on versions lower than 2021.2")
     def test_connect_components(self):
         radio = self.aedtapp.modeler.components.create_component("New Radio")
@@ -53,7 +54,7 @@ class TestClass(BasisTest, object):
         assert connected_comp is None
         assert connected_port is None
 
-    @pytest.mark.skipif(config["build_machine"], reason="Not functional in non-graphical mode")
+    @pytest.mark.skipif(config["NonGraphical"], reason="Not functional in non-graphical mode")
     def test_radio_component(self):
         radio = self.aedtapp.modeler.components.create_component("New Radio")
         # default radio has 1 Tx channel and 1 Rx channel
@@ -65,3 +66,13 @@ class TestClass(BasisTest, object):
         assert band.enabled
         band.enabled = False
         assert not band.enabled
+
+    @pytest.mark.skipif(config["NonGraphical"], reason="Not functional in non-graphical mode")
+    @pytest.mark.skipif(config["desktopVersion"] < "2021.2", reason="Skipped on versions lower than 2021.2")
+    def test_couplings(self):
+        self.aedtapp = BasisTest.add_app(self, project_name="Cell Phone RFI Desense", application=Emit)
+        links = self.aedtapp.couplings.linkable_design_names
+        assert len(links) == 0
+        for link in self.aedtapp.couplings.coupling_names:
+            assert link == "ATA_Analysis"
+            self.aedtapp.couplings.update_link(link)

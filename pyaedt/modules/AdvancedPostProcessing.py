@@ -452,6 +452,7 @@ class PostProcessor(Post):
         project_path="",
         export_gif=False,
         show=True,
+        zoom=None,
     ):
         """Generate a field plot to an animated gif file using PyVista.
 
@@ -487,10 +488,12 @@ class PostProcessor(Post):
         project_path : str, optional
             Path for the export. The default is ``""`` which export file in working_directory.
         export_gif : bool, optional
-             Whether to export to a GIF file. The default is ``False``,
-             in which case the plot is exported to a JPG file.
+            Whether to export to a GIF file. The default is ``False``,
+            in which case the plot is exported to a JPG file.
         show : bool, optional
-             Generate the animation without showing an interactive plot.  The default is ``True``.
+            Generate the animation without showing an interactive plot.  The default is ``True``.
+        zoom : float, optional
+            Zoom factor.
 
         Returns
         -------
@@ -528,6 +531,8 @@ class PostProcessor(Post):
             model.add_frames_from_file(fields_to_add)
         if export_gif:
             model.gif_file = os.path.join(self._app.working_directory, self._app.project_name + ".gif")
+        if zoom:
+            model.zoom = zoom
         if show or export_gif:
             model.animate()
             model.clean_cache_and_files(clean_cache=False)
@@ -667,9 +672,9 @@ class PostProcessor(Post):
         """
         legend = []
         Freq = nominal_value
-        solution_data.nominal_sweeps[nominal_sweep] = Freq
+        solution_data.active_variation[nominal_sweep] = Freq
         solution_data.primary_sweep = primary_sweep
-        solution_data.nominal_sweeps[primary_sweep] = 45
+        solution_data.active_variation[primary_sweep] = 45
         theta = np.array((solution_data.sweeps[primary_sweep]))
         phi = np.array((solution_data.sweeps[secondary_sweep]))
         r = []
@@ -677,7 +682,7 @@ class PostProcessor(Post):
         phi1 = []
         theta1 = [i * math.pi / 180 for i in theta]
         for el in solution_data.sweeps[secondary_sweep]:
-            solution_data.nominal_sweeps[secondary_sweep] = el
+            solution_data.active_variation[secondary_sweep] = el
             phi1.append(el * math.pi / 180)
             r.append(solution_data.data_magnitude())
         THETA, PHI = np.meshgrid(theta1, phi1)
@@ -693,3 +698,66 @@ class PostProcessor(Post):
             X, Y, Z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.5
         )
         fig1.set_size_inches(10, 10)
+
+    @pyaedt_function_handler()
+    def plot_scene(self, frames_list, output_gif_path, norm_index=0, dy_rng=0, fps=30, show=True):
+        """Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
+
+
+        Parameters
+        ----------
+        frames_list : list or str
+            File list containing animation frames to plot in csv format or
+            path to a txt index file containing full path to csv files.
+        output_gif_path : str
+            Full path to output gif file.
+        norm_index : int, optional
+            Pick the frame to use to normalize your images.
+            Data is already saved as dB : 100 for usual traffic scenes.
+        dy_rng : int, optional
+            Specify how many dB below you would like to specify the range_min.
+            Tweak this a couple of times with small number of frames.
+        fps : int, optional
+            Frames per Second.
+        show : bool, optional
+            Either if show or only export gif.
+
+        Returns
+        -------
+
+        """
+        if isinstance(frames_list, str) and os.path.exists(frames_list):
+            with open(frames_list, "r") as f:
+                lines = f.read()
+                temp_list = lines.splitlines()
+            frames_paths_list = [i for i in temp_list]
+        elif isinstance(frames_list, str):
+            self.logger.error("Path doesn't exists")
+            return False
+        else:
+            frames_paths_list = frames_list
+        scene = self.plot_model_obj(show=False)
+
+        norm_data = np.loadtxt(frames_paths_list[norm_index], skiprows=1, delimiter=",")
+        norm_val = norm_data[:, -1]
+        v_max = np.max(norm_val)
+        v_min = v_max - dy_rng
+        scene.add_frames_from_file(frames_paths_list, log_scale=False, color_map="jet", header_lines=1, opacity=0.8)
+
+        # Specifying the attributes of the scene through the ModelPlotter object
+        scene.off_screen = not show
+        scene.isometric_view = False
+        scene.range_min = v_min
+        scene.range_max = v_max
+        scene.show_grid = False
+        scene.windows_size = [1920, 1080]
+        scene.show_legend = False
+        scene.show_bounding_box = False
+        scene.legend = False
+        scene.frame_per_seconds = fps
+        scene.camera_position = "yz"
+        scene.zoom = 2
+        scene.bounding_box = False
+        scene.color_bar = False
+        scene.gif_file = output_gif_path  # This gif may be a bit slower so we can speed it up a bit
+        scene.animate()

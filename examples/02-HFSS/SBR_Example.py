@@ -1,6 +1,6 @@
 """
-HFSS to SBR+ Coupling
----------------------
+Sbr+: HFSS to SBR+ Coupling
+---------------------------
 This example shows how you can use PyAEDT to create an SBR+ project from Hfss
 antenna and run a simulation.
 """
@@ -33,11 +33,11 @@ target = Hfss(
     projectname=project_full_name,
     designname="Cassegrain_",
     solution_type="SBR+",
-    specified_version="2021.2",
+    specified_version="2022.1",
     new_desktop_session=True,
 )
 target.save_project(os.path.join(temp_folder, project_name + ".aedt"))
-source = Hfss(projectname=project_name, designname="feeder", specified_version="2021.2", new_desktop_session=False)
+source = Hfss(projectname=project_name, designname="feeder", specified_version="2022.1", new_desktop_session=False)
 
 ###############################################################################
 # Define a Linked Antenna
@@ -68,13 +68,12 @@ source.plot(show=False, export_path=os.path.join(target.working_directory, "Imag
 # This example creates a setup and then solves it.
 
 setup1 = target.create_setup()
-setup1.props["RayDensityPerWavelength"] = 2
+setup1.props["RadiationSetup"] = "ATK_3D"
 setup1.props["ComputeFarFields"] = True
+setup1.props["RayDensityPerWavelength"] = 2
 setup1.props["MaxNumberOfBounces"] = 3
 setup1.props["Sweeps"]["Sweep"]["RangeType"] = "SinglePoints"
 setup1.props["Sweeps"]["Sweep"]["RangeStart"] = "10GHz"
-setup1.props["RadiationSetup"] = "ATK_3D"
-setup1.update()
 target.analyze_nominal()
 
 ###############################################################################
@@ -86,8 +85,35 @@ variations = target.available_variations.nominal_w_values_dict
 variations["Freq"] = ["10GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
-target.post.create_rectangular_plot(
-    "db(GainTotal)", target.nominal_adaptive, variations, "Theta", "ATK_3D", report_category="Far Fields"
+target.post.create_report(
+    "db(GainTotal)",
+    target.nominal_adaptive,
+    variations=variations,
+    primary_sweep_variable="Theta",
+    context="ATK_3D",
+    report_category="Far Fields",
 )
+
+###############################################################################
+# Plot Results Outside Electronics Desktop
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This example plots results using matplotlib.
+
+solution = target.post.get_solution_data(
+    "GainTotal",
+    target.nominal_adaptive,
+    variations=variations,
+    primary_sweep_variable="Theta",
+    context="ATK_3D",
+    report_category="Far Fields",
+)
+solution.plot()
+
+
+###############################################################################
+# Close and Exit Example
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Release desktop and close example.
+
 if os.name != "posix":
     target.release_desktop()
