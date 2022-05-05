@@ -394,6 +394,26 @@ class TestClass(BasisTest, object):
         )
         pass
 
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
+    )
+    def test_09g_add_note(self):  # pragma: no cover
+        new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
+        new_report.create()
+
+        new_report.add_note("Test", 8000, 1500)
+        assert new_report.notes[0].set_note_properties(
+            back_color=(0, 0, 255),
+            border_visibility=False,
+            border_width=3,
+            font="Cambria",
+            italic=True,
+            bold=True,
+            font_size=10,
+            color=(255, 0, 0),
+        )
+        pass
+
     def test_10_delete_report(self):
         assert self.aedtapp.post.delete_report("MyNewScattering")
 
