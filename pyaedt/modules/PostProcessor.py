@@ -44,6 +44,7 @@ TEMPLATES_BY_DESIGN = {
         "Far Fields",
         "Emissions",
         "Near Fields",
+        "Antenna Parameters",
     ],
     "Maxwell 3D": [
         "Transient",
@@ -310,6 +311,8 @@ class Reports(object):
             Expression List.
         setup_name : str, optional
             Setup Name.
+        sphere_name : str, optional
+            Name of the sphere on which create the far field.
 
         Returns
         -------
@@ -331,6 +334,40 @@ class Reports(object):
             rep = rt.FarField(self._post_app, "Far Fields", setup_name)
             rep.expressions = expressions
             rep.far_field_sphere = sphere_name
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def antenna_parameters(self, expressions=None, setup_name=None, sphere_name=None):
+        """Create an Antenna Parameters Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+        sphere_name : str, optional
+            Name of the sphere on which compute antenna parameters.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.AntennaParameters`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.reports_by_category.antenna_parameters("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Antenna Parameters" in self._templates:
+            rep = rt.AntennaParameters(self._post_app, "Antenna Parameters", setup_name, sphere_name)
+            rep.expressions = expressions
             return rep
         return
 
@@ -2892,9 +2929,6 @@ class PostProcessorCommon(object):
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
-        context : str, optional
-            The default is ``None``. It can be `None`, `"Differential Pairs"` or
-            Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
         polyline_points : int, optional,
             Number of points on which create the report for plots on polylines.
 

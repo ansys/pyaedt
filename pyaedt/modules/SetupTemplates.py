@@ -36,7 +36,7 @@ HFSSDrivenAuto = [
 """HFSS automatic setup properties and default values."""
 
 HFSSDrivenDefault = [
-    ("AdaptMultipleFreqs", False),
+    ("SolveType", "Single"),
     ("MultipleAdaptiveFreqsSetup", multifreq),
     ("Frequency", "5GHz"),
     ("MaxDeltaS", 0.02),

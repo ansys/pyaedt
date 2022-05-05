@@ -488,6 +488,48 @@ class EdgePrimitive(EdgeTypePrimitive, object):
     def __str__(self):
         return "EdgeId " + str(self.id)
 
+    @pyaedt_function_handler()
+    def create_object(self):
+        """Return A new object from the selected edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateObjectFromEdges
+        """
+        return self._object3d._primitives.create_object_from_edge(self)
+
+    @pyaedt_function_handler()
+    def move_along_normal(self, offset=1.0):
+        """Move this edge.
+        This method moves an edge which belong to the same solid.
+
+        Parameters
+        ----------
+        offset : float, optional
+             Offset to apply in model units. The default is ``1.0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.MoveEdges
+
+        """
+        if self._object3d.object_type == "Solid":
+            self._object3d.logger.error("Edge Movement applies only to 2D objects.")
+            return False
+        return self._object3d._primitives.move_edge(self, offset)
+
 
 class FacePrimitive(object):
     """Contains the face object within the AEDT Desktop Modeler."""
@@ -652,6 +694,107 @@ class FacePrimitive(object):
         """
         area = self._oeditor.GetFaceArea(self.id)
         return area
+
+    @property
+    def top_edge_z(self):
+        """Top edge in the Z direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        References
+        ----------
+
+        >>> oEditor.FaceCenter
+
+        """
+        try:
+            result = [(float(edge.midpoint[2]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_z(self):
+        """Bottom edge in the Z direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(edge.midpoint[2]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
+
+    @property
+    def top_edge_x(self):
+        """Top edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(edge.midpoint[0]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_x(self):
+        """Bottom edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(edge.midpoint[0]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
+
+    @property
+    def top_edge_y(self):
+        """Top edge in the Y direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(edge.midpoint[1]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_y(self):
+        """Bottom edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(edge.midpoint[1]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
 
     @pyaedt_function_handler()
     def is_on_bounding(self, tol=1e-9):
@@ -827,6 +970,22 @@ class FacePrimitive(object):
             return normal
         else:
             return inv_norm
+
+    @pyaedt_function_handler()
+    def create_object(self):
+        """Return A new object from the selected face.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateObjectFromFaces
+        """
+        return self._object3d._primitives.create_object_from_face(self)
 
 
 class Object3d(object):
@@ -1236,6 +1395,107 @@ class Object3d(object):
         """
         try:
             result = [(float(face.center[1]), face) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
+
+    @property
+    def top_edge_z(self):
+        """Top edge in the Z direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        References
+        ----------
+
+        >>> oEditor.FaceCenter
+
+        """
+        try:
+            result = [(float(face.top_edge_z.midpoint[2]), face.top_edge_z) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_z(self):
+        """Bottom edge in the Z direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(face.bottom_edge_z.midpoint[2]), face.bottom_edge_z) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
+
+    @property
+    def top_edge_x(self):
+        """Top edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(face.top_edge_x.midpoint[0]), face.top_edge_x) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_x(self):
+        """Bottom edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(face.bottom_edge_x.midpoint[0]), face.bottom_edge_x) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
+
+    @property
+    def top_edge_y(self):
+        """Top edge in the Y direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(face.top_edge_y.midpoint[1]), face.top_edge_y) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_y(self):
+        """Bottom edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(face.bottom_edge_y.midpoint[1]), face.bottom_edge_y) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
         except:
@@ -1866,15 +2126,18 @@ class Object3d(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pyaedt.modeler.Object3d.Object3d, bool
+            3D object.
+            ``False`` when failed.
 
         References
         ----------
 
         >>> oEditor.Mirror
         """
-        return self._primitives.modeler.mirror(self.id, position=position, vector=vector)
+        if self._primitives.modeler.mirror(self.id, position=position, vector=vector):
+            return self
+        return False
 
     @pyaedt_function_handler()
     def rotate(self, cs_axis, angle=90.0, unit="deg"):
@@ -1893,15 +2156,18 @@ class Object3d(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pyaedt.modeler.Object3d.Object3d, bool
+            3D object.
+            ``False`` when failed.
 
         References
         ----------
 
         >>> oEditor.Rotate
         """
-        return self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit)
+        if self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit):
+            return self
+        return False
 
     @pyaedt_function_handler()
     def move(self, vector):
@@ -1917,14 +2183,17 @@ class Object3d(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pyaedt.modeler.Object3d.Object3d, bool
+            3D object.
+            ``False`` when failed.
 
         References
         ----------
         >>> oEditor.Move
         """
-        return self._primitives.modeler.move(self.id, vector=vector)
+        if self._primitives.modeler.move(self.id, vector=vector):
+            return self
+        return False
 
     def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
         """Duplicate the object around the axis.

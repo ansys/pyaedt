@@ -245,6 +245,15 @@ class TestClass(BasisTest, object):
     def test_31_set_objects_unmodel(self):
         assert self.aedtapp.modeler.set_object_model_state("Second_airbox", False)
 
+    def test_32_find_port_faces(self):
+        wg_x = self.aedtapp.modeler.create_waveguide([0, 5000, 0], self.aedtapp.AXIS.Y, wg_length=1000, wg_thickness=40)
+        port1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.ZX, [-40, 5000, -40], [346.7, 613.4])
+        port2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.ZX, [-40, 6000, -40], [346.7, 613.4])
+        faces_created = self.aedtapp.modeler.find_port_faces([port1.name, port2.name])
+        assert len(faces_created) == 4
+        assert "_Face1Vacuum" in faces_created[1]
+        assert "_Face1Vacuum" in faces_created[3]
+
     def test_33_duplicate_around_axis(self):
         id1 = self.aedtapp.modeler.create_box([10, 10, 10], [4, 5, 5])
         axis = self.aedtapp.AXIS.X
@@ -581,3 +590,10 @@ class TestClass(BasisTest, object):
             )
             == "5"
         )
+
+    def test_50_move_edge(self):
+        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "edge_movements")
+        assert not box1.faces[0].edges[0].move_along_normal(1)
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "edge_movements2")
+        assert self.aedtapp.modeler.move_edge([rect.edges[0], rect.edges[2]])
+        assert rect.faces[0].bottom_edge_x.move_along_normal()

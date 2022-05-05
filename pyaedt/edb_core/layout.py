@@ -690,7 +690,7 @@ class EdbLayout(object):
 
         Parameters
         ----------
-        shape : str
+        shape : :class:`pyaedt.edb_core.layout.EdbLayout.Shape`
             Type of the shape to convert. Options are ``"rectangle"`` and ``"polygon"``.
         """
         if shape.type == "polygon":

@@ -564,13 +564,16 @@ class IbisReader(object):
             for buffer in buffers:
                 arg_buffers.append("{}:=".format(buffers[buffer].short_name))
                 arg_buffers.append([True, "IbisSingleEnded"])
-
+            model_names = [i.name for i in ibis.models]
             arg_components = ["NAME:Components"]
             for component in ibis.components:
                 arg_component = ["NAME:{}".format(ibis.components[component].name)]
                 for pin in ibis.components[component].pins:
                     arg_component.append("{}:=".format(ibis.components[component].pins[pin].short_name))
-                    arg_component.append([True, False])
+                    if ibis.components[component].pins[pin].model not in model_names:
+                        arg_component.append([False, False])
+                    else:
+                        arg_component.append([True, False])
                 arg_components.append(arg_component)
 
             args.append(arg_buffers)
