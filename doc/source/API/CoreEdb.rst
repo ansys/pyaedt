@@ -1,7 +1,7 @@
 EDB Editor
 ==========
 An aedb database is a folder that contains the database representing any part of a PCB.
-It can be open and edited using ``Edb`` class.
+It can be opened and edited using ``Edb`` class.
 
 
 .. currentmodule:: pyaedt

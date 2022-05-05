@@ -1,7 +1,7 @@
 Desktop and Common Classes
 ==========================
 
-This Section contains the Classes that are common and not releated to a specfic application or module.
+This Section contains the Classes that are common and not related to a specific application or module.
 
 
 .. currentmodule:: pyaedt
