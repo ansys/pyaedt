@@ -853,7 +853,10 @@ class VariableManager(object):
         else:
             var_list = list(desktop_object.GetVariables())  # pragma: no cover
         lower_case_vars = [var_name.lower() for var_name in var_list]
-        if self._app.design_type == "Maxwell Circuit" and "$" not in variable_name:
+        if (
+            self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit"]
+            and "$" not in variable_name
+        ):
             prop_server = "Instance:{}".format(desktop_object.GetName())
         elif self._app.design_type == "Circuit Design" and circuit_parameter:
             prop_server = "DefinitionParameters"
