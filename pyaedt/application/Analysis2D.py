@@ -277,3 +277,45 @@ class FieldAnalysis2D(Analysis):
         else:
             self.logger.error("Material does not exist.")
             return False
+
+    @pyaedt_function_handler()
+    def get_all_conductors_names(self):
+        """Retrieve all conductors in the active design.
+
+        Returns
+        -------
+        list of str
+            List of all conductors.
+
+        References
+        ----------
+
+        >>> oEditor.GetObjectsByMaterial
+        """
+        cond = self.materials.conductors
+
+        obj_names = []
+        for obj_val in list(self.modeler.objects.values()):
+            if obj_val.material_name in cond:
+                obj_names.append(obj_val.name)
+        return obj_names
+
+    @pyaedt_function_handler()
+    def get_all_dielectrics_names(self):
+        """Retrieve all dielectrics in the active design.
+
+        Returns
+        -------
+        list of str
+           List of all dielectrics.
+
+        References
+        ----------
+        >>> oEditor.GetObjectsByMaterial
+        """
+        diel = self.materials.dielectrics
+        obj_names = []
+        for obj_val in list(self.modeler.objects.values()):
+            if obj_val.material_name in diel:
+                obj_names.append(obj_val.name)
+        return obj_names
