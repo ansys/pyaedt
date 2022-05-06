@@ -322,9 +322,37 @@ class TestClass(BasisTest, object):
         self.aedtapp.close_project(m3d1.project_name, False)
 
     def test_32_matrix(self):
-        m3d1 = Maxwell3d(self.file_path, specified_version=desktop_version)
-        assert m3d1.assign_matrix("pri", "mymatrix") == "mymatrix"
-        self.aedtapp.close_project(m3d1.project_name, False)
+        m3d = Maxwell3d(self.file_path, specified_version=desktop_version)
+        m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
+        m3d.modeler.primitives.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
+        m3d.modeler.primitives.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", matname="aluminum")
+        m3d.modeler.primitives.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", matname="aluminum")
+        m3d.modeler.primitives.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", matname="aluminum")
+
+        rectangle1 = m3d.modeler.primitives.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        rectangle2 = m3d.modeler.primitives.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        rectangle3 = m3d.modeler.primitives.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        rectangle4 = m3d.modeler.primitives.create_rectangle(0, [32.5, 1.5, 0], [2.5, 5], name="Sheet4")
+
+        m3d.assign_voltage(rectangle1.faces[0], amplitude=1, name="Voltage1")
+        m3d.assign_voltage(rectangle2.faces[0], amplitude=1, name="Voltage2")
+        m3d.assign_voltage(rectangle3.faces[0], amplitude=1, name="Voltage3")
+        m3d.assign_voltage(rectangle4.faces[0], amplitude=1, name="Voltage4")
+
+        L = m3d.assign_matrix(sources="Voltage1")
+        assert L.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Voltage1"
+        assert L.delete()
+        group_sources = "Voltage2"
+        L = m3d.assign_matrix(sources=["Voltage1", "Voltage3"], matrix_name="Test1", group_sources=group_sources)
+        assert L.props["MatrixEntry"]["MatrixEntry"][1]["Source"] == "Voltage3"
+        m3d.solution_type = SOLUTIONS.Maxwell3d.Transient
+        winding1 = m3d.assign_winding("Sheet1", name="Current1")
+        winding2 = m3d.assign_winding("Sheet2", name="Current2")
+        winding3 = m3d.assign_winding("Sheet3", name="Current3")
+        winding4 = m3d.assign_winding("Sheet4", name="Current4")
+        L = m3d.assign_matrix(sources="Current1")
+        assert not L
+        self.aedtapp.close_project(m3d.project_name, False)
 
     def test_33_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
