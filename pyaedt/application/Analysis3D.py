@@ -9,6 +9,7 @@ from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.Model2D import Modeler2D
 from pyaedt.modeler.Model3D import Modeler3D
 from pyaedt.modules.Mesh import Mesh
 from pyaedt.modules.MeshIcepak import IcepakMesh
@@ -94,7 +95,7 @@ class FieldAnalysis3D(Analysis, object):
         )
         self._osolution = self._odesign.GetModule("Solutions")
         self._oboundary = self._odesign.GetModule("BoundarySetup")
-        self._modeler = Modeler3D(self)
+        self._modeler = Modeler2D(self) if application in ["Maxwell 2D", "2D Extractor"] else Modeler3D(self)
         self._mesh = IcepakMesh(self) if application == "Icepak" else Mesh(self)
         self._post = PostProcessor(self)
         self._configurations = Configurations(self)

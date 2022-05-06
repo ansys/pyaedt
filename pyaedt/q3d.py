@@ -5,7 +5,6 @@ import os
 import warnings
 from collections import OrderedDict
 
-from pyaedt.application.Analysis2D import FieldAnalysis2D
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.constants import MATRIXOPERATIONSQ2D
 from pyaedt.generic.constants import MATRIXOPERATIONSQ3D
@@ -15,7 +14,7 @@ from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import Matrix
 
 
-class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
+class QExtractor(FieldAnalysis3D, object):
     """Extracts a 2D or 3D field analysis.
 
     Parameters
@@ -50,38 +49,21 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         machine="",
         port=0,
     ):
-        if Q3DType == "Q3D Extractor":
-            FieldAnalysis3D.__init__(
-                self,
-                "Q3D Extractor",
-                projectname,
-                designname,
-                solution_type,
-                setup_name,
-                specified_version,
-                non_graphical,
-                new_desktop_session,
-                close_on_exit,
-                student_version,
-                machine,
-                port,
-            )
-        else:
-            FieldAnalysis2D.__init__(
-                self,
-                "2D Extractor",
-                projectname,
-                designname,
-                solution_type,
-                setup_name,
-                specified_version,
-                non_graphical,
-                new_desktop_session,
-                close_on_exit,
-                student_version,
-                machine,
-                port,
-            )
+        FieldAnalysis3D.__init__(
+            self,
+            Q3DType,
+            projectname,
+            designname,
+            solution_type,
+            setup_name,
+            specified_version,
+            non_graphical,
+            new_desktop_session,
+            close_on_exit,
+            student_version,
+            machine,
+            port,
+        )
         self.omatrix = self.odesign.GetModule("ReduceMatrix")
         self.matrices = []
         for el in list(self.omatrix.ListReduceMatrixes()):
