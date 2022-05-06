@@ -2163,11 +2163,10 @@ class Design(object):
 
         >>> oDesktop.OpenProject
         """
-
+        proj = self.odesktop.OpenProject(project_file)
         if close_active_proj and self.oproject:
             self._close_edb()
             self.close_project(self.project_name)
-        proj = self.odesktop.OpenProject(project_file)
         if proj:
             self._init_design(project_name=proj.GetName(), design_name=design_name)
             return True
