@@ -121,10 +121,7 @@ class TestClass(BasisTest, object):
         assert "test" not in self.aedtapp.variable_manager.variables
 
     def test_13_designs(self):
-        assert (
-            self.aedtapp._insert_design("HFSS", design_name="TestTransient", solution_type="Transient Network")
-            == "TestTransient"
-        )
+        assert self.aedtapp._insert_design("HFSS", design_name="TestTransient") == "TestTransient"
         self.aedtapp.delete_design("TestTransient")
         self.aedtapp.insert_design("NewDesign")
 

@@ -41,6 +41,7 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.general_methods import settings
+from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.modules.Boundary import BoundaryObject, MaxwellParameters
 from pyaedt.application.Variables import decompose_variable_value
@@ -2750,7 +2751,7 @@ class Design(object):
             solution_type=solution_type,
         )
 
-    def _insert_design(self, design_type, design_name=None, solution_type=None):
+    def _insert_design(self, design_type, design_name=None):
         assert design_type in self.design_solutions.design_types, "Invalid design type for insert: {}".format(
             design_type
         )
@@ -2844,8 +2845,7 @@ class Design(object):
 
         >>> oDesign.RenameDesignInstance
         """
-        self._odesign.RenameDesignInstance(self.design_name, new_name)
-        return True
+        return _retry_ntimes(10, self._odesign.RenameDesignInstance, self.design_name, new_name)
 
     @pyaedt_function_handler()
     def copy_design_from(self, project_fullname, design_name):
