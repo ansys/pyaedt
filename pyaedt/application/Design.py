@@ -41,6 +41,7 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.general_methods import settings
+from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.application.Variables import decompose_variable_value
@@ -2826,8 +2827,7 @@ class Design(object):
 
         >>> oDesign.RenameDesignInstance
         """
-        self._odesign.RenameDesignInstance(self.design_name, new_name)
-        return True
+        return _retry_ntimes(10, self._odesign.RenameDesignInstance, self.design_name, new_name)
 
     @pyaedt_function_handler()
     def copy_design_from(self, project_fullname, design_name):
