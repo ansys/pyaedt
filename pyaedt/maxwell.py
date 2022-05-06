@@ -202,9 +202,19 @@ class Maxwell(object):
         --------
         Set matrix in a Maxwell analysis.
 
-        >>> from pyaedt import Maxwell3d
-        >>> maxwell_3d = Maxwell3d()
-        >>> maxwell_3d.assign_matrix(["pri", "sec"])
+        >>> m2d = Maxwell2d(solution_type="MagnetostaticXY", close_on_exit=True, specified_version="2022.1")
+        >>> coil1 = m2d.modeler.primitives.create_rectangle([0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1")
+        >>> coil2 = m2d.modeler.primitives.create_rectangle([8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2")
+        >>> coil3 = m2d.modeler.primitives.create_rectangle([16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3")
+        >>> coil4 = m2d.modeler.primitives.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True, name="Coil_4")
+        >>> current1 = m2d.assign_current("Coil_1", amplitude=1, swap_direction=False, name="Current1")
+        >>> current2 = m2d.assign_current("Coil_2", amplitude=1, swap_direction=True, name="Current2")
+        >>> current3 = m2d.assign_current("Coil_3", amplitude=1, swap_direction=True, name="Current3")
+        >>> current4 = m2d.assign_current("Coil_4", amplitude=1, swap_direction=True, name="Current4")
+        >>> group_sources = {"Group1_Test": ["Current1", "Current3"], "Group2_Test": ["Current2", "Current4"]}
+        >>> selection = ['Current1', 'Current2', 'Current3', 'Current4']
+        >>> turns = [5, 1, 2, 3]
+        >>> L = m2d.assign_matrix(sources=selection, matrix_name="Test2", turns=turns, group_sources=group_sources)
         """
         sources = self.modeler.convert_to_selections(sources, True)
         if self.solution_type in ["Electrostatic", "ACConduction", "DCConduction"]:
