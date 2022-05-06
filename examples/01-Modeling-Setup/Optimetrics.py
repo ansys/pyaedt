@@ -7,12 +7,17 @@ This example shows how you can use PyAEDT to create a project in HFSS and create
 from pyaedt import Hfss
 import os
 
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
 ###############################################################################
 # Initialize the `Hfss` Object and Create the Needed Design Variables
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # In this example, HFSS is to have two design variables, ``w1`` and ``w2``.
-NG = False
-hfss = Hfss(specified_version="2022.1", new_desktop_session=True, non_graphical=NG)
+hfss = Hfss(specified_version="2022.1", new_desktop_session=True, non_graphical=non_graphical)
 hfss["w1"] = "1mm"
 hfss["w2"] = "100mm"
 

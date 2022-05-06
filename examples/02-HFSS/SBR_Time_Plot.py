@@ -13,9 +13,19 @@ and save to gif file. This example will work only on CPython.
 import os
 from pyaedt import Hfss, examples
 
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
+
+##########################################################
+# Launch AEDT and load the project.
+
 project_file = examples.download_sbr_time()
 
-hfss = Hfss(project_file, specified_version="2022.1", non_graphical=True, new_desktop_session=True)
+hfss = Hfss(project_file, specified_version="2022.1", non_graphical=non_graphical, new_desktop_session=True)
 
 hfss.analyze_nominal()
 

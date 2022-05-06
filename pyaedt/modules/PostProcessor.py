@@ -3944,7 +3944,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        type
+        :class:``pyaedt.modules.PostProcessor.FieldPlot``
             Plot object.
 
         References
@@ -4092,6 +4092,9 @@ class PostProcessor(PostProcessorCommon, object):
     def export_field_image_with_view(self, plotName, foldername, exportFilePath, view="isometric", wireframe=True):
         """Export a field plot image with a view.
 
+        .. deprecated:: 0.5.0
+           Use :func:`export_field_jpg` method instead.
+
         .. note::
            For AEDT 2019 R3, this method works only on the ISO view due to a bug in the API.
            This method works properly in 2021 R1.
@@ -4120,6 +4123,10 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.ExportPlotImageToFile
         >>> oModule.ExportPlotImageWithViewToFile
         """
+        warnings.warn(
+            "`export_field_image_with_view` is deprecated. Use `export_field_jpg` property instead.", DeprecationWarning
+        )
+
         return self.export_field_jpg(
             exportFilePath, plotName, foldername, orientation=view, display_wireframe=wireframe
         )

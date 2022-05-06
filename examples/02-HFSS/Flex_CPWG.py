@@ -5,15 +5,21 @@ This example shows how you can use PyAEDT to create a flex cable coplanar wavegu
 """
 
 
-###############################################################################
-# Launch AEDT in Graphical Mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2022R1 in graphical mode.
 import os
 from math import radians, sin, cos, sqrt
 from pyaedt import Hfss
 
-hfss = Hfss(specified_version="2022.1", solution_type="DrivenTerminal", new_desktop_session=True)
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
+###############################################################################
+# Launch AEDT in Graphical Mode
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This examples launches AEDT 2022R1 in graphical mode.
+hfss = Hfss(specified_version="2022.1", solution_type="DrivenTerminal", new_desktop_session=True, non_graphical=non_graphical)
 hfss.change_material_override(True)
 hfss.change_automatically_use_causal_materials(True)
 hfss.create_open_region("100GHz")

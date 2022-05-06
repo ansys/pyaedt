@@ -16,6 +16,12 @@ from pyaedt import examples, generate_unique_name
 from pyaedt import Hfss, Circuit, Mechanical
 
 
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
 ###############################################################################
 # Open Project
 # ~~~~~~~~~~~~
@@ -35,7 +41,7 @@ shutil.copy2(project_full_name, project_temp_name)
 # Starts Hfss and initialize the Pyaedt object.
 
 version = "2022.1"
-hfss = Hfss(project_temp_name, specified_version=version, non_graphical=False)
+hfss = Hfss(project_temp_name, specified_version=version, non_graphical=non_graphical)
 pin_names = hfss.excitations
 
 ###############################################################################

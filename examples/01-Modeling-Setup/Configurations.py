@@ -36,6 +36,13 @@ from pyaedt import Icepak
 from pyaedt import examples
 from pyaedt import generate_unique_name
 
+
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
 ###############################################################################
 # Open Project
 # ~~~~~~~~~~~~
@@ -52,7 +59,7 @@ if not os.path.exists(temp_folder):
     os.makedirs(temp_folder)
 shutil.copy2(project_full_name, project_temp_name)
 
-ipk = Icepak(project_temp_name, specified_version="2022.1", new_desktop_session=True)
+ipk = Icepak(project_temp_name, specified_version="2022.1", new_desktop_session=True, non_graphical=non_graphical)
 ipk.save_project(os.path.join(temp_folder, "Graphics_card.aedt"))
 ipk.autosave_disable()
 

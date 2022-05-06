@@ -7,14 +7,13 @@ import json
 import os
 from collections import OrderedDict
 
-from pyaedt.application.Analysis2D import FieldAnalysis2D
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.DataHandlers import float_units
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.Boundary import BoundaryObject, MaxwellParameters
 
 
 class Maxwell(object):
@@ -161,20 +160,37 @@ class Maxwell(object):
         return False
 
     @pyaedt_function_handler()
-    def assign_matrix(self, objects, matrix_name=None):
+    def assign_matrix(
+        self,
+        sources,
+        matrix_name=None,
+        turns=None,
+        return_path=None,
+        group_sources=None,
+        branches=None,
+    ):
         """Assign a matrix to the selection.
 
         Parameters
         ----------
-        objects : list, str
-            List of objects to assign a matrix to.
+        sources : list, str
+            List of sources to assign a matrix to.
         matrix_name : str, optional
             Name of the matrix. The default is ``None``.
+        turns : list, int, optional
+            Number of turns. The default is 1.
+        return_path : list, str, optional
+            Return path. The default is ``infinite``
+        group_sources : dict, list optional
+            Dictionary consisting of ``{Group Name: list of source names}``. This dictionary is used to add
+            multiple groups. A list of strings could be also defined. The default is not define a group.
+        branches : : list, int, optional
+            Number of branches. The default is 1.
 
         Returns
         -------
-        str
-            Matrix name when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
         References
         ----------
@@ -183,22 +199,142 @@ class Maxwell(object):
 
         Examples
         --------
-        Set matrix in a Maxwell 3D analysis.
+        Set matrix in a Maxwell analysis.
 
-        >>> from pyaedt import Maxwell3d
-        >>> maxwell_3d = Maxwell3d()
-        >>> maxwell_3d.assign_matrix(["pri", "sec"])
+        >>> m2d = Maxwell2d(solution_type="MagnetostaticXY", close_on_exit=True, specified_version="2022.1")
+        >>> coil1 = m2d.modeler.primitives.create_rectangle([0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1")
+        >>> coil2 = m2d.modeler.primitives.create_rectangle([8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2")
+        >>> coil3 = m2d.modeler.primitives.create_rectangle([16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3")
+        >>> coil4 = m2d.modeler.primitives.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True, name="Coil_4")
+        >>> current1 = m2d.assign_current("Coil_1", amplitude=1, swap_direction=False, name="Current1")
+        >>> current2 = m2d.assign_current("Coil_2", amplitude=1, swap_direction=True, name="Current2")
+        >>> current3 = m2d.assign_current("Coil_3", amplitude=1, swap_direction=True, name="Current3")
+        >>> current4 = m2d.assign_current("Coil_4", amplitude=1, swap_direction=True, name="Current4")
+        >>> group_sources = {"Group1_Test": ["Current1", "Current3"], "Group2_Test": ["Current2", "Current4"]}
+        >>> selection = ['Current1', 'Current2', 'Current3', 'Current4']
+        >>> turns = [5, 1, 2, 3]
+        >>> L = m2d.assign_matrix(sources=selection, matrix_name="Test2", turns=turns, group_sources=group_sources)
         """
-        if self.solution_type in ["EddyCurrent", "Magnetostatic"]:
-            objects = self.modeler.convert_to_selections(objects, True)
+        sources = self.modeler.convert_to_selections(sources, True)
+        if self.solution_type in ["Electrostatic", "ACConduction", "DCConduction"]:
+            turns = ["1"] * len(sources)
+            branches = None
+            if self.design_type == "Maxwell 2D":
+                if group_sources:
+                    if isinstance(group_sources, dict):
+                        first_key = next(iter(group_sources))
+                        group_sources = group_sources[first_key]
+                        self.logger.warning("First Ground is selected")
+                    group_sources = self.modeler.convert_to_selections(group_sources, True)
+                    if any(item in group_sources for item in sources):
+                        self.logger.error("Ground must be different than selected sources")
+                        return False
+            else:
+                group_sources = None
+
+        elif self.solution_type in ["EddyCurrent", "Magnetostatic"]:
+            if self.solution_type == "Magnetostatic":
+                if group_sources:
+                    if isinstance(group_sources, (dict, OrderedDict)):
+                        new_group = group_sources.copy()
+                        for element in new_group:
+                            if not all(item in sources for item in group_sources[element]):
+                                self.logger.warning("Sources in group " + element + " are not selected")
+                                group_sources.pop(element)
+                        if not branches or len(group_sources) != len(
+                            self.modeler.convert_to_selections(branches, True)
+                        ):
+                            if branches:
+                                branches = self.modeler.convert_to_selections(branches, True)
+                                num = abs(len(group_sources) - len(self.modeler.convert_to_selections(branches, True)))
+                                if len(group_sources) < len(self.modeler.convert_to_selections(branches, True)):
+                                    branches = branches[:-num]
+                                else:
+                                    new_element = [branches[0]] * num
+                                    branches.extend(new_element)
+                            else:
+                                branches = [1] * len(group_sources)
+                    elif isinstance(group_sources, list):
+                        group_name = generate_unique_name("Group")
+                        group_sources = {group_name: group_sources}
+                    else:
+                        self.logger.warning("Group of sources is not a dictionary")
+                        group_sources = None
+            else:
+                group_sources = None
+                branches = None
+                turns = ["1"] * len(sources)
+                self.logger.info("Infinite is the only return path option in EddyCurrent")
+                return_path = ["infinite"] * len(sources)
+
+        if not self.solution_type in ["Transient", "ElectricTransient"]:
             if not matrix_name:
                 matrix_name = generate_unique_name("Matrix")
-            args = ["NAME:" + matrix_name, ["NAME:MatrixEntry"]]
-            for object in objects:
-                args[1].append(["NAME:MatrixEntry", "Source:=", object])
-            self.o_maxwell_parameters.AssignMatrix(args)
-            return matrix_name
-        return False
+            if not turns or len(sources) != len(self.modeler.convert_to_selections(turns, True)):
+                if turns:
+                    turns = self.modeler.convert_to_selections(turns, True)
+                    num = abs(len(sources) - len(self.modeler.convert_to_selections(turns, True)))
+                    if len(sources) < len(self.modeler.convert_to_selections(turns, True)):
+                        turns = turns[:-num]
+                    else:
+                        new_element = [turns[0]] * num
+                        turns.extend(new_element)
+                else:
+                    turns = ["1"] * len(sources)
+            else:
+                turns = self.modeler.convert_to_selections(turns, True)
+            if not return_path or len(sources) != len(self.modeler.convert_to_selections(return_path, True)):
+                return_path = ["infinite"] * len(sources)
+            else:
+                return_path = self.modeler.convert_to_selections(return_path, True)
+            if any(item in return_path for item in sources):
+                self.logger.error("Return path specified must not be included in sources")
+                return False
+
+            if group_sources and self.solution_type in ["EddyCurrent", "Magnetostatic"]:
+                props = OrderedDict(
+                    {"MatrixEntry": OrderedDict({"MatrixEntry": []}), "MatrixGroup": OrderedDict({"MatrixGroup": []})}
+                )
+            else:
+                props = OrderedDict({"MatrixEntry": OrderedDict({"MatrixEntry": []}), "MatrixGroup": []})
+
+            for element in range(len(sources)):
+                if self.solution_type == "Magnetostatic" and self.design_type == "Maxwell 2D":
+                    prop = OrderedDict(
+                        {
+                            "Source": sources[element],
+                            "NumberOfTurns": turns[element],
+                            "ReturnPath": return_path[element],
+                        }
+                    )
+                elif self.solution_type == "EddyCurrent":
+                    prop = OrderedDict({"Source": sources[element], "ReturnPath": return_path[element]})
+                else:
+                    prop = OrderedDict({"Source": sources[element], "NumberOfTurns": turns[element]})
+                props["MatrixEntry"]["MatrixEntry"].append(prop)
+
+            if group_sources:
+                if self.solution_type in ["Electrostatic", "ACConduction", "DCConduction"]:
+                    source_list = ",".join(group_sources)
+                    props["GroundSources"] = source_list
+                else:
+                    cont = 0
+                    for element in group_sources:
+                        source_list = ",".join(group_sources[element])
+                        # GroundSources
+                        prop = OrderedDict(
+                            {"GroupName": element, "NumberOfBranches": branches[cont], "Sources": source_list}
+                        )
+                        props["MatrixGroup"]["MatrixGroup"].append(prop)
+                        cont += 1
+
+            bound = MaxwellParameters(self, matrix_name, props, "Matrix")
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
+        else:
+            self.logger.error("Solution Type has not Matrix Parameter")
+            return False
 
     @pyaedt_function_handler()
     def setup_ctrlprog(
@@ -278,14 +414,16 @@ class Maxwell(object):
 
     # Set eddy effects
     @pyaedt_function_handler()
-    def eddy_effects_on(self, object_list, activate=True):
+    def eddy_effects_on(self, object_list, activate_eddy_effects=True, activate_displacement_current=True):
         """Assign eddy effects on objects.
 
         Parameters
         ----------
         object_list : list
             List of objects.
-        activate : bool, optional
+        activate_eddy_effects : bool, optional
+            Whether to activate eddy effects. The default is ``True``.
+        activate_displacement_current : bool, optional
             Whether to activate eddy effects. The default is ``True``.
 
         Returns
@@ -300,13 +438,34 @@ class Maxwell(object):
         """
         solid_objects_names = self.get_all_conductors_names()
 
+        if not activate_eddy_effects:
+            activate_displacement_current = False
+
         EddyVector = ["NAME:EddyEffectVector"]
         for obj in solid_objects_names:
             if obj in object_list:
-                EddyVector.append(["NAME:Data", "Object Name:=", obj, "Eddy Effect:=", activate])
+                EddyVector.append(
+                    [
+                        "NAME:Data",
+                        "Object Name:=",
+                        obj,
+                        "Eddy Effect:=",
+                        activate_eddy_effects,
+                        "Displacement Current:=",
+                        activate_displacement_current,
+                    ]
+                )
             else:
                 EddyVector.append(
-                    ["NAME:Data", "Object Name:=", obj, "Eddy Effect:=", bool(self.oboundary.GetEddyEffect(obj))]
+                    [
+                        "NAME:Data",
+                        "Object Name:=",
+                        obj,
+                        "Eddy Effect:=",
+                        bool(self.oboundary.GetEddyEffect(obj)),
+                        "Displacement Current:=",
+                        bool(self.oboundary.GetDisplacementCurrent(obj)),
+                    ]
                 )
 
         self.oboundary.SetEddyEffect(["NAME:Eddy Effect Setting", EddyVector])
@@ -576,12 +735,12 @@ class Maxwell(object):
 
     @pyaedt_function_handler()
     def assign_voltage(self, face_list, amplitude=1, name=None):
-        """Assign a voltage source to a list of faces.
+        """Assign a voltage source to a list of faces in Maxwell 3D or a list of Objects in Maxwell 2D.
 
         Parameters
         ----------
         face_list : list
-            List of faces to assign a voltage source to.
+            List of faces or objects to assign a voltage source to.
         amplitude : float, optional
             Voltage amplitude in mV. The default is ``1``.
         name : str, optional
@@ -606,7 +765,10 @@ class Maxwell(object):
 
         # if type(face_list) is not list and type(face_list) is not tuple:
         #     face_list = [face_list]
-        props = OrderedDict({"Faces": face_list, "Voltage": amplitude})
+        if self.design_type == "Maxwell 2D":
+            props = OrderedDict({"Objects": face_list, "Value": amplitude})
+        else:
+            props = OrderedDict({"Faces": face_list, "Voltage": amplitude})
         bound = BoundaryObject(self, name, props, "Voltage")
         if bound.create():
             self.boundaries.append(bound)
@@ -1127,7 +1289,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Maxwell.__init__(self)
 
 
-class Maxwell2d(Maxwell, FieldAnalysis2D, object):
+class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     """Provides the Maxwell 2D application interface.
 
     This class allows you to connect to an existing Maxwell 2D design or create a
@@ -1229,7 +1391,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         port=0,
     ):
         self.is3d = False
-        FieldAnalysis2D.__init__(
+        FieldAnalysis3D.__init__(
             self,
             "Maxwell 2D",
             projectname,
