@@ -1,3 +1,4 @@
+import csv
 import ntpath
 import os
 import warnings
@@ -5,6 +6,7 @@ import warnings
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.configurations import Configurations
 from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Model3D import Modeler3D
@@ -668,51 +670,7 @@ class FieldAnalysis3D(Analysis, object):
         return obj_names
 
     @pyaedt_function_handler()
-    def _assign_property_to_mat(self, newmat, val, property):
-        """Assign a property to a new material.
-
-        Parameters
-        ----------
-        newmat : str
-            Name of the new material.
-        val :
-            Property value to assign.
-        property :
-           Name of the property.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        try:
-            if "@" not in val:
-                value = float(val)
-                newmat.set_property_value(property, value)
-
-            else:
-                value_splitted = val.split(",")
-                value_list = [
-                    [
-                        float(re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", a)[0])
-                        for a in d.split("@")
-                    ]
-                    for d in value_splitted
-                ]
-                val0 = float(value_list[0][0])
-                for el in value_list:
-                    el.reverse()
-                    el[1] = float(el[1]) / val0
-                newmat.set_property_value(property, val0)
-                dataset = newmat.create_thermal_modifier(value_list)
-                newmat.set_property_therm_modifier(property, dataset)
-            return True
-        except:
-            return False
-
-    @pyaedt_function_handler()
-    def _create_dataset_from_sherlock(self, material_name, material_string, property_name="Mass_Density"):
+    def _create_dataset_from_sherlock(self, material_string, property_name="Mass_Density"):
         mats = material_string.split(",")
         mat_temp = [[i.split("@")[0], i.split("@")[1]] for i in mats]
         nominal_id = int(len(mat_temp) / 2)
@@ -781,7 +739,7 @@ class FieldAnalysis3D(Analysis, object):
                 if "Material Density" in material_data:
                     if "@" in material_data["Material Density"][i] and "," in material_data["Material Density"][i]:
                         nominal_val, dataset_name = self._create_dataset_from_sherlock(
-                            mat, material_data["Material Density"][i], "Mass_Density"
+                            material_data["Material Density"][i], "Mass_Density"
                         )
                         newmat.mass_density = nominal_val
                         newmat.mass_density.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
@@ -794,7 +752,7 @@ class FieldAnalysis3D(Analysis, object):
                         and "," in material_data["Thermal Conductivity"][i]
                     ):
                         nominal_val, dataset_name = self._create_dataset_from_sherlock(
-                            mat, material_data["Thermal Conductivity"][i], "Thermal_Conductivity"
+                            material_data["Thermal Conductivity"][i], "Thermal_Conductivity"
                         )
                         newmat.thermal_conductivity = nominal_val
                         newmat.thermal_conductivity.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
@@ -804,7 +762,7 @@ class FieldAnalysis3D(Analysis, object):
                 if "Material CTE" in material_data:
                     if "@" in material_data["Material CTE"][i] and "," in material_data["Material CTE"][i]:
                         nominal_val, dataset_name = self._create_dataset_from_sherlock(
-                            mat, material_data["Material CTE"][i], "CTE"
+                            material_data["Material CTE"][i], "CTE"
                         )
                         newmat.thermal_expansion_coefficient = nominal_val
                         newmat.thermal_expansion_coefficient.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
@@ -814,7 +772,7 @@ class FieldAnalysis3D(Analysis, object):
                 if "Poisson Ratio" in material_data:
                     if "@" in material_data["Poisson Ratio"][i] and "," in material_data["Poisson Ratio"][i]:
                         nominal_val, dataset_name = self._create_dataset_from_sherlock(
-                            mat, material_data["Poisson Ratio"][i], "Poisson_Ratio"
+                            material_data["Poisson Ratio"][i], "Poisson_Ratio"
                         )
                         newmat.poissons_ratio = nominal_val
                         newmat.poissons_ratio.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
@@ -824,7 +782,7 @@ class FieldAnalysis3D(Analysis, object):
                 if "Elastic Modulus" in material_data:
                     if "@" in material_data["Elastic Modulus"][i] and "," in material_data["Elastic Modulus"][i]:
                         nominal_val, dataset_name = self._create_dataset_from_sherlock(
-                            mat, material_data["Elastic Modulus"][i], "Youngs_Modulus"
+                            material_data["Elastic Modulus"][i], "Youngs_Modulus"
                         )
                         newmat.youngs_modulus = nominal_val
                         newmat.youngs_modulus.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
