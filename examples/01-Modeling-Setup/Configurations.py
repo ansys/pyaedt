@@ -115,7 +115,7 @@ ipk.close_project()
 # ~~~~~~~~~~~~~~~~~~~~
 # This section we create a new Icepak project and iport the step.
 
-app = Icepak(projectname="new_proj_Ipk", non_graphical=False)
+app = Icepak(projectname="new_proj_Ipk")
 app.modeler.import_3d_cad(file_path)
 
 ###############################################################################
