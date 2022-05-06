@@ -108,11 +108,13 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.create_air_region(*[300] * 6)
 
     def test_06_eddycurrent(self):
-        assert self.aedtapp.eddy_effects_on(["Plate"])
+        assert self.aedtapp.eddy_effects_on(["Plate"], activate_eddy_effects=True)
         oModule = self.aedtapp.odesign.GetModule("BoundarySetup")
         assert oModule.GetEddyEffect("Plate")
-        self.aedtapp.eddy_effects_on(["Plate"], activate=False)
+        assert oModule.GetDisplacementCurrent("Plate")
+        self.aedtapp.eddy_effects_on(["Plate"], activate_eddy_effects=False)
         assert not oModule.GetEddyEffect("Plate")
+        assert not oModule.GetDisplacementCurrent("Plate")
 
     def test_07a_setup(self):
         adaptive_frequency = "200Hz"
