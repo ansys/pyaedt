@@ -169,3 +169,97 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.assign_end_connection([rect])
         self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
         assert not self.aedtapp.assign_end_connection([rect, rect2])
+
+    @pyaedt_unittest_check_desktop_error
+    def test_19_matrix(self):
+        self.aedtapp.insert_design("Matrix")
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        self.aedtapp.modeler.primitives.create_rectangle(
+            [0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1", matname="vacuum"
+        )
+        self.aedtapp.modeler.primitives.create_rectangle(
+            [8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2", matname="vacuum"
+        )
+        self.aedtapp.modeler.primitives.create_rectangle(
+            [16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3", matname="vacuum"
+        )
+        self.aedtapp.modeler.primitives.create_rectangle(
+            [32, 1.5, 0], [8, 3], is_covered=True, name="Coil_4", matname="vacuum"
+        )
+        self.aedtapp.assign_current("Coil_1", amplitude=1, swap_direction=False, name="Current1")
+        self.aedtapp.assign_current("Coil_2", amplitude=1, swap_direction=True, name="Current2")
+        self.aedtapp.assign_current("Coil_3", amplitude=1, swap_direction=True, name="Current3")
+        self.aedtapp.assign_current("Coil_4", amplitude=1, swap_direction=True, name="Current4")
+        L = self.aedtapp.assign_matrix(sources="Current1")
+        assert L.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Current1"
+        assert L.delete()
+        L = self.aedtapp.assign_matrix(
+            sources=["Current1", "Current2"], matrix_name="Test1", turns=2, return_path="Current3"
+        )
+        assert len(L.props["MatrixEntry"]["MatrixEntry"]) == 2
+        L = self.aedtapp.assign_matrix(
+            sources=["Current1", "Current2"], matrix_name="Test2", turns=[2, 1], return_path=["Current3", "Current4"]
+        )
+        assert L.props["MatrixEntry"]["MatrixEntry"][1]["ReturnPath"] == "Current4"
+        L = self.aedtapp.assign_matrix(
+            sources=["Current1", "Current2"], matrix_name="Test3", turns=[2, 1], return_path=["Current1", "Current1"]
+        )
+        assert not L
+        group_sources = {"Group1_Test": ["Current3", "Current2"]}
+        L = self.aedtapp.assign_matrix(
+            sources=["Current3", "Current2"],
+            matrix_name="Test4",
+            turns=[2, 1],
+            return_path=["Current4", "Current1"],
+            group_sources=group_sources,
+        )
+        assert L.name == "Test4"
+        group_sources = {"Group1_Test": ["Current3", "Current2"], "Group2_Test": ["Current1", "Current2"]}
+        L = self.aedtapp.assign_matrix(
+            sources=["Current1", "Current2"],
+            matrix_name="Test5",
+            turns=[2, 1],
+            return_path="infinite",
+            group_sources=group_sources,
+        )
+        assert L.props["MatrixGroup"]["MatrixGroup"]
+        group_sources = {"Group1_Test": ["Current1", "Current3"], "Group2_Test": ["Current2", "Current4"]}
+        L = self.aedtapp.assign_matrix(
+            sources=["Current1", "Current2", "Current3", "Current4"],
+            matrix_name="Test6",
+            turns=2,
+            group_sources=group_sources,
+            branches=3,
+        )
+        assert L.props["MatrixGroup"]["MatrixGroup"][0]["GroupName"] == "Group1_Test"
+        group_sources = {"Group1_Test": ["Current1", "Current3"], "Group2_Test": ["Current2", "Current4"]}
+        L = self.aedtapp.assign_matrix(
+            sources=["Current1", "Current2", "Current3", "Current4"],
+            matrix_name="Test7",
+            turns=[5, 1],
+            group_sources=group_sources,
+            branches=[3, 2, 1],
+        )
+        assert len(L.props["MatrixGroup"]["MatrixGroup"]) == 2
+        group_sources = {"Group1_Test": ["Current1", "Current3", "Current2"], "Group2_Test": ["Current2", "Current4"]}
+        L = self.aedtapp.assign_matrix(
+            sources=["Current1", "Current2", "Current3"],
+            matrix_name="Test8",
+            turns=[2, 1, 2, 3],
+            return_path=["infinite", "infinite", "Current4"],
+            group_sources=group_sources,
+            branches=[3, 2],
+        )
+        assert L.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] == 2
+        L.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] = 3
+        assert L.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] == 3
+        group_sources = {"Group1_Test": ["Current1", "Current3"], "Group2_Test": ["Current2", "Current4"]}
+        L = self.aedtapp.assign_matrix(
+            sources=["Current1", "Current2", "Current3", "Current4"],
+            matrix_name="Test9",
+            turns=[5, 1, 2, 3],
+            group_sources=group_sources,
+            branches=[3, 2],
+        )
+        for l in L.props["MatrixEntry"]["MatrixEntry"]:
+            assert l["ReturnPath"] == "infinite"

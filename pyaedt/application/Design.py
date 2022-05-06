@@ -1942,38 +1942,9 @@ class Design(object):
         if self.design_properties and "MaxwellParameterSetup" in self.design_properties:
             for ds in self.design_properties["MaxwellParameterSetup"]["MaxwellParameters"]:
                 try:
-                    entry = "MatrixEntry"
-                    group = "MatrixGroup"
                     param = "MaxwellParameters"
                     setup = "MaxwellParameterSetup"
                     if isinstance(self.design_properties[setup][param][ds], (OrderedDict, dict)):
-                        boundary_dict = {}
-                        for b in boundaries:
-                            boundary_id = b.props["ID"]
-                            boundary_dict[boundary_id] = b.name
-
-                        for m in self.design_properties[setup][param][ds][entry]:
-                            if "Source" in m.keys():
-                                matrix_id = m["Source"]
-                                if matrix_id in boundary_dict:
-                                    m["Source"] = boundary_dict[matrix_id]
-                            if "ReturnPath" in m.keys():
-                                matrix_id = m["ReturnPath"]
-                                if matrix_id in boundary_dict:
-                                    m["ReturnPath"] = boundary_dict[matrix_id]
-                                elif matrix_id == -1:
-                                    m["ReturnPath"] = "infinite"
-
-                        for m in self.design_properties[setup][param][ds][group]:
-                            if m == "Sources":
-                                cont = 0
-                                for s in self.design_properties[setup][param][ds][group]["Sources"]:
-                                    if s in boundary_dict:
-                                        self.design_properties[setup][param][ds][group]["Sources"][
-                                            cont
-                                        ] = boundary_dict[s]
-                                        cont += 1
-
                         boundaries.append(
                             MaxwellParameters(
                                 self,
