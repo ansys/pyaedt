@@ -239,8 +239,11 @@ class TestClass(BasisTest, object):
         new_report.report_type = "3D Polar Plot"
         new_report.far_field_sphere = "3D"
         assert new_report.create()
-        new_report.report_type = "Rectangular Contour Plot"
-        assert new_report.create()
+        new_report2 = self.field_test.post.reports_by_category.antenna_parameters(
+            "db(PeakRealizedGain)", self.field_test.nominal_adaptive, "3D"
+        )
+        new_report2.report_type = "Data Table"
+        assert new_report2.create()
         data = self.field_test.post.get_solution_data(
             "GainTotal",
             self.field_test.nominal_adaptive,
@@ -388,6 +391,26 @@ class TestClass(BasisTest, object):
         new_report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
         assert new_report.limit_lines[0].set_line_properties(
             style=style.Dot, width=4, hatch_above=False, violation_emphasis=True, hatch_pixels=1, color=(255, 255, 0)
+        )
+        pass
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
+    )
+    def test_09g_add_note(self):  # pragma: no cover
+        new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
+        new_report.create()
+
+        new_report.add_note("Test", 8000, 1500)
+        assert new_report.notes[0].set_note_properties(
+            back_color=(0, 0, 255),
+            border_visibility=False,
+            border_width=3,
+            font="Cambria",
+            italic=True,
+            bold=True,
+            font_size=10,
+            color=(255, 0, 0),
         )
         pass
 

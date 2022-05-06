@@ -20,8 +20,8 @@ You can edit a setup after it is created. Here is an example:
 
 .. currentmodule:: pyaedt.modules.SetupTemplates
 
-HFSS Templates
-==============
+HFSS
+~~~~
 
 .. autosummary::
    :toctree: _autosummary
@@ -33,8 +33,8 @@ HFSS Templates
    HFSSSBR
 
 
-Maxwell Templates
-=================
+Maxwell 2D/3D
+~~~~~~~~~~~~~
 
 .. autosummary::
    :toctree: _autosummary
@@ -46,8 +46,8 @@ Maxwell Templates
    ElectricTransient
 
 
-Q3D Templates
-=============
+Q3D/2D Extractor
+~~~~~~~~~~~~~~~~
 
 .. autosummary::
    :toctree: _autosummary
@@ -56,8 +56,8 @@ Q3D Templates
    Close
    Open
 
-Icepak Templates
-================
+Icepak
+~~~~~~
 
 .. autosummary::
    :toctree: _autosummary
@@ -68,7 +68,7 @@ Icepak Templates
 
 
 Nexxim Analysis
-===============
+~~~~~~~~~~~~~~~
 
 .. autosummary::
    :toctree: _autosummary
@@ -79,7 +79,7 @@ Nexxim Analysis
 
 
 HFSS 3D Layout
-==============
+~~~~~~~~~~~~~~
 
 .. autosummary::
    :toctree: _autosummary
@@ -88,7 +88,7 @@ HFSS 3D Layout
 
 
 Mechanical Analysis
-===================
+~~~~~~~~~~~~~~~~~~~
 
 .. autosummary::
    :toctree: _autosummary

@@ -16,7 +16,7 @@ from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
 class EdbHfss(object):
-    """Manages EDB functionalities for 3D layouts.
+    """Manages EDB method to configure Hfss setup accessible from `Edb.core_hfss` property.
 
     Examples
     --------

@@ -13,7 +13,7 @@ from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
 class EdbNets(object):
-    """Manages EDB functionalities for nets.
+    """Manages EDB methods for nets management accessible from `Edb.core_nets` property.
 
     Examples
     --------

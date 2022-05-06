@@ -1362,7 +1362,7 @@ class Analysis(Design, object):
         return setup
 
     @pyaedt_function_handler()
-    def create_output_variable(self, variable, expression):
+    def create_output_variable(self, variable, expression, solution=None):
         """Create or modify an output variable.
 
 
@@ -1372,6 +1372,9 @@ class Analysis(Design, object):
             Name of the variable.
         expression :
             Value for the variable.
+        solution :
+            Name of the solution in the format `"setup_name : sweep_name"`.
+            If `None`, the first available solution is used. Default is `None`.
 
         Returns
         -------
@@ -1384,22 +1387,25 @@ class Analysis(Design, object):
         >>> oModule.CreateOutputVariable
         """
         oModule = self.ooutput_variable
+        if solution is None:
+            solution = self.existing_analysis_sweeps[0]
         if variable in self.output_variables:
-            oModule.EditOutputVariable(
-                variable, expression, variable, self.existing_analysis_sweeps[0], self.solution_type, []
-            )
+            oModule.EditOutputVariable(variable, expression, variable, solution, self.solution_type, [])
         else:
-            oModule.CreateOutputVariable(variable, expression, self.existing_analysis_sweeps[0], self.solution_type, [])
+            oModule.CreateOutputVariable(variable, expression, solution, self.solution_type, [])
         return True
 
     @pyaedt_function_handler()
-    def get_output_variable(self, variable):
+    def get_output_variable(self, variable, solution=None):
         """Retrieve the value of the output variable.
 
         Parameters
         ----------
         variable : str
             Name of the variable.
+        solution :
+            Name of the solution in the format `"setup_name : sweep_name"`.
+            If `None`, the first available solution is used. Default is `None`.
 
         Returns
         -------
@@ -1414,10 +1420,11 @@ class Analysis(Design, object):
         """
         assert variable in self.output_variables, "Output variable {} does not exist.".format(variable)
         nominal_variation = self.odesign.GetNominalVariation()
+        if solution is None:
+            solution = self.existing_analysis_sweeps[0]
         value = self.ooutput_variable.GetOutputVariableValue(
-            variable, nominal_variation, self.existing_analysis_sweeps[0], self.solution_type, []
+            variable, nominal_variation, solution, self.solution_type, []
         )
-
         return value
 
     @pyaedt_function_handler()

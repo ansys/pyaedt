@@ -5,6 +5,18 @@ boundaries in the 3D tools:
 Those objects are returned by application methods and
 can be used to edit or delete a boundary condition.
 
+
+.. currentmodule:: pyaedt.modules.Boundary
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   NativeComponentObject
+   BoundaryObject
+   FarFieldSetup
+   Matrix
+
 Example without NativeComponentObject:
 
 .. code:: python
@@ -18,17 +30,4 @@ Example without NativeComponentObject:
      # native_comp is a NativeComponentObject
     ...
     ipk.release_desktop()
-
-
-.. currentmodule:: pyaedt.modules.Boundary
-
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
-
-   NativeComponentObject
-   BoundaryObject
-   FarFieldSetup
-   Matrix
-
 

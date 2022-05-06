@@ -1822,7 +1822,7 @@ class GeometryModeler(Modeler, object):
 
         offset = self.find_point_around(objectname, start, sheet_dim, cs)
         p1 = self.create_polyline([start, offset])
-        p2 = p1.clone().translate(vector)
+        p2 = p1.clone().move(vector)
         self.connect([p1, p2])
 
         return p1
@@ -1886,10 +1886,10 @@ class GeometryModeler(Modeler, object):
         l2 = out[1].length
         if l1 < l2:
             vect_t = [i * (vfactor - 1) for i in vect]
-            self.translate(port_edges[0], vect_t)
+            self.move(port_edges[0], vect_t)
         else:
             vect_t = [i * (1 - vfactor) for i in vect]
-            self.translate(port_edges[1], vect_t)
+            self.move(port_edges[1], vect_t)
 
         self.connect(port_edges)
         list_unite = [sheet_name]
@@ -2748,7 +2748,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        list
+        List
             List of six float values representing the bounding box
             in the form ``[min_x, min_y, min_z, max_x, max_y, max_z]``.
 
@@ -2815,8 +2815,8 @@ class GeometryModeler(Modeler, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-        str
-            Name of objects cloned when successful.
+        List
+            List of names of objects cloned when successful.
 
         References
         ----------
@@ -2907,6 +2907,9 @@ class GeometryModeler(Modeler, object):
     @pyaedt_function_handler()
     def translate(self, objid, vector):
         """Translate objects from a list.
+
+        .. deprecated:: 0.4.0
+           Use :func:`move` instead.
 
         Parameters
         ----------
@@ -3535,7 +3538,7 @@ class GeometryModeler(Modeler, object):
         return True
 
     @pyaedt_function_handler()
-    def find_port_faces(self, objs):
+    def find_port_faces(self, port_sheets):
         """Find the vaccums given a list of input sheets.
 
         Starting from a list of input sheets, this method creates a list of output sheets
@@ -3545,41 +3548,38 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objs : list
-            List of input sheets.
+        port_sheets : list
+            List of input sheets names.
 
         Returns
         -------
         List
-            List of output sheets (`2x len(objs)`).
+            List of output sheets (`2x len(port_sheets)`).
 
         """
         faces = []
-        id = 1
-        for obj in objs:
-            self.oeditor.Copy(["NAME:Selections", "Selections:=", obj])
-            originals = self.object_names
-            self.oeditor.Paste()
-            self.refresh_all_ids()
-            added = self.object_names
-            cloned = [i for i in added if i not in originals]
-            solids = self.get_all_solids_names()
-            self.subtract(cloned[0], ",".join(solids))
-            self.subtract(obj, cloned[0])
-            air = self.get_obj_id(cloned[0])
-            air.change_name(obj + "_Face1Vacuum")
-            faces.append(obj)
-            faces.append(obj + "_Face1Vacuum")
-            id += 1
+        solids = [s for s in self.solid_objects if s.material_name not in ["vacuum", "air"] and s.model]
+        for sheet_name in port_sheets:
+            sheet = self[sheet_name]  # get the sheet object
+            _, cloned = self.clone(sheet)
+            cloned = self[cloned[0]]
+            cloned.subtract(solids)
+            sheet.subtract(cloned)
+            cloned.name = sheet.name + "_Face1Vacuum"
+            faces.append(sheet.name)
+            faces.append(cloned.name)
         return faces
 
     @pyaedt_function_handler()
-    def load_objects_bytype(self, type):
+    def load_objects_bytype(self, obj_type):
         """Load all objects of a specified type.
+
+        .. deprecated:: 0.5.0
+           Use :func:`get_objects_in_group` property instead.
 
         Parameters
         ----------
-        type : str
+        obj_type : str
             Type of the objects to load. Options are
             ``"Solids"`` and ``"Sheets"``.
 
@@ -3593,7 +3593,14 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.GetObjectsInGroup
         """
-        objNames = list(self.oeditor.GetObjectsInGroup(type))
+
+        warnings.warn(
+            "`load_objects_bytype` is deprecated and will be removed in version 0.5.0. "
+            "Use `get_objects_in_group` method instead.",
+            DeprecationWarning,
+        )
+
+        objNames = list(self.oeditor.GetObjectsInGroup(obj_type))
         return objNames
 
     @pyaedt_function_handler()
@@ -3740,7 +3747,7 @@ class GeometryModeler(Modeler, object):
         return position_list
 
     @pyaedt_function_handler()
-    def import_3d_cad(self, filename, healing=0, refresh_all_ids=True):
+    def import_3d_cad(self, filename, healing=False, refresh_all_ids=True):
         """Import a CAD model.
 
         Parameters
@@ -3748,6 +3755,9 @@ class GeometryModeler(Modeler, object):
         filename : str
             Full path and name of the CAD file.
         healing : bool, optional
+            Whether to perform healing. The default is ``False``, in which
+            case healing is not performed.
+        healing : int, optional
             Whether to perform healing. The default is ``0``, in which
             case healing is not performed.
         refresh_all_ids : bool, optional
@@ -3765,8 +3775,19 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Import
         """
+
+        if isinstance(healing, int):
+            if healing == 0:
+                healing = False
+            else:
+                healing = True
+            warnings.warn(
+                "Assigning `0` or `1` to `healing` option is deprecated. Assign `True` or `False` instead.",
+                DeprecationWarning,
+            )
+
         vArg1 = ["NAME:NativeBodyParameters"]
-        vArg1.append("HealOption:="), vArg1.append(healing)
+        vArg1.append("HealOption:="), vArg1.append(1 if healing else 0)
         vArg1.append("Options:="), vArg1.append("-1")
         vArg1.append("FileType:="), vArg1.append("UnRecognized")
         vArg1.append("MaxStitchTol:="), vArg1.append(-1)
@@ -4072,6 +4093,9 @@ class GeometryModeler(Modeler, object):
     def load_hfss(self, cadfile):
         """Load HFSS.
 
+        .. deprecated:: 0.4.41
+           Use :func:`import_3d_cad` property instead.
+
         Parameters
         ----------
         cadfile : str
@@ -4088,7 +4112,8 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Import
         """
-        self.import_3d_cad(cadfile, 1)
+        warnings.warn("`load_hfss` is deprecated. Use `import_3d_cad` method instead.", DeprecationWarning)
+        self.import_3d_cad(cadfile, healing=True)
         return True
 
     @pyaedt_function_handler()
@@ -4408,10 +4433,6 @@ class GeometryModeler(Modeler, object):
             )
         self._oeditor.MoveEdges(arg1, arg2)
         return True
-
-    def __get__(self, instance, owner):
-        self._app = instance
-        return self
 
     class Position:
         """Position.

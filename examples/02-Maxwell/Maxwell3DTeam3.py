@@ -103,8 +103,8 @@ Setup.add_eddy_current_sweep("LinearStep", 50, 200, 150, clear=True)
 ################################################################################
 # Adjust Eddy Effects for LadderPlate and SearchCoil
 # NB, Eddy effect setting is ignored for stranded conductor type used in Search Coil
-M3D.eddy_effects_on(["LadderPlate"], activate=True)
-M3D.eddy_effects_on(["SearchCoil"], activate=False)
+M3D.eddy_effects_on(["LadderPlate"], activate_eddy_effects=True, activate_displacement_current=True)
+M3D.eddy_effects_on(["SearchCoil"], activate_eddy_effects=False, activate_displacement_current=True)
 
 ################################################################################
 # Add a linear parametric sweep for the two coil positions

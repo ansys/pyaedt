@@ -54,7 +54,7 @@ def resistor_value_parser(RValue):
 
 
 class Components(object):
-    """Manages EDB components and related methods.
+    """Manages EDB components and related method accessible from `Edb.core_components` property.
 
     Parameters
     ----------

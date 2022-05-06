@@ -15,7 +15,7 @@ if os.name == "posix" and is_ironpython:
 else:
     import subprocess
 
-from pyaedt.application.AnalysisIcepak import FieldAnalysisIcepak
+from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.general_methods import generate_unique_name, pyaedt_function_handler
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.modules.Boundary import BoundaryObject, NativeComponentObject
@@ -23,7 +23,7 @@ from pyaedt.generic.DataHandlers import random_string
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
-class Icepak(FieldAnalysisIcepak):
+class Icepak(FieldAnalysis3D):
     """Provides the Icepak application interface.
 
     This class allows you to connect to an existing Icepack design or create a
@@ -129,7 +129,7 @@ class Icepak(FieldAnalysisIcepak):
         machine="",
         port=0,
     ):
-        FieldAnalysisIcepak.__init__(
+        FieldAnalysis3D.__init__(
             self,
             "Icepak",
             projectname,
@@ -1157,7 +1157,7 @@ class Icepak(FieldAnalysisIcepak):
         center[1] -= hs_height / 2
         center[2] += hs_basethick
         self.modeler.set_working_coordinate_system("Global")
-        self.modeler.translate(list_to_move, center)
+        self.modeler.move(list_to_move, center)
         if plane_enum == self.PLANE.XY:
             self.modeler.rotate(list_to_move, self.AXIS.X, rotation)
         elif plane_enum == self.PLANE.ZX:
@@ -2659,3 +2659,121 @@ class Icepak(FieldAnalysisIcepak):
         self.logger.error("Failed to create msh file")
 
         return False
+
+    @pyaedt_function_handler()
+    def apply_icepak_settings(
+        self,
+        ambienttemp=20,
+        gravityDir=5,
+        perform_minimal_val=True,
+        default_fluid="air",
+        default_solid="Al-Extruded",
+        default_surface="Steel-oxidised-surface",
+    ):
+        """Apply Icepak default design settings.
+
+        Parameters
+        ----------
+        ambienttemp : float, optional
+            Ambient temperature, which can be an integer or a parameter already
+            created in AEDT. The default is ``20``.
+        gravityDir : int, optional
+            Gravity direction index in the range ``[0, 5]``. The default is ``5``.
+        perform_minimal_val : bool, optional
+            Whether to perform minimal validation. The default is ``True``.
+            If ``False``, full validation is performend.
+        default_fluid : str, optional
+            Default for the type of fluid. The default is ``"Air"``.
+        default_solid :
+            Default for  the type of solid. The default is ``"Al-Extruded"``.
+        default_surface :
+            Default for the type of surface. The default is ``"Steel-oxidised-surface"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.SetDesignSettings
+        """
+
+        try:
+            AmbientTemp = str(float(ambienttemp)) + "cel"
+        except:
+            AmbientTemp = ambienttemp
+
+        IceGravity = ["X", "Y", "Z"]
+        GVPos = False
+        if int(gravityDir) > 2:
+            GVPos = True
+        GVA = IceGravity[int(gravityDir) - 3]
+        self.odesign.SetDesignSettings(
+            [
+                "NAME:Design Settings Data",
+                "Perform Minimal validation:=",
+                perform_minimal_val,
+                "Default Fluid Material:=",
+                default_fluid,
+                "Default Solid Material:=",
+                default_solid,
+                "Default Surface Material:=",
+                default_surface,
+                "AmbientTemperature:=",
+                AmbientTemp,
+                "AmbientPressure:=",
+                "0n_per_meter_sq",
+                "AmbientRadiationTemperature:=",
+                AmbientTemp,
+                "Gravity Vector CS ID:=",
+                1,
+                "Gravity Vector Axis:=",
+                GVA,
+                "Positive:=",
+                GVPos,
+            ],
+            ["NAME:Model Validation Settings"],
+        )
+        return True
+
+    @pyaedt_function_handler()
+    def assign_surface_material(self, obj, mat):
+        """Assign a surface material to one or more objects.
+
+        Parameters
+        ----------
+        obj : str, list
+            One or more objects to assign surface materials to.
+        mat : str
+            Material to assign. The material must be present in the database.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
+        """
+        mat = mat.lower()
+        if mat not in self.materials.surface_material_keys:
+            self.logger.warning("Warning. The material is not the database. Use add_surface_material.")
+            return False
+        else:
+            for el in obj:
+                self.modeler.oeditor.ChangeProperty(
+                    [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:Geometry3DAttributeTab",
+                            ["NAME:PropServers", el],
+                            ["NAME:ChangedProps", ["NAME:Surface Material", "Value:=", '"' + mat + '"']],
+                        ],
+                    ]
+                )
+
+            return True

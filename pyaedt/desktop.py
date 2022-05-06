@@ -380,6 +380,8 @@ class Desktop:
         self._logger.info("Python version %s", sys.version)
         self.odesktop = self._main.oDesktop
         settings.aedt_version = self.odesktop.GetVersion()[0:6]
+        settings.machine = self.machine
+        settings.port = self.port
 
         if _com == "ironpython":
             sys.path.append(

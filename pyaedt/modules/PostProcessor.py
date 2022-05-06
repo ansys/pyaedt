@@ -44,6 +44,7 @@ TEMPLATES_BY_DESIGN = {
         "Far Fields",
         "Emissions",
         "Near Fields",
+        "Antenna Parameters",
     ],
     "Maxwell 3D": [
         "Transient",
@@ -310,6 +311,8 @@ class Reports(object):
             Expression List.
         setup_name : str, optional
             Setup Name.
+        sphere_name : str, optional
+            Name of the sphere on which create the far field.
 
         Returns
         -------
@@ -331,6 +334,40 @@ class Reports(object):
             rep = rt.FarField(self._post_app, "Far Fields", setup_name)
             rep.expressions = expressions
             rep.far_field_sphere = sphere_name
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def antenna_parameters(self, expressions=None, setup_name=None, sphere_name=None):
+        """Create an Antenna Parameters Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+        sphere_name : str, optional
+            Name of the sphere on which compute antenna parameters.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.AntennaParameters`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.reports_by_category.antenna_parameters("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Antenna Parameters" in self._templates:
+            rep = rt.AntennaParameters(self._post_app, "Antenna Parameters", setup_name, sphere_name)
+            rep.expressions = expressions
             return rep
         return
 
@@ -2892,9 +2929,6 @@ class PostProcessorCommon(object):
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
-        context : str, optional
-            The default is ``None``. It can be `None`, `"Differential Pairs"` or
-            Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
         polyline_points : int, optional,
             Number of points on which create the report for plots on polylines.
 
@@ -3910,7 +3944,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        type
+        :class:``pyaedt.modules.PostProcessor.FieldPlot``
             Plot object.
 
         References
@@ -4058,6 +4092,9 @@ class PostProcessor(PostProcessorCommon, object):
     def export_field_image_with_view(self, plotName, foldername, exportFilePath, view="isometric", wireframe=True):
         """Export a field plot image with a view.
 
+        .. deprecated:: 0.5.0
+           Use :func:`export_field_jpg` method instead.
+
         .. note::
            For AEDT 2019 R3, this method works only on the ISO view due to a bug in the API.
            This method works properly in 2021 R1.
@@ -4086,6 +4123,10 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.ExportPlotImageToFile
         >>> oModule.ExportPlotImageWithViewToFile
         """
+        warnings.warn(
+            "`export_field_image_with_view` is deprecated. Use `export_field_jpg` property instead.", DeprecationWarning
+        )
+
         return self.export_field_jpg(
             exportFilePath, plotName, foldername, orientation=view, display_wireframe=wireframe
         )
