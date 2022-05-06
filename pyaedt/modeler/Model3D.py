@@ -209,8 +209,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
 
-        _retry_ntimes(2, self.oeditor.Create3DComponent, arg, arg2, component_file, arg3)
-        return True
+        return _retry_ntimes(2, self.oeditor.Create3DComponent, arg, arg2, component_file, arg3)
 
     @pyaedt_function_handler()
     def create_coaxial(
