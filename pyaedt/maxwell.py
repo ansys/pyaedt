@@ -236,7 +236,7 @@ class Maxwell(object):
         elif self.solution_type in ["EddyCurrent", "Magnetostatic"]:
             if self.solution_type == "Magnetostatic":
                 if group_sources:
-                    if isinstance(group_sources, dict):
+                    if isinstance(group_sources, (dict, OrderedDict)):
                         new_group = group_sources.copy()
                         for element in new_group:
                             if not all(item in sources for item in group_sources[element]):

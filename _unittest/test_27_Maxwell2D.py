@@ -2,6 +2,7 @@
 # Standard imports
 import filecmp
 import os
+from collections import OrderedDict
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import local_path
@@ -223,7 +224,9 @@ class TestClass(BasisTest, object):
             group_sources=group_sources,
         )
         assert L.props["MatrixGroup"]["MatrixGroup"]
-        group_sources = {"Group1_Test": ["Current1", "Current3"], "Group2_Test": ["Current2", "Current4"]}
+        group_sources = OrderedDict()
+        group_sources["Group1_Test"] = ["Current1", "Current3"]
+        group_sources["Group2_Test"] = ["Current2", "Current4"]
         L = self.aedtapp.assign_matrix(
             sources=["Current1", "Current2", "Current3", "Current4"],
             matrix_name="Test6",
