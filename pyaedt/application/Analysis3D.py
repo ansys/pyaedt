@@ -379,7 +379,6 @@ class FieldAnalysis3D(Analysis, object):
                     return val
         return None
 
-    # TODO Refactor this
     @pyaedt_function_handler()
     def copy_solid_bodies_from(self, design, object_list=None, no_vacuum=True, no_pec=True, include_sheets=False):
         """Copy a list of objects from one design to the active design.
