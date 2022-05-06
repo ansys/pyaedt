@@ -5,13 +5,20 @@ This example shows how you can use PyAEDT to add a subcircuit to a Circuit desig
  Push down into the child subcircuit and pop up to the parent design.
 """
 
+import os
+
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
 ###############################################################################
 # Launch AEDT and Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # This examples launches AEDT 2022R1 in graphical mode.
 
 from pyaedt import Circuit
-non_graphical = True
 circuit = Circuit(specified_version="2022.1", non_graphical=non_graphical)
 
 ###############################################################################

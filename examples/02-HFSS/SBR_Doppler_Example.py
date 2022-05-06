@@ -19,6 +19,12 @@ projectname = "MicroDoppler_with_ADP"
 designname = "doppler"
 library_path = examples.download_multiparts()
 
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
 ###############################################################################
 # Open Project
 # ~~~~~~~~~~~~
@@ -38,6 +44,7 @@ app = pyaedt.Hfss(
     new_desktop_session=True,
     projectname=projectname,
     close_on_exit=True,
+    non_graphical=non_graphical
 )
 
 

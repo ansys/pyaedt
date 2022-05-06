@@ -5,6 +5,16 @@ This example shows how you can use PyAEDT to create a Circuit design
 and run a Nexxim time-domain simulation and create an eye diagram.
 """
 
+import os
+from matplotlib import pyplot as plt
+import numpy as np
+from pyaedt import Circuit
+
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
 # Launch AEDT and Circuit
@@ -12,11 +22,6 @@ and run a Nexxim time-domain simulation and create an eye diagram.
 # This examples launches AEDT 2022R1 in graphical mode.
 
 
-import os
-from matplotlib import pyplot as plt
-import numpy as np
-from pyaedt import Circuit
-non_graphical = True
 cir = Circuit(specified_version="2022.1", new_desktop_session=True, non_graphical=non_graphical)
 
 

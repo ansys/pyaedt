@@ -14,7 +14,18 @@ This example shows how to use HFSS 3D Layout to create and solve a parametric de
 from pyaedt import Hfss3dLayout
 import os
 
-h3d = Hfss3dLayout(specified_version="2022.1", new_desktop_session=True, non_graphical=True)
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
+###############################################################################
+# Launch AEDT in Graphical Mode
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This examples launches AEDT 2022R1 in graphical mode.
+
+h3d = Hfss3dLayout(specified_version="2022.1", new_desktop_session=True, non_graphical=non_graphical)
 
 ###############################################################################
 # Set Up Parametric Variables
