@@ -120,8 +120,9 @@ M3D.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=
 # NB, Eddy effect setting is regardless ignored for stranded conductor type used in Coil
 
 M3D.eddy_effects_on("Plate")
-M3D.eddy_effects_on(["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"], False)
-
+M3D.eddy_effects_on(["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"],
+                    activate_eddy_effects=False,
+                    activate_displacement_current=False)
 
 ################################################################################
 # Use Fields Calculator to create an expression for Z Component of B in Gauss
