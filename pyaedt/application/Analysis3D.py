@@ -641,6 +641,8 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> oEditor.GetObjectsByMaterial
         """
+        if len(self.modeler.objects) != len(self.modeler.object_names):
+            self.modeler.refresh_all_ids()
         cond = self.materials.conductors
 
         obj_names = []
@@ -662,6 +664,8 @@ class FieldAnalysis3D(Analysis, object):
         ----------
         >>> oEditor.GetObjectsByMaterial
         """
+        if len(self.modeler.objects) != len(self.modeler.object_names):
+            self.modeler.refresh_all_ids()
         diel = self.materials.dielectrics
         obj_names = []
         for obj_val in list(self.modeler.objects.values()):
