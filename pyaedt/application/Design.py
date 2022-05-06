@@ -2732,7 +2732,7 @@ class Design(object):
             solution_type=solution_type,
         )
 
-    def _insert_design(self, design_type, design_name=None, solution_type=None):
+    def _insert_design(self, design_type, design_name=None):
         assert design_type in self.design_solutions.design_types, "Invalid design type for insert: {}".format(
             design_type
         )
@@ -2827,7 +2827,6 @@ class Design(object):
         >>> oDesign.RenameDesignInstance
         """
         self._odesign.RenameDesignInstance(self.design_name, new_name)
-        self.odesign = new_name
         return True
 
     @pyaedt_function_handler()
