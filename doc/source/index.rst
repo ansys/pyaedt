@@ -11,6 +11,7 @@ PyAEDT Documentation  |version|
 
    Resources/Installation
    Resources/User_Guide
+   Resources/ClientServer
    API/index
    examples/index
    Resources/Code_Guidelines

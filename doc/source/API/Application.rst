@@ -9,7 +9,7 @@ Example with Desktop:
 .. code:: python
 
     from pyaedt import Desktop, Circuit
-    d = Desktop(specified_version="2021.1",
+    d = Desktop(specified_version="2022.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False):
      circuit = Circuit()
@@ -23,7 +23,7 @@ Example without Desktop:
 .. code:: python
 
     from pyaedt import Circuit
-    circuit = Circuit(specified_version="2021.1",
+    circuit = Circuit(specified_version="2022.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False):
      circuit = Circuit()
@@ -42,7 +42,6 @@ Example without Desktop:
    Hfss
    Q3d
    Q2d
-   Edb
    Maxwell2d
    Maxwell3d
    Icepak
@@ -53,9 +52,3 @@ Example without Desktop:
    Emit
    TwinBuilder
 
-
-Inheritance Diagram
-~~~~~~~~~~~~~~~~~~~
-
-.. inheritance-diagram:: pyaedt.hfss pyaedt.q3d pyaedt.icepak pyaedt.circuit pyaedt.edb pyaedt.hfss3dlayout  pyaedt.maxwell pyaedt.mechanical pyaedt.twinbuilder pyaedt.rmxprt
-    :parts: 1

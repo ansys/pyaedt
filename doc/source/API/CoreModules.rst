@@ -17,7 +17,7 @@ design and project variables in the 3D tools.
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2021.1",
+    app = Hfss(specified_version="2022.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
@@ -50,7 +50,7 @@ optimetrics setups.
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2021.1",
+    app = Hfss(specified_version="2022.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
@@ -91,53 +91,13 @@ and designs.
 
    DesignCache
 
-Configurations Files
-~~~~~~~~~~~~~~~~~~~~
-This module contains all methods to export project settings to json file
-and import and apply settings to a new design.
-Actually the configuration covers the following applications:
-* Hfss
-* Q2d and Q3d
-* Maxwell
-* Icepak
-* Mechanical
 
-The sections covered are:
+Boundary Class
+~~~~~~~~~~~~~~
 
-* Variables
-* Mesh Operations (except Icepak)
-* Setup and Optimetrics
-* Material Properties
-* Object Properties
-* Boundaries and Excitations
+Boundary class is very important because it automates the creation of the AEDT Syntax for any boundary and excitation creation.
 
-When a boundary is attached to a face the tool will try to match it with a
-FaceByPosition on the same object name on the target design.
-If, for any reason, that face position has changed or object name in the target design has changed,
-the boundary will fail to apply.
+.. toctree::
+   :maxdepth: 2
 
-.. code:: python
-
-    from pyaedt import Hfss
-    app = Hfss(project_name="original_project", specified_version="2022.1",
-                 non_graphical=False, new_desktop_session=True,
-                 close_on_exit=True, student_version=False)
-
-    conf_file = self.aedtapp.configurations.export_config()
-
-    app2 = Hfss(projec_name='newproject')
-    app2.modeler.import_3d_cad(file_path)
-    out = app2.configurations.import_config(conf_file)
-    app2.configurations.results.global_import_success
-
-    ...
-
-.. currentmodule:: pyaedt.generic.configurations
-
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
-
-   Configurations
-   ConfigurationsOptions
-   ImportResults
+   Boundaries

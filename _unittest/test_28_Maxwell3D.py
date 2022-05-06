@@ -7,6 +7,7 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 from pyaedt import Maxwell3d
 from pyaedt.generic.constants import SOLUTIONS
+from pyaedt.generic.general_methods import generate_unique_name
 
 try:
     import pytest
@@ -73,17 +74,47 @@ class TestClass(BasisTest, object):
         self.aedtapp.solution_type = "EddyCurrent"
 
     def test_05_winding(self):
-        assert self.aedtapp.assign_winding(self.aedtapp.modeler["Coil_Section1"].faces[0].id)
+        face_id = self.aedtapp.modeler["Coil_Section1"].faces[0].id
+        assert self.aedtapp.assign_winding(face_id)
+        bounds = self.aedtapp.assign_winding(current_value=20e-3, coil_terminals=face_id)
+        assert bounds
+        bounds = self.aedtapp.assign_winding(current_value="20e-3A", coil_terminals=face_id)
+        assert bounds
+        bounds = self.aedtapp.assign_winding(res="1ohm", coil_terminals=face_id)
+        assert bounds
+        bounds = self.aedtapp.assign_winding(ind="1H", coil_terminals=face_id)
+        assert bounds
+        bounds = self.aedtapp.assign_winding(voltage="10V", coil_terminals=face_id)
+        assert bounds
+        bounds_name = generate_unique_name("Winding")
+        bounds = self.aedtapp.assign_winding(coil_terminals=face_id, name=bounds_name)
+        assert bounds_name == bounds.name
+
+    def test_05a_assign_coil(self):
+        face_id = self.aedtapp.modeler["Coil_Section1"].faces[0].id
+        bound = self.aedtapp.assign_coil(input_object=face_id)
+        assert bound
+        polarity = "Positive"
+        bound = self.aedtapp.assign_coil(input_object=face_id, polarity=polarity)
+        assert not bound.props["Point out of terminal"]
+        polarity = "Negative"
+        bound = self.aedtapp.assign_coil(input_object=face_id, polarity=polarity)
+        assert bound.props["Point out of terminal"]
+        bound_name = generate_unique_name("Coil")
+        bound = self.aedtapp.assign_coil(input_object=face_id, name=bound_name)
+        assert bound_name == bound.name
 
     def test_05_draw_region(self):
         assert self.aedtapp.modeler.create_air_region(*[300] * 6)
 
     def test_06_eddycurrent(self):
-        assert self.aedtapp.eddy_effects_on(["Plate"])
+        assert self.aedtapp.eddy_effects_on(["Plate"], activate_eddy_effects=True)
         oModule = self.aedtapp.odesign.GetModule("BoundarySetup")
         assert oModule.GetEddyEffect("Plate")
-        self.aedtapp.eddy_effects_on(["Plate"], activate=False)
+        assert oModule.GetDisplacementCurrent("Plate")
+        self.aedtapp.eddy_effects_on(["Plate"], activate_eddy_effects=False)
         assert not oModule.GetEddyEffect("Plate")
+        assert not oModule.GetDisplacementCurrent("Plate")
 
     def test_07a_setup(self):
         adaptive_frequency = "200Hz"

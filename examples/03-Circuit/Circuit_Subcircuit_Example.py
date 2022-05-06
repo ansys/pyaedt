@@ -11,8 +11,8 @@ This example shows how you can use PyAEDT to add a subcircuit to a Circuit desig
 # This examples launches AEDT 2022R1 in graphical mode.
 
 from pyaedt import Circuit
-
-circuit = Circuit(specified_version="2022.1")
+non_graphical = True
+circuit = Circuit(specified_version="2022.1", non_graphical=non_graphical)
 
 ###############################################################################
 # Add new subcircuit
@@ -48,8 +48,10 @@ circuit.pop_up()
 # Subcircuit duplication
 # ~~~~~~~~~~~~~~~~~~~~~~
 # The formerly created subcircuit is duplicated, and a new parameter value is set.
+# It works only in graphical mode.
 
-new_comp = circuit.modeler.schematic.duplicate(subcircuit_name, [0.0512, 0])
-new_comp.parameters["R_val"] = "75ohm"
+if not non_graphical:
+    new_comp = circuit.modeler.schematic.duplicate(subcircuit_name, [0.0512, 0])
+    new_comp.parameters["R_val"] = "75ohm"
 
 circuit.release_desktop(True, True)
