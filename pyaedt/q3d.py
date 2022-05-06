@@ -865,7 +865,7 @@ class Q2d(QExtractor, object):
 
         Returns
         -------
-        pyaedt.modeler.Object3d.Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         References
@@ -1014,7 +1014,7 @@ class Q2d(QExtractor, object):
 
         props = OrderedDict({"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)})
 
-        bound = BoundaryObject(self, name, props, "FiniteCond")
+        bound = BoundaryObject(self, name, props, "Finite Conductivity")
         if bound.create():
             self.boundaries.append(bound)
             return bound

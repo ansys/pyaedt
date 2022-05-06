@@ -511,7 +511,11 @@ class TestClass(BasisTest, object):
         output = os.path.join(self.local_scratch.path, "cutout2.aedb")
 
         assert self.edbapp.create_cutout_on_point_list(
-            points, nets_to_include=["GND", "V3P3_S0"], output_aedb_path=output, open_cutout_at_end=False
+            points,
+            nets_to_include=["GND", "V3P3_S0"],
+            output_aedb_path=output,
+            open_cutout_at_end=False,
+            include_partial_instances=True,
         )
         assert os.path.exists(os.path.join(output, "edb.def"))
 
@@ -630,6 +634,7 @@ class TestClass(BasisTest, object):
         assert len(padstack_instances)
         padstack_1 = list(padstack_instances.values())[0]
         assert padstack_1.id
+        assert isinstance(padstack_1.bounding_box, list)
 
     def test_73_duplicate_padstack(self):
         self.edbapp.core_padstack.duplicate_padstack(
@@ -1314,8 +1319,54 @@ class TestClass(BasisTest, object):
         outline_layer = stackup._layer_types_to_int(stackup.layer_types.OutlineLayer)
         assert outline_layer == 18
 
+    def test_99_duplicate_material(self):
+        stack_up = self.edbapp.core_stackup
+        duplicated_copper = stack_up.duplicate_material("copper", "my_new_copper")
+        assert duplicated_copper
+        duplicated_fr4_epoxy = stack_up.duplicate_material("FR4_epoxy", "my_new_FR4")
+        assert duplicated_fr4_epoxy
+        duplicated_pec = stack_up.duplicate_material("pec", "my_new_pec")
+        assert duplicated_pec
+        cloned_permittivity = stack_up.get_property_by_material_name("permittivity", "my_new_pec")
+        permittivity = stack_up.get_property_by_material_name("permittivity", "pec")
+        cloned_permeability = stack_up.get_property_by_material_name("permeability", "my_new_pec")
+        permeability = stack_up.get_property_by_material_name("permeability", "pec")
+        cloned_conductivity = stack_up.get_property_by_material_name("conductivity", "my_new_pec")
+        conductivity = stack_up.get_property_by_material_name("conductivity", "pec")
+        cloned_dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "my_new_pec")
+        dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "pec")
+        cloned_magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "my_new_pec")
+        magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "pec")
+        assert cloned_permittivity == permittivity
+        assert cloned_permeability == permeability
+        assert cloned_conductivity == conductivity
+        assert cloned_dielectric_loss == dielectric_loss
+        assert cloned_magnetic_loss == magnetic_loss
+        non_duplicated = stack_up.duplicate_material("my_nonexistent_mat", "nothing")
+        assert not non_duplicated
+
+    def test_100_get_property_by_material_name(self):
+        stack_up = self.edbapp.core_stackup
+        permittivity = stack_up.get_property_by_material_name("permittivity", "FR4_epoxy")
+        permeability = stack_up.get_property_by_material_name("permeability", "FR4_epoxy")
+        conductivity = stack_up.get_property_by_material_name("conductivity", "copper")
+        dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "FR4_epoxy")
+        magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "FR4_epoxy")
+        assert permittivity == 4.4
+        assert permeability == 0
+        assert conductivity == 59590000
+        assert dielectric_loss == 0.02
+        assert magnetic_loss == 0
+        failing_test_1 = stack_up.get_property_by_material_name("magnetic_loss_tangent", "inexistent_material")
+        assert not failing_test_1
+        failing_test_2 = stack_up.get_property_by_material_name("none_property", "copper")
+        assert not failing_test_2
+
     def test_98_export_import_json_for_config(self):
         sim_config = SimulationConfiguration()
+        assert sim_config.output_aedb is None
+        sim_config.output_aedb = os.path.join(self.local_scratch.path, "test.aedb")
+        assert sim_config.output_aedb == os.path.join(self.local_scratch.path, "test.aedb")
         json_file = os.path.join(self.local_scratch.path, "test.json")
         sim_config._filename = json_file
         sim_config.arc_angle = "90deg"
@@ -1324,3 +1375,9 @@ class TestClass(BasisTest, object):
         assert test_import.import_json(json_file)
         assert test_import.arc_angle == "90deg"
         assert test_import._filename == json_file
+
+    def test_99_classify_nets(self):
+        sim_setup = SimulationConfiguration()
+        sim_setup.power_nets = ["RSVD_0", "RSVD_1"]
+        sim_setup.signal_nets = ["V3P3_S0"]
+        self.edbapp.core_nets.classify_nets(sim_setup)

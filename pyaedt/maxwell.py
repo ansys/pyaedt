@@ -435,12 +435,18 @@ class Maxwell(object):
 
         >>> oModule.SetEddyEffect
         """
-        EddyVector = ["NAME:EddyEffectVector"]
-        for obj in object_list:
-            EddyVector.append(["NAME:Data", "Object Name:=", obj, "Eddy Effect:=", activate])
+        solid_objects_names = self.get_all_conductors_names()
 
-        oModule = self.odesign.GetModule("BoundarySetup")
-        oModule.SetEddyEffect(["NAME:Eddy Effect Setting", EddyVector])
+        EddyVector = ["NAME:EddyEffectVector"]
+        for obj in solid_objects_names:
+            if obj in object_list:
+                EddyVector.append(["NAME:Data", "Object Name:=", obj, "Eddy Effect:=", activate])
+            else:
+                EddyVector.append(
+                    ["NAME:Data", "Object Name:=", obj, "Eddy Effect:=", bool(self.oboundary.GetEddyEffect(obj))]
+                )
+
+        self.oboundary.SetEddyEffect(["NAME:Eddy Effect Setting", EddyVector])
         return True
 
     @pyaedt_function_handler()
@@ -843,16 +849,18 @@ class Maxwell(object):
             {
                 "Type": winding_type,
                 "IsSolid": is_solid,
-                "Current": str(current_value) + "A",
-                "Resistance": str(res) + "ohm",
-                "Inductance": str(ind) + "H",
-                "Voltage": str(voltage) + "V",
+                "Current": self.modeler._arg_with_dim(current_value, "A"),
+                "Resistance": self.modeler._arg_with_dim(res, "ohm"),
+                "Inductance": self.modeler._arg_with_dim(ind, "H"),
+                "Voltage": self.modeler._arg_with_dim(voltage, "V"),
                 "ParallelBranchesNum": str(parallel_branches),
             }
         )
         bound = BoundaryObject(self, name, props, "Winding")
         if bound.create():
             self.boundaries.append(bound)
+            if coil_terminals is None:
+                coil_terminals = []
             if type(coil_terminals) is not list:
                 coil_terminals = [coil_terminals]
             coil_names = []
@@ -861,7 +869,8 @@ class Maxwell(object):
                 if c:
                     coil_names.append(c.name)
 
-            self.add_winding_coils(bound.name, coil_names)
+            if coil_names:
+                self.add_winding_coils(bound.name, coil_names)
             return bound
         return False
 
@@ -918,7 +927,7 @@ class Maxwell(object):
 
         >>> oModule.AssignCoil
         """
-        if polarity == "Positive":
+        if polarity.lower() == "positive":
             point = False
         else:
             point = True
@@ -936,7 +945,11 @@ class Maxwell(object):
                 bound = BoundaryObject(self, name, props2, "CoilTerminal")
             else:
                 props2 = OrderedDict(
-                    {"Objects": input_object, "Conductor number": str(conductor_number), "PolarityType": polarity}
+                    {
+                        "Objects": input_object,
+                        "Conductor number": str(conductor_number),
+                        "PolarityType": polarity.lower(),
+                    }
                 )
                 bound = BoundaryObject(self, name, props2, "Coil")
         else:

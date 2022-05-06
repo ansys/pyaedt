@@ -137,7 +137,7 @@ class TestClass(BasisTest, object):
 
         my_data = self.aedtapp.post.get_report_data(expression=trace_names, families_dict=families)
         assert my_data
-        assert my_data.sweeps
+        assert my_data._sweeps
         assert my_data.expressions
         assert my_data.data_db(trace_names[0])
         assert my_data.data_imag(trace_names[0])
@@ -239,8 +239,11 @@ class TestClass(BasisTest, object):
         new_report.report_type = "3D Polar Plot"
         new_report.far_field_sphere = "3D"
         assert new_report.create()
-        new_report.report_type = "Rectangular Contour Plot"
-        assert new_report.create()
+        new_report2 = self.field_test.post.reports_by_category.antenna_parameters(
+            "db(PeakRealizedGain)", self.field_test.nominal_adaptive, "3D"
+        )
+        new_report2.report_type = "Data Table"
+        assert new_report2.create()
         data = self.field_test.post.get_solution_data(
             "GainTotal",
             self.field_test.nominal_adaptive,
@@ -289,7 +292,7 @@ class TestClass(BasisTest, object):
         assert len(files) > 0
 
     @pytest.mark.skipif(
-        config["build_machine"], reason="Skipped because it cannot run on build machine in non-graphical mode"
+        config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
     def test_09c_create_monitor(self):  # pragma: no cover
         assert self.aedtapp.post.create_report("dB(S(1,1))")
@@ -305,17 +308,16 @@ class TestClass(BasisTest, object):
     def test_09d_add_line_from_point(self):  # pragma: no cover
         assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
-        assert new_report.create()
         assert new_report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
 
     @pytest.mark.skipif(
-        config["build_machine"], reason="Skipped because it cannot run on build machine in non-graphical mode"
+        config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
     def test_09e_add_line_from_equation(self):
         assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
-        assert new_report.add_limit_line_from_equation(1, 20, 0.5, "GHz")
+        assert new_report.add_limit_line_from_equation(start_x=1, stop_x=20, step=0.5, units="GHz")
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
@@ -369,6 +371,48 @@ class TestClass(BasisTest, object):
             precision=6,
             use_scientific_notation=True,
         )
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
+    )
+    def test_09g_add_line_from_point(self):  # pragma: no cover
+        new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
+        new_report.create()
+        style = new_report.traces[0].LINESTYLE
+        trace = new_report.traces[0].TRACETYPE
+        symbols = new_report.traces[0].SYMBOLSTYLE
+
+        assert new_report.traces[0].set_trace_properties(
+            trace_style=style.Dot, width=5, trace_type=trace.Digital, color=(0, 255, 0)
+        )
+        assert new_report.traces[0].set_symbol_properties(
+            show=True, style=symbols.Box, show_arrows=False, fill=False, color=(0, 0, 255)
+        )
+        new_report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
+        assert new_report.limit_lines[0].set_line_properties(
+            style=style.Dot, width=4, hatch_above=False, violation_emphasis=True, hatch_pixels=1, color=(255, 255, 0)
+        )
+        pass
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
+    )
+    def test_09g_add_note(self):  # pragma: no cover
+        new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
+        new_report.create()
+
+        new_report.add_note("Test", 8000, 1500)
+        assert new_report.notes[0].set_note_properties(
+            back_color=(0, 0, 255),
+            border_visibility=False,
+            border_width=3,
+            font="Cambria",
+            italic=True,
+            bold=True,
+            font_size=10,
+            color=(255, 0, 0),
+        )
+        pass
 
     def test_10_delete_report(self):
         assert self.aedtapp.post.delete_report("MyNewScattering")
@@ -565,7 +609,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(is_ironpython, reason="plot_scene method is not supported in ironpython")
     def test_55_time_plot(self):
-        self.sbr_test.analyze_nominal()
+        self.sbr_test.analyze_nominal(use_auto_settings=False)
         solution_data = self.sbr_test.post.get_solution_data(
             expressions=["NearEX", "NearEY", "NearEZ"],
             variations={"_u": ["All"], "_v": ["All"], "Freq": ["All"]},
@@ -573,6 +617,10 @@ class TestClass(BasisTest, object):
             report_category="Near Fields",
         )
         assert solution_data
+        assert solution_data.primary_sweep_values
+        assert solution_data.primary_sweep_variations
+        assert solution_data.set_active_variation(0)
+        assert not solution_data.set_active_variation(99)
         t_matrix = solution_data.ifft("NearE", window=True)
         assert t_matrix.any()
         frames_list = solution_data.ifft_to_file(

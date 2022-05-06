@@ -18,7 +18,6 @@ from functools import update_wrapper
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
 inside_desktop = True
-import sys
 
 try:
     import ScriptEnv
@@ -506,6 +505,18 @@ def is_number(a):
     # return str(a).replace(".", "").replace("+", "").replace("-", "").replace("e","").replace("E","").isnumeric()
 
 
+def is_array(a):
+    try:
+        v = list(eval(a))
+    except (ValueError, TypeError, NameError):
+        return False
+    else:
+        if type(v) is list:
+            return True
+        else:
+            return False
+
+
 def is_project_locked(project_path):
     """Checks if an aedt project lock file exists.
 
@@ -695,6 +706,8 @@ class Settings(object):
         self.aedt_version = None
         self.remote_api = False
         self._use_grpc_api = False
+        self.machine = ""
+        self.port = 0
 
     @property
     def use_grpc_api(self):

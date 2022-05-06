@@ -9,6 +9,7 @@ from _unittest.conftest import pyaedt_unittest_check_desktop_error
 from pyaedt import Maxwell2d
 from pyaedt.application.Design import DesignCache
 from pyaedt.generic.constants import SOLUTIONS
+from pyaedt.generic.general_methods import generate_unique_name
 
 try:
     import pytest  # noqa: F401
@@ -33,12 +34,36 @@ class TestClass(BasisTest, object):
 
     @pyaedt_unittest_check_desktop_error
     def test_04_create_winding(self):
-
         bounds = self.aedtapp.assign_winding(current_value=20e-3, coil_terminals=["Coil"])
         assert bounds
         o = self.aedtapp.modeler.create_rectangle([0, 0, 0], [3, 1], name="Rectangle2", matname="copper")
         bounds = self.aedtapp.assign_winding(current_value=20e-3, coil_terminals=o.id)
         assert bounds
+        bounds = self.aedtapp.assign_winding(current_value="20e-3A", coil_terminals=["Coil"])
+        assert bounds
+        bounds = self.aedtapp.assign_winding(res="1ohm", coil_terminals=["Coil"])
+        assert bounds
+        bounds = self.aedtapp.assign_winding(ind="1H", coil_terminals=["Coil"])
+        assert bounds
+        bounds = self.aedtapp.assign_winding(voltage="10V", coil_terminals=["Coil"])
+        assert bounds
+        bounds_name = generate_unique_name("Coil")
+        bounds = self.aedtapp.assign_winding(coil_terminals=["Coil"], name=bounds_name)
+        assert bounds_name == bounds.name
+
+    @pyaedt_unittest_check_desktop_error
+    def test_04a_assign_coil(self):
+        bound = self.aedtapp.assign_coil(input_object=["Coil"])
+        assert bound
+        polarity = "Positive"
+        bound = self.aedtapp.assign_coil(input_object=["Coil"], polarity=polarity)
+        assert bound.props["PolarityType"] == polarity.lower()
+        polarity = "Negative"
+        bound = self.aedtapp.assign_coil(input_object=["Coil"], polarity=polarity)
+        assert bound.props["PolarityType"] == polarity.lower()
+        bound_name = generate_unique_name("Coil")
+        bound = self.aedtapp.assign_coil(input_object=["Coil"], name=bound_name)
+        assert bound_name == bound.name
 
     @pyaedt_unittest_check_desktop_error
     def test_05_create_vector_potential(self):

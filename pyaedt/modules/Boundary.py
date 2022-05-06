@@ -344,7 +344,7 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignAperture(self._get_args())
         elif self.type == "Radiation":
             self._app.oboundary.AssignRadiation(self._get_args())
-        elif self.type == "FiniteCond":
+        elif self.type == "Finite Conductivity":
             self._app.oboundary.AssignFiniteCond(self._get_args())
         elif self.type == "LumpedRLC":
             self._app.oboundary.AssignLumpedRLC(self._get_args())
@@ -490,7 +490,7 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditAperture(self._boundary_name, self._get_args())
         elif self.type == "Radiation":
             self._app.oboundary.EditRadiation(self._boundary_name, self._get_args())
-        elif self.type in ["FiniteCond", "Finite Conductivity"]:
+        elif self.type == "Finite Conductivity":
             self._app.oboundary.EditFiniteCond(self._boundary_name, self._get_args())
         elif self.type == "LumpedRLC":
             self._app.oboundary.EditLumpedRLC(self._boundary_name, self._get_args())
@@ -724,7 +724,9 @@ class FieldSetup(BoundaryCommon, object):
     >>> from pyaedt import Hfss
     >>> hfss = Hfss()
     >>> sphere1 = hfss.insert_infinite_sphere()
-    >>> sphere1.props["ThetaStart"] = 45
+    >>> sphere1.props["ThetaStart"] = "-90deg"
+    >>> sphere1.props["ThetaStop"] = "90deg"
+    >>> sphere1.props["ThetaStep"] = "2deg"
     >>> sphere1.delete()
     """
 
@@ -824,7 +826,9 @@ class FarFieldSetup(FieldSetup, object):
     >>> from pyaedt import Hfss
     >>> hfss = Hfss()
     >>> sphere1 = hfss.insert_infinite_sphere()
-    >>> sphere1.props["ThetaStart"] = 45
+    >>> sphere1.props["ThetaStart"] = "-90deg"
+    >>> sphere1.props["ThetaStop"] = "90deg"
+    >>> sphere1.props["ThetaStep"] = "2deg"
     >>> sphere1.delete()
     """
 

@@ -762,6 +762,7 @@ class CommonMaterial(object):
         self.logger = self._materials.logger
         self.name = name
         self.coordinate_system = ""
+        self.is_sweep_material = False
         if props:
             self._props = props.copy()
         else:
@@ -1639,10 +1640,10 @@ class Material(CommonMaterial, object):
         """
 
         args = self._get_args()
-        if self._does_material_exists(self.name):
-            self.odefinition_manager.EditMaterial(self.name, args)
-        else:
+        if not self._does_material_exists(self.name):
             self.odefinition_manager.AddMaterial(args)
+        elif not self.is_sweep_material:
+            self.odefinition_manager.EditMaterial(self.name, args)
         return True
 
     @pyaedt_function_handler()

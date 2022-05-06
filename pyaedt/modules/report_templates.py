@@ -1,10 +1,285 @@
+from pyaedt.generic.constants import LineStyle
+from pyaedt.generic.constants import SymbolStyle
+from pyaedt.generic.constants import TraceType
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
+class LimitLine(object):
+    """Line Limit Management Class."""
+
+    def __init__(self, report_setup, trace_name):
+        self._oreport_setup = report_setup
+        self.line_name = trace_name
+        self.LINESTYLE = LineStyle()
+
+    @pyaedt_function_handler()
+    def _change_property(self, props_value):
+        self._oreport_setup.ChangeProperty(
+            ["NAME:AllTabs", ["NAME:Limit Line", ["NAME:PropServers", self.line_name], props_value]]
+        )
+        return True
+
+    @pyaedt_function_handler()
+    def set_line_properties(
+        self, style=None, width=None, hatch_above=None, violation_emphasis=None, hatch_pixels=None, color=None
+    ):
+        """Set trace properties.
+
+        Parameters
+        ----------
+        style : str, optional
+            Style for the limit line. The default is ``None``. You can also use
+            the ``LIFESTYLE`` property.
+        width : int, optional
+            Width of the limit line. The default is ``None``.
+        hatch_above : bool
+           Whether the hatch is above the limit line. The default is ``None``.
+        violation_emphasis : bool
+            Whether to add violation emphasis. The default is ``None``.
+        hatch_pixels : int
+            Number of pixels for the hatch. The default is ``None``.
+        color : tuple, list
+            Trace color specified as a tuple (R,G,B) or a list of integers [0,255].
+            The default is ``None``.
+
+        Returns
+        -------
+        bool
+            "True`` when successful, ``False`` when failed.
+        """
+        props = ["NAME:ChangedProps"]
+        if style:
+            props.append(["NAME:Line Style", "Value:=", style])
+        if width and isinstance(width, (int, float)):
+            props.append(["NAME:Line Width", "Value:=", str(width)])
+        if hatch_above and isinstance(hatch_pixels, int):
+            props.append(["NAME:Hatch Above", "Value:=", hatch_above])
+        if hatch_pixels and isinstance(hatch_pixels, int):
+            props.append(["NAME:Hatch Pixels", "Value:=", str(hatch_pixels)])
+        if violation_emphasis:
+            props.append(["NAME:Violation Emphasis", "Value:=", violation_emphasis])
+        if color and isinstance(color, (list, tuple)) and len(color) == 3:
+            props.append(["NAME:Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
+        return self._change_property(props)
+
+
+class Note(object):
+    """Note Management Class."""
+
+    def __init__(self, report_setup, plot_note_name):
+        self._oreport_setup = report_setup
+        self.plot_note_name = plot_note_name
+
+    @pyaedt_function_handler()
+    def _change_property(self, props_value):
+        prop_server_name = self.plot_note_name
+        self._oreport_setup.ChangeProperty(
+            ["NAME:AllTabs", ["NAME:Note", ["NAME:PropServers", prop_server_name], props_value]]
+        )
+        return True
+
+    @pyaedt_function_handler()
+    def set_note_properties(
+        self,
+        text=None,
+        back_color=None,
+        background_visibility=None,
+        border_color=None,
+        border_visibility=None,
+        border_width=None,
+        font="Arial",
+        font_size=12,
+        italic=False,
+        bold=False,
+        color=(0, 0, 0),
+    ):
+        """Set note properties.
+
+        Parameters
+        ----------
+        text : str, optional
+            Style for the limit line. The default is ``None``. You can also use
+            the ``LIFESTYLE`` property.
+        back_color : int
+            Background color specified as a tuple (R,G,B) or a list of integers [0,255].
+            The default is ``None``.
+        background_visibility : bool
+            Whether to view background. The default is ``None``.
+        border_color : int
+            Trace color specified as a tuple (R,G,B) or a list of integers [0,255].
+            The default is ``None``.
+        border_visibility : bool
+            Whether to view text border. The default is ``None``.
+            The default is ``None``.
+        border_width : int
+            Text boarder width.
+            The default is ``None``.
+        font : str, optional
+            The default is ``None``.
+        font_size : int, optional
+            The default is ``None``.
+        italic : bool
+            Whether the text is italic.
+            The default is ``None``.
+        bold : bool
+            Whether the text is bold.
+            The default is ``None``.
+        color : int =(0, 0, 0)
+            Trace color specified as a tuple (R,G,B) or a list of integers [0,255].
+            The default is ``None``.
+
+        Returns
+        -------
+        bool
+            "True`` when successful, ``False`` when failed.
+        """
+        props = ["NAME:ChangedProps"]
+        if text:
+            props.append(["NAME:Note Text", "Value:=", text])
+        if back_color and isinstance(back_color, (list, tuple)) and len(back_color) == 3:
+            props.append(["NAME:Back Color", "R:=", back_color[0], "G:=", back_color[1], "B:=", back_color[2]])
+        if background_visibility != None:
+            props.append(["NAME:Background Visibility", "Value:=", background_visibility])
+        if border_color and isinstance(border_color, (list, tuple)) and len(border_color) == 3:
+            props.append(["NAME:Border Color", "R:=", border_color[0], "G:=", border_color[1], "B:=", border_color[2]])
+        if border_visibility != None:
+            props.append(["NAME:Border Visibility", "Value:=", border_visibility])
+        if border_width and isinstance(border_width, (int, float)):
+            props.append(["NAME:Border Width", "Value:=", str(border_width)])
+
+        font_props = [
+            "NAME:Note Font",
+            "Height:=",
+            -1 * font_size - 2,
+            "Width:=",
+            0,
+            "Escapement:=",
+            0,
+            "Orientation:=",
+            0,
+            "Weight:=",
+            700 if bold else 400,
+            "Italic:=",
+            255 if italic else 0,
+            "Underline:=",
+            0,
+            "StrikeOut:=",
+            0,
+            "CharSet:=",
+            0,
+            "OutPrecision:=",
+            3,
+            "ClipPrecision:=",
+            2,
+            "Quality:=",
+            1,
+            "PitchAndFamily:=",
+            34,
+            "FaceName:=",
+            font,
+            "R:=",
+            color[0],
+            "G:=",
+            color[1],
+            "B:=",
+            color[2],
+        ]
+        props.append(font_props)
+        return self._change_property(props)
+
+
+class Trace(object):
+    """Provides trace management."""
+
+    def __init__(self, report_setup, trace_name):
+        self._oreport_setup = report_setup
+        self.trace_name = trace_name
+        self.LINESTYLE = LineStyle()
+        self.TRACETYPE = TraceType()
+        self.SYMBOLSTYLE = SymbolStyle()
+
+    @pyaedt_function_handler()
+    def _change_property(self, props_value):
+        self._oreport_setup.ChangeProperty(
+            ["NAME:AllTabs", ["NAME:Attributes", ["NAME:PropServers", self.trace_name], props_value]]
+        )
+        return True
+
+    @pyaedt_function_handler()
+    def set_trace_properties(self, trace_style=None, width=None, trace_type=None, color=None):
+        """Set trace properties.
+
+         Parameters
+         ----------
+        trace_style : str, optional
+             Style for the trace line. The default is ``None``. You can also use
+             the ``LINESTYLE`` property.
+         width : int, optional
+             Width of the trace line. The default is ``None``.
+         trace_type : str
+            Type of the trace line. The default is ``None``. You can also use the ``TRACETYPE``
+            property.
+         color : tuple, list
+             Trace line color specified as a tuple (R,G,B) or a list of integers [0,255].
+             The default is ``None``.
+
+         Returns
+         -------
+         bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        props = ["NAME:ChangedProps"]
+        if trace_style:
+            props.append(["NAME:Line Style", "Value:=", trace_style])
+        if width and isinstance(width, (int, float)):
+            props.append(["NAME:Line Width", "Value:=", str(width)])
+        if trace_type:
+            props.append(["NAME:Trace Type", "Value:=", trace_type])
+        if color and isinstance(color, (list, tuple)) and len(color) == 3:
+            props.append(["NAME:Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
+        return self._change_property(props)
+
+    @pyaedt_function_handler()
+    def set_symbol_properties(self, show=True, style=None, show_arrows=None, fill=None, color=None):
+        """Set symbol properties.
+
+        Parameters
+        ----------
+        show : bool, optional
+            Whether to show the symbol. The default is ``True``.
+        style : str, optional
+           Style of the style. The default is ``None``. You can also use the ``SYMBOLSTYLE``
+           property.
+        show_arrows : bool, optional
+            Whether to show arrows. The default is ``None``.
+        fill : bool, optional
+            Whether to fill the symbol with a color. The default is ``None``.
+        color : tuple, list
+            Symbol fill color specified as a tuple (R,G,B) or a list of integers [0,255].
+            The default is ``None``.
+
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        props = ["NAME:ChangedProps", ["NAME:Show Symbol", "Value:=", show]]
+        if style:
+            props.append(["NAME:Symbol Style", "Value:=", style])
+        if show_arrows:
+            props.append(["NAME:Show Arrows", "Value:=", show_arrows])
+        if fill:
+            props.append(["NAME:Fill Symbol", "Value:=", fill])
+        if color and isinstance(color, (list, tuple)) and len(color) == 3:
+            props.append(["NAME:Symbol Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
+        return self._change_property(props)
+
+
 class CommonReport(object):
-    """Common Report Class."""
+    """Provides common reports."""
 
     def __init__(self, app, report_category, setup_name):
         self._post = app
@@ -25,6 +300,82 @@ class CommonReport(object):
         self.expressions = None
         self._plot_name = None
         self._is_created = True
+
+    @property
+    def traces(self):
+        """Return the list of available traces in the report.
+
+        .. note::
+            This property works in version 2022 R1 and later. However, It works only in
+            non-graphical mode in version 2022 R2 and later.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modules.report_templates.Trace`
+        """
+        _traces = []
+        try:
+            oo = self._post.oreportsetup.GetChildObject(self._plot_name)
+            oo_names = self._post.oreportsetup.GetChildObject(self._plot_name).GetChildNames()
+        except:
+            return _traces
+        for el in oo_names:
+            if el in ["Legend", "Grid", "AxisX", "AxisY1", "Header", "General", "CartesianDisplayTypeProperty"]:
+                continue
+            try:
+                oo1 = oo.GetChildObject(el).GetChildNames()
+
+                for i in oo1:
+                    _traces.append(Trace(self._post.oreportsetup, "{}:{}:{}".format(self._plot_name, el, i)))
+            except:
+                pass
+        return _traces
+
+    @property
+    def limit_lines(self):
+        """Return the list of available limit lines in the report.
+
+        .. note::
+            This property works in version 2022 R1 and later. However, It works only in
+            non-graphical mode in version 2022 R2 and later.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modules.report_templates.LimitLine`
+        """
+        _traces = []
+        try:
+            oo_names = self._post.oreportsetup.GetChildObject(self._plot_name).GetChildNames()
+        except:
+            return _traces
+        for el in oo_names:
+            if "LimitLine" in el:
+                _traces.append(LimitLine(self._post.oreportsetup, "{}:{}".format(self._plot_name, el)))
+
+        return _traces
+
+    @property
+    def notes(self):
+        """Return the list of available notes in the report.
+
+        .. note::
+            This property works in version 2022 R1 and later. However, It works only in
+            non-graphical mode in version 2022 R2 and later.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modules.report_templates.Note`
+        """
+        _notes = []
+        try:
+            oo_names = self._post.oreportsetup.GetChildObject(self._plot_name).GetChildNames()
+        except:
+            return _notes
+        for el in oo_names:
+            if "Note" in el:
+                _notes.append(Note(self._post.oreportsetup, "{}:{}".format(self._plot_name, el)))
+
+        return _notes
 
     @property
     def plot_name(self):
@@ -238,7 +589,7 @@ class CommonReport(object):
         return solution_data
 
     @pyaedt_function_handler()
-    def add_limit_line_from_points(self, x_list, y_list, x_units="", y_units="", y_axis=1):  # pragma: no cover
+    def add_limit_line_from_points(self, x_list, y_list, x_units="", y_units="", y_axis="Y1"):  # pragma: no cover
         """Add a Cartesian Limit Line from point lists. This method works only in graphical mode.
 
         Parameters
@@ -276,7 +627,7 @@ class CommonReport(object):
                     "YUnits:=",
                     y_units,
                     "YAxis:=",
-                    "Y{}".format(y_axis),
+                    y_axis,
                 ],
             )
             return True
@@ -300,8 +651,8 @@ class CommonReport(object):
             Y equation to apply. Default is Y=X.
         units : str
             X axis units. Default is "GHz".
-        y_axis : str, optional
-            Y axis. Default is `"Y1"`.
+        y_axis : int, optional
+            Y axis. Default is `1`.
 
         Returns
         -------
@@ -322,6 +673,49 @@ class CommonReport(object):
                     str(step) + units,
                     "Equation:=",
                     equation,
+                ],
+            )
+            return True
+        return False
+
+    @pyaedt_function_handler()
+    def add_note(self, text, x_position=0, y_position=0):  # pragma: no cover
+        """Add a note at position.
+
+        Parameters
+        ----------
+        text : string
+            The text of the note.
+        x_position : float
+            x position of the note.
+        y_position : float
+            y position of the note.
+        note_name : string
+            internal name of the note (optional).
+
+        Returns
+        -------
+        bool
+        """
+        noteName = generate_unique_name("Note", n=3)
+        if self.plot_name and self._is_created:
+            self._post.oreportsetup.AddNote(
+                self.plot_name,
+                [
+                    "NAME:NoteDataSource",
+                    [
+                        "NAME:NoteDataSource",
+                        "SourceName:=",
+                        noteName,
+                        "HaveDefaultPos:=",
+                        True,
+                        "DefaultXPos:=",
+                        x_position,
+                        "DefaultYPos:=",
+                        y_position,
+                        "String:=",
+                        text,
+                    ],
                 ],
             )
             return True
@@ -374,93 +768,6 @@ class CommonReport(object):
             )
             return name
         return ""
-
-
-class Standard(CommonReport):
-    """Standard Report Class that fits most of the application standard reports."""
-
-    def __init__(self, app, report_category, setup_name):
-        CommonReport.__init__(self, app, report_category, setup_name)
-        self.expressions = None
-        self.sub_design_id = None
-        self.time_start = None
-        self.time_stop = None
-
-    @property
-    def _did(self):
-        if self.domain == "Sweep":
-            return 3
-        else:
-            return 1
-
-    @property
-    def _context(self):
-        ctxt = []
-        if self._post.post_solution_type in ["TR", "AC", "DC"]:
-            ctxt = [
-                "NAME:Context",
-                "SimValueContext:=",
-                [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0],
-            ]
-        elif self._post._app.design_type in ["Q3D Extractor", "2D Extractor"]:
-            if not self.matrix:
-                ctxt = ["Context:=", "Original"]
-            else:
-                ctxt = ["Context:=", self.matrix]
-        elif self._post.post_solution_type in ["HFSS3DLayout"]:
-            if self.differential_pairs:
-                ctxt = [
-                    "NAME:Context",
-                    "SimValueContext:=",
-                    [
-                        self._did,
-                        0,
-                        2,
-                        0,
-                        False,
-                        False,
-                        -1,
-                        1,
-                        0,
-                        1,
-                        1,
-                        "",
-                        0,
-                        0,
-                        "EnsDiffPairKey",
-                        False,
-                        "1",
-                        "IDIID",
-                        False,
-                        "1",
-                    ],
-                ]
-            else:
-                ctxt = [
-                    "NAME:Context",
-                    "SimValueContext:=",
-                    [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"],
-                ]
-        elif self._post.post_solution_type in ["NexximLNA", "NexximTransient"]:
-            ctxt = ["NAME:Context", "SimValueContext:=", [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
-            if self.sub_design_id:
-                ctxt_temp = ["NUMLEVELS", False, "1", "SUBDESIGNID", False, str(self.sub_design_id)]
-                for el in ctxt_temp:
-                    ctxt[2].append(el)
-            if self.differential_pairs:
-                ctxt_temp = ["USE_DIFF_PAIRS", False, "1"]
-                for el in ctxt_temp:
-                    ctxt[2].append(el)
-            if self.domain == "Time":
-                if self.time_start:
-                    ctxt[2].extend(["WS", False, self.time_start])
-                if self.time_stop:
-                    ctxt[2].extend(["WE", False, self.time_stop])
-        elif self.differential_pairs:
-            ctxt = ["Diff:=", "Differential Pairs", "Domain:=", self.domain]
-        else:
-            ctxt = ["Domain:=", self.domain]
-        return ctxt
 
     @pyaedt_function_handler()
     def _change_property(self, tabname, property_name, property_val):
@@ -943,6 +1250,106 @@ class Standard(CommonReport):
             ["NAME:Show Design Name", "Value:=", show_design_name],
         ]
         return self._change_property("Header", "Header", props)
+
+
+class Standard(CommonReport):
+    """Provides a reporting class that fits most of the application's standard reports."""
+
+    def __init__(self, app, report_category, setup_name):
+        CommonReport.__init__(self, app, report_category, setup_name)
+        self.expressions = None
+        self.sub_design_id = None
+        self.time_start = None
+        self.time_stop = None
+
+    @property
+    def _did(self):
+        if self.domain == "Sweep":
+            return 3
+        else:
+            return 1
+
+    @property
+    def _context(self):
+        ctxt = []
+        if self._post.post_solution_type in ["TR", "AC", "DC"]:
+            ctxt = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0],
+            ]
+        elif self._post._app.design_type in ["Q3D Extractor", "2D Extractor"]:
+            if not self.matrix:
+                ctxt = ["Context:=", "Original"]
+            else:
+                ctxt = ["Context:=", self.matrix]
+        elif self._post.post_solution_type in ["HFSS3DLayout"]:
+            if self.differential_pairs:
+                ctxt = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [
+                        self._did,
+                        0,
+                        2,
+                        0,
+                        False,
+                        False,
+                        -1,
+                        1,
+                        0,
+                        1,
+                        1,
+                        "",
+                        0,
+                        0,
+                        "EnsDiffPairKey",
+                        False,
+                        "1",
+                        "IDIID",
+                        False,
+                        "1",
+                    ],
+                ]
+            else:
+                ctxt = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"],
+                ]
+        elif self._post.post_solution_type in ["NexximLNA", "NexximTransient"]:
+            ctxt = ["NAME:Context", "SimValueContext:=", [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
+            if self.sub_design_id:
+                ctxt_temp = ["NUMLEVELS", False, "1", "SUBDESIGNID", False, str(self.sub_design_id)]
+                for el in ctxt_temp:
+                    ctxt[2].append(el)
+            if self.differential_pairs:
+                ctxt_temp = ["USE_DIFF_PAIRS", False, "1"]
+                for el in ctxt_temp:
+                    ctxt[2].append(el)
+            if self.domain == "Time":
+                if self.time_start:
+                    ctxt[2].extend(["WS", False, self.time_start])
+                if self.time_stop:
+                    ctxt[2].extend(["WE", False, self.time_stop])
+        elif self.differential_pairs:
+            ctxt = ["Diff:=", "Differential Pairs", "Domain:=", self.domain]
+        else:
+            ctxt = ["Domain:=", self.domain]
+        return ctxt
+
+
+class AntennaParameters(Standard):
+    """Provides a reporting class that fits Antenna Parameters reports in HFSS plot."""
+
+    def __init__(self, app, report_category, setup_name, far_field_sphere=None):
+        Standard.__init__(self, app, report_category, setup_name)
+        self.far_field_sphere = far_field_sphere
+
+    @property
+    def _context(self):
+        ctxt = ["Context:=", self.far_field_sphere]
+        return ctxt
 
 
 class Fields(CommonReport):

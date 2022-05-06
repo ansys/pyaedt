@@ -10,10 +10,10 @@ You can start AEDT from Python in the graphical or non-graphical mode.
 
 .. code:: python
 
-    Launch AEDT 2021 R2 in non-graphical mode
+    Launch AEDT 2022 R1 in non-graphical mode
 
     from pyaedt import Desktop, Maxwell3d
-    with Desktop(specified_version="2021.2", non_graphical=True, new_desktop_session=True, close_on_exit=True,
+    with Desktop(specified_version="2022.1", non_graphical=True, new_desktop_session=True, close_on_exit=True,
                  student_version=False):
         m3d = Maxwell3d()
         ...
@@ -30,7 +30,7 @@ You can obtain the same result with:
     # Launch the latest installed version of AEDT in graphical mode.
 
     from pyaedt import Maxwell3d
-    m3d = Maxwell3d(specified_version="2021.2", non_graphical=False)
+    m3d = Maxwell3d(specified_version="2022.1", non_graphical=False)
     ...
     # Put your code here
     ...
@@ -77,7 +77,7 @@ Here is a usage example for the client side:
 
     from pyaedt.common_rpc import client
     my_client = client("full_name_of_server")
-    circuit = my_client.root.circuit(specified_version="2021.2", non_graphical=True)
+    circuit = my_client.root.circuit(specified_version="2022.1", non_graphical=True)
     ...
     # code like locally
     ...
@@ -104,7 +104,7 @@ Here is a usage example for the client Side:
     example_script = ["from pyaedt import Circuit", circuit="Circuit()", "circuit.save_project('project_name')"]
     ansysem = "/path/to/AnsysEMxxx/Linux64"
     my_client.root.run_script(example_script, ansysem_path=ansysem)
-    my_client.root.run_script(example_script, aedt_version="2021.2") #if ANSYSEM_ROOTxxx env variable is present
+    my_client.root.run_script(example_script, aedt_version="2022.1") #if ANSYSEM_ROOTxxx env variable is present
 
 
 As an alternative, you can upload the script to the server and run it from there:
