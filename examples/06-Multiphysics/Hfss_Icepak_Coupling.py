@@ -171,7 +171,7 @@ sweepname = aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401, s
 # ~~~~~~~~~~~~~~~~~~~~~~
 # After an HFSS setup is ready, link it to an Icepak project to run a
 # coupled physics analysis.
-# The :func:`FieldAnalysisIcepak.copy_solid_bodies_from` imports a model
+# The :func:`FieldAnalysis3D.copy_solid_bodies_from` imports a model
 # from HFSS with all material settings.
 
 ipkapp = Icepak()

@@ -7,7 +7,6 @@ import json
 import os
 from collections import OrderedDict
 
-from pyaedt.application.Analysis2D import FieldAnalysis2D
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.DataHandlers import float_units
@@ -1290,7 +1289,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Maxwell.__init__(self)
 
 
-class Maxwell2d(Maxwell, FieldAnalysis2D, object):
+class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     """Provides the Maxwell 2D application interface.
 
     This class allows you to connect to an existing Maxwell 2D design or create a
@@ -1392,7 +1391,7 @@ class Maxwell2d(Maxwell, FieldAnalysis2D, object):
         port=0,
     ):
         self.is3d = False
-        FieldAnalysis2D.__init__(
+        FieldAnalysis3D.__init__(
             self,
             "Maxwell 2D",
             projectname,

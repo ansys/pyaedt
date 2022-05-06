@@ -860,6 +860,7 @@ class TestClass(BasisTest, object):
 
     def test_64_create_3dcomponent(self):
         assert self.aedtapp.modeler.create_3dcomponent(self.component3d_file)
+        assert os.path.exists(self.component3d_file)
         new_obj = self.aedtapp.modeler.duplicate_along_line("Solid", [100, 0, 0])
         rad = self.aedtapp.assign_radiation_boundary_to_objects("Solid")
         obj1 = self.aedtapp.modeler[new_obj[1][0]]
@@ -872,6 +873,7 @@ class TestClass(BasisTest, object):
             excitation_list=[exc.name],
             included_cs="Global",
         )
+        assert os.path.exists(self.component3d_file)
 
     def test_65_create_equationbased_curve(self):
         self.aedtapp.insert_design("Equations")
