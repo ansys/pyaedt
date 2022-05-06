@@ -333,7 +333,7 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignAperture(self._get_args())
         elif self.type == "Radiation":
             self._app.oboundary.AssignRadiation(self._get_args())
-        elif self.type == "FiniteCond":
+        elif self.type == "Finite Conductivity":
             self._app.oboundary.AssignFiniteCond(self._get_args())
         elif self.type == "LumpedRLC":
             self._app.oboundary.AssignLumpedRLC(self._get_args())
@@ -479,7 +479,7 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditAperture(self._boundary_name, self._get_args())
         elif self.type == "Radiation":
             self._app.oboundary.EditRadiation(self._boundary_name, self._get_args())
-        elif self.type in ["FiniteCond", "Finite Conductivity"]:
+        elif self.type == "Finite Conductivity":
             self._app.oboundary.EditFiniteCond(self._boundary_name, self._get_args())
         elif self.type == "LumpedRLC":
             self._app.oboundary.EditLumpedRLC(self._boundary_name, self._get_args())

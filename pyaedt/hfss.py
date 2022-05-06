@@ -646,7 +646,7 @@ class Hfss(FieldAnalysis3D, object):
             props["IsShellElement"] = issheelElement
         else:
             props["IsInternal"] = isInternal
-        return self._create_boundary("Coating_" + listobjname[:32], props, "FiniteCond")
+        return self._create_boundary("Coating_" + listobjname[:32], props, "Finite Conductivity")
 
     @pyaedt_function_handler()
     def create_frequency_sweep(
