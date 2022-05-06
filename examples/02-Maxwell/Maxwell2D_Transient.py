@@ -22,13 +22,11 @@ Install these with:
 import os
 from pyaedt import Maxwell2d
 
-###############################################################################
-# Launch AEDT in Graphical Mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You change the Boolean parameter ``non_graphical`` to ``False`` to launch
-# AEDT in graphical mode.
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
 
-non_graphical = True
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
 # Insert a Maxwell 2D Design and Save the Project

@@ -13,6 +13,12 @@ import os
 from pyaedt.maxwell import Maxwell3d
 from pyaedt.modeler.Primitives import PolylineSegment
 
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
 ###############################################################################
 # Create a Maxwell 3D Object and Set the Unit Type
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -20,7 +26,7 @@ from pyaedt.modeler.Primitives import PolylineSegment
 # type to ``"mm"``.
 
 M3D = Maxwell3d(
-    solution_type="Transient", designname="test_polyline_3D", specified_version="2022.1", new_desktop_session=True
+    solution_type="Transient", designname="test_polyline_3D", specified_version="2022.1", new_desktop_session=True, non_graphical=non_graphical,
 )
 M3D.modeler.model_units = "mm"
 prim3D = M3D.modeler

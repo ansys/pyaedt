@@ -21,6 +21,12 @@ if not os.path.exists(temp_folder):
     os.makedirs(temp_folder)
 print(temp_folder)
 
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
 ###############################################################################
 # Input Variables
 # ~~~~~~~~~~~~~~~
@@ -48,9 +54,7 @@ from pyaedt import Desktop
 # You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch
 # AEDT in graphical mode.
 
-NonGraphical = False
-
-d = Desktop("2022.1", non_graphical=NonGraphical, new_desktop_session=True)
+d = Desktop("2022.1", non_graphical=non_graphical, new_desktop_session=True)
 
 start = time.time()
 material_list = os.path.join(input_dir, material_name)

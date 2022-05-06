@@ -12,6 +12,14 @@ from pyaedt import Hfss3dLayout
 import os
 
 
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
+
+
 class Patch:
     def __init__(self, width=0.0, height=0.0, position=0.0):
         self.width = width
@@ -203,7 +211,7 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 project = os.path.join(aedb_path, "edb.def")
-h3d = Hfss3dLayout(projectname=project, specified_version="2022.1", new_desktop_session=True, non_graphical=False)
+h3d = Hfss3dLayout(projectname=project, specified_version="2022.1", new_desktop_session=True, non_graphical=non_graphical)
 
 ###############################################################################
 # Plot the geometry

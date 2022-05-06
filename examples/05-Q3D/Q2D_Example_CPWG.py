@@ -10,13 +10,12 @@ import os
 from pyaedt import Q2d, Desktop
 from pyaedt.generic.general_methods import generate_unique_name
 
-###############################################################################
-# Launch AEDT in Non-Graphical Mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You can change the Boolean parameter ``non_graphical`` to ``False`` to launch
-# AEDT in graphical mode.
 
-non_graphical = True
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
 # Launch AEDT and Q2D

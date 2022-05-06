@@ -37,7 +37,7 @@ else:
 with open(os.path.join(root_path, "pyaedt", "version.txt"), "r") as f:
     release = version = f.readline()
 
-
+os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx_PyAEDT extension module names here, as strings. They can be

@@ -9,6 +9,12 @@ import numpy as np
 import csv
 import os
 
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
 ###########################################################################################
 # Launch AEDT and Maxwell 3D.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -21,7 +27,7 @@ Solver = "EddyCurrent"
 DesktopVersion = "2022.1"
 
 M3D = Maxwell3d(
-    projectname=Project_Name, designname=Design_Name, solution_type=Solver, specified_version=DesktopVersion
+    projectname=Project_Name, designname=Design_Name, solution_type=Solver, specified_version=DesktopVersion, non_graphical=non_graphical
 )
 M3D.modeler.model_units = "mm"
 primitives = M3D.modeler.primitives

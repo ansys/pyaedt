@@ -15,6 +15,7 @@ if not os.path.exists(temp_folder):
     os.makedirs(temp_folder)
 print(temp_folder)
 
+
 ###############################################################################
 # Copy an Example in the Temp Folder
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -29,6 +30,12 @@ targetfile = examples.download_aedb()
 print(targetfile)
 aedt_file = targetfile[:-12] + "aedt"
 
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+NewThread = True
 
 ###############################################################################
 # Launch AEDT
@@ -41,21 +48,12 @@ desktopVersion = "2022.1"
 
 
 ###############################################################################
-# Launch AEDT in Non-Graphical Mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Change the Boolean parameter ``NonGraphical`` to ``False`` to launch AEDT in
-# graphical mode.
-
-NonGraphical = True
-NewThread = True
-
-###############################################################################
 # Initialize AEDT
 # ~~~~~~~~~~~~~~~
 # Launch HFSS 3D Layout.
 # The `h3d` object will contain the :class:`pyaedt.Edb` class query methods.
 
-d = Desktop(desktopVersion, NonGraphical, NewThread)
+d = Desktop(desktopVersion, non_graphical, NewThread)
 if os.path.exists(aedt_file):
     os.remove(aedt_file)
 h3d = Hfss3dLayout(targetfile)

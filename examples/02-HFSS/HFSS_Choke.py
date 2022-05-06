@@ -18,12 +18,18 @@ temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
 if not os.path.exists(temp_folder):
     os.mkdir(temp_folder)
 
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
 ###############################################################################
 # Launch HFSS in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This examples launches HFSS 2022.1 in graphical mode.
 
-hfss = Hfss(specified_version="2022.1", non_graphical=False, new_desktop_session=True, solution_type="Terminal")
+hfss = Hfss(specified_version="2022.1", non_graphical=non_graphical, new_desktop_session=True, solution_type="Terminal")
 
 ###############################################################################
 # Rules and information of use
