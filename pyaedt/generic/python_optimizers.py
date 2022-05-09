@@ -1,7 +1,7 @@
 import sys
+import threading
 
 import numpy as np
-from func_timeout import func_timeout
 
 
 class GeneticAlgorithm(object):
@@ -83,6 +83,7 @@ class GeneticAlgorithm(object):
         progress_bar=True,
     ):
         self.population_file = None
+        self.goal = 1e10
         if population_file:
             self.population_file = population_file
         try:
@@ -436,25 +437,30 @@ class GeneticAlgorithm(object):
         return x
 
     def evaluate(self):
+        self.goal = 1e10
         if not self.reference_file:
-            return self.function(self.temp)
+            self.goal = self.function(self.temp)
+            return True
         else:
-            return self.function(self.temp, self.reference_file)
+            self.goal = self.function(self.temp, self.reference_file)
+            return True
 
     def sim(self, X):
         self.temp = X.copy()
-        obj = None
-        try:
-            obj = func_timeout(self.timeout, self.evaluate)
-        except:
-            print(
-                "After "
-                + str(self.timeout)
-                + " seconds delay "
-                + "func_timeout: the given function does not provide any output"
-            )
-            obj = 1e10
-        return obj
+        if self.timeout > 0:
+            e = threading.Event()
+            t = threading.Thread(target=self.evaluate)
+            t.start()
+            # Wait for at most self.timeout seconds for the thread to complete.
+            t.join(self.timeout)
+            if t.is_alive():
+                print("After " + str(self.timeout) + " seconds delay the given function does not provide any output")
+                e.set()
+                self.goal = 1e10
+        else:
+            eval = self.evaluate()
+
+        return self.goal
 
     def progress(self, count, total, status=""):
         bar_len = 50
