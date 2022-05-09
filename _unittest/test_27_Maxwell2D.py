@@ -148,5 +148,5 @@ class TestClass(BasisTest, object):
         self.aedtapp.set_active_design("Basis_Model_For_Test")
         assert self.aedtapp.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
 
-        # assert self.aedtapp.change_design_settings({"Multiplier": 2})
-        # assert self.aedtapp.change_symmetry_multiplier(1)
+    def test_20_symmetry_multiplier(self):
+        assert self.aedtapp.change_symmetry_multiplier(2)
