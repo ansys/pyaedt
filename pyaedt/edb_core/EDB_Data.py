@@ -2288,6 +2288,10 @@ class EDBPadstackInstance(object):
         else:
             return self._edb_padstackinstance.GetName()
 
+    @name.setter
+    def name(self, value):
+        self._edb_padstackinstance.SetName(value)
+
     @pyaedt_function_handler()
     def delete_padstack_instance(self):
         """Delete this padstack instance."""

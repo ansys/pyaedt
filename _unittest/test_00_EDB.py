@@ -143,6 +143,8 @@ class TestClass(BasisTest, object):
         assert padstack_instance.is_pin
         assert padstack_instance.position
         assert isinstance(padstack_instance.rotation, float)
+        padstack_instance.name = "TestInst"
+        assert padstack_instance.name == "TestInst"
 
     def test_08_nets_query(self):
         signalnets = self.edbapp.core_nets.signal_nets
