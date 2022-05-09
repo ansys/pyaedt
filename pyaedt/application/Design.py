@@ -370,6 +370,7 @@ class Design(object):
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
         self.boundaries = []
+        self.user_lists = []
         self.project_datasets = {}
         self.design_datasets = {}
         main_module = sys.modules["__main__"]
@@ -978,6 +979,7 @@ class Design(object):
                 self.logger.info(warning_msg)
                 self._insert_design(self._design_type)
         self.boundaries = self._get_boundaries_data()
+        self.user_lists = self._get_user_lists()
 
     @property
     def oproject(self):
@@ -2029,6 +2031,30 @@ class Design(object):
         except:
             pass
         return datasets
+
+    @pyaedt_function_handler()
+    def _get_user_lists(self):
+        """Retrieve user object list data.
+
+        Returns
+        -------
+        [Dict with List information]
+        """
+        design_lists = []
+        key1 = "GeometryOperations"
+        key2 = "GeometryEntityLists"
+        key3 = "GeometryEntityListOperation"
+        try:
+            for data in self.design_properties["ModelSetup"]["GeometryCore"][key1][key2][key3]:
+                data_dict = {}
+                data_dict["ID"] = data["ID"]
+                data_dict["Type"] = data["GeometryEntityListParameters"]["EntityType"]
+                data_dict["List"] = data["GeometryEntityListParameters"]["EntityList"]
+                data_dict["Name"] = data["Attributes"]["Name"]
+                design_lists.append(data_dict)
+        except:
+            pass
+        return design_lists
 
     @pyaedt_function_handler()
     def close_desktop(self):

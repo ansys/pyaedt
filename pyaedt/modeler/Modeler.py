@@ -3248,8 +3248,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        dict
+            `List properties, ``False`` when failed.
 
         References
         ----------
@@ -3262,7 +3262,13 @@ class GeometryModeler(Modeler, object):
             ["NAME:Attributes", "Name:=", name],
         )
         self.logger.info("Face List " + name + " created")
-        return True
+        data_dict = {}
+        data_dict["ID"] = self.oeditor.GetEntityListIDByName(name)
+        data_dict["Type"] = "Face"
+        data_dict["List"] = fl
+        data_dict["Name"] = name
+        self._app.user_lists.append(data_dict)
+        return data_dict
 
     @pyaedt_function_handler()
     def create_object_list(self, fl, name):
@@ -3277,8 +3283,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        int
-            ID of the new object list.
+        dict
+            `List properties, ``False`` when failed.
 
         References
         ----------
@@ -3291,8 +3297,16 @@ class GeometryModeler(Modeler, object):
             ["NAME:Attributes", "Name:=", name],
         )
         self.logger.info("Object List " + name + " created")
-
-        return self.get_entitylist_id(name)
+        data_dict = {}
+        data_dict["ID"] = self.oeditor.GetEntityListIDByName(name)
+        data_dict["Type"] = "Object"
+        obj_list = []
+        for element in fl:
+            obj_list.append(self.object_id_dict[element])
+        data_dict["List"] = obj_list
+        data_dict["Name"] = name
+        self._app.user_lists.append(data_dict)
+        return data_dict
 
     @pyaedt_function_handler()
     def generate_object_history(self, objectname):
