@@ -143,8 +143,6 @@ class TestClass(BasisTest, object):
         assert padstack_instance.is_pin
         assert padstack_instance.position
         assert isinstance(padstack_instance.rotation, float)
-        padstack_instance.name = "TestInst"
-        assert padstack_instance.name == "TestInst"
 
     def test_08_nets_query(self):
         signalnets = self.edbapp.core_nets.signal_nets
@@ -637,6 +635,8 @@ class TestClass(BasisTest, object):
         padstack_1 = list(padstack_instances.values())[0]
         assert padstack_1.id
         assert isinstance(padstack_1.bounding_box, list)
+        padstack_1.name = "TestInst"
+        assert padstack_1.name == "TestInst"
 
     def test_73_duplicate_padstack(self):
         self.edbapp.core_padstack.duplicate_padstack(
