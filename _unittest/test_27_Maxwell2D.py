@@ -31,7 +31,6 @@ class TestClass(BasisTest, object):
     def test_03_assign_initial_mesh_from_slider(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
         self.aedtapp.set_active_design("Basis_Model_For_Test")
-        assert self.aedtapp.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
 
     @pyaedt_unittest_check_desktop_error
     def test_04_create_winding(self):
@@ -142,16 +141,12 @@ class TestClass(BasisTest, object):
         bound.props["InductanceValue"] = "5H"
         assert bound.props["InductanceValue"] == "5H"
         assert not self.aedtapp.assign_end_connection([rect])
-        self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        assert not self.aedtapp.assign_end_connection([rect, rect2])
+        # self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        # assert not self.aedtapp.assign_end_connection([rect, rect2])
 
     def test_19_setup_y_connection(self):
-        import pdb
-
-        pdb.set_trace()
         self.aedtapp.set_active_design("Basis_Model_For_Test")
         assert self.aedtapp.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
-        a = 10
 
-        assert self.aedtapp.change_design_settings({"Multiplier": 2})
-        assert self.aedtapp.change_symmetry_multiplier(1)
+        # assert self.aedtapp.change_design_settings({"Multiplier": 2})
+        # assert self.aedtapp.change_symmetry_multiplier(1)

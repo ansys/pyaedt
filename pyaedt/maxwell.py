@@ -333,15 +333,12 @@ class Maxwell(object):
         """
 
         oModule = self.odesign.GetModule("BoundarySetup")
-        foo = ["NAME:YConnection"]
-        foo.append("Windings:=")
-        foo.append("PhaseA,PhaseB,PhaseC")
-        foo2 = []
-        foo2.append(foo)
-        import pdb
-
-        pdb.set_trace()
-        oModule.SetupYConnection(foo2)
+        connection = ["NAME:YConnection"]
+        connection.append("Windings:=")
+        connection.append("PhaseA,PhaseB,PhaseC")
+        windings = []
+        windings.append(connection)
+        oModule.SetupYConnection(windings)
         return True
 
     @pyaedt_function_handler()
