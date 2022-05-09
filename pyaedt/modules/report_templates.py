@@ -552,7 +552,7 @@ class CommonReport(object):
                 self.plot_name = generate_unique_name("Plot")
         else:
             self.plot_name = plot_name
-        if self.setup not in self._post._app.existing_analysis_sweeps:
+        if self.setup not in self._post._app.existing_analysis_sweeps and "AdaptivePass" not in self.setup:
             self._post._app.logger.error("Setup doesn't exist in this design.")
             return False
         self._post.oreportsetup.CreateReport(

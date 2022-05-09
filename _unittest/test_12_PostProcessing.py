@@ -211,6 +211,15 @@ class TestClass(BasisTest, object):
 
     def test_09_manipulate_report(self):
         assert self.aedtapp.post.create_report("dB(S(1,1))")
+        assert self.aedtapp.post.create_report(
+            expressions="MaxMagDeltaS",
+            variations={"Pass": ["All"]},
+            setup_sweep_name="Setup1 : AdaptivePass",
+            primary_sweep_variable="Pass",
+            report_category="Modal Solution Data",
+            plot_type="Rectangular Plot",
+            plotname="Solution Convergence Plot",
+        )
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
 
