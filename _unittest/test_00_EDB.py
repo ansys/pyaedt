@@ -635,8 +635,11 @@ class TestClass(BasisTest, object):
         padstack_1 = list(padstack_instances.values())[0]
         assert padstack_1.id
         assert isinstance(padstack_1.bounding_box, list)
-        padstack_1.name = "TestInst"
-        assert padstack_1.name == "TestInst"
+        for v in list(padstack_instances.values()):
+            if not v.is_pin:
+                v.name = "TestInst"
+                assert v.name == "TestInst"
+                break
 
     def test_73_duplicate_padstack(self):
         self.edbapp.core_padstack.duplicate_padstack(
