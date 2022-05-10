@@ -111,6 +111,7 @@ class TestClass(BasisTest, object):
 
     @pyaedt_unittest_check_desktop_error
     def test_15_assign_movement(self):
+        self.aedtapp.set_active_design("Y_Connections")
         self.aedtapp.insert_design("Motion")
         self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.TransientZ
         self.aedtapp.xy_plane = True
@@ -141,12 +142,14 @@ class TestClass(BasisTest, object):
         bound.props["InductanceValue"] = "5H"
         assert bound.props["InductanceValue"] == "5H"
         assert not self.aedtapp.assign_end_connection([rect])
-        # self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        # assert not self.aedtapp.assign_end_connection([rect, rect2])
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        assert not self.aedtapp.assign_end_connection([rect, rect2])
 
     def test_19_setup_y_connection(self):
-        self.aedtapp.set_active_design("Basis_Model_For_Test")
+        self.aedtapp.set_active_design("Y_Connections")
         assert self.aedtapp.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
+        assert self.aedtapp.setup_y_connection(["PhaseA", "PhaseB"])  # Remove one phase from the Y connection.
+        assert self.aedtapp.setup_y_connection()  # Remove the Y connection.
 
     def test_20_symmetry_multiplier(self):
         assert self.aedtapp.change_symmetry_multiplier(2)
