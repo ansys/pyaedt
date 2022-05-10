@@ -3481,8 +3481,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        dict
-            `List properties, ``False`` when failed.
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
@@ -3519,8 +3519,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        dict
-            `List properties, ``False`` when failed.
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
