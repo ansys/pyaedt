@@ -39,7 +39,8 @@ class Materials(object):
         self._color_id = 0
         self.odefinition_manager = self._app.odefinition_manager
         self.omaterial_manager = self._app.omaterial_manager
-        self._mat_names_aedt = self._read_materials()
+        self._mats = []
+        self._mats_lower = []
         self._desktop = self._app.odesktop
         self._oproject = self._app.oproject
         self.logger = self._app.logger
@@ -96,8 +97,16 @@ class Materials(object):
         return mats
 
     @property
+    def _mat_names_aedt(self):
+        if not self._mats:
+            self._mats = self._read_materials()
+        return self._mats
+
+    @property
     def _mat_names_aedt_lower(self):
-        return [i.lower() for i in self._mat_names_aedt]
+        if len(self._mats_lower) < len(self._mat_names_aedt):
+            return [i.lower() for i in self._mat_names_aedt]
+        return self._mats_lower
 
     @pyaedt_function_handler()
     def _read_materials(self):
@@ -283,7 +292,7 @@ class Materials(object):
             if material.update():
                 self.logger.info("Material has been added. Edit it to update in Desktop.")
                 self.material_keys[materialname.lower()] = material
-                self._mat_names_aedt.append(materialname)
+                self._mats.append(materialname)
                 return self.material_keys[materialname.lower()]
         return False
 
@@ -452,7 +461,7 @@ class Materials(object):
 
         newmat = Material(self, new_name, matobj._props)
         newmat.update()
-        self._mat_names_aedt.append(new_name)
+        self._mats.append(new_name)
         self.material_keys[new_name.lower()] = newmat
         return newmat
 
