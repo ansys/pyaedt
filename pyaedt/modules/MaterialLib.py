@@ -6,6 +6,9 @@ from __future__ import absolute_import  # noreorder
 
 import copy
 import json
+import os
+import fnmatch
+import re
 
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.general_methods import _create_json_file
@@ -16,7 +19,6 @@ from pyaedt.modules.Material import Material
 from pyaedt.modules.Material import MatProperties
 from pyaedt.modules.Material import OrderedDict
 from pyaedt.modules.Material import SurfaceMaterial
-from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
 
 class Materials(object):
@@ -110,8 +112,16 @@ class Materials(object):
 
     @pyaedt_function_handler()
     def _read_materials(self):
-        import os
-        import fnmatch
+        def get_mat_list(file_name):
+            mats = []
+            _begin_search = re.compile(r"^\$begin '(.+)'")
+            with open(file_name, "r") as aedt_fh:
+                raw_lines = aedt_fh.read().splitlines()
+                for line in raw_lines:
+                    b = _begin_search.search(line)
+                    if b:  # walk down a level
+                        mats.append(b.group(1))
+            return mats
 
         amat_sys = [
             os.path.join(dirpath, filename)
@@ -121,8 +131,10 @@ class Materials(object):
         ]
         mats = []
         for amat in amat_sys:
-            m = load_entire_aedt_file(amat)
-            mats.extend(list(m.keys()))
+            # m = load_entire_aedt_file(amat)
+            # mats.extend(list(m.keys()))
+            mats.extend(get_mat_list(amat))
+
         amat_personal = [
             os.path.join(dirpath, filename)
             for dirpath, _, filenames in os.walk(self._app.personallib)
@@ -130,8 +142,9 @@ class Materials(object):
             if fnmatch.fnmatch(filename, "*.amat")
         ]
         for amat in amat_personal:
-            m = load_entire_aedt_file(amat)
-            mats.extend(list(m.keys()))
+            # m = load_entire_aedt_file(amat)
+            # mats.extend(list(m.keys()))
+            mats.extend(get_mat_list(amat))
         amat_user = [
             os.path.join(dirpath, filename)
             for dirpath, _, filenames in os.walk(self._app.userlib)
@@ -139,8 +152,10 @@ class Materials(object):
             if fnmatch.fnmatch(filename, "*.amat")
         ]
         for amat in amat_user:
-            m = load_entire_aedt_file(amat)
-            mats.extend(list(m.keys()))
+            # m = load_entire_aedt_file(amat)
+            # mats.extend(list(m.keys()))
+            mats.extend(get_mat_list(amat))
+
         mats.remove("$index$")
         mats.remove("$base_index$")
         mats.extend(self.odefinition_manager.GetProjectMaterialNames())
@@ -593,14 +608,14 @@ class Materials(object):
         -------
         :class:`pyaedt.modules.Material.Material`
         """
-        matname = self._get_aedt_case_name(matname)
+        if matname not in self.odefinition_manager.GetProjectMaterialNames():
+            matname = self._get_aedt_case_name(matname)
         props = {}
         _arg2dict(list(_retry_ntimes(20, self.omaterial_manager.GetData, matname)), props)
         values_view = props.values()
         value_iterator = iter(values_view)
         first_value = next(value_iterator)
         newmat = Material(self, matname, first_value)
-
         self.material_keys[matname.lower()] = newmat
         return self.material_keys[matname.lower()]
 
