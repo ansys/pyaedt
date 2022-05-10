@@ -210,14 +210,17 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.create_air_region(*[20, 20, 30, 50, 50, 100])
         assert self.aedtapp.modeler.edit_region_dimensions([40, 30, 30, 50, 50, 100])
 
-    def test_28_create_face_list(self):
+    def test_28A_create_face_list(self):
         fl = self.aedtapp.modeler.get_object_faces("Second_airbox")
         assert self.aedtapp.modeler.create_face_list(fl, "my_face_list")
+        assert self.aedtapp.modeler.create_face_list(fl)
+        assert self.aedtapp.modeler.create_face_list([str(fl[0])])
 
     def test_28B_create_object_list(self):
         assert self.aedtapp.modeler.create_object_list(["Second_airbox"], "my_object_list")
         assert self.aedtapp.modeler.create_object_list(["Core", "outer"])
         self.aedtapp.modeler.user_lists[2].props["List"] = ["outer"]
+        assert self.aedtapp.modeler.user_lists[2].rename("new_list")
         assert self.aedtapp.modeler.user_lists[2].delete()
 
     def test_29_create_outer_face_list(self):
