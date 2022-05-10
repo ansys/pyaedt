@@ -1066,8 +1066,8 @@ class Lists(BaseLists, object):
                             raise ValueError(element + " is not defined")
                 else:
                     object_list_new.append(int(element))
-            else:
-                object_list_new = []
+        else:
+            object_list_new = []
         return object_list_new
 
 

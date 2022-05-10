@@ -186,9 +186,11 @@ class TestClass(BasisTest, object):
 
     def test_13b_assign_grille(self):
         airfaces = [self.aedtapp.modeler["Region"].top_face_y.id]
+        self.aedtapp.modeler.user_lists[0].delete()
         grille = self.aedtapp.assign_grille(airfaces)
         grille.props["Free Area Ratio"] = 0.7
         assert grille.update()
+        self.aedtapp.modeler.user_lists[0].delete()
         airfaces = [self.aedtapp.modeler["Region"].bottom_face_x.id]
         grille2 = self.aedtapp.assign_grille(
             airfaces, free_loss_coeff=False, x_curve=["0", "3", "5"], y_curve=["0", "2", "3"]
