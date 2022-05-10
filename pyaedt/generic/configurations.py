@@ -12,6 +12,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Modeler import CoordinateSystem
 from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.Boundary import BoundaryProps
 from pyaedt.modules.DesignXPloration import SetupOpti
 from pyaedt.modules.DesignXPloration import SetupParam
 from pyaedt.modules.MaterialLib import Material
@@ -772,6 +773,43 @@ class Configurations(object):
                     bound.auto_update = False
                     bound.props["Independent"] = b.name
                     bound.auto_update = True
+        if bound.props.get("CurrentLine", None):
+            current = bound.props["CurrentLine"]["GeometryPosition"]
+            x1 = self._app.modeler._arg_with_dim(float(current[0]["XPosition"]), self._app.modeler.model_units)
+            y1 = self._app.modeler._arg_with_dim(float(current[0]["YPosition"]), self._app.modeler.model_units)
+            z1 = self._app.modeler._arg_with_dim(float(current[0]["ZPosition"]), self._app.modeler.model_units)
+            x2 = self._app.modeler._arg_with_dim(float(current[1]["XPosition"]), self._app.modeler.model_units)
+            y2 = self._app.modeler._arg_with_dim(float(current[1]["YPosition"]), self._app.modeler.model_units)
+            z2 = self._app.modeler._arg_with_dim(float(current[1]["ZPosition"]), self._app.modeler.model_units)
+            p1 = OrderedDict({"Coordinate System": "Global", "Start": [x1, y1, z1], "End": [x2, y2, z2]})
+            bound.auto_update = False
+            bound.props["CurrentLine"] = BoundaryProps(bound, p1)
+            bound.auto_update = True
+        if bound.props.get("Modes", None):
+            modes = OrderedDict({})
+            for k, v in bound.props["Modes"].items():
+                p1 = OrderedDict({"ModeNum": v["ModeNum"], "UseIntLine": v["UseIntLine"]})
+                if v["UseIntLine"]:
+                    current = v["IntLine"]["GeometryPosition"]
+                    x1 = self._app.modeler._arg_with_dim(float(current[0]["XPosition"]), self._app.modeler.model_units)
+                    y1 = self._app.modeler._arg_with_dim(float(current[0]["YPosition"]), self._app.modeler.model_units)
+                    z1 = self._app.modeler._arg_with_dim(float(current[0]["ZPosition"]), self._app.modeler.model_units)
+                    x2 = self._app.modeler._arg_with_dim(float(current[1]["XPosition"]), self._app.modeler.model_units)
+                    y2 = self._app.modeler._arg_with_dim(float(current[1]["YPosition"]), self._app.modeler.model_units)
+                    z2 = self._app.modeler._arg_with_dim(float(current[1]["ZPosition"]), self._app.modeler.model_units)
+                    p1["IntLine"] = OrderedDict(
+                        {"Coordinate System": "Global", "Start": [x1, y1, z1], "End": [x2, y2, z2]}
+                    )
+                if v.get("AlignmentGroup", None):
+                    p1["AlignmentGroup"] = v["AlignmentGroup"]
+                if v.get("CharImp", None):
+                    p1["CharImp"] = v["CharImp"]
+                if v.get("RenormImp", None):
+                    p1["RenormImp"] = v["RenormImp"]
+                modes[k] = p1
+            bound.auto_update = False
+            bound.props["Modes"] = BoundaryProps(bound, modes)
+            bound.auto_update = True
         if bound.create():
             self._app.boundaries.append(bound)
             if props["BoundType"] in ["Coil Terminal", "Coil", "CoilTerminal"]:
@@ -948,7 +986,7 @@ class Configurations(object):
         #         self._convert_objects(dict_in["facecoordinatesystems"][name], dict_in["general"]["object_mapping"])
         #         if not self._update_face_coordinate_systems(name, props):
         #             self.results.import_face_coordinate_systems = False
-
+        self._app.modeler.set_working_coordinate_system("Global")
         if self.options.import_object_properties and dict_in.get("objects", None):
             self.results.import_object_properties = True
             for obj, val in dict_in["objects"].items():
@@ -964,7 +1002,6 @@ class Configurations(object):
                 if not self._update_boundaries(name, dict_in["boundaries"][name]):
                     self.results.import_boundaries = False
 
-        # TODO implement MeshRegion handler
         if self.options.import_mesh_operations and dict_in.get("mesh", None):
             self.results.import_mesh_operations = True
             for name, props in dict_in["mesh"].items():

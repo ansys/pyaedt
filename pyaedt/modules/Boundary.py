@@ -336,9 +336,9 @@ class BoundaryObject(BoundaryCommon, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if self.type == "PerfectE":
+        if self.type == "Perfect E":
             self._app.oboundary.AssignPerfectE(self._get_args())
-        elif self.type == "PerfectH":
+        elif self.type == "Perfect H":
             self._app.oboundary.AssignPerfectH(self._get_args())
         elif self.type == "Aperture":
             self._app.oboundary.AssignAperture(self._get_args())
@@ -346,12 +346,14 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignRadiation(self._get_args())
         elif self.type == "Finite Conductivity":
             self._app.oboundary.AssignFiniteCond(self._get_args())
-        elif self.type == "LumpedRLC":
+        elif self.type == "Lumped RLC":
             self._app.oboundary.AssignLumpedRLC(self._get_args())
         elif self.type == "Impedance":
             self._app.oboundary.AssignImpedance(self._get_args())
+        elif self.type == "Layered Impedance":
+            self._app.oboundary.AssignLayeredImp(self._get_args())
         elif self.type == "Anisotropic Impedance":
-            self._app.oboundary.AssignAssignAnisotropicImpedance(self._get_args())
+            self._app.oboundary.AssignAnisotropicImpedance(self._get_args())
         elif self.type == "Primary":
             self._app.oboundary.AssignPrimary(self._get_args())
         elif self.type == "Secondary":
@@ -482,9 +484,9 @@ class BoundaryObject(BoundaryCommon, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if self.type == "PerfectE":
+        if self.type == "Perfect E":
             self._app.oboundary.EditPerfectE(self._boundary_name, self._get_args())
-        elif self.type == "PerfectH":
+        elif self.type == "Perfect H":
             self._app.oboundary.EditPerfectH(self._boundary_name, self._get_args())
         elif self.type == "Aperture":
             self._app.oboundary.EditAperture(self._boundary_name, self._get_args())
@@ -492,10 +494,12 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditRadiation(self._boundary_name, self._get_args())
         elif self.type == "Finite Conductivity":
             self._app.oboundary.EditFiniteCond(self._boundary_name, self._get_args())
-        elif self.type == "LumpedRLC":
+        elif self.type == "Lumped RLC":
             self._app.oboundary.EditLumpedRLC(self._boundary_name, self._get_args())
         elif self.type == "Impedance":
             self._app.oboundary.EditImpedance(self._boundary_name, self._get_args())
+        elif self.type == "Layered Impedance":
+            self._app.oboundary.EditLayeredImpedance(self._boundary_name, self._get_args())
         elif self.type == "Anisotropic Impedance":
             self._app.oboundary.EditAssignAnisotropicImpedance(
                 self._boundary_name, self._get_args()
