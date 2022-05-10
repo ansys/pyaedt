@@ -762,16 +762,18 @@ class Circuit(FieldAnalysisCircuit, object):
         return portnames
 
     @pyaedt_function_handler()
-    def export_touchstone(self, solutionname, sweepname, filename=None, variation=None, variations_value=None):
+    def export_touchstone(
+        self, solution_name=None, sweep_name=None, file_name=None, variation=None, variations_value=None
+    ):
         """Export the Touchstone file to a local folder.
 
         Parameters
         ----------
-        solutionname : str
+        solution_name : str, optional
             Name of the solution that has been solved.
-        sweepname : str
+        sweep_name : str, optional
             Name of the sweep that has been solved.
-        filename : str, optional
+        file_name : str, optional
             Full path and name for the Touchstone file. The default is ``None``,
             which exports the file to the working directory.
         variation : list, optional
@@ -791,20 +793,27 @@ class Circuit(FieldAnalysisCircuit, object):
 
         >>> oDesign.ExportNetworkData
         """
-        if variation == None:
-            variation = []
-        if variations_value == None:
-            variations_value = []
+        if variation is None or variations_value is None:
+            variation_dict = self.available_variations.nominal_w_values_dict
+            if variation is None:
+                variation = list(variation_dict.keys())
+            if variations_value is None:
+                variations_value = list(variation_dict.values())
+
+        if solution_name is None and sweep_name is None:
+            nominal_sweep_list = [x.strip() for x in self.nominal_sweep.split(":")]
+            solution_name = nominal_sweep_list[0]
+            sweep_name = nominal_sweep_list[1]
 
         # Normalize the save path
-        if not filename:
+        if not file_name:
             appendix = ""
             for v, vv in zip(variation, variations_value):
                 appendix += "_" + v + vv.replace("'", "")
             ext = ".S" + str(self.oboundary.GetNumExcitations()) + "p"
-            filename = os.path.join(self.working_directory, solutionname + "_" + sweepname + appendix + ext)
+            filename = os.path.join(self.working_directory, solution_name + "_" + sweep_name + appendix + ext)
         else:
-            filename = filename.replace("//", "/").replace("\\", "/")
+            filename = file_name.replace("//", "/").replace("\\", "/")
         self.logger.info("Exporting Touchstone " + filename)
         DesignVariations = ""
         i = 0
@@ -813,7 +822,7 @@ class Circuit(FieldAnalysisCircuit, object):
             i += 1
             # DesignVariations = "$AmbientTemp=\'22cel\' $PowerIn=\'100\'"
         # array containing "SetupName:SolutionName" pairs (note that setup and solution are separated by a colon)
-        SolutionSelectionArray = [solutionname + ":" + sweepname]
+        SolutionSelectionArray = [solution_name + ":" + sweep_name]
         # 2=tab delimited spreadsheet (.tab), 3= touchstone (.sNp), 4= CitiFile (.cit),
         # 7=Matlab (.m), 8=Terminal Z0 spreadsheet
         FileFormat = 3
