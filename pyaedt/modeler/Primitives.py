@@ -3204,7 +3204,7 @@ class Primitives(object):
                 if self._app._design_type == "HFSS":
                     return self._app.materials[matname].name, self._app.materials[matname].is_dielectric()
                 else:
-                    return matname, True
+                    return self._app.materials[matname].name, True
             else:
                 self.logger.warning("Material %s doesn not exists. Assigning default material", matname)
         if self._app._design_type == "HFSS":
