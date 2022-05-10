@@ -4209,7 +4209,7 @@ class Hfss(FieldAnalysis3D, object):
             if variations is None:
                 variations = list(variations_dict.keys())
             if variations_value is None:
-                variations_value = list(variations_dict.values())
+                variations_value = [str(x) for x in list(variations_dict.values())]
 
         if solution_name is None and sweep_name is None:
             nominal_sweep_list = [x.strip() for x in self.nominal_sweep.split(":")]
