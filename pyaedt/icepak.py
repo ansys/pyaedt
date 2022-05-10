@@ -2674,7 +2674,7 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        ambienttemp : float, optional
+        ambienttemp : float, str, optional
             Ambient temperature, which can be an integer or a parameter already
             created in AEDT. The default is ``20``.
         gravityDir : int, optional
@@ -2700,10 +2700,7 @@ class Icepak(FieldAnalysis3D):
         >>> oDesign.SetDesignSettings
         """
 
-        try:
-            AmbientTemp = str(float(ambienttemp)) + "cel"
-        except:
-            AmbientTemp = ambienttemp
+        AmbientTemp = self.modeler._arg_with_dim(ambienttemp, "cel")
 
         IceGravity = ["X", "Y", "Z"]
         GVPos = False

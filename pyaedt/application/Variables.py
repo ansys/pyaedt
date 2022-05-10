@@ -685,7 +685,7 @@ class VariableManager(object):
                 all_names[variable_name] = variable_expression
                 try:
                     value = Variable(variable_expression)
-                    if is_array(value.value):
+                    if is_array(value.value) and dependent:
                         var_dict[variable_name] = value
                     elif independent and is_number(value.value):
                         var_dict[variable_name] = value
