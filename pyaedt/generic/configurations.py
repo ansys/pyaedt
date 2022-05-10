@@ -773,7 +773,7 @@ class Configurations(object):
                     bound.auto_update = False
                     bound.props["Independent"] = b.name
                     bound.auto_update = True
-        if bound.props.get("CurrentLine", None):
+        if bound.props.get("CurrentLine", None) and bound.props["CurrentLine"].get("GeometryPosition", None):
             current = bound.props["CurrentLine"]["GeometryPosition"]
             x1 = self._app.modeler._arg_with_dim(float(current[0]["XPosition"]), self._app.modeler.model_units)
             y1 = self._app.modeler._arg_with_dim(float(current[0]["YPosition"]), self._app.modeler.model_units)
@@ -789,7 +789,7 @@ class Configurations(object):
             modes = OrderedDict({})
             for k, v in bound.props["Modes"].items():
                 p1 = OrderedDict({"ModeNum": v["ModeNum"], "UseIntLine": v["UseIntLine"]})
-                if v["UseIntLine"]:
+                if v["UseIntLine"] and v["IntLine"].get("GeometryPosition", None):
                     current = v["IntLine"]["GeometryPosition"]
                     x1 = self._app.modeler._arg_with_dim(float(current[0]["XPosition"]), self._app.modeler.model_units)
                     y1 = self._app.modeler._arg_with_dim(float(current[0]["YPosition"]), self._app.modeler.model_units)
@@ -800,6 +800,8 @@ class Configurations(object):
                     p1["IntLine"] = OrderedDict(
                         {"Coordinate System": "Global", "Start": [x1, y1, z1], "End": [x2, y2, z2]}
                     )
+                elif v["UseIntLine"]:
+                    p1["IntLine"] = v["IntLine"]
                 if v.get("AlignmentGroup", None):
                     p1["AlignmentGroup"] = v["AlignmentGroup"]
                 if v.get("CharImp", None):
