@@ -414,7 +414,7 @@ class TestClass(BasisTest, object):
     def test29_duplicate_material(self):
         material = self.aedtapp.materials.add_material("FirstMaterial")
         new_material = self.aedtapp.materials.duplicate_material("FirstMaterial", "SecondMaterial")
-        assert new_material.name == "secondmaterial"
+        assert new_material.name == "Secondmaterial"
 
     def test30_expand(self):
         self.aedtapp.modeler.create_rectangle("Bottom", [20, 20], [50, 50], name="rect_1")

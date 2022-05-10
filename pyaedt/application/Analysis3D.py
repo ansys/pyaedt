@@ -604,21 +604,19 @@ class FieldAnalysis3D(Analysis, object):
         >>> obj_names_list = [box1.name, box2.name, cylinder1.name, cylinder2.name]
         >>> hfss.assign_material(obj_names_list, "aluminum")
         """
-        mat = mat.lower()
         selections = self.modeler.convert_to_selections(obj, True)
 
-        mat_exists = False
-        if mat in self.materials.material_keys:
-            mat_exists = True
-        if mat_exists or self.materials.checkifmaterialexists(mat):
-            Mat = self.materials.material_keys[mat]
-            if mat_exists:
-                Mat.update()
+        if mat.lower() not in self.materials.material_keys:
+            matobj = self.materials._aedmattolibrary(mat)
+        else:
+            matobj = self.materials.material_keys[mat.lower()]
+
+        if matobj:
             self.logger.info("Assign Material " + mat + " to object " + str(selections))
             for el in selections:
-                self.modeler[el].material_name = mat
-                self.modeler[el].color = self.materials.material_keys[mat].material_appearance
-                if Mat.is_dielectric():
+                self.modeler[el].material_name = matobj.name
+                self.modeler[el].color = matobj.material_appearance
+                if matobj.is_dielectric():
                     self.modeler[el].solve_inside = True
                 else:
                     self.modeler[el].solve_inside = False

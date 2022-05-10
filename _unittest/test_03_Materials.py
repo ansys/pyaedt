@@ -172,3 +172,8 @@ class TestClass(BasisTest, object):
     def test_10_add_material_sweep(self):
         assert self.aedtapp.materials.add_material_sweep(["copper", "aluminum"], "sweep_copper")
         assert "sweep_copper" in list(self.aedtapp.materials.material_keys.keys())
+
+    def test_11_material_case(self):
+        assert self.aedtapp.materials["Aluminum"] == self.aedtapp.materials["aluminum"]
+        assert self.aedtapp.materials["Aluminum"].name == "aluminum"
+        assert self.aedtapp.materials.add_material("AluMinum") == self.aedtapp.materials["aluminum"]
