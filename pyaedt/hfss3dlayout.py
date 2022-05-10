@@ -546,7 +546,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def export_touchstone(
-        self, solution_name=None, sweep_name=None, file_name=None, variation=None, variations_value=None
+        self, solution_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
     ):
         """Export a Touchstone file.
 
@@ -559,7 +559,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         file_name : str, optional
             Full path for the Touchstone file. The default is ``None``, in which
             case the file is exported to the working directory.
-        variation : list, optional
+        variations : list, optional
             List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
         variations_value : list, optional
             List of all parameter variation values. For example, ``["22cel", "100"]``.
@@ -575,12 +575,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         >>> oDesign.ExportNetworkData
         """
 
-        if variation is None or variations_value is None:
-            variation_dict = self.available_variations.nominal_w_values_dict
-            if variation is None:
-                variation = list(variation_dict.keys())
+        if variations is None or variations_value is None:
+            variations_dict = self.available_variations.nominal_w_values_dict
+            if variations is None:
+                variations = list(variations_dict.keys())
             if variations_value is None:
-                variations_value = list(variation_dict.values())
+                variations_value = list(variations_dict.values())
 
         if solution_name is None and sweep_name is None:
             nominal_sweep_list = [x.strip() for x in self.nominal_sweep.split(":")]
@@ -590,7 +590,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         # normalize the save path
         if not file_name:
             appendix = ""
-            for v, vv in zip(variation, variations_value):
+            for v, vv in zip(variations, variations_value):
                 appendix += "_" + v + vv.replace("'", "")
             ext = ".S" + str(len(self.port_list)) + "p"
             filename = os.path.join(self.working_directory, solution_name + "_" + sweep_name + appendix + ext)
@@ -614,7 +614,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         IncludeGammaImpedance = True  # Include Gamma and Impedance in comments
         NonStandardExtensions = False  # Support for non-standard Touchstone extensions
         variation_str = ""
-        for v, vv in zip(variation, variations_value):
+        for v, vv in zip(variations, variations_value):
             variation_str += v + "=" + vv + " "
 
         self.odesign.ExportNetworkData(
