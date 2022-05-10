@@ -1045,6 +1045,7 @@ class Lists(BaseLists, object):
 
     def list_verification(self, object_list, list_type):
         object_list = self._modeler.convert_to_selections(object_list, True)
+
         if list_type == "Object":
             object_list_new = ",".join(object_list)
         elif list_type == "Face":
@@ -1065,13 +1066,9 @@ class Lists(BaseLists, object):
                             raise ValueError(element + " is not defined")
                 else:
                     object_list_new.append(int(element))
+            else:
+                object_list_new = []
         return object_list_new
-
-    @property
-    def _attributes(self):
-        """Internal named array for attributes of the coordinate system."""
-        coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name]
-        return coordinateSystemAttributes
 
 
 class Modeler(object):
