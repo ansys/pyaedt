@@ -16,6 +16,7 @@ from pyaedt.modules.Material import Material
 from pyaedt.modules.Material import MatProperties
 from pyaedt.modules.Material import OrderedDict
 from pyaedt.modules.Material import SurfaceMaterial
+from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
 
 class Materials(object):
@@ -38,16 +39,7 @@ class Materials(object):
         self._color_id = 0
         self.odefinition_manager = self._app.odefinition_manager
         self.omaterial_manager = self._app.omaterial_manager
-        try:
-            self._mat_names_aedt = [
-                i
-                for sl in list(self.odefinition_manager.GetMaterialNamesInConfiguredLibraries(self._app.design_name))
-                for i in sl
-            ]
-            self._mat_names_aedt_lower = [i.lower() for i in self._mat_names_aedt]
-        except:
-            self._mat_names_aedt = []
-            self._mat_names_aedt_lower = []
+        self._mat_names_aedt = self._read_materials()
         self._desktop = self._app.odesktop
         self._oproject = self._app.oproject
         self.logger = self._app.logger
@@ -101,6 +93,48 @@ class Materials(object):
         for el, val in self.material_keys.items():
             if val.thermal_material_type == "Fluid" and val.mass_density.value and float(val.mass_density.value) < 100:
                 mats.append(el)
+        return mats
+
+    @property
+    def _mat_names_aedt_lower(self):
+        return [i.lower() for i in self._mat_names_aedt]
+
+    @pyaedt_function_handler()
+    def _read_materials(self):
+        import os
+        import fnmatch
+
+        amat_sys = [
+            os.path.join(dirpath, filename)
+            for dirpath, _, filenames in os.walk(self._app.syslib)
+            for filename in filenames
+            if fnmatch.fnmatch(filename, "*.amat")
+        ]
+        mats = []
+        for amat in amat_sys:
+            m = load_entire_aedt_file(amat)
+            mats.extend(list(m.keys()))
+        amat_personal = [
+            os.path.join(dirpath, filename)
+            for dirpath, _, filenames in os.walk(self._app.personallib)
+            for filename in filenames
+            if fnmatch.fnmatch(filename, "*.amat")
+        ]
+        for amat in amat_personal:
+            m = load_entire_aedt_file(amat)
+            mats.extend(list(m.keys()))
+        amat_user = [
+            os.path.join(dirpath, filename)
+            for dirpath, _, filenames in os.walk(self._app.userlib)
+            for filename in filenames
+            if fnmatch.fnmatch(filename, "*.amat")
+        ]
+        for amat in amat_user:
+            m = load_entire_aedt_file(amat)
+            mats.extend(list(m.keys()))
+        mats.remove("$index$")
+        mats.remove("$base_index$")
+        mats.extend(self.odefinition_manager.GetProjectMaterialNames())
         return mats
 
     @pyaedt_function_handler()
@@ -249,6 +283,7 @@ class Materials(object):
             if material.update():
                 self.logger.info("Material has been added. Edit it to update in Desktop.")
                 self.material_keys[materialname.lower()] = material
+                self._mat_names_aedt.append(materialname)
                 return self.material_keys[materialname.lower()]
         return False
 
@@ -417,6 +452,7 @@ class Materials(object):
 
         newmat = Material(self, new_name, matobj._props)
         newmat.update()
+        self._mat_names_aedt.append(new_name)
         self.material_keys[new_name.lower()] = newmat
         return newmat
 
