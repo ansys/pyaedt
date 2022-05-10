@@ -976,7 +976,7 @@ class Lists(BaseLists, object):
 
         """
         # self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.ref_cs]])
-        object_list_new = self.list_verification(self.props["List"], self.props["Type"])
+        object_list_new = self._list_verification(self.props["List"], self.props["Type"])
 
         argument1 = ["NAME:Selections", "Selections:=", self.name]
         argument2 = [
@@ -1024,7 +1024,7 @@ class Lists(BaseLists, object):
         if not name:
             name = generate_unique_name(type + "List")
 
-        object_list_new = self.list_verification(object_list, type)
+        object_list_new = self._list_verification(object_list, type)
 
         self.name = self._modeler.oeditor.CreateEntityList(
             ["NAME:GeometryEntityListParameters", "EntityType:=", type, "EntityList:=", object_list_new],
@@ -1043,7 +1043,7 @@ class Lists(BaseLists, object):
         self._modeler.user_lists.append(self)
         return True
 
-    def list_verification(self, object_list, list_type):
+    def _list_verification(self, object_list, list_type):
         object_list = self._modeler.convert_to_selections(object_list, True)
 
         if list_type == "Object":
@@ -1339,7 +1339,7 @@ class GeometryModeler(Modeler, object):
                 props["List"] = data["GeometryEntityListParameters"]["EntityList"]
                 design_lists.append(Lists(self, props, name))
         except:
-            pass
+            self.logger.error("Lists were not retrieved from AEDT file")
         return design_lists
 
     def __get__(self, instance, owner):
