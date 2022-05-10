@@ -142,6 +142,9 @@ class TestClass(BasisTest, object):
         padstack_instance = self.edbapp.core_padstack.padstack_instances[padstack_id]
         assert padstack_instance.is_pin
         assert padstack_instance.position
+        padstack_instance.position = [0.001, 0.002]
+        assert padstack_instance.position == [0.001, 0.002]
+        assert padstack_instance.parametrize_position()
         assert isinstance(padstack_instance.rotation, float)
 
     def test_08_nets_query(self):

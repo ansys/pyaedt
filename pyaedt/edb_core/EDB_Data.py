@@ -2247,6 +2247,17 @@ class EDBPadstackInstance(object):
         if out[0]:
             return [out[1].X.ToDouble(), out[1].Y.ToDouble()]
 
+    @position.setter
+    def position(self, value):
+        pos = []
+        for v in value:
+            if isinstance(v, (float, int, str)):
+                pos.append(self._pedb.edb_value(v))
+            else:
+                pos.append(v)
+        point_data = self._pedb.edb.Geometry.PointData(pos[0], pos[1])
+        self._edb_padstackinstance.SetPositionAndRotation(point_data, self._pedb.edb_value(self.rotation))
+
     @property
     def rotation(self):
         """Padstack instance rotation.
@@ -2291,6 +2302,32 @@ class EDBPadstackInstance(object):
     @name.setter
     def name(self, value):
         self._edb_padstackinstance.SetName(value)
+        self._edb_padstackinstance.SetProductProperty(0, 11, value)
+
+    @pyaedt_function_handler()
+    def parametrize_position(self, prefix=None):
+        """Parametrize the instance position.
+
+        Parameters
+        ----------
+        prefix : str, optional
+            Prefix for the variable name.
+            Example `"MyVariableName"` will create 2 Project variables $MyVariableNamesX and $MyVariableNamesY.
+
+        Returns
+        -------
+        List
+            Variables created
+        """
+        p = self.position
+        if not prefix:
+            var_name = "${}_pos".format(self.name)
+        else:
+            var_name = "${}".format(prefix)
+        self._pedb.add_design_variable(var_name + "X", p[0])
+        self._pedb.add_design_variable(var_name + "Y", p[1])
+        self.position = [var_name + "X", var_name + "Y"]
+        return [var_name + "X", var_name + "Y"]
 
     @pyaedt_function_handler()
     def delete_padstack_instance(self):
