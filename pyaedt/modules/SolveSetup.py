@@ -60,10 +60,12 @@ class Setup(object):
         self.auto_update = False
         self._app = None
         self.p_app = app
-        if not solutiontype:
+        if solutiontype is None:
             self.setuptype = self.p_app.design_solutions.default_setup
         elif isinstance(solutiontype, int):
             self.setuptype = solutiontype
+        elif solutiontype in SetupKeys.SetupNames:
+            self.setuptype = SetupKeys.SetupNames.index(solutiontype)
         else:
             self.setuptype = self.p_app.design_solutions._solution_options[solutiontype]["default_setup"]
 
@@ -538,6 +540,122 @@ class Setup(object):
         self.auto_update = legacy_update
         return True
 
+    @pyaedt_function_handler()
+    def enable_adaptive_setup_single(self, freq=None, max_passes=None, max_delta_s=None):
+        """Enable HFSS single frequency setup.
+
+        Parameters
+        ----------
+        freq : float, str, optional
+            Frequency at which to set the adaptive convergence.
+            The default is ``None`` which will not update the value in setup.
+            You can enter a float value in (GHz) or a string.
+        max_passes : int, optional
+            Maximum number of adaptive passes. The default is ``None`` which will not update the value in setup.
+        max_delta_s : float, optional
+            Delta S convergence criteria. The default is ``None`` which will not update the value in setup.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+            self._app.logger.error("Method applies only to HFSS-driven solutions.")
+            return False
+        self.auto_update = False
+        self.props["SolveType"] = "Single"
+        if isinstance(freq, (int, float)):
+            freq = "{}GHz".format(freq)
+        if freq:
+            self.props["Frequency"] = freq
+        if max_passes:
+            self.props["MaximumPasses"] = max_passes
+        if max_delta_s:
+            self.props["MaxDeltaS"] = max_delta_s
+        self.auto_update = True
+        return self.update()
+
+    @pyaedt_function_handler()
+    def enable_adaptive_setup_broadband(self, low_frequency, high_frquency, max_passes=6, max_delta_s=0.02):
+        """Enable HFSS broadband setup.
+
+        Parameters
+        ----------
+        low_frequency : float, str
+            Lower Frequency at which set the adaptive convergence.
+            It can be float (GHz) or str.
+        high_frquency : float, str
+            Lower Frequency at which set the adaptive convergence. It can be float (GHz) or str.
+        max_passes : int, optional
+            Maximum number of adaptive passes. The default is ``6``.
+        max_delta_s : float, optional
+            Delta S Convergence criteria. The default is ``0.02``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+            self._app.logger.error("Method applies only to HFSS-driven solutions.")
+            return False
+        self.auto_update = False
+        self.props["SolveType"] = "BroadBand"
+        for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
+            del self.props["MultipleAdaptiveFreqsSetup"][el]
+        if isinstance(low_frequency, (int, float)):
+            low_frequency = "{}GHz".format(low_frequency)
+        if isinstance(high_frquency, (int, float)):
+            high_frquency = "{}GHz".format(high_frquency)
+        self.props["MultipleAdaptiveFreqsSetup"]["Low"] = low_frequency
+        self.props["MultipleAdaptiveFreqsSetup"]["High"] = high_frquency
+        self.props["MaximumPasses"] = max_passes
+        self.props["MaxDeltaS"] = max_delta_s
+        self.auto_update = True
+        return self.update()
+
+    @pyaedt_function_handler()
+    def enable_adaptive_setup_multifrequency(self, frequencies, max_delta_s=0.02):
+        """Enable HFSS multi-frequency setup.
+
+        Parameters
+        ----------
+        frequencies : list
+            Frequency at which to set the adaptive convergence. You can enter list entries
+            as float values in GHz or as strings.
+        max_delta_s : list, float
+            Delta S convergence criteria. The default is ``0.02``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+            self._app.logger.error("Method applies only to HFSS-driven solutions.")
+            return False
+        self.auto_update = False
+        self.props["SolveType"] = "MultiFrequency"
+        for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
+            del self.props["MultipleAdaptiveFreqsSetup"][el]
+        i = 0
+        for f in frequencies:
+            if isinstance(max_delta_s, float):
+                if isinstance(f, (int, float)):
+                    f = "{}GHz".format(f)
+                self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s]
+            else:
+                if isinstance(f, (int, float)):
+                    f = "{}GHz".format(f)
+                try:
+                    self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s[i]]
+                except IndexError:
+                    self.props["MultipleAdaptiveFreqsSetup"][f] = [0.02]
+            i += 1
+        self.auto_update = True
+        return self.update()
+
 
 class SetupCircuit(object):
     """Initializes, creates, and updates a circuit setup.
@@ -557,6 +675,7 @@ class SetupCircuit(object):
     """
 
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
+
         self.auto_update = False
         self._app = None
         self.p_app = app
@@ -564,6 +683,8 @@ class SetupCircuit(object):
             self.setuptype = self.p_app.design_solutions.default_setup
         elif isinstance(solutiontype, int):
             self.setuptype = solutiontype
+        elif solutiontype in SetupKeys.SetupNames:
+            self.setuptype = SetupKeys.SetupNames.index(solutiontype)
         else:
             self.setuptype = self.p_app.design_solutions._solution_options[solutiontype]["default_setup"]
         self._Name = "LinearFrequency"

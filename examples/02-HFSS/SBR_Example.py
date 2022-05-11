@@ -23,6 +23,12 @@ if not os.path.exists(temp_folder):
     os.mkdir(temp_folder)
 from pyaedt import Hfss
 
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
 ###############################################################################
 # Define Designs
 # ~~~~~~~~~~~~~~
@@ -35,6 +41,7 @@ target = Hfss(
     solution_type="SBR+",
     specified_version="2022.1",
     new_desktop_session=True,
+    non_graphical=non_graphical
 )
 target.save_project(os.path.join(temp_folder, project_name + ".aedt"))
 source = Hfss(projectname=project_name, designname="feeder", specified_version="2022.1", new_desktop_session=False)

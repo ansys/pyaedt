@@ -40,8 +40,11 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import write_csv
+from pyaedt.generic.general_methods import settings
+from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
-from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.Boundary import BoundaryObject, MaxwellParameters
+from pyaedt.application.Variables import decompose_variable_value
 
 if sys.version_info.major > 2:
     import base64
@@ -335,6 +338,20 @@ class Design(object):
         self.variable_manager[variable_name] = variable_value
         return True
 
+    def _init_design(self, project_name, design_name, solution_type=None):
+        self.__init__(
+            projectname=project_name,
+            designname=design_name,
+            solution_type=solution_type if solution_type else self.solution_type,
+            specified_version=settings.aedt_version,
+            non_graphical=settings.non_graphical,
+            new_desktop_session=False,
+            close_on_exit=self.close_on_exit,
+            student_version=self.student_version,
+            machine=settings.machine,
+            port=settings.port,
+        )
+
     def __init__(
         self,
         design_type,
@@ -346,6 +363,8 @@ class Design(object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
         self._init_variables()
         # Get Desktop from global Desktop Environment
@@ -357,7 +376,9 @@ class Design(object):
         self.close_on_exit = close_on_exit
 
         if "pyaedt_initialized" not in dir(main_module):
-            desktop = Desktop(specified_version, non_graphical, new_desktop_session, close_on_exit, student_version)
+            desktop = Desktop(
+                specified_version, non_graphical, new_desktop_session, close_on_exit, student_version, machine, port
+            )
             self._logger = desktop.logger
             self.release_on_exit = True
         else:
@@ -1340,7 +1361,7 @@ class Design(object):
         ----------
         value :
 
-        sUnits : optional
+        units : optional
              The default is ``None``.
 
         Returns
@@ -1625,11 +1646,15 @@ class Design(object):
         -------
 
         """
-        if "$" in variable_name:
+        if variable_name.startswith("$"):
             tab = "NAME:ProjectVariableTab"
             propserver = "ProjectVariables"
         else:
             tab = "NAME:LocalVariableTab"
+            if self.design_type in ["HFSS 3D Layout Design", "Circuit Design"]:
+                if variable_name in self.odesign.GetProperties("DefinitionParameterTab", "LocalVariables"):
+                    tab = "NAME:DefinitionParameterTab"
+
             propserver = "LocalVariables"
         arg2 = ["NAME:" + optimetrics_type, "Included:=", enable]
         if min_val:
@@ -1716,7 +1741,7 @@ class Design(object):
         """
         arg = ["NAME:AllTabs"]
         self._optimetrics_variable_args(arg, "Optimization", variable_name, min_val, max_val)
-        if "$" in variable_name:
+        if variable_name.startswith("$"):
             self.oproject.ChangeProperty(arg)
         else:
             self.odesign.ChangeProperty(arg)
@@ -1911,6 +1936,24 @@ class Design(object):
                                 ds,
                                 self.design_properties["BoundarySetup"]["Boundaries"][ds],
                                 self.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"],
+                            )
+                        )
+                except:
+                    pass
+        if self.design_properties and "MaxwellParameterSetup" in self.design_properties:
+            for ds in self.design_properties["MaxwellParameterSetup"]["MaxwellParameters"]:
+                try:
+                    param = "MaxwellParameters"
+                    setup = "MaxwellParameterSetup"
+                    if isinstance(self.design_properties[setup][param][ds], (OrderedDict, dict)):
+                        boundaries.append(
+                            MaxwellParameters(
+                                self,
+                                ds,
+                                self.design_properties["MaxwellParameterSetup"]["MaxwellParameters"][ds],
+                                self.design_properties["MaxwellParameterSetup"]["MaxwellParameters"][ds][
+                                    "MaxwellParameterType"
+                                ],
                             )
                         )
                 except:
@@ -2120,13 +2163,12 @@ class Design(object):
 
         >>> oDesktop.OpenProject
         """
-
+        proj = self.odesktop.OpenProject(project_file)
         if close_active_proj and self.oproject:
             self._close_edb()
             self.close_project(self.project_name)
-        proj = self.odesktop.OpenProject(project_file)
         if proj:
-            self.__init__(projectname=proj.GetName(), designname=design_name)
+            self._init_design(project_name=proj.GetName(), design_name=design_name)
             return True
         else:
             return False
@@ -2134,8 +2176,8 @@ class Design(object):
     @pyaedt_function_handler()
     def _close_edb(self):
         if self.design_type == "HFSS 3D Layout Design":  # pragma: no cover
-            if self.modeler and self.modeler.edb:
-                self.modeler.edb.close_edb()
+            if self.modeler and self.modeler._edb:
+                self.modeler._edb.close_edb()
 
     @pyaedt_function_handler()
     def create_dataset1d_design(self, dsname, xlist, ylist, xunit="", yunit=""):
@@ -2337,6 +2379,26 @@ class Design(object):
         return False
 
     @pyaedt_function_handler()
+    def change_design_settings(self, settings):
+        """Set Design Settings.
+
+        Parameters
+        ----------
+        settings : dict
+            Dictionary of settings with value to apply.
+
+        Returns
+        -------
+        bool
+        """
+        arg = ["NAME:Design Settings Data"]
+        for k, v in settings.items():
+            arg.append(k + ":=")
+            arg.append(v)
+        self.odesign.SetDesignSettings(arg)
+        return True
+
+    @pyaedt_function_handler()
     def change_automatically_use_causal_materials(self, lossy_dielectric=True):
         """Enable or disable the automatic use of causal materials for lossy dielectrics.
 
@@ -2360,8 +2422,7 @@ class Design(object):
             self.logger.info("Enabling Automatic use of causal materials")
         else:
             self.logger.info("Disabling Automatic use of causal materials")
-        self.odesign.SetDesignSettings(["NAME:Design Settings Data", "Calculate Lossy Dielectrics:=", lossy_dielectric])
-        return True
+        return self.change_design_settings({"Calculate Lossy Dielectrics": lossy_dielectric})
 
     @pyaedt_function_handler()
     def change_material_override(self, material_override=True):
@@ -2387,8 +2448,7 @@ class Design(object):
             self.logger.info("Enabling Material Override")
         else:
             self.logger.info("Disabling Material Override")
-        self.odesign.SetDesignSettings(["NAME:Design Settings Data", "Allow Material Override:=", material_override])
-        return True
+        return self.change_design_settings({"Allow Material Override": material_override})
 
     @pyaedt_function_handler()
     def change_validation_settings(
@@ -2656,7 +2716,7 @@ class Design(object):
         return self.variable_manager.delete_variable(sVarName)
 
     @pyaedt_function_handler()
-    def insert_design(self, design_name=None):
+    def insert_design(self, design_name=None, solution_type=None):
         """Add a design of a specified type.
 
         The default design type is taken from the derived application class.
@@ -2669,6 +2729,9 @@ class Design(object):
             given or default design name is in use, then an underscore and
             index is added to ensure that the design name is unique.
             The inserted object is assigned to the ``Design`` object.
+        solution_type : str, optional
+            Solution type to apply to the design. The default is
+            ``None``, in which case the default type is applied.
 
         Returns
         -------
@@ -2681,12 +2744,13 @@ class Design(object):
         >>> oProject.InsertDesign
         """
         self._close_edb()
-        if self.project_name:
-            self.__init__(projectname=self.project_name, designname=design_name)
-        else:
-            self.__init__(projectname=generate_unique_name("Project"), designname=design_name)
+        self._init_design(
+            project_name=self.project_name if self.project_name else generate_unique_name("Project"),
+            design_name=design_name,
+            solution_type=solution_type,
+        )
 
-    def _insert_design(self, design_type, design_name=None, solution_type=None):
+    def _insert_design(self, design_type, design_name=None):
         assert design_type in self.design_solutions.design_types, "Invalid design type for insert: {}".format(
             design_type
         )
@@ -2699,6 +2763,8 @@ class Design(object):
             new_design = self._oproject.InsertDesign(
                 "RMxprt", unique_design_name, "Model Creation Inner-Rotor Induction Machine", ""
             )
+        elif design_type == "Icepak":
+            new_design = self._oproject.InsertDesign("Icepak", unique_design_name, "SteadyState TemperatureAndFlow", "")
         else:
             if design_type == "HFSS" and self._aedt_version < "2021.2":
                 new_design = self._oproject.InsertDesign(design_type, unique_design_name, "DrivenModal", "")
@@ -2778,9 +2844,7 @@ class Design(object):
 
         >>> oDesign.RenameDesignInstance
         """
-        self._odesign.RenameDesignInstance(self.design_name, new_name)
-        self.odesign = new_name
-        return True
+        return _retry_ntimes(10, self._odesign.RenameDesignInstance, self.design_name, new_name)
 
     @pyaedt_function_handler()
     def copy_design_from(self, project_fullname, design_name):
@@ -2832,8 +2896,8 @@ class Design(object):
         # reset the active design (very important)
         self.save_project()
         self._close_edb()
-        self.__init__(self.project_name, new_designname)
-        self._oproject.SetActiveDesign(active_design)
+        self._init_design(project_name=self.project_name, design_name=new_designname)
+        self.set_active_design(active_design)
 
         # return the pasted design name
         return new_designname
@@ -2873,10 +2937,10 @@ class Design(object):
             newname = label + "_" + str(ind)
             ind += 1
         actual_name = [i for i in self.design_list if i not in design_list]
-        self.odesign = actual_name
+        self.odesign = actual_name[0]
         self.design_name = newname
         self._close_edb()
-        self.__init__(self.project_name, self.design_name)
+        self._init_design(project_name=self.project_name, design_name=self.design_name)
 
         return True
 
@@ -2941,6 +3005,8 @@ class Design(object):
             varnames = self.oproject.GetProperties("ProjectVariableTab", "ProjectVariables")
         if export_design:
             desnames = self.odesign.GetProperties("LocalVariableTab", "LocalVariables")
+            if self.design_type in ["HFSS 3D Layout Design", "Circuit Design"]:
+                desnames.extend(self.odesign.GetProperties("DefinitionParameterTab", "LocalVariables"))
         list_full = [["Name", "Value"]]
         for el in varnames:
             value = self.oproject.GetVariableValue(el)
@@ -2990,8 +3056,6 @@ class Design(object):
         >>> oProject.Save
         >>> oProject.SaveAs
         """
-        msg_text = "Saving {0} Project".format(self.project_name)
-        self.logger.info(msg_text)
         if project_file and not os.path.exists(os.path.dirname(project_file)):
             os.makedirs(os.path.dirname(project_file))
         elif project_file:
@@ -3001,6 +3065,8 @@ class Design(object):
         if refresh_obj_ids_after_save:
             self.modeler.refresh_all_ids()
             self.modeler._refresh_all_ids_from_aedt_file()
+        msg_text = "Project {0} Saved correctly".format(self.project_name)
+        self.logger.info(msg_text)
         return True
 
     @pyaedt_function_handler()
@@ -3086,10 +3152,8 @@ class Design(object):
 
         >>> oProject.SetActiveDesign
         """
-        self.oproject.SetActiveDesign(name)
-        self.odesign = name
         self._close_edb()
-        self.__init__(self.project_name, self.design_name)
+        self._init_design(project_name=self.project_name, design_name=name)
         return True
 
     @pyaedt_function_handler()
@@ -3152,12 +3216,25 @@ class Design(object):
         >>> M3D["p3"] = "P1 * p2"
         >>> eval_p3 = M3D.get_evaluated_value("p3")
         """
+        if self.design_type == "Maxwell Circuit":
+            if "$" in variable_name:
+                val_units = self._oproject.GetVariableValue(variable_name)
+            else:
+                val_units = self._odesign.GetVariableValue(variable_name)
+            val, units = decompose_variable_value(val_units)
+            try:
+                return float(val)
+            except ValueError:
+                return val_units
         if not variation:
             variation_string = self._odesign.GetNominalVariation()
         else:
             variation_string = self.design_variation(variation_string=variation)
+        try:
+            si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
+        except:
+            si_value = self._odesign.GetVariableValue(variable_name)
 
-        si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
         if units:
             scale = AEDT_UNITS[unit_system(units)][units]
             if isinstance(scale, tuple):
@@ -3263,6 +3340,12 @@ class Design(object):
                     "ModelCreation" == self._design_type
                 ), "Error: Specified design is not of type {}.".format(self._design_type)
             return True
+        elif ":" in des_name:
+            try:
+                self._odesign = self._oproject.SetActiveDesign(des_name)
+                return True
+            except:
+                return des_name
         else:
             return des_name
 
@@ -3271,8 +3354,9 @@ class Design(object):
         """Check solution consistency."""
         if self.design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design", "EMIT", "Q3D Extractor"]:
             return True
-        if self.design_solutions and self.design_solutions._solution_type:
-            return self.design_solutions._solution_type in self._odesign.GetSolutionType()
+        self.design_solutions._odesign = self._odesign
+        if self.design_solutions and self.design_solutions.solution_type:
+            return self.design_solutions.solution_type in self._odesign.GetSolutionType()
         else:
             return True
 

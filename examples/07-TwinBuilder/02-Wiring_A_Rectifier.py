@@ -25,7 +25,7 @@ from pyaedt import TwinBuilder
 # Twin Builder in existing Desktop Session, if any.
 
 desktop_version = "2022.1"
-non_graphical = False
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 new_thread = True
 
 ###############################################################################
@@ -123,11 +123,11 @@ tb.analyze_setup("TR")
 
 E_Value = "V_AC.V"
 x = tb.post.get_solution_data(E_Value, "TR", "Time")
-plt.plot(x.sweeps["Time"], x.data_real(E_Value))
+plt.plot(x.intrinsics["Time"], x.data_real(E_Value))
 
 R_Value = "RL.V"
 x = tb.post.get_solution_data(R_Value, "TR", "Time")
-plt.plot(x.sweeps["Time"], x.data_real(R_Value))
+plt.plot(x.intrinsics["Time"], x.data_real(R_Value))
 
 plt.grid()
 plt.xlabel("Time")

@@ -10,13 +10,12 @@ import os
 
 from pyaedt import Q3d
 
-###############################################################################
-# Launch AEDT in Non-Graphical Mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch
-# AEDT in graphical mode.
 
-NonGraphical = False
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
 # Launch AEDT and Q3D
@@ -26,7 +25,7 @@ NonGraphical = False
 # This example use SI units.
 
 
-q = Q3d(specified_version="2022.1", non_graphical=NonGraphical, new_desktop_session=True)
+q = Q3d(specified_version="2022.1", non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Create Primitives
@@ -142,7 +141,7 @@ q.analyze_nominal()
 # This command get the report data into a Data Structure that allows to manipulate them.
 
 a = q.post.get_solution_data(expressions=data_plot_self, context="Original")
-a.sweeps["Freq"]
+a.intrinsics["Freq"]
 a.data_magnitude()
 a.plot()
 

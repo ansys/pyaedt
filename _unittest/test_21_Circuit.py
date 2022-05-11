@@ -53,6 +53,9 @@ class TestClass(BasisTest, object):
         mycap = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12, location=[0.6, 0.2])
         assert type(mycap.id) is int
         assert mycap.parameters["C"] == "1e-12"
+        tol = 1e-12
+        assert abs(mycap.pins[0].location[1] - 0.20066) < tol
+        assert abs(mycap.pins[0].location[0] - 0.5943600000000001) < tol
 
     def test_04_getpin_names(self):
         mycap2 = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12)
@@ -172,7 +175,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.move("L100", [0, 200], "mil")
 
     def test_15_rotate(self):
-        assert self.aedtapp.modeler.rotate("Port1")
+        assert self.aedtapp.modeler.rotate("IPort@Port1")
 
     def test_16_read_touchstone(self):
         data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))
@@ -355,3 +358,46 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345")
         assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")
+
+    def test_30_create_subcircuit(self):
+        subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0], angle=0)
+        assert type(subcircuit.location) is list
+        assert type(subcircuit.id) is int
+        assert subcircuit.component_info
+        assert subcircuit.location[0] == "0.0mil"
+        assert subcircuit.location[1] == "0.0mil"
+        assert subcircuit.angle == 0.0
+
+    @pytest.mark.skipif(config["NonGraphical"], reason="Duplicate doesn't work in non-graphical mode.")
+    def test_31_duplicate(self):  # pragma: no cover
+        subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
+        new_subcircuit = self.aedtapp.modeler.schematic.duplicate(
+            subcircuit.composed_name, location=[0.0508, 0.0], angle=0
+        )
+        assert type(new_subcircuit.location) is list
+        assert type(new_subcircuit.id) is int
+        assert new_subcircuit.location[0] == "1900mil"
+        assert new_subcircuit.location[1] == "-100mil"
+        assert new_subcircuit.angle == 0.0
+
+    def test_32_push_down(self):
+        self.aedtapp.insert_design("Circuit_Design_Push_Down")
+        subcircuit_1 = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
+        active_project_name_1 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        self.aedtapp.pop_up()
+        subcircuit_2 = self.aedtapp.modeler.schematic.create_subcircuit(
+            location=[0.0, 0.0], nested_subcircuit_id=subcircuit_1.component_info["RefDes"]
+        )
+        active_project_name_3 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        assert active_project_name_1 == active_project_name_3
+        assert subcircuit_2.component_info["RefDes"] == "U2"
+        assert self.aedtapp.push_down(subcircuit_1)
+
+    def test_33_pop_up(self):
+        self.aedtapp.insert_design("Circuit_Design_Pop_Up")
+        assert self.aedtapp.pop_up()
+        active_project_name_1 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
+        assert self.aedtapp.pop_up()
+        active_project_name_2 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        assert active_project_name_1 == active_project_name_2

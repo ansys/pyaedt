@@ -1259,9 +1259,9 @@ class Primitives(object):
             "Global",
             "UDMId:=",
             "",
-            "Materiaobjidue:=",
+            "MaterialValue:=",
             '"air"',
-            "SurfaceMateriaobjidue:=",
+            "SurfaceMaterialValue:=",
             '""',
             "SolveInside:=",
             True,
@@ -1738,8 +1738,7 @@ class Primitives(object):
         """
         if objects is None:
             objects = self.object_names
-        elif not isinstance(objects, list):
-            objects = [objects]
+        objects = self._modeler.convert_to_selections(objects, return_list=True)
         for el in objects:
             if el not in self.object_names and not list(self._oeditor.GetObjectsInGroup(el)):
                 objects.remove(el)
@@ -2227,7 +2226,7 @@ class Primitives(object):
             if portonplane:
                 vect[divmod(axisdir, 3)[1]] = 0
             # TODO: can we avoid this translate operation - is there another way to check ?
-            self.modeler.translate(second_edge, vect)
+            self.modeler.move(second_edge, vect)
             p_check = second_edge.vertices[0].position
             p_check2 = second_edge.vertices[1].position
         # elif len(ver2) == 1:  # for circular edges with one vertex
@@ -2263,7 +2262,7 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        List
             List of faces IDs.
 
         References
@@ -2669,7 +2668,7 @@ class Primitives(object):
             try:
                 edgeID = int(self._oeditor.GetEdgeByPosition(vArg1))
                 return edgeID
-            except Exception as e:
+            except:
                 pass
 
     @pyaedt_function_handler()
@@ -3201,13 +3200,11 @@ class Primitives(object):
 
         """
         if matname:
-            matname = matname.lower()
-            if self._app.materials.checkifmaterialexists(matname):
+            if self._app.materials[matname]:
                 if self._app._design_type == "HFSS":
-                    return matname, self._app.materials.material_keys[matname].is_dielectric()
+                    return self._app.materials[matname].name, self._app.materials[matname].is_dielectric()
                 else:
-                    return matname, True
-
+                    return self._app.materials[matname].name, True
             else:
                 self.logger.warning("Material %s doesn not exists. Assigning default material", matname)
         if self._app._design_type == "HFSS":
@@ -3466,17 +3463,17 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _pos_with_arg(self, pos, units=None):
-        posx = self._arg_with_dim(pos[0], units)
+        xpos = self._arg_with_dim(pos[0], units)
         if len(pos) < 2:
-            posy = self._arg_with_dim(0, units)
+            ypos = self._arg_with_dim(0, units)
         else:
-            posy = self._arg_with_dim(pos[1], units)
+            ypos = self._arg_with_dim(pos[1], units)
         if len(pos) < 3:
-            posz = self._arg_with_dim(0, units)
+            zpos = self._arg_with_dim(0, units)
         else:
-            posz = self._arg_with_dim(pos[2], units)
+            zpos = self._arg_with_dim(pos[2], units)
 
-        return posx, posy, posz
+        return xpos, ypos, zpos
 
     @pyaedt_function_handler()
     def _str_list(self, theList):

@@ -290,20 +290,28 @@ class TestClass(BasisTest, object):
     def test_17_create_object_from_edge(self):
         o = self.create_copper_cylinder()
         edges = o.edges
-        o = self.aedtapp.modeler.create_object_from_edge(edges[0])
-        assert o.id > 0
-        assert o.object_type == "Line"
-        assert o.is3d is False
+        o1 = self.aedtapp.modeler.create_object_from_edge(edges[0])
+        assert o1.id > 0
+        assert o1.object_type == "Line"
+        assert o1.is3d is False
+        o2 = self.aedtapp.modeler[o.name].edges[0].create_object()
+        assert o2.id > 0
+        assert o2.object_type == "Line"
+        assert o2.is3d is False
         pass
 
     @pyaedt_unittest_check_desktop_error
     def test_18_create_object_from_face(self):
         o = self.create_copper_cylinder()
         faces = o.faces
-        o = self.aedtapp.modeler.create_object_from_face(faces[0])
-        assert o.id > 0
-        assert o.object_type == "Sheet"
-        assert o.is3d is False
+        o1 = self.aedtapp.modeler.create_object_from_face(faces[0])
+        assert o1.id > 0
+        assert o1.object_type == "Sheet"
+        assert o1.is3d is False
+        o2 = self.aedtapp.modeler[o.name].faces[0].create_object()
+        assert o2.id > 0
+        assert o2.object_type == "Sheet"
+        assert o2.is3d is False
         pass
 
     @pyaedt_unittest_check_desktop_error
@@ -851,7 +859,10 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.modeler.object_names) == 1
 
     def test_64_create_3dcomponent(self):
+        for i in list(self.aedtapp.modeler.objects.keys()):
+            self.aedtapp.modeler.objects[i].material_name = "copper"
         assert self.aedtapp.modeler.create_3dcomponent(self.component3d_file)
+        assert os.path.exists(self.component3d_file)
         new_obj = self.aedtapp.modeler.duplicate_along_line("Solid", [100, 0, 0])
         rad = self.aedtapp.assign_radiation_boundary_to_objects("Solid")
         obj1 = self.aedtapp.modeler[new_obj[1][0]]
@@ -864,6 +875,7 @@ class TestClass(BasisTest, object):
             excitation_list=[exc.name],
             included_cs="Global",
         )
+        assert os.path.exists(self.component3d_file)
 
     def test_65_create_equationbased_curve(self):
         self.aedtapp.insert_design("Equations")
@@ -1157,7 +1169,6 @@ class TestClass(BasisTest, object):
 
     @pyaedt_unittest_check_desktop_error
     def test_77_create_helix(self):
-
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
         udp3 = [10, 5, 0]

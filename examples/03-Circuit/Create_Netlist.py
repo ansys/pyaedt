@@ -27,6 +27,7 @@ if not os.path.exists(temp_folder):
 myfile = os.path.join(netlist)
 print(temp_folder)
 
+
 ###############################################################################
 # Import the main classes needed: :class:`pyaedt.Desktop` and :class:`pyaedt.Circuit`.
 
@@ -43,13 +44,12 @@ from pyaedt import Desktop
 desktopVersion = "2022.1"
 
 
-###############################################################################
-# Launch AEDT in Non-Graphical Mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Change the Boolean parameter ``NonGraphical`` to ``False`` to launch AEDT in
-# graphical mode.
 
-NonGraphical = False
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = True
 
 ###############################################################################
@@ -60,7 +60,7 @@ NewThread = True
 # to create a new instance of AEDT or try to connect to existing instance of it.
 
 
-desktop = Desktop(desktopVersion, NonGraphical, NewThread)
+desktop = Desktop(desktopVersion, non_graphical, NewThread)
 aedtapp = Circuit()
 
 ###############################################################################

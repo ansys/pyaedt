@@ -3,6 +3,7 @@ import warnings
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Circuit import ModelerNexxim
+from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 from pyaedt.modules.SolveSetup import SetupCircuit
 
@@ -33,6 +34,8 @@ class FieldAnalysisCircuit(Analysis):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
     ):
         Analysis.__init__(
             self,
@@ -46,15 +49,66 @@ class FieldAnalysisCircuit(Analysis):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
         )
 
         self._modeler = ModelerNexxim(self)
         self._modeler.layout.init_padstacks()
         self._post = CircuitPostProcessor(self)
 
+    @pyaedt_function_handler()
+    def push_down(self, component_name):
+        """Push-down to the child component and reinitialize the Circuit object.
+
+        Parameters
+        ----------
+        component_name : str or :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Component to initialize.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        out_name = ""
+        if isinstance(component_name, CircuitComponent):
+            out_name = self.design_name + ":" + component_name.component_info["RefDes"]
+        elif "U" == component_name[0]:
+            out_name = self.design_name + ":" + component_name
+        elif ":" not in component_name:
+            for v in self.modeler.components.components:
+                if component_name == v.composed_name.split(";")[0].split("@")[1]:
+                    out_name = self.design_name + ":" + v.component_info["RefDes"]
+        else:
+            out_name = component_name
+        try:
+            self.oproject.SetActiveDesign(out_name)
+            self.__init__(projectname=self.project_name, designname=out_name)
+        except:  # pragma: no cover
+            return False
+        return True
+
+    @pyaedt_function_handler()
+    def pop_up(self):
+        """Pop-up to parent Circuit design and reinitialize Circuit object.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            parent_name = self.odesign.GetName().split(";")[1].split("/")[0]
+            self.oproject.SetActiveDesign(parent_name)
+            self.__init__(projectname=self.project_name, designname=parent_name)
+        except:
+            return False
+        return True
+
     @property
     def post(self):
-        """PostProcessor.
+        """Postprocessor.
 
         Returns
         -------

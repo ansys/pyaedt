@@ -223,7 +223,7 @@ class CircuitComponents(object):
            Use :func:`Circuit.modeler.schematic.create_interface_port` instead.
         """
         warnings.warn("`create_iport` is deprecated. Use `create_interface_port` instead.", DeprecationWarning)
-        return self.create_interface_port(name, posx, posy, angle)
+        return self.create_interface_port(name, [posx, posy], angle)
 
     @pyaedt_function_handler()
     def create_interface_port(self, name, location=[], angle=0):
@@ -249,12 +249,12 @@ class CircuitComponents(object):
         >>> oEditor.CreateIPort
         """
         if location:
-            posx, posy = location[0], location[1]
+            xpos, ypos = location[0], location[1]
         else:
-            posx, posy = self._get_location(location)
+            xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
         arg1 = ["NAME:IPortProps", "Name:=", name, "Id:=", id]
-        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", angle, "Flip:=", False]
+        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         id = self._oeditor.CreateIPort(arg1, arg2)
 
         id = int(id.split(";")[1])
@@ -977,10 +977,11 @@ class CircuitComponents(object):
                     o.name = name[0]
                     if len(name) == 2:
                         o.schematic_id = name[1]
+                        objID = int(o.schematic_id)
                     else:
                         o.id = int(name[1])
                         o.schematic_id = name[2]
-                    objID = o.id
+                        objID = o.id
                     self.components[objID] = o
         return len(self.components)
 

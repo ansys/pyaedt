@@ -625,7 +625,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        pyaedt.modeler.Object3d.Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         References
@@ -2241,7 +2241,7 @@ class Primitives3D(Primitives, object):
             core_material = str(values["Core"]["Material"])
             if len(core_material) > 0:
                 if self.materials.checkifmaterialexists(core_material):
-                    values["Core"]["Material"] = core_material
+                    values["Core"]["Material"] = self.materials._get_aedt_case_name(core_material)
                 else:
                     self.logger.error(
                         "%s is not in the material library."
@@ -2264,7 +2264,7 @@ class Primitives3D(Primitives, object):
             winding_material = str(values["Outer Winding"]["Material"])
             if len(winding_material) > 0:
                 if self.materials.checkifmaterialexists(winding_material):
-                    values["Outer Winding"]["Material"] = winding_material
+                    values["Outer Winding"]["Material"] = self.materials._get_aedt_case_name(winding_material)
                 else:
                     self.logger.error(
                         "%s is not in the material library."
@@ -2559,8 +2559,9 @@ class Primitives3D(Primitives, object):
                 values["Inner Winding"]["Occupation(%)"] = occ
 
             if create_another_file:
-                spl_path = json_file.split(".")
-                with open(spl_path[0] + "_Corrected.json", "w") as outfile:
+                root_path, extension_path = os.path.splitext(json_file)
+                new_path = root_path + "_Corrected" + extension_path
+                with open(new_path, "w") as outfile:
                     json.dump(values, outfile)
             else:
                 with open(json_file, "w") as outfile:

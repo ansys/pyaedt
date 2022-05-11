@@ -265,7 +265,7 @@ class CommonOptimetrics(object):
     def _add_calculation(
         self,
         calculation,
-        ranges,
+        ranges=None,
         variables=None,
         solution=None,
         context=None,
@@ -284,7 +284,13 @@ class CommonOptimetrics(object):
         if setupname not in self.props["Sim. Setups"]:
             self.props["Sim. Setups"].append(setupname)
         domain = "Time"
-        if "Freq" in ranges or "Phase" in ranges or "Theta" in ranges:
+        if (ranges and ("Freq" in ranges or "Phase" in ranges or "Theta" in ranges)) or self._app.solution_type in [
+            "Magnetostatic",
+            "Electrostatic",
+            "EddyCurrent",
+            "DCConduction",
+            "Eigenmode",
+        ]:
             domain = "Sweep"
         if not report_type:
             report_type = self._app.design_solutions.report_type
@@ -477,7 +483,7 @@ class SetupOpti(CommonOptimetrics, object):
     def add_calculation(
         self,
         calculation,
-        ranges,
+        ranges=None,
         variables=None,
         solution=None,
         context=None,
@@ -491,10 +497,11 @@ class SetupOpti(CommonOptimetrics, object):
         ----------
         calculation : str, optional
             Name of the calculation.
-        ranges : dict
+        ranges : dict, optional
             Dictionary of ranges with respective values.
             Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
             It includes intrinsics like "Freq", "Time", "Theta", "Distance".
+            The default is ``None``, to be used e.g. in "Eigenmode" design type.
         solution : str, optional
             Type of the solution. The default is ``None``, in which case the default
             solution is used.
@@ -1019,7 +1026,7 @@ class OptimizationSetups(object):
             Name of the calculation.
         ranges : dict, optional
             Dictionary of ranges with respective values.
-            Values can be: a dict with Discrete Values, a dict with tuple args of start and stop range.
+            Values can be: a list of discrete values, a dict with tuple args of start and stop range.
             It includes intrinsics like "Freq", "Time", "Theta", "Distance".
         variables : list, optional
             List of variables to include in the optimization.
@@ -1061,46 +1068,46 @@ class OptimizationSetups(object):
         if not solution:
             solution = self._app.nominal_sweep
         setupname = solution.split(" ")[0]
-        domain = "Time"
-        if not ranges:
-            ranges = {}
-        if "Freq" in ranges or "Phase" in ranges or "Theta" in ranges:
-            domain = "Sweep"
-        if not report_type:
-            report_type = self._app.design_solutions.report_type
-            if context and context in self._app.modeler.sheet_names:
-                report_type = "Fields"
-            elif self._app.solution_type in ["Q3D Extractor", "2D Extractor"]:
-                report_type = "Matrix"
-            elif context:
-                try:
-                    for f in self._app.field_setups:
-                        if context == f.name:
-                            report_type = "Far Fields"
-                except:
-                    pass
         if not parametricname:
             parametricname = generate_unique_name(optim_type)
         if optim_type != "optiSLang":
             optim_type = "Opti" + optim_type
         setup = SetupOpti(self._app, parametricname, optim_type=optim_type)
         setup.auto_update = False
-        sweepdefinition = setup._get_context(
-            calculation,
-            condition,
-            goal_weight,
-            goal_value,
-            solution,
-            domain,
-            ranges,
-            report_type,
-            context,
-            subdesign_id,
-            polyline_points,
-            is_goal=True,
-        )
         setup.props["Sim. Setups"] = [setupname]
         if calculation:
+            domain = "Time"
+            if not ranges:
+                ranges = {}
+            if "Freq" in ranges or "Phase" in ranges or "Theta" in ranges:
+                domain = "Sweep"
+            if not report_type:
+                report_type = self._app.design_solutions.report_type
+                if context and context in self._app.modeler.sheet_names:
+                    report_type = "Fields"
+                elif self._app.solution_type in ["Q3D Extractor", "2D Extractor"]:
+                    report_type = "Matrix"
+                elif context:
+                    try:
+                        for f in self._app.field_setups:
+                            if context == f.name:
+                                report_type = "Far Fields"
+                    except:
+                        pass
+            sweepdefinition = setup._get_context(
+                calculation,
+                condition,
+                goal_weight,
+                goal_value,
+                solution,
+                domain,
+                ranges,
+                report_type,
+                context,
+                subdesign_id,
+                polyline_points,
+                is_goal=True,
+            )
             setup.props["Goals"]["Goal"] = sweepdefinition
 
         dx_variables = {}
@@ -1119,7 +1126,7 @@ class OptimizationSetups(object):
                 self._app.activate_variable_statistical(v)
         if optim_type == "OptiDXDOE" and calculation:
             setup.props["CostFunctionGoals"]["Goal"] = sweepdefinition
-        if optim_type in ["OptiDesignExplorer", "optiSLang"] and calculation:
+        if optim_type in ["OptiDesignExplorer", "optiSLang"]:
             setup.props["Sweeps"]["SweepDefinition"] = []
             for l, k in dx_variables.items():
                 arg = OrderedDict({"Variable": l, "Data": k, "OffsetF1": False, "Synchronize": 0})

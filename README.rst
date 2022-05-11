@@ -1,5 +1,11 @@
-|pypi| |PyPIact| |GH-CI| |codecov| |MIT| |black|
+PyAEDT
+======
 
+|pyansys| |pypi| |PyPIact| |GH-CI| |codecov| |MIT| |black|
+
+.. |pyansys| image:: https://img.shields.io/badge/Py-Ansys-ffc107.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAABDklEQVQ4jWNgoDfg5mD8vE7q/3bpVyskbW0sMRUwofHD7Dh5OBkZGBgW7/3W2tZpa2tLQEOyOzeEsfumlK2tbVpaGj4N6jIs1lpsDAwMJ278sveMY2BgCA0NFRISwqkhyQ1q/Nyd3zg4OBgYGNjZ2ePi4rB5loGBhZnhxTLJ/9ulv26Q4uVk1NXV/f///////69du4Zdg78lx//t0v+3S88rFISInD59GqIH2esIJ8G9O2/XVwhjzpw5EAam1xkkBJn/bJX+v1365hxxuCAfH9+3b9/+////48cPuNehNsS7cDEzMTAwMMzb+Q2u4dOnT2vWrMHu9ZtzxP9vl/69RVpCkBlZ3N7enoDXBwEAAA+YYitOilMVAAAAAElFTkSuQmCC
+   :target: https://docs.pyansys.com/
+   :alt: PyAnsys
 
 .. |pypi| image:: https://img.shields.io/pypi/v/pyaedt.svg?logo=python&logoColor=white
    :target: https://pypi.org/project/pyaedt/
@@ -124,7 +130,7 @@ Explicit Desktop Declaration and Error Management
     Launch AEDT 2021 R1 in non-graphical mode
 
     from pyaedt import Desktop, Circuit
-    with Desktop(specified_version="2021.1",
+    with Desktop(specified_version="2022.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False):
         circuit = Circuit()
@@ -143,7 +149,7 @@ Implicit Desktop Declaration and Error Management
     # Launch the latest installed version of AEDT in graphical mode
 
     from pyaedt import Circuit
-    with Circuit(specified_version="2021.2",
+    with Circuit(specified_version="2022.1",
                  non_graphical=False) as circuit:
         ...
         # Any error here will be caught by Desktop.

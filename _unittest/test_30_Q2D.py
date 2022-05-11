@@ -81,3 +81,12 @@ class TestClass(BasisTest, object):
         assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.DiffPair, ["Circle2", "Circle3"], "Test5")
         assert q2d.matrices[5].name == "Test5"
         self.aedtapp.close_project(q2d.project_name, False)
+
+    def test_12_get_all_conductors(self):
+        self.aedtapp.insert_design("condcutors")
+        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", matname="Copper")
+        o1 = self.aedtapp.create_rectangle([7, 5], [5, 3], name="Rectangle2", matname="aluminum")
+        o3 = self.aedtapp.create_rectangle([27, 5], [5, 3], name="Rectangle3", matname="air")
+        conductors = self.aedtapp.get_all_conductors_names()
+        assert sorted(conductors) == ["Rectangle1", "Rectangle2"]
+        assert self.aedtapp.get_all_dielectrics_names() == ["Rectangle3"]

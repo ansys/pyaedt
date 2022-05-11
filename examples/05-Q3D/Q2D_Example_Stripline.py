@@ -10,13 +10,12 @@ import os
 from pyaedt import Q2d
 from pyaedt.generic.general_methods import generate_unique_name
 
-###############################################################################
-# Launch AEDT in Non-Graphical Mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch
-# AEDT in graphical mode.
 
-NonGraphical = True
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 home = os.path.expanduser("~")
 workdir = os.path.join(home, "Downloads", "pyaedt_example")
@@ -31,7 +30,7 @@ project_path = os.path.join(workdir, generate_unique_name("pyaedt_q2d_example") 
 
 
 q = Q2d(projectname=project_path, designname="differential_stripline",
-        specified_version="2022.1", non_graphical=NonGraphical, new_desktop_session=True)
+        specified_version="2022.1", non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Create variables

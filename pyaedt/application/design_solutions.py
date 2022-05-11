@@ -49,18 +49,18 @@ solutions_types = {
             "default_setup": 8,
             "default_adaptive": None,
         },
-        "ElectricTransient": {
-            "name": "ElectricTransient",
+        "DCConduction": {
+            "name": "DCConduction",
             "options": "XY",
             "report_type": None,
-            "default_setup": 10,
-            "default_adaptive": "Transient",
+            "default_setup": 8,
+            "default_adaptive": None,
         },
-        "ElectroDCConduction": {
-            "name": "ElectroDCConduction",
+        "ACConduction": {
+            "name": "ACConduction",
             "options": "XY",
             "report_type": None,
-            "default_setup": 9,
+            "default_setup": 8,
             "default_adaptive": None,
         },
     },
@@ -70,7 +70,7 @@ solutions_types = {
             "options": None,
             "report_type": "Magnetostatic",
             "default_setup": 6,
-            "default_adaptive": None,
+            "default_adaptive": "LastAdaptive",
         },
         "EddyCurrent": {
             "name": "EddyCurrent",
@@ -345,7 +345,7 @@ solutions_types = {
         "ORIM": {"name": "ORIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
         "SRIM": {"name": "SRIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
         "WRIM": {"name": "WRIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "DFIG": {"name": "DFIG", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
+        "DFIG": {"name": "DFIG", "options": None, "report_type": None, "default_setup": 43, "default_adaptive": None},
         "AFIM": {"name": "AFIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
         "HM": {"name": "HM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
         "RFSM": {"name": "RFSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
@@ -355,18 +355,18 @@ solutions_types = {
         "APSM": {"name": "APSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
         "IBDM": {"name": "IBDM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
         "ABDM": {"name": "ABDM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "TPIM": {"name": "TPIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "SPIM": {"name": "SPIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "TPSM": {"name": "TPSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "BLDC": {"name": "BLDC", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "ASSM": {"name": "ASSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "PMDC": {"name": "PMDC", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "SRM": {"name": "SRM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "LSSM": {"name": "LSSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "UNIM": {"name": "UNIM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "DCM": {"name": "DCM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "CPSM": {"name": "CPSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
-        "NSSM": {"name": "NSSM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
+        "TPIM": {"name": "TPIM", "options": None, "report_type": None, "default_setup": 44, "default_adaptive": None},
+        "SPIM": {"name": "SPIM", "options": None, "report_type": None, "default_setup": 45, "default_adaptive": None},
+        "TPSM": {"name": "SYNM", "options": None, "report_type": None, "default_setup": 46, "default_adaptive": None},
+        "BLDC": {"name": "BLDC", "options": None, "report_type": None, "default_setup": 47, "default_adaptive": None},
+        "ASSM": {"name": "ASSM", "options": None, "report_type": None, "default_setup": 48, "default_adaptive": None},
+        "PMDC": {"name": "PMDC", "options": None, "report_type": None, "default_setup": 49, "default_adaptive": None},
+        "SRM": {"name": "SRM", "options": None, "report_type": None, "default_setup": 50, "default_adaptive": None},
+        "LSSM": {"name": "LSSM", "options": None, "report_type": None, "default_setup": 51, "default_adaptive": None},
+        "UNIM": {"name": "UNIM", "options": None, "report_type": None, "default_setup": 52, "default_adaptive": None},
+        "DCM": {"name": "DCM", "options": None, "report_type": None, "default_setup": 53, "default_adaptive": None},
+        "CPSM": {"name": "CPSM", "options": None, "report_type": None, "default_setup": 54, "default_adaptive": None},
+        "NSSM": {"name": "NSSM", "options": None, "report_type": None, "default_setup": 55, "default_adaptive": None},
     },
     "ModelCreation": {
         "GRM": {"name": "GRM", "options": None, "report_type": None, "default_setup": 34, "default_adaptive": None},
@@ -475,7 +475,9 @@ class DesignSolution(object):
     @property
     def solution_type(self):
         """Get/Set the Solution Type of the active Design."""
-        if self._odesign:
+        if self._design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design", "EMIT", "Q3D Extractor"]:
+            self._solution_type = solutions_defaults[self._design_type]
+        elif self._odesign:
             try:
                 self._solution_type = self._odesign.GetSolutionType()
             except:
@@ -488,7 +490,15 @@ class DesignSolution(object):
     @pyaedt_function_handler()
     def solution_type(self, value):
         if value is None:
-            if self._odesign:
+            if self._design_type in [
+                "Circuit Design",
+                "Twin Builder",
+                "HFSS 3D Layout Design",
+                "EMIT",
+                "Q3D Extractor",
+            ]:
+                self._solution_type = solutions_defaults[self._design_type]
+            elif self._odesign:
                 try:
                     self._solution_type = self._odesign.GetSolutionType()
                 except:

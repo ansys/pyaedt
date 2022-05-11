@@ -23,7 +23,7 @@ from pyaedt.generic.constants import _resolve_unit_system
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SI_UNITS
 from pyaedt.generic.constants import unit_system
-from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import is_number, is_array
 
 
 class CSVDataset:
@@ -279,6 +279,9 @@ def decompose_variable_value(variable_value, full_variables={}):
             if loc:
                 loc_units = loc.span()[0]
                 extract_units = variable_value[loc_units:]
+                chars = set("+*/()[]")
+                if any((c in chars) for c in extract_units):
+                    return variable_value, units
                 try:
                     float_value = float(variable_value[0:loc_units])
                     units = extract_units
@@ -436,6 +439,35 @@ class VariableManager(object):
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
         return self._variable_dict([self._oproject])
+
+    @property
+    def post_processing_variables(self):
+        """Post Processing variables.
+
+        Returns
+        -------
+        dict
+            Dictionary of the post processing variables (constant numeric
+            values) available to the design.
+
+        References
+        ----------
+
+        >>> oProject.GetVariables
+        >>> oDesign.GetVariables
+        >>> oProject.GetChildObject("Variables").GetChildNames
+        >>> oDesign.GetChildObject("Variables").GetChildNames
+        """
+        try:
+            all_post_vars = list(self._odesign.GetPostProcessingVariables())
+        except:
+            all_post_vars = []
+        out = self.design_variables
+        post_vars = {}
+        for k, v in out.items():
+            if k in all_post_vars:
+                post_vars[k] = v
+        return post_vars
 
     @property
     def independent_variables(self):
@@ -644,7 +676,7 @@ class VariableManager(object):
         var_dict = {}
         all_names = {}
         for obj in object_list:
-            if self._app._is_object_oriented_enabled():
+            if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
                 listvar = list(obj.GetChildObject("Variables").GetChildNames())
             else:
                 listvar = list(obj.GetVariables())
@@ -653,15 +685,21 @@ class VariableManager(object):
                 all_names[variable_name] = variable_expression
                 try:
                     value = Variable(variable_expression)
-                    if independent and is_number(value.value):
+                    if is_array(value.value):
+                        var_dict[variable_name] = value
+                    elif independent and is_number(value.value):
                         var_dict[variable_name] = value
                     elif dependent and isinstance(value.value, str):
                         float_value = self._app.get_evaluated_value(variable_name)
-                        var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
+                        var_dict[variable_name] = Expression(
+                            variable_expression, float_value, all_names, name=variable_name, app=self._app
+                        )
                 except:
                     if dependent:
                         float_value = self._app.get_evaluated_value(variable_name)
-                        var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
+                        var_dict[variable_name] = Expression(
+                            variable_expression, float_value, all_names, name=variable_name, app=self._app
+                        )
         return var_dict
 
     @pyaedt_function_handler()
@@ -701,6 +739,7 @@ class VariableManager(object):
         description=None,
         overwrite=True,
         postprocessing=False,
+        circuit_parameter=True,
     ):
         """Set the value of a design property or project variable.
 
@@ -726,7 +765,12 @@ class VariableManager(object):
             Whether to overwrite an existing value for the design
             property or project variable. The default is ``False``, in
             which case this method is ignored.
-
+        postprocessing : bool, optional
+            Whether to define a postprocessing variable.
+             The default is ``False``, in which case the variable is not used in postprocessing.
+        circuit_parameter : bool, optional
+            Whether to define a parameter in a circuit design or a local parameter.
+             The default is ``True``, in which case a circuit variable is created as a parameter default.
         Returns
         -------
         bool
@@ -770,6 +814,11 @@ class VariableManager(object):
         test = desktop_object.GetName()
         proj_name = self._oproject.GetName()
         var_type = "Project" if "$" in variable_name[0] else "Local"
+        if circuit_parameter and self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design"]:
+            tab_name = "DefinitionParameterTab"
+        else:
+            tab_name = "{0}VariableTab".format(var_type)
+
         prop_type = "VariableProp"
         if postprocessing or "post" in variable_name.lower()[0:5]:
             prop_type = "PostProcessingVariableProp"
@@ -799,11 +848,20 @@ class VariableManager(object):
             raise Exception("Unhandled input type to the design property or project variable.")  # pragma: no cover
 
         # Get all design and project variables in lower case for a case-sensitive comparison
-        if self._app._is_object_oriented_enabled():
+        if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
             var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
         else:
             var_list = list(desktop_object.GetVariables())  # pragma: no cover
         lower_case_vars = [var_name.lower() for var_name in var_list]
+        if (
+            self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit"]
+            and "$" not in variable_name
+        ):
+            prop_server = "Instance:{}".format(desktop_object.GetName())
+        elif self._app.design_type == "Circuit Design" and circuit_parameter:
+            prop_server = "DefinitionParameters"
+        else:
+            prop_server = "{0}Variables".format(var_type)
 
         if variable_name.lower() not in lower_case_vars:
             try:
@@ -811,8 +869,8 @@ class VariableManager(object):
                     [
                         "NAME:AllTabs",
                         [
-                            "NAME:{0}VariableTab".format(var_type),
-                            ["NAME:PropServers", "{0}Variables".format(var_type)],
+                            "NAME:{0}".format(tab_name),
+                            ["NAME:PropServers", prop_server],
                             [
                                 "NAME:NewProps",
                                 [
@@ -841,8 +899,8 @@ class VariableManager(object):
                         [
                             "NAME:AllTabs",
                             [
-                                "NAME:{}VariableTab".format(var_type),
-                                ["NAME:PropServers", "{}Variables".format(var_type)],
+                                "NAME:{}".format(tab_name),
+                                ["NAME:PropServers", prop_server],
                                 [
                                     "NAME:ChangedProps",
                                     [
@@ -865,8 +923,8 @@ class VariableManager(object):
                 [
                     "NAME:AllTabs",
                     [
-                        "NAME:{}VariableTab".format(var_type),
-                        ["NAME:PropServers", "{}Variables".format(var_type)],
+                        "NAME:{}".format(tab_name),
+                        ["NAME:PropServers", prop_server],
                         [
                             "NAME:ChangedProps",
                             [
@@ -884,7 +942,7 @@ class VariableManager(object):
                     ],
                 ]
             )
-        if self._app._is_object_oriented_enabled():
+        if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
             var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
         else:
             var_list = list(desktop_object.GetVariables())  # pragma: no cover
@@ -957,7 +1015,7 @@ class VariableManager(object):
         """
         desktop_object = self.aedt_object(var_name)
         var_type = "Project" if desktop_object == self._oproject else "Local"
-        if self._app._is_object_oriented_enabled():
+        if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
             var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
         else:
             var_list = list(desktop_object.GetVariables())  # pragma: no cover
@@ -986,7 +1044,7 @@ class Variable(object):
 
     Parameters
     ----------
-    value : float
+    value : float, str
         Numerical value of the variable in SI units.
     units : str
         Units for the value.
@@ -1057,15 +1115,19 @@ class Variable(object):
     @property
     def numeric_value(self):
         """Numeric part of the expression as a float value."""
+        if is_array(self._value):
+            return list(eval(self._value))
         if is_number(self._value):
             try:
                 scale = AEDT_UNITS[self.unit_system][self._units]
             except KeyError:
                 scale = 1
-        if isinstance(scale, tuple):
-            return scale[0](self._value, True)
+            if isinstance(scale, tuple):
+                return scale[0](self._value, True)
+            else:
+                return self._value / scale
         else:
-            return self._value / scale
+            return self._value
 
     @property
     def string_value(self):
@@ -1373,9 +1435,11 @@ class Expression(Variable, object):
 
     """
 
-    def __init__(self, expression, float_value, full_variables={}):
+    def __init__(self, expression, float_value, full_variables={}, name=None, app=None):
         self._expression = expression
         self._value = float_value
+        self._variable_name = name
+        self._app = app
         try:
             value, units = decompose_variable_value(expression, full_variables)
             self._units = units
@@ -1386,6 +1450,19 @@ class Expression(Variable, object):
     def expression(self):
         """Expression."""
         return str(self._expression)
+
+    @property
+    def numeric_value(self):
+        """Numeric part of the expression as a float value."""
+        try:
+            if re.search(r"^[\w+]+\[\w+].*", self._value):
+                var_obj = self._app._odesign.GetChildObject("Variables").GetChildObject(self._variable_name)
+                val, _ = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
+                return val
+            else:
+                return Variable.numeric_value.fget(self)
+        except TypeError:
+            return Variable.numeric_value.fget(self)
 
 
 class DataSet(object):

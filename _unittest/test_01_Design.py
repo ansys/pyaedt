@@ -15,7 +15,6 @@ except ImportError:
 from pyaedt.generic.general_methods import is_ironpython
 
 test_project_name = "Coax_HFSS"
-example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
 
 
 class TestClass(BasisTest, object):
@@ -43,20 +42,20 @@ class TestClass(BasisTest, object):
         self.aedtapp.design_name = "myname"
         assert self.aedtapp.design_name == "myname"
 
-    def test_version_id(self):
+    def test_01_version_id(self):
         assert self.aedtapp.aedt_version_id
 
-    def test_valid_design(self):
+    def test_01_valid_design(self):
         assert self.aedtapp.valid_design
 
-    def test_clean_proj_folder(self):
+    def test_01_clean_proj_folder(self):
         assert self.aedtapp.clean_proj_folder()
 
-    def test_copy_project(self):
+    def test_02_copy_project(self):
         assert self.aedtapp.copy_project(self.local_scratch.path, "new_file")
         assert self.aedtapp.copy_project(self.local_scratch.path, "Coax_HFSS")
 
-    def test_change_use_causalmaterial(self):
+    def test_02_use_causalmaterial(self):
         assert self.aedtapp.change_automatically_use_causal_materials(True)
         assert self.aedtapp.change_automatically_use_causal_materials(False)
 
@@ -122,10 +121,7 @@ class TestClass(BasisTest, object):
         assert "test" not in self.aedtapp.variable_manager.variables
 
     def test_13_designs(self):
-        assert (
-            self.aedtapp._insert_design("HFSS", design_name="TestTransient", solution_type="Transient Network")
-            == "TestTransient"
-        )
+        assert self.aedtapp._insert_design("HFSS", design_name="TestTransient") == "TestTransient"
         self.aedtapp.delete_design("TestTransient")
         self.aedtapp.insert_design("NewDesign")
 
@@ -147,9 +143,9 @@ class TestClass(BasisTest, object):
         self.aedtapp.save_project(project_file=destin)
         new_design = self.aedtapp.copy_design_from(origin, "myduplicateddesign")
         assert new_design in self.aedtapp.design_list
-        self.aedtapp.load_project(project_file=self.test_project, close_active_proj=True)
 
     def test_16_renamedesign(self):
+        self.aedtapp.load_project(project_file=self.test_project, close_active_proj=True)
         self.aedtapp.rename_design("mydesign")
         assert self.aedtapp.design_name == "mydesign"
 
@@ -230,7 +226,10 @@ class TestClass(BasisTest, object):
         if is_ironpython:
             assert str(type(self.aedtapp.odesktop)) in ["<type 'ADesktopWrapper'>", "<type 'ADispatchWrapper'>"]
         else:
-            assert str(type(self.aedtapp.odesktop)) == "<class 'win32com.client.CDispatch'>"
+            assert str(type(self.aedtapp.odesktop)) in [
+                "<class 'win32com.client.CDispatch'>",
+                "<class 'PyDesktopPlugin.AedtObjWrapper'>",
+            ]
 
     def test_28_get_pyaedt_app(self):
         app = get_pyaedt_app(self.aedtapp.project_name, self.aedtapp.design_name)
@@ -243,6 +242,7 @@ class TestClass(BasisTest, object):
         assert not desktop.change_registry_key("test_key", 2.0)
 
     def test_30_object_oriented(self):
+        # self.aedtapp.set_active_design("myname")
         assert self.aedtapp.get_oo_name(self.aedtapp.oproject, "Variables")
         assert self.aedtapp.get_oo_name(self.aedtapp.odesign, "Variables")
         assert not self.aedtapp.get_oo_name(self.aedtapp.odesign, "Variables1")

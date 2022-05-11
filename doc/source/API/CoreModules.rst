@@ -5,6 +5,7 @@ This section lists the core PyAEDT application modules:
 * Design
 * Variable
 * DesignXPloration
+* Configurations
 
 
 
@@ -16,7 +17,7 @@ design and project variables in the 3D tools.
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2021.1",
+    app = Hfss(specified_version="2022.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
@@ -49,7 +50,7 @@ optimetrics setups.
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2021.1",
+    app = Hfss(specified_version="2022.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
@@ -70,7 +71,7 @@ optimetrics setups.
    :toctree: _autosummary
    :nosignatures:
 
-   ParametericSetups
+   ParametricSetups
    OptimizationSetups
    SetupParam
    SetupOpti
@@ -89,3 +90,14 @@ and designs.
    :nosignatures:
 
    DesignCache
+
+
+Boundary Class
+~~~~~~~~~~~~~~
+
+Boundary class is very important because it automates the creation of the AEDT Syntax for any boundary and excitation creation.
+
+.. toctree::
+   :maxdepth: 2
+
+   Boundaries

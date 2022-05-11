@@ -37,7 +37,7 @@ else:
 with open(os.path.join(root_path, "pyaedt", "version.txt"), "r") as f:
     release = version = f.readline()
 
-
+os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx_PyAEDT extension module names here, as strings. They can be
@@ -96,6 +96,9 @@ numpydoc_validation_checks = {
 numpydoc_validation_exclude = {  # set of regex
     r"\.AEDTMessageManager.add_message$",  # bad SS05
 }
+
+# Favicon
+html_favicon = "favicon.png"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
