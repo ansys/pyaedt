@@ -1313,7 +1313,7 @@ class GeometryModeler(Modeler, object):
         [Dict with List information]
         """
         design_lists = []
-        if self._app.design_properties.get("ModelSetup", None):
+        if self._app.design_properties and self._app.design_properties.get("ModelSetup", None):
             key1 = "GeometryOperations"
             key2 = "GeometryEntityLists"
             key3 = "GeometryEntityListOperation"
