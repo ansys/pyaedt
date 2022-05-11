@@ -2781,11 +2781,17 @@ class Icepak(FieldAnalysis3D):
                 from pyaedt.modules.Material import SurfaceMaterial
 
                 sm = SurfaceMaterial(self.materials, mat)
-                sm.coordinate_system = oo.GetPropEvaluatedValue("Coordinate System Type/Choices")
-                sm.emissivity = oo.GetPropEvaluatedValue("Emissivity")
-                sm.surface_roughness = oo.GetPropEvaluatedValue("Surface Roughness")
-                sm.surface_roughness = oo.GetPropEvaluatedValue("Surface Roughness")
-                sm.surface_diffuse_absorptance = oo.GetPropEvaluatedValue("Solar Diffuse Absorptance")
-                sm.surface_incident_absorptance = oo.GetPropEvaluatedValue("Solar Normal Absorptance")
+                sm.coordinate_system = oo.GetPropEvaluatedValue("Coordinate System Type")
+                props = oo.GetPropNames()
+                if "Surface Emissivity" in props:
+                    sm.emissivity = oo.GetPropEvaluatedValue("Surface Emissivity")
+                if "Surface Roughness" in props:
+                    sm.surface_roughness = oo.GetPropEvaluatedValue("Surface Roughness")
+                if "Solar Behavior" in props:
+                    sm.surface_clarity_type = oo.GetPropEvaluatedValue("Solar Behavior")
+                if "Solar Diffuse Absorptance" in props:
+                    sm.surface_diffuse_absorptance = oo.GetPropEvaluatedValue("Solar Diffuse Absorptance")
+                if "Solar Normal Absorptance" in props:
+                    sm.surface_incident_absorptance = oo.GetPropEvaluatedValue("Solar Normal Absorptance")
                 self.materials.surface_material_keys[mat.lower()] = sm
         return True

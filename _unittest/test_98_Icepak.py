@@ -311,6 +311,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.materials.add_surface_material("my_surface", 0.5)
         obj = ["box2", "box3"]
         assert self.aedtapp.assign_surface_material(obj, "my_surface")
+        assert self.aedtapp.assign_surface_material("box", "Fe-cast")
         mat = self.aedtapp.materials.add_material("test_mat1")
         mat.thermal_conductivity = 10
         mat.thermal_conductivity = [20, 20, 10]

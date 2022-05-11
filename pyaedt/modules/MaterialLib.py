@@ -107,7 +107,7 @@ class Materials(object):
     @property
     def _mat_names_aedt_lower(self):
         if len(self._mats_lower) < len(self._mat_names_aedt):
-            return [i.lower() for i in self._mat_names_aedt]
+            self._mats_lower = [i.lower() for i in self._mat_names_aedt]
         return self._mats_lower
 
     @pyaedt_function_handler()
@@ -129,29 +129,21 @@ class Materials(object):
             for filename in filenames
             if fnmatch.fnmatch(filename, "*.amat")
         ]
-        mats = []
-        for amat in amat_sys:
-            # m = load_entire_aedt_file(amat)
-            # mats.extend(list(m.keys()))
-            mats.extend(get_mat_list(amat))
-
         amat_personal = [
             os.path.join(dirpath, filename)
             for dirpath, _, filenames in os.walk(self._app.personallib)
             for filename in filenames
             if fnmatch.fnmatch(filename, "*.amat")
         ]
-        for amat in amat_personal:
-            # m = load_entire_aedt_file(amat)
-            # mats.extend(list(m.keys()))
-            mats.extend(get_mat_list(amat))
         amat_user = [
             os.path.join(dirpath, filename)
             for dirpath, _, filenames in os.walk(self._app.userlib)
             for filename in filenames
             if fnmatch.fnmatch(filename, "*.amat")
         ]
-        for amat in amat_user:
+        amat_libs = amat_sys + amat_personal + amat_user
+        mats = []
+        for amat in amat_libs:
             # m = load_entire_aedt_file(amat)
             # mats.extend(list(m.keys()))
             mats.extend(get_mat_list(amat))
