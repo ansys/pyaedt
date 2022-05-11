@@ -33,7 +33,6 @@ class ModelerCircuit(Modeler):
         self.o_def_manager = self._app.odefinition_manager
         self.o_component_manager = self.o_def_manager.GetManager("Component")
         self.o_model_manager = self.o_def_manager.GetManager("Model")
-
         Modeler.__init__(self, app)
 
     @property
@@ -148,12 +147,22 @@ class ModelerNexxim(ModelerCircuit):
         self._app = app
         ModelerCircuit.__init__(self, app)
         self._schematic = NexximComponents(self)
-        self.layouteditor = None
-        if self._app.design_type != "Twin Builder":
-            self.layouteditor = self._odesign.SetActiveEditor("Layout")
-            self._odesign.SetActiveEditor("SchematicEditor")
+        self._layouteditor = None
         self.layers = Layers(self, roughnessunits="um")
         self._primitives = Primitives3DLayout(app)
+
+    @property
+    def layouteditor(self):
+        """Return the Circuit Layout Editor.
+
+        References
+        ----------
+
+        >>> oDesign.SetActiveEditor("Layout")
+        """
+        if not self._layouteditor and self._app.design_type != "Twin Builder":
+            self._layouteditor = self._odesign.SetActiveEditor("Layout")
+        return self._layouteditor
 
     @property
     def schematic(self):

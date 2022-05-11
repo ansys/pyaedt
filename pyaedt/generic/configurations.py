@@ -965,12 +965,12 @@ class Configurations(object):
         if self.options.import_materials and dict_in.get("materials", None):
             self.results.import_materials = True
             for el, val in dict_in["materials"].items():
-                if el.lower() in list(self._app.materials.material_keys.keys()):
+                if self._app.materials.checkifmaterialexists(el):
                     newname = generate_unique_name(el)
                     self._app.logger.warning("Material %s already exists. Renaming to %s", el, newname)
                 else:
                     newname = el
-                newmat = Material(self._app, newname, val)
+                newmat = Material(self._app, el, val)
                 if newmat.update():
                     self._app.materials.material_keys[newname] = newmat
                 else:
@@ -1133,7 +1133,7 @@ class Configurations(object):
     def _export_materials(self, dict_out):
         output_dict = {}
         for el, val in self._app.materials.material_keys.items():
-            output_dict[el] = copy.deepcopy(val._props)
+            output_dict[val.name] = copy.deepcopy(val._props)
         out_list = []
         _find_datasets(output_dict, out_list)
         datasets = OrderedDict()

@@ -614,16 +614,9 @@ class Hfss(FieldAnalysis3D, object):
         listobjname = "_".join(listobj)
         props = {"Objects": listobj}
         if mat:
-            mat = mat.lower()
-            if mat in self.materials.material_keys:
-                Mat = self.materials.material_keys[mat]
-                Mat.update()
+            if self.materials[mat]:
                 props["UseMaterial"] = True
-                props["Material"] = mat
-                self.materials._aedmattolibrary(mat)
-            elif self.materials.checkifmaterialexists(mat):
-                props["UseMaterial"] = True
-                props["Material"] = mat
+                props["Material"] = self.materials[mat].name
             else:
                 return False
         else:
