@@ -1770,10 +1770,8 @@ class Analysis(Design, object):
             filename = file_name.replace("//", "/").replace("\\", "/")
         self.logger.info("Exporting Touchstone " + filename)
         DesignVariations = ""
-        i = 0
-        for el in variations:
+        for i in range(len(variations)):
             DesignVariations += str(variations[i]) + "='" + str(variations_value[i].replace("'", "")) + "' "
-            i += 1
             # DesignVariations = "$AmbientTemp=\'22cel\' $PowerIn=\'100\'"
         # array containing "SetupName:SolutionName" pairs (note that setup and solution are separated by a colon)
         SolutionSelectionArray = [solution_name + ":" + sweep_name]
