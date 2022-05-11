@@ -969,12 +969,12 @@ class ParametricSetups(object):
 
     @pyaedt_function_handler()
     def delete(self, setup_name):
-        """Delete a defined Optimetrics Setup.
+        """Delete a defined Parametric Setup.
 
         Parameters
         ----------
         setup_name : str
-            Name of optimetrics setup to delete.
+            Name of parametric setup to delete.
 
         Returns
         -------
