@@ -478,23 +478,6 @@ class GeneticAlgorithm(object):
             self.goal = self.function(self.temp, self.reference_file)
             return True
 
-    # def sim(self, X):
-    #     self.temp = X.copy()
-    #     if self.timeout > 0:
-    #         e = threading.Event()
-    #         t = threading.Thread(target=self.evaluate)
-    #         t.start()
-    #         # Wait for at most self.timeout seconds for the thread to complete.
-    #         t.join(self.timeout)
-    #         if t.is_alive():
-    #             print("After " + str(self.timeout) + " seconds delay the given function does not provide any output")
-    #             e.set()
-    #             self.goal = 1e10
-    #     else:
-    #         eval = self.evaluate()
-    #
-    #     return self.goal
-
     def sim(self, X):
         self.temp = X.copy()
         if self.timeout > 0:
