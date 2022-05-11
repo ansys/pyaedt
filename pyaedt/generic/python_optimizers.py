@@ -404,6 +404,8 @@ class GeneticAlgorithm(object):
         sys.stdout.write("\r Best solution:\n %s" % (self.best_variable))
         sys.stdout.write("\n\n Objective:\n %s\n" % (self.best_function))
 
+        return True
+
     def cross(self, x, y, c_type):
         ofs1 = x.copy()
         ofs2 = y.copy()
@@ -481,14 +483,6 @@ class GeneticAlgorithm(object):
     def sim(self, X):
         self.temp = X.copy()
         if self.timeout > 0:
-            returned_list = []
-
-            def recuperation(func):
-                try:
-                    returned_list.append(func)
-                except:
-                    pass
-
             thread = ThreadTrace(target=self.evaluate, daemon=None)
             thread.start()
             thread.join(timeout=self.timeout)
