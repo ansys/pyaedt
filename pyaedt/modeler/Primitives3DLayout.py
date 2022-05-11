@@ -7,12 +7,16 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import _uname
+from pyaedt.modeler.Object3d import Circle3dLayout
 from pyaedt.modeler.Object3d import Components3DLayout
 from pyaedt.modeler.Object3d import ComponentsSubCircuit3DLayout
 from pyaedt.modeler.Object3d import Geometries3DLayout
+from pyaedt.modeler.Object3d import Line3dLayout
 from pyaedt.modeler.Object3d import Nets3DLayout
 from pyaedt.modeler.Object3d import Padstack
 from pyaedt.modeler.Object3d import Pins3DLayout
+from pyaedt.modeler.Object3d import Polygons3DLayout
+from pyaedt.modeler.Object3d import Rect3dLayout
 from pyaedt.modeler.Primitives import default_materials
 
 # import pkgutil
@@ -74,10 +78,12 @@ class Primitives3DLayout(object):
         self.padstacks = {}
         self._components = {}
         self._components3d = {}
-        self._geometries = {}
+        self._rectangles = {}
+        self._lines = {}
+        self._circles = {}
+        self._polygons = {}
         self._pins = {}
         self._nets = {}
-        pass
 
     @property
     def _modeler(self):
@@ -124,47 +130,89 @@ class Primitives3DLayout(object):
             List of geometries from EDB. If EDB is not present, ``None`` is returned.
 
         """
-        if not self._app.project_timestamp_changed and self._geometries:
-            return self._geometries
-        try:
-            prims = self.modeler.edb.core_primitives.primitives
-        except:
-            prims = []
-        for prim in prims:
-            el = prim.primitive_object
-            if is_ironpython:
-                name = clr.Reference[System.String]()
-                try:
-                    response = el.GetProductProperty(0, 1, name)
-                except:
-                    response, name = False, ""
+        return {**self.polygons, **self.circles, **self.rectangles, **self.lines}
 
-            else:
-                val = String("")
-                try:
-                    response, name = el.GetProductProperty(0, 1, val)
-                except:
-                    response, name = False, ""
-            if str(name):
-                elval = el.GetType()
-                elid = el.GetId()
-                name = str(name).replace("'", "")
-                el_str = elval.ToString()
-                if not name:
-                    if "Rectangle" in el_str:
-                        name = "rect_" + str(elid)
-                    elif "Circle" in el_str:
-                        name = "circle_" + str(elid)
-                    elif "Polygon" in el_str:
-                        name = "poly_" + str(elid)
-                    elif "Path" in el_str:
-                        name = "line_" + str(elid)
-                    elif "Bondwire" in el_str:
-                        name = "bondwire_" + str(elid)
-                    else:
-                        continue
-                self._geometries[name] = Geometries3DLayout(self, name, elid)
-        return self._geometries
+    @property
+    def polygons(self):
+        """Polygons.
+
+        Returns
+        -------
+        list
+            List of polygons, args and plg.
+
+        """
+        if self._polygons:
+            return self._polygons
+        poly_types = ["poly", "arc", "plg"]
+        for poly in poly_types:
+            objs = self.modeler.oeditor.FindObjects("Type", poly)
+            for obj in objs:
+                self._polygons[obj] = Polygons3DLayout(self, obj, poly, False)
+            objs = self.modeler.oeditor.FindObjects("Type", poly + " void")
+            for obj in objs:
+                self._polygons[obj] = Polygons3DLayout(self, obj, poly, True)
+        return self._polygons
+
+    @property
+    def lines(self):
+        """Lines.
+
+        Returns
+        -------
+        list
+            List of polygons, args and plg.
+
+        """
+        if self._lines:
+            return self._lines
+        objs = self.modeler.oeditor.FindObjects("Type", "line")
+        for obj in objs:
+            self._lines[obj] = Line3dLayout(self, obj, False)
+        objs = self.modeler.oeditor.FindObjects("Type", "line void")
+        for obj in objs:
+            self._lines[obj] = Line3dLayout(self, obj, True)
+        return self._lines
+
+    @property
+    def circles(self):
+        """Circles.
+
+        Returns
+        -------
+        list
+            List of polygons, args and plg.
+
+        """
+        if self._circles:
+            return self._circles
+        objs = self.modeler.oeditor.FindObjects("Type", "circle")
+        for obj in objs:
+            self._circles[obj] = Circle3dLayout(self, obj, False)
+        objs = self.modeler.oeditor.FindObjects("Type", "circle void")
+        for obj in objs:
+            self._circles[obj] = Circle3dLayout(self, obj, True)
+        return self._circles
+
+    @property
+    def rectangles(self):
+        """Rectangles.
+
+        Returns
+        -------
+        list
+            List of polygons, args and plg.
+
+        """
+        if self._rectangles:
+            return self._rectangles
+        objs = self.modeler.oeditor.FindObjects("Type", "rect")
+        for obj in objs:
+            self._rectangles[obj] = Rect3dLayout(self, obj, False)
+        objs = self.modeler.oeditor.FindObjects("Type", "rect void")
+        for obj in objs:
+            self._rectangles[obj] = Rect3dLayout(self, obj, True)
+        return self._rectangles
 
     @property
     def components_3d(self):
@@ -546,7 +594,7 @@ class Primitives3DLayout(object):
         vArg1.append(vArg2)
         self._oeditor.CreateCircle(vArg1)
         if self.is_outside_desktop:
-            self._geometries[name] = Geometries3DLayout(self, name)
+            self._geometries[name] = Geometries3DLayout(self, name, "circle")
             if netname:
                 self._geometries[name].set_net_name(netname)
         return name
@@ -605,7 +653,7 @@ class Primitives3DLayout(object):
         vArg1.append(vArg2)
         self._oeditor.CreateRectangle(vArg1)
         if self.is_outside_desktop:
-            self._geometries[name] = Geometries3DLayout(self, name)
+            self._geometries[name] = Geometries3DLayout(self, name, "rect")
             if netname:
                 self._geometries[name].set_net_name(netname)
         return name
@@ -681,7 +729,7 @@ class Primitives3DLayout(object):
         arg.append(arg2)
         self._oeditor.CreateLine(arg)
         if self.is_outside_desktop:
-            self._geometries[name] = Geometries3DLayout(self, name)
+            self._geometries[name] = Geometries3DLayout(self, name, "line")
             if netname:
                 self._geometries[name].set_net_name(netname)
         return name

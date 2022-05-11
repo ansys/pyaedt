@@ -3815,19 +3815,21 @@ class Geometries3DLayout(Objec3DLayout, object):
 
     """
 
-    def __init__(self, primitives, name, id=0):
+    def __init__(self, primitives, name, prim_type="poly", is_void=False, id=0):
         Objec3DLayout.__init__(self, primitives)
         self.name = name
         self.id = id
+        self.prim_type = prim_type
+        self.is_void = is_void
 
-    @pyaedt_function_handler()
-    def get_placement_layer(self):
-        """Retrieve the placement layer of the object.
+    @property
+    def placement_layer(self):
+        """Get/Set the placement layer of the object.
 
         Returns
         -------
-        type
-            Object placement layer.
+        str
+            placement layer.
 
         References
         ----------
@@ -3836,9 +3838,14 @@ class Geometries3DLayout(Objec3DLayout, object):
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
 
-    @pyaedt_function_handler()
-    def get_net_name(self):
-        """Retrieve the net name.
+    @placement_layer.setter
+    def placement_layer(self, layer_name):
+        vMaterial = ["NAME:PlacementLayer", "Value:=", layer_name]
+        self.change_property(vMaterial)
+
+    @property
+    def net_name(self):
+        """Get/Set  the net name.
 
         Returns
         -------
@@ -3873,30 +3880,15 @@ class Geometries3DLayout(Objec3DLayout, object):
         """
         return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, propertyname)
 
-    @pyaedt_function_handler()
-    def set_layer(self, layer_name):
-        """Set the object layer.
+    @net_name.setter
+    def net_name(self, netname=""):
 
-        Parameters
-        ----------
-        layer_name : str
-            Name of the layer.
+        vMaterial = ["NAME:Net", "Value:=", netname]
+        self.change_property(vMaterial)
 
-        Returns
-        -------
-        type
-
-        References
-        ----------
-
-        >>> oEditor.ChangeProperty
-        """
-        vMaterial = ["NAME:PlacementLayer", "Value:=", layer_name]
-        return self.change_property(vMaterial)
-
-    @pyaedt_function_handler()
-    def set_lock_position(self, lock_position=True):
-        """Set the lock position.
+    @property
+    def lock_position(self):
+        """Get/Set the lock position.
 
         Parameters
         ----------
@@ -3912,12 +3904,21 @@ class Geometries3DLayout(Objec3DLayout, object):
 
         >>> oEditor.ChangeProperty
         """
-        vMaterial = ["NAME:LockPosition", "Value:=", lock_position]
-        return self.change_property(vMaterial)
+        return (
+            True
+            if _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "LockPosition")
+            in [True, "true"]
+            else False
+        )
 
-    @pyaedt_function_handler()
-    def set_negative(self, negative=False):
-        """Set the negative.
+    @lock_position.setter
+    def lock_position(self, lock_position=True):
+        vMaterial = ["NAME:LockPosition", "Value:=", lock_position]
+        self.change_property(vMaterial)
+
+    @property
+    def negative(self):
+        """Get/Set the negative.
 
         Parameters
         ----------
@@ -3932,29 +3933,405 @@ class Geometries3DLayout(Objec3DLayout, object):
 
         >>> oEditor.ChangeProperty
         """
+        return (
+            True
+            if _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Negative")
+            in [True, "true"]
+            else False
+        )
+
+    @negative.setter
+    def negative(self, negative=False):
         vMaterial = ["NAME:Negative", "Value:=", negative]
-        return self.change_property(vMaterial)
+        self.change_property(vMaterial)
 
-    @pyaedt_function_handler()
-    def set_net_name(self, netname=""):
-        """Set the net name.
 
-        Parameters
-        ----------
-        netname : str, optional
-            Name of the net. The default is ``""``.
+class Polygons3DLayout(Geometries3DLayout, object):
+    def __init__(self, primitives, name, prim_type="poly", is_void=False, id=0):
+        Geometries3DLayout.__init__(self, primitives, name, prim_type, is_void, id)
+        self._points = []
+
+    @property
+    def points(self):
+        if self._points:
+            return self._points
+        self._points = []
+        obj = self.m_Editor.GetPolygon(self.name)
+        for oo in obj.GetPoints():
+            self._points.append(Points3DLayout(self._primitives, oo))
+        return self._points
+
+
+class Circle3dLayout(Geometries3DLayout, object):
+    def __init__(self, primitives, name, is_void=False, id=0):
+        Geometries3DLayout.__init__(self, primitives, name, "circle", is_void, id)
+
+    @property
+    def center(self):
+        """Get/Set the circle center.
 
         Returns
         -------
-        type
+        str
+            placement layer.
 
         References
         ----------
 
-        >>> oEditor.ChangeProperty
+        >>> oEditor.GetPropertyValue
         """
-        vMaterial = ["NAME:Net", "Value:=", netname]
-        return self.change_property(vMaterial)
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Center")
+
+    @center.setter
+    def center(self, position):
+        vMaterial = ["NAME:Center", "Value:=", position]
+        self.change_property(vMaterial)
+
+    @property
+    def radius(self):
+        """Get/Set the circle radius.
+
+        Returns
+        -------
+        str
+            placement layer.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Radius")
+
+    @radius.setter
+    def radius(self, value):
+        vMaterial = ["NAME:Radius", "Value:=", value]
+        self.change_property(vMaterial)
+
+
+class Rect3dLayout(Geometries3DLayout, object):
+    def __init__(self, primitives, name, is_void=False, id=0):
+        Geometries3DLayout.__init__(self, primitives, name, "rect", is_void, id)
+
+    @property
+    def corner_radius(self):
+        """Get/Set the circle radius.
+
+        Returns
+        -------
+        str
+            placement layer.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "CornerRadius")
+
+    @corner_radius.setter
+    def corner_radius(self, value):
+        vMaterial = ["NAME:CornerRadius", "Value:=", value]
+        self.change_property(vMaterial)
+
+    @property
+    def angle(self):
+        """Get/Set the circle radius.
+
+        Returns
+        -------
+        str
+            placement layer.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Angle")
+
+    @angle.setter
+    def angle(self, value):
+        vMaterial = ["NAME:Angle", "Value:=", value]
+        self.change_property(vMaterial)
+
+    @property
+    def two_point_description(self):
+        """Get/Set the circle radius.
+
+        Returns
+        -------
+        str
+            placement layer.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        return (
+            True
+            if _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "2 pt Description")
+            in [True, "true"]
+            else False
+        )
+
+    @two_point_description.setter
+    def two_point_description(self, value):
+        vMaterial = ["NAME:2 pt Description", "Value:=", value]
+        self.change_property(vMaterial)
+
+    @property
+    def center(self):
+        """Get/Set the circle radius.
+
+        Returns
+        -------
+        str
+            placement layer.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        if not self.two_point_description:
+            return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Center")
+
+    @center.setter
+    def center(self, value):
+        if not self.two_point_description:
+            vMaterial = ["NAME:Center", "X:=", value[0], "Y:=", value[1]]
+            self.change_property(vMaterial)
+
+    @property
+    def width(self):
+        """Get/Set the circle radius.
+
+        Returns
+        -------
+        str
+            placement layer.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        if not self.two_point_description:
+            return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Width")
+
+    @width.setter
+    def width(self, value):
+        if not self.two_point_description:
+            vMaterial = ["NAME:Width", "Value:=", value]
+            self.change_property(vMaterial)
+
+    @property
+    def height(self):
+        """Get/Set the circle radius.
+
+        Returns
+        -------
+        str
+            placement layer.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        if not self.two_point_description:
+            return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Height")
+
+    @height.setter
+    def height(self, value):
+        if not self.two_point_description:
+            vMaterial = ["NAME:Height", "Value:=", value]
+            self.change_property(vMaterial)
+
+    @property
+    def point_a(self):
+        """Get/Set the circle radius.
+
+        Returns
+        -------
+        str
+            placement layer.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        if self.two_point_description:
+            return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Pt A")
+
+    @point_a.setter
+    def point_a(self, value):
+        if self.two_point_description:
+            vMaterial = ["NAME:Pt A", "X:=", value[0], "Y:=", value[1]]
+            self.change_property(vMaterial)
+
+    @property
+    def point_b(self):
+        """Get/Set the circle radius.
+
+        Returns
+        -------
+        str
+            placement layer.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        if self.two_point_description:
+            return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Pt B")
+
+    @point_b.setter
+    def point_b(self, value):
+        if self.two_point_description:
+            vMaterial = ["NAME:Pt B", "X:=", value[0], "Y:=", value[1]]
+            self.change_property(vMaterial)
+
+
+class Line3dLayout(Geometries3DLayout, object):
+    def __init__(self, primitives, name, is_void=False, id=0):
+        Geometries3DLayout.__init__(self, primitives, name, "line", is_void, id)
+        self._points = []
+
+    @property
+    def bend_type(self):
+        """Get/Set the line bend type.
+
+        Returns
+        -------
+        str
+            placement layer.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "BendType")
+
+    @bend_type.setter
+    def bend_type(self, value):
+        vMaterial = ["NAME:BendType", "Value:=", value]
+        self.change_property(vMaterial)
+
+    @property
+    def start_cap_type(self):
+        """Get/Set the line start type.
+
+        Returns
+        -------
+        str
+            placement layer.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "StartCapType")
+
+    @start_cap_type.setter
+    def start_cap_type(self, value):
+        vMaterial = ["NAME:StartCap Type", "Value:=", value]
+        self.change_property(vMaterial)
+
+    @property
+    def end_cap_type(self):
+        """Get/Set the line end type.
+
+        Returns
+        -------
+        str
+            placement layer.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "EndCapType")
+
+    @end_cap_type.setter
+    def end_cap_type(self, value):
+        vMaterial = ["NAME:EndCap Type", "Value:=", value]
+        self.change_property(vMaterial)
+
+    @property
+    def width(self):
+        """Get/Set the line width.
+
+        Returns
+        -------
+        str
+            placement layer.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "LineWidth")
+
+    @width.setter
+    def width(self, value):
+        vMaterial = ["NAME:LineWidth", "Value:=", value]
+        self.change_property(vMaterial)
+
+    @property
+    def length(self):
+        """Get the line length.
+
+        Returns
+        -------
+        str
+            placement layer.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "TotalLength")
+
+    @property
+    def points(self):
+        if self._points:
+            return self._points
+        self._points = []
+        obj = self.m_Editor.GetPolygon(self.name)
+        for oo in obj.GetPoints():
+            self._points.append(Points3DLayout(self._primitives, oo))
+        return self._points
+
+
+class Points3DLayout(object):
+    def __init__(self, primitives, point):
+        self._primitives = primitives
+        self.point = point
+
+    @property
+    def is_arc(self):
+        return True if self.point.IsArc() != 0 else False
+
+    @property
+    def position(self):
+        if self.is_arc:
+            return [self.point.GetX()]
+        else:
+            return [self.point.GetX(), self.point.GetY()]
+
+    @pyaedt_function_handler()
+    def move(self, new_position):
+        return self.point.Move(self._primitives.m_Editor.Point().Set(new_position[0], new_position[1]))
 
 
 class Point(object):
