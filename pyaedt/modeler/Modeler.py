@@ -960,8 +960,6 @@ class Lists(object):
 
         """
 
-        if type != "Object" and type != "Face":
-            return False
         if not name:
             name = generate_unique_name(type + "List")
 
