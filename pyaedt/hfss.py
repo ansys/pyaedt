@@ -2675,7 +2675,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> box2 = hfss.modeler.create_box([0, 0, 30], [10, 10, 5],
         ...                                "perfect2", "copper")
         >>> perfect_h = hfss.create_perfecth_from_objects("perfect1", "perfect2",
-        ...                                               hfss.AxisDir.ZNeg, "PerfectH")
+        ...                                               hfss.AxisDir.ZNeg, "Perfect H")
         pyaedt info: Connection Correctly created
         >>> type(perfect_h)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
@@ -2837,7 +2837,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> box2 = hfss.modeler.create_box([0, 0, 60], [10, 10, 5],
         ...                                           "rlc2", "copper")
         >>> rlc = hfss.create_lumped_rlc_between_objects("rlc1", "rlc2", hfss.AxisDir.XPos,
-        ...                                              "LumpedRLC", Rvalue=50,
+        ...                                              "Lumped RLC", Rvalue=50,
         ...                                              Lvalue=1e-9, Cvalue = 1e-6)
         pyaedt info: Connection Correctly created
 
@@ -2872,7 +2872,7 @@ class Hfss(FieldAnalysis3D, object):
                 props["UseCap"] = True
                 props["Capacitance"] = str(Cvalue) + "F"
 
-            return self._create_boundary(sourcename, props, "LumpedRLC")
+            return self._create_boundary(sourcename, props, "Lumped RLC")
         return False
 
     @pyaedt_function_handler()
@@ -2971,7 +2971,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         boundary_type : str, optional
-            Boundary type object. Options are ``"PerfectE"``, ``"PerfectH"``, ``"Aperture"``, and
+            Boundary type object. Options are ``"Perfect E"``, ``"Perfect H"``, ``"Aperture"``, and
             ``"Radiation"``. The default is ``PerfectE``.
         sheet_name : in, str, or list, optional
             Name of the sheet. It can be an integer (face ID), a string (sheet), or a list of integers
@@ -2998,9 +2998,9 @@ class Hfss(FieldAnalysis3D, object):
 
         if boundary_type == self.BoundaryType.PerfectE:
             props["InfGroundPlane"] = is_infinite_gnd
-            boundary_type = "PerfectE"
+            boundary_type = "Perfect E"
         elif boundary_type == self.BoundaryType.PerfectH:
-            boundary_type = "PerfectH"
+            boundary_type = "Perfect H"
         elif boundary_type == self.BoundaryType.Aperture:
             boundary_type = "Aperture"
         elif boundary_type == self.BoundaryType.Radiation:
@@ -3518,7 +3518,7 @@ class Hfss(FieldAnalysis3D, object):
             if Cvalue:
                 props["UseCap"] = True
                 props["Capacitance"] = str(Cvalue) + "F"
-            return self._create_boundary(sourcename, props, "LumpedRLC")
+            return self._create_boundary(sourcename, props, "Lumped RLC")
         return False
 
     @pyaedt_function_handler()
