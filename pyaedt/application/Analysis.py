@@ -928,9 +928,7 @@ class Analysis(Design, object):
 
             >>> oModule.GetAvailableVariations
             """
-            if not setup_sweep:
-                setup_sweep = self._app.existing_analysis_sweeps[0]
-            vs = self._app.osolution.GetAvailableVariations(setup_sweep)
+            vs = self.get_variation_strings(setup_sweep)
             families = []
             if vs:
                 for v in vs:

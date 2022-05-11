@@ -702,5 +702,6 @@ class TestClass(BasisTest, object):
     def test_61_delete_variations(self):
         assert self.q3dtest.delete_solution_variation()
         vars = self.field_test.available_variations.get_variation_strings()
+        assert self.fiedl_test.available_variations.variations()
         assert self.field_test.delete_solution_variation(vars, entire_solution=False)
         assert self.field_test.delete_solution_variation(vars, entire_solution=True)
