@@ -557,12 +557,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         sweep_name : str, optional
             Name of the sweep that has been solved.
         file_name : str, optional
-            Full path for the Touchstone file. The default is ``None``, in which
-            case the file is exported to the working directory.
+            Full path and name for the Touchstone file.
+            The default is ``None``, in which case the file is exported to the working directory.
         variations : list, optional
             List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
+            The default is ``None``.
         variations_value : list, optional
             List of all parameter variation values. For example, ``["22cel", "100"]``.
+            The default is ``None``.
 
         Returns
         -------
@@ -574,66 +576,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oDesign.ExportNetworkData
         """
-
-        if variations is None or variations_value is None:
-            variations_dict = self.available_variations.nominal_w_values_dict
-            if variations is None:
-                variations = list(variations_dict.keys())
-            if variations_value is None:
-                variations_value = [str(x) for x in list(variations_dict.values())]
-
-        if solution_name is None and sweep_name is None:
-            nominal_sweep_list = [x.strip() for x in self.nominal_sweep.split(":")]
-            solution_name = nominal_sweep_list[0]
-            sweep_name = nominal_sweep_list[1]
-
-        # normalize the save path
-        if not file_name:
-            appendix = ""
-            for v, vv in zip(variations, variations_value):
-                appendix += "_" + v + vv.replace("'", "")
-            ext = ".S" + str(len(self.port_list)) + "p"
-            filename = os.path.join(self.working_directory, solution_name + "_" + sweep_name + appendix + ext)
-        else:
-            filename = file_name.replace("//", "/").replace("\\", "/")
-        print("Exporting Touchstone " + filename)
-        # array containing "SetupName:SolutionName" pairs (note that setup and solution are separated by a colon)
-        SolutionSelectionArray = [solution_name + ":" + sweep_name]
-        # 2=tab delimited spreadsheet (.tab), 3= touchstone (.sNp), 4= CitiFile (.cit),
-        # 7=Matlab (.m), 8=Terminal Z0 spreadsheet
-        FileFormat = 3
-        OutFile = filename  # full path of output file
-        # array containin the frequencies to export, use ["all"] for all frequencies
-        FreqsArray = ["all"]
-        DoRenorm = True  # perform renormalization before export
-        RenormImped = 50  # Real impedance value in ohm, for renormalization
-        DataType = "S"  # Type: "S", "Y", or "Z" matrix to export
-        Pass = -1  # The pass to export. -1 = export all passes.
-        ComplexFormat = 0  # 0=Magnitude/Phase, 1=Real/Immaginary, 2=dB/Phase
-        DigitsPrecision = 15  # Touchstone number of digits precision
-        IncludeGammaImpedance = True  # Include Gamma and Impedance in comments
-        NonStandardExtensions = False  # Support for non-standard Touchstone extensions
-        variation_str = ""
-        for v, vv in zip(variations, variations_value):
-            variation_str += v + "=" + vv + " "
-
-        self.odesign.ExportNetworkData(
-            variation_str,
-            SolutionSelectionArray,
-            FileFormat,
-            OutFile,
-            FreqsArray,
-            DoRenorm,
-            RenormImped,
-            DataType,
-            Pass,
-            ComplexFormat,
-            DigitsPrecision,
-            IncludeGammaImpedance,
-            IncludeGammaImpedance,
-            NonStandardExtensions,
+        return self._export_touchstone(
+            solution_name=solution_name,
+            sweep_name=sweep_name,
+            file_name=file_name,
+            variations=variations,
+            variations_value=variations_value,
         )
-        return True
 
     @pyaedt_function_handler()
     def set_export_touchstone(self, activate, export_dir=""):
