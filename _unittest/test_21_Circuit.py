@@ -203,7 +203,14 @@ class TestClass(BasisTest, object):
     def test_18_export_touchstone(self):
         assert self.aedtapp.analyze_nominal()
         time.sleep(30)
-        assert self.aedtapp.export_touchstone("Dom_LNA", "Dom_LNA", os.path.join(self.local_scratch.path, "new.s2p"))
+        solution_name = "Dom_LNA"
+        sweep_name = None
+        file_name = os.path.join(self.local_scratch.path, "new.s2p")
+        assert self.aedtapp.export_touchstone(solution_name, sweep_name, file_name)
+        assert os.path.exists(file_name)
+        assert self.aedtapp.existing_analysis_sweeps[0] == solution_name
+        assert self.aedtapp.setup_names[0] == solution_name
+        assert self.aedtapp.export_touchstone(solution_name, sweep_name)
 
     def test_19A_create_sweeps(self):
         setup_name = "Sweep_LNA"

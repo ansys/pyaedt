@@ -147,8 +147,25 @@ class TestClass(BasisTest, object):
         assert os.path.exists(os.path.join(self.local_scratch.path, "output.csv"))
 
     def test_04_export_touchstone(self):
-        self.aedtapp.export_touchstone("Setup1", "Sweep", os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p"))
+        setup_name = "Setup1"
+        sweep_name = "Sweep"
+        self.aedtapp.export_touchstone(
+            setup_name, sweep_name, os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p")
+        )
         assert os.path.exists(os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p"))
+
+        sweep_name = None
+        self.aedtapp.export_touchstone(
+            setup_name, sweep_name, os.path.join(self.local_scratch.path, "Setup1_Sweep2.S2p")
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "Setup1_Sweep2.S2p"))
+        setup_name = None
+        self.aedtapp.export_touchstone(
+            setup_name, sweep_name, os.path.join(self.local_scratch.path, "Setup1_Sweep3.S2p")
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "Setup1_Sweep3.S2p"))
+
+        assert self.aedtapp.export_touchstone(setup_name, sweep_name)
 
     @pytest.mark.skipif(config["build_machine"] == True, reason="Not running in non-graphical mode")
     def test_05_export_report_to_jpg(self):

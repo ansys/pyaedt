@@ -364,8 +364,13 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
     def test_19C_export_touchsthone(self):
         filename = os.path.join(scratch_path, "touchstone.s2p")
-        assert self.aedtapp.export_touchstone("RFBoardSetup3", "Last Adaptive", filename, [], [])
+        solution_name = "RFBoardSetup3"
+        sweep_name = "Last Adaptive"
+        assert self.aedtapp.export_touchstone(solution_name, sweep_name, filename)
         assert os.path.exists(filename)
+        assert self.aedtapp.export_touchstone(solution_name)
+        sweep_name = None
+        assert self.aedtapp.export_touchstone(solution_name, sweep_name)
 
     def test_19D_export_to_hfss(self):
         with Scratch(scratch_path) as local_scratch:
