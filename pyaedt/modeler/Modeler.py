@@ -961,7 +961,7 @@ class Lists(object):
         """
 
         if type != "Object" and type != "Face":
-            raise ValueError("Specify the type = 'Object' or 'Face'")
+            return False
         if not name:
             name = generate_unique_name(type + "List")
 
@@ -1030,6 +1030,7 @@ class Lists(object):
 
     def _list_verification(self, object_list, list_type):
         object_list = self._modeler.convert_to_selections(object_list, True)
+        object_list_new = False
         if list_type == "Object":
             check = all(item in self._modeler.object_names for item in object_list)
             if check:
@@ -1054,8 +1055,6 @@ class Lists(object):
                             return False
                 else:
                     object_list_new.append(int(element))
-        else:
-            object_list_new = False
         return object_list_new
 
 
@@ -3531,7 +3530,8 @@ class GeometryModeler(Modeler, object):
         if name:
             list_names = [i.name for i in self.user_lists]
             if name in list_names:
-                raise AttributeError("A List with the specified name already exists!")
+                self.logger.error("A List with the specified name already exists!")
+                return False
         object_list = self.convert_to_selections(object_list, True)
         user_list = Lists(self)
         list_type = "Object"
