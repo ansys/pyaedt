@@ -715,3 +715,10 @@ class TestClass(BasisTest, object):
         local_path = os.path.dirname(os.path.realpath(__file__))
         out = _parse_streamline(os.path.join(local_path, "example_models", "test_streamline.fldplt"))
         assert isinstance(out, list)
+
+    def test_61_delete_variations(self):
+        assert self.q3dtest.cleanup_solution()
+        vars = self.field_test.available_variations.get_variation_strings()
+        assert self.field_test.available_variations.variations()
+        assert self.field_test.cleanup_solution(vars, entire_solution=False)
+        assert self.field_test.cleanup_solution(vars, entire_solution=True)

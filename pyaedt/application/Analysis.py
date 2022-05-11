@@ -928,21 +928,20 @@ class Analysis(Design, object):
 
             >>> oModule.GetAvailableVariations
             """
-            if not setup_sweep:
-                setup_sweep = self._app.existing_analysis_sweeps[0]
-            vs = self._app.osolution.GetAvailableVariations(setup_sweep)
+            vs = self.get_variation_strings(setup_sweep)
             families = []
-            for v in vs:
-                variations = v.split(" ")
-                family = []
-                for el in self.variables:
-                    family.append(el + ":=")
-                    i = 0
-                    while i < len(variations):
-                        if variations[i][0 : len(el)] == el:
-                            family.append([variations[i][len(el) + 2 : -1]])
-                        i += 1
-                families.append(family)
+            if vs:
+                for v in vs:
+                    variations = v.split(" ")
+                    family = []
+                    for el in self.variables:
+                        family.append(el + ":=")
+                        i = 0
+                        while i < len(variations):
+                            if variations[i][0 : len(el)] == el:
+                                family.append([variations[i][len(el) + 2 : -1]])
+                            i += 1
+                    families.append(family)
             return families
 
         @pyaedt_function_handler()
