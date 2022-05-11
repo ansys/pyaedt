@@ -59,13 +59,11 @@ class Materials(object):
         return self.material_keys.itervalues()
 
     def __getitem__(self, item):
-        item = item.lower()
-        if item in list(self.material_keys.keys()):
-            return self.material_keys[item]
+        matobj = self.checkifmaterialexists(item)
+        if matobj:
+            return matobj
         elif item in list(self.surface_material_keys.keys()):
             return self.surface_material_keys[item]
-        elif self.checkifmaterialexists(item):
-            return self._aedmattolibrary(item)
         return
 
     @property
@@ -190,7 +188,7 @@ class Materials(object):
 
     @pyaedt_function_handler()
     def checkifmaterialexists(self, mat):
-        """Check if a material exists in AEDT.
+        """Check if a material exists in AEDT or PyAEDT Definitions.
 
         Parameters
         ----------
@@ -200,8 +198,8 @@ class Materials(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Material.Material`
+            Material object if present, ``False`` when failed.
 
         References
         ----------
@@ -209,7 +207,15 @@ class Materials(object):
         >>> oDefinitionManager.GetProjectMaterialNames
         >>> oMaterialManager.GetData
         """
-        return mat.lower() in self._mat_names_aedt_lower
+        if mat.lower() in self.material_keys:
+            if mat.lower() in self._mat_names_aedt_lower:
+                return self.material_keys[mat.lower()]
+            if mat.lower() not in list(self.odefinition_manager.GetProjectMaterialNames()):
+                self.material_keys[mat.lower()].update()
+            return self.material_keys[mat.lower()]
+        elif mat.lower() in self._mat_names_aedt_lower:
+            return self._aedmattolibrary(mat)
+        return False
         # mat = mat.lower()
         # lista = [i.lower() for i in list(self.odefinition_manager.GetProjectMaterialNames())]
         # if mat in lista:
@@ -238,15 +244,8 @@ class Materials(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        mat = mat.lower()
-        exists = False
-        if mat in self.material_keys:
-            exists = True
-        elif self.checkifmaterialexists(mat):
-            self._aedmattolibrary(mat)
-            exists = True
-        if exists:
-            omat = self.material_keys[mat]
+        omat = self.checkifmaterialexists(mat)
+        if omat:
             for el in MatProperties.aedtname:
                 if omat.__dict__["_" + el].thermalmodifier:
                     return True
@@ -407,11 +406,9 @@ class Materials(object):
         """
         matsweep = []
         for args in swargs:
-            if args.lower() in [i.lower() for i in self.material_keys.keys()]:
-                matsweep.append(self.material_keys[args.lower()])
-            elif self.checkifmaterialexists(args):
-                self._aedmattolibrary(args)
-                matsweep.append(self._aedmattolibrary(args))
+            matobj = self.checkifmaterialexists(args)
+            if matobj:
+                matsweep.append(matobj)
 
         mat_dict = self._create_mat_project_vars(matsweep)
 

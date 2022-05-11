@@ -734,10 +734,9 @@ class FieldAnalysis3D(Analysis, object):
             list_mat_obj += [rd for rd, md in zip(component_data["Ref Des"], component_data["Material"]) if md == mat]
             list_mat_obj = [mo for mo in list_mat_obj if mo in all_objs]
             if list_mat_obj:
-                if not self.materials.checkifmaterialexists(mat.lower()):
+                newmat = self.materials.checkifmaterialexists(mat)
+                if not newmat:
                     newmat = self.materials.add_material(mat.lower())
-                else:
-                    newmat = self.materials[mat.lower()]
                 if "Material Density" in material_data:
                     if "@" in material_data["Material Density"][i] and "," in material_data["Material Density"][i]:
                         nominal_val, dataset_name = self._create_dataset_from_sherlock(

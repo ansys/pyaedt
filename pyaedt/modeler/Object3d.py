@@ -1690,11 +1690,8 @@ class Object3d(object):
 
     @material_name.setter
     def material_name(self, mat):
-        if self._primitives._materials.checkifmaterialexists(mat):
-            if mat.lower() not in list(self._primitives._materials.material_keys.keys()):
-                matobj = self._primitives._materials._aedmattolibrary(mat)
-            else:
-                matobj = self._primitives._materials.material_keys[mat.lower()]
+        matobj = self._primitives._materials.checkifmaterialexists(mat)
+        if matobj:
             if not self.model:
                 self.model = True
             vMaterial = ["NAME:Material", "Value:=", chr(34) + matobj.name + chr(34)]
