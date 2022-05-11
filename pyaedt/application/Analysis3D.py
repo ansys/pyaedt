@@ -803,9 +803,7 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @pyaedt_function_handler()
-    def delete_solution_variation(
-        self, variations="All", entire_solution=True, field=True, mesh=True, linked_data=True
-    ):
+    def cleanup_solution(self, variations="All", entire_solution=True, field=True, mesh=True, linked_data=True):
         """Delete a set of Solution Variations or part of them.
 
         Parameters
