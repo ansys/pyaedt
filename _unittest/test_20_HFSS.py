@@ -597,6 +597,7 @@ class TestClass(BasisTest, object):
         )
         oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\ParametricsfromFile")
         assert oo
+        assert self.aedtapp.parametrics.delete("ParametricsfromFile")
 
     def test_26_create_optimization(self):
         calculation = "db(S(Cir1,Cir1))"
@@ -626,6 +627,7 @@ class TestClass(BasisTest, object):
             if "NAME:Ranges" in el:
                 break
         assert "rd" in el[2]
+        assert self.aedtapp.optimizations.delete(setup2.name)
 
     def test_27_create_doe(self):
         setup2 = self.aedtapp.optimizations.add("db(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DXDOE")
@@ -633,6 +635,7 @@ class TestClass(BasisTest, object):
         assert setup2
         assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
         assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
+        assert setup2.delete()
 
     def test_28A_create_dx(self):
         setup2 = self.aedtapp.optimizations.add(None, {"w1": "1mm", "w2": "2mm"}, optim_type="optiSLang")
