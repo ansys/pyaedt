@@ -811,7 +811,7 @@ class FieldAnalysis3D(Analysis, object):
         variations : List, str, optional
             All variations to delete. Default is `"All"` which deletes all available solutions.
         entire_solution : bool, optional
-            Either if delete entire Solution of part of it. If `True` other booleans will be ignored
+            Either if delete entire Solution or part of it. If `True` other booleans will be ignored
             as solution will be entirely deleted.
         field : bool, optional
             Either if delete entire Fields of variation or not. Default is `True`.
