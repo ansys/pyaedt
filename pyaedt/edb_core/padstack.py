@@ -20,7 +20,7 @@ except ImportError:
 
 
 class EdbPadstacks(object):
-    """Manages EDB functionalities for padstacks.
+    """Manages EDB methods for nets management accessible from `Edb.core_padstack` property.
 
     Examples
     --------

@@ -7,6 +7,7 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 from pyaedt import Maxwell3d
 from pyaedt.generic.constants import SOLUTIONS
+from pyaedt.generic.general_methods import generate_unique_name
 
 try:
     import pytest
@@ -73,17 +74,47 @@ class TestClass(BasisTest, object):
         self.aedtapp.solution_type = "EddyCurrent"
 
     def test_05_winding(self):
-        assert self.aedtapp.assign_winding(self.aedtapp.modeler["Coil_Section1"].faces[0].id)
+        face_id = self.aedtapp.modeler["Coil_Section1"].faces[0].id
+        assert self.aedtapp.assign_winding(face_id)
+        bounds = self.aedtapp.assign_winding(current_value=20e-3, coil_terminals=face_id)
+        assert bounds
+        bounds = self.aedtapp.assign_winding(current_value="20e-3A", coil_terminals=face_id)
+        assert bounds
+        bounds = self.aedtapp.assign_winding(res="1ohm", coil_terminals=face_id)
+        assert bounds
+        bounds = self.aedtapp.assign_winding(ind="1H", coil_terminals=face_id)
+        assert bounds
+        bounds = self.aedtapp.assign_winding(voltage="10V", coil_terminals=face_id)
+        assert bounds
+        bounds_name = generate_unique_name("Winding")
+        bounds = self.aedtapp.assign_winding(coil_terminals=face_id, name=bounds_name)
+        assert bounds_name == bounds.name
+
+    def test_05a_assign_coil(self):
+        face_id = self.aedtapp.modeler["Coil_Section1"].faces[0].id
+        bound = self.aedtapp.assign_coil(input_object=face_id)
+        assert bound
+        polarity = "Positive"
+        bound = self.aedtapp.assign_coil(input_object=face_id, polarity=polarity)
+        assert not bound.props["Point out of terminal"]
+        polarity = "Negative"
+        bound = self.aedtapp.assign_coil(input_object=face_id, polarity=polarity)
+        assert bound.props["Point out of terminal"]
+        bound_name = generate_unique_name("Coil")
+        bound = self.aedtapp.assign_coil(input_object=face_id, name=bound_name)
+        assert bound_name == bound.name
 
     def test_05_draw_region(self):
         assert self.aedtapp.modeler.create_air_region(*[300] * 6)
 
     def test_06_eddycurrent(self):
-        assert self.aedtapp.eddy_effects_on(["Plate"])
+        assert self.aedtapp.eddy_effects_on(["Plate"], activate_eddy_effects=True)
         oModule = self.aedtapp.odesign.GetModule("BoundarySetup")
         assert oModule.GetEddyEffect("Plate")
-        self.aedtapp.eddy_effects_on(["Plate"], activate=False)
+        assert oModule.GetDisplacementCurrent("Plate")
+        self.aedtapp.eddy_effects_on(["Plate"], activate_eddy_effects=False)
         assert not oModule.GetEddyEffect("Plate")
+        assert not oModule.GetDisplacementCurrent("Plate")
 
     def test_07a_setup(self):
         adaptive_frequency = "200Hz"
@@ -291,9 +322,37 @@ class TestClass(BasisTest, object):
         self.aedtapp.close_project(m3d1.project_name, False)
 
     def test_32_matrix(self):
-        m3d1 = Maxwell3d(self.file_path, specified_version=desktop_version)
-        assert m3d1.assign_matrix("pri", "mymatrix") == "mymatrix"
-        self.aedtapp.close_project(m3d1.project_name, False)
+        m3d = Maxwell3d(self.file_path, specified_version=desktop_version)
+        m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
+        m3d.modeler.primitives.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
+        m3d.modeler.primitives.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", matname="aluminum")
+        m3d.modeler.primitives.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", matname="aluminum")
+        m3d.modeler.primitives.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", matname="aluminum")
+
+        rectangle1 = m3d.modeler.primitives.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        rectangle2 = m3d.modeler.primitives.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        rectangle3 = m3d.modeler.primitives.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        rectangle4 = m3d.modeler.primitives.create_rectangle(0, [32.5, 1.5, 0], [2.5, 5], name="Sheet4")
+
+        m3d.assign_voltage(rectangle1.faces[0], amplitude=1, name="Voltage1")
+        m3d.assign_voltage(rectangle2.faces[0], amplitude=1, name="Voltage2")
+        m3d.assign_voltage(rectangle3.faces[0], amplitude=1, name="Voltage3")
+        m3d.assign_voltage(rectangle4.faces[0], amplitude=1, name="Voltage4")
+
+        L = m3d.assign_matrix(sources="Voltage1")
+        assert L.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Voltage1"
+        assert L.delete()
+        group_sources = "Voltage2"
+        L = m3d.assign_matrix(sources=["Voltage1", "Voltage3"], matrix_name="Test1", group_sources=group_sources)
+        assert L.props["MatrixEntry"]["MatrixEntry"][1]["Source"] == "Voltage3"
+        m3d.solution_type = SOLUTIONS.Maxwell3d.Transient
+        winding1 = m3d.assign_winding("Sheet1", name="Current1")
+        winding2 = m3d.assign_winding("Sheet2", name="Current2")
+        winding3 = m3d.assign_winding("Sheet3", name="Current3")
+        winding4 = m3d.assign_winding("Sheet4", name="Current4")
+        L = m3d.assign_matrix(sources="Current1")
+        assert not L
+        self.aedtapp.close_project(m3d.project_name, False)
 
     def test_33_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings

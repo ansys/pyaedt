@@ -23,7 +23,8 @@ from pyaedt import TwinBuilder
 # Twin Builder in existing Desktop Session, if any.
 
 desktop_version = "2022.1"
-non_graphical = False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 new_thread = True
 
 ###############################################################################

@@ -13,11 +13,17 @@ tmpfold = tempfile.gettempdir()
 if not os.path.exists(tmpfold):
     os.mkdir(tmpfold)
 
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
 ###############################################################################
 # Launch AEDT in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This examples launches AEDT 2022R1 in graphical mode.
-m3d = Maxwell3d(specified_version="2022.1", new_desktop_session=True)
+m3d = Maxwell3d(specified_version="2022.1", new_desktop_session=True, non_graphical=non_graphical)
 
 
 ###############################################################################

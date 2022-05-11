@@ -28,6 +28,14 @@ from pyaedt import Desktop
 from pyaedt import Hfss
 from pyaedt.generic.general_methods import remove_project_lock
 
+
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
+
 ###############################################################################
 # Import All Modules for Postprocessing
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -42,9 +50,8 @@ import matplotlib.pyplot as plt
 # This example launches AEDT 2022R1 in graphical mode.
 
 desktopVersion = "2022.1"
-NonGraphical = False
 NewThread = False
-desktop = Desktop(desktopVersion, NonGraphical, NewThread)
+desktop = Desktop(desktopVersion, non_graphical=non_graphical, new_desktop_session=NewThread)
 
 ###############################################################################
 # Open the HFSS Project

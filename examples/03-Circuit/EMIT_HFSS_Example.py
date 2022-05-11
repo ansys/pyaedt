@@ -24,7 +24,7 @@ from pyaedt import Desktop
 # available. This example will use AEDT 2022.1 However this example is supposed to work
 # on AEDT 2022R2 and on.
 
-NonGraphical = False
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = True
 desktop_version = "2022.1"
 scratch_path = tempfile.gettempdir()
@@ -36,7 +36,7 @@ scratch_path = tempfile.gettempdir()
 # specified graphical mode. NewThread Boolean variable defines if a user wants
 # to create a new instance of AEDT or try to connect to existing instance of
 # it.
-d = Desktop(desktop_version, NonGraphical, NewThread)
+d = Desktop(desktop_version, non_graphical, NewThread)
 
 temp_folder = os.path.join(scratch_path, ("EmitHFSSExample"))
 if not os.path.exists(temp_folder):

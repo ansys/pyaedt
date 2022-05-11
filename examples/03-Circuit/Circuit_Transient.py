@@ -5,6 +5,16 @@ This example shows how you can use PyAEDT to create a Circuit design
 and run a Nexxim time-domain simulation and create an eye diagram.
 """
 
+import os
+from matplotlib import pyplot as plt
+import numpy as np
+from pyaedt import Circuit
+
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
 # Launch AEDT and Circuit
@@ -12,12 +22,7 @@ and run a Nexxim time-domain simulation and create an eye diagram.
 # This examples launches AEDT 2022R1 in graphical mode.
 
 
-import os
-from matplotlib import pyplot as plt
-import numpy as np
-from pyaedt import Circuit
-
-cir = Circuit(specified_version="2022.1", new_desktop_session=True)
+cir = Circuit(specified_version="2022.1", new_desktop_session=True, non_graphical=non_graphical)
 
 
 ###############################################################################
@@ -75,7 +80,8 @@ cir.analyze_setup("TransientRun")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # get_solution_data allows user to get solutions and plot outside AEDT without need of UI.
 report = cir.post.create_report("V(Vout)", domain="Time")
-report.add_cartesian_y_marker(0)
+if not non_graphical:
+    report.add_cartesian_y_marker(0)
 solutions = cir.post.get_solution_data("V(Vout)", domain="Time")
 solutions.plot()
 
@@ -88,14 +94,15 @@ solutions.plot()
 new_report = cir.post.reports_by_category.standard("V(Vout)")
 new_report.domain = "Time"
 new_report.create()
-new_report.add_limit_line_from_points([60, 80], [1, 1], "ns", "V")
-vout = new_report.traces[0]
-vout.set_trace_properties(trace_style=vout.LINESTYLE.Dot, width=2, trace_type=vout.TRACETYPE.Continuous,
-                          color=(0, 0, 255))
-vout.set_symbol_properties(style=vout.SYMBOLSTYLE.Circle, fill=True, color=(255, 255, 0))
-ll = new_report.limit_lines[0]
-ll.set_line_properties(style=ll.LINESTYLE.Solid, width=4, hatch_above=True, violation_emphasis=True, hatch_pixels=2,
-                       color=(0, 0, 255))
+if not non_graphical:
+    new_report.add_limit_line_from_points([60, 80], [1, 1], "ns", "V")
+    vout = new_report.traces[0]
+    vout.set_trace_properties(trace_style=vout.LINESTYLE.Dot, width=2, trace_type=vout.TRACETYPE.Continuous,
+                              color=(0, 0, 255))
+    vout.set_symbol_properties(style=vout.SYMBOLSTYLE.Circle, fill=True, color=(255, 255, 0))
+    ll = new_report.limit_lines[0]
+    ll.set_line_properties(style=ll.LINESTYLE.Solid, width=4, hatch_above=True, violation_emphasis=True, hatch_pixels=2,
+                           color=(0, 0, 255))
 new_report.time_start = "20ns"
 new_report.time_stop = "100ns"
 new_report.create()

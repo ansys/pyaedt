@@ -16,6 +16,15 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt import Hfss3dLayout
 import os
 
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
+##########################################################
+# Launch EDB
+
 tmpfold = tempfile.gettempdir()
 aedb_path = os.path.join(tmpfold, generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
@@ -254,7 +263,7 @@ edb.close_edb()
 
 ###############################################
 # opening edb in Electronics Desktop
-h3d = Hfss3dLayout(projectname=os.path.join(aedb_path, "edb.def"), specified_version="2022.1", non_graphical=False)
+h3d = Hfss3dLayout(projectname=os.path.join(aedb_path, "edb.def"), specified_version="2022.1", non_graphical=non_graphical)
 
 ###############################################
 # create wave ports

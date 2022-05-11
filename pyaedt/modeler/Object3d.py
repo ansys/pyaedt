@@ -1690,10 +1690,11 @@ class Object3d(object):
 
     @material_name.setter
     def material_name(self, mat):
-        if self._primitives._materials.checkifmaterialexists(mat):
+        matobj = self._primitives._materials.checkifmaterialexists(mat)
+        if matobj:
             if not self.model:
                 self.model = True
-            vMaterial = ["NAME:Material", "Value:=", chr(34) + mat + chr(34)]
+            vMaterial = ["NAME:Material", "Value:=", chr(34) + matobj.name + chr(34)]
             self._change_property(vMaterial)
             self._material_name = mat.lower()
         else:
@@ -2567,11 +2568,6 @@ class Padstack(object):
         def antipad(self):
             """Antipad."""
             return self._antipad
-
-        @property
-        def thermal(self):
-            """Thermal."""
-            return self._thermal
 
         @pad.setter
         def pad(self, value=None):

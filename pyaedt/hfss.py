@@ -614,16 +614,9 @@ class Hfss(FieldAnalysis3D, object):
         listobjname = "_".join(listobj)
         props = {"Objects": listobj}
         if mat:
-            mat = mat.lower()
-            if mat in self.materials.material_keys:
-                Mat = self.materials.material_keys[mat]
-                Mat.update()
+            if self.materials[mat]:
                 props["UseMaterial"] = True
-                props["Material"] = mat
-                self.materials._aedmattolibrary(mat)
-            elif self.materials.checkifmaterialexists(mat):
-                props["UseMaterial"] = True
-                props["Material"] = mat
+                props["Material"] = self.materials[mat].name
             else:
                 return False
         else:
@@ -646,7 +639,7 @@ class Hfss(FieldAnalysis3D, object):
             props["IsShellElement"] = issheelElement
         else:
             props["IsInternal"] = isInternal
-        return self._create_boundary("Coating_" + listobjname[:32], props, "FiniteCond")
+        return self._create_boundary("Coating_" + listobjname[:32], props, "Finite Conductivity")
 
     @pyaedt_function_handler()
     def create_frequency_sweep(
@@ -2675,7 +2668,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> box2 = hfss.modeler.create_box([0, 0, 30], [10, 10, 5],
         ...                                "perfect2", "copper")
         >>> perfect_h = hfss.create_perfecth_from_objects("perfect1", "perfect2",
-        ...                                               hfss.AxisDir.ZNeg, "PerfectH")
+        ...                                               hfss.AxisDir.ZNeg, "Perfect H")
         pyaedt info: Connection Correctly created
         >>> type(perfect_h)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
@@ -2837,7 +2830,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> box2 = hfss.modeler.create_box([0, 0, 60], [10, 10, 5],
         ...                                           "rlc2", "copper")
         >>> rlc = hfss.create_lumped_rlc_between_objects("rlc1", "rlc2", hfss.AxisDir.XPos,
-        ...                                              "LumpedRLC", Rvalue=50,
+        ...                                              "Lumped RLC", Rvalue=50,
         ...                                              Lvalue=1e-9, Cvalue = 1e-6)
         pyaedt info: Connection Correctly created
 
@@ -2872,7 +2865,7 @@ class Hfss(FieldAnalysis3D, object):
                 props["UseCap"] = True
                 props["Capacitance"] = str(Cvalue) + "F"
 
-            return self._create_boundary(sourcename, props, "LumpedRLC")
+            return self._create_boundary(sourcename, props, "Lumped RLC")
         return False
 
     @pyaedt_function_handler()
@@ -2971,7 +2964,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         boundary_type : str, optional
-            Boundary type object. Options are ``"PerfectE"``, ``"PerfectH"``, ``"Aperture"``, and
+            Boundary type object. Options are ``"Perfect E"``, ``"Perfect H"``, ``"Aperture"``, and
             ``"Radiation"``. The default is ``PerfectE``.
         sheet_name : in, str, or list, optional
             Name of the sheet. It can be an integer (face ID), a string (sheet), or a list of integers
@@ -2998,9 +2991,9 @@ class Hfss(FieldAnalysis3D, object):
 
         if boundary_type == self.BoundaryType.PerfectE:
             props["InfGroundPlane"] = is_infinite_gnd
-            boundary_type = "PerfectE"
+            boundary_type = "Perfect E"
         elif boundary_type == self.BoundaryType.PerfectH:
-            boundary_type = "PerfectH"
+            boundary_type = "Perfect H"
         elif boundary_type == self.BoundaryType.Aperture:
             boundary_type = "Aperture"
         elif boundary_type == self.BoundaryType.Radiation:
@@ -3518,7 +3511,7 @@ class Hfss(FieldAnalysis3D, object):
             if Cvalue:
                 props["UseCap"] = True
                 props["Capacitance"] = str(Cvalue) + "F"
-            return self._create_boundary(sourcename, props, "LumpedRLC")
+            return self._create_boundary(sourcename, props, "Lumped RLC")
         return False
 
     @pyaedt_function_handler()
@@ -4178,81 +4171,39 @@ class Hfss(FieldAnalysis3D, object):
         return True
 
     @pyaedt_function_handler()
-    def export_touchstone(self, solutionname, sweepname, filename=None, variation=[], variations_value=[]):
+    def export_touchstone(
+        self, solution_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
+    ):
         """Export the Touchstone file to a local folder.
 
         Parameters
         ----------
-        solutionname : str
+        solution_name : str, optional
             Name of the solution that has been solved.
-        sweepname : str
+        sweep_name : str, optional
             Name of the sweep that has been solved.
-        filename : str, optional
-            Full path and name for the output file.
+        file_name : str, optional
+            Full path and name for the Touchstone file.
             The default is ``None``, in which case the file is exported to the working directory.
-        variation : list, optional
+        variations : list, optional
             List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
-            The default is ``[]``.
+            The default is ``None``.
         variations_value : list, optional
             List of all parameter variation values. For example, ``["22cel", "100"]``.
-            The default is ``[]``.
+            The default is ``None``.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
-
-        # Normalize the save path
-        if not filename:
-            appendix = ""
-            for v, vv in zip(variation, variations_value):
-                appendix += "_" + v + vv.replace("'", "")
-            ext = ".S" + str(self.oboundary.GetNumExcitations()) + "p"
-            filename = os.path.join(self.working_directory, solutionname + "_" + sweepname + appendix + ext)
-        else:
-            filename = filename.replace("//", "/").replace("\\", "/")
-        print("Exporting Touchstone " + filename)
-        DesignVariations = ""
-        i = 0
-        for el in variation:
-            DesignVariations += str(variation[i]) + "='" + str(variations_value[i].replace("'", "")) + "' "
-            i += 1
-            # DesignVariations = "$AmbientTemp=\'22cel\' $PowerIn=\'100\'"
-        # array containing "SetupName:SolutionName" pairs (note that setup and solution are separated by a colon)
-        SolutionSelectionArray = [solutionname + ":" + sweepname]
-        # 2=tab delimited spreadsheet (.tab), 3= touchstone (.sNp), 4= CitiFile (.cit),
-        # 7=Matlab (.m), 8=Terminal Z0 spreadsheet
-        FileFormat = 3
-        OutFile = filename  # full path of output file
-        # array containin the frequencies to export, use ["all"] for all frequencies
-        FreqsArray = ["all"]
-        DoRenorm = True  # perform renormalization before export
-        RenormImped = 50  # Real impedance value in ohm, for renormalization
-        DataType = "S"  # Type: "S", "Y", or "Z" matrix to export
-        Pass = -1  # The pass to export. -1 = export all passes.
-        ComplexFormat = 0  # 0=Magnitude/Phase, 1=Real/Immaginary, 2=dB/Phase
-        DigitsPrecision = 15  # Touchstone number of digits precision
-        IncludeGammaImpedance = True  # Include Gamma and Impedance in comments
-        NonStandardExtensions = False  # Support for non-standard Touchstone extensions
-
-        self.osolution.ExportNetworkData(
-            DesignVariations,
-            SolutionSelectionArray,
-            FileFormat,
-            OutFile,
-            FreqsArray,
-            DoRenorm,
-            RenormImped,
-            DataType,
-            Pass,
-            ComplexFormat,
-            DigitsPrecision,
-            False,
-            IncludeGammaImpedance,
-            NonStandardExtensions,
+        return self._export_touchstone(
+            solution_name=solution_name,
+            sweep_name=sweep_name,
+            file_name=file_name,
+            variations=variations,
+            variations_value=variations_value,
         )
-        return True
 
     @pyaedt_function_handler()
     def set_export_touchstone(self, activate, export_dir=""):

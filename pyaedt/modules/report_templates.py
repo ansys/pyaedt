@@ -65,6 +65,131 @@ class LimitLine(object):
         return self._change_property(props)
 
 
+class Note(object):
+    """Note Management Class."""
+
+    def __init__(self, report_setup, plot_note_name):
+        self._oreport_setup = report_setup
+        self.plot_note_name = plot_note_name
+
+    @pyaedt_function_handler()
+    def _change_property(self, props_value):
+        prop_server_name = self.plot_note_name
+        self._oreport_setup.ChangeProperty(
+            ["NAME:AllTabs", ["NAME:Note", ["NAME:PropServers", prop_server_name], props_value]]
+        )
+        return True
+
+    @pyaedt_function_handler()
+    def set_note_properties(
+        self,
+        text=None,
+        back_color=None,
+        background_visibility=None,
+        border_color=None,
+        border_visibility=None,
+        border_width=None,
+        font="Arial",
+        font_size=12,
+        italic=False,
+        bold=False,
+        color=(0, 0, 0),
+    ):
+        """Set note properties.
+
+        Parameters
+        ----------
+        text : str, optional
+            Style for the limit line. The default is ``None``. You can also use
+            the ``LIFESTYLE`` property.
+        back_color : int
+            Background color specified as a tuple (R,G,B) or a list of integers [0,255].
+            The default is ``None``.
+        background_visibility : bool
+            Whether to view background. The default is ``None``.
+        border_color : int
+            Trace color specified as a tuple (R,G,B) or a list of integers [0,255].
+            The default is ``None``.
+        border_visibility : bool
+            Whether to view text border. The default is ``None``.
+            The default is ``None``.
+        border_width : int
+            Text boarder width.
+            The default is ``None``.
+        font : str, optional
+            The default is ``None``.
+        font_size : int, optional
+            The default is ``None``.
+        italic : bool
+            Whether the text is italic.
+            The default is ``None``.
+        bold : bool
+            Whether the text is bold.
+            The default is ``None``.
+        color : int =(0, 0, 0)
+            Trace color specified as a tuple (R,G,B) or a list of integers [0,255].
+            The default is ``None``.
+
+        Returns
+        -------
+        bool
+            "True`` when successful, ``False`` when failed.
+        """
+        props = ["NAME:ChangedProps"]
+        if text:
+            props.append(["NAME:Note Text", "Value:=", text])
+        if back_color and isinstance(back_color, (list, tuple)) and len(back_color) == 3:
+            props.append(["NAME:Back Color", "R:=", back_color[0], "G:=", back_color[1], "B:=", back_color[2]])
+        if background_visibility != None:
+            props.append(["NAME:Background Visibility", "Value:=", background_visibility])
+        if border_color and isinstance(border_color, (list, tuple)) and len(border_color) == 3:
+            props.append(["NAME:Border Color", "R:=", border_color[0], "G:=", border_color[1], "B:=", border_color[2]])
+        if border_visibility != None:
+            props.append(["NAME:Border Visibility", "Value:=", border_visibility])
+        if border_width and isinstance(border_width, (int, float)):
+            props.append(["NAME:Border Width", "Value:=", str(border_width)])
+
+        font_props = [
+            "NAME:Note Font",
+            "Height:=",
+            -1 * font_size - 2,
+            "Width:=",
+            0,
+            "Escapement:=",
+            0,
+            "Orientation:=",
+            0,
+            "Weight:=",
+            700 if bold else 400,
+            "Italic:=",
+            255 if italic else 0,
+            "Underline:=",
+            0,
+            "StrikeOut:=",
+            0,
+            "CharSet:=",
+            0,
+            "OutPrecision:=",
+            3,
+            "ClipPrecision:=",
+            2,
+            "Quality:=",
+            1,
+            "PitchAndFamily:=",
+            34,
+            "FaceName:=",
+            font,
+            "R:=",
+            color[0],
+            "G:=",
+            color[1],
+            "B:=",
+            color[2],
+        ]
+        props.append(font_props)
+        return self._change_property(props)
+
+
 class Trace(object):
     """Provides trace management."""
 
@@ -228,6 +353,29 @@ class CommonReport(object):
                 _traces.append(LimitLine(self._post.oreportsetup, "{}:{}".format(self._plot_name, el)))
 
         return _traces
+
+    @property
+    def notes(self):
+        """Return the list of available notes in the report.
+
+        .. note::
+            This property works in version 2022 R1 and later. However, It works only in
+            non-graphical mode in version 2022 R2 and later.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modules.report_templates.Note`
+        """
+        _notes = []
+        try:
+            oo_names = self._post.oreportsetup.GetChildObject(self._plot_name).GetChildNames()
+        except:
+            return _notes
+        for el in oo_names:
+            if "Note" in el:
+                _notes.append(Note(self._post.oreportsetup, "{}:{}".format(self._plot_name, el)))
+
+        return _notes
 
     @property
     def plot_name(self):
@@ -404,7 +552,7 @@ class CommonReport(object):
                 self.plot_name = generate_unique_name("Plot")
         else:
             self.plot_name = plot_name
-        if self.setup not in self._post._app.existing_analysis_sweeps:
+        if self.setup not in self._post._app.existing_analysis_sweeps and "AdaptivePass" not in self.setup:
             self._post._app.logger.error("Setup doesn't exist in this design.")
             return False
         self._post.oreportsetup.CreateReport(
@@ -525,6 +673,49 @@ class CommonReport(object):
                     str(step) + units,
                     "Equation:=",
                     equation,
+                ],
+            )
+            return True
+        return False
+
+    @pyaedt_function_handler()
+    def add_note(self, text, x_position=0, y_position=0):  # pragma: no cover
+        """Add a note at position.
+
+        Parameters
+        ----------
+        text : string
+            The text of the note.
+        x_position : float
+            x position of the note.
+        y_position : float
+            y position of the note.
+        note_name : string
+            internal name of the note (optional).
+
+        Returns
+        -------
+        bool
+        """
+        noteName = generate_unique_name("Note", n=3)
+        if self.plot_name and self._is_created:
+            self._post.oreportsetup.AddNote(
+                self.plot_name,
+                [
+                    "NAME:NoteDataSource",
+                    [
+                        "NAME:NoteDataSource",
+                        "SourceName:=",
+                        noteName,
+                        "HaveDefaultPos:=",
+                        True,
+                        "DefaultXPos:=",
+                        x_position,
+                        "DefaultYPos:=",
+                        y_position,
+                        "String:=",
+                        text,
+                    ],
                 ],
             )
             return True

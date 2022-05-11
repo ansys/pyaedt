@@ -46,6 +46,7 @@ from pyaedt import Icepak
 # This example launches AEDT 2022R1 in graphical mode.
 # This example uses SI units.
 
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 desktopVersion = "2022.1"
 
 ###############################################################################
@@ -54,7 +55,6 @@ desktopVersion = "2022.1"
 # You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch
 # AEDT in graphical mode.
 
-NonGraphical = True
 NewThread = True
 project_name = "HFSS_Icepak_Coupling"
 project_file = os.path.join(project_dir, project_name + ".aedt")
@@ -66,7 +66,7 @@ project_file = os.path.join(project_dir, project_name + ".aedt")
 # If there is an active HFSS design, ``aedtapp`` is linked to it. Otherwise, a
 # new design is created.
 
-aedtapp = Hfss(specified_version=desktopVersion, non_graphical=NonGraphical, new_desktop_session=NewThread)
+aedtapp = Hfss(specified_version=desktopVersion, non_graphical=non_graphical, new_desktop_session=NewThread)
 
 ###############################################################################
 # Initialize Variable Settings
@@ -171,7 +171,7 @@ sweepname = aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401, s
 # ~~~~~~~~~~~~~~~~~~~~~~
 # After an HFSS setup is ready, link it to an Icepak project to run a
 # coupled physics analysis.
-# The :func:`FieldAnalysisIcepak.copy_solid_bodies_from` imports a model
+# The :func:`FieldAnalysis3D.copy_solid_bodies_from` imports a model
 # from HFSS with all material settings.
 
 ipkapp = Icepak()

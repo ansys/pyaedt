@@ -9,6 +9,12 @@ import os
 
 from pyaedt import Maxwell3d
 
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
 ##################################################################################
 # Launch AEDT and Maxwell 3D.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -19,14 +25,13 @@ Project_Name = "COMPUMAG"
 Design_Name = "TEAM 3 Bath Plate"
 Solver = "EddyCurrent"
 DesktopVersion = "2022.1"
-NonGraphical = False
 
 M3D = Maxwell3d(
     projectname=Project_Name,
     designname=Design_Name,
     solution_type=Solver,
     specified_version=DesktopVersion,
-    non_graphical=NonGraphical,
+    non_graphical=non_graphical,
     new_desktop_session=True,
 )
 uom = M3D.modeler.model_units = "mm"
@@ -103,8 +108,8 @@ Setup.add_eddy_current_sweep("LinearStep", 50, 200, 150, clear=True)
 ################################################################################
 # Adjust Eddy Effects for LadderPlate and SearchCoil
 # NB, Eddy effect setting is ignored for stranded conductor type used in Search Coil
-M3D.eddy_effects_on(["LadderPlate"], activate=True)
-M3D.eddy_effects_on(["SearchCoil"], activate=False)
+M3D.eddy_effects_on(["LadderPlate"], activate_eddy_effects=True, activate_displacement_current=True)
+M3D.eddy_effects_on(["SearchCoil"], activate_eddy_effects=False, activate_displacement_current=True)
 
 ################################################################################
 # Add a linear parametric sweep for the two coil positions

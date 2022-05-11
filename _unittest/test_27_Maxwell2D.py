@@ -2,6 +2,7 @@
 # Standard imports
 import filecmp
 import os
+from collections import OrderedDict
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import local_path
@@ -9,6 +10,7 @@ from _unittest.conftest import pyaedt_unittest_check_desktop_error
 from pyaedt import Maxwell2d
 from pyaedt.application.Design import DesignCache
 from pyaedt.generic.constants import SOLUTIONS
+from pyaedt.generic.general_methods import generate_unique_name
 
 try:
     import pytest  # noqa: F401
@@ -34,12 +36,36 @@ class TestClass(BasisTest, object):
 
     @pyaedt_unittest_check_desktop_error
     def test_04_create_winding(self):
-
         bounds = self.aedtapp.assign_winding(current_value=20e-3, coil_terminals=["Coil"])
         assert bounds
         o = self.aedtapp.modeler.create_rectangle([0, 0, 0], [3, 1], name="Rectangle2", matname="copper")
         bounds = self.aedtapp.assign_winding(current_value=20e-3, coil_terminals=o.id)
         assert bounds
+        bounds = self.aedtapp.assign_winding(current_value="20e-3A", coil_terminals=["Coil"])
+        assert bounds
+        bounds = self.aedtapp.assign_winding(res="1ohm", coil_terminals=["Coil"])
+        assert bounds
+        bounds = self.aedtapp.assign_winding(ind="1H", coil_terminals=["Coil"])
+        assert bounds
+        bounds = self.aedtapp.assign_winding(voltage="10V", coil_terminals=["Coil"])
+        assert bounds
+        bounds_name = generate_unique_name("Coil")
+        bounds = self.aedtapp.assign_winding(coil_terminals=["Coil"], name=bounds_name)
+        assert bounds_name == bounds.name
+
+    @pyaedt_unittest_check_desktop_error
+    def test_04a_assign_coil(self):
+        bound = self.aedtapp.assign_coil(input_object=["Coil"])
+        assert bound
+        polarity = "Positive"
+        bound = self.aedtapp.assign_coil(input_object=["Coil"], polarity=polarity)
+        assert bound.props["PolarityType"] == polarity.lower()
+        polarity = "Negative"
+        bound = self.aedtapp.assign_coil(input_object=["Coil"], polarity=polarity)
+        assert bound.props["PolarityType"] == polarity.lower()
+        bound_name = generate_unique_name("Coil")
+        bound = self.aedtapp.assign_coil(input_object=["Coil"], name=bound_name)
+        assert bound_name == bound.name
 
     @pyaedt_unittest_check_desktop_error
     def test_05_create_vector_potential(self):
@@ -145,11 +171,107 @@ class TestClass(BasisTest, object):
         self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
         assert not self.aedtapp.assign_end_connection([rect, rect2])
 
-    def test_19_setup_y_connection(self):
+    @pyaedt_unittest_check_desktop_error
+    def test_19_matrix(self):
+        self.aedtapp.insert_design("Matrix")
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        self.aedtapp.modeler.primitives.create_rectangle(
+            [0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1", matname="vacuum"
+        )
+        self.aedtapp.modeler.primitives.create_rectangle(
+            [8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2", matname="vacuum"
+        )
+        self.aedtapp.modeler.primitives.create_rectangle(
+            [16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3", matname="vacuum"
+        )
+        self.aedtapp.modeler.primitives.create_rectangle(
+            [32, 1.5, 0], [8, 3], is_covered=True, name="Coil_4", matname="vacuum"
+        )
+        self.aedtapp.assign_current("Coil_1", amplitude=1, swap_direction=False, name="Current1")
+        self.aedtapp.assign_current("Coil_2", amplitude=1, swap_direction=True, name="Current2")
+        self.aedtapp.assign_current("Coil_3", amplitude=1, swap_direction=True, name="Current3")
+        self.aedtapp.assign_current("Coil_4", amplitude=1, swap_direction=True, name="Current4")
+        L = self.aedtapp.assign_matrix(sources="Current1")
+        assert L.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Current1"
+        assert L.delete()
+        L = self.aedtapp.assign_matrix(
+            sources=["Current1", "Current2"], matrix_name="Test1", turns=2, return_path="Current3"
+        )
+        assert len(L.props["MatrixEntry"]["MatrixEntry"]) == 2
+        L = self.aedtapp.assign_matrix(
+            sources=["Current1", "Current2"], matrix_name="Test2", turns=[2, 1], return_path=["Current3", "Current4"]
+        )
+        assert L.props["MatrixEntry"]["MatrixEntry"][1]["ReturnPath"] == "Current4"
+        L = self.aedtapp.assign_matrix(
+            sources=["Current1", "Current2"], matrix_name="Test3", turns=[2, 1], return_path=["Current1", "Current1"]
+        )
+        assert not L
+        group_sources = {"Group1_Test": ["Current3", "Current2"]}
+        L = self.aedtapp.assign_matrix(
+            sources=["Current3", "Current2"],
+            matrix_name="Test4",
+            turns=[2, 1],
+            return_path=["Current4", "Current1"],
+            group_sources=group_sources,
+        )
+        assert L.name == "Test4"
+        group_sources = {"Group1_Test": ["Current3", "Current2"], "Group2_Test": ["Current1", "Current2"]}
+        L = self.aedtapp.assign_matrix(
+            sources=["Current1", "Current2"],
+            matrix_name="Test5",
+            turns=[2, 1],
+            return_path="infinite",
+            group_sources=group_sources,
+        )
+        assert L.props["MatrixGroup"]["MatrixGroup"]
+        group_sources = OrderedDict()
+        group_sources["Group1_Test"] = ["Current1", "Current3"]
+        group_sources["Group2_Test"] = ["Current2", "Current4"]
+        L = self.aedtapp.assign_matrix(
+            sources=["Current1", "Current2", "Current3", "Current4"],
+            matrix_name="Test6",
+            turns=2,
+            group_sources=group_sources,
+            branches=3,
+        )
+        assert L.props["MatrixGroup"]["MatrixGroup"][0]["GroupName"] == "Group1_Test"
+        group_sources = {"Group1_Test": ["Current1", "Current3"], "Group2_Test": ["Current2", "Current4"]}
+        L = self.aedtapp.assign_matrix(
+            sources=["Current1", "Current2", "Current3", "Current4"],
+            matrix_name="Test7",
+            turns=[5, 1],
+            group_sources=group_sources,
+            branches=[3, 2, 1],
+        )
+        assert len(L.props["MatrixGroup"]["MatrixGroup"]) == 2
+        group_sources = {"Group1_Test": ["Current1", "Current3", "Current2"], "Group2_Test": ["Current2", "Current4"]}
+        L = self.aedtapp.assign_matrix(
+            sources=["Current1", "Current2", "Current3"],
+            matrix_name="Test8",
+            turns=[2, 1, 2, 3],
+            return_path=["infinite", "infinite", "Current4"],
+            group_sources=group_sources,
+            branches=[3, 2],
+        )
+        assert L.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] == 2
+        L.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] = 3
+        assert L.props["MatrixEntry"]["MatrixEntry"][0]["NumberOfTurns"] == 3
+        group_sources = {"Group1_Test": ["Current1", "Current3"], "Group2_Test": ["Current2", "Current4"]}
+        L = self.aedtapp.assign_matrix(
+            sources=["Current1", "Current2", "Current3", "Current4"],
+            matrix_name="Test9",
+            turns=[5, 1, 2, 3],
+            group_sources=group_sources,
+            branches=[3, 2],
+        )
+        for l in L.props["MatrixEntry"]["MatrixEntry"]:
+            assert l["ReturnPath"] == "infinite"
+
+    def test_20_setup_y_connection(self):
         self.aedtapp.set_active_design("Y_Connections")
         assert self.aedtapp.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
         assert self.aedtapp.setup_y_connection(["PhaseA", "PhaseB"])  # Remove one phase from the Y connection.
         assert self.aedtapp.setup_y_connection()  # Remove the Y connection.
 
-    def test_20_symmetry_multiplier(self):
+    def test_21_symmetry_multiplier(self):
         assert self.aedtapp.change_symmetry_multiplier(2)

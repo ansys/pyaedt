@@ -49,18 +49,18 @@ solutions_types = {
             "default_setup": 8,
             "default_adaptive": None,
         },
-        "ElectricTransient": {
-            "name": "ElectricTransient",
+        "DCConduction": {
+            "name": "DCConduction",
             "options": "XY",
             "report_type": None,
-            "default_setup": 10,
-            "default_adaptive": "Transient",
+            "default_setup": 8,
+            "default_adaptive": None,
         },
-        "ElectroDCConduction": {
-            "name": "ElectroDCConduction",
+        "ACConduction": {
+            "name": "ACConduction",
             "options": "XY",
             "report_type": None,
-            "default_setup": 9,
+            "default_setup": 8,
             "default_adaptive": None,
         },
     },

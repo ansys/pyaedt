@@ -147,8 +147,25 @@ class TestClass(BasisTest, object):
         assert os.path.exists(os.path.join(self.local_scratch.path, "output.csv"))
 
     def test_04_export_touchstone(self):
-        self.aedtapp.export_touchstone("Setup1", "Sweep", os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p"))
+        setup_name = "Setup1"
+        sweep_name = "Sweep"
+        self.aedtapp.export_touchstone(
+            setup_name, sweep_name, os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p")
+        )
         assert os.path.exists(os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p"))
+
+        sweep_name = None
+        self.aedtapp.export_touchstone(
+            setup_name, sweep_name, os.path.join(self.local_scratch.path, "Setup1_Sweep2.S2p")
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "Setup1_Sweep2.S2p"))
+        setup_name = None
+        self.aedtapp.export_touchstone(
+            setup_name, sweep_name, os.path.join(self.local_scratch.path, "Setup1_Sweep3.S2p")
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "Setup1_Sweep3.S2p"))
+
+        assert self.aedtapp.export_touchstone(setup_name, sweep_name)
 
     @pytest.mark.skipif(config["build_machine"] == True, reason="Not running in non-graphical mode")
     def test_05_export_report_to_jpg(self):
@@ -211,6 +228,15 @@ class TestClass(BasisTest, object):
 
     def test_09_manipulate_report(self):
         assert self.aedtapp.post.create_report("dB(S(1,1))")
+        assert self.aedtapp.post.create_report(
+            expressions="MaxMagDeltaS",
+            variations={"Pass": ["All"]},
+            setup_sweep_name="Setup1 : AdaptivePass",
+            primary_sweep_variable="Pass",
+            report_category="Modal Solution Data",
+            plot_type="Rectangular Plot",
+            plotname="Solution Convergence Plot",
+        )
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
 
@@ -391,6 +417,26 @@ class TestClass(BasisTest, object):
         new_report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
         assert new_report.limit_lines[0].set_line_properties(
             style=style.Dot, width=4, hatch_above=False, violation_emphasis=True, hatch_pixels=1, color=(255, 255, 0)
+        )
+        pass
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
+    )
+    def test_09g_add_note(self):  # pragma: no cover
+        new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
+        new_report.create()
+
+        new_report.add_note("Test", 8000, 1500)
+        assert new_report.notes[0].set_note_properties(
+            back_color=(0, 0, 255),
+            border_visibility=False,
+            border_width=3,
+            font="Cambria",
+            italic=True,
+            bold=True,
+            font_size=10,
+            color=(255, 0, 0),
         )
         pass
 

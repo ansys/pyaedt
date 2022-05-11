@@ -1,11 +1,12 @@
 from __future__ import absolute_import  # noreorder
-
+import datetime
 import warnings
 
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.modeler.Modeler import GeometryModeler
 from pyaedt.modeler.Primitives3D import Primitives3D
+from pyaedt.generic.general_methods import _retry_ntimes
 
 
 class Modeler3D(GeometryModeler, Primitives3D, object):
@@ -96,6 +97,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             exclude_region = True
         if not component_name:
             component_name = self._app.design_name
+        dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
         arg = [
             "NAME:CreateData",
             "ComponentName:=",
@@ -119,7 +121,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             "Email:=",
             "",
             "Date:=",
-            "9:44:15 AM  Mar 03, 2021",
+            dt_string,
             "HasLabel:=",
             False,
             "IsEncrypted:=",
@@ -181,14 +183,16 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             boundaries = boundaries_list
         else:
             boundaries = self.get_boundaries_name()
-        arg2.append("Boundaries:="), arg2.append(boundaries)
+        if boundaries:
+            arg2.append("Boundaries:="), arg2.append(boundaries)
         if self._app.design_type == "Icepak":
             meshregions = [name for name in self._app.mesh.meshregions.name]
             try:
                 meshregions.remove("Global")
             except:
                 pass
-            arg2.append("MeshRegions:="), arg2.append(meshregions)
+            if meshregions:
+                arg2.append("MeshRegions:="), arg2.append(meshregions)
         else:
             if excitation_list:
                 excitations = excitation_list
@@ -199,12 +203,13 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                     if exc and exc[0] not in self._app.excitations:
                         excitations.extend(exc)
             excitations = list(set([i.split(":")[0] for i in excitations]))
-            arg2.append("Excitations:="), arg2.append(excitations)
+            if excitations:
+                arg2.append("Excitations:="), arg2.append(excitations)
         meshops = [el.name for el in self._app.mesh.meshoperations]
         arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
-        self.oeditor.Create3DComponent(arg, arg2, component_file, arg3)
-        return True
+
+        return _retry_ntimes(3, self.oeditor.Create3DComponent, arg, arg2, component_file, arg3)
 
     @pyaedt_function_handler()
     def create_coaxial(

@@ -19,15 +19,12 @@ import os
 
 desktop_version = "2022.1"
 
-###############################################################################
-# Launch AEDT in Non-Graphical Mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You can change the Boolean parameter ``non_graphical`` to ``False`` to launch
-# AEDT in graphical mode.
-# You can change the Boolean parameter ``new_thread`` to ``False`` to launch
-# AEDT in existing Desktop Session, if any.
 
-non_graphical = False
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 new_thread = True
 
 ###############################################################################

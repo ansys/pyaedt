@@ -12,7 +12,7 @@ from pyaedt import Q3d
 # Setup paths for module imports
 
 
-test_project_name = "coax_setup_solved"
+test_project_name = "dm boundary test"
 test_field_name = "Potter_Horn"
 sbr_file = "poc_scat_small"
 q3d_file = "via_gsg"
@@ -34,7 +34,7 @@ class TestClass(BasisTest, object):
         BasisTest.my_teardown(self)
 
     def test_01_hfss_export(self):
-        self.aedtapp.mesh.assign_length_mesh("inner")
+        self.aedtapp.mesh.assign_length_mesh("sub")
         conf_file = self.aedtapp.configurations.export_config()
         assert os.path.exists(conf_file)
         filename = self.aedtapp.design_name
