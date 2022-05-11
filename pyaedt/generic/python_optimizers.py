@@ -111,7 +111,7 @@ class GeneticAlgorithm(object):
         var_type="bool",
         boundaries=None,
         var_type_mixed=None,
-        function_timeout=10,
+        function_timeout=0,
         algorithm_parameters=None,
         progress_bar=True,
     ):
@@ -119,10 +119,7 @@ class GeneticAlgorithm(object):
         self.goal = 1e10
         if population_file:
             self.population_file = population_file
-        try:
-            callable(function)
-        except:
-            raise ValueError("Function is not callable")
+
         self.function = function
         self.dim = int(dim)
         self.goal = float(goal)
