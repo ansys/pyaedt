@@ -192,67 +192,6 @@ class BaseCoordinateSystem(object):
         return True
 
 
-class BaseLists(object):
-    """Base methods common to UserList.
-
-    Parameters
-    ----------
-    modeler :
-        Inherited parent object.
-    props : dict, optional
-        Dictionary of properties. The default is ``None``.
-    name : optional
-        The default is ``None``.
-
-    """
-
-    def __init__(self, modeler, name=None):
-        self.auto_update = True
-        self._modeler = modeler
-        self.name = name
-
-    @pyaedt_function_handler()
-    def delete(self):
-        """Delete the List.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-        self._modeler.user_lists.remove(self)
-        return True
-
-    @pyaedt_function_handler()
-    def rename(self, newname):
-        """Rename the List.
-
-        Parameters
-        ----------
-        newname : str
-            New name for the List.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        argument = [
-            "NAME:AllTabs",
-            [
-                "NAME:Geometry3DListTab",
-                ["NAME:PropServers", self.name],
-                ["NAME:ChangedProps", ["NAME:Name", "Value:=", newname]],
-            ],
-        ]
-        self._modeler.oeditor.ChangeProperty(argument)
-        self.name = newname
-        return True
-
-
 class FaceCoordinateSystem(BaseCoordinateSystem, object):
     """Manages face coordinate system data and execution.
 
@@ -947,7 +886,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         return coordinateSystemAttributes
 
 
-class Lists(BaseLists, object):
+class Lists(object):
     """Manages Lists data and execution.
 
     Parameters
@@ -962,7 +901,9 @@ class Lists(BaseLists, object):
     """
 
     def __init__(self, modeler, props=None, name=None):
-        BaseLists.__init__(self, modeler, name)
+        self.auto_update = True
+        self._modeler = modeler
+        self.name = name
         self.props = ListsProps(self, props)
 
     @pyaedt_function_handler()
@@ -1026,28 +967,75 @@ class Lists(BaseLists, object):
 
         object_list_new = self._list_verification(object_list, type)
 
-        self.name = self._modeler.oeditor.CreateEntityList(
-            ["NAME:GeometryEntityListParameters", "EntityType:=", type, "EntityList:=", object_list_new],
-            ["NAME:Attributes", "Name:=", name],
-        )
-        props = {}
-        if type == "Object":
-            props["List"] = object_list
+        if object_list_new:
+            self.name = self._modeler.oeditor.CreateEntityList(
+                ["NAME:GeometryEntityListParameters", "EntityType:=", type, "EntityList:=", object_list_new],
+                ["NAME:Attributes", "Name:=", name],
+            )
+            props = {}
+            if type == "Object":
+                props["List"] = object_list
+            else:
+                props["List"] = object_list_new
+
+            props["ID"] = self._modeler.get_entitylist_id(self.name)
+            props["Type"] = type
+
+            self.props = ListsProps(self, props)
+            self._modeler.user_lists.append(self)
+            return True
         else:
-            props["List"] = object_list_new
+            return False
 
-        props["ID"] = self._modeler.get_entitylist_id(self.name)
-        props["Type"] = type
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the List.
 
-        self.props = ListsProps(self, props)
-        self._modeler.user_lists.append(self)
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
+        self._modeler.user_lists.remove(self)
+        return True
+
+    @pyaedt_function_handler()
+    def rename(self, newname):
+        """Rename the List.
+
+        Parameters
+        ----------
+        newname : str
+            New name for the List.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        argument = [
+            "NAME:AllTabs",
+            [
+                "NAME:Geometry3DListTab",
+                ["NAME:PropServers", self.name],
+                ["NAME:ChangedProps", ["NAME:Name", "Value:=", newname]],
+            ],
+        ]
+        self._modeler.oeditor.ChangeProperty(argument)
+        self.name = newname
         return True
 
     def _list_verification(self, object_list, list_type):
         object_list = self._modeler.convert_to_selections(object_list, True)
-
         if list_type == "Object":
-            object_list_new = ",".join(object_list)
+            check = all(item in self._modeler.object_names for item in object_list)
+            if check:
+                object_list_new = ",".join(object_list)
+            else:
+                return False
         elif list_type == "Face":
             object_list_new = []
             for element in object_list:
@@ -1063,11 +1051,11 @@ class Lists(BaseLists, object):
                                         object_list_new.append(f.id)
                                     break
                         else:
-                            raise ValueError(element + " is not defined")
+                            return False
                 else:
                     object_list_new.append(int(element))
         else:
-            object_list_new = []
+            object_list_new = False
         return object_list_new
 
 
@@ -1336,7 +1324,14 @@ class GeometryModeler(Modeler, object):
                 name = data["Attributes"]["Name"]
                 props["ID"] = data["ID"]
                 props["Type"] = data["GeometryEntityListParameters"]["EntityType"]
-                props["List"] = data["GeometryEntityListParameters"]["EntityList"]
+                if props["Type"] == "Object":
+                    name_list = []
+                    for element in data["GeometryEntityListParameters"]["EntityList"]:
+                        element_name = self.oeditor.GetObjectNameByID(int(element))
+                        name_list.append(element_name)
+                    props["List"] = name_list
+                else:
+                    props["List"] = data["GeometryEntityListParameters"]["EntityList"]
                 design_lists.append(Lists(self, props, name))
         except:
             self.logger.error("Lists were not retrieved from AEDT file")
@@ -3492,7 +3487,8 @@ class GeometryModeler(Modeler, object):
         if name:
             list_names = [i.name for i in self.user_lists]
             if name in list_names:
-                raise AttributeError("A List with the specified name already exists!")
+                self.logger.error("A List with the specified name already exists!")
+                return False
         face_list = self.convert_to_selections(face_list, True)
         user_list = Lists(self)
         list_type = "Face"
@@ -3504,7 +3500,12 @@ class GeometryModeler(Modeler, object):
             )
             if result:
                 return result
-        return False
+            else:
+                self._app.logger.error("Wrong object definition. Review object list and type")
+                return False
+        else:
+            self._app.logger.error("User list object could not be created")
+            return False
 
     @pyaedt_function_handler()
     def create_object_list(self, object_list, name=None):
@@ -3542,7 +3543,12 @@ class GeometryModeler(Modeler, object):
             )
             if result:
                 return result
-        return False
+            else:
+                self._app.logger.error("Wrong object definition. Review object list and type")
+                return False
+        else:
+            self._app.logger.error("User list object could not be created")
+            return False
 
     @pyaedt_function_handler()
     def generate_object_history(self, objectname):

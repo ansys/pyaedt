@@ -215,13 +215,20 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.create_face_list(fl, "my_face_list")
         assert self.aedtapp.modeler.create_face_list(fl)
         assert self.aedtapp.modeler.create_face_list([str(fl[0])])
+        assert not self.aedtapp.modeler.create_face_list(["outer2"])
 
     def test_28B_create_object_list(self):
         assert self.aedtapp.modeler.create_object_list(["Second_airbox"], "my_object_list")
         assert self.aedtapp.modeler.create_object_list(["Core", "outer"])
-        self.aedtapp.modeler.user_lists[2].props["List"] = ["outer"]
+        self.aedtapp.modeler.user_lists[4].props["List"] = ["outer", "Core", "inner"]
+        self.aedtapp.modeler.user_lists[4].auto_update = False
+        fl = self.aedtapp.modeler.get_object_faces("Core")
+        self.aedtapp.modeler.user_lists[4].props["Type"] = "Face"
+        self.aedtapp.modeler.user_lists[4].props["List"] = fl
+        self.aedtapp.modeler.user_lists[4].update()
         assert self.aedtapp.modeler.user_lists[2].rename("new_list")
         assert self.aedtapp.modeler.user_lists[2].delete()
+        assert not self.aedtapp.modeler.create_object_list(["Core2", "outer"])
 
     def test_29_create_outer_face_list(self):
         assert self.aedtapp.modeler.create_outer_facelist(["Second_airbox"])
