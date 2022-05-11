@@ -210,17 +210,6 @@ class Materials(object):
         >>> oMaterialManager.GetData
         """
         return mat.lower() in self._mat_names_aedt_lower
-        # mat = mat.lower()
-        # lista = [i.lower() for i in list(self.odefinition_manager.GetProjectMaterialNames())]
-        # if mat in lista:
-        #     return True
-        # else:
-        #     mattry = self.omaterial_manager.GetData(mat)
-        #     if mattry:
-        #         self._aedmattolibrary(mat)
-        #         return True
-        #     else:
-        #         return False
 
     @pyaedt_function_handler()
     def check_thermal_modifier(self, mat):
