@@ -801,3 +801,38 @@ class FieldAnalysis3D(Analysis, object):
             i += 1
             all_objs = [ao for ao in all_objs if ao not in list_mat_obj]
         return True
+
+    @pyaedt_function_handler()
+    def delete_solution_variation(
+        self, variations="All", entire_solution=True, field=True, mesh=True, linked_data=True
+    ):
+        """Delete a set of Solution Variations or part of them.
+
+        Parameters
+        ----------
+        variations : List, str, optional
+            All variations to delete. Default is `"All"` which deletes all available solutions.
+        entire_solution : bool, optional
+            Either if delete entire Solution of part of it. If `True` other booleans will be ignored
+            as solution will be entirely deleted.
+        field : bool, optional
+            Either if delete entire Fields of variation or not. Default is `True`.
+        mesh : bool, optional
+            Either if delete entire Mesh of variation or not. Default is `True`.
+        linked_data : bool, optional
+            Either if delete entire Linked Data of variation or not. Default is `True`.
+
+        Returns
+        -------
+        bool
+            `True` if Delete operation succeeded.
+        """
+        if isinstance(variations, str):
+            variations = [variations]
+        if entire_solution:
+            self.odesign.DeleteFullVariation(variations, linked_data)
+        elif field:
+            self.odesign.DeleteFieldVariation(variations, mesh, linked_data)
+        elif linked_data:
+            self.odesign.DeleteLinkedDataVariation(variations)
+        return True

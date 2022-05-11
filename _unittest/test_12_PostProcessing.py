@@ -698,3 +698,8 @@ class TestClass(BasisTest, object):
         local_path = os.path.dirname(os.path.realpath(__file__))
         out = _parse_streamline(os.path.join(local_path, "example_models", "test_streamline.fldplt"))
         assert isinstance(out, list)
+
+    def test_61_delete_variations(self):
+
+        assert self.aedtapp.delete_solution_variation()
+        assert self.aedtapp.delete_solution_variation()
