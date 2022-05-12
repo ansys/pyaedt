@@ -799,6 +799,8 @@ class Rect3dLayout(Geometries3DLayout, object):
 
 
 class Line3dLayout(Geometries3DLayout, object):
+    """Class for Hfss 3D Layout lines management."""
+
     def __init__(self, primitives, name, is_void=False, id=0):
         Geometries3DLayout.__init__(self, primitives, name, "line", is_void, id)
         self._points = []

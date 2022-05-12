@@ -127,6 +127,7 @@ It contains all getter and setter to simplify object manipulation.
    Object3d.VertexPrimitive
    Primitives.PolylineSegment
    Primitives.Polyline
+   Object3d.Padstack
 
 .. code:: python
 
@@ -205,11 +206,10 @@ It contains all getter and setter to simplify object manipulation.
    object3dlayout.Nets3DLayout
    object3dlayout.Pins3DLayout
    object3dlayout.Line3dLayout
-   object3dlayout.Polygons3dLayout
+   object3dlayout.Polygons3DLayout
    object3dlayout.Circle3dLayout
    object3dlayout.Rect3dLayout
    object3dlayout.Points3dLayout
-   object3dlayout.Padstack
    object3dlayout.Point
 
 .. code:: python

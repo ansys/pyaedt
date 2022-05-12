@@ -1,7 +1,6 @@
 import os
 import sys
 
-from pyaedt import is_ironpython
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -132,16 +131,13 @@ class Primitives3DLayout(object):
             Dictionary of geometries.
 
         """
-        if is_ironpython:  # pragma: no cover
-            geom = {}
-            for k, v in self.polygons.items():
-                geom[k] = v
-            for k, v in self.rectangles.items():
-                geom[k] = v
-            for k, v in self.lines.items():
-                geom[k] = v
-        else:
-            geom = {**self.polygons, **self.circles, **self.rectangles, **self.lines}
+        geom = {}
+        for k, v in self.polygons.items():
+            geom[k] = v
+        for k, v in self.rectangles.items():
+            geom[k] = v
+        for k, v in self.lines.items():
+            geom[k] = v
         return geom
 
     @property
@@ -284,14 +280,11 @@ class Primitives3DLayout(object):
             Nets Dictionary.
 
         """
-        if is_ironpython:  # pragma: no cover
-            n = {}
-            for k, v in self.power_nets.items():
-                n[k] = v
-            for k, v in self.signal_nets.items():
-                n[k] = v
-        else:
-            n = {**self.power_nets, **self.signal_nets}
+        n = {}
+        for k, v in self.power_nets.items():
+            n[k] = v
+        for k, v in self.signal_nets.items():
+            n[k] = v
         return n
 
     @property
