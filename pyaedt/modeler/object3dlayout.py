@@ -553,6 +553,8 @@ class Geometries3DLayout(Objec3DLayout, object):
 
 
 class Polygons3DLayout(Geometries3DLayout, object):
+    """Class for Hfss 3D Layout polygons management."""
+
     def __init__(self, primitives, name, prim_type="poly", is_void=False, id=0):
         Geometries3DLayout.__init__(self, primitives, name, prim_type, is_void, id)
         self._points = []
@@ -564,6 +566,8 @@ class Polygons3DLayout(Geometries3DLayout, object):
 
 
 class Circle3dLayout(Geometries3DLayout, object):
+    """Class for Hfss 3D Layout circles management."""
+
     def __init__(self, primitives, name, is_void=False, id=0):
         Geometries3DLayout.__init__(self, primitives, name, "circle", is_void, id)
 
@@ -613,6 +617,8 @@ class Circle3dLayout(Geometries3DLayout, object):
 
 
 class Rect3dLayout(Geometries3DLayout, object):
+    """Class for Hfss 3D Layout rectangles management."""
+
     def __init__(self, primitives, name, is_void=False, id=0):
         Geometries3DLayout.__init__(self, primitives, name, "rect", is_void, id)
 
@@ -898,10 +904,22 @@ class Points3dLayout(object):
 
     @property
     def is_arc(self):
+        """Either if the Point is an arc or not.
+
+        Returns
+        -------
+        bool
+        """
         return True if self.point.IsArc() != 0 else False
 
     @property
     def position(self):
+        """Points x and y coordinate.
+
+        Returns
+        -------
+        List
+        """
         if self.is_arc:
             return [self.point.GetX()]
         else:
@@ -909,7 +927,19 @@ class Points3dLayout(object):
 
     @pyaedt_function_handler()
     def move(self, new_position):
-        return self.point.Move(self._primitives.m_Editor.Point().Set(new_position[0], new_position[1]))
+        """Move actual point to new location.
+
+        Parameters
+        ----------
+        new_position : List
+            New point location.
+
+        Returns
+        -------
+
+        """
+        if self.point.Move(self._primitives.m_Editor.Point().Set(new_position[0], new_position[1])):
+            return True
 
 
 class Point(object):
