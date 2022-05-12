@@ -574,6 +574,12 @@ class Polygons3DLayout(Geometries3DLayout, object):
 
     @property
     def is_closed(self):
+        """Either if the Geometry is closed or not.
+
+        Returns
+        -------
+        bool
+        """
         obj = self.m_Editor.GetPolygon(self.name)
         return obj.IsClosed()
 
@@ -913,6 +919,8 @@ class Line3dLayout(Geometries3DLayout, object):
 
 
 class Points3dLayout(object):
+    """Class for Hfss 3D Layout Points management."""
+
     def __init__(self, primitives, point):
         self._primitives = primitives
         self.point = point
