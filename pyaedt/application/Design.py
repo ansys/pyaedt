@@ -342,7 +342,8 @@ class Design(object):
         self.__init__(
             projectname=project_name,
             designname=design_name,
-            solution_type=solution_type if solution_type else self.solution_type,
+            # solution_type=solution_type if solution_type else self.solution_type,
+            solution_type=solution_type,
             specified_version=settings.aedt_version,
             non_graphical=settings.non_graphical,
             new_desktop_session=False,
@@ -394,7 +395,6 @@ class Design(object):
         self._odesign = None
         self._oproject = None
         self._design_type = design_type
-
         if design_type == "HFSS":
             self.design_solutions = HFSSDesignSolution(None, design_type, self._aedt_version)
         elif design_type == "Icepak":
@@ -2747,7 +2747,7 @@ class Design(object):
         self._init_design(
             project_name=self.project_name if self.project_name else generate_unique_name("Project"),
             design_name=design_name,
-            solution_type=solution_type,
+            solution_type=solution_type if solution_type else self.solution_type,
         )
 
     def _insert_design(self, design_type, design_name=None):
