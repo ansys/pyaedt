@@ -158,6 +158,20 @@ class Setup(object):
         return True
 
     @pyaedt_function_handler()
+    def delete(self):
+        """Delete actual Setup.
+
+        Returns
+        -------
+        bool
+            `True` if setup is deleted. `False` if it failed.
+        """
+
+        self.omodule.DeleteSetups([self.name])
+        self._app.setups.remove(self)
+        return True
+
+    @pyaedt_function_handler()
     def _expression_cache(
         self,
         expression_list,

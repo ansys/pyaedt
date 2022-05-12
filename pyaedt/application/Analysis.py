@@ -928,21 +928,20 @@ class Analysis(Design, object):
 
             >>> oModule.GetAvailableVariations
             """
-            if not setup_sweep:
-                setup_sweep = self._app.existing_analysis_sweeps[0]
-            vs = self._app.osolution.GetAvailableVariations(setup_sweep)
+            vs = self.get_variation_strings(setup_sweep)
             families = []
-            for v in vs:
-                variations = v.split(" ")
-                family = []
-                for el in self.variables:
-                    family.append(el + ":=")
-                    i = 0
-                    while i < len(variations):
-                        if variations[i][0 : len(el)] == el:
-                            family.append([variations[i][len(el) + 2 : -1]])
-                        i += 1
-                families.append(family)
+            if vs:
+                for v in vs:
+                    variations = v.split(" ")
+                    family = []
+                    for el in self.variables:
+                        family.append(el + ":=")
+                        i = 0
+                        while i < len(variations):
+                            if variations[i][0 : len(el)] == el:
+                                family.append([variations[i][len(el) + 2 : -1]])
+                            i += 1
+                    families.append(family)
             return families
 
         @pyaedt_function_handler()
@@ -1709,3 +1708,120 @@ class Analysis(Design, object):
                     f1.write(line)
         f1.close()
         return self.odesktop.SubmitJob(os.path.join(project_path, "Job_settings.areg"), project_file)
+
+    @pyaedt_function_handler()
+    def _export_touchstone(
+        self, solution_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
+    ):
+        """Export the Touchstone file to a local folder.
+
+        Parameters
+        ----------
+        solution_name : str, optional
+            Name of the solution that has been solved.
+        sweep_name : str, optional
+            Name of the sweep that has been solved.
+            This parameter has to be ignored or set with same value as solution_name
+        file_name : str, optional
+            Full path and name for the Touchstone file. The default is ``None``,
+            which exports the file to the working directory.
+        variations : list, optional
+            List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
+            The default is ``None``.
+        variations_value : list, optional
+            List of all parameter variation values. For example, ``["22cel", "100"]``.
+            The default is ``None``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if variations is None:
+            variations = list(self.available_variations.nominal_w_values_dict.keys())
+            if variations_value is None:
+                variations_value = [str(x) for x in list(self.available_variations.nominal_w_values_dict.values())]
+
+        if solution_name is None:
+            nominal_sweep_list = [x.strip() for x in self.nominal_sweep.split(":")]
+            solution_name = nominal_sweep_list[0]
+        if self.design_type == "Circuit Design":
+            sweep_name = solution_name
+        else:
+            if sweep_name is None:
+                for sol in self.existing_analysis_sweeps:
+                    if solution_name == sol.split(":")[0].strip():
+                        sweep_name = sol.split(":")[1].strip()
+                        break
+
+        if self.design_type == "HFSS 3D Layout Design":
+            n = str(len(self.port_list))
+        else:
+            n = str(len(self.excitations))
+        # Normalize the save path
+        if not file_name:
+            appendix = ""
+            for v, vv in zip(variations, variations_value):
+                appendix += "_" + v + vv.replace("'", "")
+            ext = ".S" + n + "p"
+            filename = os.path.join(self.working_directory, solution_name + "_" + sweep_name + appendix + ext)
+        else:
+            filename = file_name.replace("//", "/").replace("\\", "/")
+        self.logger.info("Exporting Touchstone " + filename)
+        DesignVariations = ""
+        for i in range(len(variations)):
+            DesignVariations += str(variations[i]) + "='" + str(variations_value[i].replace("'", "")) + "' "
+            # DesignVariations = "$AmbientTemp=\'22cel\' $PowerIn=\'100\'"
+        # array containing "SetupName:SolutionName" pairs (note that setup and solution are separated by a colon)
+        SolutionSelectionArray = [solution_name + ":" + sweep_name]
+        # 2=tab delimited spreadsheet (.tab), 3= touchstone (.sNp), 4= CitiFile (.cit),
+        # 7=Matlab (.m), 8=Terminal Z0 spreadsheet
+        FileFormat = 3
+        OutFile = filename  # full path of output file
+        # array containin the frequencies to export, use ["all"] for all frequencies
+        FreqsArray = ["all"]
+        DoRenorm = True  # perform renormalization before export
+        RenormImped = 50  # Real impedance value in ohm, for renormalization
+        DataType = "S"  # Type: "S", "Y", or "Z" matrix to export
+        Pass = -1  # The pass to export. -1 = export all passes.
+        ComplexFormat = 0  # 0=Magnitude/Phase, 1=Real/Immaginary, 2=dB/Phase
+        DigitsPrecision = 15  # Touchstone number of digits precision
+        IncludeGammaImpedance = True  # Include Gamma and Impedance in comments
+        NonStandardExtensions = False  # Support for non-standard Touchstone extensions
+
+        if self.design_type == "HFSS":
+            self.osolution.ExportNetworkData(
+                DesignVariations,
+                SolutionSelectionArray,
+                FileFormat,
+                OutFile,
+                FreqsArray,
+                DoRenorm,
+                RenormImped,
+                DataType,
+                Pass,
+                ComplexFormat,
+                DigitsPrecision,
+                False,
+                IncludeGammaImpedance,
+                NonStandardExtensions,
+            )
+        else:
+            self.odesign.ExportNetworkData(
+                DesignVariations,
+                SolutionSelectionArray,
+                FileFormat,
+                OutFile,
+                FreqsArray,
+                DoRenorm,
+                RenormImped,
+                DataType,
+                Pass,
+                ComplexFormat,
+                DigitsPrecision,
+                False,
+                IncludeGammaImpedance,
+                NonStandardExtensions,
+            )
+        self.logger.info("Touchstone correctly exported to %s", filename)
+        return True
