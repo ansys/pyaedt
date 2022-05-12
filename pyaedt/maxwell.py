@@ -472,6 +472,48 @@ class Maxwell(object):
         return True
 
     @pyaedt_function_handler()
+    def setup_y_connection(self, windings_name=None):
+        """Setup the y connection.
+
+        Parameters
+        ----------
+        winding_name : list, optional
+            List of windings. For instance ["PhaseA", "PhaseB", "PhaseC"].
+            The default value is ``None``. In that case the design have none Y connection.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful and ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.SetupYConnection
+
+        Examples
+        --------
+        Setup Y Connection for three existing windings respectively named ``PhaseA``, ``PhaseB``, ``PhaseC``.
+        This will create one ``YConnection`` group containing those 3 phases.
+
+        >>> from pyaedt import Maxwell2d
+        >>> aedtapp = Maxwell2d("Motor_EM_R2019R3.aedt")
+        >>> aedtapp.set_active_design("Basis_Model_For_Test")
+        >>> aedtapp.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
+        """
+
+        if windings_name:
+            connection = ["NAME:YConnection"]
+            connection.append("Windings:=")
+            connection.append(",".join(windings_name))
+            windings = ["NAME:YConnection"]
+            windings.append(connection)
+            self.oboundary.SetupYConnection(windings)
+        else:
+            self.oboundary.SetupYConnection()
+        return True
+
+    @pyaedt_function_handler()
     def assign_current(self, object_list, amplitude=1, phase="0deg", solid=True, swap_direction=False, name=None):
         """Assign the source of the current.
 
