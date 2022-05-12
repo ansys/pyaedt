@@ -35,7 +35,13 @@ class TestClass(BasisTest, object):
         assert len(comp) > 0
         assert comp["L3A1"].object_units == "mm"
         assert comp["L3A1"].angle == "0deg"
-        assert comp["L3A1"].location[1] == 0.0381
+        comp["L3A1"].angle = "90deg"
+        assert comp["L3A1"].angle == "90deg"
+        comp["L3A1"].angle = "0deg"
+        assert comp["L3A1"].location[0] == 0.0
+        comp["L3A1"].location = [1.0, 0.0]
+        assert comp["L3A1"].location[0] == 1.0
+        comp["L3A1"].location = [0.0, 0.0]
         assert comp["L3A1"].placement_layer == "TOP"
         assert comp["L3A1"].part == "A32422-019"
         assert comp["L3A1"].part_type == "Inductor"
@@ -52,31 +58,78 @@ class TestClass(BasisTest, object):
 
     def test_02a_get_geometries(self):
         line = self.aedtapp.modeler.geometries["line_1983"]
+        assert line.edges
+        assert line.points
+        poly = self.aedtapp.modeler.geometries["poly_208"]
+        assert poly.edges
+        assert poly.points
+        assert poly.bottom_edge_x == 1
+        assert poly.bottom_edge_y == 7
+        assert poly.top_edge_x == 13
+        assert poly.top_edge_y == 18
+        assert poly.placement_layer == "TOP"
+        assert poly.net_name == "GND"
+        assert not poly.negative
+        assert not poly.is_void
+        assert not poly.lock_position
+        assert poly.is_closed
         assert len(self.aedtapp.modeler.geometries) > 0
+        rect = self.aedtapp.modeler.rectangles["rect_30091"]
+        assert rect.point_a
+        assert rect.point_b
+        assert rect.two_point_description
+        assert not rect.center
+        rect.two_point_description = False
+        assert rect.center
+        assert rect.height
+        rect.two_point_description = True
+        assert rect.point_a
+        circle = self.aedtapp.modeler.circles["circle_30092"]
+        assert circle.center
+        assert circle.radius
+        circle.radius = "2.5mm"
+        assert circle.radius == "2.5mm"
 
     def test_02b_geo_units(self):
         assert self.aedtapp.modeler.geometries["line_1983"].object_units == "mm"
 
     def test_02c_geo_layer(self):
-        assert self.aedtapp.modeler.geometries["line_1983"].get_placement_layer()
+        assert self.aedtapp.modeler.geometries["line_1983"].placement_layer
         assert len(self.aedtapp.modeler.layers.drawing_layers) > 0
 
     def test_02d_geo_lock(self):
-        assert self.aedtapp.modeler.geometries["line_1983"].set_lock_position(True)
-        assert self.aedtapp.modeler.geometries["line_1983"].set_lock_position(False)
+        self.aedtapp.modeler.geometries["line_1983"].lock_position = True
+        assert self.aedtapp.modeler.geometries["line_1983"].lock_position == True
+        self.aedtapp.modeler.geometries["line_1983"].lock_position = False
+        assert self.aedtapp.modeler.geometries["line_1983"].lock_position == False
 
     def test_02e_geo_setter(self):
-        assert self.aedtapp.modeler.geometries["line_1983"].set_layer("PWR")
-        assert self.aedtapp.modeler.geometries["line_1983"].set_net_name("VCC")
+        self.aedtapp.modeler.geometries["line_1983"].layer = "PWR"
+        assert self.aedtapp.modeler.geometries["line_1983"].layer == "PWR"
+        self.aedtapp.modeler.geometries["line_1983"].net_name = "VCC"
+        assert self.aedtapp.modeler.geometries["line_1983"].net_name == "VCC"
 
     def test_03_get_pins(self):
         pins = self.aedtapp.modeler.pins
         assert len(pins) > 0
         assert pins["L3A1-1"].object_units == "mm"
+        assert pins["L3A1-1"].componentname == "L3A1"
+        assert pins["L3A1-1"].is_pin
         assert pins["L3A1-1"].angle == "180deg"
         assert pins["L3A1-1"].location[0] > 0
         assert pins["L3A1-1"].start_layer == "TOP"
         assert pins["L3A1-1"].stop_layer == "TOP"
+
+    def test_03B_get_vias(self):
+        vias = self.aedtapp.modeler.vias
+        assert len(vias) > 0
+        assert vias["via_3795"].object_units == "mm"
+        assert not vias["via_3795"].is_pin
+        assert vias["via_3795"].angle == "90deg"
+        assert vias["via_3795"].location[0] > 0
+        assert vias["via_3795"].start_layer == "TOP"
+        assert vias["via_3795"].stop_layer == "BOTTOM"
+        assert vias["via_3795"].holediam == "10mil"
 
     def test_04_add_mesh_operations(self):
         self.aedtapp.create_setup("HFSS")

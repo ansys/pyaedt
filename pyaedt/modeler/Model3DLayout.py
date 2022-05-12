@@ -2,7 +2,6 @@ import os
 import re
 from warnings import warn
 
-import pyaedt.modeler.object3dlayout
 from pyaedt import settings
 from pyaedt.edb import Edb
 from pyaedt.generic.general_methods import _pythonver
@@ -14,7 +13,6 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.object3dlayout import ComponentsSubCircuit3DLayout
-from pyaedt.modeler.object3dlayout import Geometries3DLayout
 from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
 from pyaedt.modules.LayerStackup import Layers
 
@@ -388,6 +386,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 self.arg_with_dim(tolerance),
             ]
         )
+
         return True
 
     @pyaedt_function_handler()
@@ -433,18 +432,15 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         layer = _retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, "PlacementLayer")
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
-        geom_names = self.oeditor.FindObjectsByPoint(pyaedt.modeler.object3dlayout.Point().Set(pos[0], pos[1]), layer)
+        geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
         self.oeditor.Expand(self.arg_with_dim(size), expand_type, replace_original, ["NAME:elements", object_to_expand])
+        self._init_prims()
         if not replace_original:
             new_geom_names = [
                 i
-                for i in self.oeditor.FindObjectsByPoint(
-                    pyaedt.modeler.object3dlayout.Point().Set(pos[0], pos[1]), layer
-                )
+                for i in self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
                 if i not in geom_names
             ]
-            if self.is_outside_desktop:
-                self._geometries[new_geom_names[0]] = Geometries3DLayout(self, new_geom_names[0])
             return new_geom_names[0]
         return object_to_expand
 
@@ -568,13 +564,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             vArg1.append(tool)
         if self.oeditor is not None:
             self.oeditor.Subtract(vArg1)
-        if isinstance(tool, list):
-            for el in tool:
-                if self.is_outside_desktop:
-                    self._geometries.pop(el)
-        else:
-            if self.is_outside_desktop:
-                self._geometries.pop(tool)
+        self._init_prims()
         return True
 
     @pyaedt_function_handler()
@@ -601,10 +591,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             for el in objectlists:
                 vArg1.append(el)
             self.oeditor.Unite(vArg1)
-            for el in objectlists:
-                if not self.oeditor.FindObjects("Name", el):
-                    if self.is_outside_desktop:
-                        self._geometries.pop(el)
+            self._init_prims()
             return True
         else:
             self.logger.error("Input list must contain at least two elements.")
@@ -634,10 +621,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             for el in objectlists:
                 vArg1.append(el)
             self.oeditor.Intersect(vArg1)
-            for el in objectlists:
-                if not self.oeditor.FindObjects("Name", el):
-                    if self.is_outside_desktop:
-                        self._geometries.pop(el)
+            self._init_prims()
             return True
         else:
             self.logger.error("Input list must contain at least two elements.")
@@ -671,6 +655,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.oeditor.Duplicate(
             ["NAME:options", "count:=", count], ["NAME:elements", ",".join(objectlists)], direction_vector
         )
+        self._init_prims()
         return True
 
     @pyaedt_function_handler()
