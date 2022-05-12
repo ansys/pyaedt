@@ -2,6 +2,7 @@ import os
 import re
 from warnings import warn
 
+import pyaedt.modeler.object3dlayout
 from pyaedt import settings
 from pyaedt.edb import Edb
 from pyaedt.generic.general_methods import _pythonver
@@ -12,8 +13,8 @@ from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Modeler import Modeler
-from pyaedt.modeler.Object3d import ComponentsSubCircuit3DLayout
-from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout
+from pyaedt.modeler.object3dlayout import ComponentsSubCircuit3DLayout
+from pyaedt.modeler.object3dlayout import Geometries3DLayout
 from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
 from pyaedt.modules.LayerStackup import Layers
 
@@ -432,12 +433,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         layer = _retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, "PlacementLayer")
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
-        geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
+        geom_names = self.oeditor.FindObjectsByPoint(pyaedt.modeler.object3dlayout.Point().Set(pos[0], pos[1]), layer)
         self.oeditor.Expand(self.arg_with_dim(size), expand_type, replace_original, ["NAME:elements", object_to_expand])
         if not replace_original:
             new_geom_names = [
                 i
-                for i in self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
+                for i in self.oeditor.FindObjectsByPoint(
+                    pyaedt.modeler.object3dlayout.Point().Set(pos[0], pos[1]), layer
+                )
                 if i not in geom_names
             ]
             if self.is_outside_desktop:
@@ -799,7 +802,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     pinNames.remove(pinNames[0])
                     pinNames.remove(pinNames[0])
                     break
-        componentPins = [i.GetName() for i in self.edb.core_components.get_pin_from_component(component_name)]
+        componentPins = self.components[component_name].pins
         componentPins.reverse()
         if not pin_map:
             pin_map = []

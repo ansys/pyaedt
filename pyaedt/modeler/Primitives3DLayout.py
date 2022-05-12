@@ -1,34 +1,31 @@
 import os
 import sys
-import warnings
 
 from pyaedt.generic.general_methods import _retry_ntimes
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import _uname
-from pyaedt.modeler.Object3d import Circle3dLayout
-from pyaedt.modeler.Object3d import Components3DLayout
-from pyaedt.modeler.Object3d import ComponentsSubCircuit3DLayout
-from pyaedt.modeler.Object3d import Geometries3DLayout
-from pyaedt.modeler.Object3d import Line3dLayout
-from pyaedt.modeler.Object3d import Nets3DLayout
 from pyaedt.modeler.Object3d import Padstack
-from pyaedt.modeler.Object3d import Pins3DLayout
-from pyaedt.modeler.Object3d import Polygons3DLayout
-from pyaedt.modeler.Object3d import Rect3dLayout
+from pyaedt.modeler.object3dlayout import Circle3dLayout
+from pyaedt.modeler.object3dlayout import Components3DLayout
+from pyaedt.modeler.object3dlayout import ComponentsSubCircuit3DLayout
+from pyaedt.modeler.object3dlayout import Line3dLayout
+from pyaedt.modeler.object3dlayout import Nets3DLayout
+from pyaedt.modeler.object3dlayout import Pins3DLayout
+from pyaedt.modeler.object3dlayout import Polygons3DLayout
+from pyaedt.modeler.object3dlayout import Rect3dLayout
 from pyaedt.modeler.Primitives import default_materials
 
 # import pkgutil
 # modules = [tup[1] for tup in pkgutil.iter_modules()]
 # if "clr" in modules or is_ironpython:
-try:
-    import clr
-    from System import String
-    import System
-except ImportError:
-    if os.name != "posix":
-        warnings.warn("Pythonnet has to be installed to run Pyaedt")
+# try:
+#     import clr
+#     from System import String
+#     import System
+# except ImportError:
+#     if os.name != "posix":
+#         warnings.warn("Pythonnet has to be installed to run Pyaedt")
 
 
 class Primitives3DLayout(object):
@@ -84,6 +81,8 @@ class Primitives3DLayout(object):
         self._polygons = {}
         self._pins = {}
         self._nets = {}
+        self._power_nets = {}
+        self._signal_nets = {}
 
     @property
     def _modeler(self):
@@ -106,18 +105,15 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        list
-            List of components from EDB. If EDB is not present, ``None`` is returned.
+        List of :class:`pyaedt.modeler.object3dlayout.Components3dLayout`
+            List of components
 
         """
-        if not self._app.project_timestamp_changed and self._components:
+        if self._components:
             return self._components
-        try:
-            comps = list(self.modeler.edb.core_components.components.keys())
-        except:
-            comps = []
-        for el in comps:
-            self._components[el] = Components3DLayout(self, el, self.modeler.edb.core_components.components[el])
+        objs = self.modeler.oeditor.FindObjects("Type", "component")
+        for obj in objs:
+            self._components[obj] = Components3DLayout(self, obj)
         return self._components
 
     @property
@@ -144,7 +140,7 @@ class Primitives3DLayout(object):
         """
         if self._polygons:
             return self._polygons
-        poly_types = ["poly", "arc", "plg"]
+        poly_types = ["poly", "plg"]
         for poly in poly_types:
             objs = self.modeler.oeditor.FindObjects("Type", poly)
             for obj in objs:
@@ -164,14 +160,17 @@ class Primitives3DLayout(object):
             List of polygons, args and plg.
 
         """
+
         if self._lines:
             return self._lines
-        objs = self.modeler.oeditor.FindObjects("Type", "line")
-        for obj in objs:
-            self._lines[obj] = Line3dLayout(self, obj, False)
-        objs = self.modeler.oeditor.FindObjects("Type", "line void")
-        for obj in objs:
-            self._lines[obj] = Line3dLayout(self, obj, True)
+        poly_types = ["line", "arc"]
+        for poly in poly_types:
+            objs = self.modeler.oeditor.FindObjects("Type", poly)
+            for obj in objs:
+                self._lines[obj] = Line3dLayout(self, obj, False)
+            objs = self.modeler.oeditor.FindObjects("Type", poly + " void")
+            for obj in objs:
+                self._lines[obj] = Line3dLayout(self, obj, True)
         return self._lines
 
     @property
@@ -241,28 +240,11 @@ class Primitives3DLayout(object):
             List of pins from EDB. If EDB is not present, ``None`` is returned.
 
         """
-        if not self._app.project_timestamp_changed and self._pins:
+        if self._pins:
             return self._pins
-        try:
-            pins_objs = list(self.modeler.edb.pins)
-        except:
-            pins_objs = []
-        for el in pins_objs:
-            if is_ironpython:
-                name = clr.Reference[System.String]()
-                try:
-                    response = el.GetProductProperty(0, 11, name)
-                except:
-                    name = ""
-            else:
-                val = String("")
-                try:
-                    response, name = el.GetProductProperty(0, 11, val)
-                except:
-                    name = ""
-            if str(name):
-                name = str(name).strip("'")
-                self._pins[name] = Pins3DLayout(self, el.GetComponent().GetName(), el.GetName(), name)
+        objs = self.modeler.oeditor.FindObjects("Type", "pin")
+        for obj in objs:
+            self._pins[obj] = Pins3DLayout(self, obj)
         return self._pins
 
     @property
@@ -275,12 +257,43 @@ class Primitives3DLayout(object):
             List of nets from EDB. If EDB is not present, ``None`` is returned.
 
         """
-        if not self._app.project_timestamp_changed and self._nets:
-            return self._nets
-        self._nets = {}
-        for net, net_object in self.modeler.edb.core_nets.nets.items():
-            self._nets[net] = Nets3DLayout(self, net, net_object)
-        return self._nets
+        return {**self.power_nets, **self.signal_nets}
+
+    @property
+    def power_nets(self):
+        """Nets.
+
+        Returns
+        -------
+        list
+            List of nets from EDB. If EDB is not present, ``None`` is returned.
+
+        """
+        if self._power_nets:
+            return self._power_nets
+
+        objs = self.modeler.oeditor.GetNetClassNets("<Power/Ground>")
+        for obj in objs:
+            self._power_nets[obj] = Nets3DLayout(self, obj)
+        return self._power_nets
+
+    @property
+    def signal_nets(self):
+        """Nets.
+
+        Returns
+        -------
+        list
+            List of nets from EDB. If EDB is not present, ``None`` is returned.
+
+        """
+        if self._signal_nets:
+            return self._signal_nets
+
+        objs = self.modeler.oeditor.GetNetClassNets("Non Power/Ground")
+        for obj in objs:
+            self._signal_nets[obj] = Nets3DLayout(self, obj)
+        return self._signal_nets
 
     @property
     def defaultmaterial(self):
@@ -593,10 +606,7 @@ class Primitives3DLayout(object):
         vArg2.append("r:="), vArg2.append(self.arg_with_dim(radius))
         vArg1.append(vArg2)
         self._oeditor.CreateCircle(vArg1)
-        if self.is_outside_desktop:
-            self._geometries[name] = Geometries3DLayout(self, name, "circle")
-            if netname:
-                self._geometries[name].set_net_name(netname)
+        self._circles[name] = Circle3dLayout(self, name, False)
         return name
 
     @pyaedt_function_handler()
@@ -652,10 +662,7 @@ class Primitives3DLayout(object):
         vArg2.append("ang="), vArg2.append(self.arg_with_dim(angle))
         vArg1.append(vArg2)
         self._oeditor.CreateRectangle(vArg1)
-        if self.is_outside_desktop:
-            self._geometries[name] = Geometries3DLayout(self, name, "rect")
-            if netname:
-                self._geometries[name].set_net_name(netname)
+        self._rectangles[name] = Rect3dLayout(self, name, False)
         return name
 
     @pyaedt_function_handler()
@@ -728,10 +735,7 @@ class Primitives3DLayout(object):
             arg2.append(a[1])
         arg.append(arg2)
         self._oeditor.CreateLine(arg)
-        if self.is_outside_desktop:
-            self._geometries[name] = Geometries3DLayout(self, name, "line")
-            if netname:
-                self._geometries[name].set_net_name(netname)
+        self._lines[name] = Line3dLayout(self, name, False)
         return name
 
     @pyaedt_function_handler()
