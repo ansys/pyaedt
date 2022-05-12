@@ -1519,17 +1519,27 @@ class DataSet(object):
             x, y, z, v = (list(t) for t in zip(*sorted(zip(self.x, self.y, self.z, self.v), key=lambda e: float(e[0]))))
         else:
             x, y = (list(t) for t in zip(*sorted(zip(self.x, self.y), key=lambda e: float(e[0]))))
+
         for i in range(len(x)):
-            arg3 = []
-            arg3.append("NAME:Coordinate")
-            arg4 = ["NAME:CoordPoint"]
-            arg4.append(float(x[i]))
-            arg4.append(float(y[i]))
-            if self.z and self.name[0] == "$":
-                arg4.append(float(z[i]))
-                arg4.append(float(v[i]))
-            arg3.append(arg4)
-            arg2.append(arg3)
+            if self._app._aedt_version >= "2022.1":
+                arg3 = ["NAME:Point"]
+                arg3.append(float(x[i]))
+                arg3.append(float(y[i]))
+                if self.z and self.name[0] == "$":
+                    arg3.append(float(z[i]))
+                    arg3.append(float(v[i]))
+                arg2.append(arg3)
+            else:
+                arg3 = []
+                arg3.append("NAME:Coordinate")
+                arg4 = ["NAME:CoordPoint"]
+                arg4.append(float(x[i]))
+                arg4.append(float(y[i]))
+                if self.z and self.name[0] == "$":
+                    arg4.append(float(z[i]))
+                    arg4.append(float(v[i]))
+                arg3.append(arg4)
+                arg2.append(arg3)
         arg.append(arg2)
         return arg
 

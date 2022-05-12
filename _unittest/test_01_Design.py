@@ -188,6 +188,29 @@ class TestClass(BasisTest, object):
         assert ds.add_point(300, 0.8)
         assert len(ds.x) == xl + 1
 
+    def test_19_import_dataset1d(self):
+        filename = os.path.join(local_path, "example_models", "ds_1d.tab")
+        ds4 = self.aedtapp.import_dataset1d(filename)
+        assert ds4.name == "$ds_1d"
+        ds5 = self.aedtapp.import_dataset1d(filename, dsname="dataset_test", is_project_dataset=False)
+        assert ds5.name == "dataset_test"
+        ds6 = self.aedtapp.import_dataset1d(filename, dsname="$dataset_test2")
+        assert ds6.name == "$dataset_test2"
+        ds7 = self.aedtapp.import_dataset1d(filename)
+        assert not ds7
+        assert ds4.delete()
+        assert self.aedtapp.import_dataset1d(filename)
+
+    def test_19_import_dataset3d(self):
+        filename = os.path.join(local_path, "example_models", "ds_3d.tab")
+        ds8 = self.aedtapp.import_dataset3d(filename)
+        assert ds8.name == "$ds_3d"
+        ds9 = self.aedtapp.import_dataset3d(filename, dsname="dataset_test")
+        assert ds9.name == "$dataset_test"
+        assert ds9.delete()
+        ds10 = self.aedtapp.import_dataset3d(filename, dsname="$dataset_test")
+        assert ds10.vunit == "m_per_sec"
+
     def test_20_get_3dComponents_properties(self):
         assert len(self.aedtapp.components3d) > 0
         props = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
