@@ -109,12 +109,14 @@ class Objec3DLayout(object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Angle")
+        if self.prim_type in ["component", "pin", "via"]:
+            return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Angle")
 
     @angle.setter
     def angle(self, value):
-        vMaterial = ["NAME:Angle", "Value:=", value]
-        self.change_property(vMaterial)
+        if self.prim_type in ["component", "pin", "via"]:
+            vMaterial = ["NAME:Angle", "Value:=", value]
+            self.change_property(vMaterial)
 
     @property
     def net_name(self):
@@ -130,12 +132,14 @@ class Objec3DLayout(object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Net")
+        if self.prim_type not in ["component"]:
+            return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Net")
 
     @net_name.setter
     def net_name(self, netname=""):
-        vMaterial = ["NAME:Net", "Value:=", netname]
-        self.change_property(vMaterial)
+        if self.prim_type not in ["component"]:
+            vMaterial = ["NAME:Net", "Value:=", netname]
+            self.change_property(vMaterial)
 
     @property
     def placement_layer(self):
@@ -151,12 +155,14 @@ class Objec3DLayout(object):
 
         >>> oEditor.GetPropertyValue
         """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
+        if self.prim_type not in ["pin", "via"]:
+            return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
 
     @placement_layer.setter
     def placement_layer(self, layer_name):
-        vMaterial = ["NAME:PlacementLayer", "Value:=", layer_name]
-        self.change_property(vMaterial)
+        if self.prim_type not in ["pin", "via"]:
+            vMaterial = ["NAME:PlacementLayer", "Value:=", layer_name]
+            self.change_property(vMaterial)
 
     @property
     def location(self):
@@ -172,7 +178,7 @@ class Objec3DLayout(object):
 
         >>> oEditor.GetPropertyValue
         """
-        if self.prim_type not in ["rect"]:
+        if self.prim_type in ["component", "pin", "via"]:
             location = _retry_ntimes(
                 self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location"
             ).split(",")
@@ -188,7 +194,7 @@ class Objec3DLayout(object):
 
     @location.setter
     def location(self, position):
-        if self.prim_type not in ["rect"]:
+        if self.prim_type in ["component", "pin", "via"]:
             props = ["NAME:Location", "X:=", str(position[0]), "Y:=", str(position[0])]
             self.change_property(props)
 
@@ -405,7 +411,7 @@ class Geometries3DLayout(Objec3DLayout, object):
 
     @property
     def points(self):
-        """Provide the polygon points.
+        """Provide the polygon points. For Lines it returns the center line.
 
         Returns
         -------
