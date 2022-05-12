@@ -20,10 +20,11 @@ class Objec3DLayout(object):
     primitives : :class:`pyaedt.modeler.Model3DLayout.Modeler3dLayout`
     """
 
-    def __init__(self, primitives):
+    def __init__(self, primitives, prim_type=None):
         self._primitives = primitives
         self.m_Editor = self._primitives._oeditor
         self._n = 10
+        self.prim_type = prim_type
 
     @property
     def object_units(self):
@@ -170,21 +171,25 @@ class Objec3DLayout(object):
 
         >>> oEditor.GetPropertyValue
         """
-        location = _retry_ntimes(
-            self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location"
-        ).split(",")
-        l = []
-        for i in location:
-            try:
-                l.append(float(i))
-            except ValueError:
-                l.append(i)
-        return l
+        if self.prim_type not in ["rect"]:
+            location = _retry_ntimes(
+                self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location"
+            ).split(",")
+            l = []
+            for i in location:
+                try:
+                    l.append(float(i))
+                except ValueError:
+                    l.append(i)
+            return l
+        else:
+            return None
 
     @location.setter
     def location(self, position):
-        props = ["NAME:Location", "X:=", str(position[0]), "Y:=", str(position[0])]
-        self.change_property(props)
+        if self.prim_type not in ["rect"]:
+            props = ["NAME:Location", "X:=", str(position[0]), "Y:=", str(position[0])]
+            self.change_property(props)
 
     @property
     def lock_position(self):
@@ -221,7 +226,7 @@ class Components3DLayout(Objec3DLayout, object):
     """Contains components in HFSS 3D Layout."""
 
     def __init__(self, primitives, name="", edb_object=None):
-        Objec3DLayout.__init__(self, primitives)
+        Objec3DLayout.__init__(self, primitives, "component")
         self.name = name
         self.edb_object = edb_object
 
@@ -324,7 +329,7 @@ class Pins3DLayout(Objec3DLayout, object):
     """Contains the pins in HFSS 3D Layout."""
 
     def __init__(self, primitives, name="", component_name=None, is_pin=True):
-        Objec3DLayout.__init__(self, primitives)
+        Objec3DLayout.__init__(self, primitives, "pin" if is_pin else "via")
         self.componentname = "-".join(name.split("-")[:-1]) if not component_name else component_name
         self.name = name
         self.is_pin = is_pin
@@ -382,10 +387,9 @@ class Geometries3DLayout(Objec3DLayout, object):
     """Contains geometries in HFSS 3D Layout."""
 
     def __init__(self, primitives, name, prim_type="poly", is_void=False, id=0):
-        Objec3DLayout.__init__(self, primitives)
+        Objec3DLayout.__init__(self, primitives, prim_type)
         self.name = name
         self.id = id
-        self.prim_type = prim_type
         self.is_void = is_void
 
     @property
@@ -433,7 +437,7 @@ class Geometries3DLayout(Objec3DLayout, object):
                         break
         xpoints = list(points[1::4])
         ypoints = list(points[3::4])
-        if self.prim_type != "line":
+        if self.prim_type not in ["rect", "line"]:
             xt, yt = GeometryOperators.orient_polygon(xpoints, ypoints, clockwise=False)
         else:
             xt, yt = xpoints, ypoints
@@ -451,6 +455,8 @@ class Geometries3DLayout(Objec3DLayout, object):
                 else:
                     edges.append([p1, [x, y]])
                     p1 = [x, y]
+        if self.prim_type == "rect":
+            edges = [edges[2], edges[3], edges[0], edges[1]]
         return edges
 
     @property
@@ -1183,7 +1189,7 @@ class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
     """
 
     def __init__(self, primitives, name=""):
-        Objec3DLayout.__init__(self, primitives)
+        Objec3DLayout.__init__(self, primitives, "component")
         self.name = name
 
     @property
