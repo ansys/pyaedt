@@ -182,13 +182,13 @@ class Objec3DLayout(object):
             location = _retry_ntimes(
                 self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location"
             ).split(",")
-            l = []
+            locs = []
             for i in location:
                 try:
-                    l.append(float(i))
+                    locs.append(float(i))
                 except ValueError:
-                    l.append(i)
-            return l
+                    locs.append(i)
+            return locs
         else:
             return None
 
@@ -568,8 +568,8 @@ class Geometries3DLayout(Objec3DLayout, object):
 class Polygons3DLayout(Geometries3DLayout, object):
     """Class for Hfss 3D Layout polygons management."""
 
-    def __init__(self, primitives, name, prim_type="poly", is_void=False, id=0):
-        Geometries3DLayout.__init__(self, primitives, name, prim_type, is_void, id)
+    def __init__(self, primitives, name, prim_type="poly", is_void=False):
+        Geometries3DLayout.__init__(self, primitives, name, prim_type, is_void)
         self._points = []
 
     @property
@@ -587,8 +587,8 @@ class Polygons3DLayout(Geometries3DLayout, object):
 class Circle3dLayout(Geometries3DLayout, object):
     """Class for Hfss 3D Layout circles management."""
 
-    def __init__(self, primitives, name, is_void=False, id=0):
-        Geometries3DLayout.__init__(self, primitives, name, "circle", is_void, id)
+    def __init__(self, primitives, name, is_void=False):
+        Geometries3DLayout.__init__(self, primitives, name, "circle", is_void)
 
     @property
     def center(self):
@@ -638,8 +638,8 @@ class Circle3dLayout(Geometries3DLayout, object):
 class Rect3dLayout(Geometries3DLayout, object):
     """Class for Hfss 3D Layout rectangles management."""
 
-    def __init__(self, primitives, name, is_void=False, id=0):
-        Geometries3DLayout.__init__(self, primitives, name, "rect", is_void, id)
+    def __init__(self, primitives, name, is_void=False):
+        Geometries3DLayout.__init__(self, primitives, name, "rect", is_void)
 
     @property
     def corner_radius(self):
@@ -813,8 +813,8 @@ class Rect3dLayout(Geometries3DLayout, object):
 class Line3dLayout(Geometries3DLayout, object):
     """Class for Hfss 3D Layout lines management."""
 
-    def __init__(self, primitives, name, is_void=False, id=0):
-        Geometries3DLayout.__init__(self, primitives, name, "line", is_void, id)
+    def __init__(self, primitives, name, is_void=False):
+        Geometries3DLayout.__init__(self, primitives, name, "line", is_void)
         self._points = []
 
     @property
