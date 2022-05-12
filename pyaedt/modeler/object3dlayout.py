@@ -59,7 +59,7 @@ class Objec3DLayout(object):
         >>> oEditor.ChangeProperty
         """
         vChangedProps = ["NAME:ChangedProps", property_val]
-        if names_list:
+        if names_list:  # pragma: no cover
             vPropServers = ["NAME:PropServers"]
             for el in names_list:
                 vPropServers.append(el)
@@ -186,7 +186,7 @@ class Objec3DLayout(object):
             for i in location:
                 try:
                     locs.append(float(i))
-                except ValueError:
+                except ValueError:  # pragma: no cover
                     locs.append(i)
             return locs
         else:
@@ -393,10 +393,9 @@ class Pins3DLayout(Objec3DLayout, object):
 class Geometries3DLayout(Objec3DLayout, object):
     """Contains geometries in HFSS 3D Layout."""
 
-    def __init__(self, primitives, name, prim_type="poly", is_void=False, id=0):
+    def __init__(self, primitives, name, prim_type="poly", is_void=False):
         Objec3DLayout.__init__(self, primitives, prim_type)
         self.name = name
-        self.id = id
         self.is_void = is_void
 
     @property
@@ -1165,32 +1164,6 @@ class Point(object):
     @pyaedt_function_handler()
     def _change_property(self, vPropChange):
         return self._primitives._change_point_property(vPropChange, self.name)
-
-    def __str__(self):
-        return """
-         {}
-         name: {}    id: {}    object_type: {}
-         --- read/write properties  ----
-         solve_inside: {}
-         model: {}
-         material_name: {}
-         color: {}
-         transparency: {}
-         display_wireframe {}
-         part_coordinate_system: {}
-         """.format(
-            type(self),
-            self.name,
-            self.id,
-            self.object_type,
-            self.solve_inside,
-            self.model,
-            self.material_name,
-            self.color,
-            self.transparency,
-            self.display_wireframe,
-            self.part_coordinate_system,
-        )
 
 
 class ComponentsSubCircuit3DLayout(Objec3DLayout, object):

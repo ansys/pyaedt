@@ -60,6 +60,8 @@ class TestClass(BasisTest, object):
         line = self.aedtapp.modeler.geometries["line_1983"]
         assert line.edges
         assert line.points
+        assert line.points
+        assert line.is_closed
         poly = self.aedtapp.modeler.geometries["poly_208"]
         assert poly.edges
         assert poly.points
@@ -68,6 +70,9 @@ class TestClass(BasisTest, object):
         assert poly.top_edge_x == 13
         assert poly.top_edge_y == 18
         assert poly.placement_layer == "TOP"
+        poly.placement_layer = "BOTTOM"
+        assert poly.placement_layer == "BOTTOM"
+        poly.placement_layer = "TOP"
         assert poly.net_name == "GND"
         assert not poly.negative
         assert not poly.is_void
@@ -154,6 +159,7 @@ class TestClass(BasisTest, object):
         nets = self.aedtapp.modeler.nets
         assert nets["GND"].name == "GND"
         assert len(nets) > 0
+        assert nets["GND"].components > 0
 
     def test_08_merge(self):
         tol = 1e-12
