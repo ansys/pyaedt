@@ -25,6 +25,7 @@ class Objec3DLayout(object):
         self.m_Editor = self._primitives._oeditor
         self._n = 10
         self.prim_type = prim_type
+        self._points = []
 
     @property
     def object_units(self):
