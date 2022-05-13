@@ -12,6 +12,7 @@ LAYERS = {"s": "signal", "g": "ground", "d": "dielectric"}
 class Layer3D(object):
     def __init__(
         self,
+        stackup,
         app,
         name,
         layer_type="S",
@@ -19,7 +20,11 @@ class Layer3D(object):
         thickness=0.035,
         fill_material="FR4_epoxy",
         layer_position="layer_1_position",
+        index=1,
     ):
+        self._stackup = stackup
+        self._layer_position = layer_position
+        self._index = index
         self._app = app
         self._name = name
         layer_type = LAYERS.get(layer_type.lower())
@@ -60,7 +65,6 @@ class Layer3D(object):
                     name=self._name,
                     matname=self._material_name,
                 )
-
         elif layer_type == "signal":
             if thickness:
                 obj_3d = self._app.modeler.primitives.create_box(
@@ -93,7 +97,25 @@ class Layer3D(object):
 
     @property
     def thickness(self):
-        return self._app[self._thickness_variable]
+        return self._app.variable_manager[self._thickness_variable].value
+
+    @property
+    def elevation(self):
+        return self._app.variable_manager[self._layer_position].value
+
+    @property
+    def thickness_expression(self):
+        try:
+            return self._app.variable_manager[self._thickness_variable].expression
+        except:
+            return self._app.variable_manager[self._thickness_variable].string_value
+
+    @property
+    def elevation_expression(self):
+        try:
+            return self._app.variable_manager[self._layer_position].expression
+        except:
+            return self._app.variable_manager[self._layer_position].string_value
 
     def duplicate_parametrize_material(self, material_name, cloned_material_name=None, list_of_properties=None):
         application = self._app
@@ -141,6 +163,81 @@ class Layer3D(object):
         else:
             application.logger.error("The material name %s doesn't exist" % material_name)
             return None
+
+    def patch(
+        self,
+        frequency,
+        patch_width,
+        patch_length=None,
+        patch_position_x=0,
+        patch_position_y=0,
+        patch_name="patch",
+        metric_unit="mm",
+    ):
+        substrate_thickness = 0
+        for k, v in self._stackup._stackup.items():
+            if v._index == self._index - 1:
+                substrate_thickness = v.thickness
+                break
+        created_patch = Patch(
+            self._app,
+            frequency,
+            substrate_thickness,
+            patch_width,
+            self._name,
+            self._index,
+            patch_length=patch_length,
+            patch_thickness=self.thickness,
+            patch_material=self.material_name,
+            patch_position_x=patch_position_x,
+            patch_position_y=patch_position_y,
+            patch_position_z=self.elevation,
+            patch_name=patch_name,
+            metric_unit=metric_unit,
+            below_material=self.filling_material_name,
+        )
+        self._obj_3d.append(created_patch)
+        return created_patch
+
+    def line(
+        self,
+        frequency,
+        line_length,
+        line_impedance,
+        line_width=None,
+        line_electrical_length=None,
+        line_position_x=0,
+        line_position_y=0,
+        line_name="line",
+        metric_unit="mm",
+    ):
+        substrate_thickness = 0
+        for k, v in self._stackup._stackup.items():
+            if v._index == self._index - 1:
+                substrate_thickness = v.thickness
+                break
+
+        created_line = Line(
+            self._app,
+            frequency,
+            substrate_thickness,
+            line_impedance,
+            line_width,
+            self._name,
+            self._index,
+            line_length=line_length,
+            line_electrical_length=line_electrical_length,
+            line_thickness=self.thickness,
+            line_material=self.material_name,
+            line_position_x=line_position_x,
+            line_position_y=line_position_y,
+            line_position_z=self.elevation,
+            line_name=line_name,
+            metric_unit=metric_unit,
+            below_material=self.filling_material_name,
+        )
+        self._obj_3d.append(created_line)
+        return created_line
 
 
 class Stackup3D(object):
@@ -197,6 +294,7 @@ class Stackup3D(object):
         layer_position = "layer_" + str(self._shifted_index) + "_position"
 
         lay = Layer3D(
+            stackup=self,
             app=self._app,
             name=name,
             layer_type=layer_type,
@@ -204,6 +302,7 @@ class Stackup3D(object):
             thickness=thickness,
             fill_material=fill_material,
             layer_position=layer_position,
+            index=self._shifted_index,
         )
         if layer_type == "D":
             self._dielectric_list.extend(lay._obj_3d)
@@ -283,118 +382,6 @@ class Stackup3D(object):
         if pad_percent is None:
             pad_percent = [50, 50, 5000, 50, 50, 100]
         return self._app.modeler.primitives.create_region(pad_percent)
-
-    def patch(
-        self,
-        frequency,
-        patch_width,
-        signal_layer_name,
-        patch_length=None,
-        patch_position_x=0,
-        patch_position_y=0,
-        patch_name="patch",
-        metric_unit="mm",
-    ):
-        application = self._app
-        if isinstance(signal_layer_name, str):
-            for i in range(len(self._layer_name)):
-                if self._layer_name[i] == signal_layer_name or self._layer_name[i] == signal_layer_name + "_S":
-                    signal_layer_name = self._layer_name[i]
-                    signal_layer_number = i + 1
-                    index = self._signal_name_list.index(signal_layer_name)
-                    patch_material = self._signal_material[index]
-                    patch_position_z = self._layer_position[i]
-                    if len(self._layer_values[i]) == 2:
-                        patch_thickness = None
-                    else:
-                        patch_thickness = self._layer_values[i][3]
-                    if self._layer_values[i - 1][1].split("_")[-1] == "D":
-                        try:
-                            below_material = self._layer_values[i - 1][2]
-                            substrat_thickness = self._layer_values[i - 1][3]
-                            break
-                        except:
-                            self._app.logger.error("The dielectric thickness or material name are incorrect")
-                    else:
-                        self._app.logger.error("The layer below the selected one must be of dielectric type")
-                        return False
-        created_patch = Patch(
-            application,
-            frequency,
-            substrat_thickness,
-            patch_width,
-            signal_layer_name,
-            signal_layer_number,
-            patch_length=patch_length,
-            patch_thickness=patch_thickness,
-            patch_material=patch_material,
-            patch_position_x=patch_position_x,
-            patch_position_y=patch_position_y,
-            patch_position_z=patch_position_z,
-            patch_name=patch_name,
-            metric_unit=metric_unit,
-            below_material=below_material,
-        )
-        self._object_list.append(created_patch)
-        return created_patch
-
-    def line(
-        self,
-        frequency,
-        line_length,
-        line_impedance,
-        signal_layer_name,
-        line_width=None,
-        line_electrical_length=None,
-        line_position_x=0,
-        line_position_y=0,
-        line_name="line",
-        metric_unit="mm",
-    ):
-        application = self._app
-        if isinstance(signal_layer_name, str):
-            for i in range(len(self._layer_name)):
-                if self._layer_name[i] == signal_layer_name or self._layer_name[i] == signal_layer_name + "_S":
-                    signal_layer_name = self._layer_name[i]
-                    signal_layer_number = i + 1
-                    index = self._signal_name_list.index(signal_layer_name)
-                    line_material = self._signal_material[index]
-                    line_position_z = self._layer_position[i]
-                    if len(self._layer_values[i]) == 2:
-                        line_thickness = None
-                    else:
-                        line_thickness = self._layer_values[i][3]
-                    if self._layer_values[i - 1][1].split("_")[-1] == "D":
-                        try:
-                            below_material = self._layer_values[i - 1][2]
-                            substrat_thickness = self._layer_values[i - 1][3]
-                            break
-                        except:
-                            self._app.logger.error("The dielectric thickness or material name are incorrect")
-                    else:
-                        self._app.logger.error("The layer below the selected one must be of dielectric type")
-                        return False
-        created_line = Line(
-            application,
-            frequency,
-            substrat_thickness,
-            line_impedance,
-            line_width,
-            signal_layer_name,
-            signal_layer_number,
-            line_length=line_length,
-            line_electrical_length=line_electrical_length,
-            line_thickness=line_thickness,
-            line_material=line_material,
-            line_position_x=line_position_x,
-            line_position_y=line_position_y,
-            line_position_z=line_position_z,
-            line_name=line_name,
-            metric_unit=metric_unit,
-            below_material=below_material,
-        )
-        self._object_list.append(created_line)
-        return created_line
 
 
 def _replace_by_underscore(character, string):
@@ -835,7 +822,10 @@ class Line:
         self._app = application
         if application.materials.checkifmaterialexists(below_material):
             self.__material = application.materials[below_material]
-            self.__permittivity = float(self.__material.permittivity.value)
+            try:
+                self.__permittivity = float(self.__material.permittivity.value)
+            except:
+                self.__permittivity = application.variable_manager[self.__material.permittivity.value].value
         else:
             application.logger.error("Material doesn't exist, you must create it in using: import_materials_from_file")
         if isinstance(line_width, float) or isinstance(line_width, int):
@@ -860,11 +850,11 @@ class Line:
             if isinstance(line_electrical_length, float) or isinstance(line_electrical_length, int):
                 self.__electrical_length = line_electrical_length
                 self.__length = self.length_calcul
-
             elif isinstance(line_length, float) or isinstance(line_length, int):
                 self.__length = line_length
                 self.__electrical_length = self.electrical_length_calcul
             else:
+
                 application.logger.error("line_length must be a float.")
         self.make_design_variable(line_width)
         if line_thickness:
@@ -884,14 +874,14 @@ class Line:
         application.modeler.subtract(blank_list=[signal_layer_name], tool_list=[line_name], keepOriginals=True)
 
     def make_design_variable(self, width):
-        self.application["line_frequency"] = str(self.__frequency) + "Hz"
-        self.application["substrat_thickness"] = str(self.__substrat_thickness) + "mm"
-        self.application["line_position_x"] = str(self.__position_x) + "mm"
-        self.application["line_position_y"] = str(self.__position_y) + "mm"
-        self.application["line_length"] = str(self.__length) + "mm"
+        self.application["line_frequency"] = self.application.modeler._arg_with_dim(self.__frequency, "Hz")
+        self.application["substrat_thickness"] = self.application.modeler._arg_with_dim(self.__substrat_thickness, "mm")
+        self.application["line_position_x"] = self.application.modeler._arg_with_dim(self.__position_x, "mm")
+        self.application["line_position_y"] = self.application.modeler._arg_with_dim(self.__position_y, "mm")
+        self.application["line_length"] = self.application.modeler._arg_with_dim(self.__length, "mm")
         self.application["substrat_permittivity"] = str(self.__permittivity)
         if isinstance(width, float) or isinstance(width, int):
-            self.application["line_width"] = str(self.__width) + "mm"
+            self.application["line_width"] = self.application.modeler._arg_with_dim(self.__width, "mm")
         elif width is None:
             self.application["line_impedance"] = self.__charac_impedance
             z = self.__charac_impedance
