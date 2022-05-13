@@ -7,6 +7,8 @@ objects (points, lines, sheeets, and solids) within the AEDT 3D Layout Modeler.
 """
 from __future__ import absolute_import  # noreorder
 
+import re
+
 from pyaedt import pyaedt_function_handler, _retry_ntimes
 from pyaedt.modeler.Object3d import rgb_color_codes, clamp
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -229,6 +231,53 @@ class Objec3DLayout(object):
         self.change_property(vMaterial)
 
 
+class ModelInfoRlc(object):
+    def __init__(self, component, name):
+        self._comp = component
+        self._name = name
+
+    @property
+    def rlc_model_type(self):
+        props = _retry_ntimes(self._comp._n, self._comp.m_Editor.GetComponentInfo, self._name)
+        model = ""
+        for p in props:
+            if "ComponentProp=" in p:
+                model = p
+                break
+        s = r".+rlc\(r='(.+?)', re=(.+?), l='(.+?)', le=(.+?), c='(.+?)', ce=(.+?), p=(.+?), lyr=(.+?)"
+        m = re.search(s, model)
+        vals = []
+        if m:
+            for i in range(1, 9):
+                if m.group(i) == "false":
+                    vals.append(False)
+                elif m.group(i) == "true":
+                    vals.append(True)
+                else:
+                    vals.append(m.group(i))
+        return vals
+
+    @property
+    def res(self):
+        if self.rlc_model_type:
+            return self.rlc_model_type[0]
+
+    @property
+    def cap(self):
+        if self.rlc_model_type:
+            return self.rlc_model_type[4]
+
+    @property
+    def ind(self):
+        if self.rlc_model_type:
+            return self.rlc_model_type[2]
+
+    @property
+    def is_parallel(self):
+        if self.rlc_model_type:
+            return self.rlc_model_type[6]
+
+
 class Components3DLayout(Objec3DLayout, object):
     """Contains components in HFSS 3D Layout."""
 
@@ -307,6 +356,11 @@ class Components3DLayout(Objec3DLayout, object):
         List of str
         """
         return list(self.m_Editor.GetComponentPins(self.name))
+
+    @property
+    def model_info(self):
+        if self._part_type_id in [1, 2, 3]:
+            return ModelInfoRlc(self, self.name)
 
 
 class Nets3DLayout(object):
