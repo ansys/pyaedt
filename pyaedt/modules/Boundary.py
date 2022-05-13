@@ -84,7 +84,7 @@ class BoundaryCommon(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if self.type == "Matrix":
+        if self.type == "Matrix" or self.type == "Force" or self.type == "Torque":
             self._app.o_maxwell_parameters.DeleteParameters([self.name])
         else:
             self._app.oboundary.DeleteBoundaries([self.name])
@@ -694,9 +694,9 @@ class MaxwellParameters(BoundaryCommon, object):
         if self.type == "Matrix":
             self._app.o_maxwell_parameters.AssignMatrix(self._get_args())
         elif self.type == "Torque":
-            self._app.oboundary.AssignPerfectH(self._get_args())
+            self._app.o_maxwell_parameters.AssignTorque(self._get_args())
         elif self.type == "Force":
-            self._app.oboundary.AssignAperture(self._get_args())
+            self._app.o_maxwell_parameters.AssignForce(self._get_args())
         else:
             return False
         return True
@@ -713,6 +713,10 @@ class MaxwellParameters(BoundaryCommon, object):
         """
         if self.type == "Matrix":
             self._app.o_maxwell_parameters.EditMatrix(self._boundary_name, self._get_args())
+        elif self.type == "Force":
+            self._app.o_maxwell_parameters.EditForce(self._boundary_name, self._get_args())
+        elif self.type == "Torque":
+            self._app.o_maxwell_parameters.EditTorque(self._boundary_name, self._get_args())
         else:
             return False
         self._boundary_name = self.name
