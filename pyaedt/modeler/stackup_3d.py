@@ -68,14 +68,17 @@ class Layer3D(object):
         material="copper",
         thickness=0.035,
         fill_material="FR4_epoxy",
-        layer_position="layer_1_position",
         index=1,
     ):
         self._stackup = stackup
-        self._layer_position = layer_position
+        # I think is better to call it just 'position'
+        # I delete the position in argument I think it is not needed, if we forced user to the Stackup3D method
         self._index = index
         self._app = app
         self._name = name
+        layer_position = "layer_" + name + "_position"
+        self._position = NamedVariable(app, layer_position, "0mm")
+        self._thickness = None
         layer_type = LAYERS.get(layer_type.lower())
         if not layer_type:
             raise ValueError("Layer Type has to be one of the S, D, G strins.")
@@ -90,6 +93,7 @@ class Layer3D(object):
         if layer_type == "dielectric":
             cloned_material = self.duplicate_parametrize_material(material)
             if cloned_material:
+
                 obj_3d = self._app.modeler.primitives.create_box(
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width", self._thickness_variable],
@@ -156,15 +160,19 @@ class Layer3D(object):
         self._thickness.expression = value
 
     @property
+    def position(self):
+        return self._position
+
+    @property
     def elevation_value(self):
-        return self._app.variable_manager[self._layer_position].value
+        return self._app.variable_manager[self._position.name].value
 
     @property
     def elevation(self):
         try:
-            return self._app.variable_manager[self._layer_position].expression
+            return self._app.variable_manager[self._position.name].expression
         except:
-            return self._app.variable_manager[self._layer_position].string_value
+            return self._app.variable_manager[self._position.name].string_value
 
     def duplicate_parametrize_material(self, material_name, cloned_material_name=None, list_of_properties=None):
         application = self._app
@@ -304,6 +312,7 @@ class Stackup3D(object):
         self._signal_name_list = []
         self._signal_material = []
         self._object_list = []
+        self._end_of_stackup3D = NamedVariable(self._app, "StackUp_End", "0mm")
         self._z_position_offset = 0
         self._first_layer_position = "layer_1_position"
         self._shifted_index = 0
@@ -432,6 +441,22 @@ class Stackup3D(object):
         return self.add_layer(
             name=name, layer_type="G", material=material, thickness=thickness, fill_material=fill_material
         )
+
+    def _layer_position_manager(self, layer):
+        previous_layer_end = self._end_of_stackup3D.expression
+        layer.position.expression = previous_layer_end
+        if layer.thickness:
+            self._end_of_stackup3D.expression = layer.position.name + " + " + layer.thickness.name
+        else:
+            self._end_of_stackup3D.expression = layer.position.name
+    # if we call this function instantiation of the Layer, the first call, previous_layer_end is "0mm", and
+    # layer.position.expression is also "0mm" and self._end_of_stackup becomes the first layer.position + thickness
+    # if it has thickness, and so the second call, previous_layer_end is the previous layer position + thickness
+    # so the current layer position is the previous_layer_end and the end_of_stackup is the current layer position +
+    # thickness, and we just need to call this function after the construction of a layer3D.
+
+
+
 
     def resize(self, percentage_offset):
         list_of_2d_points = []
