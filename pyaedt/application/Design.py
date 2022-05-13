@@ -342,7 +342,8 @@ class Design(object):
         self.__init__(
             projectname=project_name,
             designname=design_name,
-            solution_type=solution_type if solution_type else self.solution_type,
+            # solution_type=solution_type if solution_type else self.solution_type,
+            solution_type=solution_type,
             specified_version=settings.aedt_version,
             non_graphical=settings.non_graphical,
             new_desktop_session=False,
@@ -394,7 +395,6 @@ class Design(object):
         self._odesign = None
         self._oproject = None
         self._design_type = design_type
-
         if design_type == "HFSS":
             self.design_solutions = HFSSDesignSolution(None, design_type, self._aedt_version)
         elif design_type == "Icepak":
@@ -2286,6 +2286,123 @@ class Design(object):
         )
 
     @pyaedt_function_handler()
+    def import_dataset1d(self, filename, dsname=None, is_project_dataset=True):
+        """Import a 1D dataset.
+
+        Parameters
+        ----------
+        filename : str
+            Full path and name for the TAB file.
+        dsname : str, optional
+            Name of the dataset. The default is the file name.
+        is_project_dataset : bool, optional
+            Whether it is a project data set. The default is ``True``.
+
+        Returns
+        -------
+        :class:`pyaedt.application.Variables.DataSet`
+
+        References
+        ----------
+
+        >>> oProject.AddDataset
+        >>> oDesign.AddDataset
+        """
+        with open(filename, "r") as f:
+            lines = f.read().splitlines()
+        header = lines[0]
+        points = lines[1:]
+
+        header_list = header.split("\t")
+        units = ["", ""]
+        cont = 0
+        for h in header_list:
+            result = re.search(r"\[([A-Za-z0-9_]+)\]", h)
+            if result:
+                units[cont] = result.group(1)
+            cont += 1
+
+        xlist = []
+        ylist = []
+        for item in points:
+            xlist.append(float(item.split()[0]))
+            ylist.append(float(item.split()[1]))
+
+        if not dsname:
+            dsname = os.path.basename(os.path.splitext(filename)[0])
+
+        if dsname[0] == "$":
+            dsname = dsname[1:]
+            is_project_dataset = True
+
+        return self.create_dataset(
+            dsname, xlist, ylist, is_project_dataset=is_project_dataset, xunit=units[0], yunit=units[1]
+        )
+
+    @pyaedt_function_handler()
+    def import_dataset3d(self, filename, dsname=None):
+        """Import a 3D dataset.
+
+        Parameters
+        ----------
+        filename : str
+            Full path and name for the TAB file.
+        dsname : str, optional
+            Name of the dataset. The default is the file name.
+
+        Returns
+        -------
+        :class:`pyaedt.application.Variables.DataSet`
+
+        References
+        ----------
+
+        >>> oProject.AddDataset
+        """
+        with open(filename, "r") as f:
+            lines = f.read().splitlines()
+        header = lines[0]
+        points = lines[1:]
+
+        header_list = header.split("\t")
+        units = ["", "", "", ""]
+        cont = 0
+        for h in header_list:
+            result = re.search(r"\[([A-Za-z0-9_]+)\]", h)
+            if result:
+                units[cont] = result.group(1)
+            cont += 1
+
+        xlist = []
+        ylist = []
+        zlist = []
+        vlist = []
+        for item in points:
+            xlist.append(float(item.split()[0]))
+            ylist.append(float(item.split()[1]))
+            zlist.append(float(item.split()[2]))
+            vlist.append(float(item.split()[3]))
+
+        if not dsname:
+            dsname = os.path.basename(os.path.splitext(filename)[0])
+
+        if dsname[0] == "$":
+            dsname = dsname[1:]
+
+        return self.create_dataset(
+            dsname,
+            xlist,
+            ylist,
+            zlist,
+            vlist,
+            is_project_dataset=True,
+            xunit=units[0],
+            yunit=units[1],
+            zunit=units[2],
+            vunit=units[3],
+        )
+
+    @pyaedt_function_handler()
     def create_dataset(
         self,
         dsname,
@@ -2747,7 +2864,7 @@ class Design(object):
         self._init_design(
             project_name=self.project_name if self.project_name else generate_unique_name("Project"),
             design_name=design_name,
-            solution_type=solution_type,
+            solution_type=solution_type if solution_type else self.solution_type,
         )
 
     def _insert_design(self, design_type, design_name=None):

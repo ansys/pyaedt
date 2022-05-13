@@ -150,9 +150,8 @@ class TestClass(BasisTest, object):
     def test_09_modify_padstack(self):
         pad_0 = self.aedtapp.modeler.padstacks["PlanarEMVia"]
         assert self.aedtapp.modeler.padstacks["PlanarEMVia"].plating != 55
-        pad_0.plating = 55
+        pad_0.plating = "55"
         pad_0.update()
-        self.aedtapp.modeler.init_padstacks()
         assert self.aedtapp.modeler.padstacks["PlanarEMVia"].plating == "55"
 
     def test_10_create_padstack(self):
@@ -179,6 +178,9 @@ class TestClass(BasisTest, object):
         assert line == "line1"
 
     def test_13a_create_edge_port(self):
+        port_wave = self.aedtapp.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
+        assert port_wave
+        assert self.aedtapp.delete_port(port_wave)
         assert self.aedtapp.create_edge_port("line1", 3, False)
         assert self.aedtapp.create_edge_port("line1", 0, True)
         assert len(self.aedtapp.excitations) > 0
@@ -364,8 +366,13 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
     def test_19C_export_touchsthone(self):
         filename = os.path.join(scratch_path, "touchstone.s2p")
-        assert self.aedtapp.export_touchstone("RFBoardSetup3", "Last Adaptive", filename, [], [])
+        solution_name = "RFBoardSetup3"
+        sweep_name = "Last Adaptive"
+        assert self.aedtapp.export_touchstone(solution_name, sweep_name, filename)
         assert os.path.exists(filename)
+        assert self.aedtapp.export_touchstone(solution_name)
+        sweep_name = None
+        assert self.aedtapp.export_touchstone(solution_name, sweep_name)
 
     def test_19D_export_to_hfss(self):
         with Scratch(scratch_path) as local_scratch:
@@ -414,7 +421,7 @@ class TestClass(BasisTest, object):
     def test29_duplicate_material(self):
         material = self.aedtapp.materials.add_material("FirstMaterial")
         new_material = self.aedtapp.materials.duplicate_material("FirstMaterial", "SecondMaterial")
-        assert new_material.name == "secondmaterial"
+        assert new_material.name == "SecondMaterial"
 
     def test30_expand(self):
         self.aedtapp.modeler.create_rectangle("Bottom", [20, 20], [50, 50], name="rect_1")

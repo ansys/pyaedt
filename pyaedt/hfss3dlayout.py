@@ -124,7 +124,16 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return self
 
     @pyaedt_function_handler()
-    def create_edge_port(self, primivitivename, edgenumber, iscircuit=True):
+    def create_edge_port(
+        self,
+        primivitivename,
+        edgenumber,
+        iscircuit=False,
+        iswave=False,
+        wave_horizontal_extension=5,
+        wave_vertical_extension=3,
+        wave_launcher="1mm",
+    ):
         """Create an edge port.
 
         Parameters
@@ -135,10 +144,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Edge number to create the edge port on.
         iscircuit : bool, optional
             Whether the edge port is a circuit port. The default is ``False``.
+        iswave : bool, optional
+            Whether the edge port is a circuit port. The default is ``False``.
+        wave_horizontal_extension : float, optional
+            Horizontal port extension factor. Default is `5`.
+        wave_vertical_extension : float, optional
+            Vertical port extension factor. Default is `5`.
+        wave_launcher : str, optional
+            Pec Launcher size with units. Default is `"1mm"`.
 
         Returns
         -------
-        type
+        str
             Name of the port when successful, ``False`` when failed.
 
         References
@@ -161,6 +178,31 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         listnew = self.port_list
         a = [i for i in listnew if i not in listp]
         if len(a) > 0:
+            if iswave:
+                self.modeler.change_property(
+                    property_object="Excitations:{}".format(a[0]),
+                    property_name="HFSS Type",
+                    property_value="Wave",
+                    property_tab="EM Design",
+                )
+                self.modeler.change_property(
+                    property_object="Excitations:{}".format(a[0]),
+                    property_name="Horizontal Extent Factor",
+                    property_value=str(wave_horizontal_extension),
+                    property_tab="EM Design",
+                )
+                self.modeler.change_property(
+                    property_object="Excitations:{}".format(a[0]),
+                    property_name="Vertical Extent Factor",
+                    property_value=str(wave_vertical_extension),
+                    property_tab="EM Design",
+                )
+                self.modeler.change_property(
+                    property_object="Excitations:{}".format(a[0]),
+                    property_name="PEC Launch Width",
+                    property_value=str(wave_launcher),
+                    property_tab="EM Design",
+                )
             return a[0]
         else:
             return False
@@ -545,22 +587,26 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         )
 
     @pyaedt_function_handler()
-    def export_touchstone(self, solutionname, sweepname, filename, variation, variations_value):
+    def export_touchstone(
+        self, solution_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
+    ):
         """Export a Touchstone file.
 
         Parameters
         ----------
-        solutionname : str
+        solution_name : str, optional
             Name of the solution that has been solved.
-        sweepname : str
+        sweep_name : str, optional
             Name of the sweep that has been solved.
-        filename : str
-            Full path for the Touchstone file. The default is ``None``, in which
-            case the file is exported to the working directory.
-        variation : list
+        file_name : str, optional
+            Full path and name for the Touchstone file.
+            The default is ``None``, in which case the file is exported to the working directory.
+        variations : list, optional
             List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
-        variations_value : list
+            The default is ``None``.
+        variations_value : list, optional
             List of all parameter variation values. For example, ``["22cel", "100"]``.
+            The default is ``None``.
 
         Returns
         -------
@@ -572,53 +618,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oDesign.ExportNetworkData
         """
-        # normalize the save path
-        if not filename:
-            appendix = ""
-            for v, vv in zip(variation, variations_value):
-                appendix += "_" + v + vv.replace("'", "")
-            ext = ".S" + str(len(self.port_list)) + "p"
-            filename = os.path.join(self.working_directory, solutionname + "_" + sweepname + appendix + ext)
-        else:
-            filename = filename.replace("//", "/").replace("\\", "/")
-        print("Exporting Touchstone " + filename)
-        # array containing "SetupName:SolutionName" pairs (note that setup and solution are separated by a colon)
-        SolutionSelectionArray = [solutionname + ":" + sweepname]
-        # 2=tab delimited spreadsheet (.tab), 3= touchstone (.sNp), 4= CitiFile (.cit),
-        # 7=Matlab (.m), 8=Terminal Z0 spreadsheet
-        FileFormat = 3
-        OutFile = filename  # full path of output file
-        # array containin the frequencies to export, use ["all"] for all frequencies
-        FreqsArray = ["all"]
-        DoRenorm = True  # perform renormalization before export
-        RenormImped = 50  # Real impedance value in ohm, for renormalization
-        DataType = "S"  # Type: "S", "Y", or "Z" matrix to export
-        Pass = -1  # The pass to export. -1 = export all passes.
-        ComplexFormat = 0  # 0=Magnitude/Phase, 1=Real/Immaginary, 2=dB/Phase
-        DigitsPrecision = 15  # Touchstone number of digits precision
-        IncludeGammaImpedance = True  # Include Gamma and Impedance in comments
-        NonStandardExtensions = False  # Support for non-standard Touchstone extensions
-        variation_str = ""
-        for v, vv in zip(variation, variations_value):
-            variation_str += v + "=" + vv + " "
-
-        self.odesign.ExportNetworkData(
-            variation_str,
-            SolutionSelectionArray,
-            FileFormat,
-            OutFile,
-            FreqsArray,
-            DoRenorm,
-            RenormImped,
-            DataType,
-            Pass,
-            ComplexFormat,
-            DigitsPrecision,
-            IncludeGammaImpedance,
-            IncludeGammaImpedance,
-            NonStandardExtensions,
+        return self._export_touchstone(
+            solution_name=solution_name,
+            sweep_name=sweep_name,
+            file_name=file_name,
+            variations=variations,
+            variations_value=variations_value,
         )
-        return True
 
     @pyaedt_function_handler()
     def set_export_touchstone(self, activate, export_dir=""):

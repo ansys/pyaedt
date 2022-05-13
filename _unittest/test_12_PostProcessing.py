@@ -147,8 +147,25 @@ class TestClass(BasisTest, object):
         assert os.path.exists(os.path.join(self.local_scratch.path, "output.csv"))
 
     def test_04_export_touchstone(self):
-        self.aedtapp.export_touchstone("Setup1", "Sweep", os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p"))
+        setup_name = "Setup1"
+        sweep_name = "Sweep"
+        self.aedtapp.export_touchstone(
+            setup_name, sweep_name, os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p")
+        )
         assert os.path.exists(os.path.join(self.local_scratch.path, "Setup1_Sweep.S2p"))
+
+        sweep_name = None
+        self.aedtapp.export_touchstone(
+            setup_name, sweep_name, os.path.join(self.local_scratch.path, "Setup1_Sweep2.S2p")
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "Setup1_Sweep2.S2p"))
+        setup_name = None
+        self.aedtapp.export_touchstone(
+            setup_name, sweep_name, os.path.join(self.local_scratch.path, "Setup1_Sweep3.S2p")
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "Setup1_Sweep3.S2p"))
+
+        assert self.aedtapp.export_touchstone(setup_name, sweep_name)
 
     @pytest.mark.skipif(config["build_machine"] == True, reason="Not running in non-graphical mode")
     def test_05_export_report_to_jpg(self):
@@ -211,6 +228,15 @@ class TestClass(BasisTest, object):
 
     def test_09_manipulate_report(self):
         assert self.aedtapp.post.create_report("dB(S(1,1))")
+        assert self.aedtapp.post.create_report(
+            expressions="MaxMagDeltaS",
+            variations={"Pass": ["All"]},
+            setup_sweep_name="Setup1 : AdaptivePass",
+            primary_sweep_variable="Pass",
+            report_category="Modal Solution Data",
+            plot_type="Rectangular Plot",
+            plotname="Solution Convergence Plot",
+        )
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
 
@@ -689,3 +715,10 @@ class TestClass(BasisTest, object):
         local_path = os.path.dirname(os.path.realpath(__file__))
         out = _parse_streamline(os.path.join(local_path, "example_models", "test_streamline.fldplt"))
         assert isinstance(out, list)
+
+    def test_61_delete_variations(self):
+        assert self.q3dtest.cleanup_solution()
+        vars = self.field_test.available_variations.get_variation_strings()
+        assert self.field_test.available_variations.variations()
+        assert self.field_test.cleanup_solution(vars, entire_solution=False)
+        assert self.field_test.cleanup_solution(vars, entire_solution=True)

@@ -54,7 +54,6 @@ class FieldAnalysisCircuit(Analysis):
         )
 
         self._modeler = ModelerNexxim(self)
-        self._modeler.layout.init_padstacks()
         self._post = CircuitPostProcessor(self)
 
     @pyaedt_function_handler()

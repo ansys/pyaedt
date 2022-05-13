@@ -19,7 +19,7 @@ from pyaedt.modeler.Object3d import _uname
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import Object3d
-from pyaedt.modeler.Object3d import Point
+from pyaedt.modeler.object3dlayout import Point
 
 default_materials = {
     "Icepak": "air",
@@ -3200,13 +3200,11 @@ class Primitives(object):
 
         """
         if matname:
-            matname = matname.lower()
-            if self._app.materials.checkifmaterialexists(matname):
+            if self._app.materials[matname]:
                 if self._app._design_type == "HFSS":
-                    return matname, self._app.materials.material_keys[matname].is_dielectric()
+                    return self._app.materials[matname].name, self._app.materials[matname].is_dielectric()
                 else:
-                    return matname, True
-
+                    return self._app.materials[matname].name, True
             else:
                 self.logger.warning("Material %s doesn not exists. Assigning default material", matname)
         if self._app._design_type == "HFSS":

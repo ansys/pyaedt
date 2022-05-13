@@ -125,9 +125,9 @@ It contains all getter and setter to simplify object manipulation.
    Object3d.FacePrimitive
    Object3d.EdgePrimitive
    Object3d.VertexPrimitive
-   Object3d.Point
    Primitives.PolylineSegment
    Primitives.Polyline
+   Object3d.Padstack
 
 .. code:: python
 
@@ -202,12 +202,15 @@ It contains all getter and setter to simplify object manipulation.
    :toctree: _autosummary
    :nosignatures:
 
-   Object3d.Objec3DLayout
-   Object3d.Components3DLayout
-   Object3d.Nets3DLayout
-   Object3d.Pins3DLayout
-   Object3d.Geometries3DLayout
-   Object3d.Padstack
+   object3dlayout.Components3DLayout
+   object3dlayout.Nets3DLayout
+   object3dlayout.Pins3DLayout
+   object3dlayout.Line3dLayout
+   object3dlayout.Polygons3DLayout
+   object3dlayout.Circle3dLayout
+   object3dlayout.Rect3dLayout
+   object3dlayout.Points3dLayout
+   object3dlayout.Point
 
 .. code:: python
 
