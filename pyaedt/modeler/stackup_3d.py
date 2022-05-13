@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from math import exp
 from math import log
 from math import pi
@@ -5,237 +6,101 @@ from math import sqrt
 
 from pyaedt import constants
 
+LAYERS = {"s": "signal", "g": "ground", "d": "dielectric"}
 
-class Layers:
+
+class Layer3D(object):
     def __init__(
         self,
-        application,
-        layer_list=[
-            ["G", "Ground", "copper", 0.035, "air"],
-            ["D", "Dielectric", "Duroid (tm)", 1.54],
-            ["S", "Top", "copper", 0.035, "air"],
-        ],
+        app,
+        name,
+        layer_type="S",
+        material="copper",
+        thickness=0.035,
+        fill_material="FR4_epoxy",
+        layer_position="layer_1_position",
     ):
-        self.__application = application
-        self.__layer_name = []
-        self.__layer_position = []
-        self.__layer_values = layer_list
-        self.__dielectric_list = []
-        self.__dielectric_name_list = []
-        self.__ground_list = []
-        self.__ground_name_list = []
-        self.__ground_fill_material = []
-        self.__signal_list = []
-        self.__signal_name_list = []
-        self.__signal_material = []
-        self.__object_list = []
-        z_position_offset = 0
-        first_layer_position = "layer_1_position"
-        application[first_layer_position] = "0mm"
-        application["dielectric_x_position"] = "0mm"
-        application["dielectric_y_position"] = "0mm"
-        application["dielectric_length"] = "1000mm"
-        application["dielectric_width"] = "1000mm"
-        for layer in layer_list:
-            index = layer_list.index(layer)
-            shifted_index = index + 1
-            if layer[0] == "S":
-                layer_type = "signal"
-                if isinstance(layer[1], str):
-                    layer[1] = layer[1] + "_S"
-                else:
-                    raise TypeError("The %i layer name must be a string" % shifted_index)
-            elif layer[0] == "G":
-                layer_type = "ground"
-                if isinstance(layer[1], str):
-                    layer[1] = layer[1] + "_G"
-                else:
-                    raise TypeError("The %i layer name must be a string" % shifted_index)
-            elif layer[0] == "D":
-                layer_type = "dielectric"
-                if isinstance(layer[1], str):
-                    layer[1] = layer[1] + "_D"
-                else:
-                    raise TypeError("The %i layer name must be a string" % shifted_index)
-            else:
-                raise TypeError(
-                    "The 0 index element of the %i layer is incorrect,"
-                    " it must only be a string: S, G, D" % shifted_index
+        self._app = app
+        self._name = name
+        layer_type = LAYERS.get(layer_type.lower())
+        if not layer_type:
+            raise ValueError("Layer Type has to be one of the S, D, G strins.")
+        self._obj_3d = []
+        obj_3d = None
+        self._material_name = self.duplicate_parametrize_material(material).name
+        if layer_type != "dielectric" and thickness > 0:
+            self._fill_material = self.duplicate_parametrize_material(fill_material).name
+        self._thickness_variable = self._name + "_thickness"
+        if thickness:
+            self._app[self._thickness_variable] = str(thickness) + "mm"
+
+        if layer_type == "dielectric":
+            cloned_material = self.duplicate_parametrize_material(material)
+            if cloned_material:
+                obj_3d = self._app.modeler.primitives.create_box(
+                    ["dielectric_x_position", "dielectric_y_position", layer_position],
+                    ["dielectric_length", "dielectric_width", self._thickness_variable],
+                    name=self._name,
+                    matname=cloned_material.name,
+                )
+        elif layer_type == "ground":
+            if thickness:
+                obj_3d = self._app.modeler.primitives.create_box(
+                    ["dielectric_x_position", "dielectric_y_position", layer_position],
+                    ["dielectric_length", "dielectric_width", self._thickness_variable],
+                    name=self._name,
+                    matname=self._material_name,
                 )
 
-            self.__layer_name.append(layer[1])
-            self.__layer_position.append(z_position_offset)
-            if layer_type == "dielectric":
-                if isinstance(layer[2], str):
-                    cloned_material = self.duplicate_parametrize_material(layer[2])
-                    if cloned_material:
-                        if isinstance(layer[3], float) or isinstance(layer[3], int):
-                            thickness_variable = layer[1] + "_thickness"
-                            application[thickness_variable] = str(layer[3]) + "mm"
-                            layer_position = "layer_" + str(shifted_index) + "_position"
-                            dielectric_layer = application.modeler.primitives.create_box(
-                                ["dielectric_x_position", "dielectric_y_position", layer_position],
-                                ["dielectric_length", "dielectric_width", thickness_variable],
-                                name=layer[1],
-                                matname=cloned_material.name,
-                            )
-                            if dielectric_layer:
-                                self.__dielectric_list.append(dielectric_layer)
-                                self.__dielectric_name_list.append(layer[1])
-                                z_position_offset = z_position_offset + layer[3]
-                                next_layer_position = "layer_" + str(shifted_index + 1) + "_position"
-                                application[next_layer_position] = layer_position + "+" + thickness_variable
-                            else:
-                                application.logger.error("Generation of the dielectric layer does not work.")
-                        else:
-                            raise TypeError("The %i layer thickness must be an int or a float" % shifted_index)
-                else:
-                    raise TypeError("The %i layer material name must be a string" % shifted_index)
-            elif layer_type == "ground":
-                if len(layer) == 2:
-                    layer_position = "layer_" + str(shifted_index) + "_position"
-                    ground_layer = application.modeler.primitives.create_rectangle(
-                        "Z",
-                        ["dielectric_x_position", "dielectric_y_position", layer_position],
-                        ["dielectric_length", "dielectric_width"],
-                        name=layer[1],
-                        matname="copper",
-                    )
-                    if ground_layer:
-                        self.__ground_list.append(ground_layer)
-                        self.__ground_name_list.append(layer[1])
-                        self.__ground_fill_material.append("FR4_epoxy")
-                        next_layer_position = "layer_" + str(shifted_index + 1) + "_position"
-                        application[next_layer_position] = layer_position
-                    else:
-                        application.logger.error("Generation of the ground layer does not work.")
-                else:
-                    if isinstance(layer[2], str):
-                        material_name = self.duplicate_parametrize_material(layer[2]).name
-                    elif layer[2] is None:
-                        material_name = "copper"
-                    else:
-                        raise TypeError("The %i layer material name must be a string" % index + 1)
-                    if isinstance(layer[4], str):
-                        fill_material = self.duplicate_parametrize_material(layer[4]).name
-                    elif layer[4] is None:
-                        fill_material = "FR4_epoxy"
-                    else:
-                        raise TypeError("The %i layer thickness must be a string" % index + 1)
-                    if isinstance(layer[3], float) or isinstance(layer[3], int):
-                        thickness_variable = layer[1] + "_thickness"
-                        application[thickness_variable] = str(layer[3]) + "mm"
-                        layer_position = "layer_" + str(shifted_index) + "_position"
-                        ground_layer = application.modeler.primitives.create_box(
-                            ["dielectric_x_position", "dielectric_y_position", layer_position],
-                            ["dielectric_length", "dielectric_width", thickness_variable],
-                            name=layer[1],
-                            matname=material_name,
-                        )
-                        if ground_layer:
-                            self.__ground_list.append(ground_layer)
-                            self.__ground_name_list.append(layer[1])
-                            self.__ground_fill_material.append(fill_material)
-                            z_position_offset = z_position_offset + layer[3]
-                            next_layer_position = "layer_" + str(shifted_index + 1) + "_position"
-                            application[next_layer_position] = layer_position + "+" + thickness_variable
-                        else:
-                            application.logger.error("Generation of the ground layer does not work.")
-                    elif layer[3] is None:
-                        layer_position = "layer_" + str(shifted_index) + "_position"
-                        ground_layer = application.modeler.primitives.create_rectangle(
-                            "Z",
-                            ["dielectric_x_position", "dielectric_y_position", layer_position],
-                            ["dielectric_length", "dielectric_width"],
-                            name=layer[1],
-                            matname=material_name,
-                        )
-                        if ground_layer:
-                            self.__ground_list.append(ground_layer)
-                            self.__ground_name_list.append(layer[1])
-                            self.__ground_fill_material.append("fill_material")
-                            next_layer_position = "layer_" + str(shifted_index + 1) + "_position"
-                            application[next_layer_position] = layer_position
-                        else:
-                            application.logger.error("Generation of the ground layer does not work.")
-                    else:
-                        application.logger.error("The %i layer thickness must be a string" % index + 1)
-            elif layer_type == "signal":
-                if len(layer) == 2:
-                    layer_position = "layer_" + str(shifted_index) + "_position"
-                    signal_layer = application.modeler.primitives.create_rectangle(
-                        "Z",
-                        ["dielectric_x_position", "dielectric_y_position", layer_position],
-                        ["dielectric_length", "dielectric_width"],
-                        name=layer[1],
-                        matname="FR4_epoxy",
-                    )
-                    if signal_layer:
-                        self.__signal_list.append(signal_layer)
-                        self.__signal_name_list.append(layer[1])
-                        self.__signal_material.append("copper")
-                        next_layer_position = "layer_" + str(shifted_index + 1) + "_position"
-                        application[next_layer_position] = layer_position
-                    else:
-                        application.logger.error("Generation of the ground layer does not work.")
-                else:
-                    if isinstance(layer[2], str):
-                        material_name = self.duplicate_parametrize_material(layer[2]).name
-                    elif layer[2] is None:
-                        material_name = "copper"
-                    else:
-                        raise TypeError("The %i layer material name must be a string" % index + 1)
-                    if isinstance(layer[4], str):
-                        fill_material = self.duplicate_parametrize_material(layer[4]).name
-                    elif layer[4] is None:
-                        fill_material = "FR4_epoxy"
-                    else:
-                        raise TypeError("The %i layer thickness must be a string" % index + 1)
-                    if isinstance(layer[3], float) or isinstance(layer[3], int):
-                        thickness_variable = layer[1] + "_thickness"
-                        application[thickness_variable] = str(layer[3]) + "mm"
-                        layer_position = "layer_" + str(shifted_index) + "_position"
-                        signal_layer = application.modeler.primitives.create_box(
-                            ["dielectric_x_position", "dielectric_y_position", layer_position],
-                            ["dielectric_length", "dielectric_width", thickness_variable],
-                            name=layer[1],
-                            matname=fill_material,
-                        )
-                        if signal_layer:
-                            self.__signal_list.append(signal_layer)
-                            self.__signal_name_list.append(layer[1])
-                            self.__signal_material.append(material_name)
-                            z_position_offset = z_position_offset + layer[3]
-                            next_layer_position = "layer_" + str(shifted_index + 1) + "_position"
-                            application[next_layer_position] = layer_position + "+" + thickness_variable
-                        else:
-                            application.logger.error("Generation of the ground layer does not work.")
-                    elif layer[3] is None:
-                        layer_position = "layer_" + str(shifted_index) + "_position"
-                        signal_layer = application.modeler.primitives.create_rectangle(
-                            "Z",
-                            ["dielectric_x_position", "dielectric_y_position", layer_position],
-                            ["dielectric_length", "dielectric_width"],
-                            name=layer[1],
-                            matname=fill_material,
-                        )
-                        if signal_layer:
-                            self.__signal_list.append(signal_layer)
-                            self.__signal_name_list.append(layer[1])
-                            self.__signal_material.append(material_name)
-                            next_layer_position = "layer_" + str(shifted_index + 1) + "_position"
-                            application[next_layer_position] = layer_position
-                        else:
-                            application.logger.error("Generation of the ground layer does not work.")
-                    else:
-                        application.logger.error("The %i layer thickness must be a string" % index + 1)
+            else:
+                obj_3d = self._app.modeler.primitives.create_rectangle(
+                    "Z",
+                    ["dielectric_x_position", "dielectric_y_position", layer_position],
+                    ["dielectric_length", "dielectric_width"],
+                    name=self._name,
+                    matname=self._material_name,
+                )
+
+        elif layer_type == "signal":
+            if thickness:
+                obj_3d = self._app.modeler.primitives.create_box(
+                    ["dielectric_x_position", "dielectric_y_position", layer_position],
+                    ["dielectric_length", "dielectric_width", self._thickness_variable],
+                    name=self._name,
+                    matname=self._fill_material,
+                )
+            else:
+                obj_3d = self._app.modeler.primitives.create_rectangle(
+                    "Z",
+                    ["dielectric_x_position", "dielectric_y_position", layer_position],
+                    ["dielectric_length", "dielectric_width"],
+                    name=self._name,
+                    matname=self._fill_material,
+                )
+
+        if obj_3d:
+            self._obj_3d.append(obj_3d)
+        else:
+            self._app.logger.error("Generation of the ground layer does not work.")
+
+    @property
+    def material_name(self):
+        return self._material_name
+
+    @property
+    def filling_material_name(self):
+        return self._fill_material
+
+    @property
+    def thickness(self):
+        return self._app[self._thickness_variable]
 
     def duplicate_parametrize_material(self, material_name, cloned_material_name=None, list_of_properties=None):
-        application = self.__application
-        if self.__application.materials.checkifmaterialexists(material_name):
+        application = self._app
+        if self._app.materials.checkifmaterialexists(material_name):
             if not cloned_material_name:
                 cloned_material_name = "cloned_" + material_name
-            if not self.__application.materials.checkifmaterialexists(cloned_material_name):
+            if not self._app.materials.checkifmaterialexists(cloned_material_name):
                 if not list_of_properties:
                     cloned_material = application.materials.duplicate_material(material_name, cloned_material_name)
                     permittivity = cloned_material.permittivity.value
@@ -277,11 +142,117 @@ class Layers:
             application.logger.error("The material name %s doesn't exist" % material_name)
             return None
 
+
+class Stackup3D(object):
+    def __init__(self, application):
+        self._app = application
+        self._layer_name = []
+        self._layer_position = []
+        self._layer_values = []
+        self._dielectric_list = []
+        self._dielectric_name_list = []
+        self._ground_list = []
+        self._ground_name_list = []
+        self._ground_fill_material = []
+        self._signal_list = []
+        self._signal_name_list = []
+        self._signal_material = []
+        self._object_list = []
+        self._z_position_offset = 0
+        self._first_layer_position = "layer_1_position"
+        self._shifted_index = 0
+        self._stackup = OrderedDict({})
+        self._app[self._first_layer_position] = "0mm"
+        self._app["dielectric_x_position"] = "0mm"
+        self._app["dielectric_y_position"] = "0mm"
+        self._app["dielectric_length"] = "1000mm"
+        self._app["dielectric_width"] = "1000mm"
+
+    @property
+    def layer_names(self):
+        return self._layer_name
+
+    @property
+    def layer_positions(self):
+        return self._layer_position
+
+    @property
+    def layer_values(self):
+        return self._layer_values
+
+    @property
+    def stackup_layers(self):
+        return self._stackup
+
+    @property
+    def z_position_offset(self):
+        return self._z_position_offset
+
+    def add_layer(self, name, layer_type="S", material="copper", thickness=0.035, fill_material="FR4_epoxy"):
+        self._shifted_index += 1
+        if not layer_type:
+            raise ValueError("Layer Type has to be one of the S, D, G strins.")
+        self._layer_name.append(name)
+        self._layer_position.append(self._z_position_offset)
+        layer_position = "layer_" + str(self._shifted_index) + "_position"
+
+        lay = Layer3D(
+            app=self._app,
+            name=name,
+            layer_type=layer_type,
+            material=material,
+            thickness=thickness,
+            fill_material=fill_material,
+            layer_position=layer_position,
+        )
+        if layer_type == "D":
+            self._dielectric_list.extend(lay._obj_3d)
+            self._dielectric_name_list.append(lay._name)
+            self._z_position_offset = self._z_position_offset + thickness
+            next_layer_position = "layer_" + str(self._shifted_index + 1) + "_position"
+            self._app[next_layer_position] = layer_position + "+" + lay._name + "_thickness"
+
+        elif layer_type == "G":
+            self._ground_list.extend(lay._obj_3d)
+            self._ground_name_list.append(lay._name)
+            self._ground_fill_material.append(lay._fill_material)
+            self._z_position_offset = self._z_position_offset + thickness
+            next_layer_position = "layer_" + str(self._shifted_index + 1) + "_position"
+            self._app[next_layer_position] = layer_position + "+" + lay._name + "_thickness"
+
+        elif layer_type == "S":
+            self._signal_list.extend(lay._obj_3d)
+            self._signal_name_list.append(lay._name)
+            self._signal_material.append(lay._material_name)
+            self._z_position_offset = self._z_position_offset + thickness
+            next_layer_position = "layer_" + str(self._shifted_index + 1) + "_position"
+            self._app[next_layer_position] = layer_position + "+" + lay._name + "_thickness"
+        self._stackup[lay._name] = lay
+        return lay
+
+    def add_signal_layer(self, name, material="copper", thickness=0.035, fill_material="FR4_epoxy"):
+        return self.add_layer(
+            name=name, layer_type="S", material=material, thickness=thickness, fill_material=fill_material
+        )
+
+    def add_dielectric_layer(
+        self,
+        name,
+        material="FR4_epoxy",
+        thickness=0.035,
+    ):
+        return self.add_layer(name=name, layer_type="D", material=material, thickness=thickness, fill_material=None)
+
+    def add_ground_layer(self, name, material="copper", thickness=0.035, fill_material="air"):
+        return self.add_layer(
+            name=name, layer_type="G", material=material, thickness=thickness, fill_material=fill_material
+        )
+
     def resize(self, percentage_offset):
         list_of_2d_points = []
         list_of_x_coordinates = []
         list_of_y_coordinates = []
-        for object in self.__object_list:
+        for object in self._object_list:
             points_list_by_object = object.points_on_layer
             list_of_2d_points = points_list_by_object + list_of_2d_points
         for point in list_of_2d_points:
@@ -293,25 +264,25 @@ class Layers:
         minimum_y = min(list_of_y_coordinates)
         variation_x = maximum_x - minimum_x
         variation_y = maximum_y - minimum_y
-        self.__application["dielectric_x_position"] = str(minimum_x - variation_x / 2 * percentage_offset / 100) + "mm"
-        self.__application["dielectric_y_position"] = str(minimum_y - variation_y / 2 * percentage_offset / 100) + "mm"
-        self.__application["dielectric_length"] = str(maximum_x + variation_x * percentage_offset / 100) + "mm"
-        self.__application["dielectric_width"] = str(maximum_y + variation_y * percentage_offset / 100) + "mm"
+        self._app["dielectric_x_position"] = str(minimum_x - variation_x / 2 * percentage_offset / 100) + "mm"
+        self._app["dielectric_y_position"] = str(minimum_y - variation_y / 2 * percentage_offset / 100) + "mm"
+        self._app["dielectric_length"] = str(maximum_x + variation_x * percentage_offset / 100) + "mm"
+        self._app["dielectric_width"] = str(maximum_y + variation_y * percentage_offset / 100) + "mm"
 
     def resize_around_patch(self):
-        self.__application["dielectric_x_position"] = "patch_position_x - patch_length * 50 / 100"
-        self.__application["dielectric_y_position"] = "patch_position_y - patch_width * 50 / 100"
-        self.__application["dielectric_length"] = (
+        self._app["dielectric_x_position"] = "patch_position_x - patch_length * 50 / 100"
+        self._app["dielectric_y_position"] = "patch_position_y - patch_width * 50 / 100"
+        self._app["dielectric_length"] = (
             "abs(patch_position_x + patch_length * (1 + 50 / 100)) +" " abs(dielectric_x_position)"
         )
-        self.__application["dielectric_width"] = (
+        self._app["dielectric_width"] = (
             "abs(patch_position_y + patch_width * (1 + 50 / 100)) +" " abs(dielectric_y_position)"
         )
 
     def create_region(self, pad_percent=None):
         if pad_percent is None:
             pad_percent = [50, 50, 5000, 50, 50, 100]
-        return self.__application.modeler.primitives.create_region(pad_percent)
+        return self._app.modeler.primitives.create_region(pad_percent)
 
     def patch(
         self,
@@ -324,28 +295,28 @@ class Layers:
         patch_name="patch",
         metric_unit="mm",
     ):
-        application = self.__application
+        application = self._app
         if isinstance(signal_layer_name, str):
-            for i in range(len(self.__layer_name)):
-                if self.__layer_name[i] == signal_layer_name or self.__layer_name[i] == signal_layer_name + "_S":
-                    signal_layer_name = self.__layer_name[i]
+            for i in range(len(self._layer_name)):
+                if self._layer_name[i] == signal_layer_name or self._layer_name[i] == signal_layer_name + "_S":
+                    signal_layer_name = self._layer_name[i]
                     signal_layer_number = i + 1
-                    index = self.__signal_name_list.index(signal_layer_name)
-                    patch_material = self.__signal_material[index]
-                    patch_position_z = self.__layer_position[i]
-                    if len(self.__layer_values[i]) == 2:
+                    index = self._signal_name_list.index(signal_layer_name)
+                    patch_material = self._signal_material[index]
+                    patch_position_z = self._layer_position[i]
+                    if len(self._layer_values[i]) == 2:
                         patch_thickness = None
                     else:
-                        patch_thickness = self.__layer_values[i][3]
-                    if self.__layer_values[i - 1][1].split("_")[-1] == "D":
+                        patch_thickness = self._layer_values[i][3]
+                    if self._layer_values[i - 1][1].split("_")[-1] == "D":
                         try:
-                            below_material = self.__layer_values[i - 1][2]
-                            substrat_thickness = self.__layer_values[i - 1][3]
+                            below_material = self._layer_values[i - 1][2]
+                            substrat_thickness = self._layer_values[i - 1][3]
                             break
                         except:
-                            self.__application.logger.error("The dielectric thickness or material name are incorrect")
+                            self._app.logger.error("The dielectric thickness or material name are incorrect")
                     else:
-                        self.__application.logger.error("The layer below the selected one must be of dielectric type")
+                        self._app.logger.error("The layer below the selected one must be of dielectric type")
                         return False
         created_patch = Patch(
             application,
@@ -364,7 +335,7 @@ class Layers:
             metric_unit=metric_unit,
             below_material=below_material,
         )
-        self.__object_list.append(created_patch)
+        self._object_list.append(created_patch)
         return created_patch
 
     def line(
@@ -380,28 +351,28 @@ class Layers:
         line_name="line",
         metric_unit="mm",
     ):
-        application = self.__application
+        application = self._app
         if isinstance(signal_layer_name, str):
-            for i in range(len(self.__layer_name)):
-                if self.__layer_name[i] == signal_layer_name or self.__layer_name[i] == signal_layer_name + "_S":
-                    signal_layer_name = self.__layer_name[i]
+            for i in range(len(self._layer_name)):
+                if self._layer_name[i] == signal_layer_name or self._layer_name[i] == signal_layer_name + "_S":
+                    signal_layer_name = self._layer_name[i]
                     signal_layer_number = i + 1
-                    index = self.__signal_name_list.index(signal_layer_name)
-                    line_material = self.__signal_material[index]
-                    line_position_z = self.__layer_position[i]
-                    if len(self.__layer_values[i]) == 2:
+                    index = self._signal_name_list.index(signal_layer_name)
+                    line_material = self._signal_material[index]
+                    line_position_z = self._layer_position[i]
+                    if len(self._layer_values[i]) == 2:
                         line_thickness = None
                     else:
-                        line_thickness = self.__layer_values[i][3]
-                    if self.__layer_values[i - 1][1].split("_")[-1] == "D":
+                        line_thickness = self._layer_values[i][3]
+                    if self._layer_values[i - 1][1].split("_")[-1] == "D":
                         try:
-                            below_material = self.__layer_values[i - 1][2]
-                            substrat_thickness = self.__layer_values[i - 1][3]
+                            below_material = self._layer_values[i - 1][2]
+                            substrat_thickness = self._layer_values[i - 1][3]
                             break
                         except:
-                            self.__application.logger.error("The dielectric thickness or material name are incorrect")
+                            self._app.logger.error("The dielectric thickness or material name are incorrect")
                     else:
-                        self.__application.logger.error("The layer below the selected one must be of dielectric type")
+                        self._app.logger.error("The layer below the selected one must be of dielectric type")
                         return False
         created_line = Line(
             application,
@@ -422,7 +393,7 @@ class Layers:
             metric_unit=metric_unit,
             below_material=below_material,
         )
-        self.__object_list.append(created_line)
+        self._object_list.append(created_line)
         return created_line
 
 
@@ -465,12 +436,12 @@ class Patch:
         self.__position_z = patch_position_z
         self.__metric_unit = metric_unit
         self.__material_name = below_material
-        self.__signal_material = patch_material
-        self.__layer_name = signal_layer_name
+        self._signal_material = patch_material
+        self._layer_name = signal_layer_name
         self.__patch_name = patch_name
         self.__layer_number = signal_layer_number
         self.__patch_thickness = patch_thickness
-        self.__application = application
+        self._app = application
         self.__aedt_object = None
         if application.materials.checkifmaterialexists(below_material):
             self.__material = application.materials[below_material]
@@ -751,12 +722,12 @@ class Patch:
 
     @property
     def layer_name(self):
-        return self.__layer_name
+        return self._layer_name
 
     @layer_name.setter
     def layer_name(self, value):
         if isinstance(value, str):
-            self.__layer_name = value
+            self._layer_name = value
         else:
             self.application.logger.error("Patch layer name must be a string")
 
@@ -766,11 +737,11 @@ class Patch:
 
     @property
     def application(self):
-        return self.__application
+        return self._app
 
     @application.setter
     def application(self, value):
-        self.__application = value
+        self._app = value
 
     @property
     def aedt_object(self):
@@ -790,22 +761,20 @@ class Patch:
         string_position_y = str(self.__patch_name) + "_port_position_y"
         string_width = str(self.__patch_name) + "_port_width"
         string_length = str(self.__patch_name) + "_port_length"
-        self.__application[string_position_x] = "patch_position_x + patch_length"
-        self.__application[string_width] = "patch_width"
-        self.__application[string_position_y] = "patch_position_y"
+        self._app[string_position_x] = "patch_position_x + patch_length"
+        self._app[string_width] = "patch_width"
+        self._app[string_position_y] = "patch_position_y"
         layer_reference_position = "layer_" + str(reference_layer_number) + "_position"
-        patch_layer_position = "(layer_" + str(self.__layer_number) + "_position + " + self.__layer_name + "_thickness)"
-        self.__application[string_length] = "abs(" + layer_reference_position + " - " + patch_layer_position + ")"
-        port = self.__application.modeler.primitives.create_rectangle(
+        patch_layer_position = "(layer_" + str(self.__layer_number) + "_position + " + self._layer_name + "_thickness)"
+        self._app[string_length] = "abs(" + layer_reference_position + " - " + patch_layer_position + ")"
+        port = self._app.modeler.primitives.create_rectangle(
             csPlane=constants.PLANE.YZ,
             position=[string_position_x, string_position_y, patch_layer_position],
             dimension_list=[string_width, "-" + string_length],
             name=self.__patch_name + "_port",
             matname=None,
         )
-        self.__application.create_lumped_port_to_sheet(
-            port.name, portname=port_name, reference_object_list=["Ground_G"]
-        )
+        self._app.create_lumped_port_to_sheet(port.name, portname=port_name, reference_object_list=["Ground_G"])
 
     def line(self, line_impedance, line_length, line_name, line_electrical_length=None, line_width=None):
         patch_line = Line(
@@ -819,7 +788,7 @@ class Patch:
             line_length=line_length,
             line_electrical_length=line_electrical_length,
             line_thickness=self.__patch_thickness,
-            line_material=self.__signal_material,
+            line_material=self._signal_material,
             line_position_x=0,
             line_position_y=0,
             line_position_z=0,
@@ -861,9 +830,9 @@ class Line:
         self.__position_z = line_position_z
         self.__metric_unit = metric_unit
         self.__material_name = below_material
-        self.__layer_name = signal_layer_name
+        self._layer_name = signal_layer_name
         self.__layer_number = signal_layer_number
-        self.__application = application
+        self._app = application
         if application.materials.checkifmaterialexists(below_material):
             self.__material = application.materials[below_material]
             self.__permittivity = float(self.__material.permittivity.value)
@@ -951,7 +920,7 @@ class Line:
                     line_width_formula = "substrat_thickness * " + string_w_h
                     self.application["line_width"] = line_width_formula
                 else:
-                    self.__application.logger.error(
+                    self._app.logger.error(
                         "No value of the theoretical width can be determined with this substrate"
                         " thickness and this characteristic impedance."
                     )
@@ -972,7 +941,7 @@ class Line:
         if isinstance(value, float):
             self.__frequency = abs(value)
         else:
-            self.__application.logger.error("frequency must be a positive float")
+            self._app.logger.error("frequency must be a positive float")
 
     @property
     def substrat_thickness(self):
@@ -983,7 +952,7 @@ class Line:
         if isinstance(value, float):
             self.__substrat_thickness = abs(value)
         else:
-            self.__application.logger.error("substrat_thickness must be a positive float")
+            self._app.logger.error("substrat_thickness must be a positive float")
 
     @property
     def width(self):
@@ -994,7 +963,7 @@ class Line:
         if isinstance(value, float):
             self.__width = abs(value)
         else:
-            self.__application.logger.error("line_width must be a positive float")
+            self._app.logger.error("line_width must be a positive float")
 
     @property
     def width_calcul(self):
@@ -1013,7 +982,7 @@ class Line:
                 self.__width = w_h * h
                 return self.__width
             else:
-                self.__application.logger.error(
+                self._app.logger.error(
                     "No value of the theoretical width can be determined with this substrate"
                     " thickness and this characteristic impedance."
                 )
@@ -1027,7 +996,7 @@ class Line:
         if isinstance(value, float):
             self.__length = abs(value)
         else:
-            self.__application.logger.error("line_length must be a positive float")
+            self._app.logger.error("line_length must be a positive float")
 
     @property
     def length_calcul(self):
@@ -1045,7 +1014,7 @@ class Line:
         if isinstance(value, float):
             self.__position_x = abs(value)
         else:
-            self.__application.logger.error("line_position must be a positive float")
+            self._app.logger.error("line_position must be a positive float")
 
     @property
     def metric_unit(self):
@@ -1056,7 +1025,7 @@ class Line:
         if isinstance(value, str):
             self.__metric_unit = value
         else:
-            self.__application.logger.error("metric_unit must be a string")
+            self._app.logger.error("metric_unit must be a string")
 
     @property
     def material_name(self):
@@ -1067,16 +1036,16 @@ class Line:
         if isinstance(value, str):
             self.__material_name = value
         else:
-            self.__application.logger.error("material_name must be a string")
+            self._app.logger.error("material_name must be a string")
 
     @property
     def layer_name(self):
-        return self.__layer_name
+        return self._layer_name
 
     @layer_name.setter
     def layer_name(self, value):
         if isinstance(value, str):
-            self.__layer_name = value
+            self._layer_name = value
         else:
             print("signal_layer_name must be a string")
 
@@ -1147,7 +1116,7 @@ class Line:
         elif self.__metric_unit == "mil":
             converter = 0.00062137119223732773833
         else:
-            self.__application.logger.error("metric_unit must be a string mm or cm or m or mil or an integer")
+            self._app.logger.error("metric_unit must be a string mm or cm or m or mil or an integer")
         c = 2.99792458e8 * converter
         f = self.__frequency
         er_e = self.__effective_permittivity
@@ -1172,11 +1141,11 @@ class Line:
 
     @property
     def application(self):
-        return self.__application
+        return self._app
 
     @application.setter
     def application(self, value):
-        self.__application = value
+        self._app = value
 
     @property
     def aedt_object(self):
