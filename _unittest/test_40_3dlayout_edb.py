@@ -159,7 +159,7 @@ class TestClass(BasisTest, object):
         nets = self.aedtapp.modeler.nets
         assert nets["GND"].name == "GND"
         assert len(nets) > 0
-        assert nets["GND"].components > 0
+        assert len(nets["GND"].components) > 0
 
     def test_08_merge(self):
         tol = 1e-12
