@@ -64,7 +64,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Point`
+        :class:`pyaedt.modeler.object3dlayout.Point`
             Point object.
 
         References

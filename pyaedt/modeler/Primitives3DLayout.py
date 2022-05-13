@@ -1,30 +1,31 @@
 import os
 import sys
-import warnings
 
 from pyaedt.generic.general_methods import _retry_ntimes
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import _uname
-from pyaedt.modeler.Object3d import Components3DLayout
-from pyaedt.modeler.Object3d import ComponentsSubCircuit3DLayout
-from pyaedt.modeler.Object3d import Geometries3DLayout
-from pyaedt.modeler.Object3d import Nets3DLayout
 from pyaedt.modeler.Object3d import Padstack
-from pyaedt.modeler.Object3d import Pins3DLayout
+from pyaedt.modeler.object3dlayout import Circle3dLayout
+from pyaedt.modeler.object3dlayout import Components3DLayout
+from pyaedt.modeler.object3dlayout import ComponentsSubCircuit3DLayout
+from pyaedt.modeler.object3dlayout import Line3dLayout
+from pyaedt.modeler.object3dlayout import Nets3DLayout
+from pyaedt.modeler.object3dlayout import Pins3DLayout
+from pyaedt.modeler.object3dlayout import Polygons3DLayout
+from pyaedt.modeler.object3dlayout import Rect3dLayout
 from pyaedt.modeler.Primitives import default_materials
 
 # import pkgutil
 # modules = [tup[1] for tup in pkgutil.iter_modules()]
 # if "clr" in modules or is_ironpython:
-try:
-    import clr
-    from System import String
-    import System
-except ImportError:
-    if os.name != "posix":
-        warnings.warn("Pythonnet has to be installed to run Pyaedt")
+# try:
+#     import clr
+#     from System import String
+#     import System
+# except ImportError:
+#     if os.name != "posix":
+#         warnings.warn("Pythonnet has to be installed to run Pyaedt")
 
 
 class Primitives3DLayout(object):
@@ -71,13 +72,22 @@ class Primitives3DLayout(object):
         self.is_outside_desktop = sys.modules["__main__"].isoutsideDesktop
         self._app = app
         self._opadstackmanager = self._app._oproject.GetDefinitionManager().GetManager("Padstack")
-        self.padstacks = {}
-        self._components = {}
+        self._padstacks = {}
         self._components3d = {}
-        self._geometries = {}
+        self._init_prims()
+
+    @pyaedt_function_handler()
+    def _init_prims(self):
+        self._components = {}
+        self._rectangles = {}
+        self._lines = {}
+        self._circles = {}
+        self._polygons = {}
         self._pins = {}
         self._nets = {}
-        pass
+        self._power_nets = {}
+        self._signal_nets = {}
+        self._vias = {}
 
     @property
     def _modeler(self):
@@ -100,18 +110,15 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        list
-            List of components from EDB. If EDB is not present, ``None`` is returned.
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Components3DLayout`]
+            Components objects.
 
         """
-        if not self._app.project_timestamp_changed and self._components:
+        if self._components:
             return self._components
-        try:
-            comps = list(self.modeler.edb.core_components.components.keys())
-        except:
-            comps = []
-        for el in comps:
-            self._components[el] = Components3DLayout(self, el, self.modeler.edb.core_components.components[el])
+        objs = self.modeler.oeditor.FindObjects("Type", "component")
+        for obj in objs:
+            self._components[obj] = Components3DLayout(self, obj)
         return self._components
 
     @property
@@ -120,51 +127,99 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        list
-            List of geometries from EDB. If EDB is not present, ``None`` is returned.
+        dict
+            Dictionary of geometries.
 
         """
-        if not self._app.project_timestamp_changed and self._geometries:
-            return self._geometries
-        try:
-            prims = self.modeler.edb.core_primitives.primitives
-        except:
-            prims = []
-        for prim in prims:
-            el = prim.primitive_object
-            if is_ironpython:
-                name = clr.Reference[System.String]()
-                try:
-                    response = el.GetProductProperty(0, 1, name)
-                except:
-                    response, name = False, ""
+        geom = {}
+        for k, v in self.polygons.items():
+            geom[k] = v
+        for k, v in self.rectangles.items():
+            geom[k] = v
+        for k, v in self.lines.items():
+            geom[k] = v
+        return geom
 
-            else:
-                val = String("")
-                try:
-                    response, name = el.GetProductProperty(0, 1, val)
-                except:
-                    response, name = False, ""
-            if str(name):
-                elval = el.GetType()
-                elid = el.GetId()
-                name = str(name).replace("'", "")
-                el_str = elval.ToString()
-                if not name:
-                    if "Rectangle" in el_str:
-                        name = "rect_" + str(elid)
-                    elif "Circle" in el_str:
-                        name = "circle_" + str(elid)
-                    elif "Polygon" in el_str:
-                        name = "poly_" + str(elid)
-                    elif "Path" in el_str:
-                        name = "line_" + str(elid)
-                    elif "Bondwire" in el_str:
-                        name = "bondwire_" + str(elid)
-                    else:
-                        continue
-                self._geometries[name] = Geometries3DLayout(self, name, elid)
-        return self._geometries
+    @property
+    def polygons(self):
+        """Polygons.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Polygons3DLayout`]
+            Pyaedt Objects.
+        """
+        if self._polygons:
+            return self._polygons
+        poly_types = ["poly", "plg"]
+        for poly in poly_types:
+            objs = self.modeler.oeditor.FindObjects("Type", poly)
+            for obj in objs:
+                self._polygons[obj] = Polygons3DLayout(self, obj, poly, False)
+            objs = self.modeler.oeditor.FindObjects("Type", poly + " void")
+            for obj in objs:
+                self._polygons[obj] = Polygons3DLayout(self, obj, poly, True)
+        return self._polygons
+
+    @property
+    def lines(self):
+        """Lines.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Line3dLayout`]
+            Pyaedt Objects.
+        """
+
+        if self._lines:
+            return self._lines
+        poly_types = ["line", "arc"]
+        for poly in poly_types:
+            objs = self.modeler.oeditor.FindObjects("Type", poly)
+            for obj in objs:
+                self._lines[obj] = Line3dLayout(self, obj, False)
+            objs = self.modeler.oeditor.FindObjects("Type", poly + " void")
+            for obj in objs:
+                self._lines[obj] = Line3dLayout(self, obj, True)
+        return self._lines
+
+    @property
+    def circles(self):
+        """Circles.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Circle3dLayout`]
+            Pyaedt Objects.
+        """
+        if self._circles:
+            return self._circles
+        objs = self.modeler.oeditor.FindObjects("Type", "circle")
+        for obj in objs:
+            self._circles[obj] = Circle3dLayout(self, obj, False)
+        objs = self.modeler.oeditor.FindObjects("Type", "circle void")
+        for obj in objs:
+            self._circles[obj] = Circle3dLayout(self, obj, True)
+        return self._circles
+
+    @property
+    def rectangles(self):
+        """Rectangles.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Rect3dLayout`]
+            Pyaedt Objects.
+        """
+        if self._rectangles:
+            return self._rectangles
+        objs = self.modeler.oeditor.FindObjects("Type", "rect")
+        for obj in objs:
+            self._rectangles[obj] = Rect3dLayout(self, obj, False)
+        objs = self.modeler.oeditor.FindObjects("Type", "rect void")
+        for obj in objs:
+            self._rectangles[obj] = Rect3dLayout(self, obj, True)
+        return self._rectangles
 
     @property
     def components_3d(self):
@@ -172,9 +227,8 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        list
-            List of components from EDB. If EDB is not present, ``None`` is returned.
-
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Components3DLayout`]
+            Pyaedt Objects.
         """
         if not self._components3d:
             for i in range(1, 1000):
@@ -189,33 +243,32 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        list
-            List of pins from EDB. If EDB is not present, ``None`` is returned.
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Pins3DLayout`]
+            Pins Dictionary.
 
         """
-        if not self._app.project_timestamp_changed and self._pins:
+        if self._pins:
             return self._pins
-        try:
-            pins_objs = list(self.modeler.edb.pins)
-        except:
-            pins_objs = []
-        for el in pins_objs:
-            if is_ironpython:
-                name = clr.Reference[System.String]()
-                try:
-                    response = el.GetProductProperty(0, 11, name)
-                except:
-                    name = ""
-            else:
-                val = String("")
-                try:
-                    response, name = el.GetProductProperty(0, 11, val)
-                except:
-                    name = ""
-            if str(name):
-                name = str(name).strip("'")
-                self._pins[name] = Pins3DLayout(self, el.GetComponent().GetName(), el.GetName(), name)
+        objs = self.modeler.oeditor.FindObjects("Type", "pin")
+        for obj in objs:
+            self._pins[obj] = Pins3DLayout(self, obj)
         return self._pins
+
+    @property
+    def vias(self):
+        """Vias.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Pins3DLayout`]
+            Vias Dictionary.
+        """
+        if self._vias:
+            return self._vias
+        objs = self.modeler.oeditor.FindObjects("Type", "via")
+        for obj in objs:
+            self._vias[obj] = Pins3DLayout(self, obj, is_pin=False)
+        return self._vias
 
     @property
     def nets(self):
@@ -223,16 +276,52 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        list
-            List of nets from EDB. If EDB is not present, ``None`` is returned.
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Nets3DLayout`]
+            Nets Dictionary.
 
         """
-        if not self._app.project_timestamp_changed and self._nets:
-            return self._nets
-        self._nets = {}
-        for net, net_object in self.modeler.edb.core_nets.nets.items():
-            self._nets[net] = Nets3DLayout(self, net, net_object)
-        return self._nets
+        n = {}
+        for k, v in self.power_nets.items():
+            n[k] = v
+        for k, v in self.signal_nets.items():
+            n[k] = v
+        return n
+
+    @property
+    def power_nets(self):
+        """Nets.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Nets3DLayout`]
+            Power Nets Dictionary.
+
+        """
+        if self._power_nets:
+            return self._power_nets
+
+        objs = self.modeler.oeditor.GetNetClassNets("<Power/Ground>")
+        for obj in objs:
+            self._power_nets[obj] = Nets3DLayout(self, obj)
+        return self._power_nets
+
+    @property
+    def signal_nets(self):
+        """Nets.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Nets3DLayout`]
+            Signal Nets Dictionary.
+
+        """
+        if self._signal_nets:
+            return self._signal_nets
+
+        objs = self.modeler.oeditor.GetNetClassNets("Non Power/Ground")
+        for obj in objs:
+            self._signal_nets[obj] = Nets3DLayout(self, obj)
+        return self._signal_nets
 
     @property
     def defaultmaterial(self):
@@ -299,8 +388,8 @@ class Primitives3DLayout(object):
             self.padstacks[name] = Padstack(name, self.opadstackmanager, self.model_units)
             return self.padstacks[name]
 
-    @pyaedt_function_handler()
-    def init_padstacks(self):
+    @property
+    def padstacks(self):
         """Read all padstacks from HFSS 3D Layout.
 
         Returns
@@ -309,6 +398,9 @@ class Primitives3DLayout(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+        if self._padstacks:
+            return self._padstacks
+        self._padstacks = {}
         names = GeometryOperators.List2list(self.opadstackmanager.GetNames())
 
         for name in names:
@@ -321,32 +413,32 @@ class Primitives3DLayout(object):
                         props = p
                 except:
                     pass
-            self.padstacks[name] = Padstack(name, self.opadstackmanager, self.model_units)
+            self._padstacks[name] = Padstack(name, self.opadstackmanager, self.model_units)
 
             for prop in props:
                 if type(prop) is str:
                     if prop == "mat:=":
-                        self.padstacks[name].mat = props[props.index(prop) + 1]
+                        self._padstacks[name].mat = props[props.index(prop) + 1]
                     elif prop == "plt:=":
-                        self.padstacks[name].plating = props[props.index(prop) + 1]
+                        self._padstacks[name].plating = props[props.index(prop) + 1]
                     elif prop == "hRg:=":
-                        self.padstacks[name].holerange = props[props.index(prop) + 1]
+                        self._padstacks[name].holerange = props[props.index(prop) + 1]
                     elif prop == "sbsh:=":
-                        self.padstacks[name].solder_shape = props[props.index(prop) + 1]
+                        self._padstacks[name].solder_shape = props[props.index(prop) + 1]
                     elif prop == "sbpl:=":
-                        self.padstacks[name].solder_placement = props[props.index(prop) + 1]
+                        self._padstacks[name].solder_placement = props[props.index(prop) + 1]
                     elif prop == "sbr:=":
-                        self.padstacks[name].solder_rad = props[props.index(prop) + 1]
+                        self._padstacks[name].solder_rad = props[props.index(prop) + 1]
                     elif prop == "sb2:=":
-                        self.padstacks[name].sb2 = props[props.index(prop) + 1]
+                        self._padstacks[name].sb2 = props[props.index(prop) + 1]
                     elif prop == "sbn:=":
-                        self.padstacks[name].solder_mat = props[props.index(prop) + 1]
+                        self._padstacks[name].solder_mat = props[props.index(prop) + 1]
                     elif prop == "hle:=":
-                        self.padstacks[name].hole.shape = props[props.index(prop) + 1][1]
-                        self.padstacks[name].hole.sizes = props[props.index(prop) + 1][3]
-                        self.padstacks[name].hole.x = props[props.index(prop) + 1][5]
-                        self.padstacks[name].hole.y = props[props.index(prop) + 1][7]
-                        self.padstacks[name].hole.rot = props[props.index(prop) + 1][9]
+                        self._padstacks[name].hole.shape = props[props.index(prop) + 1][1]
+                        self._padstacks[name].hole.sizes = props[props.index(prop) + 1][3]
+                        self._padstacks[name].hole.x = props[props.index(prop) + 1][5]
+                        self._padstacks[name].hole.y = props[props.index(prop) + 1][7]
+                        self._padstacks[name].hole.rot = props[props.index(prop) + 1][9]
                 try:
                     if prop[0] == "NAME:pds":
                         layers_num = len(prop) - 1
@@ -356,26 +448,26 @@ class Primitives3DLayout(object):
                             lay_name = lay[2]
                             lay_id = int(lay[4])
                             if i != 1:
-                                self.padstacks[name].add_layer(lay_name)
-                            self.padstacks[name].layers[lay_name].layername = lay_name
-                            self.padstacks[name].layers[lay_name].pad = self.padstacks[name].add_hole(
+                                self._padstacks[name].add_layer(lay_name)
+                            self._padstacks[name].layers[lay_name].layername = lay_name
+                            self._padstacks[name].layers[lay_name].pad = self._padstacks[name].add_hole(
                                 lay[6][1], list(lay[6][3]), lay[6][5], lay[6][7], lay[6][9]
                             )
-                            self.padstacks[name].layers[lay_name].antipad = self.padstacks[name].add_hole(
+                            self._padstacks[name].layers[lay_name].antipad = self._padstacks[name].add_hole(
                                 lay[8][1], list(lay[8][3]), lay[8][5], lay[8][7], lay[8][9]
                             )
-                            self.padstacks[name].layers[lay_name].thermal = self.padstacks[name].add_hole(
+                            self._padstacks[name].layers[lay_name].thermal = self._padstacks[name].add_hole(
                                 lay[10][1], list(lay[10][3]), lay[10][5], lay[10][7], lay[10][9]
                             )
-                            self.padstacks[name].layers[lay_name].connectionx = lay[12]
-                            self.padstacks[name].layers[lay_name].connectiony = lay[14]
-                            self.padstacks[name].layers[lay_name].connectiondir = lay[16]
+                            self._padstacks[name].layers[lay_name].connectionx = lay[12]
+                            self._padstacks[name].layers[lay_name].connectiony = lay[14]
+                            self._padstacks[name].layers[lay_name].connectiondir = lay[16]
                             i += 1
                         pass
                 except:
                     pass
 
-        return True
+        return self._padstacks
 
     @pyaedt_function_handler()
     def change_net_visibility(self, netlist=None, visible=False):
@@ -545,10 +637,7 @@ class Primitives3DLayout(object):
         vArg2.append("r:="), vArg2.append(self.arg_with_dim(radius))
         vArg1.append(vArg2)
         self._oeditor.CreateCircle(vArg1)
-        if self.is_outside_desktop:
-            self._geometries[name] = Geometries3DLayout(self, name)
-            if netname:
-                self._geometries[name].set_net_name(netname)
+        self._circles[name] = Circle3dLayout(self, name, False)
         return name
 
     @pyaedt_function_handler()
@@ -604,10 +693,7 @@ class Primitives3DLayout(object):
         vArg2.append("ang="), vArg2.append(self.arg_with_dim(angle))
         vArg1.append(vArg2)
         self._oeditor.CreateRectangle(vArg1)
-        if self.is_outside_desktop:
-            self._geometries[name] = Geometries3DLayout(self, name)
-            if netname:
-                self._geometries[name].set_net_name(netname)
+        self._rectangles[name] = Rect3dLayout(self, name, False)
         return name
 
     @pyaedt_function_handler()
@@ -680,10 +766,7 @@ class Primitives3DLayout(object):
             arg2.append(a[1])
         arg.append(arg2)
         self._oeditor.CreateLine(arg)
-        if self.is_outside_desktop:
-            self._geometries[name] = Geometries3DLayout(self, name)
-            if netname:
-                self._geometries[name].set_net_name(netname)
+        self._lines[name] = Line3dLayout(self, name, False)
         return name
 
     @pyaedt_function_handler()
