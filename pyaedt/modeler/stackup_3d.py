@@ -9,6 +9,55 @@ from pyaedt import constants
 LAYERS = {"s": "signal", "g": "ground", "d": "dielectric"}
 
 
+class NamedVariable(object):
+    def __init__(self, application, name, expression):
+        self._application = application
+        self._name = name
+        self._expression = expression
+        application[name] = expression
+        self._variable = application.variable_manager.variables[name]
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def expression(self):
+        return self._expression
+
+    @expression.setter
+    def expression(self, expression):
+        if isinstance(expression, str):
+            self._expression = expression
+            self._application[self.name] = expression
+        else:
+            self._application.logger.error("Expression must be a string")
+
+    @property
+    def unit_system(self):
+        """Unit system of the expression as a string."""
+        return self._variable.unit_system
+
+    @property
+    def units(self):
+        """Units."""
+        return self._variable.units
+
+    @property
+    def value(self):
+        """Value."""
+        return self._variable.value
+
+    @property
+    def numeric_value(self):
+        """Numeric part of the expression as a float value."""
+        return self._variable.numeric_value
+
+    @property
+    def string_value(self):
+        return self._variable.string_value
+
+
 class Layer3D(object):
     def __init__(
         self,
@@ -37,8 +86,7 @@ class Layer3D(object):
             self._fill_material = self.duplicate_parametrize_material(fill_material).name
         self._thickness_variable = self._name + "_thickness"
         if thickness:
-            self._app[self._thickness_variable] = str(thickness) + "mm"
-
+            self._thickness = NamedVariable(self._app, self._thickness_variable, str(thickness) + "mm")
         if layer_type == "dielectric":
             cloned_material = self.duplicate_parametrize_material(material)
             if cloned_material:
@@ -97,21 +145,22 @@ class Layer3D(object):
 
     @property
     def thickness(self):
-        return self._app.variable_manager[self._thickness_variable].value
+        return self._thickness
 
     @property
-    def elevation(self):
+    def thickness_value(self):
+        return self._thickness.value
+
+    @thickness.setter
+    def thickness(self, value):
+        self._thickness.expression = value
+
+    @property
+    def elevation_value(self):
         return self._app.variable_manager[self._layer_position].value
 
     @property
-    def thickness_expression(self):
-        try:
-            return self._app.variable_manager[self._thickness_variable].expression
-        except:
-            return self._app.variable_manager[self._thickness_variable].string_value
-
-    @property
-    def elevation_expression(self):
+    def elevation(self):
         try:
             return self._app.variable_manager[self._layer_position].expression
         except:
@@ -177,7 +226,7 @@ class Layer3D(object):
         substrate_thickness = 0
         for k, v in self._stackup._stackup.items():
             if v._index == self._index - 1:
-                substrate_thickness = v.thickness
+                substrate_thickness = v.thickness_value
                 break
         created_patch = Patch(
             self._app,
@@ -214,7 +263,7 @@ class Layer3D(object):
         substrate_thickness = 0
         for k, v in self._stackup._stackup.items():
             if v._index == self._index - 1:
-                substrate_thickness = v.thickness
+                substrate_thickness = v.thickness_value
                 break
 
         created_line = Line(
@@ -259,11 +308,51 @@ class Stackup3D(object):
         self._first_layer_position = "layer_1_position"
         self._shifted_index = 0
         self._stackup = OrderedDict({})
-        self._app[self._first_layer_position] = "0mm"
-        self._app["dielectric_x_position"] = "0mm"
-        self._app["dielectric_y_position"] = "0mm"
-        self._app["dielectric_length"] = "1000mm"
-        self._app["dielectric_width"] = "1000mm"
+        self._start_position = NamedVariable(self._app, self._first_layer_position, "0mm")
+        self._dielectric_x_position = NamedVariable(self._app, "dielectric_x_position", "0mm")
+        self._dielectric_y_position = NamedVariable(self._app, "dielectric_y_position", "0mm")
+        self._dielectric_width = NamedVariable(self._app, "dielectric_width", "1000mm")
+        self._dielectric_length = NamedVariable(self._app, "dielectric_length", "1000mm")
+
+    @property
+    def start_position(self):
+        return self._start_position
+
+    @start_position.setter
+    def start_position(self, expression):
+        self._start_position.expression = expression
+
+    @property
+    def dielectric_x_position(self):
+        return self._dielectric_x_position
+
+    @dielectric_x_position.setter
+    def dielectric_x_position(self, expression):
+        self._dielectric_x_position.expression = expression
+
+    @property
+    def dielectric_y_position(self):
+        return self._dielectric_x_position
+
+    @dielectric_y_position.setter
+    def dielectric_y_position(self, expression):
+        self._dielectric_y_position.expression = expression
+
+    @property
+    def dielectric_width(self):
+        return self._dielectric_width
+
+    @dielectric_width.setter
+    def dielectric_width(self, expression):
+        self._dielectric_width.expression = expression
+
+    @property
+    def dielectric_length(self):
+        return self._dielectric_length
+
+    @dielectric_length.setter
+    def dielectric_length(self, expression):
+        self._dielectric_length.expression = expression
 
     @property
     def layer_names(self):
@@ -308,24 +397,21 @@ class Stackup3D(object):
             self._dielectric_list.extend(lay._obj_3d)
             self._dielectric_name_list.append(lay._name)
             self._z_position_offset = self._z_position_offset + thickness
-            next_layer_position = "layer_" + str(self._shifted_index + 1) + "_position"
-            self._app[next_layer_position] = layer_position + "+" + lay._name + "_thickness"
-
         elif layer_type == "G":
             self._ground_list.extend(lay._obj_3d)
             self._ground_name_list.append(lay._name)
             self._ground_fill_material.append(lay._fill_material)
             self._z_position_offset = self._z_position_offset + thickness
-            next_layer_position = "layer_" + str(self._shifted_index + 1) + "_position"
-            self._app[next_layer_position] = layer_position + "+" + lay._name + "_thickness"
-
         elif layer_type == "S":
             self._signal_list.extend(lay._obj_3d)
             self._signal_name_list.append(lay._name)
             self._signal_material.append(lay._material_name)
             self._z_position_offset = self._z_position_offset + thickness
-            next_layer_position = "layer_" + str(self._shifted_index + 1) + "_position"
-            self._app[next_layer_position] = layer_position + "+" + lay._name + "_thickness"
+
+        next_layer_position = "layer_" + str(self._shifted_index + 1) + "_position"
+        self.__dict__[next_layer_position] = NamedVariable(
+            self._app, next_layer_position, layer_position + "+" + lay._name + "_thickness"
+        )
         self._stackup[lay._name] = lay
         return lay
 
@@ -432,7 +518,10 @@ class Patch:
         self.__aedt_object = None
         if application.materials.checkifmaterialexists(below_material):
             self.__material = application.materials[below_material]
-            self.__permittivity = float(self.__material.permittivity.value)
+            try:
+                self.__permittivity = float(self.__material.permittivity.value)
+            except:
+                self.__permittivity = application.variable_manager[self.__material.permittivity.value].value
         else:
             application.logger.error("Material doesn't exist, you must create it in using: import_materials_from_file")
         if isinstance(patch_length, float) or isinstance(patch_length, int):
@@ -1052,7 +1141,7 @@ class Line:
 
     @property
     def charac_impedance_calcul(self):
-        w = self.line_width
+        w = self.__width
         h = self.substrat_thickness
         er_e = self.effective_permittivity
         if w / h > 1:
