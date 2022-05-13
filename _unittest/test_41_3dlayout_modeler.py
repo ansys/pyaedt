@@ -150,9 +150,8 @@ class TestClass(BasisTest, object):
     def test_09_modify_padstack(self):
         pad_0 = self.aedtapp.modeler.padstacks["PlanarEMVia"]
         assert self.aedtapp.modeler.padstacks["PlanarEMVia"].plating != 55
-        pad_0.plating = 55
+        pad_0.plating = "55"
         pad_0.update()
-        self.aedtapp.modeler.init_padstacks()
         assert self.aedtapp.modeler.padstacks["PlanarEMVia"].plating == "55"
 
     def test_10_create_padstack(self):
@@ -179,6 +178,9 @@ class TestClass(BasisTest, object):
         assert line == "line1"
 
     def test_13a_create_edge_port(self):
+        port_wave = self.aedtapp.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
+        assert port_wave
+        assert self.aedtapp.delete_port(port_wave)
         assert self.aedtapp.create_edge_port("line1", 3, False)
         assert self.aedtapp.create_edge_port("line1", 0, True)
         assert len(self.aedtapp.excitations) > 0
