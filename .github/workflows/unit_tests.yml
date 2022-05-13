@@ -74,7 +74,10 @@ jobs:
         id: version
 
       - name: Generate wheelhouse
-        run: pip wheel . -w wheelhouse
+        run: |
+          pip install wheel setuptools -U
+          pip wheel . -w wheelhouse
+
 
       - name: Zip wheelhouse
         uses: vimtor/action-zip@v1
