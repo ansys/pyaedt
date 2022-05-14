@@ -399,9 +399,9 @@ class Stackup3D(object):
             material=material,
             thickness=thickness,
             fill_material=fill_material,
-            layer_position=layer_position,
             index=self._shifted_index,
         )
+        self._layer_position_manager(lay)
         if layer_type == "D":
             self._dielectric_list.extend(lay._obj_3d)
             self._dielectric_name_list.append(lay._name)
@@ -459,6 +459,7 @@ class Stackup3D(object):
 
 
     def resize(self, percentage_offset):
+    #TODO A really correct resize function can be create because 'hfss variable' allows to use max(myvar, myvar2)
         list_of_2d_points = []
         list_of_x_coordinates = []
         list_of_y_coordinates = []
