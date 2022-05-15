@@ -416,11 +416,13 @@ class Stackup3D(object):
             self._signal_name_list.append(lay._name)
             self._signal_material.append(lay._material_name)
             self._z_position_offset = self._z_position_offset + thickness
-
+        # With the function _layer_position_manager i think this part is not needed anymore or has to be reworked
+        """
         next_layer_position = "layer_" + str(self._shifted_index + 1) + "_position"
         self.__dict__[next_layer_position] = NamedVariable(
             self._app, next_layer_position, layer_position + "+" + lay._name + "_thickness"
         )
+        """
         self._stackup[lay._name] = lay
         return lay
 
