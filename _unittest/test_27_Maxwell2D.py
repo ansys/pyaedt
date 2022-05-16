@@ -101,11 +101,25 @@ class TestClass(BasisTest, object):
 
     @pyaedt_unittest_check_desktop_error
     def test_10_assign_torque(self):
-        assert self.aedtapp.assign_torque("Rotor_Section1")
+        T = self.aedtapp.assign_torque("Rotor_Section1")
+        assert T.type == "Torque"
+        assert T.props["Objects"][0] == "Rotor_Section1"
+        assert T.props["Is Positive"]
+        assert T.delete()
+        T = self.aedtapp.assign_torque(input_object="Rotor_Section1", is_positive=False, torque_name="Torque_Test")
+        assert T.name == "Torque_Test"
+        assert not T.props["Is Positive"]
+        assert T.props["Objects"][0] == "Rotor_Section1"
 
     @pyaedt_unittest_check_desktop_error
     def test_11_assign_force(self):
-        assert self.aedtapp.assign_force("Magnet2_Section1")
+        F = self.aedtapp.assign_force("Magnet2_Section1")
+        assert F.type == "Force"
+        assert F.props["Objects"][0] == "Magnet2_Section1"
+        assert F.props["Reference CS"] == "Global"
+        assert F.delete()
+        F = self.aedtapp.assign_force(input_object="Magnet2_Section1", force_name="Force_Test")
+        assert F.name == "Force_Test"
 
     @pyaedt_unittest_check_desktop_error
     def test_12_assign_current_source(self):
