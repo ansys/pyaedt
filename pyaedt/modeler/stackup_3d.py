@@ -242,7 +242,6 @@ class Layer3D(object):
             substrate_thickness,
             patch_width,
             self._name,
-            self._index,
             patch_length=patch_length,
             patch_thickness=self.thickness,
             patch_material=self.material_name,
@@ -281,7 +280,6 @@ class Layer3D(object):
             line_impedance,
             line_width,
             self._name,
-            self._index,
             line_length=line_length,
             line_electrical_length=line_electrical_length,
             line_thickness=self.thickness,
@@ -388,8 +386,6 @@ class Stackup3D(object):
         if not layer_type:
             raise ValueError("Layer Type has to be one of the S, D, G strins.")
         self._layer_name.append(name)
-        self._layer_position.append(self._z_position_offset)
-        layer_position = "layer_" + str(self._shifted_index) + "_position"
 
         lay = Layer3D(
             stackup=self,
@@ -405,24 +401,16 @@ class Stackup3D(object):
         if layer_type == "D":
             self._dielectric_list.extend(lay._obj_3d)
             self._dielectric_name_list.append(lay._name)
-            self._z_position_offset = self._z_position_offset + thickness
         elif layer_type == "G":
             self._ground_list.extend(lay._obj_3d)
             self._ground_name_list.append(lay._name)
             self._ground_fill_material.append(lay._fill_material)
-            self._z_position_offset = self._z_position_offset + thickness
         elif layer_type == "S":
             self._signal_list.extend(lay._obj_3d)
             self._signal_name_list.append(lay._name)
             self._signal_material.append(lay._material_name)
-            self._z_position_offset = self._z_position_offset + thickness
         # With the function _layer_position_manager i think this part is not needed anymore or has to be reworked
-        """
-        next_layer_position = "layer_" + str(self._shifted_index + 1) + "_position"
-        self.__dict__[next_layer_position] = NamedVariable(
-            self._app, next_layer_position, layer_position + "+" + lay._name + "_thickness"
-        )
-        """
+
         self._stackup[lay._name] = lay
         return lay
 
@@ -446,22 +434,21 @@ class Stackup3D(object):
 
     def _layer_position_manager(self, layer):
         previous_layer_end = self._end_of_stackup3D.expression
+
         layer.position.expression = previous_layer_end
         if layer.thickness:
             self._end_of_stackup3D.expression = layer.position.name + " + " + layer.thickness.name
         else:
             self._end_of_stackup3D.expression = layer.position.name
+
     # if we call this function instantiation of the Layer, the first call, previous_layer_end is "0mm", and
     # layer.position.expression is also "0mm" and self._end_of_stackup becomes the first layer.position + thickness
     # if it has thickness, and so the second call, previous_layer_end is the previous layer position + thickness
     # so the current layer position is the previous_layer_end and the end_of_stackup is the current layer position +
     # thickness, and we just need to call this function after the construction of a layer3D.
 
-
-
-
     def resize(self, percentage_offset):
-    #TODO A really correct resize function can be create because 'hfss variable' allows to use max(myvar, myvar2)
+        # TODO A really correct resize function can be create because 'hfss variable' allows to use max(myvar, myvar2)
         list_of_2d_points = []
         list_of_x_coordinates = []
         list_of_y_coordinates = []
@@ -518,7 +505,6 @@ class Patch:
         substrat_thickness,
         patch_width,
         signal_layer_name,
-        signal_layer_number,
         patch_length=None,
         patch_thickness=None,
         patch_material="copper",
@@ -540,7 +526,6 @@ class Patch:
         self._signal_material = patch_material
         self._layer_name = signal_layer_name
         self.__patch_name = patch_name
-        self.__layer_number = signal_layer_number
         self.__patch_thickness = patch_thickness
         self._app = application
         self.__aedt_object = None
@@ -565,14 +550,14 @@ class Patch:
         self.make_design_variable(patch_length)
         if patch_thickness:
             self.__aedt_object = application.modeler.primitives.create_box(
-                position=["patch_position_x", "patch_position_y", "layer_" + str(signal_layer_number) + "_position"],
+                position=["patch_position_x", "patch_position_y", "layer_" + str(signal_layer_name) + "_position"],
                 dimensions_list=["patch_length", "patch_width", signal_layer_name + "_thickness"],
                 name=patch_name,
                 matname=patch_material,
             )
         else:
             self.__aedt_object = application.modeler.primitives.create_rectangle(
-                position=["patch_position_x", "patch_position_y", "layer_" + str(signal_layer_number) + "_position"],
+                position=["patch_position_x", "patch_position_y", "layer_" + str(signal_layer_name) + "_position"],
                 dimension_list=["patch_length", "patch_width"],
                 name=patch_name,
                 matname=patch_material,
@@ -888,7 +873,6 @@ class Patch:
             line_impedance=line_impedance,
             line_width=line_width,
             signal_layer_name=self.layer_name,
-            signal_layer_number=self.layer_number,
             line_length=line_length,
             line_electrical_length=line_electrical_length,
             line_thickness=self.__patch_thickness,
@@ -915,7 +899,6 @@ class Line:
         line_impedance,
         line_width,
         signal_layer_name,
-        signal_layer_number,
         line_length,
         line_electrical_length=None,
         line_thickness=None,
@@ -935,7 +918,6 @@ class Line:
         self.__metric_unit = metric_unit
         self.__material_name = below_material
         self._layer_name = signal_layer_name
-        self.__layer_number = signal_layer_number
         self._app = application
         if application.materials.checkifmaterialexists(below_material):
             self.__material = application.materials[below_material]
@@ -976,14 +958,14 @@ class Line:
         self.make_design_variable(line_width)
         if line_thickness:
             self.__aedt_object = application.modeler.primitives.create_box(
-                position=["line_position_x", "line_position_y", "layer_" + str(signal_layer_number) + "_position"],
+                position=["line_position_x", "line_position_y", "layer_" + str(signal_layer_name) + "_position"],
                 dimensions_list=["line_length", "line_width", signal_layer_name + "_thickness"],
                 name=line_name,
                 matname=line_material,
             )
         else:
             self.__aedt_object = application.modeler.primitives.create_rectangle(
-                position=["line_position_x", "line_position_y", "layer_" + str(signal_layer_number) + "_position"],
+                position=["line_position_x", "line_position_y", "layer_" + str(signal_layer_name) + "_position"],
                 dimension_list=["line_length", "line_width"],
                 name=line_name,
                 matname=line_material,
