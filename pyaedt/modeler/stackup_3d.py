@@ -253,6 +253,7 @@ class Layer3D(object):
             below_material=self.filling_material_name,
         )
         self._obj_3d.append(created_patch)
+        self._stackup._object_list.append(created_patch)
         return created_patch
 
     def line(
@@ -292,6 +293,8 @@ class Layer3D(object):
             below_material=self.filling_material_name,
         )
         self._obj_3d.append(created_line)
+        self._stackup._object_list.append(created_line)
+
         return created_line
 
 
