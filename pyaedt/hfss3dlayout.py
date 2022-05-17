@@ -59,6 +59,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Port number of which start the oDesktop communication on already existing server.
         This parameter is ignored in new server creation. It works only on 2022R2.
         Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Only used when new_desktop_session = False, specifies by process id which instance
+        of electronics desktop to point PyAEDT at.
 
     Examples
     --------
@@ -103,6 +106,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         FieldAnalysis3DLayout.__init__(
             self,
@@ -118,6 +122,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
 
     def __enter__(self):

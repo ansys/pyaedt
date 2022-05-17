@@ -55,6 +55,9 @@ class FieldAnalysis3DLayout(Analysis):
     student_version : bool, optional
         Whether to enable the student version of AEDT. The default
         is ``False``.
+    aedt_process_id : int, optional
+        Only used when new_desktop_session = False, specifies by process id which instance
+        of electronics desktop to point PyAEDT at.
 
     """
 
@@ -72,6 +75,7 @@ class FieldAnalysis3DLayout(Analysis):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id = None,
     ):
         Analysis.__init__(
             self,
@@ -87,6 +91,7 @@ class FieldAnalysis3DLayout(Analysis):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
         self._osolution = self._odesign.GetModule("SolveSetups")
         self._oexcitation = self._odesign.GetModule("Excitations")

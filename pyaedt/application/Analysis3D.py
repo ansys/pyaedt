@@ -62,7 +62,7 @@ class FieldAnalysis3D(Analysis, object):
         Whether to enable the student version of AEDT. The default
         is ``False``.
     aedt_process_id : int, optional
-        Only used when new_desktop_session == False, specifies by process id which instance
+        Only used when new_desktop_session = False, specifies by process id which instance
         of electronics desktop to point PyAEDT at.
     """
 
