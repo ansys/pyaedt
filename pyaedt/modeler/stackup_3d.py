@@ -237,11 +237,11 @@ class Layer3D(object):
                     cloned_material.magnetic_loss_tangent = magnetic_loss_variable
                     return cloned_material
             else:
-                application.logger.warning(
-                    "The material %s has been already cloned,"
-                    " if you want to clone it again pass in argument"
-                    " the named of the clone" % material_name
-                )
+                # application.logger.warning(
+                #     "The material %s has been already cloned,"
+                #     " if you want to clone it again pass in argument"
+                #     " the named of the clone" % material_name
+                # )
                 return application.materials[cloned_material_name]
         else:
             application.logger.error("The material name %s doesn't exist" % material_name)
@@ -289,13 +289,14 @@ class Layer3D(object):
         self,
         frequency,
         line_length,
-        line_impedance,
+        line_impedance=None,
         line_width=None,
         line_electrical_length=None,
         line_position_x=0,
         line_position_y=0,
         line_name=None,
         metric_unit="mm",
+        reference_system=None,
     ):
         if not line_name:
             line_name = generate_unique_name("{0}_line".format(self._name), n=3)
@@ -322,6 +323,7 @@ class Layer3D(object):
             line_name=line_name,
             metric_unit=metric_unit,
             below_material=self.filling_material_name,
+            reference_system=reference_system,
         )
         created_line.aedt_object.group_name = "Layer_{}".format(self._name)
         self._obj_3d.append(created_line.aedt_object)
@@ -358,17 +360,148 @@ class Layer3D(object):
             return polygon
 
 
+class PadstackLayer(object):
+    def __init__(self, padstack, layer_name, elevation):
+        self._padstack = padstack
+        self._layer_name = layer_name
+        self._layer_elevation = elevation
+        self._pad_radius = 1
+        self._antipad_radius = 2
+        self._units = "mm"
+
+
 class Padstack(object):
-    def __init__(self, app, stackup, pad_by_layer, antipad_by_layer):
+    def __init__(self, app, stackup, name, material="copper"):
         self._app = app
         self._stackup = stackup
-        self._pad_by_layer = pad_by_layer
-        self._antipad_by_layer = antipad_by_layer
+        self.name = name
+        self._padstacks_by_layer = OrderedDict({})
+        self._vias_objects = []
+        self._num_sides = 16
+        self._plating_ratio = 1
+        v = None
+        k = None
+        for k, v in self._stackup.stackup_layers.items():
+            if not self._padstacks_by_layer and v._layer_type == "dielectric":
+                continue
+            self._padstacks_by_layer[k] = PadstackLayer(self, k, v.position)
+        if v and v._layer_type == "dielectric":
+            del self._padstacks_by_layer[k]
+        self._padstacks_material = material
 
-    # def create(self, position_x, position_y, name=None):
-    #
-    #     for k,v in self._pad_by_layer.items():
-    #         self._app.modeler.create_cylinder(self._app.AXIS.Z, [position_x, position_y, self._stackup[k]])
+    @property
+    def plating_ratio(self):
+        return self._plating_ratio
+
+    @plating_ratio.setter
+    def plating_ratio(self, val):
+        if isinstance(val, (float, int)) and val > 0 and val <= 1:
+            self._plating_ratio = val
+        elif isinstance(val, str):
+            self._plating_ratio = val
+        else:
+            self._app.logger.error("Plating has to be between 0 and 1")
+
+    @property
+    def num_sides(self):
+        return self._num_sides
+
+    @num_sides.setter
+    def num_sides(self, val):
+        self._num_sides = val
+
+    def set_all_pad_value(self, value):
+        for v in list(self._padstacks_by_layer.values()):
+            self._pad_radius = value
+
+    def set_all_antipad_value(self, value):
+        for v in list(self._padstacks_by_layer.values()):
+            self._antipad_radius = value
+
+    def set_start_layer(self, layer):
+        found = False
+        new_stackup = OrderedDict({})
+        for k, v in self._stackup.stackup_layers.items():
+            if k == layer:
+                found = True
+            if found and layer not in self._padstacks_by_layer:
+                new_stackup[k] = PadstackLayer(self, k, v.position)
+            elif found:
+                new_stackup[k] = self._padstacks_by_layer[k]
+        self._padstacks_by_layer = new_stackup
+
+    def set_stop_layer(self, layer):
+        found = False
+        new_stackup = OrderedDict({})
+        for k, v in self._stackup.stackup_layers.items():
+            if k == layer:
+                found = True
+            if not found and k in list(self._padstacks_by_layer.keys()):
+                new_stackup[k] = self._padstacks_by_layer[k]
+        self._padstacks_by_layer = new_stackup
+
+    def insert(self, position_x=0, position_y=0, instance_name=None, reference_system=None):
+        if not instance_name:
+            instance_name = generate_unique_name("{}_".format(self.name), n=3)
+            if reference_system:
+                self._app.modeler.set_working_coordinate_system(reference_system)
+                self._reference_system = reference_system
+            else:
+                self._app.modeler.create_coordinate_system(
+                    origin=[0, 0, 0], reference_cs="Global", name=instance_name + "_CS"
+                )
+                self._app.modeler.set_working_coordinate_system(instance_name + "_CS")
+                self._reference_system = instance_name + "_CS"
+
+            first_el = None
+            cyls = []
+            for k, v in self._padstacks_by_layer.items():
+                if not first_el:
+                    first_el = v._layer_elevation
+                else:
+                    position_x = self._app.modeler._arg_with_dim(position_x)
+                    position_y = self._app.modeler._arg_with_dim(position_y)
+                    cyls.append(
+                        self._app.modeler.create_cylinder(
+                            "Z",
+                            [position_x, position_y, first_el.name],
+                            v._pad_radius,
+                            v._layer_elevation.name,
+                            matname=self._padstacks_material,
+                            name=instance_name,
+                            numSides=self._num_sides,
+                        )
+                    )
+                    if self.plating_ratio < 1:
+                        hole = self._app.modeler.create_cylinder(
+                            "Z",
+                            [position_x, position_y, first_el.name],
+                            "{}*{}".format(self._app.modeler._arg_with_dim(v._pad_radius), 1 - self.plating_ratio),
+                            v._layer_elevation.name,
+                            matname=self._padstacks_material,
+                            name=instance_name,
+                            numSides=self._num_sides,
+                        )
+                        cyls[-1].subtract(hole, False)
+                    anti = self._app.modeler.create_cylinder(
+                        "Z",
+                        [position_x, position_y, first_el.name],
+                        v._antipad_radius,
+                        v._layer_elevation.name,
+                        matname="air",
+                        name=instance_name + "_antipad",
+                    )
+                    self._app.modeler.subtract(
+                        self._stackup._signal_list + self._stackup._ground_list + self._stackup._dielectric_list,
+                        anti,
+                        False,
+                    )
+                    first_el = v._layer_elevation
+            if len(cyls) > 1:
+                self._app.modeler.unite(cyls)
+            self._vias_objects.append(cyls[0])
+            cyls[0].group_name = "Vias"
+            self._stackup._vias.append(self)
 
 
 class Stackup3D(object):
@@ -386,6 +519,7 @@ class Stackup3D(object):
         self._signal_name_list = []
         self._signal_material = []
         self._object_list = []
+        self._vias = []
         self._end_of_stackup3D = NamedVariable(self._app, "StackUp_End", "0mm")
         self._z_position_offset = 0
         self._first_layer_position = "layer_1_position"
@@ -396,6 +530,11 @@ class Stackup3D(object):
         self._dielectric_y_position = NamedVariable(self._app, "dielectric_y_position", "0mm")
         self._dielectric_width = NamedVariable(self._app, "dielectric_width", "1000mm")
         self._dielectric_length = NamedVariable(self._app, "dielectric_length", "1000mm")
+        self._padstacks = []
+
+    @property
+    def padstacks(self):
+        return self._padstacks
 
     @property
     def dielectrics(self):
@@ -483,6 +622,11 @@ class Stackup3D(object):
     def z_position_offset(self):
         return self._z_position_offset
 
+    def add_padstack(self, name, units="mm", material="copper"):
+        p = Padstack(self._app, self, name, material)
+        self._padstacks.append(p)
+        return p
+
     def add_layer(self, name, layer_type="S", material="copper", thickness=0.035, fill_material="FR4_epoxy"):
         self._shifted_index += 1
         if not layer_type:
@@ -561,6 +705,16 @@ class Stackup3D(object):
         for object in self._object_list:
             points_list_by_object = object.points_on_layer
             list_of_2d_points = points_list_by_object + list_of_2d_points
+        for via in self._vias:
+            for v in via._vias_objects:
+                list_of_x_coordinates.append(v.bounding_box[0])
+                list_of_x_coordinates.append(v.bounding_box[2])
+                list_of_y_coordinates.append(v.bounding_box[1])
+                list_of_y_coordinates.append(v.bounding_box[3])
+                list_of_x_coordinates.append(v.bounding_box[0])
+                list_of_x_coordinates.append(v.bounding_box[2])
+                list_of_y_coordinates.append(v.bounding_box[3])
+                list_of_y_coordinates.append(v.bounding_box[1])
         for point in list_of_2d_points:
             list_of_x_coordinates.append(point[0])
             list_of_y_coordinates.append(point[1])
@@ -613,6 +767,11 @@ class CommonObject(object):
         self.__layer_name = None
         self.__layer_number = None
         self.__material_name = None
+        self._reference_system = None
+
+    @property
+    def reference_system(self):
+        return self._reference_system
 
     @property
     def metric_unit(self):
@@ -695,6 +854,7 @@ class Patch(CommonObject, object):
         patch_position_y=0,
         patch_name="patch",
         metric_unit="mm",
+        reference_system=None,
     ):
         CommonObject.__init__(self, application, metric_unit)
         self.__frequency = NamedVariable(application, patch_name + "_frequency", str(frequency) + "Hz")
@@ -736,13 +896,31 @@ class Patch(CommonObject, object):
             self.__wave_length = self.wave_length_calcul
             self.__length = self.length_calcul
         self.__impedance_l_w, self.__impedance_w_l = self.impedance_calcul
-        if signal_layer.thickness:
-            self._aedt_object = application.modeler.primitives.create_box(
-                position=[
+        if reference_system:
+            application.modeler.set_working_coordinate_system(reference_system)
+            start_point = [
+                "{}_position_x".format(self.__name),
+                "{}_position_y".format(self.__name),
+                0,
+            ]
+            self._reference_system = reference_system
+        else:
+            application.modeler.create_coordinate_system(
+                origin=[
                     "{}_position_x".format(patch_name),
                     "{}_position_y".format(patch_name),
                     signal_layer.position.name,
                 ],
+                reference_cs="Global",
+                name=patch_name + "_CS",
+            )
+            start_point = [0, 0, 0]
+            application.modeler.set_working_coordinate_system(patch_name + "_CS")
+
+            self._reference_system = patch_name + "_CS"
+        if signal_layer.thickness:
+            self._aedt_object = application.modeler.primitives.create_box(
+                position=start_point,
                 dimensions_list=[
                     "{}_length".format(patch_name),
                     "{}_width".format(patch_name),
@@ -753,12 +931,13 @@ class Patch(CommonObject, object):
             )
         else:
             self._aedt_object = application.modeler.primitives.create_rectangle(
-                position=["patch_position_x", "patch_position_y", signal_layer.position.name],
+                position=start_point,
                 dimension_list=["patch_length", "patch_width"],
                 name=patch_name,
                 matname=signal_layer.material,
             )
             application.assign_coating(self._aedt_object.name, signal_layer.material)
+        application.modeler.set_working_coordinate_system("Global")
         application.modeler.subtract(blank_list=[signal_layer.name], tool_list=[patch_name], keepOriginals=True)
 
     def make_design_variable(self, length):
@@ -951,6 +1130,7 @@ class Patch(CommonObject, object):
             line_name=line_name,
             metric_unit="mm",
             below_material=self.material_name,
+            reference_system=None,
         )
 
         self.application["{}_position_x".format(self.__name)] = "{0}_position_x + {0}_length".format(self.__name)
@@ -979,6 +1159,7 @@ class Line(CommonObject, object):
         line_name="line",
         metric_unit="mm",
         below_material="Duroid (tm)",
+        reference_system=None,
     ):
         CommonObject.__init__(self, application, metric_unit)
 
@@ -1035,13 +1216,31 @@ class Line(CommonObject, object):
 
                 application.logger.error("line_length must be a float.")
         self.make_design_variable(line_width)
-        if line_thickness:
-            self._aedt_object = application.modeler.primitives.create_box(
-                position=[
+        if reference_system:
+            application.modeler.set_working_coordinate_system(reference_system)
+            start_point = [
+                "{}_position_x".format(self.__name),
+                "{}_position_y".format(self.__name),
+                0,
+            ]
+            self._reference_system = reference_system
+        else:
+            application.modeler.create_coordinate_system(
+                origin=[
                     "{}_position_x".format(self.__name),
                     "{}_position_y".format(self.__name),
                     "layer_" + str(signal_layer_name) + "_position",
                 ],
+                reference_cs="Global",
+                name=line_name + "_CS",
+            )
+            application.modeler.set_working_coordinate_system(line_name + "_CS")
+
+            start_point = [0, 0, 0]
+            self._reference_system = line_name + "_CS"
+        if line_thickness:
+            self._aedt_object = application.modeler.primitives.create_box(
+                position=start_point,
                 dimensions_list=[
                     "{}_length".format(self.__name),
                     "{}_width".format(self.__name),
@@ -1052,15 +1251,12 @@ class Line(CommonObject, object):
             )
         else:
             self._aedt_object = application.modeler.primitives.create_rectangle(
-                position=[
-                    "{}_position_x".format(self.__name),
-                    "{}_position_y".format(self.__name),
-                    "layer_" + str(signal_layer_name) + "_position",
-                ],
+                position=start_point,
                 dimension_list=["{}_length".format(self.__name), "{}_width".format(self.__name)],
                 name=line_name,
                 matname=line_material,
             )
+        application.modeler.set_working_coordinate_system("Global")
         application.modeler.subtract(blank_list=[signal_layer_name], tool_list=[line_name], keepOriginals=True)
 
     def make_design_variable(self, width):
@@ -1320,6 +1516,7 @@ class Polygon(CommonObject, object):
         metric_unit="mm",
         mat_name="copper",
         is_void=False,
+        reference_system=None,
     ):
         CommonObject.__init__(self, application, metric_unit)
 
@@ -1336,6 +1533,16 @@ class Polygon(CommonObject, object):
                     "layer_" + str(signal_layer_name) + "_position",
                 ]
             )
+        if reference_system:
+            application.modeler.set_working_coordinate_system(reference_system)
+            self._reference_system = reference_system
+        else:
+            application.modeler.create_coordinate_system(
+                origin=[0, 0, 0], reference_cs="Global", name=poly_name + "_CS"
+            )
+            application.modeler.set_working_coordinate_system(poly_name + "_CS")
+
+            self._reference_system = poly_name + "_CS"
         self._aedt_object = application.modeler.create_polyline(
             position_list=pts, name=poly_name, matname=mat_name, cover_surface=True
         )
@@ -1344,6 +1551,7 @@ class Polygon(CommonObject, object):
                 application.modeler.sweep_along_vector(self._aedt_object, [0, 0, thickness], draft_type="Natural")
             else:
                 application.modeler.sweep_along_vector(self._aedt_object, [0, 0, thickness.name], draft_type="Natural")
+        application.modeler.set_working_coordinate_system("Global")
 
     @property
     def points_on_layer(self):
