@@ -68,15 +68,15 @@ class NamedVariable(object):
 
 class Layer3D(object):
     def __init__(
-        self,
-        stackup,
-        app,
-        name,
-        layer_type="S",
-        material="copper",
-        thickness=0.035,
-        fill_material="FR4_epoxy",
-        index=1,
+            self,
+            stackup,
+            app,
+            name,
+            layer_type="S",
+            material="copper",
+            thickness=0.035,
+            fill_material="FR4_epoxy",
+            index=1,
     ):
         self._stackup = stackup
         # I think is better to call it just 'position'
@@ -95,21 +95,19 @@ class Layer3D(object):
         obj_3d = None
         self._material = self.duplicate_parametrize_material(material)
         self._material_name = self._material.name
-        if self._layer_type != "dielectric" and thickness > 0:
+        if self._layer_type != "dielectric":
             self._fill_material = self.duplicate_parametrize_material(fill_material)
             self._fill_material_name = self._fill_material.name
         self._thickness_variable = self._name + "_thickness"
         if thickness:
             self._thickness = NamedVariable(self._app, self._thickness_variable, str(thickness) + "mm")
         if self._layer_type == "dielectric":
-            cloned_material = self.duplicate_parametrize_material(material)
-            if cloned_material:
-                obj_3d = self._app.modeler.primitives.create_box(
-                    ["dielectric_x_position", "dielectric_y_position", layer_position],
-                    ["dielectric_length", "dielectric_width", self._thickness_variable],
-                    name=self._name,
-                    matname=cloned_material.name,
-                )
+            obj_3d = self._app.modeler.primitives.create_box(
+                ["dielectric_x_position", "dielectric_y_position", layer_position],
+                ["dielectric_length", "dielectric_width", self._thickness_variable],
+                name=self._name,
+                matname=self._material_name,
+            )
         elif self._layer_type == "ground":
             if thickness:
                 obj_3d = self._app.modeler.primitives.create_box(
@@ -166,8 +164,12 @@ class Layer3D(object):
         return self._material
 
     @property
-    def filling_material_name(self):
+    def filling_material(self):
         return self._fill_material
+
+    @property
+    def filling_material_name(self):
+        return self._fill_material_name
 
     @property
     def thickness(self):
@@ -248,15 +250,15 @@ class Layer3D(object):
             return None
 
     def patch(
-        self,
-        frequency,
-        patch_width,
-        patch_length=None,
-        patch_position_x=0,
-        patch_position_y=0,
-        patch_name=None,
-        metric_unit="mm",
-        axis="X",
+            self,
+            frequency,
+            patch_width,
+            patch_length=None,
+            patch_position_x=0,
+            patch_position_y=0,
+            patch_name=None,
+            metric_unit="mm",
+            axis="X",
     ):
         if not patch_name:
             patch_name = generate_unique_name("{}_patch".format(self._name), n=3)
@@ -288,18 +290,18 @@ class Layer3D(object):
         return created_patch
 
     def line(
-        self,
-        frequency,
-        line_length,
-        line_impedance=None,
-        line_width=None,
-        line_electrical_length=None,
-        line_position_x=0,
-        line_position_y=0,
-        line_name=None,
-        metric_unit="mm",
-        axis="X",
-        reference_system=None,
+            self,
+            frequency,
+            line_length,
+            line_impedance=None,
+            line_width=None,
+            line_electrical_length=None,
+            line_position_x=0,
+            line_position_y=0,
+            line_name=None,
+            metric_unit="mm",
+            axis="X",
+            reference_system=None,
     ):
         if not line_name:
             line_name = generate_unique_name("{0}_line".format(self._name), n=3)
@@ -674,10 +676,10 @@ class Stackup3D(object):
         )
 
     def add_dielectric_layer(
-        self,
-        name,
-        material="FR4_epoxy",
-        thickness=0.035,
+            self,
+            name,
+            material="FR4_epoxy",
+            thickness=0.035,
     ):
         return self.add_layer(name=name, layer_type="D", material=material, thickness=thickness, fill_material=None)
 
@@ -847,19 +849,19 @@ class CommonObject(object):
 
 class Patch(CommonObject, object):
     def __init__(
-        self,
-        application,
-        frequency,
-        patch_width,
-        signal_layer,
-        dielectric_layer,
-        patch_length=None,
-        patch_position_x=0,
-        patch_position_y=0,
-        patch_name="patch",
-        metric_unit="mm",
-        reference_system=None,
-        axis="X",
+            self,
+            application,
+            frequency,
+            patch_width,
+            signal_layer,
+            dielectric_layer,
+            patch_length=None,
+            patch_position_x=0,
+            patch_position_y=0,
+            patch_name="patch",
+            metric_unit="mm",
+            reference_system=None,
+            axis="X",
     ):
         CommonObject.__init__(self, application, metric_unit)
         self.__frequency = NamedVariable(application, patch_name + "_frequency", str(frequency) + "Hz")
@@ -948,7 +950,7 @@ class Patch(CommonObject, object):
         else:
             self._aedt_object = application.modeler.primitives.create_rectangle(
                 position=start_point,
-                dimension_list=["patch_length", "patch_width"],
+                dimension_list=[self.length.name, self.width.name],
                 name=patch_name,
                 matname=signal_layer.material,
             )
@@ -1048,8 +1050,8 @@ class Patch(CommonObject, object):
         h = self.__substrat_thickness.name
         w = self.__width.name
         patch_added_length_formula = (
-            "0.412 * " + h + " * (" + er_e + " + 0.3) * (" + w + "/" + h + " + 0.264)/"
-            "((" + er_e + " - 0.258) * (" + w + "/" + h + " + 0.813))"
+                "0.412 * " + h + " * (" + er_e + " + 0.3) * (" + w + "/" + h + " + 0.264)/"
+                                                                               "((" + er_e + " - 0.258) * (" + w + "/" + h + " + 0.813))"
         )
         self.__added_length = NamedVariable(self.application, self.__name + "_added_length", patch_added_length_formula)
         return self.__added_length
@@ -1159,25 +1161,25 @@ class Patch(CommonObject, object):
 
 class Line(CommonObject, object):
     def __init__(
-        self,
-        application,
-        frequency,
-        substrat_thickness,
-        line_impedance,
-        line_width,
-        signal_layer_name,
-        line_length,
-        line_electrical_length=None,
-        line_thickness=None,
-        line_material="copper",
-        line_position_x=0,
-        line_position_y=0,
-        line_position_z=0,
-        line_name="line",
-        metric_unit="mm",
-        below_material="Duroid (tm)",
-        reference_system=None,
-        axis="X",
+            self,
+            application,
+            frequency,
+            substrat_thickness,
+            line_impedance,
+            line_width,
+            signal_layer_name,
+            line_length,
+            line_electrical_length=None,
+            line_thickness=None,
+            line_material="copper",
+            line_position_x=0,
+            line_position_y=0,
+            line_position_z=0,
+            line_name="line",
+            metric_unit="mm",
+            below_material="Duroid (tm)",
+            reference_system=None,
+            axis="X",
     ):
         CommonObject.__init__(self, application, metric_unit)
 
@@ -1319,15 +1321,15 @@ class Line(CommonObject, object):
                 string_b = "(377 * pi / (2 * {0}_impedance * sqrt({0}_substrat_permittivity))".format(self.__name)
                 w_h = 2 * (b - 1 - log(2 * b - 1) * (er - 1) * (log(b - 1) + 0.39 - 0.61 / er) / (2 * er)) / pi
                 string_w_h = (
-                    "(2 * ("
-                    + string_b
-                    + " - 1 - log(2 * "
-                    + string_b
-                    + "- 1) * ({0}_substrat_permittivity -1) * ".format(self.__name)
-                    + "(log("
-                    + string_b
-                    + " - 1) + 0.39 - 0.61 / {0}_substrat_permittivity) /".format(self.__name)
-                    + " (2 * {0}_substrat_permittivity)) / pi ".format(self.__name)
+                        "(2 * ("
+                        + string_b
+                        + " - 1 - log(2 * "
+                        + string_b
+                        + "- 1) * ({0}_substrat_permittivity -1) * ".format(self.__name)
+                        + "(log("
+                        + string_b
+                        + " - 1) + 0.39 - 0.61 / {0}_substrat_permittivity) /".format(self.__name)
+                        + " (2 * {0}_substrat_permittivity)) / pi ".format(self.__name)
                 )
                 if w_h > 2:
                     line_width_formula = "{0}_substrat_thickness * ".format(self.__name) + string_w_h
@@ -1462,8 +1464,8 @@ class Line(CommonObject, object):
             self.__charac_impedance = 120 * pi / (sqrt(er_e) * (w / h + 1.393 + 0.667 * log(w / h + 1.444)))
         else:
             self.__charac_impedance = (
-                60 * log(8 * h / w + w / (4 * h)) / sqrt(er_e) / 2
-                + 120 * pi / (sqrt(er_e) * (w / h + 1.393 + 0.667 * log(w / h + 1.444))) / 2
+                    60 * log(8 * h / w + w / (4 * h)) / sqrt(er_e) / 2
+                    + 120 * pi / (sqrt(er_e) * (w / h + 1.393 + 0.667 * log(w / h + 1.444))) / 2
             )
         return self.__charac_impedance
 
@@ -1552,16 +1554,16 @@ class Line(CommonObject, object):
 
 class Polygon(CommonObject, object):
     def __init__(
-        self,
-        application,
-        point_list,
-        thickness,
-        signal_layer_name,
-        poly_name="poly",
-        metric_unit="mm",
-        mat_name="copper",
-        is_void=False,
-        reference_system=None,
+            self,
+            application,
+            point_list,
+            thickness,
+            signal_layer_name,
+            poly_name="poly",
+            metric_unit="mm",
+            mat_name="copper",
+            is_void=False,
+            reference_system=None,
     ):
         CommonObject.__init__(self, application, metric_unit)
 
