@@ -207,6 +207,11 @@ class Materials(object):
         >>> oDefinitionManager.GetProjectMaterialNames
         >>> oMaterialManager.GetData
         """
+        if isinstance(mat, Material):
+            if mat.name.lower() in self.material_keys:
+                return mat
+            else:
+                return False
         if mat.lower() in self.material_keys:
             if mat.lower() in self._mat_names_aedt_lower:
                 return self.material_keys[mat.lower()]
