@@ -958,39 +958,6 @@ class Patch(CommonObject, object):
         application.modeler.set_working_coordinate_system("Global")
         application.modeler.subtract(blank_list=[signal_layer.name], tool_list=[patch_name], keepOriginals=True)
 
-    def make_design_variable(self, length):
-        self.application["patch_frequency"] = str(self.__frequency) + "Hz"
-        self.application["substrat_thickness"] = str(self.__substrat_thickness) + "mm"
-        self.application["patch_width"] = str(self.__width) + "mm"
-        self.application["patch_position_x"] = str(self.__position_x) + "mm"
-        self.application["patch_position_y"] = str(self.__position_y) + "mm"
-        patch_eff_permittivity_formula = (
-            "(substrat_permittivity + 1)/2 + (substrat_permittivity - 1)/"
-            "(2 * sqrt(1 + 10 * substrat_thickness/patch_width))"
-        )
-        self.application["patch_eff_permittivity"] = patch_eff_permittivity_formula
-        patch_wave_length_formula = "c0 * 1000/(patch_frequency * sqrt(patch_eff_permittivity))"
-        self.application["patch_wave_length"] = patch_wave_length_formula + "mm"
-        if isinstance(length, float) or isinstance(length, int):
-            self.application["{0}_length".format(self.__name)] = str(self.__length) + "mm"
-        elif length is None:
-            patch_added_length_formula = (
-                "0.412 * substrat_thickness * (patch_eff_permittivity + 0.3)"
-                " * (patch_width/substrat_thickness + 0.264)"
-                " / ((patch_eff_permittivity - 0.258)"
-                " * (patch_width/substrat_thickness + 0.813)) "
-            )
-            self.application["patch_added_length"] = patch_added_length_formula
-            patch_length_formula = "patch_wave_length / 2 - 2 * patch_added_length"
-            self.application["patch_length"] = patch_length_formula
-        if self.__wave_length > self.__width:
-            patch_impedance_formula = "45 * ({0}_wave_length/{0}_width * sqrt({0}_eff_permittivity)) ** 2".format(
-                self.__name
-            )
-        else:
-            patch_impedance_formula = "60 * {0}_wave_length/{0}_width * sqrt({0}_eff_permittivity)".format(self.__name)
-        self.application["{0}_impedance".format(self.__name)] = patch_impedance_formula
-
     @property
     def frequency(self):
         return self.__frequency
