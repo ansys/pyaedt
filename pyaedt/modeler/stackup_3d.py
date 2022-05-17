@@ -256,6 +256,7 @@ class Layer3D(object):
         patch_position_y=0,
         patch_name=None,
         metric_unit="mm",
+        axis="X",
     ):
         if not patch_name:
             patch_name = generate_unique_name("{}_patch".format(self._name), n=3)
@@ -279,6 +280,7 @@ class Layer3D(object):
             patch_position_y=patch_position_y,
             patch_name=patch_name,
             metric_unit=metric_unit,
+            axis=axis,
         )
         self._obj_3d.append(created_patch.aedt_object)
         self._stackup._object_list.append(created_patch)
@@ -296,6 +298,7 @@ class Layer3D(object):
         line_position_y=0,
         line_name=None,
         metric_unit="mm",
+        axis="X",
         reference_system=None,
     ):
         if not line_name:
@@ -324,6 +327,7 @@ class Layer3D(object):
             metric_unit=metric_unit,
             below_material=self.filling_material_name,
             reference_system=reference_system,
+            axis=axis,
         )
         created_line.aedt_object.group_name = "Layer_{}".format(self._name)
         self._obj_3d.append(created_line.aedt_object)
@@ -855,6 +859,7 @@ class Patch(CommonObject, object):
         patch_name="patch",
         metric_unit="mm",
         reference_system=None,
+        axis="X",
     ):
         CommonObject.__init__(self, application, metric_unit)
         self.__frequency = NamedVariable(application, patch_name + "_frequency", str(frequency) + "Hz")
@@ -898,23 +903,34 @@ class Patch(CommonObject, object):
         self.__impedance_l_w, self.__impedance_w_l = self.impedance_calcul
         if reference_system:
             application.modeler.set_working_coordinate_system(reference_system)
-            start_point = [
-                "{}_position_x".format(self.__name),
-                "{}_position_y".format(self.__name),
-                0,
-            ]
+            if axis == "X":
+                start_point = [
+                    "{0}_position_x".format(self.__name),
+                    "{0}_position_y-{0}_width/2".format(self.__name),
+                    0,
+                ]
+            else:
+                start_point = [
+                    "{0}_position_x-{0}_width/2".format(self.__name),
+                    "{}_position_y".format(self.__name),
+                    0,
+                ]
             self._reference_system = reference_system
         else:
             application.modeler.create_coordinate_system(
                 origin=[
-                    "{}_position_x".format(patch_name),
+                    "{0}_position_x".format(patch_name),
                     "{}_position_y".format(patch_name),
                     signal_layer.position.name,
                 ],
                 reference_cs="Global",
                 name=patch_name + "_CS",
             )
-            start_point = [0, 0, 0]
+            if axis == "X":
+                start_point = [0, "-{}_width/2".format(patch_name), 0]
+
+            else:
+                start_point = ["-{}_width/2".format(patch_name), 0, 0]
             application.modeler.set_working_coordinate_system(patch_name + "_CS")
 
             self._reference_system = patch_name + "_CS"
@@ -1112,7 +1128,7 @@ class Patch(CommonObject, object):
         )
         self._app.create_lumped_port_to_sheet(port.name, portname=port_name, reference_object_list=["Ground_G"])
 
-    def line(self, line_impedance, line_length, line_name, line_electrical_length=None, line_width=None):
+    def line(self, line_impedance, line_length, line_name, line_electrical_length=None, line_width=None, axis="X"):
         patch_line = Line(
             application=self.application,
             frequency=self.frequency,
@@ -1131,6 +1147,7 @@ class Patch(CommonObject, object):
             metric_unit="mm",
             below_material=self.material_name,
             reference_system=None,
+            axis=axis,
         )
 
         self.application["{}_position_x".format(self.__name)] = "{0}_position_x + {0}_length".format(self.__name)
@@ -1160,6 +1177,7 @@ class Line(CommonObject, object):
         metric_unit="mm",
         below_material="Duroid (tm)",
         reference_system=None,
+        axis="X",
     ):
         CommonObject.__init__(self, application, metric_unit)
 
@@ -1173,6 +1191,7 @@ class Line(CommonObject, object):
         self._layer_name = signal_layer_name
         self._app = application
         self.__name = line_name
+        self._axis = axis
         if isinstance(below_material, Material):
             self.__material = below_material
             try:
@@ -1218,11 +1237,19 @@ class Line(CommonObject, object):
         self.make_design_variable(line_width)
         if reference_system:
             application.modeler.set_working_coordinate_system(reference_system)
-            start_point = [
-                "{}_position_x".format(self.__name),
-                "{}_position_y".format(self.__name),
-                0,
-            ]
+            if axis == "X":
+                start_point = [
+                    "{0}_position_x".format(self.__name),
+                    "{0}_position_y-{0}_width/2".format(self.__name),
+                    0,
+                ]
+            else:
+
+                start_point = [
+                    "{0}_position_x-{0}_width/2".format(self.__name),
+                    "{}_position_y".format(self.__name),
+                    0,
+                ]
             self._reference_system = reference_system
         else:
             application.modeler.create_coordinate_system(
@@ -1235,8 +1262,10 @@ class Line(CommonObject, object):
                 name=line_name + "_CS",
             )
             application.modeler.set_working_coordinate_system(line_name + "_CS")
-
-            start_point = [0, 0, 0]
+            if axis == "X":
+                start_point = [0, "-{0}_width/2".format(self.__name), 0]
+            else:
+                start_point = ["-{0}_width/2".format(self.__name), 0, 0]
             self._reference_system = line_name + "_CS"
         if line_thickness:
             self._aedt_object = application.modeler.primitives.create_box(
@@ -1401,6 +1430,17 @@ class Line(CommonObject, object):
             self._app.logger.error("line_position must be a positive float")
 
     @property
+    def position_y(self):
+        return self.__position_y
+
+    @position_y.setter
+    def position_y(self, value):
+        if isinstance(value, float):
+            self.__position_y = abs(value)
+        else:
+            self._app.logger.error("line_position must be a positive float")
+
+    @property
     def charac_impedance(self):
         return self.__charac_impedance
 
@@ -1495,14 +1535,19 @@ class Line(CommonObject, object):
         self.__length = self.__wave_length / 4
 
     def create_lumped_port(self, reference_layer_name, change_side=False):
-        if not change_side:
-            self.application.create_lumped_port_between_objects(
-                reference_layer_name, self.aedt_object.name, axisdir=self.application.AxisDir.XPos
-            )
+        if self._axis == "X":
+            if change_side:
+                axisdir = self.application.AxisDir.XNeg
+            else:
+                axisdir = self.application.AxisDir.XPos
         else:
-            self.application.create_lumped_port_between_objects(
-                reference_layer_name, self.aedt_object.name, axisdir=self.application.AxisDir.XNeg
-            )
+            if change_side:
+                axisdir = self.application.AxisDir.YNeg
+            else:
+                axisdir = self.application.AxisDir.YPos
+        return self.application.create_lumped_port_between_objects(
+            reference_layer_name, self.aedt_object.name, axisdir=axisdir
+        )
 
 
 class Polygon(CommonObject, object):
