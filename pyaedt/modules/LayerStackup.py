@@ -839,10 +839,39 @@ class Layers(object):
         return self.layers[newlayer.id]
 
     @pyaedt_function_handler()
-    def change_mode(self, mode="MultiZone", number_zones=3):
-        args = ["NAME:layers", "Mode:=", "Multizone", ["NAME:Zones", "Primary", "Zone1", "Zone2"], ["NAME:pps"]]
+    def change_stackup_type(self, mode="MultiZone", number_zones=3):
+        """Change the stackup type between Multizone, Overlap and Laminate.
+
+        Parameters
+        ----------
+        mode : str, optional
+            Stackup type. Default is `"Multizone"`. Options are `"Overlap"` and `"Laminate"`.
+        number_zones : int, optional
+            Number of zones of multizone. By default all layers will be enabled in all zones.
+
+        Returns
+        -------
+        bool
+            `True` if successful.
+        """
+        if mode.lower() == "multizone":
+            zones = ["NAME:Zones", "Primary"]
+            for i in range(number_zones - 1):
+                zones.append("Zone{}".format(i + 1))
+            args = ["NAME:layers", "Mode:=", "Multizone", zones, ["NAME:pps"]]
+        elif mode.lower() == "overlap":
+            args = args = ["NAME:layers", "Mode:=", "Overlap", ["NAME:pps"]]
+        elif mode.lower() == "laminate":
+            args = args = ["NAME:layers", "Mode:=", "Laminate", ["NAME:pps"]]
+        else:
+            self.logger.error("Stackup mode has to be Multizone, Overlap or Laminate.")
+            return False
         for v in list(self.layers.values()):
             if v.type in ["signal", "dielectric"]:
-                v.zones = [i for i in range(number_zones)]
+                if mode.lower() == "multizone":
+                    v.zones = [i for i in range(number_zones)]
+                else:
+                    v.zones = []
             args.append(v._get_layer_arg)
         self._oeditor.ChangeLayers(args)
+        return True
