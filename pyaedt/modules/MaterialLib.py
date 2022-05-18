@@ -625,10 +625,9 @@ class Materials(object):
                     if "pwl(" in str(val) or "cpl(" in str(val):
                         if isinstance(a, list):
                             for element in a:
-                                if "pwl(" in str(element):
-                                    out_list.append(re.search(r"pwl\((.*?),", str(element)).group(1))
-                                elif "cpl(" in str(element):
-                                    out_list.append(re.search(r"cpl\((.*?),", str(element)).group(1))
+                                m = re.search(r"(?:pwl|cwl)\((.*?),", str(element))
+                                if m:
+                                    out_list.append(m.group(1))
                         else:
                             out_list.append(a[a.find("$") : a.find(",")])
 

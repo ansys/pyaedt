@@ -105,6 +105,8 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.materials["new_copper2"].mass_density.add_thermal_modifier_free_form(
             "if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))"
         )
+        assert self.aedtapp.materials["new_copper2"].mass_density.add_thermal_modifier_closed_form()
+        assert self.aedtapp.materials["new_copper2"].mass_density.add_thermal_modifier_closed_form(auto_calc=False)
         assert self.aedtapp.materials["new_copper2"].permittivity.add_thermal_modifier_closed_form()
         assert self.aedtapp.materials["new_copper2"].permeability.add_thermal_modifier_closed_form(auto_calc=False)
         assert self.aedtapp.materials["new_copper2"].permittivity.add_thermal_modifier_closed_form(auto_calc=False)
@@ -120,17 +122,21 @@ class TestClass(BasisTest, object):
         )
         exp = self.aedtapp.materials["new_copper2"].mass_density.spatialmodifier = "X+1"
         assert exp == "X+1"
+        exp = self.aedtapp.materials["new_copper2"].mass_density.spatialmodifier = ["Y+1"]
+        assert exp == "Y+1"
         filename = os.path.join(local_path, "example_models", "ds_3d.tab")
         ds2 = self.aedtapp.import_dataset3d(filename)
         assert self.aedtapp.materials["new_copper2"].permeability.add_spatial_modifier_dataset(ds2.name)
         mat1 = self.aedtapp.materials.add_material("new_mat")
         mat1.mass_density.value == MatProperties.get_defaultvalue(aedtname="mass_density")
+        mat1.permittivity.value == MatProperties.get_defaultvalue(aedtname="permittivity")
         assert self.aedtapp.materials["new_mat"].mass_density.add_spatial_modifier_free_form(
             "if(X > 1mm, 1, if(X < 1mm, 3, 1))"
         )
         assert self.aedtapp.materials["new_mat"].mass_density.add_thermal_modifier_free_form(
             "if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))"
         )
+        assert self.aedtapp.materials["new_mat"].permittivity.add_thermal_modifier_free_form("X^2")
         mat1 = self.aedtapp.materials.add_material("new_mat2")
         mat1.mass_density.value == MatProperties.get_defaultvalue(aedtname="mass_density")
         assert self.aedtapp.materials["new_mat2"].mass_density.add_spatial_modifier_free_form(
