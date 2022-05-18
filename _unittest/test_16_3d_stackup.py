@@ -29,7 +29,22 @@ class TestClass(BasisTest, object):
         top = self.st.stackup_layers["top"]
         line1 = top.line(line_length=50, line_width=3, line_position_x=20, line_position_y=20, frequency=1e9)
         assert line1
+        line2 = top.line(
+            line_length=90,
+            is_electrical_length=True,
+            line_width=3,
+            line_position_x=20,
+            line_position_y=20,
+            frequency=1e9,
+        )
         assert line1.create_lumped_port("gnd1", change_side=True)
+        assert line2
+        assert line2.added_length_calcul
+        assert line2.frequency.numeric_value == 1e9
+        assert line2.substrate_thickness.numeric_value == 1.2
+        assert line2.width.numeric_value == 3.0
+        assert line2.permittivity.numeric_value == 4.4
+        assert line2.permittivity_calcul
 
     def test_03_padstackline(self):
 

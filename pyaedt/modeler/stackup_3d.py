@@ -1,6 +1,5 @@
 from collections import OrderedDict
 
-from pyaedt import constants
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.MaterialLib import Material
@@ -459,7 +458,7 @@ class Layer3D(object):
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.Line`
         """
         if not line_name:
             line_name = generate_unique_name("{0}_line".format(self._name), n=3)
@@ -1414,7 +1413,7 @@ class Patch(CommonObject, object):
         self._frequency = NamedVariable(application, patch_name + "_frequency", str(frequency) + "Hz")
         self._signal_layer = signal_layer
         self._dielectric_layer = dielectric_layer
-        self._substrat_thickness = dielectric_layer.thickness
+        self._substrate_thickness = dielectric_layer.thickness
         self._width = NamedVariable(application, patch_name + "_width", str(patch_width) + metric_unit)
         self._position_x = NamedVariable(application, patch_name + "_position_x", str(patch_position_x) + metric_unit)
         self._position_y = NamedVariable(application, patch_name + "_position_y", str(patch_position_y) + metric_unit)
@@ -1516,14 +1515,14 @@ class Patch(CommonObject, object):
         return self._frequency
 
     @property
-    def substrat_thickness(self):
+    def substrate_thickness(self):
         """
 
         Returns
         -------
 
         """
-        return self._substrat_thickness
+        return self._substrate_thickness
 
     @property
     def width(self):
@@ -1595,9 +1594,9 @@ class Patch(CommonObject, object):
 
         """
         # "(substrat_permittivity + 1)/2 + (substrat_permittivity -
-        # 1)/(2 * sqrt(1 + 10 * substrat_thickness/patch_width))"
+        # 1)/(2 * sqrt(1 + 10 * substrate_thickness/patch_width))"
         er = self._permittivity.name
-        h = self._substrat_thickness.name
+        h = self._substrate_thickness.name
         w = self._width.name
         patch_eff_permittivity_formula = "(" + er + "+ 1)/2 + (" + er + "- 1)/(2 * sqrt(1 + 10 * " + h + "/" + w + "))"
         self._effective_permittivity = NamedVariable(
@@ -1623,11 +1622,11 @@ class Patch(CommonObject, object):
         -------
 
         """
-        # "0.412 * substrat_thickness * (patch_eff_permittivity + 0.3) * (patch_width/substrat_thickness + 0.264)"
-        # " / ((patch_eff_permittivity - 0.258) * (patch_width/substrat_thickness + 0.813)) "
+        # "0.412 * substrate_thickness * (patch_eff_permittivity + 0.3) * (patch_width/substrate_thickness + 0.264)"
+        # " / ((patch_eff_permittivity - 0.258) * (patch_width/substrate_thickness + 0.813)) "
 
         er_e = self._effective_permittivity.name
-        h = self._substrat_thickness.name
+        h = self._substrate_thickness.name
         w = self._width.name
         patch_added_length_formula = (
             "0.412 * " + h + " * (" + er_e + " + 0.3) * (" + w + "/" + h + " + 0.264)/"
@@ -1726,95 +1725,6 @@ class Patch(CommonObject, object):
         )
         return self._impedance_l_w, self._impedance_w_l
 
-    @pyaedt_function_handler()
-    def create_lumped_port(self, reference_layer_number, opposite_side=False, port_name=None):
-        """
-
-        Parameters
-        ----------
-        reference_layer_number
-        opposite_side
-        port_name
-
-        Returns
-        -------
-
-        """
-        string_position_x = str(self._name) + "_port_position_x"
-        string_position_y = str(self._name) + "_port_position_y"
-        string_width = str(self._name) + "_port_width"
-        string_length = str(self._name) + "_port_length"
-        self._app[string_position_x] = "{0}_position_x + {0}_length".format(self._name)
-        self._app[string_width] = "{}_width".format(self._name)
-        self._app[string_position_y] = "{}_position_y".format(self._name)
-        layer_reference_position = "layer_" + str(reference_layer_number) + "_position"
-        patch_layer_position = "(layer_" + str(self._layer_number) + "_position + " + self._layer_name + "_thickness)"
-        self._app[string_length] = "abs(" + layer_reference_position + " - " + patch_layer_position + ")"
-        port = self._app.modeler.primitives.create_rectangle(
-            csPlane=constants.PLANE.YZ,
-            position=[string_position_x, string_position_y, patch_layer_position],
-            dimension_list=[string_width, "-" + string_length],
-            name=self._name + "_port",
-            matname=None,
-        )
-        self._app.create_lumped_port_to_sheet(port.name, portname=port_name, reference_object_list=["Ground_G"])
-
-    @pyaedt_function_handler()
-    def line(
-        self,
-        line_impedance=None,
-        line_width=None,
-        line_length=None,
-        line_electrical_length=90,
-        line_position_x=0,
-        line_position_y=0,
-        line_name=None,
-        metric_unit="mm",
-        reference_system=None,
-        axis="X",
-    ):
-        """
-
-        Parameters
-        ----------
-        line_impedance
-        line_width
-        line_length
-        line_electrical_length
-        line_position_x
-        line_position_y
-        line_name
-        metric_unit
-        reference_system
-        axis
-
-        Returns
-        -------
-
-        """
-        patch_line = Line(
-            self.application,
-            self.frequency.numeric_value,
-            line_impedance,
-            line_width,
-            self.signal_layer,
-            self.dielectric_layer,
-            line_length=line_length,
-            line_electrical_length=line_electrical_length,
-            line_position_x=line_position_x,
-            line_position_y=line_position_y,
-            line_name=line_name,
-            metric_unit=metric_unit,
-            reference_system=reference_system,
-            axis=axis,
-        )
-
-        self.application["{}_position_x".format(self._name)] = "{0}_position_x + {0}_length".format(self._name)
-        self.application["{}_position_y".format(self._name)] = "{0}_position_y + {0}_width/2 - {0}_width/2".format(
-            self._name
-        )
-        return patch_line
-
 
 class Line(CommonObject, object):
     """ """
@@ -1840,7 +1750,7 @@ class Line(CommonObject, object):
         self._frequency = NamedVariable(application, line_name + "_frequency", str(frequency) + "Hz")
         self._signal_layer = signal_layer
         self._dielectric_layer = dielectric_layer
-        self._substrat_thickness = dielectric_layer.thickness
+        self._substrate_thickness = dielectric_layer.thickness
         self._position_x = NamedVariable(application, line_name + "_position_x", str(line_position_x) + metric_unit)
         self._position_y = NamedVariable(application, line_name + "_position_y", str(line_position_y) + metric_unit)
         self._position_z = signal_layer.position
@@ -1961,14 +1871,14 @@ class Line(CommonObject, object):
         return self._frequency
 
     @property
-    def substrat_thickness(self):
+    def substrate_thickness(self):
         """
 
         Returns
         -------
 
         """
-        return self._substrat_thickness
+        return self._substrate_thickness
 
     @property
     def width(self):
@@ -2005,7 +1915,7 @@ class Line(CommonObject, object):
         # else w/h > 2 :
         # b = 377 * pi / (2 * z * sqrt(er))
         # w/h = 2 * (b - 1 - log(2 * b - 1) * (er - 1) * (log(b - 1) + 0.39 - 0.61 / er) / (2 * er)) / pi
-        h = self._substrat_thickness.name
+        h = self._substrate_thickness.name
         z = self._charac_impedance.name
         er = self._permittivity.name
         a_formula = (
@@ -2108,11 +2018,11 @@ class Line(CommonObject, object):
         -------
 
         """
-        # "0.412 * substrat_thickness * (patch_eff_permittivity + 0.3) * (patch_width/substrat_thickness + 0.264)"
-        # " / ((patch_eff_permittivity - 0.258) * (patch_width/substrat_thickness + 0.813)) "
+        # "0.412 * substrate_thickness * (patch_eff_permittivity + 0.3) * (patch_width/substrate_thickness + 0.264)"
+        # " / ((patch_eff_permittivity - 0.258) * (patch_width/substrate_thickness + 0.813)) "
 
         er_e = self._effective_permittivity.name
-        h = self._substrat_thickness.name
+        h = self._substrate_thickness.name
         w = self._width.name
         patch_added_length_formula = (
             "0.412 * " + h + " * (" + er_e + " + 0.3) * (" + w + "/" + h + " + 0.264)/"
@@ -2203,9 +2113,9 @@ class Line(CommonObject, object):
 
         """
         # "(substrat_permittivity + 1)/2 +
-        # (substrat_permittivity - 1)/(2 * sqrt(1 + 10 * substrat_thickness/patch_width))"
+        # (substrat_permittivity - 1)/(2 * sqrt(1 + 10 * substrate_thickness/patch_width))"
         er = self._permittivity.name
-        h = self._substrat_thickness.name
+        h = self._substrate_thickness.name
         w = self._width.name
         patch_eff_permittivity_formula = (
             "(" + er + " + 1)/2 + (" + er + " - 1)/(2 * sqrt(1 + 10 * " + h + "/" + w + "))"
