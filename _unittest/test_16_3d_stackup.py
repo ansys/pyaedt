@@ -1,6 +1,5 @@
 # Setup paths for module imports
 from _unittest.conftest import BasisTest
-from pyaedt.modeler.stackup_3d import Stackup3D
 
 # Import required modules
 
@@ -9,7 +8,7 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, "Test_20")
-        self.st = Stackup3D(self.aedtapp)
+        self.st = self.aedtapp.add_stackup_3d()
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
