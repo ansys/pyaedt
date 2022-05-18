@@ -1934,13 +1934,15 @@ class Design(object):
         return True
 
     @pyaedt_function_handler
-    def make_hidden_variable(self, variable_name):
-        """Set the variable to a hidden variable.
+    def hidden_variable(self, variable_name, value=True):
+        """Set the variable to a hidden/unhidden variable.
 
         Parameters
         ----------
         variable_name : str
             Name of the variable.
+        value : bool
+            Hide or Unhide the variable.
 
         Returns
         -------
@@ -1961,7 +1963,7 @@ class Design(object):
 
         """
         arg = ["NAME:AllTabs"]
-        self._hidden_read_only_variable_args(arg, variable_name, "Hidden", enable=True)
+        self._hidden_read_only_variable_args(arg, variable_name, "Hidden", enable=value)
         if "$" in variable_name:
             self.oproject.ChangeProperty(arg)
         else:
@@ -1969,13 +1971,15 @@ class Design(object):
         return True
 
     @pyaedt_function_handler
-    def make_read_only_variable(self, variable_name):
-        """Set the variable to a hidden variable.
+    def read_only_variable(self, variable_name, value=True):
+        """Set the variable to a readonly/not readonly variable.
 
         Parameters
         ----------
         variable_name : str
             Name of the variable.
+        value : bool
+            Enable or disable readonly.
 
         Returns
         -------
@@ -1996,7 +2000,7 @@ class Design(object):
 
         """
         arg = ["NAME:AllTabs"]
-        self._hidden_read_only_variable_args(arg, variable_name, "ReadOnly", enable=True)
+        self._hidden_read_only_variable_args(arg, variable_name, "ReadOnly", enable=value)
         if "$" in variable_name:
             self.oproject.ChangeProperty(arg)
         else:
