@@ -385,3 +385,15 @@ class TestClass(BasisTest, object):
         o2.group_name = "NewGroup2"
         assert o2.group_name == "NewGroup2"
         assert o1.group_name == "NewGroup"
+
+    def test_22_mass(self):
+        self.aedtapp.modeler.model_units = "meter"
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [5, 10, 2], matname="Copper")
+        assert box1.mass["value"] == 893300.0
+        new_material = self.aedtapp.materials.add_material("MyMaterial")
+        box2 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], matname="MyMaterial")
+        assert box2.mass["value"] == 0.0
+        new_material.mass_density = 1
+        assert box2.mass["value"] == 1000.0
+        box2.model = False
+        assert not box2.mass
