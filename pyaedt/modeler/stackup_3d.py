@@ -292,10 +292,10 @@ class Layer3D(object):
     def line(
             self,
             frequency,
-            line_length,
             line_impedance=None,
             line_width=None,
-            line_electrical_length=None,
+            line_length=None,
+            line_electrical_length=90,
             line_position_x=0,
             line_position_y=0,
             line_name=None,
@@ -305,29 +305,27 @@ class Layer3D(object):
     ):
         if not line_name:
             line_name = generate_unique_name("{0}_line".format(self._name), n=3)
-        substrate_thickness = 0
+        dielectric_layer = None
         for k, v in self._stackup._stackup.items():
             if v._index == self._index - 1:
-                substrate_thickness = v.thickness_value
+                dielectric_layer = v
                 break
+        if dielectric_layer is None:
+            self._app.logger.error("There is no layer under this layer")
 
         created_line = Line(
             self._app,
             frequency,
-            substrate_thickness,
             line_impedance,
             line_width,
-            self._name,
+            self,
+            dielectric_layer,
             line_length=line_length,
             line_electrical_length=line_electrical_length,
-            line_thickness=self.thickness,
-            line_material=self.material_name,
             line_position_x=line_position_x,
             line_position_y=line_position_y,
-            line_position_z=self.elevation,
             line_name=line_name,
             metric_unit=metric_unit,
-            below_material=self.filling_material_name,
             reference_system=reference_system,
             axis=axis,
         )
@@ -767,6 +765,7 @@ class CommonObject(object):
     def __init__(self, application, metric_unit="mm"):
         self.__application = application
         self.__metric_unit = metric_unit
+        self.__name = None
         self.__dielectric_layer = None
         self.__signal_layer = None
         self._aedt_object = None
@@ -876,7 +875,7 @@ class Patch(CommonObject, object):
         self.__dielectric_layer = dielectric_layer
         self.__signal_layer = signal_layer
         self.__dielectric_material = dielectric_layer.material
-        self.__material_name = signal_layer.material
+        self.__material_name = signal_layer.material_name
         self.__layer_name = signal_layer.name
         self.__layer_number = signal_layer.number
         self.__name = patch_name
@@ -945,14 +944,14 @@ class Patch(CommonObject, object):
                     signal_layer.thickness.name,
                 ],
                 name=patch_name,
-                matname=self.__material_name,
+                matname=signal_layer.material_name,
             )
         else:
             self._aedt_object = application.modeler.primitives.create_rectangle(
                 position=start_point,
                 dimension_list=[self.length.name, self.width.name],
                 name=patch_name,
-                matname=signal_layer.material,
+                matname=signal_layer.material_name,
             )
             application.assign_coating(self._aedt_object.name, signal_layer.material)
         application.modeler.set_working_coordinate_system("Global")
@@ -1097,27 +1096,33 @@ class Patch(CommonObject, object):
         )
         self._app.create_lumped_port_to_sheet(port.name, portname=port_name, reference_object_list=["Ground_G"])
 
-    def line(self, line_impedance, line_length, line_name, line_electrical_length=None, line_width=None, axis="X"):
+    def line(self,
+             line_impedance=None,
+             line_width=None,
+             line_length=None,
+             line_electrical_length=90,
+             line_position_x=0,
+             line_position_y=0,
+             line_name=None,
+             metric_unit="mm",
+             reference_system=None,
+             axis="X"):
+        #TODO can be improve to set the correct position and calculate the correct charac impedance.
         patch_line = Line(
-            application=self.application,
-            frequency=self.frequency,
-            substrat_thickness=self.substrat_thickness,
-            line_impedance=line_impedance,
-            line_width=line_width,
-            signal_layer_name=self.layer_name,
+            self.application,
+            self.frequency.numeric_value,
+            line_impedance,
+            line_width,
+            self.signal_layer,
+            self.dielectric_layer,
             line_length=line_length,
             line_electrical_length=line_electrical_length,
-            line_thickness=self.__patch_thickness,
-            line_material=self._signal_material,
-            line_position_x=0,
-            line_position_y=0,
-            line_position_z=0,
+            line_position_x=line_position_x,
+            line_position_y=line_position_y,
             line_name=line_name,
-            metric_unit="mm",
-            below_material=self.material_name,
-            reference_system=None,
-            axis=axis,
-        )
+            metric_unit=metric_unit,
+            reference_system=reference_system,
+            axis=axis)
 
         self.application["{}_position_x".format(self.__name)] = "{0}_position_x + {0}_length".format(self.__name)
         self.application["{}_position_y".format(self.__name)] = "{0}_position_y + {0}_width/2 - {0}_width/2".format(
@@ -1131,79 +1136,77 @@ class Line(CommonObject, object):
             self,
             application,
             frequency,
-            substrat_thickness,
             line_impedance,
             line_width,
-            signal_layer_name,
-            line_length,
-            line_electrical_length=None,
-            line_thickness=None,
-            line_material="copper",
+            signal_layer,
+            dielectric_layer,
+            line_length=None,
+            line_electrical_length=90,
             line_position_x=0,
             line_position_y=0,
-            line_position_z=0,
             line_name="line",
             metric_unit="mm",
-            below_material="Duroid (tm)",
             reference_system=None,
             axis="X",
     ):
         CommonObject.__init__(self, application, metric_unit)
-
-        self.__frequency = frequency
-        self.__substrat_thickness = substrat_thickness
-        self.__position_x = line_position_x
-        self.__position_y = line_position_y
-        self.__position_z = line_position_z
-        self.__metric_unit = metric_unit
-        self.__material_name = below_material
-        self._layer_name = signal_layer_name
-        self._app = application
+        self.__frequency = NamedVariable(application, line_name + "_frequency", str(frequency) + "Hz")
+        self.__signal_layer = signal_layer
+        self.__dielectric_layer = dielectric_layer
+        self.__substrat_thickness = dielectric_layer.thickness
+        self.__position_x = NamedVariable(application, line_name + "_position_x", str(line_position_x) + metric_unit)
+        self.__position_y = NamedVariable(application, line_name + "_position_y", str(line_position_y) + metric_unit)
+        self.__position_z = signal_layer.position
+        self.__dielectric_material = dielectric_layer.material
+        self.__material_name = signal_layer.material_name
+        self.__layer_name = signal_layer.name
+        self.__layer_number = signal_layer.number
         self.__name = line_name
+        self._line_thickness = signal_layer.thickness
+        self._width = None
+        self.__width_h_w = None
         self._axis = axis
-        if isinstance(below_material, Material):
-            self.__material = below_material
-            try:
-                self.__permittivity = float(below_material.permittivity.value)
-            except:
-                self.__permittivity = application.variable_manager[below_material.permittivity.value].value
-        elif application.materials.checkifmaterialexists(below_material):
-            self.__material = application.materials[below_material]
-            try:
-                self.__permittivity = float(self.__material.permittivity.value)
-            except:
-                self.__permittivity = application.variable_manager[self.__material.permittivity.value].value
-        else:
-            application.logger.error("Material doesn't exist, you must create it in using: import_materials_from_file")
+        try:
+            self.__permittivity = NamedVariable(
+                application, line_name + "_permittivity", float(self.__dielectric_material.permittivity.value)
+            )
+        except:
+            self.__permittivity = NamedVariable(
+                application,
+                line_name + "_permittivity",
+                float(application.variable_manager[self.__dielectric_material.permittivity.value].value),
+            )
         if isinstance(line_width, float) or isinstance(line_width, int):
-            self.__width = line_width
+            self.__width = NamedVariable(application, line_name + "_width", str(line_width) + metric_unit)
             self.__effective_permittivity = self.effective_permittivity_calcul
             self.__wave_length = self.wave_length_calcul
+            self.__added_length = self.added_length_calcul
             if isinstance(line_electrical_length, float) or isinstance(line_electrical_length, int):
-                self.__electrical_length = line_electrical_length
+                self.__electrical_length = NamedVariable(application, line_name + "_elec_length",
+                                                         str(line_electrical_length))
                 self.__length = self.length_calcul
-
             elif isinstance(line_length, float) or isinstance(line_length, int):
-                self.__length = line_length
+                self.__length = NamedVariable(application, line_name + "_length", str(line_length) + metric_unit)
                 self.__electrical_length = self.electrical_length_calcul
             else:
                 application.logger.error("line_length must be a float.")
-            self.__charac_impedance = self.charac_impedance_calcul
+            self.__charac_impedance_w_h, self.__charac_impedance_h_w = self.charac_impedance_calcul
         elif line_width is None:
-            self.__charac_impedance = line_impedance
-            self.__width = self.width_calcul
+            self.__charac_impedance = NamedVariable(self.application, line_name + "_charac_impedance_h_w",
+                                                    str(line_impedance))
+            self.__width, self.__width_h_w = self.width_calcul
             self.__effective_permittivity = self.effective_permittivity_calcul
             self.__wave_length = self.wave_length_calcul
+            self.__added_length = self.added_length_calcul
             if isinstance(line_electrical_length, float) or isinstance(line_electrical_length, int):
-                self.__electrical_length = line_electrical_length
+                self.__electrical_length = NamedVariable(application, line_name + "_elec_length",
+                                                         str(line_electrical_length))
                 self.__length = self.length_calcul
             elif isinstance(line_length, float) or isinstance(line_length, int):
-                self.__length = line_length
+                self.__length = NamedVariable(application, line_name + "_length", str(line_length) + metric_unit)
                 self.__electrical_length = self.electrical_length_calcul
             else:
-
                 application.logger.error("line_length must be a float.")
-        self.make_design_variable(line_width)
         if reference_system:
             application.modeler.set_working_coordinate_system(reference_system)
             if axis == "X":
@@ -1225,7 +1228,7 @@ class Line(CommonObject, object):
                 origin=[
                     "{}_position_x".format(self.__name),
                     "{}_position_y".format(self.__name),
-                    "layer_" + str(signal_layer_name) + "_position",
+                    signal_layer.position.name,
                 ],
                 reference_cs="Global",
                 name=line_name + "_CS",
@@ -1236,272 +1239,182 @@ class Line(CommonObject, object):
             else:
                 start_point = ["-{0}_width/2".format(self.__name), 0, 0]
             self._reference_system = line_name + "_CS"
-        if line_thickness:
+        if signal_layer.thickness:
             self._aedt_object = application.modeler.primitives.create_box(
                 position=start_point,
                 dimensions_list=[
                     "{}_length".format(self.__name),
                     "{}_width".format(self.__name),
-                    signal_layer_name + "_thickness",
+                    signal_layer.thickness.name,
                 ],
                 name=line_name,
-                matname=line_material,
+                matname=signal_layer.material_name,
             )
         else:
             self._aedt_object = application.modeler.primitives.create_rectangle(
                 position=start_point,
                 dimension_list=["{}_length".format(self.__name), "{}_width".format(self.__name)],
                 name=line_name,
-                matname=line_material,
+                matname=signal_layer.material_name,
             )
         application.modeler.set_working_coordinate_system("Global")
-        application.modeler.subtract(blank_list=[signal_layer_name], tool_list=[line_name], keepOriginals=True)
-
-    def make_design_variable(self, width):
-        self._app["{}_frequency".format(self.__name)] = self._app.modeler._arg_with_dim(self.__frequency, "Hz")
-        self._app["{}_substrat_thickness".format(self.__name)] = self._app.modeler._arg_with_dim(
-            self.__substrat_thickness, "mm"
-        )
-        self._app["{}_position_x".format(self.__name)] = self._app.modeler._arg_with_dim(self.__position_x, "mm")
-        self._app["{}_position_y".format(self.__name)] = self._app.modeler._arg_with_dim(self.__position_y, "mm")
-        self._app["{}_length".format(self.__name)] = self._app.modeler._arg_with_dim(self.__length, "mm")
-        self._app["{}_substrat_permittivity".format(self.__name)] = str(self.__permittivity)
-        if isinstance(width, float) or isinstance(width, int):
-            self._app["{}_width".format(self.__name)] = self._app.modeler._arg_with_dim(self.__width, "mm")
-        elif width is None:
-            self._app["{}_impedance".format(self.__name)] = self.__charac_impedance
-            z = self.__charac_impedance
-            er = self.__permittivity
-            a = z * sqrt((er + 1) / 2) / 60 + (0.23 + 0.11 / er) * (er - 1) / (er + 1)
-            string_a = (
-                "({0}_impedance * sqrt(({0}_substrat_permittivity + 1)/2) / 60 +"
-                " (0.23 + 0.11 / {0}_substrat_permittivity) * "
-                "({0}_substrat_permittivity - 1) / ({0}_substrat_permittivity + 1))".format(self.__name)
-            )
-            w_h = 8 * exp(a) / (exp(2 * a) - 2)
-            string_w_h = "(8 * exp(" + string_a + ")/ (exp(2 * " + string_a + ") -2))"
-            if w_h < 2:
-                line_width_formula = "{}_substrat_thickness * ".format(self.__name) + string_w_h
-                self._app["{}_width".format(self.__name)] = line_width_formula
-            else:
-                b = 377 * pi / (2 * z * sqrt(er))
-                string_b = "(377 * pi / (2 * {0}_impedance * sqrt({0}_substrat_permittivity))".format(self.__name)
-                w_h = 2 * (b - 1 - log(2 * b - 1) * (er - 1) * (log(b - 1) + 0.39 - 0.61 / er) / (2 * er)) / pi
-                string_w_h = (
-                        "(2 * ("
-                        + string_b
-                        + " - 1 - log(2 * "
-                        + string_b
-                        + "- 1) * ({0}_substrat_permittivity -1) * ".format(self.__name)
-                        + "(log("
-                        + string_b
-                        + " - 1) + 0.39 - 0.61 / {0}_substrat_permittivity) /".format(self.__name)
-                        + " (2 * {0}_substrat_permittivity)) / pi ".format(self.__name)
-                )
-                if w_h > 2:
-                    line_width_formula = "{0}_substrat_thickness * ".format(self.__name) + string_w_h
-                    self._app["{0}_width".format(self.__name)] = line_width_formula
-                else:
-                    self._app.logger.error(
-                        "No value of the theoretical width can be determined with this substrate"
-                        " thickness and this characteristic impedance."
-                    )
-        line_eff_permittivity_formula = (
-            "({0}_substrat_permittivity + 1)/2 + ({0}_substrat_permittivity - 1)/"
-            "(2 * sqrt(1 + 10 * {0}_substrat_thickness/{0}_width))".format(self.__name)
-        )
-        self._app["{0}_eff_permittivity".format(self.__name)] = line_eff_permittivity_formula
-        line_wave_length_formula = "c0 * 1000/({0}_frequency * sqrt({0}_eff_permittivity))".format(self.__name)
-        self._app["{0}_wave_length".format(self.__name)] = line_wave_length_formula + "mm"
+        application.modeler.subtract(blank_list=[signal_layer.name], tool_list=[line_name], keepOriginals=True)
 
     @property
     def frequency(self):
         return self.__frequency
 
-    @frequency.setter
-    def frequency(self, value):
-        if isinstance(value, float):
-            self.__frequency = abs(value)
-        else:
-            self._app.logger.error("frequency must be a positive float")
-
     @property
     def substrat_thickness(self):
         return self.__substrat_thickness
-
-    @substrat_thickness.setter
-    def substrat_thickness(self, value):
-        if isinstance(value, float):
-            self.__substrat_thickness = abs(value)
-        else:
-            self._app.logger.error("substrat_thickness must be a positive float")
 
     @property
     def width(self):
         return self.__width
 
-    @width.setter
-    def width(self, value):
-        if isinstance(value, float):
-            self.__width = abs(value)
-        else:
-            self._app.logger.error("line_width must be a positive float")
+    @property
+    def width_h_w(self):
+        if self.__width_h_w is not None:
+            return self.__width_h_w
 
     @property
     def width_calcul(self):
-        h = self.__substrat_thickness
-        z = self.__charac_impedance
-        er = self.__permittivity
-        a = z * sqrt((er + 1) / 2) / 60 + (0.23 + 0.11 / er) * (er - 1) / (er + 1)
-        w_h = 8 * exp(a) / (exp(2 * a) - 2)
-        if w_h < 2:
-            self.__width = w_h * h
-            return self.__width
-        else:
-            b = 377 * pi / (2 * z * sqrt(er))
-            w_h = 2 * (b - 1 - log(2 * b - 1) * (er - 1) * (log(b - 1) + 0.39 - 0.61 / er) / (2 * er)) / pi
-            if w_h > 2:
-                self.__width = w_h * h
-                return self.__width
-            else:
-                self._app.logger.error(
-                    "No value of the theoretical width can be determined with this substrate"
-                    " thickness and this characteristic impedance."
-                )
+        # if w/h < 2 :
+        # a = z * sqrt((er + 1) / 2) / 60 + (0.23 + 0.11 / er) * (er - 1) / (er + 1)
+        # w/h = 8 * exp(a) / (exp(2 * a) - 2)
+        # else w/h > 2 :
+        # b = 377 * pi / (2 * z * sqrt(er))
+        # w/h = 2 * (b - 1 - log(2 * b - 1) * (er - 1) * (log(b - 1) + 0.39 - 0.61 / er) / (2 * er)) / pi
+        h = self.__substrat_thickness.name
+        z = self.__charac_impedance.name
+        er = self.__permittivity.name
+        a_formula = "(" + z + " * sqrt((" + er + " + 1)/2)/60 + (0.23 + 0.11/" + er + ")" + \
+                    " * (" + er + "- 1)/(" + er + "+ 1))"
+        w_div_by_h_inf_2 = "(8 * exp(" + a_formula + ")/(exp(2 * " + a_formula + ") - 2))"
 
-    @property
-    def length(self):
-        return self.__length
+        b_formula = "(377 * pi/(2 * " + z + " * " + "sqrt(" + er + ")))"
+        w_div_by_h_sup_2 = "(2 * (" + b_formula + " - 1 - log(2 * " + b_formula + " - 1) * (" + er + " - 1) * (log(" \
+                           + b_formula + " - 1) + 0.39 - 0.61/" + er + ")/(2 * " + er + "))/pi)"
 
-    @length.setter
-    def length(self, value):
-        if isinstance(value, float):
-            self.__length = abs(value)
-        else:
-            self._app.logger.error("line_length must be a positive float")
+        w_formula_inf = w_div_by_h_inf_2 + " * " + h
+        w_formula_sup = w_div_by_h_sup_2 + " * " + h
 
-    @property
-    def length_calcul(self):
-        lbd = self.__wave_length
-        e_length = self.__electrical_length
-        self.__length = e_length * lbd / 360
-        return self.__length
+        self.__width_h_w = NamedVariable(self.application, self.__name + "_width_h_w", w_formula_inf)
+        self.__width = NamedVariable(self.application, self.__name + "_width", w_formula_sup)
+
+        return self.__width, self.__width_h_w
 
     @property
     def position_x(self):
         return self.__position_x
 
-    @position_x.setter
-    def position_x(self, value):
-        if isinstance(value, float):
-            self.__position_x = abs(value)
-        else:
-            self._app.logger.error("line_position must be a positive float")
-
     @property
     def position_y(self):
         return self.__position_y
 
-    @position_y.setter
-    def position_y(self, value):
-        if isinstance(value, float):
-            self.__position_y = abs(value)
-        else:
-            self._app.logger.error("line_position must be a positive float")
+    @property
+    def permittivity(self):
+        return self.__permittivity
+
+    @property
+    def permittivity_calcul(self):
+        self.__permittivity = self.application.materials[self.__dielectric_material].permittivity
+        return self.__permittivity
+
+    @property
+    def added_length(self):
+        return self.__added_length
+
+    @property
+    def added_length_calcul(self):
+        # "0.412 * substrat_thickness * (patch_eff_permittivity + 0.3) * (patch_width/substrat_thickness + 0.264)"
+        # " / ((patch_eff_permittivity - 0.258) * (patch_width/substrat_thickness + 0.813)) "
+
+        er_e = self.__effective_permittivity.name
+        h = self.__substrat_thickness.name
+        w = self.__width.name
+        patch_added_length_formula = "0.412 * " + h + " * (" + er_e + " + 0.3) * (" + w + "/" + h + " + 0.264)/" \
+                                                                                                    "((" + er_e + " - 0.258) * (" + w + "/" + h + " + 0.813))"
+        self.__added_length = NamedVariable(self.application, self.__name + "_added_length",
+                                            patch_added_length_formula)
+        return self.__added_length
+
+    @property
+    def length(self):
+        return self.__length
+
+    @property
+    def length_calcul(self):
+        # "patch_wave_length / 2 - 2 * patch_added_length"
+        d_l = self.__added_length.name
+        lbd = self.__wave_length.name
+        e_l = self.__electrical_length.name
+        line_length_formula = lbd + "* (" + e_l + "/360)" + " - 2 * " + d_l
+        self.__length = NamedVariable(self.application, self.__name + "_length", line_length_formula)
+        return self.__length
 
     @property
     def charac_impedance(self):
         return self.__charac_impedance
 
-    @charac_impedance.setter
-    def charac_impedance(self, value):
-        if isinstance(value, float):
-            self.__charac_impedance = abs(value)
-        else:
-            print("line_impedance must be a string")
-
     @property
     def charac_impedance_calcul(self):
-        w = self.__width
-        h = self.substrat_thickness
-        er_e = self.effective_permittivity
-        if w / h > 1:
-            self.__charac_impedance = 60 * log(8 * h / w + w / (4 * h)) / sqrt(er_e)
-        elif w / h < 1:
-            self.__charac_impedance = 120 * pi / (sqrt(er_e) * (w / h + 1.393 + 0.667 * log(w / h + 1.444)))
-        else:
-            self.__charac_impedance = (
-                    60 * log(8 * h / w + w / (4 * h)) / sqrt(er_e) / 2
-                    + 120 * pi / (sqrt(er_e) * (w / h + 1.393 + 0.667 * log(w / h + 1.444))) / 2
-            )
-        return self.__charac_impedance
+        # if w / h > 1: 60 * log(8 * h / w + w / (4 * h)) / sqrt(er_e)
+        # if w / h < 1: 120 * pi / (sqrt(er_e) * (w / h + 1.393 + 0.667 * log(w / h + 1.444)))
+        w = self.__width.name
+        h = self.__dielectric_layer.thickness.name
+        er_e = self.effective_permittivity.name
+        charac_impedance_formula_w_h = "60 * log(8 * " + h + "/" + w + " + " + w + "/(4 * " + h + "))/sqrt(" + er_e + ")"
+        charac_impedance_formula_h_w = "120 * pi / (sqrt(" + er_e + ") * (" + w + "/" + h + "+ 1.393 + 0.667 * log(" + w + "/" + h + " + 1.444)))"
+        self.__charac_impedance_w_h = NamedVariable(self.application, self.__name + "_charac_impedance_w_h",
+                                                    charac_impedance_formula_w_h)
+        self.__charac_impedance_h_w = NamedVariable(self.application, self.__name + "_charac_impedance_h_w",
+                                                    charac_impedance_formula_h_w)
+        return self.__charac_impedance_w_h, self.__charac_impedance_h_w
 
     @property
     def effective_permittivity(self):
         return self.__effective_permittivity
 
-    @effective_permittivity.setter
-    def effective_permittivity(self, value):
-        self.__effective_permittivity = value
-        self.added_length_calcul
-        self.wave_length_calcul
-        self.length_calcul
-
     @property
     def effective_permittivity_calcul(self):
-        er = self.__permittivity
-        h = self.__substrat_thickness
-        h_w = h / self.__width
-        self.__effective_permittivity = (er + 1) / 2 + (er - 1) / (2 * sqrt(1 + 10 * h_w))
+        # "(substrat_permittivity + 1)/2 + (substrat_permittivity - 1)/(2 * sqrt(1 + 10 * substrat_thickness/patch_width))"
+        er = self.__permittivity.name
+        h = self.__substrat_thickness.name
+        w = self.__width.name
+        patch_eff_permittivity_formula = "(" + er + " + 1)/2 + (" + er + " - 1)/(2 * sqrt(1 + 10 * " + h + "/" + w + "))"
+        self.__effective_permittivity = NamedVariable(self.application, self.__name + "_eff_permittivity",
+                                                      patch_eff_permittivity_formula)
         return self.__effective_permittivity
 
     @property
     def wave_length(self):
         return self.__wave_length
 
-    @wave_length.setter
-    def wave_length(self, value):
-        self.__wave_length = value
-
     @property
     def wave_length_calcul(self):
-        if isinstance(self.__metric_unit, int):
-            converter = 1 * 10 ** (-self.__metric_unit)
-        elif self.__metric_unit == "mm":
-            converter = 1e3
-        elif self.__metric_unit == "cm":
-            converter = 1e2
-        elif self.__metric_unit == "m":
-            converter = 1
-        elif self.__metric_unit == "mil":
-            converter = 0.00062137119223732773833
-        else:
-            self._app.logger.error("metric_unit must be a string mm or cm or m or mil or an integer")
-        c = 2.99792458e8 * converter
-        f = self.__frequency
-        er_e = self.__effective_permittivity
-        self.__wave_length = c / (f * sqrt(er_e))
+        # "c0 * 1000/(patch_frequency * sqrt(patch_eff_permittivity))"
+        # TODO it is currently only available for mm
+        f = self.__frequency.name
+        er_e = self.__effective_permittivity.name
+        patch_wave_length_formula = "c0 * 1000/(" + f + "* sqrt(" + er_e + "))"
+        self.__wave_length = NamedVariable(self.application, self.__name + "_wave_length",
+                                           patch_wave_length_formula + self.metric_unit)
         return self.__wave_length
 
     @property
     def electrical_length(self):
         return self.__electrical_length
 
-    @electrical_length.setter
-    def electrical_length(self, value):
-        self.__electrical_length = value
-        self.__length = self.line_length_calcul
-
     @property
     def electrical_length_calcul(self):
-        lbd = self.__wave_length
-        length = self.__length
-        self.__electrical_length = 360 * length / lbd
+        lbd = self.__wave_length.name
+        length = self.__length.name
+        d_l = self.__added_length.name
+        elec_length_formula = "360 * (" + length + " + 2 * " + d_l + ")/" + lbd
+        self.__electrical_length = NamedVariable(self.application, self.__name + "_elec_length",
+                                                 elec_length_formula)
         return self.__electrical_length
-
-    @property
-    def set_length_to_quarter_wave(self):
-        self.__length = self.__wave_length / 4
 
     def create_lumped_port(self, reference_layer_name, change_side=False):
         if self._axis == "X":
