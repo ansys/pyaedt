@@ -13,8 +13,8 @@ In addition to the runtime dependencies listed in the installation information, 
    Add how to install from the AEDT installer like as in https://mapdldocs.pyansys.com/getting_started/running_mapdl.html
 
 
-Installing on CPython v3.7-v3.9
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Installing on CPython v3.7-v3.9 from pypi
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Install the prerequisite packages ``pythonnet`` and ``pywin32`` with:
 
 .. code:: python
@@ -22,21 +22,8 @@ Install the prerequisite packages ``pythonnet`` and ``pywin32`` with:
     pip install pyaedt
 
 
-Using IronPython in AEDT
-~~~~~~~~~~~~~~~~~~~~~~~~
-To use IronPython in AEDT:
-
-1. Download the PyAEDT package from ``https://pypi.org/project/pyaedt/#files``
-2. Extract the files.
-3. Install PyAEDT into Electronics Desktop, specifying the full paths to ``ipy64`` and ``setup-distutils.py`` as needed:
-
-.. code::
-
-    ipy64 setup-distutils.py install --user
-
-
-Installing PyAEDT from a wheelhouse
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Offline PyAEDT installation from a wheelhouse
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PyAEDT can be installed from one of the wheelhouse available in the release assets.
 Wheelhouses have been added starting from release v0.4.70.
 They are available for CPython 3.7, 3.8 and 3.9.
@@ -50,15 +37,6 @@ For instance, here is the command to execute to install PyAEDT package and all i
 .. code::
 
     pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v<release_version>-wheelhouse-Windows-3.7 pyaedt
-
-
-Using Standalone IronPython
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-To use standalone IronPython:
-
-.. code::
-
-    ipy64 -X:Frames -m pip install pyaedt
 
 
 Installing PyAEDT from a Batch File
@@ -90,8 +68,21 @@ is executed only when running the command with the ``-update`` option:
     pyaedt_with_IDE.bat -update
 
 In addition, it is possible to install PyAEDT package and all its dependencies provided in the wheelhouse by
-executing the bat file mentioned above.
+executing the bat file mentioned above. Wheelhous 3.7 package has to be used in this case.
 
 .. code::
 
     pyaedt_with_IDE.bat <path_to_wheelhouse>PyAEDT-v<release_version>-wheelhouse-Windows-3.7
+
+
+Using IronPython in AEDT
+~~~~~~~~~~~~~~~~~~~~~~~~
+To use IronPython in AEDT:
+
+1. Download the PyAEDT package from ``https://pypi.org/project/pyaedt/#files``
+2. Extract the files.
+3. Install PyAEDT into Electronics Desktop, specifying the full paths to ``ipy64`` and ``setup-distutils.py`` as needed:
+
+.. code::
+
+    ipy64 setup-distutils.py install --user
