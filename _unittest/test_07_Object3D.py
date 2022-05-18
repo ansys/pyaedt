@@ -389,11 +389,19 @@ class TestClass(BasisTest, object):
     def test_22_mass(self):
         self.aedtapp.modeler.model_units = "meter"
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [5, 10, 2], matname="Copper")
-        assert box1.mass["value"] == 893300.0
+        assert box1.mass == 893300.0
         new_material = self.aedtapp.materials.add_material("MyMaterial")
         box2 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], matname="MyMaterial")
-        assert box2.mass["value"] == 0.0
+        assert box2.mass == 0.0
         new_material.mass_density = 1
-        assert box2.mass["value"] == 1000.0
+        assert box2.mass == 1000.0
         box2.model = False
-        assert not box2.mass
+        assert box2.mass == 0.0
+        rec = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 10])
+        assert rec.mass == 0.0
+
+    def test_23_volume(self):
+        box3 = self.aedtapp.modeler.create_box([10, 10, 10], [5, 10, 2], matname="Copper")
+        assert box3.volume == 100
+        rec = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 10])
+        assert rec.volume == 0.0

@@ -1039,7 +1039,8 @@ class Object3d(object):
         self._model = None
         self._m_groupName = None
         self._object_type = None
-        self._mass = None
+        self._mass = 0.0
+        self._volume = 0.0
 
     @pyaedt_function_handler()
     def _bounding_box_unmodel(self):
@@ -1784,7 +1785,8 @@ class Object3d(object):
         Returns
         -------
         float or None
-            Mass of the object when successful, ``None`` otherwise. Mass density in AEDT is always in kg/m^3
+            Mass of the object when successful, 0.0 otherwise. Mass of the volume in kg since AEDT mass density is
+            always in kg/m^3
 
         References
         ----------
@@ -1792,18 +1794,39 @@ class Object3d(object):
         >>> oEditor.GetObjectVolume
 
         """
-        if self.object_type == "Solid" and self.model:
+        if self.model and self.material_name:
             volume = self._primitives._oeditor.GetObjectVolume(self._m_name)
             units = self.object_units
             mass_density = (
-                float(self._primitives._materials[self._material_name].mass_density.value)
+                float(self._primitives._materials[self.material_name].mass_density.value)
                 * float(volume)
                 * float(AEDT_UNITS["Length"][str(units)]) ** 3
             )
-            self._mass = {"value": mass_density, "unit": "kg"}
+            self._mass = mass_density
         else:
-            self._mass = None
+            self._mass = 0.0
         return self._mass
+
+    @property
+    def volume(self):
+        """Object volume.
+
+        Returns
+        -------
+        float
+            Volume of the object when successful, 0.0 otherwise.
+
+        References
+        ----------
+
+        >>> oEditor.GetObjectVolume
+
+        """
+        if self.object_type == "Solid":
+            self._volume = float(self._primitives._oeditor.GetObjectVolume(self._m_name))
+        else:
+            self._volume = 0.0
+        return self._volume
 
     @property
     def name(self):
