@@ -23,7 +23,8 @@ set cmd=call echo %%%aedt_var%%%
 for /f "delims=" %%i in ('%cmd%') do set aedt_path=%%i
 echo Found AEDT %version_pretty% at %aedt_path%
 
-set /p run=Python or Jupyter?(0=Spyder, 1=Jupyter, 2=Console)
+set /p run=Python or Jupyter?(0=InstallOnly, 1=Jupyter, 2=Console, 3=Spyder)
+if [%run%] == [] set run=0
 setlocal enableDelayedExpansion
 
 if not exist "%APPDATA%\pyaedt_env_ide\" (
@@ -51,11 +52,12 @@ if [%arg1%]==[-update] (
 if %run%==1 (
      echo Launching Jupyter Lab
     "%APPDATA%\pyaedt_env_ide\Scripts\jupyter.exe" lab
-) else ( if %run%==0 (
+) else ( if %run%==3 (
     echo Launching Spyder
     "%APPDATA%\pyaedt_env_ide\Scripts\spyder.exe"
-    ) else (
+    ) else ( if %run%==2 (
     "%APPDATA%\pyaedt_env_ide\Scripts\ipython.exe"
+    )
     )
 )
 
