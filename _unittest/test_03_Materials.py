@@ -101,7 +101,7 @@ class TestClass(BasisTest, object):
         except ValueError:
             assert True
 
-    def test_03A_create_thermal_modifier(self):
+    def test_03_create_modifiers(self):
         assert self.aedtapp.materials["new_copper2"].mass_density.add_thermal_modifier_free_form(
             "if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))"
         )
@@ -112,7 +112,6 @@ class TestClass(BasisTest, object):
         ds1 = self.aedtapp.import_dataset1d(filename)
         assert self.aedtapp.materials["new_copper2"].permittivity.add_thermal_modifier_dataset(ds1.name)
 
-    def test_03B_create_spatial_modifier(self):
         assert self.aedtapp.materials["new_copper2"].mass_density.add_spatial_modifier_free_form(
             "if(X > 1mm, 1, if(X < 1mm, 2, 1))"
         )
@@ -124,6 +123,22 @@ class TestClass(BasisTest, object):
         filename = os.path.join(local_path, "example_models", "ds_3d.tab")
         ds2 = self.aedtapp.import_dataset3d(filename)
         assert self.aedtapp.materials["new_copper2"].permeability.add_spatial_modifier_dataset(ds2.name)
+        mat1 = self.aedtapp.materials.add_material("new_copper3")
+        assert self.aedtapp.materials["new_copper3"].mass_density.add_spatial_modifier_free_form(
+            "if(X > 1mm, 1, if(X < 1mm, 3, 1))"
+        )
+        assert self.aedtapp.materials["new_copper3"].permeability.add_thermal_modifier_free_form(
+            "if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))"
+        )
+        mat1 = self.aedtapp.materials.add_material("new_copper4")
+        assert self.aedtapp.materials["new_copper4"].mass_density.add_spatial_modifier_free_form(
+            "if(X > 1mm, 1, if(X < 1mm, 3, 1))"
+        )
+        assert self.aedtapp.materials["new_copper4"].permeability.add_thermal_modifier_closed_form()
+        mat1 = self.aedtapp.materials.add_material("new_copper5")
+        assert self.aedtapp.materials["new_copper5"].permeability.add_thermal_modifier_closed_form()
+        ds3 = self.aedtapp.import_dataset3d(filename)
+        assert self.aedtapp.materials["new_copper5"].permeability.add_spatial_modifier_dataset([ds2.name, ds3.name])
 
     def test_04_duplicate_material(self):
         assert self.aedtapp.materials.duplicate_material("new_copper2", "copper3")
