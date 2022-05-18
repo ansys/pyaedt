@@ -99,7 +99,5 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          ./**/*.whl
           ./**/*.tar.gz
-          ./**/*.pdf
           ./**/*.zip
