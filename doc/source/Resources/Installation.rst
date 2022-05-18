@@ -35,6 +35,23 @@ To use IronPython in AEDT:
     ipy64 setup-distutils.py install --user
 
 
+Installing PyAEDT from a wheelhouse
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PyAEDT can be installed from one of the wheelhouse available in the release assets.
+Wheelhouses have been added starting from release v0.4.70.
+They are available for CPython 3.7, 3.8 and 3.9.
+
+This can be helpful for users part of companies restricting access to external network.
+They can install PyAEDT and all its dependencies from one single entry point that can be shared internally.
+It will ease the review of the PyAEDT package content for security reasons.
+
+For instance, here is the command to execute to install PyAEDT package and all its dependencies.
+
+.. code::
+
+    pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v0.5.dev0-wheelhouse-Windows-3.7 pyaedt
+
+
 Using Standalone IronPython
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To use standalone IronPython:
@@ -72,4 +89,9 @@ is executed only when running the command with the ``-update`` option:
 
     pyaedt_with_IDE.bat -update
 
+In addition, it is possible to install PyAEDT package and all its dependencies provided in the wheelhouse by
+executing the bat file mentioned above.
 
+.. code::
+
+    pyaedt_with_IDE.bat <path_to_wheelhouse>PyAEDT-v0.5.dev0-wheelhouse-Windows-3.7
