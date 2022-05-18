@@ -445,6 +445,7 @@ class Layer3D(object):
         line_width=None,
         line_length=None,
         is_electrical_length=False,
+        is_impedance=False,
         line_position_x=0,
         line_position_y=0,
         line_name=None,
@@ -485,8 +486,8 @@ class Layer3D(object):
         created_line = Line(
             self._app,
             frequency,
-            None,
-            line_width,
+            line_width if is_impedance else None,
+            line_width if not is_impedance else None,
             self,
             dielectric_layer,
             line_length=line_length if not is_electrical_length else None,
@@ -1790,52 +1791,57 @@ class Line(CommonObject, object):
 
     @property
     def frequency(self):
-        """
+        """Frequency.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         return self._frequency
 
     @property
     def substrate_thickness(self):
-        """
+        """Substrate Thickness.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         return self._substrate_thickness
 
     @property
     def width(self):
-        """
+        """Width.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         return self._width
 
     @property
     def width_h_w(self):
-        """
+        """Width H W.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         if self._width_h_w is not None:
             return self._width_h_w
 
     @property
     def width_calcul(self):
-        """
+        """Width calculation.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         # if w/h < 2 :
         # a = z * sqrt((er + 1) / 2) / 60 + (0.23 + 0.11 / er) * (er - 1) / (er + 1)
@@ -1889,62 +1895,68 @@ class Line(CommonObject, object):
 
     @property
     def position_x(self):
-        """
+        """Starting Position X.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         return self._position_x
 
     @property
     def position_y(self):
-        """
+        """Starting Position Y.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         return self._position_y
 
     @property
     def permittivity(self):
-        """
+        """Permittivity.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         return self._permittivity
 
     @property
     def permittivity_calcul(self):
-        """
+        """Permittivity Calutation.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         self._permittivity = self.application.materials[self._dielectric_material].permittivity
         return self._permittivity
 
     @property
     def added_length(self):
-        """
+        """Added Length Calutation.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         return self._added_length
 
     @property
     def added_length_calcul(self):
-        """
+        """Added Length Calutation.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         # "0.412 * substrate_thickness * (patch_eff_permittivity + 0.3) * (patch_width/substrate_thickness + 0.264)"
         # " / ((patch_eff_permittivity - 0.258) * (patch_width/substrate_thickness + 0.813)) "
@@ -1961,21 +1973,23 @@ class Line(CommonObject, object):
 
     @property
     def length(self):
-        """
+        """Length.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         return self._length
 
     @property
     def length_calcul(self):
-        """
+        """Length Calutation.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         # "patch_wave_length / 2 - 2 * patch_added_length"
         d_l = self._added_length.name
@@ -1987,21 +2001,23 @@ class Line(CommonObject, object):
 
     @property
     def charac_impedance(self):
-        """
+        """Characteristic Impedance.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         return self._charac_impedance
 
     @property
     def charac_impedance_calcul(self):
-        """
+        """Characteristic Impedance Calutation.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         # if w / h > 1: 60 * log(8 * h / w + w / (4 * h)) / sqrt(er_e)
         # if w / h < 1: 120 * pi / (sqrt(er_e) * (w / h + 1.393 + 0.667 * log(w / h + 1.444)))
@@ -2024,21 +2040,23 @@ class Line(CommonObject, object):
 
     @property
     def effective_permittivity(self):
-        """
+        """Effective Permittivity.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         return self._effective_permittivity
 
     @property
     def effective_permittivity_calcul(self):
-        """
+        """Effective Permittivity Calutation.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         # "(substrat_permittivity + 1)/2 +
         # (substrat_permittivity - 1)/(2 * sqrt(1 + 10 * substrate_thickness/patch_width))"
@@ -2055,21 +2073,23 @@ class Line(CommonObject, object):
 
     @property
     def wave_length(self):
-        """
+        """Wave Length.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         return self._wave_length
 
     @property
     def wave_length_calcul(self):
-        """
+        """Wave Length Calutation.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         # "c0 * 1000/(patch_frequency * sqrt(patch_eff_permittivity))"
         # TODO it is currently only available for mm
@@ -2083,21 +2103,23 @@ class Line(CommonObject, object):
 
     @property
     def electrical_length(self):
-        """
+        """Electrical Length.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         return self._electrical_length
 
     @property
     def electrical_length_calcul(self):
-        """
+        """Electrical Length calculation.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         lbd = self._wave_length.name
         length = self._length.name
@@ -2108,16 +2130,19 @@ class Line(CommonObject, object):
 
     @pyaedt_function_handler()
     def create_lumped_port(self, reference_layer_name, change_side=False):
-        """
+        """Create a lumped port on the specified line.
 
         Parameters
         ----------
-        reference_layer_name
-        change_side
+        reference_layer_name : str
+            Name of the layer on which attach the reference.
+        change_side : bool, optional
+            Either if apply the port on one direction or the opposite. Default it is on Positive side.
 
         Returns
         -------
-
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
         """
         if self._axis == "X":
             if change_side:
@@ -2135,7 +2160,7 @@ class Line(CommonObject, object):
 
 
 class Polygon(CommonObject, object):
-    """ """
+    """Polygon Class in Stackup3D."""
 
     def __init__(
         self,
@@ -2186,11 +2211,12 @@ class Polygon(CommonObject, object):
 
     @property
     def points_on_layer(self):
-        """
+        """Object Bounding Box
 
         Returns
         -------
-
+        List
+            List of [x,y] coordinate of bounding box.
         """
         bb = self._aedt_object.bounding_box
         return [[bb[0], bb[1]], [bb[0], bb[4]], [bb[3], bb[4]], [bb[3], bb[1]]]
