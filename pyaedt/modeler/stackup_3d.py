@@ -7,6 +7,18 @@ from pyaedt.modules.MaterialLib import Material
 LAYERS = {"s": "signal", "g": "ground", "d": "dielectric"}
 
 
+def _replace_by_underscore(character, string):
+    if not isinstance(character, str):
+        raise TypeError("character must be str")
+    if not isinstance(character, str):
+        raise TypeError("string must be str")
+    reformat_name = list(string)
+    while character in reformat_name:
+        index = reformat_name.index(character)
+        reformat_name[index] = "_"
+    return "".join(reformat_name)
+
+
 class NamedVariable(object):
     """Cast Pyaedt Variable object to simplify getter and setters in Stackup3D."""
 
@@ -90,7 +102,7 @@ class NamedVariable(object):
         -------
 
         """
-        self._application.hidden_variable(self.name, value)
+        return self._application.hidden_variable(self.name, value)
 
     @pyaedt_function_handler()
     def read_only_variable(self, value=True):
@@ -104,7 +116,7 @@ class NamedVariable(object):
         -------
 
         """
-        self._application.read_only_variable(self.name, value)
+        return self._application.read_only_variable(self.name, value)
 
 
 class Layer3D(object):
@@ -523,17 +535,24 @@ class Layer3D(object):
 
         if self._layer_type == "ground":
             if not is_void:
+                if polygon.aedt_object.is3d:
+                    self._app.modeler[self._name].subtract(polygon.aedt_object, True)
+                    polygon.aedt_object.material_name = self.filling_material_name
+                else:
+                    self._app.modeler[self._name].subtract(polygon.aedt_object, False)
+                    return True
+        elif is_void:
+            if polygon.aedt_object.is3d:
+                self._app.modeler.subtract(self._obj_3d, polygon.aedt_object, True)
+                polygon.aedt_object.material_name = self.filling_material_name
+            else:
                 self._app.modeler[self._name].subtract(polygon.aedt_object, False)
                 return True
-        elif is_void:
-            self._app.modeler.subtract(self._obj_3d, polygon.aedt_object, True)
-            polygon.aedt_object.material_name = self.filling_material_name
-            return True
         else:
             self._app.modeler.subtract(self._obj_3d[0], polygon.aedt_object, True)
             self._obj_3d.append(polygon.aedt_object)
             self._stackup._object_list.append(polygon)
-            return polygon
+        return polygon
 
 
 class PadstackLayer(object):
@@ -1168,51 +1187,6 @@ class Stackup3D(object):
         self._app["dielectric_width"] = str(maximum_y + variation_y * percentage_offset / 100) + "mm"
         return True
 
-    @pyaedt_function_handler()
-    def resize_around_patch(self):
-        """
-
-        Returns
-        -------
-
-        """
-        self._app["dielectric_x_position"] = "patch_position_x - patch_length * 50 / 100"
-        self._app["dielectric_y_position"] = "patch_position_y - patch_width * 50 / 100"
-        self._app["dielectric_length"] = (
-            "abs(patch_position_x + patch_length * (1 + 50 / 100)) +" " abs(dielectric_x_position)"
-        )
-        self._app["dielectric_width"] = (
-            "abs(patch_position_y + patch_width * (1 + 50 / 100)) +" " abs(dielectric_y_position)"
-        )
-
-    @pyaedt_function_handler()
-    def create_region(self, pad_percent=None):
-        """
-
-        Parameters
-        ----------
-        pad_percent
-
-        Returns
-        -------
-
-        """
-        if pad_percent is None:
-            pad_percent = [50, 50, 5000, 50, 50, 100]
-        return self._app.modeler.primitives.create_region(pad_percent)
-
-
-def _replace_by_underscore(character, string):
-    if not isinstance(character, str):
-        raise TypeError("character must be str")
-    if not isinstance(character, str):
-        raise TypeError("string must be str")
-    reformat_name = list(string)
-    while character in reformat_name:
-        index = reformat_name.index(character)
-        reformat_name[index] = "_"
-    return "".join(reformat_name)
-
 
 class CommonObject(object):
     """ """
@@ -1283,8 +1257,6 @@ class CommonObject(object):
         """
         return self._name
 
-    # TODO name@setter
-
     @property
     def application(self):
         """
@@ -1345,50 +1317,6 @@ class CommonObject(object):
         """
         bb = self._aedt_object.bounding_box
         return [[bb[0], bb[1]], [bb[0], bb[4]], [bb[3], bb[4]], [bb[3], bb[1]]]
-
-    @property
-    def get_maximum_in_x(self):
-        """
-
-        Returns
-        -------
-
-        """
-        bb = self._aedt_object.bounding_box
-        return max(bb[0], bb[3])
-
-    @property
-    def get_minimum_in_x(self):
-        """
-
-        Returns
-        -------
-
-        """
-        bb = self._aedt_object.bounding_box
-        return min(bb[0], bb[3])
-
-    @property
-    def get_maximum_in_y(self):
-        """
-
-        Returns
-        -------
-
-        """
-        bb = self._aedt_object.bounding_box
-        return max(bb[1], bb[4])
-
-    @property
-    def get_minimum_in_y(self):
-        """
-
-        Returns
-        -------
-
-        """
-        bb = self._aedt_object.bounding_box
-        return min(bb[1], bb[4])
 
 
 class Patch(CommonObject, object):
