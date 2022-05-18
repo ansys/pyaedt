@@ -1325,3 +1325,30 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.oexcitation.SaveDiffPairsToFile(filename)
 
         return os.path.isfile(filename)
+
+    @pyaedt_function_handler()
+    def export_3d_model(self, file_name=None, path=None, extension="sat"):
+        """Export the Ecad model to an ACIS 3D File.
+
+        Parameters
+        ----------
+        file_name : str, optional
+            Name of the file to export. Default is None which will set file_name to design_name.
+        path : str, optional
+            Path to the file. Default is None which will save in working_directory path.
+        extension : str, optional
+            File extension. Default is `"sm3"`. Options are `"sat"`  and `"sab"`.
+
+        Returns
+        -------
+        bool
+            `True` if succeeded.
+        """
+        if not path:
+            path = self.working_directory
+        if not file_name:
+            file_name = self.design_name
+        self.modeler.oeditor.ExportAcis(
+            ["NAME:options", "FileName:=", os.path.join(path, "{}.{}".format(file_name, extension))]
+        )
+        return True
