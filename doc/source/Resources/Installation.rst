@@ -49,7 +49,7 @@ For instance, here is the command to execute to install PyAEDT package and all i
 
 .. code::
 
-    pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v0.5.dev0-wheelhouse-Windows-3.7 pyaedt
+    pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v<release_version>-wheelhouse-Windows-3.7 pyaedt
 
 
 Using Standalone IronPython
@@ -94,4 +94,4 @@ executing the bat file mentioned above.
 
 .. code::
 
-    pyaedt_with_IDE.bat <path_to_wheelhouse>PyAEDT-v0.5.dev0-wheelhouse-Windows-3.7
+    pyaedt_with_IDE.bat <path_to_wheelhouse>PyAEDT-v<release_version>-wheelhouse-Windows-3.7
