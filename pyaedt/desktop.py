@@ -324,7 +324,7 @@ class Desktop:
         student_version=False,
         machine="",
         port=0,
-        aedt_process_id = None,
+        aedt_process_id=None,
     ):
         """Initialize desktop."""
         self._main = sys.modules["__main__"]
@@ -368,7 +368,12 @@ class Desktop:
                 if StrictVersion(version_key) < StrictVersion("2022.2.0") or not settings.use_grpc_api:
                     print("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
                     self._init_cpython(
-                        non_graphical, new_desktop_session, version, self._main.student_version, version_key, aedt_process_id
+                        non_graphical,
+                        new_desktop_session,
+                        version,
+                        self._main.student_version,
+                        version_key,
+                        aedt_process_id
                     )
                 else:
                     self._init_cpython_new(non_graphical, new_desktop_session, version, self._main.student_version)
@@ -551,7 +556,7 @@ class Desktop:
         self._main.oDesktop = o_ansoft_app.GetAppDesktop()
         self._main.isoutsideDesktop = True
 
-    def _init_cpython(self, non_graphical, new_aedt_session, version, student_version, version_key,aedt_process_id = None):
+    def _init_cpython(self, non_graphical, new_aedt_session, version, student_version, version_key,aedt_process_id=None):
 
         base_path = self._main.sDesktopinstallDirectory
         sys.path.append(base_path)
@@ -581,7 +586,9 @@ class Desktop:
         if IsWindows:
             processID2 = self._get_tasks_list_windows(student_version)
         proc = [i for i in processID2 if i not in processID] #Looking for the "new" process
-        if not proc and (not new_aedt_session) and aedt_process_id: #if it isn't a new aedt session and a process ID is given
+        if (
+                not proc and (not new_aedt_session) and aedt_process_id
+        ): #if it isn't a new aedt session and a process ID is given
             proc = [aedt_process_id]
         elif not proc:
             proc = processID2

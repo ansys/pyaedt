@@ -97,7 +97,7 @@ class Emit(FieldAnalysisEmit, object):
         student_version=False,
         machine="",
         port=0,
-        aedt_process_id = None,
+        aedt_process_id=None,
     ):
         """Constructor."""
         FieldAnalysisEmit.__init__(

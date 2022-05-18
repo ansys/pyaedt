@@ -89,7 +89,7 @@ class Analysis(Design, object):
         student_version,
         machine="",
         port=0,
-        aedt_process_id = None,
+        aedt_process_id=None,
     ):
         self.setups = []
         Design.__init__(

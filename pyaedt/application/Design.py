@@ -369,7 +369,7 @@ class Design(object):
         student_version=False,
         machine="",
         port=0,
-        aedt_process_id = None,
+        aedt_process_id=None,
     ):
         self._init_variables()
         # Get Desktop from global Desktop Environment

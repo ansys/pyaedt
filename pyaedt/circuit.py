@@ -114,7 +114,7 @@ class Circuit(FieldAnalysisCircuit, object):
         student_version=False,
         machine="",
         port=0,
-        aedt_process_id = None,
+        aedt_process_id=None,
     ):
         FieldAnalysisCircuit.__init__(
             self,

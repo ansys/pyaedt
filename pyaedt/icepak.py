@@ -131,7 +131,7 @@ class Icepak(FieldAnalysis3D):
         student_version=False,
         machine="",
         port=0,
-        aedt_process_id = None,
+        aedt_process_id=None,
     ):
         FieldAnalysis3D.__init__(
             self,
