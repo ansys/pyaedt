@@ -1646,16 +1646,21 @@ class Design(object):
         -------
 
         """
+        if variable_name not in self.variable_manager.variables:
+            self.logger.error("Variable {} does not exists.".format(variable_name))
+            return False
         if variable_name.startswith("$"):
             tab = "NAME:ProjectVariableTab"
             propserver = "ProjectVariables"
         else:
             tab = "NAME:LocalVariableTab"
-            if self.design_type in ["HFSS 3D Layout Design", "Circuit Design"]:
+            propserver = "LocalVariables"
+            if self.design_type == "HFSS 3D Layout Design":
                 if variable_name in self.odesign.GetProperties("DefinitionParameterTab", "LocalVariables"):
                     tab = "NAME:DefinitionParameterTab"
-
-            propserver = "LocalVariables"
+            elif self.design_type == "Circuit Design":
+                tab = "NAME:DefinitionParameterTab"
+                propserver = "Instance:{}".format(self._odesign.GetName())
         arg2 = ["NAME:" + optimetrics_type, "Included:=", enable]
         if min_val:
             arg2.append("Min:=")

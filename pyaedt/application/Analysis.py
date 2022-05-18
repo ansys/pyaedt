@@ -1017,10 +1017,7 @@ class Analysis(Design, object):
             >>> oDesign.GetNominalVariation"""
             families = {}
             if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Twin Builder"]:
-                if self._app._is_object_oriented_enabled():
-                    listvar = list(self._app._odesign.GetChildObject("Variables").GetChildNames())
-                else:
-                    listvar = list(self._app._odesign.GetVariables())
+                listvar = self._app.variable_manager._get_var_list_from_aedt(self._app._odesign)
                 for el in listvar:
                     families[el] = self._app._odesign.GetVariableValue(el)
             else:
@@ -1709,3 +1706,13 @@ class Analysis(Design, object):
                     f1.write(line)
         f1.close()
         return self.odesktop.SubmitJob(os.path.join(project_path, "Job_settings.areg"), project_file)
+
+    @pyaedt_function_handler()
+    def value_with_units(self, value, units=None):
+        if isinstance(value, str):
+            val = value
+        else:
+            if units is None:
+                units = self.modeler.model_units
+            val = "{0}{1}".format(value, units)
+        return val

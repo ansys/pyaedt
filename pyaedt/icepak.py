@@ -1459,7 +1459,7 @@ class Icepak(FieldAnalysis3D):
             Name of the EM setup. The default is ``"Setup1"``.
         sweepname : str, optional
             Name of the EM sweep to use for the mapping. The default is ``"LastAdaptive"``.
-        map_frequency : optional
+        map_frequency : str, optional
             String containing the frequency to map. The default is ``None``.
             The value must be ``None`` for Eigenmode analysis.
         surface_objects : list, optional
@@ -1467,8 +1467,13 @@ class Icepak(FieldAnalysis3D):
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case the
             source from the same project is used.
-        paramlist :list, optional
-            List of all parameters in the EM to map. The default is ``None``.
+        paramlist : list, dict, optional
+            List of all parameters to map from source and icepak design. The default is ``None``.
+            If ``None`` the variables will be set to their values (no mapping).
+            If it is a list, the specified variables in the icepak design will be mapped to variables
+            in the source design having the same name.
+            If it is a dictionary, it is possible to map variables to the source design having a different name.
+            The dict structure is {"source_design_variable": "icepak_variable"}.
         object_list : list, optional
             List of objects. The default is ``None``.
 
@@ -1484,8 +1489,6 @@ class Icepak(FieldAnalysis3D):
         """
         if surface_objects == None:
             surface_objects = []
-        if paramlist == None:
-            paramlist = []
         if object_list == None:
             object_list = []
 
@@ -1515,8 +1518,12 @@ class Icepak(FieldAnalysis3D):
         for el in self.available_variations.nominal_w_values_dict:
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
 
-        for el in paramlist:
-            argparam[el] = el
+        if paramlist and isinstance(paramlist, list):
+            for el in paramlist:
+                argparam[el] = el
+        elif paramlist and isinstance(paramlist, dict):
+            for el in paramlist:
+                argparam[el] = paramlist[el]
 
         props = OrderedDict(
             {
