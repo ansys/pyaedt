@@ -42,26 +42,24 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Linux pip cache
-        uses: actions/cache@v2
-        if: ${{ runner.os == 'Linux' }}
-        with:
-          path: ~/.cache/pip
-          key: Python-v${{ env.RESET_PIP_CACHE }}-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_tests.txt') }}
-          restore-keys: |
-            Python-v${{ env.RESET_PIP_CACHE }}-${{ runner.os }}-${{ matrix.python-version }}
+      - name: 'Create virtual env'
+        run: |
+          python -m venv testenv
+          testenv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
 
-      - name: Window pip cache
-        uses: actions/cache@v2
-        if: ${{ runner.os == 'Windows' }}
-        with:
-          path: ~\AppData\Local\pip\Cache
-          key: Python-v${{ env.RESET_PIP_CACHE }}-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_tests*.txt') }}
-          restore-keys: |
-            Python-v${{ env.RESET_PIP_CACHE }}-${{ runner.os }}-${{ matrix.python-version }}
-
-      - name: Install PyAEDT
-        run: pip install .
+      - name: 'Install pyaedt'
+        run: |
+          testenv\Scripts\Activate.ps1
+          pip install .
+          pip install -r requirements_test.txt
+          pip install pytest-azurepipelines
+          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
+          mkdir tmp
+          cd tmp
+          python -c "import pyaedt; print('Imported pyaedt')"
 
       # - name: Test import
       #   working-directory: tests
@@ -91,25 +89,6 @@ jobs:
           name: ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-wheelhouse-${{ runner.os }}-${{ matrix.python-version }}
           path: '*.zip'
           retention-days: 7
-
-      - name: 'Create virtual env'
-        run: |
-          python -m venv testenv
-          testenv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
-
-      - name: 'Install pyaedt'
-        run: |
-          testenv\Scripts\Activate.ps1
-          pip install .
-          pip install -r requirements_test.txt
-          pip install pytest-azurepipelines
-          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
-          mkdir tmp
-          cd tmp
-          python -c "import pyaedt; print('Imported pyaedt')"
 
       - name: 'Unit testing'
         run: |
