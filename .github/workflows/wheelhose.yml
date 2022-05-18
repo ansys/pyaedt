@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: WheelHouse
 
 env:
   python.venv: 'testvenv'
@@ -45,17 +45,9 @@ jobs:
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
-
-      - name: 'Install pyaedt'
-        run: |
-          testenv\Scripts\Activate.ps1
           pip install .
-          pip install -r requirements_test.txt
-          pip install pytest-azurepipelines
-          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
-          mkdir tmp
-          cd tmp
-          python -c "import pyaedt; print('Imported pyaedt')"
+          pip install jupyterlab
+
 
       - name: Retrieve PyAEDT version
         run: |
