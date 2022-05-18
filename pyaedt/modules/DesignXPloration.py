@@ -480,6 +480,25 @@ class SetupOpti(CommonOptimetrics, object):
         CommonOptimetrics.__init__(self, app, name, dictinputs=dictinputs, optimtype=optim_type)
 
     @pyaedt_function_handler()
+    def delete(self):
+        """Delete a defined Optimetrics Setup.
+
+        Parameters
+        ----------
+        setup_name : str
+            Name of optimetrics setup to delete.
+
+        Returns
+        -------
+        bool
+            `True` if setup is deleted. `False` if it failed.
+        """
+
+        self.omodule.DeleteSetups([self.name])
+        self._app.optimizations.setups.remove(self)
+        return True
+
+    @pyaedt_function_handler()
     def add_calculation(
         self,
         calculation,
@@ -700,6 +719,25 @@ class SetupParam(CommonOptimetrics, object):
     def __init__(self, p_app, name, dictinputs=None, optim_type="OptiParametric"):
         CommonOptimetrics.__init__(self, p_app, name, dictinputs=dictinputs, optimtype=optim_type)
         pass
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete a defined Optimetrics Setup.
+
+        Parameters
+        ----------
+        setup_name : str
+            Name of optimetrics setup to delete.
+
+        Returns
+        -------
+        bool
+            `True` if setup is deleted. `False` if it failed.
+        """
+
+        self.omodule.DeleteSetups([self.name])
+        self._app.parametrics.setups.remove(self)
+        return True
 
     @pyaedt_function_handler()
     def add_variation(self, sweep_var, start_point, end_point=None, step=100, unit=None, variation_type="LinearCount"):
@@ -991,6 +1029,26 @@ class ParametricSetups(object):
         return setup
 
     @pyaedt_function_handler()
+    def delete(self, setup_name):
+        """Delete a defined Parametric Setup.
+
+        Parameters
+        ----------
+        setup_name : str
+            Name of parametric setup to delete.
+
+        Returns
+        -------
+        bool
+            `True` if setup is deleted. `False` if it failed.
+        """
+        for el in self.setups:
+            if el.name == setup_name:
+                el.delete()
+                return True
+        return False
+
+    @pyaedt_function_handler()
     def add_from_file(self, filename, parametricname=None):
         """Add a Parametric Setup from a csv file.
 
@@ -1025,22 +1083,6 @@ class OptimizationSetups(object):
     >>> optimization_setup = app.optimizations
     """
 
-    @property
-    def p_app(self):
-        """Parent."""
-        return self._app
-
-    @property
-    def optimodule(self):
-        """Optimetrics module.
-
-        Returns
-        -------
-        :class:`Optimetrics`
-
-        """
-        return self._app.ooptimetrics
-
     def __init__(self, p_app):
         self._app = p_app
         self.setups = []
@@ -1059,6 +1101,42 @@ class OptimizationSetups(object):
                         self.setups.append(SetupOpti(p_app, data, setups_data[data], setups_data[data]["SetupType"]))
             except:
                 pass
+
+    @property
+    def p_app(self):
+        """Parent."""
+        return self._app
+
+    @property
+    def optimodule(self):
+        """Optimetrics module.
+
+        Returns
+        -------
+        :class:`Optimetrics`
+
+        """
+        return self._app.ooptimetrics
+
+    @pyaedt_function_handler()
+    def delete(self, setup_name):
+        """Delete a defined Optimetrics Setup.
+
+        Parameters
+        ----------
+        setup_name : str
+            Name of optimetrics setup to delete.
+
+        Returns
+        -------
+        bool
+            `True` if setup is deleted. `False` if it failed.
+        """
+        for el in self.setups:
+            if el.name == setup_name:
+                el.delete()
+                return True
+        return False
 
     @pyaedt_function_handler()
     def add(

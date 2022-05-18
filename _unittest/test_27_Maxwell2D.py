@@ -32,6 +32,7 @@ class TestClass(BasisTest, object):
     @pyaedt_unittest_check_desktop_error
     def test_03_assign_initial_mesh_from_slider(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(4)
+        self.aedtapp.set_active_design("Basis_Model_For_Test")
 
     @pyaedt_unittest_check_desktop_error
     def test_04_create_winding(self):
@@ -100,11 +101,25 @@ class TestClass(BasisTest, object):
 
     @pyaedt_unittest_check_desktop_error
     def test_10_assign_torque(self):
-        assert self.aedtapp.assign_torque("Rotor_Section1")
+        T = self.aedtapp.assign_torque("Rotor_Section1")
+        assert T.type == "Torque"
+        assert T.props["Objects"][0] == "Rotor_Section1"
+        assert T.props["Is Positive"]
+        assert T.delete()
+        T = self.aedtapp.assign_torque(input_object="Rotor_Section1", is_positive=False, torque_name="Torque_Test")
+        assert T.name == "Torque_Test"
+        assert not T.props["Is Positive"]
+        assert T.props["Objects"][0] == "Rotor_Section1"
 
     @pyaedt_unittest_check_desktop_error
     def test_11_assign_force(self):
-        assert self.aedtapp.assign_force("Magnet2_Section1")
+        F = self.aedtapp.assign_force("Magnet2_Section1")
+        assert F.type == "Force"
+        assert F.props["Objects"][0] == "Magnet2_Section1"
+        assert F.props["Reference CS"] == "Global"
+        assert F.delete()
+        F = self.aedtapp.assign_force(input_object="Magnet2_Section1", force_name="Force_Test")
+        assert F.name == "Force_Test"
 
     @pyaedt_unittest_check_desktop_error
     def test_12_assign_current_source(self):
@@ -136,6 +151,7 @@ class TestClass(BasisTest, object):
 
     @pyaedt_unittest_check_desktop_error
     def test_15_assign_movement(self):
+        self.aedtapp.set_active_design("Y_Connections")
         self.aedtapp.insert_design("Motion")
         self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.TransientZ
         self.aedtapp.xy_plane = True
@@ -154,8 +170,6 @@ class TestClass(BasisTest, object):
     def test_17_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
         assert self.aedtapp.mesh.initial_mesh_settings.props
-        assert self.aedtapp.change_design_settings({"Multiplier": 2})
-        assert self.aedtapp.change_symmetry_multiplier(1)
 
     def test_18_end_connection(self):
         self.aedtapp.insert_design("EndConnection")
@@ -266,3 +280,12 @@ class TestClass(BasisTest, object):
         )
         for l in L.props["MatrixEntry"]["MatrixEntry"]:
             assert l["ReturnPath"] == "infinite"
+
+    def test_20_setup_y_connection(self):
+        self.aedtapp.set_active_design("Y_Connections")
+        assert self.aedtapp.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
+        assert self.aedtapp.setup_y_connection(["PhaseA", "PhaseB"])  # Remove one phase from the Y connection.
+        assert self.aedtapp.setup_y_connection()  # Remove the Y connection.
+
+    def test_21_symmetry_multiplier(self):
+        assert self.aedtapp.change_symmetry_multiplier(2)

@@ -604,21 +604,19 @@ class FieldAnalysis3D(Analysis, object):
         >>> obj_names_list = [box1.name, box2.name, cylinder1.name, cylinder2.name]
         >>> hfss.assign_material(obj_names_list, "aluminum")
         """
-        mat = mat.lower()
         selections = self.modeler.convert_to_selections(obj, True)
 
-        mat_exists = False
-        if mat in self.materials.material_keys:
-            mat_exists = True
-        if mat_exists or self.materials.checkifmaterialexists(mat):
-            Mat = self.materials.material_keys[mat]
-            if mat_exists:
-                Mat.update()
+        if mat.lower() not in self.materials.material_keys:
+            matobj = self.materials._aedmattolibrary(mat)
+        else:
+            matobj = self.materials.material_keys[mat.lower()]
+
+        if matobj:
             self.logger.info("Assign Material " + mat + " to object " + str(selections))
             for el in selections:
-                self.modeler[el].material_name = mat
-                self.modeler[el].color = self.materials.material_keys[mat].material_appearance
-                if Mat.is_dielectric():
+                self.modeler[el].material_name = matobj.name
+                self.modeler[el].color = matobj.material_appearance
+                if matobj.is_dielectric():
                     self.modeler[el].solve_inside = True
                 else:
                     self.modeler[el].solve_inside = False
@@ -736,10 +734,9 @@ class FieldAnalysis3D(Analysis, object):
             list_mat_obj += [rd for rd, md in zip(component_data["Ref Des"], component_data["Material"]) if md == mat]
             list_mat_obj = [mo for mo in list_mat_obj if mo in all_objs]
             if list_mat_obj:
-                if not self.materials.checkifmaterialexists(mat.lower()):
+                newmat = self.materials.checkifmaterialexists(mat)
+                if not newmat:
                     newmat = self.materials.add_material(mat.lower())
-                else:
-                    newmat = self.materials[mat.lower()]
                 if "Material Density" in material_data:
                     if "@" in material_data["Material Density"][i] and "," in material_data["Material Density"][i]:
                         nominal_val, dataset_name = self._create_dataset_from_sherlock(
@@ -800,4 +797,37 @@ class FieldAnalysis3D(Analysis, object):
                         self.modeler[obj_name].surface_material_name = "Steel-oxidised-surface"
             i += 1
             all_objs = [ao for ao in all_objs if ao not in list_mat_obj]
+        return True
+
+    @pyaedt_function_handler()
+    def cleanup_solution(self, variations="All", entire_solution=True, field=True, mesh=True, linked_data=True):
+        """Delete a set of Solution Variations or part of them.
+
+        Parameters
+        ----------
+        variations : List, str, optional
+            All variations to delete. Default is `"All"` which deletes all available solutions.
+        entire_solution : bool, optional
+            Either if delete entire Solution or part of it. If `True` other booleans will be ignored
+            as solution will be entirely deleted.
+        field : bool, optional
+            Either if delete entire Fields of variation or not. Default is `True`.
+        mesh : bool, optional
+            Either if delete entire Mesh of variation or not. Default is `True`.
+        linked_data : bool, optional
+            Either if delete entire Linked Data of variation or not. Default is `True`.
+
+        Returns
+        -------
+        bool
+            `True` if Delete operation succeeded.
+        """
+        if isinstance(variations, str):
+            variations = [variations]
+        if entire_solution:
+            self.odesign.DeleteFullVariation(variations, linked_data)
+        elif field:
+            self.odesign.DeleteFieldVariation(variations, mesh, linked_data)
+        elif linked_data:
+            self.odesign.DeleteLinkedDataVariation(variations)
         return True

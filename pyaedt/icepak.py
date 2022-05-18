@@ -2763,21 +2763,39 @@ class Icepak(FieldAnalysis3D):
 
         >>> oEditor.ChangeProperty
         """
-        mat = mat.lower()
-        if mat not in self.materials.surface_material_keys:
+        objs = ["NAME:PropServers"]
+        objs.extend(self.modeler.convert_to_selections(obj, True))
+        try:
+            self.modeler.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:Geometry3DAttributeTab",
+                        objs,
+                        ["NAME:ChangedProps", ["NAME:Surface Material", "Value:=", '"' + mat + '"']],
+                    ],
+                ]
+            )
+        except:
             self.logger.warning("Warning. The material is not the database. Use add_surface_material.")
             return False
-        else:
-            for el in obj:
-                self.modeler.oeditor.ChangeProperty(
-                    [
-                        "NAME:AllTabs",
-                        [
-                            "NAME:Geometry3DAttributeTab",
-                            ["NAME:PropServers", el],
-                            ["NAME:ChangedProps", ["NAME:Surface Material", "Value:=", '"' + mat + '"']],
-                        ],
-                    ]
-                )
+        if mat.lower() not in self.materials.surface_material_keys:
+            oo = self.get_oo_object(self.oproject, "Surface Materials/{}".format(mat))
+            if oo:
+                from pyaedt.modules.Material import SurfaceMaterial
 
-            return True
+                sm = SurfaceMaterial(self.materials, mat)
+                sm.coordinate_system = oo.GetPropEvaluatedValue("Coordinate System Type")
+                props = oo.GetPropNames()
+                if "Surface Emissivity" in props:
+                    sm.emissivity = oo.GetPropEvaluatedValue("Surface Emissivity")
+                if "Surface Roughness" in props:
+                    sm.surface_roughness = oo.GetPropEvaluatedValue("Surface Roughness")
+                if "Solar Behavior" in props:
+                    sm.surface_clarity_type = oo.GetPropEvaluatedValue("Solar Behavior")
+                if "Solar Diffuse Absorptance" in props:
+                    sm.surface_diffuse_absorptance = oo.GetPropEvaluatedValue("Solar Diffuse Absorptance")
+                if "Solar Normal Absorptance" in props:
+                    sm.surface_incident_absorptance = oo.GetPropEvaluatedValue("Solar Normal Absorptance")
+                self.materials.surface_material_keys[mat.lower()] = sm
+        return True

@@ -64,7 +64,7 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Point`
+        :class:`pyaedt.modeler.object3dlayout.Point`
             Point object.
 
         References
@@ -2241,7 +2241,7 @@ class Primitives3D(Primitives, object):
             core_material = str(values["Core"]["Material"])
             if len(core_material) > 0:
                 if self.materials.checkifmaterialexists(core_material):
-                    values["Core"]["Material"] = core_material
+                    values["Core"]["Material"] = self.materials._get_aedt_case_name(core_material)
                 else:
                     self.logger.error(
                         "%s is not in the material library."
@@ -2264,7 +2264,7 @@ class Primitives3D(Primitives, object):
             winding_material = str(values["Outer Winding"]["Material"])
             if len(winding_material) > 0:
                 if self.materials.checkifmaterialexists(winding_material):
-                    values["Outer Winding"]["Material"] = winding_material
+                    values["Outer Winding"]["Material"] = self.materials._get_aedt_case_name(winding_material)
                 else:
                     self.logger.error(
                         "%s is not in the material library."

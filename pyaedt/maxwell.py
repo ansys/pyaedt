@@ -472,6 +472,48 @@ class Maxwell(object):
         return True
 
     @pyaedt_function_handler()
+    def setup_y_connection(self, windings_name=None):
+        """Setup the y connection.
+
+        Parameters
+        ----------
+        winding_name : list, optional
+            List of windings. For instance ["PhaseA", "PhaseB", "PhaseC"].
+            The default value is ``None``. In that case the design have none Y connection.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful and ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.SetupYConnection
+
+        Examples
+        --------
+        Setup Y Connection for three existing windings respectively named ``PhaseA``, ``PhaseB``, ``PhaseC``.
+        This will create one ``YConnection`` group containing those 3 phases.
+
+        >>> from pyaedt import Maxwell2d
+        >>> aedtapp = Maxwell2d("Motor_EM_R2019R3.aedt")
+        >>> aedtapp.set_active_design("Basis_Model_For_Test")
+        >>> aedtapp.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
+        """
+
+        if windings_name:
+            connection = ["NAME:YConnection"]
+            connection.append("Windings:=")
+            connection.append(",".join(windings_name))
+            windings = ["NAME:YConnection"]
+            windings.append(connection)
+            self.oboundary.SetupYConnection(windings)
+        else:
+            self.oboundary.SetupYConnection()
+        return True
+
+    @pyaedt_function_handler()
     def assign_current(self, object_list, amplitude=1, phase="0deg", solid=True, swap_direction=False, name=None):
         """Assign the source of the current.
 
@@ -1014,26 +1056,35 @@ class Maxwell(object):
 
         >>> oModule.AssignForce
         """
-        input_object = self.modeler.convert_to_selections(input_object, True)
-        if not force_name:
-            force_name = generate_unique_name("Force")
-        if self.design_type == "Maxwell 3D":
-            self.o_maxwell_parameters.AssignForce(
-                [
-                    "NAME:" + force_name,
-                    "Reference CS:=",
-                    reference_cs,
-                    "Is Virtual:=",
-                    is_virtual,
-                    "Objects:=",
-                    input_object,
-                ]
-            )
+        if self.solution_type not in ["ACConduction", "DCConduction"]:
+            input_object = self.modeler.convert_to_selections(input_object, True)
+            if not force_name:
+                force_name = generate_unique_name("Force")
+            if self.design_type == "Maxwell 3D":
+                prop = OrderedDict(
+                    {
+                        "Name": force_name,
+                        "Reference CS": reference_cs,
+                        "Is Virtual": is_virtual,
+                        "Objects": input_object,
+                    }
+                )
+            else:
+                prop = OrderedDict(
+                    {
+                        "Name": force_name,
+                        "Reference CS": reference_cs,
+                        "Objects": input_object,
+                    }
+                )
+
+            bound = MaxwellParameters(self, force_name, prop, "Force")
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
         else:
-            self.o_maxwell_parameters.AssignForce(
-                ["NAME:" + force_name, "Reference CS:=", reference_cs, "Objects:=", input_object]
-            )
-        return True
+            self.logger.error("Solution Type has not Matrix Parameter")
+            return False
 
     @pyaedt_function_handler()
     def assign_torque(
@@ -1066,38 +1117,40 @@ class Maxwell(object):
 
         >>> oModule.AssignTorque
         """
-        input_object = self.modeler.convert_to_selections(input_object, True)
-        if not torque_name:
-            torque_name = generate_unique_name("Torque")
-        if self.design_type == "Maxwell 3D":
-            self.o_maxwell_parameters.AssignTorque(
-                [
-                    "NAME:" + torque_name,
-                    "Is Virtual:=",
-                    is_virtual,
-                    "Coordinate System:=",
-                    reference_cs,
-                    "Axis:=",
-                    axis,
-                    "Is Positive:=",
-                    is_positive,
-                    "Objects:=",
-                    input_object,
-                ]
-            )
+        if self.solution_type not in ["ACConduction", "DCConduction"]:
+            if self.solution_type is "Transient":
+                is_virtual = True
+            input_object = self.modeler.convert_to_selections(input_object, True)
+            if not torque_name:
+                torque_name = generate_unique_name("Torque")
+            if self.design_type == "Maxwell 3D":
+                prop = OrderedDict(
+                    {
+                        "Name": torque_name,
+                        "Is Virtual": is_virtual,
+                        "Coordinate System": reference_cs,
+                        "Axis": axis,
+                        "Is Positive": is_positive,
+                        "Objects": input_object,
+                    }
+                )
+            else:
+                prop = OrderedDict(
+                    {
+                        "Name": torque_name,
+                        "Coordinate System": reference_cs,
+                        "Is Positive": is_positive,
+                        "Objects": input_object,
+                    }
+                )
+
+            bound = MaxwellParameters(self, torque_name, prop, "Torque")
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
         else:
-            self.o_maxwell_parameters.AssignTorque(
-                [
-                    "NAME:" + torque_name,
-                    "Coordinate System:=",
-                    reference_cs,
-                    "Is Positive:=",
-                    is_positive,
-                    "Objects:=",
-                    input_object,
-                ]
-            )
-        return True
+            self.logger.error("Solution Type has not Matrix Parameter")
+            return False
 
     @pyaedt_function_handler()
     def solve_inside(self, name, activate=True):
