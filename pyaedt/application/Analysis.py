@@ -989,10 +989,7 @@ class Analysis(Design, object):
             >>> oDesign.GetNominalVariation"""
             families = []
             if self._app.design_type == "HFSS 3D Layout Design":
-                if self._app._is_object_oriented_enabled():
-                    listvar = list(self._app._odesign.GetChildObject("Variables").GetChildNames())
-                else:
-                    listvar = list(self._app._odesign.GetVariables())
+                listvar = self._app.variable_manager._get_var_list_from_aedt(self._app._odesign)
                 for el in listvar:
                     families.append(el + ":=")
                     families.append([self._app._odesign.GetVariableValue(el)])
@@ -1825,6 +1822,22 @@ class Analysis(Design, object):
 
     @pyaedt_function_handler()
     def value_with_units(self, value, units=None):
+        """Combine a number and a string containing the unit in a single string e.g. "1.2mm".
+        If the units are not specified, the model units are used.
+        If value is a string (like containing an expression), it is returned as is.
+
+        Parameters
+        ----------
+        value : float, int, str
+            Value of the number or string containing an expression.
+        units : str, optional
+            Units to combine with value.
+
+        Returns
+        -------
+        str
+            String that combines the value and the units (e.g. "1.2mm").
+        """
         if isinstance(value, str):
             val = value
         else:

@@ -1030,8 +1030,8 @@ class VariableManager(object):
         var_list = []
         if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
             var_list += list(desktop_object.GetChildObject("Variables").GetChildNames())
-        var_list += list(desktop_object.GetVariables())
-        var_list = list(set(var_list))
+        tmp = [i for i in list(desktop_object.GetVariables()) if i not in var_list]
+        var_list += tmp
         return var_list
 
 
