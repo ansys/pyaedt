@@ -1039,6 +1039,7 @@ class Object3d(object):
         self._model = None
         self._m_groupName = None
         self._object_type = None
+        self._mass = None
 
     @pyaedt_function_handler()
     def _bounding_box_unmodel(self):
@@ -1775,6 +1776,34 @@ class Object3d(object):
             return True
         else:
             return False
+
+    @property
+    def mass(self):
+        """Object mass.
+
+        Returns
+        -------
+        float or None
+            Mass of the object when successful, ``None`` otherwise. Mass density in AEDT is always in kg/m^3
+
+        References
+        ----------
+
+        >>> oEditor.GetObjectVolume
+
+        """
+        if self.object_type == "Solid" and self.model:
+            volume = self._primitives._oeditor.GetObjectVolume(self._m_name)
+            units = self.object_units
+            mass_density = (
+                float(self._primitives._materials[self._material_name].mass_density.value)
+                * float(volume)
+                * float(AEDT_UNITS["Length"][str(units)]) ** 3
+            )
+            self._mass = {"value": mass_density, "unit": "kg"}
+        else:
+            self._mass = None
+        return self._mass
 
     @property
     def name(self):
