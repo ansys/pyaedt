@@ -124,7 +124,16 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return self
 
     @pyaedt_function_handler()
-    def create_edge_port(self, primivitivename, edgenumber, iscircuit=True):
+    def create_edge_port(
+        self,
+        primivitivename,
+        edgenumber,
+        iscircuit=False,
+        iswave=False,
+        wave_horizontal_extension=5,
+        wave_vertical_extension=3,
+        wave_launcher="1mm",
+    ):
         """Create an edge port.
 
         Parameters
@@ -135,10 +144,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Edge number to create the edge port on.
         iscircuit : bool, optional
             Whether the edge port is a circuit port. The default is ``False``.
+        iswave : bool, optional
+            Whether the edge port is a circuit port. The default is ``False``.
+        wave_horizontal_extension : float, optional
+            Horizontal port extension factor. Default is `5`.
+        wave_vertical_extension : float, optional
+            Vertical port extension factor. Default is `5`.
+        wave_launcher : str, optional
+            Pec Launcher size with units. Default is `"1mm"`.
 
         Returns
         -------
-        type
+        str
             Name of the port when successful, ``False`` when failed.
 
         References
@@ -161,6 +178,31 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         listnew = self.port_list
         a = [i for i in listnew if i not in listp]
         if len(a) > 0:
+            if iswave:
+                self.modeler.change_property(
+                    property_object="Excitations:{}".format(a[0]),
+                    property_name="HFSS Type",
+                    property_value="Wave",
+                    property_tab="EM Design",
+                )
+                self.modeler.change_property(
+                    property_object="Excitations:{}".format(a[0]),
+                    property_name="Horizontal Extent Factor",
+                    property_value=str(wave_horizontal_extension),
+                    property_tab="EM Design",
+                )
+                self.modeler.change_property(
+                    property_object="Excitations:{}".format(a[0]),
+                    property_name="Vertical Extent Factor",
+                    property_value=str(wave_vertical_extension),
+                    property_tab="EM Design",
+                )
+                self.modeler.change_property(
+                    property_object="Excitations:{}".format(a[0]),
+                    property_name="PEC Launch Width",
+                    property_value=str(wave_launcher),
+                    property_tab="EM Design",
+                )
             return a[0]
         else:
             return False
@@ -1278,3 +1320,30 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.oexcitation.SaveDiffPairsToFile(filename)
 
         return os.path.isfile(filename)
+
+    @pyaedt_function_handler()
+    def export_3d_model(self, file_name=None, path=None, extension="sat"):
+        """Export the Ecad model to an ACIS 3D File.
+
+        Parameters
+        ----------
+        file_name : str, optional
+            Name of the file to export. Default is None which will set file_name to design_name.
+        path : str, optional
+            Path to the file. Default is None which will save in working_directory path.
+        extension : str, optional
+            File extension. Default is `"sm3"`. Options are `"sat"`  and `"sab"`.
+
+        Returns
+        -------
+        bool
+            `True` if succeeded.
+        """
+        if not path:
+            path = self.working_directory
+        if not file_name:
+            file_name = self.design_name
+        self.modeler.oeditor.ExportAcis(
+            ["NAME:options", "FileName:=", os.path.join(path, "{}.{}".format(file_name, extension))]
+        )
+        return True

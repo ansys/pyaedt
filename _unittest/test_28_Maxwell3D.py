@@ -300,10 +300,28 @@ class TestClass(BasisTest, object):
         )
 
     def test_28_assign_torque(self):
-        assert self.aedtapp.assign_torque("Coil")
+        T = self.aedtapp.assign_torque("Coil")
+        assert T.type == "Torque"
+        assert T.props["Objects"][0] == "Coil"
+        assert T.props["Is Positive"]
+        assert T.props["Is Virtual"]
+        assert T.props["Coordinate System"] == "Global"
+        assert T.props["Axis"] == "Z"
+        assert T.delete()
+        T = self.aedtapp.assign_torque(input_object="Coil", is_positive=False, torque_name="Torque_Test")
+        assert not T.props["Is Positive"]
+        assert T.name == "Torque_Test"
 
     def test_29_assign_force(self):
-        assert self.aedtapp.assign_force("Coil")
+        F = self.aedtapp.assign_force("Coil")
+        assert F.type == "Force"
+        assert F.props["Objects"][0] == "Coil"
+        assert F.props["Reference CS"] == "Global"
+        assert F.props["Is Virtual"]
+        assert F.delete()
+        F = self.aedtapp.assign_force(input_object="Coil", is_virtual=False, force_name="Force_Test")
+        assert F.name == "Force_Test"
+        assert not F.props["Is Virtual"]
 
     def test_30_assign_movement(self):
         self.aedtapp.insert_design("Motion")

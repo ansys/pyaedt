@@ -150,9 +150,8 @@ class TestClass(BasisTest, object):
     def test_09_modify_padstack(self):
         pad_0 = self.aedtapp.modeler.padstacks["PlanarEMVia"]
         assert self.aedtapp.modeler.padstacks["PlanarEMVia"].plating != 55
-        pad_0.plating = 55
+        pad_0.plating = "55"
         pad_0.update()
-        self.aedtapp.modeler.init_padstacks()
         assert self.aedtapp.modeler.padstacks["PlanarEMVia"].plating == "55"
 
     def test_10_create_padstack(self):
@@ -179,6 +178,9 @@ class TestClass(BasisTest, object):
         assert line == "line1"
 
     def test_13a_create_edge_port(self):
+        port_wave = self.aedtapp.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
+        assert port_wave
+        assert self.aedtapp.delete_port(port_wave)
         assert self.aedtapp.create_edge_port("line1", 3, False)
         assert self.aedtapp.create_edge_port("line1", 0, True)
         assert len(self.aedtapp.excitations) > 0
@@ -466,8 +468,12 @@ class TestClass(BasisTest, object):
         setup = self.aedtapp.create_setup(setupname=setup_name, setuptype="LNA3DLayout")
         assert setup_name == setup.name
 
+    def test_35a_export_layout(self):
+        self.aedtapp.export_3d_model()
+        assert os.path.exists(os.path.join(self.aedtapp.working_directory, self.aedtapp.design_name + ".sat"))
+
     @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
-    def test_35_set_differential_pairs(self):
+    def test_90_set_differential_pairs(self):
         assert self.hfss3dl.set_differential_pair(
             positive_terminal="Port3",
             negative_terminal="Port4",
@@ -481,7 +487,7 @@ class TestClass(BasisTest, object):
         assert self.hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
 
     @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
-    def test_36_load_and_save_diff_pair_file(self):
+    def test_91_load_and_save_diff_pair_file(self):
         diff_def_file = os.path.join(local_path, "example_models", "differential_pairs_definition.txt")
         diff_file = self.local_scratch.copyfile(diff_def_file)
         assert self.hfss3dl.load_diff_pairs_from_file(diff_file)
@@ -493,9 +499,9 @@ class TestClass(BasisTest, object):
         assert len(lines) == 3
 
     @pytest.mark.skipif(is_ironpython, reason="Crash on Ironpython")
-    def test_37_import_edb(self):
+    def test_92_import_edb(self):
         assert self.aedtapp.import_edb(self.target_path)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not Working on Version earlier than 2022R2.")
-    def test_38_clip_plane(self):
+    def test_93_clip_plane(self):
         assert self.aedtapp.modeler.clip_plane("CS1")

@@ -1318,23 +1318,25 @@ class GeometryModeler(Modeler, object):
             key2 = "GeometryEntityLists"
             key3 = "GeometryEntityListOperation"
             try:
-                geom_entry = copy.deepcopy(self._app.design_properties["ModelSetup"]["GeometryCore"][key1][key2][key3])
-                if isinstance(geom_entry, (dict, OrderedDict)):
-                    geom_entry = [geom_entry]
-                for data in geom_entry:
-                    props = {}
-                    name = data["Attributes"]["Name"]
-                    props["ID"] = data["ID"]
-                    props["Type"] = data["GeometryEntityListParameters"]["EntityType"]
-                    if props["Type"] == "Object":
-                        name_list = []
-                        for element in data["GeometryEntityListParameters"]["EntityList"]:
-                            element_name = self.oeditor.GetObjectNameByID(int(element))
-                            name_list.append(element_name)
-                        props["List"] = name_list
-                    else:
-                        props["List"] = data["GeometryEntityListParameters"]["EntityList"]
-                    design_lists.append(Lists(self, props, name))
+                entity_list = self._app.design_properties["ModelSetup"]["GeometryCore"][key1][key2]
+                if len(entity_list) > 0:
+                    geom_entry = copy.deepcopy(entity_list[key3])
+                    if isinstance(geom_entry, (dict, OrderedDict)):
+                        geom_entry = [geom_entry]
+                    for data in geom_entry:
+                        props = {}
+                        name = data["Attributes"]["Name"]
+                        props["ID"] = data["ID"]
+                        props["Type"] = data["GeometryEntityListParameters"]["EntityType"]
+                        if props["Type"] == "Object":
+                            name_list = []
+                            for element in data["GeometryEntityListParameters"]["EntityList"]:
+                                element_name = self.oeditor.GetObjectNameByID(int(element))
+                                name_list.append(element_name)
+                            props["List"] = name_list
+                        else:
+                            props["List"] = data["GeometryEntityListParameters"]["EntityList"]
+                        design_lists.append(Lists(self, props, name))
             except:
                 self.logger.error("Lists were not retrieved from AEDT file")
         return design_lists
