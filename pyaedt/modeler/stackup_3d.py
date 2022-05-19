@@ -103,7 +103,7 @@ class NamedVariable(object):
 
     @property
     def string_value(self):
-        """Return a string which combine the numeric_value and the units"""
+        """Return a string which combine the numeric_value and the units."""
         return self._variable.string_value
 
     @pyaedt_function_handler()
@@ -116,8 +116,7 @@ class NamedVariable(object):
             Whether the variable is a hidden variable. The default is ``True``.
 
         Returns
-        -------
-
+        bool
         """
         return self._application.hidden_variable(self.name, value)
 
@@ -132,7 +131,7 @@ class NamedVariable(object):
 
         Returns
         -------
-
+        bool
         """
         return self._application.read_only_variable(self.name, value)
 
@@ -399,7 +398,7 @@ class Layer3D(object):
         patch_name=None,
         axis="X",
     ):
-        """
+        """Create a new parametric patch.
 
         Parameters
         ----------
@@ -985,7 +984,7 @@ class Stackup3D(object):
 
     @property
     def layer_names(self):
-        """List all layer names
+        """List all layer names.
 
         Returns
         -------
@@ -995,7 +994,7 @@ class Stackup3D(object):
 
     @property
     def layer_positions(self):
-        """List all layer positions
+        """List all layer positions.
 
         Returns
         -------
@@ -1042,19 +1041,26 @@ class Stackup3D(object):
 
     @pyaedt_function_handler()
     def add_layer(self, name, layer_type="S", material="copper", thickness=0.035, fill_material="FR4_epoxy"):
-        """
+        """Add a new layer to the stackup. Can be Signal (S), ground (G) or Dielectric (D).
+        The layer is entirely filled with  fill_material. Anything will be drawn wmaterial.
 
         Parameters
         ----------
-        name
-        layer_type
-        material
-        thickness
-        fill_material
+        name : str
+            Layer name.
+        layer_type : str, optional
+            Layer type.Can be `"S"`, `"D"` or `"G"`.
+        material : str
+            Material name. Material will be parametrized.
+        thickness : float
+            Thickness value. Thickness will be parametrized.
+        fill_material : str
+            Fill Material name. Material will be parametrized. Not valid for Dielectrics.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.Layer3D`
+            Layer Object.
         """
         self._shifted_index += 1
         if not layer_type:
@@ -1196,15 +1202,16 @@ class Stackup3D(object):
 
     @pyaedt_function_handler()
     def resize(self, percentage_offset):
-        """
+        """Resize the stackup around objects created by percentage offset.
 
         Parameters
         ----------
-        percentage_offset
+        percentage_offset : float
+            Offset of resize. Value accepted are greater than 0.
 
         Returns
         -------
-
+        bool
         """
         list_of_2d_points = []
         list_of_x_coordinates = []
@@ -1265,11 +1272,11 @@ class CommonObject(object):
 
     @property
     def metric_unit(self):
-        """
+        """Return the metric units.
 
         Returns
         -------
-
+        str
         """
         return self._metric_unit
 
@@ -1279,51 +1286,46 @@ class CommonObject(object):
 
     @property
     def dielectric_layer(self):
-        """
+        """Dielectric layer to which belongs the object.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.Layer3D`
         """
         return self._dielectric_layer
 
     @property
     def signal_layer(self):
-        """
+        """Signal layer to which belongs the object.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.Layer3D`
         """
         return self._signal_layer
 
     @property
     def name(self):
-        """
+        """Object Name.
 
         Returns
         -------
-
+        str
         """
         return self._name
 
     @property
     def application(self):
-        """
-
-        Returns
-        -------
-
-        """
+        """App Object."""
         return self._application
 
     @property
     def aedt_object(self):
-        """
+        """PyAedt object 3d.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.Object3d.Object3d`
         """
         return self._aedt_object
 
