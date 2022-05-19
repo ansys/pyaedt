@@ -850,7 +850,7 @@ class SetupParam(CommonOptimetrics, object):
                     sweep_def["Synchronize"] = sync_n
         try:
             return self.update()
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             # If it fails to sync (due to e.g. different number of variations), reverts to original values.
             for v in variables:
                 for sweep_def in self.props["Sweeps"]["SweepDefinition"]:

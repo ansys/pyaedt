@@ -17,6 +17,7 @@ from __future__ import absolute_import, division  # noreorder
 
 import os
 import re
+import warnings
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import _resolve_unit_system
@@ -766,7 +767,7 @@ class VariableManager(object):
             Whether to define a postprocessing variable.
              The default is ``False``, in which case the variable is not used in postprocessing.
         circuit_parameter : bool, optional
-            Whether to define a parameter in a circuit design or a local parameter.
+            Deprecated. Whether to define a parameter in a circuit design or a local parameter.
              The default is ``True``, in which case a circuit variable is created as a parameter default.
         Returns
         -------
@@ -804,17 +805,25 @@ class VariableManager(object):
         >>> aedtapp.variable_manager.set_variable["$p1"] == "30mm"
 
         """
+        if not circuit_parameter:
+            warnings.warn(
+                "`circuit_parameter` argument is deprecated. Use `$` in variable name instead.", DeprecationWarning
+            )
+
         if not description:
             description = ""
 
         desktop_object = self.aedt_object(variable_name)
-        test = desktop_object.GetName()
-        proj_name = self._oproject.GetName()
-        var_type = "Project" if "$" in variable_name[0] else "Local"
-        if circuit_parameter and self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design"]:
-            tab_name = "DefinitionParameterTab"
+        if variable_name.startswith("$"):
+            tab_name = "ProjectVariableTab"
+            prop_server = "ProjectVariables"
         else:
-            tab_name = "{0}VariableTab".format(var_type)
+            tab_name = "LocalVariableTab"
+            prop_server = "LocalVariables"
+            if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design"]:
+                tab_name = "DefinitionParameterTab"
+            if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit"]:
+                prop_server = "Instance:{}".format(desktop_object.GetName())
 
         prop_type = "VariableProp"
         if postprocessing or "post" in variable_name.lower()[0:5]:
@@ -847,15 +856,6 @@ class VariableManager(object):
         # Get all design and project variables in lower case for a case-sensitive comparison
         var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [var_name.lower() for var_name in var_list]
-        if (
-            self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit"]
-            and "$" not in variable_name
-        ):
-            prop_server = "Instance:{}".format(desktop_object.GetName())
-        elif self._app.design_type == "Circuit Design" and circuit_parameter:
-            prop_server = "DefinitionParameters"
-        else:
-            prop_server = "{0}Variables".format(var_type)
 
         if variable_name.lower() not in lower_case_vars:
             try:

@@ -40,9 +40,9 @@ circuit.push_down(subcircuit)
 # They are then connected in series.
 # The ``pop_up`` method provides for getting back to the parent design.
 
-circuit.variable_manager.set_variable("R_val", "35ohm", circuit_parameter=True)
-circuit.variable_manager.set_variable("L_val", "1e-7H", circuit_parameter=True)
-circuit.variable_manager.set_variable("C_val", "5e-10F", circuit_parameter=True)
+circuit.variable_manager.set_variable("R_val", "35ohm")
+circuit.variable_manager.set_variable("L_val", "1e-7H")
+circuit.variable_manager.set_variable("C_val", "5e-10F")
 p1 = circuit.modeler.schematic.create_interface_port("In")
 r1 = circuit.modeler.schematic.create_resistor(value="R_val")
 l1 = circuit.modeler.schematic.create_inductor(value="L_val")
