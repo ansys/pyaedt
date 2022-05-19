@@ -382,7 +382,14 @@ class Design(object):
 
         if "pyaedt_initialized" not in dir(main_module):
             desktop = Desktop(
-                specified_version, non_graphical, new_desktop_session, close_on_exit, student_version, machine, port, aedt_process_id
+                specified_version,
+                non_graphical,
+                new_desktop_session,
+                close_on_exit,
+                student_version,
+                machine,
+                port,
+                aedt_process_id,
             )
             self._logger = desktop.logger
             self.release_on_exit = True

@@ -373,7 +373,7 @@ class Desktop:
                         version,
                         self._main.student_version,
                         version_key,
-                        aedt_process_id
+                        aedt_process_id,
                     )
                 else:
                     self._init_cpython_new(non_graphical, new_desktop_session, version, self._main.student_version)
@@ -392,7 +392,7 @@ class Desktop:
         settings.aedt_version = self.odesktop.GetVersion()[0:6]
         settings.machine = self.machine
         settings.port = self.port
-        self.aedt_process_id = self.odesktop.GetProcessID() #bit of cleanup for consistency if used in future
+        self.aedt_process_id = self.odesktop.GetProcessID()  # bit of cleanup for consistency if used in future
 
         if _com == "ironpython":
             sys.path.append(
@@ -556,7 +556,15 @@ class Desktop:
         self._main.oDesktop = o_ansoft_app.GetAppDesktop()
         self._main.isoutsideDesktop = True
 
-    def _init_cpython(self, non_graphical, new_aedt_session, version, student_version, version_key,aedt_process_id=None):
+    def _init_cpython(
+        self,
+        non_graphical,
+        new_aedt_session,
+        version,
+        student_version,
+        version_key,
+        aedt_process_id=None,
+    ):
 
         base_path = self._main.sDesktopinstallDirectory
         sys.path.append(base_path)
@@ -573,7 +581,7 @@ class Desktop:
         processID = []
         if IsWindows:
             processID = self._get_tasks_list_windows(student_version)
-        if student_version and not processID: #Opens an instance if processID is an empty list
+        if student_version and not processID:  # Opens an instance if processID is an empty list
             self._run_student()
         elif non_graphical or new_aedt_session or not processID:
             # Force new object if no non-graphical instance is running or if there is not an already existing process.
@@ -585,10 +593,10 @@ class Desktop:
         processID2 = []
         if IsWindows:
             processID2 = self._get_tasks_list_windows(student_version)
-        proc = [i for i in processID2 if i not in processID] #Looking for the "new" process
+        proc = [i for i in processID2 if i not in processID]  # Looking for the "new" process
         if (
-                not proc and (not new_aedt_session) and aedt_process_id
-        ): #if it isn't a new aedt session and a process ID is given
+            not proc and (not new_aedt_session) and aedt_process_id
+        ):  # if it isn't a new aedt session and a process ID is given
             proc = [aedt_process_id]
         elif not proc:
             proc = processID2
