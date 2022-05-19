@@ -1118,7 +1118,7 @@ class Maxwell(object):
         >>> oModule.AssignTorque
         """
         if self.solution_type not in ["ACConduction", "DCConduction"]:
-            if self.solution_type is "Transient":
+            if self.solution_type == "Transient":
                 is_virtual = True
             input_object = self.modeler.convert_to_selections(input_object, True)
             if not torque_name:
