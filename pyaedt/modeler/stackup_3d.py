@@ -20,7 +20,33 @@ def _replace_by_underscore(character, string):
 
 
 class NamedVariable(object):
-    """Cast Pyaedt Variable object to simplify getter and setters in Stackup3D."""
+    """Cast Pyaedt Variable object to simplify getter and setters in Stackup3D.
+
+        The returned Polyline object exposes the methods for manipulating the polyline.
+
+        Parameters
+        ----------
+        application : :class:`pyaedt.hfss.Hfss
+            The Hfss design or project where the variable will be create
+        name : str
+            The name of the variable. If the the name begins by a '$', the variable will be a project variable,
+            else it will be a design variable.
+        expression : str
+            The expression of the value.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> from pyaedt.modeler.stackup_3d import Stackup3D
+        >>> hfss = Hfss()
+        >>> my_frequency = NamedVariable(hfss, "my_frequency", "900000Hz")
+        >>> wave_length_formula = "c0/" + my_frequency.name
+        >>> my_wave_length = NamedVariable(hfss, "my_wave_length", wave_length_formula)
+        >>> my_permittivity = NamedVariable(hfss, "my_permittivity", "2.2")
+        >>> my_wave_length.expression = my_wave_length.expression + "/" + my_permittivity.name
+
+        """
 
     def __init__(self, application, name, expression):
         self._application = application
@@ -34,26 +60,21 @@ class NamedVariable(object):
 
     @property
     def name(self):
-        """
-
-        Returns
-        -------
-
-        """
+        """Return the name of the variable as a string."""
         return self._name
 
     @property
     def expression(self):
-        """
-
-        Returns
-        -------
-
-        """
+        """Return the expression of the variable as a string."""
         return self._expression
 
     @expression.setter
     def expression(self, expression):
+        """Set the expression of the variable.
+            Parameters
+            ----------
+            expression: str
+                The value expression of the variable."""
         if isinstance(expression, str):
             self._expression = expression
             self._application[self.name] = expression
@@ -82,21 +103,17 @@ class NamedVariable(object):
 
     @property
     def string_value(self):
-        """
-
-        Returns
-        -------
-
-        """
+        """Return a string which combine the numeric_value and the units"""
         return self._variable.string_value
 
     @pyaedt_function_handler()
     def hide_variable(self, value=True):
-        """
+        """Set the variable to a hidden variable.
 
         Parameters
         ----------
-        value
+        value: bool, optional
+            Whether the variable is a hidden variable. The default is ``True``.
 
         Returns
         -------
@@ -106,11 +123,12 @@ class NamedVariable(object):
 
     @pyaedt_function_handler()
     def read_only_variable(self, value=True):
-        """
+        """Set the variable to a read only variable.
 
         Parameters
         ----------
-        value
+        value : bool, optional
+            Whether the variable is a read only variable. The default is ``True``.
 
         Returns
         -------
@@ -445,7 +463,7 @@ class Layer3D(object):
         line_name=None,
         axis="X",
         reference_system=None,
-        frequency="1GHz",
+        frequency=1e9,
     ):
         """Create a new line.
 
@@ -983,6 +1001,16 @@ class Stackup3D(object):
         List
         """
         return self._layer_position
+
+    @property
+    def layer_values(self):
+        """
+
+        Returns
+        -------
+
+        """
+        return self._layer_values
 
     @property
     def stackup_layers(self):
@@ -1770,7 +1798,7 @@ class Line(CommonObject, object):
                 origin=[
                     "{}_position_x".format(self._name),
                     "{}_position_y".format(self._name),
-                    signal_layer.elevation.name,
+                    signal_layer.position.name,
                 ],
                 reference_cs="Global",
                 name=line_name + "_CS",
