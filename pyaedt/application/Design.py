@@ -3402,7 +3402,7 @@ class Design(object):
         >>> M3D["p3"] = "P1 * p2"
         >>> eval_p3 = M3D.get_evaluated_value("p3")
         """
-        if self.design_type == "Maxwell Circuit":
+        if self.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
             if "$" in variable_name:
                 val_units = self._oproject.GetVariableValue(variable_name)
             else:
