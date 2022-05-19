@@ -571,7 +571,7 @@ M2D.post.create_fieldplot_surface(faces_reg, 'Flux_Lines', intrinsincDict={"Time
 ##########################################################
 # Analyze and Save Project
 M2D.save_project(project_file=pathName + pName + '.aedt', overwrite=True, refresh_obj_ids_after_save=False)
-M2D.analyze_setup(sName)
+#M2D.analyze_setup(sName)
 
 ###############################################
 # Close AEDT
