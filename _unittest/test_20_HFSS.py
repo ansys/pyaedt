@@ -96,7 +96,7 @@ class TestClass(BasisTest, object):
         udp = self.aedtapp.modeler.Position(100, 0, 0)
         o6 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1a")
         port = self.aedtapp.create_wave_port_from_sheet(
-            o6, 0, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1a_Port", renorm=False, terminal_references=["outer"]
+            o6, 0, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1a_Port", renorm=True, terminal_references=["outer"]
         )
         assert port.name == "sheet1a_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
@@ -113,7 +113,9 @@ class TestClass(BasisTest, object):
         id6 = self.aedtapp.modeler.create_box([20, 20, 20], [10, 10, 2], matname="Copper", name="My_Box")
         id7 = self.aedtapp.modeler.create_box([20, 25, 30], [10, 2, 2], matname="Copper")
         rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [20, 25, 20], [2, 10])
-        ports = self.aedtapp.create_wave_port_from_sheet(rect, 5, self.aedtapp.AxisDir.ZNeg, 40, 2, "sheet3_Port", True)
+        ports = self.aedtapp.create_wave_port_from_sheet(
+            rect, 5, self.aedtapp.AxisDir.ZNeg, 40, 2, "sheet3_Port", False
+        )
         assert ports.name in [i.name for i in self.aedtapp.boundaries]
 
     def test_06a_create_linear_count_sweep(self):
@@ -442,8 +444,8 @@ class TestClass(BasisTest, object):
         assert port.name == "Lump1xx"
         port.name = "Lump1"
         assert port.update()
-        assert self.aedtapp.create_lumped_port_between_objects(
-            "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump2", True, True
+        port = self.aedtapp.create_lumped_port_between_objects(
+            "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump2", False, True
         )
 
     def test_11_create_circuit_on_objects(self):
@@ -852,7 +854,7 @@ class TestClass(BasisTest, object):
         )
         assert port2.name + "_T1" in self.aedtapp.excitations
         port3 = self.aedtapp.create_lumped_port_between_objects(
-            box1, box2.name, self.aedtapp.AxisDir.XNeg, 50, "Lump3", True, True
+            box1, box2.name, self.aedtapp.AxisDir.XNeg, 50, "Lump3", False, True
         )
         assert port3.name + "_T1" in self.aedtapp.excitations
 
