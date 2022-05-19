@@ -407,6 +407,12 @@ class CommonReport(object):
         if val == self._secondary_sweep:
             self._secondary_sweep = self._primary_sweep
         self._primary_sweep = val
+        if val == "Time":
+            self.variations.pop("Freq", None)
+            self.variations["Time"] = ["All"]
+        elif val == "Freq":
+            self.variations.pop("Time", None)
+            self.variations["Freq"] = ["All"]
 
     @property
     def secondary_sweep(self):
@@ -423,6 +429,12 @@ class CommonReport(object):
         if val == self._primary_sweep:
             self._primary_sweep = self._secondary_sweep
         self._secondary_sweep = val
+        if val == "Time":
+            self.variations.pop("Freq", None)
+            self.variations["Time"] = ["All"]
+        elif val == "Freq":
+            self.variations.pop("Time", None)
+            self.variations["Freq"] = ["All"]
 
     @property
     def _context(self):

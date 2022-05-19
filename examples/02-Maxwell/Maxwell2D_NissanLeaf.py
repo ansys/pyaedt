@@ -17,10 +17,9 @@ from pyaedt import Maxwell2d
 from pyaedt import examples
 from pyaedt import generate_unique_name
 
-
 #################################################################################
 # Initialization: Maxwell version, path project and design name and type
-desktopVersion = "2022.1"
+desktopVersion = "2021.2"
 
 sName = "MySetupAuto"
 sType = "TransientXY"
@@ -89,81 +88,11 @@ oper_params = {
     "IPeak": "480A",
     "MachineRPM": "3000rpm",
     "ElectricFrequency": "MachineRPM/60rpm*NumPoles/2*1Hz",
-    "ElectricPeriod": "1Hz/ElectricFrequency",
+    "ElectricPeriod": "1/ElectricFrequency",
     "BandTicksinModel": "360deg/NumPoles/mapping_angle",
     "TimeStep": "ElectricPeriod/(2*BandTicksinModel)",
     "StopTime": "2*ElectricPeriod",
     "Theta_i": "135deg"
-}
-
-#################################################################################
-# Initialization: definition for the needed Maxwell output variables
-# Output variables will be later used to generate reports
-output_vars = {
-    "Current_A": "InputCurrent(Phase_A)",
-    "Current_B": "InputCurrent(Phase_B)",
-    "Current_C": "InputCurrent(Phase_C)",
-    "Flux_A": "FluxLinkage(Phase_A)",
-    "Flux_B": "FluxLinkage(Phase_B)",
-    "Flux_C": "FluxLinkage(Phase_C)",
-    "pos": "(Moving1.Position -InitialPositionMD) *NumPoles/2",
-    "cos0": "cos(pos)",
-    "cos1": "cos(pos-2*PI/3)",
-    "cos2": "cos(pos-4*PI/3)",
-    "sin0": "sin(pos)",
-    "sin1": "sin(pos-2*PI/3)",
-    "sin2": "sin(pos-4*PI/3)",
-    "Flux_d": "2/3*(Flux_A*cos0+Flux_B*cos1+Flux_C*cos2)",
-    "Flux_q": "-2/3*(Flux_A*sin0+Flux_B*sin1+Flux_C*sin2)",
-    "I_d": "2/3*(Current_A*cos0 + Current_B*cos1 + Current_C*cos2)",
-    "I_q": "-2/3*(Current_A*sin0 + Current_B*sin1 + Current_C*sin2)",
-    "Irms": "sqrt(I_d^2+I_q^2)/sqrt(2)",
-    "ArmatureOhmicLoss_DC": "Irms^2*R_phase",
-    "Lad": "L(Phase_A,Phase_A)*cos0 + L(Phase_A,Phase_B)*cos1 + L(Phase_A,Phase_C)*cos2",
-    "Laq": "L(Phase_A,Phase_A)*sin0 + L(Phase_A,Phase_B)*sin1 + L(Phase_A,Phase_C)*sin2",
-    "Lbd": "L(Phase_B,Phase_A)*cos0 + L(Phase_B,Phase_B)*cos1 + L(Phase_B,Phase_C)*cos2",
-    "Lbq": "L(Phase_B,Phase_A)*sin0 + L(Phase_B,Phase_B)*sin1 + L(Phase_B,Phase_C)*sin2",
-    "Lcd": "L(Phase_C,Phase_A)*cos0 + L(Phase_C,Phase_B)*cos1 + L(Phase_C,Phase_C)*cos2",
-    "Lcq": "L(Phase_C,Phase_A)*sin0 + L(Phase_C,Phase_B)*sin1 + L(Phase_C,Phase_C)*sin2",
-    "L_d": "(Lad*cos0 + Lbd*cos1 + Lcd*cos2) * 2/3",
-    "L_q": "(Laq*sin0 + Lbq*sin1 + Lcq*sin2) * 2/3",
-    "OutputPower": "Moving1.Speed*Moving1.Torque",
-    "Ui_A": "InducedVoltage(Phase_A)",
-    "Ui_B": "InducedVoltage(Phase_B)",
-    "Ui_C": "InducedVoltage(Phase_C)",
-    "Ui_d": "2/3*(Ui_A*cos0 + Ui_B*cos1 + Ui_C*cos2)",
-    "Ui_q": "-2/3*(Ui_A*sin0 + Ui_B*sin1 + Ui_C*sin2)",
-    "U_A": "Ui_A+R_Phase*Current_A",
-    "U_B": "Ui_B+R_Phase*Current_B",
-    "U_C": "Ui_C+R_Phase*Current_C",
-    "U_d": "2/3*(U_A*cos0 + U_B*cos1 + U_C*cos2)",
-    "U_q": "-2/3*(U_A*sin0 + U_B*sin1 + U_C*sin2)"
-}
-
-#################################################################################
-# Initialization: definition for post-processing plots
-post_params = {
-    "Moving1.Torque": "TorquePlots"
-}
-#################################################################################
-# Initialization: definition of post-processing multiplots
-post_params_multiplot = {  # reports
-    ("U_A", "U_B", "U_C", "Ui_A", "Ui_B", "Ui_C"): "PhaseVoltages",
-    ("CoreLoss", "SolidLoss", "ArmatureOhmicLoss_DC"): "Losses",
-    ("InputCurrent(Phase_A)", "InputCurrent(Phase_B)", "InputCurrent(Phase_C)"): "PhaseCurrents",
-    ("FluxLinkage(Phase_A)", "FluxLinkage(Phase_B)", "FluxLinkage(Phase_C)"): "PhaseFluxes",
-    ("I_d", "I_q"): "Currents_dq",
-    ("Flux_d", "Flux_q"): "Fluxes_dq",
-    ("Ui_d", "Ui_q"): "InducedVoltages_dq",
-    ("U_d", "U_q"): "Voltages_dq",
-    ("L(Phase_A,Phase_A)", "L(Phase_B,Phase_B)", "L(Phase_C,Phase_C)", "L(Phase_A,Phase_B)", "L(Phase_A,Phase_C)",
-     "L(Phase_B,Phase_C)"): "PhaseInductances",
-    ("L_d", "L_q"): "Inductances_dq",
-    ("CoreLoss", "CoreLoss(Stator)", "CoreLoss(Rotor)"): "CoreLosses",
-    ("EddyCurrentLoss", "EddyCurrentLoss(Stator)", "EddyCurrentLoss(Rotor)"): "EddyCurrentLosses (Core)",
-    ("ExcessLoss", "ExcessLoss(Stator)", "ExcessLoss(Rotor)"): "ExcessLosses (Core)",
-    ("HysteresisLoss", "HysteresisLoss(Stator)", "HysteresisLoss(Rotor)"): "HysteresisLosses (Core)",
-    ("SolidLoss", "SolidLoss(IPM1)", "SolidLoss(IPM1_1)", "SolidLoss(OPM1)", "SolidLoss(OPM1_1)"): "SolidLoss"
 }
 
 ##########################################################
@@ -273,6 +202,7 @@ stator_id.name = "Stator"
 stator_id.color = (0, 0, 255)  # rgb
 stator_id.solve_inside = True  # to be reassigned: M2D.assign material puts False if not dielectric
 
+
 #####################################################################################
 # Create Geometry: Permanent Magnets (PMs)
 # In Maxwell the magnetization is assigned via Coordinate System (CS)
@@ -281,6 +211,7 @@ stator_id.solve_inside = True  # to be reassigned: M2D.assign material puts Fals
 # Finds the elements in list lst1 with indexes in lst2
 def find_elements(lst1, lst2):
     return [lst1[i] for i in lst2]
+
 
 #####################################################################################
 # Auxiliary Function: find_n_largest (input_len_list, n_largest_edges)
@@ -295,6 +226,7 @@ def find_n_largest(input_len_list, n_largest_edges):
         tmp[tmp.index(copied[-n])] = 0  # index can only get the first occurrence, that solves the problem
     return index_list
 
+
 #####################################################################################
 # Create Geometry: Create CS for Permanent Magnet
 # Input:object name, CS name, inner or outer magnetization
@@ -302,13 +234,13 @@ def find_n_largest(input_len_list, n_largest_edges):
 # This point is needed to create the Face Coordinate Systems in case of outer magnetization
 def create_cs_magnets(pm_id, cs_name, point_direction):
     pm_face_id = mod2D.get_object_faces(pm_id.name)[0]  # works with name only
-    pm_edges = mod2D.get_object_edges(pm_id.name)       #gets the edges of the PM object
+    pm_edges = mod2D.get_object_edges(pm_id.name)  # gets the edges of the PM object
     edge_len_list = list(
-        map(mod2D.get_edge_length, pm_edges))           # apply method get_edge_length to all elements of list pm_edges
+        map(mod2D.get_edge_length, pm_edges))  # apply method get_edge_length to all elements of list pm_edges
     index_2_longest = find_n_largest(edge_len_list, 2)  # find the 2 longest edges of the PM
     longest_edge_list = find_elements(pm_edges, index_2_longest)
     edge_center_list = list(map(mod2D.get_edge_midpoint,
-                                longest_edge_list))     # apply method get_edge_midpoint to all elements of list longest_edge_list
+                                longest_edge_list))  # apply method get_edge_midpoint to all elements of list longest_edge_list
 
     rad = lambda x: mysqrt(x[0] * x[0] + x[1] * x[1] + x[2] * x[2])
     index_largest_r = find_n_largest(list(map(rad, edge_center_list)), 2)
@@ -322,6 +254,7 @@ def create_cs_magnets(pm_id, cs_name, point_direction):
                                         axis="X", name=cs_name)
     pm_id.part_coordinate_system = cs_name
     mod2D.set_working_coordinate_system('Global')
+
 
 #####################################################################################
 # Create Geometry: Permanent Magnets (PMs)
@@ -423,7 +356,7 @@ M2D.modeler.subtract(rotor_id, id_holes, keepOriginals=True)
 ##########################################################
 # Create Geometry: Create Section of the machine
 # This allows to take advantage of symmetries
-object_list = [stator_id, rotor_id]+ vacuum_obj_id
+object_list = [stator_id, rotor_id] + vacuum_obj_id
 mod2D.create_coordinate_system(origin=[0, 0, 0],
                                reference_cs="Global",
                                name="Section",
@@ -505,11 +438,11 @@ M2D.mesh.assign_length_mesh(rotor_id, isinside=True, maxlength=3, maxel=None, me
 
 ##########################################################
 # Excitations Settings: Eddy Effects On
-#M2D.eddy_effects_on(eddy_effects_list,activate_eddy_effects=True, activate_displacement_current=False)
+# M2D.eddy_effects_on(eddy_effects_list,activate_eddy_effects=True, activate_displacement_current=False)
 
 ##########################################################
 # Excitations Settings: Core Loss On
-core_loss_list= ['Rotor', 'Stator']
+core_loss_list = ['Rotor', 'Stator']
 M2D.set_core_losses(core_loss_list, value=True)
 
 ##########################################################
@@ -532,26 +465,100 @@ setup.props["OutputError"] = True
 setup.update()
 M2D.validate_simple()
 
+model = M2D.plot(show=False)
+model.plot(os.path.join(M2D.working_directory, "Image.jpg"))
+
+#################################################################################
+# Initialization: definition for the needed Maxwell output variables
+# Output variables will be later used to generate reports
+output_vars = {
+    "Current_A": "InputCurrent(Phase_A)",
+    "Current_B": "InputCurrent(Phase_B)",
+    "Current_C": "InputCurrent(Phase_C)",
+    "Flux_A": "FluxLinkage(Phase_A)",
+    "Flux_B": "FluxLinkage(Phase_B)",
+    "Flux_C": "FluxLinkage(Phase_C)",
+    "pos": "(Moving1.Position -InitialPositionMD) *NumPoles/2",
+    "cos0": "cos(pos)",
+    "cos1": "cos(pos-2*PI/3)",
+    "cos2": "cos(pos-4*PI/3)",
+    "sin0": "sin(pos)",
+    "sin1": "sin(pos-2*PI/3)",
+    "sin2": "sin(pos-4*PI/3)",
+    "Flux_d": "2/3*(Flux_A*cos0+Flux_B*cos1+Flux_C*cos2)",
+    "Flux_q": "-2/3*(Flux_A*sin0+Flux_B*sin1+Flux_C*sin2)",
+    "I_d": "2/3*(Current_A*cos0 + Current_B*cos1 + Current_C*cos2)",
+    "I_q": "-2/3*(Current_A*sin0 + Current_B*sin1 + Current_C*sin2)",
+    "Irms": "sqrt(I_d^2+I_q^2)/sqrt(2)",
+    "ArmatureOhmicLoss_DC": "Irms^2*R_phase",
+    "Lad": "L(Phase_A,Phase_A)*cos0 + L(Phase_A,Phase_B)*cos1 + L(Phase_A,Phase_C)*cos2",
+    "Laq": "L(Phase_A,Phase_A)*sin0 + L(Phase_A,Phase_B)*sin1 + L(Phase_A,Phase_C)*sin2",
+    "Lbd": "L(Phase_B,Phase_A)*cos0 + L(Phase_B,Phase_B)*cos1 + L(Phase_B,Phase_C)*cos2",
+    "Lbq": "L(Phase_B,Phase_A)*sin0 + L(Phase_B,Phase_B)*sin1 + L(Phase_B,Phase_C)*sin2",
+    "Lcd": "L(Phase_C,Phase_A)*cos0 + L(Phase_C,Phase_B)*cos1 + L(Phase_C,Phase_C)*cos2",
+    "Lcq": "L(Phase_C,Phase_A)*sin0 + L(Phase_C,Phase_B)*sin1 + L(Phase_C,Phase_C)*sin2",
+    "L_d": "(Lad*cos0 + Lbd*cos1 + Lcd*cos2) * 2/3",
+    "L_q": "(Laq*sin0 + Lbq*sin1 + Lcq*sin2) * 2/3",
+    "OutputPower": "Moving1.Speed*Moving1.Torque",
+    "Ui_A": "InducedVoltage(Phase_A)",
+    "Ui_B": "InducedVoltage(Phase_B)",
+    "Ui_C": "InducedVoltage(Phase_C)",
+    "Ui_d": "2/3*(Ui_A*cos0 + Ui_B*cos1 + Ui_C*cos2)",
+    "Ui_q": "-2/3*(Ui_A*sin0 + Ui_B*sin1 + Ui_C*sin2)",
+    "U_A": "Ui_A+R_Phase*Current_A",
+    "U_B": "Ui_B+R_Phase*Current_B",
+    "U_C": "Ui_C+R_Phase*Current_C",
+    "U_d": "2/3*(U_A*cos0 + U_B*cos1 + U_C*cos2)",
+    "U_q": "-2/3*(U_A*sin0 + U_B*sin1 + U_C*sin2)"
+}
+
 ##########################################################
 # Post-Processing preparation: Create Output Variables
 for k, v in output_vars.items():
     M2D.create_output_variable(k, v)
 
+#################################################################################
+# Initialization: definition for post-processing plots
+post_params = {
+    "Moving1.Torque": "TorquePlots"
+}
+#################################################################################
+# Initialization: definition of post-processing multiplots
+post_params_multiplot = {  # reports
+    ("U_A", "U_B", "U_C", "Ui_A", "Ui_B", "Ui_C"): "PhaseVoltages",
+    ("CoreLoss", "SolidLoss", "ArmatureOhmicLoss_DC"): "Losses",
+    ("InputCurrent(Phase_A)", "InputCurrent(Phase_B)", "InputCurrent(Phase_C)"): "PhaseCurrents",
+    ("FluxLinkage(Phase_A)", "FluxLinkage(Phase_B)", "FluxLinkage(Phase_C)"): "PhaseFluxes",
+    ("I_d", "I_q"): "Currents_dq",
+    ("Flux_d", "Flux_q"): "Fluxes_dq",
+    ("Ui_d", "Ui_q"): "InducedVoltages_dq",
+    ("U_d", "U_q"): "Voltages_dq",
+    ("L(Phase_A,Phase_A)", "L(Phase_B,Phase_B)", "L(Phase_C,Phase_C)", "L(Phase_A,Phase_B)", "L(Phase_A,Phase_C)",
+     "L(Phase_B,Phase_C)"): "PhaseInductances",
+    ("L_d", "L_q"): "Inductances_dq",
+    ("CoreLoss", "CoreLoss(Stator)", "CoreLoss(Rotor)"): "CoreLosses",
+    ("EddyCurrentLoss", "EddyCurrentLoss(Stator)", "EddyCurrentLoss(Rotor)"): "EddyCurrentLosses (Core)",
+    ("ExcessLoss", "ExcessLoss(Stator)", "ExcessLoss(Rotor)"): "ExcessLosses (Core)",
+    ("HysteresisLoss", "HysteresisLoss(Stator)", "HysteresisLoss(Rotor)"): "HysteresisLosses (Core)",
+    ("SolidLoss", "SolidLoss(IPM1)", "SolidLoss(IPM1_1)", "SolidLoss(OPM1)", "SolidLoss(OPM1_1)"): "SolidLoss"
+}
+
+
 ##########################################################
 # Post-Processing preparation: Create Report(s)
 for k, v in post_params.items():
-    M2D.post.create_report(expressions=k,setup_sweep_name="", domain="Sweep", variations=None,
-                           primary_sweep_variable="Time" ,secondary_sweep_variable=None,
-                           report_category=None,plot_type="Rectangular Plot",context=None, subdesign_id=None,
-                           polyline_points=1001,plotname=v)
+    M2D.post.create_report(expressions=k, setup_sweep_name="", domain="Sweep", variations=None,
+                           primary_sweep_variable="Time", secondary_sweep_variable=None,
+                           report_category=None, plot_type="Rectangular Plot", context=None, subdesign_id=None,
+                           polyline_points=1001, plotname=v)
 
 ##########################################################
 # Post-Processing preparation: Create Multiplot Report
 for k, v in post_params_multiplot.items():
-    M2D.post.create_report(expressions=list(k),setup_sweep_name="", domain="Sweep", variations=None,
-                           primary_sweep_variable="Time" ,secondary_sweep_variable=None,
-                           report_category=None,plot_type="Rectangular Plot",context=None, subdesign_id=None,
-                           polyline_points=1001,plotname=v)
+    M2D.post.create_report(expressions=list(k), setup_sweep_name="", domain="Sweep", variations=None,
+                           primary_sweep_variable="Time", secondary_sweep_variable=None,
+                           report_category=None, plot_type="Rectangular Plot", context=None, subdesign_id=None,
+                           polyline_points=1001, plotname=v)
 
 ##########################################################
 # Post-Processing preparation: Create flux lines plot on region
@@ -565,7 +572,6 @@ M2D.post.create_fieldplot_surface(faces_reg, 'Flux_Lines', intrinsincDict={"Time
 # Analyze and Save Project
 M2D.save_project(project_file=pathName + pName + '.aedt', overwrite=True, refresh_obj_ids_after_save=False)
 M2D.analyze_setup(sName)
-
 
 ###############################################
 # Close AEDT
