@@ -123,7 +123,7 @@ class TestClass(BasisTest, object):
         exp = self.aedtapp.materials["new_copper2"].mass_density.spatialmodifier = "X+1"
         assert exp == "X+1"
         exp = self.aedtapp.materials["new_copper2"].mass_density.spatialmodifier = ["Y+1"]
-        assert exp == "Y+1"
+        assert exp == ["Y+1"]
         filename = os.path.join(local_path, "example_models", "ds_3d.tab")
         ds2 = self.aedtapp.import_dataset3d(filename)
         assert self.aedtapp.materials["new_copper2"].permeability.add_spatial_modifier_dataset(ds2.name)
