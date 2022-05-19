@@ -166,8 +166,8 @@ class Rmxprt(FieldAnalysisRMxprt):
         This parameter is ignored in new server creation. It works only on 2022R2.
         Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
-        Only used when new_desktop_session = False, specifies by process id which instance
-        of electronics desktop to point PyAEDT at.
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     Examples
     --------
