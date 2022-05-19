@@ -41,3 +41,8 @@ class TestClass(BasisTest, object):
         assert self.examples.download_edb_merge_utility(True)
         out = self.examples.download_edb_merge_utility(True, destination=tempfile.gettempdir())
         assert os.path.exists(out)
+
+    def test_download_leaf(self):
+        out = self.examples.download_leaf()
+        assert os.path.exists(out[0])
+        assert os.path.exists(out[1])
