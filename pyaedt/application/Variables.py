@@ -24,6 +24,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SI_UNITS
 from pyaedt.generic.constants import unit_system
 from pyaedt.generic.general_methods import is_number, is_array
+from pyaedt import is_ironpython
 
 
 class CSVDataset:
@@ -1105,6 +1106,14 @@ class Variable(object):
             else:
                 self._value = self._value * scale
 
+    @property
+    def _aedt_obj(self):
+        if "$" in self._variable_name and self._app:
+            return self._app._oproject
+        elif self._app:
+            return self._app._odesign
+        return None
+
     @pyaedt_function_handler()
     def _update_var(self):
         if self._app:
@@ -1134,6 +1143,15 @@ class Variable(object):
     @property
     def read_only(self):
         """Readonly flag getter/setter value."""
+        if self._app:
+            try:
+                if not is_ironpython:
+                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Readonly
+                else:  # pragma: no cover
+                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Readonly
+
+            except:
+                return self._readonly
         return self._readonly
 
     @read_only.setter
@@ -1146,6 +1164,14 @@ class Variable(object):
     @property
     def hidden(self):
         """Hidden flag getter/setter value."""
+        if self._app:
+            try:
+                if not is_ironpython:
+                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Hidden
+                else:  # pragma: no cover
+                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Hidden
+            except:
+                return self._hidden
         return self._hidden
 
     @hidden.setter
@@ -1158,6 +1184,16 @@ class Variable(object):
     @property
     def description(self):
         """Description value getter/settervalue."""
+        if self._app:
+            try:
+                if not is_ironpython:
+                    return (
+                        self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Description
+                    )
+                else:  # pragma: no cover
+                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Description
+            except:
+                return self._description
         return self._description
 
     @description.setter
@@ -1170,17 +1206,29 @@ class Variable(object):
     @property
     def post_processing(self):
         """Postprocessing flag getter value."""
-        return self._postprocessing
+        if self._app:
+            return True if self._variable_name in self._app.variable_manager.post_processing_variables else False
 
     @property
     def circuit_parameter(self):
         """Circui Parameter getter flag value."""
-        return self._circuit_parameter
+        if "$" in self._variable_name:
+            return False
+        if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
+            prop_server = "Instance:{}".format(self._aedt_obj.GetName())
+            return (
+                True
+                if self._variable_name in self._aedt_obj.GetProperties("DefinitionParameterTab", prop_server)
+                else False
+            )
+        return False
 
     @property
     def expression(self):
         """Expression."""
-        return str(self._expression)
+        if self._aedt_obj:
+            return self._aedt_obj.GetVariableValue(self._variable_name)
+        return
 
     @expression.setter
     def expression(self, value):
@@ -1194,7 +1242,7 @@ class Variable(object):
         """Numeric part of the expression as a float value."""
         try:
             if re.search(r"^[\w+]+\[\w+].*", str(self._value)):
-                var_obj = self._app._odesign.GetChildObject("Variables").GetChildObject(self._variable_name)
+                var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
                 val, _ = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
                 return val
         except TypeError:

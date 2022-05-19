@@ -81,6 +81,19 @@ class TestClass(BasisTest, object):
         eval_p3_var = v._app.get_evaluated_value("p3", variation="p1=100mm p2=20mm")
         assert eval_p3_nom == 0.0002
         assert eval_p3_var == 0.002
+        v_app = self.aedtapp.variable_manager
+        assert v_app["p1"].read_only == False
+        v_app["p1"].read_only = True
+        assert v_app["p1"].read_only == True
+        assert v_app["p1"].hidden == False
+        v_app["p1"].hidden = True
+        assert v_app["p1"].hidden == True
+        assert v_app["p2"].description == ""
+        v_app["p2"].description = "myvar"
+        assert v_app["p2"].description == "myvar"
+        assert v_app["p2"].expression == "20mm"
+        v_app["p2"].expression = "5rad"
+        assert v_app["p2"].expression == "5rad"
 
     def test_04_set_variable(self):
 
