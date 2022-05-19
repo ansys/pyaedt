@@ -497,7 +497,7 @@ class Layer3D(object):
         if not line_name:
             line_name = generate_unique_name("{0}_line".format(self._name), n=3)
         dielectric_layer = None
-        for k, v in self._stackup._stackup.items():
+        for v in list(self._stackup._stackup.values()):
             if v._index == self._index - 1:
                 dielectric_layer = v
                 break
@@ -606,7 +606,7 @@ class Padstack(object):
         self._plating_ratio = 1
         v = None
         k = None
-        for k, v in self._stackup.stackup_layers.items():
+        for v in list(self._stackup.stackup_layers.values()):
             if not self._padstacks_by_layer and v._layer_type == "dielectric":
                 continue
             self._padstacks_by_layer[k] = PadstackLayer(self, k, v.elevation)
@@ -661,7 +661,7 @@ class Padstack(object):
         bool
         """
         for v in list(self._padstacks_by_layer.values()):
-            self._pad_radius = value
+            v._pad_radius = value
         return True
 
     @pyaedt_function_handler()
@@ -678,7 +678,8 @@ class Padstack(object):
         bool
         """
         for v in list(self._padstacks_by_layer.values()):
-            self._antipad_radius = value
+            v._antipad_radius = value
+        return True
 
     @pyaedt_function_handler()
     def set_start_layer(self, layer):
@@ -722,7 +723,7 @@ class Padstack(object):
         """
         found = False
         new_stackup = OrderedDict({})
-        for k, v in self._stackup.stackup_layers.items():
+        for k in list(self._stackup.stackup_layers.keys()):
             if k == layer:
                 found = True
             if not found and k in list(self._padstacks_by_layer.keys()):
@@ -1208,8 +1209,8 @@ class Stackup3D(object):
         list_of_2d_points = []
         list_of_x_coordinates = []
         list_of_y_coordinates = []
-        for object in self._object_list:
-            points_list_by_object = object.points_on_layer
+        for obj3d in self._object_list:
+            points_list_by_object = obj3d.points_on_layer
             list_of_2d_points = points_list_by_object + list_of_2d_points
         for via in self._vias:
             for v in via._vias_objects:
@@ -1411,7 +1412,7 @@ class Patch(CommonObject, object):
             self._permittivity = NamedVariable(
                 application, patch_name + "_permittivity", float(self._dielectric_material.permittivity.value)
             )
-        except:
+        except ValueError:
             self._permittivity = NamedVariable(
                 application,
                 patch_name + "_permittivity",
@@ -1753,7 +1754,7 @@ class Line(CommonObject, object):
             self._permittivity = NamedVariable(
                 application, line_name + "_permittivity", float(self._dielectric_material.permittivity.value)
             )
-        except:
+        except ValueError:
             self._permittivity = NamedVariable(
                 application,
                 line_name + "_permittivity",
