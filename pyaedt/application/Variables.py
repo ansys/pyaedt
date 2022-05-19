@@ -17,7 +17,6 @@ from __future__ import absolute_import, division  # noreorder
 
 import os
 import re
-import warnings
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import _resolve_unit_system
@@ -767,7 +766,7 @@ class VariableManager(object):
             Whether to define a postprocessing variable.
              The default is ``False``, in which case the variable is not used in postprocessing.
         circuit_parameter : bool, optional
-            Deprecated. Whether to define a parameter in a circuit design or a local parameter.
+            Whether to define a parameter in a circuit design or a local parameter.
              The default is ``True``, in which case a circuit variable is created as a parameter default.
         Returns
         -------
@@ -805,11 +804,6 @@ class VariableManager(object):
         >>> aedtapp.variable_manager.set_variable["$p1"] == "30mm"
 
         """
-        if not circuit_parameter:
-            warnings.warn(
-                "`circuit_parameter` argument is deprecated. Use `$` in variable name instead.", DeprecationWarning
-            )
-
         if not description:
             description = ""
 
@@ -820,9 +814,14 @@ class VariableManager(object):
         else:
             tab_name = "LocalVariableTab"
             prop_server = "LocalVariables"
-            if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design"]:
+            if circuit_parameter and self._app.design_type in [
+                "HFSS 3D Layout Design",
+                "Circuit Design",
+                "Maxwell Circuit",
+                "Twin Builder",
+            ]:
                 tab_name = "DefinitionParameterTab"
-            if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit"]:
+            if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
                 prop_server = "Instance:{}".format(desktop_object.GetName())
 
         prop_type = "VariableProp"
