@@ -3435,6 +3435,12 @@ class Design(object):
                 val_units = self._odesign.GetVariableValue(variable_name)
             val, units = decompose_variable_value(val_units)
             try:
+                if units:
+                    scale = AEDT_UNITS[unit_system(units)][units]
+                    if isinstance(scale, tuple):
+                        return scale[0](val, True)
+                    else:
+                        return val * scale
                 return float(val)
             except ValueError:
                 return val_units

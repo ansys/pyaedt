@@ -369,3 +369,7 @@ class TestClass(BasisTest, object):
         var_circuit = v_circuit.variable_names
         assert "var2" in var_circuit
         assert v_circuit.independent_variables["var2"].units == "mm"
+        mc["var3"] = "10deg"
+        mc["var4"] = "10rad"
+        assert mc["var3"] == "10.0deg"
+        assert mc["var4"] == "10.0rad"
