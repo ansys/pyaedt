@@ -442,7 +442,6 @@ class Layer3D(object):
             patch_position_x=patch_position_x,
             patch_position_y=patch_position_y,
             patch_name=patch_name,
-            metric_unit=self._app.modeler.model_units,
             axis=axis,
         )
         self._obj_3d.append(created_patch.aedt_object)
@@ -515,7 +514,6 @@ class Layer3D(object):
             line_position_x=line_position_x,
             line_position_y=line_position_y,
             line_name=line_name,
-            metric_unit=self._app.modeler.model_units,
             reference_system=reference_system,
             axis=axis,
         )
@@ -550,7 +548,6 @@ class Layer3D(object):
             self._app,
             points,
             thickness=self._thickness,
-            metric_unit=self._app.modeler.model_units,
             signal_layer_name=self._name,
             mat_name=material,
             is_void=is_void,
@@ -1248,9 +1245,8 @@ class Stackup3D(object):
 class CommonObject(object):
     """CommonObject Class in Stackup3D."""
 
-    def __init__(self, application, metric_unit="mm"):
+    def __init__(self, application):
         self._application = application
-        self._metric_unit = metric_unit
         self._name = None
         self._dielectric_layer = None
         self._signal_layer = None
@@ -1269,20 +1265,6 @@ class CommonObject(object):
 
         """
         return self._reference_system
-
-    @property
-    def metric_unit(self):
-        """Return the metric units.
-
-        Returns
-        -------
-        str
-        """
-        return self._metric_unit
-
-    @metric_unit.setter
-    def metric_unit(self, value):
-        self._metric_unit = value
 
     @property
     def dielectric_layer(self):
@@ -1386,20 +1368,22 @@ class Patch(CommonObject, object):
         patch_position_x=0,
         patch_position_y=0,
         patch_name="patch",
-        metric_unit="mm",
         reference_system=None,
         axis="X",
     ):
-        CommonObject.__init__(self, application, metric_unit)
+        CommonObject.__init__(self, application)
         self._frequency = NamedVariable(application, patch_name + "_frequency", str(frequency) + "Hz")
         self._signal_layer = signal_layer
         self._dielectric_layer = dielectric_layer
         self._substrate_thickness = dielectric_layer.thickness
-        self._width = NamedVariable(application, patch_name + "_width", str(patch_width) + metric_unit)
-        self._position_x = NamedVariable(application, patch_name + "_position_x", str(patch_position_x) + metric_unit)
-        self._position_y = NamedVariable(application, patch_name + "_position_y", str(patch_position_y) + metric_unit)
+        self._width = NamedVariable(application, patch_name + "_width", application.modeler._arg_with_dim(patch_width))
+        self._position_x = NamedVariable(
+            application, patch_name + "_position_x", application.modeler._arg_with_dim(patch_position_x)
+        )
+        self._position_y = NamedVariable(
+            application, patch_name + "_position_y", application.modeler._arg_with_dim(patch_position_y)
+        )
         self._position_z = signal_layer.elevation
-        self._metric_unit = metric_unit
         self._dielectric_layer = dielectric_layer
         self._signal_layer = signal_layer
         self._dielectric_material = dielectric_layer.material
@@ -1421,7 +1405,9 @@ class Patch(CommonObject, object):
                 float(application.variable_manager[self._dielectric_material.permittivity.value].value),
             )
         if isinstance(patch_length, float) or isinstance(patch_length, int):
-            self._length = NamedVariable(application, patch_name + "_length", str(patch_length) + metric_unit)
+            self._length = NamedVariable(
+                application, patch_name + "_length", application.modeler._arg_with_dim(patch_length)
+            )
             self._effective_permittivity = self._effective_permittivity_calcul
             self._wave_length = self._wave_length_calcul
         elif patch_length is None:
@@ -1639,12 +1625,13 @@ class Patch(CommonObject, object):
             Variable Object.
         """
         # "c0 * 1000/(patch_frequency * sqrt(patch_eff_permittivity))"
-        # TODO it is currently only available for mm
         f = self._frequency.name
         er_e = self._effective_permittivity.name
         patch_wave_length_formula = "c0 * 1000/(" + f + "* sqrt(" + er_e + "))"
         self._wave_length = NamedVariable(
-            self.application, self._name + "_wave_length", patch_wave_length_formula + self._metric_unit
+            self.application,
+            self._name + "_wave_length",
+            self.application.modeler._arg_with_dim(patch_wave_length_formula),
         )
         return self._wave_length
 
@@ -1731,17 +1718,20 @@ class Line(CommonObject, object):
         line_position_x=0,
         line_position_y=0,
         line_name="line",
-        metric_unit="mm",
         reference_system=None,
         axis="X",
     ):
-        CommonObject.__init__(self, application, metric_unit)
+        CommonObject.__init__(self, application)
         self._frequency = NamedVariable(application, line_name + "_frequency", str(frequency) + "Hz")
         self._signal_layer = signal_layer
         self._dielectric_layer = dielectric_layer
         self._substrate_thickness = dielectric_layer.thickness
-        self._position_x = NamedVariable(application, line_name + "_position_x", str(line_position_x) + metric_unit)
-        self._position_y = NamedVariable(application, line_name + "_position_y", str(line_position_y) + metric_unit)
+        self._position_x = NamedVariable(
+            application, line_name + "_position_x", application.modeler._arg_with_dim(line_position_x)
+        )
+        self._position_y = NamedVariable(
+            application, line_name + "_position_y", application.modeler._arg_with_dim(line_position_y)
+        )
         self._position_z = signal_layer.elevation
         self._dielectric_material = dielectric_layer.material
         self._material_name = signal_layer.material_name
@@ -1763,7 +1753,9 @@ class Line(CommonObject, object):
                 float(application.variable_manager[self._dielectric_material.permittivity.value].value),
             )
         if isinstance(line_width, float) or isinstance(line_width, int):
-            self._width = NamedVariable(application, line_name + "_width", str(line_width) + metric_unit)
+            self._width = NamedVariable(
+                application, line_name + "_width", application.modeler._arg_with_dim(line_width)
+            )
             self._effective_permittivity = self._effective_permittivity_calcul
             self._wave_length = self._wave_length_calcul
             self._added_length = self._added_length_calcul
@@ -1773,7 +1765,9 @@ class Line(CommonObject, object):
                 )
                 self._length = self._length_calcul
             elif isinstance(line_length, float) or isinstance(line_length, int):
-                self._length = NamedVariable(application, line_name + "_length", str(line_length) + metric_unit)
+                self._length = NamedVariable(
+                    application, line_name + "_length", application.modeler._arg_with_dim(line_length)
+                )
                 self._electrical_length = self._electrical_length_calcul
             else:
                 application.logger.error("line_length must be a float.")
@@ -1792,7 +1786,9 @@ class Line(CommonObject, object):
                 )
                 self._length = self._length_calcul
             elif isinstance(line_length, float) or isinstance(line_length, int):
-                self._length = NamedVariable(application, line_name + "_length", str(line_length) + metric_unit)
+                self._length = NamedVariable(
+                    application, line_name + "_length", application.modeler._arg_with_dim(line_length)
+                )
                 self._electrical_length = self._electrical_length_calcul
             else:
                 application.logger.error("line_length must be a float.")
@@ -2157,7 +2153,7 @@ class Line(CommonObject, object):
         er_e = self._effective_permittivity.name
         patch_wave_length_formula = "c0 * 1000/(" + f + "* sqrt(" + er_e + "))"
         self._wave_length = NamedVariable(
-            self.application, self._name + "_wave_length", patch_wave_length_formula + self.metric_unit
+            self.application, self._name + "_wave_length", application.modeler._arg_with_dim(patch_wave_length_formula)
         )
         return self._wave_length
 
@@ -2229,14 +2225,12 @@ class Polygon(CommonObject, object):
         thickness,
         signal_layer_name,
         poly_name="poly",
-        metric_unit="mm",
         mat_name="copper",
         is_void=False,
         reference_system=None,
     ):
-        CommonObject.__init__(self, application, metric_unit)
+        CommonObject.__init__(self, application)
 
-        self._metric_unit = metric_unit
         self._is_void = is_void
         self._layer_name = signal_layer_name
         self._app = application

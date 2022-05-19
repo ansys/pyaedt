@@ -99,8 +99,6 @@ class TestClass(BasisTest, object):
         assert self.st.dielectric_x_position
         self.st.dielectric_x_position = "10mm"
         assert self.st.dielectric_x_position.string_value == "10.0mm"
-        assert self.st.dielectric_x_position.units == "mm"
-        assert self.st.dielectric_x_position.unit_system == "Length"
         assert self.st.dielectric_x_position.value == 0.01
         assert self.st.dielectric_x_position.numeric_value == 10.0
         assert self.st.dielectric_y_position
