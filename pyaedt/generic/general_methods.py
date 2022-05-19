@@ -508,7 +508,7 @@ def is_number(a):
 def is_array(a):
     try:
         v = list(eval(a))
-    except (ValueError, TypeError, NameError):
+    except (ValueError, TypeError, NameError, SyntaxError):
         return False
     else:
         if type(v) is list:
