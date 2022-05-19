@@ -47,7 +47,7 @@ class TestClass(BasisTest, object):
         var_1 = self.aedtapp["Var1"]
         var_2 = var["Var1"].string_value
         assert var_1 == var_2
-        assert var["Var1"].numeric_value == 1.0
+        assert isclose(var["Var1"].numeric_value)
         pass
 
     def test_02_test_formula(self):
@@ -79,8 +79,8 @@ class TestClass(BasisTest, object):
 
         eval_p3_nom = v._app.get_evaluated_value("p3")
         eval_p3_var = v._app.get_evaluated_value("p3", variation="p1=100mm p2=20mm")
-        assert eval_p3_nom == 0.0002
-        assert eval_p3_var == 0.002
+        assert isclose(eval_p3_nom, 0.0002)
+        assert isclose(eval_p3_var, 0.002)
         v_app = self.aedtapp.variable_manager
         assert v_app["p1"].read_only == False
         v_app["p1"].read_only = True
