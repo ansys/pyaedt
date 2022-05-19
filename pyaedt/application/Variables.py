@@ -1139,6 +1139,8 @@ class Variable(object):
         self._variable_name = value
         if not self._update_var():
             self._variable_name = fallback_val
+            if self._app:
+                self._app.logger.error("Failed to update property Name.")
 
     @property
     def read_only(self):
@@ -1160,6 +1162,8 @@ class Variable(object):
         self._readonly = value
         if not self._update_var():
             self._readonly = fallback_val
+            if self._app:
+                self._app.logger.error("Failed to update property Read Only.")
 
     @property
     def hidden(self):
@@ -1180,6 +1184,8 @@ class Variable(object):
         self._hidden = value
         if not self._update_var():
             self._hidden = fallback_val
+            if self._app:
+                self._app.logger.error("Failed to update property Hidden.")
 
     @property
     def description(self):
@@ -1202,6 +1208,8 @@ class Variable(object):
         self._description = value
         if not self._update_var():
             self._description = fallback_val
+            if self._app:
+                self._app.logger.error("Failed to update property Description.")
 
     @property
     def post_processing(self):
@@ -1236,6 +1244,8 @@ class Variable(object):
         self._expression = value
         if not self._update_var():
             self._expression = fallback_val
+            if self._app:
+                self._app.logger.error("Failed to update property Expression.")
 
     @property
     def numeric_value(self):
