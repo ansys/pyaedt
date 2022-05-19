@@ -1619,7 +1619,7 @@ class Design(object):
 
             propserver = "LocalVariables"
         arg2 = ["NAME:" + variable_name, hidden_read_only + ":=", enable]
-        arg3 = [tab, ["NAME:PropServers", propserver], ["NAME:ChangedProps", [arg2]]]
+        arg3 = [tab, ["NAME:PropServers", propserver], ["NAME:ChangedProps", arg2]]
         arg.append(arg3)
 
     @pyaedt_function_handler()
@@ -1965,9 +1965,9 @@ class Design(object):
         arg = ["NAME:AllTabs"]
         self._hidden_read_only_variable_args(arg, variable_name, "Hidden", enable=value)
         if "$" in variable_name:
-            self.oproject.ChangeProperty(arg)
+            _retry_ntimes(10, self.oproject.ChangeProperty, arg)
         else:
-            self.odesign.ChangeProperty(arg)
+            _retry_ntimes(10, self.odesign.ChangeProperty, arg)
         return True
 
     @pyaedt_function_handler
