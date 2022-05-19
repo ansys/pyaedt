@@ -22,31 +22,31 @@ def _replace_by_underscore(character, string):
 class NamedVariable(object):
     """Cast Pyaedt Variable object to simplify getter and setters in Stackup3D.
 
-        The returned Polyline object exposes the methods for manipulating the polyline.
+    The returned Polyline object exposes the methods for manipulating the polyline.
 
-        Parameters
-        ----------
-        application : :class:`pyaedt.hfss.Hfss
-            The Hfss design or project where the variable will be create
-        name : str
-            The name of the variable. If the the name begins by a '$', the variable will be a project variable,
-            else it will be a design variable.
-        expression : str
-            The expression of the value.
+    Parameters
+    ----------
+    application : :class:`pyaedt.hfss.Hfss
+        The Hfss design or project where the variable will be create
+    name : str
+        The name of the variable. If the the name begins by a '$', the variable will be a project variable,
+        else it will be a design variable.
+    expression : str
+        The expression of the value.
 
-        Examples
-        --------
+    Examples
+    --------
 
-        >>> from pyaedt import Hfss
-        >>> from pyaedt.modeler.stackup_3d import Stackup3D
-        >>> hfss = Hfss()
-        >>> my_frequency = NamedVariable(hfss, "my_frequency", "900000Hz")
-        >>> wave_length_formula = "c0/" + my_frequency.name
-        >>> my_wave_length = NamedVariable(hfss, "my_wave_length", wave_length_formula)
-        >>> my_permittivity = NamedVariable(hfss, "my_permittivity", "2.2")
-        >>> my_wave_length.expression = my_wave_length.expression + "/" + my_permittivity.name
+    >>> from pyaedt import Hfss
+    >>> from pyaedt.modeler.stackup_3d import Stackup3D
+    >>> hfss = Hfss()
+    >>> my_frequency = NamedVariable(hfss, "my_frequency", "900000Hz")
+    >>> wave_length_formula = "c0/" + my_frequency.name
+    >>> my_wave_length = NamedVariable(hfss, "my_wave_length", wave_length_formula)
+    >>> my_permittivity = NamedVariable(hfss, "my_permittivity", "2.2")
+    >>> my_wave_length.expression = my_wave_length.expression + "/" + my_permittivity.name
 
-        """
+    """
 
     def __init__(self, application, name, expression):
         self._application = application
@@ -71,10 +71,10 @@ class NamedVariable(object):
     @expression.setter
     def expression(self, expression):
         """Set the expression of the variable.
-            Parameters
-            ----------
-            expression: str
-                The value expression of the variable."""
+        Parameters
+        ----------
+        expression: str
+            The value expression of the variable."""
         if isinstance(expression, str):
             self._expression = expression
             self._application[self.name] = expression
@@ -1798,7 +1798,7 @@ class Line(CommonObject, object):
                 origin=[
                     "{}_position_x".format(self._name),
                     "{}_position_y".format(self._name),
-                    signal_layer.position.name,
+                    signal_layer.elevation.name,
                 ],
                 reference_cs="Global",
                 name=line_name + "_CS",
