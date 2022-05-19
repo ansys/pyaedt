@@ -112,7 +112,7 @@ class NamedVariable(object):
 
         Parameters
         ----------
-        value: bool, optional
+        value : bool, optional
             Whether the variable is a hidden variable. The default is ``True``.
 
         Returns
@@ -412,7 +412,7 @@ class Layer3D(object):
             Patch start x position.
         patch_position_y : float, optional
             Patch start y position.
-        patch_name: str, optional
+        patch_name : str, optional
             Patch name.
         axis : str, optional
             Line orientation axis.
@@ -524,7 +524,7 @@ class Layer3D(object):
 
     @pyaedt_function_handler()
     def polygon(self, points, material="copper", is_void=False, poly_name=None):
-        """Create a new Polygon
+        """Create a new Polygon.
 
         Parameters
         ----------
@@ -679,7 +679,7 @@ class Padstack(object):
 
     @pyaedt_function_handler()
     def set_start_layer(self, layer):
-        """Set the start layer to a specified value
+        """Set the start layer to a specified value.
 
         Parameters
         ----------
@@ -705,7 +705,7 @@ class Padstack(object):
 
     @pyaedt_function_handler()
     def set_stop_layer(self, layer):
-        """Set the stop layer to a specified value
+        """Set the stop layer to a specified value.
 
         Parameters
         ----------
@@ -760,7 +760,7 @@ class Padstack(object):
 
             first_el = None
             cyls = []
-            for k, v in self._padstacks_by_layer.items():
+            for v in list(self._padstacks_by_layer.values()):
                 if not first_el:
                     first_el = v._layer_elevation
                 else:
@@ -907,11 +907,11 @@ class Stackup3D(object):
 
     @property
     def start_position(self):
-        """
+        """Variable containing the start position.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
         """
         return self._start_position
 
@@ -1011,7 +1011,7 @@ class Stackup3D(object):
 
     @property
     def z_position_offset(self):
-        """
+        """Elevation.
 
         Returns
         -------
@@ -1021,16 +1021,18 @@ class Stackup3D(object):
 
     @pyaedt_function_handler()
     def add_padstack(self, name, material="copper"):
-        """
+        """Add a new padstack definition.
 
         Parameters
         ----------
-        name
-        material
+        name : str
+            padstack name
+        material : str, optional
+            Padstack Material
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.Padstack`
         """
         p = Padstack(self._app, self, name, material)
         self._padstacks.append(p)
@@ -1258,11 +1260,11 @@ class CommonObject(object):
 
     @property
     def reference_system(self):
-        """
+        """Coordinate System of the object.
 
         Returns
         -------
-
+        str
         """
         return self._reference_system
 
@@ -1473,21 +1475,23 @@ class Patch(CommonObject, object):
 
     @property
     def frequency(self):
-        """
+        """Model Frequency.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         return self._frequency
 
     @property
     def substrate_thickness(self):
-        """
+        """Substrate Thickness.
 
         Returns
         -------
-
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
         """
         return self._substrate_thickness
 
@@ -2153,7 +2157,9 @@ class Line(CommonObject, object):
         er_e = self._effective_permittivity.name
         patch_wave_length_formula = "c0 * 1000/(" + f + "* sqrt(" + er_e + "))"
         self._wave_length = NamedVariable(
-            self.application, self._name + "_wave_length", application.modeler._arg_with_dim(patch_wave_length_formula)
+            self.application,
+            self._name + "_wave_length",
+            self.application.modeler._arg_with_dim(patch_wave_length_formula),
         )
         return self._wave_length
 
