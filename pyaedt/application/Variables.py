@@ -684,7 +684,6 @@ class VariableManager(object):
                 # try:
                 si_value = self._app.get_evaluated_value(variable_name)
                 value = Variable(variable_expression, None, si_value, all_names, name=variable_name, app=self._app)
-                value.numeric_value
                 if independent and (is_array(value._calculated_value) or is_number(value._calculated_value)):
                     var_dict[variable_name] = value
                 elif dependent and not is_array(value._calculated_value) and not is_number(value._calculated_value):
@@ -1062,7 +1061,7 @@ class Variable(object):
         expression,
         units=None,
         si_value=None,
-        full_variables={},
+        full_variables=None,
         name=None,
         app=None,
         readonly=False,
@@ -1071,7 +1070,8 @@ class Variable(object):
         postprocessing=False,
         circuit_parameter=True,
     ):
-
+        if not full_variables:
+            full_variables = {}
         self._variable_name = name
         self._app = app
         self._readonly = readonly
