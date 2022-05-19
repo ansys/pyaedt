@@ -19,7 +19,7 @@ from pyaedt import generate_unique_name
 
 #################################################################################
 # Initialization: Maxwell version, path project and design name and type
-desktopVersion = "2021.2"
+desktopVersion = "2022.1"
 
 sName = "MySetupAuto"
 sType = "TransientXY"
@@ -91,7 +91,7 @@ oper_params = {
     "ElectricPeriod": "1/ElectricFrequency",
     "BandTicksinModel": "360deg/NumPoles/mapping_angle",
     "TimeStep": "ElectricPeriod/(2*BandTicksinModel)",
-    "StopTime": "2*ElectricPeriod",
+    "StopTime": "ElectricPeriod",
     "Theta_i": "135deg"
 }
 
@@ -102,9 +102,10 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 
 ##########################################################
 # Launch Maxwell2D
-M2D = Maxwell2d(projectname=os.path.join(pathName, pName), specified_version=desktopVersion, designname=dName,
+M2D = Maxwell2d(specified_version=desktopVersion, designname=dName,
                 solution_type=sType, new_desktop_session=False,
                 non_graphical=non_graphical)
+M2D.save_project(os.path.join(pathName, pName))
 
 ##########################################################
 # Create mod2D to access M2D.modeler easily
