@@ -23,11 +23,11 @@ desktopVersion = "2021.2"
 
 sName = "MySetupAuto"
 sType = "TransientXY"
-pName = "Example"
 tmpfold = tempfile.gettempdir()
 
-pathName = os.path.join(tmpfold, generate_unique_name("Nissan"))
-dName = "NissanLeaf_SinusoidalExcitation"
+pathName = os.path.join(tmpfold, generate_unique_name("Nissan", n=3))
+pName = "Example.aedt"
+dName = "Sinusoidal"
 
 #################################################################################
 # Initialization: dictionaries will contain all the definitions for design variables
@@ -102,7 +102,8 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 
 ##########################################################
 # Launch Maxwell2D
-M2D = Maxwell2d(specified_version=desktopVersion, designname=dName, solution_type=sType, new_desktop_session=False,
+M2D = Maxwell2d(projectname=os.path.join(pathName, pName), specified_version=desktopVersion, designname=dName,
+                solution_type=sType, new_desktop_session=False,
                 non_graphical=non_graphical)
 
 ##########################################################
@@ -127,7 +128,7 @@ for k, v in oper_params.items():
 # Define path were material properties for non-linear
 # Materials are stored in text files
 
-filename_PM, filename_lam = examples.download_leaf()
+filename_lam, filename_PM = examples.download_leaf()
 ##########################################################
 # Create materials: Copper (Annealed)_65C
 mat_coils = M2D.materials.add_material("Copper (Annealed)_65C")
@@ -570,8 +571,8 @@ M2D.post.create_fieldplot_surface(faces_reg, 'Flux_Lines', intrinsincDict={"Time
 
 ##########################################################
 # Analyze and Save Project
-M2D.save_project(project_file=pathName + pName + '.aedt', overwrite=True, refresh_obj_ids_after_save=False)
-#M2D.analyze_setup(sName)
+M2D.save_project()
+M2D.analyze_setup(sName)
 
 ###############################################
 # Close AEDT
