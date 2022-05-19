@@ -749,7 +749,7 @@ class CommonReport(object):
 
         Parameters
         ----------
-        val : str
+        val : str, float
             Value to apply with units.
         name : str, optional
             Marker Name

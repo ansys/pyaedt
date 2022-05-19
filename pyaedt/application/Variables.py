@@ -676,16 +676,13 @@ class VariableManager(object):
         var_dict = {}
         all_names = {}
         for obj in object_list:
-            if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
-                listvar = list(obj.GetChildObject("Variables").GetChildNames())
-            else:
-                listvar = list(obj.GetVariables())
+            listvar = self._get_var_list_from_aedt(obj)
             for variable_name in listvar:
                 variable_expression = self.get_expression(variable_name)
                 all_names[variable_name] = variable_expression
                 try:
                     value = Variable(variable_expression)
-                    if is_array(value.value):
+                    if is_array(value.value) and dependent:
                         var_dict[variable_name] = value
                     elif independent and is_number(value.value):
                         var_dict[variable_name] = value
@@ -811,13 +808,21 @@ class VariableManager(object):
             description = ""
 
         desktop_object = self.aedt_object(variable_name)
-        test = desktop_object.GetName()
-        proj_name = self._oproject.GetName()
-        var_type = "Project" if "$" in variable_name[0] else "Local"
-        if circuit_parameter and self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design"]:
-            tab_name = "DefinitionParameterTab"
+        if variable_name.startswith("$"):
+            tab_name = "ProjectVariableTab"
+            prop_server = "ProjectVariables"
         else:
-            tab_name = "{0}VariableTab".format(var_type)
+            tab_name = "LocalVariableTab"
+            prop_server = "LocalVariables"
+            if circuit_parameter and self._app.design_type in [
+                "HFSS 3D Layout Design",
+                "Circuit Design",
+                "Maxwell Circuit",
+                "Twin Builder",
+            ]:
+                tab_name = "DefinitionParameterTab"
+            if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
+                prop_server = "Instance:{}".format(desktop_object.GetName())
 
         prop_type = "VariableProp"
         if postprocessing or "post" in variable_name.lower()[0:5]:
@@ -848,20 +853,8 @@ class VariableManager(object):
             raise Exception("Unhandled input type to the design property or project variable.")  # pragma: no cover
 
         # Get all design and project variables in lower case for a case-sensitive comparison
-        if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
-            var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
-        else:
-            var_list = list(desktop_object.GetVariables())  # pragma: no cover
+        var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [var_name.lower() for var_name in var_list]
-        if (
-            self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit"]
-            and "$" not in variable_name
-        ):
-            prop_server = "Instance:{}".format(desktop_object.GetName())
-        elif self._app.design_type == "Circuit Design" and circuit_parameter:
-            prop_server = "DefinitionParameters"
-        else:
-            prop_server = "{0}Variables".format(var_type)
 
         if variable_name.lower() not in lower_case_vars:
             try:
@@ -942,10 +935,7 @@ class VariableManager(object):
                     ],
                 ]
             )
-        if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
-            var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
-        else:
-            var_list = list(desktop_object.GetVariables())  # pragma: no cover
+        var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [var_name.lower() for var_name in var_list]
         if variable_name not in lower_case_vars:
             return False
@@ -1015,12 +1005,8 @@ class VariableManager(object):
         """
         desktop_object = self.aedt_object(var_name)
         var_type = "Project" if desktop_object == self._oproject else "Local"
-        if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
-            var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
-        else:
-            var_list = list(desktop_object.GetVariables())  # pragma: no cover
+        var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [var_name.lower() for var_name in var_list]
-
         if var_name.lower() in lower_case_vars:
             try:
                 desktop_object.ChangeProperty(
@@ -1037,6 +1023,15 @@ class VariableManager(object):
             except:
                 pass
         return False
+
+    @pyaedt_function_handler()
+    def _get_var_list_from_aedt(self, desktop_object):
+        var_list = []
+        if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
+            var_list += list(desktop_object.GetChildObject("Variables").GetChildNames())
+        tmp = [i for i in list(desktop_object.GetVariables()) if i not in var_list]
+        var_list += tmp
+        return var_list
 
 
 class Variable(object):

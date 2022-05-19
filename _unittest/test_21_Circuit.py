@@ -408,3 +408,18 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.pop_up()
         active_project_name_2 = self.aedtapp.oproject.GetActiveDesign().GetName()
         assert active_project_name_1 == active_project_name_2
+
+    def test_34_activate_variables(self):
+        self.aedtapp["desvar"] = "1mm"
+        self.aedtapp["$prjvar"] = "2mm"
+        assert self.aedtapp["desvar"] == "1.0mm"
+        assert self.aedtapp["$prjvar"] == "2.0mm"
+        assert self.aedtapp.activate_variable_tuning("desvar")
+        assert self.aedtapp.activate_variable_tuning("$prjvar")
+        assert self.aedtapp.deactivate_variable_tuning("desvar")
+        assert self.aedtapp.deactivate_variable_tuning("$prjvar")
+        try:
+            self.aedtapp.activate_variable_tuning("Idontexist")
+            assert False
+        except:
+            assert True
