@@ -405,6 +405,39 @@ def download_sherlock(destination=None):
     return os.path.join(destination, "sherlock")
 
 
+def download_leaf(destination=None):
+    """Download an example of Nissan leaf files and return the def path.
+
+    Examples files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+
+    Parameters
+    ----------
+    destination : str, optional
+        Path where files will be downloaded. Optional. Default is user temp folder.
+
+    Returns
+    -------
+    (str, str)
+        Path to the 30DH_20C_smooth and BH_Arnold_Magnetics_N30UH_80C tabular material data file file.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file
+
+    >>> from pyaedt import examples
+    >>> path = examples.download_leaf(r"c:\temp")
+    >>> path
+    ('C:/temp/BH_Arnold_Magnetics_N30UH_80C.tab', 'C:/temp/BH_Arnold_Magnetics_N30UH_80C.tab')
+    """
+    if not destination:
+        destination = EXAMPLES_PATH
+    file1 = _download_file("nissan", "30DH_20C_smooth.tab", destination)
+    file2 = _download_file("nissan", "BH_Arnold_Magnetics_N30UH_80C.tab", destination)
+
+    return file1, file2
+
+
 def download_multiparts(destination=None):
     """Download an example of 3DComponents Multiparts.
 
