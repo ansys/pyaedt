@@ -47,7 +47,7 @@ class TestClass(BasisTest, object):
         var_1 = self.aedtapp["Var1"]
         var_2 = var["Var1"].string_value
         assert var_1 == var_2
-        assert isclose(var["Var1"].numeric_value)
+        assert isclose(var["Var1"].numeric_value, 1.0)
         pass
 
     def test_02_test_formula(self):
