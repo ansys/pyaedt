@@ -575,12 +575,14 @@ class TestClass(BasisTest, object):
         assert mesh.delete()
         pass
 
-    def test_25_create_parametrics(self):
+    def test_25a_create_parametrics(self):
         self.aedtapp["w1"] = "10mm"
         self.aedtapp["w2"] = "2mm"
         setup1 = self.aedtapp.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
         assert setup1
         assert setup1.add_variation("w2", "0.1mm", 10, 11)
+        assert setup1.add_variation("w2", start_point="0.2mm", variation_type="SingleValue")
+        assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=0.2, variation_type="LinearStep")
         assert setup1.add_calculation(
             calculation="dB(S(1,1))", ranges={"Freq": "5GHz"}, solution="MySetupForSweep : LastAdaptive"
         )
@@ -598,6 +600,18 @@ class TestClass(BasisTest, object):
         oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\ParametricsfromFile")
         assert oo
         assert self.aedtapp.parametrics.delete("ParametricsfromFile")
+
+    def test_25b_create_parametrics_sync(self):
+        self.aedtapp["a1"] = "10mm"
+        self.aedtapp["a2"] = "2mm"
+        setup1 = self.aedtapp.parametrics.add(
+            "a1", start_point=0.1, end_point=20, step=10, variation_type="LinearCount"
+        )
+        assert setup1
+        assert setup1.add_variation("a2", start_point="0.3mm", end_point=5, step=10, variation_type="LinearCount")
+        assert setup1.sync_variables(["a1", "a2"], sync_n=1)
+        assert setup1.sync_variables(["a1", "a2"], sync_n=0)
+        setup1.add_variation("a1", start_point="13mm", variation_type="SingleValue")
 
     def test_26_create_optimization(self):
         calculation = "db(S(Cir1,Cir1))"

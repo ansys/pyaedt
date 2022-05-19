@@ -3456,15 +3456,14 @@ class Primitives(object):
         return arg_str
 
     @pyaedt_function_handler()
-    def _arg_with_dim(self, prop_value, units=None):
-        if isinstance(prop_value, str):
-            val = prop_value
+    def _arg_with_dim(self, value, units=None):
+        if isinstance(value, str):
+            val = value
         else:
             if units is None:
                 units = self.model_units
+            val = "{0}{1}".format(value, units)
 
-                assert is_number(prop_value), "Argument {} must be a numeric value".format(prop_value)
-            val = "{0}{1}".format(prop_value, units)
         return val
 
     @pyaedt_function_handler()

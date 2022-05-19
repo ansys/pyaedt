@@ -627,8 +627,14 @@ class Materials(object):
                     val = a
                     if str(type(a)) == r"<type 'List'>":
                         val = list(a)
-                    if "pwl(" in str(val):
-                        out_list.append(a[a.find("$") : a.find(",")])
+                    if "pwl(" in str(val) or "cpl(" in str(val):
+                        if isinstance(a, list):
+                            for element in a:
+                                m = re.search(r"(?:pwl|cwl)\((.*?),", str(element))
+                                if m:
+                                    out_list.append(m.group(1))
+                        else:
+                            out_list.append(a[a.find("$") : a.find(",")])
 
         # Data to be written
         output_dict = {}
