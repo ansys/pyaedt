@@ -670,13 +670,13 @@ class SetupOpti(CommonOptimetrics, object):
 
         if not min_step:
             min_step = (max_value - min_value) / 100
-        min_step = self._app.modeler._arg_with_dim(min_step, self._app.variable_manager[variable_name].units)
+        min_step = self._app.value_with_units(min_step, self._app.variable_manager[variable_name].units)
 
         if not max_step:
             max_step = (max_value - min_value) / 10
-        max_step = self._app.modeler._arg_with_dim(max_step, self._app.variable_manager[variable_name].units)
-        min_value = self._app.modeler._arg_with_dim(min_value, self._app.variable_manager[variable_name].units)
-        max_value = self._app.modeler._arg_with_dim(max_value, self._app.variable_manager[variable_name].units)
+        max_step = self._app.value_with_units(max_step, self._app.variable_manager[variable_name].units)
+        min_value = self._app.value_with_units(min_value, self._app.variable_manager[variable_name].units)
+        max_value = self._app.value_with_units(max_value, self._app.variable_manager[variable_name].units)
         arg = [
             "i:=",
             True,
@@ -705,7 +705,7 @@ class SetupOpti(CommonOptimetrics, object):
         if not starting_point:
             starting_point = self._app[variable_name]
 
-        self.props["StartingPoint"][variable_name] = self._app.modeler._arg_with_dim(
+        self.props["StartingPoint"][variable_name] = self._app.value_with_units(
             starting_point, self._app.variable_manager[variable_name].units
         )
         self.auto_update = True
@@ -740,7 +740,7 @@ class SetupParam(CommonOptimetrics, object):
         return True
 
     @pyaedt_function_handler()
-    def add_variation(self, sweep_var, start_point, end_point, step=100, unit=None, variation_type="LinearCount"):
+    def add_variation(self, sweep_var, start_point, end_point=None, step=100, unit=None, variation_type="LinearCount"):
         """Add a variation to an existing parametric setup.
 
         Parameters
@@ -749,14 +749,14 @@ class SetupParam(CommonOptimetrics, object):
             Name of the variable.
         start_point : float or int
             Variation Start Point.
-        end_point : float or int
-            Variation End Point.
-        step : float or int
-            Variation Step or Count depending on variation_type.
+        end_point : float or int, optional
+            Variation End Point. This parameter is optional if a Single Value is defined.
+        step : float or int, optional
+            Variation Step or Count depending on variation_type. Default is `100`.
         unit : str, optional
             Variation units. Default is `None`.
         variation_type : float or int
-            Variation Type. Admitted values are `"LinearCount"`, `"LinearStep"`,  `"LogScale"`.
+            Variation Type. Admitted values are `"LinearCount"`, `"LinearStep"`, `"LogScale"`, `"SingleValue"`.
 
         Returns
         -------
@@ -768,17 +768,22 @@ class SetupParam(CommonOptimetrics, object):
 
         >>> oModule.EditSetup
         """
+        if sweep_var not in self._app.variable_manager.variables:
+            self._app.logger.error("Variable {} does not exists.".format(sweep_var))
+            return False
         sweep_range = ""
         if not unit:
             unit = self._app.variable_manager[sweep_var].units
-        start_point = self._app.modeler._arg_with_dim(start_point, unit)
-        end_point = self._app.modeler._arg_with_dim(end_point, unit)
+        start_point = self._app.value_with_units(start_point, unit)
+        end_point = self._app.value_with_units(end_point, unit)
         if variation_type == "LinearCount":
             sweep_range = "LINC {} {} {}".format(start_point, end_point, step)
         elif variation_type == "LinearStep":
-            sweep_range = "LIN {} {} {}".format(start_point, end_point, self._app.modeler._arg_with_dim(step, unit))
+            sweep_range = "LIN {} {} {}".format(start_point, end_point, self._app.value_with_units(step, unit))
         elif variation_type == "LogScale":
-            sweep_range = "DEC {} {} {}".format(start_point, end_point, self._app.modeler._arg_with_dim(step, unit))
+            sweep_range = "DEC {} {} {}".format(start_point, end_point, self._app.value_with_units(step, unit))
+        elif variation_type == "SingleValue":
+            sweep_range = "{}".format(self._app.value_with_units(start_point, unit))
         if not sweep_range:
             return False
         self._activate_variable(sweep_var)
@@ -791,11 +796,68 @@ class SetupParam(CommonOptimetrics, object):
             self.props["Sweeps"]["SweepDefinition"] = sweepdefinition
         elif type(self.props["Sweeps"]["SweepDefinition"]) is not list:
             self.props["Sweeps"]["SweepDefinition"] = [self.props["Sweeps"]["SweepDefinition"]]
-            self.props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
+            self._append_sweepdefinition(sweepdefinition)
         else:
-            self.props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
+            self._append_sweepdefinition(sweepdefinition)
 
         return self.update()
+
+    @pyaedt_function_handler()
+    def _append_sweepdefinition(self, sweepdefinition):
+        for sweep_def in self.props["Sweeps"]["SweepDefinition"]:
+            if sweepdefinition["Variable"] == sweep_def["Variable"]:
+                sweep_def["Data"] += " " + sweepdefinition["Data"]
+                return True
+        self.props["Sweeps"]["SweepDefinition"].append(sweepdefinition)
+        return True
+
+    @pyaedt_function_handler()
+    def sync_variables(self, variables, sync_n=1):
+        """Sync variable variations in an existing parametric setup.
+        Setting the sync number to `0` will effectively unsync the variables.
+
+        Parameters
+        ----------
+        variables : list
+            List of variables to sync.
+        sync_n : int, optional
+            Sync number. Sweep variables with the same Sync number will be synchronizad.
+            Default is `1`.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.EditSetup
+        """
+        if type(self.props["Sweeps"]["SweepDefinition"]) is not list:
+            self._app.logger.error("Not enough variables are defined in the Parametric setup")
+            return False
+        existing_variables = [s["Variable"] for s in self.props["Sweeps"]["SweepDefinition"]]
+        undo_vals = {}
+        for v in variables:
+            if v not in existing_variables:
+                self._app.logger.error("Variable {} is not defined in the Parametric setup".format(v))
+                return False
+        for v in variables:
+            for sweep_def in self.props["Sweeps"]["SweepDefinition"]:
+                if v == sweep_def["Variable"]:
+                    undo_vals[v] = sweep_def["Synchronize"]
+                    sweep_def["Synchronize"] = sync_n
+        try:
+            return self.update()
+        except Exception:  # pragma: no cover
+            # If it fails to sync (due to e.g. different number of variations), reverts to original values.
+            for v in variables:
+                for sweep_def in self.props["Sweeps"]["SweepDefinition"]:
+                    if v == sweep_def["Variable"]:
+                        sweep_def["Synchronize"] = undo_vals[v]
+            self._app.logger.error("Failed to sync the Parametric setup.")
+            return False
 
     @pyaedt_function_handler()
     def add_calculation(
@@ -908,7 +970,7 @@ class ParametricSetups(object):
         self,
         sweep_var,
         start_point,
-        end_point,
+        end_point=None,
         step=100,
         variation_type="LinearCount",
         solution=None,
@@ -923,13 +985,13 @@ class ParametricSetups(object):
         sweep_var : str
             Name of the variable.
         start_point : float or int
-            Variation Start Point.
-        end_point : float or int
-            Variation End Point.
+            Variation Start Point if a variation is defined or Single Value.
+        end_point : float or int, optional
+            Variation End Point. This parameter is optional if a Single Value is defined.
         step : float or int
-            Variation Step or Count depending on variation_type.
+            Variation Step or Count depending on variation_type. The default is ``100``.
         variation_type : float or int
-            Variation Type. Admitted values are `"LinearCount"`, `"LinearStep"`,  `"LogScale"`.
+            Variation Type. Admitted values are `"LinearCount"`, `"LinearStep"`, `"LogScale"`, `"SingleValue"`.
         solution : str, optional
             Type of the solution. The default is ``None``, in which case the default
             solution is used.
@@ -947,6 +1009,9 @@ class ParametricSetups(object):
 
         >>> oModule.InsertSetup
         """
+        if sweep_var not in self._app.variable_manager.variables:
+            self._app.logger.error("Variable {} not found.".format(sweep_var))
+            return False
         if not solution:
             solution = self._app.nominal_sweep
         setupname = solution.split(" ")[0]
@@ -958,9 +1023,6 @@ class ParametricSetups(object):
         setup.props["Sim. Setups"] = [setupname]
         setup.props["Sweeps"] = OrderedDict({"SweepDefinition": None})
         setup.create()
-        if sweep_var not in self._app.variable_manager.variables:
-            self._app.logger.error("Variable {} not found.".format(sweep_var))
-            return setup
         unit = self._app.variable_manager[sweep_var].units
         setup.add_variation(sweep_var, start_point, end_point, step, unit, variation_type)
         setup.auto_update = True
