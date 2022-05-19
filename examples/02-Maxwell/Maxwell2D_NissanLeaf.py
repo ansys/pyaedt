@@ -7,24 +7,23 @@ compute mass center and move Coordinate Systems.
 
 #################################################################################
 # Import packages
-import traceback
 from math import sqrt as mysqrt
-import numpy as np
+import os
 import csv
-import pandas as pd
-import matplotlib.pyplot as plt
-from pyaedt import Desktop
+import tempfile
+
 from pyaedt import Maxwell2d
+from pyaedt import examples
+from pyaedt.generic.general_methods import generate_unique_name
 
 # initialization: version, path project and design nameand type
 desktopVersion = "2022.1"
-oDesktop = None
-NonGraphical = False
-NewThread = False
+
 sName = "MySetupAuto"
 sType = "TransientXY"
 pName = "Example_inline"
-pathName = 'C://Users//tbertonc//MyProjects//2022//00_pyaedtSimplorer//'
+tmpfold = tempfile.gettempdir()
+pathName = os.path.join(tmpfold, generate_unique_name("Example"))
 dName = "NissanLeaf_Sinusoidal_inline"
 
 # initialization: parameters
@@ -144,7 +143,7 @@ post_params_multiplot = {  # reports
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 #launch Maxwell 2D
-M2D = Maxwell2d(designname=dName, solution_type=sType, new_desktop_session=False, non_graphical=non_graphical)
+M2D = Maxwell2d(specified_version="2022.1", designname=dName, solution_type=sType, new_desktop_session=False, non_graphical=non_graphical)
 mod2D = M2D.modeler
 mod2D.delete()
 mod2D.model_units = "mm"
@@ -161,7 +160,7 @@ for k, v in oper_params.items():
 
 # create materials
 ################################
-path = "C://Users//tbertonc//MyProjects//2022//NissanLeaf_materials//"
+filename_PM, filename_lam = examples.download_leaf()
 
 mat_coils = M2D.materials.add_material("Copper (Annealed)_65C")
 mat_coils.update()
@@ -174,8 +173,7 @@ mat_PM.conductivity = "555555.5556"
 mat_PM.set_magnetic_coercitivity(7500, 1, 0, 0)
 mat_PM.mass_density = "7500"
 BH_List_PM = []
-filename_PM = "BH_Arnold_Magnetics_N30UH_80C.tab"
-with open(path + filename_PM) as f:
+with open(filename_PM) as f:
     reader = csv.reader(f, delimiter='\t')
     next(reader)
     for row in reader:
@@ -193,8 +191,7 @@ eq_depth = 0.001
 mat_lam.set_electrical_steel_coreloss(kh, kc, ke, kdc, eq_depth)
 mat_lam.mass_density = "7650"
 BH_List_lam = []
-filename_lam = "30DH_20C_smooth.tab"
-with open(path + filename_lam) as f:
+with open(filename_lam) as f:
     reader = csv.reader(f, delimiter='\t')
     next(reader)
     for row in reader:
@@ -473,7 +470,7 @@ M2D.post.create_fieldplot_surface(faces_reg, 'Flux_Lines', intrinsincDict={"Time
 
 ###############################
 #analyze and save
-M2D.analyze_setup(sName)
+M2D.analyze_setup(sName, use_auto_settings=False)
 M2D.save_project(project_file=pathName + pName + '.aedt', overwrite=True, refresh_obj_ids_after_save=False)
 ###############################
 
@@ -483,4 +480,4 @@ M2D.save_project(project_file=pathName + pName + '.aedt', overwrite=True, refres
 # ~~~~~~~~~~
 # This command closes AEDT.
 
-maxwell_2d.release_desktop()
+M2D.release_desktop()
