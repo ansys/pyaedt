@@ -688,23 +688,6 @@ class VariableManager(object):
                     var_dict[variable_name] = value
                 elif dependent and not is_array(value._calculated_value) and not is_number(value._calculated_value):
                     var_dict[variable_name] = value
-                #
-                #     value = Variable(variable_expression)
-                #     if is_array(value.value):
-                #         var_dict[variable_name] = value
-                #     elif independent and is_number(value.value):
-                #         var_dict[variable_name] = value
-                #     elif dependent and isinstance(value.value, str):
-                #         float_value = self._app.get_evaluated_value(variable_name)
-                #         var_dict[variable_name] = Expression(
-                #             variable_expression, float_value, all_names, name=variable_name, app=self._app
-                #         )
-                # except:
-                #     if dependent:
-                #         float_value = self._app.get_evaluated_value(variable_name)
-                #         var_dict[variable_name] = Expression(
-                #             variable_expression, float_value, all_names, name=variable_name, app=self._app
-                #         )
         return var_dict
 
     @pyaedt_function_handler()
@@ -1538,47 +1521,6 @@ class Variable(object):
     # @pyaedt_function_handler()
     # def __div__(self, other):
     #     return self.__rtruediv__(other)
-
-
-class Expression(Variable, object):
-    """Provides a framework for manipulating variable expressions.
-
-    Parameters
-    ----------
-    expression :
-
-    float_value :
-
-    """
-
-    def __init__(self, expression, float_value, full_variables={}, name=None, app=None):
-        self._expression = expression
-        self._value = float_value
-        self._variable_name = name
-        self._app = app
-        try:
-            value, units = decompose_variable_value(expression, full_variables)
-            self._units = units
-        except:
-            self._units = ""
-
-    @property
-    def expression(self):
-        """Expression."""
-        return str(self._expression)
-
-    @property
-    def numeric_value(self):
-        """Numeric part of the expression as a float value."""
-        try:
-            if re.search(r"^[\w+]+\[\w+].*", self._value):
-                var_obj = self._app._odesign.GetChildObject("Variables").GetChildObject(self._variable_name)
-                val, _ = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
-                return val
-            else:
-                return Variable.numeric_value.fget(self)
-        except TypeError:
-            return Variable.numeric_value.fget(self)
 
 
 class DataSet(object):

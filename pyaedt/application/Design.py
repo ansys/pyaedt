@@ -1606,22 +1606,6 @@ class Design(object):
         except:
             return False
 
-    @pyaedt_function_handler
-    def _hidden_read_only_variable_args(self, arg, variable_name, hidden_read_only="Hidden", enable=True):
-        if variable_name.startswith("$"):
-            tab = "NAME:ProjectVariableTab"
-            propserver = "ProjectVariables"
-        else:
-            tab = "NAME:LocalVariableTab"
-            if self.design_type in ["HFSS 3D Layout Design", "Circuit Design"]:
-                if variable_name in self.odesign.GetProperties("DefinitionParameterTab", "LocalVariables"):
-                    tab = "NAME:DefinitionParameterTab"
-
-            propserver = "LocalVariables"
-        arg2 = ["NAME:" + variable_name, hidden_read_only + ":=", enable]
-        arg3 = [tab, ["NAME:PropServers", propserver], ["NAME:ChangedProps", arg2]]
-        arg.append(arg3)
-
     @pyaedt_function_handler()
     def _optimetrics_variable_args(
         self,
@@ -1967,12 +1951,7 @@ class Design(object):
         >>> hfss.make_hidden_variable("my_hidden_leaf")
 
         """
-        arg = ["NAME:AllTabs"]
-        self._hidden_read_only_variable_args(arg, variable_name, "Hidden", enable=value)
-        if "$" in variable_name:
-            _retry_ntimes(10, self.oproject.ChangeProperty, arg)
-        else:
-            _retry_ntimes(10, self.odesign.ChangeProperty, arg)
+        self.variable_manager[variable_name].hidden = value
         return True
 
     @pyaedt_function_handler
@@ -2004,12 +1983,7 @@ class Design(object):
         >>> hfss.make_read_only_variable("my_read_only_variable")
 
         """
-        arg = ["NAME:AllTabs"]
-        self._hidden_read_only_variable_args(arg, variable_name, "ReadOnly", enable=value)
-        if "$" in variable_name:
-            self.oproject.ChangeProperty(arg)
-        else:
-            self.odesign.ChangeProperty(arg)
+        self.variable_manager[variable_name].read_only = value
         return True
 
     @pyaedt_function_handler()

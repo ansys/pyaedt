@@ -118,7 +118,8 @@ class NamedVariable(object):
         Returns
         bool
         """
-        return self._application.hidden_variable(self.name, value)
+        self._application.variable_manager[self._name].hidden = value
+        return True
 
     @pyaedt_function_handler()
     def read_only_variable(self, value=True):
@@ -133,7 +134,8 @@ class NamedVariable(object):
         -------
         bool
         """
-        return self._application.read_only_variable(self.name, value)
+        self._application.variable_manager[self._name].read_only = value
+        return True
 
 
 class Layer3D(object):
