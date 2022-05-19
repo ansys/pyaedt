@@ -276,8 +276,8 @@ class TestClass(BasisTest, object):
 
     def test_31_make_hidden_variable(self):
         self.aedtapp["my_hidden_variable"] = "15mm"
-        assert self.aedtapp.make_hidden_variable("my_hidden_variable")
+        assert self.aedtapp.hidden_variable("my_hidden_variable")
 
     def test_32_make_read_only_variable(self):
         self.aedtapp["my_read_only_variable"] = "15mm"
-        assert self.aedtapp.make_hidden_variable("my_read_only_variable")
+        assert self.aedtapp.read_only_variable("my_read_only_variable")
