@@ -315,20 +315,35 @@ class Hfss(FieldAnalysis3D, object):
             props["Faces"] = [objectname]
         props["DoDeembed"] = deemb
         props["RenormalizeAllTerminals"] = renorm
-        props["Modes"] = OrderedDict(
-            {
-                "Mode1": OrderedDict(
-                    {
-                        "ModeNum": 1,
-                        "UseIntLine": True,
-                        "IntLine": OrderedDict({"Start": start, "End": stop}),
-                        "AlignmentGroup": 0,
-                        "CharImp": "Zpi",
-                        "RenormImp": str(impedance) + "ohm",
-                    }
-                )
-            }
-        )
+        if renorm:
+            props["Modes"] = OrderedDict(
+                {
+                    "Mode1": OrderedDict(
+                        {
+                            "ModeNum": 1,
+                            "UseIntLine": True,
+                            "IntLine": OrderedDict({"Start": start, "End": stop}),
+                            "AlignmentGroup": 0,
+                            "CharImp": "Zpi",
+                            "RenormImp": str(impedance) + "ohm",
+                        }
+                    )
+                }
+            )
+        else:
+            props["Modes"] = OrderedDict(
+                {
+                    "Mode1": OrderedDict(
+                        {
+                            "ModeNum": 1,
+                            "UseIntLine": True,
+                            "IntLine": OrderedDict({"Start": start, "End": stop}),
+                            "AlignmentGroup": 0,
+                            "CharImp": "Zpi",
+                        }
+                    )
+                }
+            )
         props["ShowReporterFilter"] = False
         props["ReporterFilter"] = [True]
         props["Impedance"] = str(impedance) + "ohm"
@@ -366,6 +381,23 @@ class Hfss(FieldAnalysis3D, object):
                         self.odesign.ChangeProperty(properties)
                     except:  # pragma: no cover
                         self.logger.warning("Failed to change terminal impedance.")
+                if not renorm:
+                    properties = [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:HfssTab",
+                            ["NAME:PropServers", "BoundarySetup:" + boundary.name],
+                            [
+                                "NAME:ChangedProps",
+                                ["NAME:Renorm All Terminals", "Value:=", False],
+                            ],
+                        ],
+                    ]
+                    try:
+                        self.odesign.ChangeProperty(properties)
+                    except:  # pragma: no cover
+                        self.logger.warning("Failed to change normalization.")
+
                 new_name = portname + "_T" + str(count)
                 properties = [
                     "NAME:AllTabs",
@@ -478,7 +510,8 @@ class Hfss(FieldAnalysis3D, object):
                     mode["IntLine"] = OrderedDict({"Start": start, "End": stop})
                 mode["AlignmentGroup"] = 0
                 mode["CharImp"] = "Zpi"
-                mode["RenormImp"] = str(impedance) + "ohm"
+                if renorm:
+                    mode["RenormImp"] = str(impedance) + "ohm"
                 modes["Mode1"] = mode
             else:
                 mode = OrderedDict({})
@@ -487,7 +520,8 @@ class Hfss(FieldAnalysis3D, object):
                 mode["UseIntLine"] = False
                 mode["AlignmentGroup"] = 0
                 mode["CharImp"] = "Zpi"
-                mode["RenormImp"] = str(impedance) + "ohm"
+                if renorm:
+                    mode["RenormImp"] = str(impedance) + "ohm"
                 modes["Mode" + str(i)] = mode
             report_filter.append(True)
             i += 1

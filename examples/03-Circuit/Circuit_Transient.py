@@ -30,7 +30,7 @@ cir = Circuit(specified_version="2022.1", new_desktop_session=True, non_graphica
 # ~~~~~~~~~
 # This method allow user to read an ibis file and place a buffer into the schematic.
 
-ibis = cir.get_ibis_model_from_file(os.path.join(cir.desktop_install_dir, 'buflib' ,'IBIS', 'u26a_800.ibs'))
+ibis = cir.get_ibis_model_from_file(os.path.join(cir.desktop_install_dir, 'buflib', 'IBIS', 'u26a_800.ibs'))
 ibs = ibis.buffers["DQ_u26a_800"].insert(0, 0)
 
 ###############################################################################
@@ -133,10 +133,10 @@ while i < tstop:
     i += 2 * unit_interval
     t_steps.append(i)
 
-t = [[i for i in solutions.intrinsics["Time"] if k - 2 * unit_interval < i <= k ] for k in
+t = [[i for i in solutions.intrinsics["Time"] if k - 2 * unit_interval < i <= k] for k in
      t_steps]
 ys = [[i / 1000 for i, j in zip(solutions.data_real(), solutions.intrinsics["Time"]) if
-       k - 2 * unit_interval < j <= k ] for k in t_steps]
+       k - 2 * unit_interval < j <= k] for k in t_steps]
 fig, ax = plt.subplots(sharex=True)
 cellst = np.array([])
 cellsv = np.array([])
