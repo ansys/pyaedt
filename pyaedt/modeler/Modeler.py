@@ -4426,7 +4426,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        list
+        List
             List of outer faces in the given list of objects.
 
         References
