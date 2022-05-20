@@ -80,4 +80,4 @@ jobs:
         with:
           files: |
             ./**/*.tar.gz
-            ./**/*.zip
+            ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-wheelhouse-${{ runner.os }}-${{ matrix.python-version }}.zip
