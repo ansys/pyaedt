@@ -20,19 +20,19 @@ def _replace_by_underscore(character, string):
 
 
 class NamedVariable(object):
-    """Cast Pyaedt Variable object to simplify getter and setters in Stackup3D.
+    """Cast PyAEDT variable object to simplify getters and setters in Stackup3D.
 
     The returned Polyline object exposes the methods for manipulating the polyline.
 
     Parameters
     ----------
     application : :class:`pyaedt.hfss.Hfss
-        The Hfss design or project where the variable will be create
+        HFSS design or project where the variable is to be created.
     name : str
-        The name of the variable. If the the name begins by a '$', the variable will be a project variable,
-        else it will be a design variable.
+        The name of the variable. If the the name begins with an '$', the variable will be a project variable.
+        Otherwise, it will be a design variable.
     expression : str
-        The expression of the value.
+        Expression of the value.
 
     Examples
     --------
@@ -60,21 +60,22 @@ class NamedVariable(object):
 
     @property
     def name(self):
-        """Return the name of the variable as a string."""
+        """Name of the variable as a string."""
         return self._name
 
     @property
     def expression(self):
-        """Return the expression of the variable as a string."""
+        """Expression of the variable as a string."""
         return self._expression
 
     @expression.setter
     def expression(self, expression):
         """Set the expression of the variable.
+        
         Parameters
         ----------
         expression: str
-            The value expression of the variable."""
+            Value expression of the variable."""
         if isinstance(expression, str):
             self._expression = expression
             self._application[self.name] = expression
@@ -103,7 +104,7 @@ class NamedVariable(object):
 
     @property
     def string_value(self):
-        """Return a string which combine the numeric_value and the units."""
+        """String that combines the numeric value and the units."""
         return self._variable.string_value
 
     @pyaedt_function_handler()
@@ -123,12 +124,12 @@ class NamedVariable(object):
 
     @pyaedt_function_handler()
     def read_only_variable(self, value=True):
-        """Set the variable to a read only variable.
+        """Set the variable to a read-only variable.
 
         Parameters
         ----------
         value : bool, optional
-            Whether the variable is a read only variable. The default is ``True``.
+            Whether the variable is a read-only variable. The default is ``True``.
 
         Returns
         -------
@@ -219,7 +220,7 @@ class Layer3D(object):
 
     @property
     def name(self):
-        """Layer Name.
+        """Layer name.
 
         Returns
         -------
@@ -239,7 +240,7 @@ class Layer3D(object):
 
     @property
     def material_name(self):
-        """Material Name.
+        """Material name.
 
         Returns
         -------
@@ -249,29 +250,29 @@ class Layer3D(object):
 
     @property
     def material(self):
-        """Material Object.
+        """Material.
 
         Returns
         -------
         :class:`pyaedt.modules.Material.Material`
-            Material Object.
+            Material.
         """
         return self._material
 
     @property
     def filling_material(self):
-        """Fill Material Object.
+        """Fill material.
 
         Returns
         -------
         :class:`pyaedt.modules.Material.Material`
-            Material Object.
+            Material.
         """
         return self._fill_material
 
     @property
     def filling_material_name(self):
-        """Fill Material Name.
+        """Fill material name.
 
         Returns
         -------
@@ -281,7 +282,7 @@ class Layer3D(object):
 
     @property
     def thickness(self):
-        """Thickness Variable.
+        """Thickness variable.
 
         Returns
         -------
@@ -292,7 +293,7 @@ class Layer3D(object):
 
     @property
     def thickness_value(self):
-        """Thickness Value.
+        """Thickness value.
 
 
         Returns
@@ -307,18 +308,18 @@ class Layer3D(object):
 
     @property
     def elevation(self):
-        """Layer Elevation Object.
+        """Layer elevation.
 
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
+            Variable object.
         """
         return self._position
 
     @property
     def elevation_value(self):
-        """Layer Elevation Value.
+        """Layer elevation value.
 
         Returns
         -------
@@ -335,14 +336,14 @@ class Layer3D(object):
         material_name : str
             Name of origin material
         cloned_material_name : str, optional
-            Name of destination material.
-        list_of_properties : list
-            Properties to parametrize.
+            Name of destination material. The default is ``None``.
+        list_of_properties : list, optional
+            Properties to parametrize. The default is ``None``.
 
         Returns
         -------
         :class:`pyaedt.modules.Material.Material`
-            Material Object.
+            Material object.
         """
         application = self._app
         if isinstance(material_name, Material):
@@ -400,24 +401,24 @@ class Layer3D(object):
         patch_name=None,
         axis="X",
     ):
-        """Create a new parametric patch.
+        """Create a parametric patch.
 
         Parameters
         ----------
         frequency : float
-            Frequency value for patch calculation in Hz.
+            Frequency value for the patch calculation in Hz.
         patch_width : float
             Patch width.
-        patch_length : float
-            Patch Length.
+        patch_length : float, optional
+            Patch length. The default is ``None``.
         patch_position_x : float, optional
             Patch start x position.
         patch_position_y : float, optional
-            Patch start y position.
+            Patch start y position. The default is ``0.``
         patch_name : str, optional
-            Patch name.
+            Patch name. The default is ``None``.
         axis : str, optional
-            Line orientation axis.
+            Line orientation axis. The default is ``"X"``.
 
         Returns
         -------
@@ -465,30 +466,33 @@ class Layer3D(object):
         reference_system=None,
         frequency=1e9,
     ):
-        """Create a new line.
+        """Create a line.
 
         Parameters
         ----------
         line_width : float
-            Line width. It can be the physical value or the line impedance.
+            Line width. It can be the physical width or the line impedance.
         line_length : float
-            Line length. It can be the phisical length or the electrical length.
+            Line length. It can be the physical length or the electrical length.
         is_electrical_length : bool, optional
-            Either if the line_length is an electrical length or physical one.
+            Whether the line length is an electrical length or a physical length. The default
+            is ``False``, which means it is a physical length.
         is_impedance : bool, optional
-            Either if the line_width is an an impedance or geometrical value.
+            Whether the line width is an impedance. The default is ``False``, in which case
+            the line width is a geometrical value.
         line_position_x : float, optional
-            Line Center start x position.
+            Line center start x position. The default is ``0``.
         line_position_y : float, optional
-            Line Center start y position.
+            Line center start y position. The default is ``0``.
         line_name : str, optional
-            Line name.
+            Line name. The default is ``None``.
         axis : str, optional
-            Line orientation axis.
+            Line orientation axis. The default is ``"X"``.
         reference_system : str, optional
-            Line Reference System. If `None` a new coordinate system will be created.
+            Line reference system. The default is ``None``, in which case a new coordinate
+            system is created.
         frequency : float, optional
-            Frequency value for line calculation in Hz.
+            Frequency value for the line calculation in Hz. The default is ``1e9``.
 
         Returns
         -------
@@ -502,7 +506,7 @@ class Layer3D(object):
                 dielectric_layer = v
                 break
         if dielectric_layer is None:
-            self._app.logger.error("There is no layer under this layer")
+            self._app.logger.error("There is no layer under this layer.")
 
         created_line = Line(
             self._app,
@@ -526,19 +530,20 @@ class Layer3D(object):
 
     @pyaedt_function_handler()
     def polygon(self, points, material="copper", is_void=False, poly_name=None):
-        """Create a new Polygon.
+        """Create a polygon.
 
         Parameters
         ----------
-        points : List
+        points : list
             Points list of [x,y] coordinates.
         material : str, optional
-            Material name.
+            Material name. The default is ``"copper"``.
         is_void : bool, optional
-            Either if the polygon is a void or not.
-            On ground layers it will act opposite as the boolean value since ground is negative.
+            Whether the polygon is a void. The default is ``False``.
+            On ground layers, it will act opposite of the Boolean value because the ground
+            is negative.
         poly_name : str, optional
-            Polygon Name.
+            Polygon name. The default is ``None``.
 
         Returns
         -------
@@ -614,7 +619,7 @@ class Padstack(object):
 
     @property
     def plating_ratio(self):
-        """Plating Ratio between 0 and 1.
+        """Plating ratio between 0 and 1.
 
         Returns
         -------
@@ -633,7 +638,7 @@ class Padstack(object):
 
     @property
     def num_sides(self):
-        """Num Sides of Circle. 0 for true circle.
+        """Number of sides on the circle, which is 0 for a true circle.
 
         Returns
         -------
@@ -657,6 +662,7 @@ class Padstack(object):
         Returns
         -------
         bool
+            "True`` when successful, ``False`` when failed.
         """
         for v in list(self._padstacks_by_layer.values()):
             v._pad_radius = value
@@ -674,6 +680,7 @@ class Padstack(object):
         Returns
         -------
         bool
+             "True`` when succesful, ``False`` when failed.
         """
         for v in list(self._padstacks_by_layer.values()):
             v._antipad_radius = value
@@ -691,6 +698,7 @@ class Padstack(object):
         Returns
         -------
         bool
+             "True`` when succesful, ``False`` when failed.
 
         """
         found = False
@@ -717,6 +725,7 @@ class Padstack(object):
         Returns
         -------
         bool
+             "True`` when succesful, ``False`` when failed.
 
         """
         found = False
@@ -734,14 +743,15 @@ class Padstack(object):
 
         Parameters
         ----------
-        position_x : float
-            Center x position.
-        position_y : float
-            Center y position.
+        position_x : float, optional
+            Center x position. The default is ``0``.
+        position_y : float, optinal
+            Center y position. The default is ``0``.
         instance_name : str, optional
-            Via name.
+            Via name. The default is ``None``.
         reference_system : str, optional
-            Either if an existing reference system has to be used or a new one to be created.
+            Whether to use an existing reference system or create a new one. The default
+            is ``None``, in which case a new reference system is created.
 
         Returns
         -------
@@ -843,7 +853,7 @@ class Stackup3D(object):
 
     @property
     def padstacks(self):
-        """List of padstack created.
+        """List of padstacks created.
 
         Returns
         -------
@@ -853,7 +863,7 @@ class Stackup3D(object):
 
     @property
     def dielectrics(self):
-        """List of dielectric created.
+        """List of dielectrics created.
 
         Returns
         -------
@@ -863,7 +873,7 @@ class Stackup3D(object):
 
     @property
     def grounds(self):
-        """List of ground created.
+        """List of grounds created.
 
         Returns
         -------
@@ -893,7 +903,7 @@ class Stackup3D(object):
 
     @property
     def objects_by_layer(self):
-        """List of padstack created.
+        """List of padstacks created.
 
         Returns
         -------
@@ -928,7 +938,7 @@ class Stackup3D(object):
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
+            Variable object.
         """
         return self._dielectric_x_position
 
@@ -943,7 +953,7 @@ class Stackup3D(object):
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
+            Variable object.
         """
         return self._dielectric_x_position
 
@@ -958,7 +968,7 @@ class Stackup3D(object):
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
+            Variable object.
         """
         return self._dielectric_width
 
@@ -973,7 +983,7 @@ class Stackup3D(object):
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
+            Variable object.
         """
         return self._dielectric_length
 
@@ -983,7 +993,7 @@ class Stackup3D(object):
 
     @property
     def layer_names(self):
-        """List all layer names.
+        """List of all layer names.
 
         Returns
         -------
@@ -993,7 +1003,7 @@ class Stackup3D(object):
 
     @property
     def layer_positions(self):
-        """List all layer positions.
+        """List of all layer positions.
 
         Returns
         -------
@@ -1030,7 +1040,7 @@ class Stackup3D(object):
         name : str
             padstack name
         material : str, optional
-            Padstack Material
+            Padstack material. The default is ``"copper"``.
 
         Returns
         -------
@@ -1042,30 +1052,33 @@ class Stackup3D(object):
 
     @pyaedt_function_handler()
     def add_layer(self, name, layer_type="S", material="copper", thickness=0.035, fill_material="FR4_epoxy"):
-        """Add a new layer to the stackup. Can be Signal (S), ground (G) or Dielectric (D).
-        The layer is entirely filled with  fill_material. Anything will be drawn wmaterial.
+        """Add a new layer to the stackup.
+        The new layer can be a signal (S), ground (G), or dielectric (D).
+        The layer is entirely filled with the specified fill material. Anything will be drawn
+        wmaterial.
 
         Parameters
         ----------
         name : str
             Layer name.
         layer_type : str, optional
-            Layer type.Can be `"S"`, `"D"` or `"G"`.
-        material : str
-            Material name. Material will be parametrized.
-        thickness : float
-            Thickness value. Thickness will be parametrized.
-        fill_material : str
-            Fill Material name. Material will be parametrized. Not valid for Dielectrics.
+            Layer type. Options are ``"S"``, ``"D"``, and ``"G"``. The default is ``"S"``.
+        material : str, optional
+            Material name. The default is ``"copper"``. The material will be parametrized.
+        thickness : float, optional
+            Thickness value. The default is ``0.035``. The thickness will be parametrized.
+        fill_material : str, optional
+            Fill material name. The default is ``"FR4_epoxy"``. The fill material will be
+            parametrized. This parameter is not valid for dielectrics.
 
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.Layer3D`
-            Layer Object.
+            Layer object.
         """
         self._shifted_index += 1
         if not layer_type:
-            raise ValueError("Layer Type has to be one of the S, D, G strins.")
+            raise ValueError("Layer type has to be an S, D, or G string.")
         self._layer_name.append(name)
 
         lay = Layer3D(
@@ -1101,8 +1114,9 @@ class Stackup3D(object):
 
     @pyaedt_function_handler()
     def add_signal_layer(self, name, material="copper", thickness=0.035, fill_material="FR4_epoxy"):
-        """Add a new ground layer to the stackup. A signal layer is positive.
-        The layer is entirely filled with  fill_material. Anything will be drawn wmaterial.
+        """Add a new ground layer to the stackup.
+        A signal layer is positive. The layer is entirely filled with the fill material.
+        Anything will be drawn wmaterial.
 
         Parameters
         ----------
@@ -1113,12 +1127,12 @@ class Stackup3D(object):
         thickness : float
             Thickness value. Thickness will be parametrized.
         fill_material : str
-            Fill Material name. Material will be parametrized.
+            Fill material name. Material will be parametrized.
 
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.Layer3D`
-            Layer Object.
+            Layer object.
         """
         return self.add_layer(
             name=name, layer_type="S", material=material, thickness=thickness, fill_material=fill_material
@@ -1138,15 +1152,15 @@ class Stackup3D(object):
         name : str
             Layer name.
         material : str
-            Material name. Material will be parametrized.
-        thickness : float
-            Thickness value. Thickness will be parametrized.
+            Material name. The default is ``"FR4_epoxy"``. The material will be parametrized.
+        thickness : float, optional
+            Thickness value. The default is ``0.035``. The thickness will be parametrized.
 
 
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.Layer3D`
-            Layer Object.
+            Layer 0bject.
         """
         return self.add_layer(name=name, layer_type="D", material=material, thickness=thickness, fill_material=None)
 
@@ -1203,12 +1217,12 @@ class Stackup3D(object):
 
     @pyaedt_function_handler()
     def resize(self, percentage_offset):
-        """Resize the stackup around objects created by percentage offset.
+        """Resize the stackup around objects created by a percentage offset.
 
         Parameters
         ----------
         percentage_offset : float
-            Offset of resize. Value accepted are greater than 0.
+            Offset of resize. The value must be greater than 0.
 
         Returns
         -------
@@ -1262,7 +1276,7 @@ class CommonObject(object):
 
     @property
     def reference_system(self):
-        """Coordinate System of the object.
+        """Coordinate system of the object.
 
         Returns
         -------
@@ -1272,7 +1286,7 @@ class CommonObject(object):
 
     @property
     def dielectric_layer(self):
-        """Dielectric layer to which belongs the object.
+        """Dielectric layer that the object belongs to.
 
         Returns
         -------
@@ -1282,7 +1296,7 @@ class CommonObject(object):
 
     @property
     def signal_layer(self):
-        """Signal layer to which belongs the object.
+        """Signal layer that the object belongs to.
 
         Returns
         -------
@@ -1292,7 +1306,7 @@ class CommonObject(object):
 
     @property
     def name(self):
-        """Object Name.
+        """Object name.
 
         Returns
         -------
@@ -1302,12 +1316,12 @@ class CommonObject(object):
 
     @property
     def application(self):
-        """App Object."""
+        """App object."""
         return self._application
 
     @property
     def aedt_object(self):
-        """PyAedt object 3d.
+        """PyAEDT object 3D.
 
         Returns
         -------
@@ -1337,7 +1351,7 @@ class CommonObject(object):
 
     @property
     def material_name(self):
-        """Material Name.
+        """Material name.
 
         Returns
         -------
@@ -1347,12 +1361,12 @@ class CommonObject(object):
 
     @property
     def points_on_layer(self):
-        """Object Bounding Box.
+        """Object bounding box.
 
         Returns
         -------
         List
-            List of [x,y] coordinate of bounding box.
+            List of [x,y] coordinate of the bounding box.
         """
         bb = self._aedt_object.bounding_box
         return [[bb[0], bb[1]], [bb[0], bb[4]], [bb[3], bb[4]], [bb[3], bb[1]]]
@@ -1477,7 +1491,7 @@ class Patch(CommonObject, object):
 
     @property
     def frequency(self):
-        """Model Frequency.
+        """Model frequency.
 
         Returns
         -------
@@ -1488,7 +1502,7 @@ class Patch(CommonObject, object):
 
     @property
     def substrate_thickness(self):
-        """Substrate Thickness.
+        """Substrate thickness.
 
         Returns
         -------
@@ -1504,29 +1518,29 @@ class Patch(CommonObject, object):
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
+            Variable object.
         """
         return self._width
 
     @property
     def position_x(self):
-        """Starting Position X.
+        """Starting position X.
 
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
+            Variable object.
         """
         return self._position_x
 
     @property
     def position_y(self):
-        """Starting Position Y.
+        """Starting position Y.
 
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
+            Variable object.
         """
         return self._position_y
 
@@ -1537,30 +1551,30 @@ class Patch(CommonObject, object):
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
+            Variable object.
         """
         return self._permittivity
 
     @property
     def _permittivity_calcul(self):
-        """Permittivity Calutation.
+        """Permittivity calculation.
 
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
+            Variable object.
         """
         self._permittivity = self.application.materials[self._dielectric_material].permittivity
         return self._permittivity
 
     @property
     def effective_permittivity(self):
-        """Effective Permittivity.
+        """Effective permittivity.
 
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
+            Variable object.
         """
         return self._effective_permittivity
 
@@ -1579,23 +1593,23 @@ class Patch(CommonObject, object):
 
     @property
     def added_length(self):
-        """Added Length Calutation.
+        """Added length calculation.
 
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
+            Variable object.
         """
         return self._added_length
 
     @property
     def _added_length_calcul(self):
-        """Added Length Calutation.
+        """Added length calculation.
 
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
+            Variable object.
         """
         # "0.412 * substrate_thickness * (patch_eff_permittivity + 0.3) * (patch_width/substrate_thickness + 0.264)"
         # " / ((patch_eff_permittivity - 0.258) * (patch_width/substrate_thickness + 0.813)) "
@@ -1612,7 +1626,7 @@ class Patch(CommonObject, object):
 
     @property
     def wave_length(self):
-        """Wave Length.
+        """Wave length.
 
         Returns
         -------

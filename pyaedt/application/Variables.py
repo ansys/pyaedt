@@ -1130,7 +1130,7 @@ class Variable(object):
 
     @property
     def name(self):
-        """Variable Name Getter/Setter."""
+        """Variable name."""
         return self._variable_name
 
     @name.setter
@@ -1144,7 +1144,7 @@ class Variable(object):
 
     @property
     def read_only(self):
-        """Readonly flag getter/setter value."""
+        """Read-only flag value."""
         if self._app:
             try:
                 if not is_ironpython:
@@ -1167,7 +1167,7 @@ class Variable(object):
 
     @property
     def hidden(self):
-        """Hidden flag getter/setter value."""
+        """Hidden flag value."""
         if self._app:
             try:
                 if not is_ironpython:
@@ -1189,7 +1189,7 @@ class Variable(object):
 
     @property
     def description(self):
-        """Description value getter/settervalue."""
+        """Description value."""
         if self._app:
             try:
                 if not is_ironpython:
@@ -1215,13 +1215,13 @@ class Variable(object):
 
     @property
     def post_processing(self):
-        """Postprocessing flag getter value."""
+        """Postprocessing flag value."""
         if self._app:
             return True if self._variable_name in self._app.variable_manager.post_processing_variables else False
 
     @property
     def circuit_parameter(self):
-        """Circui Parameter getter flag value."""
+        """Circuit parameter flag value."""
         if "$" in self._variable_name:
             return False
         if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
