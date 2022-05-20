@@ -928,7 +928,7 @@ class VariableManager(object):
             )
         var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [var_name.lower() for var_name in var_list]
-        if variable_name not in lower_case_vars:
+        if variable_name.lower() not in lower_case_vars:
             return False
         return True
 
