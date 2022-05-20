@@ -10,10 +10,10 @@ set args=%1 %2 %3 %4 %5 %6
 set update_pyaedt=n
 set install_pyaedt=n
 for /L %%i in (1,1,%argCount%) do (
-	if [!argVec[%%i]!]==[-i] set install_pyaedt=y
-	if [!argVec[%%i]!]==[-install] set install_pyaedt=y
+	if [!argVec[%%i]!]==[-f] set install_pyaedt=y
+	if [!argVec[%%i]!]==[--force-install] set install_pyaedt=y
 	if [!argVec[%%i]!]==[-u] set update_pyaedt=y
-	if [!argVec[%%i]!]==[-update] set update_pyaedt=y
+	if [!argVec[%%i]!]==[--update] set update_pyaedt=y
 	if [!argVec[%%i]!]==[-p] (
 		set /A usepython=%%i+1
 	)
@@ -43,7 +43,6 @@ if NOT [%usewheel%]==[] (
 if NOT exist "%APPDATA%\pyaedt_env_ide\" (
     set install_pyaedt=y
 )
-
 
 set env_vars=ANSYSEM_ROOT222 ANSYSEM_ROOT221 ANSYSEM_ROOT212 ANSYSEM_ROOT211
 setlocal enableextensions enabledelayedexpansion
