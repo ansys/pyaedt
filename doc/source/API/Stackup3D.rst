@@ -1,7 +1,7 @@
 Stackup 3D Components
 =====================
-This section lists classes for creating and editing a stackup and objects the 3D tools.
-This consists of a set of one or more parametrized layer objects, where to place line, patch, polygon and vias.
+This section lists classes for creating and editing a stackup and objects in the 3D tools.
+This consists of a set of one or more parametrized layer objects, where to place line, patch, polygon, and vias.
 
 
 
