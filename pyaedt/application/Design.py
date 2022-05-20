@@ -1924,14 +1924,15 @@ class Design(object):
 
     @pyaedt_function_handler
     def hidden_variable(self, variable_name, value=True):
-        """Set the variable to a hidden/unhidden variable.
+        """Set the variable to a hidden or unhidden variable.
 
         Parameters
         ----------
         variable_name : str
             Name of the variable.
-        value : bool
-            Hide or Unhide the variable.
+        value : bool, optional
+            Whether to hide the variable. The default is ``True``, in which case the variable
+            is hidden. When ``False,`` the variable is unhidden.
 
         Returns
         -------
@@ -1956,14 +1957,15 @@ class Design(object):
 
     @pyaedt_function_handler
     def read_only_variable(self, variable_name, value=True):
-        """Set the variable to a readonly/not readonly variable.
+        """Set the variable to a read-only or not read-only variable.
 
         Parameters
         ----------
         variable_name : str
             Name of the variable.
-        value : bool
-            Enable or disable readonly.
+        value : bool, optional
+            Whether the variable is read-only. The default is ``True``, in which case
+            the variable is read-only. When ``False``, the variable is not read-only.
 
         Returns
         -------

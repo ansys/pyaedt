@@ -20,19 +20,19 @@ def _replace_by_underscore(character, string):
 
 
 class NamedVariable(object):
-    """Cast Pyaedt Variable object to simplify getter and setters in Stackup3D.
+    """Cast PyAEDT variable object to simplify getters and setters in Stackup3D.
 
     The returned Polyline object exposes the methods for manipulating the polyline.
 
     Parameters
     ----------
     application : :class:`pyaedt.hfss.Hfss
-        The Hfss design or project where the variable will be create
+        HFSS design or project where the variable is to be created.
     name : str
-        The name of the variable. If the the name begins by a '$', the variable will be a project variable,
-        else it will be a design variable.
+        The name of the variable. If the the name begins with an '$', the variable will be a project variable.
+        Otherwise, it will be a design variable.
     expression : str
-        The expression of the value.
+        Expression of the value.
 
     Examples
     --------
@@ -60,21 +60,22 @@ class NamedVariable(object):
 
     @property
     def name(self):
-        """Return the name of the variable as a string."""
+        """Name of the variable as a string."""
         return self._name
 
     @property
     def expression(self):
-        """Return the expression of the variable as a string."""
+        """Expression of the variable as a string."""
         return self._expression
 
     @expression.setter
     def expression(self, expression):
         """Set the expression of the variable.
+        
         Parameters
         ----------
         expression: str
-            The value expression of the variable."""
+            Value expression of the variable."""
         if isinstance(expression, str):
             self._expression = expression
             self._application[self.name] = expression
@@ -103,7 +104,7 @@ class NamedVariable(object):
 
     @property
     def string_value(self):
-        """Return a string which combine the numeric_value and the units."""
+        """String that combines the numeric value and the units."""
         return self._variable.string_value
 
     @pyaedt_function_handler()
@@ -123,12 +124,12 @@ class NamedVariable(object):
 
     @pyaedt_function_handler()
     def read_only_variable(self, value=True):
-        """Set the variable to a read only variable.
+        """Set the variable to a read-only variable.
 
         Parameters
         ----------
         value : bool, optional
-            Whether the variable is a read only variable. The default is ``True``.
+            Whether the variable is a read-only variable. The default is ``True``.
 
         Returns
         -------
@@ -219,7 +220,7 @@ class Layer3D(object):
 
     @property
     def name(self):
-        """Layer Name.
+        """Layer name.
 
         Returns
         -------
@@ -239,7 +240,7 @@ class Layer3D(object):
 
     @property
     def material_name(self):
-        """Material Name.
+        """Material name.
 
         Returns
         -------
@@ -249,29 +250,29 @@ class Layer3D(object):
 
     @property
     def material(self):
-        """Material Object.
+        """Material.
 
         Returns
         -------
         :class:`pyaedt.modules.Material.Material`
-            Material Object.
+            Material.
         """
         return self._material
 
     @property
     def filling_material(self):
-        """Fill Material Object.
+        """Fill material.
 
         Returns
         -------
         :class:`pyaedt.modules.Material.Material`
-            Material Object.
+            Material.
         """
         return self._fill_material
 
     @property
     def filling_material_name(self):
-        """Fill Material Name.
+        """Fill material name.
 
         Returns
         -------
@@ -281,7 +282,7 @@ class Layer3D(object):
 
     @property
     def thickness(self):
-        """Thickness Variable.
+        """Thickness variable.
 
         Returns
         -------
@@ -292,7 +293,7 @@ class Layer3D(object):
 
     @property
     def thickness_value(self):
-        """Thickness Value.
+        """Thickness value.
 
 
         Returns
@@ -307,18 +308,18 @@ class Layer3D(object):
 
     @property
     def elevation(self):
-        """Layer Elevation Object.
+        """Layer elevation.
 
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
+            Variable object.
         """
         return self._position
 
     @property
     def elevation_value(self):
-        """Layer Elevation Value.
+        """Layer elevation value.
 
         Returns
         -------
@@ -335,14 +336,14 @@ class Layer3D(object):
         material_name : str
             Name of origin material
         cloned_material_name : str, optional
-            Name of destination material.
-        list_of_properties : list
-            Properties to parametrize.
+            Name of destination material. The default is ``None``.
+        list_of_properties : list, optional
+            Properties to parametrize. The default is ``None``.
 
         Returns
         -------
         :class:`pyaedt.modules.Material.Material`
-            Material Object.
+            Material object.
         """
         application = self._app
         if isinstance(material_name, Material):
@@ -400,24 +401,24 @@ class Layer3D(object):
         patch_name=None,
         axis="X",
     ):
-        """Create a new parametric patch.
+        """Create a parametric patch.
 
         Parameters
         ----------
         frequency : float
-            Frequency value for patch calculation in Hz.
+            Frequency value for the patch calculation in Hz.
         patch_width : float
             Patch width.
-        patch_length : float
-            Patch Length.
+        patch_length : float, optional
+            Patch length. The default is ``None``.
         patch_position_x : float, optional
             Patch start x position.
         patch_position_y : float, optional
-            Patch start y position.
+            Patch start y position. The default is ``0.``
         patch_name : str, optional
-            Patch name.
+            Patch name. The default is ``None``.
         axis : str, optional
-            Line orientation axis.
+            Line orientation axis. The default is ``"X"``.
 
         Returns
         -------
@@ -465,30 +466,33 @@ class Layer3D(object):
         reference_system=None,
         frequency=1e9,
     ):
-        """Create a new line.
+        """Create a line.
 
         Parameters
         ----------
         line_width : float
-            Line width. It can be the physical value or the line impedance.
+            Line width. It can be the physical width or the line impedance.
         line_length : float
-            Line length. It can be the phisical length or the electrical length.
+            Line length. It can be the physical length or the electrical length.
         is_electrical_length : bool, optional
-            Either if the line_length is an electrical length or physical one.
+            Whether the line length is an electrical length or a physical length. The default
+            is ``False``, which means it is a physical length.
         is_impedance : bool, optional
-            Either if the line_width is an an impedance or geometrical value.
+            Whether the line width is an impedance. The default is ``False``, in which case
+            the line width is a geometrical value.
         line_position_x : float, optional
-            Line Center start x position.
+            Line center start x position. The default is ``0``.
         line_position_y : float, optional
-            Line Center start y position.
+            Line center start y position. The default is ``0``.
         line_name : str, optional
-            Line name.
+            Line name. The default is ``None``.
         axis : str, optional
-            Line orientation axis.
+            Line orientation axis. The default is ``"X"``.
         reference_system : str, optional
-            Line Reference System. If `None` a new coordinate system will be created.
+            Line reference system. The default is ``None``, in which case a new coordinate
+            system is created.
         frequency : float, optional
-            Frequency value for line calculation in Hz.
+            Frequency value for the line calculation in Hz. The default is ``1e9``.
 
         Returns
         -------
@@ -502,7 +506,7 @@ class Layer3D(object):
                 dielectric_layer = v
                 break
         if dielectric_layer is None:
-            self._app.logger.error("There is no layer under this layer")
+            self._app.logger.error("There is no layer under this layer.")
 
         created_line = Line(
             self._app,
@@ -526,11 +530,11 @@ class Layer3D(object):
 
     @pyaedt_function_handler()
     def polygon(self, points, material="copper", is_void=False, poly_name=None):
-        """Create a new Polygon.
+        """Create a polygon.
 
         Parameters
         ----------
-        points : List
+        points : list
             Points list of [x,y] coordinates.
         material : str, optional
             Material name.
