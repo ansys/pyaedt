@@ -1698,7 +1698,7 @@ class Object3d(object):
                 self.model = True
             vMaterial = ["NAME:Material", "Value:=", chr(34) + matobj.name + chr(34)]
             self._change_property(vMaterial)
-            self._material_name = mat.lower()
+            self._material_name = matobj.name.lower()
         else:
             self.logger.warning("Material %s does not exist.", mat)
 

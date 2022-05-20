@@ -11,6 +11,7 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Model2D import Modeler2D
 from pyaedt.modeler.Model3D import Modeler3D
+from pyaedt.modeler.stackup_3d import Stackup3D
 from pyaedt.modules.Mesh import Mesh
 from pyaedt.modules.MeshIcepak import IcepakMesh
 
@@ -836,3 +837,15 @@ class FieldAnalysis3D(Analysis, object):
         elif linked_data:
             self.odesign.DeleteLinkedDataVariation(variations)
         return True
+
+    @pyaedt_function_handler
+    def add_stackup_3d(self):
+        """Create a stackup 3D object.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.stackup_3d.Stackup3D`
+            ``True`` when delete operation is successful.
+        """
+        st = Stackup3D(self)
+        return st

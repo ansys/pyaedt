@@ -1933,6 +1933,72 @@ class Design(object):
             self.odesign.ChangeProperty(arg)
         return True
 
+    @pyaedt_function_handler
+    def hidden_variable(self, variable_name, value=True):
+        """Set the variable to a hidden or unhidden variable.
+
+        Parameters
+        ----------
+        variable_name : str
+            Name of the variable.
+        value : bool, optional
+            Whether to hide the variable. The default is ``True``, in which case the variable
+            is hidden. When ``False,`` the variable is unhidden.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["my_hidden_leaf"] = "15mm"
+        >>> hfss.make_hidden_variable("my_hidden_leaf")
+
+        """
+        self.variable_manager[variable_name].hidden = value
+        return True
+
+    @pyaedt_function_handler
+    def read_only_variable(self, variable_name, value=True):
+        """Set the variable to a read-only or not read-only variable.
+
+        Parameters
+        ----------
+        variable_name : str
+            Name of the variable.
+        value : bool, optional
+            Whether the variable is read-only. The default is ``True``, in which case
+            the variable is read-only. When ``False``, the variable is not read-only.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["my_read_only_variable"] = "15mm"
+        >>> hfss.make_read_only_variable("my_read_only_variable")
+
+        """
+        self.variable_manager[variable_name].read_only = value
+        return True
+
     @pyaedt_function_handler()
     def _get_boundaries_data(self):
         """Retrieve boundary data.
@@ -3349,13 +3415,19 @@ class Design(object):
         >>> M3D["p3"] = "P1 * p2"
         >>> eval_p3 = M3D.get_evaluated_value("p3")
         """
-        if self.design_type == "Maxwell Circuit":
+        if self.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
             if "$" in variable_name:
                 val_units = self._oproject.GetVariableValue(variable_name)
             else:
                 val_units = self._odesign.GetVariableValue(variable_name)
             val, units = decompose_variable_value(val_units)
             try:
+                if units:
+                    scale = AEDT_UNITS[unit_system(units)][units]
+                    if isinstance(scale, tuple):
+                        return scale[0](val, True)
+                    else:
+                        return val * scale
                 return float(val)
             except ValueError:
                 return val_units

@@ -24,6 +24,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SI_UNITS
 from pyaedt.generic.constants import unit_system
 from pyaedt.generic.general_methods import is_number, is_array
+from pyaedt import is_ironpython
 
 
 class CSVDataset:
@@ -680,23 +681,13 @@ class VariableManager(object):
             for variable_name in listvar:
                 variable_expression = self.get_expression(variable_name)
                 all_names[variable_name] = variable_expression
-                try:
-                    value = Variable(variable_expression)
-                    if is_array(value.value) and dependent:
-                        var_dict[variable_name] = value
-                    elif independent and is_number(value.value):
-                        var_dict[variable_name] = value
-                    elif dependent and isinstance(value.value, str):
-                        float_value = self._app.get_evaluated_value(variable_name)
-                        var_dict[variable_name] = Expression(
-                            variable_expression, float_value, all_names, name=variable_name, app=self._app
-                        )
-                except:
-                    if dependent:
-                        float_value = self._app.get_evaluated_value(variable_name)
-                        var_dict[variable_name] = Expression(
-                            variable_expression, float_value, all_names, name=variable_name, app=self._app
-                        )
+                # try:
+                si_value = self._app.get_evaluated_value(variable_name)
+                value = Variable(variable_expression, None, si_value, all_names, name=variable_name, app=self._app)
+                if independent and (is_array(value._calculated_value) or is_number(value._calculated_value)):
+                    var_dict[variable_name] = value
+                elif dependent and not is_array(value._calculated_value) and not is_number(value._calculated_value):
+                    var_dict[variable_name] = value
         return var_dict
 
     @pyaedt_function_handler()
@@ -1065,16 +1056,39 @@ class Variable(object):
 
     """
 
-    def __init__(self, value, units=None):
-
+    def __init__(
+        self,
+        expression,
+        units=None,
+        si_value=None,
+        full_variables=None,
+        name=None,
+        app=None,
+        readonly=False,
+        hidden=False,
+        description=None,
+        postprocessing=False,
+        circuit_parameter=True,
+    ):
+        if not full_variables:
+            full_variables = {}
+        self._variable_name = name
+        self._app = app
+        self._readonly = readonly
+        self._hidden = hidden
+        self._postprocessing = postprocessing
+        self._circuit_parameter = circuit_parameter
+        self._description = description
         if units:
             if unit_system(units):
                 specified_units = units
-
         self._units = None
-        self._expression = value
-        self._value, self._units = decompose_variable_value(value)
-
+        self._expression = expression
+        self._calculated_value, self._units = decompose_variable_value(expression, full_variables)
+        if si_value:
+            self._value = si_value
+        else:
+            self._value = self._calculated_value
         # If units have been specified, check for a conflict and otherwise use the specified unit system
         if units:
             assert not self._units, "The unit specification {} is inconsistent with the identified units {}.".format(
@@ -1082,7 +1096,7 @@ class Variable(object):
             )
             self._units = specified_units
 
-        if is_number(self._value):
+        if not si_value and is_number(self._value):
             try:
                 scale = AEDT_UNITS[self.unit_system][self._units]
             except KeyError:
@@ -1091,6 +1105,173 @@ class Variable(object):
                 self._value = scale[0](self._value, inverse=False)
             else:
                 self._value = self._value * scale
+
+    @property
+    def _aedt_obj(self):
+        if "$" in self._variable_name and self._app:
+            return self._app._oproject
+        elif self._app:
+            return self._app._odesign
+        return None
+
+    @pyaedt_function_handler()
+    def _update_var(self):
+        if self._app:
+            return self._app.variable_manager.set_variable(
+                self._variable_name,
+                self._expression,
+                readonly=self._readonly,
+                postprocessing=self._postprocessing,
+                circuit_parameter=self._circuit_parameter,
+                description=self._description,
+                hidden=self._hidden,
+            )
+        return False
+
+    @property
+    def name(self):
+        """Variable name."""
+        return self._variable_name
+
+    @name.setter
+    def name(self, value):
+        fallback_val = self._variable_name
+        self._variable_name = value
+        if not self._update_var():
+            self._variable_name = fallback_val
+            if self._app:
+                self._app.logger.error('"Failed to update property "name".')
+
+    @property
+    def read_only(self):
+        """Read-only flag value."""
+        if self._app:
+            try:
+                if not is_ironpython:
+                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_ReadOnly
+                else:  # pragma: no cover
+                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_ReadOnly()
+
+            except:
+                return self._readonly
+        return self._readonly
+
+    @read_only.setter
+    def read_only(self, value):
+        fallback_val = self._readonly
+        self._readonly = value
+        if not self._update_var():
+            self._readonly = fallback_val
+            if self._app:
+                self._app.logger.error('Failed to update property "read_only".')
+
+    @property
+    def hidden(self):
+        """Hidden flag value."""
+        if self._app:
+            try:
+                if not is_ironpython:
+                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Hidden
+                else:  # pragma: no cover
+                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Hidden()
+            except:
+                return self._hidden
+        return self._hidden
+
+    @hidden.setter
+    def hidden(self, value):
+        fallback_val = self._hidden
+        self._hidden = value
+        if not self._update_var():
+            self._hidden = fallback_val
+            if self._app:
+                self._app.logger.error('Failed to update property "hidden".')
+
+    @property
+    def description(self):
+        """Description value."""
+        if self._app:
+            try:
+                if not is_ironpython:
+                    return (
+                        self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Description
+                    )
+                else:  # pragma: no cover
+                    return (
+                        self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Description()
+                    )
+            except:
+                return self._description
+        return self._description
+
+    @description.setter
+    def description(self, value):
+        fallback_val = self._description
+        self._description = value
+        if not self._update_var():
+            self._description = fallback_val
+            if self._app:
+                self._app.logger.error('Failed to update property "description".')
+
+    @property
+    def post_processing(self):
+        """Postprocessing flag value."""
+        if self._app:
+            return True if self._variable_name in self._app.variable_manager.post_processing_variables else False
+
+    @property
+    def circuit_parameter(self):
+        """Circuit parameter flag value."""
+        if "$" in self._variable_name:
+            return False
+        if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
+            prop_server = "Instance:{}".format(self._aedt_obj.GetName())
+            return (
+                True
+                if self._variable_name in self._aedt_obj.GetProperties("DefinitionParameterTab", prop_server)
+                else False
+            )
+        return False
+
+    @property
+    def expression(self):
+        """Expression."""
+        if self._aedt_obj:
+            return self._aedt_obj.GetVariableValue(self._variable_name)
+        return
+
+    @expression.setter
+    def expression(self, value):
+        fallback_val = self._expression
+        self._expression = value
+        if not self._update_var():
+            self._expression = fallback_val
+            if self._app:
+                self._app.logger.error("Failed to update property Expression.")
+
+    @property
+    def numeric_value(self):
+        """Numeric part of the expression as a float value."""
+        try:
+            if re.search(r"^[\w+]+\[\w+].*", str(self._value)):
+                var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
+                val, _ = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
+                return val
+        except TypeError:
+            pass
+        if is_array(self._value):
+            return list(eval(self._value))
+        if is_number(self._value):
+            try:
+                scale = AEDT_UNITS[self.unit_system][self._units]
+            except KeyError:
+                scale = 1
+            if isinstance(scale, tuple):
+                return scale[0](self._value, True)
+            else:
+                return self._value / scale
+        else:
+            return self._value
 
     @property
     def unit_system(self):
@@ -1106,23 +1287,6 @@ class Variable(object):
     def value(self):
         """Value."""
         return self._value
-
-    @property
-    def numeric_value(self):
-        """Numeric part of the expression as a float value."""
-        if is_array(self._value):
-            return list(eval(self._value))
-        if is_number(self._value):
-            try:
-                scale = AEDT_UNITS[self.unit_system][self._units]
-            except KeyError:
-                scale = 1
-            if isinstance(scale, tuple):
-                return scale[0](self._value, True)
-            else:
-                return self._value / scale
-        else:
-            return self._value
 
     @property
     def string_value(self):
@@ -1417,47 +1581,6 @@ class Variable(object):
     # @pyaedt_function_handler()
     # def __div__(self, other):
     #     return self.__rtruediv__(other)
-
-
-class Expression(Variable, object):
-    """Provides a framework for manipulating variable expressions.
-
-    Parameters
-    ----------
-    expression :
-
-    float_value :
-
-    """
-
-    def __init__(self, expression, float_value, full_variables={}, name=None, app=None):
-        self._expression = expression
-        self._value = float_value
-        self._variable_name = name
-        self._app = app
-        try:
-            value, units = decompose_variable_value(expression, full_variables)
-            self._units = units
-        except:
-            self._units = ""
-
-    @property
-    def expression(self):
-        """Expression."""
-        return str(self._expression)
-
-    @property
-    def numeric_value(self):
-        """Numeric part of the expression as a float value."""
-        try:
-            if re.search(r"^[\w+]+\[\w+].*", self._value):
-                var_obj = self._app._odesign.GetChildObject("Variables").GetChildObject(self._variable_name)
-                val, _ = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
-                return val
-            else:
-                return Variable.numeric_value.fget(self)
-        except TypeError:
-            return Variable.numeric_value.fget(self)
 
 
 class DataSet(object):
