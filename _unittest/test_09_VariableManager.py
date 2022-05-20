@@ -47,7 +47,7 @@ class TestClass(BasisTest, object):
         var_1 = self.aedtapp["Var1"]
         var_2 = var["Var1"].string_value
         assert var_1 == var_2
-        assert var["Var1"].numeric_value == 1.0
+        assert isclose(var["Var1"].numeric_value, 1.0)
         pass
 
     def test_02_test_formula(self):
@@ -79,8 +79,21 @@ class TestClass(BasisTest, object):
 
         eval_p3_nom = v._app.get_evaluated_value("p3")
         eval_p3_var = v._app.get_evaluated_value("p3", variation="p1=100mm p2=20mm")
-        assert eval_p3_nom == 0.0002
-        assert eval_p3_var == 0.002
+        assert isclose(eval_p3_nom, 0.0002)
+        assert isclose(eval_p3_var, 0.002)
+        v_app = self.aedtapp.variable_manager
+        assert v_app["p1"].read_only == False
+        v_app["p1"].read_only = True
+        assert v_app["p1"].read_only == True
+        assert v_app["p1"].hidden == False
+        v_app["p1"].hidden = True
+        assert v_app["p1"].hidden == True
+        assert v_app["p2"].description == ""
+        v_app["p2"].description = "myvar"
+        assert v_app["p2"].description == "myvar"
+        assert v_app["p2"].expression == "20mm"
+        v_app["p2"].expression = "5rad"
+        assert v_app["p2"].expression == "5rad"
 
     def test_04_set_variable(self):
 
@@ -369,3 +382,7 @@ class TestClass(BasisTest, object):
         var_circuit = v_circuit.variable_names
         assert "var2" in var_circuit
         assert v_circuit.independent_variables["var2"].units == "mm"
+        mc["var3"] = "10deg"
+        mc["var4"] = "10rad"
+        assert mc["var3"] == "10.0deg"
+        assert mc["var4"] == "10.0rad"

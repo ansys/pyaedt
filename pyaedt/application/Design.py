@@ -308,6 +308,9 @@ class Design(object):
     student_version : bool, optional
         Whether to enable the student version of AEDT. The default
         is ``False``.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     """
 
@@ -366,6 +369,7 @@ class Design(object):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         self._init_variables()
         # Get Desktop from global Desktop Environment
@@ -378,7 +382,14 @@ class Design(object):
 
         if "pyaedt_initialized" not in dir(main_module):
             desktop = Desktop(
-                specified_version, non_graphical, new_desktop_session, close_on_exit, student_version, machine, port
+                specified_version,
+                non_graphical,
+                new_desktop_session,
+                close_on_exit,
+                student_version,
+                machine,
+                port,
+                aedt_process_id,
             )
             self._logger = desktop.logger
             self.release_on_exit = True
@@ -1646,16 +1657,21 @@ class Design(object):
         -------
 
         """
+        if variable_name not in self.variable_manager.variables:
+            self.logger.error("Variable {} does not exists.".format(variable_name))
+            return False
         if variable_name.startswith("$"):
             tab = "NAME:ProjectVariableTab"
             propserver = "ProjectVariables"
         else:
             tab = "NAME:LocalVariableTab"
-            if self.design_type in ["HFSS 3D Layout Design", "Circuit Design"]:
+            propserver = "LocalVariables"
+            if self.design_type == "HFSS 3D Layout Design":
                 if variable_name in self.odesign.GetProperties("DefinitionParameterTab", "LocalVariables"):
                     tab = "NAME:DefinitionParameterTab"
-
-            propserver = "LocalVariables"
+            elif self.design_type == "Circuit Design":
+                tab = "NAME:DefinitionParameterTab"
+                propserver = "Instance:{}".format(self._odesign.GetName())
         arg2 = ["NAME:" + optimetrics_type, "Included:=", enable]
         if min_val:
             arg2.append("Min:=")
@@ -1915,6 +1931,72 @@ class Design(object):
             self.oproject.ChangeProperty(arg)
         else:
             self.odesign.ChangeProperty(arg)
+        return True
+
+    @pyaedt_function_handler
+    def hidden_variable(self, variable_name, value=True):
+        """Set the variable to a hidden or unhidden variable.
+
+        Parameters
+        ----------
+        variable_name : str
+            Name of the variable.
+        value : bool, optional
+            Whether to hide the variable. The default is ``True``, in which case the variable
+            is hidden. When ``False,`` the variable is unhidden.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["my_hidden_leaf"] = "15mm"
+        >>> hfss.make_hidden_variable("my_hidden_leaf")
+
+        """
+        self.variable_manager[variable_name].hidden = value
+        return True
+
+    @pyaedt_function_handler
+    def read_only_variable(self, variable_name, value=True):
+        """Set the variable to a read-only or not read-only variable.
+
+        Parameters
+        ----------
+        variable_name : str
+            Name of the variable.
+        value : bool, optional
+            Whether the variable is read-only. The default is ``True``, in which case
+            the variable is read-only. When ``False``, the variable is not read-only.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> hfss["my_read_only_variable"] = "15mm"
+        >>> hfss.make_read_only_variable("my_read_only_variable")
+
+        """
+        self.variable_manager[variable_name].read_only = value
         return True
 
     @pyaedt_function_handler()
@@ -3333,13 +3415,19 @@ class Design(object):
         >>> M3D["p3"] = "P1 * p2"
         >>> eval_p3 = M3D.get_evaluated_value("p3")
         """
-        if self.design_type == "Maxwell Circuit":
+        if self.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
             if "$" in variable_name:
                 val_units = self._oproject.GetVariableValue(variable_name)
             else:
                 val_units = self._odesign.GetVariableValue(variable_name)
             val, units = decompose_variable_value(val_units)
             try:
+                if units:
+                    scale = AEDT_UNITS[unit_system(units)][units]
+                    if isinstance(scale, tuple):
+                        return scale[0](val, True)
+                    else:
+                        return val * scale
                 return float(val)
             except ValueError:
                 return val_units

@@ -36,6 +36,7 @@ class FieldAnalysisCircuit(Analysis):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         Analysis.__init__(
             self,
@@ -51,6 +52,7 @@ class FieldAnalysisCircuit(Analysis):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
 
         self._modeler = ModelerNexxim(self)

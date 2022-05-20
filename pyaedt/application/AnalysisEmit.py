@@ -37,6 +37,7 @@ class FieldAnalysisEmit(Design):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         Design.__init__(
             self,
@@ -51,6 +52,7 @@ class FieldAnalysisEmit(Design):
             student_version,
             machine=machine,
             port=machine,
+            aedt_process_id=aedt_process_id,
         )
         self.solution_type = solution_type
         self.oanalysis = None

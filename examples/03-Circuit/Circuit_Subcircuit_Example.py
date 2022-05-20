@@ -1,5 +1,5 @@
 """
-Circuit: Schematic Creation and Analysis
+Circuit: Schematic Subcircuit Management
 ----------------------------------------
 This example shows how you can use PyAEDT to add a subcircuit to a Circuit design.
  Push down into the child subcircuit and pop up to the parent design.
@@ -19,7 +19,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # This examples launches AEDT 2022R1 in graphical mode.
 
 from pyaedt import Circuit
-circuit = Circuit(specified_version="2022.1", non_graphical=non_graphical)
+circuit = Circuit(specified_version="2022.1", non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Add new subcircuit
@@ -40,9 +40,9 @@ circuit.push_down(subcircuit)
 # They are then connected in series.
 # The ``pop_up`` method provides for getting back to the parent design.
 
-circuit.variable_manager.set_variable("R_val", "35ohm", circuit_parameter=True)
-circuit.variable_manager.set_variable("L_val", "1e-7H", circuit_parameter=True)
-circuit.variable_manager.set_variable("C_val", "5e-10F", circuit_parameter=True)
+circuit.variable_manager.set_variable("R_val", "35ohm")
+circuit.variable_manager.set_variable("L_val", "1e-7H")
+circuit.variable_manager.set_variable("C_val", "5e-10F")
 p1 = circuit.modeler.schematic.create_interface_port("In")
 r1 = circuit.modeler.schematic.create_resistor(value="R_val")
 l1 = circuit.modeler.schematic.create_inductor(value="L_val")

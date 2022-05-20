@@ -45,6 +45,10 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         Port number of which start the oDesktop communication on already existing server.
         This parameter is ignored in new server creation. It works only on 2022R2.
         Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
+
     Examples
     --------
     Create an instance of Maxwell Circuit and connect to an existing
@@ -83,6 +87,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         """Constructor."""
         AnalysisMaxwellCircuit.__init__(
@@ -97,6 +102,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
 
     @pyaedt_function_handler()

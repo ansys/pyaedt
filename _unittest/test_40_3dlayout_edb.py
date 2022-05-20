@@ -191,3 +191,9 @@ class TestClass(BasisTest, object):
         comp.angle = "10deg"
         assert comp.angle == "10deg"
         assert comp.component_name == "my_connector"
+
+    def test_10_change_stackup(self):
+        assert self.aedtapp.modeler.layers.change_stackup_type("Multizone", 4)
+        assert self.aedtapp.modeler.layers.change_stackup_type("Overlap")
+        assert self.aedtapp.modeler.layers.change_stackup_type("Laminate")
+        assert not self.aedtapp.modeler.layers.change_stackup_type("lami")

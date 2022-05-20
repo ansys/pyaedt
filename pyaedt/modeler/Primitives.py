@@ -19,6 +19,7 @@ from pyaedt.modeler.Object3d import _uname
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import Object3d
+from pyaedt.modules.MaterialLib import Material
 from pyaedt.modeler.object3dlayout import Point
 
 default_materials = {
@@ -3199,6 +3200,11 @@ class Primitives(object):
             String if a material name, Boolean if the material is a dielectric.
 
         """
+        if isinstance(matname, Material):
+            if self._app._design_type == "HFSS":
+                return matname.name, matname.is_dielectric()
+            else:
+                return matname.name, True
         if matname:
             if self._app.materials[matname]:
                 if self._app._design_type == "HFSS":
@@ -3450,15 +3456,14 @@ class Primitives(object):
         return arg_str
 
     @pyaedt_function_handler()
-    def _arg_with_dim(self, prop_value, units=None):
-        if isinstance(prop_value, str):
-            val = prop_value
+    def _arg_with_dim(self, value, units=None):
+        if isinstance(value, str):
+            val = value
         else:
             if units is None:
                 units = self.model_units
+            val = "{0}{1}".format(value, units)
 
-                assert is_number(prop_value), "Argument {} must be a numeric value".format(prop_value)
-            val = "{0}{1}".format(prop_value, units)
         return val
 
     @pyaedt_function_handler()

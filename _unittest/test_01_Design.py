@@ -273,3 +273,11 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.get_oo_object(self.aedtapp.oproject, "Variables1")
         assert self.aedtapp.get_oo_properties(self.aedtapp.oproject, "Variables\\$height")
         assert self.aedtapp.get_oo_property_value(self.aedtapp.oproject, "Variables\\$height", "Value") == "10mm"
+
+    def test_31_make_hidden_variable(self):
+        self.aedtapp["my_hidden_variable"] = "15mm"
+        assert self.aedtapp.hidden_variable("my_hidden_variable")
+
+    def test_32_make_read_only_variable(self):
+        self.aedtapp["my_read_only_variable"] = "15mm"
+        assert self.aedtapp.read_only_variable("my_read_only_variable")

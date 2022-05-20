@@ -72,6 +72,9 @@ class Hfss(FieldAnalysis3D, object):
         Port number of which start the oDesktop communication on already existing server.
         This parameter is ignored in new server creation. It works only on 2022R2.
         Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     Examples
     --------
@@ -150,6 +153,7 @@ class Hfss(FieldAnalysis3D, object):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         FieldAnalysis3D.__init__(
             self,
@@ -165,6 +169,7 @@ class Hfss(FieldAnalysis3D, object):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
         self.field_setups = self._get_rad_fields()
 
@@ -310,20 +315,35 @@ class Hfss(FieldAnalysis3D, object):
             props["Faces"] = [objectname]
         props["DoDeembed"] = deemb
         props["RenormalizeAllTerminals"] = renorm
-        props["Modes"] = OrderedDict(
-            {
-                "Mode1": OrderedDict(
-                    {
-                        "ModeNum": 1,
-                        "UseIntLine": True,
-                        "IntLine": OrderedDict({"Start": start, "End": stop}),
-                        "AlignmentGroup": 0,
-                        "CharImp": "Zpi",
-                        "RenormImp": str(impedance) + "ohm",
-                    }
-                )
-            }
-        )
+        if renorm:
+            props["Modes"] = OrderedDict(
+                {
+                    "Mode1": OrderedDict(
+                        {
+                            "ModeNum": 1,
+                            "UseIntLine": True,
+                            "IntLine": OrderedDict({"Start": start, "End": stop}),
+                            "AlignmentGroup": 0,
+                            "CharImp": "Zpi",
+                            "RenormImp": str(impedance) + "ohm",
+                        }
+                    )
+                }
+            )
+        else:
+            props["Modes"] = OrderedDict(
+                {
+                    "Mode1": OrderedDict(
+                        {
+                            "ModeNum": 1,
+                            "UseIntLine": True,
+                            "IntLine": OrderedDict({"Start": start, "End": stop}),
+                            "AlignmentGroup": 0,
+                            "CharImp": "Zpi",
+                        }
+                    )
+                }
+            )
         props["ShowReporterFilter"] = False
         props["ReporterFilter"] = [True]
         props["Impedance"] = str(impedance) + "ohm"
@@ -361,6 +381,23 @@ class Hfss(FieldAnalysis3D, object):
                         self.odesign.ChangeProperty(properties)
                     except:  # pragma: no cover
                         self.logger.warning("Failed to change terminal impedance.")
+                if not renorm:
+                    properties = [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:HfssTab",
+                            ["NAME:PropServers", "BoundarySetup:" + boundary.name],
+                            [
+                                "NAME:ChangedProps",
+                                ["NAME:Renorm All Terminals", "Value:=", False],
+                            ],
+                        ],
+                    ]
+                    try:
+                        self.odesign.ChangeProperty(properties)
+                    except:  # pragma: no cover
+                        self.logger.warning("Failed to change normalization.")
+
                 new_name = portname + "_T" + str(count)
                 properties = [
                     "NAME:AllTabs",
@@ -473,7 +510,8 @@ class Hfss(FieldAnalysis3D, object):
                     mode["IntLine"] = OrderedDict({"Start": start, "End": stop})
                 mode["AlignmentGroup"] = 0
                 mode["CharImp"] = "Zpi"
-                mode["RenormImp"] = str(impedance) + "ohm"
+                if renorm:
+                    mode["RenormImp"] = str(impedance) + "ohm"
                 modes["Mode1"] = mode
             else:
                 mode = OrderedDict({})
@@ -482,7 +520,8 @@ class Hfss(FieldAnalysis3D, object):
                 mode["UseIntLine"] = False
                 mode["AlignmentGroup"] = 0
                 mode["CharImp"] = "Zpi"
-                mode["RenormImp"] = str(impedance) + "ohm"
+                if renorm:
+                    mode["RenormImp"] = str(impedance) + "ohm"
                 modes["Mode" + str(i)] = mode
             report_filter.append(True)
             i += 1
