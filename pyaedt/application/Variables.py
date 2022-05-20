@@ -1148,9 +1148,9 @@ class Variable(object):
         if self._app:
             try:
                 if not is_ironpython:
-                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Readonly
+                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_ReadOnly
                 else:  # pragma: no cover
-                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Readonly
+                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).ReadOnly
 
             except:
                 return self._readonly
