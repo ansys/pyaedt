@@ -1150,7 +1150,7 @@ class Variable(object):
                 if not is_ironpython:
                     return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_ReadOnly
                 else:  # pragma: no cover
-                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).ReadOnly
+                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_ReadOnly()
 
             except:
                 return self._readonly
@@ -1173,7 +1173,7 @@ class Variable(object):
                 if not is_ironpython:
                     return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Hidden
                 else:  # pragma: no cover
-                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Hidden
+                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Hidden()
             except:
                 return self._hidden
         return self._hidden
@@ -1197,7 +1197,9 @@ class Variable(object):
                         self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Description
                     )
                 else:  # pragma: no cover
-                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Description
+                    return (
+                        self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Description()
+                    )
             except:
                 return self._description
         return self._description
