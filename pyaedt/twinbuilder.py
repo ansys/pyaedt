@@ -54,6 +54,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         Port number of which start the oDesktop communication on already existing server.
         This parameter is ignored in new server creation. It works only on 2022R2.
         Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     Examples
     --------
@@ -94,6 +97,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         """Constructor."""
         AnalysisTwinBuilder.__init__(
@@ -110,6 +114,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
 
     @pyaedt_function_handler()

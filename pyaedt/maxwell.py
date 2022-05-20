@@ -1283,6 +1283,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Port number of which start the oDesktop communication on already existing server.
         This parameter is ignored in new server creation. It works only on 2022R2.
         Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     Examples
     --------
@@ -1319,6 +1322,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         """
         Initialize the ``Maxwell`` class.
@@ -1338,6 +1342,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
         Maxwell.__init__(self)
 
@@ -1391,6 +1396,9 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         Port number of which start the oDesktop communication on already existing server.
         This parameter is ignored in new server creation. It works only on 2022R2.
         Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     Examples
     --------
@@ -1442,6 +1450,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         self.is3d = False
         FieldAnalysis3D.__init__(
@@ -1458,6 +1467,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
         Maxwell.__init__(self)
 

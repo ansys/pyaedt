@@ -54,6 +54,7 @@ class AnalysisTwinBuilder(Analysis):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
 
         Analysis.__init__(
@@ -70,6 +71,7 @@ class AnalysisTwinBuilder(Analysis):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
         self.solution_type = solution_type
         self._modeler = ModelerTwinBuilder(self)

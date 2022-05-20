@@ -69,6 +69,9 @@ class Analysis(Design, object):
         Whether to release  AEDT on exit.
     student_version : bool
         Whether to enable the student version of AEDT.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     """
 
@@ -86,6 +89,7 @@ class Analysis(Design, object):
         student_version,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         self.setups = []
         Design.__init__(
@@ -101,6 +105,7 @@ class Analysis(Design, object):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
         self.logger.info("Design Loaded")
         self._setup = None

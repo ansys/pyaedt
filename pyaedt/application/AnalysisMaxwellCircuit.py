@@ -35,6 +35,9 @@ class AnalysisMaxwellCircuit(Analysis):
         Whether to release AEDT on exit. The default is ``True``.
     student_version : bool, optional
         Whether open AEDT Student Version. The default is ``False``.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     """
 
@@ -50,6 +53,7 @@ class AnalysisMaxwellCircuit(Analysis):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
 
         Analysis.__init__(
@@ -66,6 +70,7 @@ class AnalysisMaxwellCircuit(Analysis):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
         self.solution_type = None
         self._modeler = ModelerMaxwellCircuit(self)

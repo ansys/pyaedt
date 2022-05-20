@@ -61,6 +61,9 @@ class FieldAnalysis3D(Analysis, object):
     student_version : bool, optional
         Whether to enable the student version of AEDT. The default
         is ``False``.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
     """
 
     def __init__(
@@ -77,6 +80,7 @@ class FieldAnalysis3D(Analysis, object):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         Analysis.__init__(
             self,
@@ -92,6 +96,7 @@ class FieldAnalysis3D(Analysis, object):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
         self._osolution = self._odesign.GetModule("Solutions")
         self._oboundary = self._odesign.GetModule("BoundarySetup")

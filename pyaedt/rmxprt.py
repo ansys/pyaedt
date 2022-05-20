@@ -165,6 +165,9 @@ class Rmxprt(FieldAnalysisRMxprt):
         Port number of which start the oDesktop communication on already existing server.
         This parameter is ignored in new server creation. It works only on 2022R2.
         Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     Examples
     --------
@@ -205,6 +208,7 @@ class Rmxprt(FieldAnalysisRMxprt):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         FieldAnalysisRMxprt.__init__(
             self,
@@ -220,6 +224,7 @@ class Rmxprt(FieldAnalysisRMxprt):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
         if not model_units or model_units == "mm":
             model_units = "mm"

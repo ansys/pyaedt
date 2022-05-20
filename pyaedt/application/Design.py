@@ -308,6 +308,9 @@ class Design(object):
     student_version : bool, optional
         Whether to enable the student version of AEDT. The default
         is ``False``.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     """
 
@@ -366,6 +369,7 @@ class Design(object):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         self._init_variables()
         # Get Desktop from global Desktop Environment
@@ -378,7 +382,14 @@ class Design(object):
 
         if "pyaedt_initialized" not in dir(main_module):
             desktop = Desktop(
-                specified_version, non_graphical, new_desktop_session, close_on_exit, student_version, machine, port
+                specified_version,
+                non_graphical,
+                new_desktop_session,
+                close_on_exit,
+                student_version,
+                machine,
+                port,
+                aedt_process_id,
             )
             self._logger = desktop.logger
             self.release_on_exit = True
