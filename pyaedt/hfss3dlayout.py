@@ -150,7 +150,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         iscircuit : bool, optional
             Whether the edge port is a circuit port. The default is ``False``.
         iswave : bool, optional
-            Whether the edge port is a circuit port. The default is ``False``.
+            Whether the edge port is a wave port. The default is ``False``.
         wave_horizontal_extension : float, optional
             Horizontal port extension factor. Default is `5`.
         wave_vertical_extension : float, optional
@@ -196,12 +196,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     property_value=str(wave_horizontal_extension),
                     property_tab="EM Design",
                 )
-                self.modeler.change_property(
-                    property_object="Excitations:{}".format(a[0]),
-                    property_name="Vertical Extent Factor",
-                    property_value=str(wave_vertical_extension),
-                    property_tab="EM Design",
-                )
+                if "Vertical Extent Factor" in list(
+                    self.modeler.oeditor.GetProperties("EM Design", "Excitations:{}".format(a[0]))
+                ):
+                    self.modeler.change_property(
+                        property_object="Excitations:{}".format(a[0]),
+                        property_name="Vertical Extent Factor",
+                        property_value=str(wave_vertical_extension),
+                        property_tab="EM Design",
+                    )
                 self.modeler.change_property(
                     property_object="Excitations:{}".format(a[0]),
                     property_name="PEC Launch Width",
