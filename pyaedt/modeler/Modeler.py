@@ -1319,7 +1319,7 @@ class GeometryModeler(Modeler, object):
             key3 = "GeometryEntityListOperation"
             try:
                 entity_list = self._app.design_properties["ModelSetup"]["GeometryCore"][key1][key2]
-                if len(entity_list) > 0:
+                if entity_list:
                     geom_entry = copy.deepcopy(entity_list[key3])
                     if isinstance(geom_entry, (dict, OrderedDict)):
                         geom_entry = [geom_entry]
