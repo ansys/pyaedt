@@ -71,7 +71,7 @@ class NamedVariable(object):
     @expression.setter
     def expression(self, expression):
         """Set the expression of the variable.
-        
+
         Parameters
         ----------
         expression: str
@@ -140,7 +140,7 @@ class NamedVariable(object):
 
 
 class Layer3D(object):
-    """Layer3D Class member of Stackup3D."""
+    """Provides a class for a management of a parametric layer in 3D Modeler."""
 
     def __init__(
         self,
@@ -585,7 +585,7 @@ class Layer3D(object):
 
 
 class PadstackLayer(object):
-    """PadstackLayer Class member of Padstack."""
+    """Provides a Data class for the definition of a padstack layer and relative pad and antipad values."""
 
     def __init__(self, padstack, layer_name, elevation):
         self._padstack = padstack
@@ -680,7 +680,7 @@ class Padstack(object):
         Returns
         -------
         bool
-             "True`` when succesful, ``False`` when failed.
+             "True`` when successful, ``False`` when failed.
         """
         for v in list(self._padstacks_by_layer.values()):
             v._antipad_radius = value
@@ -698,7 +698,7 @@ class Padstack(object):
         Returns
         -------
         bool
-             "True`` when succesful, ``False`` when failed.
+             "True`` when successful, ``False`` when failed.
 
         """
         found = False
@@ -725,7 +725,7 @@ class Padstack(object):
         Returns
         -------
         bool
-             "True`` when succesful, ``False`` when failed.
+             "True`` when successful, ``False`` when failed.
 
         """
         found = False
@@ -745,7 +745,7 @@ class Padstack(object):
         ----------
         position_x : float, optional
             Center x position. The default is ``0``.
-        position_y : float, optinal
+        position_y : float, optional
             Center y position. The default is ``0``.
         instance_name : str, optional
             Via name. The default is ``None``.
@@ -933,7 +933,7 @@ class Stackup3D(object):
 
     @property
     def dielectric_x_position(self):
-        """Stackup Starting origin x variable.
+        """Stackup x origin.
 
         Returns
         -------
@@ -948,7 +948,7 @@ class Stackup3D(object):
 
     @property
     def dielectric_y_position(self):
-        """Stackup Starting origin y variable.
+        """Stackup y origin.
 
         Returns
         -------
@@ -1122,12 +1122,12 @@ class Stackup3D(object):
         ----------
         name : str
             Layer name.
-        material : str
-            Material name. Material will be parametrized.
-        thickness : float
-            Thickness value. Thickness will be parametrized.
-        fill_material : str
-            Fill material name. Material will be parametrized.
+        material : str, optional
+            Material name. Material will be parametrized. Default value is `"copper"`.
+        thickness : float, optional
+            Thickness value. Thickness will be parametrized. Default value is `0.035`.
+        fill_material : str, optional
+            Fill material name. Material will be parametrized. Default value is `"FR4_epoxy"`.
 
         Returns
         -------
