@@ -508,7 +508,7 @@ class Layer3D(object):
         if dielectric_layer is None:
             self._app.logger.error("There is no layer under this layer.")
 
-        created_line = Line(
+        created_line = Trace(
             self._app,
             frequency,
             line_width if is_impedance else None,
@@ -1722,8 +1722,8 @@ class Patch(CommonObject, object):
         return self._impedance_l_w, self._impedance_w_l
 
 
-class Line(CommonObject, object):
-    """Line Class in Stackup3D."""
+class Trace(CommonObject, object):
+    """Provides a class to create a trace in stackup."""
 
     def __init__(
         self,
