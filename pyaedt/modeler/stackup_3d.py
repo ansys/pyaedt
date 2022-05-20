@@ -391,7 +391,7 @@ class Layer3D(object):
             return None
 
     @pyaedt_function_handler()
-    def patch(
+    def add_patch(
         self,
         frequency,
         patch_width,
@@ -453,7 +453,7 @@ class Layer3D(object):
         return created_patch
 
     @pyaedt_function_handler()
-    def line(
+    def add_trace(
         self,
         line_width,
         line_length,
@@ -529,7 +529,7 @@ class Layer3D(object):
         return created_line
 
     @pyaedt_function_handler()
-    def polygon(self, points, material="copper", is_void=False, poly_name=None):
+    def add_polygon(self, points, material="copper", is_void=False, poly_name=None):
         """Create a polygon.
 
         Parameters
@@ -738,7 +738,7 @@ class Padstack(object):
         self._padstacks_by_layer = new_stackup
 
     @pyaedt_function_handler()
-    def insert(self, position_x=0, position_y=0, instance_name=None, reference_system=None):
+    def add_via(self, position_x=0, position_y=0, instance_name=None, reference_system=None):
         """Insert a new via on this padstack.
 
         Parameters

@@ -35,9 +35,9 @@ class TestClass(BasisTest, object):
 
     def test_02_line(self):
         top = self.st.stackup_layers["top"]
-        line1 = top.line(line_length=50, line_width=3, line_position_x=20, line_position_y=20, frequency=1e9)
+        line1 = top.add_trace(line_length=50, line_width=3, line_position_x=20, line_position_y=20, frequency=1e9)
         assert line1
-        line2 = top.line(
+        line2 = top.add_trace(
             line_length=90,
             is_electrical_length=True,
             line_width=50,
@@ -65,14 +65,14 @@ class TestClass(BasisTest, object):
         p1.set_all_antipad_value(3)
         p1.num_sides = 8
         assert p1.num_sides == 8
-        via = p1.insert(50, 50)
+        via = p1.add_via(50, 50)
         assert via
         assert len(self.st.padstacks) == 1
 
     def test_04_patch(self):
         top = self.st.stackup_layers["top"]
         line1 = self.st.objects_by_layer["top"][0]
-        top.patch(
+        top.add_patch(
             1e9,
             patch_width=22,
             patch_length=10,
@@ -84,13 +84,13 @@ class TestClass(BasisTest, object):
         lay1 = self.st.stackup_layers["top"]
         gnd = self.st.stackup_layers["gnd2"]
 
-        poly = lay1.polygon([[5, 5], [5, 10], [10, 10], [10, 5], [5, 5]])
-        poly2 = lay1.polygon([[6, 6], [6, 7], [7, 7], [7, 6]], is_void=True)
+        poly = lay1.add_polygon([[5, 5], [5, 10], [10, 10], [10, 5], [5, 5]])
+        poly2 = lay1.add_polygon([[6, 6], [6, 7], [7, 7], [7, 6]], is_void=True)
         assert poly
         assert poly2
-        poly3 = gnd.polygon([[5, 5], [5, 10], [10, 10], [10, 5], [5, 5]])
+        poly3 = gnd.add_polygon([[5, 5], [5, 10], [10, 10], [10, 5], [5, 5]])
 
-        poly4 = gnd.polygon([[6, 6], [6, 7], [7, 7], [7, 6]], is_void=True)
+        poly4 = gnd.add_polygon([[6, 6], [6, 7], [7, 7], [7, 6]], is_void=True)
         assert poly3
         assert poly4
 
