@@ -2943,3 +2943,5 @@ def test_report_file_parser():
             },
         }
     }
+    data1 = parse_rdat_file(os.path.join(local_path, "example_models", "test_report_smith.rdat"))
+    assert len(data1["S Parameter Chart 1"]["S(1,1)"]["curves"]) == 8
