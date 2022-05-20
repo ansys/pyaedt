@@ -61,6 +61,11 @@ jobs:
           pip install wheel setuptools -U
           pip wheel . -w wheelhouse
 
+      - name: Copy Pythonnet
+        if: matrix.python-version == 3.9
+        run: |    
+            Copy-Item -Path "pythonnet-2.5.2-cp39-cp39-win_amd64.whl" -Destination "wheelhouse" -Force
+
       - name: Zip wheelhouse
         uses: vimtor/action-zip@v1
         with:

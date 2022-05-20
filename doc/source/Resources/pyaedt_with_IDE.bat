@@ -1,5 +1,49 @@
 @echo off
-set arg1=%1
+setlocal enabledelayedexpansion
+set argCount=0
+for %%x in (%*) do (
+   set /a argCount+=1
+   set "argVec[!argCount!]=%%~x"
+)
+
+set args=%1 %2 %3 %4 %5 %6
+set update_pyaedt=n
+set install_pyaedt=n
+for /L %%i in (1,1,%argCount%) do (
+	if [!argVec[%%i]!]==[-f] set install_pyaedt=y
+	if [!argVec[%%i]!]==[--force-install] set install_pyaedt=y
+	if [!argVec[%%i]!]==[-u] set update_pyaedt=y
+	if [!argVec[%%i]!]==[--update] set update_pyaedt=y
+	if [!argVec[%%i]!]==[-p] (
+		set /A usepython=%%i+1
+	)
+	if [!argVec[%%i]!]==[-w] (
+		set /A usewheel=%%i+1
+	)
+)
+if NOT [%usepython%]==[] (
+	set pythonpyaedt="!argVec[%usepython%]!"
+	echo Python Path has been specified.
+)
+if NOT [%usewheel%]==[] (
+	set wheelpyaedt="!argVec[%usewheel%]!"
+	if [%usepython%]==[] (
+	    echo ----------------------------------------------------------------------
+	    echo WheelHouse has been spefified. Make sure you are using version 3_7
+	 	echo ----------------------------------------------------------------------
+
+	) ELSE (
+	echo ----------------------------------------------------------------------------------------------
+	echo WheelHouse has been spefified. Make sure you are using the same version of Python interpreter.
+	echo ----------------------------------------------------------------------------------------------
+
+	)
+)
+
+if NOT exist "%APPDATA%\pyaedt_env_ide\" (
+    set install_pyaedt=y
+)
+
 set env_vars=ANSYSEM_ROOT222 ANSYSEM_ROOT221 ANSYSEM_ROOT212 ANSYSEM_ROOT211
 setlocal enableextensions enabledelayedexpansion
 set latest_env_var_present=
@@ -27,13 +71,22 @@ set /p run=Python or Jupyter?(0=InstallOnly, 1=Jupyter, 2=Console, 3=Spyder)
 if [%run%] == [] set run=0
 setlocal enableDelayedExpansion
 
-if not exist "%APPDATA%\pyaedt_env_ide\" (
-    echo Installing Pyaedt
+if [%install_pyaedt%]==[y] (
+    if exist "%APPDATA%\pyaedt_env_ide\" (
+        echo Removing existing Pyaedt Environment
+        @RD /S /Q "%APPDATA%\pyaedt_env_ide\"
+    )
+    echo Installing Pyaedt Environment in "%APPDATA%\pyaedt_env_ide\"
+
     cd "%APPDATA%"
+    if [%pythonpyaedt%] == [] (
     "%aedt_path%\commonfiles\CPython\3_7\winx64\Release\python\python.exe" -m venv "%APPDATA%\pyaedt_env_ide"
-    if NOT [%arg1%]==[] (
+    ) ELSE (
+        "%pythonpyaedt%\python.exe" -m venv "%APPDATA%\pyaedt_env_ide"
+    )
+    if NOT [%wheelpyaedt%]==[] (
         echo Installing Pyaedt from local wheels %arg1%
-        "%APPDATA%\pyaedt_env_ide\Scripts\pip" install --no-cache-dir --no-index --find-links=%arg1% pyaedt
+        "%APPDATA%\pyaedt_env_ide\Scripts\pip" install --no-cache-dir --no-index --find-links=%wheelpyaedt% pyaedt
     ) ELSE (
         echo Installing Pyaedt from pip
         "%APPDATA%\pyaedt_env_ide\Scripts\python.exe" -m pip install --upgrade pip
@@ -45,7 +98,7 @@ if not exist "%APPDATA%\pyaedt_env_ide\" (
     )
     call "%APPDATA%\pyaedt_env_ide\Scripts\python" "%APPDATA%\pyaedt_env_ide\Lib\site-packages\pyaedt\misc\aedtlib_personalib_install.py" %aedt_var%
 )
-if [%arg1%]==[-update] (
+if [%update_pyaedt%]==[y] (
     echo Updating Pyaedt
     "%APPDATA%\pyaedt_env_ide\Scripts\pip" install pyaedt -U
 )
@@ -60,4 +113,3 @@ if %run%==1 (
     )
     )
 )
-

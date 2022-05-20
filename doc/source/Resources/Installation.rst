@@ -60,19 +60,40 @@ This batch file executes these steps:
 6. Updates PyAEDT.
 7. Runs the tool you choose (Spyder, Jupyter Lab, or a simple console).
 
-Steps 1 through 5 are executed only the first time that you run the batch file. Step 6
-is executed only when running the command with the ``-update`` option:
+Steps 1 through 5 are executed only the first time that you run the batch file or when -f is used.
 
 .. code::
 
-    pyaedt_with_IDE.bat -update
+    pyaedt_with_IDE.bat --force-install
+
+    pyaedt_with_IDE.bat -f
+
+Step 6 is executed only when running the command with the ``-update`` option:
+
+.. code::
+
+    pyaedt_with_IDE.bat --update
+
+    pyaedt_with_IDE.bat -u
+
+Optionally the user can decide to pass a python path. It will be used to create the new virtual environment.
+
+.. code::
+
+    pyaedt_with_IDE.bat -f -p <path-to-python-root-folder>
+
 
 In addition, it is possible to install PyAEDT package and all its dependencies provided in the wheelhouse by
-executing the bat file mentioned above. Wheelhous 3.7 package has to be used in this case.
+executing the bat file mentioned above. Wheelhous 3.7 package has to be used in case no python path is provided.
+Otherwise the correct wheelhouse has to be downloaed and used.
 
 .. code::
 
-    pyaedt_with_IDE.bat <path_to_wheelhouse>PyAEDT-v<release_version>-wheelhouse-Windows-3.7
+    pyaedt_with_IDE.bat-w <path_to_wheelhouse>PyAEDT-v<release_version>-wheelhouse-Windows-3.7
+
+    pyaedt_with_IDE.bat -p <path-to-python3.8-root-folder> -w <path_to_wheelhouse>PyAEDT-v<release_version>-wheelhouse-Windows-3.8
+    pyaedt_with_IDE.bat -p <path-to-python3.7-root-folder> -w <path_to_wheelhouse>PyAEDT-v<release_version>-wheelhouse-Windows-3.7
+    pyaedt_with_IDE.bat -p <path-to-python3.9-root-folder> -w <path_to_wheelhouse>PyAEDT-v<release_version>-wheelhouse-Windows-3.9
 
 
 Using IronPython in AEDT
