@@ -86,6 +86,13 @@ solutions_types = {
             "default_setup": 5,
             "default_adaptive": "Transient",
         },
+        "TransientAPhiFormulation": {
+            "name": "TransientAPhiFormulation",
+            "options": None,
+            "report_type": "Transient",
+            "default_setup": 5,
+            "default_adaptive": "Transient",
+        },
         "Electrostatic": {
             "name": "Electrostatic",
             "options": None,
