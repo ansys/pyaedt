@@ -173,7 +173,7 @@ class Layer3D(object):
         if thickness:
             self._thickness = NamedVariable(self._app, self._thickness_variable, str(thickness) + "mm")
         if self._layer_type == "dielectric":
-            obj_3d = self._app.modeler.primitives.create_box(
+            obj_3d = self._app.modeler.create_box(
                 ["dielectric_x_position", "dielectric_y_position", layer_position],
                 ["dielectric_length", "dielectric_width", self._thickness_variable],
                 name=self._name,
@@ -181,7 +181,7 @@ class Layer3D(object):
             )
         elif self._layer_type == "ground":
             if thickness:
-                obj_3d = self._app.modeler.primitives.create_box(
+                obj_3d = self._app.modeler.create_box(
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width", self._thickness_variable],
                     name=self._name,
@@ -189,7 +189,7 @@ class Layer3D(object):
                 )
 
             else:
-                obj_3d = self._app.modeler.primitives.create_rectangle(
+                obj_3d = self._app.modeler.create_rectangle(
                     "Z",
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
@@ -198,14 +198,14 @@ class Layer3D(object):
                 )
         elif self._layer_type == "signal":
             if thickness:
-                obj_3d = self._app.modeler.primitives.create_box(
+                obj_3d = self._app.modeler.create_box(
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width", self._thickness_variable],
                     name=self._name,
                     matname=self._fill_material,
                 )
             else:
-                obj_3d = self._app.modeler.primitives.create_rectangle(
+                obj_3d = self._app.modeler.create_rectangle(
                     "Z",
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
@@ -1468,7 +1468,7 @@ class Patch(CommonObject, object):
 
             self._reference_system = patch_name + "_CS"
         if signal_layer.thickness:
-            self._aedt_object = application.modeler.primitives.create_box(
+            self._aedt_object = application.modeler.create_box(
                 position=start_point,
                 dimensions_list=[
                     "{}_length".format(patch_name),
@@ -1479,7 +1479,7 @@ class Patch(CommonObject, object):
                 matname=signal_layer.material_name,
             )
         else:
-            self._aedt_object = application.modeler.primitives.create_rectangle(
+            self._aedt_object = application.modeler.create_rectangle(
                 position=start_point,
                 dimension_list=[self.length.name, self.width.name],
                 name=patch_name,
@@ -1845,7 +1845,7 @@ class Trace(CommonObject, object):
                 start_point = ["-{0}_width/2".format(self._name), 0, 0]
             self._reference_system = line_name + "_CS"
         if signal_layer.thickness:
-            self._aedt_object = application.modeler.primitives.create_box(
+            self._aedt_object = application.modeler.create_box(
                 position=start_point,
                 dimensions_list=[
                     "{}_length".format(self._name),
@@ -1856,7 +1856,7 @@ class Trace(CommonObject, object):
                 matname=signal_layer.material_name,
             )
         else:
-            self._aedt_object = application.modeler.primitives.create_rectangle(
+            self._aedt_object = application.modeler.create_rectangle(
                 position=start_point,
                 dimension_list=["{}_length".format(self._name), "{}_width".format(self._name)],
                 name=line_name,
