@@ -35,7 +35,7 @@ M3D = Maxwell3d(
     new_desktop_session=True,
 )
 uom = M3D.modeler.model_units = "mm"
-primitives = M3D.modeler
+modeler = M3D.modeler
 
 ###############################################################################
 # Add the variable Coil Position, it will later be used to adjust position of the coil
@@ -83,8 +83,8 @@ M3D.assign_current(["SearchCoil_Section1"], amplitude=1260, solid=False, name="S
 # Draw a line we will later use it to plot Bz on, (z-component of Flux Density)
 # A small diameter cylinder is also added to refine mesh locally around the line.
 Line_Points = [["0mm", "-55mm", "0.5mm"], ["0mm", "55mm", "0.5mm"]]
-P1 = primitives.create_polyline(Line_Points, name="Line_AB")
-P2 = primitives.create_polyline(Line_Points, name="Line_AB_MeshRefinement")
+P1 = modeler.create_polyline(Line_Points, name="Line_AB")
+P2 = modeler.create_polyline(Line_Points, name="Line_AB_MeshRefinement")
 P2.set_crosssection_properties(type="Circle", width="0.5mm")
 
 
@@ -193,7 +193,7 @@ solutions.plot()
 
 ###############################################################################
 # Create a plot Mag_J, the induced current density on the surface of the ladder plate
-surflist = primitives.get_object_faces("LadderPlate")
+surflist = modeler.get_object_faces("LadderPlate")
 intrinsic_dict = {"Freq": "50Hz", "Phase": "0deg"}
 M3D.post.create_fieldplot_surface(surflist, "Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J")
 

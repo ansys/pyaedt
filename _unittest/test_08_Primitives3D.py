@@ -760,17 +760,17 @@ class TestClass(BasisTest, object):
     @pyaedt_unittest_check_desktop_error
     def test_51_remove_edges_from_polyline(self):
 
-        primitives = self.aedtapp.modeler
-        P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        modeler = self.aedtapp.modeler
+        P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P.remove_edges(edge_id=0)
         assert P.name in self.aedtapp.modeler.line_names
-        P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
+        P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
         P.remove_edges(edge_id=[0, 1])
         assert P.name in self.aedtapp.modeler.line_names
-        P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
+        P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
         P.remove_edges(edge_id=[1, 2])
         assert P.name in self.aedtapp.modeler.line_names
-        P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
+        P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
         P.remove_edges(edge_id=2)
         assert P.name in self.aedtapp.modeler.line_names
 

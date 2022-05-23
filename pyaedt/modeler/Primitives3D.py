@@ -2008,7 +2008,7 @@ class Primitives3D(Primitives, object):
         list_positions = []
         for i in range(len(list_polyline)):
             list_positions = list_positions + self.get_vertices_of_line(list_polyline[i])
-        self.primitives.delete(list_polyline)
+        self.delete(list_polyline)
         true_polyline = self.create_polyline(position_list=list_positions, name=name, matname=material)
         return [true_polyline, list_positions]
 
