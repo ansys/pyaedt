@@ -3415,11 +3415,12 @@ class Design(object):
         >>> M3D["p3"] = "P1 * p2"
         >>> eval_p3 = M3D.get_evaluated_value("p3")
         """
+        if "$" in variable_name:
+            app = self._oproject
+        else:
+            app = self._odesign
         if self.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
-            if "$" in variable_name:
-                val_units = self._oproject.GetVariableValue(variable_name)
-            else:
-                val_units = self._odesign.GetVariableValue(variable_name)
+            val_units = app.GetVariableValue(variable_name)
             val, units = decompose_variable_value(val_units)
             try:
                 if units:
@@ -3438,7 +3439,7 @@ class Design(object):
         try:
             si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
         except:
-            si_value = self._odesign.GetVariableValue(variable_name)
+            si_value = app.GetVariableValue(variable_name)
 
         if units:
             scale = AEDT_UNITS[unit_system(units)][units]
