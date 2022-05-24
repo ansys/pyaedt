@@ -428,8 +428,8 @@ class TestClass(BasisTest, object):
         self.aedtapp.insert_design("data_block")
         with open(os.path.join(self.local_scratch.path, "lc.net"), "w") as f:
             for i in range(10):
-                f.writelines(f"L{i} net_{i} net_{i + 1} 1e-9\n")
-                f.writelines(f"C{i} net_{i + 1} 0 5e-12\n")
+                f.writelines(r"L{} net_{} net_{} 1e-9\n".format(i, i, i + 1))
+                f.writelines(r"C{} net_{} 0 5e-12\n".format(i, i + 1))
         assert self.aedtapp.add_netlist_datablock(os.path.join(self.local_scratch.path, "lc.net"))
         self.aedtapp.modeler.components.create_interface_port("net_0", (0, 0))
         self.aedtapp.modeler.components.create_interface_port("net_100", (0.01, 0))
