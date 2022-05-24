@@ -412,8 +412,8 @@ class TestClass(BasisTest, object):
     def test_34_activate_variables(self):
         self.aedtapp["desvar"] = "1mm"
         self.aedtapp["$prjvar"] = "2mm"
-        assert self.aedtapp["desvar"] == "1.0mm"
-        assert self.aedtapp["$prjvar"] == "2.0mm"
+        assert self.aedtapp["desvar"] == "1mm"
+        assert self.aedtapp["$prjvar"] == "2mm"
         assert self.aedtapp.activate_variable_tuning("desvar")
         assert self.aedtapp.activate_variable_tuning("$prjvar")
         assert self.aedtapp.deactivate_variable_tuning("desvar")
