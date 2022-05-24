@@ -1596,3 +1596,31 @@ class Circuit(FieldAnalysisCircuit, object):
         self.odesign.SaveDiffPairsToFile(filename)
 
         return os.path.isfile(filename)
+
+    @pyaedt_function_handler()
+    def add_netlist_datablock(self, netlist_file, datablock_name=None):
+        """Add a new netlist data block to the circuit schematic.
+
+        Parameters
+        ----------
+        netlist_file : str
+            Path to the netlist file.
+        datablock_name : str, optional
+            Name of the data block.
+
+        Returns
+        -------
+        bool
+            `True` if successfully created.
+        """
+        if not os.path.exists(netlist_file):
+            self.logger.error("Netlist File doesn't exists")
+            return False
+        if not datablock_name:
+            datablock_name = generate_unique_name("Inc")
+
+        oModule = self.odesign.GetModule("DataBlock")
+        oModule.AddNetlistDataBlock(
+            ["NAME:DataBlock", "name:=", datablock_name, "filename:=", netlist_file, "filelocation:=", 0]
+        )
+        return True
