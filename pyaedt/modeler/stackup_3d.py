@@ -2233,8 +2233,28 @@ class Trace(CommonObject, object):
                 axisdir = self.application.AxisDir.YNeg
             else:
                 axisdir = self.application.AxisDir.YPos
-        return self.application.create_lumped_port_between_objects(
+        p1 = self.application.create_lumped_port_between_objects(
             reference_layer_name, self.aedt_object.name, axisdir=axisdir
+        )
+        z_elev = ""
+        start_count = False
+        for k, v in self._signal_layer._stackup.stackup_layers.items():
+            if k == reference_layer_name or k == self._signal_layer.name:
+                if not start_count:
+                    start_count = True
+                else:
+                    start_count = False
+            elif start_count:
+                z_elev += "-" + v.thickness.name
+        self.application.modeler.oeditor.ChangeProperty(
+            [
+                "NAME:AllTabs",
+                [
+                    "NAME:Geometry3DCmdTab",
+                    ["NAME:PropServers", self._name + ":Move:1"],
+                    ["NAME:ChangedProps", ["NAME:Move Vector", "X:=", "0mm", "Y:=", "0mm", "Z:=", z_elev]],
+                ],
+            ]
         )
 
 
