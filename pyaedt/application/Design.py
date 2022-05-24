@@ -3440,7 +3440,7 @@ class Design(object):
                             val = scale[0](val, True)
                         else:
                             val = val * scale
-                except (ValueError, KeyError, TypeError):  # pragma: no cover
+                except (ValueError, KeyError, TypeError, AttributeError):  # pragma: no cover
                     return val_units
         try:
             if units:
@@ -3450,7 +3450,7 @@ class Design(object):
                 else:
                     return val * scale
             return float(val)
-        except (ValueError, KeyError, TypeError):  # pragma: no cover
+        except (ValueError, KeyError, TypeError, AttributeError):  # pragma: no cover
             return val
 
     @pyaedt_function_handler()
