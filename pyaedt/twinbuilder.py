@@ -285,7 +285,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         >>> oDesign.ChangeProperty
         """
         if isinstance(expression, Variable):
-            value_str = expression.string_value
+            value_str = expression.evaluated_value
         # Handle input type int/float, etc (including numeric 0)
         elif is_number(expression):
             value_str = str(expression)

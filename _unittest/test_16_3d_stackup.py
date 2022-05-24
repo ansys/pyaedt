@@ -98,12 +98,12 @@ class TestClass(BasisTest, object):
         assert self.st.resize(20)
         assert self.st.dielectric_x_position
         self.st.dielectric_x_position = "10mm"
-        assert self.st.dielectric_x_position.string_value == "10.0mm"
+        assert self.st.dielectric_x_position.evaluated_value == "10.0mm"
         assert self.st.dielectric_x_position.value == 0.01
         assert self.st.dielectric_x_position.numeric_value == 10.0
         assert self.st.dielectric_y_position
         self.st.dielectric_y_position = "10mm"
-        assert self.st.dielectric_y_position.string_value == "10.0mm"
+        assert self.st.dielectric_y_position.evaluated_value == "10.0mm"
 
     def test_06_hide_variables(self):
         assert self.st.dielectric_x_position.hide_variable()

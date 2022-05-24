@@ -116,7 +116,7 @@ class TestClass(BasisTest, object):
     def test_12_variables(self):
         self.aedtapp["test"] = "1mm"
         val = self.aedtapp["test"]
-        assert val == "1.0mm"
+        assert val == "1mm"
         del self.aedtapp["test"]
         assert "test" not in self.aedtapp.variable_manager.variables
 

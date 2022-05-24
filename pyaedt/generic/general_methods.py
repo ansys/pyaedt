@@ -502,7 +502,6 @@ def is_number(a):
             return False
     else:
         return False
-    # return str(a).replace(".", "").replace("+", "").replace("-", "").replace("e","").replace("E","").isnumeric()
 
 
 def is_array(a):

@@ -103,9 +103,9 @@ class NamedVariable(object):
         return self._variable.numeric_value
 
     @property
-    def string_value(self):
+    def evaluated_value(self):
         """String that combines the numeric value and the units."""
-        return self._variable.string_value
+        return self._variable.evaluated_value
 
     @pyaedt_function_handler()
     def hide_variable(self, value=True):

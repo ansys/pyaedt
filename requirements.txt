@@ -29,3 +29,6 @@ numpy==1.22.4
 
 ipython==8.3.0
 # License: BSD-3-Clause License
+
+jupyterlab==3.4.2
+# License: BSD-3-Clause License

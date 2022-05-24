@@ -83,6 +83,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         with:
+          generate_release_notes: true
           files: |
             ./**/*.tar.gz
             ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-wheelhouse-${{ runner.os }}-${{ matrix.python-version }}.zip

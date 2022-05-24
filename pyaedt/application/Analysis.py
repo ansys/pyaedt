@@ -993,16 +993,9 @@ class Analysis(Design, object):
             >>> oDesign.GetVariableValue
             >>> oDesign.GetNominalVariation"""
             families = []
-            if self._app.design_type == "HFSS 3D Layout Design":
-                listvar = self._app.variable_manager._get_var_list_from_aedt(self._app._odesign)
-                for el in listvar:
-                    families.append(el + ":=")
-                    families.append([self._app._odesign.GetVariableValue(el)])
-            else:
-                variation = self._app._odesign.GetNominalVariation()
-                for el in self.variables:
-                    families.append(el + ":=")
-                    families.append([self._app._odesign.GetVariationVariableValue(variation, el)])
+            for k, v in list(self._app.variable_manager.independent_variables.items()):
+                families.append(k + ":=")
+                families.append([v.expression])
             return families
 
         @property
@@ -1017,19 +1010,14 @@ class Analysis(Design, object):
             >>> oDesign.GetVariableValue
             >>> oDesign.GetNominalVariation"""
             families = {}
-            if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Twin Builder"]:
-                listvar = self._app.variable_manager._get_var_list_from_aedt(self._app._odesign)
-                for el in listvar:
-                    families[el] = self._app._odesign.GetVariableValue(el)
-            else:
-                variation = self._app._odesign.GetNominalVariation()
-                for el in self.variables:
-                    families[el] = self._app._odesign.GetVariationVariableValue(variation, el)
+            for k, v in list(self._app.variable_manager.independent_variables.items()):
+                families[k] = v.expression
+
             return families
 
         @property
         def all(self):
-            """All."""
+            """List of all independent variables with `["All"]` value."""
             families = []
             for el in self.variables:
                 families.append(el + ":=")
