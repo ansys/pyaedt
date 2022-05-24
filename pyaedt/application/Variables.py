@@ -215,8 +215,8 @@ class CSVDataset:
         if self._index < (self.number_of_rows - 1):
             output = []
             for column in self._header:
-                string_value = str(self._data[column][self._index])
-                output.append(string_value)
+                evaluated_value = str(self._data[column][self._index])
+                output.append(evaluated_value)
             output_string = " ".join(output)
             self._index += 1
         else:
@@ -823,7 +823,7 @@ class VariableManager(object):
             variable = expression
         elif isinstance(expression, Variable):
             # Handle input type variable
-            variable = expression.string_value
+            variable = expression.evaluated_value
         elif is_number(expression):
             # Handle input type int/float, etc (including numeric 0)
             variable = str(expression)
@@ -1289,7 +1289,7 @@ class Variable(object):
         return self._value
 
     @property
-    def string_value(self):
+    def evaluated_value(self):
         """String value.
 
         The numeric value with the unit is concatenated and returned as a string. The numeric display
