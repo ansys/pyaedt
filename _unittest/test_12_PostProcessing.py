@@ -669,13 +669,13 @@ class TestClass(BasisTest, object):
         new_report = self.q3dtest.post.reports_by_category.standard(self.q3dtest.get_traces_for_plot())
         assert new_report.create()
         self.q3dtest.modeler.create_polyline([[0, -5, 0.425], [0.5, 5, 0.5]], name="Poly1", non_model=True)
-        new_report = self.q3dtest.post.reports_by_category.cg_fields("SmoothQ", polyline="Polyline1")
+        new_report = self.q3dtest.post.reports_by_category.cg_fields("SmoothQ", polyline="Poly1")
         assert new_report.create()
-        new_report = self.q3dtest.post.reports_by_category.rl_fields("Mag_SurfaceJac", polyline="Polyline1")
+        new_report = self.q3dtest.post.reports_by_category.rl_fields("Mag_SurfaceJac", polyline="Poly1")
         assert new_report.create()
-        new_report = self.q3dtest.post.reports_by_category.dc_fields("Mag_VolumeJdc", polyline="Polyline1")
+        new_report = self.q3dtest.post.reports_by_category.dc_fields("Mag_VolumeJdc", polyline="Poly1")
         assert new_report.create()
-        assert len(self.q3dtest.post.plots) == 4
+        assert len(self.q3dtest.post.plots) == 6
 
     def test_57_test_export_q2d_results(self):
         self.q2dtest.analyze_nominal()
