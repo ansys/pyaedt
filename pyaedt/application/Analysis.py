@@ -1017,7 +1017,7 @@ class Analysis(Design, object):
 
         @property
         def all(self):
-            """All."""
+            """List of all independent variables with `["All"]` value."""
             families = []
             for el in self.variables:
                 families.append(el + ":=")
