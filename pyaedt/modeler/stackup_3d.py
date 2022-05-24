@@ -587,10 +587,11 @@ class Layer3D(object):
 class PadstackLayer(object):
     """Provides a Data class for the definition of a padstack layer and relative pad and antipad values."""
 
-    def __init__(self, padstack, layer_name, elevation):
+    def __init__(self, padstack, layer_name, elevation, thickness):
         self._padstack = padstack
         self._layer_name = layer_name
         self._layer_elevation = elevation
+        self._layer_thickness = thickness
         self._pad_radius = 1
         self._antipad_radius = 2
         self._units = "mm"
@@ -609,10 +610,10 @@ class Padstack(object):
         self._plating_ratio = 1
         v = None
         k = None
-        for v in list(self._stackup.stackup_layers.values()):
+        for k, v in self._stackup.stackup_layers.items():
             if not self._padstacks_by_layer and v._layer_type == "dielectric":
                 continue
-            self._padstacks_by_layer[k] = PadstackLayer(self, k, v.elevation)
+            self._padstacks_by_layer[k] = PadstackLayer(self, k, v.elevation, v.thickness)
         if v and v._layer_type == "dielectric":
             del self._padstacks_by_layer[k]
         self._padstacks_material = material
@@ -781,9 +782,9 @@ class Padstack(object):
                     cyls.append(
                         self._app.modeler.create_cylinder(
                             "Z",
-                            [position_x, position_y, first_el.name],
+                            [position_x, position_y, v._layer_elevation.name],
                             v._pad_radius,
-                            v._layer_elevation.name,
+                            v._layer_thickness.name,
                             matname=self._padstacks_material,
                             name=instance_name,
                             numSides=self._num_sides,
@@ -792,9 +793,9 @@ class Padstack(object):
                     if self.plating_ratio < 1:
                         hole = self._app.modeler.create_cylinder(
                             "Z",
-                            [position_x, position_y, first_el.name],
+                            [position_x, position_y, v._layer_elevation.name],
                             "{}*{}".format(self._app.modeler._arg_with_dim(v._pad_radius), 1 - self.plating_ratio),
-                            v._layer_elevation.name,
+                            v._layer_thickness.name,
                             matname=self._padstacks_material,
                             name=instance_name,
                             numSides=self._num_sides,
@@ -802,9 +803,9 @@ class Padstack(object):
                         cyls[-1].subtract(hole, False)
                     anti = self._app.modeler.create_cylinder(
                         "Z",
-                        [position_x, position_y, first_el.name],
+                        [position_x, position_y, v._layer_elevation.name],
                         v._antipad_radius,
-                        v._layer_elevation.name,
+                        v._layer_thickness.name,
                         matname="air",
                         name=instance_name + "_antipad",
                     )
@@ -1236,14 +1237,14 @@ class Stackup3D(object):
             list_of_2d_points = points_list_by_object + list_of_2d_points
         for via in self._vias:
             for v in via._vias_objects:
-                list_of_x_coordinates.append(v.bounding_box[0])
-                list_of_x_coordinates.append(v.bounding_box[2])
-                list_of_y_coordinates.append(v.bounding_box[1])
-                list_of_y_coordinates.append(v.bounding_box[3])
-                list_of_x_coordinates.append(v.bounding_box[0])
-                list_of_x_coordinates.append(v.bounding_box[2])
-                list_of_y_coordinates.append(v.bounding_box[3])
-                list_of_y_coordinates.append(v.bounding_box[1])
+                list_of_x_coordinates.append(v.bounding_box[0] - v.bounding_dimension[0])
+                list_of_x_coordinates.append(v.bounding_box[3] - v.bounding_dimension[0])
+                list_of_y_coordinates.append(v.bounding_box[1] - v.bounding_dimension[1])
+                list_of_y_coordinates.append(v.bounding_box[4] - v.bounding_dimension[1])
+                list_of_x_coordinates.append(v.bounding_box[0] + v.bounding_dimension[0])
+                list_of_x_coordinates.append(v.bounding_box[4] + v.bounding_dimension[0])
+                list_of_y_coordinates.append(v.bounding_box[4] + v.bounding_dimension[1])
+                list_of_y_coordinates.append(v.bounding_box[1] + v.bounding_dimension[1])
         for point in list_of_2d_points:
             list_of_x_coordinates.append(point[0])
             list_of_y_coordinates.append(point[1])
@@ -1251,12 +1252,12 @@ class Stackup3D(object):
         minimum_x = min(list_of_x_coordinates)
         maximum_y = max(list_of_y_coordinates)
         minimum_y = min(list_of_y_coordinates)
-        variation_x = maximum_x - minimum_x
-        variation_y = maximum_y - minimum_y
-        self._app["dielectric_x_position"] = str(minimum_x - variation_x / 2 * percentage_offset / 100) + "mm"
-        self._app["dielectric_y_position"] = str(minimum_y - variation_y / 2 * percentage_offset / 100) + "mm"
-        self._app["dielectric_length"] = str(maximum_x + variation_x * percentage_offset / 100) + "mm"
-        self._app["dielectric_width"] = str(maximum_y + variation_y * percentage_offset / 100) + "mm"
+        variation_x = abs(maximum_x - minimum_x)
+        variation_y = abs(maximum_y - minimum_y)
+        self._app["dielectric_x_position"] = str(minimum_x - variation_x * percentage_offset / 100) + "mm"
+        self._app["dielectric_y_position"] = str(minimum_y - variation_y * percentage_offset / 100) + "mm"
+        self._app["dielectric_length"] = str(maximum_x - minimum_x + 2 * variation_x * percentage_offset / 100) + "mm"
+        self._app["dielectric_width"] = str(maximum_y - minimum_y + 2 * variation_y * percentage_offset / 100) + "mm"
         return True
 
 
