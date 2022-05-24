@@ -386,3 +386,12 @@ class TestClass(BasisTest, object):
         mc["var4"] = "10rad"
         assert mc["var3"] == "10deg"
         assert mc["var4"] == "10rad"
+
+    def test_17_project_sweep_variable(self):
+        self.aedtapp["$my_proj_test"] = "1mm"
+        self.aedtapp["$my_proj_test2"] = 2
+        self.aedtapp["$my_proj_test3"] = "$my_proj_test*$my_proj_test2"
+        assert self.aedtapp.variable_manager["$my_proj_test3"].units == "mm"
+        assert self.aedtapp.variable_manager["$my_proj_test3"].numeric_value == 2.0
+        self.aedtapp.materials.add_material_sweep(["copper", "aluminum"], "sweep_alu")
+        assert "$sweep_alupermittivity" in self.aedtapp.variable_manager.independent_variables
