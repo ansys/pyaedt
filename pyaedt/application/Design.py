@@ -1069,15 +1069,15 @@ class Design(object):
         return self._desktop_install_dir
 
     @pyaedt_function_handler()
-    def get_oo_name(self, aedt_object, object_name):
+    def get_oo_name(self, aedt_object, object_name=None):
         """Return the Object Oriented AEDT Properties names.
 
         Parameters
         ----------
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
-        object_name : str
-            Path to the object list. Example `"DesginName\Boundaries"`.
+        object_name : str, optional
+            Path to the object list. Example `"DesignName\Boundaries"`.
 
         Returns
         -------
@@ -1085,9 +1085,13 @@ class Design(object):
             Values returned by method if any.
         """
         try:
-            return aedt_object.GetChildObject(object_name).GetChildNames()
+            if object_name:
+                return aedt_object.GetChildObject(object_name).GetChildNames()
+            else:
+                return aedt_object.GetChildNames()
+
         except:
-            return False
+            return []
 
     @pyaedt_function_handler()
     def get_oo_object(self, aedt_object, object_name):
@@ -1129,7 +1133,7 @@ class Design(object):
         try:
             return aedt_object.GetChildObject(object_name).GetPropNames()
         except:
-            return False
+            return []
 
     @pyaedt_function_handler()
     def get_oo_property_value(self, aedt_object, object_name, prop_name):
@@ -1144,13 +1148,13 @@ class Design(object):
 
         Returns
         -------
-        list
+        str, float, bool
             Values returned by method if any.
         """
         try:
             return aedt_object.GetChildObject(object_name).GetPropValue(prop_name)
         except:
-            return False
+            return None
 
     @pyaedt_function_handler()
     def export_profile(self, setup_name, variation_string="", file_path=None):

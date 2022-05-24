@@ -2030,16 +2030,32 @@ class PostProcessorCommon(object):
         self._oeditor = self.modeler.oeditor
         self._oreportsetup = self._odesign.GetModule("ReportSetup")
         self._scratch = self._app.working_directory
-        self.plots = []
+        self.plots = self._get_plot_inputs()
         self.reports_by_category = Reports(self, self._app.design_type)
 
     @pyaedt_function_handler()
-    def _init_reports(self):
-        names = self._app.get_oo_name(self._app._odesign, "Reports")
+    def _get_plot_inputs(self):
+        names = self._app.get_oo_name(self.oreportsetup)
+        plots = []
         if names:
             for name in names:
-                obj = self._app.get_oo_object(self._app.odesign, "Reports\\{}".format(name))
-                report_type = obj.Get_Type()
+                obj = self._app.get_oo_object(self.oreportsetup, name)
+                if is_ironpython:
+                    report_type = obj.Get_ReportType()
+                else:
+                    report_type = obj.Get_ReportType
+                if report_type in TEMPLATES_BY_NAME:
+                    report = TEMPLATES_BY_NAME[report_type]
+                else:
+                    report = rt.Standard
+                plots.append(report(self, report_type, None))
+                plots[-1]._plot_name = name
+                plots[-1]._is_created = True
+                if is_ironpython:
+                    plots[-1].report_type = obj.Get_DisplayType()
+                else:
+                    plots[-1].report_type = obj.Get_DisplayType
+        return plots
 
     @property
     def oreportsetup(self):
