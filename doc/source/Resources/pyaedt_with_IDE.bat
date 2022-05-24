@@ -111,7 +111,8 @@ if %run%==1 (
     ) else ( if %run%==2 (
     "%APPDATA%\pyaedt_env_ide\Scripts\ipython.exe"
     ) else (
-	echo run "%APPDATA%\pyaedt_env_ide\Scripts\activate.bat" to activate Pyaedt environment
+	echo Activating Pyaedt environment
+	cmd /k "%APPDATA%\pyaedt_env_ide\Scripts\activate.bat"
 	)
     )
 )
