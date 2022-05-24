@@ -1091,7 +1091,7 @@ class Design(object):
                 return aedt_object.GetChildNames()
 
         except:
-            return False
+            return []
 
     @pyaedt_function_handler()
     def get_oo_object(self, aedt_object, object_name):
@@ -1133,7 +1133,7 @@ class Design(object):
         try:
             return aedt_object.GetChildObject(object_name).GetPropNames()
         except:
-            return False
+            return []
 
     @pyaedt_function_handler()
     def get_oo_property_value(self, aedt_object, object_name, prop_name):
@@ -1148,13 +1148,13 @@ class Design(object):
 
         Returns
         -------
-        list
+        str, float, bool
             Values returned by method if any.
         """
         try:
             return aedt_object.GetChildObject(object_name).GetPropValue(prop_name)
         except:
-            return False
+            return None
 
     @pyaedt_function_handler()
     def export_profile(self, setup_name, variation_string="", file_path=None):
