@@ -30,7 +30,7 @@ M3D = Maxwell3d(
     projectname=Project_Name, designname=Design_Name, solution_type=Solver, specified_version=DesktopVersion, non_graphical=non_graphical
 )
 M3D.modeler.model_units = "mm"
-primitives = M3D.modeler.primitives
+modeler = M3D.modeler
 Plot = M3D.odesign.GetModule("ReportSetup")
 
 
@@ -112,9 +112,9 @@ mat = M3D.materials.add_material("team7_aluminium")
 mat.conductivity = 3.526e7
 
 # Model the Aluminium plate with a hole in by subtracting two rectangular cuboids.
-plate = M3D.modeler.primitives.create_box([0, 0, 0], [294, 294, 19], name="Plate", matname="team7_aluminium")
+plate = M3D.modeler.create_box([0, 0, 0], [294, 294, 19], name="Plate", matname="team7_aluminium")
 M3D.modeler.fit_all()
-hole = M3D.modeler.primitives.create_box([18, 18, 0], [108, 108, 19], name="Hole")
+hole = M3D.modeler.create_box([18, 18, 0], [108, 108, 19], name="Hole")
 M3D.modeler.subtract("Plate", ["Hole"], keepOriginals=False)
 
 # Draw a background region, it will take default Air properties
@@ -149,13 +149,13 @@ lines = ["Line_A1_B1", "Line_A2_B2"]
 mesh_diameter = "2mm"
 
 line_points_1 = [["0mm", "72mm", "34mm"], ["288mm", "72mm", "34mm"]]
-polyline = primitives.create_polyline(line_points_1, name=lines[0])
-L1Mesh = primitives.create_polyline(line_points_1, name=lines[0] + "mesh")
+polyline = modeler.create_polyline(line_points_1, name=lines[0])
+L1Mesh = modeler.create_polyline(line_points_1, name=lines[0] + "mesh")
 L1Mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 
 line_points_2 = [["0mm", "144mm", "34mm"], ["288mm", "144mm", "34mm"]]
-polyline2 = primitives.create_polyline(line_points_2, name=lines[1])
-polyline2_mesh = primitives.create_polyline(line_points_2, name=lines[1] + "mesh")
+polyline2 = modeler.create_polyline(line_points_2, name=lines[1])
+polyline2_mesh = modeler.create_polyline(line_points_2, name=lines[1] + "mesh")
 polyline2_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 
 ###############################################################################
@@ -348,7 +348,7 @@ for item in dataset_range:
 
 ###################################################################################################
 # Create two plots of Mag_J and Mag_B, the induced current and flux density on surface of the plate
-surflist = primitives.get_object_faces("Plate")
+surflist = modeler.get_object_faces("Plate")
 intrinsic_dict = {"Freq": "200Hz", "Phase": "0deg"}
 M3D.post.create_fieldplot_surface(surflist, "Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J")
 M3D.post.create_fieldplot_surface(surflist, "Mag_B", intrinsincDict=intrinsic_dict, plot_name="Mag_B")

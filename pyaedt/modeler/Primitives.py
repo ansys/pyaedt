@@ -520,7 +520,7 @@ class Polyline(Object3d):
         Examples
         --------
         >>> primitives = self.aedtapp.modeler
-        >>> P1 = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        >>> P1 = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P2 = P1.clone()
 
         """
@@ -569,18 +569,18 @@ class Polyline(Object3d):
         --------
         Use floating point values for the vertex positions.
 
-        >>> P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        >>> P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P.remove_vertex([0, 1, 2])
 
         Use string expressions for the vertex position.
 
-        >>> P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        >>> P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P.remove_vertex(["0mm", "1mm", "2mm"])
 
         Use string expressions for the vertex position and include an absolute
         tolerance when searching for the vertex to be removed.
 
-        >>> P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        >>> P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P.remove_vertex(["0mm", "1mm", "2mm"], abstol=1e-6)
         """
         found_vertex = False
@@ -657,7 +657,7 @@ class Polyline(Object3d):
 
         Examples
         --------
-        >>> P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        >>> P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P.remove_edges(edge_id=0)
         """
         if isinstance(edge_id, int):
@@ -723,7 +723,7 @@ class Polyline(Object3d):
 
         Examples
         --------
-        >>> P = primitives.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        >>> P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         >>> P.set_crosssection_properties(type="Circle", width="1mm")
 
         """
@@ -1453,7 +1453,7 @@ class Primitives(object):
         >>> desktop=Desktop(specified_version="2021.2", new_desktop_session=False)
         >>> aedtapp = Maxwell3D()
         >>> aedtapp.modeler.model_units = "mm"
-        >>> primitives = aedtapp.modeler
+        >>> modeler = aedtapp.modeler
 
         Define some test data points.
 
@@ -1463,24 +1463,24 @@ class Primitives(object):
         The default behavior assumes that all points are to be
         connected by line segments.  Optionally specify the name.
 
-        >>> P1 = primitives.create_polyline(test_points, name="PL_line_segments")
+        >>> P1 = modeler.create_polyline(test_points, name="PL_line_segments")
 
         Specify that the first segment is a line and the last three
         points define a three-point arc.
 
-        >>> P2 = primitives.create_polyline(test_points, segment_type=["Line", "Arc"], name="PL_line_plus_arc")
+        >>> P2 = modeler.create_polyline(test_points, segment_type=["Line", "Arc"], name="PL_line_plus_arc")
 
         Redraw the 3-point arc alone from the last three points and
         additionally specify five segments using ``PolylineSegment``.
 
-        >>> P3 = primitives.create_polyline(test_points[1:],
+        >>> P3 = modeler.create_polyline(test_points[1:],
         ...                               segment_type=PolylineSegment(type="Arc", num_seg=7),
         ...                               name="PL_segmented_arc")
 
         Specify that the four points form a spline and add a circular
         cross-section with a diameter of 1 mm.
 
-        >>> P4 = primitives.create_polyline(test_points, segment_type="Spline", name="PL_spline",
+        >>> P4 = modeler.create_polyline(test_points, segment_type="Spline", name="PL_spline",
         ...                               xsection_type="Circle", xsection_width="1mm")
 
         Use the `PolylineSegment` object to specify more detail about
@@ -1491,14 +1491,14 @@ class Primitives(object):
         >>> start_point = test_points[1]
         >>> center_point = test_points[0]
         >>> segment_def = PolylineSegment(type="AngularArc", arc_center=center_point, arc_angle="90deg", arc_plane="XY")
-        >>> primitives.create_polyline(start_point, segment_type=segment_def, name="PL_center_point_arc")
+        >>> modeler.create_polyline(start_point, segment_type=segment_def, name="PL_center_point_arc")
 
         Create a spline using a list of variables for the coordinates of the points.
 
         >>> x0, y0, z0 = "0", "0", "1"
         >>> x1, y1, z1 = "1", "3", "1"
         >>> x2, y2, z2 = "2", "2", "1"
-        >>> P5 = primitives.create_polyline(position_list = [[x0, y0, z0], [x1, y1, z1], [x2, y2, z2]],
+        >>> P5 = modeler.create_polyline(position_list = [[x0, y0, z0], [x1, y1, z1], [x2, y2, z2]],
         ...                                 segment_type="Spline", name="polyline_with_variables")
 
         """

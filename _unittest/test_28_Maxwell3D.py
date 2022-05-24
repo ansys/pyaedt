@@ -342,15 +342,15 @@ class TestClass(BasisTest, object):
     def test_32_matrix(self):
         m3d = Maxwell3d(self.file_path, specified_version=desktop_version)
         m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
-        m3d.modeler.primitives.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
-        m3d.modeler.primitives.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", matname="aluminum")
-        m3d.modeler.primitives.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", matname="aluminum")
-        m3d.modeler.primitives.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", matname="aluminum")
+        m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
+        m3d.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", matname="aluminum")
+        m3d.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", matname="aluminum")
+        m3d.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", matname="aluminum")
 
-        rectangle1 = m3d.modeler.primitives.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
-        rectangle2 = m3d.modeler.primitives.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
-        rectangle3 = m3d.modeler.primitives.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
-        rectangle4 = m3d.modeler.primitives.create_rectangle(0, [32.5, 1.5, 0], [2.5, 5], name="Sheet4")
+        rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        rectangle4 = m3d.modeler.create_rectangle(0, [32.5, 1.5, 0], [2.5, 5], name="Sheet4")
 
         m3d.assign_voltage(rectangle1.faces[0], amplitude=1, name="Voltage1")
         m3d.assign_voltage(rectangle2.faces[0], amplitude=1, name="Voltage2")
