@@ -423,3 +423,17 @@ class TestClass(BasisTest, object):
             assert False
         except:
             assert True
+
+    def test_35_netlist_data_block(self):
+        self.aedtapp.insert_design("data_block")
+        with open(os.path.join(self.local_scratch.path, "lc.net"), "w") as f:
+            for i in range(10):
+                f.writelines(f"L{i} net_{i} net_{i + 1} 1e-9\n")
+                f.writelines(f"C{i} net_{i + 1} 0 5e-12\n")
+        assert self.aedtapp.add_netlist_datablock(os.path.join(self.local_scratch.path, "lc.net"))
+        self.aedtapp.modeler.components.create_interface_port("net_0", (0, 0))
+        self.aedtapp.modeler.components.create_interface_port("net_100", (0.01, 0))
+
+        lna = self.aedtapp.create_setup("mylna", self.aedtapp.SETUPS.NexximLNA)
+        lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
+        self.aedtapp.analyze_nominal()
