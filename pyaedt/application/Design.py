@@ -3423,35 +3423,35 @@ class Design(object):
             app = self._oproject
         else:
             app = self._odesign
-        if self.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
-            val_units = app.GetVariableValue(variable_name)
-            val, units = decompose_variable_value(val_units)
-            try:
-                if units:
-                    scale = AEDT_UNITS[unit_system(units)][units]
-                    if isinstance(scale, tuple):
-                        return scale[0](val, True)
-                    else:
-                        return val * scale
-                return float(val)
-            except ValueError:
-                return val_units
-        if not variation:
-            variation_string = self._odesign.GetNominalVariation()
-        else:
-            variation_string = self.design_variation(variation_string=variation)
+        # if self.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
+        val_units = app.GetVariableValue(variable_name)
+        val, units = decompose_variable_value(val_units)
         try:
-            si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
-        except:
-            si_value = app.GetVariableValue(variable_name)
-
-        if units:
-            scale = AEDT_UNITS[unit_system(units)][units]
-            if isinstance(scale, tuple):
-                return scale[0](si_value, True)
-            else:
-                return si_value / scale
-        return si_value
+            if units:
+                scale = AEDT_UNITS[unit_system(units)][units]
+                if isinstance(scale, tuple):
+                    return scale[0](val, True)
+                else:
+                    return val * scale
+            return float(val)
+        except (ValueError, KeyError):
+            return val_units
+        # if not variation:
+        #     variation_string = self._odesign.GetNominalVariation()
+        # else:
+        #     variation_string = self.design_variation(variation_string=variation)
+        # try:
+        #     si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
+        # except:
+        #     si_value = app.GetVariableValue(variable_name)
+        #
+        # if units:
+        #     scale = AEDT_UNITS[unit_system(units)][units]
+        #     if isinstance(scale, tuple):
+        #         return scale[0](si_value, True)
+        #     else:
+        #         return si_value / scale
+        # return si_value
 
     @pyaedt_function_handler()
     def evaluate_expression(self, expression_string):

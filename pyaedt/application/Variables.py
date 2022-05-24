@@ -684,9 +684,9 @@ class VariableManager(object):
                 # try:
                 si_value = self._app.get_evaluated_value(variable_name)
                 value = Variable(variable_expression, None, si_value, all_names, name=variable_name, app=self._app)
-                if independent and (is_array(value._calculated_value) or is_number(value._calculated_value)):
+                if independent and not is_array(value._calculated_value) and is_number(value._calculated_value):
                     var_dict[variable_name] = value
-                elif dependent and not is_array(value._calculated_value) and not is_number(value._calculated_value):
+                elif dependent and (is_array(value._calculated_value) or not is_number(value._calculated_value)):
                     var_dict[variable_name] = value
         return var_dict
 
