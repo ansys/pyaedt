@@ -3434,7 +3434,7 @@ class Design(object):
                 else:
                     return val * scale
             return float(val)
-        except (ValueError, KeyError):
+        except (ValueError, KeyError, TypeError):
             return val_units
         # if not variation:
         #     variation_string = self._odesign.GetNominalVariation()
