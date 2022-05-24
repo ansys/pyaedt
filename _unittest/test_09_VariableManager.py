@@ -394,4 +394,4 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.variable_manager["$my_proj_test3"].units == "mm"
         assert self.aedtapp.variable_manager["$my_proj_test3"].numeric_value == 2.0
         self.aedtapp.materials.add_material_sweep(["copper", "aluminum"], "sweep_alu")
-        assert "$sweep_alupermittivity" in self.aedtapp.variable_manager.independent_variables
+        assert "$sweep_alupermittivity" in self.aedtapp.variable_manager.dependent_variables
