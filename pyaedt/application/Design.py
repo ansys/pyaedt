@@ -3422,35 +3422,35 @@ class Design(object):
             app = self._odesign
         var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
         if var_obj:
-            if is_ironpython:
-                val = var_obj.Get_SIValue("EvaluatedValue")
+            if is_ironpython:  # pragma: no cover
+                val = var_obj.Get_SIValue()
             else:
                 val = var_obj.Get_SIValue
         else:
             try:
                 variation_string = self._odesign.GetNominalVariation()
-                val = self._odesign.GetVariationVariableValue(variation_string, variable_name)
+                val = self._odesign.GetVariationVariableValue(variation_string, variable_name)  # pragma: no cover
             except:
                 val_units = app.GetVariableValue(variable_name)
                 val, original_units = decompose_variable_value(val_units)
                 try:
                     if original_units:
                         scale = AEDT_UNITS[unit_system(original_units)][original_units]
-                        if isinstance(scale, tuple):
+                        if isinstance(scale, tuple):  # pragma: no cover
                             val = scale[0](val, True)
                         else:
                             val = val * scale
-                except (ValueError, KeyError, TypeError):
+                except (ValueError, KeyError, TypeError):  # pragma: no cover
                     return val_units
         try:
             if units:
                 scale = AEDT_UNITS[unit_system(units)][units]
-                if isinstance(scale, tuple):
+                if isinstance(scale, tuple):  # pragma: no cover
                     return scale[0](val, True)
                 else:
                     return val * scale
             return float(val)
-        except (ValueError, KeyError, TypeError):
+        except (ValueError, KeyError, TypeError):  # pragma: no cover
             return val
 
     @pyaedt_function_handler()
