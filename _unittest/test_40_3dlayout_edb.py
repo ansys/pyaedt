@@ -55,6 +55,12 @@ class TestClass(BasisTest, object):
         assert not comp["U3B2"].enabled(False)
         assert not comp["J2"].enabled(False)
         assert not comp["FB1M1"].enabled(False)
+        r5 = comp["R5"]
+        assert r5.evaluated
+        assert r5.evaluated.res == "100kOhm"
+        assert r5.evaluated.cap == "0"
+        assert r5.evaluated.ind == "0"
+        assert r5.evaluated.is_parallel == False
 
     def test_02a_get_geometries(self):
         line = self.aedtapp.modeler.geometries["line_1983"]
@@ -135,6 +141,11 @@ class TestClass(BasisTest, object):
         assert vias["via_3795"].start_layer == "TOP"
         assert vias["via_3795"].stop_layer == "BOTTOM"
         assert vias["via_3795"].holediam == "10mil"
+
+    def test_03C_voids(self):
+        assert len(self.aedtapp.modeler.voids) > 0
+        poly = self.aedtapp.modeler.polygons["poly_1345"]
+        assert len(poly.polygon_voids) > 0
 
     def test_04_add_mesh_operations(self):
         self.aedtapp.create_setup("HFSS")

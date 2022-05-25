@@ -357,7 +357,7 @@ class Components3DLayout(Objec3DLayout, object):
         return list(self.m_Editor.GetComponentPins(self.name))
 
     @property
-    def model_info(self):
+    def evaluated(self):
         if self._part_type_id in [1, 2, 3]:
             return ModelInfoRlc(self, self.name)
 
@@ -604,6 +604,8 @@ class Geometries3DLayout(Objec3DLayout, object):
 
         >>> oEditor.ChangeProperty
         """
+        if self.is_void:
+            return False
         return (
             True
             if _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Negative")
@@ -613,8 +615,34 @@ class Geometries3DLayout(Objec3DLayout, object):
 
     @negative.setter
     def negative(self, negative=False):
-        vMaterial = ["NAME:Negative", "Value:=", negative]
-        self.change_property(vMaterial)
+        if not self.is_void:
+            vMaterial = ["NAME:Negative", "Value:=", negative]
+            self.change_property(vMaterial)
+
+    @property
+    def net_name(self):
+        """Get/Set the net name.
+
+        Returns
+        -------
+        str
+            Name of the net.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        if self.is_void:
+            return None
+        if self.prim_type not in ["component"]:
+            return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Net")
+
+    @net_name.setter
+    def net_name(self, netname=""):
+        if not self.is_void and self.prim_type not in ["component"]:
+            vMaterial = ["NAME:Net", "Value:=", netname]
+            self.change_property(vMaterial)
 
 
 class Polygons3DLayout(Geometries3DLayout, object):
@@ -634,6 +662,21 @@ class Polygons3DLayout(Geometries3DLayout, object):
         """
         obj = self.m_Editor.GetPolygon(self.name)
         return obj.IsClosed()
+
+    @property
+    def polygon_voids(self):
+        """All Polygon Voids.
+
+        Returns
+        -------
+        dict
+            Dictionary of polygon voids.
+        """
+        voids = list(self.m_Editor.GetPolygonVoids(self.name))
+        pvoids = {}
+        for void in voids:
+            pvoids[void] = Polygons3DLayout(self._primitives, void, "poly", True)
+        return pvoids
 
 
 class Circle3dLayout(Geometries3DLayout, object):
