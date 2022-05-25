@@ -358,7 +358,7 @@ class Components3DLayout(Objec3DLayout, object):
 
     @property
     def model(self):
-        """RLC Model if available.
+        """RLC model if available.
 
         Returns
         -------
