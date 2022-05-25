@@ -668,6 +668,7 @@ class TestClass(BasisTest, object):
         assert os.path.exists(os.path.join(self.sbr_test.working_directory, "animation.gif"))
 
     def test_56_test_export_q3d_results(self):
+        self.q3dtest.analyze_nominal()
         assert os.path.exists(self.q3dtest.export_convergence("Setup1"))
         assert os.path.exists(self.q3dtest.export_profile("Setup1"))
         new_report = self.q3dtest.post.reports_by_category.standard(self.q3dtest.get_traces_for_plot())
