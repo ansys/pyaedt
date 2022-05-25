@@ -357,7 +357,13 @@ class Components3DLayout(Objec3DLayout, object):
         return list(self.m_Editor.GetComponentPins(self.name))
 
     @property
-    def evaluated(self):
+    def model(self):
+        """RLC Model if available.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.object3dlayout.ModelInfoRlc`
+        """
         if self._part_type_id in [1, 2, 3]:
             return ModelInfoRlc(self, self.name)
 

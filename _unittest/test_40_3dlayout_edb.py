@@ -56,11 +56,11 @@ class TestClass(BasisTest, object):
         assert not comp["J2"].enabled(False)
         assert not comp["FB1M1"].enabled(False)
         r5 = comp["R5"]
-        assert r5.evaluated
-        assert r5.evaluated.res == "100kOhm"
-        assert r5.evaluated.cap == "0"
-        assert r5.evaluated.ind == "0"
-        assert r5.evaluated.is_parallel == False
+        assert r5.model
+        assert r5.model.res == "100kOhm"
+        assert r5.model.cap == "0"
+        assert r5.model.ind == "0"
+        assert r5.model.is_parallel == False
 
     def test_02a_get_geometries(self):
         line = self.aedtapp.modeler.geometries["line_1983"]
