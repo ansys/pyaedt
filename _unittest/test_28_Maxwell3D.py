@@ -300,10 +300,28 @@ class TestClass(BasisTest, object):
         )
 
     def test_28_assign_torque(self):
-        assert self.aedtapp.assign_torque("Coil")
+        T = self.aedtapp.assign_torque("Coil")
+        assert T.type == "Torque"
+        assert T.props["Objects"][0] == "Coil"
+        assert T.props["Is Positive"]
+        assert T.props["Is Virtual"]
+        assert T.props["Coordinate System"] == "Global"
+        assert T.props["Axis"] == "Z"
+        assert T.delete()
+        T = self.aedtapp.assign_torque(input_object="Coil", is_positive=False, torque_name="Torque_Test")
+        assert not T.props["Is Positive"]
+        assert T.name == "Torque_Test"
 
     def test_29_assign_force(self):
-        assert self.aedtapp.assign_force("Coil")
+        F = self.aedtapp.assign_force("Coil")
+        assert F.type == "Force"
+        assert F.props["Objects"][0] == "Coil"
+        assert F.props["Reference CS"] == "Global"
+        assert F.props["Is Virtual"]
+        assert F.delete()
+        F = self.aedtapp.assign_force(input_object="Coil", is_virtual=False, force_name="Force_Test")
+        assert F.name == "Force_Test"
+        assert not F.props["Is Virtual"]
 
     def test_30_assign_movement(self):
         self.aedtapp.insert_design("Motion")
@@ -324,15 +342,15 @@ class TestClass(BasisTest, object):
     def test_32_matrix(self):
         m3d = Maxwell3d(self.file_path, specified_version=desktop_version)
         m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
-        m3d.modeler.primitives.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
-        m3d.modeler.primitives.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", matname="aluminum")
-        m3d.modeler.primitives.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", matname="aluminum")
-        m3d.modeler.primitives.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", matname="aluminum")
+        m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
+        m3d.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", matname="aluminum")
+        m3d.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", matname="aluminum")
+        m3d.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", matname="aluminum")
 
-        rectangle1 = m3d.modeler.primitives.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
-        rectangle2 = m3d.modeler.primitives.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
-        rectangle3 = m3d.modeler.primitives.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
-        rectangle4 = m3d.modeler.primitives.create_rectangle(0, [32.5, 1.5, 0], [2.5, 5], name="Sheet4")
+        rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        rectangle4 = m3d.modeler.create_rectangle(0, [32.5, 1.5, 0], [2.5, 5], name="Sheet4")
 
         m3d.assign_voltage(rectangle1.faces[0], amplitude=1, name="Voltage1")
         m3d.assign_voltage(rectangle2.faces[0], amplitude=1, name="Voltage2")

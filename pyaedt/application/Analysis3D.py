@@ -11,6 +11,7 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Model2D import Modeler2D
 from pyaedt.modeler.Model3D import Modeler3D
+from pyaedt.modeler.stackup_3d import Stackup3D
 from pyaedt.modules.Mesh import Mesh
 from pyaedt.modules.MeshIcepak import IcepakMesh
 
@@ -61,6 +62,9 @@ class FieldAnalysis3D(Analysis, object):
     student_version : bool, optional
         Whether to enable the student version of AEDT. The default
         is ``False``.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
     """
 
     def __init__(
@@ -77,6 +81,7 @@ class FieldAnalysis3D(Analysis, object):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         Analysis.__init__(
             self,
@@ -92,6 +97,7 @@ class FieldAnalysis3D(Analysis, object):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
         self._osolution = self._odesign.GetModule("Solutions")
         self._oboundary = self._odesign.GetModule("BoundarySetup")
@@ -831,3 +837,15 @@ class FieldAnalysis3D(Analysis, object):
         elif linked_data:
             self.odesign.DeleteLinkedDataVariation(variations)
         return True
+
+    @pyaedt_function_handler
+    def add_stackup_3d(self):
+        """Create a stackup 3D object.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.stackup_3d.Stackup3D`
+            ``True`` when delete operation is successful.
+        """
+        st = Stackup3D(self)
+        return st

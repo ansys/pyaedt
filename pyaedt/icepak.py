@@ -72,6 +72,9 @@ class Icepak(FieldAnalysis3D):
         Port number of which start the oDesktop communication on already existing server.
         This parameter is ignored in new server creation. It works only on 2022R2.
         Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     Examples
     --------
@@ -128,6 +131,7 @@ class Icepak(FieldAnalysis3D):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         FieldAnalysis3D.__init__(
             self,
@@ -143,6 +147,7 @@ class Icepak(FieldAnalysis3D):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
 
     def __enter__(self):
@@ -1459,7 +1464,7 @@ class Icepak(FieldAnalysis3D):
             Name of the EM setup. The default is ``"Setup1"``.
         sweepname : str, optional
             Name of the EM sweep to use for the mapping. The default is ``"LastAdaptive"``.
-        map_frequency : optional
+        map_frequency : str, optional
             String containing the frequency to map. The default is ``None``.
             The value must be ``None`` for Eigenmode analysis.
         surface_objects : list, optional
@@ -1467,8 +1472,13 @@ class Icepak(FieldAnalysis3D):
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case the
             source from the same project is used.
-        paramlist :list, optional
-            List of all parameters in the EM to map. The default is ``None``.
+        paramlist : list, dict, optional
+            List of all parameters to map from source and icepak design. The default is ``None``.
+            If ``None`` the variables will be set to their values (no mapping).
+            If it is a list, the specified variables in the icepak design will be mapped to variables
+            in the source design having the same name.
+            If it is a dictionary, it is possible to map variables to the source design having a different name.
+            The dict structure is {"source_design_variable": "icepak_variable"}.
         object_list : list, optional
             List of objects. The default is ``None``.
 
@@ -1484,8 +1494,6 @@ class Icepak(FieldAnalysis3D):
         """
         if surface_objects == None:
             surface_objects = []
-        if paramlist == None:
-            paramlist = []
         if object_list == None:
             object_list = []
 
@@ -1515,8 +1523,12 @@ class Icepak(FieldAnalysis3D):
         for el in self.available_variations.nominal_w_values_dict:
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
 
-        for el in paramlist:
-            argparam[el] = el
+        if paramlist and isinstance(paramlist, list):
+            for el in paramlist:
+                argparam[el] = el
+        elif paramlist and isinstance(paramlist, dict):
+            for el in paramlist:
+                argparam[el] = paramlist[el]
 
         props = OrderedDict(
             {
@@ -2674,7 +2686,7 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        ambienttemp : float, optional
+        ambienttemp : float, str, optional
             Ambient temperature, which can be an integer or a parameter already
             created in AEDT. The default is ``20``.
         gravityDir : int, optional
@@ -2700,10 +2712,7 @@ class Icepak(FieldAnalysis3D):
         >>> oDesign.SetDesignSettings
         """
 
-        try:
-            AmbientTemp = str(float(ambienttemp)) + "cel"
-        except:
-            AmbientTemp = ambienttemp
+        AmbientTemp = self.modeler._arg_with_dim(ambienttemp, "cel")
 
         IceGravity = ["X", "Y", "Z"]
         GVPos = False

@@ -284,6 +284,11 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.activate_variable_tuning("test_opti")
         assert self.aedtapp.activate_variable_tuning("$test_opti1", "1mm", "10mm")
         assert self.aedtapp.deactivate_variable_tuning("test_opti")
+        try:
+            self.aedtapp.activate_variable_tuning("Idontexist")
+            assert False
+        except:
+            assert True
 
     def test_36_activate_variable_for_optimization(self):
         assert self.aedtapp.activate_variable_optimization("test_opti")
@@ -319,7 +324,7 @@ class TestClass(BasisTest, object):
             cs.change_cs_mode(3)
             assert False
         except ValueError:
-            pass
+            assert True
 
         assert cs.change_cs_mode(0)
         assert cs.delete()

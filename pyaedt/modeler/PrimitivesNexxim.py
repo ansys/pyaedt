@@ -1396,7 +1396,7 @@ class NexximComponents(CircuitComponents):
         #     matrix = ["NAME:Reduce Matrix Choices"] + list(pyaedt_app.omatrix.ListReduceMatrixes())
         # variables = {}
         # for k, v in pyaedt_app.variable_manager.variables.items():
-        #     variables[k] = v.string_value
+        #     variables[k] = v.evaluated_value
         if not solution_name:
             solution_name = pyaedt_app.nominal_sweep
         # comp = self._add_subcircuit_link(

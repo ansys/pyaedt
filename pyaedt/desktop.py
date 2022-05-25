@@ -23,7 +23,6 @@ import tempfile
 import time
 import traceback
 import warnings
-from distutils.version import StrictVersion
 
 from pyaedt import is_ironpython
 
@@ -290,6 +289,9 @@ class Desktop:
         Port number of which start the oDesktop communication on already existing server.
         This parameter is ignored in new server creation. It works only on 2022R2.
         Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     Examples
     --------
@@ -321,6 +323,7 @@ class Desktop:
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         """Initialize desktop."""
         self._main = sys.modules["__main__"]
@@ -332,6 +335,7 @@ class Desktop:
         self._main.student_version = student_version
         self.machine = machine
         self.port = port
+        self.aedt_process_id = aedt_process_id
         if is_ironpython:
             self._main.isoutsideDesktop = False
         else:
@@ -360,10 +364,15 @@ class Desktop:
                 print("Launching PyAEDT outside AEDT with IronPython.")
                 self._init_ironpython(non_graphical, new_desktop_session, version)
             elif _com == "pythonnet_v3":
-                if StrictVersion(version_key) < StrictVersion("2022.2.0") or not settings.use_grpc_api:
+                if version_key < "2022.2" or not settings.use_grpc_api:
                     print("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
                     self._init_cpython(
-                        non_graphical, new_desktop_session, version, self._main.student_version, version_key
+                        non_graphical,
+                        new_desktop_session,
+                        version,
+                        self._main.student_version,
+                        version_key,
+                        aedt_process_id,
                     )
                 else:
                     self._init_cpython_new(non_graphical, new_desktop_session, version, self._main.student_version)
@@ -382,6 +391,7 @@ class Desktop:
         settings.aedt_version = self.odesktop.GetVersion()[0:6]
         settings.machine = self.machine
         settings.port = self.port
+        self.aedt_process_id = self.odesktop.GetProcessID()  # bit of cleanup for consistency if used in future
 
         if _com == "ironpython":
             sys.path.append(
@@ -545,7 +555,16 @@ class Desktop:
         self._main.oDesktop = o_ansoft_app.GetAppDesktop()
         self._main.isoutsideDesktop = True
 
-    def _init_cpython(self, non_graphical, new_aedt_session, version, student_version, version_key):
+    def _init_cpython(
+        self,
+        non_graphical,
+        new_aedt_session,
+        version,
+        student_version,
+        version_key,
+        aedt_process_id=None,
+    ):
+
         base_path = self._main.sDesktopinstallDirectory
         sys.path.append(base_path)
         sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
@@ -561,7 +580,7 @@ class Desktop:
         processID = []
         if IsWindows:
             processID = self._get_tasks_list_windows(student_version)
-        if student_version and not processID:
+        if student_version and not processID:  # Opens an instance if processID is an empty list
             self._run_student()
         elif non_graphical or new_aedt_session or not processID:
             # Force new object if no non-graphical instance is running or if there is not an already existing process.
@@ -573,8 +592,12 @@ class Desktop:
         processID2 = []
         if IsWindows:
             processID2 = self._get_tasks_list_windows(student_version)
-        proc = [i for i in processID2 if i not in processID]
-        if not proc:
+        proc = [i for i in processID2 if i not in processID]  # Looking for the "new" process
+        if (
+            not proc and (not new_aedt_session) and aedt_process_id
+        ):  # if it isn't a new aedt session and a process ID is given
+            proc = [aedt_process_id]
+        elif not proc:
             proc = processID2
         if proc == processID2 and len(processID2) > 1:
             self._dispatch_win32(version)

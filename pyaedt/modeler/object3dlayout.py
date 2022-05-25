@@ -1033,7 +1033,7 @@ class Point(object):
 
     >>> from pyaedt import Hfss
     >>> aedtapp = Hfss()
-    >>> primitives = aedtapp.modeler.primitives
+    >>> primitives = aedtapp.modeler
 
     Create a point, to return an :class:`pyaedt.modeler.Object3d.Point`.
 
@@ -1136,7 +1136,7 @@ class Point(object):
 
         Examples
         --------
-        >>> point = self.aedtapp.modeler.primitives.create_point([30, 30, 0], "demo_point")
+        >>> point = self.aedtapp.modeler.create_point([30, 30, 0], "demo_point")
         >>> point.set_color("(143 175 158)")
 
         """

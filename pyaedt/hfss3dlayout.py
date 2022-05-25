@@ -59,6 +59,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Port number of which start the oDesktop communication on already existing server.
         This parameter is ignored in new server creation. It works only on 2022R2.
         Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     Examples
     --------
@@ -103,6 +106,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         FieldAnalysis3DLayout.__init__(
             self,
@@ -118,6 +122,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
 
     def __enter__(self):
@@ -145,7 +150,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         iscircuit : bool, optional
             Whether the edge port is a circuit port. The default is ``False``.
         iswave : bool, optional
-            Whether the edge port is a circuit port. The default is ``False``.
+            Whether the edge port is a wave port. The default is ``False``.
         wave_horizontal_extension : float, optional
             Horizontal port extension factor. Default is `5`.
         wave_vertical_extension : float, optional
@@ -191,12 +196,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     property_value=str(wave_horizontal_extension),
                     property_tab="EM Design",
                 )
-                self.modeler.change_property(
-                    property_object="Excitations:{}".format(a[0]),
-                    property_name="Vertical Extent Factor",
-                    property_value=str(wave_vertical_extension),
-                    property_tab="EM Design",
-                )
+                if "Vertical Extent Factor" in list(
+                    self.modeler.oeditor.GetProperties("EM Design", "Excitations:{}".format(a[0]))
+                ):
+                    self.modeler.change_property(
+                        property_object="Excitations:{}".format(a[0]),
+                        property_name="Vertical Extent Factor",
+                        property_value=str(wave_vertical_extension),
+                        property_tab="EM Design",
+                    )
                 self.modeler.change_property(
                     property_object="Excitations:{}".format(a[0]),
                     property_name="PEC Launch Width",
@@ -1320,3 +1328,30 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.oexcitation.SaveDiffPairsToFile(filename)
 
         return os.path.isfile(filename)
+
+    @pyaedt_function_handler()
+    def export_3d_model(self, file_name=None, path=None, extension="sat"):
+        """Export the Ecad model to an ACIS 3D File.
+
+        Parameters
+        ----------
+        file_name : str, optional
+            Name of the file to export. Default is None which will set file_name to design_name.
+        path : str, optional
+            Path to the file. Default is None which will save in working_directory path.
+        extension : str, optional
+            File extension. Default is `"sm3"`. Options are `"sat"`  and `"sab"`.
+
+        Returns
+        -------
+        bool
+            `True` if succeeded.
+        """
+        if not path:
+            path = self.working_directory
+        if not file_name:
+            file_name = self.design_name
+        self.modeler.oeditor.ExportAcis(
+            ["NAME:options", "FileName:=", os.path.join(path, "{}.{}".format(file_name, extension))]
+        )
+        return True

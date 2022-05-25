@@ -502,13 +502,12 @@ def is_number(a):
             return False
     else:
         return False
-    # return str(a).replace(".", "").replace("+", "").replace("-", "").replace("e","").replace("E","").isnumeric()
 
 
 def is_array(a):
     try:
         v = list(eval(a))
-    except (ValueError, TypeError, NameError):
+    except (ValueError, TypeError, NameError, SyntaxError):
         return False
     else:
         if type(v) is list:

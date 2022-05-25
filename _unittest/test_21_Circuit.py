@@ -408,3 +408,32 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.pop_up()
         active_project_name_2 = self.aedtapp.oproject.GetActiveDesign().GetName()
         assert active_project_name_1 == active_project_name_2
+
+    def test_34_activate_variables(self):
+        self.aedtapp["desvar"] = "1mm"
+        self.aedtapp["$prjvar"] = "2mm"
+        assert self.aedtapp["desvar"] == "1mm"
+        assert self.aedtapp["$prjvar"] == "2mm"
+        assert self.aedtapp.activate_variable_tuning("desvar")
+        assert self.aedtapp.activate_variable_tuning("$prjvar")
+        assert self.aedtapp.deactivate_variable_tuning("desvar")
+        assert self.aedtapp.deactivate_variable_tuning("$prjvar")
+        try:
+            self.aedtapp.activate_variable_tuning("Idontexist")
+            assert False
+        except:
+            assert True
+
+    def test_35_netlist_data_block(self):
+        self.aedtapp.insert_design("data_block")
+        with open(os.path.join(self.local_scratch.path, "lc.net"), "w") as f:
+            for i in range(10):
+                f.write("L{} net_{} net_{} 1e-9\n".format(i, i, i + 1))
+                f.write("C{} net_{} 0 5e-12\n".format(i, i + 1))
+        assert self.aedtapp.add_netlist_datablock(os.path.join(self.local_scratch.path, "lc.net"))
+        self.aedtapp.modeler.components.create_interface_port("net_0", (0, 0))
+        self.aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
+
+        lna = self.aedtapp.create_setup("mylna", self.aedtapp.SETUPS.NexximLNA)
+        lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
+        assert self.aedtapp.analyze_nominal()

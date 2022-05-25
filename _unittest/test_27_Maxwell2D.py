@@ -101,11 +101,25 @@ class TestClass(BasisTest, object):
 
     @pyaedt_unittest_check_desktop_error
     def test_10_assign_torque(self):
-        assert self.aedtapp.assign_torque("Rotor_Section1")
+        T = self.aedtapp.assign_torque("Rotor_Section1")
+        assert T.type == "Torque"
+        assert T.props["Objects"][0] == "Rotor_Section1"
+        assert T.props["Is Positive"]
+        assert T.delete()
+        T = self.aedtapp.assign_torque(input_object="Rotor_Section1", is_positive=False, torque_name="Torque_Test")
+        assert T.name == "Torque_Test"
+        assert not T.props["Is Positive"]
+        assert T.props["Objects"][0] == "Rotor_Section1"
 
     @pyaedt_unittest_check_desktop_error
     def test_11_assign_force(self):
-        assert self.aedtapp.assign_force("Magnet2_Section1")
+        F = self.aedtapp.assign_force("Magnet2_Section1")
+        assert F.type == "Force"
+        assert F.props["Objects"][0] == "Magnet2_Section1"
+        assert F.props["Reference CS"] == "Global"
+        assert F.delete()
+        F = self.aedtapp.assign_force(input_object="Magnet2_Section1", force_name="Force_Test")
+        assert F.name == "Force_Test"
 
     @pyaedt_unittest_check_desktop_error
     def test_12_assign_current_source(self):
@@ -175,18 +189,10 @@ class TestClass(BasisTest, object):
     def test_19_matrix(self):
         self.aedtapp.insert_design("Matrix")
         self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        self.aedtapp.modeler.primitives.create_rectangle(
-            [0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1", matname="vacuum"
-        )
-        self.aedtapp.modeler.primitives.create_rectangle(
-            [8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2", matname="vacuum"
-        )
-        self.aedtapp.modeler.primitives.create_rectangle(
-            [16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3", matname="vacuum"
-        )
-        self.aedtapp.modeler.primitives.create_rectangle(
-            [32, 1.5, 0], [8, 3], is_covered=True, name="Coil_4", matname="vacuum"
-        )
+        self.aedtapp.modeler.create_rectangle([0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1", matname="vacuum")
+        self.aedtapp.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2", matname="vacuum")
+        self.aedtapp.modeler.create_rectangle([16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3", matname="vacuum")
+        self.aedtapp.modeler.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True, name="Coil_4", matname="vacuum")
         self.aedtapp.assign_current("Coil_1", amplitude=1, swap_direction=False, name="Current1")
         self.aedtapp.assign_current("Coil_2", amplitude=1, swap_direction=True, name="Current2")
         self.aedtapp.assign_current("Coil_3", amplitude=1, swap_direction=True, name="Current3")

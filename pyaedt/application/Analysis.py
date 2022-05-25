@@ -69,6 +69,9 @@ class Analysis(Design, object):
         Whether to release  AEDT on exit.
     student_version : bool
         Whether to enable the student version of AEDT.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     """
 
@@ -86,6 +89,7 @@ class Analysis(Design, object):
         student_version,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         self.setups = []
         Design.__init__(
@@ -101,6 +105,7 @@ class Analysis(Design, object):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
         self.logger.info("Design Loaded")
         self._setup = None
@@ -988,19 +993,9 @@ class Analysis(Design, object):
             >>> oDesign.GetVariableValue
             >>> oDesign.GetNominalVariation"""
             families = []
-            if self._app.design_type == "HFSS 3D Layout Design":
-                if self._app._is_object_oriented_enabled():
-                    listvar = list(self._app._odesign.GetChildObject("Variables").GetChildNames())
-                else:
-                    listvar = list(self._app._odesign.GetVariables())
-                for el in listvar:
-                    families.append(el + ":=")
-                    families.append([self._app._odesign.GetVariableValue(el)])
-            else:
-                variation = self._app._odesign.GetNominalVariation()
-                for el in self.variables:
-                    families.append(el + ":=")
-                    families.append([self._app._odesign.GetVariationVariableValue(variation, el)])
+            for k, v in list(self._app.variable_manager.independent_variables.items()):
+                families.append(k + ":=")
+                families.append([v.expression])
             return families
 
         @property
@@ -1015,22 +1010,14 @@ class Analysis(Design, object):
             >>> oDesign.GetVariableValue
             >>> oDesign.GetNominalVariation"""
             families = {}
-            if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Twin Builder"]:
-                if self._app._is_object_oriented_enabled():
-                    listvar = list(self._app._odesign.GetChildObject("Variables").GetChildNames())
-                else:
-                    listvar = list(self._app._odesign.GetVariables())
-                for el in listvar:
-                    families[el] = self._app._odesign.GetVariableValue(el)
-            else:
-                variation = self._app._odesign.GetNominalVariation()
-                for el in self.variables:
-                    families[el] = self._app._odesign.GetVariationVariableValue(variation, el)
+            for k, v in list(self._app.variable_manager.independent_variables.items()):
+                families[k] = v.expression
+
             return families
 
         @property
         def all(self):
-            """All."""
+            """List of all independent variables with `["All"]` value."""
             families = []
             for el in self.variables:
                 families.append(el + ":=")
@@ -1825,3 +1812,29 @@ class Analysis(Design, object):
             )
         self.logger.info("Touchstone correctly exported to %s", filename)
         return True
+
+    @pyaedt_function_handler()
+    def value_with_units(self, value, units=None):
+        """Combine a number and a string containing the unit in a single string e.g. "1.2mm".
+        If the units are not specified, the model units are used.
+        If value is a string (like containing an expression), it is returned as is.
+
+        Parameters
+        ----------
+        value : float, int, str
+            Value of the number or string containing an expression.
+        units : str, optional
+            Units to combine with value.
+
+        Returns
+        -------
+        str
+            String that combines the value and the units (e.g. "1.2mm").
+        """
+        if isinstance(value, str):
+            val = value
+        else:
+            if units is None:
+                units = self.modeler.model_units
+            val = "{0}{1}".format(value, units)
+        return val

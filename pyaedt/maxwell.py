@@ -202,10 +202,10 @@ class Maxwell(object):
         Set matrix in a Maxwell analysis.
 
         >>> m2d = Maxwell2d(solution_type="MagnetostaticXY", close_on_exit=True, specified_version="2022.1")
-        >>> coil1 = m2d.modeler.primitives.create_rectangle([0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1")
-        >>> coil2 = m2d.modeler.primitives.create_rectangle([8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2")
-        >>> coil3 = m2d.modeler.primitives.create_rectangle([16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3")
-        >>> coil4 = m2d.modeler.primitives.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True, name="Coil_4")
+        >>> coil1 = m2d.modeler.create_rectangle([0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1")
+        >>> coil2 = m2d.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2")
+        >>> coil3 = m2d.modeler.create_rectangle([16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3")
+        >>> coil4 = m2d.modeler.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True, name="Coil_4")
         >>> current1 = m2d.assign_current("Coil_1", amplitude=1, swap_direction=False, name="Current1")
         >>> current2 = m2d.assign_current("Coil_2", amplitude=1, swap_direction=True, name="Current2")
         >>> current3 = m2d.assign_current("Coil_3", amplitude=1, swap_direction=True, name="Current3")
@@ -1056,26 +1056,35 @@ class Maxwell(object):
 
         >>> oModule.AssignForce
         """
-        input_object = self.modeler.convert_to_selections(input_object, True)
-        if not force_name:
-            force_name = generate_unique_name("Force")
-        if self.design_type == "Maxwell 3D":
-            self.o_maxwell_parameters.AssignForce(
-                [
-                    "NAME:" + force_name,
-                    "Reference CS:=",
-                    reference_cs,
-                    "Is Virtual:=",
-                    is_virtual,
-                    "Objects:=",
-                    input_object,
-                ]
-            )
+        if self.solution_type not in ["ACConduction", "DCConduction"]:
+            input_object = self.modeler.convert_to_selections(input_object, True)
+            if not force_name:
+                force_name = generate_unique_name("Force")
+            if self.design_type == "Maxwell 3D":
+                prop = OrderedDict(
+                    {
+                        "Name": force_name,
+                        "Reference CS": reference_cs,
+                        "Is Virtual": is_virtual,
+                        "Objects": input_object,
+                    }
+                )
+            else:
+                prop = OrderedDict(
+                    {
+                        "Name": force_name,
+                        "Reference CS": reference_cs,
+                        "Objects": input_object,
+                    }
+                )
+
+            bound = MaxwellParameters(self, force_name, prop, "Force")
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
         else:
-            self.o_maxwell_parameters.AssignForce(
-                ["NAME:" + force_name, "Reference CS:=", reference_cs, "Objects:=", input_object]
-            )
-        return True
+            self.logger.error("Solution Type has not Matrix Parameter")
+            return False
 
     @pyaedt_function_handler()
     def assign_torque(
@@ -1108,38 +1117,40 @@ class Maxwell(object):
 
         >>> oModule.AssignTorque
         """
-        input_object = self.modeler.convert_to_selections(input_object, True)
-        if not torque_name:
-            torque_name = generate_unique_name("Torque")
-        if self.design_type == "Maxwell 3D":
-            self.o_maxwell_parameters.AssignTorque(
-                [
-                    "NAME:" + torque_name,
-                    "Is Virtual:=",
-                    is_virtual,
-                    "Coordinate System:=",
-                    reference_cs,
-                    "Axis:=",
-                    axis,
-                    "Is Positive:=",
-                    is_positive,
-                    "Objects:=",
-                    input_object,
-                ]
-            )
+        if self.solution_type not in ["ACConduction", "DCConduction"]:
+            if self.solution_type == "Transient":
+                is_virtual = True
+            input_object = self.modeler.convert_to_selections(input_object, True)
+            if not torque_name:
+                torque_name = generate_unique_name("Torque")
+            if self.design_type == "Maxwell 3D":
+                prop = OrderedDict(
+                    {
+                        "Name": torque_name,
+                        "Is Virtual": is_virtual,
+                        "Coordinate System": reference_cs,
+                        "Axis": axis,
+                        "Is Positive": is_positive,
+                        "Objects": input_object,
+                    }
+                )
+            else:
+                prop = OrderedDict(
+                    {
+                        "Name": torque_name,
+                        "Coordinate System": reference_cs,
+                        "Is Positive": is_positive,
+                        "Objects": input_object,
+                    }
+                )
+
+            bound = MaxwellParameters(self, torque_name, prop, "Torque")
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
         else:
-            self.o_maxwell_parameters.AssignTorque(
-                [
-                    "NAME:" + torque_name,
-                    "Coordinate System:=",
-                    reference_cs,
-                    "Is Positive:=",
-                    is_positive,
-                    "Objects:=",
-                    input_object,
-                ]
-            )
-        return True
+            self.logger.error("Solution Type has not Matrix Parameter")
+            return False
 
     @pyaedt_function_handler()
     def solve_inside(self, name, activate=True):
@@ -1272,6 +1283,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Port number of which start the oDesktop communication on already existing server.
         This parameter is ignored in new server creation. It works only on 2022R2.
         Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     Examples
     --------
@@ -1308,6 +1322,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         """
         Initialize the ``Maxwell`` class.
@@ -1327,6 +1342,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
         Maxwell.__init__(self)
 
@@ -1380,6 +1396,9 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         Port number of which start the oDesktop communication on already existing server.
         This parameter is ignored in new server creation. It works only on 2022R2.
         Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     Examples
     --------
@@ -1431,6 +1450,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         student_version=False,
         machine="",
         port=0,
+        aedt_process_id=None,
     ):
         self.is3d = False
         FieldAnalysis3D.__init__(
@@ -1447,6 +1467,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             student_version,
             machine,
             port,
+            aedt_process_id,
         )
         Maxwell.__init__(self)
 
