@@ -380,11 +380,6 @@ class Analysis(Design, object):
                 if self.design_type in ["HFSS 3D Layout Design"]:
                     sweeps = self.oanalysis.GelAllSolutionNames()
                 elif self.solution_type not in ["Eigenmode"]:
-                    setuptype = self.design_solutions.default_adaptive
-                    if setuptype:
-                        sweep_list.append(el + " : " + setuptype)
-                    else:
-                        sweep_list.append(el)
                     try:
                         sweeps = list(self.oanalysis.GetSweeps(el))
                     except:
