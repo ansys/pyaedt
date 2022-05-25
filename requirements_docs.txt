@@ -13,6 +13,6 @@ sphinx-copybutton==0.5.0
 sphinx-gallery==0.10.1
 sphinx-autodoc-typehints==1.18.1
 pyansys-sphinx-theme==0.2.3
-pypandoc==1.8
+pypandoc==1.8.1
 nbsphinx==0.8.8
 ipywidgets==7.7.0
