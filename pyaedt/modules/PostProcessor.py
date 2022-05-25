@@ -1929,6 +1929,7 @@ class FieldPlot:
 
         >>> oModule.ExportPlotImageToFile
         >>> oModule.ExportModelImageToFile
+        >>> oModule.ExportPlotImageWithViewToFile
         """
         self.oField.UpdateQuantityFieldsPlots(self.plotFolder)
         if not full_path:
