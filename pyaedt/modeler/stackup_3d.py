@@ -2256,6 +2256,7 @@ class Trace(CommonObject, object):
                 ],
             ]
         )
+        return True
 
 
 class Polygon(CommonObject, object):
