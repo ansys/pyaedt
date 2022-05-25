@@ -528,10 +528,16 @@ class CommonReport(object):
         sweep_list = []
         if self.primary_sweep:
             sweep_list.append(self.primary_sweep + ":=")
-            sweep_list.append(self.primary_sweep_range)
+            if self.primary_sweep_range == ["All"] and self.primary_sweep in self.variations:
+                sweep_list.append(self.variations[self.primary_sweep])
+            else:
+                sweep_list.append(self.primary_sweep_range)
         if self.secondary_sweep:
             sweep_list.append(self.secondary_sweep + ":=")
-            sweep_list.append(self.secondary_sweep_range)
+            if self.secondary_sweep_range == ["All"] and self.secondary_sweep in self.variations:
+                sweep_list.append(self.variations[self.primary_sweep])
+            else:
+                sweep_list.append(self.secondary_sweep_range)
         for el in sweeps:
             if el in [self.primary_sweep, self.secondary_sweep]:
                 continue

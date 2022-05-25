@@ -227,7 +227,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.post.rename_report("MyTestScattering", "MyNewScattering")
 
     def test_09_manipulate_report(self):
-        assert self.aedtapp.post.create_report("dB(S(1,1))")
+        assert self.aedtapp.post.create_report("dB(S(1,1))", variations={"Freq": ["2.5GHz", "2.6GHz"]})
         assert self.aedtapp.post.create_report(
             expressions="MaxMagDeltaS",
             variations={"Pass": ["All"]},
