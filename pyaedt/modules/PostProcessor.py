@@ -1928,7 +1928,7 @@ class FieldPlot:
         ----------
 
         >>> oModule.ExportPlotImageToFile
-        >>> oModule.ExportPlotImageWithViewToFile
+        >>> oModule.ExportModelImageToFile
         """
         self.oField.UpdateQuantityFieldsPlots(self.plotFolder)
         if not full_path:
@@ -4072,7 +4072,7 @@ class PostProcessor(PostProcessorCommon, object):
         ----------
 
         >>> oModule.ExportPlotImageToFile
-        >>> oModule.ExportPlotImageWithViewToFile
+        >>> oModule.ExportModelImageToFile
         """
         if self.post_solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             wireframes = []
@@ -4094,14 +4094,21 @@ class PostProcessor(PostProcessorCommon, object):
                 self.ofieldsreporter.ExportPlotImageToFile(fileName, foldername, plotName, cs.name)
                 cs.delete()
             else:
-                self.ofieldsreporter.ExportPlotImageWithViewToFile(
-                    fileName, foldername, plotName, width, height, orientation
+
+                self.export_model_picture(
+                    full_name=fileName, width=width, height=height, orientation=orientation, field_selections=plotName
                 )
+                # self.ofieldsreporter.ExportPlotImageWithViewToFile(
+                #     fileName, foldername, plotName, width, height, orientation
+                # )
 
             for solid in wireframes:
                 self._primitives[solid].display_wireframe = False
         else:
-            self._oeditor.ExportImage(fileName, 1920, 1080)
+            self.ofieldsreporter.ExportPlotImageWithViewToFile(
+                fileName, foldername, plotName, width, height, orientation
+            )
+        # self._oeditor.ExportImage(fileName, 1920, 1080)
         return True
 
     @pyaedt_function_handler()
@@ -4137,7 +4144,7 @@ class PostProcessor(PostProcessorCommon, object):
         ----------
 
         >>> oModule.ExportPlotImageToFile
-        >>> oModule.ExportPlotImageWithViewToFile
+        >>> oModule.ExportModelImageToFile
         """
         warnings.warn(
             "`export_field_image_with_view` is deprecated. Use `export_field_jpg` property instead.", DeprecationWarning
@@ -4172,7 +4179,17 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler()
     def export_model_picture(
-        self, dir=None, name=None, picturename=None, show_axis=True, show_grid=True, show_ruler=True
+        self,
+        full_name=None,
+        show_axis=True,
+        show_grid=True,
+        show_ruler=True,
+        show_region="Default",
+        selections=None,
+        field_selections=None,
+        orientation="isometric",
+        width=0,
+        height=0,
     ):
         """Export a snapshot of the model to a JPG file.
 
@@ -4181,20 +4198,28 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        dir : str, optional
-            Path for exporting the JPG file. The default is ``None``, in which case
-            an internal volatile scratch in the ``temp`` directory is used.
-        name : str, optional
-            Name of the project, which is used to compose the directory path.
-        picturename : str, optional
-            Name of the JPG file. The default is ``None``, in which case the default
-            name is assigned. The extension ``".jpg"`` is added automatically.
+        full_name : str, optional
+            Full Path for exporting the image file. The default is ``None``, in which case working_dir will be used.
         show_axis : bool, optional
             Whether to show the axes. The default is ``True``.
         show_grid : bool, optional
             Whether to show the grid. The default is ``True``.
         show_ruler : bool, optional
             Whether to show the ruler. The default is ``True``.
+        show_region : bool, optional
+            Whether to show the region or not. The default is ``Default``.
+        selections : list, optional
+            Whether to export image of a selection or not. Default is `None`.
+        field_selections : str, list, optional
+            List of Fields plots to add to the image. Default is `None`. `"all"` for all field plots.
+        orientation : str, optional
+            Picture orientation. Orientation can be one of `"top"`, `"bottom"`, `"right"`, `"left"`,
+            `"front"`, `"back"`, `"trimetric"`, `"dimetric"`, `"isometric"`, or a custom
+            orientation that you added to the Orientation List.
+        width : int, optional
+            Export image picture width size in pixels. Default is 0 which takes the desktop size.
+        height : int, optional
+            Export image picture height size in pixels. Default is 0 which takes the desktop size.
 
         Returns
         -------
@@ -4207,49 +4232,54 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oEditor.ExportModelImageToFile
         """
         # Set up arguments list for createReport function
-        if not dir:
-            dir = self._scratch
-            self.logger.debug("Using scratch path {}".format(self._scratch))
-
-        assert os.path.exists(dir), "Specified directory does not exist: {}".format(dir)
-
-        if name:
-            project_subdirectory = os.path.join(dir, name)
-            if not os.path.exists(project_subdirectory):
-                os.mkdir(project_subdirectory)
-            file_path = os.path.join(project_subdirectory, "Pictures")
-            if not os.path.exists(file_path):
-                os.mkdir(file_path)
+        if selections:
+            selections = self.modeler.convert_to_selections(selections, False)
         else:
-            file_path = dir
-
-        if not picturename:
-            picturename = generate_unique_name("image")
-        else:
-            if picturename.endswith(".jpg"):
-                picturename = picturename[:-4]
+            selections = ""
+        if not full_name:
+            full_name = os.path.join(self._app.working_directory, generate_unique_name(self._app.design_name) + ".jpg")
 
         # open the 3D modeler and remove the selection on other objects
-        self._oeditor.ShowWindow()
-        self.steal_focus_oneditor()
-        self._oeditor.FitAll()
+        if self._app.design_type not in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
+            self._oeditor.ShowWindow()
+            self.steal_focus_oneditor()
+        self.modeler.fit_all()
         # export the image
+        if field_selections:
+            if isinstance(field_selections, str):
+                if field_selections.lower() == "all":
+                    field_selections = [""]
+                else:
+                    field_selections = [field_selections]
+
+        else:
+            field_selections = ["none"]
         arg = [
             "NAME:SaveImageParams",
             "ShowAxis:=",
-            show_axis,
+            str(show_axis),
             "ShowGrid:=",
-            show_grid,
+            str(show_grid),
             "ShowRuler:=",
-            show_ruler,
+            str(show_ruler),
             "ShowRegion:=",
-            "Default",
+            str(show_region),
             "Selections:=",
-            "",
+            selections,
+            "FieldPlotSelections:=",
+            ",".join(field_selections),
+            "Orientation:=",
+            orientation,
         ]
-        file_name = os.path.join(file_path, picturename + ".jpg")
-        self._oeditor.ExportModelImageToFile(file_name, 0, 0, arg)
-        return file_name
+        if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
+            if width == 0:
+                width = 1920
+            if height == 0:
+                height = 1080
+            self._oeditor.ExportImage(full_name, width, height)
+        else:
+            self._oeditor.ExportModelImageToFile(full_name, width, height, arg)
+        return full_name
 
     @pyaedt_function_handler()
     def get_far_field_data(
@@ -4339,7 +4369,10 @@ class PostProcessor(PostProcessorCommon, object):
                 fname = os.path.join(export_path, "{}.obj".format(el))
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
                 if not self._app.modeler[el].display_wireframe:
-                    files_exported.append([fname, self._app.modeler[el].color, 1 - self._app.modeler[el].transparency])
+                    transp = 0.6
+                    if self._app.modeler[el].transparency:
+                        transp = self._app.modeler[el].transparency
+                    files_exported.append([fname, self._app.modeler[el].color, 1 - transp])
                 else:
                     files_exported.append([fname, self._app.modeler[el].color, 0.05])
             return files_exported

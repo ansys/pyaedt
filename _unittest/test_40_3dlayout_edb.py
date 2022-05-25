@@ -1,5 +1,7 @@
 import os
 
+from _unittest.conftest import config
+
 try:
     import pytest
 except ImportError:
@@ -197,3 +199,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.layers.change_stackup_type("Overlap")
         assert self.aedtapp.modeler.layers.change_stackup_type("Laminate")
         assert not self.aedtapp.modeler.layers.change_stackup_type("lami")
+
+    @pytest.mark.skipif(config["build_machine"] == True, reason="Not running in non-graphical mode")
+    def test_11_export_picture(self):
+        assert os.path.exists(self.aedtapp.post.export_model_picture(orientation="top"))

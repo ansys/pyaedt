@@ -110,9 +110,9 @@ class TestClass(BasisTest, object):
         plot2 = self.aedtapp.post.create_fieldplot_volume(vollist, quantity_name2, setup_name, intrinsic)
 
         self.aedtapp.post.export_field_image_with_view(
-            plot2.name, plot2.plotFolder, os.path.join(self.local_scratch.path, "prova2.jpg")
+            plot2.name, plot2.plotFolder, os.path.join(self.local_scratch.path, "prova2.png")
         )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "prova2.jpg"))
+        assert os.path.exists(os.path.join(self.local_scratch.path, "prova2.png"))
         assert os.path.exists(
             plot2.export_image(os.path.join(self.local_scratch.path, "test_x.jpg"), orientation="top")
         )
@@ -332,8 +332,8 @@ class TestClass(BasisTest, object):
         config["build_machine"], reason="Skipped because it cannot run on build machine in non-graphical mode"
     )
     def test_09d_add_line_from_point(self):  # pragma: no cover
-        assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
+        new_report.create()
         assert new_report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
 
     @pytest.mark.skipif(
@@ -450,13 +450,18 @@ class TestClass(BasisTest, object):
         config["build_machine"], reason="Skipped because it cannot run on build machine in non-graphical mode"
     )
     def test_13_export_model_picture(self):
-        path = self.aedtapp.post.export_model_picture(dir=self.local_scratch.path, name="images")
+        path1 = self.aedtapp.post.export_model_picture(full_name=os.path.join(self.local_scratch.path, "image.png"))
+        assert os.path.exists(path1)
+        path = self.aedtapp.post.export_model_picture(
+            show_axis=True, show_grid=False, show_ruler=True, show_region=False
+        )
         assert path
-        path = self.aedtapp.post.export_model_picture(show_axis=True, show_grid=False, show_ruler=True)
+        path = self.aedtapp.post.export_model_picture(selections="inner")
         assert path
-        path = self.aedtapp.post.export_model_picture(name="Ericsson", picturename="test_picture")
+        path = self.aedtapp.post.export_model_picture(orientation="top")
         assert path
-        path = self.aedtapp.post.export_model_picture(picturename="test_picture")
+        self.q3dtest.analyze_nominal()
+        path = self.q3dtest.post.export_model_picture(field_selections="SmootQ1", orientation="top")
         assert path
 
     @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
@@ -663,7 +668,6 @@ class TestClass(BasisTest, object):
         assert os.path.exists(os.path.join(self.sbr_test.working_directory, "animation.gif"))
 
     def test_56_test_export_q3d_results(self):
-        self.q3dtest.analyze_nominal()
         assert os.path.exists(self.q3dtest.export_convergence("Setup1"))
         assert os.path.exists(self.q3dtest.export_profile("Setup1"))
         new_report = self.q3dtest.post.reports_by_category.standard(self.q3dtest.get_traces_for_plot())
