@@ -585,7 +585,7 @@ class Layer3D(object):
 
 
 class PadstackLayer(object):
-    """Provides a Data class for the definition of a padstack layer and relative pad and antipad values."""
+    """Provides a data class for the definition of a padstack layer and relative pad and antipad values."""
 
     def __init__(self, padstack, layer_name, elevation, thickness):
         self._padstack = padstack
@@ -2256,7 +2256,7 @@ class Trace(CommonObject, object):
                 ],
             ]
         )
-        return True
+        return p1
 
 
 class Polygon(CommonObject, object):
