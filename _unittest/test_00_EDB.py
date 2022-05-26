@@ -20,6 +20,7 @@ except ImportError:  # pragma: no cover
     import _unittest_ironpython.conf_unittest as pytest
 
 
+@pytest.mark.skipif(config["skip_edb"], reason="Skipping EDB UT.")
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)

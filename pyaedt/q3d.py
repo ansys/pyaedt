@@ -66,7 +66,6 @@ class QExtractor(FieldAnalysis3D, object):
             port,
             aedt_process_id,
         )
-        self.omatrix = self.odesign.GetModule("ReduceMatrix")
         self.matrices = []
         for el in list(self.omatrix.ListReduceMatrixes()):
             self.matrices.append(Matrix(self, el))

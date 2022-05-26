@@ -62,7 +62,7 @@ class EmitComponents(object):
         ----------
 
         >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")"""
-        return self.o_definition_manager.GetManager("Symbol")
+        return self._parent.o_symbol_manager
 
     @property
     def o_component_manager(self):
@@ -72,7 +72,7 @@ class EmitComponents(object):
         ----------
 
         >>> oComponentManager = oDefinitionManager.GetManager("Component")"""
-        return self.o_definition_manager.GetManager("Component")
+        return self._parent.o_component_manager
 
     @property
     def design_type(self):

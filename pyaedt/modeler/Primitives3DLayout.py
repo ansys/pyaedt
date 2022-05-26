@@ -71,7 +71,6 @@ class Primitives3DLayout(object):
     def __init__(self, app):
         self.is_outside_desktop = sys.modules["__main__"].isoutsideDesktop
         self._app = app
-        self._opadstackmanager = self._app._oproject.GetDefinitionManager().GetManager("Padstack")
         self._padstacks = {}
         self._components3d = {}
         self._init_prims()
@@ -102,7 +101,7 @@ class Primitives3DLayout(object):
 
         >>> oPadstackManger = oDefinitionManager.GetManager("Padstack")
         """
-        return self._opadstackmanager
+        return self._app.opadstackmanager
 
     @property
     def components(self):
@@ -584,7 +583,7 @@ class Primitives3DLayout(object):
             args.append(net)
             args.append("Vis:=")
             args.append(visible)
-        self._oeditor.SetNetVisible(args)
+        self.oeditor.SetNetVisible(args)
         return True
 
     @pyaedt_function_handler()
@@ -644,7 +643,7 @@ class Primitives3DLayout(object):
         if not name:
             name = _uname()
         else:
-            listnames = self._oeditor.FindObjects("Name", name)
+            listnames = self.oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
         arg = ["NAME:Contents"]
@@ -664,7 +663,7 @@ class Primitives3DLayout(object):
         arg.append("Pin:="), arg.append(False)
         arg.append("highest_layer:="), arg.append(top_layer)
         arg.append("lowest_layer:="), arg.append(bot_layer)
-        self._oeditor.CreateVia(arg)
+        self.oeditor.CreateVia(arg)
         # self.objects[name] = Object3dlayout(self)
         # self.objects[name].name = name
         # if netname:
@@ -705,7 +704,7 @@ class Primitives3DLayout(object):
         if not name:
             name = _uname()
         else:
-            listnames = self._oeditor.FindObjects("Name", name)
+            listnames = self.oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
 
@@ -718,7 +717,7 @@ class Primitives3DLayout(object):
         vArg2.append("y:="), vArg2.append(self.arg_with_dim(y))
         vArg2.append("r:="), vArg2.append(self.arg_with_dim(radius))
         vArg1.append(vArg2)
-        self._oeditor.CreateCircle(vArg1)
+        self.oeditor.CreateCircle(vArg1)
         self._circles[name] = Circle3dLayout(self, name, False)
         return name
 
@@ -758,7 +757,7 @@ class Primitives3DLayout(object):
         if not name:
             name = _uname()
         else:
-            listnames = self._oeditor.FindObjects("Name", name)
+            listnames = self.oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
 
@@ -774,7 +773,7 @@ class Primitives3DLayout(object):
         vArg2.append("cr:="), vArg2.append(self.arg_with_dim(corner_radius))
         vArg2.append("ang="), vArg2.append(self.arg_with_dim(angle))
         vArg1.append(vArg2)
-        self._oeditor.CreateRectangle(vArg1)
+        self.oeditor.CreateRectangle(vArg1)
         self._rectangles[name] = Rect3dLayout(self, name, False)
         return name
 
@@ -821,7 +820,7 @@ class Primitives3DLayout(object):
         if not name:
             name = _uname()
         else:
-            listnames = self._oeditor.FindObjects("Name", name)
+            listnames = self.oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
         arg = ["NAME:Contents", "lineGeometry:="]
@@ -847,7 +846,7 @@ class Primitives3DLayout(object):
             arg2.append("y:=")
             arg2.append(a[1])
         arg.append(arg2)
-        self._oeditor.CreateLine(arg)
+        self.oeditor.CreateLine(arg)
         self._lines[name] = Line3dLayout(self, name, False)
         return name
 

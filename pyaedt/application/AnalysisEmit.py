@@ -55,7 +55,6 @@ class FieldAnalysisEmit(Design):
             aedt_process_id=aedt_process_id,
         )
         self.solution_type = solution_type
-        self.oanalysis = None
         self._modeler = ModelerEmit(self)
         self._couplings = CouplingsEmit(self)
 
