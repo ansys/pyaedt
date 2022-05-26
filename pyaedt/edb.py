@@ -467,7 +467,6 @@ class Edb(object):
         -------
         str
             Full path to the AEDB file.
-
         """
         self._components = None
         self._core_primitives = None
