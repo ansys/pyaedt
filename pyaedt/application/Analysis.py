@@ -371,18 +371,19 @@ class Analysis(Design, object):
             sweep_list.reverse()
         else:
             for el in setup_list:
-                if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
-                    sweeps = self.oanalysis.GelAllSolutionNames()
+                sweeps = []
+                setuptype = self.design_solutions.default_adaptive
+                if setuptype:
+                    sweep_list.append(el + " : " + setuptype)
                 else:
-                    setuptype = self.design_solutions.default_adaptive
-                    if setuptype:
-                        sweep_list.append(el + " : " + setuptype)
-                    else:
-                        sweep_list.append(el)
-                try:
-                    sweeps = list(self.oanalysis.GetSweeps(el))
-                except:
-                    sweeps = []
+                    sweep_list.append(el)
+                if self.design_type in ["HFSS 3D Layout Design"]:
+                    sweeps = self.oanalysis.GelAllSolutionNames()
+                elif self.solution_type not in ["Eigenmode"]:
+                    try:
+                        sweeps = list(self.oanalysis.GetSweeps(el))
+                    except:
+                        sweeps = []
                 for sw in sweeps:
                     if el + " : " + sw not in sweep_list:
                         sweep_list.append(el + " : " + sw)
@@ -811,6 +812,8 @@ class Analysis(Design, object):
 
         >>> oModule.ExportConvergence
         """
+        if " : " in setup_name:
+            setup_name = setup_name.split(" : ")[0]
         if not file_path:
             file_path = os.path.join(self.working_directory, generate_unique_name("Convergence") + ".prop")
         if not variation_string:
