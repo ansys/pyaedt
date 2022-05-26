@@ -123,7 +123,7 @@ class Primitives3DLayout(object):
 
     @property
     def geometries(self):
-        """Geometries.
+        """All Geometries including voids.
 
         Returns
         -------
@@ -137,6 +137,31 @@ class Primitives3DLayout(object):
         for k, v in self.rectangles.items():
             geom[k] = v
         for k, v in self.lines.items():
+            geom[k] = v
+        for k, v in self.circles.items():
+            geom[k] = v
+        for k, v in self.voids.items():
+            geom[k] = v
+        return geom
+
+    @property
+    def voids(self):
+        """All voids.
+
+        Returns
+        -------
+        dict
+            Dictionary of voids.
+
+        """
+        geom = {}
+        for k, v in self.polygons_voids.items():
+            geom[k] = v
+        for k, v in self.rectangles_voids.items():
+            geom[k] = v
+        for k, v in self.lines_voids.items():
+            geom[k] = v
+        for k, v in self.circles_voids.items():
             geom[k] = v
         return geom
 
@@ -156,9 +181,6 @@ class Primitives3DLayout(object):
             objs = self.modeler.oeditor.FindObjects("Type", poly)
             for obj in objs:
                 self._polygons[obj] = Polygons3DLayout(self, obj, poly, False)
-            objs = self.modeler.oeditor.FindObjects("Type", poly + " void")
-            for obj in objs:
-                self._polygons[obj] = Polygons3DLayout(self, obj, poly, True)
         return self._polygons
 
     @property
@@ -178,9 +200,6 @@ class Primitives3DLayout(object):
             objs = self.modeler.oeditor.FindObjects("Type", poly)
             for obj in objs:
                 self._lines[obj] = Line3dLayout(self, obj, False)
-            objs = self.modeler.oeditor.FindObjects("Type", poly + " void")
-            for obj in objs:
-                self._lines[obj] = Line3dLayout(self, obj, True)
         return self._lines
 
     @property
@@ -197,9 +216,6 @@ class Primitives3DLayout(object):
         objs = self.modeler.oeditor.FindObjects("Type", "circle")
         for obj in objs:
             self._circles[obj] = Circle3dLayout(self, obj, False)
-        objs = self.modeler.oeditor.FindObjects("Type", "circle void")
-        for obj in objs:
-            self._circles[obj] = Circle3dLayout(self, obj, True)
         return self._circles
 
     @property
@@ -216,6 +232,72 @@ class Primitives3DLayout(object):
         objs = self.modeler.oeditor.FindObjects("Type", "rect")
         for obj in objs:
             self._rectangles[obj] = Rect3dLayout(self, obj, False)
+        return self._rectangles
+
+    @property
+    def polygons_voids(self):
+        """Void Polygons.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Polygons3DLayout`]
+            Pyaedt Objects.
+        """
+        if self._polygons:
+            return self._polygons
+        poly_types = ["poly", "plg"]
+        for poly in poly_types:
+            objs = self.modeler.oeditor.FindObjects("Type", poly + " void")
+            for obj in objs:
+                self._polygons[obj] = Polygons3DLayout(self, obj, poly, True)
+        return self._polygons
+
+    @property
+    def lines_voids(self):
+        """Void Lines.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Line3dLayout`]
+            Pyaedt Objects.
+        """
+
+        if self._lines:
+            return self._lines
+        poly_types = ["line", "arc"]
+        for poly in poly_types:
+            objs = self.modeler.oeditor.FindObjects("Type", poly + " void")
+            for obj in objs:
+                self._lines[obj] = Line3dLayout(self, obj, True)
+        return self._lines
+
+    @property
+    def circles_voids(self):
+        """Void Circles.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Circle3dLayout`]
+            Pyaedt Objects.
+        """
+        if self._circles:
+            return self._circles
+        objs = self.modeler.oeditor.FindObjects("Type", "circle void")
+        for obj in objs:
+            self._circles[obj] = Circle3dLayout(self, obj, True)
+        return self._circles
+
+    @property
+    def rectangles_voids(self):
+        """Void Rectangles.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Rect3dLayout`]
+            Pyaedt Objects.
+        """
+        if self._rectangles:
+            return self._rectangles
         objs = self.modeler.oeditor.FindObjects("Type", "rect void")
         for obj in objs:
             self._rectangles[obj] = Rect3dLayout(self, obj, True)
