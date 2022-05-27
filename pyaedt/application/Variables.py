@@ -1148,7 +1148,7 @@ class Variable(object):
         """Read-only flag value."""
         if self._app:
             try:
-                if not is_ironpython and not settings.use_grpc_api:
+                if not is_ironpython and (settings.aedt_version < "2022.2" or not settings.use_grpc_api):
                     return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_ReadOnly
                 else:  # pragma: no cover
                     return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_ReadOnly()
@@ -1171,7 +1171,7 @@ class Variable(object):
         """Hidden flag value."""
         if self._app:
             try:
-                if not is_ironpython and not settings.use_grpc_api:
+                if not is_ironpython and (settings.aedt_version < "2022.2" or not settings.use_grpc_api):
                     return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Hidden
                 else:  # pragma: no cover
                     return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Hidden()
@@ -1193,7 +1193,7 @@ class Variable(object):
         """Description value."""
         if self._app:
             try:
-                if not is_ironpython and not settings.use_grpc_api:
+                if not is_ironpython and (settings.aedt_version < "2022.2" or not settings.use_grpc_api):
                     return (
                         self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Description
                     )

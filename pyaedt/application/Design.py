@@ -20,6 +20,7 @@ import time
 import warnings
 from collections import OrderedDict
 
+from pyaedt.application.design_solutions import model_names
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import DesignSolution
 from pyaedt.application.design_solutions import HFSSDesignSolution
@@ -43,7 +44,6 @@ from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.general_methods import settings
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
-from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.modules.Boundary import BoundaryObject, MaxwellParameters
 from pyaedt.application.Variables import decompose_variable_value
 
@@ -303,28 +303,27 @@ class Design(AedtObjects, object):
            Dictionary of the design properties.
 
         """
-        if self._design_dictionary is None and os.path.exists(self.project_file):
-            try:
-                start = time.time()
-                self._design_dictionary = load_keyword_in_aedt_file(self.project_file, self.design_name)
-                self._logger.info("aedt design load time {}".format(time.time() - start))
-            except TypeError:
-                self._design_dictionary = OrderedDict()
-        return self._design_dictionary
-        # if not design_name:
-        #     design_name = self.design_name
-        # try:
-        #     if model_names[self._design_type] in self.project_properies["AnsoftProject"]:
-        #         designs = self.project_properies["AnsoftProject"][model_names[self._design_type]]
-        #         if isinstance(designs, list):
-        #             for design in designs:
-        #                 if design["Name"] == design_name:
-        #                     return design
-        #         else:
-        #             if designs["Name"] == design_name:
-        #                 return designs
-        # except:
-        #     return OrderedDict()
+        # if self._design_dictionary is None and os.path.exists(self.project_file):
+        #     try:
+        #         start = time.time()
+        #         self._design_dictionary = load_keyword_in_aedt_file(self.project_file,
+        #                                                             self.design_name)[self.design_name]
+        #         self._logger.info("aedt design load time {}".format(time.time() - start))
+        #     except (KeyError, TypeError):
+        #         self._design_dictionary = OrderedDict()
+        # return self._design_dictionary
+        try:
+            if model_names[self._design_type] in self.project_properies["AnsoftProject"]:
+                designs = self.project_properies["AnsoftProject"][model_names[self._design_type]]
+                if isinstance(designs, list):
+                    for design in designs:
+                        if design["Name"] == self.design_name:
+                            return design
+                else:
+                    if designs["Name"] == self.design_name:
+                        return designs
+        except:
+            return OrderedDict()
 
     @property
     def aedt_version_id(self):
