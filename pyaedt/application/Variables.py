@@ -25,6 +25,7 @@ from pyaedt.generic.constants import SI_UNITS
 from pyaedt.generic.constants import unit_system
 from pyaedt.generic.general_methods import is_number, is_array
 from pyaedt import is_ironpython
+from pyaedt import settings
 
 
 class CSVDataset:
@@ -1147,7 +1148,7 @@ class Variable(object):
         """Read-only flag value."""
         if self._app:
             try:
-                if not is_ironpython:
+                if not is_ironpython and not settings.use_grpc_api:
                     return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_ReadOnly
                 else:  # pragma: no cover
                     return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_ReadOnly()
@@ -1170,7 +1171,7 @@ class Variable(object):
         """Hidden flag value."""
         if self._app:
             try:
-                if not is_ironpython:
+                if not is_ironpython and not settings.use_grpc_api:
                     return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Hidden
                 else:  # pragma: no cover
                     return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Hidden()
@@ -1192,7 +1193,7 @@ class Variable(object):
         """Description value."""
         if self._app:
             try:
-                if not is_ironpython:
+                if not is_ironpython and not settings.use_grpc_api:
                     return (
                         self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Description
                     )
