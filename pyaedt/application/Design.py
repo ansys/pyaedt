@@ -729,7 +729,8 @@ class Design(AedtObjects, object):
         if names:
             valids = []
             for name in names:
-                if self.get_oo_object(self.oproject, name).GetDesignType() == self.design_type:
+                des = self.get_oo_object(self.oproject, name)
+                if des.GetDesignType() == self.design_type:
                     if self.design_type in [
                         "Circuit Design",
                         "Twin Builder",
@@ -740,14 +741,15 @@ class Design(AedtObjects, object):
                         valids.append(name)
                     elif not self._temp_solution_type:
                         valids.append(name)
-                    elif self._temp_solution_type in self.get_oo_object(self.oproject, name).GetSolutionType():
+                    elif self._temp_solution_type in des.GetSolutionType():
                         valids.append(name)
             if len(valids) != 1:
                 warning_msg = "No consistent unique design is present. Inserting a new design."
             else:
                 activedes = valids[0]
                 warning_msg = "Active Design set to {}".format(valids[0])
-        elif self.design_list:
+        # legacy support for version < 2021.2
+        elif self.design_list:  # pragma: no cover
             self._odesign = self._oproject.GetDesign(self.design_list[0])
             if not self._check_design_consistency():
                 count_consistent_designs = 0
