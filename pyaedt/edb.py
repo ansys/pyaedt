@@ -495,7 +495,7 @@ class Edb(object):
             cmd_translator += ' -l="{}"'.format(os.path.join(working_dir, "Translator.log"))
         if not use_ppe:
             cmd_translator += " -ppe=false"
-        if control_file and input_file[-3:] in ["gds", "dxf"]:
+        if control_file and input_file[-3:] not in ["brd"]:
             if os.name == "posix":
                 cmd_translator += " -c={}".format(control_file)
             else:
