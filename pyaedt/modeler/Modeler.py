@@ -2948,6 +2948,132 @@ class GeometryModeler(Modeler, object):
         return True
 
     @pyaedt_function_handler()
+    def imprint(self, blank_list, tool_list, keep_originals=True):
+        """Imprin an object list on another object list.
+
+        Parameters
+        ----------
+        blank_list : list of Object3d or list of int
+            List of objects to imprint from. The list can be of
+            either :class:`pyaedt.modeler.Object3d.Object3d` objects or object IDs.
+        tool_list : list of Object3d or list of int
+            List of objects to imprint. The list can be of
+            either Object3d objects or object IDs.
+        keep_originals : bool, optional
+            Whether to keep the original objects. The default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Imprint
+        """
+        szList = self.convert_to_selections(blank_list)
+        szList1 = self.convert_to_selections(tool_list)
+
+        vArg1 = ["NAME:Selections", "Blank Parts:=", szList, "Tool Parts:=", szList1]
+        vArg2 = ["NAME:ImprintParameters", "KeepOriginals:=", keep_originals]
+
+        self.oeditor.Imprint(vArg1, vArg2)
+        if not keep_originals:
+            self.cleanup_objects()
+        return True
+
+    @pyaedt_function_handler()
+    def _imprint_projection(self, tool_list, keep_originals=True, normal=True, vector_direction=None, distance="1mm"):
+
+        szList1 = self.convert_to_selections(tool_list)
+
+        varg1 = ["NAME:Selections", "Selections:=", szList1]
+        varg2 = [
+            "NAME:ImprintProjectionParameters",
+            "KeepOriginals:=",
+            keep_originals,
+            "NormalProjection:=",
+            normal,
+        ]
+        if not normal:
+            varg2.append("Distance:=")
+            varg2.append(self._app.value_with_units(distance))
+            varg2.append("DirectionX:=")
+            varg2.append(self._app.value_with_units(vector_direction[0]))
+            varg2.append("DirectionY:=")
+            varg2.append(self._app.value_with_units(vector_direction[1]))
+            varg2.append("DirectionZ:=")
+            varg2.append(self._app.value_with_units(vector_direction[2]))
+
+        self.oeditor.ImprintProjection(varg1, varg2)
+        if not keep_originals:
+            self.cleanup_objects()
+        return True
+
+    @pyaedt_function_handler
+    def imprint_normal_projection(
+        self,
+        tool_list,
+        keep_originals=True,
+    ):
+        """Imprint the normal projection of objects over a sheet.
+
+        Parameters
+        ----------
+        tool_list : list
+            List of objects to imprint. The list can be of
+            either Object3d objects or object IDs.
+        keep_originals : bool, optional
+            Whether to keep the original objects. The default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ImprintProjection
+        """
+        return self._imprint_projection(tool_list, keep_originals, True)
+
+    @pyaedt_function_handler
+    def imprint_vector_projection(
+        self,
+        tool_list,
+        vector_points,
+        distance,
+        keep_originals=True,
+    ):
+        """Imprint the projection of objects over a sheet with a specified vector and distance.
+
+        Parameters
+        ----------
+        tool_list : list
+            List of objects to imprint. The list can be of
+            either Object3d objects or object IDs.
+        vector_points : list
+            List of [x,y,z] vector projection.
+        distance : str, int
+            Distance of Projection.
+        keep_originals : bool, optional
+            Whether to keep the original objects. The default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ImprintProjection
+        """
+        return self._imprint_projection(tool_list, keep_originals, False, vector_points, distance)
+
+    @pyaedt_function_handler()
     def purge_history(self, theList):
         """Purge history objects from object names.
 

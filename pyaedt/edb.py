@@ -444,12 +444,13 @@ class Edb(object):
     def import_layout_pcb(
         self, input_file, working_dir, init_dlls=False, anstranslator_full_path="", use_ppe=False, control_file=None
     ):
-        """Import a BRD file and generate an ``edb.def`` file in the working directory.
+        """Import a board file and generate an ``edb.def`` file in the working directory.
+        It supports all AEDT Formats (dxf, gds, xml (ipc2581), brd, tgz....).
 
         Parameters
         ----------
         input_file : str
-            Full path to the BRD file.
+            Full path to the board file.
         working_dir : str
             Directory in which to create the ``aedb`` folder. The AEDB file name will be the
             same as the BRD file name.
@@ -460,13 +461,12 @@ class Edb(object):
         use_ppe : bool
             Whether to use or not PPE License. The default is ``False``.
         control_file : str, optional
-            Path to xml file. If None, the tool will try to get it from the same path/name of the gds.
+            Path to xml file. If None, the tool will try to get it from the same path/name of the gds/dxf.
 
         Returns
         -------
         str
             Full path to the AEDB file.
-
         """
         self._components = None
         self._core_primitives = None
@@ -495,7 +495,7 @@ class Edb(object):
             cmd_translator += ' -l="{}"'.format(os.path.join(working_dir, "Translator.log"))
         if not use_ppe:
             cmd_translator += " -ppe=false"
-        if control_file and input_file[-3:] == "gds":
+        if control_file and input_file[-3:] not in ["brd"]:
             if os.name == "posix":
                 cmd_translator += " -c={}".format(control_file)
             else:
