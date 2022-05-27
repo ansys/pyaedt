@@ -995,22 +995,22 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def _import_cad(
-        self, cad_path, format="gds", aedb_path=None, xml_path=None, set_as_active=True, close_active_project=False
+        self, cad_path, cad_format="gds", aedb_path=None, xml_path=None, set_as_active=True, close_active_project=False
     ):
         method = None
-        if format == "gds":
+        if cad_format == "gds":
             method = self.oimport_export.ImportGDSII
-        elif format == "dxf":
+        elif cad_format == "dxf":
             method = self.oimport_export.ImportAutoCAD
-        elif format == "gerber":
+        elif cad_format == "gerber":
             method = self.oimport_export.ImportGerber
-        elif format == "awr":
+        elif cad_format == "awr":
             method = self.oimport_export.ImportAWRMicrowaveOffice
-        elif format == "brd":
+        elif cad_format == "brd":
             method = self.oimport_export.ImportExtracta
-        elif format == "ipc2581":
+        elif cad_format == "ipc2581":
             method = self.oimport_export.ImportIPC
-        elif format == "odb++":
+        elif cad_format == "odb++":
             method = self.oimport_export.ImportODB
         if not method:
             return False
@@ -1026,7 +1026,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             self.logger.warning("aedb_exists. Renaming it to %s", project_name)
         if not xml_path:
             xml_path = ""
-        if format == "gds":
+        if cad_format == "gds":
             method(cad_path, aedb_path, xml_path, "")
         else:
             method(cad_path, aedb_path, xml_path)
