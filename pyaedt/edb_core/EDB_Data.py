@@ -4216,13 +4216,22 @@ class SimulationConfiguration(object):
                             if i.lower().startswith("generatesolderballs"):
                                 self.generate_solder_balls = self._get_bool_value(value)
                             elif i.lower().startswith("signalnets"):
-                                self.signal_nets = self._get_list_value(value)
+                                self.signal_nets = value[1:-1].split(",") if value[0] == "[" else\
+                                    value.split(",")
+                                self.signal_nets = [item.strip() for item in self.signal_nets]
                             elif i.lower().startswith("powernets"):
-                                self.power_nets = self._get_list_value(value)
+                                self.power_nets = value[1:-1].split(",") if value[0] == "[" else \
+                                    value.split(",")
+                                self.power_nets = [item.strip() for item in self.power_nets]
                             elif i.lower().startswith("components"):
-                                self.components = self._get_list_value(value)
+                                self.components = value[1:-1].split(",") if value[0] == "[" else \
+                                    value.split(",")
+                                self.components = [item.strip() for item in self.components]
                             elif i.lower().startswith("coaxsolderballsdiams"):
-                                self.coax_solder_ball_diameter = self._get_list_value(value)
+                                self.coax_solder_ball_diameter = value[1:-1].split(",") if value[0] == "[" \
+                                    else value.split(",")
+                                self.coax_solder_ball_diameter = [item.strip() for item in
+                                                                  self.coax_solder_ball_diameter]
                             elif i.lower().startswith("usedefaultcoaxportradialextentfactor"):
                                 self.signal_nets = self._get_bool_value(value)
                             elif i.lower().startswith("trimrefsize"):
@@ -4342,13 +4351,25 @@ class SimulationConfiguration(object):
                             elif i.lower().startswith("maxinitmeshedgelength"):
                                 self.max_init_mesh_edge_length = value
                             elif i.lower().startswith("signallayersproperties"):
-                                self._parse_signal_layer_properties(self._get_list_value(value))
+                                self._parse_signal_layer_properties = value[1:-1] if value[0] == "["\
+                                    else value
+                                self._parse_signal_layer_properties = [item.strip() for item in
+                                                                       self._parse_signal_layer_properties]
                             elif i.lower().startswith("coplanar_instances"):
-                                self.coplanar_instances = self._get_list_value(value)
+                                self.coplanar_instances = value[1:-1] if value[0] == "[" else \
+                                    value
+                                self.coplanar_instances = [item.strip() for item in
+                                                                       self.coplanar_instances]
                             elif i.lower().startswith("signallayersetching"):
-                                self.signal_layer_etching_instances = self._get_list_value(value)
+                                self.signal_layer_etching_instances = value[1:-1] if value[0] == "[" \
+                                    else value
+                                self.signal_layer_etching_instances = [item.strip() for item in
+                                                                       self.signal_layer_etching_instances]
                             elif i.lower().startswith("etchingfactor"):
-                                self.etching_factor_instances = self._get_list_value(value)
+                                self.etching_factor_instances = value[1:-1] if value[0] == "[" else \
+                                    value
+                                self.etching_factor_instances = [item.strip() for item in
+                                                                       self.etching_factor_instances]
                             elif i.lower().startswith("docutoutsubdesign"):
                                 self.do_cutout_subdesign = self._get_bool_value(value)
                             elif i.lower().startswith("solvertype"):
