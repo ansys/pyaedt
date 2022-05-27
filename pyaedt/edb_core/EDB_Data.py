@@ -4165,7 +4165,7 @@ class SimulationConfiguration(object):
             raise ValueError("Invalid truth value %r" % (val,))
 
     def _get_list_value(self, value):  # pragma: no cover
-        value = value.strip("[]")
+        value = value[1:-1]
         if len(value) == 0:
             return []
         else:
