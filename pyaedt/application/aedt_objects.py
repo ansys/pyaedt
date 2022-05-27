@@ -1,3 +1,5 @@
+import sys
+
 from pyaedt import pyaedt_function_handler
 
 
@@ -7,6 +9,7 @@ class AedtObjects(object):
             self.oproject = project
         if design:
             self.odesign = design
+        self._odesktop = sys.modules["__main__"].oDesktop
         self._oboundary = None
         self._oimport_export = None
         self._ooptimetrics = None
@@ -41,10 +44,8 @@ class AedtObjects(object):
         >>> oDesign.GetModule("RadField")
         """
         if self.design_type == "HFSS" and self.solution_type not in ["EigenMode", "Characteristic Mode"]:
-            return self._odesign.GetModule("RadField")
-        else:
-            self.logger.warning("Solution %s does not support RadField.", self.solution_type)
-            return
+            return self.odesign.GetModule("RadField")
+        return None
 
     @pyaedt_function_handler()
     def get_module(self, module_name):
@@ -83,6 +84,8 @@ class AedtObjects(object):
     def oboundary(self):
         """Boundary Object"""
         if not self._oboundary:
+            if self.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design"]:
+                return
             if self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
                 self._oboundary = self.get_module("Excitations")
             else:
@@ -98,7 +101,7 @@ class AedtObjects(object):
 
         >>> oDesktop.GetTool("ImportExport")"""
         if not self._oimport_export:
-            self._oimport_export = self.odesktop.GetTool("ImportExport")
+            self._oimport_export = self._odesktop.GetTool("ImportExport")
         return self._oimport_export
 
     @property
@@ -185,8 +188,15 @@ class AedtObjects(object):
 
         >>> oDesign.GetModule("ModelSetup")
         """
+        if self.design_type not in ["Maxwell 3D", "Maxwell 2D", "HFSS"]:
+            return
         if not self._omodel_setup:
-            self._omodel_setup = self.get_module("ModelSetup")
+            if (
+                self.design_type in ["Maxwell 3D", "Maxwell 2D"]
+                and self.odesign.GetSolutionType() == "Transient"
+                or self.design_type == "HFSS"
+            ):
+                self._omodel_setup = self.get_module("ModelSetup")
         return self._omodel_setup
 
     @property
@@ -198,6 +208,8 @@ class AedtObjects(object):
 
         >>> oDesign.GetModule("MaxwellParameterSetup")
         """
+        if self.design_type not in ["Maxwell 3D", "Maxwell 2D"]:
+            return
         if not self._o_maxwell_parameters:
             self._o_maxwell_parameters = self.get_module("MaxwellParameterSetup")
         return self._o_maxwell_parameters
@@ -205,6 +217,8 @@ class AedtObjects(object):
     @property
     def omonitor(self):
         """AEDT Monitor Object."""
+        if not self.design_type == "Icepak":
+            return
         if not self._omonitor:
             self._omonitor = self.get_module("Monitor")
         return self._omonitor
@@ -219,6 +233,8 @@ class AedtObjects(object):
         >>> oModule = oDesign.GetModule("Solutions")
         """
         if not self._osolution:
+            if self.design_type in ["RMxprt", "RMxprtSolution", "Twin Builder", "Circuit Design", "Maxwell Circuit"]:
+                return
             if self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
                 self._osolution = self.get_module("SolveSetups")
             else:
@@ -234,6 +250,8 @@ class AedtObjects(object):
 
         >>> oModule = oDesign.GetModule("Excitations")
         """
+        if self.design_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
+            return
         if not self._oexcitation:
             self._oexcitation = self.get_module("Excitations")
 
@@ -242,6 +260,8 @@ class AedtObjects(object):
     @property
     def omatrix(self):
         """Matrix Object."""
+        if self.design_type not in ["Q3D Extractor", "2D Extractor"]:
+            return
         if not self._omatrix:
             self._omatrix = self.get_module("ReduceMatrix")
         return self._omatrix
@@ -259,6 +279,15 @@ class AedtObjects(object):
 
         >>> oDesign.GetModule("FieldsReporter")
         """
+        if self.design_type in [
+            "Circuit Design",
+            "Twin Builder",
+            "Maxwell Circuit",
+            "EMIT",
+            "RMxprt",
+            "RMxprtSolution",
+        ]:
+            return
         if not self._ofieldsreporter:
             self._ofieldsreporter = self.get_module("FieldsReporter")
         return self._ofieldsreporter

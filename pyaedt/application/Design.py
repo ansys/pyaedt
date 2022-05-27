@@ -198,6 +198,7 @@ class Design(AedtObjects, object):
         else:
             self.design_solutions = DesignSolution(None, design_type, self._aedt_version)
         self.design_solutions._solution_type = solution_type
+        self._temp_solution_type = solution_type
         self.oproject = project_name
         self.odesign = design_name
         AedtObjects.__init__(self)
@@ -709,6 +710,52 @@ class Design(AedtObjects, object):
         """
         return solutions_defaults[self._design_type]
 
+    @pyaedt_function_handler()
+    def _find_design(self):
+        activedes = None
+        warning_msg = ""
+        names = self.get_oo_name(self.oproject)
+        if names:
+            valids = []
+            for name in names:
+                if self.get_oo_object(self.oproject, name).GetDesignType() == self.design_type:
+                    if self.design_type in [
+                        "Circuit Design",
+                        "Twin Builder",
+                        "HFSS 3D Layout Design",
+                        "EMIT",
+                        "Q3D Extractor",
+                    ]:
+                        valids.append(name)
+                    elif not self._temp_solution_type:
+                        valids.append(name)
+                    elif self._temp_solution_type in self.get_oo_object(self.oproject, name).GetSolutionType():
+                        valids.append(name)
+            if len(valids) != 1:
+                warning_msg = "No consistent unique design is present. Inserting a new design."
+            else:
+                activedes = valids[0]
+                warning_msg = "Active Design set to {}".format(valids[0])
+        elif self.design_list:
+            self._odesign = self._oproject.GetDesign(self.design_list[0])
+            if not self._check_design_consistency():
+                count_consistent_designs = 0
+                for des in self.design_list:
+                    self._odesign = self._oproject.SetActiveDesign(des)
+                    if self._check_design_consistency():
+                        count_consistent_designs += 1
+                        activedes = des
+                if count_consistent_designs != 1:
+                    warning_msg = "No consistent unique design is present. Inserting a new design."
+                else:
+                    self.logger.info("Active Design set to {}".format(activedes))
+            else:
+                activedes = self.design_list[0]
+                warning_msg = "Active design is set to {}".format(self.design_list[0])
+        else:
+            warning_msg = "No design is present. Inserting a new design."
+        return activedes, warning_msg
+
     @property
     def odesign(self):
         """Design.
@@ -729,33 +776,15 @@ class Design(AedtObjects, object):
     @odesign.setter
     @pyaedt_function_handler()
     def odesign(self, des_name):
-        warning_msg = None
-        activedes = des_name
         if des_name:
             if self._assert_consistent_design_type(des_name) == des_name:
                 self._insert_design(self._design_type, design_name=des_name)
         else:
-            if self.design_list:
-                self._odesign = self._oproject.GetDesign(self.design_list[0])
-                if not self._check_design_consistency():
-                    count_consistent_designs = 0
-                    for des in self.design_list:
-                        self._odesign = self._oproject.SetActiveDesign(des)
-                        if self._check_design_consistency():
-                            count_consistent_designs += 1
-                            activedes = des
-                    if count_consistent_designs != 1:
-                        warning_msg = "No consistent unique design is present. Inserting a new design."
-                    else:
-                        self._odesign = self.oproject.SetActiveDesign(activedes)
-                        self.logger.info("Active Design set to {}".format(activedes))
-                else:
-                    self._odesign = self._oproject.SetActiveDesign(self.design_list[0])
-                    self.logger.info("Active design is set to {}".format(self.design_list[0]))
+            activedes, warning_msg = self._find_design()
+            if activedes:
+                self._odesign = self.oproject.SetActiveDesign(activedes)
+                self.logger.info(warning_msg)
             else:
-                warning_msg = "No design is present. Inserting a new design."
-
-            if warning_msg:
                 self.logger.info(warning_msg)
                 self._insert_design(self._design_type)
 
