@@ -1,5 +1,7 @@
 # standard imports
 import os
+import uuid
+from os import listdir
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
@@ -177,6 +179,10 @@ class TestClass(BasisTest, object):
         self.aedtapp.post.export_report_to_csv(self.local_scratch.path, "MyTestScattering")
         assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.csv"))
 
+    def test_06_export_report_to_rdat(self):
+        self.aedtapp.post.export_report_to_file(self.local_scratch.path, "MyTestScattering", ".rdat")
+        assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.rdat"))
+
     def test_07_export_fields_from_Calculator(self):
 
         self.aedtapp.post.export_field_file_on_grid(
@@ -317,10 +323,64 @@ class TestClass(BasisTest, object):
         files = self.aedtapp.export_results()
         assert len(files) > 0
 
+    def test_09c_import_into_report(self):
+        csv_files = listdir(self.local_scratch.path)
+        files_names = [filename for filename in csv_files if filename.endswith((".csv", ".rdat"))]
+
+        paths_to_files = []
+        for root, dirs, files in os.walk(self.local_scratch.path):
+            for name in files_names:
+                if name in files:
+                    paths_to_files.append(os.path.join(root, name))
+
+        report = self.aedtapp.post.plots[0]
+        plot_name = self.aedtapp.post.plots[1].plot_name
+
+        for path in paths_to_files:
+            pre, ext = os.path.splitext(path)
+            if ext == ".csv" and os.path.basename(path) != "output.csv":
+                # test import with correct inputs
+                assert report.import_into_report(path, plot_name)
+                # test import with not existing plot_name
+                with pytest.raises(ValueError):
+                    report.import_into_report(path, "plot_name")
+            elif os.path.splitext(path)[1] == ".rdat":
+                assert report.import_into_report(path, plot_name)
+        # test import with random file path
+        with pytest.raises(FileExistsError):
+            report.import_into_report(str(uuid.uuid4()), plot_name)
+
+    def test_09d_delete_traces_from_report(self):
+        report = self.aedtapp.post.plots[0]
+        traces_to_delete = []
+        traces_to_delete.append(report.expressions[0])
+        plot_name = report.plot_name
+        assert report.delete_traces(plot_name, traces_to_delete)
+        with pytest.raises(ValueError):
+            report.delete_traces("plot_name", traces_to_delete)
+        with pytest.raises(ValueError):
+            report.delete_traces(plot_name, ["V(out)_Test"])
+
+    def test_09e_add_traces_to_report(self):
+        report = self.aedtapp.post.plots[0]
+        traces = report.get_solution_data().expressions
+        assert report.add_trace_to_report(traces)
+        setup = self.aedtapp.post.plots[0].setup
+        variations = self.aedtapp.post.plots[0].variations
+        assert report.add_trace_to_report(traces, setup, variations)
+
+    def test_09f_update_traces_in_report(self):
+        report = self.aedtapp.post.plots[0]
+        traces = report.get_solution_data().expressions
+        assert report.update_trace_in_report(traces)
+        setup = self.aedtapp.post.plots[0].setup
+        variations = self.aedtapp.post.plots[0].variations
+        assert report.update_trace_in_report(traces, setup, variations)
+
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
-    def test_09c_create_monitor(self):  # pragma: no cover
+    def test_09d_create_monitor(self):  # pragma: no cover
         assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
@@ -331,7 +391,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(
         config["build_machine"], reason="Skipped because it cannot run on build machine in non-graphical mode"
     )
-    def test_09d_add_line_from_point(self):  # pragma: no cover
+    def test_09e_add_line_from_point(self):  # pragma: no cover
         assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
@@ -339,7 +399,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
-    def test_09e_add_line_from_equation(self):
+    def test_09f_add_line_from_equation(self):
         assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
@@ -348,7 +408,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
-    def test_09f_edit_properties(self):
+    def test_09g_edit_properties(self):
         report = self.aedtapp.post.create_report("dB(S(1,1))")
         assert report.edit_grid()
         assert report.edit_grid(minor_x=False)
@@ -401,7 +461,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
-    def test_09g_add_line_from_point(self):  # pragma: no cover
+    def test_09h_add_line_from_point(self):  # pragma: no cover
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         new_report.create()
         style = new_report.traces[0].LINESTYLE
@@ -423,7 +483,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
-    def test_09g_add_note(self):  # pragma: no cover
+    def test_09l_add_note(self):  # pragma: no cover
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         new_report.create()
 

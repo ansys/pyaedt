@@ -424,7 +424,7 @@ class Maxwell(object):
         activate_eddy_effects : bool, optional
             Whether to activate eddy effects. The default is ``True``.
         activate_displacement_current : bool, optional
-            Whether to activate eddy effects. The default is ``True``.
+            Whether to activate the displacement current. The default is ``True``.
 
         Returns
         -------
