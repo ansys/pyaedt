@@ -213,12 +213,24 @@ class Design(AedtObjects, object):
 
     @property
     def project_datasets(self):
+        """Dictionary of Project Datasets.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.application.Variables.DataSet`]
+        """
         if not self._project_datasets:
             self._project_datasets = self._get_project_datasets()
         return self._project_datasets
 
     @property
     def design_datasets(self):
+        """Dictionary of Design Datasets.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.application.Variables.DataSet`]
+        """
         if not self._design_datasets:
             self._design_datasets = self._get_design_datasets()
         return self._design_datasets

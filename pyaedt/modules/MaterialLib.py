@@ -69,6 +69,12 @@ class Materials(object):
 
     @property
     def surface_material_keys(self):
+        """Dictionary of Surface Material in the project.
+
+        Returns
+        -------
+        dict of :class:`pyaedt.modules.Material.Material`
+        """
         if not self._surface_material_keys:
             self._surface_material_keys = self._get_surface_materials()
         return self._surface_material_keys

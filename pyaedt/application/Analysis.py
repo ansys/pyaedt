@@ -131,6 +131,12 @@ class Analysis(Design, object):
 
     @property
     def native_components(self):
+        """Native Component dictionary.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modules.Boundaries.NativeComponentObject`]
+        """
         if not self._native_components:
             self._native_components = self._get_native_data()
         return self._native_components
@@ -508,14 +514,14 @@ class Analysis(Design, object):
         get_mutual_terms : bool, optional
             Whether to return mutual terms. The default is ``True``.
         first_element_filter : str, optional
-            Filter to apply to the first element of the equation. This parameter accepts ``*``
-            and ``?`` as special characters. The default is ``None``.
+            Filter to apply to the first element of the equation.
+            This parameter accepts ``*`` and ``?`` as special characters. The default is ``None``.
         second_element_filter : str, optional
-            Filter to apply to the second element of the equation. This parameter accepts ``*``
-            and ``?`` as special characters. The default is ``None``.
+            Filter to apply to the second element of the equation.
+            This parameter accepts ``*`` and ``?`` as special characters. The default is ``None``.
         category : str
-            Plot category name as in the report (including operator). The default is ``"dB(S"`,
-            which is the plot category name for capacitance.
+            Plot category name as in the report (including operator).
+            The default is ``"dB(S"``,  which is the plot category name for capacitance.
 
         Returns
         -------

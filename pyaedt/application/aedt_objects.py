@@ -49,6 +49,7 @@ class AedtObjects(object):
 
     @pyaedt_function_handler()
     def get_module(self, module_name):
+        """Aedt Module object."""
         if self.design_type not in ["EMIT"]:
             return self.odesign.GetModule(module_name)
         return None
@@ -82,7 +83,7 @@ class AedtObjects(object):
 
     @property
     def oboundary(self):
-        """Boundary Object"""
+        """Boundary Object."""
         if not self._oboundary:
             if self.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design"]:
                 return

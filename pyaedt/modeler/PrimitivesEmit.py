@@ -11,7 +11,7 @@ class EmitComponents(object):
 
     @property
     def oeditor(self):
-        """ """
+        """Oeditor Module."""
         return self.modeler.oeditor
 
     @property

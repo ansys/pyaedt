@@ -150,6 +150,7 @@ class Layer(object):
 
     @property
     def oeditor(self):
+        """Oeditor Module."""
         return self._layers.oeditor
 
     @property

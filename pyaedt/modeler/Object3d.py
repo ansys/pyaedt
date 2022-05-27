@@ -553,6 +553,7 @@ class FacePrimitive(object):
 
     @property
     def oeditor(self):
+        """Oeditor Module."""
         return self._object3d.m_Editor
 
     @property
@@ -1189,9 +1190,6 @@ class Object3d(object):
     def plot(self, show=True):
         """Plot model with PyVista.
 
-        .. note::
-        Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
-
         Parameters
         ----------
         show : bool, optional
@@ -1201,6 +1199,10 @@ class Object3d(object):
         -------
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
+
+        Notes
+        -----
+        Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
         """
         if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
             return self._primitives._app.post.plot_model_obj(

@@ -78,20 +78,6 @@ optimetrics setups.
 
 
 
-Design Cache
-~~~~~~~~~~~~
-This module contains all properties and methods applicable to projects
-and designs.
-
-.. currentmodule:: pyaedt.application.Design
-
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
-
-   DesignCache
-
-
 Boundary Class
 ~~~~~~~~~~~~~~
 
