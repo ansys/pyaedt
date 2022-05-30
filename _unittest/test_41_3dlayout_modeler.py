@@ -16,6 +16,7 @@ except ImportError:
 
 # Input Data and version for the test
 test_project_name = "Test_RadioBoard"
+test_rigid_flex = "demo_flex"
 
 
 class TestClass(BasisTest, object):
@@ -23,6 +24,7 @@ class TestClass(BasisTest, object):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Hfss3dLayout)
         self.hfss3dl = BasisTest.add_app(self, project_name="differential_pairs", application=Hfss3dLayout)
+        self.flex = BasisTest.add_app(self, project_name=test_rigid_flex, application=Hfss3dLayout)
         example_project = os.path.join(local_path, "example_models", "Package.aedb")
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
@@ -495,6 +497,12 @@ class TestClass(BasisTest, object):
         dxf_file = os.path.join(local_path, "example_models", "cad", "ipc", "galileo.xml")
         aedb_file = os.path.join(self.local_scratch.path, "dxf_out.aedb")
         assert self.aedtapp.import_ipc2581(dxf_file, aedb_path=aedb_file, control_file="")
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not working on AEDT 22R1")
+    def test_40_test_flex(self):
+        assert self.flex.enable_rigid_flex()
+        assert self.flex.enable_rigid_flex()
+        pass
 
     @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
     def test_90_set_differential_pairs(self):
