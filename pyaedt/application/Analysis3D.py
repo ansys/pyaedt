@@ -262,7 +262,7 @@ class FieldAnalysis3D(Analysis, object):
         mesh_path : str, optional
             Full path to the mesh statistics file. The default is ``None``, in which
             caswe the working directory is used.
-        setup_type: str, optional
+        setup_type : str, optional
             Setup type in Q3D. The default is "CG", other options are "AC RL" or "DC RL".
 
         Returns
