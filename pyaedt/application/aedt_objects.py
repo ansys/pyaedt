@@ -67,12 +67,13 @@ class AedtObjects(object):
         References
         ----------
 
-        >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")"""
+        >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
+        """
         return self.odefinition_manager.GetManager("Symbol")
 
     @property
     def opadstackmanager(self):
-        """Aedt oPadstackManager.
+        """AEDT oPadstackManager.
 
         References
         ----------
@@ -106,7 +107,8 @@ class AedtObjects(object):
         References
         ----------
 
-        >>> oDesktop.GetTool("ImportExport")"""
+        >>> oDesktop.GetTool("ImportExport")
+        """
         if not self._oimport_export:
             self._oimport_export = self._odesktop.GetTool("ImportExport")
         return self._oimport_export
@@ -208,7 +210,7 @@ class AedtObjects(object):
 
     @property
     def o_maxwell_parameters(self):
-        """AEDT Maxwel Parameter Setup Object.
+        """AEDT Maxwell Parameter Setup Object.
 
         References
         ----------
