@@ -1,6 +1,9 @@
+from collections import OrderedDict
+
 from pyaedt.generic.constants import LineStyle
 from pyaedt.generic.constants import SymbolStyle
 from pyaedt.generic.constants import TraceType
+from pyaedt.generic.general_methods import _create_json_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -283,23 +286,92 @@ class CommonReport(object):
 
     def __init__(self, app, report_category, setup_name):
         self._post = app
+        self.props = OrderedDict()
         self.report_category = report_category
         self.setup = setup_name
-        self._report_type = "Rectangular Plot"
-        self._domain = "Sweep"
-        self._primary_sweep = "Freq"
-        self._secondary_sweep = None
-        self.primary_sweep_range = ["All"]
-        self.secondary_sweep_range = ["All"]
-        self.variations = {"Freq": ["All"]}
+        self.props["Report Type"] = "Rectangular Plot"
+        self.props["Context"] = OrderedDict()
+        self.props["Context"]["Domain"] = "Sweep"
+        self.props["Context"]["Primary Sweep"] = "Freq"
+        self.props["Context"]["Primary Sweep Range"] = ["All"]
+        self.props["Context"]["Secondary Sweep Range"] = ["All"]
+        self.props["Context"]["Variations"] = {"Freq": ["All"]}
         for el, k in self._post._app.available_variations.nominal_w_values_dict.items():
-            self.variations[el] = k
-        self.differential_pairs = False
-        self.matrix = None
-        self.polyline = None
-        self.expressions = None
-        self._plot_name = None
+            self.props["Context"]["Variations"][el] = k
+        self.props["Expressions"] = None
+        self.props["Plot Name"] = None
         self._is_created = True
+
+    @property
+    def differential_pairs(self):
+        return self.props["Context"].get("Differential Pairs", False)
+
+    @differential_pairs.setter
+    def differential_pairs(self, value):
+        self.props["Context"]["Differential Pairs"] = value
+
+    @property
+    def matrix(self):
+        return self.props["Context"].get("Matrix", None)
+
+    @matrix.setter
+    def matrix(self, value):
+        self.props["Context"]["Matrix"] = value
+
+    @property
+    def polyline(self):
+        return self.props["Context"].get("Polyline", None)
+
+    @polyline.setter
+    def polyline(self, value):
+        self.props["Context"]["Polyline"] = value
+
+    @property
+    def expressions(self):
+        return list(self.props["Expressions"].keys())
+
+    @expressions.setter
+    def expressions(self, value):
+        if not isinstance(value, list):
+            value = [value]
+        for el in value:
+            if not self.props.get("Expressions", None):
+                self.props["Expressions"] = {}
+            self.props["Expressions"][el] = {}
+
+    @property
+    def report_category(self):
+        return self.props["Report Category"]
+
+    @report_category.setter
+    def report_category(self, value):
+        self.props["Report Category"] = value
+
+    @property
+    def report_type(self):
+        """Get/Set the report Type. Available values are `"3D Polar Plot"`, `"3D Spherical Plot"`,
+        `"Radiation Pattern"`, `"Rectangular Plot"`, `"Data Table"`,
+        `"Smith Chart"`, `"Rectangular Contour Plot"`.
+
+        Returns
+        -------
+        str
+        """
+        return self.props["Report Type"]
+
+    @report_type.setter
+    def report_type(self, report):
+        self.props["Report Type"] = report
+        if not self.primary_sweep:
+            if self.props["Report Type"] in ["3D Polar Plot", "3D Spherical Plot"]:
+                self.primary_sweep = "Phi"
+                self.secondary_sweep = "Theta"
+            elif self.props["Report Type"] == "Radiation Pattern":
+                self.primary_sweep = "Phi"
+            elif self.domain == "Sweep":
+                self.primary_sweep = "Freq"
+            elif self.domain == "Time":
+                self.primary_sweep = "Time"
 
     @property
     def traces(self):
@@ -315,8 +387,8 @@ class CommonReport(object):
         """
         _traces = []
         try:
-            oo = self._post.oreportsetup.GetChildObject(self._plot_name)
-            oo_names = self._post.oreportsetup.GetChildObject(self._plot_name).GetChildNames()
+            oo = self._post.oreportsetup.GetChildObject(self.plot_name)
+            oo_names = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildNames()
         except:
             return _traces
         for el in oo_names:
@@ -326,7 +398,7 @@ class CommonReport(object):
                 oo1 = oo.GetChildObject(el).GetChildNames()
 
                 for i in oo1:
-                    _traces.append(Trace(self._post.oreportsetup, "{}:{}:{}".format(self._plot_name, el, i)))
+                    _traces.append(Trace(self._post.oreportsetup, "{}:{}:{}".format(self.plot_name, el, i)))
             except:
                 pass
         return _traces
@@ -345,12 +417,12 @@ class CommonReport(object):
         """
         _traces = []
         try:
-            oo_names = self._post.oreportsetup.GetChildObject(self._plot_name).GetChildNames()
+            oo_names = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildNames()
         except:
             return _traces
         for el in oo_names:
             if "LimitLine" in el:
-                _traces.append(LimitLine(self._post.oreportsetup, "{}:{}".format(self._plot_name, el)))
+                _traces.append(LimitLine(self._post.oreportsetup, "{}:{}".format(self.plot_name, el)))
 
         return _traces
 
@@ -368,12 +440,12 @@ class CommonReport(object):
         """
         _notes = []
         try:
-            oo_names = self._post.oreportsetup.GetChildObject(self._plot_name).GetChildNames()
+            oo_names = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildNames()
         except:
             return _notes
         for el in oo_names:
             if "Note" in el:
-                _notes.append(Note(self._post.oreportsetup, "{}:{}".format(self._plot_name, el)))
+                _notes.append(Note(self._post.oreportsetup, "{}:{}".format(self.plot_name, el)))
 
         return _notes
 
@@ -385,12 +457,20 @@ class CommonReport(object):
         -------
         str
         """
-        return self._plot_name
+        return self.props["Plot Name"]
 
     @plot_name.setter
     def plot_name(self, name):
-        self._plot_name = name
+        self.props["Plot Name"] = name
         self._is_created = False
+
+    @property
+    def variations(self):
+        return self.props["Context"]["Variations"]
+
+    @variations.setter
+    def variations(self, value):
+        self.props["Context"]["Variations"] = value
 
     @property
     def primary_sweep(self):
@@ -400,13 +480,13 @@ class CommonReport(object):
         -------
         str
         """
-        return self._primary_sweep
+        return self.props["Context"]["Primary Sweep"]
 
     @primary_sweep.setter
     def primary_sweep(self, val):
-        if val == self._secondary_sweep:
-            self._secondary_sweep = self._primary_sweep
-        self._primary_sweep = val
+        if val == self.props["Context"].get("Secondary Sweep", None):
+            self.props["Context"]["Secondary Sweep"] = self.props["Context"]["Primary Sweep"]
+        self.props["Context"]["Primary Sweep"] = val
         if val == "Time":
             self.variations.pop("Freq", None)
             self.variations["Time"] = ["All"]
@@ -422,19 +502,47 @@ class CommonReport(object):
         -------
         str
         """
-        return self._secondary_sweep
+        return self.props["Context"].get("Secondary Sweep", None)
 
     @secondary_sweep.setter
     def secondary_sweep(self, val):
-        if val == self._primary_sweep:
-            self._primary_sweep = self._secondary_sweep
-        self._secondary_sweep = val
+        if val == self.props["Context"]["Primary Sweep"]:
+            self.props["Context"]["Primary Sweep"] = self.props["Context"]["Secondary Sweep"]
+        self.props["Context"]["Secondary Sweep"] = val
         if val == "Time":
             self.variations.pop("Freq", None)
             self.variations["Time"] = ["All"]
         elif val == "Freq":
             self.variations.pop("Time", None)
             self.variations["Freq"] = ["All"]
+
+    @property
+    def primary_sweep_range(self):
+        """Return the Report Primary Sweep Range.
+
+        Returns
+        -------
+        str
+        """
+        return self.props["Context"]["Primary Sweep Range"]
+
+    @primary_sweep_range.setter
+    def primary_sweep_range(self, val):
+        self.props["Context"]["Primary Sweep Range"] = val
+
+    @property
+    def secondary_sweep_range(self):
+        """Return the Report Secondary Sweep Range.
+
+        Returns
+        -------
+        str
+        """
+        return self.props["Context"]["Secondary Sweep Range"]
+
+    @secondary_sweep_range.setter
+    def secondary_sweep_range(self, val):
+        self.props["Context"]["Secondary Sweep Range"] = val
 
     @property
     def _context(self):
@@ -479,11 +587,11 @@ class CommonReport(object):
         -------
         str
         """
-        return self._domain
+        return self.props["Context"]["Domain"]
 
     @domain.setter
     def domain(self, domain):
-        self._domain = domain
+        self.props["Context"]["Domain"] = domain
         if self._post._app.design_type in ["Maxwell 3D", "Maxwell 2D"]:
             return
         if self.primary_sweep == "Freq" and domain == "Time":
@@ -494,32 +602,6 @@ class CommonReport(object):
             self.primary_sweep = "Freq"
             self.variations.pop("Time", None)
             self.variations["Freq"] = ["All"]
-
-    @property
-    def report_type(self):
-        """Get/Set the report Type. Available values are `"3D Polar Plot"`, `"3D Spherical Plot"`,
-        `"Radiation Pattern"`, `"Rectangular Plot"`, `"Data Table"`,
-        `"Smith Chart"`, `"Rectangular Contour Plot"`.
-
-        Returns
-        -------
-        str
-        """
-        return self._report_type
-
-    @report_type.setter
-    def report_type(self, report):
-        self._report_type = report
-        if not self.primary_sweep:
-            if self._report_type in ["3D Polar Plot", "3D Spherical Plot"]:
-                self.primary_sweep = "Phi"
-                self.secondary_sweep = "Theta"
-            elif self._report_type == "Radiation Pattern":
-                self.primary_sweep = "Phi"
-            elif self.domain == "Sweep":
-                self.primary_sweep = "Freq"
-            elif self.domain == "Time":
-                self.primary_sweep = "Time"
 
     @pyaedt_function_handler()
     def _convert_dict_to_report_sel(self, sweeps):
@@ -648,6 +730,13 @@ class CommonReport(object):
                     y_axis,
                 ],
             )
+            value = {"XValues": xvals, "YValues": yvals, "XUnits": x_units, "YUnits": y_units, "YAxis": y_axis}
+            if not self.props.get("LimitLines", None):
+                self.props["LimitLines"] = {}
+                self.props["LimitLines"]["LimitLine1"] = value
+            else:
+                self.props["LimitLines"]["LimitLine{}".format(len(self.props["LimitLines"]) + 1)] = value
+
             return True
         return False
 
@@ -1269,16 +1358,40 @@ class CommonReport(object):
         ]
         return self._change_property("Header", "Header", props)
 
+    @pyaedt_function_handler()
+    def export_report_settings(self, json_path):
+        return _create_json_file(self.props, json_path)
+
 
 class Standard(CommonReport):
     """Provides a reporting class that fits most of the application's standard reports."""
 
     def __init__(self, app, report_category, setup_name):
         CommonReport.__init__(self, app, report_category, setup_name)
-        self.expressions = None
-        self.sub_design_id = None
-        self.time_start = None
-        self.time_stop = None
+
+    @property
+    def sub_design_id(self):
+        return self.props["Context"].get("Sub Design ID", None)
+
+    @sub_design_id.setter
+    def sub_design_id(self, value):
+        self.props["Context"]["Sub Design ID"] = value
+
+    @property
+    def time_start(self):
+        return self.props["Context"].get("Time Start", None)
+
+    @time_start.setter
+    def time_start(self, value):
+        self.props["Context"]["Time Start"] = value
+
+    @property
+    def time_stop(self):
+        return self.props["Context"].get("Time Stop", None)
+
+    @time_stop.setter
+    def time_stop(self, value):
+        self.props["Context"]["Time Stop"] = value
 
     @property
     def _did(self):
@@ -1365,6 +1478,14 @@ class AntennaParameters(Standard):
         self.far_field_sphere = far_field_sphere
 
     @property
+    def far_field_sphere(self):
+        return self.props["Context"].get("Far Field Sphere", None)
+
+    @far_field_sphere.setter
+    def far_field_sphere(self, value):
+        self.props["Context"]["Far Field Sphere"] = value
+
+    @property
     def _context(self):
         ctxt = ["Context:=", self.far_field_sphere]
         return ctxt
@@ -1381,6 +1502,14 @@ class Fields(CommonReport):
         self.primary_sweep = "Distance"
 
     @property
+    def point_number(self):
+        return self.props["Context"].get("Points Number", None)
+
+    @point_number.setter
+    def point_number(self, value):
+        self.props["Context"]["Points Number"] = value
+
+    @property
     def _context(self):
         ctxt = ["Context:=", self.polyline]
         ctxt.append("PointCount:=")
@@ -1394,11 +1523,18 @@ class NearField(CommonReport):
     def __init__(self, app, report_type, setup_name):
         CommonReport.__init__(self, app, report_type, setup_name)
         self.domain = "Sweep"
-        self.near_field = None
 
     @property
     def _context(self):
         return ["Context:=", self.near_field]
+
+    @property
+    def near_field(self):
+        return self.props["Context"].get("Near Field Setup", None)
+
+    @near_field.setter
+    def near_field(self, value):
+        self.props["Context"]["Near Field Setup"] = value
 
 
 class FarField(CommonReport):
@@ -1409,13 +1545,20 @@ class FarField(CommonReport):
         self.domain = "Sweep"
         self.primary_sweep = "Phi"
         self.secondary_sweep = "Theta"
-        self.far_field_sphere = None
         if not "Phi" in self.variations:
             self.variations["Phi"] = ["All"]
         if not "Theta" in self.variations:
             self.variations["Theta"] = ["All"]
         if not "Freq" in self.variations:
             self.variations["Freq"] = ["Nominal"]
+
+    @property
+    def far_field_sphere(self):
+        return self.props.get("Far Field Sphere", None)
+
+    @far_field_sphere.setter
+    def far_field_sphere(self, value):
+        self.props["Far Field Sphere"] = value
 
     @property
     def _context(self):
@@ -1437,10 +1580,114 @@ class EyeDiagram(CommonReport):
         self.auto_cross_amplitude = True
         self.cross_amplitude = "0mV"
         self.auto_compute_eye_meas = True
-        self.eye_meas_pont = "5e-10s"
+        self.eye_measurement_point = "5e-10s"
         self.thinning = False
         self.dy_dx_tolerance = 0.001
         self.thinning_points = 500000000
+
+    @property
+    def time_start(self):
+        return self.props["Context"].get("Time Start", None)
+
+    @time_start.setter
+    def time_start(self, value):
+        self.props["Context"]["Time Start"] = value
+
+    @property
+    def time_stop(self):
+        return self.props["Context"].get("Time Stop", None)
+
+    @time_stop.setter
+    def time_stop(self, value):
+        self.props["Context"]["Time Stop"] = value
+
+    @property
+    def unit_interval(self):
+        return self.props["Context"].get("Unit Interval", None)
+
+    @unit_interval.setter
+    def unit_interval(self, value):
+        self.props["Context"]["Unit Interval"] = value
+
+    @property
+    def offset(self):
+        return self.props["Context"].get("Offset", None)
+
+    @offset.setter
+    def offset(self, value):
+        self.props["Context"]["Offset"] = value
+
+    @property
+    def auto_delay(self):
+        return self.props["Context"].get("Auto Delay", None)
+
+    @auto_delay.setter
+    def auto_delay(self, value):
+        self.props["Context"]["Auto Delay"] = value
+
+    @property
+    def manual_delay(self):
+        return self.props["Context"].get("Manual Delay", None)
+
+    @manual_delay.setter
+    def manual_delay(self, value):
+        self.props["Context"]["Manual Delay"] = value
+
+    @property
+    def auto_cross_amplitude(self):
+        return self.props["Context"].get("Auto Cross Amplitude", None)
+
+    @auto_cross_amplitude.setter
+    def auto_cross_amplitude(self, value):
+        self.props["Context"]["Auto Cross Amplitude"] = value
+
+    @property
+    def cross_amplitude(self):
+        return self.props["Context"].get("Cross Amplitude", None)
+
+    @cross_amplitude.setter
+    def cross_amplitude(self, value):
+        self.props["Context"]["Cross Amplitude"] = value
+
+    @property
+    def auto_compute_eye_meas(self):
+        return self.props["Context"].get("Auto Compute Eye Measurements", None)
+
+    @auto_compute_eye_meas.setter
+    def auto_compute_eye_meas(self, value):
+        self.props["Context"]["Auto Compute Eye Measurements"] = value
+
+    @property
+    def eye_measurement_point(self):
+        return self.props["Context"].get("Eye Measurements Point", None)
+
+    @eye_measurement_point.setter
+    def eye_measurement_point(self, value):
+        self.props["Context"]["Eye Measurements Point"] = value
+
+    @property
+    def thinning(self):
+        return self.props["Context"].get("Thinning", None)
+
+    @thinning.setter
+    def thinning(self, value):
+        self.props["Context"]["Thinning"] = value
+
+    @property
+    def dy_dx_tolerance(self):
+        return self.props["Context"].get("DY DX Tolerance", None)
+
+    @dy_dx_tolerance.setter
+    def dy_dx_tolerance(self, value):
+        self.props["Context"]["DY DX Tolerance"] = value
+
+    @property
+    def thinning_points(self):
+        return self.props["Context"].get("Thinning Points", None)
+
+    @thinning_points.setter
+    def thinning_points(self, value):
+        self.props["Context"]["Thinning Points"] = value
 
     @property
     def _context(self):
@@ -1543,7 +1790,7 @@ class EyeDiagram(CommonReport):
                 "AutoCompEyeMeasurementPoint:=",
                 self.auto_compute_eye_meas,
                 "EyeMeasurementPoint:=",
-                self.eye_meas_pont,
+                self.eye_measurement_point,
             ],
         )
         self._post.plots.append(self)
@@ -1574,6 +1821,62 @@ class Spectral(CommonReport):
         self.max_freq = "10MHz"
         self.plot_continous_spectrum = False
         self.primary_sweep = "Spectrum"
+
+    @property
+    def time_start(self):
+        return self.props["Context"].get("Time Start", None)
+
+    @time_start.setter
+    def time_start(self, value):
+        self.props["Context"]["Time Start"] = value
+
+    @property
+    def time_stop(self):
+        return self.props["Context"].get("Time Stop", None)
+
+    @time_stop.setter
+    def time_stop(self, value):
+        self.props["Context"]["Time Stop"] = value
+
+    @property
+    def window(self):
+        return self.props["Context"].get("Window", None)
+
+    @window.setter
+    def window(self, value):
+        self.props["Context"]["Window"] = value
+
+    @property
+    def kaiser_coeff(self):
+        return self.props["Context"].get("Kaiser Coefficient", None)
+
+    @kaiser_coeff.setter
+    def kaiser_coeff(self, value):
+        self.props["Context"]["Kaiser Coefficient"] = value
+
+    @property
+    def adjust_coherent_gain(self):
+        return self.props["Context"].get("Adjust Choerent Gain", None)
+
+    @adjust_coherent_gain.setter
+    def adjust_coherent_gain(self, value):
+        self.props["Context"]["Adjust Choerent Gain"] = value
+
+    @property
+    def plot_continous_spectrum(self):
+        return self.props["Context"].get("Plot Continuous Spectrum", None)
+
+    @plot_continous_spectrum.setter
+    def plot_continous_spectrum(self, value):
+        self.props["Context"]["Plot Continuous Spectrum"] = value
+
+    @property
+    def max_frequency(self):
+        return self.props["Context"].get("Maximum Frequency", None)
+
+    @max_frequency.setter
+    def max_frequency(self, value):
+        self.props["Context"]["Maximum Frequency"] = value
 
     @property
     def _context(self):
