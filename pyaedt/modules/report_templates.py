@@ -328,7 +328,9 @@ class CommonReport(object):
 
     @property
     def expressions(self):
-        return list(self.props["Expressions"].keys())
+        if self.props.get("Expressions", {}):
+            return list(self.props.get("Expressions", {}).keys())
+        return []
 
     @expressions.setter
     def expressions(self, value):
@@ -403,6 +405,157 @@ class CommonReport(object):
                 pass
         return _traces
 
+    @pyaedt_function_handler()
+    def _get_prop_by_object(self, object_val, props_key, exclude_list=None):
+        if not exclude_list:
+            exclude_list = []
+        props = object_val.GetPropNames()
+        for prop in props:
+            if prop in exclude_list or "/Choices" in prop:
+                continue
+            if "Color" in prop:
+                color = object_val.GetPropValue(prop)
+                if color:
+                    b = (int(color) >> 16) & 255
+                    g = (int(color) >> 8) & 255
+                    r = int(color) & 255
+                    self.props["General"][props_key][prop] = (r, g, b)
+            else:
+                self.props["General"][props_key][prop] = object_val.GetPropValue(prop)
+
+    @pyaedt_function_handler()
+    def _get_props(self):
+        for trace in self.traces:
+            if trace.trace_name.split(":")[1] in self.expressions:
+                continue
+            if not self.props.get("Expressions", None):
+                self.props["Expressions"] = {}
+            self.props["Expressions"][trace.trace_name.split(":")[1]] = {}
+        for line in self.limit_lines:
+            line_name = line.line_name.split(":")[-1]
+            oo = self._post._app.get_oo_object(self._post.oreportsetup, "{}/{}".format(self.plot_name, line_name))
+            if not self.props.get("LimitLines", None):
+                self.props["LimitLines"] = {}
+            if not line_name in self.props["LimitLines"]:
+                self.props["LimitLines"][line_name] = {}
+            props = ["Color", "Line Style", "Line Width", "Hatch Above", "Violation Emphasis", "Hatch Pixels", "Y Axis"]
+            for prop in props:
+                if "Color" in prop:
+                    color = oo.GetPropValue(prop)
+                    if color:
+                        b = (int(color) >> 16) & 255
+                        g = (int(color) >> 8) & 255
+                        r = int(color) & 255
+                        self.props["LimitLines"][line_name][prop] = (r, g, b)
+                else:
+                    self.props["LimitLines"][line_name][prop] = oo.GetPropValue(prop)
+            if "Equation" in oo.GetPropNames():
+                self.props["LimitLines"][line_name]["Start"] = oo.GetPropValue("Start")
+                self.props["LimitLines"][line_name]["Stop"] = oo.GetPropValue("Stop")
+                self.props["LimitLines"][line_name]["Step"] = oo.GetPropValue("Step")
+                self.props["LimitLines"][line_name]["Equation"] = oo.GetPropValue("Equation")
+            else:
+                self.props["LimitLines"][line_name]["Point Data/XUnits"] = oo.GetPropValue("Point Data/XUnits")
+                self.props["LimitLines"][line_name]["Point Data/YUnits"] = oo.GetPropValue("Point Data/YUnits")
+                self.props["LimitLines"][line_name]["Point Data/Points"] = list(oo.GetPropValue("Point Data/Points"))[
+                    1:
+                ]
+        for note in self.notes:
+            not_name = note.plot_note_name.split(":")[-1]
+            oo = self._post._app.get_oo_object(self._post.oreportsetup, "{}/{}".format(self.plot_name, not_name))
+            if not self.props.get("Notes", None):
+                self.props["Notes"] = {}
+            if not not_name in self.props["Notes"]:
+                self.props["Notes"][not_name] = {}
+            props = [
+                "Note Text/NoteText",
+                "Note Font/FaceName",
+                "Note Font/Height",
+                "Note Font/Width",
+                "Note Font/Orientation",
+                "Note Font/Weight",
+                "Note Font/Italic",
+                "Note Font/Underline",
+                "Note Font/R",
+                "Note Font/G",
+                "Note Font/B",
+                "Back Color",
+                "Background Visibility",
+                "Border Color",
+                "Border Visibility",
+                "Border Width",
+            ]
+            for prop in props:
+                if "Color" in prop:
+                    color = oo.GetPropValue(prop)
+                    if color:
+                        b = (int(color) >> 16) & 255
+                        g = (int(color) >> 8) & 255
+                        r = int(color) & 255
+                        self.props["Notes"][not_name][prop] = (r, g, b)
+                else:
+                    self.props["Notes"][not_name][prop] = oo.GetPropValue(prop)
+        self.props["General"] = {"AxisX": {}, "AxisY1": {}, "General": {}, "Header": {}}
+        oo = self._post._app.get_oo_object(self._post.oreportsetup, "{}/AxisX".format(self.plot_name))
+        if oo:
+            excl = [
+                "Text Font",
+                "Text Font/Escapement",
+                "Text Font/StrikeOut",
+                "Text Font/CharSet",
+                "Text Font/ClipPrecision",
+                "Text Font/Quality",
+                "Text Font/PitchAndFamily",
+                "Text Font/OutPrecision",
+            ]
+            self._get_prop_by_object(oo, "AxisX", excl)
+        oo = self._post._app.get_oo_object(self._post.oreportsetup, "{}/AxisY1".format(self.plot_name))
+        if oo:
+            excl = [
+                "Text Font",
+                "Text Font/Escapement",
+                "Text Font/StrikeOut",
+                "Text Font/CharSet",
+                "Text Font/ClipPrecision",
+                "Text Font/Quality",
+                "Text Font/PitchAndFamily",
+                "Text Font/OutPrecision",
+            ]
+            self._get_prop_by_object(oo, "AxisY1", excl)
+        oo = self._post._app.get_oo_object(self._post.oreportsetup, "{}/Header".format(self.plot_name))
+        if oo:
+            excl = [
+                "Title Font",
+                "Title Font/Escapement",
+                "Title Font/StrikeOut",
+                "Title Font/CharSet",
+                "Title Font/ClipPrecision",
+                "Title Font/Quality",
+                "Title Font/PitchAndFamily",
+                "Title Font/OutPrecision",
+                "Sub Title Font",
+                "Sub Title Font/Escapement",
+                "Sub Title Font/StrikeOut",
+                "Sub Title Font/CharSet",
+                "Sub Title Font/ClipPrecision",
+                "Sub Title Font/Quality",
+                "Sub Title Font/PitchAndFamily",
+                "Sub Title Font/OutPrecision",
+            ]
+            self._get_prop_by_object(oo, "Header", excl)
+        oo = self._post._app.get_oo_object(self._post.oreportsetup, "{}/General".format(self.plot_name))
+        if oo:
+            excl = [
+                "Back Color/Red",
+                "Back Color/Green",
+                "Back Color/Blue",
+                "Plot Area Color/Red",
+                "Plot Area Color/Green",
+                "Plot Area Color/Blue",
+            ]
+            self._get_prop_by_object(oo, "General", excl)
+        return True
+
     @property
     def limit_lines(self):
         """Return the list of available limit lines in the report.
@@ -416,10 +569,7 @@ class CommonReport(object):
         list of :class:`pyaedt.modules.report_templates.LimitLine`
         """
         _traces = []
-        try:
-            oo_names = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildNames()
-        except:
-            return _traces
+        oo_names = self._post._app.get_oo_name(self._post.oreportsetup, self.plot_name)
         for el in oo_names:
             if "LimitLine" in el:
                 _traces.append(LimitLine(self._post.oreportsetup, "{}:{}".format(self.plot_name, el)))
@@ -730,13 +880,6 @@ class CommonReport(object):
                     y_axis,
                 ],
             )
-            value = {"XValues": xvals, "YValues": yvals, "XUnits": x_units, "YUnits": y_units, "YAxis": y_axis}
-            if not self.props.get("LimitLines", None):
-                self.props["LimitLines"] = {}
-                self.props["LimitLines"]["LimitLine1"] = value
-            else:
-                self.props["LimitLines"]["LimitLine{}".format(len(self.props["LimitLines"]) + 1)] = value
-
             return True
         return False
 
@@ -1360,6 +1503,7 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def export_report_settings(self, json_path):
+        self._get_props()
         return _create_json_file(self.props, json_path)
 
 

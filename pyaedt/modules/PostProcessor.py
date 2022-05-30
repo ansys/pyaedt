@@ -2050,7 +2050,7 @@ class PostProcessorCommon(object):
                 else:
                     report = rt.Standard
                 plots.append(report(self, report_type, None))
-                plots[-1]._plot_name = name
+                plots[-1].plot_name = name
                 plots[-1]._is_created = True
                 if is_ironpython:
                     plots[-1].report_type = obj.Get_DisplayType()
