@@ -51,6 +51,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.o_def_manager = self._app.odefinition_manager
         self.o_component_manager = self.o_def_manager.GetManager("Component")
         self.o_model_manager = self.o_def_manager.GetManager("Model")
+        self.rigid_flex = None
         pass
 
     @property
