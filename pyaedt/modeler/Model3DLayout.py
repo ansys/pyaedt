@@ -48,6 +48,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.logger.info("Primitives loaded.")
         self.layers.refresh_all_layers()
         self.o_def_manager = self._app.odefinition_manager
+        self.rigid_flex = None
 
     @property
     def oeditor(self):

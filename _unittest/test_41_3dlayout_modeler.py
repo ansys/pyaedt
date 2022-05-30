@@ -16,6 +16,7 @@ except ImportError:
 
 # Input Data and version for the test
 test_project_name = "Test_RadioBoard"
+test_rigid_flex = "demo_flex"
 
 
 class TestClass(BasisTest, object):
@@ -23,6 +24,7 @@ class TestClass(BasisTest, object):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Hfss3dLayout)
         self.hfss3dl = BasisTest.add_app(self, project_name="differential_pairs", application=Hfss3dLayout)
+        self.flex = BasisTest.add_app(self, project_name=test_rigid_flex, application=Hfss3dLayout)
         example_project = os.path.join(local_path, "example_models", "Package.aedb")
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
@@ -471,6 +473,36 @@ class TestClass(BasisTest, object):
     def test_35a_export_layout(self):
         self.aedtapp.export_3d_model()
         assert os.path.exists(os.path.join(self.aedtapp.working_directory, self.aedtapp.design_name + ".sat"))
+
+    def test_36_import_gds(self):
+        gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
+        control_file = ""
+        aedb_file = os.path.join(self.local_scratch.path, "gds_out.aedb")
+        assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
+        assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
+
+    def test_37_import_gerber(self):
+        gerber_file = os.path.join(local_path, "example_models", "cad", "Gerber", "gerber1.zip")
+        control_file = os.path.join(local_path, "example_models", "cad", "Gerber", "gerber1.xml")
+        aedb_file = os.path.join(self.local_scratch.path, "gerber_out.aedb")
+        assert self.aedtapp.import_gerber(gerber_file, aedb_path=aedb_file, control_file=control_file)
+
+    def test_38_import_dxf(self):
+        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
+        control_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.xml")
+        aedb_file = os.path.join(self.local_scratch.path, "dxf_out.aedb")
+        assert self.aedtapp.import_gerber(dxf_file, aedb_path=aedb_file, control_file=control_file)
+
+    def test_39_import_ipc(self):
+        dxf_file = os.path.join(local_path, "example_models", "cad", "ipc", "galileo.xml")
+        aedb_file = os.path.join(self.local_scratch.path, "dxf_out.aedb")
+        assert self.aedtapp.import_ipc2581(dxf_file, aedb_path=aedb_file, control_file="")
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not working on AEDT 22R1")
+    def test_40_test_flex(self):
+        assert self.flex.enable_rigid_flex()
+        assert self.flex.enable_rigid_flex()
+        pass
 
     @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
     def test_90_set_differential_pairs(self):

@@ -9,6 +9,7 @@ import warnings
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt import settings
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
@@ -994,8 +995,53 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return False
 
     @pyaedt_function_handler()
-    def import_gds(self, gds_path, aedb_path=None, xml_path=None, set_as_active=True, close_active_project=False):
-        """Import grounds into HFSS 3D Layout and assign the stackup from an XML file if present.
+    def _import_cad(
+        self, cad_path, cad_format="gds", aedb_path=None, xml_path=None, set_as_active=True, close_active_project=False
+    ):
+        method = None
+        if cad_format == "gds":
+            method = self.oimport_export.ImportGDSII
+        elif cad_format == "dxf":
+            method = self.oimport_export.ImportAutoCAD
+        elif cad_format == "gerber":
+            method = self.oimport_export.ImportGerber
+        elif cad_format == "awr":
+            method = self.oimport_export.ImportAWRMicrowaveOffice
+        elif cad_format == "brd":
+            method = self.oimport_export.ImportExtracta
+        elif cad_format == "ipc2581":
+            method = self.oimport_export.ImportIPC
+        elif cad_format == "odb++":
+            method = self.oimport_export.ImportODB
+        if not method:
+            return False
+        active_project = self.project_name
+        path_ext = os.path.splitext(cad_path)
+        project_name = os.path.splitext(os.path.basename(cad_path))[0]
+        if not aedb_path:
+            aedb_path = path_ext[0] + ".aedb"
+        if os.path.exists(aedb_path):
+            old_name = project_name
+            project_name = generate_unique_name(project_name)
+            aedb_path = aedb_path.replace(old_name, project_name)
+            self.logger.warning("aedb_exists. Renaming it to %s", project_name)
+        if not xml_path:
+            xml_path = ""
+        if cad_format == "gds":
+            method(cad_path, aedb_path, xml_path, "")
+        else:
+            method(cad_path, aedb_path, xml_path)
+
+        if set_as_active:
+            self._close_edb()
+            self.__init__(project_name)
+        if close_active_project:
+            self.odesktop.CloseProject(active_project)
+        return True
+
+    @pyaedt_function_handler()
+    def import_gds(self, gds_path, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False):
+        """Import GDS file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
         Parameters
         ----------
@@ -1003,7 +1049,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Full path to the GDS file.
         aedb_path : str, optional
             Full path to the AEDB file.
-        xml_path : str, optional
+        control_file : str, optional
             Path to the XML file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
         set_as_active : bool, optional
@@ -1020,29 +1066,193 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ----------
 
         >>> oModule.ImportGDSII
-        >>> oEditor.ImportStackupXML
         """
-        active_project = self.project_name
-        project_name = os.path.basename(gds_path)[:-4]
-        if not aedb_path:
-            aedb_path = gds_path.replace(".gds", ".aedb")
-        if os.path.exists(aedb_path):
-            old_name = project_name
-            project_name = generate_unique_name(project_name)
-            aedb_path = gds_path.replace(old_name + ".gds", project_name + ".aedb")
-            self.logger.warning("aedb_exists. Renaming it to %s", project_name)
+        return self._import_cad(gds_path, "gds", aedb_path, control_file, set_as_active, close_active_project)
 
-        self.oimport_export.ImportGDSII(gds_path, aedb_path, "", "")
-        project = self.odesktop.SetActiveProject(project_name)
-        oeditor = project.GetActiveDesign().SetActiveEditor("Layout")
-        if xml_path:
-            oeditor.ImportStackupXML(xml_path)
-        if set_as_active:
-            self._close_edb()
-            self.__init__(project_name)
-        if close_active_project:
-            self.odesktop.CloseProject(active_project)
-        return True
+    @pyaedt_function_handler()
+    def import_dxf(self, dxf_path, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False):
+        """Import DXf file into HFSS 3D Layout and assign the stackup from an XML file if present.
+
+        Parameters
+        ----------
+        gds_path : str
+            Full path to the GDS file.
+        aedb_path : str, optional
+            Full path to the AEDB file.
+        control_file : str, optional
+            Path to the XML file with the stackup information. The default is ``None``, in
+            which case the stackup is not edited.
+        set_as_active : bool, optional
+            Whether to set the GDS file as active. The default is ``True``.
+        close_active_project : bool, optional
+            Whether to close the active project after loading the GDS file.
+            The default is ''False``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ImportDXF
+        """
+        return self._import_cad(dxf_path, "dxf", aedb_path, control_file, set_as_active, close_active_project)
+
+    @pyaedt_function_handler()
+    def import_gerber(
+        self, gerber_path, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False
+    ):
+        """Import Gerber zip into HFSS 3D Layout and assign the stackup from an XML file if present.
+
+        Parameters
+        ----------
+        gerber_path : str
+            Full path to the gerber zip file.
+        aedb_path : str, optional
+            Full path to the AEDB file.
+        control_file : str, optional
+            Path to the XML file with the stackup information. The default is ``None``, in
+            which case the stackup is not edited.
+        set_as_active : bool, optional
+            Whether to set the GDS file as active. The default is ``True``.
+        close_active_project : bool, optional
+            Whether to close the active project after loading the GDS file.
+            The default is ''False``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ImportGerber
+        """
+        return self._import_cad(gerber_path, "gerber", aedb_path, control_file, set_as_active, close_active_project)
+
+    @pyaedt_function_handler()
+    def import_brd(
+        self, input_file, aedb_path=None, set_as_active=True, close_active_project=False
+    ):  # pragma: no cover
+        """Import brd into HFSS 3D Layout and assign the stackup from an XML file if present.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the brd fi.
+        aedb_path : str, optional
+            Full path to the AEDB file.
+        set_as_active : bool, optional
+            Whether to set the GDS file as active. The default is ``True``.
+        close_active_project : bool, optional
+            Whether to close the active project after loading the GDS file.
+            The default is ''False``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ImportExtracta
+        """
+        return self._import_cad(input_file, "brd", aedb_path, "", set_as_active, close_active_project)
+
+    @pyaedt_function_handler()
+    def import_awr(
+        self, input_file, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False
+    ):  # pragma: no cover
+        """Import AWR Microwave Office file into HFSS 3D Layout and assign the stackup from an XML file if present.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the AWR xml file.
+        aedb_path : str, optional
+            Full path to the AEDB file.
+        control_file : str, optional
+            Path to the XML file with the stackup information. The default is ``None``, in
+            which case the stackup is not edited.
+        set_as_active : bool, optional
+            Whether to set the GDS file as active. The default is ``True``.
+        close_active_project : bool, optional
+            Whether to close the active project after loading the GDS file.
+            The default is ''False``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ImportAWRMicrowaveOffice
+        """
+        return self._import_cad(input_file, "awr", aedb_path, control_file, set_as_active, close_active_project)
+
+    @pyaedt_function_handler()
+    def import_ipc2581(
+        self, input_file, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False
+    ):
+        """Import IPC2581 file into HFSS 3D Layout and assign the stackup from an XML file if present.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the input xml file.
+        aedb_path : str, optional
+            Full path to the AEDB file.
+        control_file : str, optional
+            Path to the XML file with the stackup information. The default is ``None``, in
+            which case the stackup is not edited.
+        set_as_active : bool, optional
+            Whether to set the GDS file as active. The default is ``True``.
+        close_active_project : bool, optional
+            Whether to close the active project after loading the GDS file.
+            The default is ''False``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ImportAWRMicrowaveOffice
+        """
+        return self._import_cad(input_file, "ipc2581", aedb_path, control_file, set_as_active, close_active_project)
+
+    @pyaedt_function_handler()
+    def import_odb(self, input_file, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False):
+        """Import ODB++ file into HFSS 3D Layout and assign the stackup from an XML file if present.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the input file.
+        aedb_path : str, optional
+            Full path to the AEDB file.
+        control_file : str, optional
+            Path to the XML file with the stackup information. The default is ``None``, in
+            which case the stackup is not edited.
+        set_as_active : bool, optional
+            Whether to set the GDS file as active. The default is ``True``.
+        close_active_project : bool, optional
+            Whether to close the active project after loading the GDS file.
+            The default is ''False``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ImportAWRMicrowaveOffice
+        """
+        return self._import_cad(input_file, "odb++", aedb_path, control_file, set_as_active, close_active_project)
 
     @pyaedt_function_handler()
     def edit_cosim_options(
@@ -1355,3 +1565,20 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             ["NAME:options", "FileName:=", os.path.join(path, "{}.{}".format(file_name, extension))]
         )
         return True
+
+    @pyaedt_function_handler()
+    def enable_rigid_flex(self):
+        """Enable/Disable the rigid flex of a board with bending if available.
+        This command is the same for both, enable and disable rigid flex.
+
+        Returns
+        -------
+        bool
+        """
+        if settings.aedt_version >= "2022.2":
+            self.modeler.oeditor.ProcessBentModelCmd()
+            if self.modeler.rigid_flex == True:
+                self.modeler.rigid_flex = False
+            self.modeler.rigid_flex = True
+            return True
+        return False
