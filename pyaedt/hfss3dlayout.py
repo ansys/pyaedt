@@ -9,6 +9,7 @@ import warnings
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt import settings
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
@@ -1564,3 +1565,19 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             ["NAME:options", "FileName:=", os.path.join(path, "{}.{}".format(file_name, extension))]
         )
         return True
+
+    @pyaedt_function_handler()
+    def enable_rigid_flex(self):
+        """Process a board with bending and apply rigid flex.
+
+        Returns
+        -------
+        bool
+        """
+        if settings.aedt_version >= "2022.2":
+            self.modeler.oeditor.ProcessBentModelCmd()
+            if self.modeler.rigid_flex == True:
+                self.modeler.rigid_flex = False
+            self.modeler.rigid_flex = True
+            return True
+        return False
