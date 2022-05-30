@@ -472,6 +472,30 @@ class TestClass(BasisTest, object):
         self.aedtapp.export_3d_model()
         assert os.path.exists(os.path.join(self.aedtapp.working_directory, self.aedtapp.design_name + ".sat"))
 
+    def test_36_import_gds(self):
+        gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
+        control_file = ""
+        aedb_file = os.path.join(self.local_scratch.path, "gds_out.aedb")
+        assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
+        assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
+
+    def test_37_import_gerber(self):
+        gerber_file = os.path.join(local_path, "example_models", "cad", "Gerber", "gerber1.zip")
+        control_file = os.path.join(local_path, "example_models", "cad", "Gerber", "gerber1.xml")
+        aedb_file = os.path.join(self.local_scratch.path, "gerber_out.aedb")
+        assert self.aedtapp.import_gerber(gerber_file, aedb_path=aedb_file, control_file=control_file)
+
+    def test_38_import_dxf(self):
+        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
+        control_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.xml")
+        aedb_file = os.path.join(self.local_scratch.path, "dxf_out.aedb")
+        assert self.aedtapp.import_gerber(dxf_file, aedb_path=aedb_file, control_file=control_file)
+
+    def test_39_import_ipc(self):
+        dxf_file = os.path.join(local_path, "example_models", "cad", "ipc", "galileo.xml")
+        aedb_file = os.path.join(self.local_scratch.path, "dxf_out.aedb")
+        assert self.aedtapp.import_ipc2581(dxf_file, aedb_path=aedb_file, control_file="")
+
     @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
     def test_90_set_differential_pairs(self):
         assert self.hfss3dl.set_differential_pair(

@@ -334,7 +334,7 @@ class Design(object):
 
     @pyaedt_function_handler()
     def __getitem__(self, variable_name):
-        return self.variable_manager[variable_name].string_value
+        return self.variable_manager[variable_name].expression
 
     @pyaedt_function_handler()
     def __setitem__(self, variable_name, variable_value):
@@ -1069,15 +1069,15 @@ class Design(object):
         return self._desktop_install_dir
 
     @pyaedt_function_handler()
-    def get_oo_name(self, aedt_object, object_name):
+    def get_oo_name(self, aedt_object, object_name=None):
         """Return the Object Oriented AEDT Properties names.
 
         Parameters
         ----------
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
-        object_name : str
-            Path to the object list. Example `"DesginName\Boundaries"`.
+        object_name : str, optional
+            Path to the object list. Example `"DesignName\Boundaries"`.
 
         Returns
         -------
@@ -1085,9 +1085,13 @@ class Design(object):
             Values returned by method if any.
         """
         try:
-            return aedt_object.GetChildObject(object_name).GetChildNames()
+            if object_name:
+                return aedt_object.GetChildObject(object_name).GetChildNames()
+            else:
+                return aedt_object.GetChildNames()
+
         except:
-            return False
+            return []
 
     @pyaedt_function_handler()
     def get_oo_object(self, aedt_object, object_name):
@@ -1129,7 +1133,7 @@ class Design(object):
         try:
             return aedt_object.GetChildObject(object_name).GetPropNames()
         except:
-            return False
+            return []
 
     @pyaedt_function_handler()
     def get_oo_property_value(self, aedt_object, object_name, prop_name):
@@ -1144,13 +1148,13 @@ class Design(object):
 
         Returns
         -------
-        list
+        str, float, bool
             Values returned by method if any.
         """
         try:
             return aedt_object.GetChildObject(object_name).GetPropValue(prop_name)
         except:
-            return False
+            return None
 
     @pyaedt_function_handler()
     def export_profile(self, setup_name, variation_string="", file_path=None):
@@ -3381,16 +3385,13 @@ class Design(object):
             return self._odesign.ValidateDesign()
 
     @pyaedt_function_handler()
-    def get_evaluated_value(self, variable_name, variation=None, units=None):
+    def get_evaluated_value(self, variable_name, units=None):
         """Retrieve the evaluated value of a design property or project variable in SI units if no unit is provided.
 
         Parameters
         ----------
         variable_name : str
             Name of the design property or project variable.
-        variation : float, optional
-            Variation value for the evaluation. The default is ``None``,
-            in which case the nominal variation is used.
         units : str, optional
             Name of the unit to use for rescaling. The default is ``None``,
             in which case SI units are applied by default.
@@ -3415,38 +3416,42 @@ class Design(object):
         >>> M3D["p3"] = "P1 * p2"
         >>> eval_p3 = M3D.get_evaluated_value("p3")
         """
-        if self.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
-            if "$" in variable_name:
-                val_units = self._oproject.GetVariableValue(variable_name)
-            else:
-                val_units = self._odesign.GetVariableValue(variable_name)
-            val, units = decompose_variable_value(val_units)
-            try:
-                if units:
-                    scale = AEDT_UNITS[unit_system(units)][units]
-                    if isinstance(scale, tuple):
-                        return scale[0](val, True)
-                    else:
-                        return val * scale
-                return float(val)
-            except ValueError:
-                return val_units
-        if not variation:
-            variation_string = self._odesign.GetNominalVariation()
+        if "$" in variable_name:
+            app = self._oproject
         else:
-            variation_string = self.design_variation(variation_string=variation)
-        try:
-            si_value = self._odesign.GetVariationVariableValue(variation_string, variable_name)
-        except:
-            si_value = self._odesign.GetVariableValue(variable_name)
-
-        if units:
-            scale = AEDT_UNITS[unit_system(units)][units]
-            if isinstance(scale, tuple):
-                return scale[0](si_value, True)
+            app = self._odesign
+        var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
+        if var_obj:
+            if is_ironpython:  # pragma: no cover
+                val = var_obj.Get_SIValue()
             else:
-                return si_value / scale
-        return si_value
+                val = var_obj.Get_SIValue
+        else:
+            try:
+                variation_string = self._odesign.GetNominalVariation()
+                val = self._odesign.GetVariationVariableValue(variation_string, variable_name)  # pragma: no cover
+            except:
+                val_units = app.GetVariableValue(variable_name)
+                val, original_units = decompose_variable_value(val_units)
+                try:
+                    if original_units:
+                        scale = AEDT_UNITS[unit_system(original_units)][original_units]
+                        if isinstance(scale, tuple):  # pragma: no cover
+                            val = scale[0](val, True)
+                        else:
+                            val = val * scale
+                except (ValueError, KeyError, TypeError, AttributeError):  # pragma: no cover
+                    return val_units
+        try:
+            if units:
+                scale = AEDT_UNITS[unit_system(units)][units]
+                if isinstance(scale, tuple):  # pragma: no cover
+                    return scale[0](val, True)
+                else:
+                    return val * scale
+            return float(val)
+        except (ValueError, KeyError, TypeError, AttributeError):  # pragma: no cover
+            return val
 
     @pyaedt_function_handler()
     def evaluate_expression(self, expression_string):

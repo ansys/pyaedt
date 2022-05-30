@@ -189,18 +189,10 @@ class TestClass(BasisTest, object):
     def test_19_matrix(self):
         self.aedtapp.insert_design("Matrix")
         self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        self.aedtapp.modeler.primitives.create_rectangle(
-            [0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1", matname="vacuum"
-        )
-        self.aedtapp.modeler.primitives.create_rectangle(
-            [8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2", matname="vacuum"
-        )
-        self.aedtapp.modeler.primitives.create_rectangle(
-            [16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3", matname="vacuum"
-        )
-        self.aedtapp.modeler.primitives.create_rectangle(
-            [32, 1.5, 0], [8, 3], is_covered=True, name="Coil_4", matname="vacuum"
-        )
+        self.aedtapp.modeler.create_rectangle([0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1", matname="vacuum")
+        self.aedtapp.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2", matname="vacuum")
+        self.aedtapp.modeler.create_rectangle([16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3", matname="vacuum")
+        self.aedtapp.modeler.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True, name="Coil_4", matname="vacuum")
         self.aedtapp.assign_current("Coil_1", amplitude=1, swap_direction=False, name="Current1")
         self.aedtapp.assign_current("Coil_2", amplitude=1, swap_direction=True, name="Current2")
         self.aedtapp.assign_current("Coil_3", amplitude=1, swap_direction=True, name="Current3")

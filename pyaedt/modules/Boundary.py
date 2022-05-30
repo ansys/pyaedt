@@ -636,8 +636,8 @@ class MaxwellParameters(BoundaryCommon, object):
 
     >>> from pyaedt import Maxwell2d
     >>> maxwell_2d = Maxwell2d()
-    >>> coil1 = maxwell_2d.modeler.primitives.create_rectangle([8.5,1.5, 0], [8, 3], True, "Coil_1", "vacuum")
-    >>> coil2 = maxwell_2d.modeler.primitives.create_rectangle([8.5,1.5, 0], [8, 3], True, "Coil_2", "vacuum")
+    >>> coil1 = maxwell_2d.modeler.create_rectangle([8.5,1.5, 0], [8, 3], True, "Coil_1", "vacuum")
+    >>> coil2 = maxwell_2d.modeler.create_rectangle([8.5,1.5, 0], [8, 3], True, "Coil_2", "vacuum")
     >>> maxwell_2d.assign_matrix(["Coil_1", "Coil_2"])
     """
 

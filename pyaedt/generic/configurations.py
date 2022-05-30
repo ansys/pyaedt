@@ -1046,7 +1046,7 @@ class Configurations(object):
         post_vars = self._app.variable_manager.post_processing_variables
         for k, v in self._app.variable_manager.independent_variables.items():
             if k not in post_vars:
-                dict_out["general"]["variables"][k] = v.string_value
+                dict_out["general"]["variables"][k] = v.evaluated_value
         for k, v in self._app.variable_manager.dependent_variables.items():
             if k not in post_vars:
                 dict_out["general"]["variables"][k] = v.expression
@@ -1054,7 +1054,7 @@ class Configurations(object):
             try:
                 dict_out["general"]["postprocessing_variables"][k] = v.expression
             except AttributeError:
-                dict_out["general"]["postprocessing_variables"][k] = v.string_value
+                dict_out["general"]["postprocessing_variables"][k] = v.evaluated_value
 
     @pyaedt_function_handler()
     def _export_setups(self, dict_out):

@@ -103,9 +103,9 @@ class NamedVariable(object):
         return self._variable.numeric_value
 
     @property
-    def string_value(self):
+    def evaluated_value(self):
         """String that combines the numeric value and the units."""
-        return self._variable.string_value
+        return self._variable.evaluated_value
 
     @pyaedt_function_handler()
     def hide_variable(self, value=True):
@@ -173,7 +173,7 @@ class Layer3D(object):
         if thickness:
             self._thickness = NamedVariable(self._app, self._thickness_variable, str(thickness) + "mm")
         if self._layer_type == "dielectric":
-            obj_3d = self._app.modeler.primitives.create_box(
+            obj_3d = self._app.modeler.create_box(
                 ["dielectric_x_position", "dielectric_y_position", layer_position],
                 ["dielectric_length", "dielectric_width", self._thickness_variable],
                 name=self._name,
@@ -181,7 +181,7 @@ class Layer3D(object):
             )
         elif self._layer_type == "ground":
             if thickness:
-                obj_3d = self._app.modeler.primitives.create_box(
+                obj_3d = self._app.modeler.create_box(
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width", self._thickness_variable],
                     name=self._name,
@@ -189,7 +189,7 @@ class Layer3D(object):
                 )
 
             else:
-                obj_3d = self._app.modeler.primitives.create_rectangle(
+                obj_3d = self._app.modeler.create_rectangle(
                     "Z",
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
@@ -198,14 +198,14 @@ class Layer3D(object):
                 )
         elif self._layer_type == "signal":
             if thickness:
-                obj_3d = self._app.modeler.primitives.create_box(
+                obj_3d = self._app.modeler.create_box(
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width", self._thickness_variable],
                     name=self._name,
                     matname=self._fill_material,
                 )
             else:
-                obj_3d = self._app.modeler.primitives.create_rectangle(
+                obj_3d = self._app.modeler.create_rectangle(
                     "Z",
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
@@ -585,12 +585,13 @@ class Layer3D(object):
 
 
 class PadstackLayer(object):
-    """Provides a Data class for the definition of a padstack layer and relative pad and antipad values."""
+    """Provides a data class for the definition of a padstack layer and relative pad and antipad values."""
 
-    def __init__(self, padstack, layer_name, elevation):
+    def __init__(self, padstack, layer_name, elevation, thickness):
         self._padstack = padstack
         self._layer_name = layer_name
         self._layer_elevation = elevation
+        self._layer_thickness = thickness
         self._pad_radius = 1
         self._antipad_radius = 2
         self._units = "mm"
@@ -609,10 +610,10 @@ class Padstack(object):
         self._plating_ratio = 1
         v = None
         k = None
-        for v in list(self._stackup.stackup_layers.values()):
+        for k, v in self._stackup.stackup_layers.items():
             if not self._padstacks_by_layer and v._layer_type == "dielectric":
                 continue
-            self._padstacks_by_layer[k] = PadstackLayer(self, k, v.elevation)
+            self._padstacks_by_layer[k] = PadstackLayer(self, k, v.elevation, v.thickness)
         if v and v._layer_type == "dielectric":
             del self._padstacks_by_layer[k]
         self._padstacks_material = material
@@ -781,9 +782,9 @@ class Padstack(object):
                     cyls.append(
                         self._app.modeler.create_cylinder(
                             "Z",
-                            [position_x, position_y, first_el.name],
+                            [position_x, position_y, v._layer_elevation.name],
                             v._pad_radius,
-                            v._layer_elevation.name,
+                            v._layer_thickness.name,
                             matname=self._padstacks_material,
                             name=instance_name,
                             numSides=self._num_sides,
@@ -792,9 +793,9 @@ class Padstack(object):
                     if self.plating_ratio < 1:
                         hole = self._app.modeler.create_cylinder(
                             "Z",
-                            [position_x, position_y, first_el.name],
+                            [position_x, position_y, v._layer_elevation.name],
                             "{}*{}".format(self._app.modeler._arg_with_dim(v._pad_radius), 1 - self.plating_ratio),
-                            v._layer_elevation.name,
+                            v._layer_thickness.name,
                             matname=self._padstacks_material,
                             name=instance_name,
                             numSides=self._num_sides,
@@ -802,9 +803,9 @@ class Padstack(object):
                         cyls[-1].subtract(hole, False)
                     anti = self._app.modeler.create_cylinder(
                         "Z",
-                        [position_x, position_y, first_el.name],
+                        [position_x, position_y, v._layer_elevation.name],
                         v._antipad_radius,
-                        v._layer_elevation.name,
+                        v._layer_thickness.name,
                         matname="air",
                         name=instance_name + "_antipad",
                     )
@@ -1236,14 +1237,14 @@ class Stackup3D(object):
             list_of_2d_points = points_list_by_object + list_of_2d_points
         for via in self._vias:
             for v in via._vias_objects:
-                list_of_x_coordinates.append(v.bounding_box[0])
-                list_of_x_coordinates.append(v.bounding_box[2])
-                list_of_y_coordinates.append(v.bounding_box[1])
-                list_of_y_coordinates.append(v.bounding_box[3])
-                list_of_x_coordinates.append(v.bounding_box[0])
-                list_of_x_coordinates.append(v.bounding_box[2])
-                list_of_y_coordinates.append(v.bounding_box[3])
-                list_of_y_coordinates.append(v.bounding_box[1])
+                list_of_x_coordinates.append(v.bounding_box[0] - v.bounding_dimension[0])
+                list_of_x_coordinates.append(v.bounding_box[3] - v.bounding_dimension[0])
+                list_of_y_coordinates.append(v.bounding_box[1] - v.bounding_dimension[1])
+                list_of_y_coordinates.append(v.bounding_box[4] - v.bounding_dimension[1])
+                list_of_x_coordinates.append(v.bounding_box[0] + v.bounding_dimension[0])
+                list_of_x_coordinates.append(v.bounding_box[4] + v.bounding_dimension[0])
+                list_of_y_coordinates.append(v.bounding_box[4] + v.bounding_dimension[1])
+                list_of_y_coordinates.append(v.bounding_box[1] + v.bounding_dimension[1])
         for point in list_of_2d_points:
             list_of_x_coordinates.append(point[0])
             list_of_y_coordinates.append(point[1])
@@ -1251,12 +1252,12 @@ class Stackup3D(object):
         minimum_x = min(list_of_x_coordinates)
         maximum_y = max(list_of_y_coordinates)
         minimum_y = min(list_of_y_coordinates)
-        variation_x = maximum_x - minimum_x
-        variation_y = maximum_y - minimum_y
-        self._app["dielectric_x_position"] = str(minimum_x - variation_x / 2 * percentage_offset / 100) + "mm"
-        self._app["dielectric_y_position"] = str(minimum_y - variation_y / 2 * percentage_offset / 100) + "mm"
-        self._app["dielectric_length"] = str(maximum_x + variation_x * percentage_offset / 100) + "mm"
-        self._app["dielectric_width"] = str(maximum_y + variation_y * percentage_offset / 100) + "mm"
+        variation_x = abs(maximum_x - minimum_x)
+        variation_y = abs(maximum_y - minimum_y)
+        self._app["dielectric_x_position"] = str(minimum_x - variation_x * percentage_offset / 100) + "mm"
+        self._app["dielectric_y_position"] = str(minimum_y - variation_y * percentage_offset / 100) + "mm"
+        self._app["dielectric_length"] = str(maximum_x - minimum_x + 2 * variation_x * percentage_offset / 100) + "mm"
+        self._app["dielectric_width"] = str(maximum_y - minimum_y + 2 * variation_y * percentage_offset / 100) + "mm"
         return True
 
 
@@ -1468,7 +1469,7 @@ class Patch(CommonObject, object):
 
             self._reference_system = patch_name + "_CS"
         if signal_layer.thickness:
-            self._aedt_object = application.modeler.primitives.create_box(
+            self._aedt_object = application.modeler.create_box(
                 position=start_point,
                 dimensions_list=[
                     "{}_length".format(patch_name),
@@ -1479,7 +1480,7 @@ class Patch(CommonObject, object):
                 matname=signal_layer.material_name,
             )
         else:
-            self._aedt_object = application.modeler.primitives.create_rectangle(
+            self._aedt_object = application.modeler.create_rectangle(
                 position=start_point,
                 dimension_list=[self.length.name, self.width.name],
                 name=patch_name,
@@ -1845,7 +1846,7 @@ class Trace(CommonObject, object):
                 start_point = ["-{0}_width/2".format(self._name), 0, 0]
             self._reference_system = line_name + "_CS"
         if signal_layer.thickness:
-            self._aedt_object = application.modeler.primitives.create_box(
+            self._aedt_object = application.modeler.create_box(
                 position=start_point,
                 dimensions_list=[
                     "{}_length".format(self._name),
@@ -1856,7 +1857,7 @@ class Trace(CommonObject, object):
                 matname=signal_layer.material_name,
             )
         else:
-            self._aedt_object = application.modeler.primitives.create_rectangle(
+            self._aedt_object = application.modeler.create_rectangle(
                 position=start_point,
                 dimension_list=["{}_length".format(self._name), "{}_width".format(self._name)],
                 name=line_name,
@@ -2232,9 +2233,30 @@ class Trace(CommonObject, object):
                 axisdir = self.application.AxisDir.YNeg
             else:
                 axisdir = self.application.AxisDir.YPos
-        return self.application.create_lumped_port_between_objects(
+        p1 = self.application.create_lumped_port_between_objects(
             reference_layer_name, self.aedt_object.name, axisdir=axisdir
         )
+        z_elev = ""
+        start_count = False
+        for k, v in self._signal_layer._stackup.stackup_layers.items():
+            if k == reference_layer_name or k == self._signal_layer.name:
+                if not start_count:
+                    start_count = True
+                else:
+                    start_count = False
+            elif start_count:
+                z_elev += "-" + v.thickness.name
+        self.application.modeler.oeditor.ChangeProperty(
+            [
+                "NAME:AllTabs",
+                [
+                    "NAME:Geometry3DCmdTab",
+                    ["NAME:PropServers", self._name + ":Move:1"],
+                    ["NAME:ChangedProps", ["NAME:Move Vector", "X:=", "0mm", "Y:=", "0mm", "Z:=", z_elev]],
+                ],
+            ]
+        )
+        return p1
 
 
 class Polygon(CommonObject, object):

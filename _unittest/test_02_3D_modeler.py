@@ -617,3 +617,16 @@ class TestClass(BasisTest, object):
         rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "edge_movements2")
         assert self.aedtapp.modeler.move_edge([rect.edges[0], rect.edges[2]])
         assert rect.faces[0].bottom_edge_x.move_along_normal()
+
+    def test_51_imprint(self):
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "imprint1")
+        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprint2")
+        assert self.aedtapp.modeler.imprint(rect, box1)
+
+    def test_51_imprint_projection(self):
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "imprintn1")
+        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprintn2")
+        assert self.aedtapp.modeler.imprint_normal_projection([rect, box1])
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "imprintn3")
+        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprintn3")
+        assert self.aedtapp.modeler.imprint_vector_projection([rect, box1], [3, 2, -5], 1)

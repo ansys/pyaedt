@@ -371,18 +371,19 @@ class Analysis(Design, object):
             sweep_list.reverse()
         else:
             for el in setup_list:
-                if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
-                    sweeps = self.oanalysis.GelAllSolutionNames()
+                sweeps = []
+                setuptype = self.design_solutions.default_adaptive
+                if setuptype:
+                    sweep_list.append(el + " : " + setuptype)
                 else:
-                    setuptype = self.design_solutions.default_adaptive
-                    if setuptype:
-                        sweep_list.append(el + " : " + setuptype)
-                    else:
-                        sweep_list.append(el)
-                try:
-                    sweeps = list(self.oanalysis.GetSweeps(el))
-                except:
-                    sweeps = []
+                    sweep_list.append(el)
+                if self.design_type in ["HFSS 3D Layout Design"]:
+                    sweeps = self.oanalysis.GelAllSolutionNames()
+                elif self.solution_type not in ["Eigenmode"]:
+                    try:
+                        sweeps = list(self.oanalysis.GetSweeps(el))
+                    except:
+                        sweeps = []
                 for sw in sweeps:
                     if el + " : " + sw not in sweep_list:
                         sweep_list.append(el + " : " + sw)
@@ -811,6 +812,8 @@ class Analysis(Design, object):
 
         >>> oModule.ExportConvergence
         """
+        if " : " in setup_name:
+            setup_name = setup_name.split(" : ")[0]
         if not file_path:
             file_path = os.path.join(self.working_directory, generate_unique_name("Convergence") + ".prop")
         if not variation_string:
@@ -993,16 +996,9 @@ class Analysis(Design, object):
             >>> oDesign.GetVariableValue
             >>> oDesign.GetNominalVariation"""
             families = []
-            if self._app.design_type == "HFSS 3D Layout Design":
-                listvar = self._app.variable_manager._get_var_list_from_aedt(self._app._odesign)
-                for el in listvar:
-                    families.append(el + ":=")
-                    families.append([self._app._odesign.GetVariableValue(el)])
-            else:
-                variation = self._app._odesign.GetNominalVariation()
-                for el in self.variables:
-                    families.append(el + ":=")
-                    families.append([self._app._odesign.GetVariationVariableValue(variation, el)])
+            for k, v in list(self._app.variable_manager.independent_variables.items()):
+                families.append(k + ":=")
+                families.append([v.expression])
             return families
 
         @property
@@ -1017,19 +1013,14 @@ class Analysis(Design, object):
             >>> oDesign.GetVariableValue
             >>> oDesign.GetNominalVariation"""
             families = {}
-            if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Twin Builder"]:
-                listvar = self._app.variable_manager._get_var_list_from_aedt(self._app._odesign)
-                for el in listvar:
-                    families[el] = self._app._odesign.GetVariableValue(el)
-            else:
-                variation = self._app._odesign.GetNominalVariation()
-                for el in self.variables:
-                    families[el] = self._app._odesign.GetVariationVariableValue(variation, el)
+            for k, v in list(self._app.variable_manager.independent_variables.items()):
+                families[k] = v.expression
+
             return families
 
         @property
         def all(self):
-            """All."""
+            """List of all independent variables with `["All"]` value."""
             families = []
             for el in self.variables:
                 families.append(el + ":=")

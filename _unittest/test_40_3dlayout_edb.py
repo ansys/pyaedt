@@ -1,5 +1,7 @@
 import os
 
+from _unittest.conftest import config
+
 try:
     import pytest
 except ImportError:
@@ -55,6 +57,12 @@ class TestClass(BasisTest, object):
         assert not comp["U3B2"].enabled(False)
         assert not comp["J2"].enabled(False)
         assert not comp["FB1M1"].enabled(False)
+        r5 = comp["R5"]
+        assert r5.model
+        assert r5.model.res == "100kOhm"
+        assert r5.model.cap == "0"
+        assert r5.model.ind == "0"
+        assert r5.model.is_parallel == False
 
     def test_02a_get_geometries(self):
         line = self.aedtapp.modeler.geometries["line_1983"]
@@ -136,6 +144,11 @@ class TestClass(BasisTest, object):
         assert vias["via_3795"].stop_layer == "BOTTOM"
         assert vias["via_3795"].holediam == "10mil"
 
+    def test_03C_voids(self):
+        assert len(self.aedtapp.modeler.voids) > 0
+        poly = self.aedtapp.modeler.polygons["poly_1345"]
+        assert len(poly.polygon_voids) > 0
+
     def test_04_add_mesh_operations(self):
         self.aedtapp.create_setup("HFSS")
         setup1 = self.aedtapp.mesh.assign_length_mesh("HFSS", "PWR", "GND")
@@ -197,3 +210,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.layers.change_stackup_type("Overlap")
         assert self.aedtapp.modeler.layers.change_stackup_type("Laminate")
         assert not self.aedtapp.modeler.layers.change_stackup_type("lami")
+
+    @pytest.mark.skipif(config["build_machine"] == True, reason="Not running in non-graphical mode")
+    def test_11_export_picture(self):
+        assert os.path.exists(self.aedtapp.post.export_model_picture(orientation="top"))

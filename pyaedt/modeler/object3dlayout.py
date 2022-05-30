@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-
 This module provides methods and data structures for managing all properties of
 objects (points, lines, sheeets, and solids) within the AEDT 3D Layout Modeler.
 
 """
 from __future__ import absolute_import  # noreorder
+
+import re
 
 from pyaedt import pyaedt_function_handler, _retry_ntimes
 from pyaedt.modeler.Object3d import rgb_color_codes, clamp
@@ -229,6 +230,53 @@ class Objec3DLayout(object):
         self.change_property(vMaterial)
 
 
+class ModelInfoRlc(object):
+    def __init__(self, component, name):
+        self._comp = component
+        self._name = name
+
+    @property
+    def rlc_model_type(self):
+        props = _retry_ntimes(self._comp._n, self._comp.m_Editor.GetComponentInfo, self._name)
+        model = ""
+        for p in props:
+            if "ComponentProp=" in p:
+                model = p
+                break
+        s = r".+rlc\(r='(.+?)', re=(.+?), l='(.+?)', le=(.+?), c='(.+?)', ce=(.+?), p=(.+?), lyr=(.+?)"
+        m = re.search(s, model)
+        vals = []
+        if m:
+            for i in range(1, 9):
+                if m.group(i) == "false":
+                    vals.append(False)
+                elif m.group(i) == "true":
+                    vals.append(True)
+                else:
+                    vals.append(m.group(i))
+        return vals
+
+    @property
+    def res(self):
+        if self.rlc_model_type:
+            return self.rlc_model_type[0]
+
+    @property
+    def cap(self):
+        if self.rlc_model_type:
+            return self.rlc_model_type[4]
+
+    @property
+    def ind(self):
+        if self.rlc_model_type:
+            return self.rlc_model_type[2]
+
+    @property
+    def is_parallel(self):
+        if self.rlc_model_type:
+            return self.rlc_model_type[6]
+
+
 class Components3DLayout(Objec3DLayout, object):
     """Contains components in HFSS 3D Layout."""
 
@@ -307,6 +355,17 @@ class Components3DLayout(Objec3DLayout, object):
         List of str
         """
         return list(self.m_Editor.GetComponentPins(self.name))
+
+    @property
+    def model(self):
+        """RLC model if available.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.object3dlayout.ModelInfoRlc`
+        """
+        if self._part_type_id in [1, 2, 3]:
+            return ModelInfoRlc(self, self.name)
 
 
 class Nets3DLayout(object):
@@ -551,6 +610,8 @@ class Geometries3DLayout(Objec3DLayout, object):
 
         >>> oEditor.ChangeProperty
         """
+        if self.is_void:
+            return False
         return (
             True
             if _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Negative")
@@ -560,8 +621,34 @@ class Geometries3DLayout(Objec3DLayout, object):
 
     @negative.setter
     def negative(self, negative=False):
-        vMaterial = ["NAME:Negative", "Value:=", negative]
-        self.change_property(vMaterial)
+        if not self.is_void:
+            vMaterial = ["NAME:Negative", "Value:=", negative]
+            self.change_property(vMaterial)
+
+    @property
+    def net_name(self):
+        """Get/Set the net name.
+
+        Returns
+        -------
+        str
+            Name of the net.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        if self.is_void:
+            return None
+        if self.prim_type not in ["component"]:
+            return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Net")
+
+    @net_name.setter
+    def net_name(self, netname=""):
+        if not self.is_void and self.prim_type not in ["component"]:
+            vMaterial = ["NAME:Net", "Value:=", netname]
+            self.change_property(vMaterial)
 
 
 class Polygons3DLayout(Geometries3DLayout, object):
@@ -581,6 +668,21 @@ class Polygons3DLayout(Geometries3DLayout, object):
         """
         obj = self.m_Editor.GetPolygon(self.name)
         return obj.IsClosed()
+
+    @property
+    def polygon_voids(self):
+        """All Polygon Voids.
+
+        Returns
+        -------
+        dict
+            Dictionary of polygon voids.
+        """
+        voids = list(self.m_Editor.GetPolygonVoids(self.name))
+        pvoids = {}
+        for void in voids:
+            pvoids[void] = Polygons3DLayout(self._primitives, void, "poly", True)
+        return pvoids
 
 
 class Circle3dLayout(Geometries3DLayout, object):
@@ -980,7 +1082,7 @@ class Point(object):
 
     >>> from pyaedt import Hfss
     >>> aedtapp = Hfss()
-    >>> primitives = aedtapp.modeler.primitives
+    >>> primitives = aedtapp.modeler
 
     Create a point, to return an :class:`pyaedt.modeler.Object3d.Point`.
 
@@ -1083,7 +1185,7 @@ class Point(object):
 
         Examples
         --------
-        >>> point = self.aedtapp.modeler.primitives.create_point([30, 30, 0], "demo_point")
+        >>> point = self.aedtapp.modeler.create_point([30, 30, 0], "demo_point")
         >>> point.set_color("(143 175 158)")
 
         """
