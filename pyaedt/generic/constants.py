@@ -195,6 +195,7 @@ AEDT_UNITS = {
     },
     "Angle": {"deg": DEG2RAD, "rad": 1.0, "degmin": DEG2RAD * SEC2MIN, "degsec": DEG2RAD * SEC2HOUR},
     "Capacitance": {"fF": 1e-15, "pF": 1e-12, "nF": 1e-9, "uF": 1e-6, "mF": 1e-3, "F": 1.0},
+    "Conductance": {"fSie": 1e-15, "pSie": 1e-12, "nSie": 1e-9, "uSie": 1e-6, "mSie": 1e-3, "Sie": 1.0},
     "Current": {
         "fA": 1e-15,
         "pA": 1e-12,
@@ -343,6 +344,7 @@ SI_UNITS = {
     "AngularSpeed": "rad_per_sec",
     "Angle": "rad",
     "Capacitance": "F",
+    "Conductance": "Sie",
     "Current": "A",
     "Flux": "vs",
     "Force": "newton",
