@@ -4,12 +4,18 @@ from pyaedt import pyaedt_function_handler
 
 
 class AedtObjects(object):
-    def __init__(self, project=None, design=None):
-        if project:
-            self.oproject = project
-        if design:
-            self.odesign = design
+    def __init__(self, project=None, design=None, is_inherithed=False):
         self._odesktop = sys.modules["__main__"].oDesktop
+        if not is_inherithed:
+            if project:
+                self.oproject = project
+                if design:
+                    self.odesign = design
+                else:
+                    self.odesign = self.oproject.GetActiveDesign()
+            else:
+                self.oproject = self._odesktop.GetActiveProject()
+                self.odesign = self.oproject.GetActiveDesign()
         self._oboundary = None
         self._oimport_export = None
         self._ooptimetrics = None

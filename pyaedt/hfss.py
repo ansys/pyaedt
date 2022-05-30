@@ -178,6 +178,12 @@ class Hfss(FieldAnalysis3D, object):
 
     @property
     def field_setups(self):
+        """List of AEDT Radiation Fields.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modules.Boundary.FarFieldSetup`
+        """
         if not self._field_setups:
             self._field_setups = self._get_rad_fields()
         return self._field_setups

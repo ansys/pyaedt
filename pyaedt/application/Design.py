@@ -201,7 +201,7 @@ class Design(AedtObjects, object):
         self._temp_solution_type = solution_type
         self.oproject = project_name
         self.odesign = design_name
-        AedtObjects.__init__(self)
+        AedtObjects.__init__(self, is_inherithed=True)
 
         self.design_solutions._odesign = self.odesign
         if solution_type:
@@ -2954,7 +2954,7 @@ class Design(AedtObjects, object):
         self.odesign = actual_name[0]
         self.design_name = newname
         self._close_edb()
-        AedtObjects.__init__(self)
+        AedtObjects.__init__(self, is_inherithed=True)
         return True
 
     @pyaedt_function_handler()
