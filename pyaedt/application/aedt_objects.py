@@ -49,7 +49,7 @@ class AedtObjects(object):
 
         >>> oDesign.GetModule("RadField")
         """
-        if self.design_type == "HFSS" and self.solution_type not in ["EigenMode", "Characteristic Mode"]:
+        if self.design_type == "HFSS" and self.odesign.GetSolutionType() not in ["EigenMode", "Characteristic Mode"]:
             return self.odesign.GetModule("RadField")
         return None
 
@@ -120,7 +120,7 @@ class AedtObjects(object):
 
         >>> oDesign.GetModule("Optimetrics")
         """
-        if not self._ooptimetrics and self.design_type != "Maxwell Circuit":
+        if not self._ooptimetrics and self.design_type not in ["Maxwell Circuit", "EMIT"]:
             self._ooptimetrics = self.get_module("Optimetrics")
         return self._ooptimetrics
 
