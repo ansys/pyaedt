@@ -1274,7 +1274,7 @@ class CommonReport(object):
 
     @pyaedt_function_handler
     def import_into_report(self, file_path, plot_name):
-        """Imports report data from a file into a specified report.
+        """Import report data from a file into a specified report.
 
         Parameters
         ----------
@@ -1315,7 +1315,7 @@ class CommonReport(object):
 
     @pyaedt_function_handler
     def delete_traces(self, plot_name, traces_list):
-        """Deletes an existing trace or traces.
+        """Delete an existing trace or traces.
 
         Parameters
         ----------
@@ -1376,7 +1376,7 @@ class CommonReport(object):
 
     @pyaedt_function_handler
     def update_trace_in_report(self, traces, setup_name=None, variations=None, context=None):
-        """Add a trace to a specific report.
+        """Update a trace in a specific report.
 
         Parameters
         ----------

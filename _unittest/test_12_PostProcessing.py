@@ -1,7 +1,6 @@
 # standard imports
 import os
 import uuid
-from os import listdir
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
@@ -324,58 +323,48 @@ class TestClass(BasisTest, object):
         assert len(files) > 0
 
     def test_09c_import_into_report(self):
-        csv_files = listdir(self.local_scratch.path)
-        files_names = [filename for filename in csv_files if filename.endswith((".csv", ".rdat"))]
+        new_report = self.aedtapp.create_scattering("import_test")
+        csv_file_path = self.aedtapp.post.export_report_to_csv(self.local_scratch.path, "import_test")
+        rdat_file_path = self.aedtapp.post.export_report_to_file(self.local_scratch.path, "import_test", ".rdat")
 
-        paths_to_files = []
-        for root, dirs, files in os.walk(self.local_scratch.path):
-            for name in files_names:
-                if name in files:
-                    paths_to_files.append(os.path.join(root, name))
-
-        report = self.aedtapp.post.plots[0]
-        plot_name = self.aedtapp.post.plots[1].plot_name
-
-        for path in paths_to_files:
-            pre, ext = os.path.splitext(path)
-            if ext == ".csv" and os.path.basename(path) != "output.csv":
-                # test import with correct inputs
-                assert report.import_into_report(path, plot_name)
-                # test import with not existing plot_name
-                with pytest.raises(ValueError):
-                    report.import_into_report(path, "plot_name")
-            elif os.path.splitext(path)[1] == ".rdat":
-                assert report.import_into_report(path, plot_name)
+        plot_name = new_report.plot_name
+        # test import with correct inputs from csv
+        assert new_report.import_into_report(csv_file_path, plot_name)
+        # test import with not existing plot_name
+        with pytest.raises(ValueError):
+            new_report.import_into_report(csv_file_path, "plot_name")
+        # test import with correct inputs from rdat
+        assert new_report.import_into_report(rdat_file_path, plot_name)
         # test import with random file path
         with pytest.raises(FileExistsError):
-            report.import_into_report(str(uuid.uuid4()), plot_name)
+            new_report.import_into_report(str(uuid.uuid4()), plot_name)
 
     def test_09d_delete_traces_from_report(self):
-        report = self.aedtapp.post.plots[0]
+        new_report = self.aedtapp.create_scattering("delete_traces_test")
         traces_to_delete = []
-        traces_to_delete.append(report.expressions[0])
-        plot_name = report.plot_name
-        assert report.delete_traces(plot_name, traces_to_delete)
+        traces_to_delete.append(new_report.expressions[0])
+        plot_name = new_report.plot_name
+        assert new_report.delete_traces(plot_name, traces_to_delete)
         with pytest.raises(ValueError):
-            report.delete_traces("plot_name", traces_to_delete)
+            new_report.delete_traces("plot_name", traces_to_delete)
         with pytest.raises(ValueError):
-            report.delete_traces(plot_name, ["V(out)_Test"])
+            new_report.delete_traces(plot_name, ["V(out)_Test"])
 
     def test_09e_add_traces_to_report(self):
-        report = self.aedtapp.post.plots[0]
-        traces = report.get_solution_data().expressions
-        assert report.add_trace_to_report(traces)
+        new_report = self.aedtapp.create_scattering("add_traces_test")
+        traces = new_report.get_solution_data().expressions
+        assert new_report.add_trace_to_report(traces)
         setup = self.aedtapp.post.plots[0].setup
         variations = self.aedtapp.post.plots[0].variations
-        assert report.add_trace_to_report(traces, setup, variations)
+        assert new_report.add_trace_to_report(traces, setup, variations)
 
     def test_09f_update_traces_in_report(self):
-        report = self.aedtapp.post.plots[0]
-        traces = report.get_solution_data().expressions
-        assert report.update_trace_in_report(traces)
+        new_report = self.aedtapp.create_scattering("update_traces_test")
+        traces = new_report.get_solution_data().expressions
+        assert new_report.update_trace_in_report(traces)
         setup = self.aedtapp.post.plots[0].setup
         variations = self.aedtapp.post.plots[0].variations
-        assert report.update_trace_in_report(traces, setup, variations)
+        assert new_report.update_trace_in_report(traces, setup, variations)
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
