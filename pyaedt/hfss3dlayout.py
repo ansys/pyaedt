@@ -1568,7 +1568,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def enable_rigid_flex(self):
-        """Process a board with bending and apply rigid flex.
+        """Enable/Disable the rigid flex of a board with bending if available.
+        This command is the same for both, enable and disable rigid flex.
 
         Returns
         -------
