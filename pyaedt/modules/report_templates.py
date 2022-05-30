@@ -1329,8 +1329,7 @@ class CommonReport(object):
 
         for trace in traces_list:
             if trace not in self._trace_info[3]:
-                msg = "Trace doesn't exist in the selected plot."
-                raise ValueError(msg)
+                raise ValueError("Trace does not exist in the selected plot.")
 
         props = []
         props.append("{}:=".format(plot_name))
