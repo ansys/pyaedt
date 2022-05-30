@@ -1325,8 +1325,7 @@ class CommonReport(object):
             A specific trace or list of traces that the user wishes to delete.
         """
         if plot_name not in self._post.all_report_names:
-            msg = "Plot doesn't exist in current project."
-            raise ValueError(msg)
+            raise ValueError("Plot does not exist in current project.")
 
         for trace in traces_list:
             if trace not in self._trace_info[3]:
