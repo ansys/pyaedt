@@ -322,13 +322,12 @@ class TestClass(BasisTest, object):
         files = self.aedtapp.export_results()
         assert len(files) > 0
 
-    @pytest.mark.skipif(config["build_machine"] == True, reason="Not running in non-graphical mode")
     def test_09c_import_into_report(self):
         new_report = self.aedtapp.create_scattering("import_test")
         csv_file_path = self.aedtapp.post.export_report_to_csv(self.local_scratch.path, "import_test")
         rdat_file_path = self.aedtapp.post.export_report_to_file(self.local_scratch.path, "import_test", ".rdat")
-        self.aedtapp.post.export_report_to_jpg(self.local_scratch.path, "import_test")
-        jpg_file_path = os.path.join(self.local_scratch.path, "import_test.jpg")
+        # self.aedtapp.post.export_report_to_jpg(self.local_scratch.path, "import_test")
+        # jpg_file_path = os.path.join(self.local_scratch.path, "import_test.jpg")
         plot_name = new_report.plot_name
 
         trace_names = []
@@ -358,8 +357,8 @@ class TestClass(BasisTest, object):
             with pytest.raises(ValueError):
                 new_report.import_into_report(csv_file_path, None)
             # test import with wrong file extension
-            with pytest.raises(ValueError):
-                new_report.import_into_report(jpg_file_path, plot_name)
+            # with pytest.raises(ValueError):
+            #     new_report.import_into_report(jpg_file_path, plot_name)
 
     def test_09d_delete_traces_from_report(self):
         new_report = self.aedtapp.create_scattering("delete_traces_test")
