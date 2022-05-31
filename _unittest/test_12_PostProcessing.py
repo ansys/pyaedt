@@ -322,6 +322,7 @@ class TestClass(BasisTest, object):
         files = self.aedtapp.export_results()
         assert len(files) > 0
 
+    @pytest.mark.skipif(config["build_machine"] == True, reason="Not running in non-graphical mode")
     def test_09c_import_into_report(self):
         new_report = self.aedtapp.create_scattering("import_test")
         csv_file_path = self.aedtapp.post.export_report_to_csv(self.local_scratch.path, "import_test")
