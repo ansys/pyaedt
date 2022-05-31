@@ -1,0 +1,248 @@
+{
+    "Help": "This Report Template is applicable to Eye Diagram Plots from Transient and Eye Simulations. It include Mask section.",
+    "Report Category": "Eye Diagram",
+    "Report Type": "Rectangular Plot",
+	"Plot Name": "Eye1",
+    "Context": {
+        "Domain": "Time",
+        "Primary Sweep": "Time",
+        "Primary Sweep Range": [
+            "All"
+        ],
+        "Secondary Sweep Range": [
+            "All"
+        ],
+        "Variations": {
+            "Time": [
+                "All"
+            ]
+        },
+		"Time Start": "0ps",
+		"Time Stop": "50us",
+		"Unit Interval": "1e-9",
+		"Offset":"0ms",
+		"Auto Delay":true,
+		"Manual Delay":"0ps",
+		"Auto Cross Amplitude":true,
+		"Cross Amplitude":"0mV",
+		"Auto Compute Eye Measurements": true,
+		"Eye Measurements Point":"5e-10s",
+		"Thinning":false,
+		"DY DX Tolerance": 0.001,
+		"Thinning Points": 500000000
+    },
+    "Expressions": {
+        "AEYEPROBE(OutputEye)": {
+			
+		}
+    },
+	"EyeMask": {
+            "XUnits": "ns",
+            "YUnits": "mV",
+            "Points": [
+                [0.5,
+                0],
+				[0.62,
+				450],
+				[1.2,
+				450],
+				[1.42,
+				0],
+				[1.2,
+				-450],
+				[0.62,
+				-450],
+				[0.5,
+				0]
+            ],
+			"Enable Limits": true,
+			"Upper Limit": 550,
+			"Lower Limit":-550
+
+	},
+    "LimitLines": {
+        "LimitLine1": {
+            "Color": [
+                111,
+                111,
+                111
+            ],
+            "Line Style": "Solid",
+            "Line Width": "2",
+            "Hatch Above": true,
+            "Violation Emphasis": true,
+            "Hatch Pixels": "10",
+            "Y Axis": "Y1",
+            "XUnits": "GHz",
+            "YUnits": "",
+            "XPoints": [
+                3.0,
+                4.0
+            ],
+			"YPoints": [
+                -14.0,
+                -14.5
+            ]
+        },
+        "LimitLine2": {
+            "Color": [
+                111,
+                111,
+                111
+            ],
+            "Line Style": "Solid",
+            "Line Width": "2",
+            "Hatch Above": true,
+            "Violation Emphasis": true,
+            "Hatch Pixels": "10",
+            "Y Axis": "Y1",
+            "Start": "3GHz",
+            "Stop": "4GHz",
+            "Step": "0.2GHz",
+            "Equation": "x+2"
+        }
+    },
+    "Notes": {
+        "Note1": {
+            "Text": "Hello Pyaedt",
+			"Position":	[
+			3000,
+			3000
+			],
+            "Font": "Arial",
+            "Height": 10,
+			"Italic":false,
+			"Bold": true,
+            "Color": [
+                255,
+                255,
+                255
+            ],
+            "Back Color": [
+                128,
+                0,
+                0
+            ],
+            "Background Visibility": true,
+            "Border Visibility": true,
+            "Border Width": "1",
+			"Border Color":[
+                128,
+                0,
+                0
+            ]		
+        },
+		"Note2": {
+            "Text": "Hello Pyaedt 2",
+			"Position":	[
+			4500,
+			3560
+			],
+            "Font": "Courier",
+            "Height": 14,
+			"Italic":true,
+			"Bold": false,
+            "Color": [
+                0,
+                0,
+                0
+            ],
+            "Back Color": [
+                0,
+                255,
+                255
+            ],
+            "Background Visibility": true,
+            "Border Visibility": false,
+            "Border Width": "1",
+			"Border Color":[
+                128,
+                0,
+                0
+            ]		
+        }
+    },
+    "General": {
+        "AxisX": {
+            "Label": "Freq",
+            "Font": "Arial",
+            "Height": 10,
+			"Bold": true,
+			"Italic": false,
+            "Color": [
+                255,
+                0,
+                0
+            ],
+            "Display Units": true,
+            "Number Format": "Auto",
+            "Axis Scaling": "Linear",
+            "Specify Min": false,
+            "Min": "3GHz",
+            "Specify Max": false,
+            "Max": "4GHz",
+            "Specify Spacing": false,
+            "Spacing": "0.2GHz",
+            "Minor Tick Divs": "5",
+            "Auto Units": true,
+            "Units": "GHz"
+        },
+        "AxisY1": {
+            "Label": "dB(S(1,1))",
+            "Font": "Arial",
+            "Height": 8,
+			"Bold": true,
+			"Italic": false,
+            "Color": [
+                0,
+                0,
+                255
+            ],
+            "Display Units": true,
+            "Number Format": "Auto",
+            "Field Width": "2",
+            "Field Precision": "0",
+            "Axis Scaling": "Log",
+            "Specify Min": true,
+            "Min": "1",
+            "Specify Max": true,
+            "Max": "10",
+            "Specify Spacing": false,
+            "Spacing": "5",
+            "Minor Tick Divs": "5",
+            "Auto Units": true,
+            "Units": ""
+        },
+        "Appearance": {
+            "Back Color": [
+                150,
+                150,
+                150
+            ],
+            "Plot Area Color": [
+                200,
+                200,
+                200
+            ],
+            "Enable Y Axis Stripes": true,
+            "Auto Scale Fonts": true,
+            "Field Width": "4",
+            "Precision": "4",
+            "Use Scientific Notation": false
+        },
+        "Header": {
+            "Font": "Arial",
+            "Title Height": 12,
+            "Color": [
+                255,
+                0,
+                125
+            ],
+			"Bold": true,
+			"Italic": false,
+            "Sub Title Height": 12,
+            "Company Name": "Pyaedt",
+            "Show Design Name": false
+        }
+    }
+}

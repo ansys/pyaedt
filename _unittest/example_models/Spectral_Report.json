@@ -1,0 +1,31 @@
+{
+    "Help": "This Report Template is applicable to Specturm Plots from Transient data.",
+    "Report Category": "Spectrum",
+    "Report Type": "Rectangular Plot",
+    "Context": {
+        "Domain": "Spectral",
+        "Primary Sweep": "Spectrum",
+        "Primary Sweep Range": [
+            "All"
+        ],
+        "Secondary Sweep Range": [
+            "All"
+        ],
+        "Variations": {
+            "Freq": [
+                "All"
+            ]
+        },
+        "Time Start": "0ns",
+        "Time Stop": "10us",
+        "Maximum Frequency": "8MHz",
+        "Window": "Hanning",
+        "Kaiser Coefficient": 0,
+        "Adjust Choerent Gain": true,
+        "Plot Continous Spectrum": true
+    },
+    "Expressions": {
+        "dB(V(net_11))" : {}
+    },
+    "Plot Name": "Plot_CVM5KI"
+}

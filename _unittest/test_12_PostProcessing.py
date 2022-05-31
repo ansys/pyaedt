@@ -31,6 +31,7 @@ test_field_name = "Potter_Horn"
 test_circuit_name = "Switching_Speed_FET_And_Diode"
 sbr_file = "poc_scat_small"
 q3d_file = "via_gsg"
+eye_diagram = "SimpleChannel"
 
 
 class TestClass(BasisTest, object):
@@ -46,6 +47,7 @@ class TestClass(BasisTest, object):
         self.sbr_test = BasisTest.add_app(self, project_name=sbr_file)
         self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d)
         self.q2dtest = Q2d(projectname=q3d_file)
+        self.eye_test = BasisTest.add_app(self, project_name=eye_diagram, application=Circuit)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -101,7 +103,7 @@ class TestClass(BasisTest, object):
         model_gif2.animate()
         assert os.path.exists(model_gif2.gif_file)
 
-    @pytest.mark.skipif(config["build_machine"] == True, reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["NonGraphical"] == True, reason="Not running in non-graphical mode")
     def test_02_export_fields(self):
         quantity_name2 = "ComplexMag_H"
         setup_name = "Setup1 : LastAdaptive"
@@ -167,7 +169,7 @@ class TestClass(BasisTest, object):
 
         assert self.aedtapp.export_touchstone(setup_name, sweep_name)
 
-    @pytest.mark.skipif(config["build_machine"] == True, reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["NonGraphical"] == True, reason="Not running in non-graphical mode")
     def test_05_export_report_to_jpg(self):
 
         self.aedtapp.post.export_report_to_jpg(self.local_scratch.path, "MyTestScattering")
@@ -218,7 +220,7 @@ class TestClass(BasisTest, object):
         assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"))
 
     @pytest.mark.skipif(
-        config["build_machine"], reason="Skipped because it cannot run on build machine in non-graphical mode"
+        config["NonGraphical"], reason="Skipped because it cannot run on build machine in non-graphical mode"
     )
     def test_07_copydata(self):
         assert self.aedtapp.post.copy_report_data("MyTestScattering")
@@ -329,7 +331,7 @@ class TestClass(BasisTest, object):
         assert new_report.add_cartesian_y_marker("-55")
 
     @pytest.mark.skipif(
-        config["build_machine"], reason="Skipped because it cannot run on build machine in non-graphical mode"
+        config["NonGraphical"], reason="Skipped because it cannot run on build machine in non-graphical mode"
     )
     def test_09d_add_line_from_point(self):  # pragma: no cover
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
@@ -447,7 +449,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.post.steal_focus_oneditor()
 
     @pytest.mark.skipif(
-        config["build_machine"], reason="Skipped because it cannot run on build machine in non-graphical mode"
+        config["NonGraphical"], reason="Skipped because it cannot run on build machine in non-graphical mode"
     )
     def test_13_export_model_picture(self):
         path1 = self.aedtapp.post.export_model_picture(full_name=os.path.join(self.local_scratch.path, "image.png"))
@@ -560,7 +562,7 @@ class TestClass(BasisTest, object):
         new_report.plot_continous_spectrum = False
         assert new_report.create()
         assert self.circuit_test.post.create_report(
-            ["dB(V(net_11))", "dB(V(Port1))"], domain="Spectral", setup_sweep_name="Transient"
+            ["dB(V(net_11))", "dB(V(Port1))"], domain="Spectrum", setup_sweep_name="Transient"
         )
         pass
 
@@ -618,9 +620,7 @@ class TestClass(BasisTest, object):
         else:
             assert self.field_test.post.get_efields_data(ff_setup="3D")
 
-    @pytest.mark.skipif(
-        config["build_machine"] or not ipython_available, reason="Skipped because ipython not available"
-    )
+    @pytest.mark.skipif(config["NonGraphical"] or not ipython_available, reason="Skipped because ipython not available")
     def test_52_display(self):
         img = self.aedtapp.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)
         assert isinstance(img, Image)
@@ -727,3 +727,63 @@ class TestClass(BasisTest, object):
         assert self.field_test.available_variations.variations()
         assert self.field_test.cleanup_solution(vars, entire_solution=False)
         assert self.field_test.cleanup_solution(vars, entire_solution=True)
+
+    def test_62_eye_diagram(self):
+        self.eye_test.analyze_nominal()
+        rep = self.eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+        rep.time_start = "0ps"
+        rep.time_stop = "50us"
+        rep.unit_interval = "1e-9"
+        assert rep.create()
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
+    )
+    def test_63_mask(self):
+        self.eye_test.analyze_nominal()
+        rep = self.eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+        rep.time_start = "0ps"
+        rep.time_stop = "50us"
+        rep.unit_interval = "1e-9"
+        rep.create()
+        assert rep.eye_mask([[0.5, 0], [0.62, 450], [1.2, 450], [1.42, 0], [1.2, -450], [0.62, -450], [0.5, 0]])
+        assert rep.eye_mask(
+            [[0.5, 0], [0.62, 450], [1.2, 450], [1.42, 0], [1.2, -450], [0.62, -450], [0.5, 0]],
+            enable_limits=True,
+            upper_limits=800,
+            lower_limits=-800,
+        )
+        assert os.path.exists(rep.export_mask_violation())
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
+    )
+    def test_64_eye_meas(self):
+        self.eye_test.analyze_nominal()
+        rep = self.eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
+        rep.time_start = "0ps"
+        rep.time_stop = "50us"
+        rep.unit_interval = "1e-9"
+        rep.create()
+        assert rep.add_all_eye_measurements()
+        assert rep.clear_all_eye_measurements()
+        assert rep.add_trace_characteristics("MinEyeHeight")
+
+    def test_65_eye_from_json(self):
+        local_path = os.path.dirname(os.path.realpath(__file__))
+        assert self.eye_test.post.create_report_from_json(
+            os.path.join(local_path, "example_models", "EyeDiagram_Report.json"), "QuickEyeAnalysis"
+        )
+
+    def test_66_spectral_from_json(self):
+        local_path = os.path.dirname(os.path.realpath(__file__))
+        self.circuit_test.analyze_setup("Transient")
+        assert self.circuit_test.post.create_report_from_json(
+            os.path.join(local_path, "example_models", "Spectral_Report.json"), "Transient"
+        )
+
+    def test_67_sweep_from_json(self):
+        local_path = os.path.dirname(os.path.realpath(__file__))
+        assert self.aedtapp.post.create_report_from_json(
+            os.path.join(local_path, "example_models", "Modal_Report.json")
+        )

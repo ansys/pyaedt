@@ -1,12 +1,16 @@
+import os
 from collections import OrderedDict
 
 from pyaedt.generic.constants import LineStyle
 from pyaedt.generic.constants import SymbolStyle
 from pyaedt.generic.constants import TraceType
-from pyaedt.generic.general_methods import _create_json_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+
+
+def _props_with_default(dict_in, key, default_value=None):
+    return dict_in[key] if dict_in.get(key, None) != None else default_value
 
 
 class LimitLine(object):
@@ -304,6 +308,12 @@ class CommonReport(object):
 
     @property
     def differential_pairs(self):
+        """Get and Set Differential Pairs flag.
+
+        Returns
+        -------
+        bool
+        """
         return self.props["Context"].get("Differential Pairs", False)
 
     @differential_pairs.setter
@@ -312,6 +322,12 @@ class CommonReport(object):
 
     @property
     def matrix(self):
+        """Get and Q2D/Q3D Matrix name.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Matrix", None)
 
     @matrix.setter
@@ -320,6 +336,12 @@ class CommonReport(object):
 
     @property
     def polyline(self):
+        """Get and Set Polyline name for field report.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Polyline", None)
 
     @polyline.setter
@@ -328,6 +350,12 @@ class CommonReport(object):
 
     @property
     def expressions(self):
+        """Get and Set the Expressions names.
+
+        Returns
+        -------
+        str
+        """
         if self.props.get("Expressions", {}):
             return list(self.props.get("Expressions", {}).keys())
         return []
@@ -343,6 +371,12 @@ class CommonReport(object):
 
     @property
     def report_category(self):
+        """Get and Report Category.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Report Category"]
 
     @report_category.setter
@@ -406,155 +440,242 @@ class CommonReport(object):
         return _traces
 
     @pyaedt_function_handler()
-    def _get_prop_by_object(self, object_val, props_key, exclude_list=None):
-        if not exclude_list:
-            exclude_list = []
-        props = object_val.GetPropNames()
-        for prop in props:
-            if prop in exclude_list or "/Choices" in prop:
-                continue
-            if "Color" in prop:
-                color = object_val.GetPropValue(prop)
-                if color:
-                    b = (int(color) >> 16) & 255
-                    g = (int(color) >> 8) & 255
-                    r = int(color) & 255
-                    self.props["General"][props_key][prop] = (r, g, b)
-            else:
-                self.props["General"][props_key][prop] = object_val.GetPropValue(prop)
-
-    @pyaedt_function_handler()
-    def _get_props(self):
+    def _update_traces(self):
         for trace in self.traces:
-            if trace.trace_name.split(":")[1] in self.expressions:
-                continue
-            if not self.props.get("Expressions", None):
-                self.props["Expressions"] = {}
-            self.props["Expressions"][trace.trace_name.split(":")[1]] = {}
-        for line in self.limit_lines:
-            line_name = line.line_name.split(":")[-1]
-            oo = self._post._app.get_oo_object(self._post.oreportsetup, "{}/{}".format(self.plot_name, line_name))
-            if not self.props.get("LimitLines", None):
-                self.props["LimitLines"] = {}
-            if not line_name in self.props["LimitLines"]:
-                self.props["LimitLines"][line_name] = {}
-            props = ["Color", "Line Style", "Line Width", "Hatch Above", "Violation Emphasis", "Hatch Pixels", "Y Axis"]
-            for prop in props:
-                if "Color" in prop:
-                    color = oo.GetPropValue(prop)
-                    if color:
-                        b = (int(color) >> 16) & 255
-                        g = (int(color) >> 8) & 255
-                        r = int(color) & 255
-                        self.props["LimitLines"][line_name][prop] = (r, g, b)
+            trace_name = trace.trace_name.split(":")[1]
+            if "Expressions" in self.props and trace_name in self.props["Expressions"]:
+                trace_val = self.props["Expressions"][trace_name]
+                trace_style = _props_with_default(trace_val, "Line Style")
+                trace_width = _props_with_default(trace_val, "Line Width")
+                trace_type = _props_with_default(trace_val, "Line Type")
+                trace_color = _props_with_default(trace_val, "Color")
+                symbol_show = _props_with_default(trace_val, "Show Symbols", True)
+                symbol_style = _props_with_default(trace_val, "Symbol Style", True)
+                symbol_arrows = _props_with_default(trace_val, "Show Arrow", True)
+                symbol_fill = _props_with_default(trace_val, "Fill Symbol", True)
+                symbol_color = _props_with_default(trace_val, "Symbol Color", True)
+                trace.set_trace_properties(
+                    trace_style=trace_style, width=trace_width, trace_type=trace_type, color=trace_color
+                )
+                if self.report_category in ["Eye Diagram", "Spectrum"]:
+                    continue
+                trace.set_symbol_properties(
+                    show=symbol_show,
+                    style=symbol_style,
+                    show_arrows=symbol_arrows,
+                    fill=symbol_fill,
+                    color=symbol_color,
+                )
+        if "EyeMask" in self.props and self.report_category == "Eye Diagram":
+            eye_xunits = _props_with_default(self.props["EyeMask"], "XUnits", "ns")
+            eye_yunits = _props_with_default(self.props["EyeMask"], "YUnits", "mV")
+            eye_points = _props_with_default(self.props["EyeMask"], "Points")
+            eye_enable = _props_with_default(self.props["EyeMask"], "Enable Limits", False)
+            eye_upper = _props_with_default(self.props["EyeMask"], "Upper Limit", 500)
+            eye_lower = _props_with_default(self.props["EyeMask"], "Lower Limit", -500)
+            self.eye_mask(
+                points=eye_points,
+                xunits=eye_xunits,
+                yunits=eye_yunits,
+                enable_limits=eye_enable,
+                upper_limits=eye_upper,
+                lower_limits=eye_lower,
+            )
+        if "LimitLines" in self.props and self.report_category not in ["Eye Diagram"]:
+            for line in self.props["LimitLines"].values():
+                if "Equation" in line:
+                    line_start = _props_with_default(line, "Start")
+                    line_stop = _props_with_default(line, "Stop")
+                    line_step = _props_with_default(line, "Step")
+                    line_equation = _props_with_default(line, "Equation")
+                    line_axis = _props_with_default(line, "Y Axis", 1)
+                    if not line_start or not line_step or not line_stop or not line_equation:
+                        self._post._app.logger.error(
+                            "Equation Limit Lines needs Start, Stop, Step and Equation fields."
+                        )
+                        continue
+                    self.add_limit_line_from_equation(
+                        start_x=line_start, stop_x=line_stop, step=line_step, equation=line_equation, y_axis=line_axis
+                    )
                 else:
-                    self.props["LimitLines"][line_name][prop] = oo.GetPropValue(prop)
-            if "Equation" in oo.GetPropNames():
-                self.props["LimitLines"][line_name]["Start"] = oo.GetPropValue("Start")
-                self.props["LimitLines"][line_name]["Stop"] = oo.GetPropValue("Stop")
-                self.props["LimitLines"][line_name]["Step"] = oo.GetPropValue("Step")
-                self.props["LimitLines"][line_name]["Equation"] = oo.GetPropValue("Equation")
-            else:
-                self.props["LimitLines"][line_name]["Point Data/XUnits"] = oo.GetPropValue("Point Data/XUnits")
-                self.props["LimitLines"][line_name]["Point Data/YUnits"] = oo.GetPropValue("Point Data/YUnits")
-                self.props["LimitLines"][line_name]["Point Data/Points"] = list(oo.GetPropValue("Point Data/Points"))[
-                    1:
-                ]
-        for note in self.notes:
-            not_name = note.plot_note_name.split(":")[-1]
-            oo = self._post._app.get_oo_object(self._post.oreportsetup, "{}/{}".format(self.plot_name, not_name))
-            if not self.props.get("Notes", None):
-                self.props["Notes"] = {}
-            if not not_name in self.props["Notes"]:
-                self.props["Notes"][not_name] = {}
-            props = [
-                "Note Text/NoteText",
-                "Note Font/FaceName",
-                "Note Font/Height",
-                "Note Font/Width",
-                "Note Font/Orientation",
-                "Note Font/Weight",
-                "Note Font/Italic",
-                "Note Font/Underline",
-                "Note Font/R",
-                "Note Font/G",
-                "Note Font/B",
-                "Back Color",
-                "Background Visibility",
-                "Border Color",
-                "Border Visibility",
-                "Border Width",
-            ]
-            for prop in props:
-                if "Color" in prop:
-                    color = oo.GetPropValue(prop)
-                    if color:
-                        b = (int(color) >> 16) & 255
-                        g = (int(color) >> 8) & 255
-                        r = int(color) & 255
-                        self.props["Notes"][not_name][prop] = (r, g, b)
-                else:
-                    self.props["Notes"][not_name][prop] = oo.GetPropValue(prop)
-        self.props["General"] = {"AxisX": {}, "AxisY1": {}, "General": {}, "Header": {}}
-        oo = self._post._app.get_oo_object(self._post.oreportsetup, "{}/AxisX".format(self.plot_name))
-        if oo:
-            excl = [
-                "Text Font",
-                "Text Font/Escapement",
-                "Text Font/StrikeOut",
-                "Text Font/CharSet",
-                "Text Font/ClipPrecision",
-                "Text Font/Quality",
-                "Text Font/PitchAndFamily",
-                "Text Font/OutPrecision",
-            ]
-            self._get_prop_by_object(oo, "AxisX", excl)
-        oo = self._post._app.get_oo_object(self._post.oreportsetup, "{}/AxisY1".format(self.plot_name))
-        if oo:
-            excl = [
-                "Text Font",
-                "Text Font/Escapement",
-                "Text Font/StrikeOut",
-                "Text Font/CharSet",
-                "Text Font/ClipPrecision",
-                "Text Font/Quality",
-                "Text Font/PitchAndFamily",
-                "Text Font/OutPrecision",
-            ]
-            self._get_prop_by_object(oo, "AxisY1", excl)
-        oo = self._post._app.get_oo_object(self._post.oreportsetup, "{}/Header".format(self.plot_name))
-        if oo:
-            excl = [
-                "Title Font",
-                "Title Font/Escapement",
-                "Title Font/StrikeOut",
-                "Title Font/CharSet",
-                "Title Font/ClipPrecision",
-                "Title Font/Quality",
-                "Title Font/PitchAndFamily",
-                "Title Font/OutPrecision",
-                "Sub Title Font",
-                "Sub Title Font/Escapement",
-                "Sub Title Font/StrikeOut",
-                "Sub Title Font/CharSet",
-                "Sub Title Font/ClipPrecision",
-                "Sub Title Font/Quality",
-                "Sub Title Font/PitchAndFamily",
-                "Sub Title Font/OutPrecision",
-            ]
-            self._get_prop_by_object(oo, "Header", excl)
-        oo = self._post._app.get_oo_object(self._post.oreportsetup, "{}/General".format(self.plot_name))
-        if oo:
-            excl = [
-                "Back Color/Red",
-                "Back Color/Green",
-                "Back Color/Blue",
-                "Plot Area Color/Red",
-                "Plot Area Color/Green",
-                "Plot Area Color/Blue",
-            ]
-            self._get_prop_by_object(oo, "General", excl)
-        return True
+                    line_x = _props_with_default(line, "XPoints")
+                    line_y = _props_with_default(line, "YPoints")
+                    line_xunits = _props_with_default(line, "XUnits")
+                    line_yunits = _props_with_default(line, "YUnits", "")
+                    line_axis = _props_with_default(line, "Y Axis", "Y1")
+                    self.add_limit_line_from_points(line_x, line_y, line_xunits, line_yunits, line_axis)
+                line_style = _props_with_default(line, "Line Style")
+                line_width = _props_with_default(line, "Line Width")
+                line_hatchabove = _props_with_default(line, "Hatch Above")
+                line_viol = _props_with_default(line, "Violation Emphasis")
+                line_hatchpix = _props_with_default(line, "Hatch Pixels")
+                line_color = _props_with_default(line, "Color")
+                self.limit_lines[-1].set_line_properties(
+                    style=line_style,
+                    width=line_width,
+                    hatch_above=line_hatchabove,
+                    violation_emphasis=line_viol,
+                    hatch_pixels=line_hatchpix,
+                    color=line_color,
+                )
+        if "Notes" in self.props:
+            for note in self.props["Notes"].values():
+                note_text = _props_with_default(note, "Text")
+                note_position = _props_with_default(note, "Position", [0, 0])
+                self.add_note(note_text, note_position[0], note_position[1])
+                note_back_color = _props_with_default(note, "Back Color")
+                note_background_visibility = _props_with_default(note, "Background Visibility")
+                note_border_color = _props_with_default(note, "Border Color")
+                note_border_visibility = _props_with_default(note, "Border Visibility")
+                note_border_width = _props_with_default(note, "Border Width")
+                note_font = _props_with_default(note, "Font", "Arial")
+                note_font_size = _props_with_default(note, "Height", 12)
+                note_italic = _props_with_default(note, "Italic")
+                note_bold = _props_with_default(note, "Bold")
+                note_color = _props_with_default(note, "Color", (0, 0, 0))
+
+                self.notes[-1].set_note_properties(
+                    back_color=note_back_color,
+                    background_visibility=note_background_visibility,
+                    border_color=note_border_color,
+                    border_visibility=note_border_visibility,
+                    border_width=note_border_width,
+                    font=note_font,
+                    font_size=note_font_size,
+                    italic=note_italic,
+                    bold=note_bold,
+                    color=note_color,
+                )
+        if "General" in self.props:
+            if "Legend" in self.props["General"]:
+                legend = self.props["General"]["Legend"]
+                legend_sol_name = _props_with_default(legend, "Show Solution Name", True)
+                legend_var_keys = _props_with_default(legend, "Show Variation Key", True)
+                leend_trace_names = _props_with_default(legend, "Show Trace Name", True)
+                legend_color = _props_with_default(legend, "Background Color", (255, 255, 255))
+                self.edit_legend(
+                    show_solution_name=legend_sol_name,
+                    show_variation_key=legend_var_keys,
+                    show_trace_name=leend_trace_names,
+                    back_color=legend_color,
+                )
+            if "Grid" in self.props["General"]:
+                grid = self.props["General"]["Grid"]
+                grid_major_color = _props_with_default(grid, "Major grid line color", (200, 200, 200))
+                grid_minor_color = _props_with_default(grid, "Minor grid line color", (230, 230, 230))
+                grid_enable_major_x = _props_with_default(grid, "Show major X grid", True)
+                grid_enable_major_y = _props_with_default(grid, "Show major Y grid", True)
+                grid_enable_minor_x = _props_with_default(grid, "Show minor X grid", True)
+                grid_enable_minor_y = _props_with_default(grid, "Show minor Y grid", True)
+                grid_style_minor = _props_with_default(grid, "Minor grid line style", "Solid")
+                grid_style_major = _props_with_default(grid, "Major grid line style", "Solid")
+                self.edit_grid(
+                    minor_x=grid_enable_minor_x,
+                    minor_y=grid_enable_minor_y,
+                    major_x=grid_enable_major_x,
+                    major_y=grid_enable_major_y,
+                    minor_color=grid_minor_color,
+                    major_color=grid_major_color,
+                    style_minor=grid_style_minor,
+                    style_major=grid_style_major,
+                )
+            if "Appearance" in self.props["General"]:
+                general = self.props["General"]["Appearance"]
+                general_back_color = _props_with_default(general, "Back Color", (255, 255, 255))
+                general_plot_color = _props_with_default(general, "Plot Area Color", (255, 255, 255))
+                enable_y_stripes = _props_with_default(general, "Enable Y Axis Stripes", True)
+                general_field_width = _props_with_default(general, "Field Width", 4)
+                general_precision = _props_with_default(general, "Precision", 4)
+                general_use_scientific_notation = _props_with_default(general, "Use Scientific Notation", True)
+                self.edit_general_settings(
+                    background_color=general_back_color,
+                    plot_color=general_plot_color,
+                    enable_y_stripes=enable_y_stripes,
+                    field_width=general_field_width,
+                    precision=general_precision,
+                    use_scientific_notation=general_use_scientific_notation,
+                )
+            if "Header" in self.props["General"]:
+                header = self.props["General"]["Header"]
+                company_name = _props_with_default(header, "Company Name", "")
+                show_design_name = _props_with_default(header, "Show Design Name", True)
+                header_font = _props_with_default(header, "Font", "Arial")
+                header_title_size = _props_with_default(header, "Title Height", 12)
+                header_subtitle_size = _props_with_default(header, "Sub Title Height", 12)
+                header_italic = _props_with_default(header, "Italic", False)
+                header_bold = _props_with_default(header, "Bold", False)
+                header_color = _props_with_default(header, "Color", (0, 0, 0))
+                self.edit_header(
+                    company_name=company_name,
+                    show_design_name=show_design_name,
+                    font=header_font,
+                    title_size=header_title_size,
+                    subtitle_size=header_subtitle_size,
+                    italic=header_italic,
+                    bold=header_bold,
+                    color=header_color,
+                )
+
+            for i in list(self.props["General"].keys()):
+                if "Axis" in i:
+                    axis = self.props["General"][i]
+                    axis_font = _props_with_default(axis, "Font", "Arial")
+                    axis_size = _props_with_default(axis, "Height", 12)
+                    axis_italic = _props_with_default(axis, "Italic", False)
+                    axis_bold = _props_with_default(axis, "Bold", False)
+                    axis_color = _props_with_default(axis, "Color", (0, 0, 0))
+                    axis_label = _props_with_default(axis, "Label")
+                    axis_linear_scaling = (
+                        True if _props_with_default(axis, "Axis Scaling", "Linear") == "Linear" else False
+                    )
+                    axis_min_scale = _props_with_default(axis, "Min")
+                    axis_max_scale = _props_with_default(axis, "Max")
+                    axis_min_trick_div = _props_with_default(axis, "Minor Tick Divs", 5)
+                    specify_spacing = _props_with_default(axis, "Specify Spacing", True)
+                    if not specify_spacing:
+                        axis_min_spacing = None
+                    else:
+                        axis_min_spacing = _props_with_default(axis, "Spacing")
+                    axis_units = _props_with_default(axis, "Units")
+                    if i == "AxisX":
+                        self.edit_x_axis(
+                            font=axis_font,
+                            font_size=axis_size,
+                            italic=axis_italic,
+                            bold=axis_bold,
+                            color=axis_color,
+                            label=axis_label,
+                        )
+                        if self.report_category in ["Eye Diagram"]:
+                            continue
+                        self.edit_x_axis_scaling(
+                            linear_scaling=axis_linear_scaling,
+                            min_scale=axis_min_scale,
+                            max_scale=axis_max_scale,
+                            minor_tick_divs=axis_min_trick_div,
+                            min_spacing=axis_min_spacing,
+                            units=axis_units,
+                        )
+                    else:
+                        self.edit_y_axis(
+                            font=axis_font,
+                            font_size=axis_size,
+                            italic=axis_italic,
+                            bold=axis_bold,
+                            color=axis_color,
+                            label=axis_label,
+                        )
+                        if self.report_category in ["Eye Diagram"]:
+                            continue
+                        self.edit_y_axis_scaling(
+                            linear_scaling=axis_linear_scaling,
+                            min_scale=axis_min_scale,
+                            max_scale=axis_max_scale,
+                            minor_tick_divs=axis_min_trick_div,
+                            min_spacing=axis_min_spacing,
+                            units=axis_units,
+                            axis_name=i.replace("Axis", ""),
+                        )
 
     @property
     def limit_lines(self):
@@ -616,6 +737,12 @@ class CommonReport(object):
 
     @property
     def variations(self):
+        """Get and Set the Variations.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"]["Variations"]
 
     @variations.setter
@@ -816,7 +943,6 @@ class CommonReport(object):
         )
         self._post.plots.append(self)
         self._is_created = True
-
         return True
 
     @pyaedt_function_handler()
@@ -901,7 +1027,7 @@ class CommonReport(object):
             Y equation to apply. Default is Y=X.
         units : str
             X axis units. Default is "GHz".
-        y_axis : int, optional
+        y_axis : str, int, optional
             Y axis. Default is `1`.
 
         Returns
@@ -914,13 +1040,13 @@ class CommonReport(object):
                 [
                     "NAME:CartesianLimitLineFromEquation",
                     "YAxis:=",
-                    y_axis,
+                    int(str(y_axis).replace("Y", "")),
                     "Start:=",
-                    str(start_x) + units,
+                    self._post._app.value_with_units(start_x, units),
                     "Stop:=",
-                    str(stop_x) + units,
+                    self._post._app.value_with_units(stop_x, units),
                     "Step:=",
-                    str(step) + units,
+                    self._post._app.value_with_units(step, units),
                     "Equation:=",
                     equation,
                 ],
@@ -1501,11 +1627,6 @@ class CommonReport(object):
         ]
         return self._change_property("Header", "Header", props)
 
-    @pyaedt_function_handler()
-    def export_report_settings(self, json_path):
-        self._get_props()
-        return _create_json_file(self.props, json_path)
-
 
 class Standard(CommonReport):
     """Provides a reporting class that fits most of the application's standard reports."""
@@ -1515,6 +1636,12 @@ class Standard(CommonReport):
 
     @property
     def sub_design_id(self):
+        """Get and Set the sub design id for Circuit and HFSS3DLayout subdesigns.
+
+        Returns
+        -------
+        int
+        """
         return self.props["Context"].get("Sub Design ID", None)
 
     @sub_design_id.setter
@@ -1523,6 +1650,12 @@ class Standard(CommonReport):
 
     @property
     def time_start(self):
+        """Get and Set the time start value.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Time Start", None)
 
     @time_start.setter
@@ -1531,6 +1664,12 @@ class Standard(CommonReport):
 
     @property
     def time_stop(self):
+        """Get and Set the time stop value.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Time Stop", None)
 
     @time_stop.setter
@@ -1623,6 +1762,12 @@ class AntennaParameters(Standard):
 
     @property
     def far_field_sphere(self):
+        """Get and Set the Far Field Sphere name.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Far Field Sphere", None)
 
     @far_field_sphere.setter
@@ -1647,6 +1792,12 @@ class Fields(CommonReport):
 
     @property
     def point_number(self):
+        """Get and Set the number of polygon Point number.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Points Number", None)
 
     @point_number.setter
@@ -1674,6 +1825,12 @@ class NearField(CommonReport):
 
     @property
     def near_field(self):
+        """Get and Set the Near Field name.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Near Field Setup", None)
 
     @near_field.setter
@@ -1698,6 +1855,12 @@ class FarField(CommonReport):
 
     @property
     def far_field_sphere(self):
+        """Get and Set the Far Field Sphere name.
+
+        Returns
+        -------
+        str
+        """
         return self.props.get("Far Field Sphere", None)
 
     @far_field_sphere.setter
@@ -1731,6 +1894,12 @@ class EyeDiagram(CommonReport):
 
     @property
     def time_start(self):
+        """Get and Set the time start value.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Time Start", None)
 
     @time_start.setter
@@ -1739,6 +1908,12 @@ class EyeDiagram(CommonReport):
 
     @property
     def time_stop(self):
+        """Get and Set the time stop value.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Time Stop", None)
 
     @time_stop.setter
@@ -1747,6 +1922,12 @@ class EyeDiagram(CommonReport):
 
     @property
     def unit_interval(self):
+        """Get and Set the unit interval value.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Unit Interval", None)
 
     @unit_interval.setter
@@ -1755,6 +1936,12 @@ class EyeDiagram(CommonReport):
 
     @property
     def offset(self):
+        """Get and Set the offset value.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Offset", None)
 
     @offset.setter
@@ -1763,6 +1950,12 @@ class EyeDiagram(CommonReport):
 
     @property
     def auto_delay(self):
+        """Get and Set the autodelay flag.
+
+        Returns
+        -------
+        bool
+        """
         return self.props["Context"].get("Auto Delay", None)
 
     @auto_delay.setter
@@ -1771,6 +1964,12 @@ class EyeDiagram(CommonReport):
 
     @property
     def manual_delay(self):
+        """Get and Set the manual delay value in case auto_delay is set to False.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Manual Delay", None)
 
     @manual_delay.setter
@@ -1779,6 +1978,12 @@ class EyeDiagram(CommonReport):
 
     @property
     def auto_cross_amplitude(self):
+        """Get and Set the auto cross ampltiude flag
+
+        Returns
+        -------
+        bool
+        """
         return self.props["Context"].get("Auto Cross Amplitude", None)
 
     @auto_cross_amplitude.setter
@@ -1787,6 +1992,12 @@ class EyeDiagram(CommonReport):
 
     @property
     def cross_amplitude(self):
+        """Get and Set the cross amplitude value in case auto_cross_amplitude flag is set to False.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Cross Amplitude", None)
 
     @cross_amplitude.setter
@@ -1795,6 +2006,12 @@ class EyeDiagram(CommonReport):
 
     @property
     def auto_compute_eye_meas(self):
+        """Get and Set the  flag is to automatically compute eye measurements.
+
+        Returns
+        -------
+        bool
+        """
         return self.props["Context"].get("Auto Compute Eye Measurements", None)
 
     @auto_compute_eye_meas.setter
@@ -1803,6 +2020,12 @@ class EyeDiagram(CommonReport):
 
     @property
     def eye_measurement_point(self):
+        """Get and Set the eye measurement point.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Eye Measurements Point", None)
 
     @eye_measurement_point.setter
@@ -1811,6 +2034,12 @@ class EyeDiagram(CommonReport):
 
     @property
     def thinning(self):
+        """Get and Set the thinning flag.
+
+        Returns
+        -------
+        bool
+        """
         return self.props["Context"].get("Thinning", None)
 
     @thinning.setter
@@ -1819,6 +2048,12 @@ class EyeDiagram(CommonReport):
 
     @property
     def dy_dx_tolerance(self):
+        """Get and DY DX tolerance.
+
+        Returns
+        -------
+        float
+        """
         return self.props["Context"].get("DY DX Tolerance", None)
 
     @dy_dx_tolerance.setter
@@ -1827,6 +2062,12 @@ class EyeDiagram(CommonReport):
 
     @property
     def thinning_points(self):
+        """Get and Set the number of thinning points.
+
+        Returns
+        -------
+        float
+        """
         return self.props["Context"].get("Thinning Points", None)
 
     @thinning_points.setter
@@ -1939,7 +2180,124 @@ class EyeDiagram(CommonReport):
         )
         self._post.plots.append(self)
         self._is_created = True
+
         return True
+
+    @pyaedt_function_handler()
+    def eye_mask(self, points, xunits="ns", yunits="mV", enable_limits=False, upper_limits=500, lower_limits=-500):
+        """Create an eye diagram in the plot.
+
+        Parameters
+        ----------
+        points : list
+            Points of the eye mask in the format [[x1,y1,],[x2,y2],...].
+        xunits : str, optional
+            X points units. Default is `"ns"`.
+        yunits :  str, optional
+            Y points units. Default is `"mV"`.
+        enable_limits : bool, optional
+            Enable/Disable the upper and lower limits. Default is `False`.
+        upper_limits float, optional
+            Upper Limit if enabled. Default is `500"`.
+        lower_limits str, optional
+            Lower Limit if enabled. Default is `-500`.
+
+        Returns
+        -------
+        bool
+        """
+        props = [
+            "NAME:AllTabs",
+            ["NAME:Mask", ["NAME:PropServers", "{}:EyeDisplayTypeProperty".format(self.plot_name)]],
+        ]
+        arg = [
+            "NAME:Mask",
+            "Version:=",
+            1,
+            "ShowLimits:=",
+            enable_limits,
+            "UpperLimit:=",
+            upper_limits if upper_limits else 1,
+            "LowerLimit:=",
+            lower_limits if lower_limits else 0,
+            "XUnits:=",
+            xunits,
+            "YUnits:=",
+            yunits,
+        ]
+        mask_points = ["NAME:MaskPoints"]
+        for point in points:
+            mask_points.append(point[0])
+            mask_points.append(point[1])
+        arg.append(mask_points)
+        props[1].append((["NAME:ChangedProps", arg]))
+        self._post.oreportsetup.ChangeProperty(props)
+        return True
+
+    @pyaedt_function_handler()
+    def add_all_eye_measurements(self):
+        """Add all Eye measurements to the plot.
+
+        Returns
+        -------
+        bool
+        """
+        self._post.oreportsetup.AddAllEyeMeasurements(self.plot_name)
+        return True
+
+    @pyaedt_function_handler()
+    def clear_all_eye_measurements(self):
+        """Clear all the Eye measurements from the plot.
+
+        Returns
+        -------
+        bool
+        """
+        self._post.oreportsetup.ClearAllTraceCharacteristics(self.plot_name)
+        return True
+
+    @pyaedt_function_handler()
+    def add_trace_characteristics(self, trace_name, arguments=None, range=None):
+        """Add a trace characteristic to the plot.
+
+        Parameters
+        ----------
+        trace_name : str
+            Name of the trace Characteristics.
+        arguments : list, optional
+            Arguments if exists.
+        range : list, optional
+            Output range. Default is Full range.
+
+        Returns
+        -------
+        bool
+        """
+        if not arguments:
+            arguments = []
+        if not range:
+            range = ["Full"]
+        self._post.oreportsetup.AddTraceCharacteristics(self.plot_name, trace_name, arguments, range)
+        return True
+
+    @pyaedt_function_handler()
+    def export_mask_violation(self, out_file=None):
+        """Export the Eye Diagram mask violations to a tab file.
+
+        Parameters
+        ----------
+        out_file : str, optional
+            Full path to the export file (.tab). Default is `None` to export in working_directory.
+
+        Returns
+        -------
+        str
+            Output file path if created.
+        """
+        if not out_file:
+            out_file = os.path.join(self._post._app.working_directory, "{}_violations.tab".format(self.plot_name))
+        self._post.oreportsetup.ExportEyeMaskViolation(self.plot_name, out_file)
+        return out_file
 
 
 class Emission(CommonReport):
@@ -1955,7 +2313,7 @@ class Spectral(CommonReport):
 
     def __init__(self, app, report_type, setup_name):
         CommonReport.__init__(self, app, report_type, setup_name)
-        self.domain = "Spectral"
+        self.domain = "Spectrum"
         self.algorithm = "FFT"
         self.time_start = "0ns"
         self.time_stop = "200ns"
@@ -1968,6 +2326,12 @@ class Spectral(CommonReport):
 
     @property
     def time_start(self):
+        """Get and Set the time start value.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Time Start", None)
 
     @time_start.setter
@@ -1976,6 +2340,12 @@ class Spectral(CommonReport):
 
     @property
     def time_stop(self):
+        """Get and Set the time stop value.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Time Stop", None)
 
     @time_stop.setter
@@ -1984,6 +2354,12 @@ class Spectral(CommonReport):
 
     @property
     def window(self):
+        """Get and Set the windowing value.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Window", None)
 
     @window.setter
@@ -1992,6 +2368,12 @@ class Spectral(CommonReport):
 
     @property
     def kaiser_coeff(self):
+        """Get and Set the kaiser value.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Kaiser Coefficient", None)
 
     @kaiser_coeff.setter
@@ -2000,6 +2382,12 @@ class Spectral(CommonReport):
 
     @property
     def adjust_coherent_gain(self):
+        """Get and Set the coherent gain flag.
+
+        Returns
+        -------
+        bool
+        """
         return self.props["Context"].get("Adjust Choerent Gain", None)
 
     @adjust_coherent_gain.setter
@@ -2008,6 +2396,12 @@ class Spectral(CommonReport):
 
     @property
     def plot_continous_spectrum(self):
+        """Get and Set the continuous spectrum flag.
+
+        Returns
+        -------
+        bool
+        """
         return self.props["Context"].get("Plot Continuous Spectrum", None)
 
     @plot_continous_spectrum.setter
@@ -2016,6 +2410,12 @@ class Spectral(CommonReport):
 
     @property
     def max_frequency(self):
+        """Get and Set the max spectrum  frequency.
+
+        Returns
+        -------
+        str
+        """
         return self.props["Context"].get("Maximum Frequency", None)
 
     @max_frequency.setter
@@ -2121,7 +2521,7 @@ class Spectral(CommonReport):
             self.plot_name = plot_name
         self._post.oreportsetup.CreateReport(
             self.plot_name,
-            self.report_category,
+            "Standard",
             self.report_type,
             self.setup,
             self._context,

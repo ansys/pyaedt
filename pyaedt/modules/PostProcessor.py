@@ -16,6 +16,7 @@ import warnings
 from collections import OrderedDict
 
 import pyaedt.modules.report_templates as rt
+from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
@@ -55,6 +56,7 @@ TEMPLATES_BY_DESIGN = {
         "ElectroDCConduction",
         "ElectricTransient",
         "Fields",
+        "Spectrum",
     ],
     "Maxwell 2D": [
         "Transient",
@@ -64,14 +66,15 @@ TEMPLATES_BY_DESIGN = {
         "ElectricTransient",
         "ElectroDCConduction",
         "Fields",
+        "Spectrum",
     ],
     "Icepak": ["Monitor", "Fields"],
-    "Circuit Design": ["Standard", "Eye Diagram", "Spectral"],
-    "HFSS 3D Layout": ["Standard", "Fields", "Spectral"],
+    "Circuit Design": ["Standard", "Eye Diagram", "Spectrum"],
+    "HFSS 3D Layout": ["Standard", "Fields", "Spectrum"],
     "Mechanical": ["Standard", "Fields"],
     "Q3D Extractor": ["Matrix", "CG Fields", "DC R/L Fields", "AC R/L Fields"],
     "2D Extractor": ["Matrix", "CG Fields", "RL Fields"],
-    "Twin Builder": ["Standard", "Spectral"],
+    "Twin Builder": ["Standard", "Spectrum"],
 }
 TEMPLATES_BY_NAME = {
     "Standard": rt.Standard,
@@ -87,7 +90,7 @@ TEMPLATES_BY_NAME = {
     "Near Fields": rt.NearField,
     "Eye Diagram": rt.EyeDiagram,
     "EigenMode Parameters": rt.Standard,
-    "Spectral": rt.Spectral,
+    "Spectrum": rt.Spectral,
 }
 
 
@@ -560,7 +563,7 @@ class Reports(object):
         """
         if not setup_name:
             setup_name = self._post_app._app.nominal_sweep
-        if "Spectral" in self._templates:
+        if "Spectrum" in self._templates:
             rep = rt.Spectral(self._post_app, "Spectrum", setup_name)
             rep.expressions = expressions
             return rep
@@ -2835,8 +2838,8 @@ class PostProcessorCommon(object):
         ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
         ... )
         """
-        if domain == "Spectral":
-            report_category = "Spectral"
+        if domain in ["Spectral", "Spectrum"]:
+            report_category = "Spectrum"
         elif not report_category and not self._app.design_solutions.report_type:
             self.logger.error("Solution not supported")
             return False
@@ -2996,8 +2999,8 @@ class PostProcessorCommon(object):
         >>> data3.plot("InputCurrent(PHA)")
 
         """
-        if domain == "Spectral":
-            report_category = "Spectral"
+        if domain in ["Spectral", "Spectrum"]:
+            report_category = "Spectrum"
         if not report_category and not self._app.design_solutions.report_type:
             self.logger.error("Solution not supported")
             return False
@@ -3036,26 +3039,23 @@ class PostProcessorCommon(object):
 
         return report.get_solution_data()
 
-        # out = self._get_report_inputs(
-        #     expressions=expressions,
-        #     setup_sweep_name=setup_sweep_name,
-        #     domain=domain,
-        #     variations=variations,
-        #     primary_sweep_variable=primary_sweep_variable,
-        #     report_category=report_category,
-        #     context=context,
-        #     subdesign_id=subdesign_id,
-        #     polyline_points=polyline_points,
-        #     only_get_method=True,
-        # )
-        #
-        # solution_data = self.get_solution_data_per_variation(out[1], out[3], out[4], out[5], expressions)
-        # if primary_sweep_variable:
-        #     solution_data.primary_sweep = primary_sweep_variable
-        # if not solution_data:
-        #     warnings.warn("No Data Available. Check inputs")
-        #     return False
-        # return solution_data
+    @pyaedt_function_handler()
+    def create_report_from_json(self, input_file, solution_name=None):
+        props = json_to_dict(input_file)
+        if not solution_name:
+            solution_name = self._app.nominal_sweep
+        if props.get("Report Category", None) and props["Report Category"] in TEMPLATES_BY_NAME:
+            report_temp = TEMPLATES_BY_NAME[props["Report Category"]]
+            report = report_temp(self, props["Report Category"], solution_name)
+            for k, v in props.items():
+                report.props[k] = v
+            for el, k in self._app.available_variations.nominal_w_values_dict.items():
+                if el not in report.props["Context"]["Variations"]:
+                    report.props["Context"]["Variations"][el] = k
+            report.create()
+            report._update_traces()
+            return report
+        return False
 
 
 class PostProcessor(PostProcessorCommon, object):
