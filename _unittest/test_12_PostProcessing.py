@@ -330,14 +330,15 @@ class TestClass(BasisTest, object):
         plot_name = new_report.plot_name
         # test import with correct inputs from csv
         assert new_report.import_into_report(csv_file_path, plot_name)
-        # test import with not existing plot_name
-        with pytest.raises(ValueError):
-            new_report.import_into_report(csv_file_path, "plot_name")
         # test import with correct inputs from rdat
         assert new_report.import_into_report(rdat_file_path, plot_name)
-        # test import with random file path
-        with pytest.raises(FileExistsError):
-            new_report.import_into_report(str(uuid.uuid4()), plot_name)
+        # test import with not existing plot_name
+        if not is_ironpython:
+            with pytest.raises(ValueError):
+                new_report.import_into_report(csv_file_path, "plot_name")
+            # test import with random file path
+            with pytest.raises(FileExistsError):
+                new_report.import_into_report(str(uuid.uuid4()), plot_name)
 
     def test_09d_delete_traces_from_report(self):
         new_report = self.aedtapp.create_scattering("delete_traces_test")
@@ -345,10 +346,11 @@ class TestClass(BasisTest, object):
         traces_to_delete.append(new_report.expressions[0])
         plot_name = new_report.plot_name
         assert new_report.delete_traces(plot_name, traces_to_delete)
-        with pytest.raises(ValueError):
-            new_report.delete_traces("plot_name", traces_to_delete)
-        with pytest.raises(ValueError):
-            new_report.delete_traces(plot_name, ["V(out)_Test"])
+        if not is_ironpython:
+            with pytest.raises(ValueError):
+                new_report.delete_traces("plot_name", traces_to_delete)
+            with pytest.raises(ValueError):
+                new_report.delete_traces(plot_name, ["V(out)_Test"])
 
     def test_09e_add_traces_to_report(self):
         new_report = self.aedtapp.create_scattering("add_traces_test")
