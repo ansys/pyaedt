@@ -449,11 +449,11 @@ class CommonReport(object):
                 trace_width = _props_with_default(trace_val, "Line Width")
                 trace_type = _props_with_default(trace_val, "Line Type")
                 trace_color = _props_with_default(trace_val, "Color")
-                symbol_show = _props_with_default(trace_val, "Show Symbols", True)
-                symbol_style = _props_with_default(trace_val, "Symbol Style", True)
-                symbol_arrows = _props_with_default(trace_val, "Show Arrow", True)
-                symbol_fill = _props_with_default(trace_val, "Fill Symbol", True)
-                symbol_color = _props_with_default(trace_val, "Symbol Color", True)
+                symbol_show = _props_with_default(trace_val, "Show Symbols", False)
+                symbol_style = _props_with_default(trace_val, "Symbol Style", None)
+                symbol_arrows = _props_with_default(trace_val, "Show Arrow", None)
+                symbol_fill = _props_with_default(trace_val, "Fill Symbol", False)
+                symbol_color = _props_with_default(trace_val, "Symbol Color", None)
                 trace.set_trace_properties(
                     trace_style=trace_style, width=trace_width, trace_type=trace_type, color=trace_color
                 )
@@ -553,11 +553,13 @@ class CommonReport(object):
                 legend_var_keys = _props_with_default(legend, "Show Variation Key", True)
                 leend_trace_names = _props_with_default(legend, "Show Trace Name", True)
                 legend_color = _props_with_default(legend, "Background Color", (255, 255, 255))
+                legend_font_color = _props_with_default(legend, "Font Color", (0, 0, 0))
                 self.edit_legend(
                     show_solution_name=legend_sol_name,
                     show_variation_key=legend_var_keys,
                     show_trace_name=leend_trace_names,
                     back_color=legend_color,
+                    font_color=legend_font_color,
                 )
             if "Grid" in self.props["General"]:
                 grid = self.props["General"]["Grid"]
@@ -1273,7 +1275,7 @@ class CommonReport(object):
         ]
         if label:
             props.append(["NAME:Name", "Value:=", label])
-
+        props.append(["NAME:Axis Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
         return self._change_property("Axis", "AxisX", props)
 
     @pyaedt_function_handler()
@@ -1319,7 +1321,12 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def edit_legend(
-        self, show_solution_name=True, show_variation_key=True, show_trace_name=True, back_color=(255, 255, 255)
+        self,
+        show_solution_name=True,
+        show_variation_key=True,
+        show_trace_name=True,
+        back_color=(255, 255, 255),
+        font_color=(0, 0, 0),
     ):
         """Edit the plot Legend.
 
@@ -1333,7 +1340,8 @@ class CommonReport(object):
             Either if Show or hide the Trace Name.
         back_color : tuple, optional
             Legend Background Color.
-
+        font_color : tuple, optional
+            Legend Font Color.
         Returns
         -------
 
@@ -1344,6 +1352,7 @@ class CommonReport(object):
             ["NAME:Show Variation Key", "Value:=", show_variation_key],
             ["NAME:Show Trace Name", "Value:=", show_trace_name],
             ["NAME:Back Color", "R:=", back_color[0], "G:=", back_color[1], "B:=", back_color[2]],
+            ["NAME:Font", "R:=", font_color[0], "G:=", font_color[1], "B:=", font_color[2]],
         ]
         return self._change_property("Legend", "Legend", props)
 
@@ -1417,7 +1426,7 @@ class CommonReport(object):
         ]
         if label:
             props.append(["NAME:Name", "Value:=", label])
-
+        props.append(["NAME:Axis Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
         return self._change_property("Axis", "Axis" + axis_name, props)
 
     @pyaedt_function_handler()

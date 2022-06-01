@@ -10,6 +10,7 @@ from collections import OrderedDict
 from decimal import Decimal
 
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import settings
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import VertexPrimitive
@@ -591,6 +592,7 @@ def json_to_dict(fn):
     with open(fn) as json_file:
         try:
             json_data = json.load(json_file)
-        except Exception as e:
-            warnings.warn("Error: ", e.__class__)
+        except json.JSONDecodeError as e:
+            error = "Error reading json: {} at line {}".format(e.msg, e.lineno)
+            settings.logger.error(error)
     return json_data
