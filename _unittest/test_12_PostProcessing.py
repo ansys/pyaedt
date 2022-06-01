@@ -788,7 +788,12 @@ class TestClass(BasisTest, object):
         out = _parse_streamline(os.path.join(local_path, "example_models", "test_streamline.fldplt"))
         assert isinstance(out, list)
 
-    def test_61_delete_variations(self):
+    def test_61_export_mesh(self):
+        assert os.path.exists(self.q3dtest.export_mesh_stats("Setup1"))
+        assert os.path.exists(self.q3dtest.export_mesh_stats("Setup1", setup_type="AC RL"))
+        assert os.path.exists(self.aedtapp.export_mesh_stats("Setup1"))
+
+    def test_62_delete_variations(self):
         assert self.q3dtest.cleanup_solution()
         vars = self.field_test.available_variations.get_variation_strings()
         assert self.field_test.available_variations.variations()
