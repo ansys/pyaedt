@@ -808,22 +808,22 @@ class EdbStackup(object):
         )
 
         mcad_model = self._edb.McadModel.Create3DComp(self._active_layout, a3dcomp_path)
-        if mcad_model.IsNull():
+        if mcad_model.IsNull():  # pragma: no cover
             logger.error("Failed to create MCAD model from a3dcomp")
             return False
 
         cell_instance = mcad_model.GetCellInstance()
-        if cell_instance.IsNull():
+        if cell_instance.IsNull():  # pragma: no cover
             logger.error("Cell instance of a3dcomp is null")
             return False
 
-        if not cell_instance.SetIs3DPlacement(True):
+        if not cell_instance.SetIs3DPlacement(True):  # pragma: no cover
             logger.error("Failed to set 3D placement on a3dcomp cell instance")
             return False
 
         if not cell_instance.Set3DTransformation(
             local_origin, rotation_axis_from, rotation_axis_to, flipAngle, location
-        ):
+        ):  # pragma: no cover
             logger.error("Failed to set 3D transform on a3dcomp cell instance")
             return False
 
