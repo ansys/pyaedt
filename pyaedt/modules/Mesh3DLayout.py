@@ -132,7 +132,6 @@ class Mesh3d(object):
         self.logger = self._app.logger
         self._odesign = self._app._odesign
         self.modeler = self._app._modeler
-        self._omeshmodule = self._odesign.GetModule("SolveSetups")
         self.id = 0
 
         self.meshoperations = self._get_design_mesh_operations()
@@ -148,7 +147,7 @@ class Mesh3d(object):
 
         >>> oDesign.GetModule("SolveSetups")
         """
-        return self._omeshmodule
+        return self._app.omeshmodule
 
     @pyaedt_function_handler()
     def delete_mesh_operations(self, setup_name, mesh_name):

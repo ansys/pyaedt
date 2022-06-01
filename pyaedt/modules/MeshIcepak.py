@@ -22,7 +22,6 @@ class IcepakMesh(object):
         self.modeler = self._app._modeler
         design_type = self._odesign.GetDesignType()
         assert design_type in meshers, "Invalid design type {}".format(design_type)
-        self._omeshmodule = self._odesign.GetModule(meshers[design_type])
         self.id = 0
         self._oeditor = self.modeler.oeditor
         self._model_units = self.modeler.model_units
@@ -40,7 +39,7 @@ class IcepakMesh(object):
 
         >>> oDesign.GetModule("MeshRegion")
         """
-        return self._omeshmodule
+        return self._app.omeshmodule
 
     class MeshRegion(object):
         """Manages Icepak mesh region settings."""

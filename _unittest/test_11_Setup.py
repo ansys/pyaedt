@@ -69,7 +69,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.solution_type = sol
 
     def test_04_delete_setup(self):
-        self.aedtapp.duplicate_design("delete_setups")
+        self.aedtapp.insert_design("delete_setups")
         setup1 = self.aedtapp.create_setup("My_HFSS_Setup2", self.aedtapp.SETUPS.HFSSDrivenAuto)
         assert len(self.aedtapp.setups) == 1
         assert setup1.delete()

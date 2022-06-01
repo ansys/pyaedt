@@ -18,35 +18,7 @@ from pyaedt.modules.Boundary import BoundaryObject, MaxwellParameters
 
 class Maxwell(object):
     def __init__(self):
-        self._odefinition_manager = self.materials.odefinition_manager
-        self._omaterial_manager = self.materials.omaterial_manager
-        self._o_maxwell_parameters = self.odesign.GetModule("MaxwellParameterSetup")
         pass
-
-    @property
-    def o_maxwell_parameters(self):
-        """AEDT Maxwel Parameter Setup Object.
-
-        References
-        ----------
-
-        >>> oDesign.GetModule("MaxwellParameterSetup")
-        """
-        return self._o_maxwell_parameters
-
-    @property
-    def omodelsetup(self):
-        """AEDT Model Setup Object.
-
-        References
-        ----------
-
-        >>> oDesign.GetModule("ModelSetup")
-        """
-        if self.solution_type != "Transient":
-            return None
-        else:
-            return self._odesign.GetModule("ModelSetup")
 
     @property
     def symmetry_multiplier(self):

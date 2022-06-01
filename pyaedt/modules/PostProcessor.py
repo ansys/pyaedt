@@ -2028,8 +2028,7 @@ class PostProcessorCommon(object):
 
     def __init__(self, app):
         self._app = app
-        self._oeditor = self.modeler.oeditor
-        self._oreportsetup = self._odesign.GetModule("ReportSetup")
+        self.oeditor = self.modeler.oeditor
         self._scratch = self._app.working_directory
         self.plots = self._get_plot_inputs()
         self.reports_by_category = Reports(self, self._app.design_type)
@@ -2071,7 +2070,7 @@ class PostProcessorCommon(object):
 
         >>> oDesign.GetModule("ReportSetup")
         """
-        return self._oreportsetup
+        return self._app.oreportsetup
 
     @property
     def logger(self):
@@ -2462,8 +2461,8 @@ class PostProcessorCommon(object):
         self._desktop.RestoreWindow()
         param = ["NAME:SphereParameters", "XCenter:=", "0mm", "YCenter:=", "0mm", "ZCenter:=", "0mm", "Radius:=", "1mm"]
         attr = ["NAME:Attributes", "Name:=", "DUMMYSPHERE1", "Flags:=", "NonModel#"]
-        self._oeditor.CreateSphere(param, attr)
-        self._oeditor.Delete(["NAME:Selections", "Selections:=", "DUMMYSPHERE1"])
+        self.oeditor.CreateSphere(param, attr)
+        self.oeditor.Delete(["NAME:Selections", "Selections:=", "DUMMYSPHERE1"])
         return True
 
     @pyaedt_function_handler()
@@ -3088,7 +3087,6 @@ class PostProcessor(PostProcessorCommon, object):
     def __init__(self, app):
         self._app = app
         self._post_osolution = self._app.osolution
-        self._ofieldsreporter = self._odesign.GetModule("FieldsReporter")
         self.field_plots = self._get_fields_plot()
         PostProcessorCommon.__init__(self, app)
 
@@ -3113,7 +3111,7 @@ class PostProcessor(PostProcessorCommon, object):
         str
            Model units, such as ``"mm"``.
         """
-        return _retry_ntimes(10, self._oeditor.GetModelUnits)
+        return _retry_ntimes(10, self.oeditor.GetModelUnits)
 
     @property
     def post_osolution(self):
@@ -3139,7 +3137,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oDesign.GetModule("FieldsReporter")
         """
-        return self._ofieldsreporter
+        return self._app.ofieldsreporter
 
     @property
     def report_types(self):
@@ -4109,7 +4107,7 @@ class PostProcessor(PostProcessorCommon, object):
             self.ofieldsreporter.ExportPlotImageWithViewToFile(
                 fileName, foldername, plotName, width, height, orientation
             )
-        # self._oeditor.ExportImage(fileName, 1920, 1080)
+        # self.oeditor.ExportImage(fileName, 1920, 1080)
         return True
 
     @pyaedt_function_handler()
@@ -4242,7 +4240,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         # open the 3D modeler and remove the selection on other objects
         if self._app.design_type not in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
-            self._oeditor.ShowWindow()
+            self.oeditor.ShowWindow()
             self.steal_focus_oneditor()
         self.modeler.fit_all()
         # export the image
@@ -4277,9 +4275,9 @@ class PostProcessor(PostProcessorCommon, object):
                 width = 1920
             if height == 0:
                 height = 1080
-            self._oeditor.ExportImage(full_name, width, height)
+            self.oeditor.ExportImage(full_name, width, height)
         else:
-            self._oeditor.ExportModelImageToFile(full_name, width, height, arg)
+            self.oeditor.ExportModelImageToFile(full_name, width, height, arg)
         return full_name
 
     @pyaedt_function_handler()

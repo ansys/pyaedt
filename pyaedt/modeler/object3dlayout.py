@@ -23,7 +23,7 @@ class Objec3DLayout(object):
 
     def __init__(self, primitives, prim_type=None):
         self._primitives = primitives
-        self.m_Editor = self._primitives._oeditor
+        self.m_Editor = self._primitives.oeditor
         self._n = 10
         self.prim_type = prim_type
         self._points = []
@@ -373,7 +373,7 @@ class Nets3DLayout(object):
 
     def __init__(self, primitives, name=""):
         self._primitives = primitives
-        self.m_Editor = self._primitives._oeditor
+        self.m_Editor = self._primitives.oeditor
         self._n = 10
         self.name = name
 
@@ -1109,7 +1109,7 @@ class Point(object):
         oEditor COM Object
 
         """
-        return self._primitives._oeditor
+        return self._primitives.oeditor
 
     @property
     def logger(self):
@@ -1147,7 +1147,7 @@ class Point(object):
                 property_servers.append(self._name)
                 point_tab = ["NAME:Geometry3DPointTab", property_servers, changed_property]
                 all_tabs = ["NAME:AllTabs", point_tab]
-                _retry_ntimes(10, self._primitives._oeditor.ChangeProperty, all_tabs)
+                _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, all_tabs)
                 self._name = point_name
                 self._primitives.cleanup_objects()
         else:

@@ -84,7 +84,7 @@ class Primitives2D(Primitives, object):
         vArg1.append("NumSegments:="), vArg1.append("{}".format(num_sides))
 
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self._oeditor.CreateCircle(vArg1, vArg2)
+        new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -137,7 +137,7 @@ class Primitives2D(Primitives, object):
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
 
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self._oeditor.CreateEllipse(vArg1, vArg2)
+        new_object_name = self.oeditor.CreateEllipse(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -191,7 +191,7 @@ class Primitives2D(Primitives, object):
         vArg1.append("WhichAxis:="), vArg1.append(axis)
 
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self._oeditor.CreateRectangle(vArg1, vArg2)
+        new_object_name = self.oeditor.CreateRectangle(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -250,7 +250,7 @@ class Primitives2D(Primitives, object):
         vArg1.append("WhichAxis:="), vArg1.append(self.plane2d)
 
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self._oeditor.CreateRegularPolygon(vArg1, vArg2)
+        new_object_name = self.oeditor.CreateRegularPolygon(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()

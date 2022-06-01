@@ -149,8 +149,9 @@ class Layer(object):
         self.zones = []
 
     @property
-    def _oeditor(self):
-        return self._layers._oeditor
+    def oeditor(self):
+        """Oeditor Module."""
+        return self._layers.oeditor
 
     @property
     def visflag(self):
@@ -219,7 +220,7 @@ class Layer(object):
         """
         self.remove_stackup_layer()
         if self.type == "signal":
-            self._oeditor.AddStackupLayer(
+            self.oeditor.AddStackupLayer(
                 [
                     "NAME:stackup layer",
                     "Name:=",
@@ -312,7 +313,7 @@ class Layer(object):
                 ]
             )
         else:
-            self._oeditor.AddStackupLayer(
+            self.oeditor.AddStackupLayer(
                 [
                     "NAME:stackup layer",
                     "Name:=",
@@ -350,7 +351,7 @@ class Layer(object):
                     ],
                 ]
             )
-        infos = self._oeditor.GetLayerInfo(self.name)
+        infos = self.oeditor.GetLayerInfo(self.name)
         infos = [i.split(": ") for i in infos]
         infosdict = {i[0]: i[1] for i in infos}
         self.id = int(infosdict["LayerId"])
@@ -559,7 +560,7 @@ class Layer(object):
 
         >>> oEditor.ChangeLayer
         """
-        self._oeditor.ChangeLayer(self._get_layer_arg)
+        self.oeditor.ChangeLayer(self._get_layer_arg)
         return True
 
     @pyaedt_function_handler()
@@ -576,8 +577,8 @@ class Layer(object):
 
         >>> oEditor.RemoveLayer
         """
-        if self.name in self._oeditor.GetStackupLayerNames():
-            self._oeditor.RemoveLayer(self.name)
+        if self.name in self.oeditor.GetStackupLayerNames():
+            self.oeditor.RemoveLayer(self.name)
             return True
         return False
 
@@ -608,14 +609,14 @@ class Layers(object):
         self.logger = self._app.logger
 
     @property
-    def _oeditor(self):
+    def oeditor(self):
         """Editor.
 
         References
         ----------
 
         >>> oEditor = oDesign.SetActiveEditor("Layout")"""
-        return self._modeler._app._odesign.SetActiveEditor("Layout")
+        return self._modeler.oeditor
 
     @property
     def LengthUnit(self):
@@ -636,7 +637,7 @@ class Layers(object):
 
         >>> oEditor.GetStackupLayerNames()
         """
-        return self._oeditor.GetStackupLayerNames()
+        return self.oeditor.GetStackupLayerNames()
 
     @property
     def drawing_layers(self):
@@ -653,7 +654,7 @@ class Layers(object):
         >>> oEditor.GetAllLayerNames()
         """
         stackup = self.all_layers
-        return [i for i in list(self._oeditor.GetAllLayerNames()) if i not in stackup]
+        return [i for i in list(self.oeditor.GetAllLayerNames()) if i not in stackup]
 
     @property
     def all_signal_layers(self):
@@ -722,11 +723,11 @@ class Layers(object):
         int
             Number of layers in the current stackup.
         """
-        layernames = self._oeditor.GetAllLayerNames()
+        layernames = self.oeditor.GetAllLayerNames()
         for el in layernames:
             o = Layer(self, "signal")
             o.name = el
-            infos = self._oeditor.GetLayerInfo(el)
+            infos = self.oeditor.GetLayerInfo(el)
             infos = [i.split(": ") for i in infos]
             infosdict = {i[0].strip(): i[1].strip() for i in infos}
             if infosdict["Type"] == "metalizedsignal":
@@ -873,5 +874,5 @@ class Layers(object):
                 else:
                     v.zones = []
             args.append(v._get_layer_arg)
-        self._oeditor.ChangeLayers(args)
+        self.oeditor.ChangeLayers(args)
         return True

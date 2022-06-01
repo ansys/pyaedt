@@ -47,8 +47,9 @@ class Materials(object):
         self._oproject = self._app.oproject
         self.logger = self._app.logger
         self.logger.info("Successfully loaded project materials !")
-        self.material_keys = self._get_materials()
-        self.surface_material_keys = self._get_surface_materials()
+        # self.material_keys = self._get_materials()
+        self.material_keys = {}
+        self._surface_material_keys = {}
         self._load_from_project()
         pass
 
@@ -65,6 +66,18 @@ class Materials(object):
         elif item in list(self.surface_material_keys.keys()):
             return self.surface_material_keys[item]
         return
+
+    @property
+    def surface_material_keys(self):
+        """Dictionary of Surface Material in the project.
+
+        Returns
+        -------
+        dict of :class:`pyaedt.modules.Material.Material`
+        """
+        if not self._surface_material_keys:
+            self._surface_material_keys = self._get_surface_materials()
+        return self._surface_material_keys
 
     @property
     def liquids(self):
