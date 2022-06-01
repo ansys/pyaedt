@@ -1273,7 +1273,7 @@ class CommonReport(object):
         return self._change_property("Header", "Header", props)
 
     @pyaedt_function_handler
-    def import_into_report(self, file_path, plot_name):
+    def import_traces(self, file_path, plot_name):
         """Import report data from a file into a specified report.
 
         Parameters

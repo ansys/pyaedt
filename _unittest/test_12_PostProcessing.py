@@ -326,8 +326,6 @@ class TestClass(BasisTest, object):
         new_report = self.aedtapp.create_scattering("import_test")
         csv_file_path = self.aedtapp.post.export_report_to_csv(self.local_scratch.path, "import_test")
         rdat_file_path = self.aedtapp.post.export_report_to_file(self.local_scratch.path, "import_test", ".rdat")
-        # self.aedtapp.post.export_report_to_jpg(self.local_scratch.path, "import_test")
-        # jpg_file_path = os.path.join(self.local_scratch.path, "import_test.jpg")
         plot_name = new_report.plot_name
 
         trace_names = []
@@ -340,25 +338,22 @@ class TestClass(BasisTest, object):
         my_data = self.aedtapp.post.get_report_data(expression=trace_names, families_dict=families)
         my_data.export_data_to_csv(os.path.join(self.local_scratch.path, "output.csv"))
         csv_solution_data_file_path = os.path.join(self.local_scratch.path, "output.csv")
-        assert not new_report.import_into_report(csv_solution_data_file_path, plot_name)
+        assert not new_report.import_traces(csv_solution_data_file_path, plot_name)
 
         # test import with correct inputs from csv
-        assert new_report.import_into_report(csv_file_path, plot_name)
+        assert new_report.import_traces(csv_file_path, plot_name)
         # test import with correct inputs from rdat
-        assert new_report.import_into_report(rdat_file_path, plot_name)
+        assert new_report.import_traces(rdat_file_path, plot_name)
         # test import with not existing plot_name
         if not is_ironpython:
             with pytest.raises(ValueError):
-                new_report.import_into_report(csv_file_path, "plot_name")
+                new_report.import_traces(csv_file_path, "plot_name")
             # test import with random file path
             with pytest.raises(FileExistsError):
-                new_report.import_into_report(str(uuid.uuid4()), plot_name)
+                new_report.import_traces(str(uuid.uuid4()), plot_name)
             # test import without plot_name
             with pytest.raises(ValueError):
-                new_report.import_into_report(csv_file_path, None)
-            # test import with wrong file extension
-            # with pytest.raises(ValueError):
-            #     new_report.import_into_report(jpg_file_path, plot_name)
+                new_report.import_traces(csv_file_path, None)
 
     def test_09d_delete_traces_from_report(self):
         new_report = self.aedtapp.create_scattering("delete_traces_test")
