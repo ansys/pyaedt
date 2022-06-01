@@ -59,11 +59,11 @@ class LimitLine(object):
         props = ["NAME:ChangedProps"]
         if style:
             props.append(["NAME:Line Style", "Value:=", style])
-        if width and isinstance(width, (int, float)):
+        if width and isinstance(width, (int, float, str)):
             props.append(["NAME:Line Width", "Value:=", str(width)])
-        if hatch_above and isinstance(hatch_pixels, int):
+        if hatch_above and isinstance(hatch_pixels, (int, str)):
             props.append(["NAME:Hatch Above", "Value:=", hatch_above])
-        if hatch_pixels and isinstance(hatch_pixels, int):
+        if hatch_pixels and isinstance(hatch_pixels, (int, str)):
             props.append(["NAME:Hatch Pixels", "Value:=", str(hatch_pixels)])
         if violation_emphasis:
             props.append(["NAME:Violation Emphasis", "Value:=", violation_emphasis])
@@ -147,11 +147,11 @@ class Note(object):
             props.append(["NAME:Note Text", "Value:=", text])
         if back_color and isinstance(back_color, (list, tuple)) and len(back_color) == 3:
             props.append(["NAME:Back Color", "R:=", back_color[0], "G:=", back_color[1], "B:=", back_color[2]])
-        if background_visibility != None:
+        if background_visibility is not None:
             props.append(["NAME:Background Visibility", "Value:=", background_visibility])
         if border_color and isinstance(border_color, (list, tuple)) and len(border_color) == 3:
             props.append(["NAME:Border Color", "R:=", border_color[0], "G:=", border_color[1], "B:=", border_color[2]])
-        if border_visibility != None:
+        if border_visibility is not None:
             props.append(["NAME:Border Visibility", "Value:=", border_visibility])
         if border_width and isinstance(border_width, (int, float)):
             props.append(["NAME:Border Width", "Value:=", str(border_width)])
@@ -240,7 +240,7 @@ class Trace(object):
         props = ["NAME:ChangedProps"]
         if trace_style:
             props.append(["NAME:Line Style", "Value:=", trace_style])
-        if width and isinstance(width, (int, float)):
+        if width and isinstance(width, (int, float, str)):
             props.append(["NAME:Line Width", "Value:=", str(width)])
         if trace_type:
             props.append(["NAME:Trace Type", "Value:=", trace_type])
@@ -472,7 +472,11 @@ class CommonReport(object):
             eye_points = _props_with_default(self.props["EyeMask"], "Points")
             eye_enable = _props_with_default(self.props["EyeMask"], "Enable Limits", False)
             eye_upper = _props_with_default(self.props["EyeMask"], "Upper Limit", 500)
-            eye_lower = _props_with_default(self.props["EyeMask"], "Lower Limit", -500)
+            eye_lower = _props_with_default(self.props["EyeMask"], "Lower Limit", 0.3)
+            eye_transparency = _props_with_default(self.props["EyeMask"], "Transparency", 0.3)
+            eye_color = _props_with_default(self.props["EyeMask"], "Mask Fill Color", (0, 128, 0))
+            eye_xoffset = _props_with_default(self.props["EyeMask"], "X Offset", "0ns")
+            eye_yoffset = _props_with_default(self.props["EyeMask"], "Y Offset", "0V")
             self.eye_mask(
                 points=eye_points,
                 xunits=eye_xunits,
@@ -480,6 +484,10 @@ class CommonReport(object):
                 enable_limits=eye_enable,
                 upper_limits=eye_upper,
                 lower_limits=eye_lower,
+                color=eye_color,
+                transparency=eye_transparency,
+                xoffset=eye_xoffset,
+                yoffset=eye_yoffset,
             )
         if "LimitLines" in self.props and self.report_category not in ["Eye Diagram"]:
             for line in self.props["LimitLines"].values():
@@ -547,6 +555,9 @@ class CommonReport(object):
                     color=note_color,
                 )
         if "General" in self.props:
+            if "Show Rectangular Plot" in self.props["General"] and self.report_category == "Eye Diagram":
+                eye_rectangular = _props_with_default(self.props["General"], "Show Rectangular Plot", True)
+                self.rectangular_plot(eye_rectangular)
             if "Legend" in self.props["General"]:
                 legend = self.props["General"]["Legend"]
                 legend_sol_name = _props_with_default(legend, "Show Solution Name", True)
@@ -2193,7 +2204,19 @@ class EyeDiagram(CommonReport):
         return True
 
     @pyaedt_function_handler()
-    def eye_mask(self, points, xunits="ns", yunits="mV", enable_limits=False, upper_limits=500, lower_limits=-500):
+    def eye_mask(
+        self,
+        points,
+        xunits="ns",
+        yunits="mV",
+        enable_limits=False,
+        upper_limits=500,
+        lower_limits=-500,
+        color=(0, 255, 0),
+        xoffset="0ns",
+        yoffset="0V",
+        transparency=0.3,
+    ):
         """Create an eye diagram in the plot.
 
         Parameters
@@ -2210,6 +2233,14 @@ class EyeDiagram(CommonReport):
             Upper Limit if enabled. Default is `500"`.
         lower_limits str, optional
             Lower Limit if enabled. Default is `-500`.
+        color : tuple, optional
+            Mask color in (r,g,b) int.
+        xoffset : str, optional
+            Mask Time offset with units. Default is `"0ns"`.
+        yoffset : str, optional
+            Mask Value offset with units. Default is `"0V"`.
+        transparency : float, optional
+            Mask Transparency.  Default is `0.3`.
 
         Returns
         -------
@@ -2239,8 +2270,37 @@ class EyeDiagram(CommonReport):
             mask_points.append(point[0])
             mask_points.append(point[1])
         arg.append(mask_points)
-        props[1].append((["NAME:ChangedProps", arg]))
+        args = ["NAME:ChangedProps", arg]
+        args.append(["NAME:Mask Fill Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
+        args.append(["NAME:X Offset", "Value:=", xoffset])
+        args.append(["NAME:Y Offset", "Value:=", yoffset])
+        args.append(["NAME:Mask Trans", "Transparency:=", transparency])
+        props[1].append(args)
         self._post.oreportsetup.ChangeProperty(props)
+
+        return True
+
+    @pyaedt_function_handler()
+    def rectangular_plot(self, value=True):
+        """Enable/disable the rectangular plot on the chart.
+
+        Parameters
+        ----------
+        value : bool
+            `True` to enable the rectangular plot. `False` to disable. it
+
+        Returns
+        -------
+        bool
+        """
+        props = [
+            "NAME:AllTabs",
+            ["NAME:Eye", ["NAME:PropServers", "{}:EyeDisplayTypeProperty".format(self.plot_name)]],
+        ]
+        args = ["NAME:ChangedProps", ["NAME:Rectangular Plot", "Value:=", value]]
+        props[1].append(args)
+        self._post.oreportsetup.ChangeProperty(props)
+
         return True
 
     @pyaedt_function_handler()

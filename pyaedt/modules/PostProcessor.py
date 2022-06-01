@@ -3016,7 +3016,8 @@ class PostProcessorCommon(object):
         report = report_class(self, report_category, setup_sweep_name)
         report.expressions = expressions
         report.domain = domain
-        report.primary_sweep = primary_sweep_variable
+        if primary_sweep_variable:
+            report.primary_sweep = primary_sweep_variable
         if variations:
             report.variations = variations
         report.sub_design_id = subdesign_id
