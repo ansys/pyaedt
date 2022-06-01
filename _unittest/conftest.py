@@ -221,25 +221,3 @@ def hfss():
     yield hfss
     hfss.close_project(hfss.project_name)
     gc.collect()
-
-
-from functools import wraps
-
-
-def pyaedt_unittest_check_desktop_error(func):
-    @wraps(func)
-    def inner_function(*args, **kwargs):
-        args[0].cache.update()
-        ret_val = func(*args, **kwargs)
-        try:
-            pass
-        except Exception as e:
-            pytest.exit("Desktop Crashed - Aborting the test!")
-        args[0].cache.update()
-        # model_report = args[0].aedtapp.modeler.model_consistency_report
-        # assert not model_report["Missing Objects"]
-        # assert not model_report["Non-Existent Objects"]
-        assert args[0].cache.no_new_errors
-        return ret_val
-
-    return inner_function

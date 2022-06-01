@@ -1118,14 +1118,27 @@ class GeometryModeler(Modeler, object):
 
     def __init__(self, app, is3d=True):
         self._app = app
-        self._oeditor = self._odesign.SetActiveEditor("3D Modeler")
         self._odefinition_manager = self._app.odefinition_manager
-        self._omaterial_manager = self._app._oproject.GetDefinitionManager().GetManager("Material")
+        self._omaterial_manager = self._app.omaterial_manager
         Modeler.__init__(self, app)
         # TODO Refactor this as a dictionary with names as key
-        self.coordinate_systems = self._get_coordinates_data()
-        self.user_lists = self._get_lists_data()
+        self._coordinate_systems = None
+        self._user_lists = None
         self._is3d = is3d
+
+    @property
+    def coordinate_systems(self):
+        """Coordinate Systems."""
+        if not self._coordinate_systems:
+            self._coordinate_systems = self._get_coordinates_data()
+        return self._coordinate_systems
+
+    @property
+    def user_lists(self):
+        """User Lists."""
+        if not self._user_lists:
+            self._user_lists = self._get_lists_data()
+        return self._user_lists
 
     @property
     def oeditor(self):
@@ -1136,7 +1149,7 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor = oDesign.SetActiveEditor("3D Modeler")"""
 
-        return self._oeditor
+        return self._app.oeditor
 
     @property
     def materials(self):
@@ -4756,7 +4769,7 @@ class GeometryModeler(Modeler, object):
                     selection[el],
                 ]
             )
-        self._oeditor.MoveFaces(arg1, arg2)
+        self.oeditor.MoveFaces(arg1, arg2)
         return True
 
     @pyaedt_function_handler()
@@ -4818,7 +4831,7 @@ class GeometryModeler(Modeler, object):
                     selection[el],
                 ]
             )
-        self._oeditor.MoveEdges(arg1, arg2)
+        self.oeditor.MoveEdges(arg1, arg2)
         return True
 
     class Position:

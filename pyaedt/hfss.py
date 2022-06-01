@@ -171,36 +171,22 @@ class Hfss(FieldAnalysis3D, object):
             port,
             aedt_process_id,
         )
-        self.field_setups = self._get_rad_fields()
+        self._field_setups = []
 
     def __enter__(self):
         return self
 
     @property
-    def oradfield(self):
-        """AEDT Radiation Field Object.
+    def field_setups(self):
+        """List of AEDT Radiation Fields.
 
-        References
-        ----------
-
-        >>> oDesign.GetModule("RadField")
+        Returns
+        -------
+        List of :class:`pyaedt.modules.Boundary.FarFieldSetup`
         """
-        if self.solution_type not in ["EigenMode", "Characteristic Mode"]:
-            return self._odesign.GetModule("RadField")
-        else:
-            self.logger.warning("Solution %s does not support RadField.", self.solution_type)
-            return
-
-    @property
-    def omodelsetup(self):
-        """AEDT Model Setup Object.
-
-        References
-        ----------
-
-        >>> oDesign.GetModule("ModelSetup")
-        """
-        return self._odesign.GetModule("ModelSetup")
+        if not self._field_setups:
+            self._field_setups = self._get_rad_fields()
+        return self._field_setups
 
     class BoundaryType(object):
         """Creates and manages boundaries."""
@@ -3883,7 +3869,7 @@ class Hfss(FieldAnalysis3D, object):
                     ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
                     ["NAME:SheetThickenParameters", "Thickness:=", str(l) + "mm", "BothSides:=", False],
                 )
-                # aedt_bounding_box2 = self._oeditor.GetModelBoundingBox()
+                # aedt_bounding_box2 = self.oeditor.GetModelBoundingBox()
                 aedt_bounding_box2 = self.modeler.get_model_bounding_box()
                 self._odesign.Undo()
                 if aedt_bounding_box != aedt_bounding_box2:
@@ -3893,7 +3879,7 @@ class Hfss(FieldAnalysis3D, object):
                     ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
                     ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(l) + "mm", "BothSides:=", False],
                 )
-                # aedt_bounding_box2 = self._oeditor.GetModelBoundingBox()
+                # aedt_bounding_box2 = self.oeditor.GetModelBoundingBox()
                 aedt_bounding_box2 = self.modeler.get_model_bounding_box()
 
                 self._odesign.Undo()
