@@ -274,7 +274,7 @@ solutions_types = {
             "default_adaptive": "LastAdaptive",
         },
         "Terminal": {
-            "name": "HFSS Hybrid Terminal Network",
+            "name": "HFSS Terminal Network",
             "options": None,
             "report_type": "Terminal Solution Data",
             "default_setup": 1,
@@ -475,8 +475,8 @@ class DesignSolution(object):
         self._solution_options = copy.deepcopy(solutions_types[design_type])
         self._design_type = design_type
         if design_type == "HFSS" and aedt_version >= "2021.2":
-            self._solution_options["Modal"]["name"] = "HFSS Hybrid Modal Network"
-            self._solution_options["Terminal"]["name"] = "HFSS Hybrid Terminal Network"
+            self._solution_options["Modal"]["name"] = "HFSS Modal Network"
+            self._solution_options["Terminal"]["name"] = "HFSS Terminal Network"
         self._solution_type = None
 
     @property
@@ -553,8 +553,8 @@ class DesignSolution(object):
 class HFSSDesignSolution(DesignSolution, object):
     def __init__(self, odesign, design_type, aedt_version):
         DesignSolution.__init__(self, odesign, design_type, aedt_version)
-        self._composite = None
-        self._hybrid = None
+        self._composite = False
+        self._hybrid = False
 
     @property
     def solution_type(self):
@@ -606,10 +606,10 @@ class HFSSDesignSolution(DesignSolution, object):
             if value == "Transient":
                 value = "Transient Network"
                 self._solution_type = "Transient Network"
-            elif value == "DrivenModal":
+            elif "Modal" in value:
                 value = "Modal"
                 self._solution_type = "Modal"
-            elif value == "DrivenTerminal":
+            elif "Terminal" in value:
                 value = "Terminal"
                 self._solution_type = "Terminal"
             else:

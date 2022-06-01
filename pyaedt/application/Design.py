@@ -203,9 +203,6 @@ class Design(AedtObjects, object):
         self.odesign = design_name
         AedtObjects.__init__(self, is_inherithed=True)
 
-        self.design_solutions._odesign = self.odesign
-        if solution_type:
-            self.design_solutions.solution_type = solution_type
         self._variable_manager = VariableManager(self)
         self._project_datasets = []
         self._design_datasets = []
@@ -792,14 +789,20 @@ class Design(AedtObjects, object):
         if des_name:
             if self._assert_consistent_design_type(des_name) == des_name:
                 self._insert_design(self._design_type, design_name=des_name)
+            self.design_solutions._odesign = self.odesign
         else:
             activedes, warning_msg = self._find_design()
             if activedes:
                 self._odesign = self.oproject.SetActiveDesign(activedes)
                 self.logger.info(warning_msg)
+                self.design_solutions._odesign = self.odesign
+
             else:
                 self.logger.info(warning_msg)
                 self._insert_design(self._design_type)
+                self.design_solutions._odesign = self.odesign
+                if self._temp_solution_type:
+                    self.design_solutions.solution_type = self._temp_solution_type
 
     @property
     def oproject(self):
