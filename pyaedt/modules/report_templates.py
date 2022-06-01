@@ -1,3 +1,6 @@
+import copy
+import os
+
 from pyaedt.generic.constants import LineStyle
 from pyaedt.generic.constants import SymbolStyle
 from pyaedt.generic.constants import TraceType
@@ -1268,6 +1271,139 @@ class CommonReport(object):
             ["NAME:Show Design Name", "Value:=", show_design_name],
         ]
         return self._change_property("Header", "Header", props)
+
+    @pyaedt_function_handler
+    def import_traces(self, file_path, plot_name):
+        """Import report data from a file into a specified report.
+
+        Parameters
+        ----------
+        file_path : str
+            Input file path where extension can be ".csv", ".tab", ".dat", ".rdat".
+        plot_name : str
+            Name of the plot where file data have to be imported.
+        """
+        if not os.path.exists(file_path):
+            msg = "File does not exist."
+            raise FileExistsError(msg)
+
+        if not plot_name:
+            msg = "Plot name can't be None."
+            raise ValueError(msg)
+        else:
+            if plot_name not in self._post.all_report_names:
+                msg = "Plot name provided doesn't exists in current report."
+                raise ValueError(msg)
+            self.plot_name = plot_name
+
+        split_path = os.path.splitext(file_path)
+        extension = split_path[1]
+
+        supported_ext = [".csv", ".tab", ".dat", ".rdat"]
+        if extension not in supported_ext:
+            msg = "Extension {} is not supported. Use one of {}".format(extension, ", ".join(supported_ext))
+            raise ValueError(msg)
+
+        try:
+            if extension == ".rdat":
+                self._post.oreportsetup.ImportReportDataIntoReport(self.plot_name, file_path)
+            else:
+                self._post.oreportsetup.ImportIntoReport(self.plot_name, file_path)
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler
+    def delete_traces(self, plot_name, traces_list):
+        """Delete an existing trace or traces.
+
+        Parameters
+        ----------
+        plot_name : str
+            Plot name.
+        traces_list : list
+            A specific trace or list of traces that the user wishes to delete.
+        """
+        if plot_name not in self._post.all_report_names:
+            raise ValueError("Plot does not exist in current project.")
+
+        for trace in traces_list:
+            if trace not in self._trace_info[3]:
+                raise ValueError("Trace does not exist in the selected plot.")
+
+        props = []
+        props.append("{}:=".format(plot_name))
+        props.append(traces_list)
+        try:
+            self._post.oreportsetup.DeleteTraces(props)
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler
+    def add_trace_to_report(self, traces, setup_name=None, variations=None, context=None):
+        """Add a trace to a specific report.
+
+        Parameters
+        ----------
+        traces : list
+            List of traces to add.
+        setup_name : str, optional
+            Name of the setup.
+        variations : dict, optional
+            Dictionary of variations.
+        context : list, optional
+            Solution context.
+        """
+        expr = copy.deepcopy(self.expressions)
+        self.expressions = traces
+
+        try:
+            self._post.oreportsetup.AddTraces(
+                self.plot_name,
+                setup_name if setup_name else self.setup,
+                context if context else self._context,
+                self._convert_dict_to_report_sel(variations if variations else self.variations),
+                self._trace_info,
+            )
+            return True
+        except:
+            return False
+        finally:
+            self.expressions = expr
+
+    @pyaedt_function_handler
+    def update_trace_in_report(self, traces, setup_name=None, variations=None, context=None):
+        """Update a trace in a specific report.
+
+        Parameters
+        ----------
+        traces : list
+            List of traces to add.
+        setup_name : str, optional
+            Name of the setup.
+        variations : dict, optional
+            Dictionary of variations.
+        context : list, optional
+            Solution context.
+        """
+        expr = copy.deepcopy(self.expressions)
+        self.expressions = traces
+
+        try:
+            self._post.oreportsetup.UpdateTraces(
+                self.plot_name,
+                traces,
+                setup_name if setup_name else self.setup,
+                context if context else self._context,
+                self._convert_dict_to_report_sel(variations if variations else self.variations),
+                self._trace_info,
+            )
+            return True
+        except:
+            return False
+        finally:
+            self.expressions = expr
 
 
 class Standard(CommonReport):
