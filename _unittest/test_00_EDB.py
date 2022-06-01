@@ -1424,3 +1424,86 @@ if not config["skip_edb"]:
             sim_setup.power_nets = ["RSVD_0", "RSVD_1"]
             sim_setup.signal_nets = ["V3P3_S0"]
             self.edbapp.core_nets.classify_nets(sim_setup)
+
+        def test_100_place_a3dcomp_3d_placement(self):
+            source_path = os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb")
+            target_path = os.path.join(self.local_scratch.path, "output.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            laminate_edb = Edb(target_path, edbversion=desktop_version)
+            chip_a3dcomp = os.path.join(local_path, "example_models", "chip.a3dcomp")
+            try:
+                layout = laminate_edb.active_layout
+                cellInstances = list(layout.CellInstances)
+                assert len(cellInstances) == 0
+                assert laminate_edb.core_stackup.place_a3dcomp_3d_placement(
+                    chip_a3dcomp, angle=0.0, offset_x=0.0, offset_y=0.0, place_on_top=True
+                )
+                cellInstances = list(layout.CellInstances)
+                assert len(cellInstances) == 1
+                cellInstance = cellInstances[0]
+                assert cellInstance.Is3DPlacement()
+                if is_ironpython:
+                    res, localOrigin, rotAxisFrom, rotAxisTo, angle, loc = cellInstance.Get3DTransformation()
+                else:
+                    res, localOrigin, rotAxisFrom, rotAxisTo, angle, loc = cellInstance.Get3DTransformation(
+                        None, None, None, None, None
+                    )
+                assert res
+                zeroValue = laminate_edb.edb_value(0)
+                oneValue = laminate_edb.edb_value(1)
+                originPoint = laminate_edb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
+                xAxisPoint = laminate_edb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
+                assert localOrigin.IsEqual(originPoint)
+                assert rotAxisFrom.IsEqual(xAxisPoint)
+                assert rotAxisTo.IsEqual(xAxisPoint)
+                assert angle.IsEqual(zeroValue)
+                assert loc.IsEqual(
+                    laminate_edb.edb.Geometry.Point3DData(zeroValue, zeroValue, laminate_edb.edb_value(170e-6))
+                )
+                assert laminate_edb.save_edb()
+            finally:
+                laminate_edb.close_edb()
+
+        def test_100b_place_a3dcomp_3d_placement_on_bottom(self):
+            source_path = os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb")
+            target_path = os.path.join(self.local_scratch.path, "output.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            laminate_edb = Edb(target_path, edbversion=desktop_version)
+            chip_a3dcomp = os.path.join(local_path, "example_models", "chip.a3dcomp")
+            try:
+                layout = laminate_edb.active_layout
+                cellInstances = list(layout.CellInstances)
+                assert len(cellInstances) == 0
+                assert laminate_edb.core_stackup.place_a3dcomp_3d_placement(
+                    chip_a3dcomp, angle=90.0, offset_x=0.5e-3, offset_y=-0.5e-3, place_on_top=False
+                )
+                cellInstances = list(layout.CellInstances)
+                assert len(cellInstances) == 1
+                cellInstance = cellInstances[0]
+                assert cellInstance.Is3DPlacement()
+                if is_ironpython:
+                    res, localOrigin, rotAxisFrom, rotAxisTo, angle, loc = cellInstance.Get3DTransformation()
+                else:
+                    res, localOrigin, rotAxisFrom, rotAxisTo, angle, loc = cellInstance.Get3DTransformation(
+                        None, None, None, None, None
+                    )
+                assert res
+                zeroValue = laminate_edb.edb_value(0)
+                oneValue = laminate_edb.edb_value(1)
+                flipAngleValue = laminate_edb.edb_value("180deg")
+                originPoint = laminate_edb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
+                xAxisPoint = laminate_edb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
+                assert localOrigin.IsEqual(originPoint)
+                assert rotAxisFrom.IsEqual(xAxisPoint)
+                assert rotAxisTo.IsEqual(
+                    laminate_edb.edb.Geometry.Point3DData(zeroValue, laminate_edb.edb_value(-1.0), zeroValue)
+                )
+                assert angle.IsEqual(flipAngleValue)
+                assert loc.IsEqual(
+                    laminate_edb.edb.Geometry.Point3DData(
+                        laminate_edb.edb_value(0.5e-3), laminate_edb.edb_value(-0.5e-3), zeroValue
+                    )
+                )
+                assert laminate_edb.save_edb()
+            finally:
+                laminate_edb.close_edb()
