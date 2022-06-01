@@ -395,3 +395,87 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.variable_manager["$my_proj_test3"].numeric_value == 2.0
         self.aedtapp.materials.add_material_sweep(["copper", "aluminum"], "sweep_alu")
         assert "$sweep_alupermittivity" in self.aedtapp.variable_manager.dependent_variables
+
+    def test_18_test_optimization_properties(self):
+        var = "v1"
+        self.aedtapp[var] = "10mm"
+
+        v = self.aedtapp.variable_manager
+        assert not v[var].is_optimization_enabled
+        v[var].is_optimization_enabled = True
+        assert v[var].is_optimization_enabled
+        assert v[var].optimization_min_value == "5mm"
+        v[var].optimization_min_value = "4mm"
+        assert v[var].optimization_min_value == "4mm"
+        assert v[var].optimization_max_value == "15mm"
+        v[var].optimization_max_value = "14mm"
+        assert v[var].optimization_max_value == "14mm"
+        assert not v[var].is_tuning_enabled
+        v[var].is_tuning_enabled = True
+        assert v[var].is_tuning_enabled
+        assert v[var].tuning_min_value == "5mm"
+        v[var].tuning_min_value = "4mm"
+        assert v[var].tuning_min_value == "4mm"
+        assert v[var].tuning_max_value == "15mm"
+        v[var].tuning_max_value = "14mm"
+        assert v[var].tuning_max_value == "14mm"
+        assert v[var].tuning_step_value == "1mm"
+        v[var].tuning_step_value = "0.5mm"
+        assert v[var].tuning_step_value == "0.5mm"
+        assert not v[var].is_statistical_enabled
+        v[var].is_statistical_enabled = True
+        assert v[var].is_statistical_enabled
+        assert not v[var].is_sensitivity_enabled
+        v[var].is_sensitivity_enabled = True
+        assert v[var].is_sensitivity_enabled
+        assert v[var].sensitivity_min_value == "5mm"
+        v[var].sensitivity_min_value = "4mm"
+        assert v[var].sensitivity_min_value == "4mm"
+        assert v[var].sensitivity_max_value == "15mm"
+        v[var].sensitivity_max_value = "14mm"
+        assert v[var].sensitivity_max_value == "14mm"
+        assert v[var].sensitivity_initial_disp == "1mm"
+        v[var].sensitivity_initial_disp = "0.5mm"
+        assert v[var].sensitivity_initial_disp == "0.5mm"
+
+    def test_19_test_optimization_global_properties(self):
+
+        var = "$v1"
+        self.aedtapp[var] = "10mm"
+        v = self.aedtapp.variable_manager
+        assert not v[var].is_optimization_enabled
+        v[var].is_optimization_enabled = True
+        assert v[var].is_optimization_enabled
+        assert v[var].optimization_min_value == "5mm"
+        v[var].optimization_min_value = "4mm"
+        assert v[var].optimization_min_value == "4mm"
+        assert v[var].optimization_max_value == "15mm"
+        v[var].optimization_max_value = "14mm"
+        assert v[var].optimization_max_value == "14mm"
+        assert not v[var].is_tuning_enabled
+        v[var].is_tuning_enabled = True
+        assert v[var].is_tuning_enabled
+        assert v[var].tuning_min_value == "5mm"
+        v[var].tuning_min_value = "4mm"
+        assert v[var].tuning_min_value == "4mm"
+        assert v[var].tuning_max_value == "15mm"
+        v[var].tuning_max_value = "14mm"
+        assert v[var].tuning_max_value == "14mm"
+        assert v[var].tuning_step_value == "1mm"
+        v[var].tuning_step_value = "0.5mm"
+        assert v[var].tuning_step_value == "0.5mm"
+        assert not v[var].is_statistical_enabled
+        v[var].is_statistical_enabled = True
+        assert v[var].is_statistical_enabled
+        assert not v[var].is_sensitivity_enabled
+        v[var].is_sensitivity_enabled = True
+        assert v[var].is_sensitivity_enabled
+        assert v[var].sensitivity_min_value == "5mm"
+        v[var].sensitivity_min_value = "4mm"
+        assert v[var].sensitivity_min_value == "4mm"
+        assert v[var].sensitivity_max_value == "15mm"
+        v[var].sensitivity_max_value = "14mm"
+        assert v[var].sensitivity_max_value == "14mm"
+        assert v[var].sensitivity_initial_disp == "1mm"
+        v[var].sensitivity_initial_disp = "0.5mm"
+        assert v[var].sensitivity_initial_disp == "0.5mm"
