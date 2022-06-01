@@ -1362,6 +1362,20 @@ if not config["skip_edb"]:
             outline_layer = stackup._layer_types_to_int(stackup.layer_types.OutlineLayer)
             assert outline_layer == 18
 
+        def test_98_export_import_json_for_config(self):
+            sim_config = SimulationConfiguration()
+            assert sim_config.output_aedb is None
+            sim_config.output_aedb = os.path.join(self.local_scratch.path, "test.aedb")
+            assert sim_config.output_aedb == os.path.join(self.local_scratch.path, "test.aedb")
+            json_file = os.path.join(self.local_scratch.path, "test.json")
+            sim_config._filename = json_file
+            sim_config.arc_angle = "90deg"
+            assert sim_config.export_json(json_file)
+            test_import = SimulationConfiguration()
+            assert test_import.import_json(json_file)
+            assert test_import.arc_angle == "90deg"
+            assert test_import._filename == json_file
+
         def test_99_duplicate_material(self):
             stack_up = self.edbapp.core_stackup
             duplicated_copper = stack_up.duplicate_material("copper", "my_new_copper")
@@ -1405,27 +1419,13 @@ if not config["skip_edb"]:
             failing_test_2 = stack_up.get_property_by_material_name("none_property", "copper")
             assert not failing_test_2
 
-        def test_98_export_import_json_for_config(self):
-            sim_config = SimulationConfiguration()
-            assert sim_config.output_aedb is None
-            sim_config.output_aedb = os.path.join(self.local_scratch.path, "test.aedb")
-            assert sim_config.output_aedb == os.path.join(self.local_scratch.path, "test.aedb")
-            json_file = os.path.join(self.local_scratch.path, "test.json")
-            sim_config._filename = json_file
-            sim_config.arc_angle = "90deg"
-            assert sim_config.export_json(json_file)
-            test_import = SimulationConfiguration()
-            assert test_import.import_json(json_file)
-            assert test_import.arc_angle == "90deg"
-            assert test_import._filename == json_file
-
-        def test_99_classify_nets(self):
+        def test_101_classify_nets(self):
             sim_setup = SimulationConfiguration()
             sim_setup.power_nets = ["RSVD_0", "RSVD_1"]
             sim_setup.signal_nets = ["V3P3_S0"]
             self.edbapp.core_nets.classify_nets(sim_setup)
 
-        def test_100_place_a3dcomp_3d_placement(self):
+        def test_102_place_a3dcomp_3d_placement(self):
             source_path = os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb")
             target_path = os.path.join(self.local_scratch.path, "output.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
@@ -1464,7 +1464,7 @@ if not config["skip_edb"]:
             finally:
                 laminate_edb.close_edb()
 
-        def test_100b_place_a3dcomp_3d_placement_on_bottom(self):
+        def test_102b_place_a3dcomp_3d_placement_on_bottom(self):
             source_path = os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb")
             target_path = os.path.join(self.local_scratch.path, "output.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
