@@ -250,7 +250,7 @@ class FieldAnalysis3D(Analysis, object):
             )
 
     @pyaedt_function_handler()
-    def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None, setup_type="CG"):
+    def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None):
         """Export mesh statistics to a file.
 
         Parameters
@@ -262,8 +262,6 @@ class FieldAnalysis3D(Analysis, object):
         mesh_path : str, optional
             Full path to the mesh statistics file. The default is ``None``, in which
             caswe the working directory is used.
-        setup_type : str, optional
-            Setup type in Q3D. The default is "CG", other options are "AC RL" or "DC RL".
 
         Returns
         -------
@@ -276,10 +274,7 @@ class FieldAnalysis3D(Analysis, object):
         """
         if not mesh_path:
             mesh_path = os.path.join(self.working_directory, "meshstats.ms")
-        if self.design_type == "Q3D Extractor":
-            self.odesign.ExportMeshStats(setup_name, variation_string, setup_type, mesh_path)
-        else:
-            self.odesign.ExportMeshStats(setup_name, variation_string, mesh_path)
+        self.odesign.ExportMeshStats(setup_name, variation_string, mesh_path)
         return mesh_path
 
     @pyaedt_function_handler()
