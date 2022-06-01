@@ -29,11 +29,18 @@ class ModelerCircuit(Modeler):
 
     def __init__(self, app):
         self._app = app
-        self._oeditor = self._odesign.SetActiveEditor("SchematicEditor")
         self.o_def_manager = self._app.odefinition_manager
-        self.o_component_manager = self.o_def_manager.GetManager("Component")
-        self.o_model_manager = self.o_def_manager.GetManager("Model")
         Modeler.__init__(self, app)
+
+    @property
+    def o_component_manager(self):
+        """Component manager object."""
+        return self._app.o_component_manager
+
+    @property
+    def o_model_manager(self):
+        """Model manager object."""
+        return self._app.o_model_manager
 
     @property
     def oeditor(self):
@@ -43,7 +50,7 @@ class ModelerCircuit(Modeler):
         ----------
 
         >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")"""
-        return self._oeditor
+        return self._app.oeditor
 
     @property
     def obounding_box(self):
@@ -160,9 +167,7 @@ class ModelerNexxim(ModelerCircuit):
 
         >>> oDesign.SetActiveEditor("Layout")
         """
-        if not self._layouteditor and self._app.design_type != "Twin Builder":
-            self._layouteditor = self._odesign.SetActiveEditor("Layout")
-        return self._layouteditor
+        return self._app.layouteditor
 
     @property
     def schematic(self):

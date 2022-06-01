@@ -368,7 +368,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
     def __init__(self, object3d, objid):
         self.id = objid
         self._object3d = object3d
-        self._oeditor = object3d.m_Editor
+        self.oeditor = object3d.m_Editor
 
     @property
     def position(self):
@@ -388,7 +388,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
 
         """
         try:
-            vertex_data = list(self._oeditor.GetVertexPosition(self.id))
+            vertex_data = list(self.oeditor.GetVertexPosition(self.id))
             return [float(i) for i in vertex_data]
         except Exception as e:
             return None
@@ -415,7 +415,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
     def __init__(self, object3d, edge_id):
         self.id = edge_id
         self._object3d = object3d
-        self._oeditor = object3d.m_Editor
+        self.oeditor = object3d.m_Editor
 
     @property
     def vertices(self):
@@ -433,7 +433,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
         """
         vertices = []
-        for vertex in self._oeditor.GetVertexIDsFromEdge(self.id):
+        for vertex in self.oeditor.GetVertexIDsFromEdge(self.id):
             vertex = int(vertex)
             vertices.append(VertexPrimitive(self._object3d, vertex))
         return vertices
@@ -552,7 +552,8 @@ class FacePrimitive(object):
         self._object3d = object3d
 
     @property
-    def _oeditor(self):
+    def oeditor(self):
+        """Oeditor Module."""
         return self._object3d.m_Editor
 
     @property
@@ -580,7 +581,7 @@ class FacePrimitive(object):
 
         """
         edges = []
-        for edge in list(self._oeditor.GetEdgeIDsFromFace(self.id)):
+        for edge in list(self.oeditor.GetEdgeIDsFromFace(self.id)):
             edges.append(EdgePrimitive(self._object3d, int(edge)))
         return edges
 
@@ -600,7 +601,7 @@ class FacePrimitive(object):
 
         """
         vertices = []
-        for vertex in list(self._oeditor.GetVertexIDsFromFace(self.id)):
+        for vertex in list(self.oeditor.GetVertexIDsFromFace(self.id)):
             vertex = int(vertex)
             vertices.append(VertexPrimitive(self._object3d, int(vertex)))
         return vertices
@@ -626,7 +627,7 @@ class FacePrimitive(object):
 
         """
         try:
-            c = self._oeditor.GetFaceCenter(self.id)
+            c = self.oeditor.GetFaceCenter(self.id)
         except:
             self.logger.warning("Non-planar face does not provide a face center.")
             return False
@@ -643,7 +644,7 @@ class FacePrimitive(object):
         """
 
         try:
-            self._oeditor.GetFaceCenter(self.id)
+            self.oeditor.GetFaceCenter(self.id)
             return True
         except:
             return False
@@ -692,7 +693,7 @@ class FacePrimitive(object):
         >>> oEditor.GetFaceArea
 
         """
-        area = self._oeditor.GetFaceArea(self.id)
+        area = self.oeditor.GetFaceArea(self.id)
         return area
 
     @property
@@ -810,7 +811,7 @@ class FacePrimitive(object):
         bool
             `True` if the face is on bounding box. `False` otherwise.
         """
-        b = [float(i) for i in list(self._oeditor.GetModelBoundingBox())]
+        b = [float(i) for i in list(self.oeditor.GetModelBoundingBox())]
         c = self.center
         if (
             abs(c[0] - b[0]) < tol
@@ -843,7 +844,7 @@ class FacePrimitive(object):
         >>> oEditor.MoveFaces
 
         """
-        self._oeditor.MoveFaces(
+        self.oeditor.MoveFaces(
             ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"],
             [
                 "NAME:Parameters",
@@ -886,7 +887,7 @@ class FacePrimitive(object):
         >>> oEditor.MoveFaces
 
         """
-        self._oeditor.MoveFaces(
+        self.oeditor.MoveFaces(
             ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"],
             [
                 "NAME:Parameters",
@@ -1189,9 +1190,6 @@ class Object3d(object):
     def plot(self, show=True):
         """Plot model with PyVista.
 
-        .. note::
-        Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
-
         Parameters
         ----------
         show : bool, optional
@@ -1201,6 +1199,10 @@ class Object3d(object):
         -------
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
+
+        Notes
+        -----
+        Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
         """
         if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
             return self._primitives._app.post.plot_model_obj(
@@ -1554,7 +1556,7 @@ class Object3d(object):
         oEditor COM Object
 
         """
-        return self._primitives._oeditor
+        return self._primitives.oeditor
 
     @property
     def logger(self):
@@ -1731,7 +1733,7 @@ class Object3d(object):
         """
         if not self._id:
             try:
-                self._id = self._primitives._oeditor.GetObjectIDByName(self._m_name)
+                self._id = self._primitives.oeditor.GetObjectIDByName(self._m_name)
             except:
                 return None
         return self._id
@@ -1795,7 +1797,7 @@ class Object3d(object):
 
         """
         if self.model and self.material_name:
-            volume = self._primitives._oeditor.GetObjectVolume(self._m_name)
+            volume = self._primitives.oeditor.GetObjectVolume(self._m_name)
             units = self.object_units
             mass_density = (
                 float(self._primitives._materials[self.material_name].mass_density.value)
@@ -1823,7 +1825,7 @@ class Object3d(object):
 
         """
         if self.object_type == "Solid":
-            self._volume = float(self._primitives._oeditor.GetObjectVolume(self._m_name))
+            self._volume = float(self._primitives.oeditor.GetObjectVolume(self._m_name))
         else:
             self._volume = 0.0
         return self._volume
@@ -1859,7 +1861,7 @@ class Object3d(object):
                 vPropServers.append(self._m_name)
                 vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
                 vOut = ["NAME:AllTabs", vGeo3d]
-                _retry_ntimes(10, self._primitives._oeditor.ChangeProperty, vOut)
+                _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, vOut)
                 self._m_name = obj_name
                 self._primitives.cleanup_objects()
         else:
@@ -3094,7 +3096,7 @@ class CircuitComponent(object):
         if custom_editor:
             self.m_Editor = custom_editor
         else:
-            self.m_Editor = self._circuit_components._oeditor
+            self.m_Editor = self._circuit_components.oeditor
         self._modelName = None
         self.status = "Active"
         self.component = None

@@ -616,7 +616,7 @@ class Circuit(FieldAnalysisCircuit, object):
             self._desktop.OpenProject(source_project_path)
             oSrcProject = self._desktop.SetActiveProject(source_project_name)
         oDesign = oSrcProject.SetActiveDesign(source_design_name)
-        oModule = oDesign.GetModule("BoundarySetup")
+        tmp_oModule = oDesign.GetModule("BoundarySetup")
         port = None
         if port_selector == 1:
             port = "Wave Port"
@@ -626,7 +626,7 @@ class Circuit(FieldAnalysisCircuit, object):
             port = "Circuit Port"
         if not port:
             return False
-        pins = list(oModule.GetExcitationsOfType(port))
+        pins = list(tmp_oModule.GetExcitationsOfType(port))
         self.logger.info("%s Excitations Pins found.", len(pins))
         return pins
 
@@ -1619,8 +1619,8 @@ class Circuit(FieldAnalysisCircuit, object):
         if not datablock_name:
             datablock_name = generate_unique_name("Inc")
 
-        oModule = self.odesign.GetModule("DataBlock")
-        oModule.AddNetlistDataBlock(
+        tmp_oModule = self.odesign.GetModule("DataBlock")
+        tmp_oModule.AddNetlistDataBlock(
             ["NAME:DataBlock", "name:=", datablock_name, "filename:=", netlist_file, "filelocation:=", 0]
         )
         return True

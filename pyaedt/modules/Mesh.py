@@ -204,9 +204,7 @@ class Mesh(object):
 
         self._odesign = self._app.odesign
         self.modeler = self._app.modeler
-        design_type = self._odesign.GetDesignType()
         self.logger = self._app.logger
-        self._omeshmodule = self._odesign.GetModule(meshers[design_type])
         self.id = 0
         self.meshoperations = self._get_design_mesh_operations()
         self._globalmesh = None
@@ -239,7 +237,7 @@ class Mesh(object):
 
         >>> oDesign.GetModule("MeshSetup")
         """
-        return self._omeshmodule
+        return self._app.omeshmodule
 
     @pyaedt_function_handler()
     def _get_design_global_mesh(self):
