@@ -796,11 +796,11 @@ class EdbStackup(object):
             target_top_elevation = res[2]
             target_bottom_elevation = res[4]
 
-        flipAngle = self._get_edb_value("0deg")
+        flip_angle = self._get_edb_value("0deg")
         if place_on_top:
             elevation = target_top_elevation
         else:
-            flipAngle = self._get_edb_value("180deg")
+            flip_angle = self._get_edb_value("180deg")
             elevation = target_bottom_elevation
         h_stackup = self._get_edb_value(elevation)
         location = self._edb.Geometry.Point3DData(
@@ -822,7 +822,7 @@ class EdbStackup(object):
             return False
 
         if not cell_instance.Set3DTransformation(
-            local_origin, rotation_axis_from, rotation_axis_to, flipAngle, location
+            local_origin, rotation_axis_from, rotation_axis_to, flip_angle, location
         ):  # pragma: no cover
             logger.error("Failed to set 3D transform on a3dcomp cell instance")
             return False
