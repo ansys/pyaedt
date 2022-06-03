@@ -503,6 +503,33 @@ class EdbHfss(object):
             return True
         else:
             return False
+    @pyaedt_function_handler()
+    def create_edge_port_on_polygon(self, polygon=None, reference_polygon=None, terminal_point=None,
+                                    reference_point=None, reference_layer=None, port_name=None, port_impedance=50.0,
+                                    force_circuit_port=False):
+        if not polygon:
+            self._logger.error("No polygon provided for port {} creation".format(port_name))
+            return False
+        if reference_layer:
+            reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
+            if not reference_layer:
+                self._logger.error("Specified layer for port {} creation was not found".format(port_name))
+        if not isinstance(terminal_point, list):
+            self._logger.error("Terminal point must be a list of float with providing the point location in meter")
+            return False
+        terminal_point = self._edb.Geometry.PointData(self._get_edb_value(terminal_point[0]),
+                                          self._get_edb_value(terminal_point[1]))
+        if reference_point and isinstance(reference_point, list):
+            reference_point = self._edb.Geometry.PointData(self._get_edb_value(reference_point[0]),
+                                                          self._get_edb_value(reference_point[1]))
+        if not port_name:
+            port_name = generate_unique_name("Port_")
+        if not self._hfss_terminals.CreateEdgePort(polygon, reference_polygon, terminal_point,reference_point,
+                                                   reference_layer,port_name, port_impedance, force_circuit_port):
+            self._logger.error("failed to create port {}".format(port_name))
+            return False
+        return True
+
 
     @pyaedt_function_handler()
     def create_lumped_port_on_trace(
