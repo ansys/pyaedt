@@ -4147,7 +4147,7 @@ class GeometryModeler(Modeler, object):
         return position_list
 
     @pyaedt_function_handler()
-    def import_3d_cad(self, filename, healing=False, refresh_all_ids=True):
+    def import_3d_cad(self, filename, healing=False, refresh_all_ids=True, import_materials=False):
         """Import a CAD model.
 
         Parameters
@@ -4164,6 +4164,8 @@ class GeometryModeler(Modeler, object):
             Whether to refresh all IDs after the CAD file is loaded. The
             default is ``True``. Refreshing IDs can take a lot of time in
             a big project.
+        import_materials : bool optional
+            Either to import material names from the file or not if presents.
 
         Returns
         -------
@@ -4198,7 +4200,7 @@ class GeometryModeler(Modeler, object):
         vArg1.append("MergeFacesAngle:="), vArg1.append(-1)
         vArg1.append("PointCoincidenceTol:="), vArg1.append(1e-06)
         vArg1.append("CreateLightweightPart:="), vArg1.append(False)
-        vArg1.append("ImportMaterialNames:="), vArg1.append(False)
+        vArg1.append("ImportMaterialNames:="), vArg1.append(import_materials)
         vArg1.append("SeparateDisjointLumps:="), vArg1.append(False)
         vArg1.append("SourceFile:="), vArg1.append(filename)
         self.oeditor.Import(vArg1)

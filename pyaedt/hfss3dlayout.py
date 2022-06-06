@@ -1540,31 +1540,26 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return os.path.isfile(filename)
 
     @pyaedt_function_handler()
-    def export_3d_model(self, file_name=None, path=None, extension="sat"):
+    def export_3d_model(self, file_name=None):
         """Export the Ecad model to an ACIS 3D File.
 
         Parameters
         ----------
         file_name : str, optional
-            Name of the file to export. Default is None which will set file_name to design_name.
-        path : str, optional
-            Path to the file. Default is None which will save in working_directory path.
-        extension : str, optional
-            File extension. Default is `"sm3"`. Options are `"sat"`  and `"sab"`.
+            Full name of the file to export.
+            Default is None which will set file_name to design_name and saved as sat file into working_directory.
+            Extensions available are `"sat"`, `"sab"` and `"sm3"`.
 
         Returns
         -------
-        bool
-            `True` if succeeded.
+        str
+            File name if succeeded.
         """
-        if not path:
-            path = self.working_directory
         if not file_name:
-            file_name = self.design_name
-        self.modeler.oeditor.ExportAcis(
-            ["NAME:options", "FileName:=", os.path.join(path, "{}.{}".format(file_name, extension))]
-        )
-        return True
+            file_name = os.path.join(self.working_directory, self.design_name + ".sat")
+
+        self.modeler.oeditor.ExportAcis(["NAME:options", "FileName:=", file_name])
+        return file_name
 
     @pyaedt_function_handler()
     def enable_rigid_flex(self):
@@ -1574,11 +1569,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Returns
         -------
         bool
+            `True` if bend is enabled `False` if bend is disabled.
         """
         if settings.aedt_version >= "2022.2":
             self.modeler.oeditor.ProcessBentModelCmd()
-            if self.modeler.rigid_flex == True:
-                self.modeler.rigid_flex = False
-            self.modeler.rigid_flex = True
-            return True
-        return False
+        return True if self.variable_manager["BendModel"].expression == "1" else False
