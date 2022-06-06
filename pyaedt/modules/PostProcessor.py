@@ -3066,7 +3066,7 @@ class PostProcessorCommon(object):
         >>> aedtapp.post.create_report_from_configuration(r'C:\temp\my_report.json',
         ...                                               solution_name="Setup1 : LastAdpative")
         """
-        if not input_dict and not input_file:
+        if not input_dict and not input_file:  # pragma: no cover
             self.logger.error("Either one of a json file or a dictionary has to be passed as input.")
             return False
         if input_file:
@@ -3090,7 +3090,7 @@ class PostProcessorCommon(object):
             report.create()
             report._update_traces()
             return report
-        return False
+        return False  # pragma: no cover
 
 
 class PostProcessor(PostProcessorCommon, object):

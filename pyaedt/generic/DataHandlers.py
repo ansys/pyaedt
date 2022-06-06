@@ -592,7 +592,7 @@ def json_to_dict(fn):
     with open(fn) as json_file:
         try:
             json_data = json.load(json_file)
-        except json.JSONDecodeError as e:
+        except json.JSONDecodeError as e:  # pragma: no cover
             error = "Error reading json: {} at line {}".format(e.msg, e.lineno)
             settings.logger.error(error)
     return json_data

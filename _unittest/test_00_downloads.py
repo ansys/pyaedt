@@ -46,3 +46,7 @@ class TestClass(BasisTest, object):
         out = self.examples.download_leaf()
         assert os.path.exists(out[0])
         assert os.path.exists(out[1])
+
+    def test_download_custom_report(self):
+        out = self.examples.download_custom_reports()
+        assert os.path.exists(out)

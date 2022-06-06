@@ -8,6 +8,7 @@ from pyaedt import Circuit
 from pyaedt import Hfss
 from pyaedt import Q2d
 from pyaedt import Q3d
+from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.plot import _parse_aedtplt
 from pyaedt.generic.plot import _parse_streamline
@@ -858,9 +859,8 @@ class TestClass(BasisTest, object):
 
     def test_67_sweep_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
-        assert self.aedtapp.post.create_report_from_configuration(
-            os.path.join(local_path, "example_models", "report_json", "Modal_Report_simple.json")
-        )
+        dict_vals = json_to_dict(os.path.join(local_path, "example_models", "report_json", "Modal_Report_simple.json"))
+        assert self.aedtapp.post.create_report_from_configuration(input_dict=dict_vals)
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
