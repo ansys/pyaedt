@@ -1,0 +1,21 @@
+{
+    "Help": "This Report Template is applicable to CISPR25 Plots from Transient data.",
+    "report_category": "Standard",
+    "report_type": "Rectangular Plot",
+	"plot_name": "S Parameter Plot 1",
+    "context": {
+        "domain": "Sweep",
+        "primary_sweep": "Freq",
+        "primary_sweep_range": [
+            "All"
+        ],
+        "variations": {
+            "Freq": [
+                "All"
+            ]
+        }
+    },
+    "expressions": {
+        "dB(S(1,1))" : {}
+    }
+}

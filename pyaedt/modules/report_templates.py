@@ -11,7 +11,7 @@ from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
 def _props_with_default(dict_in, key, default_value=None):
-    return dict_in[key] if dict_in.get(key, None) != None else default_value
+    return dict_in[key] if dict_in.get(key, None) is not None else default_value
 
 
 class LimitLine(object):
@@ -2130,7 +2130,7 @@ class EyeDiagram(CommonReport):
 
     @property
     def auto_cross_amplitude(self):
-        """Get and Set the auto cross ampltiude flag
+        """Get and Set the auto cross ampltiude flag.
 
         Returns
         -------
@@ -2458,7 +2458,7 @@ class EyeDiagram(CommonReport):
         return True
 
     @pyaedt_function_handler()
-    def add_trace_characteristics(self, trace_name, arguments=None, range=None):
+    def add_trace_characteristics(self, trace_name, arguments=None, solution_range=None):
         """Add a trace characteristic to the plot.
 
         Parameters
@@ -2467,7 +2467,7 @@ class EyeDiagram(CommonReport):
             Name of the trace Characteristics.
         arguments : list, optional
             Arguments if exists.
-        range : list, optional
+        solution_range : list, optional
             Output range. Default is Full range.
 
         Returns
@@ -2478,7 +2478,7 @@ class EyeDiagram(CommonReport):
             arguments = []
         if not range:
             range = ["Full"]
-        self._post.oreportsetup.AddTraceCharacteristics(self.plot_name, trace_name, arguments, range)
+        self._post.oreportsetup.AddTraceCharacteristics(self.plot_name, trace_name, arguments, solution_range)
         return True
 
     @pyaedt_function_handler()

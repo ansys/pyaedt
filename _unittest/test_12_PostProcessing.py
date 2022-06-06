@@ -844,18 +844,49 @@ class TestClass(BasisTest, object):
     def test_65_eye_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
         assert self.eye_test.post.create_report_from_configuration(
-            os.path.join(local_path, "example_models", "EyeDiagram_Report.json"), solution_name="QuickEyeAnalysis"
+            os.path.join(local_path, "example_models", "report_json", "EyeDiagram_Report_simple.json"),
+            solution_name="QuickEyeAnalysis",
         )
 
     def test_66_spectral_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
         self.circuit_test.analyze_setup("Transient")
         assert self.circuit_test.post.create_report_from_configuration(
-            os.path.join(local_path, "example_models", "Spectral_Report.json"), solution_name="Transient"
+            os.path.join(local_path, "example_models", "report_json", "Spectral_Report_simple.json"),
+            solution_name="Transient",
         )
 
     def test_67_sweep_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
         assert self.aedtapp.post.create_report_from_configuration(
-            os.path.join(local_path, "example_models", "Modal_Report.json")
+            os.path.join(local_path, "example_models", "report_json", "Modal_Report_simple.json")
+        )
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
+    )
+    def test_68_eye_from_json(self):
+        local_path = os.path.dirname(os.path.realpath(__file__))
+        assert self.eye_test.post.create_report_from_configuration(
+            os.path.join(local_path, "example_models", "report_json", "EyeDiagram_Report.json"),
+            solution_name="QuickEyeAnalysis",
+        )
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
+    )
+    def test_69_spectral_from_json(self):
+        local_path = os.path.dirname(os.path.realpath(__file__))
+        self.circuit_test.analyze_setup("Transient")
+        assert self.circuit_test.post.create_report_from_configuration(
+            os.path.join(local_path, "example_models", "report_json", "Spectral_Report.json"), solution_name="Transient"
+        )
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
+    )
+    def test_70_sweep_from_json(self):
+        local_path = os.path.dirname(os.path.realpath(__file__))
+        assert self.aedtapp.post.create_report_from_configuration(
+            os.path.join(local_path, "example_models", "report_json", "Modal_Report.json")
         )
