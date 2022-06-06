@@ -2476,8 +2476,8 @@ class EyeDiagram(CommonReport):
         """
         if not arguments:
             arguments = []
-        if not range:
-            range = ["Full"]
+        if not solution_range:
+            solution_range = ["Full"]
         self._post.oreportsetup.AddTraceCharacteristics(self.plot_name, trace_name, arguments, solution_range)
         return True
 
