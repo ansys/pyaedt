@@ -1,5 +1,6 @@
 # standard imports
 import os
+import uuid
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
@@ -112,9 +113,9 @@ class TestClass(BasisTest, object):
         plot2 = self.aedtapp.post.create_fieldplot_volume(vollist, quantity_name2, setup_name, intrinsic)
 
         self.aedtapp.post.export_field_image_with_view(
-            plot2.name, plot2.plotFolder, os.path.join(self.local_scratch.path, "prova2.png")
+            plot2.name, plot2.plotFolder, os.path.join(self.local_scratch.path, "prova2.jpg")
         )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "prova2.png"))
+        assert os.path.exists(os.path.join(self.local_scratch.path, "prova2.jpg"))
         assert os.path.exists(
             plot2.export_image(os.path.join(self.local_scratch.path, "test_x.jpg"), orientation="top")
         )
@@ -179,6 +180,10 @@ class TestClass(BasisTest, object):
         self.aedtapp.post.export_report_to_csv(self.local_scratch.path, "MyTestScattering")
         assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.csv"))
 
+    def test_06_export_report_to_rdat(self):
+        self.aedtapp.post.export_report_to_file(self.local_scratch.path, "MyTestScattering", ".rdat")
+        assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.rdat"))
+
     def test_07_export_fields_from_Calculator(self):
 
         self.aedtapp.post.export_field_file_on_grid(
@@ -229,7 +234,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.post.rename_report("MyTestScattering", "MyNewScattering")
 
     def test_09_manipulate_report(self):
-        assert self.aedtapp.post.create_report("dB(S(1,1))", variations={"Freq": ["2.5GHz", "2.6GHz"]})
+        assert self.aedtapp.post.create_report("dB(S(1,1))")
         assert self.aedtapp.post.create_report(
             expressions="MaxMagDeltaS",
             variations={"Pass": ["All"]},
@@ -319,10 +324,77 @@ class TestClass(BasisTest, object):
         files = self.aedtapp.export_results()
         assert len(files) > 0
 
+    def test_09c_import_into_report(self):
+        new_report = self.aedtapp.create_scattering("import_test")
+        csv_file_path = self.aedtapp.post.export_report_to_csv(self.local_scratch.path, "import_test")
+        rdat_file_path = self.aedtapp.post.export_report_to_file(self.local_scratch.path, "import_test", ".rdat")
+        plot_name = new_report.plot_name
+
+        trace_names = []
+        trace_names.append(new_report.expressions[0])
+        families = {"Freq": ["All"]}
+        for el in self.aedtapp.available_variations.nominal_w_values_dict:
+            families[el] = self.aedtapp.available_variations.nominal_w_values_dict[el]
+
+        # get solution data and save in .csv file
+        my_data = self.aedtapp.post.get_report_data(expression=trace_names, families_dict=families)
+        my_data.export_data_to_csv(os.path.join(self.local_scratch.path, "output.csv"))
+        csv_solution_data_file_path = os.path.join(self.local_scratch.path, "output.csv")
+        assert not new_report.import_traces(csv_solution_data_file_path, plot_name)
+
+        # test import with correct inputs from csv
+        assert new_report.import_traces(csv_file_path, plot_name)
+        # test import with correct inputs from rdat
+        assert new_report.import_traces(rdat_file_path, plot_name)
+        # test import with not existing plot_name
+        if not is_ironpython:
+            with pytest.raises(ValueError):
+                new_report.import_traces(csv_file_path, "plot_name")
+            # test import with random file path
+            with pytest.raises(FileExistsError):
+                new_report.import_traces(str(uuid.uuid4()), plot_name)
+            # test import without plot_name
+            with pytest.raises(ValueError):
+                new_report.import_traces(csv_file_path, None)
+
+    def test_09d_delete_traces_from_report(self):
+        new_report = self.aedtapp.create_scattering("delete_traces_test")
+        traces_to_delete = []
+        traces_to_delete.append(new_report.expressions[0])
+        plot_name = new_report.plot_name
+        assert new_report.delete_traces(plot_name, traces_to_delete)
+        if not is_ironpython:
+            with pytest.raises(ValueError):
+                new_report.delete_traces("plot_name", traces_to_delete)
+            with pytest.raises(ValueError):
+                new_report.delete_traces(plot_name, ["V(out)_Test"])
+
+    def test_09e_add_traces_to_report(self):
+        new_report = self.aedtapp.create_scattering("add_traces_test")
+        traces = new_report.get_solution_data().expressions
+        assert new_report.add_trace_to_report(traces)
+        setup = self.aedtapp.post.plots[0].setup
+        variations = self.aedtapp.post.plots[0].variations["height"] = "10mm"
+        assert not new_report.add_trace_to_report(traces, setup, variations)
+        variations = self.aedtapp.post.plots[0].variations
+        assert new_report.add_trace_to_report(traces, setup, variations)
+        setup = "Transient"
+        assert not new_report.add_trace_to_report(traces, setup, variations)
+
+    def test_09f_update_traces_in_report(self):
+        new_report = self.aedtapp.create_scattering("update_traces_test")
+        traces = new_report.get_solution_data().expressions
+        assert new_report.update_trace_in_report(traces)
+        setup = self.aedtapp.post.plots[0].setup
+        variations = self.aedtapp.post.plots[0].variations["height"] = "10mm"
+        assert not new_report.add_trace_to_report(traces, setup, variations)
+        variations = self.aedtapp.post.plots[0].variations
+        assert new_report.update_trace_in_report(traces, setup, variations)
+
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
-    def test_09c_create_monitor(self):  # pragma: no cover
+    def test_09d_create_monitor(self):  # pragma: no cover
         assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
@@ -333,15 +405,15 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(
         config["NonGraphical"], reason="Skipped because it cannot run on build machine in non-graphical mode"
     )
-    def test_09d_add_line_from_point(self):  # pragma: no cover
+    def test_09e_add_line_from_point(self):  # pragma: no cover
+        assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
-        new_report.create()
         assert new_report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
-    def test_09e_add_line_from_equation(self):
+    def test_09f_add_line_from_equation(self):
         assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
@@ -350,7 +422,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
-    def test_09f_edit_properties(self):
+    def test_09g_edit_properties(self):
         report = self.aedtapp.post.create_report("dB(S(1,1))")
         assert report.edit_grid()
         assert report.edit_grid(minor_x=False)
@@ -403,7 +475,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
-    def test_09g_add_line_from_point(self):  # pragma: no cover
+    def test_09h_add_line_from_point(self):  # pragma: no cover
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         new_report.create()
         style = new_report.traces[0].LINESTYLE
@@ -425,7 +497,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
-    def test_09g_add_note(self):  # pragma: no cover
+    def test_09l_add_note(self):  # pragma: no cover
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         new_report.create()
 
@@ -452,18 +524,13 @@ class TestClass(BasisTest, object):
         config["NonGraphical"], reason="Skipped because it cannot run on build machine in non-graphical mode"
     )
     def test_13_export_model_picture(self):
-        path1 = self.aedtapp.post.export_model_picture(full_name=os.path.join(self.local_scratch.path, "image.png"))
-        assert os.path.exists(path1)
-        path = self.aedtapp.post.export_model_picture(
-            show_axis=True, show_grid=False, show_ruler=True, show_region=False
-        )
+        path = self.aedtapp.post.export_model_picture(dir=self.local_scratch.path, name="images")
         assert path
-        path = self.aedtapp.post.export_model_picture(selections="inner")
+        path = self.aedtapp.post.export_model_picture(show_axis=True, show_grid=False, show_ruler=True)
         assert path
-        path = self.aedtapp.post.export_model_picture(orientation="top")
+        path = self.aedtapp.post.export_model_picture(name="Ericsson", picturename="test_picture")
         assert path
-        self.q3dtest.analyze_nominal()
-        path = self.q3dtest.post.export_model_picture(field_selections="SmootQ1", orientation="top")
+        path = self.aedtapp.post.export_model_picture(picturename="test_picture")
         assert path
 
     @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
@@ -674,11 +741,11 @@ class TestClass(BasisTest, object):
         new_report = self.q3dtest.post.reports_by_category.standard(self.q3dtest.get_traces_for_plot())
         assert new_report.create()
         self.q3dtest.modeler.create_polyline([[0, -5, 0.425], [0.5, 5, 0.5]], name="Poly1", non_model=True)
-        new_report = self.q3dtest.post.reports_by_category.cg_fields("SmoothQ", polyline="Poly1")
+        new_report = self.q3dtest.post.reports_by_category.cg_fields("SmoothQ", polyline="Polyline1")
         assert new_report.create()
-        new_report = self.q3dtest.post.reports_by_category.rl_fields("Mag_SurfaceJac", polyline="Poly1")
+        new_report = self.q3dtest.post.reports_by_category.rl_fields("Mag_SurfaceJac", polyline="Polyline1")
         assert new_report.create()
-        new_report = self.q3dtest.post.reports_by_category.dc_fields("Mag_VolumeJdc", polyline="Poly1")
+        new_report = self.q3dtest.post.reports_by_category.dc_fields("Mag_VolumeJdc", polyline="Polyline1")
         assert new_report.create()
         assert len(self.q3dtest.post.plots) == 6
 
@@ -721,7 +788,12 @@ class TestClass(BasisTest, object):
         out = _parse_streamline(os.path.join(local_path, "example_models", "test_streamline.fldplt"))
         assert isinstance(out, list)
 
-    def test_61_delete_variations(self):
+    def test_61_export_mesh(self):
+        assert os.path.exists(self.q3dtest.export_mesh_stats("Setup1"))
+        assert os.path.exists(self.q3dtest.export_mesh_stats("Setup1", setup_type="AC RL"))
+        assert os.path.exists(self.aedtapp.export_mesh_stats("Setup1"))
+
+    def test_62_delete_variations(self):
         assert self.q3dtest.cleanup_solution()
         vars = self.field_test.available_variations.get_variation_strings()
         assert self.field_test.available_variations.variations()

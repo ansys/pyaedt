@@ -73,7 +73,6 @@ class AnalysisTwinBuilder(Analysis):
             port,
             aedt_process_id,
         )
-        self.solution_type = solution_type
         self._modeler = ModelerTwinBuilder(self)
         self._post = CircuitPostProcessor(self)
 

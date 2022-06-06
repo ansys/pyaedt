@@ -72,7 +72,6 @@ class AnalysisMaxwellCircuit(Analysis):
             port,
             aedt_process_id,
         )
-        self.solution_type = None
         self._modeler = ModelerMaxwellCircuit(self)
 
     @property

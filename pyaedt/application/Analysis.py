@@ -111,7 +111,6 @@ class Analysis(Design, object):
         self._setup = None
         if setup_name:
             self.analysis_setup = setup_name
-        self.solution_type = solution_type
         self._materials = Materials(self)
         self.logger.info("Materials Loaded")
         self._available_variations = self.AvailableVariations(self)
