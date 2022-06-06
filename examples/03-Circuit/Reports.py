@@ -3,7 +3,7 @@ Circuit: Create Automatic Reports
 ---------------------------------
 # This example shows how to create automatic reports using a json file.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/schematic.png'
+# sphinx_gallery_thumbnail_path = 'Resources/spectrum_plot.png'
 
 import os
 
@@ -16,7 +16,7 @@ from pyaedt import examples
 from pyaedt import generate_unique_name
 import tempfile
 
-project_path = r'C:\ansysdev\Simulation\CustomReports'
+project_path = examples.download_custom_reports()
 
 tmpfold = tempfile.gettempdir()
 temp_folder = os.path.join(tmpfold, generate_unique_name("CustomReport"))
@@ -78,7 +78,7 @@ if not non_graphical:
 # are edited before the report is created.
 # Custom report can be done, in non graphical mode starting from AEDT 2022.2.
 
-if not non_graphical:
+if non_graphical:
     props = json_to_dict(os.path.join(temp_folder, 'Transient_CISPR_Basic.json'))
 else:
     props = json_to_dict(os.path.join(temp_folder, 'Transient_CISPR_Custom.json'))
@@ -97,10 +97,10 @@ report3 = cir.post.create_report_from_configuration(input_dict=props, solution_n
 report4 = cir.post.create_report_from_configuration(os.path.join(temp_folder,'EyeDiagram_CISPR_Basic.json'))
 
 if not non_graphical:
-    report1_full = cir.post.create_report_from_configuration(os.path.join(temp_folder,'EyeDiagram_CISPR_Custom.json'))
+    report4_full = cir.post.create_report_from_configuration(os.path.join(temp_folder,'EyeDiagram_CISPR_Custom.json'))
 
 if not non_graphical:
-    cir.post.export_report_to_jpg(cir.working_directory, report1.plot_name)
+    cir.post.export_report_to_jpg(cir.working_directory, report4.plot_name)
 
 ###############################################################################
 # Save and close Desktop
