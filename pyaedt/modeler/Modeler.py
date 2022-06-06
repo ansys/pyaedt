@@ -4164,7 +4164,7 @@ class GeometryModeler(Modeler, object):
             Whether to refresh all IDs after the CAD file is loaded. The
             default is ``True``. Refreshing IDs can take a lot of time in
             a big project.
-        import_materials: bool optional
+        import_materials : bool optional
             Either to import material names from the file or not if presents.
 
         Returns
