@@ -293,17 +293,17 @@ class CommonReport(object):
         self.props = OrderedDict()
         self.report_category = report_category
         self.setup = setup_name
-        self.props["Report Type"] = "Rectangular Plot"
-        self.props["Context"] = OrderedDict()
-        self.props["Context"]["Domain"] = "Sweep"
-        self.props["Context"]["Primary Sweep"] = "Freq"
-        self.props["Context"]["Primary Sweep Range"] = ["All"]
-        self.props["Context"]["Secondary Sweep Range"] = ["All"]
-        self.props["Context"]["Variations"] = {"Freq": ["All"]}
+        self.props["report_type"] = "Rectangular Plot"
+        self.props["context"] = OrderedDict()
+        self.props["context"]["domain"] = "Sweep"
+        self.props["context"]["primary_sweep"] = "Freq"
+        self.props["context"]["primary_sweep_range"] = ["All"]
+        self.props["context"]["secondary_sweep_range"] = ["All"]
+        self.props["context"]["variations"] = {"Freq": ["All"]}
         for el, k in self._post._app.available_variations.nominal_w_values_dict.items():
-            self.props["Context"]["Variations"][el] = k
-        self.props["Expressions"] = None
-        self.props["Plot Name"] = None
+            self.props["context"]["variations"][el] = k
+        self.props["expressions"] = None
+        self.props["plot_name"] = None
         self._is_created = True
 
     @property
@@ -314,11 +314,11 @@ class CommonReport(object):
         -------
         bool
         """
-        return self.props["Context"].get("Differential Pairs", False)
+        return self.props["context"].get("differential_pairs", False)
 
     @differential_pairs.setter
     def differential_pairs(self, value):
-        self.props["Context"]["Differential Pairs"] = value
+        self.props["context"]["differential_pairs"] = value
 
     @property
     def matrix(self):
@@ -328,11 +328,11 @@ class CommonReport(object):
         -------
         str
         """
-        return self.props["Context"].get("Matrix", None)
+        return self.props["context"].get("matrix", None)
 
     @matrix.setter
     def matrix(self, value):
-        self.props["Context"]["Matrix"] = value
+        self.props["context"]["matrix"] = value
 
     @property
     def polyline(self):
@@ -342,11 +342,11 @@ class CommonReport(object):
         -------
         str
         """
-        return self.props["Context"].get("Polyline", None)
+        return self.props["context"].get("polyline", None)
 
     @polyline.setter
     def polyline(self, value):
-        self.props["Context"]["Polyline"] = value
+        self.props["context"]["polyline"] = value
 
     @property
     def expressions(self):
@@ -356,8 +356,8 @@ class CommonReport(object):
         -------
         str
         """
-        if self.props.get("Expressions", {}):
-            return list(self.props.get("Expressions", {}).keys())
+        if self.props.get("expressions", {}):
+            return list(self.props.get("expressions", {}).keys())
         return []
 
     @expressions.setter
@@ -365,9 +365,9 @@ class CommonReport(object):
         if not isinstance(value, list):
             value = [value]
         for el in value:
-            if not self.props.get("Expressions", None):
-                self.props["Expressions"] = {}
-            self.props["Expressions"][el] = {}
+            if not self.props.get("expressions", None):
+                self.props["expressions"] = {}
+            self.props["expressions"][el] = {}
 
     @property
     def report_category(self):
@@ -377,11 +377,11 @@ class CommonReport(object):
         -------
         str
         """
-        return self.props["Report Category"]
+        return self.props["report_category"]
 
     @report_category.setter
     def report_category(self, value):
-        self.props["Report Category"] = value
+        self.props["report_category"] = value
 
     @property
     def report_type(self):
@@ -393,16 +393,16 @@ class CommonReport(object):
         -------
         str
         """
-        return self.props["Report Type"]
+        return self.props["report_type"]
 
     @report_type.setter
     def report_type(self, report):
-        self.props["Report Type"] = report
+        self.props["report_type"] = report
         if not self.primary_sweep:
-            if self.props["Report Type"] in ["3D Polar Plot", "3D Spherical Plot"]:
+            if self.props["report_type"] in ["3D Polar Plot", "3D Spherical Plot"]:
                 self.primary_sweep = "Phi"
                 self.secondary_sweep = "Theta"
-            elif self.props["Report Type"] == "Radiation Pattern":
+            elif self.props["report_type"] == "Radiation Pattern":
                 self.primary_sweep = "Phi"
             elif self.domain == "Sweep":
                 self.primary_sweep = "Freq"
@@ -443,17 +443,17 @@ class CommonReport(object):
     def _update_traces(self):
         for trace in self.traces:
             trace_name = trace.trace_name.split(":")[1]
-            if "Expressions" in self.props and trace_name in self.props["Expressions"]:
-                trace_val = self.props["Expressions"][trace_name]
-                trace_style = _props_with_default(trace_val, "Line Style")
-                trace_width = _props_with_default(trace_val, "Line Width")
-                trace_type = _props_with_default(trace_val, "Line Type")
-                trace_color = _props_with_default(trace_val, "Color")
-                symbol_show = _props_with_default(trace_val, "Show Symbols", False)
-                symbol_style = _props_with_default(trace_val, "Symbol Style", None)
-                symbol_arrows = _props_with_default(trace_val, "Show Arrow", None)
-                symbol_fill = _props_with_default(trace_val, "Fill Symbol", False)
-                symbol_color = _props_with_default(trace_val, "Symbol Color", None)
+            if "expressions" in self.props and trace_name in self.props["expressions"]:
+                trace_val = self.props["expressions"][trace_name]
+                trace_style = _props_with_default(trace_val, "trace_style")
+                trace_width = _props_with_default(trace_val, "width")
+                trace_type = _props_with_default(trace_val, "trace_type")
+                trace_color = _props_with_default(trace_val, "color")
+                symbol_show = _props_with_default(trace_val, "show_symbols", False)
+                symbol_style = _props_with_default(trace_val, "symbol_style", None)
+                symbol_arrows = _props_with_default(trace_val, "show_arrows", None)
+                symbol_fill = _props_with_default(trace_val, "symbol_fill", False)
+                symbol_color = _props_with_default(trace_val, "symbol_color", None)
                 trace.set_trace_properties(
                     trace_style=trace_style, width=trace_width, trace_type=trace_type, color=trace_color
                 )
@@ -466,37 +466,37 @@ class CommonReport(object):
                     fill=symbol_fill,
                     color=symbol_color,
                 )
-        if "EyeMask" in self.props and self.report_category == "Eye Diagram":
-            eye_xunits = _props_with_default(self.props["EyeMask"], "XUnits", "ns")
-            eye_yunits = _props_with_default(self.props["EyeMask"], "YUnits", "mV")
-            eye_points = _props_with_default(self.props["EyeMask"], "Points")
-            eye_enable = _props_with_default(self.props["EyeMask"], "Enable Limits", False)
-            eye_upper = _props_with_default(self.props["EyeMask"], "Upper Limit", 500)
-            eye_lower = _props_with_default(self.props["EyeMask"], "Lower Limit", 0.3)
-            eye_transparency = _props_with_default(self.props["EyeMask"], "Transparency", 0.3)
-            eye_color = _props_with_default(self.props["EyeMask"], "Mask Fill Color", (0, 128, 0))
-            eye_xoffset = _props_with_default(self.props["EyeMask"], "X Offset", "0ns")
-            eye_yoffset = _props_with_default(self.props["EyeMask"], "Y Offset", "0V")
+        if "eye_mask" in self.props and self.report_category == "Eye Diagram":
+            eye_xunits = _props_with_default(self.props["eye_mask"], "xunits", "ns")
+            eye_yunits = _props_with_default(self.props["eye_mask"], "yunits", "mV")
+            eye_points = _props_with_default(self.props["eye_mask"], "points")
+            eye_enable = _props_with_default(self.props["eye_mask"], "enable_limits", False)
+            eye_upper = _props_with_default(self.props["eye_mask"], "upper_limit", 500)
+            eye_lower = _props_with_default(self.props["eye_mask"], "lower_limit", 0.3)
+            eye_transparency = _props_with_default(self.props["eye_mask"], "transparency", 0.3)
+            eye_color = _props_with_default(self.props["eye_mask"], "color", (0, 128, 0))
+            eye_xoffset = _props_with_default(self.props["eye_mask"], "X Offset", "0ns")
+            eye_yoffset = _props_with_default(self.props["eye_mask"], "Y Offset", "0V")
             self.eye_mask(
                 points=eye_points,
                 xunits=eye_xunits,
                 yunits=eye_yunits,
                 enable_limits=eye_enable,
-                upper_limits=eye_upper,
-                lower_limits=eye_lower,
+                upper_limit=eye_upper,
+                lower_limit=eye_lower,
                 color=eye_color,
                 transparency=eye_transparency,
                 xoffset=eye_xoffset,
                 yoffset=eye_yoffset,
             )
-        if "LimitLines" in self.props and self.report_category not in ["Eye Diagram"]:
-            for line in self.props["LimitLines"].values():
-                if "Equation" in line:
-                    line_start = _props_with_default(line, "Start")
-                    line_stop = _props_with_default(line, "Stop")
-                    line_step = _props_with_default(line, "Step")
-                    line_equation = _props_with_default(line, "Equation")
-                    line_axis = _props_with_default(line, "Y Axis", 1)
+        if "limitLines" in self.props and self.report_category not in ["Eye Diagram"]:
+            for line in self.props["limitLines"].values():
+                if "equation" in line:
+                    line_start = _props_with_default(line, "start")
+                    line_stop = _props_with_default(line, "stop")
+                    line_step = _props_with_default(line, "step")
+                    line_equation = _props_with_default(line, "equation")
+                    line_axis = _props_with_default(line, "y_axis", 1)
                     if not line_start or not line_step or not line_stop or not line_equation:
                         self._post._app.logger.error(
                             "Equation Limit Lines needs Start, Stop, Step and Equation fields."
@@ -506,18 +506,18 @@ class CommonReport(object):
                         start_x=line_start, stop_x=line_stop, step=line_step, equation=line_equation, y_axis=line_axis
                     )
                 else:
-                    line_x = _props_with_default(line, "XPoints")
-                    line_y = _props_with_default(line, "YPoints")
-                    line_xunits = _props_with_default(line, "XUnits")
-                    line_yunits = _props_with_default(line, "YUnits", "")
-                    line_axis = _props_with_default(line, "Y Axis", "Y1")
+                    line_x = _props_with_default(line, "xpoints")
+                    line_y = _props_with_default(line, "ypoints")
+                    line_xunits = _props_with_default(line, "xunits")
+                    line_yunits = _props_with_default(line, "yunits", "")
+                    line_axis = _props_with_default(line, "y_axis", "Y1")
                     self.add_limit_line_from_points(line_x, line_y, line_xunits, line_yunits, line_axis)
-                line_style = _props_with_default(line, "Line Style")
-                line_width = _props_with_default(line, "Line Width")
-                line_hatchabove = _props_with_default(line, "Hatch Above")
-                line_viol = _props_with_default(line, "Violation Emphasis")
-                line_hatchpix = _props_with_default(line, "Hatch Pixels")
-                line_color = _props_with_default(line, "Color")
+                line_style = _props_with_default(line, "trace_style")
+                line_width = _props_with_default(line, "width")
+                line_hatchabove = _props_with_default(line, "hatch_above")
+                line_viol = _props_with_default(line, "violation_emphasis")
+                line_hatchpix = _props_with_default(line, "hatch_pixels")
+                line_color = _props_with_default(line, "color")
                 self.limit_lines[-1].set_line_properties(
                     style=line_style,
                     width=line_width,
@@ -526,21 +526,21 @@ class CommonReport(object):
                     hatch_pixels=line_hatchpix,
                     color=line_color,
                 )
-        if "Notes" in self.props:
-            for note in self.props["Notes"].values():
-                note_text = _props_with_default(note, "Text")
-                note_position = _props_with_default(note, "Position", [0, 0])
+        if "notes" in self.props:
+            for note in self.props["notes"].values():
+                note_text = _props_with_default(note, "text")
+                note_position = _props_with_default(note, "position", [0, 0])
                 self.add_note(note_text, note_position[0], note_position[1])
-                note_back_color = _props_with_default(note, "Back Color")
-                note_background_visibility = _props_with_default(note, "Background Visibility")
-                note_border_color = _props_with_default(note, "Border Color")
-                note_border_visibility = _props_with_default(note, "Border Visibility")
-                note_border_width = _props_with_default(note, "Border Width")
-                note_font = _props_with_default(note, "Font", "Arial")
-                note_font_size = _props_with_default(note, "Height", 12)
-                note_italic = _props_with_default(note, "Italic")
-                note_bold = _props_with_default(note, "Bold")
-                note_color = _props_with_default(note, "Color", (0, 0, 0))
+                note_back_color = _props_with_default(note, "background_color")
+                note_background_visibility = _props_with_default(note, "background_visibility")
+                note_border_color = _props_with_default(note, "border_color")
+                note_border_visibility = _props_with_default(note, "border_visibility")
+                note_border_width = _props_with_default(note, "border_width")
+                note_font = _props_with_default(note, "font", "Arial")
+                note_font_size = _props_with_default(note, "font_size", 12)
+                note_italic = _props_with_default(note, "italic")
+                note_bold = _props_with_default(note, "bold")
+                note_color = _props_with_default(note, "color", (0, 0, 0))
 
                 self.notes[-1].set_note_properties(
                     back_color=note_back_color,
@@ -554,17 +554,17 @@ class CommonReport(object):
                     bold=note_bold,
                     color=note_color,
                 )
-        if "General" in self.props:
-            if "Show Rectangular Plot" in self.props["General"] and self.report_category == "Eye Diagram":
-                eye_rectangular = _props_with_default(self.props["General"], "Show Rectangular Plot", True)
+        if "general" in self.props:
+            if "show_rectangular_plot" in self.props["general"] and self.report_category == "Eye Diagram":
+                eye_rectangular = _props_with_default(self.props["general"], "show_rectangular_plot", True)
                 self.rectangular_plot(eye_rectangular)
-            if "Legend" in self.props["General"]:
-                legend = self.props["General"]["Legend"]
-                legend_sol_name = _props_with_default(legend, "Show Solution Name", True)
-                legend_var_keys = _props_with_default(legend, "Show Variation Key", True)
-                leend_trace_names = _props_with_default(legend, "Show Trace Name", True)
-                legend_color = _props_with_default(legend, "Background Color", (255, 255, 255))
-                legend_font_color = _props_with_default(legend, "Font Color", (0, 0, 0))
+            if "legend" in self.props["general"]:
+                legend = self.props["general"]["legend"]
+                legend_sol_name = _props_with_default(legend, "show_solution_name", True)
+                legend_var_keys = _props_with_default(legend, "show_variation_key", True)
+                leend_trace_names = _props_with_default(legend, "show_trace_name", True)
+                legend_color = _props_with_default(legend, "back_color", (255, 255, 255))
+                legend_font_color = _props_with_default(legend, "font_color", (0, 0, 0))
                 self.edit_legend(
                     show_solution_name=legend_sol_name,
                     show_variation_key=legend_var_keys,
@@ -572,16 +572,16 @@ class CommonReport(object):
                     back_color=legend_color,
                     font_color=legend_font_color,
                 )
-            if "Grid" in self.props["General"]:
-                grid = self.props["General"]["Grid"]
-                grid_major_color = _props_with_default(grid, "Major grid line color", (200, 200, 200))
-                grid_minor_color = _props_with_default(grid, "Minor grid line color", (230, 230, 230))
-                grid_enable_major_x = _props_with_default(grid, "Show major X grid", True)
-                grid_enable_major_y = _props_with_default(grid, "Show major Y grid", True)
-                grid_enable_minor_x = _props_with_default(grid, "Show minor X grid", True)
-                grid_enable_minor_y = _props_with_default(grid, "Show minor Y grid", True)
-                grid_style_minor = _props_with_default(grid, "Minor grid line style", "Solid")
-                grid_style_major = _props_with_default(grid, "Major grid line style", "Solid")
+            if "grid" in self.props["general"]:
+                grid = self.props["general"]["grid"]
+                grid_major_color = _props_with_default(grid, "major_color", (200, 200, 200))
+                grid_minor_color = _props_with_default(grid, "minor_color", (230, 230, 230))
+                grid_enable_major_x = _props_with_default(grid, "major_x", True)
+                grid_enable_major_y = _props_with_default(grid, "major_y", True)
+                grid_enable_minor_x = _props_with_default(grid, "minor_x", True)
+                grid_enable_minor_y = _props_with_default(grid, "minor_y", True)
+                grid_style_minor = _props_with_default(grid, "style_minor", "Solid")
+                grid_style_major = _props_with_default(grid, "style_major", "Solid")
                 self.edit_grid(
                     minor_x=grid_enable_minor_x,
                     minor_y=grid_enable_minor_y,
@@ -592,14 +592,14 @@ class CommonReport(object):
                     style_minor=grid_style_minor,
                     style_major=grid_style_major,
                 )
-            if "Appearance" in self.props["General"]:
-                general = self.props["General"]["Appearance"]
-                general_back_color = _props_with_default(general, "Back Color", (255, 255, 255))
-                general_plot_color = _props_with_default(general, "Plot Area Color", (255, 255, 255))
-                enable_y_stripes = _props_with_default(general, "Enable Y Axis Stripes", True)
-                general_field_width = _props_with_default(general, "Field Width", 4)
-                general_precision = _props_with_default(general, "Precision", 4)
-                general_use_scientific_notation = _props_with_default(general, "Use Scientific Notation", True)
+            if "appearance" in self.props["general"]:
+                general = self.props["general"]["appearance"]
+                general_back_color = _props_with_default(general, "background_color", (255, 255, 255))
+                general_plot_color = _props_with_default(general, "plot_color", (255, 255, 255))
+                enable_y_stripes = _props_with_default(general, "enable_y_stripes", True)
+                general_field_width = _props_with_default(general, "field_width", 4)
+                general_precision = _props_with_default(general, "precision", 4)
+                general_use_scientific_notation = _props_with_default(general, "use_scientific_notation", True)
                 self.edit_general_settings(
                     background_color=general_back_color,
                     plot_color=general_plot_color,
@@ -608,16 +608,16 @@ class CommonReport(object):
                     precision=general_precision,
                     use_scientific_notation=general_use_scientific_notation,
                 )
-            if "Header" in self.props["General"]:
-                header = self.props["General"]["Header"]
-                company_name = _props_with_default(header, "Company Name", "")
-                show_design_name = _props_with_default(header, "Show Design Name", True)
-                header_font = _props_with_default(header, "Font", "Arial")
-                header_title_size = _props_with_default(header, "Title Height", 12)
-                header_subtitle_size = _props_with_default(header, "Sub Title Height", 12)
-                header_italic = _props_with_default(header, "Italic", False)
-                header_bold = _props_with_default(header, "Bold", False)
-                header_color = _props_with_default(header, "Color", (0, 0, 0))
+            if "header" in self.props["general"]:
+                header = self.props["general"]["header"]
+                company_name = _props_with_default(header, "company_name", "")
+                show_design_name = _props_with_default(header, "show_design_name", True)
+                header_font = _props_with_default(header, "font", "Arial")
+                header_title_size = _props_with_default(header, "title_size", 12)
+                header_subtitle_size = _props_with_default(header, "subtitle_size", 12)
+                header_italic = _props_with_default(header, "italic", False)
+                header_bold = _props_with_default(header, "bold", False)
+                header_color = _props_with_default(header, "color", (0, 0, 0))
                 self.edit_header(
                     company_name=company_name,
                     show_design_name=show_design_name,
@@ -629,28 +629,26 @@ class CommonReport(object):
                     color=header_color,
                 )
 
-            for i in list(self.props["General"].keys()):
-                if "Axis" in i:
-                    axis = self.props["General"][i]
-                    axis_font = _props_with_default(axis, "Font", "Arial")
-                    axis_size = _props_with_default(axis, "Height", 12)
-                    axis_italic = _props_with_default(axis, "Italic", False)
-                    axis_bold = _props_with_default(axis, "Bold", False)
-                    axis_color = _props_with_default(axis, "Color", (0, 0, 0))
-                    axis_label = _props_with_default(axis, "Label")
-                    axis_linear_scaling = (
-                        True if _props_with_default(axis, "Axis Scaling", "Linear") == "Linear" else False
-                    )
-                    axis_min_scale = _props_with_default(axis, "Min")
-                    axis_max_scale = _props_with_default(axis, "Max")
-                    axis_min_trick_div = _props_with_default(axis, "Minor Tick Divs", 5)
-                    specify_spacing = _props_with_default(axis, "Specify Spacing", True)
+            for i in list(self.props["general"].keys()):
+                if "axis" in i:
+                    axis = self.props["general"][i]
+                    axis_font = _props_with_default(axis, "font", "Arial")
+                    axis_size = _props_with_default(axis, "font_size", 12)
+                    axis_italic = _props_with_default(axis, "italic", False)
+                    axis_bold = _props_with_default(axis, "bold", False)
+                    axis_color = _props_with_default(axis, "color", (0, 0, 0))
+                    axis_label = _props_with_default(axis, "label")
+                    axis_linear_scaling = _props_with_default(axis, "linear_scaling", True)
+                    axis_min_scale = _props_with_default(axis, "min_scale")
+                    axis_max_scale = _props_with_default(axis, "max_scale")
+                    axis_min_trick_div = _props_with_default(axis, "minor_tick_divs", 5)
+                    specify_spacing = _props_with_default(axis, "specify_spacing", True)
                     if not specify_spacing:
                         axis_min_spacing = None
                     else:
-                        axis_min_spacing = _props_with_default(axis, "Spacing")
-                    axis_units = _props_with_default(axis, "Units")
-                    if i == "AxisX":
+                        axis_min_spacing = _props_with_default(axis, "min_spacing")
+                    axis_units = _props_with_default(axis, "units")
+                    if i == "axisx":
                         self.edit_x_axis(
                             font=axis_font,
                             font_size=axis_size,
@@ -687,7 +685,7 @@ class CommonReport(object):
                             minor_tick_divs=axis_min_trick_div,
                             min_spacing=axis_min_spacing,
                             units=axis_units,
-                            axis_name=i.replace("Axis", ""),
+                            axis_name=i.replace("axis", "").upper(),
                         )
 
     @property
@@ -741,11 +739,11 @@ class CommonReport(object):
         -------
         str
         """
-        return self.props["Plot Name"]
+        return self.props["plot_name"]
 
     @plot_name.setter
     def plot_name(self, name):
-        self.props["Plot Name"] = name
+        self.props["plot_name"] = name
         self._is_created = False
 
     @property
@@ -756,11 +754,11 @@ class CommonReport(object):
         -------
         str
         """
-        return self.props["Context"]["Variations"]
+        return self.props["context"]["variations"]
 
     @variations.setter
     def variations(self, value):
-        self.props["Context"]["Variations"] = value
+        self.props["context"]["variations"] = value
 
     @property
     def primary_sweep(self):
@@ -770,13 +768,13 @@ class CommonReport(object):
         -------
         str
         """
-        return self.props["Context"]["Primary Sweep"]
+        return self.props["context"]["primary_sweep"]
 
     @primary_sweep.setter
     def primary_sweep(self, val):
-        if val == self.props["Context"].get("Secondary Sweep", None):
-            self.props["Context"]["Secondary Sweep"] = self.props["Context"]["Primary Sweep"]
-        self.props["Context"]["Primary Sweep"] = val
+        if val == self.props["context"].get("secondary_sweep", None):
+            self.props["context"]["secondary_sweep"] = self.props["context"]["primary_sweep"]
+        self.props["context"]["primary_sweep"] = val
         if val == "Time":
             self.variations.pop("Freq", None)
             self.variations["Time"] = ["All"]
@@ -792,13 +790,13 @@ class CommonReport(object):
         -------
         str
         """
-        return self.props["Context"].get("Secondary Sweep", None)
+        return self.props["context"].get("secondary_sweep", None)
 
     @secondary_sweep.setter
     def secondary_sweep(self, val):
-        if val == self.props["Context"]["Primary Sweep"]:
-            self.props["Context"]["Primary Sweep"] = self.props["Context"]["Secondary Sweep"]
-        self.props["Context"]["Secondary Sweep"] = val
+        if val == self.props["context"]["primary_sweep"]:
+            self.props["context"]["primary_sweep"] = self.props["context"]["secondary_sweep"]
+        self.props["context"]["secondary_sweep"] = val
         if val == "Time":
             self.variations.pop("Freq", None)
             self.variations["Time"] = ["All"]
@@ -814,11 +812,11 @@ class CommonReport(object):
         -------
         str
         """
-        return self.props["Context"]["Primary Sweep Range"]
+        return self.props["context"]["primary_sweep_range"]
 
     @primary_sweep_range.setter
     def primary_sweep_range(self, val):
-        self.props["Context"]["Primary Sweep Range"] = val
+        self.props["context"]["primary_sweep_range"] = val
 
     @property
     def secondary_sweep_range(self):
@@ -828,11 +826,11 @@ class CommonReport(object):
         -------
         str
         """
-        return self.props["Context"]["Secondary Sweep Range"]
+        return self.props["context"]["secondary_sweep_range"]
 
     @secondary_sweep_range.setter
     def secondary_sweep_range(self, val):
-        self.props["Context"]["Secondary Sweep Range"] = val
+        self.props["context"]["secondary_sweep_range"] = val
 
     @property
     def _context(self):
@@ -877,11 +875,11 @@ class CommonReport(object):
         -------
         str
         """
-        return self.props["Context"]["Domain"]
+        return self.props["context"]["domain"]
 
     @domain.setter
     def domain(self, domain):
-        self.props["Context"]["Domain"] = domain
+        self.props["context"]["domain"] = domain
         if self._post._app.design_type in ["Maxwell 3D", "Maxwell 2D"]:
             return
         if self.primary_sweep == "Freq" and domain == "Time":
@@ -1365,7 +1363,7 @@ class CommonReport(object):
             ["NAME:Back Color", "R:=", back_color[0], "G:=", back_color[1], "B:=", back_color[2]],
             ["NAME:Font", "R:=", font_color[0], "G:=", font_color[1], "B:=", font_color[2]],
         ]
-        return self._change_property("Legend", "Legend", props)
+        return self._change_property("legend", "legend", props)
 
     @pyaedt_function_handler()
     def edit_y_axis(
@@ -1527,7 +1525,7 @@ class CommonReport(object):
             ["NAME:Precision", "Value:=", str(precision)],
             ["NAME:Use Scientific Notation", "Value:=", use_scientific_notation],
         ]
-        return self._change_property("General", "General", props)
+        return self._change_property("general", "general", props)
 
     @pyaedt_function_handler()
     def edit_header(
@@ -1662,11 +1660,11 @@ class Standard(CommonReport):
         -------
         int
         """
-        return self.props["Context"].get("Sub Design ID", None)
+        return self.props["context"].get("Sub Design ID", None)
 
     @sub_design_id.setter
     def sub_design_id(self, value):
-        self.props["Context"]["Sub Design ID"] = value
+        self.props["context"]["Sub Design ID"] = value
 
     @property
     def time_start(self):
@@ -1676,11 +1674,11 @@ class Standard(CommonReport):
         -------
         str
         """
-        return self.props["Context"].get("Time Start", None)
+        return self.props["context"].get("time_start", None)
 
     @time_start.setter
     def time_start(self, value):
-        self.props["Context"]["Time Start"] = value
+        self.props["context"]["time_start"] = value
 
     @property
     def time_stop(self):
@@ -1690,11 +1688,11 @@ class Standard(CommonReport):
         -------
         str
         """
-        return self.props["Context"].get("Time Stop", None)
+        return self.props["context"].get("time_stop", None)
 
     @time_stop.setter
     def time_stop(self, value):
-        self.props["Context"]["Time Stop"] = value
+        self.props["context"]["time_stop"] = value
 
     @property
     def _did(self):
@@ -1767,7 +1765,7 @@ class Standard(CommonReport):
                 if self.time_stop:
                     ctxt[2].extend(["WE", False, self.time_stop])
         elif self.differential_pairs:
-            ctxt = ["Diff:=", "Differential Pairs", "Domain:=", self.domain]
+            ctxt = ["Diff:=", "differential_pairs", "Domain:=", self.domain]
         else:
             ctxt = ["Domain:=", self.domain]
         return ctxt
@@ -1788,11 +1786,11 @@ class AntennaParameters(Standard):
         -------
         str
         """
-        return self.props["Context"].get("Far Field Sphere", None)
+        return self.props["context"].get("far_field_sphere", None)
 
     @far_field_sphere.setter
     def far_field_sphere(self, value):
-        self.props["Context"]["Far Field Sphere"] = value
+        self.props["context"]["far_field_sphere"] = value
 
     @property
     def _context(self):
@@ -1818,11 +1816,11 @@ class Fields(CommonReport):
         -------
         str
         """
-        return self.props["Context"].get("Points Number", None)
+        return self.props["context"].get("point_number", None)
 
     @point_number.setter
     def point_number(self, value):
-        self.props["Context"]["Points Number"] = value
+        self.props["context"]["point_number"] = value
 
     @property
     def _context(self):
@@ -1851,11 +1849,11 @@ class NearField(CommonReport):
         -------
         str
         """
-        return self.props["Context"].get("Near Field Setup", None)
+        return self.props["context"].get("near_field", None)
 
     @near_field.setter
     def near_field(self, value):
-        self.props["Context"]["Near Field Setup"] = value
+        self.props["context"]["near_field"] = value
 
 
 class FarField(CommonReport):
@@ -1881,11 +1879,11 @@ class FarField(CommonReport):
         -------
         str
         """
-        return self.props.get("Far Field Sphere", None)
+        return self.props.get("far_field_sphere", None)
 
     @far_field_sphere.setter
     def far_field_sphere(self, value):
-        self.props["Far Field Sphere"] = value
+        self.props["far_field_sphere"] = value
 
     @property
     def _context(self):
@@ -1920,11 +1918,11 @@ class EyeDiagram(CommonReport):
         -------
         str
         """
-        return self.props["Context"].get("Time Start", None)
+        return self.props["context"].get("time_start", None)
 
     @time_start.setter
     def time_start(self, value):
-        self.props["Context"]["Time Start"] = value
+        self.props["context"]["time_start"] = value
 
     @property
     def time_stop(self):
@@ -1934,11 +1932,11 @@ class EyeDiagram(CommonReport):
         -------
         str
         """
-        return self.props["Context"].get("Time Stop", None)
+        return self.props["context"].get("time_stop", None)
 
     @time_stop.setter
     def time_stop(self, value):
-        self.props["Context"]["Time Stop"] = value
+        self.props["context"]["time_stop"] = value
 
     @property
     def unit_interval(self):
@@ -1948,11 +1946,11 @@ class EyeDiagram(CommonReport):
         -------
         str
         """
-        return self.props["Context"].get("Unit Interval", None)
+        return self.props["context"].get("unit_interval", None)
 
     @unit_interval.setter
     def unit_interval(self, value):
-        self.props["Context"]["Unit Interval"] = value
+        self.props["context"]["unit_interval"] = value
 
     @property
     def offset(self):
@@ -1962,11 +1960,11 @@ class EyeDiagram(CommonReport):
         -------
         str
         """
-        return self.props["Context"].get("Offset", None)
+        return self.props["context"].get("offset", None)
 
     @offset.setter
     def offset(self, value):
-        self.props["Context"]["Offset"] = value
+        self.props["context"]["offset"] = value
 
     @property
     def auto_delay(self):
@@ -1976,11 +1974,11 @@ class EyeDiagram(CommonReport):
         -------
         bool
         """
-        return self.props["Context"].get("Auto Delay", None)
+        return self.props["context"].get("auto_delay", None)
 
     @auto_delay.setter
     def auto_delay(self, value):
-        self.props["Context"]["Auto Delay"] = value
+        self.props["context"]["auto_delay"] = value
 
     @property
     def manual_delay(self):
@@ -1990,11 +1988,11 @@ class EyeDiagram(CommonReport):
         -------
         str
         """
-        return self.props["Context"].get("Manual Delay", None)
+        return self.props["context"].get("manual_delay", None)
 
     @manual_delay.setter
     def manual_delay(self, value):
-        self.props["Context"]["Manual Delay"] = value
+        self.props["context"]["manual_delay"] = value
 
     @property
     def auto_cross_amplitude(self):
@@ -2004,11 +2002,11 @@ class EyeDiagram(CommonReport):
         -------
         bool
         """
-        return self.props["Context"].get("Auto Cross Amplitude", None)
+        return self.props["context"].get("auto_cross_amplitude", None)
 
     @auto_cross_amplitude.setter
     def auto_cross_amplitude(self, value):
-        self.props["Context"]["Auto Cross Amplitude"] = value
+        self.props["context"]["auto_cross_amplitude"] = value
 
     @property
     def cross_amplitude(self):
@@ -2018,11 +2016,11 @@ class EyeDiagram(CommonReport):
         -------
         str
         """
-        return self.props["Context"].get("Cross Amplitude", None)
+        return self.props["context"].get("cross_amplitude", None)
 
     @cross_amplitude.setter
     def cross_amplitude(self, value):
-        self.props["Context"]["Cross Amplitude"] = value
+        self.props["context"]["cross_amplitude"] = value
 
     @property
     def auto_compute_eye_meas(self):
@@ -2032,11 +2030,11 @@ class EyeDiagram(CommonReport):
         -------
         bool
         """
-        return self.props["Context"].get("Auto Compute Eye Measurements", None)
+        return self.props["context"].get("auto_compute_eye_meas", None)
 
     @auto_compute_eye_meas.setter
     def auto_compute_eye_meas(self, value):
-        self.props["Context"]["Auto Compute Eye Measurements"] = value
+        self.props["context"]["auto_compute_eye_meas"] = value
 
     @property
     def eye_measurement_point(self):
@@ -2046,11 +2044,11 @@ class EyeDiagram(CommonReport):
         -------
         str
         """
-        return self.props["Context"].get("Eye Measurements Point", None)
+        return self.props["context"].get("eye_measurement_point", None)
 
     @eye_measurement_point.setter
     def eye_measurement_point(self, value):
-        self.props["Context"]["Eye Measurements Point"] = value
+        self.props["context"]["eye_measurement_point"] = value
 
     @property
     def thinning(self):
@@ -2060,11 +2058,11 @@ class EyeDiagram(CommonReport):
         -------
         bool
         """
-        return self.props["Context"].get("Thinning", None)
+        return self.props["context"].get("thinning", None)
 
     @thinning.setter
     def thinning(self, value):
-        self.props["Context"]["Thinning"] = value
+        self.props["context"]["thinning"] = value
 
     @property
     def dy_dx_tolerance(self):
@@ -2074,11 +2072,11 @@ class EyeDiagram(CommonReport):
         -------
         float
         """
-        return self.props["Context"].get("DY DX Tolerance", None)
+        return self.props["context"].get("dy_dx_tolerance", None)
 
     @dy_dx_tolerance.setter
     def dy_dx_tolerance(self, value):
-        self.props["Context"]["DY DX Tolerance"] = value
+        self.props["context"]["dy_dx_tolerance"] = value
 
     @property
     def thinning_points(self):
@@ -2088,11 +2086,11 @@ class EyeDiagram(CommonReport):
         -------
         float
         """
-        return self.props["Context"].get("Thinning Points", None)
+        return self.props["context"].get("thinning_points", None)
 
     @thinning_points.setter
     def thinning_points(self, value):
-        self.props["Context"]["Thinning Points"] = value
+        self.props["context"]["thinning_points"] = value
 
     @property
     def _context(self):
@@ -2210,8 +2208,8 @@ class EyeDiagram(CommonReport):
         xunits="ns",
         yunits="mV",
         enable_limits=False,
-        upper_limits=500,
-        lower_limits=-500,
+        upper_limit=500,
+        lower_limit=-500,
         color=(0, 255, 0),
         xoffset="0ns",
         yoffset="0V",
@@ -2257,9 +2255,9 @@ class EyeDiagram(CommonReport):
             "ShowLimits:=",
             enable_limits,
             "UpperLimit:=",
-            upper_limits if upper_limits else 1,
+            upper_limit if upper_limit else 1,
             "LowerLimit:=",
-            lower_limits if lower_limits else 0,
+            lower_limit if lower_limit else 0,
             "XUnits:=",
             xunits,
             "YUnits:=",
@@ -2401,11 +2399,11 @@ class Spectral(CommonReport):
         -------
         str
         """
-        return self.props["Context"].get("Time Start", None)
+        return self.props["context"].get("time_start", None)
 
     @time_start.setter
     def time_start(self, value):
-        self.props["Context"]["Time Start"] = value
+        self.props["context"]["time_start"] = value
 
     @property
     def time_stop(self):
@@ -2415,11 +2413,11 @@ class Spectral(CommonReport):
         -------
         str
         """
-        return self.props["Context"].get("Time Stop", None)
+        return self.props["context"].get("time_stop", None)
 
     @time_stop.setter
     def time_stop(self, value):
-        self.props["Context"]["Time Stop"] = value
+        self.props["context"]["time_stop"] = value
 
     @property
     def window(self):
@@ -2429,11 +2427,11 @@ class Spectral(CommonReport):
         -------
         str
         """
-        return self.props["Context"].get("Window", None)
+        return self.props["context"].get("window", None)
 
     @window.setter
     def window(self, value):
-        self.props["Context"]["Window"] = value
+        self.props["context"]["window"] = value
 
     @property
     def kaiser_coeff(self):
@@ -2443,11 +2441,11 @@ class Spectral(CommonReport):
         -------
         str
         """
-        return self.props["Context"].get("Kaiser Coefficient", None)
+        return self.props["context"].get("kaiser_coeff", None)
 
     @kaiser_coeff.setter
     def kaiser_coeff(self, value):
-        self.props["Context"]["Kaiser Coefficient"] = value
+        self.props["context"]["kaiser_coeff"] = value
 
     @property
     def adjust_coherent_gain(self):
@@ -2457,11 +2455,11 @@ class Spectral(CommonReport):
         -------
         bool
         """
-        return self.props["Context"].get("Adjust Choerent Gain", None)
+        return self.props["context"].get("adjust_coherent_gain", None)
 
     @adjust_coherent_gain.setter
     def adjust_coherent_gain(self, value):
-        self.props["Context"]["Adjust Choerent Gain"] = value
+        self.props["context"]["adjust_coherent_gain"] = value
 
     @property
     def plot_continous_spectrum(self):
@@ -2471,11 +2469,11 @@ class Spectral(CommonReport):
         -------
         bool
         """
-        return self.props["Context"].get("Plot Continuous Spectrum", None)
+        return self.props["context"].get("plot_continous_spectrum", None)
 
     @plot_continous_spectrum.setter
     def plot_continous_spectrum(self, value):
-        self.props["Context"]["Plot Continuous Spectrum"] = value
+        self.props["context"]["plot_continous_spectrum"] = value
 
     @property
     def max_frequency(self):
@@ -2485,11 +2483,11 @@ class Spectral(CommonReport):
         -------
         str
         """
-        return self.props["Context"].get("Maximum Frequency", None)
+        return self.props["context"].get("max_frequency", None)
 
     @max_frequency.setter
     def max_frequency(self, value):
-        self.props["Context"]["Maximum Frequency"] = value
+        self.props["context"]["max_frequency"] = value
 
     @property
     def _context(self):

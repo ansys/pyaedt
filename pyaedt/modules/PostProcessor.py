@@ -3040,18 +3040,51 @@ class PostProcessorCommon(object):
         return report.get_solution_data()
 
     @pyaedt_function_handler()
-    def create_report_from_json(self, input_file, solution_name=None):
-        props = json_to_dict(input_file)
+    def create_report_from_configuration(self, input_file=None, input_dict=None, solution_name=None):
+        """Create a new report based on json file or dictionary of properties.
+
+        Parameters
+        ----------
+        input_file : str, optional
+            Path to a json file containing report settings.
+        input_dict : dict, optional
+            Dictionary containing report settings.
+        solution_name : setup name to use.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+            Report object if succeeded.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> aedtapp.post.create_report_from_configuration(r'C:\temp\my_report.json',
+        ...                                               solution_name="Setup1 : LastAdpative")
+        """
+        if not input_dict and not input_file:
+            self.logger.error("Either one of a json file or a dictionary has to be passed as input.")
+            return False
+        if input_file:
+            props = json_to_dict(input_file)
+        else:
+            props = input_dict
         if not solution_name:
             solution_name = self._app.nominal_sweep
-        if props.get("Report Category", None) and props["Report Category"] in TEMPLATES_BY_NAME:
-            report_temp = TEMPLATES_BY_NAME[props["Report Category"]]
-            report = report_temp(self, props["Report Category"], solution_name)
+        if props.get("report_category", None) and props["report_category"] in TEMPLATES_BY_NAME:
+            report_temp = TEMPLATES_BY_NAME[props["report_category"]]
+            report = report_temp(self, props["report_category"], solution_name)
             for k, v in props.items():
                 report.props[k] = v
             for el, k in self._app.available_variations.nominal_w_values_dict.items():
-                if el not in report.props["Context"]["Variations"]:
-                    report.props["Context"]["Variations"][el] = k
+                if (
+                    report.props.get("context", None)
+                    and report.props["context"].get("variations", None)
+                    and el not in report.props["context"]["variations"]
+                ):
+                    report.props["context"]["variations"][el] = k
             report.create()
             report._update_traces()
             return report

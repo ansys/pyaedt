@@ -750,8 +750,8 @@ class TestClass(BasisTest, object):
         assert rep.eye_mask(
             [[0.5, 0], [0.62, 450], [1.2, 450], [1.42, 0], [1.2, -450], [0.62, -450], [0.5, 0]],
             enable_limits=True,
-            upper_limits=800,
-            lower_limits=-800,
+            upper_limit=800,
+            lower_limit=-800,
         )
         assert os.path.exists(rep.export_mask_violation())
 
@@ -771,19 +771,19 @@ class TestClass(BasisTest, object):
 
     def test_65_eye_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
-        assert self.eye_test.post.create_report_from_json(
-            os.path.join(local_path, "example_models", "EyeDiagram_Report.json"), "QuickEyeAnalysis"
+        assert self.eye_test.post.create_report_from_configuration(
+            os.path.join(local_path, "example_models", "EyeDiagram_Report.json"), solution_name="QuickEyeAnalysis"
         )
 
     def test_66_spectral_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
         self.circuit_test.analyze_setup("Transient")
-        assert self.circuit_test.post.create_report_from_json(
-            os.path.join(local_path, "example_models", "Spectral_Report.json"), "Transient"
+        assert self.circuit_test.post.create_report_from_configuration(
+            os.path.join(local_path, "example_models", "Spectral_Report.json"), solution_name="Transient"
         )
 
     def test_67_sweep_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
-        assert self.aedtapp.post.create_report_from_json(
+        assert self.aedtapp.post.create_report_from_configuration(
             os.path.join(local_path, "example_models", "Modal_Report.json")
         )
