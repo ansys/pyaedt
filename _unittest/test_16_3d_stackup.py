@@ -56,7 +56,6 @@ class TestClass(BasisTest, object):
         assert line2._permittivity_calcul
 
     def test_03_padstackline(self):
-
         p1 = self.st.add_padstack("Massimo", material="aluminum")
         p1.plating_ratio = 0.7
         p1.set_start_layer("lay1")
@@ -72,13 +71,15 @@ class TestClass(BasisTest, object):
     def test_04_patch(self):
         top = self.st.stackup_layers["top"]
         line1 = self.st.objects_by_layer["top"][0]
-        top.add_patch(
-            1e9,
-            patch_width=22,
-            patch_length=10,
-            patch_position_x=line1.position_x.numeric_value + line1.length.numeric_value,
-            patch_position_y=line1.position_y.numeric_value,
-        )
+        patch = top.add_patch(
+                    1e9,
+                    patch_width=22,
+                    patch_length=10,
+                    patch_position_x=line1.position_x.numeric_value + line1.length.numeric_value,
+                    patch_position_y=line1.position_y.numeric_value,
+                    )
+        assert patch.width.numeric_value == 22
+        assert self.st.resize_around_element(patch)
 
     def test_05_polygon(self):
         lay1 = self.st.stackup_layers["top"]
@@ -110,3 +111,11 @@ class TestClass(BasisTest, object):
         assert self.st.dielectric_x_position.read_only_variable()
         assert self.st.dielectric_x_position.hide_variable(False)
         assert self.st.dielectric_x_position.read_only_variable(False)
+
+    def test_07_ml_patch(self):
+        top = self.st.stackup_layers["top"]
+        top.ml_patch(1e9,
+                     patch_width=22,
+                     patch_length=None,
+                     patch_position_x=0,
+                     patch_position_y=0)
