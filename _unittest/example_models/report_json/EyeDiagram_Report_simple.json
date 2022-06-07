@@ -1,0 +1,36 @@
+{
+    "Help": "This Report Template is applicable to Eye Diagram Plots from Transient and Eye Simulations. It include Mask section.",
+    "report_category": "Eye Diagram",
+    "report_type": "Rectangular Plot",
+	"plot_name": "Eye1",
+    "context": {
+        "Domain": "Time",
+        "primary_sweep": "Time",
+        "primary_sweep_range": [
+            "All"
+        ],
+        "variations": {
+            "Time": [
+                "All"
+            ]
+        },
+		"time_start": "0ps",
+		"time_stop": "50us",
+		"unit_interval": "1e-9",
+		"offset":"0ms",
+		"auto_delay":true,
+		"manual_delay":"0ps",
+		"auto_cross_amplitude":true,
+		"cross_amplitude":"0mV",
+		"auto_compute_eye_meas": true,
+		"eye_measurement_point":"5e-10s",
+		"thinning":false,
+		"dy_dx_tolerance": 0.001,
+		"thinning_points": 500000000
+    },
+    "expressions": {
+        "AEYEPROBE(OutputEye)": {
+
+		}
+    }
+}
