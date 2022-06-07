@@ -7,6 +7,8 @@ from collections import OrderedDict
 
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import BasisOrder
+from pyaedt.generic.constants import SourceType
+from pyaedt.generic.constants import NodeType
 from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import RadiationBoxType
 from pyaedt.generic.constants import SolverType
@@ -2931,6 +2933,134 @@ class EdbBuilder(object):
         self.EdbHandler.cell = cell
         self.EdbHandler.layout = cell.GetLayout()
 
+class Node:
+    """
+
+    """
+    def __init__(self):
+        self._component = None
+        self._net = None
+        self._node_type = NodeType.Positive
+        self._name = ""
+
+    @property
+    def component(self):
+        return self._component
+
+    @component.setter
+    def component(self, value):
+        if isinstance(value, str):
+            self._component = value
+
+    @property
+    def net(self):
+        return self._net
+
+    @net.setter
+    def net(self, value):
+        if isinstance(value, str):
+            self._net = value
+
+    @property
+    def node_type(self):
+        return self._node_type
+
+    @node_type.setter
+    def node_type(self, value):
+        if isinstance(value, NodeType):
+            self._node_type = value
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        if isinstance(value, str):
+            self._name = value
+
+class Source(object):
+    """Class for handling Siwave sources
+
+    """
+    def __init__(self):
+        self._name = ""
+        self._source_type = SourceType.Vsource
+        self._positive_node = Node()
+        self._negative_node = Node()
+        self._amplitude = 1.0
+        self._phase = 0.0
+        self._impedance_value = 0.0
+        self._config_init()
+
+    def _config_init(self):
+        self._positive_node = NodeType.Positive
+        self._positive_node.name = "pos_term"
+        self._negative_node = NodeType.Negative
+        self._negative_node.name = "neg_term"
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        if isinstance(value, str):
+            self._name = value
+
+    @property
+    def source_type(self):
+        return self._source_type
+
+    @source_type.setter
+    def source_type(self, value):
+        if isinstance(value, SourceType):
+            self._source_type = value
+
+    @property
+    def positive_node(self):
+        return self._positive_node
+
+    @positive_node.setter
+    def positive_node(self, value):
+        if isinstance(value, Node):
+            self._positive_node = value
+
+    @property
+    def negative_node(self):
+        return self._negative_node
+
+    @negative_node.setter
+    def negative_node(self, value):
+        if isinstance(value, Node):
+            self._negative_node = value
+            #
+    @property
+    def amplitude(self):
+        return self._amplitude
+
+    @amplitude.setter
+    def amplitude(self, value):
+        if isinstance(value, float):
+            self._amplitude = value
+
+    @property
+    def phase(self):
+        return self._phase
+
+    @phase.setter
+    def phase(self, value):
+        if isinstance(value, float):
+            self._phase = value
+
+    @property
+    def impedance_value(self):
+        return self._impedance_value
+
+    @impedance_value.setter
+    def impedance_value(self, value):
+        if isinstance(value, float):
+            self._impedance_value = value
 
 class SimulationConfiguration(object):
     """Parses an ASCII simulation configuration file, which supports all types of inputs
@@ -3058,6 +3188,7 @@ class SimulationConfiguration(object):
         self._do_cutout_subdesign = True
         self._solver_type = SolverType.Hfss3dLayout
         self._output_aedb = None
+        self._sources = [Source()]
         self._read_cfg()
 
     @property
@@ -4455,3 +4586,4 @@ class SimulationConfiguration(object):
             return True
         else:
             return False
+

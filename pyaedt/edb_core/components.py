@@ -9,6 +9,7 @@ import warnings
 from pyaedt import _retry_ntimes
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.EDB_Data import EDBComponent
+from pyaedt.edb_core.EDB_Data import Source
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.generic.constants import SourceType
@@ -515,6 +516,80 @@ class Components(object):
             cmp_prop = cmp.GetComponentProperty().Clone()
             return cmp_prop.GetSolderBallProperty().GetHeight()
         return False
+
+    @pyaedt_function_handler()
+    def create_source_on_component(self, sources=None):
+        if not sources:
+            return False
+        if isinstance(sources, Source):
+            sources = [sources]
+        if isinstance(sources, list):
+            for src in sources:
+                if not isinstance(src, Source):
+                    self._logger.error("List of Source object must be passed as argument")
+                    return False
+        for source in sources:
+            positive_pins = self.get_pin_from_component(source.positive_node.component, source.positive_node.net)
+            negative_pins = self.get_pin_from_component(source.negative_node.component, source.negative_node.net)
+            positive_pin_group = self.create_pingroup_from_pins(positive_pins)
+            if not positive_pin_group:
+                return False
+            negative_pin_group = self.create_pingroup_from_pins(negative_pins)
+            if not negative_pin_group:
+                return False
+            positive_pin_group_term = self._create_pin_group_terminal(positive_pin_group)
+            if positive_pin_group_term:
+                negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group)
+                if not negative_pin_group_term:
+                    self._logger("Failed to create negative pin group terminal for source {}".format(source.name))
+                    return False
+                if source.source_type == SourceType.Vsource:
+                    positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
+                    negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
+                    positive_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.value))
+                    negative_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.value))
+                    positive_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
+                    negative_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
+                    positive_pin_group_term.SetName(source.name)
+                    negative_pin_group_term.SetName("{}_ref".format(source.name))
+
+            self._logger.error("Failed to create source {}".format(source.name))
+            return False
+
+            if do_pingroup:
+                pingroups = []
+                if len(ref_pins) == 1:
+                    self.create_terminal = self._create_terminal(ref_pins[0])
+                    self.terminal = self.create_terminal
+                    ref_pin_group_term = self.terminal
+                else:
+                    ref_pin_group = self.create_pingroup_from_pins(ref_pins)
+                    if not ref_pin_group:
+                        return False
+                    ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group)
+                    if not ref_pin_group_term:
+                        return False
+                for net in net_list:
+                    pins = [pin for pin in cmp_pins if pin.GetNet().GetName() == net]
+                    pin_group = self.create_pingroup_from_pins(pins)
+                    if not pin_group:
+                        return False
+                    pin_group_term = self._create_pin_group_terminal(pin_group)
+                    if pin_group_term:
+                        pin_group_term.SetReferenceTerminal(ref_pin_group_term)
+
+            else:
+                for net in net_list:
+                    pins = [pin for pin in cmp_pins if pin.GetNet().GetName().lower() == net]
+                    for pin in pins:
+                        ref_pin = self._get_closest_pin_from(pin, ref_pins)
+                        ref_pin_term = self._create_terminal(ref_pin)
+                        term = self._create_terminal(pin)
+                        ref_pin_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+                        ref_pin_term.SetIsCircuitPort(True)
+                        term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+                        term.SetIsCircuitPort(True)
+                        term.SetReferenceTerminal(ref_pin_term)
 
     @pyaedt_function_handler()
     def create_port_on_component(
