@@ -1177,10 +1177,11 @@ if not config["skip_edb"]:
             assert comp.type == "Other"
 
         def test_85_deactivate_rlc(self):
-            assert self.edbapp.core_components.components["C2"].cap_value
-            assert self.edbapp.core_components.deactivate_rlc_component(component="C1", create_circuit_port=True)
-            assert self.edbapp.core_components.deactivate_rlc_component(component="C2", create_circuit_port=False)
-            assert float(self.edbapp.core_components.components["C2"].cap_value) == 0.0
+            assert self.edbapp.core_components.components["C3B8"].cap_value
+            assert self.edbapp.core_components.deactivate_rlc_component(component="C2A12", create_circuit_port=True)
+            assert self.edbapp.core_components.deactivate_rlc_component(component="C3B8", create_circuit_port=False)
+            assert float(self.edbapp.core_components.components["C3B8"].cap_value) == 0.0
+            pass
 
         def test_86_create_symmetric_stackup(self):
             from pyaedt import Edb as local_edb
@@ -1534,7 +1535,7 @@ if not config["skip_edb"]:
             finally:
                 laminate_edb.close_edb()
 
-        def test_100_create_edge_ports(self):
+        def test_103_create_edge_ports(self):
             edb = Edb(edbpath=os.path.join(local_path, "example_models", "edge_ports.aedb"), edbversion=desktop_version)
             poly_list = [poly for poly in list(edb.active_layout.Primitives) if int(poly.GetPrimitiveType()) == 2]
             port_poly = [poly for poly in poly_list if poly.GetId() == 17][0]
