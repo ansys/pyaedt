@@ -1555,7 +1555,7 @@ if not config["skip_edb"]:
             )
             edb.close_edb()
 
-        def test_104_build_hfss_project_from_config_file(self):
+        def test_999_build_hfss_project_from_config_file(self):
             cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
             with open(cfg_file, "w") as f:
                 f.writelines("SolverType = 'Hfss3dLayout'\n")
