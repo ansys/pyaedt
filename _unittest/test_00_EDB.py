@@ -127,6 +127,13 @@ if not config["skip_edb"]:
             component_list = self.edbapp.core_components.components
             assert len(component_list) > 2
 
+        def test_06B_deactivate_rlc(self):
+            assert self.edbapp.core_components.components["C1A12"].cap_value == "0.15uF"
+            assert self.edbapp.core_components.deactivate_rlc_component(component="C3A12", create_circuit_port=True)
+            assert self.edbapp.core_components.deactivate_rlc_component(component="C1A12", create_circuit_port=False)
+            assert float(self.edbapp.core_components.components["C1A12"].cap_value) == 0.0
+            pass
+
         def test_07_vias_creation(self):
             self.edbapp.core_padstack.create_padstack(padstackname="myVia")
             assert "myVia" in list(self.edbapp.core_padstack.padstacks.keys())
@@ -1165,13 +1172,6 @@ if not config["skip_edb"]:
             assert comp.type == "IC"
             comp.type = "Other"
             assert comp.type == "Other"
-
-        def test_85_deactivate_rlc(self):
-            assert self.edbapp.core_components.components["C1A12"].cap_value == "0.15uF"
-            assert self.edbapp.core_components.deactivate_rlc_component(component="C3A12", create_circuit_port=True)
-            assert self.edbapp.core_components.deactivate_rlc_component(component="C1A12", create_circuit_port=False)
-            assert float(self.edbapp.core_components.components["C1A12"].cap_value) == 0.0
-            pass
 
         def test_86_create_symmetric_stackup(self):
             from pyaedt import Edb as local_edb
