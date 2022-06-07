@@ -122,4 +122,3 @@ class TestClass(BasisTest, object):
                               patch_position_x=0,
                               patch_position_y=0)
         assert self.st.resize_around_element(patch2)
-        assert patch2.create_lumped_port(gnd, port_name="ut_terminal_port")
