@@ -261,3 +261,11 @@ class TestClass(BasisTest, object):
 
     def test_21_symmetry_multiplier(self):
         assert self.aedtapp.change_symmetry_multiplier(2)
+
+    def test_22_eddycurrent(self):
+        self.aedtapp.set_active_design("Basis_Model_For_Test")
+        assert self.aedtapp.eddy_effects_on(["Coil_1"], activate_eddy_effects=True)
+        oModule = self.aedtapp.odesign.GetModule("BoundarySetup")
+        assert oModule.GetEddyEffect("Coil_1")
+        self.aedtapp.eddy_effects_on(["Coil_1"], activate_eddy_effects=False)
+        assert not oModule.GetEddyEffect("Coil_1")
