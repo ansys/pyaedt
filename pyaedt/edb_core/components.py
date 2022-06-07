@@ -1212,8 +1212,6 @@ class Components(object):
         if pinNumber == 2:
             fromPin = componentPins[0]
             toPin = componentPins[1]
-            #if res_value is None and ind_value is None and cap_value is None:
-            #    return False
             rlc = self._edb.Utility.Rlc()
             rlc.IsParallel = isparallel
             if res_value is not None:
