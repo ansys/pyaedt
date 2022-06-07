@@ -2816,3 +2816,38 @@ class MachineLearningPatch(CommonObject, object):
         )
         return self._impedance_l_w, self._impedance_w_l
 
+    def create_lumped_port(self, reference_layer, opposite_side=False, port_name=None):
+        """Create a parametrized lumped port.
+
+        Parameters
+        ----------
+        reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D
+            The reference layer, in most cases the ground layer.
+        opposite_side : bool, optional
+            Change the side where the port is created.
+        port_name : str, optional
+            Name of the lumped port.
+
+        Returns
+        -------
+        bool
+        """
+        string_position_x = self.position_x.name
+        if opposite_side:
+            string_position_x = self.position_x.name + " + " + self.length.name
+        string_position_y = self.position_y.name + " - " + self.width.name + "/2"
+        string_position_z = self._signal_layer.elevation.name + " + " + self._signal_layer.thickness.name
+        string_width = self.width.name
+        string_length = "- (" + string_position_z + ") + " + reference_layer.elevation.name
+        port = self.application.modeler.primitives.create_rectangle(
+            csPlane=constants.PLANE.YZ,
+            position=[string_position_x, string_position_y, string_position_z],
+            dimension_list=[string_width, string_length],
+            name=self.name + "_port",
+            matname=None,
+        )
+        print(reference_layer.name)
+        self.application.create_lumped_port_to_sheet(
+            port.name, portname=port_name, reference_object_list=[reference_layer.name]
+        )
+        return True
