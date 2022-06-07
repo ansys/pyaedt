@@ -524,6 +524,31 @@ class Geometries3DLayout(Objec3DLayout, object):
             edges = [edges[2], edges[3], edges[0], edges[1]]
         return edges
 
+    @pyaedt_function_handler()
+    def edge_by_point(self, point):
+        """Return the closest edge to specified point.
+
+        Parameters
+        ----------
+        point : list
+            List of [x,y] values.
+
+        Returns
+        -------
+        int
+            Edge id.
+        """
+        id = 0
+        v_dist = None
+        edge_id = None
+        for edge in self.edges:
+            v = GeometryOperators.v_norm(GeometryOperators.distance_vector(point, edge[0], edge[1]))
+            if not v_dist or v < v_dist:
+                v_dist = v
+                edge_id = id
+            id += 1
+        return edge_id
+
     @property
     def bottom_edge_x(self):
         """Compute the lower edge in the layout on x direction.

@@ -1287,14 +1287,6 @@ class Object3d(object):
         int
         """
         b = [float(i) for i in list(self.m_Editor.GetModelBoundingBox())]
-        face_array = [
-            [(b[0] + b[3]) / 2, (b[1] + b[4]) / 2, b[2]],
-            [(b[0] + b[3]) / 2, (b[1] + b[4]) / 2, b[5]],
-            [(b[0] + b[3]) / 2, b[1], (b[2] + b[5]) / 2],
-            [(b[0] + b[3]) / 2, b[4], (b[2] + b[5]) / 2],
-            [b[0], (b[1] + b[4]) / 2, (b[2] + b[5]) / 2],
-            [b[3], (b[1] + b[4]) / 2, (b[2] + b[5]) / 2],
-        ]
         f_id = None
         f_val = None
         for face in self.faces:

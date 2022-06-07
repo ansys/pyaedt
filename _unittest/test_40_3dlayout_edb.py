@@ -67,6 +67,7 @@ class TestClass(BasisTest, object):
     def test_02a_get_geometries(self):
         line = self.aedtapp.modeler.geometries["line_1983"]
         assert line.edges
+        assert isinstance(line.edge_by_point([0, 0]), int)
         assert line.points
         assert line.points
         assert line.is_closed
