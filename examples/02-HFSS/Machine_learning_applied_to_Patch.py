@@ -9,16 +9,17 @@ These three steps are in one file here for the example but it is better to separ
 """
 
 import json
-import joblib
 import os
+import random
 from math import sqrt
-from sklearn.svm import SVR
+
+import joblib
+import numpy as np
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVR
 
 from pyaedt import Hfss
-import numpy as np
-import random
 from pyaedt.modeler.stackup_3d import Stackup3D
 
 ###############################################################################
