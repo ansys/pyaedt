@@ -741,7 +741,6 @@ class Components(object):
             _cmp = convert_py_list_to_net_list([component.refdes])
             self._components_methods.AddPortOnRlcComponent(self._active_layout, _cmp)
         else:
-            #self._components_methods.DeactivateRlcComponent(component.edbcomponent)
             self.set_component_rlc(component.refdes)
         return True
 
