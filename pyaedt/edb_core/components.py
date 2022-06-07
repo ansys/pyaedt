@@ -1203,14 +1203,13 @@ class Components(object):
         ... )
 
         """
-        edbComponent = self.get_component_by_name(componentname)
-        componentType = edbComponent.GetComponentType()
-        edbRlcComponentProperty = self._edb.Cell.Hierarchy.RLCComponentProperty()
-        componentPins = self.get_pin_from_component(componentname)
-        pinNumber = len(componentPins)
-        if pinNumber == 2:
-            fromPin = componentPins[0]
-            toPin = componentPins[1]
+        edb_component = self.get_component_by_name(componentname)
+        edb_rlc_component_property = self._edb.Cell.Hierarchy.RLCComponentProperty()
+        component_pins = self.get_pin_from_component(componentname)
+        pin_number = len(component_pins)
+        if pin_number == 2:
+            from_pin = component_pins[0]
+            to_pin = component_pins[1]
             rlc = self._edb.Utility.Rlc()
             rlc.IsParallel = isparallel
             if res_value is not None:
@@ -1228,11 +1227,11 @@ class Components(object):
                 rlc.C = self._get_edb_value(cap_value)
             else:
                 rlc.CEnabled = False
-            pinPair = self._edb.Utility.PinPair(fromPin.GetName(), toPin.GetName())
-            rlcModel = self._edb.Cell.Hierarchy.PinPairModel()
-            rlcModel.SetPinPairRlc(pinPair, rlc)
-            if not edbRlcComponentProperty.SetModel(rlcModel) or not edbComponent.SetComponentProperty(
-                edbRlcComponentProperty
+            pin_pair = self._edb.Utility.PinPair(from_pin.GetName(), to_pin.GetName())
+            rlc_model = self._edb.Cell.Hierarchy.PinPairModel()
+            rlc_model.SetPinPairRlc(pin_pair, rlc)
+            if not edb_rlc_component_property.SetModel(rlc_model) or not edb_component.SetComponentProperty(
+                edb_rlc_component_property
             ):
                 self._logger.error("Failed to set RLC model on component")
                 return False
