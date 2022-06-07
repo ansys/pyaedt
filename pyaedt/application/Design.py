@@ -790,6 +790,8 @@ class Design(AedtObjects, object):
             if self._assert_consistent_design_type(des_name) == des_name:
                 self._insert_design(self._design_type, design_name=des_name)
             self.design_solutions._odesign = self.odesign
+            if self._temp_solution_type:
+                self.design_solutions.solution_type = self._temp_solution_type
         else:
             activedes, warning_msg = self._find_design()
             if activedes:
