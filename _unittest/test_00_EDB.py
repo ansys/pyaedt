@@ -1432,16 +1432,25 @@ if not config["skip_edb"]:
             ref_poly = [poly for poly in poly_list if poly.GetId() == 19][0]
             port_location = [-65e-3, -13e-3]
             ref_location = [-63e-3, -13e-3]
-            assert edb.core_hfss.create_edge_port_on_polygon(polygon=port_poly, reference_polygon=ref_poly,
-                                                      terminal_point=port_location, reference_point=ref_location)
+            assert edb.core_hfss.create_edge_port_on_polygon(
+                polygon=port_poly,
+                reference_polygon=ref_poly,
+                terminal_point=port_location,
+                reference_point=ref_location,
+            )
             port_poly = [poly for poly in poly_list if poly.GetId() == 23][0]
             ref_poly = [poly for poly in poly_list if poly.GetId() == 22][0]
             port_location = [-65e-3, -10e-3]
             ref_location = [-65e-3, -10e-3]
-            assert edb.core_hfss.create_edge_port_on_polygon(polygon=port_poly, reference_polygon=ref_poly,
-                                                      terminal_point=port_location, reference_point=ref_location)
+            assert edb.core_hfss.create_edge_port_on_polygon(
+                polygon=port_poly,
+                reference_polygon=ref_poly,
+                terminal_point=port_location,
+                reference_point=ref_location,
+            )
             port_poly = [poly for poly in poly_list if poly.GetId() == 25][0]
             port_location = [-65e-3, -7e-3]
-            assert edb.core_hfss.create_edge_port_on_polygon(polygon=port_poly, terminal_point=port_location,
-                                                      reference_layer="gnd")
+            assert edb.core_hfss.create_edge_port_on_polygon(
+                polygon=port_poly, terminal_point=port_location, reference_layer="gnd"
+            )
             edb.close_edb()
