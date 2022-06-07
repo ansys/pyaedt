@@ -1279,6 +1279,35 @@ class Object3d(object):
         return f_list
 
     @property
+    def face_closest_to_bounding_box(self):
+        """Return only the face ids of the face closest to the bounding box.
+
+        Returns
+        -------
+        int
+        """
+        b = [float(i) for i in list(self.m_Editor.GetModelBoundingBox())]
+        f_id = None
+        f_val = None
+        for face in self.faces:
+            c = face.center
+            p_dist = min(
+                [
+                    abs(c[0] - b[0]),
+                    abs(c[1] - b[1]),
+                    abs(c[2] - b[2]),
+                    abs(c[0] - b[3]),
+                    abs(c[1] - b[4]),
+                    abs(c[2] - b[5]),
+                ]
+            )
+
+            if f_val and p_dist < f_val or not f_val:
+                f_id = face.id
+                f_val = p_dist
+        return f_id
+
+    @property
     def top_face_z(self):
         """Top face in the Z direction of the object.
 

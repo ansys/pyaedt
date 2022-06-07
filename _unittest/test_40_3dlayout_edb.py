@@ -67,6 +67,7 @@ class TestClass(BasisTest, object):
     def test_02a_get_geometries(self):
         line = self.aedtapp.modeler.geometries["line_1983"]
         assert line.edges
+        assert isinstance(line.edge_by_point([0, 0]), int)
         assert line.points
         assert line.points
         assert line.is_closed
@@ -214,3 +215,13 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(config["NonGraphical"] == True, reason="Not running in non-graphical mode")
     def test_11_export_picture(self):
         assert os.path.exists(self.aedtapp.post.export_model_picture(orientation="top"))
+
+    def test_12_objects_by_net(self):
+        poly_on_gnd = self.aedtapp.modeler.objects_by_net("GND", "poly")
+        assert len(poly_on_gnd) > 0
+        assert self.aedtapp.modeler.geometries[poly_on_gnd[0]].net_name == "GND"
+
+    def test_13_objects_by_layer(self):
+        lines_on_top = self.aedtapp.modeler.objects_by_layer("TOP", "line")
+        assert len(lines_on_top) > 0
+        assert self.aedtapp.modeler.geometries[lines_on_top[0]].placement_layer == "TOP"
