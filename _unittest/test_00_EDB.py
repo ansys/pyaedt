@@ -1534,7 +1534,7 @@ if not config["skip_edb"]:
 
         def test_100_create_edge_ports(self):
             edb = Edb(edbpath=os.path.join(local_path, "example_models", "edge_ports.aedb"), edbversion=desktop_version)
-            poly_list = [poly for poly in list(edb.active_layout.Primitives) if poly.GetPrimitiveType() == 2]
+            poly_list = [poly for poly in list(edb.active_layout.Primitives) if int(poly.GetPrimitiveType()) == 2]
             port_poly = [poly for poly in poly_list if poly.GetId() == 17][0]
             ref_poly = [poly for poly in poly_list if poly.GetId() == 19][0]
             port_location = [-65e-3, -13e-3]
