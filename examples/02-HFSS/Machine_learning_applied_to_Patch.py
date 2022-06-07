@@ -110,7 +110,7 @@ stackup = Stackup3D(hfss)
 ground = stackup.add_ground_layer("ground", material="copper", thickness=0.035, fill_material="air")
 dielectric = stackup.add_dielectric_layer("dielectric", thickness=10, material="Duroid (tm)")
 signal = stackup.add_signal_layer("signal", material="copper", thickness=0.035, fill_material="air")
-patch = signal.patch(patch_length=1009.86, patch_width=1185.9, patch_name="Patch", frequency=100e6)
+patch = signal.add_patch(patch_length=1009.86, patch_width=1185.9, patch_name="Patch", frequency=100e6)
 
 ###############################################################################
 # The layers are resized around the patch so that they change when the patch changes in a parametric.
