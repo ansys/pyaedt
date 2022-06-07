@@ -1849,11 +1849,10 @@ class Patch(CommonObject, object):
             name=self.name + "_port",
             matname=None,
         )
-        print(reference_layer.name)
-        self.application.create_lumped_port_to_sheet(
-            port.name, portname=port_name, reference_object_list=[reference_layer.name]
+        port = self.application.create_lumped_port_to_sheet(
+                    port.name, portname=port_name, reference_object_list=[reference_layer.name]
         )
-        return True
+        return port
 
 
 class Trace(CommonObject, object):
@@ -2847,7 +2846,7 @@ class MachineLearningPatch(CommonObject, object):
             matname=None,
         )
         print(reference_layer.name)
-        self.application.create_lumped_port_to_sheet(
-            port.name, portname=port_name, reference_object_list=[reference_layer.name]
-        )
-        return True
+        port = self.application.create_lumped_port_to_sheet(
+                    port.name, portname=port_name, reference_object_list=[reference_layer.name]
+                )
+        return port

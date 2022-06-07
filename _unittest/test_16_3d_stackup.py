@@ -70,6 +70,7 @@ class TestClass(BasisTest, object):
 
     def test_04_patch(self):
         top = self.st.stackup_layers["top"]
+        gnd = self.st.stackup_layers["gnd1"]
         line1 = self.st.objects_by_layer["top"][0]
         patch = top.add_patch(
                     1e9,
@@ -80,6 +81,7 @@ class TestClass(BasisTest, object):
                     )
         assert patch.width.numeric_value == 22
         assert self.st.resize_around_element(patch)
+        assert patch.create_lumped_port(gnd)
 
     def test_05_polygon(self):
         lay1 = self.st.stackup_layers["top"]
@@ -114,7 +116,6 @@ class TestClass(BasisTest, object):
 
     def test_07_ml_patch(self):
         top = self.st.stackup_layers["top"]
-        gnd = self.st.stackup_layers["gnd1"]
         width = 1e3 * 3e8 / (2 * 1e9 * ((2.2 + 1) / 2)**(1/2))
         patch2 = top.ml_patch(1e9,
                               patch_width=width,
