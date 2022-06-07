@@ -538,15 +538,15 @@ class Geometries3DLayout(Objec3DLayout, object):
         int
             Edge id.
         """
-        id = 0
+        index_i = 0
         v_dist = None
         edge_id = None
         for edge in self.edges:
             v = GeometryOperators.v_norm(GeometryOperators.distance_vector(point, edge[0], edge[1]))
             if not v_dist or v < v_dist:
                 v_dist = v
-                edge_id = id
-            id += 1
+                edge_id = index_i
+            index_i += 1
         return edge_id
 
     @property
