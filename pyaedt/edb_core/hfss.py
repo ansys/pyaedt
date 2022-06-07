@@ -583,18 +583,29 @@ class EdbHfss(object):
             )
         if not port_name:
             port_name = generate_unique_name("Port_")
-        if not self._hfss_terminals.CreateEdgePort(
-            polygon,
-            reference_polygon,
-            terminal_point,
-            reference_point,
-            reference_layer,
-            port_name,
-            port_impedance,
-            force_circuit_port,
-        ):
-            self._logger.error("failed to create port {}".format(port_name))
-            return False
+        edge = self._edb.Cell.Terminal.PrimitiveEdge.Create(polygon, terminal_point)
+        edges = convert_py_list_to_net_list(edge, self._edb.Cell.Terminal.Edge)
+        edge_term = self._edb.Cell.Terminal.EdgeTerminal.Create(
+            polygon.GetLayout(), polygon.GetNet(), port_name, edges, isRef=False
+        )
+        if force_circuit_port:
+            edge_term.SetIsCircuitPort(True)
+        if port_impedance:
+            edge_term.SetImpedance(self._pedb.edb_value(port_impedance))
+        edge_term.SetName(port_name)
+        if reference_polygon and reference_point:
+            ref_edge = self._edb.Cell.Terminal.PrimitiveEdge.Create(reference_polygon, reference_point)
+            ref_edges = convert_py_list_to_net_list(ref_edge, self._edb.Cell.Terminal.Edge)
+            ref_edge_term = self._edb.Cell.Terminal.EdgeTerminal.Create(
+                reference_polygon.GetLayout(), reference_polygon.GetNet(), port_name + "_ref", ref_edges, isRef=True
+            )
+            if reference_layer:
+                ref_edge_term.SetReferenceLayer(reference_layer)
+            if force_circuit_port:
+                ref_edge_term.SetIsCircuitPort(True)
+            if port_impedance:
+                ref_edge_term.SetImpedance(self._pedb.edb_value(port_impedance))
+            edge_term.SetReferenceTerminal(ref_edge_term)
         return True
 
     @pyaedt_function_handler()

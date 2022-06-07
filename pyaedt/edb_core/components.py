@@ -740,9 +740,9 @@ class Components(object):
         if create_circuit_port:
             _cmp = convert_py_list_to_net_list([component.refdes])
             self._components_methods.AddPortOnRlcComponent(self._active_layout, _cmp)
+            return True
         else:
-            self.set_component_rlc(component.refdes)
-        return True
+            return self.set_component_rlc(component.refdes)
 
     @pyaedt_function_handler()
     def _create_pin_group_terminal(self, pingroup, isref=False):
@@ -1216,12 +1216,18 @@ class Components(object):
             if res_value is not None:
                 rlc.REnabled = True
                 rlc.R = self._get_edb_value(res_value)
+            else:
+                rlc.REnabled = False
             if ind_value is not None:
                 rlc.LEnabled = True
                 rlc.L = self._get_edb_value(ind_value)
+            else:
+                rlc.LEnabled = False
             if cap_value is not None:
                 rlc.CEnabled = True
                 rlc.C = self._get_edb_value(cap_value)
+            else:
+                rlc.CEnabled = False
             pinPair = self._edb.Utility.PinPair(fromPin.GetName(), toPin.GetName())
             rlcModel = self._edb.Cell.Hierarchy.PinPairModel()
             rlcModel.SetPinPairRlc(pinPair, rlc)
