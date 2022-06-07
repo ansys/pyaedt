@@ -7,7 +7,7 @@ from _unittest.conftest import BasisTest
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, "Test_20")
+        self.aedtapp = BasisTest.add_app(self, "Test_16")
         self.st = self.aedtapp.add_stackup_3d()
 
     def teardown_class(self):
