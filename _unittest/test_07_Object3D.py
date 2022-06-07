@@ -150,9 +150,13 @@ class TestClass(BasisTest, object):
         for face in o_box2.faces:
             assert isinstance(face.is_on_bounding(), bool)
         assert len(o_box2.faces_on_bounding_box) == 3
-        assert o_box2.face_closest_to_bounding_box in o_box2.faces_on_bounding_box
+        assert o_box2.face_closest_to_bounding_box.id in [i.id for i in o_box2.faces_on_bounding_box]
         assert not o_sphere.faces[0].is_planar
         assert o_box.faces[0].is_planar
+        assert isinstance(o_box.largest_face()[0], FacePrimitive)
+        assert isinstance(o_box.smallest_face(2), list)
+        assert isinstance(o_box.longest_edge()[0], EdgePrimitive)
+        assert isinstance(o_box.shortest_edge()[0], EdgePrimitive)
 
     def test_04_object_material_property_invalid(self):
         o_box = self.create_copper_box("Invalid1")
