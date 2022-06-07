@@ -741,7 +741,8 @@ class Components(object):
             _cmp = convert_py_list_to_net_list([component.refdes])
             self._components_methods.AddPortOnRlcComponent(self._active_layout, _cmp)
         else:
-            self._components_methods.DeactivateRlcComponent(component.edbcomponent)
+            #self._components_methods.DeactivateRlcComponent(component.edbcomponent)
+            self.set_component_rlc(component.refdes)
         return True
 
     @pyaedt_function_handler()
@@ -1211,8 +1212,8 @@ class Components(object):
         if pinNumber == 2:
             fromPin = componentPins[0]
             toPin = componentPins[1]
-            if res_value is None and ind_value is None and cap_value is None:
-                return False
+            #if res_value is None and ind_value is None and cap_value is None:
+            #    return False
             rlc = self._edb.Utility.Rlc()
             rlc.IsParallel = isparallel
             if res_value is not None:

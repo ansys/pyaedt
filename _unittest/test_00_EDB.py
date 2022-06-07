@@ -1177,8 +1177,10 @@ if not config["skip_edb"]:
             assert comp.type == "Other"
 
         def test_85_deactivate_rlc(self):
+            assert self.edbapp.core_components.components["C2"].cap_value
             assert self.edbapp.core_components.deactivate_rlc_component(component="C1", create_circuit_port=True)
             assert self.edbapp.core_components.deactivate_rlc_component(component="C2", create_circuit_port=False)
+            assert float(self.edbapp.core_components.components["C2"].cap_value) == 0.0
 
         def test_86_create_symmetric_stackup(self):
             from pyaedt import Edb as local_edb
