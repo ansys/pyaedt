@@ -16,6 +16,7 @@ import warnings
 from collections import OrderedDict
 
 import pyaedt.modules.report_templates as rt
+from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
@@ -55,6 +56,7 @@ TEMPLATES_BY_DESIGN = {
         "ElectroDCConduction",
         "ElectricTransient",
         "Fields",
+        "Spectrum",
     ],
     "Maxwell 2D": [
         "Transient",
@@ -64,14 +66,15 @@ TEMPLATES_BY_DESIGN = {
         "ElectricTransient",
         "ElectroDCConduction",
         "Fields",
+        "Spectrum",
     ],
     "Icepak": ["Monitor", "Fields"],
-    "Circuit Design": ["Standard", "Eye Diagram", "Spectral"],
-    "HFSS 3D Layout": ["Standard", "Fields", "Spectral"],
+    "Circuit Design": ["Standard", "Eye Diagram", "Spectrum"],
+    "HFSS 3D Layout": ["Standard", "Fields", "Spectrum"],
     "Mechanical": ["Standard", "Fields"],
     "Q3D Extractor": ["Matrix", "CG Fields", "DC R/L Fields", "AC R/L Fields"],
     "2D Extractor": ["Matrix", "CG Fields", "RL Fields"],
-    "Twin Builder": ["Standard", "Spectral"],
+    "Twin Builder": ["Standard", "Spectrum"],
 }
 TEMPLATES_BY_NAME = {
     "Standard": rt.Standard,
@@ -87,7 +90,7 @@ TEMPLATES_BY_NAME = {
     "Near Fields": rt.NearField,
     "Eye Diagram": rt.EyeDiagram,
     "EigenMode Parameters": rt.Standard,
-    "Spectral": rt.Spectral,
+    "Spectrum": rt.Spectral,
 }
 
 
@@ -560,7 +563,7 @@ class Reports(object):
         """
         if not setup_name:
             setup_name = self._post_app._app.nominal_sweep
-        if "Spectral" in self._templates:
+        if "Spectrum" in self._templates:
             rep = rt.Spectral(self._post_app, "Spectrum", setup_name)
             rep.expressions = expressions
             return rep
@@ -1928,6 +1931,7 @@ class FieldPlot:
         ----------
 
         >>> oModule.ExportPlotImageToFile
+        >>> oModule.ExportModelImageToFile
         >>> oModule.ExportPlotImageWithViewToFile
         """
         self.oField.UpdateQuantityFieldsPlots(self.plotFolder)
@@ -2027,8 +2031,7 @@ class PostProcessorCommon(object):
 
     def __init__(self, app):
         self._app = app
-        self._oeditor = self.modeler.oeditor
-        self._oreportsetup = self._odesign.GetModule("ReportSetup")
+        self.oeditor = self.modeler.oeditor
         self._scratch = self._app.working_directory
         self.plots = self._get_plot_inputs()
         self.reports_by_category = Reports(self, self._app.design_type)
@@ -2049,7 +2052,7 @@ class PostProcessorCommon(object):
                 else:
                     report = rt.Standard
                 plots.append(report(self, report_type, None))
-                plots[-1]._plot_name = name
+                plots[-1].plot_name = name
                 plots[-1]._is_created = True
                 if is_ironpython:
                     plots[-1].report_type = obj.Get_DisplayType()
@@ -2070,7 +2073,7 @@ class PostProcessorCommon(object):
 
         >>> oDesign.GetModule("ReportSetup")
         """
-        return self._oreportsetup
+        return self._app.oreportsetup
 
     @property
     def logger(self):
@@ -2461,8 +2464,8 @@ class PostProcessorCommon(object):
         self._desktop.RestoreWindow()
         param = ["NAME:SphereParameters", "XCenter:=", "0mm", "YCenter:=", "0mm", "ZCenter:=", "0mm", "Radius:=", "1mm"]
         attr = ["NAME:Attributes", "Name:=", "DUMMYSPHERE1", "Flags:=", "NonModel#"]
-        self._oeditor.CreateSphere(param, attr)
-        self._oeditor.Delete(["NAME:Selections", "Selections:=", "DUMMYSPHERE1"])
+        self.oeditor.CreateSphere(param, attr)
+        self.oeditor.Delete(["NAME:Selections", "Selections:=", "DUMMYSPHERE1"])
         return True
 
     @pyaedt_function_handler()
@@ -2834,8 +2837,8 @@ class PostProcessorCommon(object):
         ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
         ... )
         """
-        if domain == "Spectral":
-            report_category = "Spectral"
+        if domain in ["Spectral", "Spectrum"]:
+            report_category = "Spectrum"
         elif not report_category and not self._app.design_solutions.report_type:
             self.logger.error("Solution not supported")
             return False
@@ -2852,8 +2855,10 @@ class PostProcessorCommon(object):
         report = report_class(self, report_category, setup_sweep_name)
         report.expressions = expressions
         report.domain = domain
-        report.primary_sweep = primary_sweep_variable
-        report.secondary_sweep = secondary_sweep_variable
+        if primary_sweep_variable:
+            report.primary_sweep = primary_sweep_variable
+        if secondary_sweep_variable:
+            report.secondary_sweep = secondary_sweep_variable
         if variations:
             report.variations = variations
         report.report_type = plot_type
@@ -2995,8 +3000,8 @@ class PostProcessorCommon(object):
         >>> data3.plot("InputCurrent(PHA)")
 
         """
-        if domain == "Spectral":
-            report_category = "Spectral"
+        if domain in ["Spectral", "Spectrum"]:
+            report_category = "Spectrum"
         if not report_category and not self._app.design_solutions.report_type:
             self.logger.error("Solution not supported")
             return False
@@ -3013,7 +3018,8 @@ class PostProcessorCommon(object):
         report = report_class(self, report_category, setup_sweep_name)
         report.expressions = expressions
         report.domain = domain
-        report.primary_sweep = primary_sweep_variable
+        if primary_sweep_variable:
+            report.primary_sweep = primary_sweep_variable
         if variations:
             report.variations = variations
         report.sub_design_id = subdesign_id
@@ -3035,26 +3041,56 @@ class PostProcessorCommon(object):
 
         return report.get_solution_data()
 
-        # out = self._get_report_inputs(
-        #     expressions=expressions,
-        #     setup_sweep_name=setup_sweep_name,
-        #     domain=domain,
-        #     variations=variations,
-        #     primary_sweep_variable=primary_sweep_variable,
-        #     report_category=report_category,
-        #     context=context,
-        #     subdesign_id=subdesign_id,
-        #     polyline_points=polyline_points,
-        #     only_get_method=True,
-        # )
-        #
-        # solution_data = self.get_solution_data_per_variation(out[1], out[3], out[4], out[5], expressions)
-        # if primary_sweep_variable:
-        #     solution_data.primary_sweep = primary_sweep_variable
-        # if not solution_data:
-        #     warnings.warn("No Data Available. Check inputs")
-        #     return False
-        # return solution_data
+    @pyaedt_function_handler()
+    def create_report_from_configuration(self, input_file=None, input_dict=None, solution_name=None):
+        """Create a new report based on json file or dictionary of properties.
+
+        Parameters
+        ----------
+        input_file : str, optional
+            Path to a json file containing report settings.
+        input_dict : dict, optional
+            Dictionary containing report settings.
+        solution_name : setup name to use.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+            Report object if succeeded.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> aedtapp.post.create_report_from_configuration(r'C:\temp\my_report.json',
+        ...                                               solution_name="Setup1 : LastAdpative")
+        """
+        if not input_dict and not input_file:  # pragma: no cover
+            self.logger.error("Either one of a json file or a dictionary has to be passed as input.")
+            return False
+        if input_file:
+            props = json_to_dict(input_file)
+        else:
+            props = input_dict
+        if not solution_name:
+            solution_name = self._app.nominal_sweep
+        if props.get("report_category", None) and props["report_category"] in TEMPLATES_BY_NAME:
+            report_temp = TEMPLATES_BY_NAME[props["report_category"]]
+            report = report_temp(self, props["report_category"], solution_name)
+            for k, v in props.items():
+                report.props[k] = v
+            for el, k in self._app.available_variations.nominal_w_values_dict.items():
+                if (
+                    report.props.get("context", None)
+                    and report.props["context"].get("variations", None)
+                    and el not in report.props["context"]["variations"]
+                ):
+                    report.props["context"]["variations"][el] = k
+            report.create()
+            report._update_traces()
+            return report
+        return False  # pragma: no cover
 
 
 class PostProcessor(PostProcessorCommon, object):
@@ -3087,7 +3123,6 @@ class PostProcessor(PostProcessorCommon, object):
     def __init__(self, app):
         self._app = app
         self._post_osolution = self._app.osolution
-        self._ofieldsreporter = self._odesign.GetModule("FieldsReporter")
         self.field_plots = self._get_fields_plot()
         PostProcessorCommon.__init__(self, app)
 
@@ -3112,7 +3147,7 @@ class PostProcessor(PostProcessorCommon, object):
         str
            Model units, such as ``"mm"``.
         """
-        return _retry_ntimes(10, self._oeditor.GetModelUnits)
+        return _retry_ntimes(10, self.oeditor.GetModelUnits)
 
     @property
     def post_osolution(self):
@@ -3138,7 +3173,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oDesign.GetModule("FieldsReporter")
         """
-        return self._ofieldsreporter
+        return self._app.ofieldsreporter
 
     @property
     def report_types(self):
@@ -4072,7 +4107,7 @@ class PostProcessor(PostProcessorCommon, object):
         ----------
 
         >>> oModule.ExportPlotImageToFile
-        >>> oModule.ExportPlotImageWithViewToFile
+        >>> oModule.ExportModelImageToFile
         """
         if self.post_solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             wireframes = []
@@ -4094,14 +4129,21 @@ class PostProcessor(PostProcessorCommon, object):
                 self.ofieldsreporter.ExportPlotImageToFile(fileName, foldername, plotName, cs.name)
                 cs.delete()
             else:
-                self.ofieldsreporter.ExportPlotImageWithViewToFile(
-                    fileName, foldername, plotName, width, height, orientation
+
+                self.export_model_picture(
+                    full_name=fileName, width=width, height=height, orientation=orientation, field_selections=plotName
                 )
+                # self.ofieldsreporter.ExportPlotImageWithViewToFile(
+                #     fileName, foldername, plotName, width, height, orientation
+                # )
 
             for solid in wireframes:
                 self._primitives[solid].display_wireframe = False
         else:
-            self._oeditor.ExportImage(fileName, 1920, 1080)
+            self.ofieldsreporter.ExportPlotImageWithViewToFile(
+                fileName, foldername, plotName, width, height, orientation
+            )
+        # self.oeditor.ExportImage(fileName, 1920, 1080)
         return True
 
     @pyaedt_function_handler()
@@ -4137,7 +4179,7 @@ class PostProcessor(PostProcessorCommon, object):
         ----------
 
         >>> oModule.ExportPlotImageToFile
-        >>> oModule.ExportPlotImageWithViewToFile
+        >>> oModule.ExportModelImageToFile
         """
         warnings.warn(
             "`export_field_image_with_view` is deprecated. Use `export_field_jpg` property instead.", DeprecationWarning
@@ -4172,7 +4214,17 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler()
     def export_model_picture(
-        self, dir=None, name=None, picturename=None, show_axis=True, show_grid=True, show_ruler=True
+        self,
+        full_name=None,
+        show_axis=True,
+        show_grid=True,
+        show_ruler=True,
+        show_region="Default",
+        selections=None,
+        field_selections=None,
+        orientation="isometric",
+        width=0,
+        height=0,
     ):
         """Export a snapshot of the model to a JPG file.
 
@@ -4181,20 +4233,28 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        dir : str, optional
-            Path for exporting the JPG file. The default is ``None``, in which case
-            an internal volatile scratch in the ``temp`` directory is used.
-        name : str, optional
-            Name of the project, which is used to compose the directory path.
-        picturename : str, optional
-            Name of the JPG file. The default is ``None``, in which case the default
-            name is assigned. The extension ``".jpg"`` is added automatically.
+        full_name : str, optional
+            Full Path for exporting the image file. The default is ``None``, in which case working_dir will be used.
         show_axis : bool, optional
             Whether to show the axes. The default is ``True``.
         show_grid : bool, optional
             Whether to show the grid. The default is ``True``.
         show_ruler : bool, optional
             Whether to show the ruler. The default is ``True``.
+        show_region : bool, optional
+            Whether to show the region or not. The default is ``Default``.
+        selections : list, optional
+            Whether to export image of a selection or not. Default is `None`.
+        field_selections : str, list, optional
+            List of Fields plots to add to the image. Default is `None`. `"all"` for all field plots.
+        orientation : str, optional
+            Picture orientation. Orientation can be one of `"top"`, `"bottom"`, `"right"`, `"left"`,
+            `"front"`, `"back"`, `"trimetric"`, `"dimetric"`, `"isometric"`, or a custom
+            orientation that you added to the Orientation List.
+        width : int, optional
+            Export image picture width size in pixels. Default is 0 which takes the desktop size.
+        height : int, optional
+            Export image picture height size in pixels. Default is 0 which takes the desktop size.
 
         Returns
         -------
@@ -4207,49 +4267,54 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oEditor.ExportModelImageToFile
         """
         # Set up arguments list for createReport function
-        if not dir:
-            dir = self._scratch
-            self.logger.debug("Using scratch path {}".format(self._scratch))
-
-        assert os.path.exists(dir), "Specified directory does not exist: {}".format(dir)
-
-        if name:
-            project_subdirectory = os.path.join(dir, name)
-            if not os.path.exists(project_subdirectory):
-                os.mkdir(project_subdirectory)
-            file_path = os.path.join(project_subdirectory, "Pictures")
-            if not os.path.exists(file_path):
-                os.mkdir(file_path)
+        if selections:
+            selections = self.modeler.convert_to_selections(selections, False)
         else:
-            file_path = dir
-
-        if not picturename:
-            picturename = generate_unique_name("image")
-        else:
-            if picturename.endswith(".jpg"):
-                picturename = picturename[:-4]
+            selections = ""
+        if not full_name:
+            full_name = os.path.join(self._app.working_directory, generate_unique_name(self._app.design_name) + ".jpg")
 
         # open the 3D modeler and remove the selection on other objects
-        self._oeditor.ShowWindow()
-        self.steal_focus_oneditor()
-        self._oeditor.FitAll()
+        if self._app.design_type not in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
+            self.oeditor.ShowWindow()
+            self.steal_focus_oneditor()
+        self.modeler.fit_all()
         # export the image
+        if field_selections:
+            if isinstance(field_selections, str):
+                if field_selections.lower() == "all":
+                    field_selections = [""]
+                else:
+                    field_selections = [field_selections]
+
+        else:
+            field_selections = ["none"]
         arg = [
             "NAME:SaveImageParams",
             "ShowAxis:=",
-            show_axis,
+            str(show_axis),
             "ShowGrid:=",
-            show_grid,
+            str(show_grid),
             "ShowRuler:=",
-            show_ruler,
+            str(show_ruler),
             "ShowRegion:=",
-            "Default",
+            str(show_region),
             "Selections:=",
-            "",
+            selections,
+            "FieldPlotSelections:=",
+            ",".join(field_selections),
+            "Orientation:=",
+            orientation,
         ]
-        file_name = os.path.join(file_path, picturename + ".jpg")
-        self._oeditor.ExportModelImageToFile(file_name, 0, 0, arg)
-        return file_name
+        if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
+            if width == 0:
+                width = 1920
+            if height == 0:
+                height = 1080
+            self.oeditor.ExportImage(full_name, width, height)
+        else:
+            self.oeditor.ExportModelImageToFile(full_name, width, height, arg)
+        return full_name
 
     @pyaedt_function_handler()
     def get_far_field_data(
@@ -4339,7 +4404,10 @@ class PostProcessor(PostProcessorCommon, object):
                 fname = os.path.join(export_path, "{}.obj".format(el))
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
                 if not self._app.modeler[el].display_wireframe:
-                    files_exported.append([fname, self._app.modeler[el].color, 1 - self._app.modeler[el].transparency])
+                    transp = 0.6
+                    if self._app.modeler[el].transparency:
+                        transp = self._app.modeler[el].transparency
+                    files_exported.append([fname, self._app.modeler[el].color, 1 - transp])
                 else:
                     files_exported.append([fname, self._app.modeler[el].color, 0.05])
             return files_exported

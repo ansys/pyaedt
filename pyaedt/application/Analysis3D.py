@@ -99,8 +99,6 @@ class FieldAnalysis3D(Analysis, object):
             port,
             aedt_process_id,
         )
-        self._osolution = self._odesign.GetModule("Solutions")
-        self._oboundary = self._odesign.GetModule("BoundarySetup")
         self._modeler = Modeler2D(self) if application in ["Maxwell 2D", "2D Extractor"] else Modeler3D(self)
         self._mesh = IcepakMesh(self) if application == "Icepak" else Mesh(self)
         self._post = PostProcessor(self)
@@ -115,28 +113,6 @@ class FieldAnalysis3D(Analysis, object):
         :class:`pyaedt.generic.configurations.Configurations`
         """
         return self._configurations
-
-    @property
-    def osolution(self):
-        """Solution Module.
-
-        References
-        ----------
-
-        >>> oModule = oDesign.GetModule("Solutions")
-        """
-        return self._osolution
-
-    @property
-    def oboundary(self):
-        """Boundary Module.
-
-        References
-        ----------
-
-        >>> oModule = oDesign.GetModule("BoundarySetup")
-        """
-        return self._oboundary
 
     @property
     def modeler(self):

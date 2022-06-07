@@ -37,7 +37,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
     def __init__(self, app):
         self._app = app
         self._edb = None
-        self._oeditor = self._app._odesign.SetActiveEditor("Layout")
         self.logger.info("Loading Modeler.")
         Modeler.__init__(self, app)
         self.logger.info("Modeler loaded.")
@@ -49,9 +48,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.logger.info("Primitives loaded.")
         self.layers.refresh_all_layers()
         self.o_def_manager = self._app.odefinition_manager
-        self.o_component_manager = self.o_def_manager.GetManager("Component")
-        self.o_model_manager = self.o_def_manager.GetManager("Model")
-        pass
+        self.rigid_flex = None
 
     @property
     def oeditor(self):
@@ -61,7 +58,17 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         ----------
 
         >>> oEditor = oDesign.SetActiveEditor("Layout")"""
-        return self._oeditor
+        return self._app.oeditor
+
+    @property
+    def o_component_manager(self):
+        """Component manager object."""
+        return self._app.o_component_manager
+
+    @property
+    def o_model_manager(self):
+        """Model manager object."""
+        return self._app.o_model_manager
 
     @property
     def _edb_folder(self):

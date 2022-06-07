@@ -16,6 +16,6 @@ This consists of a set of one or more parametrized layer objects, where to place
    stackup_3d.Padstack
    stackup_3d.PadstackLayer
    stackup_3d.Patch
-   stackup_3d.Line
+   stackup_3d.Trace
    stackup_3d.Polygon
    stackup_3d.NamedVariable

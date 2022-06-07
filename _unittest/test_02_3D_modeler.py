@@ -1,7 +1,5 @@
 # Setup paths for module imports
 from _unittest.conftest import BasisTest
-from _unittest.conftest import pyaedt_unittest_check_desktop_error
-from pyaedt.application.Design import DesignCache
 from pyaedt.modeler.Modeler import FaceCoordinateSystem
 from pyaedt.modeler.Primitives import PolylineSegment
 
@@ -15,7 +13,6 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, project_name="Coax_HFSS")
-        self.cache = DesignCache(self.aedtapp)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -47,34 +44,28 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.subtract(outer, core)
         self.aedtapp.modeler.subtract(core, inner)
 
-    @pyaedt_unittest_check_desktop_error
     def test_01_model_units(self):
         self.aedtapp.modeler.model_units = "cm"
         assert self.aedtapp.modeler.model_units == "cm"
         self.restore_model()
 
-    @pyaedt_unittest_check_desktop_error
     def test_02_boundingbox(self):
         bounding = self.aedtapp.modeler.obounding_box
         assert len(bounding) == 6
 
-    @pyaedt_unittest_check_desktop_error
     def test_03_objects(self):
         print(self.aedtapp.modeler.oeditor)
         print(self.aedtapp.modeler._odefinition_manager)
         print(self.aedtapp.modeler._omaterial_manager)
 
-    @pyaedt_unittest_check_desktop_error
     def test_04_convert_to_selection(self):
         assert type(self.aedtapp.modeler.convert_to_selections("inner", True)) is list
         assert type(self.aedtapp.modeler.convert_to_selections("inner", False)) is str
 
-    @pyaedt_unittest_check_desktop_error
     def test_05_split(self):
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
         assert self.aedtapp.modeler.split(box1.name, 2)
 
-    @pyaedt_unittest_check_desktop_error
     def test_06_duplicate_and_mirror(self):
         self.restore_model()
         udp = self.aedtapp.modeler.Position(20, 20, 20)
@@ -83,14 +74,12 @@ class TestClass(BasisTest, object):
         assert out[0]
         assert len(out[1]) > 0
 
-    @pyaedt_unittest_check_desktop_error
     def test_07_mirror(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         udp2 = self.aedtapp.modeler.Position(30, 40, 40)
         status = self.aedtapp.modeler.mirror("outer", udp, udp2)
         assert status
 
-    @pyaedt_unittest_check_desktop_error
     def test_08_duplicate_around_axis(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         num_clones = 3
@@ -99,7 +88,6 @@ class TestClass(BasisTest, object):
         assert type(mirror) is list
         assert len(mirror) == num_clones - 1
 
-    @pyaedt_unittest_check_desktop_error
     def test_08_duplicate_along_line(self):
         udp = self.aedtapp.modeler.Position(5, 5, 5)
         num_clones = 5
@@ -108,7 +96,6 @@ class TestClass(BasisTest, object):
         assert type(mirror) is list
         assert len(mirror) == num_clones - 1
 
-    @pyaedt_unittest_check_desktop_error
     def test_09_thicken_sheet(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         id5 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, udp, 10, name="sheet1")
@@ -123,7 +110,6 @@ class TestClass(BasisTest, object):
         status = self.aedtapp.modeler.move_face([id6.faces[0].id, id5.faces[0]])
         assert status
 
-    @pyaedt_unittest_check_desktop_error
     def test_11_split(self):
         self.restore_model()
         assert self.aedtapp.modeler.split(
@@ -617,3 +603,16 @@ class TestClass(BasisTest, object):
         rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "edge_movements2")
         assert self.aedtapp.modeler.move_edge([rect.edges[0], rect.edges[2]])
         assert rect.faces[0].bottom_edge_x.move_along_normal()
+
+    def test_51_imprint(self):
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "imprint1")
+        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprint2")
+        assert self.aedtapp.modeler.imprint(rect, box1)
+
+    def test_51_imprint_projection(self):
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "imprintn1")
+        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprintn2")
+        assert self.aedtapp.modeler.imprint_normal_projection([rect, box1])
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "imprintn3")
+        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprintn3")
+        assert self.aedtapp.modeler.imprint_vector_projection([rect, box1], [3, 2, -5], 1)

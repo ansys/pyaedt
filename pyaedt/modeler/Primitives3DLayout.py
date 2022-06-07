@@ -71,7 +71,6 @@ class Primitives3DLayout(object):
     def __init__(self, app):
         self.is_outside_desktop = sys.modules["__main__"].isoutsideDesktop
         self._app = app
-        self._opadstackmanager = self._app._oproject.GetDefinitionManager().GetManager("Padstack")
         self._padstacks = {}
         self._components3d = {}
         self._init_prims()
@@ -102,7 +101,7 @@ class Primitives3DLayout(object):
 
         >>> oPadstackManger = oDefinitionManager.GetManager("Padstack")
         """
-        return self._opadstackmanager
+        return self._app.opadstackmanager
 
     @property
     def components(self):
@@ -123,7 +122,7 @@ class Primitives3DLayout(object):
 
     @property
     def geometries(self):
-        """Geometries.
+        """All Geometries including voids.
 
         Returns
         -------
@@ -138,7 +137,108 @@ class Primitives3DLayout(object):
             geom[k] = v
         for k, v in self.lines.items():
             geom[k] = v
+        for k, v in self.circles.items():
+            geom[k] = v
+        for k, v in self.voids.items():
+            geom[k] = v
         return geom
+
+    @property
+    def voids(self):
+        """All voids.
+
+        Returns
+        -------
+        dict
+            Dictionary of voids.
+
+        """
+        geom = {}
+        for k, v in self.polygons_voids.items():
+            geom[k] = v
+        for k, v in self.rectangles_voids.items():
+            geom[k] = v
+        for k, v in self.lines_voids.items():
+            geom[k] = v
+        for k, v in self.circles_voids.items():
+            geom[k] = v
+        return geom
+
+    @pyaedt_function_handler()
+    def objects_by_layer(self, layer_name, object_filter=None, include_voids=False):
+        """Retrieve the list of objects that belongs to a specific layer.
+
+        Parameters
+        ----------
+        layer_name : str
+            Name of the layer to filter.
+        object_filter : str, list, optional
+            Name of the category to include in search. Options are `"poly"`, `"circle"`,
+            `"rect"`,`"line"`,`"arc"`, `"via"`,`"pin"` and `"component"`.
+        include_voids : bool, optional
+            Either if include or not the voids in search.
+
+        Returns
+        -------
+        list
+            Objects found.
+        """
+
+        objs = []
+        if object_filter:
+            if isinstance(object_filter, str):
+                object_filter = [object_filter]
+
+            for poly in object_filter:
+                objs = self.modeler.oeditor.FilterObjectList(
+                    "Type", poly, self.modeler.oeditor.FindObjects("Layer", layer_name)
+                )
+                if include_voids:
+                    objs = self.modeler.oeditor.FilterObjectList(
+                        "Type", poly + " void", self.modeler.oeditor.FindObjects("Layer", layer_name)
+                    )
+
+        else:
+            objs = self.modeler.oeditor.FindObjects("Layer", layer_name)
+        return objs
+
+    @pyaedt_function_handler()
+    def objects_by_net(self, net_name, object_filter=None, include_voids=False):
+        """Retrieve the list of objects that belongs to a specific net.
+
+        Parameters
+        ----------
+        net_name : str
+            Name of the net to filter.
+        object_filter : str, list, optional
+            Name of the category to include in search. Options are `"poly"`, `"circle"`,
+            `"rect"`,`"line"`,`"arc"`, `"via"`,`"pin"` and `"component"`.
+        include_voids : bool, optional
+            Either if include or not the voids in search.
+
+        Returns
+        -------
+        list
+            Objects found.
+        """
+
+        objs = []
+        if object_filter:
+            if isinstance(object_filter, str):
+                object_filter = [object_filter]
+
+            for poly in object_filter:
+                objs = self.modeler.oeditor.FilterObjectList(
+                    "Type", poly, self.modeler.oeditor.FindObjects("Net", net_name)
+                )
+                if include_voids:
+                    objs = self.modeler.oeditor.FilterObjectList(
+                        "Type", poly + " void", self.modeler.oeditor.FindObjects("Net", net_name)
+                    )
+
+        else:
+            objs = self.modeler.oeditor.FindObjects("Net", net_name)
+        return objs
 
     @property
     def polygons(self):
@@ -156,9 +256,6 @@ class Primitives3DLayout(object):
             objs = self.modeler.oeditor.FindObjects("Type", poly)
             for obj in objs:
                 self._polygons[obj] = Polygons3DLayout(self, obj, poly, False)
-            objs = self.modeler.oeditor.FindObjects("Type", poly + " void")
-            for obj in objs:
-                self._polygons[obj] = Polygons3DLayout(self, obj, poly, True)
         return self._polygons
 
     @property
@@ -178,9 +275,6 @@ class Primitives3DLayout(object):
             objs = self.modeler.oeditor.FindObjects("Type", poly)
             for obj in objs:
                 self._lines[obj] = Line3dLayout(self, obj, False)
-            objs = self.modeler.oeditor.FindObjects("Type", poly + " void")
-            for obj in objs:
-                self._lines[obj] = Line3dLayout(self, obj, True)
         return self._lines
 
     @property
@@ -197,9 +291,6 @@ class Primitives3DLayout(object):
         objs = self.modeler.oeditor.FindObjects("Type", "circle")
         for obj in objs:
             self._circles[obj] = Circle3dLayout(self, obj, False)
-        objs = self.modeler.oeditor.FindObjects("Type", "circle void")
-        for obj in objs:
-            self._circles[obj] = Circle3dLayout(self, obj, True)
         return self._circles
 
     @property
@@ -216,6 +307,72 @@ class Primitives3DLayout(object):
         objs = self.modeler.oeditor.FindObjects("Type", "rect")
         for obj in objs:
             self._rectangles[obj] = Rect3dLayout(self, obj, False)
+        return self._rectangles
+
+    @property
+    def polygons_voids(self):
+        """Void Polygons.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Polygons3DLayout`]
+            Pyaedt Objects.
+        """
+        if self._polygons:
+            return self._polygons
+        poly_types = ["poly", "plg"]
+        for poly in poly_types:
+            objs = self.modeler.oeditor.FindObjects("Type", poly + " void")
+            for obj in objs:
+                self._polygons[obj] = Polygons3DLayout(self, obj, poly, True)
+        return self._polygons
+
+    @property
+    def lines_voids(self):
+        """Void Lines.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Line3dLayout`]
+            Pyaedt Objects.
+        """
+
+        if self._lines:
+            return self._lines
+        poly_types = ["line", "arc"]
+        for poly in poly_types:
+            objs = self.modeler.oeditor.FindObjects("Type", poly + " void")
+            for obj in objs:
+                self._lines[obj] = Line3dLayout(self, obj, True)
+        return self._lines
+
+    @property
+    def circles_voids(self):
+        """Void Circles.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Circle3dLayout`]
+            Pyaedt Objects.
+        """
+        if self._circles:
+            return self._circles
+        objs = self.modeler.oeditor.FindObjects("Type", "circle void")
+        for obj in objs:
+            self._circles[obj] = Circle3dLayout(self, obj, True)
+        return self._circles
+
+    @property
+    def rectangles_voids(self):
+        """Void Rectangles.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Rect3dLayout`]
+            Pyaedt Objects.
+        """
+        if self._rectangles:
+            return self._rectangles
         objs = self.modeler.oeditor.FindObjects("Type", "rect void")
         for obj in objs:
             self._rectangles[obj] = Rect3dLayout(self, obj, True)
@@ -502,7 +659,7 @@ class Primitives3DLayout(object):
             args.append(net)
             args.append("Vis:=")
             args.append(visible)
-        self._oeditor.SetNetVisible(args)
+        self.oeditor.SetNetVisible(args)
         return True
 
     @pyaedt_function_handler()
@@ -562,7 +719,7 @@ class Primitives3DLayout(object):
         if not name:
             name = _uname()
         else:
-            listnames = self._oeditor.FindObjects("Name", name)
+            listnames = self.oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
         arg = ["NAME:Contents"]
@@ -582,7 +739,7 @@ class Primitives3DLayout(object):
         arg.append("Pin:="), arg.append(False)
         arg.append("highest_layer:="), arg.append(top_layer)
         arg.append("lowest_layer:="), arg.append(bot_layer)
-        self._oeditor.CreateVia(arg)
+        self.oeditor.CreateVia(arg)
         # self.objects[name] = Object3dlayout(self)
         # self.objects[name].name = name
         # if netname:
@@ -623,7 +780,7 @@ class Primitives3DLayout(object):
         if not name:
             name = _uname()
         else:
-            listnames = self._oeditor.FindObjects("Name", name)
+            listnames = self.oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
 
@@ -636,7 +793,7 @@ class Primitives3DLayout(object):
         vArg2.append("y:="), vArg2.append(self.arg_with_dim(y))
         vArg2.append("r:="), vArg2.append(self.arg_with_dim(radius))
         vArg1.append(vArg2)
-        self._oeditor.CreateCircle(vArg1)
+        self.oeditor.CreateCircle(vArg1)
         self._circles[name] = Circle3dLayout(self, name, False)
         return name
 
@@ -676,7 +833,7 @@ class Primitives3DLayout(object):
         if not name:
             name = _uname()
         else:
-            listnames = self._oeditor.FindObjects("Name", name)
+            listnames = self.oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
 
@@ -692,7 +849,7 @@ class Primitives3DLayout(object):
         vArg2.append("cr:="), vArg2.append(self.arg_with_dim(corner_radius))
         vArg2.append("ang="), vArg2.append(self.arg_with_dim(angle))
         vArg1.append(vArg2)
-        self._oeditor.CreateRectangle(vArg1)
+        self.oeditor.CreateRectangle(vArg1)
         self._rectangles[name] = Rect3dLayout(self, name, False)
         return name
 
@@ -739,7 +896,7 @@ class Primitives3DLayout(object):
         if not name:
             name = _uname()
         else:
-            listnames = self._oeditor.FindObjects("Name", name)
+            listnames = self.oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
         arg = ["NAME:Contents", "lineGeometry:="]
@@ -765,7 +922,7 @@ class Primitives3DLayout(object):
             arg2.append("y:=")
             arg2.append(a[1])
         arg.append(arg2)
-        self._oeditor.CreateLine(arg)
+        self.oeditor.CreateLine(arg)
         self._lines[name] = Line3dLayout(self, name, False)
         return name
 

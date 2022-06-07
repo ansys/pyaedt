@@ -16,6 +16,7 @@ except ImportError:
 
 # Input Data and version for the test
 test_project_name = "Test_RadioBoard"
+test_rigid_flex = "demo_flex"
 
 
 class TestClass(BasisTest, object):
@@ -23,6 +24,7 @@ class TestClass(BasisTest, object):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Hfss3dLayout)
         self.hfss3dl = BasisTest.add_app(self, project_name="differential_pairs", application=Hfss3dLayout)
+        self.flex = BasisTest.add_app(self, project_name=test_rigid_flex, application=Hfss3dLayout)
         example_project = os.path.join(local_path, "example_models", "Package.aedb")
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
@@ -409,37 +411,37 @@ class TestClass(BasisTest, object):
     def test_25_get_fext_xtalk_list(self):
         assert self.aedtapp.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
 
-    def test26_duplicate(self):
+    def test_26_duplicate(self):
         assert self.aedtapp.modeler.duplicate("myrectangle", 2, [1, 1])
 
-    def test27_create_pin_port(self):
+    def test_27_create_pin_port(self):
         assert self.aedtapp.create_pin_port("PinPort1")
 
-    def test28_create_scattering(self):
+    def test_28_create_scattering(self):
         assert self.aedtapp.create_scattering()
 
-    def test29_duplicate_material(self):
+    def test_29_duplicate_material(self):
         material = self.aedtapp.materials.add_material("FirstMaterial")
         new_material = self.aedtapp.materials.duplicate_material("FirstMaterial", "SecondMaterial")
         assert new_material.name == "SecondMaterial"
 
-    def test30_expand(self):
+    def test_30_expand(self):
         self.aedtapp.modeler.create_rectangle("Bottom", [20, 20], [50, 50], name="rect_1")
         self.aedtapp.modeler.create_line("Bottom", [[25, 25], [40, 40]], name="line_3")
         out1 = self.aedtapp.modeler.expand("line_3", size=1, expand_type="ROUND", replace_original=False)
         assert isinstance(out1, str)
 
-    def test31_heal(self):
+    def test_31_heal(self):
         l1 = self.aedtapp.modeler.create_line("Bottom", [[0, 0], [100, 0]], 0.5, name="poly_1111")
         l2 = self.aedtapp.modeler.create_line("Bottom", [[100, 0], [120, -35]], 0.5, name="poly_2222")
         self.aedtapp.modeler.unite([l1, l2])
         assert self.aedtapp.modeler.colinear_heal("poly_2222", tolerance=0.25)
 
-    def test32_cosim_simulation(self):
+    def test_32_cosim_simulation(self):
         assert self.aedtapp.edit_cosim_options()
         assert not self.aedtapp.edit_cosim_options(interpolation_algorithm="auto1")
 
-    def test33_set_temperature_dependence(self):
+    def test_33_set_temperature_dependence(self):
         assert self.aedtapp.modeler.set_temperature_dependence(
             include_temperature_dependence=True,
             enable_feedback=True,
@@ -469,8 +471,38 @@ class TestClass(BasisTest, object):
         assert setup_name == setup.name
 
     def test_35a_export_layout(self):
-        self.aedtapp.export_3d_model()
-        assert os.path.exists(os.path.join(self.aedtapp.working_directory, self.aedtapp.design_name + ".sat"))
+        output = self.aedtapp.export_3d_model()
+        assert os.path.exists(output)
+
+    def test_36_import_gds(self):
+        gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
+        control_file = ""
+        aedb_file = os.path.join(self.local_scratch.path, "gds_out.aedb")
+        assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
+        assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
+
+    def test_37_import_gerber(self):
+        gerber_file = os.path.join(local_path, "example_models", "cad", "Gerber", "gerber1.zip")
+        control_file = os.path.join(local_path, "example_models", "cad", "Gerber", "gerber1.xml")
+        aedb_file = os.path.join(self.local_scratch.path, "gerber_out.aedb")
+        assert self.aedtapp.import_gerber(gerber_file, aedb_path=aedb_file, control_file=control_file)
+
+    def test_38_import_dxf(self):
+        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
+        control_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.xml")
+        aedb_file = os.path.join(self.local_scratch.path, "dxf_out.aedb")
+        assert self.aedtapp.import_gerber(dxf_file, aedb_path=aedb_file, control_file=control_file)
+
+    def test_39_import_ipc(self):
+        dxf_file = os.path.join(local_path, "example_models", "cad", "ipc", "galileo.xml")
+        aedb_file = os.path.join(self.local_scratch.path, "dxf_out.aedb")
+        assert self.aedtapp.import_ipc2581(dxf_file, aedb_path=aedb_file, control_file="")
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not working on AEDT 22R1")
+    def test_40_test_flex(self):
+        assert self.flex.enable_rigid_flex()
+        assert not self.flex.enable_rigid_flex()
+        pass
 
     @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
     def test_90_set_differential_pairs(self):

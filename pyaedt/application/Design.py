@@ -1,5 +1,5 @@
 """
-This module contains these classes: ``Design`` and ``DesignCache``.
+This module contains these classes: ``Design``.
 
 This module provides all functionalities for basic project information and objects.
 These classes are inherited in the main tool class.
@@ -20,11 +20,12 @@ import time
 import warnings
 from collections import OrderedDict
 
+from pyaedt.application.design_solutions import model_names
+from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import DesignSolution
 from pyaedt.application.design_solutions import HFSSDesignSolution
 from pyaedt.application.design_solutions import IcepakDesignSolution
 from pyaedt.application.design_solutions import Maxwell2DDesignSolution
-from pyaedt.application.design_solutions import model_names
 from pyaedt.application.design_solutions import RmXprtDesignSolution
 from pyaedt.application.design_solutions import solutions_defaults
 from pyaedt.application.Variables import DataSet
@@ -50,228 +51,7 @@ if sys.version_info.major > 2:
     import base64
 
 
-def list_difference(list1, list2):
-    return list(set(list1) - set(list2))
-
-
-class DesignCache(object):
-    """Analyzes the differences in the state of a design between two points in time.
-
-    The contents of the design tracked in the message manager currently are:
-
-        * global-level messages
-        * project-level messages
-        * design-level messages
-
-    Parameters
-    ----------
-    parent : str
-        Name of the parent object.
-
-    """
-
-    def __init__(self, app):
-        self._app = app
-        self._allow_errors_local = []
-        self._allow_errors_global = []
-        self.clear()
-        self._snapshot = self.design_snapshot()
-
-    @property
-    def allowed_error_messages(self):
-        """Add this error message to the ignored error messages."""
-        return self._allow_errors_global + self._allow_errors_local
-
-    def ignore_error_message_local(self, msg):
-        """Add this error message to the ignored local error messages."""
-        self._allow_errors_local.append("[error] {}".format(msg))
-
-    def ignore_error_message_global(self, msg):
-        """Add this error message to the ignored global error messages."""
-        self._allow_errors_global.append("[error] {}".format(msg))
-
-    @property
-    def no_change(self):
-        """Check if the design snapshot is unchanged since the last update.
-
-        Returns
-        --------
-        bool
-            ``True`` if the design snapshot is unchanged since the last
-            update, ``False`` otherwise.
-        """
-        return self._no_change
-
-    @property
-    def delta_global_messages(self):
-        """Check for any new or missing global-level messages since the last update.
-
-        Returns
-        -------
-        list of str
-            List of any new or missing global-level messages since the last update.
-        """
-        return self._delta_global_messages
-
-    @property
-    def delta_project_messages(self):
-        """Check for any new or missing project-level messages since the last update.
-
-        Returns
-        -------
-        list of str
-            List of any new or missing project-level messages since the last update.
-        """
-        return self._delta_global_messages
-
-    @property
-    def delta_design_messages(self):
-        """Check for any new or missing design-level messages since the last update.
-
-        Returns
-        -------
-        list of str
-            List of any new or missing design-level messages since the last update.
-        """
-        return self._delta_design_messages
-
-    @property
-    def delta_error_messages(self):
-        """Check for any new or missing error messages since the last update.
-
-        Returns
-        -------
-        list of str
-            List of any new or missing error messages since the last update.
-        """
-        return self._new_error_messages
-
-    @property
-    def no_new_messages(self):
-        """Check for any new messages that have appeared since the last update or since the message manager was cleared.
-
-        Returns
-        -------
-        bool
-            ``True`` if new messages have appeared since the last
-            update or since the message manager was cleared, ``False``
-            otherwise.
-        """
-        return not bool(self._delta_messages)
-
-    @property
-    def no_new_errors(self):
-        """Check for any new error messages that have appeared since the last uodate.
-
-        Returns
-        -------
-        bool
-            ``True`` if new error messages have appeared since the
-            last update, ``False`` otherwise.
-        """
-        return not bool(self._new_error_messages)
-
-    @property
-    def no_new_warnings(self):
-        """Check for any new warning messages that have appeared since the last uodate.
-
-        Returns
-        -------
-        bool
-            ``True`` if new error messages have appeared since the
-            last update, ``False`` otherwise.
-        """
-        return not bool(self._new_warning_messages)
-
-    @property
-    def no_change(self):
-        """Check if cache elements are unchanged since the last update.
-
-        Returns
-        -------
-        bool
-            ``True`` if the cache elements are unchanged since the last update,
-            ``Fasle`` otherwise.
-        """
-        return self.no_new_messages
-
-    def design_snapshot(self):
-        """Retrieve the design snapshot.
-
-        Returns
-        -------
-        type
-            Snapshot object.
-        """
-        snapshot = {
-            "Solids:": self._app.modeler.solid_names,
-            "Lines:": self._app.modeler.line_names,
-            "Sheets": self._app.modeler.sheet_names,
-            "DesignName": self._app.design_name,
-        }
-        return snapshot
-
-    def clear(self):
-        """Clear cached values."""
-        self._messages_global_level = []
-        self._messages_project_level = []
-        self._messages_design_level = []
-
-    def update(self):
-        """Update the current state.
-
-        Retrieve the current state values from the design and perform
-        a delta calculation with the cached values. Then replace the
-        cached values with the current values.
-
-        .. note::
-           The update is done automatically when the property
-           ``"no_change"`` is accessed.
-        """
-
-        messages = self._app._logger.messages
-
-        # Check whether the design snapshot has changed since the last update
-        new_snapshot = self.design_snapshot()
-        if new_snapshot == self._snapshot:
-            self._no_change = True
-        else:
-            self._no_change = False
-
-        self._snapshot = new_snapshot
-
-        self._delta_global_messages = list_difference(messages.global_level, self._messages_global_level)
-        self._delta_project_messages = list_difference(messages.project_level, self._messages_project_level)
-        self._delta_design_messages = list_difference(messages.design_level, self._messages_design_level)
-        self._delta_messages_unfiltered = (
-            self._delta_global_messages + self._delta_project_messages + self._delta_design_messages
-        )
-
-        # filter out allowed messages
-        self._delta_messages = []
-        for msg in self._delta_messages_unfiltered:
-            mask = False
-            allowed_errors = self._allow_errors_local + self._allow_errors_global
-            for allowed in allowed_errors:
-                if msg.find(allowed) == 0:
-                    mask = True
-                    break
-            if not mask:
-                self._delta_messages.append(msg)
-
-        self._new_error_messages = [msg for msg in self._delta_messages if msg.find("[error]") == 0]
-        self._new_warning_messages = [msg for msg in self._delta_messages if msg.find("[warning]") == 0]
-
-        self._messages_global_level = messages.global_level
-        self._messages_project_level = messages.project_level
-        self._messages_design_level = messages.design_level
-
-        self._allow_errors_local = []
-
-        return self
-
-
-class Design(object):
+class Design(AedtObjects, object):
     """Contains all functions and objects connected to the active project and design.
 
     This class is inherited in the caller application and is accessible through it (for
@@ -296,7 +76,7 @@ class Design(object):
     specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
-    NG : bool, optional
+    non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT launches in graphical mode.
     new_desktop_session : bool, optional
@@ -372,11 +152,12 @@ class Design(object):
         aedt_process_id=None,
     ):
         self._init_variables()
+        self._design_dictionary = None
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
-        self.boundaries = []
-        self.project_datasets = {}
-        self.design_datasets = {}
+        self._boundaries = []
+        self._project_datasets = {}
+        self._design_datasets = {}
         main_module = sys.modules["__main__"]
         self.close_on_exit = close_on_exit
 
@@ -417,16 +198,51 @@ class Design(object):
         else:
             self.design_solutions = DesignSolution(None, design_type, self._aedt_version)
         self.design_solutions._solution_type = solution_type
+        self._temp_solution_type = solution_type
         self.oproject = project_name
         self.odesign = design_name
-        self.design_solutions._odesign = self.odesign
-        if solution_type:
-            self.design_solutions.solution_type = solution_type
-        self._oimport_export = self._desktop.GetTool("ImportExport")
+        AedtObjects.__init__(self, is_inherithed=True)
+
         self._variable_manager = VariableManager(self)
-        self.project_datasets = self._get_project_datasets()
-        self.design_datasets = self._get_design_datasets()
+        self._project_datasets = []
+        self._design_datasets = []
         _mtime = self.project_time_stamp
+
+    @property
+    def project_datasets(self):
+        """Dictionary of Project Datasets.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.application.Variables.DataSet`]
+        """
+        if not self._project_datasets:
+            self._project_datasets = self._get_project_datasets()
+        return self._project_datasets
+
+    @property
+    def design_datasets(self):
+        """Dictionary of Design Datasets.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.application.Variables.DataSet`]
+        """
+        if not self._design_datasets:
+            self._design_datasets = self._get_design_datasets()
+        return self._design_datasets
+
+    @property
+    def boundaries(self):
+        """Design boundaries and excitations.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modules.Boundary.BoundaryObject`
+        """
+        if not self._boundaries:
+            self._boundaries = self._get_boundaries_data()
+        return self._boundaries
 
     @property
     def odesktop(self):
@@ -443,56 +259,19 @@ class Design(object):
         """
         return self._desktop
 
-    @property
-    def oimport_export(self):
-        """Import/Export Manager Module.
-
-        References
-        ----------
-
-        >>> oDesktop.GetTool("ImportExport")"""
-        return self._oimport_export
-
-    @property
-    def odefinition_manager(self):
-        """Definition Manager Module.
-
-        References
-        ----------
-
-        >>> oDefinitionManager = oProject.GetDefinitionManager()
-        """
-        return self.oproject.GetDefinitionManager()
-
-    @property
-    def omaterial_manager(self):
-        """Material Manager Module.
-
-        References
-        ----------
-
-        >>> oMaterialManager = oDefinitionManager.GetManager("Material")
-        """
-        return self.odefinition_manager.GetManager("Material")
-
     @pyaedt_function_handler()
     def __delitem__(self, key):
         """Implement destructor with array name or index."""
         del self._variable_manager[key]
 
     def _init_variables(self):
-        self._oboundary = None
-        self._oimport_export = None
-        self._ooptimetrics = None
-        self._ooutput_variable = None
-        self._oanalysis = None
         self._modeler = None
         self._post = None
         self._materials = None
         self._variable_manager = None
         self.parametrics = None
         self.optimizations = None
-        self.native_components = None
+        self._native_components = None
         self._mesh = None
 
     @property
@@ -524,15 +303,8 @@ class Design(object):
         return self._project_dictionary
 
     @property
-    def design_properties(self, design_name=None):
+    def design_properties(self):
         """Design properties.
-
-        Parameters
-        ----------
-        design_name : str, optional
-            Name of the design to select. The default is ``None``, in
-            which case an attempt is made to get an active design. If no
-            designs are present, an empty design is created.
 
         Returns
         -------
@@ -540,17 +312,24 @@ class Design(object):
            Dictionary of the design properties.
 
         """
-        if not design_name:
-            design_name = self.design_name
+        # if self._design_dictionary is None and os.path.exists(self.project_file):
+        #     try:
+        #         start = time.time()
+        #         self._design_dictionary = load_keyword_in_aedt_file(self.project_file,
+        #                                                             self.design_name)[self.design_name]
+        #         self._logger.info("aedt design load time {}".format(time.time() - start))
+        #     except (KeyError, TypeError):
+        #         self._design_dictionary = OrderedDict()
+        # return self._design_dictionary
         try:
             if model_names[self._design_type] in self.project_properies["AnsoftProject"]:
                 designs = self.project_properies["AnsoftProject"][model_names[self._design_type]]
                 if isinstance(designs, list):
                     for design in designs:
-                        if design["Name"] == design_name:
+                        if design["Name"] == self.design_name:
                             return design
                 else:
-                    if designs["Name"] == design_name:
+                    if designs["Name"] == self.design_name:
                         return designs
         except:
             return OrderedDict()
@@ -939,6 +718,54 @@ class Design(object):
         """
         return solutions_defaults[self._design_type]
 
+    @pyaedt_function_handler()
+    def _find_design(self):
+        activedes = None
+        warning_msg = ""
+        names = self.get_oo_name(self.oproject)
+        if names:
+            valids = []
+            for name in names:
+                des = self.get_oo_object(self.oproject, name)
+                if des.GetDesignType() == self.design_type:
+                    if self.design_type in [
+                        "Circuit Design",
+                        "Twin Builder",
+                        "HFSS 3D Layout Design",
+                        "EMIT",
+                        "Q3D Extractor",
+                    ]:
+                        valids.append(name)
+                    elif not self._temp_solution_type:
+                        valids.append(name)
+                    elif self._temp_solution_type in des.GetSolutionType():
+                        valids.append(name)
+            if len(valids) != 1:
+                warning_msg = "No consistent unique design is present. Inserting a new design."
+            else:
+                activedes = valids[0]
+                warning_msg = "Active Design set to {}".format(valids[0])
+        # legacy support for version < 2021.2
+        elif self.design_list:  # pragma: no cover
+            self._odesign = self._oproject.GetDesign(self.design_list[0])
+            if not self._check_design_consistency():
+                count_consistent_designs = 0
+                for des in self.design_list:
+                    self._odesign = self._oproject.SetActiveDesign(des)
+                    if self._check_design_consistency():
+                        count_consistent_designs += 1
+                        activedes = des
+                if count_consistent_designs != 1:
+                    warning_msg = "No consistent unique design is present. Inserting a new design."
+                else:
+                    self.logger.info("Active Design set to {}".format(activedes))
+            else:
+                activedes = self.design_list[0]
+                warning_msg = "Active design is set to {}".format(self.design_list[0])
+        else:
+            warning_msg = "No design is present. Inserting a new design."
+        return activedes, warning_msg
+
     @property
     def odesign(self):
         """Design.
@@ -959,36 +786,25 @@ class Design(object):
     @odesign.setter
     @pyaedt_function_handler()
     def odesign(self, des_name):
-        warning_msg = None
-        activedes = des_name
         if des_name:
             if self._assert_consistent_design_type(des_name) == des_name:
                 self._insert_design(self._design_type, design_name=des_name)
+            self.design_solutions._odesign = self.odesign
+            if self._temp_solution_type:
+                self.design_solutions.solution_type = self._temp_solution_type
         else:
-            if self.design_list:
-                self._odesign = self._oproject.GetDesign(self.design_list[0])
-                if not self._check_design_consistency():
-                    count_consistent_designs = 0
-                    for des in self.design_list:
-                        self._odesign = self._oproject.SetActiveDesign(des)
-                        if self._check_design_consistency():
-                            count_consistent_designs += 1
-                            activedes = des
-                    if count_consistent_designs != 1:
-                        warning_msg = "No consistent unique design is present. Inserting a new design."
-                    else:
-                        self._odesign = self.oproject.SetActiveDesign(activedes)
-                        self.logger.info("Active Design set to {}".format(activedes))
-                else:
-                    self._odesign = self._oproject.SetActiveDesign(self.design_list[0])
-                    self.logger.info("Active design is set to {}".format(self.design_list[0]))
-            else:
-                warning_msg = "No design is present. Inserting a new design."
+            activedes, warning_msg = self._find_design()
+            if activedes:
+                self._odesign = self.oproject.SetActiveDesign(activedes)
+                self.logger.info(warning_msg)
+                self.design_solutions._odesign = self.odesign
 
-            if warning_msg:
+            else:
                 self.logger.info(warning_msg)
                 self._insert_design(self._design_type)
-        self.boundaries = self._get_boundaries_data()
+                self.design_solutions._odesign = self.odesign
+                if self._temp_solution_type:
+                    self.design_solutions.solution_type = self._temp_solution_type
 
     @property
     def oproject(self):
@@ -3143,8 +2959,7 @@ class Design(object):
         self.odesign = actual_name[0]
         self.design_name = newname
         self._close_edb()
-        self._init_design(project_name=self.project_name, design_name=self.design_name)
-
+        AedtObjects.__init__(self, is_inherithed=True)
         return True
 
     @pyaedt_function_handler()
@@ -3416,17 +3231,27 @@ class Design(object):
         >>> M3D["p3"] = "P1 * p2"
         >>> eval_p3 = M3D.get_evaluated_value("p3")
         """
+        val = None
+        var_obj = None
         if "$" in variable_name:
             app = self._oproject
+            var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
+
         else:
             app = self._odesign
-        var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
+            if self.design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design"]:
+                if variable_name in self.get_oo_name(app, "Instance:{}".format(self._odesign.GetName())):
+                    var_obj = self.get_oo_object(app, "Instance:{}/{}".format(self._odesign.GetName(), variable_name))
+                elif variable_name in self.get_oo_object(app, "DefinitionParameters").GetPropNames():
+                    val = self.get_oo_object(app, "DefinitionParameters").GetPropValue(variable_name)
+            else:
+                var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
         if var_obj:
             if is_ironpython:  # pragma: no cover
                 val = var_obj.Get_SIValue()
             else:
                 val = var_obj.Get_SIValue
-        else:
+        elif not val:
             try:
                 variation_string = self._odesign.GetNominalVariation()
                 val = self._odesign.GetVariationVariableValue(variation_string, variable_name)  # pragma: no cover

@@ -25,6 +25,7 @@ from pyaedt.generic.constants import SI_UNITS
 from pyaedt.generic.constants import unit_system
 from pyaedt.generic.general_methods import is_number, is_array
 from pyaedt import is_ironpython
+from pyaedt import settings
 
 
 class CSVDataset:
@@ -1079,6 +1080,7 @@ class Variable(object):
         self._postprocessing = postprocessing
         self._circuit_parameter = circuit_parameter
         self._description = description
+        self._is_optimization_included = None
         if units:
             if unit_system(units):
                 specified_units = units
@@ -1143,11 +1145,215 @@ class Variable(object):
                 self._app.logger.error('"Failed to update property "name".')
 
     @property
+    def is_optimization_enabled(self):
+        """ "Check if optimization is enabled."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Optimization/Included")
+        return
+
+    @is_optimization_enabled.setter
+    def is_optimization_enabled(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Optimization/Included", value)
+
+    @property
+    def optimization_min_value(self):
+        """ "Optimization min value."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Optimization/Min")
+        return
+
+    @optimization_min_value.setter
+    def optimization_min_value(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Optimization/Min", value)
+
+    @property
+    def optimization_max_value(self):
+        """ "Optimization max value."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Optimization/Max")
+        return
+
+    @optimization_max_value.setter
+    def optimization_max_value(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Optimization/Max", value)
+
+    @property
+    def is_sensitivity_enabled(self):
+        """Check if Sensitivity is enabled."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Sensitivity/Included")
+        return
+
+    @is_sensitivity_enabled.setter
+    def is_sensitivity_enabled(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Sensitivity/Included", value)
+
+    @property
+    def sensitivity_min_value(self):
+        """ "Sensitivity min value."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Sensitivity/Min")
+        return
+
+    @sensitivity_min_value.setter
+    def sensitivity_min_value(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Sensitivity/Min", value)
+
+    @property
+    def sensitivity_max_value(self):
+        """ "Sensitivity max value."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Sensitivity/Max")
+        return
+
+    @sensitivity_max_value.setter
+    def sensitivity_max_value(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Sensitivity/Max", value)
+
+    @property
+    def sensitivity_initial_disp(self):
+        """ "Sensitivity initial value."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Sensitivity/IDisp")
+        return
+
+    @sensitivity_initial_disp.setter
+    def sensitivity_initial_disp(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Sensitivity/IDisp", value)
+
+    @property
+    def is_tuning_enabled(self):
+        """Check if tuning is enabled."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Tuning/Included")
+        return
+
+    @is_tuning_enabled.setter
+    def is_tuning_enabled(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Tuning/Included", value)
+
+    @property
+    def tuning_min_value(self):
+        """ "Tuning min value."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Tuning/Min")
+        return
+
+    @tuning_min_value.setter
+    def tuning_min_value(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Tuning/Min", value)
+
+    @property
+    def tuning_max_value(self):
+        """ "Tuning max value."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Tuning/Max")
+        return
+
+    @tuning_max_value.setter
+    def tuning_max_value(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Tuning/Max", value)
+
+    @property
+    def tuning_step_value(self):
+        """ "Tuning Step value."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Tuning/Step")
+        return
+
+    @tuning_step_value.setter
+    def tuning_step_value(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Tuning/Step", value)
+
+    @property
+    def is_statistical_enabled(self):
+        """Check if statistical is enabled."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Statistical/Included")
+        return
+
+    @is_statistical_enabled.setter
+    def is_statistical_enabled(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Statistical/Included", value)
+
+    @property
     def read_only(self):
         """Read-only flag value."""
         if self._app:
             try:
-                if not is_ironpython:
+                if not is_ironpython and (settings.aedt_version < "2022.2" or not settings.use_grpc_api):
                     return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_ReadOnly
                 else:  # pragma: no cover
                     return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_ReadOnly()
@@ -1170,7 +1376,7 @@ class Variable(object):
         """Hidden flag value."""
         if self._app:
             try:
-                if not is_ironpython:
+                if not is_ironpython and (settings.aedt_version < "2022.2" or not settings.use_grpc_api):
                     return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Hidden
                 else:  # pragma: no cover
                     return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Hidden()
@@ -1192,7 +1398,7 @@ class Variable(object):
         """Description value."""
         if self._app:
             try:
-                if not is_ironpython:
+                if not is_ironpython and (settings.aedt_version < "2022.2" or not settings.use_grpc_api):
                     return (
                         self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Description
                     )

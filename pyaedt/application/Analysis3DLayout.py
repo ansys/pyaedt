@@ -93,48 +93,12 @@ class FieldAnalysis3DLayout(Analysis):
             port,
             aedt_process_id,
         )
-        self._osolution = self._odesign.GetModule("SolveSetups")
-        self._oexcitation = self._odesign.GetModule("Excitations")
-        self._oboundary = self._odesign.GetModule("Excitations")
         self.logger.info("Analysis Loaded")
         self._modeler = Modeler3DLayout(self)
         self.logger.info("Modeler Loaded")
         self._mesh = Mesh3d(self)
         self._post = PostProcessor(self)
         # self._post = PostProcessor(self)
-
-    @property
-    def osolution(self):
-        """Solution Module.
-
-        References
-        ----------
-
-        >>> oModule = oDesign.GetModule("SolveSetups")
-        """
-        return self._osolution
-
-    @property
-    def oexcitation(self):
-        """Solution Module.
-
-        References
-        ----------
-
-        >>> oModule = oDesign.GetModule("Excitations")
-        """
-        return self._oexcitation
-
-    @property
-    def oboundary(self):
-        """Boundary Module.
-
-        References
-        ----------
-
-        >>> oModule = oDesign.GetModule("Excitations")
-        """
-        return self._oboundary
 
     @property
     def mesh(self):

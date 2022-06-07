@@ -1118,14 +1118,27 @@ class GeometryModeler(Modeler, object):
 
     def __init__(self, app, is3d=True):
         self._app = app
-        self._oeditor = self._odesign.SetActiveEditor("3D Modeler")
         self._odefinition_manager = self._app.odefinition_manager
-        self._omaterial_manager = self._app._oproject.GetDefinitionManager().GetManager("Material")
+        self._omaterial_manager = self._app.omaterial_manager
         Modeler.__init__(self, app)
         # TODO Refactor this as a dictionary with names as key
-        self.coordinate_systems = self._get_coordinates_data()
-        self.user_lists = self._get_lists_data()
+        self._coordinate_systems = None
+        self._user_lists = None
         self._is3d = is3d
+
+    @property
+    def coordinate_systems(self):
+        """Coordinate Systems."""
+        if not self._coordinate_systems:
+            self._coordinate_systems = self._get_coordinates_data()
+        return self._coordinate_systems
+
+    @property
+    def user_lists(self):
+        """User Lists."""
+        if not self._user_lists:
+            self._user_lists = self._get_lists_data()
+        return self._user_lists
 
     @property
     def oeditor(self):
@@ -1136,7 +1149,7 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor = oDesign.SetActiveEditor("3D Modeler")"""
 
-        return self._oeditor
+        return self._app.oeditor
 
     @property
     def materials(self):
@@ -2948,6 +2961,132 @@ class GeometryModeler(Modeler, object):
         return True
 
     @pyaedt_function_handler()
+    def imprint(self, blank_list, tool_list, keep_originals=True):
+        """Imprin an object list on another object list.
+
+        Parameters
+        ----------
+        blank_list : list of Object3d or list of int
+            List of objects to imprint from. The list can be of
+            either :class:`pyaedt.modeler.Object3d.Object3d` objects or object IDs.
+        tool_list : list of Object3d or list of int
+            List of objects to imprint. The list can be of
+            either Object3d objects or object IDs.
+        keep_originals : bool, optional
+            Whether to keep the original objects. The default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Imprint
+        """
+        szList = self.convert_to_selections(blank_list)
+        szList1 = self.convert_to_selections(tool_list)
+
+        vArg1 = ["NAME:Selections", "Blank Parts:=", szList, "Tool Parts:=", szList1]
+        vArg2 = ["NAME:ImprintParameters", "KeepOriginals:=", keep_originals]
+
+        self.oeditor.Imprint(vArg1, vArg2)
+        if not keep_originals:
+            self.cleanup_objects()
+        return True
+
+    @pyaedt_function_handler()
+    def _imprint_projection(self, tool_list, keep_originals=True, normal=True, vector_direction=None, distance="1mm"):
+
+        szList1 = self.convert_to_selections(tool_list)
+
+        varg1 = ["NAME:Selections", "Selections:=", szList1]
+        varg2 = [
+            "NAME:ImprintProjectionParameters",
+            "KeepOriginals:=",
+            keep_originals,
+            "NormalProjection:=",
+            normal,
+        ]
+        if not normal:
+            varg2.append("Distance:=")
+            varg2.append(self._app.value_with_units(distance))
+            varg2.append("DirectionX:=")
+            varg2.append(self._app.value_with_units(vector_direction[0]))
+            varg2.append("DirectionY:=")
+            varg2.append(self._app.value_with_units(vector_direction[1]))
+            varg2.append("DirectionZ:=")
+            varg2.append(self._app.value_with_units(vector_direction[2]))
+
+        self.oeditor.ImprintProjection(varg1, varg2)
+        if not keep_originals:
+            self.cleanup_objects()
+        return True
+
+    @pyaedt_function_handler
+    def imprint_normal_projection(
+        self,
+        tool_list,
+        keep_originals=True,
+    ):
+        """Imprint the normal projection of objects over a sheet.
+
+        Parameters
+        ----------
+        tool_list : list
+            List of objects to imprint. The list can be of
+            either Object3d objects or object IDs.
+        keep_originals : bool, optional
+            Whether to keep the original objects. The default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ImprintProjection
+        """
+        return self._imprint_projection(tool_list, keep_originals, True)
+
+    @pyaedt_function_handler
+    def imprint_vector_projection(
+        self,
+        tool_list,
+        vector_points,
+        distance,
+        keep_originals=True,
+    ):
+        """Imprint the projection of objects over a sheet with a specified vector and distance.
+
+        Parameters
+        ----------
+        tool_list : list
+            List of objects to imprint. The list can be of
+            either Object3d objects or object IDs.
+        vector_points : list
+            List of [x,y,z] vector projection.
+        distance : str, int
+            Distance of Projection.
+        keep_originals : bool, optional
+            Whether to keep the original objects. The default is ``True``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ImprintProjection
+        """
+        return self._imprint_projection(tool_list, keep_originals, False, vector_points, distance)
+
+    @pyaedt_function_handler()
     def purge_history(self, theList):
         """Purge history objects from object names.
 
@@ -4008,7 +4147,7 @@ class GeometryModeler(Modeler, object):
         return position_list
 
     @pyaedt_function_handler()
-    def import_3d_cad(self, filename, healing=False, refresh_all_ids=True):
+    def import_3d_cad(self, filename, healing=False, refresh_all_ids=True, import_materials=False):
         """Import a CAD model.
 
         Parameters
@@ -4025,6 +4164,8 @@ class GeometryModeler(Modeler, object):
             Whether to refresh all IDs after the CAD file is loaded. The
             default is ``True``. Refreshing IDs can take a lot of time in
             a big project.
+        import_materials : bool optional
+            Either to import material names from the file or not if presents.
 
         Returns
         -------
@@ -4059,7 +4200,7 @@ class GeometryModeler(Modeler, object):
         vArg1.append("MergeFacesAngle:="), vArg1.append(-1)
         vArg1.append("PointCoincidenceTol:="), vArg1.append(1e-06)
         vArg1.append("CreateLightweightPart:="), vArg1.append(False)
-        vArg1.append("ImportMaterialNames:="), vArg1.append(False)
+        vArg1.append("ImportMaterialNames:="), vArg1.append(import_materials)
         vArg1.append("SeparateDisjointLumps:="), vArg1.append(False)
         vArg1.append("SourceFile:="), vArg1.append(filename)
         self.oeditor.Import(vArg1)
@@ -4630,7 +4771,7 @@ class GeometryModeler(Modeler, object):
                     selection[el],
                 ]
             )
-        self._oeditor.MoveFaces(arg1, arg2)
+        self.oeditor.MoveFaces(arg1, arg2)
         return True
 
     @pyaedt_function_handler()
@@ -4692,7 +4833,7 @@ class GeometryModeler(Modeler, object):
                     selection[el],
                 ]
             )
-        self._oeditor.MoveEdges(arg1, arg2)
+        self.oeditor.MoveEdges(arg1, arg2)
         return True
 
     class Position:

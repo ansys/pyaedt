@@ -66,7 +66,6 @@ class QExtractor(FieldAnalysis3D, object):
             port,
             aedt_process_id,
         )
-        self.omatrix = self.odesign.GetModule("ReduceMatrix")
         self.matrices = []
         for el in list(self.omatrix.ListReduceMatrixes()):
             self.matrices.append(Matrix(self, el))
@@ -131,14 +130,14 @@ class QExtractor(FieldAnalysis3D, object):
         get_mutual_terms : bool, optional
             Whether to return mutual terms. The default is ``True``.
         first_element_filter : str, optional
-            Filter to apply to the first element of the equation. This parameter accepts ``*``
-            and ``?`` as special characters. The default is ``None``.
+            Filter to apply to the first element of the equation.
+            This parameter accepts ``*`` and ``?`` as special characters. The default is ``None``.
         second_element_filter : str, optional
-            Filter to apply to the second element of the equation. This parameter accepts ``*``
-            and ``?`` as special characters. The default is ``None``.
+            Filter to apply to the second element of the equation.
+            This parameter accepts ``*`` and ``?`` as special characters. The default is ``None``.
         category : str
-            Plot category name as in the report (including operator). The default is ``"C"`,
-            which is the plot category name for capacitance.
+            Plot category name as in the report (including operator).
+            The default is ``"C"``, which is the plot category name for capacitance.
 
         Returns
         -------
@@ -159,6 +158,36 @@ class QExtractor(FieldAnalysis3D, object):
             second_element_filter=second_element_filter,
             category=category,
         )
+
+    @pyaedt_function_handler()
+    def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None, setup_type="CG"):
+        """Export mesh statistics to a file.
+
+        Parameters
+        ----------
+        setup_name :str
+            Setup name.
+        variation_string : str, optional
+            Variation list. The default is ``""``.
+        mesh_path : str, optional
+            Full path to the mesh statistics file. The default is ``None``, in which
+            caswe the working directory is used.
+        setup_type : str, optional
+            Setup type in Q3D. The default is "CG", other options are "AC RL" or "DC RL".
+
+        Returns
+        -------
+        str
+            File path.
+
+        References
+        ----------
+        >>> oDesign.ExportMeshStats
+        """
+        if not mesh_path:
+            mesh_path = os.path.join(self.working_directory, "meshstats.ms")
+        self.odesign.ExportMeshStats(setup_name, variation_string, setup_type, mesh_path)
+        return mesh_path
 
 
 class Q3d(QExtractor, object):

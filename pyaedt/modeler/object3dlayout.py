@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-
 This module provides methods and data structures for managing all properties of
 objects (points, lines, sheeets, and solids) within the AEDT 3D Layout Modeler.
 
 """
 from __future__ import absolute_import  # noreorder
+
+import re
 
 from pyaedt import pyaedt_function_handler, _retry_ntimes
 from pyaedt.modeler.Object3d import rgb_color_codes, clamp
@@ -22,7 +23,7 @@ class Objec3DLayout(object):
 
     def __init__(self, primitives, prim_type=None):
         self._primitives = primitives
-        self.m_Editor = self._primitives._oeditor
+        self.m_Editor = self._primitives.oeditor
         self._n = 10
         self.prim_type = prim_type
         self._points = []
@@ -229,6 +230,53 @@ class Objec3DLayout(object):
         self.change_property(vMaterial)
 
 
+class ModelInfoRlc(object):
+    def __init__(self, component, name):
+        self._comp = component
+        self._name = name
+
+    @property
+    def rlc_model_type(self):
+        props = _retry_ntimes(self._comp._n, self._comp.m_Editor.GetComponentInfo, self._name)
+        model = ""
+        for p in props:
+            if "ComponentProp=" in p:
+                model = p
+                break
+        s = r".+rlc\(r='(.+?)', re=(.+?), l='(.+?)', le=(.+?), c='(.+?)', ce=(.+?), p=(.+?), lyr=(.+?)"
+        m = re.search(s, model)
+        vals = []
+        if m:
+            for i in range(1, 9):
+                if m.group(i) == "false":
+                    vals.append(False)
+                elif m.group(i) == "true":
+                    vals.append(True)
+                else:
+                    vals.append(m.group(i))
+        return vals
+
+    @property
+    def res(self):
+        if self.rlc_model_type:
+            return self.rlc_model_type[0]
+
+    @property
+    def cap(self):
+        if self.rlc_model_type:
+            return self.rlc_model_type[4]
+
+    @property
+    def ind(self):
+        if self.rlc_model_type:
+            return self.rlc_model_type[2]
+
+    @property
+    def is_parallel(self):
+        if self.rlc_model_type:
+            return self.rlc_model_type[6]
+
+
 class Components3DLayout(Objec3DLayout, object):
     """Contains components in HFSS 3D Layout."""
 
@@ -308,13 +356,24 @@ class Components3DLayout(Objec3DLayout, object):
         """
         return list(self.m_Editor.GetComponentPins(self.name))
 
+    @property
+    def model(self):
+        """RLC model if available.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.object3dlayout.ModelInfoRlc`
+        """
+        if self._part_type_id in [1, 2, 3]:
+            return ModelInfoRlc(self, self.name)
+
 
 class Nets3DLayout(object):
     """Contains Nets in HFSS 3D Layout."""
 
     def __init__(self, primitives, name=""):
         self._primitives = primitives
-        self.m_Editor = self._primitives._oeditor
+        self.m_Editor = self._primitives.oeditor
         self._n = 10
         self.name = name
 
@@ -465,6 +524,31 @@ class Geometries3DLayout(Objec3DLayout, object):
             edges = [edges[2], edges[3], edges[0], edges[1]]
         return edges
 
+    @pyaedt_function_handler()
+    def edge_by_point(self, point):
+        """Return the closest edge to specified point.
+
+        Parameters
+        ----------
+        point : list
+            List of [x,y] values.
+
+        Returns
+        -------
+        int
+            Edge id.
+        """
+        index_i = 0
+        v_dist = None
+        edge_id = None
+        for edge in self.edges:
+            v = GeometryOperators.v_norm(GeometryOperators.distance_vector(point, edge[0], edge[1]))
+            if not v_dist or v < v_dist:
+                v_dist = v
+                edge_id = index_i
+            index_i += 1
+        return edge_id
+
     @property
     def bottom_edge_x(self):
         """Compute the lower edge in the layout on x direction.
@@ -551,6 +635,8 @@ class Geometries3DLayout(Objec3DLayout, object):
 
         >>> oEditor.ChangeProperty
         """
+        if self.is_void:
+            return False
         return (
             True
             if _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Negative")
@@ -560,8 +646,34 @@ class Geometries3DLayout(Objec3DLayout, object):
 
     @negative.setter
     def negative(self, negative=False):
-        vMaterial = ["NAME:Negative", "Value:=", negative]
-        self.change_property(vMaterial)
+        if not self.is_void:
+            vMaterial = ["NAME:Negative", "Value:=", negative]
+            self.change_property(vMaterial)
+
+    @property
+    def net_name(self):
+        """Get/Set the net name.
+
+        Returns
+        -------
+        str
+            Name of the net.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        """
+        if self.is_void:
+            return None
+        if self.prim_type not in ["component"]:
+            return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Net")
+
+    @net_name.setter
+    def net_name(self, netname=""):
+        if not self.is_void and self.prim_type not in ["component"]:
+            vMaterial = ["NAME:Net", "Value:=", netname]
+            self.change_property(vMaterial)
 
 
 class Polygons3DLayout(Geometries3DLayout, object):
@@ -581,6 +693,21 @@ class Polygons3DLayout(Geometries3DLayout, object):
         """
         obj = self.m_Editor.GetPolygon(self.name)
         return obj.IsClosed()
+
+    @property
+    def polygon_voids(self):
+        """All Polygon Voids.
+
+        Returns
+        -------
+        dict
+            Dictionary of polygon voids.
+        """
+        voids = list(self.m_Editor.GetPolygonVoids(self.name))
+        pvoids = {}
+        for void in voids:
+            pvoids[void] = Polygons3DLayout(self._primitives, void, "poly", True)
+        return pvoids
 
 
 class Circle3dLayout(Geometries3DLayout, object):
@@ -1007,7 +1134,7 @@ class Point(object):
         oEditor COM Object
 
         """
-        return self._primitives._oeditor
+        return self._primitives.oeditor
 
     @property
     def logger(self):
@@ -1045,7 +1172,7 @@ class Point(object):
                 property_servers.append(self._name)
                 point_tab = ["NAME:Geometry3DPointTab", property_servers, changed_property]
                 all_tabs = ["NAME:AllTabs", point_tab]
-                _retry_ntimes(10, self._primitives._oeditor.ChangeProperty, all_tabs)
+                _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, all_tabs)
                 self._name = point_name
                 self._primitives.cleanup_objects()
         else:

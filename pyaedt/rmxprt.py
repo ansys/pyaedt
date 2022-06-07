@@ -38,7 +38,7 @@ class RMXprtModule(object):
         return prop_server
 
     def __init__(self, oeditor):
-        self._oeditor = oeditor
+        self.oeditor = oeditor
 
     @pyaedt_function_handler()
     def __setitem__(self, parameter_name, value):
@@ -49,7 +49,7 @@ class RMXprtModule(object):
     def __getitem__(self, parameter_name):
         prop_server = self.get_prop_server(parameter_name)
         separator = ":" if prop_server else ""
-        val = self._oeditor.GetPropertyValue(
+        val = self.oeditor.GetPropertyValue(
             self.component, "{0}{1}{2}".format(self.component, separator, prop_server), parameter_name
         )
         return val
@@ -77,7 +77,7 @@ class RMXprtModule(object):
         """
         prop_server = self.get_prop_server(parameter_name)
         separator = ":" if prop_server else ""
-        self._oeditor.ChangeProperty(
+        self.oeditor.ChangeProperty(
             [
                 "NAME:AllTabs",
                 [

@@ -95,7 +95,7 @@ class Primitives3D(Primitives, object):
         attributes.append("Name:="), attributes.append(name)
         attributes.append("Color:="), attributes.append(color)
 
-        point = _retry_ntimes(10, self._oeditor.CreatePoint, parameters, attributes)
+        point = _retry_ntimes(10, self.oeditor.CreatePoint, parameters, attributes)
         return self._create_point(name)
 
     @pyaedt_function_handler()
@@ -149,7 +149,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("YSize:="), vArg1.append(YSize)
         vArg1.append("ZSize:="), vArg1.append(ZSize)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = _retry_ntimes(10, self._oeditor.CreateBox, vArg1, vArg2)
+        new_object_name = _retry_ntimes(10, self.oeditor.CreateBox, vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -214,7 +214,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
         vArg1.append("NumSides:="), vArg1.append("{}".format(numSides))
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self._oeditor.CreateCylinder(vArg1, vArg2)
+        new_object_name = self.oeditor.CreateCylinder(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -289,7 +289,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("NumSides:="), vArg1.append(int(num_sides))
         vArg1.append("WhichAxis:="), vArg1.append(cs_axis)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self._oeditor.CreateRegularPolyhedron(vArg1, vArg2)
+        new_object_name = self.oeditor.CreateRegularPolyhedron(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -360,7 +360,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("BottomRadius:="), vArg1.append(RadiusBt)
         vArg1.append("TopRadius:="), vArg1.append(RadiusUp)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self._oeditor.CreateCone(vArg1, vArg2)
+        new_object_name = self.oeditor.CreateCone(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -414,7 +414,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("ZCenter:="), vArg1.append(ZCenter)
         vArg1.append("Radius:="), vArg1.append(Radius)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self._oeditor.CreateSphere(vArg1, vArg2)
+        new_object_name = self.oeditor.CreateSphere(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -482,7 +482,7 @@ class Primitives3D(Primitives, object):
         first_argument.append("MinorRadius:="), first_argument.append(minor_radius)
         first_argument.append("WhichAxis:="), first_argument.append(axis)
         second_argument = self._default_object_attributes(name=name, matname=material_name)
-        new_object_name = _retry_ntimes(10, self._oeditor.CreateTorus, first_argument, second_argument)
+        new_object_name = _retry_ntimes(10, self.oeditor.CreateTorus, first_argument, second_argument)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -597,7 +597,7 @@ class Primitives3D(Primitives, object):
         first_argument.append("WhichAxis:="), first_argument.append("Z")
         first_argument.append("ReverseDirection:="), first_argument.append(False)
         second_argument = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self._oeditor.CreateBondwire(first_argument, second_argument)
+        new_object_name = self.oeditor.CreateBondwire(first_argument, second_argument)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -649,7 +649,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("Height:="), vArg1.append(Height)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self._oeditor.CreateRectangle(vArg1, vArg2)
+        new_object_name = self.oeditor.CreateRectangle(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -697,7 +697,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
         vArg1.append("NumSegments:="), vArg1.append("{}".format(numSides))
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self._oeditor.CreateCircle(vArg1, vArg2)
+        new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -752,7 +752,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("Ratio:="), vArg1.append(Ratio)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
         vArg2 = self._default_object_attributes(name=name, matname=matname)
-        new_object_name = self._oeditor.CreateEllipse(vArg1, vArg2)
+        new_object_name = self.oeditor.CreateEllipse(vArg1, vArg2)
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
@@ -861,7 +861,7 @@ class Primitives3D(Primitives, object):
 
         vArg2 = self._default_object_attributes(name)
 
-        new_name = self._oeditor.CreateEquationCurve(vArg1, vArg2)
+        new_name = self.oeditor.CreateEquationCurve(vArg1, vArg2)
         return self._create_object(new_name)
 
     @pyaedt_function_handler()
@@ -941,7 +941,7 @@ class Primitives3D(Primitives, object):
         vArg2.append("Thread:=")
         vArg2.append(self._arg_with_dim(thread))
 
-        new_name = self._oeditor.CreateHelix(vArg1, vArg2)
+        new_name = self.oeditor.CreateHelix(vArg1, vArg2)
         return self._create_object(new_name)
 
     @pyaedt_function_handler()
@@ -969,7 +969,7 @@ class Primitives3D(Primitives, object):
         this_object = self._resolve_object(object_name)
         edges = this_object.edges
         for i in reversed(range(len(edges))):
-            self._oeditor.ChangeProperty(
+            self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
@@ -1049,9 +1049,9 @@ class Primitives3D(Primitives, object):
         vArg1.append("2.0")
         vArg1.append("ConnectionID:=")
         vArg1.append("")
-        oname = self._oeditor.CreateUserDefinedModel(vArg1)
+        oname = self.oeditor.CreateUserDefinedModel(vArg1)
         if oname:
-            object_lists = self._oeditor.GetPartsForUserDefinedModel(oname)
+            object_lists = self.oeditor.GetPartsForUserDefinedModel(oname)
             for new_name in object_lists:
                 self._create_object(new_name)
             return True
@@ -1180,7 +1180,7 @@ class Primitives3D(Primitives, object):
         varg2.append("DesignParameters:=")
         varg2.append(szDesignParams)
         vArg1.append(varg2)
-        new_object_name = self._oeditor.Insert3DComponent(vArg1)
+        new_object_name = self.oeditor.Insert3DComponent(vArg1)
         # TODO return an object
         self.refresh_all_ids()
         return new_object_name
@@ -1205,7 +1205,7 @@ class Primitives3D(Primitives, object):
         >>> oeditor.GetChildObject
         """
         if self._app._is_object_oriented_enabled():
-            compobj = self._oeditor.GetChildObject(componentname)
+            compobj = self.oeditor.GetChildObject(componentname)
             if compobj:
                 return list(compobj.GetChildNames())
         else:

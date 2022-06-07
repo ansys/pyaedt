@@ -9,13 +9,12 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, BasisTest, pyaedt_unittest_check_desktop_error, config
+from _unittest.conftest import local_path, BasisTest, config
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.Primitives import Polyline, PolylineSegment
 from pyaedt.modeler.Object3d import Object3d
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.generic.constants import AXIS
-from pyaedt.application.Design import DesignCache
 
 test = sys.modules.keys()
 
@@ -28,7 +27,6 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, project_name="test_primitives", design_name="3D_Primitives")
-        self.cache = DesignCache(self.aedtapp)
         scdoc_file = os.path.join(local_path, "example_models", scdoc)
         self.local_scratch.copyfile(scdoc_file)
         self.step_file = os.path.join(local_path, "example_models", step)
@@ -102,7 +100,6 @@ class TestClass(BasisTest, object):
         )
         return p1, p2, test_points
 
-    @pyaedt_unittest_check_desktop_error
     def test_01_resolve_object(self):
         o = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "MyCreatedBox", "Copper")
         o1 = self.aedtapp.modeler._resolve_object(o)
@@ -115,13 +112,11 @@ class TestClass(BasisTest, object):
         assert o1.id == o.id
         assert o2.id == o.id
         assert o3.id == o.id
-        self.cache.ignore_error_message_local("Error. Object")
         oinvalid1 = self.aedtapp.modeler._resolve_object(-1)
         oinvalid2 = self.aedtapp.modeler._resolve_object("FrankInvalid")
         assert not oinvalid1
         assert not oinvalid2
 
-    @pyaedt_unittest_check_desktop_error
     def test_02_create_box(self):
         o = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "MyCreatedBox_11", "Copper")
         assert o.id > 0
@@ -132,7 +127,6 @@ class TestClass(BasisTest, object):
         assert "MyCreatedBox_11" in self.aedtapp.modeler.solid_names
         assert len(self.aedtapp.modeler.object_names) == len(self.aedtapp.modeler.objects)
 
-    @pyaedt_unittest_check_desktop_error
     def test_03_create_box_assertions(self):
         try:
             invalid_entry = "Frank"
@@ -141,7 +135,6 @@ class TestClass(BasisTest, object):
         except AssertionError:
             pass
 
-    @pyaedt_unittest_check_desktop_error
     def test_04_create_polyhedron(self):
 
         o1 = self.aedtapp.modeler.create_polyhedron()
@@ -172,13 +165,11 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.modeler.object_names) == len(self.aedtapp.modeler.objects)
         pass
 
-    @pyaedt_unittest_check_desktop_error
     def test_05_center_and_centroid(self):
         o = self.create_copper_box()
         tol = 1e-9
         assert GeometryOperators.v_norm(o.faces[0].center_from_aedt) - GeometryOperators.v_norm(o.faces[0].center) < tol
 
-    @pyaedt_unittest_check_desktop_error
     def test_11_get_object_name_from_edge(self):
         o = self.create_copper_box()
         edge = o.edges[0].id
@@ -190,13 +181,11 @@ class TestClass(BasisTest, object):
         assert len(o.name) == 16
         assert o.material_name == "vacuum"
 
-    @pyaedt_unittest_check_desktop_error
     def test_11a_get_faces_from_mat(self):
         self.create_copper_box()
         faces = self.aedtapp.modeler.get_faces_from_materials("Copper")
         assert len(faces) >= 6
 
-    @pyaedt_unittest_check_desktop_error
     def test_11b_check_object_faces(self):
         o = self.create_copper_box()
         face_list = o.faces
@@ -208,26 +197,22 @@ class TestClass(BasisTest, object):
         assert o.faces[0].move_with_vector([0, 0, 0.01])
         assert type(f.normal) is list
 
-    @pyaedt_unittest_check_desktop_error
     def test_11c_check_object_edges(self):
         o = self.create_copper_box(name="MyBox")
         e = o.edges[1]
         assert isinstance(e.midpoint, list) and len(e.midpoint) == 3
         assert isinstance(e.length, float) and e.length > 0
 
-    @pyaedt_unittest_check_desktop_error
     def test_11d_check_object_vertices(self):
         o = self.create_copper_box(name="MyBox")
         assert len(o.vertices) == 8
         v = o.vertices[0]
         assert isinstance(v.position, list) and len(v.position) == 3
 
-    @pyaedt_unittest_check_desktop_error
     def test_12_get_objects_in_group(self):
         objs = self.aedtapp.modeler.get_objects_in_group("Solids")
         assert type(objs) is list
 
-    @pyaedt_unittest_check_desktop_error
     def test_13_create_circle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.PLANE.XY
@@ -238,7 +223,6 @@ class TestClass(BasisTest, object):
         assert o.is3d is False
         assert not o.solve_inside
 
-    @pyaedt_unittest_check_desktop_error
     def test_14_create_sphere(self):
         udp = self.aedtapp.modeler.Position(20, 20, 0)
         radius = 5
@@ -248,7 +232,6 @@ class TestClass(BasisTest, object):
         assert o.object_type == "Solid"
         assert o.is3d is True
 
-    @pyaedt_unittest_check_desktop_error
     def test_15_create_cylinder(self):
         udp = self.aedtapp.modeler.Position(20, 20, 0)
         axis = self.aedtapp.AXIS.Y
@@ -261,7 +244,6 @@ class TestClass(BasisTest, object):
         assert o.is3d is True
         pass
 
-    @pyaedt_unittest_check_desktop_error
     def test_16_create_ellipse(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.PLANE.XY
@@ -286,7 +268,6 @@ class TestClass(BasisTest, object):
         assert o3.is3d is False
         assert not o3.solve_inside
 
-    @pyaedt_unittest_check_desktop_error
     def test_17_create_object_from_edge(self):
         o = self.create_copper_cylinder()
         edges = o.edges
@@ -300,7 +281,6 @@ class TestClass(BasisTest, object):
         assert o2.is3d is False
         pass
 
-    @pyaedt_unittest_check_desktop_error
     def test_18_create_object_from_face(self):
         o = self.create_copper_cylinder()
         faces = o.faces
@@ -314,7 +294,6 @@ class TestClass(BasisTest, object):
         assert o2.is3d is False
         pass
 
-    @pyaedt_unittest_check_desktop_error
     def test_19_create_polyline(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
@@ -334,7 +313,6 @@ class TestClass(BasisTest, object):
         )
         assert P2.model == False
 
-    @pyaedt_unittest_check_desktop_error
     def test_20_create_polyline_with_crosssection(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
@@ -346,7 +324,6 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler[P.id].object_type == "Solid"
         assert self.aedtapp.modeler[P.id].is3d == True
 
-    @pyaedt_unittest_check_desktop_error
     def test_21_sweep_along_path(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
@@ -363,13 +340,11 @@ class TestClass(BasisTest, object):
         assert swept
         assert rect.name in self.aedtapp.modeler.solid_names
 
-    @pyaedt_unittest_check_desktop_error
     def test_22_sweep_along_vector(self):
         rect2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, -2], [4, 3], name="rect_2")
         assert self.aedtapp.modeler.sweep_along_vector(rect2, [10, 20, 20])
         assert rect2.name in self.aedtapp.modeler.solid_names
 
-    @pyaedt_unittest_check_desktop_error
     def test_23_create_rectangle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.PLANE.XY
@@ -379,7 +354,6 @@ class TestClass(BasisTest, object):
         assert o.object_type == "Sheet"
         assert o.is3d is False
 
-    @pyaedt_unittest_check_desktop_error
     def test_24_create_cone(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         axis = self.aedtapp.AXIS.Z
@@ -389,14 +363,12 @@ class TestClass(BasisTest, object):
         assert o.object_type == "Solid"
         assert o.is3d is True
 
-    @pyaedt_unittest_check_desktop_error
     def test_25_get_object_id(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.PLANE.XY
         o = self.aedtapp.modeler.create_rectangle(plane, udp, [4, 5], name="MyRectangle5")
         assert self.aedtapp.modeler.get_obj_id(o.name) == o.id
 
-    @pyaedt_unittest_check_desktop_error
     def test_26_get_object_names(self):
 
         p1, p2, points = self.create_polylines()
@@ -444,7 +416,6 @@ class TestClass(BasisTest, object):
 
         assert len(all_objects_list) == len(solid_list) + len(line_list) + len(sheet_list)
 
-    @pyaedt_unittest_check_desktop_error
     def test_27_get_object_by_material(self):
         self.create_polylines()
         self.create_copper_box()
@@ -454,7 +425,6 @@ class TestClass(BasisTest, object):
         listsobj = self.aedtapp.modeler.get_objects_by_material("FR4")
         assert len(listsobj) == 0
 
-    @pyaedt_unittest_check_desktop_error
     def test_28_get_object_faces(self):
         self.create_rectangle()
         o = self.aedtapp.modeler["MyRectangle"]
@@ -463,7 +433,6 @@ class TestClass(BasisTest, object):
         assert len(o.vertices) == 4
 
     def test_29_get_edges_from_position(self):
-        self.cache.ignore_error_message_local("Script macro error: Can't find face by name and position.")
         o = self.create_rectangle(name="MyRectangle_for_primitives")
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         edge_id = self.aedtapp.modeler.get_edgeid_from_position(udp, o.name)
@@ -471,9 +440,7 @@ class TestClass(BasisTest, object):
         edge_id = self.aedtapp.modeler.get_edgeid_from_position(udp)
         assert edge_id > 0
 
-    @pyaedt_unittest_check_desktop_error
     def test_30_get_faces_from_position(self):
-        self.cache.ignore_error_message_local("Script macro error: Can't find face by name and position.")
         o = self.create_rectangle("New_Rectangle1")
         edge_id = self.aedtapp.modeler.get_faceid_from_position([5, 3, 8], "New_Rectangle1")
         assert edge_id > 0
@@ -481,7 +448,6 @@ class TestClass(BasisTest, object):
         edge_id = self.aedtapp.modeler.get_faceid_from_position(udp)
         assert not edge_id
 
-    @pyaedt_unittest_check_desktop_error
     def test_31_delete_object(self):
         self.create_rectangle(name="MyRectangle")
         assert "MyRectangle" in self.aedtapp.modeler.object_names
@@ -489,7 +455,6 @@ class TestClass(BasisTest, object):
         assert deleted
         assert "MyRectangle" not in self.aedtapp.modeler.object_names
 
-    @pyaedt_unittest_check_desktop_error
     def test_32_get_face_vertices(self):
         plane = self.aedtapp.PLANE.XY
         rectid = self.aedtapp.modeler.create_rectangle(plane, [1, 2, 3], [7, 13], name="rect_for_get")
@@ -497,13 +462,11 @@ class TestClass(BasisTest, object):
         vertices = self.aedtapp.modeler.get_face_vertices(listfaces[0])
         assert len(vertices) == 4
 
-    @pyaedt_unittest_check_desktop_error
     def test_33_get_edge_vertices(self):
         listedges = self.aedtapp.modeler.get_object_edges("rect_for_get")
         vertices = self.aedtapp.modeler.get_edge_vertices(listedges[0])
         assert len(vertices) == 2
 
-    @pyaedt_unittest_check_desktop_error
     def test_34_get_vertex_position(self):
         listedges = self.aedtapp.modeler.get_object_edges("rect_for_get")
         vertices = self.aedtapp.modeler.get_edge_vertices(listedges[0])
@@ -514,25 +477,21 @@ class TestClass(BasisTest, object):
         edge_length = ((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2 + (pos1[2] - pos2[2]) ** 2) ** 0.5
         assert edge_length == 7
 
-    @pyaedt_unittest_check_desktop_error
     def test_35_get_face_area(self):
         listfaces = self.aedtapp.modeler.get_object_faces("rect_for_get")
         area = self.aedtapp.modeler.get_face_area(listfaces[0])
         assert area == 7 * 13
 
-    @pyaedt_unittest_check_desktop_error
     def test_36_get_face_center(self):
         listfaces = self.aedtapp.modeler.get_object_faces("rect_for_get")
         center = self.aedtapp.modeler.get_face_center(listfaces[0])
         assert center == [4.5, 8.5, 3.0]
 
-    @pyaedt_unittest_check_desktop_error
     def test_37_get_edge_midpoint(self):
         listedges = self.aedtapp.modeler.get_object_edges("rect_for_get")
         point = self.aedtapp.modeler.get_edge_midpoint(listedges[0])
         assert point == [4.5, 2.0, 3.0]
 
-    @pyaedt_unittest_check_desktop_error
     def test_38_get_bodynames_from_position(self):
         center = [20, 20, 0]
         radius = 1
@@ -554,7 +513,6 @@ class TestClass(BasisTest, object):
         polyname = self.aedtapp.modeler.get_bodynames_from_position([-27, -27, 11])
         assert "bill" in polyname
 
-    @pyaedt_unittest_check_desktop_error
     def test_39_getobjects_with_strings(self):
         list1 = self.aedtapp.modeler.get_objects_w_string("MyCone")
         list2 = self.aedtapp.modeler.get_objects_w_string("my", False)
@@ -562,7 +520,6 @@ class TestClass(BasisTest, object):
         assert len(list1) > 0
         assert len(list2) > 0
 
-    @pyaedt_unittest_check_desktop_error
     def test_40_getmodel_objects(self):
         list1 = self.aedtapp.modeler.model_objects
         list2 = self.aedtapp.modeler.non_model_objects
@@ -572,21 +529,18 @@ class TestClass(BasisTest, object):
                 print("Missing {}".format(el))
         assert len(list1) + len(list2) == len(list3)
 
-    @pyaedt_unittest_check_desktop_error
     def test_41a_create_rect_sheet_to_region(self):
         self.aedtapp.modeler.create_region()
         self.create_copper_box(name="MyBox_to_gnd")
         groundplane = self.aedtapp.modeler.create_sheet_to_ground("MyBox_to_gnd")
         assert groundplane.id > 0
 
-    @pyaedt_unittest_check_desktop_error
     def test_41b_create_rect_sheet_to_groundplane(self):
         rect = self.create_rectangle()
         box = self.create_copper_box()
         plane = self.aedtapp.modeler.create_sheet_to_ground(box.name, rect.name, self.aedtapp.AxisDir.ZNeg)
         assert isinstance(plane, Object3d)
 
-    @pyaedt_unittest_check_desktop_error
     def test_41b_get_edges_for_circuit_port(self):
         udp = self.aedtapp.modeler.Position(0, 0, 8)
         plane = self.aedtapp.PLANE.XY
@@ -599,9 +553,7 @@ class TestClass(BasisTest, object):
             "MyGND", XY_plane=True, YZ_plane=False, XZ_plane=False, allow_perpendicular=True, tol=1e-6
         )
 
-    @pyaedt_unittest_check_desktop_error
     def test_42_chamfer(self):
-        self.cache.ignore_error_message_local("Wrong Type Entered. Type must be integer from 0 to 3")
         o = self.create_copper_box(name="MyBox")
         assert o.edges[0].chamfer()
         self.aedtapp._odesign.Undo()
@@ -613,14 +565,12 @@ class TestClass(BasisTest, object):
         self.aedtapp._odesign.Undo()
         assert not o.edges[0].chamfer(chamfer_type=4)
 
-    @pyaedt_unittest_check_desktop_error
     def test_43_fillet_and_undo(self):
         o = self.create_copper_box(name="MyBox")
         assert o.edges[0].fillet()
         self.aedtapp._odesign.Undo()
         assert o.edges[0].fillet()
 
-    @pyaedt_unittest_check_desktop_error
     def test_44_create_polyline_basic_segments(self):
         prim3D = self.aedtapp.modeler
         self.aedtapp["p1"] = "100mm"
@@ -651,7 +601,6 @@ class TestClass(BasisTest, object):
             name="PL04_center_point_arc",
         )
 
-    @pyaedt_unittest_check_desktop_error
     def test_45_create_circle_from_2_arc_segments(self):
         prim3D = self.aedtapp.modeler
         assert prim3D.create_polyline(
@@ -663,7 +612,6 @@ class TestClass(BasisTest, object):
             matname="vacuum",
         )
 
-    @pyaedt_unittest_check_desktop_error
     def test_46_compound_polylines_segments(self):
         prim3D = self.aedtapp.modeler
         self.aedtapp["p1"] = "100mm"
@@ -681,7 +629,6 @@ class TestClass(BasisTest, object):
             position_list=test_points, cover_surface=True, name="SPL01_segmented_compound_line"
         )
 
-    @pyaedt_unittest_check_desktop_error
     def test_47_insert_polylines_segments_test1(self):
         self.aedtapp["p1"] = "100mm"
         self.aedtapp["p2"] = "71mm"
@@ -696,7 +643,6 @@ class TestClass(BasisTest, object):
         assert P.insert_segment(position_list=[start_point, insert_point])
         assert P.insert_segment(position_list=[insert_point, insert_point2])
 
-    @pyaedt_unittest_check_desktop_error
     def test_48_insert_polylines_segments_test2(self):
         prim3D = self.aedtapp.modeler
         self.aedtapp["p1"] = "100mm"
@@ -712,7 +658,6 @@ class TestClass(BasisTest, object):
 
         P.insert_segment(position_list=[start_point, insert_point1, insert_point2], segment="Arc")
 
-    @pyaedt_unittest_check_desktop_error
     def test_49_modify_crossection(self):
 
         P = self.aedtapp.modeler.create_polyline(
@@ -738,7 +683,6 @@ class TestClass(BasisTest, object):
         assert P3.object_type == "Solid"
         assert P4.object_type == "Solid"
 
-    @pyaedt_unittest_check_desktop_error
     def test_50_remove_vertex_from_polyline(self):
 
         p1, p2, test_points = self.create_polylines("Poly_remove_")
@@ -757,7 +701,6 @@ class TestClass(BasisTest, object):
         P3 = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P3.remove_vertex(["0mm", "1mm", "2mm"], abstol=1e-6)
 
-    @pyaedt_unittest_check_desktop_error
     def test_51_remove_edges_from_polyline(self):
 
         modeler = self.aedtapp.modeler
@@ -774,24 +717,17 @@ class TestClass(BasisTest, object):
         P.remove_edges(edge_id=2)
         assert P.name in self.aedtapp.modeler.line_names
 
-    @pyaedt_unittest_check_desktop_error
     def test_52_remove_edges_from_polyline_invalid(self):
-        self.cache.ignore_error_message_local("Body could not be created for part ")
         P = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P.remove_edges(edge_id=[0, 1])
         assert not P.name in self.aedtapp.modeler.line_names
 
-    @pyaedt_unittest_check_desktop_error
     def test_53_duplicate_polyline_and_manipulate(self):
-        # TODO Figure this one out !
-        self.cache.ignore_error_message_local("Body could not be created for part NewObject_")
         P1 = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P2 = P1.clone()
         assert P2.id != P1.id
 
-    @pyaedt_unittest_check_desktop_error
     def test_54_create_bond_wires(self):
-        self.cache.ignore_error_message_local("Wrong Profile Type")
         b0 = self.aedtapp.modeler.create_bondwire(
             [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, facets=8, matname="copper", name="jedec51"
         )
@@ -813,26 +749,21 @@ class TestClass(BasisTest, object):
         )
         assert b4
 
-    @pyaedt_unittest_check_desktop_error
     def test_56_create_group(self):
         assert self.aedtapp.modeler.create_group(["jedec51", "jedec41"], "mygroup")
         assert self.aedtapp.modeler.ungroup("mygroup")
 
-    @pyaedt_unittest_check_desktop_error
     def test_57_flatten_assembly(self):
         assert self.aedtapp.modeler.flatten_assembly()
 
-    @pyaedt_unittest_check_desktop_error
     def test_58_solving_volume(self):
         vol = self.aedtapp.modeler.get_solving_volume()
         assert float(vol) > 0
 
-    @pyaedt_unittest_check_desktop_error
     def test_59_lines(self):
         assert self.aedtapp.modeler.vertex_data_of_lines()
 
     @pytest.mark.skipif("UNITTEST_CURRENT_TEST" in os.environ, reason="Issue in IronPython")
-    @pyaedt_unittest_check_desktop_error
     def test_60_get_edges_on_bounding_box(self):
         self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
         self.aedtapp.load_project(self.test_99_project)
@@ -841,13 +772,12 @@ class TestClass(BasisTest, object):
         edges = self.aedtapp.modeler.get_edges_on_bounding_box(["Port1", "Port2"], return_colinear=False, tol=1e-6)
         assert len(edges) == 4
 
-    @pyaedt_unittest_check_desktop_error
     def test_61_get_closest_edge_to_position(self):
         my_box = self.create_copper_box("test_closest_edge")
         assert isinstance(self.aedtapp.modeler.get_closest_edgeid_to_position([0.2, 0, 0]), int)
         pass
 
-    @pytest.mark.skipif(config["build_machine"] or is_ironpython, reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["NonGraphical"] or is_ironpython, reason="Not running in non-graphical mode")
     def test_62_import_space_claim(self):
         self.aedtapp.insert_design("SCImport")
         assert self.aedtapp.modeler.import_spaceclaim_document(os.path.join(self.local_scratch.path, scdoc))
@@ -929,7 +859,6 @@ class TestClass(BasisTest, object):
         P1 = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]], close_surface=True)
         assert self.aedtapp.modeler.cover_lines(P1)
 
-    @pyaedt_unittest_check_desktop_error
     def test_69_create_torus(self):
         torus = self.create_copper_torus()
         assert torus.id > 0
@@ -938,7 +867,6 @@ class TestClass(BasisTest, object):
         assert torus.is3d is True
 
     @pytest.mark.skipif(is_ironpython, reason="pytest is not supported with IronPython.")
-    @pyaedt_unittest_check_desktop_error
     def test_70_create_torus_exceptions(self):
 
         with pytest.raises(ValueError) as excinfo:
@@ -965,7 +893,6 @@ class TestClass(BasisTest, object):
         #     )
         #     assert "Major radius must be greater than minor radius." in str(excinfo.value)
 
-    @pyaedt_unittest_check_desktop_error
     def test_71_create_point(self):
         name = "mypoint"
         if self.aedtapp.modeler[name]:
@@ -989,7 +916,6 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.modeler.points) == 1
         assert self.aedtapp.modeler.points[0].name == "mypoint2"
 
-    @pyaedt_unittest_check_desktop_error
     def test_71_create_choke(self):
         choke_file1 = os.path.join(
             local_path, "example_models", "choke_json_file", "choke_1winding_1Layer_Corrected.json"
@@ -1052,7 +978,6 @@ class TestClass(BasisTest, object):
             assert isinstance(resolve6[i][0], Object3d)
             assert isinstance(resolve6[i][1], list)
 
-    @pyaedt_unittest_check_desktop_error
     def test_72_check_choke_values(self):
         choke_file1 = os.path.join(local_path, "example_models", "choke_json_file", "choke_1winding_1Layer.json")
         choke_file2 = os.path.join(local_path, "example_models", "choke_json_file", "choke_2winding_1Layer_Common.json")
@@ -1101,7 +1026,6 @@ class TestClass(BasisTest, object):
         assert resolve7[0]
         assert isinstance(resolve7[1], dict)
 
-    @pyaedt_unittest_check_desktop_error
     def test_73_make_winding(self):
         chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
         winding_list = self.aedtapp.modeler._make_winding("Winding", "copper", 29.9, 52.1, 22.2, 5, 15, chamfer, True)
@@ -1109,7 +1033,6 @@ class TestClass(BasisTest, object):
         assert isinstance(winding_list[0], Object3d)
         assert isinstance(winding_list[1], list)
 
-    @pyaedt_unittest_check_desktop_error
     def test_74_make_double_linked_winding(self):
         chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
         winding_list = self.aedtapp.modeler._make_double_linked_winding(
@@ -1131,7 +1054,6 @@ class TestClass(BasisTest, object):
         assert isinstance(winding_list[0], Object3d)
         assert isinstance(winding_list[1], list)
 
-    @pyaedt_unittest_check_desktop_error
     def test_75_make_triple_linked_winding(self):
         chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
         winding_list = self.aedtapp.modeler._make_triple_linked_winding(
@@ -1155,7 +1077,6 @@ class TestClass(BasisTest, object):
         assert isinstance(winding_list[0], Object3d)
         assert isinstance(winding_list[1], list)
 
-    @pyaedt_unittest_check_desktop_error
     def test_76_check_value_type(self):
         resolve1, boolean1 = self.aedtapp.modeler._check_value_type(2, float, True, "SUCCESS", "SUCCESS")
         resolve2, boolean2 = self.aedtapp.modeler._check_value_type(1, int, True, "SUCCESS", "SUCCESS")
@@ -1167,7 +1088,6 @@ class TestClass(BasisTest, object):
         assert isinstance(resolve3, float)
         assert not boolean3
 
-    @pyaedt_unittest_check_desktop_error
     def test_77_create_helix(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
