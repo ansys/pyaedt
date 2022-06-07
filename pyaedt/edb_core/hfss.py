@@ -526,7 +526,7 @@ class EdbHfss(object):
         polygon : The EDB polygon object used to assign the port.
             Edb.Cell.Primitive.Polygon object.
 
-        reference_polygon : Teh EDB polygon object used to define the port reference.
+        reference_polygon : The EDB polygon object used to define the port reference.
             Edb.Cell.Primitive.Polygon object.
 
         terminal_point : The coordinate of the point to define the edge terminal of the port. This point must be
