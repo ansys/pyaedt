@@ -1424,3 +1424,24 @@ if not config["skip_edb"]:
             sim_setup.power_nets = ["RSVD_0", "RSVD_1"]
             sim_setup.signal_nets = ["V3P3_S0"]
             self.edbapp.core_nets.classify_nets(sim_setup)
+
+        def test_100_create_edge_ports(self):
+            edb = Edb(edbpath=os.path.join(local_path, "example_models", "edge_ports.aedb"), edbversion=desktop_version)
+            poly_list = [poly for poly in list(edb.active_layout.Primitives) if poly.GetPrimitiveType() == 2]
+            port_poly = [poly for poly in poly_list if poly.GetId() == 17][0]
+            ref_poly = [poly for poly in poly_list if poly.GetId() == 19][0]
+            port_location = [-65e-3, -13e-3]
+            ref_location = [-63e-3, -13e-3]
+            assert edb.core_hfss.create_edge_port_on_polygon(polygon=port_poly, reference_polygon=ref_poly,
+                                                      terminal_point=port_location, reference_point=ref_location)
+            port_poly = [poly for poly in poly_list if poly.GetId() == 23][0]
+            ref_poly = [poly for poly in poly_list if poly.GetId() == 22][0]
+            port_location = [-65e-3, -10e-3]
+            ref_location = [-65e-3, -10e-3]
+            assert edb.core_hfss.create_edge_port_on_polygon(polygon=port_poly, reference_polygon=ref_poly,
+                                                      terminal_point=port_location, reference_point=ref_location)
+            port_poly = [poly for poly in poly_list if poly.GetId() == 25][0]
+            port_location = [-65e-3, -7e-3]
+            assert edb.core_hfss.create_edge_port_on_polygon(polygon=port_poly, terminal_point=port_location,
+                                                      reference_layer="gnd")
+            edb.close_edb()
