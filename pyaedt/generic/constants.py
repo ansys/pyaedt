@@ -514,7 +514,7 @@ class FlipChipOrientation(object):
 class SolverType(object):
     """Provides solver type classes."""
 
-    (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout) = range(0, 7)
+    (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout, SiwaveSYZ, SiwaveDC) = range(0, 9)
 
 
 class CutoutSubdesignType(object):

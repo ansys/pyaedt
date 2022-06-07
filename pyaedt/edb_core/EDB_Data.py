@@ -4372,8 +4372,10 @@ class SimulationConfiguration(object):
                                     self.solver_type = 0
                                 if value.lower() == "hfss3dlayout":
                                     self.solver_type = 6
-                                elif value.lower().startswith("siwave"):
-                                    self.solver_type = 1
+                                elif value.lower().startswith("siwavesyz"):
+                                    self.solver_type = 6
+                                elif value.lower().startswith("siwavedc"):
+                                    self.solver_type = 8
                                 elif value.lower().startswith("q3d"):
                                     self.solver_type = 2
                                 elif value.lower().startswith("nexxim"):
