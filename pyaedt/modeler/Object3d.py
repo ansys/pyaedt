@@ -1307,6 +1307,68 @@ class Object3d(object):
                 f_val = p_dist
         return f_id
 
+    @pyaedt_function_handler()
+    def largest_face(self, n=1):
+        """Return only the face with the greatest area.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        """
+        f = []
+        for face in self.faces:
+            f.append((face.area, face))
+        f.sort(key=lambda tup: tup[0], reverse=True)
+        f_sorted = [x for y, x in f]
+        return f_sorted[:n]
+
+    @pyaedt_function_handler()
+    def longest_edge(self, n=1):
+        """Return only the edge with the greatest length.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+        """
+        e = []
+        for edge in self.edges:
+            e.append((edge.length, edge))
+        e.sort(key=lambda tup: tup[0], reverse=True)
+        e_sorted = [x for y, x in e]
+        return e_sorted[:n]
+
+    @pyaedt_function_handler()
+    def smallest_face(self, n=1):
+        """Return only the face with the smallest area.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        """
+        f = []
+        for face in self.faces:
+            f.append((face.area, face))
+        f.sort(key=lambda tup: tup[0])
+        f_sorted = [x for y, x in f]
+        return f_sorted[:n]
+
+    @pyaedt_function_handler()
+    def shortest_edge(self, n=1):
+        """Return only the edge with the smallest length.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+        """
+        e = []
+        for edge in self.edges:
+            e.append((edge.length, edge))
+        e.sort(
+            key=lambda tup: tup[0],
+        )
+        e_sorted = [x for y, x in e]
+        return e_sorted[:n]
+
     @property
     def top_face_z(self):
         """Top face in the Z direction of the object.
