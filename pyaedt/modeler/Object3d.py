@@ -1270,12 +1270,12 @@ class Object3d(object):
 
         Returns
         -------
-        list
+        List of :class:`pyaedt.modeler.Object3d.FacePrimitive`
         """
         f_list = []
         for face in self.faces:
             if face.is_on_bounding():
-                f_list.append(face.id)
+                f_list.append(face)
         return f_list
 
     @property
@@ -1284,7 +1284,7 @@ class Object3d(object):
 
         Returns
         -------
-        int
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
         """
         b = [float(i) for i in list(self.m_Editor.GetModelBoundingBox())]
         f_id = None
@@ -1303,7 +1303,7 @@ class Object3d(object):
             )
 
             if f_val and p_dist < f_val or not f_val:
-                f_id = face.id
+                f_id = face
                 f_val = p_dist
         return f_id
 
