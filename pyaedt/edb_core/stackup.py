@@ -5,6 +5,7 @@ This module contains the `EdbStackup` class.
 
 from __future__ import absolute_import  # noreorder
 
+import logging
 import math
 import os
 import warnings
@@ -21,6 +22,8 @@ try:
 except ImportError:
     if os.name != "posix":
         warnings.warn('This module requires the "pythonnet" package.')
+
+logger = logging.getLogger(__name__)
 
 
 class EdbStackup(object):
@@ -732,6 +735,98 @@ class EdbStackup(object):
             self._get_edb_value(math.cos(_angle)), self._get_edb_value(-1 * math.sin(_angle)), zero_data
         )
         cell_inst2.Set3DTransformation(point_loc, point_from, point_to, rotation, point3d_t)
+        return True
+
+    @pyaedt_function_handler()
+    def place_a3dcomp_3d_placement(self, a3dcomp_path, angle=0.0, offset_x=0.0, offset_y=0.0, place_on_top=True):
+        """Place current Cell into another cell using 3d placement method.
+        Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
+
+        Parameters
+        ----------
+        a3dcomp_path : str
+            Path to 3D Component file (*.a3dcomp) to place.
+        angle : double, optional
+            Clockwise rotation angle applied to the a3dcomp.
+        offset_x : double, optional
+            The x offset value.
+        offset_y : double, optional
+            The y offset value.
+        place_on_top : bool, optional
+            Whether to place the 3D Component on the top or bottom of this layout.
+            If False then the 3D Component will also be flipped over around its X axis.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful and ``False`` if not.
+
+        Examples
+        --------
+        >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
+        >>> a3dcomp_path = "connector.a3dcomp"
+        >>> edb1.core_stackup.place_a3dcomp_3d_placement(a3dcomp_path, angle=0.0, offset_x="1mm",
+        ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
+        ...                                   )
+        """
+        zero_data = self._get_edb_value(0.0)
+        one_data = self._get_edb_value(1.0)
+        local_origin = self._edb.Geometry.Point3DData(zero_data, zero_data, zero_data)
+        rotation_axis_from = self._edb.Geometry.Point3DData(one_data, zero_data, zero_data)
+        _angle = angle * math.pi / 180.0
+        rotation_axis_to = self._edb.Geometry.Point3DData(
+            self._get_edb_value(math.cos(_angle)), self._get_edb_value(-1 * math.sin(_angle)), zero_data
+        )
+
+        stackup_target = self._active_layout.GetLayerCollection()
+        sig_set = self._edb.Cell.LayerTypeSet.SignalLayerSet
+        if is_ironpython:  # pragma: no cover
+            res = stackup_target.GetTopBottomStackupLayers(sig_set)
+            target_top_elevation = res[2]
+            target_bottom_elevation = res[4]
+        else:
+            target_top = None
+            target_top_elevation = Double(0.0)
+            target_bottom = None
+            target_bottom_elevation = Double(0.0)
+            res = stackup_target.GetTopBottomStackupLayers(
+                sig_set, target_top, target_top_elevation, target_bottom, target_bottom_elevation
+            )
+
+            target_top_elevation = res[2]
+            target_bottom_elevation = res[4]
+
+        flip_angle = self._get_edb_value("0deg")
+        if place_on_top:
+            elevation = target_top_elevation
+        else:
+            flip_angle = self._get_edb_value("180deg")
+            elevation = target_bottom_elevation
+        h_stackup = self._get_edb_value(elevation)
+        location = self._edb.Geometry.Point3DData(
+            self._get_edb_value(offset_x), self._get_edb_value(offset_y), h_stackup
+        )
+
+        mcad_model = self._edb.McadModel.Create3DComp(self._active_layout, a3dcomp_path)
+        if mcad_model.IsNull():  # pragma: no cover
+            logger.error("Failed to create MCAD model from a3dcomp")
+            return False
+
+        cell_instance = mcad_model.GetCellInstance()
+        if cell_instance.IsNull():  # pragma: no cover
+            logger.error("Cell instance of a3dcomp is null")
+            return False
+
+        if not cell_instance.SetIs3DPlacement(True):  # pragma: no cover
+            logger.error("Failed to set 3D placement on a3dcomp cell instance")
+            return False
+
+        if not cell_instance.Set3DTransformation(
+            local_origin, rotation_axis_from, rotation_axis_to, flip_angle, location
+        ):  # pragma: no cover
+            logger.error("Failed to set 3D transform on a3dcomp cell instance")
+            return False
+
         return True
 
     @pyaedt_function_handler()

@@ -3229,17 +3229,27 @@ class Design(AedtObjects, object):
         >>> M3D["p3"] = "P1 * p2"
         >>> eval_p3 = M3D.get_evaluated_value("p3")
         """
+        val = None
+        var_obj = None
         if "$" in variable_name:
             app = self._oproject
+            var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
+
         else:
             app = self._odesign
-        var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
+            if self.design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design"]:
+                if variable_name in self.get_oo_name(app, "Instance:{}".format(self._odesign.GetName())):
+                    var_obj = self.get_oo_object(app, "Instance:{}/{}".format(self._odesign.GetName(), variable_name))
+                elif variable_name in self.get_oo_object(app, "DefinitionParameters").GetPropNames():
+                    val = self.get_oo_object(app, "DefinitionParameters").GetPropValue(variable_name)
+            else:
+                var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
         if var_obj:
             if is_ironpython:  # pragma: no cover
                 val = var_obj.Get_SIValue()
             else:
                 val = var_obj.Get_SIValue
-        else:
+        elif not val:
             try:
                 variation_string = self._odesign.GetNominalVariation()
                 val = self._odesign.GetVariationVariableValue(variation_string, variable_name)  # pragma: no cover
