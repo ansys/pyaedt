@@ -588,11 +588,10 @@ class FieldAnalysis3D(Analysis, object):
         """
         selections = self.modeler.convert_to_selections(obj, True)
 
-        if mat.lower() not in self.materials.material_keys:
-            matobj = self.materials._aedmattolibrary(mat)
-        else:
+        if mat.lower() in self.materials.material_keys:
             matobj = self.materials.material_keys[mat.lower()]
-
+        elif self.materials._get_aedt_case_name(mat):
+            matobj = self.materials._aedmattolibrary(mat)
         if matobj:
             slice_sel = min(50, len(selections))
             num_objects = len(selections)
