@@ -594,12 +594,12 @@ class FieldAnalysis3D(Analysis, object):
             matobj = self.materials.material_keys[mat.lower()]
 
         if matobj:
-            slice = min(50, len(selections))
+            slice_sel = min(50, len(selections))
             num_objects = len(selections)
             remaining = num_objects
             objs_groups = []
             while remaining > 1:
-                objs = selections[:slice]
+                objs = selections[:slice_sel]
                 szSelections = self.modeler.convert_to_selections(objs)
                 vArg1 = [
                     "NAME:Selections",
@@ -629,9 +629,9 @@ class FieldAnalysis3D(Analysis, object):
                 ]
                 self.oeditor.AssignMaterial(vArg1, vArg2)
                 objs_groups.append(objs[0])
-                remaining -= slice
+                remaining -= slice_sel
                 if remaining > 0:
-                    selections = selections[slice:]
+                    selections = selections[slice_sel:]
             if remaining > 0:
                 objs_groups.extend(selections)
             self.modeler.cleanup_objects()
