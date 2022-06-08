@@ -588,20 +588,58 @@ class FieldAnalysis3D(Analysis, object):
         """
         selections = self.modeler.convert_to_selections(obj, True)
 
-        if mat.lower() not in self.materials.material_keys:
-            matobj = self.materials._aedmattolibrary(mat)
-        else:
+        if mat.lower() in self.materials.material_keys:
             matobj = self.materials.material_keys[mat.lower()]
-
+        elif self.materials._get_aedt_case_name(mat):
+            matobj = self.materials._aedmattolibrary(mat)
         if matobj:
-            self.logger.info("Assign Material " + mat + " to object " + str(selections))
+            slice_sel = min(50, len(selections))
+            num_objects = len(selections)
+            remaining = num_objects
+            objs_groups = []
+            while remaining > 1:
+                objs = selections[:slice_sel]
+                szSelections = self.modeler.convert_to_selections(objs)
+                vArg1 = [
+                    "NAME:Selections",
+                    "AllowRegionDependentPartSelectionForPMLCreation:=",
+                    True,
+                    "AllowRegionSelectionForPMLCreation:=",
+                    True,
+                    "Selections:=",
+                    szSelections,
+                ]
+                vArg2 = [
+                    "NAME:Attributes",
+                    "MaterialValue:=",
+                    '"{}"'.format(matobj.name),
+                    "SolveInside:=",
+                    matobj.is_dielectric(),
+                    "ShellElement:=",
+                    False,
+                    "ShellElementThickness:=",
+                    "nan ",
+                    "IsMaterialEditable:=",
+                    True,
+                    "UseMaterialAppearance:=",
+                    True,
+                    "IsLightweight:=",
+                    False,
+                ]
+                self.oeditor.AssignMaterial(vArg1, vArg2)
+                objs_groups.append(objs[0])
+                remaining -= slice_sel
+                if remaining > 0:
+                    selections = selections[slice_sel:]
+            if remaining > 0:
+                objs_groups.extend(selections)
+            self.modeler.cleanup_objects()
+            if len(objs_groups) > 1:
+                return self.assign_material(objs_groups, matobj.name)
             for el in selections:
-                self.modeler[el].material_name = matobj.name
-                self.modeler[el].color = matobj.material_appearance
-                if matobj.is_dielectric():
-                    self.modeler[el].solve_inside = True
-                else:
-                    self.modeler[el].solve_inside = False
+                self.modeler[el]._material_name = matobj.name
+                self.modeler[el]._color = matobj.material_appearance
+                self.modeler[el]._solve_inside = matobj.is_dielectric()
             return True
         else:
             self.logger.error("Material does not exist.")
