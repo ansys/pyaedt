@@ -2601,6 +2601,48 @@ class Object3d(object):
         self.__dict__ = {}
 
     @pyaedt_function_handler()
+    def faces_by_area(self, area, area_filter="==", tolerance=1e-12):
+        """Filter faces by area.
+
+        Parameters
+        ----------
+        area : float
+            Value of the area to filter.
+        area_filter : str, optional
+            Comparer symbol.
+            Default value is "==".
+        tolerance : float, optional
+            tolerance for comparison.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        """
+        filters = ["==", "<=", ">=", "<", ">"]
+        if area_filter not in filters:
+            raise ValueError('Symbol not valid, enter one of the following: "==", "<=", ">=", "<", ">"')
+
+        faces = []
+        for face in self.faces:
+            if area_filter is "==":
+                if abs(face.area - area) < tolerance:
+                    faces.append(face)
+            if area_filter is ">=":
+                if (face.area - area) >= tolerance:
+                    faces.append(face)
+            if area_filter is "<=":
+                if (face.area - area) <= tolerance:
+                    faces.append(face)
+            if area_filter is ">":
+                if (face.area - area) > tolerance:
+                    faces.append(face)
+            if area_filter is "<":
+                if (face.area - area) < tolerance:
+                    faces.append(face)
+
+        return faces
+
+    @pyaedt_function_handler()
     def _change_property(self, vPropChange):
         return self._primitives._change_geometry_property(vPropChange, self._m_name)
 
