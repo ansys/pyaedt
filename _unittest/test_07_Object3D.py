@@ -2,12 +2,18 @@
 import math
 
 from _unittest.conftest import BasisTest
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import isclose
 from pyaedt.generic.general_methods import time_fn
 from pyaedt.modeler.Object3d import _to_boolean
 from pyaedt.modeler.Object3d import _uname
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
+
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 
 
 class TestClass(BasisTest, object):
@@ -416,3 +422,53 @@ class TestClass(BasisTest, object):
         assert box3.volume == 100
         rec = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 10])
         assert rec.volume == 0.0
+
+    def test_24_filter_faces_by_area(self):
+        faces_equal = []
+        for obj in self.aedtapp.modeler.object_list:
+            if obj.faces_by_area(100):
+                faces_equal.append(obj.faces_by_area(100))
+        if faces_equal:
+            for face_object in faces_equal:
+                for face in face_object:
+                    assert abs(face.area - 100) < 1e-12
+
+        faces_greater_equal = []
+        for obj in self.aedtapp.modeler.object_list:
+            if obj.faces_by_area(100):
+                faces_greater_equal.append(obj.faces_by_area(100, ">="))
+        if faces_greater_equal:
+            for face_object in faces_greater_equal:
+                for face in face_object:
+                    assert (face.area - 100) >= 1e-12
+
+        faces_smaller_equal = []
+        for obj in self.aedtapp.modeler.object_list:
+            if obj.faces_by_area(100):
+                faces_smaller_equal.append(obj.faces_by_area(100, "<="))
+        if faces_smaller_equal:
+            for face_object in faces_smaller_equal:
+                for face in face_object:
+                    assert (face.area - 100) <= 1e-12
+
+        faces_greater = []
+        for obj in self.aedtapp.modeler.object_list:
+            if obj.faces_by_area(100):
+                faces_greater.append(obj.faces_by_area(100, ">"))
+        if faces_greater:
+            for face_object in faces_greater:
+                for face in face_object:
+                    assert (face.area - 100) > 1e-12
+
+        faces_smaller = []
+        for obj in self.aedtapp.modeler.object_list:
+            if obj.faces_by_area(100):
+                faces_smaller.append(obj.faces_by_area(100, "<"))
+        if faces_smaller:
+            for face_object in faces_smaller:
+                for face in face_object:
+                    assert (face.area - 100) < 1e-12
+
+        if not is_ironpython:
+            with pytest.raises(ValueError):
+                self.aedtapp.modeler.object_list[0].faces_by_area(100, "<<")
