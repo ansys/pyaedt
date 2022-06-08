@@ -1849,9 +1849,12 @@ class Patch(CommonObject, object):
             name=self.name + "_port",
             matname=None,
         )
-        port = self.application.create_lumped_port_to_sheet(
-                    port.name, portname=port_name, reference_object_list=[reference_layer.name]
-        )
+        if self.application.solution_type == "Modal":
+            port = self.application.create_lumped_port_to_sheet(port.name, portname=port_name)
+        elif self.application.solution_type == "Terminal":
+            port = self.application.create_lumped_port_to_sheet(
+                port.name, portname=port_name, reference_object_list=[reference_layer.name]
+            )
         return port
 
 
