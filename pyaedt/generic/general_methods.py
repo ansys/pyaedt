@@ -707,6 +707,7 @@ class Settings(object):
         self._use_grpc_api = False
         self.machine = ""
         self.port = 0
+        self.formatter = None
 
     @property
     def use_grpc_api(self):
