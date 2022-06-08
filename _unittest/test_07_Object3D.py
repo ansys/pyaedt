@@ -132,6 +132,12 @@ class TestClass(BasisTest, object):
         for vertex in object_vertices:
             assert len(vertex.position) == 3
 
+    def test_02a_is_in_edge(self):
+        egde_vertices = [[2, 3, 1], [5, 4, 1]]
+        for obj in self.aedtapp.modeler.object_list:
+            obj.is_in_edge()
+            pass
+
     def test_03_FacePrimitive(self):
         o_box = self.create_copper_box("PrimitiveBox")
         o_sphere = self.create_copper_sphere("PrimitiveSphere")

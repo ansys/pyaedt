@@ -2601,6 +2601,49 @@ class Object3d(object):
         self.__dict__ = {}
 
     @pyaedt_function_handler()
+    def is_in_edge(self, edge_vertices=[[0, 0, 0], [0, 0, 0]]):
+        """
+        Check if a list of vertices is in an edge.
+
+        Parameters
+        ----------
+        edge_vertices : list.
+            List of coordinates to check.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+        """
+
+        x_0_input = edge_vertices[0][0]
+        y_0_input = edge_vertices[0][1]
+        z_0_input = edge_vertices[0][2]
+        x_1_input = edge_vertices[1][0]
+        y_1_input = edge_vertices[1][1]
+        z_1_input = edge_vertices[1][2]
+
+        edges = []
+        for edge in self.edges:
+            first_vertex = edge.vertices[0].position
+            second_vertex = edge.vertices[1].position
+            x_0 = first_vertex[0]
+            y_0 = first_vertex[1]
+            z_0 = first_vertex[2]
+            x_1 = second_vertex[0]
+            y_1 = second_vertex[1]
+            z_1 = second_vertex[2]
+
+            if x_1 <= x_0_input <= x_0:
+                if y_1 <= y_0_input <= y_0:
+                    if z_1 <= z_0_input <= z_0:
+                        if x_1 <= x_1_input <= x_0:
+                            if y_1 <= y_1_input <= y_0:
+                                if z_1 <= z_1_input <= z_0:
+                                    edges.append(edge_vertices)
+
+        return edge_vertices
+
+    @pyaedt_function_handler()
     def _change_property(self, vPropChange):
         return self._primitives._change_geometry_property(vPropChange, self._m_name)
 
