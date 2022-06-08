@@ -110,6 +110,10 @@ class TestClass(BasisTest, object):
     def test_02c_geo_layer(self):
         assert self.aedtapp.modeler.geometries["line_1983"].placement_layer
         assert len(self.aedtapp.modeler.layers.drawing_layers) > 0
+        assert len(self.aedtapp.modeler.layers.all_signal_layers) > 0
+        assert len(self.aedtapp.modeler.layers.all_diel_layers) > 0
+        assert isinstance(self.aedtapp.modeler.layers.all_signal_layers[0], str)
+        assert isinstance(self.aedtapp.modeler.layers.all_diel_layers[0], str)
 
     def test_02d_geo_lock(self):
         self.aedtapp.modeler.geometries["line_1983"].lock_position = True

@@ -637,7 +637,7 @@ class Layers(object):
 
         >>> oEditor.GetStackupLayerNames()
         """
-        return self.oeditor.GetStackupLayerNames()
+        return [i for i in self.oeditor.GetStackupLayerNames() if ";" not in i]
 
     @property
     def drawing_layers(self):
@@ -654,7 +654,7 @@ class Layers(object):
         >>> oEditor.GetAllLayerNames()
         """
         stackup = self.all_layers
-        return [i for i in list(self.oeditor.GetAllLayerNames()) if i not in stackup]
+        return [i for i in list(self.oeditor.GetAllLayerNames()) if i not in stackup and ";" not in i]
 
     @property
     def all_signal_layers(self):
@@ -692,7 +692,7 @@ class Layers(object):
             if layid not in self.layers:
                 self.refresh_all_layers()
             if self.layers[layid].type == "dielectric":
-                die.append(layid)
+                die.append(lay)
         return die
 
     @pyaedt_function_handler()
@@ -723,7 +723,7 @@ class Layers(object):
         int
             Number of layers in the current stackup.
         """
-        layernames = self.oeditor.GetAllLayerNames()
+        layernames = [i for i in self.oeditor.GetAllLayerNames() if ";" not in i]
         for el in layernames:
             o = Layer(self, "signal")
             o.name = el
