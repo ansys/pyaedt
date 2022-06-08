@@ -100,6 +100,25 @@ class TestClass(BasisTest, object):
     #     logger.clear_messages("", "", 2)
     #     assert not logger.get_messages().global_level
 
+    def test_01_formatter(self):
+        settings.formatter = logging.Formatter(
+            fmt="%(asctime)s (%(levelname)s) %(message)s", datefmt="%d.%m.%Y %H:%M:%S"
+        )
+        temp_dir = tempfile.gettempdir()
+        logging_dir = os.path.join(temp_dir, "log_testing")
+        if not os.path.exists(logging_dir):
+            os.makedirs(logging_dir)
+        path = os.path.join(logging_dir, "test01.txt")
+        logger = AedtLogger(filename=path)
+        assert logger.formatter == settings.formatter
+        settings.formatter = None
+        logger.disable_log_on_file()
+
+        for handler in logger._global.handlers:
+            if isinstance(handler, logging.FileHandler):
+                handler.close()
+                logger.removeHandler(handler)
+
     def test_02_output_file_with_app_filter(self):
         content = None
         temp_dir = tempfile.gettempdir()
