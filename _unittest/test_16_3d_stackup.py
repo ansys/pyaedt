@@ -51,7 +51,7 @@ class TestClass(BasisTest, object):
         assert line2._added_length_calcul
         assert line2.frequency.numeric_value == 1e9
         assert line2.substrate_thickness.numeric_value == 1.2
-        assert line1.width.numeric_value == 3.0
+        assert abs(line1.width.numeric_value - 3.0) < 1e-9
         assert line2.permittivity.numeric_value == 4.4
         assert line2._permittivity_calcul
 
