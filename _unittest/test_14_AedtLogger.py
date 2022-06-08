@@ -112,6 +112,12 @@ class TestClass(BasisTest, object):
         logger = AedtLogger(filename=path)
         assert logger.formatter == settings.formatter
         settings.formatter = None
+        logger.disable_log_on_file()
+
+        for handler in logger._global.handlers:
+            if isinstance(handler, logging.FileHandler):
+                handler.close()
+                logger.removeHandler(handler)
 
     def test_02_output_file_with_app_filter(self):
         content = None
