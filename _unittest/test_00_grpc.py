@@ -21,7 +21,6 @@ if not is_ironpython and config["desktopVersion"] >= "2022.2":
 
         def teardown_class(self):
             settings.use_grpc_api = config["use_grpc"]
-            BasisTest.my_teardown(self)
 
         def test_00_destkop(self):
             d = Desktop(specified_version="2022.2", new_desktop_session=True)
