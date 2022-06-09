@@ -2991,7 +2991,7 @@ class Source(object):
         self._negative_node = Node()
         self._amplitude = 1.0
         self._phase = 0.0
-        self._impedance_value = 0.0
+        self._impedance_value = 1.0
         self._config_init()
 
     def _config_init(self):
@@ -3015,13 +3015,13 @@ class Source(object):
 
     @source_type.setter
     def source_type(self, value):
-        if isinstance(value, SourceType):
+        if isinstance(value, int):
             self._source_type = value
-            if value == SourceType.Vsource:
+            if value == 3:
                 self._impedance_value = 1e-6
-            if value == SourceType.Isource:
+            if value == 4:
                 self._impedance_value = 5e7
-            if value == SourceType.Resistor:
+            if value == 5:
                 self._impedance_value = 1.0
 
     @property
@@ -4610,12 +4610,18 @@ class SimulationConfiguration(object):
         else:
             return False
 
-    def add_dc_source(self, source_type=SourceType.Vsource, name="", amplitude=1.0, phase=0.0,
+    def add_dc_source(self, source_type=SourceType.Vsource, name="", amplitude=1.0, phase=0.0, impedance=1.0,
                     positive_node_component="", positive_node_net="", negative_node_component="", negative_node_net=""):
         if not isinstance(source_type, int):
             return False
         if name == "":
-            name = generate_unique_name("v_source")
+            if isinstance(source_type, int):
+                if source_type == 3:
+                    name = generate_unique_name("v_source")
+                elif source_type == 4:
+                    name = generate_unique_name("I_source")
+                elif source_type == 5:
+                    name = generate_unique_name("R")
         if not isinstance(amplitude, float):
             return False
         if not isinstance(phase, float):
@@ -4628,13 +4634,15 @@ class SimulationConfiguration(object):
             return False
         if not isinstance(negative_node_net, str):
             return False
+        if not isinstance(impedance, float):
+            return False
         source = Source()
-        if source_type == SourceType.Vsource:
-            source.type = SourceType.Vsource
-        elif source_type == SourceType.Isource:
-            source.type = SourceType.Isource
-        elif source_type == SourceType.Resistor:
-            source.type = SourceType.Resistor
+        if source_type == 3:
+            source.source_type = SourceType.Vsource
+        elif source_type == 4:
+            source.source_type = SourceType.Isource
+        elif source_type == 5:
+            source.source_type = SourceType.Resistor
         source.name = name
         source.amplitude = amplitude
         source.phase = phase
@@ -4642,6 +4650,7 @@ class SimulationConfiguration(object):
         source.positive_node.net = positive_node_net
         source.negative_node.component = negative_node_component
         source.negative_node.net = negative_node_net
+        source.impedance_value = impedance
         try:
             self.sources.append(source)
             return True
