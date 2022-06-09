@@ -1180,30 +1180,30 @@ class Stackup3D(object):
     @pyaedt_function_handler()
     def add_signal_layer(self, name, material="copper", thickness=0.035, fill_material="FR4_epoxy"):
         """Add a new ground layer to the stackup.
-                A signal layer is positive. The layer is entirely filled with the fill material.
-                Anything will be drawn wmaterial.
+        A signal layer is positive. The layer is entirely filled with the fill material.
+        Anything will be drawn wmaterial.
 
-                Parameters
-                ----------
-                name : str
-                    Layer name.
-                material : str
-                    Material name. Material will be parametrized.
-                thickness : float
-                    Thickness value. Thickness will be parametrized.
-                fill_material : str
-                    Fill Material name. Material will be parametrized.=
-                material : str, optional
-                    Material name. Material will be parametrized. Default value is `"copper"`.
-                thickness : float, optional
-                    Thickness value. Thickness will be parametrized. Default value is `0.035`.
-                fill_material : str, optional
-                    Fill material name. Material will be parametrized. Default value is `"FR4_epoxy"`.
+        Parameters
+        ----------
+        name : str
+            Layer name.
+        material : str
+            Material name. Material will be parametrized.
+        thickness : float
+            Thickness value. Thickness will be parametrized.
+        fill_material : str
+            Fill Material name. Material will be parametrized.=
+        material : str, optional
+            Material name. Material will be parametrized. Default value is `"copper"`.
+        thickness : float, optional
+            Thickness value. Thickness will be parametrized. Default value is `0.035`.
+        fill_material : str, optional
+            Fill material name. Material will be parametrized. Default value is `"FR4_epoxy"`.
 
-                Returns
-                -------
-                :class:`pyaedt.modeler.stackup_3d.Layer3D`
-                    Layer object.
+        Returns
+        -------
+        :class:`pyaedt.modeler.stackup_3d.Layer3D`
+            Layer object.
         """
         return self.add_layer(
             name=name, layer_type="S", material=material, thickness=thickness, fill_material=fill_material
