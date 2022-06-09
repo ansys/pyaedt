@@ -67,7 +67,6 @@ class TestClass(BasisTest, object):
         assert not setup1.enable_adaptive_setup_broadband(1, 2.5, 10, 0.01)
         assert not setup1.enable_adaptive_setup_single(3.5)
         self.aedtapp.solution_type = sol
-        self.aedtapp.duplicate_design("non_valid1", False)
 
     def test_04_delete_setup(self):
         self.aedtapp.insert_design("delete_setups")
