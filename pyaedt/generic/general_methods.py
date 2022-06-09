@@ -704,7 +704,7 @@ class Settings(object):
         self._non_graphical = False
         self.aedt_version = None
         self.remote_api = False
-        self._use_grpc_api = False
+        self._use_grpc_api = True
         self.machine = ""
         self.port = 0
         self.formatter = None
