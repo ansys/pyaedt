@@ -470,3 +470,66 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             return wgbox, p1, p2
         else:
             return None
+
+    @pyaedt_function_handler()
+    def objects_in_bounding_box(self, bounding_box, check_solids=True, check_lines=True, check_sheets=True):
+        """Given a bounding box checks if objects, sheets and lines are inside it.
+
+        Parameters
+        ----------
+        bounding_box : list.
+            List of coordinates of bounding box.
+        check_solids : bool, optional.
+            Check solid objects.
+        check_lines : bool, optional.
+            Check line objects.
+        check_sheets : bool, optional.
+            Check sheet objects.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d`
+        """
+
+        if len(bounding_box) != 6:
+            raise ValueError("Bounding box list must have dimension 6.")
+
+        objects = []
+
+        if check_solids:
+            for obj in self.solid_objects:
+                if (
+                    bounding_box[3] <= obj.bounding_box[0] <= bounding_box[0]
+                    and bounding_box[4] <= obj.bounding_box[1] <= bounding_box[1]
+                    and bounding_box[5] <= obj.bounding_box[2] <= bounding_box[2]
+                    and bounding_box[3] <= obj.bounding_box[3] <= bounding_box[0]
+                    and bounding_box[4] <= obj.bounding_box[4] <= bounding_box[1]
+                    and bounding_box[5] <= obj.bounding_box[5] <= bounding_box[2]
+                ):
+                    objects.append(obj)
+
+        if check_lines:
+            for obj in self.line_objects:
+                if (
+                    bounding_box[3] <= obj.bounding_box[0] <= bounding_box[0]
+                    and bounding_box[4] <= obj.bounding_box[1] <= bounding_box[1]
+                    and bounding_box[5] <= obj.bounding_box[2] <= bounding_box[2]
+                    and bounding_box[3] <= obj.bounding_box[3] <= bounding_box[0]
+                    and bounding_box[4] <= obj.bounding_box[4] <= bounding_box[1]
+                    and bounding_box[5] <= obj.bounding_box[5] <= bounding_box[2]
+                ):
+                    objects.append(obj)
+
+        if check_sheets:
+            for obj in self.sheet_objects:
+                if (
+                    bounding_box[3] <= obj.bounding_box[0] <= bounding_box[0]
+                    and bounding_box[4] <= obj.bounding_box[1] <= bounding_box[1]
+                    and bounding_box[5] <= obj.bounding_box[2] <= bounding_box[2]
+                    and bounding_box[3] <= obj.bounding_box[3] <= bounding_box[0]
+                    and bounding_box[4] <= obj.bounding_box[4] <= bounding_box[1]
+                    and bounding_box[5] <= obj.bounding_box[5] <= bounding_box[2]
+                ):
+                    objects.append(obj)
+
+        return objects

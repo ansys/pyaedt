@@ -2601,47 +2601,84 @@ class Object3d(object):
         self.__dict__ = {}
 
     @pyaedt_function_handler()
-    def is_in_edge(self, edge_vertices=[[0, 0, 0], [0, 0, 0]]):
-        """
-        Check if a list of vertices is in an edge.
-
+    def faces_by_area(self, area, area_filter="==", tolerance=1e-12):
+        """Filter faces by area.
         Parameters
         ----------
-        edge_vertices : list.
-            List of coordinates to check.
+        area : float
+            Value of the area to filter.
+        area_filter : str, optional
+            Comparer symbol.
+            Default value is "==".
+        tolerance : float, optional
+            tolerance for comparison.
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        """
+        filters = ["==", "<=", ">=", "<", ">"]
+        if area_filter not in filters:
+            raise ValueError('Symbol not valid, enter one of the following: "==", "<=", ">=", "<", ">"')
 
+        faces = []
+        for face in self.faces:
+            if area_filter == "==":
+                if abs(face.area - area) < tolerance:
+                    faces.append(face)
+            if area_filter == ">=":
+                if (face.area - area) >= -tolerance:
+                    faces.append(face)
+            if area_filter == "<=":
+                if (face.area - area) <= tolerance:
+                    faces.append(face)
+            if area_filter == ">":
+                if (face.area - area) > 0:
+                    faces.append(face)
+            if area_filter == "<":
+                if (face.area - area) < 0:
+                    faces.append(face)
+
+        return faces
+
+    @pyaedt_function_handler()
+    def edges_by_length(self, length, length_filter="==", tolerance=1e-12):
+        """Filter edges by length.
+        Parameters
+        ----------
+        length : float
+            Value of the length to filter.
+        length_filter : str, optional
+            Comparer symbol.
+            Default value is "==".
+        tolerance : float, optional
+            tolerance for comparison.
         Returns
         -------
         list of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
         """
-
-        x_0_input = edge_vertices[0][0]
-        y_0_input = edge_vertices[0][1]
-        z_0_input = edge_vertices[0][2]
-        x_1_input = edge_vertices[1][0]
-        y_1_input = edge_vertices[1][1]
-        z_1_input = edge_vertices[1][2]
+        filters = ["==", "<=", ">=", "<", ">"]
+        if length_filter not in filters:
+            raise ValueError('Symbol not valid, enter one of the following: "==", "<=", ">=", "<", ">"')
 
         edges = []
         for edge in self.edges:
-            first_vertex = edge.vertices[0].position
-            second_vertex = edge.vertices[1].position
-            x_0 = first_vertex[0]
-            y_0 = first_vertex[1]
-            z_0 = first_vertex[2]
-            x_1 = second_vertex[0]
-            y_1 = second_vertex[1]
-            z_1 = second_vertex[2]
+            if length_filter == "==":
+                if abs(edge.length - length) < tolerance:
+                    edges.append(edge)
+            if length_filter == ">=":
+                if (edge.length - length) >= -tolerance:
+                    edges.append(edge)
+            if length_filter == "<=":
+                if (edge.length - length) <= tolerance:
+                    edges.append(edge)
+            if length_filter == ">":
+                if (edge.length - length) > 0:
+                    edges.append(edge)
+            if length_filter == "<":
+                if (edge.length - length) < 0:
+                    edges.append(edge)
 
-            if x_1 <= x_0_input <= x_0:
-                if y_1 <= y_0_input <= y_0:
-                    if z_1 <= z_0_input <= z_0:
-                        if x_1 <= x_1_input <= x_0:
-                            if y_1 <= y_1_input <= y_0:
-                                if z_1 <= z_1_input <= z_0:
-                                    edges.append(edge_vertices)
-
-        return edge_vertices
+        return edges
 
     @pyaedt_function_handler()
     def _change_property(self, vPropChange):
