@@ -1180,33 +1180,33 @@ class Stackup3D(object):
     @pyaedt_function_handler()
     def add_signal_layer(self, name, material="copper", thickness=0.035, fill_material="FR4_epoxy"):
         """Add a new ground layer to the stackup.
-        A signal layer is positive. The layer is entirely filled with the fill material.
-        Anything will be drawn wmaterial.
+                A signal layer is positive. The layer is entirely filled with the fill material.
+                Anything will be drawn wmaterial.
 
-        Parameters
-        ----------
-        name : str
-            Layer name.
-<<<<<<< HEAD
-        material : str
-            Material name. Material will be parametrized.
-        thickness : float
-            Thickness value. Thickness will be parametrized.
-        fill_material : str
-            Fill Material name. Material will be parametrized.
-=======
-        material : str, optional
-            Material name. Material will be parametrized. Default value is `"copper"`.
-        thickness : float, optional
-            Thickness value. Thickness will be parametrized. Default value is `0.035`.
-        fill_material : str, optional
-            Fill material name. Material will be parametrized. Default value is `"FR4_epoxy"`.
->>>>>>> main
+                Parameters
+                ----------
+                name : str
+                    Layer name.
+        <<<<<<< HEAD
+                material : str
+                    Material name. Material will be parametrized.
+                thickness : float
+                    Thickness value. Thickness will be parametrized.
+                fill_material : str
+                    Fill Material name. Material will be parametrized.
+        =======
+                material : str, optional
+                    Material name. Material will be parametrized. Default value is `"copper"`.
+                thickness : float, optional
+                    Thickness value. Thickness will be parametrized. Default value is `0.035`.
+                fill_material : str, optional
+                    Fill material name. Material will be parametrized. Default value is `"FR4_epoxy"`.
+        >>>>>>> main
 
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.Layer3D`
-            Layer object.
+                Returns
+                -------
+                :class:`pyaedt.modeler.stackup_3d.Layer3D`
+                    Layer object.
         """
         return self.add_layer(
             name=name, layer_type="S", material=material, thickness=thickness, fill_material=fill_material
@@ -1819,11 +1819,7 @@ class Patch(CommonObject, object):
         )
         return self._impedance_l_w, self._impedance_w_l
 
-    def create_lumped_port(self,
-                           reference_layer,
-                           opposite_side=False,
-                           port_name=None ,
-                           axisdir=None):
+    def create_lumped_port(self, reference_layer, opposite_side=False, port_name=None, axisdir=None):
         """Create a parametrized lumped port.
 
         Parameters
@@ -1849,8 +1845,15 @@ class Patch(CommonObject, object):
         string_position_y = self.position_y.name + " - " + self.width.name + "/2"
         string_position_z = reference_layer.elevation.name
         string_width = self.width.name
-        string_length = self._signal_layer.elevation.name + " + " + self._signal_layer.thickness.name\
-                        + " + " + reference_layer.thickness.name + " - " + reference_layer.elevation.name
+        string_length = (
+            self._signal_layer.elevation.name
+            + " + "
+            + self._signal_layer.thickness.name
+            + " + "
+            + reference_layer.thickness.name
+            + " - "
+            + reference_layer.elevation.name
+        )
         port = self.application.modeler.create_rectangle(
             csPlane=constants.PLANE.YZ,
             position=[string_position_x, string_position_y, string_position_z],
@@ -1862,9 +1865,7 @@ class Patch(CommonObject, object):
         if self.application.solution_type == "Modal":
             if axisdir is None:
                 axisdir = self.application.AxisDir.ZPos
-            port = self.application.create_lumped_port_to_sheet(
-                port.name, portname=port_name, axisdir=axisdir
-            )
+            port = self.application.create_lumped_port_to_sheet(port.name, portname=port_name, axisdir=axisdir)
         elif self.application.solution_type == "Terminal":
             port = self.application.create_lumped_port_to_sheet(
                 port.name, portname=port_name, reference_object_list=[reference_layer.name]
@@ -2832,11 +2833,7 @@ class MachineLearningPatch(CommonObject, object):
         )
         return self._impedance_l_w, self._impedance_w_l
 
-    def create_lumped_port(self,
-                           reference_layer,
-                           opposite_side=False,
-                           port_name=None,
-                           axisdir=None):
+    def create_lumped_port(self, reference_layer, opposite_side=False, port_name=None, axisdir=None):
         """Create a parametrized lumped port.
 
         Parameters
@@ -2862,8 +2859,15 @@ class MachineLearningPatch(CommonObject, object):
         string_position_y = self.position_y.name + " - " + self.width.name + "/2"
         string_position_z = reference_layer.elevation.name
         string_width = self.width.name
-        string_length = self._signal_layer.elevation.name + " + " + self._signal_layer.thickness.name \
-                        + " + " + reference_layer.thickness.name + " - " + reference_layer.elevation.name
+        string_length = (
+            self._signal_layer.elevation.name
+            + " + "
+            + self._signal_layer.thickness.name
+            + " + "
+            + reference_layer.thickness.name
+            + " - "
+            + reference_layer.elevation.name
+        )
         port = self.application.modeler.create_rectangle(
             csPlane=constants.PLANE.YZ,
             position=[string_position_x, string_position_y, string_position_z],
@@ -2875,9 +2879,7 @@ class MachineLearningPatch(CommonObject, object):
         if self.application.solution_type == "Modal":
             if axisdir is None:
                 axisdir = self.application.AxisDir.ZPos
-            port = self.application.create_lumped_port_to_sheet(
-                port.name, portname=port_name, axisdir=axisdir
-            )
+            port = self.application.create_lumped_port_to_sheet(port.name, portname=port_name, axisdir=axisdir)
         elif self.application.solution_type == "Terminal":
             port = self.application.create_lumped_port_to_sheet(
                 port.name, portname=port_name, reference_object_list=[reference_layer.name]
