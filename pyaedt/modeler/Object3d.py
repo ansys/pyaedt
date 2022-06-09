@@ -2603,6 +2603,7 @@ class Object3d(object):
     @pyaedt_function_handler()
     def faces_by_area(self, area, area_filter="==", tolerance=1e-12):
         """Filter faces by area.
+
         Parameters
         ----------
         area : float
@@ -2612,10 +2613,13 @@ class Object3d(object):
             Default value is "==".
         tolerance : float, optional
             tolerance for comparison.
+
         Returns
         -------
         list of :class:`pyaedt.modeler.Object3d.FacePrimitive`
+            list of face primitives.
         """
+
         filters = ["==", "<=", ">=", "<", ">"]
         if area_filter not in filters:
             raise ValueError('Symbol not valid, enter one of the following: "==", "<=", ">=", "<", ">"')
@@ -2643,6 +2647,7 @@ class Object3d(object):
     @pyaedt_function_handler()
     def edges_by_length(self, length, length_filter="==", tolerance=1e-12):
         """Filter edges by length.
+
         Parameters
         ----------
         length : float
@@ -2652,9 +2657,11 @@ class Object3d(object):
             Default value is "==".
         tolerance : float, optional
             tolerance for comparison.
+
         Returns
         -------
         list of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+            list of edge primitives.
         """
         filters = ["==", "<=", ">=", "<", ">"]
         if length_filter not in filters:
