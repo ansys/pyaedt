@@ -1187,21 +1187,18 @@ class Stackup3D(object):
                 ----------
                 name : str
                     Layer name.
-        <<<<<<< HEAD
                 material : str
                     Material name. Material will be parametrized.
                 thickness : float
                     Thickness value. Thickness will be parametrized.
                 fill_material : str
-                    Fill Material name. Material will be parametrized.
-        =======
+                    Fill Material name. Material will be parametrized.=
                 material : str, optional
                     Material name. Material will be parametrized. Default value is `"copper"`.
                 thickness : float, optional
                     Thickness value. Thickness will be parametrized. Default value is `0.035`.
                 fill_material : str, optional
                     Fill material name. Material will be parametrized. Default value is `"FR4_epoxy"`.
-        >>>>>>> main
 
                 Returns
                 -------
