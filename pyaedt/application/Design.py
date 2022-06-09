@@ -2922,7 +2922,7 @@ class Design(AedtObjects, object):
         return new_designname
 
     @pyaedt_function_handler()
-    def duplicate_design(self, label):
+    def duplicate_design(self, label, save_after_duplicate=True):
         """Copy a design to a new name.
 
         The new name consists of the original
@@ -2933,6 +2933,9 @@ class Design(AedtObjects, object):
         ----------
         label : str
             Name of the design to copy.
+        save_after_duplicate : bool, optional
+            Save project after the duplication is completed. If ``False``, pyaedt objects like boundaries will not be
+            available.
 
         Returns
         -------
@@ -2960,6 +2963,9 @@ class Design(AedtObjects, object):
         self.design_name = newname
         self._close_edb()
         AedtObjects.__init__(self, is_inherithed=True)
+        if save_after_duplicate:
+            self.oproject.Save()
+            self._project_dictionary = None
         return True
 
     @pyaedt_function_handler()

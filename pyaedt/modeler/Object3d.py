@@ -2624,20 +2624,20 @@ class Object3d(object):
 
         faces = []
         for face in self.faces:
-            if area_filter is "==":
+            if area_filter == "==":
                 if abs(face.area - area) < tolerance:
                     faces.append(face)
-            if area_filter is ">=":
-                if (face.area - area) >= tolerance:
+            if area_filter == ">=":
+                if (face.area - area) >= -tolerance:
                     faces.append(face)
-            if area_filter is "<=":
+            if area_filter == "<=":
                 if (face.area - area) <= tolerance:
                     faces.append(face)
-            if area_filter is ">":
-                if (face.area - area) > tolerance:
+            if area_filter == ">":
+                if (face.area - area) > 0:
                     faces.append(face)
-            if area_filter is "<":
-                if (face.area - area) < tolerance:
+            if area_filter == "<":
+                if (face.area - area) < 0:
                     faces.append(face)
 
         return faces

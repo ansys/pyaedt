@@ -590,7 +590,7 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())  # pragma: no cover
         elif self.type == "Floquet Port":
             self._app.oboundary.EditFloquetPort(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "EndConnection":
+        elif self.type == "End Connection":
             self._app.oboundary.EditEndConnection(self._boundary_name, self._get_args())
         else:
             return False  # pragma: no cover
