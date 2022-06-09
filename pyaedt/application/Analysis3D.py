@@ -609,12 +609,16 @@ class FieldAnalysis3D(Analysis, object):
                     "Selections:=",
                     szSelections,
                 ]
+                if self.design_type == "HFSS":
+                    solve_inside = matobj.is_dielectric()
+                else:
+                    solve_inside = True
                 vArg2 = [
                     "NAME:Attributes",
                     "MaterialValue:=",
                     '"{}"'.format(matobj.name),
                     "SolveInside:=",
-                    matobj.is_dielectric(),
+                    solve_inside,
                     "ShellElement:=",
                     False,
                     "ShellElementThickness:=",
