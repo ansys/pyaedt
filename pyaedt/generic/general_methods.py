@@ -689,6 +689,20 @@ def _create_json_file(json_dict, full_json_path):
 
 @pyaedt_function_handler()
 def grpc_active_sessions(version=None, student_version=False):
+    """Return the active grpc aedt session inf.
+
+    Parameters
+    ----------
+    version : str, optional
+        String of the version to check. By default checks on every version. Options are "222" or "2022.2".
+    student_version : bool, optional
+        Either if check for student version session or not.
+
+    Returns
+    -------
+    list
+        List of grpc port.
+    """
     if student_version:
         keys = ["ansysedtsv.exe", "ansysedtsv"]
     else:
@@ -703,13 +717,7 @@ def grpc_active_sessions(version=None, student_version=False):
                 if "-grpcsrv" in cmd:
                     if not version or (version and version in cmd[0]):
                         sessions.append(
-                            [
-                                p.name(),
-                                int(cmd[cmd.index("-grpcsrv") + 1]),
-                                p.pid,
-                                p.username(),
-                                cmd,
-                            ]
+                            int(cmd[cmd.index("-grpcsrv") + 1]),
                         )
         except:
             pass
