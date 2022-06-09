@@ -7,6 +7,7 @@ import time
 import warnings
 
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.edb_core.EDB_Data import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import SweepType
 from pyaedt.generic.constants import SolverType
@@ -289,7 +290,6 @@ class VoltageSource(Source):
     def source_type(self):
         """Source type."""
         return self.source_type
-
 
 class CurrentSource(Source):
     """Manages a current source."""
@@ -732,13 +732,13 @@ class EdbSiwave(object):
 
     @pyaedt_function_handler()
     def create_circuit_port_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name=None,
-        impedance_value=50,
-        port_name="",
+            self,
+            positive_component_name,
+            positive_net_name,
+            negative_component_name=None,
+            negative_net_name=None,
+            impedance_value=50,
+            port_name="",
     ):
         """Create a circuit port on a NET.
 
@@ -800,14 +800,14 @@ class EdbSiwave(object):
 
     @pyaedt_function_handler()
     def create_voltage_source_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name=None,
-        voltage_value=3.3,
-        phase_value=0,
-        source_name="",
+            self,
+            positive_component_name,
+            positive_net_name,
+            negative_component_name=None,
+            negative_net_name=None,
+            voltage_value=3.3,
+            phase_value=0,
+            source_name="",
     ):
         """Create a voltage source.
 
@@ -871,14 +871,14 @@ class EdbSiwave(object):
 
     @pyaedt_function_handler()
     def create_current_source_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name=None,
-        current_value=0.1,
-        phase_value=0,
-        source_name="",
+            self,
+            positive_component_name,
+            positive_net_name,
+            negative_component_name=None,
+            negative_net_name=None,
+            current_value=0.1,
+            phase_value=0,
+            source_name="",
     ):
         """Create a current source.
 
@@ -942,13 +942,13 @@ class EdbSiwave(object):
 
     @pyaedt_function_handler()
     def create_resistor_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name=None,
-        rvalue=1,
-        resistor_name="",
+            self,
+            positive_component_name,
+            positive_net_name,
+            negative_component_name=None,
+            negative_net_name=None,
+            rvalue=1,
+            resistor_name="",
     ):
         """Create a voltage source.
 
@@ -1018,14 +1018,14 @@ class EdbSiwave(object):
 
     @pyaedt_function_handler()
     def add_siwave_ac_analysis(
-        self,
-        accuracy_level=1,
-        decade_count=10,
-        sweeptype=1,
-        start_freq=1,
-        stop_freq=1e9,
-        step_freq=1e6,
-        discrete_sweep=False,
+            self,
+            accuracy_level=1,
+            decade_count=10,
+            sweeptype=1,
+            start_freq=1,
+            stop_freq=1e9,
+            step_freq=1e6,
+            discrete_sweep=False,
     ):
         """Add a SIwave AC analysis to EDB.
 
@@ -1068,14 +1068,14 @@ class EdbSiwave(object):
 
     @pyaedt_function_handler()
     def add_siwave_syz_analysis(
-        self,
-        accuracy_level=1,
-        decade_count=10,
-        sweeptype=1,
-        start_freq=1,
-        stop_freq=1e9,
-        step_freq=1e6,
-        discrete_sweep=False,
+            self,
+            accuracy_level=1,
+            decade_count=10,
+            sweeptype=1,
+            start_freq=1,
+            stop_freq=1e9,
+            step_freq=1e6,
+            discrete_sweep=False,
     ):
         """Add a SIwave SYZ analysis.
 

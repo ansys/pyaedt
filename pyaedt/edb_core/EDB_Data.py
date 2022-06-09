@@ -6,6 +6,7 @@ import warnings
 from collections import OrderedDict
 
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt import generate_unique_name
 from pyaedt.generic.constants import BasisOrder
 from pyaedt.generic.constants import SourceType
 from pyaedt.generic.constants import NodeType
@@ -3194,7 +3195,7 @@ class SimulationConfiguration(object):
         self._do_cutout_subdesign = True
         self._solver_type = SolverType.Hfss3dLayout
         self._output_aedb = None
-        self._sources = [Source()]
+        self._sources = []
         self._read_cfg()
 
     @property
@@ -4609,3 +4610,40 @@ class SimulationConfiguration(object):
         else:
             return False
 
+    def add_dc_source(self, source_type=SourceType.Vsource, name="", amplitude=1.0, phase=0.0,
+                    positive_node_component="", positive_node_net="", negative_node_component="", negative_node_net=""):
+        if not isinstance(source_type, int):
+            return False
+        if name == "":
+            name = generate_unique_name("v_source")
+        if not isinstance(amplitude, float):
+            return False
+        if not isinstance(phase, float):
+            return False
+        if not isinstance(positive_node_component, str):
+            return False
+        if not isinstance(positive_node_net, str):
+            return False
+        if not isinstance(negative_node_component, str):
+            return False
+        if not isinstance(negative_node_net, str):
+            return False
+        source = Source()
+        if source_type == SourceType.Vsource:
+            source.type = SourceType.Vsource
+        elif source_type == SourceType.Isource:
+            source.type = SourceType.Isource
+        elif source_type == SourceType.Resistor:
+            source.type = SourceType.Resistor
+        source.name = name
+        source.amplitude = amplitude
+        source.phase = phase
+        source.positive_node.component = positive_node_component
+        source.positive_node.net = positive_node_net
+        source.negative_node.component = negative_node_component
+        source.negative_node.net = negative_node_net
+        try:
+            self.sources.append(source)
+            return True
+        except:
+            return False
