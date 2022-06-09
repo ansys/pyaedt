@@ -2,12 +2,18 @@
 import math
 
 from _unittest.conftest import BasisTest
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import isclose
 from pyaedt.generic.general_methods import time_fn
 from pyaedt.modeler.Object3d import _to_boolean
 from pyaedt.modeler.Object3d import _uname
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
+
+try:
+    import pytest
+except ImportError:
+    import _unittest_ironpython.conf_unittest as pytest
 
 
 class TestClass(BasisTest, object):
@@ -150,9 +156,13 @@ class TestClass(BasisTest, object):
         for face in o_box2.faces:
             assert isinstance(face.is_on_bounding(), bool)
         assert len(o_box2.faces_on_bounding_box) == 3
-        assert o_box2.face_closest_to_bounding_box in o_box2.faces_on_bounding_box
+        assert o_box2.face_closest_to_bounding_box.id in [i.id for i in o_box2.faces_on_bounding_box]
         assert not o_sphere.faces[0].is_planar
         assert o_box.faces[0].is_planar
+        assert isinstance(o_box.largest_face()[0], FacePrimitive)
+        assert isinstance(o_box.smallest_face(2), list)
+        assert isinstance(o_box.longest_edge()[0], EdgePrimitive)
+        assert isinstance(o_box.shortest_edge()[0], EdgePrimitive)
 
     def test_04_object_material_property_invalid(self):
         o_box = self.create_copper_box("Invalid1")
@@ -406,3 +416,103 @@ class TestClass(BasisTest, object):
         assert box3.volume == 100
         rec = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 10])
         assert rec.volume == 0.0
+
+    def test_24_filter_faces_by_area(self):
+        faces_equal = []
+        for obj in self.aedtapp.modeler.object_list:
+            if obj.faces_by_area(100):
+                faces_equal.append(obj.faces_by_area(100))
+        if faces_equal:
+            for face_object in faces_equal:
+                for face in face_object:
+                    assert abs(face.area - 100) < 1e-12
+
+        faces_greater_equal = []
+        for obj in self.aedtapp.modeler.object_list:
+            if obj.faces_by_area(100, ">="):
+                faces_greater_equal.append(obj.faces_by_area(100, ">="))
+        if faces_greater_equal:
+            for face_object in faces_greater_equal:
+                for face in face_object:
+                    assert (face.area - 100) >= -1e-12
+
+        faces_smaller_equal = []
+        for obj in self.aedtapp.modeler.object_list:
+            if obj.faces_by_area(100, "<="):
+                faces_smaller_equal.append(obj.faces_by_area(100, "<="))
+        if faces_smaller_equal:
+            for face_object in faces_smaller_equal:
+                for face in face_object:
+                    assert (face.area - 100) <= 1e-12
+
+        faces_greater = []
+        for obj in self.aedtapp.modeler.object_list:
+            if obj.faces_by_area(99, ">"):
+                faces_greater.append(obj.faces_by_area(99, ">"))
+        if faces_greater:
+            for face_object in faces_greater:
+                for face in face_object:
+                    assert (face.area - 99) > 0
+
+        faces_smaller = []
+        for obj in self.aedtapp.modeler.object_list:
+            if obj.faces_by_area(105, "<"):
+                faces_smaller.append(obj.faces_by_area(105, "<"))
+        if faces_smaller:
+            for face_object in faces_smaller:
+                for face in face_object:
+                    assert (face.area - 105) < 0
+
+        if not is_ironpython:
+            with pytest.raises(ValueError):
+                self.aedtapp.modeler.object_list[0].faces_by_area(100, "<<")
+
+    def test_25_edges_by_length(self):
+        edges_equal = []
+        for obj in self.aedtapp.modeler.object_list:
+            if obj.edges_by_length(10):
+                edges_equal.append(obj.edges_by_length(10))
+        if edges_equal:
+            for edge_object in edges_equal:
+                for edge in edge_object:
+                    assert abs(edge.length - 10) < 1e-12
+
+        edges_greater_equal = []
+        for obj in self.aedtapp.modeler.object_list:
+            if obj.edges_by_length(10, ">="):
+                edges_greater_equal.append(obj.edges_by_length(10, ">="))
+        if edges_greater_equal:
+            for edge_object in edges_greater_equal:
+                for edge in edge_object:
+                    assert (edge.length - 10) >= -1e-12
+
+        edges_smaller_equal = []
+        for obj in self.aedtapp.modeler.object_list:
+            if obj.edges_by_length(10, "<="):
+                edges_smaller_equal.append(obj.edges_by_length(10, "<="))
+        if edges_smaller_equal:
+            for edge_object in edges_smaller_equal:
+                for edge in edge_object:
+                    assert (edge.length - 10) <= 1e-12
+
+        edges_greater = []
+        for obj in self.aedtapp.modeler.object_list:
+            if obj.edges_by_length(9, ">"):
+                edges_greater.append(obj.edges_by_length(9, ">"))
+        if edges_greater:
+            for edge_object in edges_greater:
+                for edge in edge_object:
+                    assert (edge.length - 9) > 0
+
+        edges_smaller = []
+        for obj in self.aedtapp.modeler.object_list:
+            if obj.edges_by_length(15, "<"):
+                edges_smaller.append(obj.edges_by_length(15, "<"))
+        if edges_smaller:
+            for edge_object in edges_smaller:
+                for edge in edge_object:
+                    assert (edge.length - 15) < 0
+
+        if not is_ironpython:
+            with pytest.raises(ValueError):
+                self.aedtapp.modeler.object_list[0].edges_by_length(10, "<<")

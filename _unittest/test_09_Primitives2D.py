@@ -75,7 +75,7 @@ class TestClass(BasisTest, object):
         region = self.aedtapp.modeler.create_region([100, 100, 100, 100, 100, 100])
         assert not region
 
-    def test_07_assign_material_ceramic(self, material="ceramic_material"):
+    def test_07_assign_material_ceramic(self, material="Ceramic_material"):
         self.aedtapp.assign_material(["Rectangle1"], material)
         assert self.aedtapp.modeler["Rectangle1"].material_name == material
 

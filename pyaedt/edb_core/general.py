@@ -80,7 +80,7 @@ def convert_pydict_to_netdict(dict):
 
 
 @pyaedt_function_handler()
-def convert_py_list_to_net_list(pylist):
+def convert_py_list_to_net_list(pylist, list_type=None):
     """Convert a Python list to a Net list.
 
     Parameters
@@ -97,7 +97,10 @@ def convert_py_list_to_net_list(pylist):
         pylist = [pylist]
     ls = list([type(item) for item in pylist])
     if len(ls) > 0:
-        net_list = List[ls[0]]()
+        if list_type:
+            net_list = List[list_type]()
+        else:
+            net_list = List[ls[0]]()
         for el in pylist:
             net_list.Add(el)
         return net_list

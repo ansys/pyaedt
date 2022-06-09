@@ -35,6 +35,7 @@ if sys.version_info >= (3, 9):
         "numpy",
         "ipython",
         "matplotlib",
+        "psutil",
     ]
     install("https://github.com/pyansys/PyAEDT/raw/release/0.3/pythonnet-2.5.2-cp39-cp39-win_amd64.whl")
 elif sys.version_info >= (3, 0):
@@ -47,6 +48,7 @@ elif sys.version_info >= (3, 0):
         "numpy",
         "ipython",
         "matplotlib",
+        "psutil",
     ]
 elif not is_ironpython and sys.version_info < (3, 0):
     install_requires = ["pywin32 == 228;platform_system=='Windows'", "pythonnet >= 2.5.2;platform_system=='Windows'"]

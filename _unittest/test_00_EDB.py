@@ -127,6 +127,13 @@ if not config["skip_edb"]:
             component_list = self.edbapp.core_components.components
             assert len(component_list) > 2
 
+        def test_06B_deactivate_rlc(self):
+            assert self.edbapp.core_components.components["C1A12"].cap_value == "0.15uF"
+            assert self.edbapp.core_components.deactivate_rlc_component(component="C3A12", create_circuit_port=True)
+            assert self.edbapp.core_components.deactivate_rlc_component(component="C1A12", create_circuit_port=False)
+            assert float(self.edbapp.core_components.components["C1A12"].cap_value) == 0.0
+            pass
+
         def test_07_vias_creation(self):
             self.edbapp.core_padstack.create_padstack(padstackname="myVia")
             assert "myVia" in list(self.edbapp.core_padstack.padstacks.keys())
@@ -1151,16 +1158,6 @@ if not config["skip_edb"]:
             sim_config = SimulationConfiguration(cfg_file)
             assert self.edbapp.build_simulation_project(sim_config)
 
-        def test_84_build_hfss_project_from_config_file(self):
-            cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
-            with open(cfg_file, "w") as f:
-                f.writelines("SolverType = 'Hfss3dLayout'\n")
-                f.writelines("PowerNets = ['GND']\n")
-                f.writelines("Components = ['U2A5', 'U1B5']")
-
-            sim_config = SimulationConfiguration(cfg_file)
-            assert self.edbapp.build_simulation_project(sim_config)
-
         def test_85_set_component_type(self):
             comp = self.edbapp.core_components.components["R2L18"]
             comp.type = "Resistor"
@@ -1175,10 +1172,6 @@ if not config["skip_edb"]:
             assert comp.type == "IC"
             comp.type = "Other"
             assert comp.type == "Other"
-
-        def test_85_deactivate_rlc(self):
-            assert self.edbapp.core_components.deactivate_rlc_component(component="C1", create_circuit_port=True)
-            assert self.edbapp.core_components.deactivate_rlc_component(component="C2", create_circuit_port=False)
 
         def test_86_create_symmetric_stackup(self):
             from pyaedt import Edb as local_edb
@@ -1531,3 +1524,43 @@ if not config["skip_edb"]:
                 assert laminate_edb.save_edb()
             finally:
                 laminate_edb.close_edb()
+
+        def test_103_create_edge_ports(self):
+            edb = Edb(edbpath=os.path.join(local_path, "example_models", "edge_ports.aedb"), edbversion=desktop_version)
+            poly_list = [poly for poly in list(edb.active_layout.Primitives) if int(poly.GetPrimitiveType()) == 2]
+            port_poly = [poly for poly in poly_list if poly.GetId() == 17][0]
+            ref_poly = [poly for poly in poly_list if poly.GetId() == 19][0]
+            port_location = [-65e-3, -13e-3]
+            ref_location = [-63e-3, -13e-3]
+            assert edb.core_hfss.create_edge_port_on_polygon(
+                polygon=port_poly,
+                reference_polygon=ref_poly,
+                terminal_point=port_location,
+                reference_point=ref_location,
+            )
+            port_poly = [poly for poly in poly_list if poly.GetId() == 23][0]
+            ref_poly = [poly for poly in poly_list if poly.GetId() == 22][0]
+            port_location = [-65e-3, -10e-3]
+            ref_location = [-65e-3, -10e-3]
+            assert edb.core_hfss.create_edge_port_on_polygon(
+                polygon=port_poly,
+                reference_polygon=ref_poly,
+                terminal_point=port_location,
+                reference_point=ref_location,
+            )
+            port_poly = [poly for poly in poly_list if poly.GetId() == 25][0]
+            port_location = [-65e-3, -7e-3]
+            assert edb.core_hfss.create_edge_port_on_polygon(
+                polygon=port_poly, terminal_point=port_location, reference_layer="gnd"
+            )
+            edb.close_edb()
+
+        def test_999_build_hfss_project_from_config_file(self):
+            cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
+            with open(cfg_file, "w") as f:
+                f.writelines("SolverType = 'Hfss3dLayout'\n")
+                f.writelines("PowerNets = ['GND']\n")
+                f.writelines("Components = ['U2A5', 'U1B5']")
+
+            sim_config = SimulationConfiguration(cfg_file)
+            assert self.edbapp.build_simulation_project(sim_config)

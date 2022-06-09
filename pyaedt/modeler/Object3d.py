@@ -1270,12 +1270,12 @@ class Object3d(object):
 
         Returns
         -------
-        list
+        List of :class:`pyaedt.modeler.Object3d.FacePrimitive`
         """
         f_list = []
         for face in self.faces:
             if face.is_on_bounding():
-                f_list.append(face.id)
+                f_list.append(face)
         return f_list
 
     @property
@@ -1284,7 +1284,7 @@ class Object3d(object):
 
         Returns
         -------
-        int
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
         """
         b = [float(i) for i in list(self.m_Editor.GetModelBoundingBox())]
         f_id = None
@@ -1303,9 +1303,71 @@ class Object3d(object):
             )
 
             if f_val and p_dist < f_val or not f_val:
-                f_id = face.id
+                f_id = face
                 f_val = p_dist
         return f_id
+
+    @pyaedt_function_handler()
+    def largest_face(self, n=1):
+        """Return only the face with the greatest area.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        """
+        f = []
+        for face in self.faces:
+            f.append((face.area, face))
+        f.sort(key=lambda tup: tup[0], reverse=True)
+        f_sorted = [x for y, x in f]
+        return f_sorted[:n]
+
+    @pyaedt_function_handler()
+    def longest_edge(self, n=1):
+        """Return only the edge with the greatest length.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+        """
+        e = []
+        for edge in self.edges:
+            e.append((edge.length, edge))
+        e.sort(key=lambda tup: tup[0], reverse=True)
+        e_sorted = [x for y, x in e]
+        return e_sorted[:n]
+
+    @pyaedt_function_handler()
+    def smallest_face(self, n=1):
+        """Return only the face with the smallest area.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        """
+        f = []
+        for face in self.faces:
+            f.append((face.area, face))
+        f.sort(key=lambda tup: tup[0])
+        f_sorted = [x for y, x in f]
+        return f_sorted[:n]
+
+    @pyaedt_function_handler()
+    def shortest_edge(self, n=1):
+        """Return only the edge with the smallest length.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+        """
+        e = []
+        for edge in self.edges:
+            e.append((edge.length, edge))
+        e.sort(
+            key=lambda tup: tup[0],
+        )
+        e_sorted = [x for y, x in e]
+        return e_sorted[:n]
 
     @property
     def top_face_z(self):
@@ -2537,6 +2599,93 @@ class Object3d(object):
         self.m_Editor.Delete(arg)
         self._primitives.cleanup_objects()
         self.__dict__ = {}
+
+    @pyaedt_function_handler()
+    def faces_by_area(self, area, area_filter="==", tolerance=1e-12):
+        """Filter faces by area.
+
+        Parameters
+        ----------
+        area : float
+            Value of the area to filter.
+        area_filter : str, optional
+            Comparer symbol.
+            Default value is "==".
+        tolerance : float, optional
+            tolerance for comparison.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d.FacePrimitive`
+            list of face primitives.
+        """
+
+        filters = ["==", "<=", ">=", "<", ">"]
+        if area_filter not in filters:
+            raise ValueError('Symbol not valid, enter one of the following: "==", "<=", ">=", "<", ">"')
+
+        faces = []
+        for face in self.faces:
+            if area_filter == "==":
+                if abs(face.area - area) < tolerance:
+                    faces.append(face)
+            if area_filter == ">=":
+                if (face.area - area) >= -tolerance:
+                    faces.append(face)
+            if area_filter == "<=":
+                if (face.area - area) <= tolerance:
+                    faces.append(face)
+            if area_filter == ">":
+                if (face.area - area) > 0:
+                    faces.append(face)
+            if area_filter == "<":
+                if (face.area - area) < 0:
+                    faces.append(face)
+
+        return faces
+
+    @pyaedt_function_handler()
+    def edges_by_length(self, length, length_filter="==", tolerance=1e-12):
+        """Filter edges by length.
+
+        Parameters
+        ----------
+        length : float
+            Value of the length to filter.
+        length_filter : str, optional
+            Comparer symbol.
+            Default value is "==".
+        tolerance : float, optional
+            tolerance for comparison.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+            list of edge primitives.
+        """
+        filters = ["==", "<=", ">=", "<", ">"]
+        if length_filter not in filters:
+            raise ValueError('Symbol not valid, enter one of the following: "==", "<=", ">=", "<", ">"')
+
+        edges = []
+        for edge in self.edges:
+            if length_filter == "==":
+                if abs(edge.length - length) < tolerance:
+                    edges.append(edge)
+            if length_filter == ">=":
+                if (edge.length - length) >= -tolerance:
+                    edges.append(edge)
+            if length_filter == "<=":
+                if (edge.length - length) <= tolerance:
+                    edges.append(edge)
+            if length_filter == ">":
+                if (edge.length - length) > 0:
+                    edges.append(edge)
+            if length_filter == "<":
+                if (edge.length - length) < 0:
+                    edges.append(edge)
+
+        return edges
 
     @pyaedt_function_handler()
     def _change_property(self, vPropChange):

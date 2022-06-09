@@ -28,6 +28,9 @@ except:
 
 is_remote_server = os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in ("true", "1", "t")
 
+if not is_ironpython:
+    import psutil
+
 
 class MethodNotSupportedError(Exception):
     """ """
@@ -684,6 +687,46 @@ def _create_json_file(json_dict, full_json_path):
     return True
 
 
+@pyaedt_function_handler()
+def grpc_active_sessions(version=None, student_version=False, non_graphical=False):
+    """Return the active grpc aedt session inf.
+
+    Parameters
+    ----------
+    version : str, optional
+        String of the version to check. By default checks on every version. Options are "222" or "2022.2".
+    student_version : bool, optional
+        Either if check for student version session or not.
+    non_graphical : bool, optional
+        Either to check for active graphical or non graphical sessions.
+
+    Returns
+    -------
+    list
+        List of grpc port.
+    """
+    if student_version:
+        keys = ["ansysedtsv.exe"]
+    else:
+        keys = ["ansysedt.exe"]
+    if version and "." in version:
+        version = version[-4:].replace(".", "")
+    sessions = []
+    for p in psutil.process_iter():
+        try:
+            if p.name() in keys:
+                cmd = p.cmdline()
+                if "-grpcsrv" in cmd:
+                    if non_graphical and "-ng" in cmd or not non_graphical:
+                        if not version or (version and version in cmd[0]):
+                            sessions.append(
+                                int(cmd[cmd.index("-grpcsrv") + 1]),
+                            )
+        except:
+            pass
+    return sessions
+
+
 class Settings(object):
     """Class that manages all PyAEDT Environment Variables and global settings."""
 
@@ -707,6 +750,7 @@ class Settings(object):
         self._use_grpc_api = False
         self.machine = ""
         self.port = 0
+        self.formatter = None
 
     @property
     def use_grpc_api(self):
