@@ -630,8 +630,14 @@ class Desktop:
         launch_msg = "AEDT installation Path {}".format(base_path)
         self.logger.info(launch_msg)
         self.logger.info("Launching AEDT with PyDesktopPlugin.")
-        if not self.port and not new_aedt_session:
-            sessions = grpc_active_sessions(version=version, student_version=student_version)
+        if (
+            not self.port
+            and not new_aedt_session
+            and self.machine not in ["localhost", "127.0.0.1", socket.getfqdn(), socket.getfqdn().split(".")[0]]
+        ):
+            sessions = grpc_active_sessions(
+                version=version, student_version=student_version, non_graphical=non_graphical
+            )
             if sessions:
                 self.port = sessions[0]
                 if len(sessions):
@@ -647,9 +653,7 @@ class Desktop:
         elif self.port:
             self.logger.info("Connecting to Aedt session on GRPC port %s", self.port)
 
-        if new_aedt_session:
-            ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, "", self.port)
-        else:
+        if not new_aedt_session:
             # Local server running
             if not self.machine:
                 if _check_grpc_port(self.port):
@@ -664,7 +668,7 @@ class Desktop:
                     self.machine = socket.getfqdn()
             elif self.machine not in ["localhost", "127.0.0.1", socket.getfqdn(), socket.getfqdn().split(".")[0]]:
                 settings.remote_api = True
-            ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
+        ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
 
         if "oAnsoftApplication" in dir(self._main):
             self._main.isoutsideDesktop = True

@@ -688,7 +688,7 @@ def _create_json_file(json_dict, full_json_path):
 
 
 @pyaedt_function_handler()
-def grpc_active_sessions(version=None, student_version=False):
+def grpc_active_sessions(version=None, student_version=False, non_graphical=False):
     """Return the active grpc aedt session inf.
 
     Parameters
@@ -697,6 +697,8 @@ def grpc_active_sessions(version=None, student_version=False):
         String of the version to check. By default checks on every version. Options are "222" or "2022.2".
     student_version : bool, optional
         Either if check for student version session or not.
+    non_graphical : bool, optional
+        Either to check for active graphical or non graphical sessions.
 
     Returns
     -------
@@ -704,9 +706,9 @@ def grpc_active_sessions(version=None, student_version=False):
         List of grpc port.
     """
     if student_version:
-        keys = ["ansysedtsv.exe", "ansysedtsv"]
+        keys = ["ansysedtsv.exe"]
     else:
-        keys = ["ansysedt.exe", "ansysedt"]
+        keys = ["ansysedt.exe"]
     if version and "." in version:
         version = version[-4:].replace(".", "")
     sessions = []
@@ -715,10 +717,11 @@ def grpc_active_sessions(version=None, student_version=False):
             if p.name() in keys:
                 cmd = p.cmdline()
                 if "-grpcsrv" in cmd:
-                    if not version or (version and version in cmd[0]):
-                        sessions.append(
-                            int(cmd[cmd.index("-grpcsrv") + 1]),
-                        )
+                    if non_graphical and "-ng" in cmd or not non_graphical:
+                        if not version or (version and version in cmd[0]):
+                            sessions.append(
+                                int(cmd[cmd.index("-grpcsrv") + 1]),
+                            )
         except:
             pass
     return sessions
