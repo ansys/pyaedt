@@ -546,50 +546,32 @@ class Components(object):
                 if source.source_type == SourceType.Vsource:
                     positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
                     negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
-                    positive_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.value))
-                    negative_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.value))
+                elif source.source_type == SourceType.Isource:
+                    positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
+                    negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
+                elif source.source_type == SourceType.Resistor:
+                    positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
+                    negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
+                    rlc = self._edb.Utility.Rlc()
+                    rlc.IsParallel = False
+                    rlc.REnabled = True
+                    rlc.R = self._get_edb_value(self._get_edb_value(source.impedance_value))
+                    rlc.LEnabled = False
+                    rlc.CEnabled = False
+                    positive_pin_group_term.SetRlcBoundaryParameters(rlc)
+                if source.source_type == SourceType.Vsource or source.source_type == SourceType.Isource:
+                    positive_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
+                    negative_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
                     positive_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
                     negative_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
-                    positive_pin_group_term.SetName(source.name)
-                    negative_pin_group_term.SetName("{}_ref".format(source.name))
-
+                    positive_pin_group_term.SetImpedance(self._get_edb_value(source.impedance_value))
+                    negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance_value))
+                positive_pin_group_term.SetName(source.name)
+                negative_pin_group_term.SetName("{}_ref".format(source.name))
+                positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
+                return True
             self._logger.error("Failed to create source {}".format(source.name))
             return False
-
-            if do_pingroup:
-                pingroups = []
-                if len(ref_pins) == 1:
-                    self.create_terminal = self._create_terminal(ref_pins[0])
-                    self.terminal = self.create_terminal
-                    ref_pin_group_term = self.terminal
-                else:
-                    ref_pin_group = self.create_pingroup_from_pins(ref_pins)
-                    if not ref_pin_group:
-                        return False
-                    ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group)
-                    if not ref_pin_group_term:
-                        return False
-                for net in net_list:
-                    pins = [pin for pin in cmp_pins if pin.GetNet().GetName() == net]
-                    pin_group = self.create_pingroup_from_pins(pins)
-                    if not pin_group:
-                        return False
-                    pin_group_term = self._create_pin_group_terminal(pin_group)
-                    if pin_group_term:
-                        pin_group_term.SetReferenceTerminal(ref_pin_group_term)
-
-            else:
-                for net in net_list:
-                    pins = [pin for pin in cmp_pins if pin.GetNet().GetName().lower() == net]
-                    for pin in pins:
-                        ref_pin = self._get_closest_pin_from(pin, ref_pins)
-                        ref_pin_term = self._create_terminal(ref_pin)
-                        term = self._create_terminal(pin)
-                        ref_pin_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-                        ref_pin_term.SetIsCircuitPort(True)
-                        term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-                        term.SetIsCircuitPort(True)
-                        term.SetReferenceTerminal(ref_pin_term)
 
     @pyaedt_function_handler()
     def create_port_on_component(

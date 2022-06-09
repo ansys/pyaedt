@@ -2933,7 +2933,7 @@ class EdbBuilder(object):
         self.EdbHandler.cell = cell
         self.EdbHandler.layout = cell.GetLayout()
 
-class Node:
+class Node(object):
     """
 
     """
@@ -2967,7 +2967,7 @@ class Node:
 
     @node_type.setter
     def node_type(self, value):
-        if isinstance(value, NodeType):
+        if isinstance(value, int):
             self._node_type = value
 
     @property
@@ -2994,9 +2994,9 @@ class Source(object):
         self._config_init()
 
     def _config_init(self):
-        self._positive_node = NodeType.Positive
+        self._positive_node.node_type = int(NodeType.Positive)
         self._positive_node.name = "pos_term"
-        self._negative_node = NodeType.Negative
+        self._negative_node.node_type = int(NodeType.Negative)
         self._negative_node.name = "neg_term"
 
     @property
@@ -3016,6 +3016,12 @@ class Source(object):
     def source_type(self, value):
         if isinstance(value, SourceType):
             self._source_type = value
+            if value == SourceType.Vsource:
+                self._impedance_value = 1e-6
+            if value == SourceType.Isource:
+                self._impedance_value = 5e7
+            if value == SourceType.Resistor:
+                self._impedance_value = 1.0
 
     @property
     def positive_node(self):
@@ -4285,6 +4291,22 @@ class SimulationConfiguration(object):
     def output_aedb(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._output_aedb = value
+
+    @property
+    def sources(self):
+        return self._sources
+
+    @sources.setter
+    def sources(self, value):
+        if isinstance(value, Source):
+            value = [value]
+        if isinstance(value, list):
+            if len([src for src in value if isinstance(src, Source)]) == len(value):
+                self._sources = value
+
+    def add_source(self, source=None):
+        if isinstance(source, Source):
+            self._sources.append(source)
 
     def _get_bool_value(self, value):  # pragma: no cover
         val = value.lower()

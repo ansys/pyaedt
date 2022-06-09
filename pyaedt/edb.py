@@ -1602,8 +1602,8 @@ class Edb(object):
             self.logger.info("Deleting existing ports.")
             map(lambda port: port.Delete(), list(self.active_layout.Terminals))
             map(lambda pg: pg.Delete(), list(self.active_layout.PinGroups))
-            self.logger.info("Creating ports for signal nets.")
             if simulation_setup.solver_type == SolverType.Hfss3dLayout:
+                self.logger.info("Creating HFSS ports for signal nets.")
                 for cmp in simulation_setup.components:
                     self.core_components.create_port_on_component(
                         cmp,
@@ -1640,8 +1640,9 @@ class Edb(object):
                     self.logger.error("Failed to configure Siwave simulation setup.")
 
             if simulation_setup.solver_type == SolverType.SiwaveDC:
-                for cmp in simulation_setup.components:
-                    pass
+                self.core_components.create_source_on_component(simulation_setup.sources)
+                if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
+                    self.logger.error("Failed to configure Siwave simulation setup.")
             return True
         except:  # pragma: no cover
             return False
