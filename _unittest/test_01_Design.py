@@ -130,6 +130,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.get_nominal_variation() != [] or self.aedtapp.get_nominal_variation() is not None
 
     def test_15a_duplicate_design(self):
+        self.aedtapp.duplicate_design("non_valid1", False)
         self.aedtapp.duplicate_design("myduplicateddesign")
         assert "myduplicateddesign" in self.aedtapp.design_list
         self.aedtapp.delete_design("myduplicateddesign", "NewDesign")
@@ -266,6 +267,7 @@ class TestClass(BasisTest, object):
         assert not desktop.change_registry_key("test_key", 2.0)
 
     def test_30_object_oriented(self):
+        self.aedtapp["my_oo_variable"] = "15mm"
         # self.aedtapp.set_active_design("myname")
         assert self.aedtapp.get_oo_name(self.aedtapp.oproject, "Variables")
         assert self.aedtapp.get_oo_name(self.aedtapp.odesign, "Variables")
