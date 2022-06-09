@@ -1848,7 +1848,7 @@ class Patch(CommonObject, object):
             + self._signal_layer.thickness.name
             + " + "
             + reference_layer.thickness.name
-            + " - "
+            + " + "
             + reference_layer.elevation.name
         )
         port = self.application.modeler.create_rectangle(
