@@ -434,7 +434,7 @@ class TestClass(BasisTest, object):
         if faces_greater_equal:
             for face_object in faces_greater_equal:
                 for face in face_object:
-                    assert (face.area - 100) >= 1e-12
+                    assert (face.area - 100) >= -1e-12
 
         faces_smaller_equal = []
         for obj in self.aedtapp.modeler.object_list:
@@ -447,21 +447,21 @@ class TestClass(BasisTest, object):
 
         faces_greater = []
         for obj in self.aedtapp.modeler.object_list:
-            if obj.faces_by_area(100):
-                faces_greater.append(obj.faces_by_area(100, ">"))
+            if obj.faces_by_area(99):
+                faces_greater.append(obj.faces_by_area(99, ">"))
         if faces_greater:
             for face_object in faces_greater:
                 for face in face_object:
-                    assert (face.area - 100) > 1e-12
+                    assert (face.area - 99) > 0
 
         faces_smaller = []
         for obj in self.aedtapp.modeler.object_list:
-            if obj.faces_by_area(100):
-                faces_smaller.append(obj.faces_by_area(100, "<"))
+            if obj.faces_by_area(105):
+                faces_smaller.append(obj.faces_by_area(105, "<"))
         if faces_smaller:
             for face_object in faces_smaller:
                 for face in face_object:
-                    assert (face.area - 100) < 1e-12
+                    assert (face.area - 105) < 0
 
         if not is_ironpython:
             with pytest.raises(ValueError):
