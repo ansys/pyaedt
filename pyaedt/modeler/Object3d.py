@@ -2628,16 +2628,16 @@ class Object3d(object):
                 if abs(face.area - area) < tolerance:
                     faces.append(face)
             if area_filter == ">=":
-                if (face.area - area) >= tolerance:
+                if (face.area - area) >= -tolerance:
                     faces.append(face)
             if area_filter == "<=":
                 if (face.area - area) <= tolerance:
                     faces.append(face)
             if area_filter == ">":
-                if (face.area - area) > tolerance:
+                if (face.area - area) > 0:
                     faces.append(face)
             if area_filter == "<":
-                if (face.area - area) < tolerance:
+                if (face.area - area) < 0:
                     faces.append(face)
 
         return faces
