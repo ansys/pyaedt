@@ -28,6 +28,9 @@ except:
 
 is_remote_server = os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in ("true", "1", "t")
 
+if not is_ironpython:
+    import psutil
+
 
 class MethodNotSupportedError(Exception):
     """ """
@@ -682,6 +685,35 @@ def _create_json_file(json_dict, full_json_path):
             file.write(filedata)
         os.remove(temp_path)
     return True
+
+
+@pyaedt_function_handler()
+def grpc_active_sessions(version=None, student_version=False):
+    if student_version:
+        keys = ["ansysedtsv.exe", "ansysedtsv"]
+    else:
+        keys = ["ansysedt.exe", "ansysedt"]
+    if version and "." in version:
+        version = version[-4:].replace(".", "")
+    sessions = []
+    for p in psutil.process_iter():
+        try:
+            if p.name() in keys:
+                cmd = p.cmdline()
+                if "-grpcsrv" in cmd:
+                    if not version or (version and version in cmd[0]):
+                        sessions.append(
+                            [
+                                p.name(),
+                                int(cmd[cmd.index("-grpcsrv") + 1]),
+                                p.pid,
+                                p.username(),
+                                cmd,
+                            ]
+                        )
+        except:
+            pass
+    return sessions
 
 
 class Settings(object):
