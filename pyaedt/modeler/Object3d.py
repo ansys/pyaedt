@@ -2617,7 +2617,9 @@ class Object3d(object):
         Returns
         -------
         list of :class:`pyaedt.modeler.Object3d.FacePrimitive`
+            list of face primitives.
         """
+
         filters = ["==", "<=", ">=", "<", ">"]
         if area_filter not in filters:
             raise ValueError('Symbol not valid, enter one of the following: "==", "<=", ">=", "<", ">"')
@@ -2641,6 +2643,49 @@ class Object3d(object):
                     faces.append(face)
 
         return faces
+
+    @pyaedt_function_handler()
+    def edges_by_length(self, length, length_filter="==", tolerance=1e-12):
+        """Filter edges by length.
+
+        Parameters
+        ----------
+        length : float
+            Value of the length to filter.
+        length_filter : str, optional
+            Comparer symbol.
+            Default value is "==".
+        tolerance : float, optional
+            tolerance for comparison.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+            list of edge primitives.
+        """
+        filters = ["==", "<=", ">=", "<", ">"]
+        if length_filter not in filters:
+            raise ValueError('Symbol not valid, enter one of the following: "==", "<=", ">=", "<", ">"')
+
+        edges = []
+        for edge in self.edges:
+            if length_filter == "==":
+                if abs(edge.length - length) < tolerance:
+                    edges.append(edge)
+            if length_filter == ">=":
+                if (edge.length - length) >= -tolerance:
+                    edges.append(edge)
+            if length_filter == "<=":
+                if (edge.length - length) <= tolerance:
+                    edges.append(edge)
+            if length_filter == ">":
+                if (edge.length - length) > 0:
+                    edges.append(edge)
+            if length_filter == "<":
+                if (edge.length - length) < 0:
+                    edges.append(edge)
+
+        return edges
 
     @pyaedt_function_handler()
     def _change_property(self, vPropChange):
