@@ -32,7 +32,7 @@ from pyaedt.modeler.stackup_3d import Stackup3D
 # In this example we will generate a data base of 1 frequencies x 2 permittivity x 2 thickness x 2 width.
 # It will make 8 cases, it is too little for a real database. Indeed the cases generated will be use for test.
 # For the training of the machine learning, we will use a previously generated database
-# of more than 3150 different cases, 74 frequencies x 5 permittivity x 3 thickness x 3 width.
+# of more than 3300 different cases, 74 frequencies x 5 permittivity x 3 thickness x 3 width.
 
 tuple_random_frequency_permittivity = []
 frequency_list = [150 * 1e6]
