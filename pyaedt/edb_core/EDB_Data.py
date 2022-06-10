@@ -2980,6 +2980,12 @@ class Node(object):
         if isinstance(value, str):
             self._name = value
 
+    def json_format(self):
+        dict_out = {}
+        for k, v in self.__dict__.items():
+            dict_out[k[1:]] = v
+        return dict_out
+
 class Source(object):
     """Class for handling Siwave sources
 
@@ -3068,6 +3074,16 @@ class Source(object):
     def impedance_value(self, value):
         if isinstance(value, float):
             self._impedance_value = value
+
+    def json_format(self):
+        dict_out = {}
+        for k, v in self.__dict__.items():
+            if k == "_positive_node" or k == "_negative_node":
+                nodes = v.json_format()
+                dict_out[k[1:]] = nodes
+            else:
+                dict_out[k[1:]] = v
+        return dict_out
 
 class SimulationConfiguration(object):
     """Parses an ASCII simulation configuration file, which supports all types of inputs
@@ -4571,7 +4587,11 @@ class SimulationConfiguration(object):
         dict_out = {}
         for k, v in self.__dict__.items():
             if k[0] == "_":
-                dict_out[k[1:]] = v
+                if k == "_sources":
+                    sources_out = [src.json_format() for src in v]
+                    dict_out[k[1:]] = sources_out
+                else:
+                    dict_out[k[1:]] = v
             else:
                 dict_out[k] = v
         if output_file:
