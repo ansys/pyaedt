@@ -29,13 +29,13 @@ from pyaedt.modeler.stackup_3d import Stackup3D
 # substrat thickness, patch width.
 # Frequency is from 0.1GHz to 1GHz
 # Permittivity is from 1 to 12
-# In this example we will generate a data base of 2 frequencies x 2 permittivity x 2 thickness x 2 width.
-# It will make 18 cases, it is too little for a real database. Indeed the cases generated will be use for test.
+# In this example we will generate a data base of 1 frequencies x 2 permittivity x 2 thickness x 2 width.
+# It will make 8 cases, it is too little for a real database. Indeed the cases generated will be use for test.
 # For the training of the machine learning, we will use a previously generated database
-# of more than 3150 different cases, 70 frequencies x 5 permittivity x 3 thickness x 3 width.
+# of more than 3150 different cases, 74 frequencies x 5 permittivity x 3 thickness x 3 width.
 
 tuple_random_frequency_permittivity = []
-frequency_list = [120 * 1e6, 470 * 1e6]
+frequency_list = [150 * 1e6]
 for in_list in frequency_list:
     for i in range(2):
         random_permittivity = 1 + 11 * int(random.random() * 100) / 100
@@ -359,8 +359,9 @@ print("output array for training: " + str(output_for_training_array))
 # There are three other arguments that have a big impact on the accuracy of the model, C, gamma and epsilon.
 # Sometimes they are given with the necessary model for the application.
 # Else, you can try different values and see which one is the best by measuring the accuracy of the model.
+# C is equal to 1e4 to make this example shorter, but the optimal value in this application is 5e4.
 
-svr_rbf = SVR(kernel="rbf", C=5e4, gamma="auto", epsilon=0.05)
+svr_rbf = SVR(kernel="rbf", C=1e4, gamma="auto", epsilon=0.05)
 regression = make_pipeline(StandardScaler(), svr_rbf)
 
 ###############################################################################
@@ -378,8 +379,10 @@ joblib.dump(regression, model_file)
 # Implement the model in the PyAEDT method and test the model.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # So we can load the model in another python file and predict different cases.
+# But here, we load the correct model with C=5e4 rather than the one made in this example.
 
-regression = joblib.load(model_file)
+model_path = os.path.join(path_folder, "pyaedt", "misc", "patch_svr_model_100MHz_1GHz.joblib")
+regression = joblib.load(model_path)
 
 ###############################################################################
 # The model we developed will predict the length of a patch as a function of
