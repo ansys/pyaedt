@@ -519,6 +519,20 @@ class Components(object):
 
     @pyaedt_function_handler()
     def create_source_on_component(self, sources=None):
+        """Create voltage, current source or resistor on component
+
+        Parameters
+        ----------
+        sources : list[Source]
+            list of EDB_Data.Source object.
+
+        Returns
+        -------
+        double, bool
+            True when succeeded, False when failed.
+
+        """
+
         if not sources:
             return False
         if isinstance(sources, Source):
