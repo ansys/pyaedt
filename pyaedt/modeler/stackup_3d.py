@@ -1,7 +1,10 @@
 import os
 from collections import OrderedDict
 
-import joblib
+try:
+    import joblib
+except ImportError:
+    pass
 import numpy as np
 
 from pyaedt import constants
@@ -2484,6 +2487,10 @@ class MachineLearningPatch(CommonObject, object):
         reference_system=None,
         axis="X",
     ):
+        try:
+            joblib
+        except NameError:
+            raise ImportError("joblib package is needed to run ML.")
         CommonObject.__init__(self, application)
         self._frequency = NamedVariable(application, patch_name + "_frequency", str(frequency) + "Hz")
         self._signal_layer = signal_layer
