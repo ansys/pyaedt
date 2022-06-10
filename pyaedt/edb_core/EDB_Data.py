@@ -2980,11 +2980,15 @@ class Node(object):
         if isinstance(value, str):
             self._name = value
 
-    def json_format(self):
+    def _json_format(self):
         dict_out = {}
         for k, v in self.__dict__.items():
             dict_out[k[1:]] = v
         return dict_out
+
+    def _read_json(self, node_dict):
+        for k, v in node_dict.items():
+            self.__setattr__(k,v)
 
 class Source(object):
     """Class for handling Siwave sources
@@ -3075,15 +3079,24 @@ class Source(object):
         if isinstance(value, float):
             self._impedance_value = value
 
-    def json_format(self):
+    def _json_format(self):
         dict_out = {}
         for k, v in self.__dict__.items():
             if k == "_positive_node" or k == "_negative_node":
-                nodes = v.json_format()
+                nodes = v._json_format()
                 dict_out[k[1:]] = nodes
             else:
                 dict_out[k[1:]] = v
         return dict_out
+
+    def _read_json(self, source_dict):
+        for k, v in source_dict.items():
+            if k == "positive_node":
+                self.positive_node._read_json(v)
+            elif k == "negative_node":
+                self.negative_node._read_json(v)
+            else:
+                self.__setattr__(k, v)
 
 class SimulationConfiguration(object):
     """Parses an ASCII simulation configuration file, which supports all types of inputs
@@ -4588,7 +4601,7 @@ class SimulationConfiguration(object):
         for k, v in self.__dict__.items():
             if k[0] == "_":
                 if k == "_sources":
-                    sources_out = [src.json_format() for src in v]
+                    sources_out = [src._json_format() for src in v]
                     dict_out[k[1:]] = sources_out
                 else:
                     dict_out[k[1:]] = v
@@ -4624,6 +4637,11 @@ class SimulationConfiguration(object):
             f = open(input_file)
             json_dict = json.load(f)
             for k, v in json_dict.items():
+                if k == "sources":
+                    for src in json_dict[k]:
+                        source = Source()
+                        source._read_json(src)
+                        self.sources.append(source)
                 self.__setattr__(k, v)
             self.filename = input_file
             return True
