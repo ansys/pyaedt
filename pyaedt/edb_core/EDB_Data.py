@@ -2934,10 +2934,10 @@ class EdbBuilder(object):
         self.EdbHandler.cell = cell
         self.EdbHandler.layout = cell.GetLayout()
 
-class Node(object):
-    """Classe handlin nodes for Siwave sources.
 
-    """
+class Node(object):
+    """Classe handlin nodes for Siwave sources."""
+
     def __init__(self):
         self._component = None
         self._net = None
@@ -2993,12 +2993,12 @@ class Node(object):
 
     def _read_json(self, node_dict):
         for k, v in node_dict.items():
-            self.__setattr__(k,v)
+            self.__setattr__(k, v)
+
 
 class Source(object):
-    """Class for handling Siwave sources
+    """Class for handling Siwave sources"""
 
-    """
     def __init__(self):
         self._name = ""
         self._source_type = SourceType.Vsource
@@ -3061,6 +3061,7 @@ class Source(object):
         if isinstance(value, Node):
             self._negative_node = value
             #
+
     @property
     def amplitude(self):
         """Amplitude value for the source. Ampere for current source or Volt for voltage source."""
@@ -3109,6 +3110,7 @@ class Source(object):
                 self.negative_node._read_json(v)
             else:
                 self.__setattr__(k, v)
+
 
 class SimulationConfiguration(object):
     """Parses an ASCII simulation configuration file, which supports all types of inputs
@@ -4660,8 +4662,18 @@ class SimulationConfiguration(object):
         else:
             return False
 
-    def add_dc_source(self, source_type=SourceType.Vsource, name="", amplitude=1.0, phase=0.0, impedance=1.0,
-                    positive_node_component="", positive_node_net="", negative_node_component="", negative_node_net=""):
+    def add_dc_source(
+        self,
+        source_type=SourceType.Vsource,
+        name="",
+        amplitude=1.0,
+        phase=0.0,
+        impedance=1.0,
+        positive_node_component="",
+        positive_node_net="",
+        negative_node_component="",
+        negative_node_net="",
+    ):
         """Add a source for the current SimulationConfiguration instance.
 
         Parameters
