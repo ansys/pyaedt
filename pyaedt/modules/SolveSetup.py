@@ -709,6 +709,7 @@ class SetupCircuit(object):
                 _tuple2dict(t, props)
             self.props = SetupProps(self, props)
         else:
+            self.props = SetupProps(self, OrderedDict())
             try:
                 setups_data = self.p_app.design_properties["SimSetups"]["SimSetup"]
                 if type(setups_data) is not list:
