@@ -1,12 +1,12 @@
+import os
+import joblib
+import numpy as np
 from collections import OrderedDict
-
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.MaterialLib import Material
 from pyaedt import constants
-import os
-import joblib
-import numpy as np
+
 
 LAYERS = {"s": "signal", "g": "ground", "d": "dielectric"}
 
