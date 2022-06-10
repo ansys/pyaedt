@@ -2935,7 +2935,7 @@ class EdbBuilder(object):
         self.EdbHandler.layout = cell.GetLayout()
 
 class Node(object):
-    """
+    """Classe handlin nodes for Siwave sources.
 
     """
     def __init__(self):
@@ -2946,6 +2946,7 @@ class Node(object):
 
     @property
     def component(self):
+        """Component name containing the node."""
         return self._component
 
     @component.setter
@@ -2955,6 +2956,7 @@ class Node(object):
 
     @property
     def net(self):
+        """The net of the node."""
         return self._net
 
     @net.setter
@@ -2964,15 +2966,18 @@ class Node(object):
 
     @property
     def node_type(self):
+
         return self._node_type
 
     @node_type.setter
     def node_type(self, value):
+        """The type of the node."""
         if isinstance(value, int):
             self._node_type = value
 
     @property
     def name(self):
+        """Name of the node."""
         return self._name
 
     @name.setter
@@ -3012,6 +3017,7 @@ class Source(object):
 
     @property
     def name(self):
+        """Source name."""
         return self._name
 
     @name.setter
@@ -3021,6 +3027,7 @@ class Source(object):
 
     @property
     def source_type(self):
+        """Source type."""
         return self._source_type
 
     @source_type.setter
@@ -3036,6 +3043,7 @@ class Source(object):
 
     @property
     def positive_node(self):
+        """Positive node for the source"""
         return self._positive_node
 
     @positive_node.setter
@@ -3045,6 +3053,7 @@ class Source(object):
 
     @property
     def negative_node(self):
+        """Negative node of the source e.g. reference."""
         return self._negative_node
 
     @negative_node.setter
@@ -3054,6 +3063,7 @@ class Source(object):
             #
     @property
     def amplitude(self):
+        """Amplitude value for the source. Ampere for current source or Volt for voltage source."""
         return self._amplitude
 
     @amplitude.setter
@@ -3063,6 +3073,7 @@ class Source(object):
 
     @property
     def phase(self):
+        """Phase of the source."""
         return self._phase
 
     @phase.setter
@@ -3072,6 +3083,7 @@ class Source(object):
 
     @property
     def impedance_value(self):
+        """Impedance values of the source."""
         return self._impedance_value
 
     @impedance_value.setter
@@ -4650,6 +4662,51 @@ class SimulationConfiguration(object):
 
     def add_dc_source(self, source_type=SourceType.Vsource, name="", amplitude=1.0, phase=0.0, impedance=1.0,
                     positive_node_component="", positive_node_net="", negative_node_component="", negative_node_net=""):
+        """Add a source for the current SimulationConfiguration instance.
+
+        Parameters
+        ----------
+        source_type : SourceType
+            The source type defined.
+
+        name : str
+            Source name.
+
+        amplitude : float
+            Source amplitude value, Volt for voltage source, Amper for current one.
+
+        phase : float
+            Phase value of the source.
+
+        impedance : float
+            Impedance value for the source
+
+        positive_node_component : str
+            Name of the component used for the positive node.
+
+        negative_node_component : str
+            Name of the component used for the negative node.
+
+        positive_node_net : str
+            Net used for the positive node.
+
+        negative_node_net : str
+            Net used for the negative node.
+
+        Returns
+        -------
+        bool
+            True when succeeded False when file name not provided.
+
+        Examples
+        --------
+        >>> edb = Edb(target_file)
+        >>> sim_setup = SimulationConfiguration()
+        >>> sim_setup.solver_type = SolverType.SiwaveDC
+        >>> sim_setup.add_dc_source(source_type=SourceType.Vsource, positive_node_component="V1",
+        >>> positive_node_net="HSG", negative_node_component="V1", negative_node_net="SW")
+
+        """
         if not isinstance(source_type, int):
             return False
         if name == "":
