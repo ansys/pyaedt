@@ -5,6 +5,8 @@ import time
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.generic.constants import SourceType
+from pyaedt.generic.constants import SolverType
 
 # Setup paths for module imports
 # Import required modules
@@ -1531,3 +1533,25 @@ if not config["skip_edb"]:
                 assert laminate_edb.save_edb()
             finally:
                 laminate_edb.close_edb()
+
+        def test_103_create_dc_simulation(self):
+            edb = Edb(edbpath=os.path.join(local_path, "example_models", "dc_flow.aedb"), edbversion=desktop_version)
+            sim_setup = SimulationConfiguration()
+            sim_setup.do_cutout_subdesign = False
+            sim_setup.solver_type = SolverType.SiwaveDC
+            sim_setup.add_dc_source(
+                source_type=SourceType.Vsource,
+                positive_node_component="Q3",
+                positive_node_net="SOURCE_HBA_PHASEA",
+                negative_node_component="Q3",
+                negative_node_net="HV_DC+",
+            )
+            sim_setup.add_dc_source(
+                source_type=SourceType.Isource,
+                positive_node_component="Q5",
+                positive_node_net="SOURCE_HBB_PHASEB",
+                negative_node_component="Q5",
+                negative_node_net="HV_DC+",
+            )
+            edb.build_simulation_project(sim_setup)
+            edb.close_edb()
