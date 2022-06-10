@@ -634,6 +634,8 @@ class Desktop:
                 )
             else:
                 os.environ["LD_LIBRARY_PATH"] = os.path.join(base_path, "defer")
+            pyaedt_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
+            os.environ["PATH"] = pyaedt_path + os.pathsep + os.environ["PATH"]
         import ScriptEnv
 
         launch_msg = "AEDT installation Path {}".format(base_path)
