@@ -1861,7 +1861,6 @@ class Patch(CommonObject, object):
             name=self.name + "_port",
             matname=None,
         )
-        print(self.application.solution_type)
         if self.application.solution_type == "Modal":
             if axisdir is None:
                 axisdir = self.application.AxisDir.ZPos
@@ -2879,7 +2878,6 @@ class MachineLearningPatch(CommonObject, object):
             name=self.name + "_port",
             matname=None,
         )
-        print(self.application.solution_type)
         if self.application.solution_type == "Modal":
             if axisdir is None:
                 axisdir = self.application.AxisDir.ZPos

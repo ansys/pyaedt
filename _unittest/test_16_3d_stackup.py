@@ -116,6 +116,8 @@ class TestClass(BasisTest, object):
 
     def test_07_ml_patch(self):
         top = self.st.stackup_layers["top"]
+        gnd = self.st.stackup_layers["gnd1"]
         width = 1e3 * 3e8 / (2 * 1e9 * ((2.2 + 1) / 2) ** (1 / 2))
         patch2 = top.ml_patch(1e9, patch_width=width, patch_length=None, patch_position_x=0, patch_position_y=0)
+        patch2.create_lumped_port(gnd)
         assert self.st.resize_around_element(patch2)
