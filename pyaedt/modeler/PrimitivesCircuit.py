@@ -290,13 +290,15 @@ class CircuitComponents(object):
         return self.components[id]
 
     @pyaedt_function_handler()
-    def create_gnd(self, location=[]):
+    def create_gnd(self, location=[], angle=0):
         """Create a ground.
 
         Parameters
         ----------
         location : list, optional
             Position on the X and Y axis. The default is ``None``.
+        angle : optional
+            Angle rotation in degrees. The default is ``0``.
 
         Returns
         -------
@@ -313,7 +315,7 @@ class CircuitComponents(object):
 
         name = self.oeditor.CreateGround(
             ["NAME:GroundProps", "Id:=", id],
-            ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", 0, "Flip:=", False],
+            ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
         )
         id = int(name.split(";")[1])
         self.add_id_to_component(id)
