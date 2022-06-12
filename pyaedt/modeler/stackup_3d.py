@@ -2518,4 +2518,4 @@ class MachineLearningPatch(Patch, object):
             length = model.predict(array_for_prediction)[0]
             self.length.expression = application.modeler._arg_with_dim(length)
         else:
-            self.application.logger.warning("Machine learning algorithm aren't covered in IronPython")
+            self.application.logger.warning("Machine learning algorithm aren't covered in IronPython.")
