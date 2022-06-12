@@ -464,7 +464,6 @@ class Layer3D(object):
         self,
         frequency,
         patch_width,
-        patch_length=None,
         patch_position_x=0,
         patch_position_y=0,
         patch_name=None,
@@ -510,7 +509,6 @@ class Layer3D(object):
             patch_width,
             signal_layer=self,
             dielectric_layer=below_layer,
-            patch_length=patch_length,
             patch_position_x=patch_position_x,
             patch_position_y=patch_position_y,
             patch_name=patch_name,
@@ -2469,7 +2467,7 @@ class Polygon(CommonObject, object):
         return [[bb[0], bb[1]], [bb[0], bb[4]], [bb[3], bb[4]], [bb[3], bb[1]]]
 
 
-class MachineLearningPatch(CommonObject, object):
+class MachineLearningPatch(Patch, object):
     """MachineLearningPatch Class in Stackup3D."""
 
     def __init__(
@@ -2479,7 +2477,6 @@ class MachineLearningPatch(CommonObject, object):
         patch_width,
         signal_layer,
         dielectric_layer,
-        patch_length=None,
         patch_position_x=0,
         patch_position_y=0,
         patch_name="patch",
@@ -2490,400 +2487,31 @@ class MachineLearningPatch(CommonObject, object):
             joblib
         except NameError:
             raise ImportError("joblib package is needed to run ML.")
-        CommonObject.__init__(self, application)
-        self._frequency = NamedVariable(application, patch_name + "_frequency", str(frequency) + "Hz")
-        self._signal_layer = signal_layer
-        self._dielectric_layer = dielectric_layer
-        self._substrate_thickness = dielectric_layer.thickness
-        self._width = NamedVariable(application, patch_name + "_width", application.modeler._arg_with_dim(patch_width))
-        self._position_x = NamedVariable(
-            application, patch_name + "_position_x", application.modeler._arg_with_dim(patch_position_x)
-        )
-        self._position_y = NamedVariable(
-            application, patch_name + "_position_y", application.modeler._arg_with_dim(patch_position_y)
-        )
-        self._position_z = signal_layer.elevation
-        self._dielectric_layer = dielectric_layer
-        self._signal_layer = signal_layer
-        self._dielectric_material = dielectric_layer.material
-        self._material_name = signal_layer.material_name
-        self._layer_name = signal_layer.name
-        self._layer_number = signal_layer.number
-        self._name = patch_name
-        self._patch_thickness = signal_layer.thickness
-        self._application = application
-        self._aedt_object = None
-        try:
-            self._permittivity = NamedVariable(
-                application, patch_name + "_permittivity", float(self._dielectric_material.permittivity.value)
-            )
-        except ValueError:
-            self._permittivity = NamedVariable(
-                application,
-                patch_name + "_permittivity",
-                float(application.variable_manager[self._dielectric_material.permittivity.value].value),
-            )
-        if isinstance(patch_length, float) or isinstance(patch_length, int):
-            self._length = NamedVariable(
-                application, patch_name + "_length", application.modeler._arg_with_dim(patch_length)
-            )
-            self._effective_permittivity = self._effective_permittivity_calcul
-            self._wave_length = self._wave_length_calcul
-        elif patch_length is None:
-            self._effective_permittivity = self._effective_permittivity_calcul
-            self._added_length = self._added_length_calcul
-            self._wave_length = self._wave_length_calcul
-            path_file = os.path.dirname(__file__)
-            path_folder = os.path.split(path_file)[0]
-            training_file = os.path.join(path_folder, "misc", "patch_svr_model_100MHz_1GHz.joblib")
-            model = joblib.load(training_file)
-            list_for_array = [
-                [
-                    self.frequency.numeric_value,
-                    self.width.numeric_value,
-                    self._permittivity.numeric_value,
-                    self.dielectric_layer.thickness.numeric_value,
-                ]
+        Patch.__init__(self,
+                       application,
+                       frequency,
+                       patch_width,
+                       signal_layer,
+                       dielectric_layer,
+                       patch_length=None,
+                       patch_position_x=patch_position_x,
+                       patch_position_y=patch_position_y,
+                       patch_name=patch_name,
+                       reference_system=reference_system,
+                       axis=axis,
+                       )
+        path_file = os.path.dirname(__file__)
+        path_folder = os.path.split(path_file)[0]
+        training_file = os.path.join(path_folder, "misc", "patch_svr_model_100MHz_1GHz.joblib")
+        model = joblib.load(training_file)
+        list_for_array = [
+            [
+                self.frequency.numeric_value,
+                self.width.numeric_value,
+                self._permittivity.numeric_value,
+                self.dielectric_layer.thickness.numeric_value,
             ]
-            array_for_prediction = np.array(list_for_array, dtype=np.float32)
-            length = model.predict(array_for_prediction)[0]
-            self._length = NamedVariable(application, patch_name + "_length", application.modeler._arg_with_dim(length))
-        self._impedance_l_w, self._impedance_w_l = self._impedance_calcul
-        if reference_system:
-            application.modeler.set_working_coordinate_system(reference_system)
-            if axis == "X":
-                start_point = [
-                    "{0}_position_x".format(self._name),
-                    "{0}_position_y-{0}_width/2".format(self._name),
-                    0,
-                ]
-            else:
-                start_point = [
-                    "{0}_position_x-{0}_width/2".format(self._name),
-                    "{}_position_y".format(self._name),
-                    0,
-                ]
-            self._reference_system = reference_system
-        else:
-            application.modeler.create_coordinate_system(
-                origin=[
-                    "{0}_position_x".format(patch_name),
-                    "{}_position_y".format(patch_name),
-                    signal_layer.elevation.name,
-                ],
-                reference_cs="Global",
-                name=patch_name + "_CS",
-            )
-            if axis == "X":
-                start_point = [0, "-{}_width/2".format(patch_name), 0]
-
-            else:
-                start_point = ["-{}_width/2".format(patch_name), 0, 0]
-            application.modeler.set_working_coordinate_system(patch_name + "_CS")
-
-            self._reference_system = patch_name + "_CS"
-        if signal_layer.thickness:
-            self._aedt_object = application.modeler.primitives.create_box(
-                position=start_point,
-                dimensions_list=[
-                    "{}_length".format(patch_name),
-                    "{}_width".format(patch_name),
-                    signal_layer.thickness.name,
-                ],
-                name=patch_name,
-                matname=signal_layer.material_name,
-            )
-        else:
-            self._aedt_object = application.modeler.primitives.create_rectangle(
-                position=start_point,
-                dimension_list=[self.length.name, self.width.name],
-                name=patch_name,
-                matname=signal_layer.material_name,
-            )
-            application.assign_coating(self._aedt_object.name, signal_layer.material)
-        application.modeler.set_working_coordinate_system("Global")
-        application.modeler.subtract(blank_list=[signal_layer.name], tool_list=[patch_name], keepOriginals=True)
-
-    @property
-    def frequency(self):
-        """Model Frequency.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
-        """
-        return self._frequency
-
-    @property
-    def substrate_thickness(self):
-        """Substrate Thickness.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
-        """
-        return self._substrate_thickness
-
-    @property
-    def width(self):
-        """Width.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
-        """
-        return self._width
-
-    @property
-    def position_x(self):
-        """Starting Position X.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
-        """
-        return self._position_x
-
-    @property
-    def position_y(self):
-        """Starting Position Y.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
-        """
-        return self._position_y
-
-    @property
-    def permittivity(self):
-        """Permittivity.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
-        """
-        return self._permittivity
-
-    @property
-    def _permittivity_calcul(self):
-        """Permittivity Calutation.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
-        """
-        self._permittivity = self.application.materials[self._dielectric_material].permittivity
-        return self._permittivity
-
-    @property
-    def effective_permittivity(self):
-        """Effective Permittivity.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
-        """
-        return self._effective_permittivity
-
-    @property
-    def _effective_permittivity_calcul(self):
-        # "(substrat_permittivity + 1)/2 + (substrat_permittivity -
-        # 1)/(2 * sqrt(1 + 10 * substrate_thickness/patch_width))"
-        er = self._permittivity.name
-        h = self._substrate_thickness.name
-        w = self._width.name
-        patch_eff_permittivity_formula = "(" + er + "+ 1)/2 + (" + er + "- 1)/(2 * sqrt(1 + 10 * " + h + "/" + w + "))"
-        self._effective_permittivity = NamedVariable(
-            self.application, self._name + "_eff_permittivity", patch_eff_permittivity_formula
-        )
-        return self._effective_permittivity
-
-    @property
-    def added_length(self):
-        """Added Length Calutation.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
-        """
-        return self._added_length
-
-    @property
-    def _added_length_calcul(self):
-        """Added Length Calutation.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
-        """
-        # "0.412 * substrate_thickness * (patch_eff_permittivity + 0.3) * (patch_width/substrate_thickness + 0.264)"
-        # " / ((patch_eff_permittivity - 0.258) * (patch_width/substrate_thickness + 0.813)) "
-
-        er_e = self._effective_permittivity.name
-        h = self._substrate_thickness.name
-        w = self._width.name
-        patch_added_length_formula = (
-            "0.412 * " + h + " * (" + er_e + " + 0.3) * (" + w + "/" + h + " + 0.264)/"
-            "((" + er_e + " - 0.258) * (" + w + "/" + h + " + 0.813))"
-        )
-        self._added_length = NamedVariable(self.application, self._name + "_added_length", patch_added_length_formula)
-        return self._added_length
-
-    @property
-    def wave_length(self):
-        """Wave Length.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
-        """
-        return self._wave_length
-
-    @property
-    def _wave_length_calcul(self):
-        """Wave Length Calutation.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
-        """
-        # "c0 * 1000/(patch_frequency * sqrt(patch_eff_permittivity))"
-        f = self._frequency.name
-        er_e = self._effective_permittivity.name
-        patch_wave_length_formula = "(c0 * 1000/(" + f + "* sqrt(" + er_e + ")))mm"
-        self._wave_length = NamedVariable(
-            self.application,
-            self._name + "_wave_length",
-            self.application.modeler._arg_with_dim(patch_wave_length_formula),
-        )
-        return self._wave_length
-
-    @property
-    def length(self):
-        """Length.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
-        """
-        return self._length
-
-    @property
-    def _length_calcul(self):
-        """Length Calutation.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
-        """
-        # "patch_wave_length / 2 - 2 * patch_added_length"
-        d_l = self._added_length.name
-        lbd = self._wave_length.name
-        patch_length_formula = lbd + "/2" + " - 2 * " + d_l
-        self._length = NamedVariable(self.application, self._name + "_length", patch_length_formula)
-        return self._length
-
-    @property
-    def impedance(self):
-        """Impedance.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
-        """
-        return self._impedance_l_w, self._impedance_w_l
-
-    @property
-    def _impedance_calcul(self):
-        """Impedance Calculation.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
-            Variable Object.
-        """
-        # "45 * (patch_wave_length/patch_width * sqrt(patch_eff_permittivity)) ** 2"
-        # "60 * patch_wave_length/patch_width * sqrt(patch_eff_permittivity)"
-        er_e = self._effective_permittivity.name
-        lbd = self._wave_length.name
-        w = self._width.name
-        patch_impedance_formula_l_w = "45 * (" + lbd + "/" + w + "* sqrt(" + er_e + ")) ** 2"
-        patch_impedance_formula_w_l = "60 * " + lbd + "/" + w + "* sqrt(" + er_e + ")"
-        self._impedance_l_w = NamedVariable(
-            self.application, self._name + "_impedance_l_w", patch_impedance_formula_l_w
-        )
-        self._impedance_w_l = NamedVariable(
-            self.application, self._name + "_impedance_w_l", patch_impedance_formula_w_l
-        )
-        self.application.logger.warning(
-            "The closer the ratio between wave length and the width is to 1,"
-            " the less correct the impedance calculation is"
-        )
-        return self._impedance_l_w, self._impedance_w_l
-
-    def create_lumped_port(self, reference_layer, opposite_side=False, port_name=None, axisdir=None):
-        """Create a parametrized lumped port.
-
-        Parameters
-        ----------
-
-        reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D
-            The reference layer, in most cases the ground layer.
-        opposite_side : bool, optional
-            Change the side where the port is created.
-        port_name : str, optional
-            Name of the lumped port.
-        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``Application.AxisDir.XNeg``.
-        Returns
-        -------
-        bool
-        """
-        string_position_x = self.position_x.name
-        if opposite_side:
-            string_position_x = self.position_x.name + " + " + self.length.name
-        string_position_y = self.position_y.name + " - " + self.width.name + "/2"
-        string_position_z = reference_layer.elevation.name
-        string_width = self.width.name
-        string_length = (
-            self._signal_layer.elevation.name
-            + " + "
-            + self._signal_layer.thickness.name
-            + " + "
-            + reference_layer.thickness.name
-            + " - "
-            + reference_layer.elevation.name
-        )
-        port = self.application.modeler.create_rectangle(
-            csPlane=constants.PLANE.YZ,
-            position=[string_position_x, string_position_y, string_position_z],
-            dimension_list=[string_width, string_length],
-            name=self.name + "_port",
-            matname=None,
-        )
-        if self.application.solution_type == "Modal":
-            if axisdir is None:
-                axisdir = self.application.AxisDir.ZPos
-            port = self.application.create_lumped_port_to_sheet(port.name, portname=port_name, axisdir=axisdir)
-        elif self.application.solution_type == "Terminal":
-            port = self.application.create_lumped_port_to_sheet(
-                port.name, portname=port_name, reference_object_list=[reference_layer.name]
-            )
-        return port
+        ]
+        array_for_prediction = np.array(list_for_array, dtype=np.float32)
+        length = model.predict(array_for_prediction)[0]
+        self.length.expression = application.modeler._arg_with_dim(length)
