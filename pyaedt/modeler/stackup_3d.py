@@ -1,17 +1,20 @@
 import os
 from collections import OrderedDict
 
-try:
-    import joblib
-except ImportError:
-    pass
-import numpy as np
-
 from pyaedt import constants
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.MaterialLib import Material
 from pyaedt.generic.general_methods import is_ironpython
+if not is_ironpython:
+    try:
+        import joblib
+    except ImportError:
+        pass
+    try:
+        import numpy as np
+    except ImportError:
+        pass
 
 LAYERS = {"s": "signal", "g": "ground", "d": "dielectric"}
 
