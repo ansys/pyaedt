@@ -2242,13 +2242,15 @@ class Design(AedtObjects, object):
         )
 
     @pyaedt_function_handler()
-    def import_dataset3d(self, filename, dsname=None):
+    def import_dataset3d(self, filename, encoding="utf-8-sig", dsname=None):
         """Import a 3D dataset.
 
         Parameters
         ----------
         filename : str
-            Full path and name for the TAB file.
+            Full path and name for the tab/csv/xlsx file.
+        encoding : str, optional
+            File encoding to be provided for csv.
         dsname : str, optional
             Name of the dataset. The default is the file name.
 
@@ -2261,12 +2263,54 @@ class Design(AedtObjects, object):
 
         >>> oProject.AddDataset
         """
-        with open(filename, "r") as f:
-            lines = f.read().splitlines()
-        header = lines[0]
-        points = lines[1:]
+        index_of_dot = filename.rfind(".")
+        file_extension = filename[index_of_dot + 1 :]
+        xlist = []
+        ylist = []
+        zlist = []
+        vlist = []
 
-        header_list = header.split("\t")
+        if file_extension[:3] == "xls":
+            self.logger.warning("Warning: You need pandas installed for reading excel files")
+            try:
+                import pandas as pd
+            except ImportError:
+                self.logger.error(
+                    "Pandas is not installed. Either install pandas or save the file as .csv or .tab. " "Exiting."
+                )
+                return
+
+            df = pd.read_excel(filename)
+            header = df.head()
+            # Add code to create the x,y,z,v lists once pandas is included in the pyaedt requirements
+
+        elif file_extension == "csv":
+            import csv
+
+            with open(filename, "r", encoding=encoding) as my_file:
+                csv_reader = csv.reader(my_file, delimiter=",")
+                i = 0
+                for row in csv_reader:
+                    if i == 0:
+                        header = " ".join(row)
+                        i = 1
+                        continue
+                    xlist.append(float(row[0]))
+                    ylist.append(float(row[1]))
+                    zlist.append(float(row[2]))
+                    vlist.append(float(row[3]))
+
+        elif file_extension == "tab":
+            with open(filename) as my_file:
+                lines = my_file.readlines()
+            header = lines[0]
+            for item in lines[1:]:
+                xlist.append(float(item.split()[0]))
+                ylist.append(float(item.split()[1]))
+                zlist.append(float(item.split()[2]))
+                vlist.append(float(item.split()[3]))
+
+        header_list = header.split()
         units = ["", "", "", ""]
         cont = 0
         for h in header_list:
@@ -2275,16 +2319,7 @@ class Design(AedtObjects, object):
                 units[cont] = result.group(1)
             cont += 1
 
-        xlist = []
-        ylist = []
-        zlist = []
-        vlist = []
-        for item in points:
-            xlist.append(float(item.split()[0]))
-            ylist.append(float(item.split()[1]))
-            zlist.append(float(item.split()[2]))
-            vlist.append(float(item.split()[3]))
-
+        my_file.close()
         if not dsname:
             dsname = os.path.basename(os.path.splitext(filename)[0])
 
