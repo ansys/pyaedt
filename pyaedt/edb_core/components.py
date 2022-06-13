@@ -810,11 +810,60 @@ class Components(object):
                 self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
                 return False
         if create_circuit_port:
-            _cmp = convert_py_list_to_net_list([component.refdes])
-            self._components_methods.AddPortOnRlcComponent(self._active_layout, _cmp)
+            self.add_port_on_rlc_component(component.refdes)
             return True
         else:
             return self.set_component_rlc(component.refdes)
+
+    @pyaedt_function_handler()
+    def add_port_on_rlc_component(self, component=None):
+        """Deactivate rlc component and replace it by circuit port.
+        Only supporting 2 pins components.
+
+        Parameters
+        ----------
+        component : str
+            Reference designator of the RLC component.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if isinstance(component, str):
+            component = self.components[component]
+        if not isinstance(component, EDBComponent):
+            return False
+        self.set_component_rlc(component.refdes)
+        pins = self.get_pin_from_component(component.refdes)
+        if len(pins) == 2:
+            pos_pin_loc = self.get_pin_position(pins[0])
+            pt = self._pedb.edb.Geometry.PointData(
+                self._get_edb_value(pos_pin_loc[0]), self._get_edb_value(pos_pin_loc[1])
+            )
+            pin_layers = self._padstack._get_pin_layer_range(pins[0])
+            pos_pin_term = self._pedb.edb.Cell.Terminal.PointTerminal.Create(
+                self._active_layout, pins[0].GetNet(), pins[0].GetName(), pt, pin_layers[0]
+            )
+            if not pos_pin_term:
+                return False
+            neg_pin_loc = self.get_pin_position(pins[1])
+            pt = self._pedb.edb.Geometry.PointData(
+                self._get_edb_value(neg_pin_loc[0]), self._get_edb_value(neg_pin_loc[1])
+            )
+            neg_pin_term = self._pedb.edb.Cell.Terminal.PointTerminal.Create(
+                self._active_layout, pins[1].GetNet(), pins[1].GetName() + "_ref", pt, pin_layers[0]
+            )
+            if not neg_pin_term:
+                return False
+            pos_pin_term.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.PortBoundary)
+            pos_pin_term.SetIsCircuitPort(True)
+            pos_pin_term.SetName(component.refdes)
+            neg_pin_term.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.PortBoundary)
+            neg_pin_term.SetIsCircuitPort(True)
+            pos_pin_term.SetReferenceTerminal(neg_pin_term)
+            self._logger.info("Component {} has been replaced by port".format(component.refdes))
+            return True
 
     @pyaedt_function_handler()
     def _create_pin_group_terminal(self, pingroup, isref=False):
