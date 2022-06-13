@@ -1,5 +1,6 @@
 # Setup paths for module imports
 from _unittest.conftest import BasisTest
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.Modeler import FaceCoordinateSystem
 from pyaedt.modeler.Primitives import PolylineSegment
 
@@ -616,3 +617,17 @@ class TestClass(BasisTest, object):
         rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "imprintn3")
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprintn3")
         assert self.aedtapp.modeler.imprint_vector_projection([rect, box1], [3, 2, -5], 1)
+
+    def test_52_objects_in_bounding_box(self):
+        bounding_box = [100, 200, 100, -100, -300, -200]
+        objects_in_bounding_box = self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
+        assert type(objects_in_bounding_box) is list
+
+        bounding_box = [0, 0, 0, 0, 0, 0]
+        objects_in_bounding_box = self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
+        assert len(objects_in_bounding_box) == 0
+
+        if not is_ironpython:
+            with pytest.raises(ValueError):
+                bounding_box = [100, 200, 100, -100, -300]
+                self.aedtapp.modeler.objects_in_bounding_box(bounding_box)

@@ -16,6 +16,7 @@ import warnings
 from collections import OrderedDict
 
 import pyaedt.modules.report_templates as rt
+from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
@@ -55,6 +56,7 @@ TEMPLATES_BY_DESIGN = {
         "ElectroDCConduction",
         "ElectricTransient",
         "Fields",
+        "Spectrum",
     ],
     "Maxwell 2D": [
         "Transient",
@@ -64,14 +66,15 @@ TEMPLATES_BY_DESIGN = {
         "ElectricTransient",
         "ElectroDCConduction",
         "Fields",
+        "Spectrum",
     ],
     "Icepak": ["Monitor", "Fields"],
-    "Circuit Design": ["Standard", "Eye Diagram", "Spectral"],
-    "HFSS 3D Layout": ["Standard", "Fields", "Spectral"],
+    "Circuit Design": ["Standard", "Eye Diagram", "Spectrum"],
+    "HFSS 3D Layout": ["Standard", "Fields", "Spectrum"],
     "Mechanical": ["Standard", "Fields"],
     "Q3D Extractor": ["Matrix", "CG Fields", "DC R/L Fields", "AC R/L Fields"],
     "2D Extractor": ["Matrix", "CG Fields", "RL Fields"],
-    "Twin Builder": ["Standard", "Spectral"],
+    "Twin Builder": ["Standard", "Spectrum"],
 }
 TEMPLATES_BY_NAME = {
     "Standard": rt.Standard,
@@ -87,7 +90,7 @@ TEMPLATES_BY_NAME = {
     "Near Fields": rt.NearField,
     "Eye Diagram": rt.EyeDiagram,
     "EigenMode Parameters": rt.Standard,
-    "Spectral": rt.Spectral,
+    "Spectrum": rt.Spectral,
 }
 
 
@@ -560,7 +563,7 @@ class Reports(object):
         """
         if not setup_name:
             setup_name = self._post_app._app.nominal_sweep
-        if "Spectral" in self._templates:
+        if "Spectrum" in self._templates:
             rep = rt.Spectral(self._post_app, "Spectrum", setup_name)
             rep.expressions = expressions
             return rep
@@ -2049,7 +2052,7 @@ class PostProcessorCommon(object):
                 else:
                     report = rt.Standard
                 plots.append(report(self, report_type, None))
-                plots[-1]._plot_name = name
+                plots[-1].plot_name = name
                 plots[-1]._is_created = True
                 if is_ironpython:
                     plots[-1].report_type = obj.Get_DisplayType()
@@ -2834,8 +2837,8 @@ class PostProcessorCommon(object):
         ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
         ... )
         """
-        if domain == "Spectral":
-            report_category = "Spectral"
+        if domain in ["Spectral", "Spectrum"]:
+            report_category = "Spectrum"
         elif not report_category and not self._app.design_solutions.report_type:
             self.logger.error("Solution not supported")
             return False
@@ -2997,8 +3000,8 @@ class PostProcessorCommon(object):
         >>> data3.plot("InputCurrent(PHA)")
 
         """
-        if domain == "Spectral":
-            report_category = "Spectral"
+        if domain in ["Spectral", "Spectrum"]:
+            report_category = "Spectrum"
         if not report_category and not self._app.design_solutions.report_type:
             self.logger.error("Solution not supported")
             return False
@@ -3038,26 +3041,56 @@ class PostProcessorCommon(object):
 
         return report.get_solution_data()
 
-        # out = self._get_report_inputs(
-        #     expressions=expressions,
-        #     setup_sweep_name=setup_sweep_name,
-        #     domain=domain,
-        #     variations=variations,
-        #     primary_sweep_variable=primary_sweep_variable,
-        #     report_category=report_category,
-        #     context=context,
-        #     subdesign_id=subdesign_id,
-        #     polyline_points=polyline_points,
-        #     only_get_method=True,
-        # )
-        #
-        # solution_data = self.get_solution_data_per_variation(out[1], out[3], out[4], out[5], expressions)
-        # if primary_sweep_variable:
-        #     solution_data.primary_sweep = primary_sweep_variable
-        # if not solution_data:
-        #     warnings.warn("No Data Available. Check inputs")
-        #     return False
-        # return solution_data
+    @pyaedt_function_handler()
+    def create_report_from_configuration(self, input_file=None, input_dict=None, solution_name=None):
+        """Create a new report based on json file or dictionary of properties.
+
+        Parameters
+        ----------
+        input_file : str, optional
+            Path to a json file containing report settings.
+        input_dict : dict, optional
+            Dictionary containing report settings.
+        solution_name : setup name to use.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+            Report object if succeeded.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> aedtapp.post.create_report_from_configuration(r'C:\temp\my_report.json',
+        ...                                               solution_name="Setup1 : LastAdpative")
+        """
+        if not input_dict and not input_file:  # pragma: no cover
+            self.logger.error("Either one of a json file or a dictionary has to be passed as input.")
+            return False
+        if input_file:
+            props = json_to_dict(input_file)
+        else:
+            props = input_dict
+        if not solution_name:
+            solution_name = self._app.nominal_sweep
+        if props.get("report_category", None) and props["report_category"] in TEMPLATES_BY_NAME:
+            report_temp = TEMPLATES_BY_NAME[props["report_category"]]
+            report = report_temp(self, props["report_category"], solution_name)
+            for k, v in props.items():
+                report.props[k] = v
+            for el, k in self._app.available_variations.nominal_w_values_dict.items():
+                if (
+                    report.props.get("context", None)
+                    and report.props["context"].get("variations", None)
+                    and el not in report.props["context"]["variations"]
+                ):
+                    report.props["context"]["variations"][el] = k
+            report.create()
+            report._update_traces()
+            return report
+        return False  # pragma: no cover
 
 
 class PostProcessor(PostProcessorCommon, object):

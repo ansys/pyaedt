@@ -11,7 +11,7 @@ import pyvista
 import numpy as np
 import json
 from sphinx_gallery.sorting import FileNameSortKey
-from pyansys_sphinx_theme import pyansys_logo_black
+from ansys_sphinx_theme import pyansys_logo_black
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -212,7 +212,7 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyAEDT"
 html_show_sourcelink = True
-html_theme = "pyansys_sphinx_theme"
+html_theme = "ansys_sphinx_theme"
 html_logo = pyansys_logo_black
 
 html_theme_options = {

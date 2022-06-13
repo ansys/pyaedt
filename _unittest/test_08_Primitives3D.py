@@ -777,7 +777,7 @@ class TestClass(BasisTest, object):
         assert isinstance(self.aedtapp.modeler.get_closest_edgeid_to_position([0.2, 0, 0]), int)
         pass
 
-    @pytest.mark.skipif(config["build_machine"] or is_ironpython, reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["NonGraphical"] or is_ironpython, reason="Not running in non-graphical mode")
     def test_62_import_space_claim(self):
         self.aedtapp.insert_design("SCImport")
         assert self.aedtapp.modeler.import_spaceclaim_document(os.path.join(self.local_scratch.path, scdoc))

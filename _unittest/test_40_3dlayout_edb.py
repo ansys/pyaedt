@@ -67,6 +67,7 @@ class TestClass(BasisTest, object):
     def test_02a_get_geometries(self):
         line = self.aedtapp.modeler.geometries["line_1983"]
         assert line.edges
+        assert isinstance(line.edge_by_point([0, 0]), int)
         assert line.points
         assert line.points
         assert line.is_closed
@@ -109,6 +110,10 @@ class TestClass(BasisTest, object):
     def test_02c_geo_layer(self):
         assert self.aedtapp.modeler.geometries["line_1983"].placement_layer
         assert len(self.aedtapp.modeler.layers.drawing_layers) > 0
+        assert len(self.aedtapp.modeler.layers.all_signal_layers) > 0
+        assert len(self.aedtapp.modeler.layers.all_diel_layers) > 0
+        assert isinstance(self.aedtapp.modeler.layers.all_signal_layers[0], str)
+        assert isinstance(self.aedtapp.modeler.layers.all_diel_layers[0], str)
 
     def test_02d_geo_lock(self):
         self.aedtapp.modeler.geometries["line_1983"].lock_position = True
@@ -211,6 +216,16 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.layers.change_stackup_type("Laminate")
         assert not self.aedtapp.modeler.layers.change_stackup_type("lami")
 
-    @pytest.mark.skipif(config["build_machine"] == True, reason="Not running in non-graphical mode")
+    @pytest.mark.skipif(config["NonGraphical"] == True, reason="Not running in non-graphical mode")
     def test_11_export_picture(self):
         assert os.path.exists(self.aedtapp.post.export_model_picture(orientation="top"))
+
+    def test_12_objects_by_net(self):
+        poly_on_gnd = self.aedtapp.modeler.objects_by_net("GND", "poly")
+        assert len(poly_on_gnd) > 0
+        assert self.aedtapp.modeler.geometries[poly_on_gnd[0]].net_name == "GND"
+
+    def test_13_objects_by_layer(self):
+        lines_on_top = self.aedtapp.modeler.objects_by_layer("TOP", "line")
+        assert len(lines_on_top) > 0
+        assert self.aedtapp.modeler.geometries[lines_on_top[0]].placement_layer == "TOP"

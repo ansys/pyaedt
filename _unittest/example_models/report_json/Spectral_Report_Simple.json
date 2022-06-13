@@ -1,0 +1,28 @@
+{
+    "Help": "This Report Template is applicable to CISPR25 Plots from Transient data.",
+    "report_category": "Spectrum",
+    "report_type": "Rectangular Plot",
+	"plot_name": "Spectrum_CISPR25",
+    "context": {
+        "domain": "Spectral",
+        "primary_sweep": "Spectrum",
+        "primary_sweep_range": [
+            "All"
+        ],
+        "variations": {
+            "Spectrum": [
+                "All"
+            ]
+        },
+        "time_start": "0ns",
+        "time_stop": "10us",
+        "max_frequency": "8MHz",
+        "window": "Hanning",
+        "kaiser_coeff": 0,
+        "adjust_coherent_gain": true,
+        "plot_continous_spectrum": false
+    },
+    "expressions": {
+        "dB(V(net_11))" : {}
+    }
+}
