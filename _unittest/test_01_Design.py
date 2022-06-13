@@ -216,6 +216,9 @@ class TestClass(BasisTest, object):
         filename = os.path.join(local_path, "example_models", "Dataset_3D.csv")
         ds8 = self.aedtapp.import_dataset3d(filename, encoding="utf-8-sig", dsname="dataset_csv")
         assert ds8.name == "$dataset_csv"
+        filename = os.path.join(local_path, "example_models", "Dataset_3D.xlsx")
+        ds9 = self.aedtapp.import_dataset3d(filename, dsname="myExcel")
+        assert ds9.name == "$myExcel"
 
     def test_20_get_3dComponents_properties(self):
         assert len(self.aedtapp.components3d) > 0

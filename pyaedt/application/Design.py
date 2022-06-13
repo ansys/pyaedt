@@ -2281,7 +2281,11 @@ class Design(AedtObjects, object):
                 return
 
             df = pd.read_excel(filename)
-            header = df.head()
+            header = str([df.columns[i] for i in range(len(df.columns))])
+            xlist = list((df.iloc[:, 0]).array)
+            ylist = list((df.iloc[:, 1]).array)
+            zlist = list((df.iloc[:, 2]).array)
+            vlist = list((df.iloc[:, 3]).array)
             # Add code to create the x,y,z,v lists once pandas is included in the pyaedt requirements
 
         elif file_extension == "csv":
@@ -2299,7 +2303,7 @@ class Design(AedtObjects, object):
                     ylist.append(float(row[1]))
                     zlist.append(float(row[2]))
                     vlist.append(float(row[3]))
-
+            my_file.close()
         elif file_extension == "tab":
             with open(filename) as my_file:
                 lines = my_file.readlines()
@@ -2309,7 +2313,7 @@ class Design(AedtObjects, object):
                 ylist.append(float(item.split()[1]))
                 zlist.append(float(item.split()[2]))
                 vlist.append(float(item.split()[3]))
-
+            my_file.close()
         header_list = header.split()
         units = ["", "", "", ""]
         cont = 0
@@ -2319,7 +2323,6 @@ class Design(AedtObjects, object):
                 units[cont] = result.group(1)
             cont += 1
 
-        my_file.close()
         if not dsname:
             dsname = os.path.basename(os.path.splitext(filename)[0])
 
