@@ -532,10 +532,12 @@ class SweepType(object):
 class BasisOrder(object):
     (Mixed, Zero, single, Double) = range(0, 4)
 
+
 class NodeType(object):
     """Type of node for source creation"""
 
     (Positive, Negative, Floating) = range(0, 3)
+
 
 class SourceType(object):
     """Type of excitation enumerator."""
