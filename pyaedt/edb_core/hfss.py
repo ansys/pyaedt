@@ -451,14 +451,11 @@ class EdbHfss(object):
             for pin in self._pedb.core_components.components[ref].pins.items():
                 if pin[1].net_name in net_list and pin[1].pin.IsLayoutPin():
                     port_name = "{}_{}_{}".format(ref, pin[1].net_name, pin[1].pin.GetName())
-                    if is_ironpython:
-                        (
-                            res,
-                            from_layer_pos,
-                            to_layer_pos,
-                        ) = pin[1].pin.GetLayerRange()
-                    else:
-                        res, from_layer_pos, to_layer_pos = pin[1].pin.GetLayerRange(None, None)
+                    (
+                        res,
+                        from_layer_pos,
+                        to_layer_pos,
+                    ) = pin[1].pin.GetLayerRange()
                     if (
                         res
                         and from_layer_pos
@@ -490,10 +487,8 @@ class EdbHfss(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if is_ironpython:
-            res, fromLayer_pos, toLayer_pos = pinpos.GetLayerRange()
-        else:
-            res, fromLayer_pos, toLayer_pos = pinpos.GetLayerRange(None, None)
+        res, fromLayer_pos, toLayer_pos = pinpos.GetLayerRange()
+
         if not portname:
             portname = generate_unique_name("Port_" + pinpos.GetNet().GetName())
         edbpointTerm_pos = self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
@@ -931,10 +926,8 @@ class EdbHfss(object):
             # sweep.EnforceCausality = False
             sweep.EnforcePassivity = simulation_setup.enforce_passivity
             sweep.PassivityTolerance = simulation_setup.passivity_tolerance
-            if is_ironpython:
-                sweep.Frequencies.Clear()
-            else:
-                list(sweep.Frequencies).clear()
+            sweep.Frequencies.Clear()
+
             if simulation_setup.sweep_type == SweepType.LogCount:  # setup_info.SweepType == 'DecadeCount'
                 self._setup_decade_count_sweep(
                     sweep,
@@ -944,24 +937,14 @@ class EdbHfss(object):
                 )  # Added DecadeCount as a new attribute
 
             else:
-                if is_ironpython:
-                    sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
-                        simulation_setup.start_frequency,
-                        simulation_setup.stop_freq,
-                        simulation_setup.step_freq,
-                    )
-                else:
-                    sweep.Frequencies = convert_py_list_to_net_list(
-                        self._pedb.simsetupdata.SweepData.SetFrequencies(
-                            simulation_setup.start_frequency,
-                            simulation_setup.stop_freq,
-                            simulation_setup.step_freq,
-                        )
-                    )
-            if is_ironpython:
-                simsetup_info.SweepDataList.Add(sweep)
-            else:
-                simsetup_info.SweepDataList = convert_py_list_to_net_list([sweep])
+                sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
+                    simulation_setup.start_frequency,
+                    simulation_setup.stop_freq,
+                    simulation_setup.step_freq,
+                )
+
+            simsetup_info.SweepDataList.Add(sweep)
+
         except Exception as err:
             self._logger.error("Exception in Sweep configuration: {0}".format(err))
 

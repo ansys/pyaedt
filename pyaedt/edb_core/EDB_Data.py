@@ -11,12 +11,10 @@ from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import RadiationBoxType
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SweepType
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 try:
-    from System import Array
     from System.Collections.Generic import List
 except ImportError:
     if os.name != "posix":
@@ -481,6 +479,10 @@ class EDBLayer(object):
         self.init_vals()
 
     @property
+    def _cloned_layer(self):
+        return self._layer.Clone()
+
+    @property
     def _stackup_methods(self):
         return self._pedblayers._stackup_methods
 
@@ -555,7 +557,7 @@ class EDBLayer(object):
             Name of the material.
         """
         try:
-            self._material_name = self._layer.GetMaterial()
+            self._material_name = self._cloned_layer.GetMaterial()
         except:
             pass
         return self._material_name
@@ -576,7 +578,7 @@ class EDBLayer(object):
             Thickness value.
         """
         try:
-            self._thickness = self._layer.GetThicknessValue().ToDouble()
+            self._thickness = self._cloned_layer.GetThicknessValue().ToDouble()
         except:
             pass
         return self._thickness
@@ -600,7 +602,7 @@ class EDBLayer(object):
             or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
-                self._filling_material_name = self._layer.GetFillMaterial()
+                self._filling_material_name = self._cloned_layer.GetFillMaterial()
             except:
                 pass
             return self._filling_material_name
@@ -703,7 +705,7 @@ class EDBLayer(object):
             Lower elevation.
         """
         try:
-            self._lower_elevation = self._layer.GetLowerElevation()
+            self._lower_elevation = self._cloned_layer.GetLowerElevation()
         except:
             pass
         return self._lower_elevation
@@ -724,7 +726,7 @@ class EDBLayer(object):
             Upper elevation.
         """
         try:
-            self._upper_elevation = self._layer.GetUpperElevation()
+            self._upper_elevation = self._cloned_layer.GetUpperElevation()
         except:
             pass
         return self._upper_elevation
@@ -743,7 +745,7 @@ class EDBLayer(object):
             or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
-                self._etch_factor = float(self._layer.GetEtchFactor().ToString())
+                self._etch_factor = float(self._cloned_layer.GetEtchFactor().ToString())
                 return self._etch_factor
             except:
                 pass
@@ -1053,7 +1055,7 @@ class EDBLayers(object):
         )
         return sorted(
             allStackuplayers,
-            key=lambda lyr=self._edb.Cell.StackupLayer: lyr.GetLowerElevation(),
+            key=lambda lyr=self._edb.Cell.StackupLayer: lyr.Clone().GetLowerElevation(),
         )
 
     @property
@@ -1279,7 +1281,7 @@ class EDBLayers(object):
                     self._get_edb_value(0),
                     "",
                 )
-                self._edb_object[layerName] = EDBLayer(newLayer, self._pedbstackup)
+                self._edb_object[layerName] = EDBLayer(newLayer.Clone(), self._pedbstackup)
                 newLayer = self._edb_object[layerName].update_layer_vals(
                     layerName,
                     newLayer,
@@ -1322,7 +1324,7 @@ class EDBLayers(object):
                         self._get_edb_value(0),
                         "",
                     )
-                    self._edb_object[layerName] = EDBLayer(newLayer, self._pedbstackup)
+                    self._edb_object[layerName] = EDBLayer(newLayer.Clone(), self._pedbstackup)
                     newLayer = self._edb_object[layerName].update_layer_vals(
                         layerName,
                         newLayer,
@@ -1473,8 +1475,11 @@ class EDBPadProperties(object):
         int
             Type of the geometry.
         """
-        padparams = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
-        return int(padparams.Item1)
+
+        padparams = self._edb_padstack.GetData().GetPadParametersValue(
+            self.layer_name, self.int_to_pad_type(self.pad_type)
+        )
+        return int(padparams[1])
 
     @geometry_type.setter
     def geometry_type(self, geom_type):
@@ -1507,8 +1512,11 @@ class EDBPadProperties(object):
         list
             List of parameters.
         """
-        pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
-        return [i.ToDouble() for i in pad_values.Item2]
+
+        pad_values = self._edb_padstack.GetData().GetPadParametersValue(
+            self.layer_name, self.int_to_pad_type(self.pad_type)
+        )
+        return [i.ToDouble() for i in pad_values[2]]
 
     @property
     def polygon_data(self):
@@ -1520,10 +1528,10 @@ class EDBPadProperties(object):
             List of parameters.
         """
         try:
-            pad_values = self._padstack_methods.GetPolygonalPadParameters(
-                self._edb_padstack, self.layer_name, self.pad_type
+            pad_values = self._edb_padstack.GetData().GetPolygonalPadParameters(
+                self.layer_name, self.int_to_pad_type(self.pad_type)
             )
-            return pad_values.Item1
+            return pad_values[1]
         except:
             return
 
@@ -1536,8 +1544,12 @@ class EDBPadProperties(object):
         list
             List of parameters.
         """
-        pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
-        return [i.ToString() for i in pad_values.Item2]
+        pad_values = self._edb_padstack.GetData().GetPadParametersValue(
+            self.layer_name, self.int_to_pad_type(self.pad_type)
+        )
+
+        # pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self)
+        return [i.ToString() for i in pad_values[2]]
 
     @parameters.setter
     def parameters(self, propertylist):
@@ -1557,8 +1569,11 @@ class EDBPadProperties(object):
         str
             Offset for the X axis.
         """
-        pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
-        return pad_values.Item3.ToString()
+
+        pad_values = self._edb_padstack.GetData().GetPadParametersValue(
+            self.layer_name, self.int_to_pad_type(self.pad_type)
+        )
+        return pad_values[3].ToString()
 
     @offset_x.setter
     def offset_x(self, offset_value):
@@ -1574,8 +1589,11 @@ class EDBPadProperties(object):
         str
             Offset for the Y axis.
         """
-        pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
-        return pad_values.Item4.ToString()
+
+        pad_values = self._edb_padstack.GetData().GetPadParametersValue(
+            self.layer_name, self.int_to_pad_type(self.pad_type)
+        )
+        return pad_values[4].ToString()
 
     @offset_y.setter
     def offset_y(self, offset_value):
@@ -1591,13 +1609,31 @@ class EDBPadProperties(object):
         str
             Value for the rotation.
         """
-        pad_values = self._padstack_methods.GetPadParametersValue(self._edb_padstack, self.layer_name, self.pad_type)
-        return pad_values.Item5.ToString()
+
+        pad_values = self._edb_padstack.GetData().GetPadParametersValue(
+            self.layer_name, self.int_to_pad_type(self.pad_type)
+        )
+        return pad_values[5].ToString()
 
     @rotation.setter
     def rotation(self, rotation_value):
 
         self._update_pad_parameters_parameters(rotation=rotation_value)
+
+    @pyaedt_function_handler()
+    def int_to_pad_type(self, val=0):
+        """Convert an integer to an EDB.PadGeometryType.
+
+        Parameters
+        ----------
+        val : int
+
+        Returns
+        -------
+        object
+            EDB.PadType enumerator value.
+        """
+        return self._pedbpadstack._ppadstack.int_to_pad_type(val)
 
     @pyaedt_function_handler()
     def int_to_geometry_type(self, val=0):
@@ -1612,32 +1648,7 @@ class EDBPadProperties(object):
         object
             EDB.PadGeometryType enumerator value.
         """
-        if val == 0:
-            return self._edb.Definition.PadGeometryType.NoGeometry
-        elif val == 1:
-            return self._edb.Definition.PadGeometryType.Circle
-        elif val == 2:
-            return self._edb.Definition.PadGeometryType.Square
-        elif val == 3:
-            return self._edb.Definition.PadGeometryType.Rectangle
-        elif val == 4:
-            return self._edb.Definition.PadGeometryType.Oval
-        elif val == 5:
-            return self._edb.Definition.PadGeometryType.Bullet
-        elif val == 6:
-            return self._edb.Definition.PadGeometryType.NSidedPolygon
-        elif val == 7:
-            return self._edb.Definition.PadGeometryType.Polygon
-        elif val == 8:
-            return self._edb.Definition.PadGeometryType.Round45
-        elif val == 9:
-            return self._edb.Definition.PadGeometryType.Round90
-        elif val == 10:
-            return self._edb.Definition.PadGeometryType.Square45
-        elif val == 11:
-            return self._edb.Definition.PadGeometryType.Square90
-        elif val == 12:
-            return self._edb.Definition.PadGeometryType.InvalidGeometry
+        return self._pedbpadstack._ppadstack.int_to_geometry_type(val)
 
     @pyaedt_function_handler()
     def _update_pad_parameters_parameters(
@@ -1690,13 +1701,11 @@ class EDBPadProperties(object):
             rotation = self.rotation
         if not layer_name:
             layer_name = self.layer_name
-        if is_ironpython:
-            if isinstance(geom_type, int):
-                geom_type = self.int_to_geometry_type(geom_type)
+
         newPadstackDefinitionData.SetPadParameters(
             layer_name,
-            pad_type,
-            geom_type,
+            self.int_to_pad_type(pad_type),
+            self.int_to_geometry_type(geom_type),
             convert_py_list_to_net_list(params),
             self._get_edb_value(offsetx),
             self._get_edb_value(offsety),
@@ -1790,13 +1799,7 @@ class EDBPadstack(object):
     @property
     def _hole_params(self):
         viaData = self.edb_padstack.GetData()
-        if is_ironpython:
-            out = viaData.GetHoleParametersValue()
-        else:
-            value0 = self._get_edb_value("0.0")
-            ptype = self._edb.Definition.PadGeometryType.Circle
-            HoleParam = Array[type(value0)]([])
-            out = viaData.GetHoleParametersValue(ptype, HoleParam, value0, value0, value0)
+        out = viaData.GetHoleParametersValue()
         return out
 
     @property
@@ -1839,28 +1842,21 @@ class EDBPadstack(object):
             hole_type = self.hole_type
         if not params:
             params = self.hole_parameters
+        if isinstance(params, list):
+            params = convert_py_list_to_net_list(params)
         if not offsetx:
             offsetx = self.hole_offset_x
         if not offsety:
             offsety = self.hole_offset_y
         if not rotation:
             rotation = self.hole_rotation
-        if is_ironpython:
-            newPadstackDefinitionData.SetHoleParameters(
-                hole_type,
-                params,
-                self._get_edb_value(offsetx),
-                self._get_edb_value(offsety),
-                self._get_edb_value(rotation),
-            )
-        else:
-            newPadstackDefinitionData.SetHoleParameters(
-                hole_type,
-                convert_py_list_to_net_list(params),
-                self._get_edb_value(offsetx),
-                self._get_edb_value(offsety),
-                self._get_edb_value(rotation),
-            )
+        newPadstackDefinitionData.SetHoleParameters(
+            hole_type,
+            params,
+            self._get_edb_value(offsetx),
+            self._get_edb_value(offsety),
+            self._get_edb_value(rotation),
+        )
         self.edb_padstack.SetData(newPadstackDefinitionData)
 
     @property
@@ -1959,7 +1955,7 @@ class EDBPadstack(object):
         float
             Percentage for the hole plating.
         """
-        return self.edb_padstack.GetData().GetHolePlatingPercentage()
+        return self._edb.Definition.PadstackDefData(self.edb_padstack.GetData()).GetHolePlatingPercentage()
 
     @hole_plating_ratio.setter
     def hole_plating_ratio(self, ratio):
@@ -2156,10 +2152,8 @@ class EDBPadstackInstance(object):
             Name of the starting layer.
         """
         layer = self._pedb.edb.Cell.Layer("", self._pedb.edb.Cell.LayerType.SignalLayer)
-        if is_ironpython:
-            _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange()
-        else:
-            _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
+        _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange()
+
         if start_layer:
             return start_layer.GetName()
         return None
@@ -2180,10 +2174,8 @@ class EDBPadstackInstance(object):
             Name of the stopping layer.
         """
         layer = self._pedb.edb.Cell.Layer("", self._pedb.edb.Cell.LayerType.SignalLayer)
-        if is_ironpython:
-            _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange()
-        else:
-            _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange(layer, layer)
+        _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange()
+
         if stop_layer:
             return stop_layer.GetName()
         return None
@@ -2237,13 +2229,8 @@ class EDBPadstackInstance(object):
             List of ``[x, y]``` coordinates for the padstack instance position.
         """
         point_data = self._pedb.edb.Geometry.PointData(self._pedb.edb_value(0.0), self._pedb.edb_value(0.0))
-        if is_ironpython:
-            out = self._edb_padstackinstance.GetPositionAndRotationValue()
-        else:
-            out = self._edb_padstackinstance.GetPositionAndRotationValue(
-                point_data,
-                self._pedb.edb_value(0.0),
-            )
+        out = self._edb_padstackinstance.GetPositionAndRotationValue()
+
         if out[0]:
             return [out[1].X.ToDouble(), out[1].Y.ToDouble()]
 
@@ -2268,13 +2255,8 @@ class EDBPadstackInstance(object):
             Rotatation value for the padstack instance.
         """
         point_data = self._pedb.edb.Geometry.PointData(self._pedb.edb_value(0.0), self._pedb.edb_value(0.0))
-        if is_ironpython:
-            out = self._edb_padstackinstance.GetPositionAndRotationValue()
-        else:
-            out = self._edb_padstackinstance.GetPositionAndRotationValue(
-                point_data,
-                self._pedb.edb_value(0.0),
-            )
+        out = self._edb_padstackinstance.GetPositionAndRotationValue()
+
         if out[0]:
             return out[2].ToDouble()
 
@@ -2302,7 +2284,7 @@ class EDBPadstackInstance(object):
     @name.setter
     def name(self, value):
         self._edb_padstackinstance.SetName(value)
-        self._edb_padstackinstance.SetProductProperty(0, 11, value)
+        self._edb_padstackinstance.SetProductProperty(self._pedb.edb.ProductId.Designer, 11, value)
 
     @pyaedt_function_handler()
     def parametrize_position(self, prefix=None):
@@ -2379,7 +2361,7 @@ class EDBPadstackInstance(object):
         str
             Name of the placement layer.
         """
-        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetName()
+        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().Clone().GetName()
 
     @property
     def lower_elevation(self):
@@ -2390,7 +2372,7 @@ class EDBPadstackInstance(object):
         float
             Lower elavation of the placement layer.
         """
-        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetLowerElevation()
+        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().Clone().GetLowerElevation()
 
     @property
     def upper_elevation(self):
@@ -2401,7 +2383,7 @@ class EDBPadstackInstance(object):
         float
            Upper elevation of the placement layer.
         """
-        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetUpperElevation()
+        return self._edb_padstackinstance.GetGroup().GetPlacementLayer().Clone().GetUpperElevation()
 
     @property
     def top_bottom_association(self):
@@ -2671,7 +2653,7 @@ class EDBComponent(object):
         cmp_type = int(self.edbcomponent.GetComponentType())
         if 0 < cmp_type < 4:
             componentProperty = self.edbcomponent.GetComponentProperty()
-            model = componentProperty.GetModel()
+            model = componentProperty.GetModel().Clone()
             pinpairs = model.PinPairs
             for pinpair in pinpairs:
                 pair = model.GetPinPairRlc(pinpair)
@@ -2690,7 +2672,7 @@ class EDBComponent(object):
         cmp_type = int(self.edbcomponent.GetComponentType())
         if 0 < cmp_type < 4:
             componentProperty = self.edbcomponent.GetComponentProperty()
-            model = componentProperty.GetModel()
+            model = componentProperty.GetModel().Clone()
             pinpairs = model.PinPairs
             for pinpair in pinpairs:
                 pair = model.GetPinPairRlc(pinpair)
@@ -2709,7 +2691,7 @@ class EDBComponent(object):
         cmp_type = int(self.edbcomponent.GetComponentType())
         if 0 < cmp_type < 4:
             componentProperty = self.edbcomponent.GetComponentProperty()
-            model = componentProperty.GetModel()
+            model = componentProperty.GetModel().Clone()
             pinpairs = model.PinPairs
             for pinpair in pinpairs:
                 pair = model.GetPinPairRlc(pinpair)
@@ -2879,7 +2861,7 @@ class EDBComponent(object):
         str
            Name of the placement layer.
         """
-        return self.edbcomponent.GetPlacementLayer().GetName()
+        return self.edbcomponent.GetPlacementLayer().Clone().GetName()
 
     @property
     def lower_elevation(self):
@@ -2890,7 +2872,7 @@ class EDBComponent(object):
         float
             Lower elevation of the placement layer.
         """
-        return self.edbcomponent.GetPlacementLayer().GetLowerElevation()
+        return self.edbcomponent.GetPlacementLayer().Clone().GetLowerElevation()
 
     @property
     def upper_elevation(self):
@@ -2902,7 +2884,7 @@ class EDBComponent(object):
             Upper elevation of the placement layer.
 
         """
-        return self.edbcomponent.GetPlacementLayer().GetUpperElevation()
+        return self.edbcomponent.GetPlacementLayer().Clone().GetUpperElevation()
 
     @property
     def top_bottom_association(self):

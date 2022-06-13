@@ -8,7 +8,6 @@ import warnings
 from pyaedt.edb_core.EDB_Data import EDBPrimitives
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 try:
@@ -636,20 +635,13 @@ class EdbLayout(object):
         for void_circle in self.circles:
             if not void_circle.is_void:
                 continue
-            if is_ironpython:  # pragma: no cover
-                (
-                    res,
-                    center_x,
-                    center_y,
-                    radius,
-                ) = void_circle.primitive_object.GetParameters()
-            else:
-                (
-                    res,
-                    center_x,
-                    center_y,
-                    radius,
-                ) = void_circle.primitive_object.GetParameters(0.0, 0.0, 0.0)
+            (
+                res,
+                center_x,
+                center_y,
+                radius,
+            ) = void_circle.primitive_object.GetParameters()
+
             cloned_circle = self._edb.Cell.Primitive.Circle.Create(
                 self._active_layout,
                 void_circle.layer_name,

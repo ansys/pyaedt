@@ -7,11 +7,9 @@ import time
 import warnings
 
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
-from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import SweepType
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
@@ -431,20 +429,9 @@ class EdbSiwave(object):
         pos_pin = source.positive_node.node_pins
         neg_pin = source.negative_node.node_pins
 
-        if is_ironpython:
-            res, fromLayer_pos, toLayer_pos = pos_pin.GetLayerRange()
-            res, fromLayer_neg, toLayer_neg = neg_pin.GetLayerRange()
-        else:
-            (
-                res,
-                fromLayer_pos,
-                toLayer_pos,
-            ) = source.positive_node.node_pins.GetLayerRange(None, None)
-            (
-                res,
-                fromLayer_neg,
-                toLayer_neg,
-            ) = source.negative_node.node_pins.GetLayerRange(None, None)
+        res, fromLayer_pos, toLayer_pos = pos_pin.GetLayerRange()
+        res, fromLayer_neg, toLayer_neg = neg_pin.GetLayerRange()
+
         pos_pingroup_terminal = _retry_ntimes(
             10,
             self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,
@@ -1364,10 +1351,8 @@ class EdbSiwave(object):
             sweep.EnforceCausality = (GeometryOperators.parse_dim_arg(simulation_setup.start_frequency) - 0) < 1e-9
             sweep.EnforcePassivity = simulation_setup.enforce_passivity
             sweep.PassivityTolerance = simulation_setup.passivity_tolerance
-            if is_ironpython:
-                sweep.Frequencies.Clear()
-            else:
-                list(sweep.Frequencies).clear()
+            sweep.Frequencies.Clear()
+
             if simulation_setup.sweep_type == SweepType.LogCount:
                 self._setup_decade_count_sweep(
                     sweep,
@@ -1376,24 +1361,14 @@ class EdbSiwave(object):
                     simulation_setup.decade_count,
                 )
             else:
-                if is_ironpython:
-                    sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
-                        simulation_setup.start_frequency,
-                        simulation_setup.stop_freq,
-                        simulation_setup.step_freq,
-                    )
-                else:
-                    sweep.Frequencies = convert_py_list_to_net_list(
-                        self._pedb.simsetupdata.SweepData.SetFrequencies(
-                            simulation_setup.start_frequency,
-                            simulation_setup.stop_freq,
-                            simulation_setup.step_freq,
-                        )
-                    )
-            if is_ironpython:
-                simsetup_info.SweepDataList.Add(sweep)
-            else:
-                simsetup_info.SweepDataList = convert_py_list_to_net_list([sweep])
+                sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
+                    simulation_setup.start_frequency,
+                    simulation_setup.stop_freq,
+                    simulation_setup.step_freq,
+                )
+
+            simsetup_info.SweepDataList.Add(sweep)
+
         except Exception as err:
             self._logger.error("Exception in sweep configuration: {0}".format(err))
         sim_setup = self._edb.Utility.SIWaveSimulationSetup(simsetup_info)
