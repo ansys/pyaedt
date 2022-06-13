@@ -67,6 +67,8 @@ elif IsWindows:  # pragma: no cover
         _com = "pywin32"
     else:
         raise Exception("Error. No win32com.client or Pythonnet modules found. Install them and try again.")
+else:
+    _com = "pythonnet_v3"
 
 
 def _check_grpc_port(port, machine_name=""):
@@ -168,7 +170,7 @@ def release_desktop(close_projects=True, close_desktop=True):
             for project in projects:
                 desktop.CloseProject(project)
         pid = _main.oDesktop.GetProcessID()
-        if not is_ironpython:
+        if _com != "pythonnet_v3":
             if settings.aedt_version >= "2022.2" and settings.use_grpc_api:
                 import ScriptEnv
 
@@ -625,6 +627,15 @@ class Desktop:
         base_path = self._main.sDesktopinstallDirectory
         sys.path.append(base_path)
         sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
+        if os.name == "posix":
+            if os.environ.get("LD_LIBRARY_PATH"):
+                os.environ["LD_LIBRARY_PATH"] = (
+                    os.path.join(base_path, "defer") + os.pathsep + os.environ["LD_LIBARY_PATH"]
+                )
+            else:
+                os.environ["LD_LIBRARY_PATH"] = os.path.join(base_path, "defer")
+            pyaedt_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
+            os.environ["PATH"] = pyaedt_path + os.pathsep + os.environ["PATH"]
         import ScriptEnv
 
         launch_msg = "AEDT installation Path {}".format(base_path)
