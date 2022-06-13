@@ -3135,7 +3135,7 @@ class CircuitPins(object):
         return ""
 
     @pyaedt_function_handler()
-    def connect_to_component(self, component_pin, name=None):
+    def connect_to_component(self, component_pin, page_name=None):
         """Connect schematic components.
 
         Parameters
@@ -3160,12 +3160,10 @@ class CircuitPins(object):
         comp_angle = self._circuit_comp.angle * math.pi / 180
         if len(self._circuit_comp.pins) == 2:
             comp_angle += math.pi / 2
-        if name is None:
+        if page_name is None:
             page_name = "{}_{}".format(
                 self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"), self.name
             )
-        else:
-            page_name = name
 
         if "Port" in self._circuit_comp.composed_name:
             try:
