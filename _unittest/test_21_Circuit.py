@@ -149,7 +149,6 @@ class TestClass(BasisTest, object):
         assert output
 
     def test_12_connect_components(self):
-
         myind = self.aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
         myres = self.aedtapp.modeler.schematic.create_resistor("R100", 50)
         mycap = self.aedtapp.modeler.schematic.create_capacitor("C100", 1e-12)
@@ -166,6 +165,14 @@ class TestClass(BasisTest, object):
         L1_pin2location = {}
         for pin in L1_pins:
             L1_pin2location[pin.name] = pin.location
+
+    def test_12a_connect_components(self):
+        myind = self.aedtapp.modeler.schematic.create_inductor("L101", 1e-9)
+        myres = self.aedtapp.modeler.schematic.create_resistor("R101", 50)
+        self.aedtapp.modeler.schematic.create_interface_port("Port2")
+        assert "Port2" in self.aedtapp.modeler.schematic.nets
+        assert myind.pins[1].connect_to_component(myres.pins[1], "port_name_test")
+        assert "port_name_test" in self.aedtapp.modeler.schematic.nets
 
     def test_13_properties(self):
         assert self.aedtapp.modeler.model_units

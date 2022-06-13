@@ -3135,13 +3135,15 @@ class CircuitPins(object):
         return ""
 
     @pyaedt_function_handler()
-    def connect_to_component(self, component_pin):
+    def connect_to_component(self, component_pin, page_name=None):
         """Connect schematic components.
 
         Parameters
         ----------
         component_pin : :class:`pyaedt.modeler.PrimitivesNexxim.CircuitPins`
            Component Pin to attach
+        name : str, optional
+            page port name.
 
         Returns
         -------
@@ -3158,9 +3160,10 @@ class CircuitPins(object):
         comp_angle = self._circuit_comp.angle * math.pi / 180
         if len(self._circuit_comp.pins) == 2:
             comp_angle += math.pi / 2
-        page_name = "{}_{}".format(
-            self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"), self.name
-        )
+        if page_name is None:
+            page_name = "{}_{}".format(
+                self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"), self.name
+            )
 
         if "Port" in self._circuit_comp.composed_name:
             try:
