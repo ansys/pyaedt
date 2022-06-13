@@ -2503,7 +2503,7 @@ class MachineLearningPatch(Patch, object):
         if not is_ironpython:
             try:
                 joblib
-            except NameError:   # pragma: no cover
+            except NameError:  # pragma: no cover
                 raise ImportError("joblib package is needed to run ML.")
             path_file = os.path.dirname(__file__)
             path_folder = os.path.split(path_file)[0]
@@ -2520,5 +2520,5 @@ class MachineLearningPatch(Patch, object):
             array_for_prediction = np.array(list_for_array, dtype=np.float32)
             length = model.predict(array_for_prediction)[0]
             self.length.expression = application.modeler._arg_with_dim(length)
-        else:   # pragma: no cover
+        else:  # pragma: no cover
             self.application.logger.warning("Machine learning algorithm aren't covered in IronPython.")
