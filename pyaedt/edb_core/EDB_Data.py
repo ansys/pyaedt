@@ -2936,7 +2936,7 @@ class EdbBuilder(object):
 
 
 class Node(object):
-    """Classe handlin nodes for Siwave sources."""
+    """Class handling nodes for Siwave sources."""
 
     def __init__(self):
         self._component = None
