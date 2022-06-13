@@ -1,8 +1,20 @@
+import os
 from collections import OrderedDict
 
+try:
+    import joblib
+except ImportError:
+    pass
+try:
+    import numpy as np
+except ImportError:
+    pass
+
+from pyaedt import constants
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.MaterialLib import Material
+from pyaedt.generic.general_methods import is_ironpython
 
 LAYERS = {"s": "signal", "g": "ground", "d": "dielectric"}
 
@@ -21,8 +33,6 @@ def _replace_by_underscore(character, string):
 
 class NamedVariable(object):
     """Cast PyAEDT variable object to simplify getters and setters in Stackup3D.
-
-    The returned Polyline object exposes the methods for manipulating the polyline.
 
     Parameters
     ----------
@@ -453,6 +463,66 @@ class Layer3D(object):
         return created_patch
 
     @pyaedt_function_handler()
+    def ml_patch(
+        self,
+        frequency,
+        patch_width,
+        patch_position_x=0,
+        patch_position_y=0,
+        patch_name=None,
+        axis="X",
+    ):
+        """Create a new parametric patch using machine learning algorithm rather than analytic formulas.
+
+        Parameters
+        ----------
+        frequency : float
+            Frequency value for patch calculation in Hz.
+        patch_width : float
+            Patch width.
+        patch_length : float
+            Patch Length.
+        patch_position_x : float, optional
+            Patch start x position.
+        patch_position_y : float, optional
+            Patch start y position.
+        patch_name : str, optional
+            Patch name.
+        axis : str, optional
+            Line orientation axis.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.stackup_3d.Patch`
+        """
+        if not patch_name:
+            patch_name = generate_unique_name("{}_patch".format(self._name), n=3)
+        lst = self._stackup._layer_name
+        for i in range(len(lst)):
+            if lst[i] == self._name:
+                if self._stackup.stackup_layers[lst[i - 1]]._layer_type == "dielectric":
+                    below_layer = self._stackup.stackup_layers[lst[i - 1]]
+                    break
+                else:
+                    self._app.logger.error("The layer below the selected one must be of dielectric type")
+                    return False
+        created_patch = MachineLearningPatch(
+            self._app,
+            frequency,
+            patch_width,
+            signal_layer=self,
+            dielectric_layer=below_layer,
+            patch_position_x=patch_position_x,
+            patch_position_y=patch_position_y,
+            patch_name=patch_name,
+            axis=axis,
+        )
+        self._obj_3d.append(created_patch.aedt_object)
+        self._stackup._object_list.append(created_patch)
+        created_patch.aedt_object.group_name = "Layer_{}".format(self._name)
+        return created_patch
+
+    @pyaedt_function_handler()
     def add_trace(
         self,
         line_width,
@@ -466,7 +536,7 @@ class Layer3D(object):
         reference_system=None,
         frequency=1e9,
     ):
-        """Create a line.
+        """Create a trace.
 
         Parameters
         ----------
@@ -1123,6 +1193,12 @@ class Stackup3D(object):
         ----------
         name : str
             Layer name.
+        material : str
+            Material name. Material will be parametrized.
+        thickness : float
+            Thickness value. Thickness will be parametrized.
+        fill_material : str
+            Fill Material name. Material will be parametrized.=
         material : str, optional
             Material name. Material will be parametrized. Default value is `"copper"`.
         thickness : float, optional
@@ -1258,6 +1334,30 @@ class Stackup3D(object):
         self._app["dielectric_y_position"] = str(minimum_y - variation_y * percentage_offset / 100) + "mm"
         self._app["dielectric_length"] = str(maximum_x - minimum_x + 2 * variation_x * percentage_offset / 100) + "mm"
         self._app["dielectric_width"] = str(maximum_y - minimum_y + 2 * variation_y * percentage_offset / 100) + "mm"
+        return True
+
+    def resize_around_element(self, element, percentage_offset=0.25):
+        """Resize the stackup around objects and make it parametrize.
+
+        Parameters
+        ----------
+        element : :class:`pyaedt.modeler.stackup_3d.Patch
+            Element around which the resizing is done.
+        percentage_offset : float, optional
+            Offset of resize. Value accepted are greater than 0. O.25 by default.
+
+        Returns
+        -------
+        bool
+        """
+        self._app["dielectric_x_position"] = (
+            element.position_x.name + " - " + element.length.name + " * " + str(percentage_offset)
+        )
+        self._app["dielectric_y_position"] = (
+            element.position_y.name + " - " + element.width.name + " * (0.5 + " + str(percentage_offset) + ")"
+        )
+        self._app["dielectric_length"] = element.length.name + " * (1 + " + str(percentage_offset) + " * 2)"
+        self._app["dielectric_width"] = element.width.name + " * (1 + " + str(percentage_offset) + " * 2)"
         return True
 
 
@@ -1648,7 +1748,7 @@ class Patch(CommonObject, object):
         # "c0 * 1000/(patch_frequency * sqrt(patch_eff_permittivity))"
         f = self._frequency.name
         er_e = self._effective_permittivity.name
-        patch_wave_length_formula = "c0 * 1000/(" + f + "* sqrt(" + er_e + "))"
+        patch_wave_length_formula = "(c0 * 1000/(" + f + "* sqrt(" + er_e + ")))mm"
         self._wave_length = NamedVariable(
             self.application,
             self._name + "_wave_length",
@@ -1721,6 +1821,56 @@ class Patch(CommonObject, object):
             " the less correct the impedance calculation is"
         )
         return self._impedance_l_w, self._impedance_w_l
+
+    def create_lumped_port(self, reference_layer, opposite_side=False, port_name=None, axisdir=None):
+        """Create a parametrized lumped port.
+
+        Parameters
+        ----------
+
+        reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D
+            The reference layer, in most cases the ground layer.
+        opposite_side : bool, optional
+            Change the side where the port is created.
+        port_name : str, optional
+            Name of the lumped port.
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
+        Returns
+        -------
+        bool
+        """
+        string_position_x = self.position_x.name
+        if opposite_side:
+            string_position_x = self.position_x.name + " + " + self.length.name
+        string_position_y = self.position_y.name + " - " + self.width.name + "/2"
+        string_position_z = reference_layer.elevation.name
+        string_width = self.width.name
+        string_length = (
+            self._signal_layer.elevation.name
+            + " + "
+            + self._signal_layer.thickness.name
+            + " - "
+            + reference_layer.elevation.name
+        )
+        port = self.application.modeler.create_rectangle(
+            csPlane=constants.PLANE.YZ,
+            position=[string_position_x, string_position_y, string_position_z],
+            dimension_list=[string_width, string_length],
+            name=self.name + "_port",
+            matname=None,
+        )
+        if self.application.solution_type == "Modal":
+            if axisdir is None:
+                axisdir = self.application.AxisDir.ZPos
+            port = self.application.create_lumped_port_to_sheet(port.name, portname=port_name, axisdir=axisdir)
+        elif self.application.solution_type == "Terminal":
+            port = self.application.create_lumped_port_to_sheet(
+                port.name, portname=port_name, reference_object_list=[reference_layer.name]
+            )
+        return port
 
 
 class Trace(CommonObject, object):
@@ -2172,7 +2322,7 @@ class Trace(CommonObject, object):
         # TODO it is currently only available for mm
         f = self._frequency.name
         er_e = self._effective_permittivity.name
-        patch_wave_length_formula = "c0 * 1000/(" + f + "* sqrt(" + er_e + "))"
+        patch_wave_length_formula = "(c0 * 1000/(" + f + "* sqrt(" + er_e + ")))mm"
         self._wave_length = NamedVariable(
             self.application,
             self._name + "_wave_length",
@@ -2318,3 +2468,57 @@ class Polygon(CommonObject, object):
         """
         bb = self._aedt_object.bounding_box
         return [[bb[0], bb[1]], [bb[0], bb[4]], [bb[3], bb[4]], [bb[3], bb[1]]]
+
+
+class MachineLearningPatch(Patch, object):
+    """MachineLearningPatch Class in Stackup3D."""
+
+    def __init__(
+        self,
+        application,
+        frequency,
+        patch_width,
+        signal_layer,
+        dielectric_layer,
+        patch_position_x=0,
+        patch_position_y=0,
+        patch_name="patch",
+        reference_system=None,
+        axis="X",
+    ):
+        Patch.__init__(
+            self,
+            application,
+            frequency,
+            patch_width,
+            signal_layer,
+            dielectric_layer,
+            patch_length=None,
+            patch_position_x=patch_position_x,
+            patch_position_y=patch_position_y,
+            patch_name=patch_name,
+            reference_system=reference_system,
+            axis=axis,
+        )
+        if not is_ironpython:
+            try:
+                joblib
+            except NameError:  # pragma: no cover
+                raise ImportError("joblib package is needed to run ML.")
+            path_file = os.path.dirname(__file__)
+            path_folder = os.path.split(path_file)[0]
+            training_file = os.path.join(path_folder, "misc", "patch_svr_model_100MHz_1GHz.joblib")
+            model = joblib.load(training_file)
+            list_for_array = [
+                [
+                    self.frequency.numeric_value,
+                    self.width.numeric_value,
+                    self._permittivity.numeric_value,
+                    self.dielectric_layer.thickness.numeric_value,
+                ]
+            ]
+            array_for_prediction = np.array(list_for_array, dtype=np.float32)
+            length = model.predict(array_for_prediction)[0]
+            self.length.expression = application.modeler._arg_with_dim(length)
+        else:  # pragma: no cover
+            self.application.logger.warning("Machine learning algorithm aren't covered in IronPython.")

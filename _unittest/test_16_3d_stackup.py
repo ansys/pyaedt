@@ -7,7 +7,7 @@ from _unittest.conftest import BasisTest
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, "Test_20")
+        self.aedtapp = BasisTest.add_app(self, "Test_16")
         self.st = self.aedtapp.add_stackup_3d()
 
     def teardown_class(self):
@@ -51,12 +51,11 @@ class TestClass(BasisTest, object):
         assert line2._added_length_calcul
         assert line2.frequency.numeric_value == 1e9
         assert line2.substrate_thickness.numeric_value == 1.2
-        assert line1.width.numeric_value == 3.0
+        assert abs(line1.width.numeric_value - 3.0) < 1e-9
         assert line2.permittivity.numeric_value == 4.4
         assert line2._permittivity_calcul
 
     def test_03_padstackline(self):
-
         p1 = self.st.add_padstack("Massimo", material="aluminum")
         p1.plating_ratio = 0.7
         p1.set_start_layer("lay1")
@@ -71,14 +70,18 @@ class TestClass(BasisTest, object):
 
     def test_04_patch(self):
         top = self.st.stackup_layers["top"]
+        gnd = self.st.stackup_layers["gnd1"]
         line1 = self.st.objects_by_layer["top"][0]
-        top.add_patch(
+        patch = top.add_patch(
             1e9,
             patch_width=22,
             patch_length=10,
             patch_position_x=line1.position_x.numeric_value + line1.length.numeric_value,
             patch_position_y=line1.position_y.numeric_value,
         )
+        assert patch.width.numeric_value == 22
+        assert self.st.resize_around_element(patch)
+        assert patch.create_lumped_port(gnd)
 
     def test_05_polygon(self):
         lay1 = self.st.stackup_layers["top"]
@@ -110,3 +113,11 @@ class TestClass(BasisTest, object):
         assert self.st.dielectric_x_position.read_only_variable()
         assert self.st.dielectric_x_position.hide_variable(False)
         assert self.st.dielectric_x_position.read_only_variable(False)
+
+    def test_07_ml_patch(self):
+        top = self.st.stackup_layers["top"]
+        gnd = self.st.stackup_layers["gnd1"]
+        width = 1e3 * 3e8 / (2 * 1e9 * ((2.2 + 1) / 2) ** (1 / 2))
+        patch2 = top.ml_patch(1e9, patch_width=width, patch_position_x=0, patch_position_y=0)
+        patch2.create_lumped_port(gnd, opposite_side=True)
+        assert self.st.resize_around_element(patch2)

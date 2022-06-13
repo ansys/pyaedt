@@ -33,7 +33,7 @@ else:
 
 from pyaedt.misc import list_installed_ansysem
 from pyaedt import pyaedt_function_handler
-from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop
+from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop, grpc_active_sessions
 from pyaedt import settings
 
 from pyaedt import aedt_logger, __version__
@@ -67,6 +67,8 @@ elif IsWindows:  # pragma: no cover
         _com = "pywin32"
     else:
         raise Exception("Error. No win32com.client or Pythonnet modules found. Install them and try again.")
+else:
+    _com = "pythonnet_v3"
 
 
 def _check_grpc_port(port, machine_name=""):
@@ -168,7 +170,7 @@ def release_desktop(close_projects=True, close_desktop=True):
             for project in projects:
                 desktop.CloseProject(project)
         pid = _main.oDesktop.GetProcessID()
-        if not is_ironpython:
+        if _com != "pythonnet_v3":
             if settings.aedt_version >= "2022.2" and settings.use_grpc_api:
                 import ScriptEnv
 
@@ -468,7 +470,7 @@ class Desktop:
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
         self._logger = aedt_logger.AedtLogger(filename=self.logfile, level=logging.DEBUG)
-        self._logger.info("Logger file %s in use.")
+        self._logger.info("Logger file %s in use.", self.logfile)
         self._main.aedt_logger = self._logger
 
     def _set_version(self, specified_version, student_version):
@@ -625,18 +627,44 @@ class Desktop:
         base_path = self._main.sDesktopinstallDirectory
         sys.path.append(base_path)
         sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
+        if os.name == "posix":
+            if os.environ.get("LD_LIBRARY_PATH"):
+                os.environ["LD_LIBRARY_PATH"] = (
+                    os.path.join(base_path, "defer") + os.pathsep + os.environ["LD_LIBARY_PATH"]
+                )
+            else:
+                os.environ["LD_LIBRARY_PATH"] = os.path.join(base_path, "defer")
+            pyaedt_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
+            os.environ["PATH"] = pyaedt_path + os.pathsep + os.environ["PATH"]
         import ScriptEnv
 
         launch_msg = "AEDT installation Path {}".format(base_path)
         self.logger.info(launch_msg)
         self.logger.info("Launching AEDT with PyDesktopPlugin.")
-        if new_aedt_session or not self.port:
+        if (
+            not self.port
+            and not new_aedt_session
+            and self.machine not in ["localhost", "127.0.0.1", socket.getfqdn(), socket.getfqdn().split(".")[0]]
+        ):
+            sessions = grpc_active_sessions(
+                version=version, student_version=student_version, non_graphical=non_graphical
+            )
+            if sessions:
+                self.port = sessions[0]
+                if len(sessions):
+                    self.logger.info("Found active GRPC session on port %s", self.port)
+                else:
+                    self.logger.warning(
+                        "Multiple AEDT GRPC Session Found.  Setting active session on port %s", self.port
+                    )
+        elif new_aedt_session or not self.port:
             self.port = _find_free_port()
+            self.logger.info("New Desktop session will start on GRPC port %s", self.port)
             self.machine = ""
+        elif self.port:
+            self.logger.info("Connecting to Aedt session on GRPC port %s", self.port)
 
-        if new_aedt_session:
-            ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, "", self.port)
-        else:
+        if not new_aedt_session:
             # Local server running
             if not self.machine:
                 if _check_grpc_port(self.port):
@@ -651,7 +679,7 @@ class Desktop:
                     self.machine = socket.getfqdn()
             elif self.machine not in ["localhost", "127.0.0.1", socket.getfqdn(), socket.getfqdn().split(".")[0]]:
                 settings.remote_api = True
-            ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
+        ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
 
         if "oAnsoftApplication" in dir(self._main):
             self._main.isoutsideDesktop = True
