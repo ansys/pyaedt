@@ -555,7 +555,7 @@ class Components(object):
             if positive_pin_group_term:
                 negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group)
                 if not negative_pin_group_term:
-                    self._logger("Failed to create negative pin group terminal for source {}".format(source.name))
+                    self._logger.error("Failed to create negative pin group terminal for source {}".format(source.name))
                     return False
                 if source.source_type == SourceType.Vsource:
                     positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
