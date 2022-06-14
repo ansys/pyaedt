@@ -2945,53 +2945,52 @@ class Node(object):
         self._name = ""
 
     @property
-    def component(self):
+    def component(self):  # pragma: no cover
         """Component name containing the node."""
         return self._component
 
     @component.setter
-    def component(self, value):
+    def component(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._component = value
 
     @property
-    def net(self):
+    def net(self):  # pragma: no cover
         """The net of the node."""
         return self._net
 
     @net.setter
-    def net(self, value):
+    def net(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._net = value
 
     @property
-    def node_type(self):
-
+    def node_type(self):  # pragma: no cover
+        """The type of the node."""
         return self._node_type
 
     @node_type.setter
-    def node_type(self, value):
-        """The type of the node."""
+    def node_type(self, value):  # pragma: no cover
         if isinstance(value, int):
             self._node_type = value
 
     @property
-    def name(self):
+    def name(self):  # pragma: no cover
         """Name of the node."""
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._name = value
 
-    def _json_format(self):
+    def _json_format(self):  # pragma: no cover
         dict_out = {}
         for k, v in self.__dict__.items():
             dict_out[k[1:]] = v
         return dict_out
 
-    def _read_json(self, node_dict):
+    def _read_json(self, node_dict):  # pragma: no cover
         for k, v in node_dict.items():
             self.__setattr__(k, v)
 
@@ -3016,22 +3015,22 @@ class Source(object):
         self._negative_node.name = "neg_term"
 
     @property
-    def name(self):
+    def name(self):  # pragma: no cover
         """Source name."""
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._name = value
 
     @property
-    def source_type(self):
+    def source_type(self):  # pragma: no cover
         """Source type."""
         return self._source_type
 
     @source_type.setter
-    def source_type(self, value):
+    def source_type(self, value):  # pragma: no cover
         if isinstance(value, int):
             self._source_type = value
             if value == 3:
@@ -3042,57 +3041,57 @@ class Source(object):
                 self._impedance_value = 1.0
 
     @property
-    def positive_node(self):
+    def positive_node(self):  # pragma: no cover
         """Positive node for the source"""
         return self._positive_node
 
     @positive_node.setter
-    def positive_node(self, value):
+    def positive_node(self, value):  # pragma: no cover
         if isinstance(value, Node):
             self._positive_node = value
 
     @property
-    def negative_node(self):
+    def negative_node(self):  # pragma: no cover
         """Negative node of the source e.g. reference."""
         return self._negative_node
 
     @negative_node.setter
-    def negative_node(self, value):
+    def negative_node(self, value):  # pragma: no cover
         if isinstance(value, Node):
             self._negative_node = value
             #
 
     @property
-    def amplitude(self):
+    def amplitude(self):  # pragma: no cover
         """Amplitude value for the source. Ampere for current source or Volt for voltage source."""
         return self._amplitude
 
     @amplitude.setter
-    def amplitude(self, value):
+    def amplitude(self, value):  # pragma: no cover
         if isinstance(value, float):
             self._amplitude = value
 
     @property
-    def phase(self):
+    def phase(self):  # pragma: no cover
         """Phase of the source."""
         return self._phase
 
     @phase.setter
-    def phase(self, value):
+    def phase(self, value):  # pragma: no cover
         if isinstance(value, float):
             self._phase = value
 
     @property
-    def impedance_value(self):
+    def impedance_value(self):  # pragma: no cover
         """Impedance values of the source."""
         return self._impedance_value
 
     @impedance_value.setter
-    def impedance_value(self, value):
+    def impedance_value(self, value):  # pragma: no cover
         if isinstance(value, float):
             self._impedance_value = value
 
-    def _json_format(self):
+    def _json_format(self):  # pragma: no cover
         dict_out = {}
         for k, v in self.__dict__.items():
             if k == "_positive_node" or k == "_negative_node":
@@ -3102,7 +3101,7 @@ class Source(object):
                 dict_out[k[1:]] = v
         return dict_out
 
-    def _read_json(self, source_dict):
+    def _read_json(self, source_dict):  # pragma: no cover
         for k, v in source_dict.items():
             if k == "positive_node":
                 self.positive_node._read_json(v)
