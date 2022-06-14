@@ -2242,7 +2242,7 @@ class Design(AedtObjects, object):
         )
 
     @pyaedt_function_handler()
-    def import_dataset3d(self, filename, encoding="utf-8-sig", dsname=None):
+    def import_dataset3d(self, filename, dsname=None, encoding="utf-8-sig"):
         """Import a 3D dataset.
 
         Parameters
