@@ -4336,18 +4336,18 @@ class SimulationConfiguration(object):
             self._output_aedb = value
 
     @property
-    def sources(self):
+    def sources(self):  # pragma: no cover
         return self._sources
 
     @sources.setter
-    def sources(self, value):
+    def sources(self, value):  # pragma: no cover
         if isinstance(value, Source):
             value = [value]
         if isinstance(value, list):
             if len([src for src in value if isinstance(src, Source)]) == len(value):
                 self._sources = value
 
-    def add_source(self, source=None):
+    def add_source(self, source=None):  # pragma: no cover
         if isinstance(source, Source):
             self._sources.append(source)
 

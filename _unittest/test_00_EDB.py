@@ -6,6 +6,7 @@ from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.generic.constants import SolverType
+from pyaedt.edb_core.EDB_Data import Source
 from pyaedt.generic.constants import SourceType
 
 # Setup paths for module imports
@@ -1587,3 +1588,26 @@ if not config["skip_edb"]:
             )
             edb.build_simulation_project(sim_setup)
             edb.close_edb()
+
+        def test_104_add_soure(self):
+            example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
+            self.target_path = os.path.join(self.local_scratch.path, "Galileo.aedb")
+            self.local_scratch.copyfolder(example_project, self.target_path)
+            src = Source()
+            src.source_type = SourceType.Vsource
+            sim_config = SimulationConfiguration()
+            sim_config.add_dc_source(
+                source_type=SourceType.Vsource,
+                positive_node_component="U2A5",
+                positive_node_net="V3P3_S0",
+                negative_node_component="U2A5",
+                negative_node_net="GND",
+            )
+            sim_config.add_dc_source(
+                source_type=SourceType.Isource,
+                positive_node_component="U2A5",
+                positive_node_net="V1P5_S0",
+                negative_node_component="U2A5",
+                negative_node_net="GND",
+            )
+            assert Edb(self.target_path).build_simulation_project(sim_config)
