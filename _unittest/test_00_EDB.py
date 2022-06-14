@@ -1591,7 +1591,7 @@ if not config["skip_edb"]:
 
         def test_104_add_soure(self):
             example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
-            self.target_path = os.path.join(self.local_scratch.path, "Galileo.aedb")
+            self.target_path = os.path.join(self.local_scratch.path, "test_create_source", "Galileo.aedb")
             self.local_scratch.copyfolder(example_project, self.target_path)
             src = Source()
             src.source_type = SourceType.Vsource
