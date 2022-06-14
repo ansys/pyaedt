@@ -1557,16 +1557,6 @@ if not config["skip_edb"]:
             )
             edb.close_edb()
 
-        def test_999_build_hfss_project_from_config_file(self):
-            cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
-            with open(cfg_file, "w") as f:
-                f.writelines("SolverType = 'Hfss3dLayout'\n")
-                f.writelines("PowerNets = ['GND']\n")
-                f.writelines("Components = ['U2A5', 'U1B5']")
-
-            sim_config = SimulationConfiguration(cfg_file)
-            assert self.edbapp.build_simulation_project(sim_config)
-
         def test_103_create_dc_simulation(self):
             edb = Edb(edbpath=os.path.join(local_path, "example_models", "dc_flow.aedb"), edbversion=desktop_version)
             sim_setup = SimulationConfiguration()
@@ -1611,3 +1601,13 @@ if not config["skip_edb"]:
                 negative_node_net="GND",
             )
             assert Edb(self.target_path).build_simulation_project(sim_config)
+
+        def test_Z999_build_hfss_project_from_config_file(self):
+            cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
+            with open(cfg_file, "w") as f:
+                f.writelines("SolverType = 'Hfss3dLayout'\n")
+                f.writelines("PowerNets = ['GND']\n")
+                f.writelines("Components = ['U2A5', 'U1B5']")
+
+            sim_config = SimulationConfiguration(cfg_file)
+            assert self.edbapp.build_simulation_project(sim_config)
