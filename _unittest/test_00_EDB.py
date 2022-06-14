@@ -1397,7 +1397,7 @@ if not config["skip_edb"]:
             non_duplicated = stack_up.duplicate_material("my_nonexistent_mat", "nothing")
             assert not non_duplicated
 
-        def test_100_get_property_by_material_name(self):
+        def test_A100_get_property_by_material_name(self):
             stack_up = self.edbapp.core_stackup
             permittivity = stack_up.get_property_by_material_name("permittivity", "FR4_epoxy")
             permeability = stack_up.get_property_by_material_name("permeability", "FR4_epoxy")
@@ -1414,13 +1414,13 @@ if not config["skip_edb"]:
             failing_test_2 = stack_up.get_property_by_material_name("none_property", "copper")
             assert not failing_test_2
 
-        def test_101_classify_nets(self):
+        def test_A101_classify_nets(self):
             sim_setup = SimulationConfiguration()
             sim_setup.power_nets = ["RSVD_0", "RSVD_1"]
             sim_setup.signal_nets = ["V3P3_S0"]
             self.edbapp.core_nets.classify_nets(sim_setup)
 
-        def test_102_place_a3dcomp_3d_placement(self):
+        def test_A102_place_a3dcomp_3d_placement(self):
             source_path = os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb")
             target_path = os.path.join(self.local_scratch.path, "output.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
@@ -1471,7 +1471,7 @@ if not config["skip_edb"]:
             finally:
                 laminate_edb.close_edb()
 
-        def test_102b_place_a3dcomp_3d_placement_on_bottom(self):
+        def test_A02b_place_a3dcomp_3d_placement_on_bottom(self):
             source_path = os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb")
             target_path = os.path.join(self.local_scratch.path, "output.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
@@ -1527,7 +1527,7 @@ if not config["skip_edb"]:
             finally:
                 laminate_edb.close_edb()
 
-        def test_103_create_edge_ports(self):
+        def test_A103_create_edge_ports(self):
             edb = Edb(edbpath=os.path.join(local_path, "example_models", "edge_ports.aedb"), edbversion=desktop_version)
             poly_list = [poly for poly in list(edb.active_layout.Primitives) if int(poly.GetPrimitiveType()) == 2]
             port_poly = [poly for poly in poly_list if poly.GetId() == 17][0]
@@ -1557,7 +1557,7 @@ if not config["skip_edb"]:
             )
             edb.close_edb()
 
-        def test_103_create_dc_simulation(self):
+        def test_A104_create_dc_simulation(self):
             edb = Edb(edbpath=os.path.join(local_path, "example_models", "dc_flow.aedb"), edbversion=desktop_version)
             sim_setup = SimulationConfiguration()
             sim_setup.do_cutout_subdesign = False
@@ -1579,7 +1579,7 @@ if not config["skip_edb"]:
             edb.build_simulation_project(sim_setup)
             edb.close_edb()
 
-        def test_104_add_soure(self):
+        def test_A105_add_soure(self):
             example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
             self.target_path = os.path.join(self.local_scratch.path, "test_create_source", "Galileo.aedb")
             self.local_scratch.copyfolder(example_project, self.target_path)
@@ -1602,7 +1602,7 @@ if not config["skip_edb"]:
             )
             assert Edb(self.target_path).build_simulation_project(sim_config)
 
-        def test_Z999_build_hfss_project_from_config_file(self):
+        def test_Z_build_hfss_project_from_config_file(self):
             cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
             with open(cfg_file, "w") as f:
                 f.writelines("SolverType = 'Hfss3dLayout'\n")
