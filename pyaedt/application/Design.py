@@ -2270,7 +2270,7 @@ class Design(AedtObjects, object):
         zlist = []
         vlist = []
 
-        if file_extension[:3] == "xls":
+        if file_extension == "xlsx":
             self.logger.warning("Warning: You need pandas installed for reading excel files")
             try:
                 import pandas as pd
