@@ -4,8 +4,8 @@
   "useairobjects": true,
   "rowdimension": 3,
   "columndimension": 3,
-  "visible": true,
-  "showcellnumber": true,
+  "visible": false,
+  "showcellnumber": false,
   "paddingcells": 0,
   "referencecsid": 1,
   "cells": {
