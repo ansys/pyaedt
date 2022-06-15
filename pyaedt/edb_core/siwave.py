@@ -1315,48 +1315,48 @@ class EdbSiwave(object):
             ``True`` when successful, ``False`` when failed.
         """
 
-        if not isinstance(simulation_setup, SimulationConfiguration):
+        if not isinstance(simulation_setup, SimulationConfiguration):  # pragma: no cover
             return False
-        if simulation_setup.solver_type == SolverType.SiwaveSYZ:
+        if simulation_setup.solver_type == SolverType.SiwaveSYZ:  # pragma: no cover
             simsetup_info = self._pedb.simsetupdata.SimSetupInfo[self._pedb.simsetupdata.SIwave.SIWSimulationSettings]()
             simsetup_info.Name = simulation_setup.setup_name
             simsetup_info.SimulationSettings.AdvancedSettings.PerformERC = False
             simsetup_info.SimulationSettings.UseCustomSettings = True
-            if simulation_setup.include_inter_plane_coupling:
+            if simulation_setup.include_inter_plane_coupling:  # pragma: no cover
                 simsetup_info.SimulationSettings.AdvancedSettings.IncludeInterPlaneCoupling = (
                     simulation_setup.include_inter_plane_coupling
                 )
-            if abs(simulation_setup.xtalk_threshold):
+            if abs(simulation_setup.xtalk_threshold):  # pragma: no cover
                 simsetup_info.SimulationSettings.AdvancedSettings.XtalkThreshold = str(simulation_setup.xtalk_threshold)
-            if simulation_setup.min_void_area:
+            if simulation_setup.min_void_area:  # pragma: no cover
                 simsetup_info.SimulationSettings.AdvancedSettings.MinVoidArea = simulation_setup.min_void_area
-            if simulation_setup.min_pad_area_to_mesh:
+            if simulation_setup.min_pad_area_to_mesh:  # pragma: no cover
                 simsetup_info.SimulationSettings.AdvancedSettings.MinPadAreaToMesh = (
                     simulation_setup.min_pad_area_to_mesh
                 )
-            if simulation_setup.min_plane_area_to_mesh:
+            if simulation_setup.min_plane_area_to_mesh:  # pragma: no cover
                 simsetup_info.SimulationSettings.AdvancedSettings.MinPlaneAreaToMesh = (
                     simulation_setup.min_plane_area_to_mesh
                 )
-            if simulation_setup.snap_length_threshold:
+            if simulation_setup.snap_length_threshold:  # pragma: no cover
                 simsetup_info.SimulationSettings.AdvancedSettings.SnapLengthThreshold = (
                     simulation_setup.snap_length_threshold
                 )
-            if simulation_setup.return_current_distribution:
+            if simulation_setup.return_current_distribution:  # pragma: no cover
                 simsetup_info.SimulationSettings.AdvancedSettings.ReturnCurrentDistribution = (
                     simulation_setup.return_current_distribution
                 )
-            if simulation_setup.ignore_non_functional_pads:
+            if simulation_setup.ignore_non_functional_pads:  # pragma: no cover
                 simsetup_info.SimulationSettings.AdvancedSettings.IgnoreNonFunctionalPads = (
                     simulation_setup.ignore_non_functional_pads
                 )
-            if simulation_setup.dc_min_plane_area_to_mesh:
+            if simulation_setup.dc_min_plane_area_to_mesh:  # pragma: no cover
                 simsetup_info.SimulationSettings.DCAdvancedSettings.DcMinPlaneAreaToMesh = (
                     simulation_setup.dc_min_plane_area_to_mesh
                 )
-            if simulation_setup.min_void_area:
+            if simulation_setup.min_void_area:  # pragma: no cover
                 simsetup_info.SimulationSettings.DCAdvancedSettings.DcMinVoidAreaToMesh = simulation_setup.min_void_area
-            if simulation_setup.max_init_mesh_edge_length:
+            if simulation_setup.max_init_mesh_edge_length:  # pragma: no cover
                 simsetup_info.SimulationSettings.DCAdvancedSettings.MaxInitMeshEdgeLength = (
                     simulation_setup.max_init_mesh_edge_length
                 )
@@ -1369,11 +1369,11 @@ class EdbSiwave(object):
                 sweep.EnforceCausality = (GeometryOperators.parse_dim_arg(simulation_setup.start_frequency) - 0) < 1e-9
                 sweep.EnforcePassivity = simulation_setup.enforce_passivity
                 sweep.PassivityTolerance = simulation_setup.passivity_tolerance
-                if is_ironpython:
+                if is_ironpython:  # pragma: no cover
                     sweep.Frequencies.Clear()
                 else:
                     list(sweep.Frequencies).clear()
-                if simulation_setup.sweep_type == SweepType.LogCount:
+                if simulation_setup.sweep_type == SweepType.LogCount:  # pragma: no cover
                     self._setup_decade_count_sweep(
                         sweep,
                         simulation_setup.start_frequency,
@@ -1403,7 +1403,7 @@ class EdbSiwave(object):
                 self._logger.error("Exception in sweep configuration: {0}".format(err))
             sim_setup = self._edb.Utility.SIWaveSimulationSetup(simsetup_info)
             return self._cell.AddSimulationSetup(sim_setup)
-        if simulation_setup.solver_type == SolverType.SiwaveDC:
+        if simulation_setup.solver_type == SolverType.SiwaveDC:  # pragma: no cover
             simsetup_info = self._pedb.simsetupdata.SimSetupInfo[
                 self._pedb.simsetupdata.SIwave.SIWDCIRSimulationSettings
             ]()
