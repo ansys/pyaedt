@@ -203,7 +203,7 @@ class TestClass(BasisTest, object):
         assert ds4.delete()
         assert self.aedtapp.import_dataset1d(filename)
 
-    def test_19_import_dataset3d(self):
+    def test_19a_import_dataset3d(self):
         filename = os.path.join(local_path, "example_models", "Dataset_3D.tab")
         ds8 = self.aedtapp.import_dataset3d(filename)
         assert ds8.name == "$Dataset_3D"
@@ -216,6 +216,9 @@ class TestClass(BasisTest, object):
         filename = os.path.join(local_path, "example_models", "Dataset_3D.csv")
         ds8 = self.aedtapp.import_dataset3d(filename, encoding="utf-8-sig", dsname="dataset_csv")
         assert ds8.name == "$dataset_csv"
+
+    @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
+    def test_19b_import_dataset3d_xlsx(self):
         filename = os.path.join(local_path, "example_models", "Dataset_3D.xlsx")
         ds9 = self.aedtapp.import_dataset3d(filename, dsname="myExcel")
         assert ds9.name == "$myExcel"
