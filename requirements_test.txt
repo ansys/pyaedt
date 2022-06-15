@@ -5,4 +5,7 @@ pytest==7.1.2
 pytest-cov==3.0.0
 codecov==2.1.12
 joblib==1.1.0
+sklearn==0.0
+pandas==1.4.2
+openpyxl==3.0.10
 scikit-learn==1.1.1

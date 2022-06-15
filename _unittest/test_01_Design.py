@@ -203,15 +203,25 @@ class TestClass(BasisTest, object):
         assert ds4.delete()
         assert self.aedtapp.import_dataset1d(filename)
 
-    def test_19_import_dataset3d(self):
-        filename = os.path.join(local_path, "example_models", "ds_3d.tab")
+    def test_19a_import_dataset3d(self):
+        filename = os.path.join(local_path, "example_models", "Dataset_3D.tab")
         ds8 = self.aedtapp.import_dataset3d(filename)
-        assert ds8.name == "$ds_3d"
-        ds9 = self.aedtapp.import_dataset3d(filename, dsname="dataset_test")
-        assert ds9.name == "$dataset_test"
-        assert ds9.delete()
+        assert ds8.name == "$Dataset_3D"
+        filename = os.path.join(local_path, "example_models", "Dataset_3D.csv")
+        ds8 = self.aedtapp.import_dataset3d(filename, dsname="dataset_csv")
+        assert ds8.name == "$dataset_csv"
+        assert ds8.delete()
         ds10 = self.aedtapp.import_dataset3d(filename, dsname="$dataset_test")
-        assert ds10.vunit == "m_per_sec"
+        assert ds10.zunit == "mm"
+        filename = os.path.join(local_path, "example_models", "Dataset_3D.csv")
+        ds8 = self.aedtapp.import_dataset3d(filename, encoding="utf-8-sig", dsname="dataset_csv")
+        assert ds8.name == "$dataset_csv"
+
+    @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
+    def test_19b_import_dataset3d_xlsx(self):
+        filename = os.path.join(local_path, "example_models", "Dataset_3D.xlsx")
+        ds9 = self.aedtapp.import_dataset3d(filename, dsname="myExcel")
+        assert ds9.name == "$myExcel"
 
     def test_20_get_3dComponents_properties(self):
         assert len(self.aedtapp.components3d) > 0
