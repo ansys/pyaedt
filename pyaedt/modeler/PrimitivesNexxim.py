@@ -713,15 +713,13 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_voltage_probe(self, probe_name, location=None, angle=0, use_instance_id_netlist=False):
-        """Create a voltage DC source.
+    def create_voltage_probe(self, probe_name=None, location=None, angle=0, use_instance_id_netlist=False):
+        """Create a voltage probe.
 
         Parameters
         ----------
-        compname : str, optional
-            Name of the voltage DC source. The default is ``None``.
-        value : float, optional
-            Voltage value. The default is ``50``.
+        probe_name :
+            Name of the voltage probe. The default is ``None``.
         location : list of float, optional
             Position on the X axis and Y axis. The default is ``None``.
         angle : float, optional
