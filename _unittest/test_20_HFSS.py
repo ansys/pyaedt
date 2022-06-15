@@ -1,5 +1,7 @@
 import os
 
+from conftest import config
+
 try:
     import pytest
 except ImportError:
@@ -946,6 +948,9 @@ class TestClass(BasisTest, object):
         assert not hfss2.set_differential_pair(positive_terminal="P2_T1", negative_terminal="P2_T3")
         hfss2.close_project()
 
+    @pytest.mark.skipif(
+        config["desktopVersion"] >= "2022.2", reason="Not working in non-graphical in version lower than 2022.2"
+    )
     def test_51_array(self):
         self.aedtapp.insert_design("Array_simple")
         from pyaedt.generic.DataHandlers import json_to_dict
