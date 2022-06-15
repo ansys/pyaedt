@@ -5,7 +5,6 @@ It contains all advanced postprocessing functionalities that require Python 3.x 
 """
 from __future__ import absolute_import  # noreorder
 
-import math
 import os
 import time
 import warnings
@@ -648,18 +647,18 @@ class PostProcessor(Post):
 
     @pyaedt_function_handler()
     def create_3d_plot(
-        self, solution_data, nominal_sweep="Freq", nominal_value=1, primary_sweep="Theta", secondary_sweep="Phi"
+        self, solution_data, nominal_sweep=None, nominal_value=None, primary_sweep="Theta", secondary_sweep="Phi"
     ):
         """Create a 3D plot using Matplotlib.
 
         Parameters
         ----------
-        solution_data :
+        solution_data : :class:`pyaedt.modules.PostProcessor.SolutionData`
             Input data for the solution.
         nominal_sweep : str, optional
-            Name of the nominal sweep. The default is ``"Freq"``.
+            Name of the nominal sweep. The default is ``None``.
         nominal_value : str, optional
-            Value for the nominal sweep. The default is ``1``.
+            Value for the nominal sweep. The default is ``None``.
         primary_sweep : str, optional
             Primary sweep. The default is ``"Theta"``.
         secondary_sweep : str, optional
@@ -670,34 +669,11 @@ class PostProcessor(Post):
          bool
              ``True`` when successful, ``False`` when failed.
         """
-        legend = []
-        Freq = nominal_value
-        solution_data.active_variation[nominal_sweep] = Freq
-        solution_data.primary_sweep = primary_sweep
-        solution_data.active_variation[primary_sweep] = 45
-        theta = np.array((solution_data.sweeps[primary_sweep]))
-        phi = np.array((solution_data.sweeps[secondary_sweep]))
-        r = []
-        i = 0
-        phi1 = []
-        theta1 = [i * math.pi / 180 for i in theta]
-        for el in solution_data.sweeps[secondary_sweep]:
-            solution_data.active_variation[secondary_sweep] = el
-            phi1.append(el * math.pi / 180)
-            r.append(solution_data.data_magnitude())
-        THETA, PHI = np.meshgrid(theta1, phi1)
-
-        R = np.array(r)
-        X = R * np.sin(THETA) * np.cos(PHI)
-        Y = R * np.sin(THETA) * np.sin(PHI)
-
-        Z = R * np.cos(THETA)
-        fig1 = plt.figure()
-        ax1 = fig1.add_subplot(1, 1, 1, projection="3d")
-        plot = ax1.plot_surface(
-            X, Y, Z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.5
-        )
-        fig1.set_size_inches(10, 10)
+        if nominal_value:
+            solution_data.intrinsics[nominal_sweep] = nominal_value
+        if nominal_value:
+            solution_data.primary_sweep = primary_sweep
+        return solution_data.plot_3d(x_axis=primary_sweep, y_axis=secondary_sweep)
 
     @pyaedt_function_handler()
     def plot_scene(self, frames_list, output_gif_path, norm_index=0, dy_rng=0, fps=30, show=True):
