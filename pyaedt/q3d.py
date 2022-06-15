@@ -189,6 +189,89 @@ class QExtractor(FieldAnalysis3D, object):
         self.odesign.ExportMeshStats(setup_name, variation_string, setup_type, mesh_path)
         return mesh_path
 
+    @pyaedt_function_handler()
+    def edit_sources(
+        self,
+        CG=None,
+        ACRL=None,
+        DCRL=None,
+    ):
+        """Set up the source loaded for Q3D or Q2D in multiple sources simultaneously.
+
+        Parameters
+        ----------
+        CG : dict, optional
+            Dictionary of input sources to modify module and phase of CG solution.
+            Dictionary values can be:
+            - 1 Value to setup 0deg as default or
+            - 2 values tuple or list (magnitude and phase).
+        ACRL : dict, optional
+            Dictionary of input sources to modify module and phase of ACRL solution.
+            Dictionary values can be:
+            - 1 Value to setup 0deg as default or
+            - 2 values tuple or list (magnitude and phase).
+        DCRL : dict, optional
+            Dictionary of input sources to modify module and phase of DCRL solution, only available for Q3D.
+            Dictionary values can be:
+            - 1 Value to setup 0deg as default or
+            - 2 values tuple or list (magnitude and phase).
+
+        Returns
+        -------
+        bool
+
+        Examples
+        --------
+        >>> sources_cg = {"via": ("1V", "0deg"), "groundplane": "1V"}
+        >>> sources_acrl = {"via:Source1": ("1A", "0deg")}
+        >>> hfss.edit_sources(sources_cg, sources_acrl)
+        """
+        data = {i: ("0V", "0deg") for i in self.excitations}
+        if CG:
+            for key, value in CG.items():
+                data[key] = value
+        # setting = []
+        # for key, vals in data.items():
+        #     if isinstance(vals, str):
+        #         power = vals
+        #         phase = "0deg"
+        #     else:
+        #         power = vals[0]
+        #         if len(vals) == 1:
+        #             phase = "0deg"
+        #         else:
+        #             phase = vals[1]
+        #     if isinstance(vals, (list, tuple)) and len(vals) == 3:
+        #         terminated = vals[2]
+        #     else:
+        #         terminated = False
+        #     if use_incident_voltage and self.solution_type == "Terminal":
+        #         setting.append(["Name:=", key, "Terminated:=", terminated, "Magnitude:=", power, "Phase:=", phase])
+        #     else:
+        #         setting.append(["Name:=", key, "Magnitude:=", power, "Phase:=", phase])
+        # argument = []
+        # if self.solution_type == "Terminal":
+        #     argument.extend(["UseIncidentVoltage:=", use_incident_voltage])
+        #
+        # argument.extend(
+        #     [
+        #         "IncludePortPostProcessing:=",
+        #         include_port_post_processing,
+        #         "SpecifySystemPower:=",
+        #         True if max_available_power else False,
+        #     ]
+        # )
+        #
+        # if max_available_power:
+        #     argument.append("Incident Power:=")
+        #     argument.append(max_available_power)
+        #
+        # args = [argument]
+        # args.extend(setting)
+        # for arg in args:
+        #     self.osolution.EditSources(arg)
+        return True
+
 
 class Q3d(QExtractor, object):
     """Provides the Q3D application interface.
