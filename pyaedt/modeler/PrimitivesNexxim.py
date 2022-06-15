@@ -713,6 +713,49 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
+    def create_voltage_probe(self, probe_name, location=None, angle=0, use_instance_id_netlist=False):
+        """Create a voltage DC source.
+
+        Parameters
+        ----------
+        compname : str, optional
+            Name of the voltage DC source. The default is ``None``.
+        value : float, optional
+            Voltage value. The default is ``50``.
+        location : list of float, optional
+            Position on the X axis and Y axis. The default is ``None``.
+        angle : float, optional
+            Angle rotation in degrees. The default is ``0``.
+        use_instance_id_netlist : bool, optional
+            Whether to use the instance ID in the net list.
+            The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateComponent
+        """
+        if location == None:
+            location = []
+
+        cmpid = self.create_component(
+            None,
+            component_library="Probes",
+            component_name="VPROBE",
+            location=location,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
+
+        cmpid.set_property("Name", probe_name)
+        return cmpid
+
+    @pyaedt_function_handler()
     def create_current_pulse(self, compname=None, value_lists=[], location=[], angle=0, use_instance_id_netlist=False):
         """Create a current pulse.
 
