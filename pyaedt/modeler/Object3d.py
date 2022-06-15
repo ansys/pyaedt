@@ -468,19 +468,15 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         Returns
         -------
         float or bool
-            Edge length in model units when edge has two vertices, ``False`` othwerise.
+            Edge length in model units.
 
         References
         ----------
 
-        >>> oEditor.GetVertexPosition
+        >>> oEditor.GetEdgeLength(edgeId)
 
         """
-        if len(self.vertices) == 2:
-            length = GeometryOperators.points_distance(self.vertices[0].position, self.vertices[1].position)
-            return float(length)
-        else:
-            return False
+        return float(self.oeditor.GetEdgeLength(self.id))
 
     def __repr__(self):
         return "EdgeId " + str(self.id)
