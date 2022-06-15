@@ -730,7 +730,7 @@ class Design(AedtObjects, object):
             valids = []
             for name in names:
                 des = self.get_oo_object(self.oproject, name)
-                if des.GetDesignType() == self.design_type:
+                if hasattr(des, "GetDesignType") and des.GetDesignType() == self.design_type:
                     if self.design_type in [
                         "Circuit Design",
                         "Twin Builder",
