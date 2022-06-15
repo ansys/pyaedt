@@ -949,7 +949,7 @@ class TestClass(BasisTest, object):
         hfss2.close_project()
 
     @pytest.mark.skipif(
-        config["desktopVersion"] >= "2022.2", reason="Not working in non-graphical in version lower than 2022.2"
+        config["desktopVersion"] < "2022.2", reason="Not working in non-graphical in version lower than 2022.2"
     )
     def test_51_array(self):
         self.aedtapp.insert_design("Array_simple")
