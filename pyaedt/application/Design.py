@@ -42,6 +42,9 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.general_methods import settings
+from pyaedt.generic.general_methods import read_csv
+from pyaedt.generic.general_methods import read_tab
+from pyaedt.generic.general_methods import read_xlsx
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.modules.Boundary import BoundaryObject, MaxwellParameters
@@ -2249,10 +2252,10 @@ class Design(AedtObjects, object):
         ----------
         filename : str
             Full path and name for the tab/csv/xlsx file.
-        encoding : str, optional
-            File encoding to be provided for csv.
         dsname : str, optional
             Name of the dataset. The default is the file name.
+        encoding : str, optional
+            File encoding to be provided for csv.
 
         Returns
         -------
@@ -2271,49 +2274,36 @@ class Design(AedtObjects, object):
         vlist = []
 
         if file_extension == "xlsx":
-            self.logger.warning("You need pandas library installed for reading excel files")
-            try:
-                import pandas as pd
-            except ImportError:
-                self.logger.error(
-                    "Pandas is not installed. Either install pandas or save the file as .csv or .tab. " "Exiting."
-                )
-                return
-
-            df = pd.read_excel(filename)
-            header = str([df.columns[i] for i in range(len(df.columns))])
-            xlist = list((df.iloc[:, 0]).array)
-            ylist = list((df.iloc[:, 1]).array)
-            zlist = list((df.iloc[:, 2]).array)
-            vlist = list((df.iloc[:, 3]).array)
-            # Add code to create the x,y,z,v lists once pandas is included in the pyaedt requirements
+            self.logger.warning("You need pandas and openpyxl library installed for reading excel files")
+            lines = read_xlsx(filename)
+            if list(lines):
+                header = str([lines.columns[i] for i in range(len(lines.columns))])
+                xlist = list((lines.iloc[:, 0]).array)
+                ylist = list((lines.iloc[:, 1]).array)
+                zlist = list((lines.iloc[:, 2]).array)
+                vlist = list((lines.iloc[:, 3]).array)
+            else:
+                self.logger.error("Pandas is not installed. Either install pandas or save the file as .csv or .tab.")
+                return False
 
         elif file_extension == "csv":
-            import csv
+            lines = read_csv(filename, encoding)
+            header = " ".join(lines[0])
+            for row in lines[1:]:
+                xlist.append(float(row[0]))
+                ylist.append(float(row[1]))
+                zlist.append(float(row[2]))
+                vlist.append(float(row[3]))
 
-            with open(filename, "r", encoding=encoding) as my_file:
-                csv_reader = csv.reader(my_file, delimiter=",")
-                i = 0
-                for row in csv_reader:
-                    if i == 0:
-                        header = " ".join(row)
-                        i = 1
-                        continue
-                    xlist.append(float(row[0]))
-                    ylist.append(float(row[1]))
-                    zlist.append(float(row[2]))
-                    vlist.append(float(row[3]))
-            my_file.close()
         elif file_extension == "tab":
-            with open(filename) as my_file:
-                lines = my_file.readlines()
+            lines = read_tab(filename)
             header = lines[0]
             for item in lines[1:]:
                 xlist.append(float(item.split()[0]))
                 ylist.append(float(item.split()[1]))
                 zlist.append(float(item.split()[2]))
                 vlist.append(float(item.split()[3]))
-            my_file.close()
+
         header_list = header.split()
         units = ["", "", "", ""]
         cont = 0

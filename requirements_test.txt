@@ -8,3 +8,4 @@ joblib==1.1.0
 sklearn==0.0
 pandas==1.4.2
 scikit-learn==1.0.2
+openpyxl==3.0.10
