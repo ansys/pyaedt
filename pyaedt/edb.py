@@ -231,6 +231,7 @@ class Edb(object):
     @property
     def cell_names(self):
         """Cell name container.
+        
         Returns
         -------
         list of str
