@@ -4651,7 +4651,7 @@ class SimulationConfiguration(object):
             json_dict = json.load(f)  # pragma: no cover
             for k, v in json_dict.items():
                 if k == "sources":
-                    for src in json_dict[k]:
+                    for src in json_dict[k]: # pragma: no cover
                         source = Source()
                         source._read_json(src)
                         self.sources.append(source)
