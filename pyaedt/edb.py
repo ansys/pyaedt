@@ -231,11 +231,9 @@ class Edb(object):
     @property
     def cell_names(self):
         """Cell name container.
-        
         Returns
         -------
-        list of str
-            List of cell names.
+        list of str, cell names.
         """
         names = []
         for cell in list(self._db.TopCircuitCells):

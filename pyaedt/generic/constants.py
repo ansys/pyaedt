@@ -534,7 +534,7 @@ class BasisOrder(object):
 
 
 class NodeType(object):
-    """Type of node for source creation"""
+    """Type of node for source creation."""
 
     (Positive, Negative, Floating) = range(0, 3)
 
