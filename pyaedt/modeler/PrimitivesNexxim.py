@@ -738,7 +738,7 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
-        if location == None:
+        if location is None:
             location = []
         else:
             location = [location[0] + 0.2 * 24.4 / 1000, location[1] + 0.2 * 24.4 / 1000]
