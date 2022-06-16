@@ -7,10 +7,12 @@ import os
 import tempfile
 import warnings
 from collections import OrderedDict
+import ast
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
 from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.actors import Radar
@@ -5007,6 +5009,160 @@ class Hfss(FieldAnalysis3D, object):
             return True
         else:
             return False
+
+    @pyaedt_function_handler()
+    def add_3d_component_array_from_json(self, json_file, array_name=None):
+        """Add/edit a new 3d Component Array from json file. 3D Component will be placed in the layout if not present.
+
+        Parameters
+        ----------
+        json_file : str, dict
+            Full path to json file containing array info or dictionary containing the array info.
+        array_name : str, optional
+            Name of boundary to create/edit.
+
+
+        Returns
+        -------
+        bool
+
+        Examples
+        --------
+        {
+        "primarylattice": "MyFirstLattice",
+        "secondarylattice": "MySecondLattice",
+        "useairobjects": true,
+        "rowdimension": 4,
+        "columndimension": 4,
+        "visible": true,
+        "showcellnumber": true,
+        "paddingcells": 0,
+        "referencecsid": 1,
+        "MyFirstCell": "path/to/firstcell.a3dcomp", # optional to insert 3d comp
+        "MySecondCell": "path/to/secondcell.a3dcomp",# optional to insert 3d comp
+        "MyThirdCell": "path/to/thirdcell.a3dcomp",  # optional to insert 3d comp
+        "cells": { "(1,1)": {
+                   "name" : "MyFirstCell",
+                   "color" : "(255,0,20)", #optional
+                   "active" : true, #optional
+                   "postprocessing" : true #optional
+                   "rotation" : 0.0  #optional
+                    },
+                   "(1,2)": {
+                   "name" : "MySecondCell",
+                   "rotation" : 90.0
+                    }
+                    # continue
+        }
+        """
+        self.hybrid = True
+        if isinstance(json_file, dict):
+            json_dict = json_file
+        else:
+            json_dict = json_to_dict(json_file)
+        if not array_name and self.omodelsetup.IsArrayDefined():
+            array_name = self.omodelsetup.GetArrayNames()[0]
+        elif not array_name:
+            array_name = generate_unique_name("Array")
+
+        cells_names = {}
+        cells_color = {}
+        cells_active = []
+        cells_rotation = {}
+        cells_post = {}
+        for k, v in json_dict["cells"].items():
+            if isinstance(k, (list, tuple)):
+                k1 = str(list(k))
+            else:
+                k1 = str(list(ast.literal_eval(k)))
+            if v["name"] in cells_names:
+                cells_names[v["name"]].append(k1)
+            else:
+                def_names = self.oeditor.Get3DComponentDefinitionNames()
+                if v["name"] not in def_names and v["name"][:-1] not in def_names:
+                    if v["name"] not in json_dict:
+                        self.logger.error("a3comp is not present in design and not define correctly in json.")
+                        return False
+                    geometryparams = self.get_components3d_vars(json_dict[v["name"]])
+                    self.modeler.insert_3d_component(json_dict[v["name"]], geometryparams)
+                cells_names[v["name"]] = [k1]
+            if v.get("color", None):
+                cells_color[v["name"]] = v.get("color", None)
+            if str(v.get("rotation", "0.0")) in cells_rotation:
+                cells_rotation[str(v.get("rotation", "0.0"))].append(k1)
+            else:
+                cells_rotation[str(v.get("rotation", "0.0"))] = [k1]
+            if v.get("active", True) in cells_active:
+                cells_active.append(k1)
+
+            if v.get("postprocessing", False):
+                cells_post[v["name"]] = k1
+
+        primary_lattice = json_dict.get("primarylattice", None)
+        secondary_lattice = json_dict.get("secondarylattice", None)
+        if not primary_lattice:
+            primary_lattice = self.omodelsetup.GetLatticeVectors()[0]
+        if not secondary_lattice:
+            secondary_lattice = self.omodelsetup.GetLatticeVectors()[1]
+
+        args = [
+            "NAME:" + array_name,
+            "Name:=",
+            array_name,
+            "UseAirObjects:=",
+            json_dict.get("useairobjects", True),
+            "RowPrimaryBnd:=",
+            primary_lattice,
+            "ColumnPrimaryBnd:=",
+            secondary_lattice,
+            "RowDimension:=",
+            json_dict.get("rowdimension", 4),
+            "ColumnDimension:=",
+            json_dict.get("columndimension", 4),
+            "Visible:=",
+            json_dict.get("visible", True),
+            "ShowCellNumber:=",
+            json_dict.get("showcellnumber", True),
+            "RenderType:=",
+            0,
+            "Padding:=",
+            json_dict.get("paddingcells", 0),
+            "ReferenceCSID:=",
+            json_dict.get("referencecsid", 1),
+        ]
+
+        cells = ["NAME:Cells"]
+        for k, v in cells_names.items():
+            cells.append(k + ":=")
+            cells.append([", ".join(v)])
+        rotations = ["NAME:Rotation"]
+        for k, v in cells_rotation.items():
+            if float(k) != 0.0:
+                rotations.append(k + " deg:=")
+                rotations.append([", ".join(v)])
+        args.append(cells)
+        args.append(rotations)
+        args.append("Active:=")
+        if cells_active:
+            args.append(", ".join(cells_active))
+        else:
+            args.append("All")
+        post = ["NAME:PostProcessingCells"]
+        for k, v in cells_post.items():
+            post.append(k + ":=")
+            post.append(ast.literal_eval(v))
+        args.append(post)
+        args.append("Colors:=")
+        col = []
+        for k, v in cells_color.items():
+            col.append(k)
+            col.append(str(v).replace(",", " "))
+        args.append(col)
+        if self.omodelsetup.IsArrayDefined():
+            self.omodelsetup.EditArray(args)
+        else:
+            self.omodelsetup.AssignArray(args)
+        return True
 
     @pyaedt_function_handler()
     def get_antenna_ffd_solution_data(
