@@ -12,6 +12,7 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import Matrix
+from pyaedt.application.Variables import decompose_variable_value
 
 
 class QExtractor(FieldAnalysis3D, object):
@@ -192,25 +193,25 @@ class QExtractor(FieldAnalysis3D, object):
     @pyaedt_function_handler()
     def edit_sources(
         self,
-        CG=None,
-        ACRL=None,
-        DCRL=None,
+        cg=None,
+        acrl=None,
+        dcrl=None,
     ):
         """Set up the source loaded for Q3D or Q2D in multiple sources simultaneously.
 
         Parameters
         ----------
-        CG : dict, optional
+        cg : dict, optional
             Dictionary of input sources to modify module and phase of CG solution.
             Dictionary values can be:
             - 1 Value to setup 0deg as default or
             - 2 values tuple or list (magnitude and phase).
-        ACRL : dict, optional
+        acrl : dict, optional
             Dictionary of input sources to modify module and phase of ACRL solution.
             Dictionary values can be:
             - 1 Value to setup 0deg as default or
             - 2 values tuple or list (magnitude and phase).
-        DCRL : dict, optional
+        dcrl : dict, optional
             Dictionary of input sources to modify module and phase of DCRL solution, only available for Q3D.
             Dictionary values can be:
             - 1 Value to setup 0deg as default or
@@ -222,54 +223,128 @@ class QExtractor(FieldAnalysis3D, object):
 
         Examples
         --------
-        >>> sources_cg = {"via": ("1V", "0deg"), "groundplane": "1V"}
-        >>> sources_acrl = {"via:Source1": ("1A", "0deg")}
-        >>> hfss.edit_sources(sources_cg, sources_acrl)
+        >>> sources_cg = {"Box1": ("1V", "0deg"), "Box1_2": "1V"}
+        >>> sources_acrl = {"Box1:Source1": ("5A", "0deg")}
+        >>> sources_dcrl = {"Box1_1:Source2": ("5V", "0deg")}
+        >>> hfss.edit_sources(sources_cg, sources_acrl, sources_dcrl)
         """
-        data = {i: ("0V", "0deg") for i in self.excitations}
-        if CG:
-            for key, value in CG.items():
-                data[key] = value
-        # setting = []
-        # for key, vals in data.items():
-        #     if isinstance(vals, str):
-        #         power = vals
-        #         phase = "0deg"
-        #     else:
-        #         power = vals[0]
-        #         if len(vals) == 1:
-        #             phase = "0deg"
-        #         else:
-        #             phase = vals[1]
-        #     if isinstance(vals, (list, tuple)) and len(vals) == 3:
-        #         terminated = vals[2]
-        #     else:
-        #         terminated = False
-        #     if use_incident_voltage and self.solution_type == "Terminal":
-        #         setting.append(["Name:=", key, "Terminated:=", terminated, "Magnitude:=", power, "Phase:=", phase])
-        #     else:
-        #         setting.append(["Name:=", key, "Magnitude:=", power, "Phase:=", phase])
-        # argument = []
-        # if self.solution_type == "Terminal":
-        #     argument.extend(["UseIncidentVoltage:=", use_incident_voltage])
-        #
-        # argument.extend(
-        #     [
-        #         "IncludePortPostProcessing:=",
-        #         include_port_post_processing,
-        #         "SpecifySystemPower:=",
-        #         True if max_available_power else False,
-        #     ]
-        # )
-        #
-        # if max_available_power:
-        #     argument.append("Incident Power:=")
-        #     argument.append(max_available_power)
-        #
-        # args = [argument]
-        # args.extend(setting)
-        # for arg in args:
-        #     self.osolution.EditSources(arg)
+        setting_AC = []
+        setting_CG = []
+        setting_DC = []
+        if cg:
+            net_list = ["NAME:Source Names"]
+            if self.default_solution_type == "Q3D Extractor":
+                excitation = self.nets
+            else:
+                excitation = self.excitations
+
+            for key, value in cg.items():
+                if key not in excitation:
+                    self.logger.error("Not existing net " + key)
+                    return False
+                else:
+                    net_list.append(key)
+
+            if self.default_solution_type == "Q3D Extractor":
+                value_list = ["NAME:Source Values"]
+                phase_list = ["NAME:Source Values"]
+            else:
+                value_list = ["NAME:Magnitude"]
+                phase_list = ["NAME:Phase"]
+
+            for key, vals in cg.items():
+                if isinstance(vals, str):
+                    value = vals
+                    phase = "0deg"
+                else:
+                    value = vals[0]
+                    if len(vals) == 1:
+                        phase = "0deg"
+                    else:
+                        phase = vals[1]
+                value_list.append(value)
+                phase_list.append(phase)
+            if self.default_solution_type == "Q3D Extractor":
+                setting_CG = ["NAME:Cap", "Value Type:=", "N", net_list, value_list, phase_list]
+            else:
+                setting_CG = ["NAME:CGSources", net_list, value_list, phase_list]
+        if acrl:
+            source_list = ["NAME:Source Names"]
+            for key, value in acrl.items():
+                excitation = self.excitations
+                if key not in excitation:
+                    self.logger.error("Not existing excitation " + key)
+                    return False
+                else:
+                    source_list.append(key)
+            if self.default_solution_type == "Q3D Extractor":
+                value_list = ["NAME:Source Values"]
+                phase_list = ["NAME:Source Values"]
+            else:
+                value_list = ["NAME:Magnitude"]
+                phase_list = ["NAME:Phase"]
+            for key, vals in acrl.items():
+                magnitude = decompose_variable_value(value)
+                if not magnitude[1]:
+                    unit = "V"
+                else:
+                    unit = magnitude[1]
+                if isinstance(vals, str):
+                    value = vals
+                    phase = "0deg"
+                else:
+                    value = vals[0]
+                    if len(vals) == 1:
+                        phase = "0deg"
+                    else:
+                        phase = vals[1]
+
+                value_list.append(value)
+                phase_list.append(phase)
+
+            if self.default_solution_type == "Q3D Extractor":
+                setting_AC = ["NAME:AC", "Value Type:=", unit, source_list, value_list]
+            else:
+                setting_AC = ["NAME:RLSources", source_list, value_list, phase_list]
+        if dcrl and self.default_solution_type == "Q3D Extractor":
+            source_list = ["NAME:Source Names"]
+            for key, value in dcrl.items():
+                excitation = self.excitations
+                if key not in excitation:
+                    self.logger.error("Not existing excitation " + key)
+                    return False
+                else:
+                    source_list.append(key)
+            if self.default_solution_type == "Q3D Extractor":
+                value_list = ["NAME:Source Values"]
+                phase_list = ["NAME:Source Values"]
+            else:
+                value_list = ["NAME:Magnitude"]
+                phase_list = ["NAME:Phase"]
+            for key, vals in dcrl.items():
+                magnitude = decompose_variable_value(value)
+                if not magnitude[1]:
+                    unit = "V"
+                else:
+                    unit = magnitude[1]
+                if isinstance(vals, str):
+                    value = vals
+                    phase = "0deg"
+                else:
+                    value = vals[0]
+                    if len(vals) == 1:
+                        phase = "0deg"
+                    else:
+                        phase = vals[1]
+                value_list.append(value)
+                phase_list.append(phase)
+            setting_DC = ["NAME:DC", "Value Type:=", unit, source_list, value_list]
+
+        if self.default_solution_type == "Q3D Extractor":
+            self.osolution.EditSources(setting_AC, setting_CG, setting_DC)
+        else:
+            self.osolution.EditSources(setting_CG, setting_AC)
+
         return True
 
 

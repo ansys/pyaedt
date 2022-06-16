@@ -154,3 +154,26 @@ class TestClass(BasisTest, object):
             "C(Box1,Box1_2)"
         ]
         self.aedtapp.close_project(q3d.project_name, False)
+
+    def test_14_edit_sources(self):
+        q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+        sources_cg = {"Box1": ("2V", "45deg"), "Box1_2": "4V"}
+        sources_ac = {"Box1:Source1": "2A"}
+        assert q3d.edit_sources(sources_cg, sources_ac)
+
+        sources_cg = {"Box1": ("20V", "15deg"), "Box1_2": "40V"}
+        sources_ac = {"Box1:Source1": "2A", "Box1_1:Source2": "20A"}
+        sources_dc = {"Box1:Source1": "20V"}
+        assert q3d.edit_sources(sources_cg, sources_ac, sources_dc)
+
+        sources_cg = {"Box1": "2V"}
+        sources_ac = {"Box1:Source1": "2V", "Box1_1:Source2": "5V"}
+        assert q3d.edit_sources(sources_cg, sources_ac)
+
+        sources_cg = {"Box2": "2V"}
+        assert not q3d.edit_sources(sources_cg)
+        sources_ac = {"Box1:Source2": "2V"}
+        assert not q3d.edit_sources(sources_ac)
+        sources_dc = {"Box1:Source2": "2V"}
+        assert not q3d.edit_sources(sources_dc)
+        self.aedtapp.close_project(q3d.project_name, False)
