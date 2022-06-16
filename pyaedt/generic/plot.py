@@ -522,14 +522,42 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
         plt.savefig(snapshot_path)
     else:
         plt.show()
+    return plt
 
 
 @pyaedt_function_handler()
-def plot_contour(qty_to_plot, x, y, size=(2000, 2000), xlabel="", ylabel="", title="", levels=64, snapshot_path=None):
+def plot_contour(qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", title="", levels=64, snapshot_path=None):
+    """Create a matplotlib contour plot.
+
+    Parameters
+    ----------
+    qty_to_plot : :class:`numpy.ndarray`
+        Quantity to plot.
+    x : :class:`numpy.ndarray`
+        X axis quantity.
+    y : :class:`numpy.ndarray`
+        Y axis quantity.
+    size : tuple, list, optional
+        Window Size. Default is `(2000,1600)`.
+    xlabel : str, optional
+        X Label. Default is `""`.
+    ylabel : str, optional
+        Y Label. Default is `""`.
+    title : str, optional
+        Plot Title Label. Default is `""`.
+    levels : int, optional
+        Colormap levels. Default is `64`.
+    snapshot_path : str, optional
+        Full path to image to save. Default is None.
+
+    Returns
+    -------
+    :class:`matplotlib.plt`
+        Matplotlib fig object.
+    """
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
     fig, ax = plt.subplots(figsize=figsize)
-
     if title:
         plt.title(title)
     if xlabel:
@@ -550,6 +578,7 @@ def plot_contour(qty_to_plot, x, y, size=(2000, 2000), xlabel="", ylabel="", tit
         plt.savefig(snapshot_path)
     else:
         plt.show()
+    return plt
 
 
 class ObjClass(object):

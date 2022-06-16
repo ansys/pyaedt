@@ -891,3 +891,49 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.post.create_report_from_configuration(
             os.path.join(local_path, "example_models", "report_json", "Modal_Report.json")
         )
+
+    @pytest.mark.skipif(is_ironpython, reason="FarFieldSolution not supported by Ironpython")
+    def test_71_antenna_plot(self):
+        ffdata = self.field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere_name="3D")
+        assert ffdata.plot_farfield_contour(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            title="Contour at {}Hz".format(ffdata.frequency),
+            export_image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
+
+        ffdata.plot_2d_cut(
+            primary_sweep="theta",
+            secondary_sweep_value=[-180, -75, 75],
+            qty_str="RealizedGain",
+            title="Azimuth at {}Hz".format(ffdata.frequency),
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
+        ffdata.plot_2d_cut(
+            primary_sweep="phi",
+            secondary_sweep_value=30,
+            qty_str="RealizedGain",
+            title="Azimuth at {}Hz".format(ffdata.frequency),
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
+        )
+
+        assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
+
+        ffdata.polar_plot_3d(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
+
+        ffdata.polar_plot_3d_pyvista(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            show=False,
+            export_image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))

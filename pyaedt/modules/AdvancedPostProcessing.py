@@ -169,38 +169,6 @@ class PostProcessor(Post):
         return results_dict
 
     @pyaedt_function_handler()
-    def ff_sum_with_delta_phase(self, ff_data, xphase=0, yphase=0):
-        """Generate a far field sum with a delta phase.
-
-        Parameters
-        ----------
-        ff_data :
-
-        xphase : float, optional
-            Phase in the X-axis direction. The default is ``0``.
-        yphase : float, optional
-            Phase in the Y-axis direction. The default is ``0``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        array_size = [4, 4]
-        loc_offset = 2
-
-        rETheta = ff_data[2]
-        rEPhi = ff_data[3]
-        weight = np.zeros((array_size[0], array_size[0]))
-        mag = np.ones((array_size[0], array_size[0]))
-        for m in range(array_size[0]):
-            for n in range(array_size[1]):
-                mag = mag[m][n]
-                ang = np.radians(xphase * m) + np.radians(yphase * n)
-                weight[m][n] = np.sqrt(mag) * np.exp(1 * ang)
-        return True
-
-    @pyaedt_function_handler()
     def plot_model_obj(
         self,
         objects=None,

@@ -18,6 +18,7 @@ from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import FarFieldSetup
 from pyaedt.modules.Boundary import NativeComponentObject
+from pyaedt.modules.solutions import FfdSolutionData
 
 
 class Hfss(FieldAnalysis3D, object):
@@ -5006,3 +5007,64 @@ class Hfss(FieldAnalysis3D, object):
             return True
         else:
             return False
+
+    @pyaedt_function_handler()
+    def get_antenna_ffd_solution_data(
+        self, frequencies, setup_name=None, sphere_name=None, variations=None, overwrite=True, taper="flat"
+    ):
+        """Export Antenna Parameters to ffd files and return the FfdSolutionData object.
+
+        Parameters
+        ----------
+        frequencies : float, list
+            Frequency value or list of frequencies to compute ffd.
+        setup_name : str, optional
+            Name of setup to use. Default will be None which will use nominal_adaptive.
+        sphere_name : str, optional
+            Infinite Sphere to use. Default is None which will create a new Sphere or use existing one.
+        variations : ditc, optional
+            Variation dictionary.
+        overwrite : bool, optional
+            Either if overwrite ffd files or not.
+        taper : str, optional
+            This is the type of taper we want to apply. The default is 'flat'.
+            It can be ``"cosine"``, ``"triangular"``, ``"hamming"`` or ``"flat"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.solutions.FfdSolutionData`
+            Solution Data Object.
+        """
+        if not variations:
+            variations = self.available_variations.nominal_w_values_dict_w_dependent
+        if not setup_name:
+            setup_name = self.nominal_adaptive
+        if sphere_name:
+            names = [i.name for i in self.field_setups]
+            if sphere_name in names:
+                self.logger.info("Far Field Sphere %s assigned", sphere_name)
+
+            else:
+                self._app.insert_infinite_sphere(
+                    x_start=0, x_stop=180, x_step=5, y_start=-180, y_stop=180, y_step=5, name=sphere_name
+                )
+                self.logger.info("Far Field Sphere %s created", sphere_name)
+        elif self.field_setups:
+            sphere_name = self.field_setups[0].name
+            self.logger.info("No Far Field Sphere Defined. Using %s", sphere_name)
+        else:
+            sphere_name = "Infinite Sphere1"
+            self.insert_infinite_sphere(
+                x_start=0, x_stop=180, x_step=5, y_start=-180, y_stop=180, y_step=5, name=sphere_name
+            )
+            self.logger.info("Far Field Sphere %s created", setup_name)
+
+        return FfdSolutionData(
+            self,
+            sphere_name=sphere_name,
+            setup_name=setup_name,
+            frequencies=frequencies,
+            variations=variations,
+            overwrite=overwrite,
+            taper=taper,
+        )
