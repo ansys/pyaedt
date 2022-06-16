@@ -5150,7 +5150,7 @@ class Hfss(FieldAnalysis3D, object):
         post = ["NAME:PostProcessingCells"]
         for k, v in cells_post.items():
             post.append(k + ":=")
-            post.append(ast.literal_eval(v))
+            post.append(str(ast.literal_eval(v)))
         args.append(post)
         args.append("Colors:=")
         col = []
@@ -5201,7 +5201,7 @@ class Hfss(FieldAnalysis3D, object):
                 self.logger.info("Far Field Sphere %s assigned", sphere_name)
 
             else:
-                self._app.insert_infinite_sphere(
+                self.insert_infinite_sphere(
                     x_start=0, x_stop=180, x_step=5, y_start=-180, y_stop=180, y_step=5, name=sphere_name
                 )
                 self.logger.info("Far Field Sphere %s created", sphere_name)
