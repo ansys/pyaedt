@@ -239,6 +239,16 @@ class Layer3D(object):
         return self._name
 
     @property
+    def type(self):
+        """Layer type.
+
+        Returns
+        -------
+        str
+        """
+        return self._layer_type
+
+    @property
     def number(self):
         """Layer ID.
 
@@ -439,7 +449,7 @@ class Layer3D(object):
         lst = self._stackup._layer_name
         for i in range(len(lst)):
             if lst[i] == self._name:
-                if self._stackup.stackup_layers[lst[i - 1]]._layer_type == "dielectric":
+                if self._stackup.stackup_layers[lst[i - 1]].type == "dielectric":
                     below_layer = self._stackup.stackup_layers[lst[i - 1]]
                     break
                 else:
@@ -500,7 +510,7 @@ class Layer3D(object):
         lst = self._stackup._layer_name
         for i in range(len(lst)):
             if lst[i] == self._name:
-                if self._stackup.stackup_layers[lst[i - 1]]._layer_type == "dielectric":
+                if self._stackup.stackup_layers[lst[i - 1]].type == "dielectric":
                     below_layer = self._stackup.stackup_layers[lst[i - 1]]
                     break
                 else:
@@ -678,14 +688,13 @@ class Padstack(object):
         self._vias_objects = []
         self._num_sides = 16
         self._plating_ratio = 1
-        v = None
-        k = None
-        for k, v in self._stackup.stackup_layers.items():
-            if not self._padstacks_by_layer and v._layer_type == "dielectric":
-                continue
-            self._padstacks_by_layer[k] = PadstackLayer(self, k, v.elevation, v.thickness)
-        if v and v._layer_type == "dielectric":
-            del self._padstacks_by_layer[k]
+        layer = None
+        layer_name = None
+        for layer_name, layer in self._stackup.stackup_layers.items():
+            if self._padstacks_by_layer or layer.type != "dielectric":
+                self._padstacks_by_layer[layer_name] = PadstackLayer(self, layer_name, layer.elevation, layer.thickness)
+        if layer and layer.type == "dielectric":
+            del self._padstacks_by_layer[layer_name]
         self._padstacks_material = material
 
     @property
