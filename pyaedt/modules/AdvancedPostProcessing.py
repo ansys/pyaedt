@@ -653,7 +653,7 @@ class PostProcessor(Post):
 
         Parameters
         ----------
-        solution_data : :class:`pyaedt.modules.PostProcessor.SolutionData`
+        solution_data : :class:`pyaedt.modules.solutions.SolutionData`
             Input data for the solution.
         nominal_sweep : str, optional
             Name of the nominal sweep. The default is ``None``.
