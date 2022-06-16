@@ -444,3 +444,7 @@ class TestClass(BasisTest, object):
         lna = self.aedtapp.create_setup("mylna", self.aedtapp.SETUPS.NexximLNA)
         lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
         assert self.aedtapp.analyze_nominal()
+
+    def test_36_create_voltage_probe(self):
+        myprobe = self.aedtapp.modeler.components.create_voltage_probe(probe_name="test_probe", location=[0.4, 0.2])
+        assert type(myprobe.id) is int
