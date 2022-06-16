@@ -2549,14 +2549,14 @@ class ProbeFeedPatch(CommonObject, object):
                                  name="feed_padstack",
                                  material=coax_inner_material)
         feed_padstack.plating_ratio = 1
-        feed_padstack.set_start_layer(stackup.stackup_layers.items()[0])
-        feed_padstack._padstacks_by_layer[stackup.stackup_layers.items()[0]]._antipad_radius = coax_outer_rad
-        feed_padstack.set_stop_layer(patch.layer.name)
+        first_layer_name = list(stackup.stackup_layers.items())[0][0]
+        feed_padstack.set_start_layer(first_layer_name)
+        feed_padstack.set_stop_layer(patch._layer_name)
         feed_padstack.set_all_pad_value(coax_inner_rad)
         feed_padstack.set_all_antipad_value(coax_outer_rad)
+        feed_padstack._padstacks_by_layer[first_layer_name]._antipad_radius = coax_outer_rad
         feed_padstack.num_sides = 0
-
         via = feed_padstack.add_via(patch.length.name + " * " + str(position_x),
-                                    patch.width.name + " * " + str(position_y),
-                                    reference_system=patch.reference_system)
+                                    patch.width.name + " * " + str(position_y - 0.5),
+                                    reference_system=None)
         print(via)
