@@ -167,8 +167,15 @@ class TestClass(BasisTest, object):
         assert q3d.edit_sources(sources_cg, sources_ac, sources_dc)
 
         sources_cg = {"Box1": "2V"}
-        sources_ac = {"Box1:Source1": "2V", "Box1_1:Source2": "5V"}
+        sources_ac = {"Box1:Source1": "2", "Box1_1:Source2": "5V"}
         assert q3d.edit_sources(sources_cg, sources_ac)
+
+        sources_cg = {"Box1": ["20V"], "Box1_2": "4V"}
+        sources_ac = {"Box1:Source1": "2A"}
+        assert q3d.edit_sources(sources_cg, sources_ac)
+
+        sources_dc = {"Box1:Source1": "20"}
+        assert q3d.edit_sources(dcrl=sources_dc)
 
         sources_cg = {"Box2": "2V"}
         assert not q3d.edit_sources(sources_cg)

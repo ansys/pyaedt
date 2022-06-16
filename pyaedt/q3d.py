@@ -270,6 +270,7 @@ class QExtractor(FieldAnalysis3D, object):
                 setting_CG = ["NAME:CGSources", net_list, value_list, phase_list]
         if acrl:
             source_list = ["NAME:Source Names"]
+            unit = "V"
             for key, value in acrl.items():
                 excitation = self.excitations
                 if key not in excitation:
@@ -284,20 +285,21 @@ class QExtractor(FieldAnalysis3D, object):
                 value_list = ["NAME:Magnitude"]
                 phase_list = ["NAME:Phase"]
             for key, vals in acrl.items():
-                magnitude = decompose_variable_value(value)
-                if not magnitude[1]:
-                    unit = "V"
-                else:
-                    unit = magnitude[1]
                 if isinstance(vals, str):
+                    magnitude = decompose_variable_value(vals)
                     value = vals
                     phase = "0deg"
                 else:
                     value = vals[0]
+                    magnitude = decompose_variable_value(value)
                     if len(vals) == 1:
                         phase = "0deg"
                     else:
                         phase = vals[1]
+                if magnitude[1]:
+                    unit = magnitude[1]
+                else:
+                    value += unit
 
                 value_list.append(value)
                 phase_list.append(phase)
@@ -307,6 +309,7 @@ class QExtractor(FieldAnalysis3D, object):
             else:
                 setting_AC = ["NAME:RLSources", source_list, value_list, phase_list]
         if dcrl and self.default_solution_type == "Q3D Extractor":
+            unit = "V"
             source_list = ["NAME:Source Names"]
             for key, value in dcrl.items():
                 excitation = self.excitations
@@ -317,27 +320,19 @@ class QExtractor(FieldAnalysis3D, object):
                     source_list.append(key)
             if self.default_solution_type == "Q3D Extractor":
                 value_list = ["NAME:Source Values"]
-                phase_list = ["NAME:Source Values"]
             else:
                 value_list = ["NAME:Magnitude"]
-                phase_list = ["NAME:Phase"]
             for key, vals in dcrl.items():
-                magnitude = decompose_variable_value(value)
-                if not magnitude[1]:
-                    unit = "V"
-                else:
+                magnitude = decompose_variable_value(vals)
+                if magnitude[1]:
                     unit = magnitude[1]
+                else:
+                    vals += unit
                 if isinstance(vals, str):
                     value = vals
-                    phase = "0deg"
                 else:
                     value = vals[0]
-                    if len(vals) == 1:
-                        phase = "0deg"
-                    else:
-                        phase = vals[1]
                 value_list.append(value)
-                phase_list.append(phase)
             setting_DC = ["NAME:DC", "Value Type:=", unit, source_list, value_list]
 
         if self.default_solution_type == "Q3D Extractor":
