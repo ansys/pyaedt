@@ -2522,3 +2522,32 @@ class MachineLearningPatch(Patch, object):
             self.length.expression = application.modeler._arg_with_dim(length)
         else:  # pragma: no cover
             self.application.logger.warning("Machine learning algorithm aren't covered in IronPython.")
+
+
+class ProbeFeedPatch(CommonObject, object):
+    def __init__(self,
+                 patch,
+                 coax_inner_rad,
+                 coax_outer_rad,
+                 length,
+                 position_x,
+                 position_y,
+                 coax_inner_material,
+                 coax_outer_material,
+                 application,
+                 stackup):
+        feed_padstack = Padstack(app=application, stackup=stackup,
+                                 name="feed_padstack",
+                                 material=coax_inner_material)
+        feed_padstack.plating_ratio = 1
+        feed_padstack.set_start_layer(stackup.stackup_layers.items()[0])
+        feed_padstack._padstacks_by_layer[stackup.stackup_layers.items()[0]]._antipad_radius = coax_outer_rad
+        feed_padstack.set_stop_layer(patch.layer.name)
+        feed_padstack.set_all_pad_value(coax_inner_rad)
+        feed_padstack.set_all_antipad_value(coax_outer_rad)
+        feed_padstack.num_sides = 0
+
+        via = feed_padstack.add_via(patch.length.name + " * " + str(position_x),
+                                    patch.width.name + " * " + str(position_y),
+                                    reference_system=patch.reference_system)
+        print(via)
