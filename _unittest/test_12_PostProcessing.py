@@ -34,6 +34,7 @@ test_circuit_name = "Switching_Speed_FET_And_Diode"
 sbr_file = "poc_scat_small"
 q3d_file = "via_gsg"
 eye_diagram = "SimpleChannel"
+array = "array_simple"
 
 
 class TestClass(BasisTest, object):
@@ -50,6 +51,7 @@ class TestClass(BasisTest, object):
         self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d)
         self.q2dtest = Q2d(projectname=q3d_file)
         self.eye_test = BasisTest.add_app(self, project_name=eye_diagram, application=Circuit)
+        self.array_test = BasisTest.add_app(self, project_name=array)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -895,6 +897,53 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_ironpython, reason="FarFieldSolution not supported by Ironpython")
     def test_71_antenna_plot(self):
         ffdata = self.field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere_name="3D")
+        assert ffdata.plot_farfield_contour(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            title="Contour at {}Hz".format(ffdata.frequency),
+            export_image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
+
+        ffdata.plot_2d_cut(
+            primary_sweep="theta",
+            secondary_sweep_value=[-180, -75, 75],
+            qty_str="RealizedGain",
+            title="Azimuth at {}Hz".format(ffdata.frequency),
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
+        ffdata.plot_2d_cut(
+            primary_sweep="phi",
+            secondary_sweep_value=30,
+            qty_str="RealizedGain",
+            title="Azimuth at {}Hz".format(ffdata.frequency),
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
+        )
+
+        assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
+
+        ffdata.polar_plot_3d(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
+
+        ffdata.polar_plot_3d_pyvista(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            show=False,
+            export_image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
+
+    @pytest.mark.skipif(is_ironpython, reason="FarFieldSolution not supported by Ironpython")
+    def test_72_antenna_plot(self):
+        ffdata = self.array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D")
+        ffdata.frequency = 3.5e9
         assert ffdata.plot_farfield_contour(
             qty_str="RealizedGain",
             convert_to_db=True,
