@@ -3042,7 +3042,7 @@ class Source(object):
 
     @property
     def positive_node(self):  # pragma: no cover
-        """Positive node for the source"""
+        """Positive node of the source."""
         return self._positive_node
 
     @positive_node.setter
