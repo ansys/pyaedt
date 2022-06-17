@@ -2956,7 +2956,7 @@ class Node(object):
 
     @property
     def net(self):  # pragma: no cover
-        """The net of the node."""
+        """Net of the node."""
         return self._net
 
     @net.setter
