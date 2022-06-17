@@ -524,7 +524,7 @@ class Components(object):
         Parameters
         ----------
         sources : list[Source]
-            list of EDB_Data.Source object.
+            List of ``EDB_Data.Source`` objects.
 
         Returns
         -------
