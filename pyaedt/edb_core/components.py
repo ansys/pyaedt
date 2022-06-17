@@ -575,7 +575,9 @@ class Components(object):
                     positive_pin_group_term.SetImpedance(self._get_edb_value(source.impedance_value))
                     negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance_value))
                     positive_pin_group_term.SetRlcBoundaryParameters(rlc)
-                if source.source_type == SourceType.Vsource or source.source_type == SourceType.Isource:  # pragma: no cover
+                if (
+                    source.source_type == SourceType.Vsource or source.source_type == SourceType.Isource
+                ):  # pragma: no cover
                     positive_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
                     negative_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
                     positive_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
