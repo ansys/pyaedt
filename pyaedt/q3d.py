@@ -204,8 +204,8 @@ class QExtractor(FieldAnalysis3D, object):
         cg : dict, optional
             Dictionary of input sources to modify module and phase of CG solution.
             Dictionary values can be:
-            - 1 Value to setup 0deg as default or
-            - 2 values tuple or list (magnitude and phase).
+            - 1 Value to set up ``0deg`` as the default
+            - 2 A values tuple or list (magnitude and phase)
         acrl : dict, optional
             Dictionary of input sources to modify module and phase of ACRL solution.
             Dictionary values can be:
