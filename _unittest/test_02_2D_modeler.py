@@ -149,12 +149,20 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.move_edge([poly.edges[0], poly.edges[1]])
 
     def test_12_objects_in_bounding_box(self):
-        bounding_box = [3, 4, 5, 6]
-        objects = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
-        assert type(objects) is list
+        self.aedtapp.solution_type = "MagnetostaticXY"
+        bounding_box = [35, 42, -52, -68]
+        objects_xy_4 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
+        bounding_box = [20, 30, 10, -25, -36, -40]
+        objects_xy_6 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
+        assert type(objects_xy_4) is list
+        assert type(objects_xy_6) is list
         self.aedtapp.solution_type = "MagnetostaticZ"
-        objects = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
-        assert type(objects) is list
+        bounding_box = [35, 42, -52, -68]
+        objects_z_4 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
+        bounding_box = [20, 30, 10, -25, -36, -40]
+        objects_z_6 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
+        assert type(objects_z_4) is list
+        assert type(objects_z_6) is list
         if not is_ironpython:
             with pytest.raises(ValueError):
                 bounding_box = [3, 4, 5]

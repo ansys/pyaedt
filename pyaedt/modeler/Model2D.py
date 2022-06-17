@@ -196,13 +196,14 @@ class Modeler2D(GeometryModeler, Primitives2D):
         list of :class:`pyaedt.modeler.Object3d`
         """
 
-        if len(bounding_box) != 4:
-            raise ValueError("Bounding box must be a list of 4 elements.")
+        if len(bounding_box) not in [4, 6]:
+            raise ValueError("Bounding box must be a list of 4 or 6 elements.")
 
-        if self._app.design_type == "2D Extractor" or self._app.xy_plane:
-            bounding_box = [bounding_box[0], bounding_box[1], 0, bounding_box[2], bounding_box[3], 0]
-        else:
-            bounding_box = [bounding_box[0], 0, bounding_box[1], bounding_box[2], 0, bounding_box[3]]
+        if len(bounding_box) == 4:
+            if self._app.design_type == "2D Extractor" or self._app.xy_plane:
+                bounding_box = [bounding_box[0], bounding_box[1], 0, bounding_box[2], bounding_box[3], 0]
+            else:
+                bounding_box = [bounding_box[0], 0, bounding_box[1], bounding_box[2], 0, bounding_box[3]]
 
         objects_2d = []
 
