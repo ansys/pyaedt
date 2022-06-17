@@ -197,7 +197,7 @@ class Modeler2D(GeometryModeler, Primitives2D):
         """
 
         if len(bounding_box) != 4:
-            raise ValueError("Bounding box list must have dimension 4.")
+            raise ValueError("Bounding box must be a list of 4 elements.")
 
         if self._app.design_type == "2D Extractor" or self._app.xy_plane:
             bounding_box = [bounding_box[0], bounding_box[1], 0, bounding_box[2], bounding_box[3], 0]
