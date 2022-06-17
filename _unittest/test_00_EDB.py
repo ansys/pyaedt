@@ -5,6 +5,9 @@ import time
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.edb_core.EDB_Data import Source
+from pyaedt.generic.constants import SolverType
+from pyaedt.generic.constants import SourceType
 
 # Setup paths for module imports
 # Import required modules
@@ -126,13 +129,6 @@ if not config["skip_edb"]:
         def test_06_component_lists(self):
             component_list = self.edbapp.core_components.components
             assert len(component_list) > 2
-
-        def test_06B_deactivate_rlc(self):
-            assert self.edbapp.core_components.components["C1A12"].cap_value == "0.15uF"
-            assert self.edbapp.core_components.deactivate_rlc_component(component="C3A12", create_circuit_port=True)
-            assert self.edbapp.core_components.deactivate_rlc_component(component="C1A12", create_circuit_port=False)
-            assert float(self.edbapp.core_components.components["C1A12"].cap_value) == 0.0
-            pass
 
         def test_07_vias_creation(self):
             self.edbapp.core_padstack.create_padstack(padstackname="myVia")
@@ -597,7 +593,7 @@ if not config["skip_edb"]:
             assert edb.active_layout
             edb.close_edb()
 
-        @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
+        @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
         def test_62_export_to_hfss(self):
             edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion=desktop_version)
             options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
@@ -607,7 +603,7 @@ if not config["skip_edb"]:
             assert os.path.exists(out)
             edb.close_edb()
 
-        @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
+        @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
         def test_63_export_to_q3d(self):
             edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion=desktop_version)
             options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
@@ -617,7 +613,7 @@ if not config["skip_edb"]:
             assert os.path.exists(out)
             edb.close_edb()
 
-        @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
+        @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
         def test_64_export_to_maxwell(self):
             edb = Edb(edbpath=os.path.join(local_path, "example_models", "simple.aedb"), edbversion=desktop_version)
             options_config = {"UNITE_NETS": 1, "LAUNCH_MAXWELL": 0}
@@ -1149,16 +1145,18 @@ if not config["skip_edb"]:
                 laminateEdb.close_edb()
 
         def test_83_build_siwave_project_from_config_file(self):
-            cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
+            example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
+            self.target_path = os.path.join(self.local_scratch.path, "Galileo.aedb")
+            self.local_scratch.copyfolder(example_project, self.target_path)
+            cfg_file = os.path.join(self.target_path, "test.cfg")
             with open(cfg_file, "w") as f:
                 f.writelines("SolverType = 'Siwave'\n")
                 f.writelines("PowerNets = ['GND']\n")
                 f.writelines("Components = ['U2A5', 'U1B5']")
-
             sim_config = SimulationConfiguration(cfg_file)
-            assert self.edbapp.build_simulation_project(sim_config)
+            assert Edb(self.target_path).build_simulation_project(sim_config)
 
-        def test_85_set_component_type(self):
+        def test_84_set_component_type(self):
             comp = self.edbapp.core_components.components["R2L18"]
             comp.type = "Resistor"
             assert comp.type == "Resistor"
@@ -1172,6 +1170,10 @@ if not config["skip_edb"]:
             assert comp.type == "IC"
             comp.type = "Other"
             assert comp.type == "Other"
+
+        def test_85_deactivate_rlc(self):
+            assert self.edbapp.core_components.deactivate_rlc_component(component="C1", create_circuit_port=True)
+            assert self.edbapp.core_components.deactivate_rlc_component(component="C2", create_circuit_port=False)
 
         def test_86_create_symmetric_stackup(self):
             from pyaedt import Edb as local_edb
@@ -1395,7 +1397,7 @@ if not config["skip_edb"]:
             non_duplicated = stack_up.duplicate_material("my_nonexistent_mat", "nothing")
             assert not non_duplicated
 
-        def test_100_get_property_by_material_name(self):
+        def test_A100_get_property_by_material_name(self):
             stack_up = self.edbapp.core_stackup
             permittivity = stack_up.get_property_by_material_name("permittivity", "FR4_epoxy")
             permeability = stack_up.get_property_by_material_name("permeability", "FR4_epoxy")
@@ -1412,13 +1414,13 @@ if not config["skip_edb"]:
             failing_test_2 = stack_up.get_property_by_material_name("none_property", "copper")
             assert not failing_test_2
 
-        def test_101_classify_nets(self):
+        def test_A101_classify_nets(self):
             sim_setup = SimulationConfiguration()
             sim_setup.power_nets = ["RSVD_0", "RSVD_1"]
             sim_setup.signal_nets = ["V3P3_S0"]
             self.edbapp.core_nets.classify_nets(sim_setup)
 
-        def test_102_place_a3dcomp_3d_placement(self):
+        def test_A102_place_a3dcomp_3d_placement(self):
             source_path = os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb")
             target_path = os.path.join(self.local_scratch.path, "output.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
@@ -1469,7 +1471,7 @@ if not config["skip_edb"]:
             finally:
                 laminate_edb.close_edb()
 
-        def test_102b_place_a3dcomp_3d_placement_on_bottom(self):
+        def test_A02b_place_a3dcomp_3d_placement_on_bottom(self):
             source_path = os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb")
             target_path = os.path.join(self.local_scratch.path, "output.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
@@ -1525,7 +1527,7 @@ if not config["skip_edb"]:
             finally:
                 laminate_edb.close_edb()
 
-        def test_103_create_edge_ports(self):
+        def test_A103_create_edge_ports(self):
             edb = Edb(edbpath=os.path.join(local_path, "example_models", "edge_ports.aedb"), edbversion=desktop_version)
             poly_list = [poly for poly in list(edb.active_layout.Primitives) if int(poly.GetPrimitiveType()) == 2]
             port_poly = [poly for poly in poly_list if poly.GetId() == 17][0]
@@ -1555,7 +1557,52 @@ if not config["skip_edb"]:
             )
             edb.close_edb()
 
-        def test_999_build_hfss_project_from_config_file(self):
+        def test_A104_create_dc_simulation(self):
+            edb = Edb(edbpath=os.path.join(local_path, "example_models", "dc_flow.aedb"), edbversion=desktop_version)
+            sim_setup = SimulationConfiguration()
+            sim_setup.do_cutout_subdesign = False
+            sim_setup.solver_type = SolverType.SiwaveDC
+            sim_setup.add_dc_source(
+                source_type=SourceType.Vsource,
+                positive_node_component="Q3",
+                positive_node_net="SOURCE_HBA_PHASEA",
+                negative_node_component="Q3",
+                negative_node_net="HV_DC+",
+            )
+            sim_setup.add_dc_source(
+                source_type=SourceType.Isource,
+                positive_node_component="Q5",
+                positive_node_net="SOURCE_HBB_PHASEB",
+                negative_node_component="Q5",
+                negative_node_net="HV_DC+",
+            )
+            edb.build_simulation_project(sim_setup)
+            edb.close_edb()
+
+        def test_A105_add_soure(self):
+            example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
+            self.target_path = os.path.join(self.local_scratch.path, "test_create_source", "Galileo.aedb")
+            self.local_scratch.copyfolder(example_project, self.target_path)
+            src = Source()
+            src.source_type = SourceType.Vsource
+            sim_config = SimulationConfiguration()
+            sim_config.add_dc_source(
+                source_type=SourceType.Vsource,
+                positive_node_component="U2A5",
+                positive_node_net="V3P3_S0",
+                negative_node_component="U2A5",
+                negative_node_net="GND",
+            )
+            sim_config.add_dc_source(
+                source_type=SourceType.Isource,
+                positive_node_component="U2A5",
+                positive_node_net="V1P5_S0",
+                negative_node_component="U2A5",
+                negative_node_net="GND",
+            )
+            assert Edb(self.target_path).build_simulation_project(sim_config)
+
+        def test_Z_build_hfss_project_from_config_file(self):
             cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
             with open(cfg_file, "w") as f:
                 f.writelines("SolverType = 'Hfss3dLayout'\n")
