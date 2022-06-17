@@ -4709,7 +4709,7 @@ class SimulationConfiguration(object):
         Returns
         -------
         bool
-            True when succeeded False when file name not provided.
+            ``True`` when successful, ``False`` when a file name is not provided.
 
         Examples
         --------
