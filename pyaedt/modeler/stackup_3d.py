@@ -1814,16 +1814,23 @@ class Patch(CommonObject, object):
         """
         # "45 * (patch_wave_length/patch_width * sqrt(patch_eff_permittivity)) ** 2"
         # "60 * patch_wave_length/patch_width * sqrt(patch_eff_permittivity)"
+        # "90 * (patch_permittivity)**2/(patch_permittivity -1) * patch_length/patch_width
         er_e = self._effective_permittivity.name
         lbd = self._wave_length.name
         w = self._width.name
+        l = self.length.name
+        er = self.permittivity.name
         patch_impedance_formula_l_w = "45 * (" + lbd + "/" + w + "* sqrt(" + er_e + ")) ** 2"
         patch_impedance_formula_w_l = "60 * " + lbd + "/" + w + "* sqrt(" + er_e + ")"
+        patch_impedance_balanis_formula = "90 *" + er + "**2/(" + er + " - 1) * " + l + "/" + w
         self._impedance_l_w = NamedVariable(
             self.application, self._name + "_impedance_l_w", patch_impedance_formula_l_w
         )
         self._impedance_w_l = NamedVariable(
             self.application, self._name + "_impedance_w_l", patch_impedance_formula_w_l
+        )
+        self._impedance_bal = NamedVariable(
+            self.application, self._name + "_impedance_bal", patch_impedance_balanis_formula
         )
         self.application.logger.warning(
             "The closer the ratio between wave length and the width is to 1,"
