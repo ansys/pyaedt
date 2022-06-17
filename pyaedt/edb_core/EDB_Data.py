@@ -2936,7 +2936,7 @@ class EdbBuilder(object):
 
 
 class Node(object):
-    """Class handling nodes for Siwave sources."""
+    """Provides for handling nodes for Siwave sources."""
 
     def __init__(self):
         self._component = None
@@ -2956,7 +2956,7 @@ class Node(object):
 
     @property
     def net(self):  # pragma: no cover
-        """The net of the node."""
+        """Net of the node."""
         return self._net
 
     @net.setter
@@ -2966,7 +2966,7 @@ class Node(object):
 
     @property
     def node_type(self):  # pragma: no cover
-        """The type of the node."""
+        """Type of the node."""
         return self._node_type
 
     @node_type.setter
@@ -2996,7 +2996,7 @@ class Node(object):
 
 
 class Source(object):
-    """Class for handling Siwave sources"""
+    """Provides for handling Siwave sources."""
 
     def __init__(self):
         self._name = ""
@@ -3042,7 +3042,7 @@ class Source(object):
 
     @property
     def positive_node(self):  # pragma: no cover
-        """Positive node for the source"""
+        """Positive node of the source."""
         return self._positive_node
 
     @positive_node.setter
@@ -3052,7 +3052,7 @@ class Source(object):
 
     @property
     def negative_node(self):  # pragma: no cover
-        """Negative node of the source e.g. reference."""
+        """Negative node of the source."""
         return self._negative_node
 
     @negative_node.setter
@@ -3063,7 +3063,8 @@ class Source(object):
 
     @property
     def amplitude(self):  # pragma: no cover
-        """Amplitude value for the source. Ampere for current source or Volt for voltage source."""
+        """Amplitude value of the source. Either amperes for current source or volts for
+        voltage source."""
         return self._amplitude
 
     @amplitude.setter
@@ -4678,19 +4679,20 @@ class SimulationConfiguration(object):
         Parameters
         ----------
         source_type : SourceType
-            The source type defined.
+            Source type that is defined.
 
         name : str
             Source name.
 
         amplitude : float
-            Source amplitude value, Volt for voltage source, Amper for current one.
+            Amplitude value of the source. Either amperes for current source or volts for
+            voltage source.
 
         phase : float
             Phase value of the source.
 
         impedance : float
-            Impedance value for the source
+            Impedance value of the source.
 
         positive_node_component : str
             Name of the component used for the positive node.
@@ -4707,7 +4709,7 @@ class SimulationConfiguration(object):
         Returns
         -------
         bool
-            True when succeeded False when file name not provided.
+            ``True`` when successful, ``False`` when a file name is not provided.
 
         Examples
         --------

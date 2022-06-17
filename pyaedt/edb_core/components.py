@@ -519,17 +519,17 @@ class Components(object):
 
     @pyaedt_function_handler()
     def create_source_on_component(self, sources=None):
-        """Create voltage, current source or resistor on component.
+        """Create voltage, current source, or resistor on component.
 
         Parameters
         ----------
         sources : list[Source]
-            list of EDB_Data.Source object.
+            List of ``EDB_Data.Source`` objects.
 
         Returns
         -------
         double, bool
-            True when succeeded, False when failed.
+            ``True`` when successful, ``False`` when failed.
 
         """
 
@@ -540,7 +540,7 @@ class Components(object):
         if isinstance(sources, list):  # pragma: no cover
             for src in sources:
                 if not isinstance(src, Source):  # pragma: no cover
-                    self._logger.error("List of Source object must be passed as argument")
+                    self._logger.error("List of source objects must be passed as an argument.")
                     return False
         for source in sources:
             positive_pins = self.get_pin_from_component(source.positive_node.component, source.positive_node.net)
@@ -819,8 +819,8 @@ class Components(object):
 
     @pyaedt_function_handler()
     def add_port_on_rlc_component(self, component=None):
-        """Deactivate rlc component and replace it by circuit port.
-        Only supporting 2 pins components.
+        """Deactivate RLC component and replace it with a circuit port.
+        The circuit port supports only 2-pin components.
 
         Parameters
         ----------
@@ -869,7 +869,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def _create_pin_group_terminal(self, pingroup, isref=False):
-        """Creates edb pin group terminal from given edb pin group.
+        """Creates an EDB pin group terminal from a given EDB pin group.
 
         Parameters
         ----------
