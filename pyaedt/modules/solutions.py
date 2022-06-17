@@ -1804,6 +1804,7 @@ class FfdSolutionData(object):
         meshes = self._app.post.get_model_plotter_geometries(plot_air_objects=False).meshes
 
         duplicate_mesh = meshes.copy()
+        new_meshes = None
         if is_antenna_array:
             for each in data["Element_Location"]:
                 translated_mesh = duplicate_mesh.copy()
@@ -1813,12 +1814,15 @@ class FfdSolutionData(object):
                 if np.abs(2 * offset_xyz[1]) > ymax:  # assume array is centere, factor of 2
                     ymax = offset_xyz[1] * 2
                 translated_mesh.translate(offset_xyz, inplace=True)
-                meshes += translated_mesh
+                if new_meshes:
+                    new_meshes += translated_mesh
+                else:
+                    new_meshes = translated_mesh
 
         self.all_max = np.max(np.array([xmax, ymax, zmax]))
         elapsed_time = time.time() - time_before
         self._app.logger.info("Exporting Geometry...Done: %s seconds", elapsed_time)
-        return meshes
+        return new_meshes
 
     @pyaedt_function_handler()
     def polar_plot_3d_pyvista(
