@@ -180,16 +180,16 @@ class Modeler2D(GeometryModeler, Primitives2D):
 
     @pyaedt_function_handler()
     def objects_in_bounding_box(self, bounding_box, check_lines=True, check_sheets=True):
-        """Given a 2D bounding box checks if sheets and lines are inside it.
+        """Given a 2D bounding box, check if sheets and lines are inside it.
 
         Parameters
         ----------
         bounding_box : list.
-            List of either 4 or 6 coordinates of bounding box.
+            List of either the 4 or 6 coordinates of the bounding box.
         check_lines : bool, optional.
             Check line objects.
         check_sheets : bool, optional.
-            Check sheet objects.
+            Whether to check sheet objects. The default is ``True``.
 
         Returns
         -------
