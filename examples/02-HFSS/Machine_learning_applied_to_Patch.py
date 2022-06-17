@@ -285,9 +285,8 @@ with open(json_file_path, "w") as readfile:
 # First we import the 3300 cases json file, not the one we construct before because it is too small.
 # The one we generated is imported to test our model after the training.
 
-path_file = os.path.dirname(__file__)
-path_folder = os.path.split(os.path.split(path_file)[0])[0]
-training_file = os.path.join(path_folder, "pyaedt", "misc", "ml_data_file_train_100GMHz_1GHz.json")
+path_folder = hfss.pyaedt_dir
+training_file = os.path.join(path_folder, "misc", "ml_data_file_train_100GMHz_1GHz.json")
 with open(training_file) as readfile:
     my_dictio_list_train = json.load(readfile)
 
