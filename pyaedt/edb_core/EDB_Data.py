@@ -4685,7 +4685,8 @@ class SimulationConfiguration(object):
             Source name.
 
         amplitude : float
-            Source amplitude value, Volt for voltage source, Amper for current one.
+            Amplitude value of the source. Either amperes for current source or volts for
+            voltage source.
 
         phase : float
             Phase value of the source.
