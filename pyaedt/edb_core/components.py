@@ -529,7 +529,7 @@ class Components(object):
         Returns
         -------
         double, bool
-            True when succeeded, False when failed.
+            ``True`` when successful, ``False`` when failed.
 
         """
 
