@@ -4692,7 +4692,7 @@ class SimulationConfiguration(object):
             Phase value of the source.
 
         impedance : float
-            Impedance value for the source
+            Impedance value of the source.
 
         positive_node_component : str
             Name of the component used for the positive node.
