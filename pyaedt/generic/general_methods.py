@@ -1,3 +1,4 @@
+import codecs
 import csv
 import datetime
 import fnmatch
@@ -553,6 +554,74 @@ def remove_project_lock(project_path):
     if os.path.exists(project_path + ".lock"):
         os.remove(project_path + ".lock")
     return True
+
+
+@pyaedt_function_handler()
+def read_csv(filename, encoding="utf-8"):
+    """Read information from a CSV file and return a list.
+
+    Parameters
+    ----------
+    filename : str
+            Full path and name for the csv file.
+    encoding : str, optional
+            File encoding to be provided for csv. The default is ``utf-8``.
+
+    Returns
+    -------
+    list
+
+    """
+
+    lines = []
+    with codecs.open(filename, "rb", encoding) as csvfile:
+        reader = csv.reader(csvfile, delimiter=",")
+        for row in reader:
+            lines.append(row)
+    return lines
+
+
+@pyaedt_function_handler()
+def read_tab(filename):
+    """Read information from a TAB file and return a list.
+
+    Parameters
+    ----------
+    filename : str
+            Full path and name for the tab file.
+
+    Returns
+    -------
+    list
+
+    """
+    with open(filename) as my_file:
+        lines = my_file.readlines()
+    return lines
+
+
+@pyaedt_function_handler()
+def read_xlsx(filename):
+    """Read information from a XLSX file and return a list.
+
+    Parameters
+    ----------
+    filename : str
+            Full path and name for the xlsx file.
+
+    Returns
+    -------
+    list
+
+    """
+    try:
+        import pandas as pd
+
+        lines = pd.read_excel(filename)
+        return lines
+    except:
+        lines = []
+        return lines
 
 
 @pyaedt_function_handler()

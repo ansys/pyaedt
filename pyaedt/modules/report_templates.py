@@ -963,7 +963,7 @@ class CommonReport(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.SolutionData`
+        :class:`pyaedt.modules.solutions.SolutionData`
             `Solution Data object.
         """
         solution_data = self._post.get_solution_data_per_variation(

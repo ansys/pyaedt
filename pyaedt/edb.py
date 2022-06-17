@@ -233,8 +233,7 @@ class Edb(object):
         """Cell name container.
         Returns
         -------
-        list of str
-            List of cell names.
+        list of str, cell names.
         """
         names = []
         for cell in list(self._db.TopCircuitCells):
@@ -1602,8 +1601,8 @@ class Edb(object):
             self.logger.info("Deleting existing ports.")
             map(lambda port: port.Delete(), list(self.active_layout.Terminals))
             map(lambda pg: pg.Delete(), list(self.active_layout.PinGroups))
-            self.logger.info("Creating ports for signal nets.")
             if simulation_setup.solver_type == SolverType.Hfss3dLayout:
+                self.logger.info("Creating HFSS ports for signal nets.")
                 for cmp in simulation_setup.components:
                     self.core_components.create_port_on_component(
                         cmp,
@@ -1626,7 +1625,7 @@ class Edb(object):
                 self.core_hfss.configure_hfss_extents(simulation_setup)
                 if not self.core_hfss.configure_hfss_analysis_setup(simulation_setup):
                     self.logger.error("Failed to configure HFSS simulation setup.")
-            if simulation_setup.solver_type == SolverType.Siwave:
+            if simulation_setup.solver_type == SolverType.SiwaveSYZ:
                 for cmp in simulation_setup.components:
                     self.core_components.create_port_on_component(
                         cmp,
@@ -1639,8 +1638,10 @@ class Edb(object):
                 if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
                     self.logger.error("Failed to configure Siwave simulation setup.")
 
-            # if simulation_setup.defeature_layout:
-            #    self.core_hfss.layout_defeaturing(simulation_setup)
+            if simulation_setup.solver_type == SolverType.SiwaveDC:
+                self.core_components.create_source_on_component(simulation_setup.sources)
+                if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
+                    self.logger.error("Failed to configure Siwave simulation setup.")
             return True
         except:  # pragma: no cover
             return False

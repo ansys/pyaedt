@@ -177,3 +177,58 @@ class Modeler2D(GeometryModeler, Primitives2D):
 
         self.subtract(name, name + "1")
         return True
+
+    @pyaedt_function_handler()
+    def objects_in_bounding_box(self, bounding_box, check_lines=True, check_sheets=True):
+        """Given a 2D bounding box, check if sheets and lines are inside it.
+
+        Parameters
+        ----------
+        bounding_box : list.
+            List of either the 4 or 6 coordinates of the bounding box.
+        check_lines : bool, optional.
+            Whether to check line objects. The default is ``True``.
+        check_sheets : bool, optional.
+            Whether to check sheet objects. The default is ``True``.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d`
+        """
+
+        if len(bounding_box) not in [4, 6]:
+            raise ValueError("Bounding box must be a list of 4 or 6 elements.")
+
+        if len(bounding_box) == 4:
+            if self._app.design_type == "2D Extractor" or self._app.xy_plane:
+                bounding_box = [bounding_box[0], bounding_box[1], 0, bounding_box[2], bounding_box[3], 0]
+            else:
+                bounding_box = [bounding_box[0], 0, bounding_box[1], bounding_box[2], 0, bounding_box[3]]
+
+        objects_2d = []
+
+        if check_lines:
+            for obj in self._primitives.line_objects:
+                if (
+                    bounding_box[3] <= obj.bounding_box[0] <= bounding_box[0]
+                    and bounding_box[4] <= obj.bounding_box[1] <= bounding_box[1]
+                    and bounding_box[5] <= obj.bounding_box[2] <= bounding_box[2]
+                    and bounding_box[3] <= obj.bounding_box[3] <= bounding_box[0]
+                    and bounding_box[4] <= obj.bounding_box[4] <= bounding_box[1]
+                    and bounding_box[5] <= obj.bounding_box[5] <= bounding_box[2]
+                ):
+                    objects_2d.append(obj)
+
+        if check_sheets:
+            for obj in self._primitives.sheet_objects:
+                if (
+                    bounding_box[3] <= obj.bounding_box[0] <= bounding_box[0]
+                    and bounding_box[4] <= obj.bounding_box[1] <= bounding_box[1]
+                    and bounding_box[5] <= obj.bounding_box[2] <= bounding_box[2]
+                    and bounding_box[3] <= obj.bounding_box[3] <= bounding_box[0]
+                    and bounding_box[4] <= obj.bounding_box[4] <= bounding_box[1]
+                    and bounding_box[5] <= obj.bounding_box[5] <= bounding_box[2]
+                ):
+                    objects_2d.append(obj)
+
+        return objects_2d
