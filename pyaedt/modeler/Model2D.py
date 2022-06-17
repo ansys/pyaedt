@@ -187,7 +187,7 @@ class Modeler2D(GeometryModeler, Primitives2D):
         bounding_box : list.
             List of either the 4 or 6 coordinates of the bounding box.
         check_lines : bool, optional.
-            Check line objects.
+            Whether to check line objects. The default is ``True``.
         check_sheets : bool, optional.
             Whether to check sheet objects. The default is ``True``.
 
