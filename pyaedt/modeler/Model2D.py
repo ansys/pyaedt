@@ -128,54 +128,14 @@ class Modeler2D(GeometryModeler, Primitives2D):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.oeditor.CreateCircle(
-            [
-                "NAME:CircleParameters",
-                "IsCovered:=",
-                True,
-                "XCenter:=",
-                "0mm",
-                "YCenter:=",
-                "0mm",
-                "ZCenter:=",
-                "0mm",
-                "Radius:=",
-                radius,
-                "WhichAxis:=",
-                "Z",
-                "NumSegments:=",
-                "0",
-            ],
-            [
-                "NAME:Attributes",
-                "Name:=",
-                name + "_split",
-                "Flags:=",
-                "",
-                "Color:=",
-                "(132 132 193)",
-                "Transparency:=",
-                0,
-                "PartCoordinateSystem:=",
-                "Global",
-                "UDMId:=",
-                "",
-                "Materiaobjidue:=",
-                '"vacuum"',
-                "SolveInside:=",
-                True,
-            ],
-        )
 
+        cir = self.modeler.create_circle([0, 0, 0], 3, name=name + "_split", matname="vacuum")
         self.oeditor.Copy(["NAME:Selections", "Selections:=", name])
-
+        objects = [i for i in self.modeler.object_names]
         self.oeditor.Paste()
-        self.oeditor.Intersect(
-            ["NAME:Selections", "Selections:=", "{0}1,{0}_split".format(name)],
-            ["NAME:IntersectParameters", "KeepOriginals:=", False],
-        )
-
-        self.subtract(name, name + "1")
+        name1 = [i for i in self.modeler.object_names if i not in objects]
+        self.intersect([name1[0], cir.name], keeporiginal=False)
+        self.subtract(name, name1[0])
         return True
 
     @pyaedt_function_handler()

@@ -931,17 +931,17 @@ class Primitives(object):
     @property
     def solid_objects(self):
         """List of all solid objects."""
-        return [self[name] for name in self.solid_names]
+        return [self[name] for name in self.solid_names if self[name]]
 
     @property
     def sheet_objects(self):
         """List of all sheet objects."""
-        return [self[name] for name in self.sheet_names]
+        return [self[name] for name in self.sheet_names if self[name]]
 
     @property
     def line_objects(self):
         """List of all line objects."""
-        return [self[name] for name in self.line_names]
+        return [self[name] for name in self.line_names if self[name]]
 
     @property
     def points(self):
