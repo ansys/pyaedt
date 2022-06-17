@@ -33,16 +33,6 @@ if not is_ironpython:
             "Install with \n\npip install ipython\n\nRequires CPython."
         )
 
-    try:
-        import matplotlib.pyplot as plt
-    except ImportError:
-        warnings.warn(
-            "The Matplotlib module is required to run some functionalities of PostProcess.\n"
-            "Install with \n\npip install matplotlib\n\nRequires CPython."
-        )
-    except:
-        pass
-
 
 class PostProcessor(Post):
     """Contains advanced postprocessing functionalities that require Python 3.x packages like NumPy and Matplotlib.
@@ -169,6 +159,60 @@ class PostProcessor(Post):
         return results_dict
 
     @pyaedt_function_handler()
+    def get_model_plotter_geometries(
+        self,
+        objects=None,
+        plot_as_separate_objects=True,
+        plot_air_objects=False,
+        force_opacity_value=None,
+        array_coordinates=None,
+        generate_mesh=True,
+    ):
+        """Initialize the Model Plotter object with actual modeler objects and return it.
+
+         Parameters
+         ----------
+         objects : list, optional
+             Optional list of objects to plot. If `None` all objects will be exported.
+         plot_as_separate_objects : bool, optional
+             Plot each object separately. It may require more time to export from AEDT.
+         plot_air_objects : bool, optional
+             Plot also air and vacuum objects.
+         force_opacity_value : float, optional
+             Opacity value between 0 and 1 to be applied to all model.
+             If `None` aedt opacity will be applied to each object.
+        array_coordinates : list of list
+            List of array element centers. The modeler objects will be duplicated and translated.
+            List of [[x1,y1,z1], [x2,y2,z2]...].
+
+         Returns
+         -------
+         :class:`pyaedt.generic.plot.ModelPlotter`
+             Model Object.
+        """
+        assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
+        files = self.export_model_obj(
+            obj_list=objects,
+            export_as_single_objects=plot_as_separate_objects,
+            air_objects=plot_air_objects,
+        )
+        if not files:
+            self.logger.warning("No Objects exported. Try other options or include Air objects.")
+            return False
+
+        model = ModelPlotter()
+
+        for file in files:
+            if force_opacity_value:
+                model.add_object(file[0], file[1], force_opacity_value, self.modeler.model_units)
+            else:
+                model.add_object(file[0], file[1], file[2], self.modeler.model_units)
+        model.array_coordinates = array_coordinates
+        if generate_mesh:
+            model.generate_geometry_mesh()
+        return model
+
+    @pyaedt_function_handler()
     def plot_model_obj(
         self,
         objects=None,
@@ -178,6 +222,7 @@ class PostProcessor(Post):
         plot_air_objects=False,
         force_opacity_value=None,
         clean_files=False,
+        array_coordinates=None,
     ):
         """Plot the model or a substet of objects.
 
@@ -199,29 +244,24 @@ class PostProcessor(Post):
             If `None` aedt opacity will be applied to each object.
         clean_files : bool, optional
             Clean created files after plot. Cache is mainteined into the model object returned.
+        array_coordinates : list of list
+            List of array element centers. The modeler objects will be duplicated and translated.
+            List of [[x1,y1,z1], [x2,y2,z2]...].
 
         Returns
         -------
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
-        assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
-        files = self.export_model_obj(
-            obj_list=objects,
-            export_as_single_objects=plot_as_separate_objects,
-            air_objects=plot_air_objects,
+        model = self.get_model_plotter_geometries(
+            objects=objects,
+            plot_as_separate_objects=plot_as_separate_objects,
+            plot_air_objects=plot_air_objects,
+            force_opacity_value=force_opacity_value,
+            array_coordinates=array_coordinates,
+            generate_mesh=False,
         )
-        if not files:
-            self.logger.warning("No Objects exported. Try other options or include Air objects.")
-            return False
 
-        model = ModelPlotter()
-
-        for file in files:
-            if force_opacity_value:
-                model.add_object(file[0], file[1], force_opacity_value, self.modeler.model_units)
-            else:
-                model.add_object(file[0], file[1], file[2], self.modeler.model_units)
         if not show:
             model.off_screen = True
         if export_path:
@@ -246,10 +286,10 @@ class PostProcessor(Post):
         scale_min=None,
         scale_max=None,
     ):
-        """Export a field plot to an image file (JPG or PNG) using Python Plotly.
+        """Export a field plot to an image file (JPG or PNG) using Python PyVista.
 
         .. note::
-           The Plotly module rebuilds the mesh and the overlap fields on the mesh.
+           The PyVista module rebuilds the mesh and the overlap fields on the mesh.
 
         Parameters
         ----------
@@ -292,23 +332,15 @@ class PostProcessor(Post):
 
         start = time.time()
         file_to_add = self.export_field_plot(plotname, self._app.working_directory)
-        models = None
-        if not file_to_add:
-            return False
-        else:
-            if self._app._aedt_version >= "2021.2":
-                models = self.export_model_obj(export_as_single_objects=True, air_objects=False)
 
-        model = ModelPlotter()
+        model = self.get_model_plotter_geometries(generate_mesh=False)
+
         model.off_screen = not show
-
         if file_to_add:
             model.add_field_from_file(file_to_add, coordinate_units=self.modeler.model_units, show_edges=meshplot)
             if plot_label:
                 model.fields[0].label = plot_label
-        if models:
-            for m in models:
-                model.add_object(m[0], m[1], m[2])
+
         model.view = view
 
         if scale_min and scale_max:
@@ -317,7 +349,6 @@ class PostProcessor(Post):
         if show or project_path:
             model.plot(os.path.join(project_path, self._app.project_name + "." + imageformat))
             model.clean_cache_and_files(clean_cache=False)
-
         return model
 
     @pyaedt_function_handler()
@@ -368,10 +399,7 @@ class PostProcessor(Post):
             self.ofieldsreporter.UpdateAllFieldsPlots()
         else:
             self.ofieldsreporter.UpdateQuantityFieldsPlots(plot_folder)
-        models_to_add = []
-        if meshplot:
-            if self._app._aedt_version >= "2021.2":
-                models_to_add = self.export_model_obj(export_as_single_objects=True, air_objects=False)
+
         fields_to_add = []
         if not project_path:
             project_path = self._app.working_directory
@@ -390,11 +418,9 @@ class PostProcessor(Post):
                 self.export_field_plot(plotname, project_path, plotname + variation_variable + str(el))
             )
 
-        model = ModelPlotter()
+        model = self.get_model_plotter_geometries(generate_mesh=False)
         model.off_screen = not show
-        if models_to_add:
-            for m in models_to_add:
-                model.add_object(m[0], cad_color=m[1], opacity=m[2])
+
         if fields_to_add:
             model.add_frames_from_file(fields_to_add)
         if export_gif:
@@ -469,10 +495,7 @@ class PostProcessor(Post):
         """
         if not project_path:
             project_path = self._app.working_directory
-        models_to_add = []
-        if meshplot:
-            if self._app._aedt_version >= "2021.2":
-                models_to_add = self.export_model_obj(export_as_single_objects=True, air_objects=False)
+
         v = 0
         fields_to_add = []
         for el in variation_list:
@@ -489,11 +512,9 @@ class PostProcessor(Post):
                     fields_to_add.append(file_to_add)
                 plotf.delete()
             v += 1
-        model = ModelPlotter()
+        model = self.get_model_plotter_geometries(generate_mesh=False)
         model.off_screen = not show
-        if models_to_add:
-            for m in models_to_add:
-                model.add_object(m[0], cad_color=m[1], opacity=m[2])
+
         if fields_to_add:
             model.add_frames_from_file(fields_to_add)
         if export_gif:
@@ -505,113 +526,6 @@ class PostProcessor(Post):
             model.clean_cache_and_files(clean_cache=False)
 
         return model
-
-    @pyaedt_function_handler()
-    def far_field_plot(self, ff_data, x=0, y=0, qty="rETotal", dB=True, array_size=[4, 4]):
-        """Generate a far field plot.
-
-        Parameters
-        ----------
-        ff_data :
-
-        x : float, optional
-            The default is ``0``.
-        y : float, optional
-            The default is ``0``.
-        qty : str, optional
-            The default is ``"rETotal"``.
-        dB : bool, optional
-            The default is ``True``.
-        array_size : list
-            List for the array size. The default is ``[4, 4]``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        loc_offset = 2  # if array index is not starting at [1,1]
-        xphase = float(y)
-        yphase = float(x)
-        array_shape = (array_size[0], array_size[1])
-        weight = np.zeros(array_shape, dtype=complex)
-        mag = np.ones(array_shape, dtype="object")
-        port_names_arranged = np.chararray(array_shape)
-        all_ports = ff_data.keys()
-        w_dict = {}
-        # calculate weights based off of progressive phase shift
-        port_name = []
-        for m in range(array_shape[0]):
-            for n in range(array_shape[1]):
-                mag_val = mag[m][n]
-                ang = np.radians(xphase * m) + np.radians(yphase * n)
-                weight[m][n] = np.sqrt(mag_val) * np.exp(1j * ang)
-                current_index_str = "[" + str(m + 1 + loc_offset) + "," + str(n + 1 + loc_offset) + "]"
-                port_name = [y for y in all_ports if current_index_str in y]
-                w_dict[port_name[0]] = weight[m][n]
-
-        length_of_ff_data = len(ff_data[port_name[0]][2])
-
-        array_shape = (len(w_dict), length_of_ff_data)
-        rEtheta_fields = np.zeros(array_shape, dtype=complex)
-        rEphi_fields = np.zeros(array_shape, dtype=complex)
-        w = np.zeros((1, array_shape[0]), dtype=complex)
-        # create port mapping
-        Ntheta = 0
-        Nphi = 0
-        for n, port in enumerate(ff_data.keys()):
-            re_theta = ff_data[port][2]
-            re_phi = ff_data[port][3]
-            re_theta = re_theta * w_dict[port]
-
-            w[0][n] = w_dict[port]
-            re_phi = re_phi * w_dict[port]
-
-            rEtheta_fields[n] = re_theta
-            rEphi_fields[n] = re_phi
-
-            theta_range = ff_data[port][0]
-            phi_range = ff_data[port][1]
-            theta = [int(np.min(theta_range)), int(np.max(theta_range)), np.size(theta_range)]
-            phi = [int(np.min(phi_range)), int(np.max(phi_range)), np.size(phi_range)]
-            Ntheta = len(theta_range)
-            Nphi = len(phi_range)
-
-        rEtheta_fields = np.dot(w, rEtheta_fields)
-        rEtheta_fields = np.reshape(rEtheta_fields, (Ntheta, Nphi))
-
-        rEphi_fields = np.dot(w, rEphi_fields)
-        rEphi_fields = np.reshape(rEphi_fields, (Ntheta, Nphi))
-
-        all_qtys = {}
-        all_qtys["rEPhi"] = rEphi_fields
-        all_qtys["rETheta"] = rEtheta_fields
-        all_qtys["rETotal"] = np.sqrt(np.power(np.abs(rEphi_fields), 2) + np.power(np.abs(rEtheta_fields), 2))
-
-        pin = np.sum(w)
-        print(str(pin))
-        real_gain = 2 * np.pi * np.abs(np.power(all_qtys["rETotal"], 2)) / pin / 377
-        all_qtys["RealizedGain"] = real_gain
-
-        if dB:
-            if "Gain" in qty:
-                qty_to_plot = 10 * np.log10(np.abs(all_qtys[qty]))
-            else:
-                qty_to_plot = 20 * np.log10(np.abs(all_qtys[qty]))
-            qty_str = qty + " (dB)"
-        else:
-            qty_to_plot = np.abs(all_qtys[qty])
-            qty_str = qty + " (mag)"
-
-        plt.figure(figsize=(15, 10))
-        plt.title(qty_str)
-        plt.xlabel("Theta (degree)")
-        plt.ylabel("Phi (degree)")
-
-        plt.imshow(qty_to_plot, cmap="jet")
-        plt.colorbar()
-
-        np.max(qty_to_plot)
 
     @pyaedt_function_handler()
     def create_3d_plot(
@@ -680,7 +594,7 @@ class PostProcessor(Post):
             return False
         else:
             frames_paths_list = frames_list
-        scene = self.plot_model_obj(show=False)
+        scene = self.get_model_plotter_geometries(generate_mesh=False)
 
         norm_data = np.loadtxt(frames_paths_list[norm_index], skiprows=1, delimiter=",")
         norm_val = norm_data[:, -1]

@@ -732,6 +732,8 @@ class ModelPlotter(object):
         self._isometric_view = True
         self.bounding_box = True
         self.color_bar = True
+        self.array_coordinates = []
+        self.meshes = None
 
     @property
     def isometric_view(self):
@@ -1699,3 +1701,15 @@ class ModelPlotter(object):
             return self.gif_file
         else:
             return True
+
+    @pyaedt_function_handler()
+    def generate_geometry_mesh(self):
+        self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+        self._read_mesh_files()
+        if self.array_coordinates:
+            duplicate_mesh = self.meshes.copy()
+            for offset_xyz in self.array_coordinates:
+                translated_mesh = duplicate_mesh.copy()
+                translated_mesh.translate(offset_xyz, inplace=True)
+                self.meshes += translated_mesh
+        return self.meshes

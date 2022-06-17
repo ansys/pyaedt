@@ -1804,9 +1804,7 @@ class FfdSolutionData(object):
         if not os.path.exists(geo_path):
             os.makedirs(geo_path)
 
-        meshes = self._app.plot(
-            show=False, plot_air_objects=False, export_path=os.path.join(self._app.working_directory, "model.jpg")
-        ).meshes
+        meshes = self._app.post.get_model_plotter_geometries(plot_air_objects=False).meshes
 
         duplicate_mesh = meshes.copy()
         if is_antenna_array:
@@ -1847,7 +1845,7 @@ class FfdSolutionData(object):
             Full path to image file. Default is None to not export.
         position : list, optional
             It can be a list of numpy list of origin of plot. Default is [0,0,0].
-        rotationn : list, optional
+        rotation : list, optional
             It can be a list of numpy list of origin of plot.
             Default is [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]].
         show : bool, optional
@@ -1883,6 +1881,7 @@ class FfdSolutionData(object):
             pointb=(0.74, 0.1),
             style="modern",
             event_type="always",
+            title_height=0.02,
         )
         p.add_slider_widget(
             uf.update_theta,
@@ -1893,9 +1892,25 @@ class FfdSolutionData(object):
             pointb=(0.98, 0.1),
             style="modern",
             event_type="always",
+            title_height=0.02,
         )
 
-        sargs = dict(height=0.4, vertical=True, position_x=0.05, position_y=0.5)
+        # sargs = dict(height=0.4, vertical=True, position_x=0.05, position_y=0.5)
+        sargs = dict(
+            title_font_size=12,
+            label_font_size=10,
+            shadow=True,
+            n_labels=7,
+            italic=True,
+            fmt="%.1f",
+            font_family="arial",
+            vertical=True,
+            position_x=0.05,
+            position_y=0.65,
+            height=0.3,
+            width=0.06,
+            outline=True,
+        )
         # ff_mesh_inst = p.add_mesh(uf.output,smooth_shading=True,cmap="jet",scalar_bar_args=sargs,opacity=0.5)
         # not sure why, but smooth_shading causes this to not update
 
@@ -1916,13 +1931,26 @@ class FfdSolutionData(object):
                 # p.add_mesh(ff_mesh, smooth_shading=True,cmap="jet")
                 return
 
-            ff_toggle = p.add_checkbox_button_widget(toggle_vis_ff, value=True)
-            p.add_text("Show Far Fields", position=(70, 25), color="black", font_size=12)
+            ff_toggle = p.add_checkbox_button_widget(toggle_vis_ff, value=True, size=30)
+            p.add_text("Show Far Fields", position=(70, 25), color="white", font_size=10)
 
             slider_max = int(np.ceil(self.all_max / 2 / self.max_gain))
-
+            if slider_max > 0:
+                slider_min = 0
+                value = slider_max / 3
+            else:
+                slider_min = slider_max
+                slider_max = 0
+                value = slider_min / 3
             scale_slider = p.add_slider_widget(
-                scale, [0, slider_max], title="Scale Plot", value=slider_max / 3, pointa=(0.5, 0.9), pointb=(0.9, 0.9)
+                scale,
+                [slider_min, slider_max],
+                title="Scale Plot",
+                value=value,
+                pointa=(0.7, 0.93),
+                pointb=(0.99, 0.93),
+                style="modern",
+                title_height=0.02,
             )
 
             if "MaterialIds" in cad_mesh.array_names:
@@ -1930,8 +1958,8 @@ class FfdSolutionData(object):
             else:
                 color_display_type = None
             cad = p.add_mesh(cad_mesh, scalars=color_display_type, show_scalar_bar=False, opacity=0.5)
-            cad_toggle = p.add_checkbox_button_widget(toggle_vis_cad, value=True, position=(10, 70))
-            p.add_text("Show Geometry", position=(70, 75), color="black", font_size=12)
+            cad_toggle = p.add_checkbox_button_widget(toggle_vis_cad, value=True, position=(10, 70), size=30)
+            p.add_text("Show Geometry", position=(70, 75), color="white", font_size=10)
         p.off_screen = not show
         if export_image_path:
             p.show(screenshot=export_image_path)
