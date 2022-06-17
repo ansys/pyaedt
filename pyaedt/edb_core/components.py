@@ -867,7 +867,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def _create_pin_group_terminal(self, pingroup, isref=False):
-        """Creates edb pin group terminal from given edb pin group.
+        """Creates an EDB pin group terminal from a given EDB pin group.
 
         Parameters
         ----------
