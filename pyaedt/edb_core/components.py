@@ -519,7 +519,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def create_source_on_component(self, sources=None):
-        """Create voltage, current source or resistor on component.
+        """Create voltage, current source, or resistor on component.
 
         Parameters
         ----------
