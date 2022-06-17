@@ -12,7 +12,7 @@ def test_report_file_parser():
             "Mag_H": {
                 "x_name": "Distance",
                 "x_unit": "meter",
-                "y_unit": "A_per_m",
+                "y_unit": "A_per_meter",
                 "curves": {
                     'Freq="1e-08GHz" Ip="10mA" Phase="0deg"': {
                         "x_data": [
@@ -2301,7 +2301,7 @@ def test_report_file_parser():
             "Mag_H_1": {
                 "x_name": "Distance",
                 "x_unit": "meter",
-                "y_unit": "A_per_m",
+                "y_unit": "A_per_meter",
                 "curves": {
                     'Freq="1e-08GHz" Ip="10mA" Phase="0deg"': {
                         "x_data": [

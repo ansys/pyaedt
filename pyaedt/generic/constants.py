@@ -338,6 +338,15 @@ AEDT_UNITS = {
         "kA_per_m": 1e3,
         "megA_per_m": 1e6,
         "gA_per_m": 1e9,
+        "fA_per_meter": 1e-15,
+        "pA_per_meter": 1e-12,
+        "nA_per_meter": 1e-9,
+        "uA_per_meter": 1e-6,
+        "mA_per_meter": 1e-3,
+        "A_per_meter": 1.0,
+        "kA_per_meter": 1e3,
+        "megA_per_meter": 1e6,
+        "gA_per_meter": 1e9,
     },
 }
 SI_UNITS = {
@@ -354,13 +363,14 @@ SI_UNITS = {
     "Mass": "kg",
     "None": "",
     "Resistance": "ohm",
+    "Speed": "m_per_sec",
     "Time": "s",
     "Torque": "NewtonMeter",
     "Voltage": "V",
     "Temperature": "kel",
     "Power": "W",
     "B-field": "tesla",
-    "H-field": "A_per_m",
+    "H-field": "A_per_meter",
 }
 UNIT_SYSTEM_OPERATIONS = {
     # Multiplication of physical domains
