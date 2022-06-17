@@ -3052,7 +3052,7 @@ class Source(object):
 
     @property
     def negative_node(self):  # pragma: no cover
-        """Negative node of the source e.g. reference."""
+        """Negative node of the source."""
         return self._negative_node
 
     @negative_node.setter
