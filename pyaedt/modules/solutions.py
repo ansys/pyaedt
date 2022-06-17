@@ -195,8 +195,9 @@ class SolutionData(object):
         self._sweeps_names.extend((reversed(names)))
         return self._sweeps
 
+    @staticmethod
     @pyaedt_function_handler()
-    def _quantity(self, unit):
+    def _quantity(unit):
         """
 
         Parameters
@@ -262,8 +263,9 @@ class SolutionData(object):
             sols_data[expression] = solution_Data
         return sols_data
 
+    @staticmethod
     @pyaedt_function_handler()
-    def to_degrees(self, input_list):
+    def to_degrees(input_list):
         """Convert an input list from radians to degrees.
 
         Parameters
@@ -279,8 +281,9 @@ class SolutionData(object):
         """
         return [i * 360 / (2 * math.pi) for i in input_list]
 
+    @staticmethod
     @pyaedt_function_handler()
-    def to_radians(self, input_list):
+    def to_radians(input_list):
         """Convert an input list from degrees to radians.
 
         Parameters
@@ -302,7 +305,7 @@ class SolutionData(object):
         for it in self._sweeps_names:
             try:
                 temp.append(self.active_variation[it])
-            except:
+            except KeyError:
                 temp.append(self.active_intrinsic[it])
         return temp
 
@@ -345,8 +348,9 @@ class SolutionData(object):
             )
         return sol
 
+    @staticmethod
     @pyaedt_function_handler()
-    def _convert_list_to_SI(self, datalist, dataunits, units):
+    def _convert_list_to_SI(datalist, dataunits, units):
         """Convert a data list to the SI unit system.
 
         Parameters
@@ -504,8 +508,8 @@ class SolutionData(object):
             if tuple(temp) in solution_Data:
                 sol_dict = OrderedDict({})
                 i = 0
-                for l in self._sweeps_names:
-                    sol_dict[l] = temp[i]
+                for sn in self._sweeps_names:
+                    sol_dict[sn] = temp[i]
                     i += 1
                 sol.append(sol_dict)
             else:
@@ -607,7 +611,7 @@ class SolutionData(object):
         """
         if not expression:
             expression = self.active_expression
-        for e, v in self._solutions_imag[expression].items():
+        for v in list(self._solutions_imag[expression].values()):
             if float(v) != 0.0:
                 return False
         return True
@@ -1051,8 +1055,9 @@ class FfdSolutionData(object):
             self.ffd_dict = self._all_solutions[self.frequencies.index(val)]
             self._init_ffd()
 
+    @staticmethod
     @pyaedt_function_handler()
-    def get_array_index(self, port_name):
+    def get_array_index(port_name):
         """Get index of a given port.
 
         Parameters
@@ -1771,8 +1776,6 @@ class FfdSolutionData(object):
             ff_min = np.min(ff_data)
             ff_data_renorm = (ff_data - ff_max) / (ff_max - ff_min)
 
-        legend = []
-
         theta = np.deg2rad(np.array(data["Theta"]))
         phi = np.deg2rad(np.array(data["Phi"]))
         phi_grid, theta_grid = np.meshgrid(phi, theta)
@@ -1932,7 +1935,7 @@ class FfdSolutionData(object):
                 # p.add_mesh(ff_mesh, smooth_shading=True,cmap="jet")
                 return
 
-            ff_toggle = p.add_checkbox_button_widget(toggle_vis_ff, value=True, size=30)
+            p.add_checkbox_button_widget(toggle_vis_ff, value=True, size=30)
             p.add_text("Show Far Fields", position=(70, 25), color="white", font_size=10)
 
             slider_max = int(np.ceil(self.all_max / 2 / self.max_gain))
@@ -1943,7 +1946,7 @@ class FfdSolutionData(object):
                 slider_min = slider_max
                 slider_max = 0
                 value = slider_min / 3
-            scale_slider = p.add_slider_widget(
+            p.add_slider_widget(
                 scale,
                 [slider_min, slider_max],
                 title="Scale Plot",
@@ -1959,7 +1962,7 @@ class FfdSolutionData(object):
             else:
                 color_display_type = None
             cad = p.add_mesh(cad_mesh, scalars=color_display_type, show_scalar_bar=False, opacity=0.5)
-            cad_toggle = p.add_checkbox_button_widget(toggle_vis_cad, value=True, position=(10, 70), size=30)
+            p.add_checkbox_button_widget(toggle_vis_cad, value=True, position=(10, 70), size=30)
             p.add_text("Show Geometry", position=(70, 75), color="white", font_size=10)
         p.off_screen = not show
         if export_image_path:
@@ -2078,10 +2081,10 @@ class FfdSolutionData(object):
                 # p.add_mesh(ff_mesh, smooth_shading=True,cmap="jet")
                 return
 
-            ff_toggle = p.add_checkbox_button_widget(toggle_vis_ff, value=True)
+            p.add_checkbox_button_widget(toggle_vis_ff, value=True)
             p.add_text("Show Far Fields", position=(70, 25), color="black", font_size=12)
             slider_max = int(np.ceil(self.all_max / 2 / self.max_gain))
-            scale_slider = p.add_slider_widget(scale, [0, slider_max], title="Scale Plot", value=slider_max / 2)
+            p.add_slider_widget(scale, [0, slider_max], title="Scale Plot", value=slider_max / 2)
 
             if "MaterialIds" in cad_mesh.array_names:
                 color_display_type = cad_mesh["MaterialIds"]
@@ -2089,7 +2092,7 @@ class FfdSolutionData(object):
                 color_display_type = None
             cad = p.add_mesh(cad_mesh, scalars=color_display_type, show_scalar_bar=False, opacity=0.5)
             size = int(p.window_size[1] / 40)
-            cad_toggle = p.add_checkbox_button_widget(toggle_vis_cad, size=size, value=True, position=(10, 70))
+            p.add_checkbox_button_widget(toggle_vis_cad, size=size, value=True, position=(10, 70))
             p.add_text("Show Geometry", position=(70, 75), color="black", font_size=12)
         p.off_screen = not show
         if export_image_path:
@@ -2098,16 +2101,18 @@ class FfdSolutionData(object):
             p.show()
         return p
 
+    @staticmethod
     @pyaedt_function_handler()
-    def _find_nearest(self, array, value):
+    def _find_nearest(array, value):
         idx = np.searchsorted(array, value, side="left")
         if idx > 0 and (idx == len(array) or math.fabs(value - array[idx - 1]) < math.fabs(value - array[idx])):
             return idx - 1
         else:
             return idx
 
+    @staticmethod
     @pyaedt_function_handler()
-    def _rotation_to_euler_angles(self, R):
+    def _rotation_to_euler_angles(R):
 
         sy = math.sqrt(R[0, 0] * R[0, 0] + R[1, 0] * R[1, 0])
         singular = sy < 1e-6
@@ -2259,16 +2264,16 @@ class FieldPlot:
     @property
     def plotGeomInfo(self):
         """Plot geometry information."""
-        id = 0
+        idx = 0
         if self.volume_indexes:
-            id += 1
+            idx += 1
         if self.surfaces_indexes:
-            id += 1
+            idx += 1
         if self.cutplane_indexes:
-            id += 1
+            idx += 1
         if self.line_indexes:
-            id += 1
-        info = [id]
+            idx += 1
+        info = [idx]
         if self.volume_indexes:
             info.append("Volume")
             info.append("ObjList")
@@ -2308,7 +2313,7 @@ class FieldPlot:
             l = 0
             while l < len(self.intrinsincList):
                 val = self.intrinsincList[l + 1]
-                if ":=" in self.intrinsincList[l] and type(self.intrinsincList[l + 1]) is list:
+                if ":=" in self.intrinsincList[l] and isinstance(self.intrinsincList[l + 1], list):
                     val = self.intrinsincList[l + 1][0]
                 ll = self.intrinsincList[l].split(":=")
                 var += ll[0] + "='" + str(val) + "' "
