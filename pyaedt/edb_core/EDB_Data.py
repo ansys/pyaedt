@@ -2996,7 +2996,7 @@ class Node(object):
 
 
 class Source(object):
-    """Class for handling Siwave sources"""
+    """Provides for handling Siwave sources."""
 
     def __init__(self):
         self._name = ""
