@@ -4679,7 +4679,7 @@ class SimulationConfiguration(object):
         Parameters
         ----------
         source_type : SourceType
-            The source type defined.
+            Source type that is defined.
 
         name : str
             Source name.
