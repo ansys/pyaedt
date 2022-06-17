@@ -189,7 +189,7 @@ class Modeler2D(GeometryModeler, Primitives2D):
         check_lines : bool, optional.
             Check line objects.
         check_sheets : bool, optional.
-            Check sheet objects.
+            Whether to check sheet objects. The default is ``True``.
 
         Returns
         -------
