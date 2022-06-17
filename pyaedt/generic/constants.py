@@ -524,7 +524,7 @@ class FlipChipOrientation(object):
 class SolverType(object):
     """Provides solver type classes."""
 
-    (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout) = range(0, 7)
+    (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout, SiwaveSYZ, SiwaveDC) = range(0, 9)
 
 
 class CutoutSubdesignType(object):
@@ -541,6 +541,12 @@ class SweepType(object):
 
 class BasisOrder(object):
     (Mixed, Zero, single, Double) = range(0, 4)
+
+
+class NodeType(object):
+    """Type of node for source creation."""
+
+    (Positive, Negative, Floating) = range(0, 3)
 
 
 class SourceType(object):
