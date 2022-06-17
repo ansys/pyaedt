@@ -2966,7 +2966,7 @@ class Node(object):
 
     @property
     def node_type(self):  # pragma: no cover
-        """The type of the node."""
+        """Type of the node."""
         return self._node_type
 
     @node_type.setter
