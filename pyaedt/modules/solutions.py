@@ -1270,6 +1270,11 @@ class FfdSolutionData(object):
         """Compute the far field pattern calculated for a specific phi/scan angle requested.
         This is calculated based on the lattice vector spacing and the embedded element
         patterns of a ca-ddm or fa-ddm array in HFSS.
+        Calculates phase shifts between array elements in A and B directions,
+        PhaseShiftA and PhaseShiftB, given Wave Vector (k), lattice vectors
+        (Ax, Ay, Bx, By), Scan angles (theta, phi) using formula below
+        Phase Shift A = - (Ax*k*sin(theta)*cos(phi) + Ay*k*sin(theta)*sin(phi))
+        Phase Shift B = - (Bx*k*sin(theta)*cos(phi) + By*k*sin(theta)*sin(phi)).
 
         Parameters
         ----------
@@ -1288,14 +1293,6 @@ class FfdSolutionData(object):
 
         c = 299792458
         k = (2 * math.pi * self.frequency) / c
-
-        # ---------------------- METHOD : CalculatePhaseShifts -------------------
-        # Calculates phase shifts between array elements in A and B directions,
-        # PhaseShiftA and PhaseShiftB, given Wave Vector (k), lattice vectors
-        # (Ax, Ay, Bx, By), Scan angles (theta, phi) using formula below
-        # Phase Shift A = - (Ax*k*sinθ*cosφ + Ay*k*sinθ*sinφ)
-        # Phase Shift B = - (Bx*k*sinθ*cosφ + By*k*sinθ*sinφ)
-        # ------------------------------------------------------------------------
 
         theta_scan = math.radians(theta_scan)
         phi_scan = math.radians(phi_scan)
@@ -1362,13 +1359,13 @@ class FfdSolutionData(object):
         self.all_qtys["nTheta"] = Ntheta
         pin = np.sum(np.power(np.abs(w), 2))
         self.all_qtys["Pincident"] = pin
-        print(f"Incident Power: {pin}")
+        self._app.logger.info("Incident Power: %s", pin)
         real_gain = 2 * np.pi * np.abs(np.power(self.all_qtys["rETotal"], 2)) / pin / 377
         self.all_qtys["RealizedGain"] = real_gain
         self.all_qtys["RealizedGain_dB"] = 10 * np.log10(real_gain)
         self.max_gain = np.max(10 * np.log10(real_gain))
         self.min_gain = np.min(10 * np.log10(real_gain))
-        print(f"Peak Realized Gain: {self.max_gain} dB")
+        self._app.logger.info("Peak Realized Gain: %s dB", self.max_gain)
         self.all_qtys["Element_Location"] = array_positions
 
         return self.all_qtys
@@ -1405,8 +1402,8 @@ class FfdSolutionData(object):
         # Calculates phase shifts between array elements in A and B directions,
         # PhaseShiftA and PhaseShiftB, given Wave Vector (k), lattice vectors
         # (Ax, Ay, Bx, By), Scan angles (theta, phi) using formula below
-        # Phase Shift A = - (Ax*k*sinθ*cosφ + Ay*k*sinθ*sinφ)
-        # Phase Shift B = - (Bx*k*sinθ*cosφ + By*k*sinθ*sinφ)
+        # Phase Shift A = - (Ax*k*sin(theta)*cos(phi) + Ay*k*sin(theta)*sin(phi))
+        # Phase Shift B = - (Bx*k*sin(theta)*cos(phi) + By*k*sin(theta)*sin(phi))
         # ------------------------------------------------------------------------
 
         theta_scan1 = math.radians(theta_scan1)
@@ -1490,13 +1487,13 @@ class FfdSolutionData(object):
         self.all_qtys["nTheta"] = Ntheta
         pin = np.sum(np.power(np.abs(w), 2))
         self.all_qtys["Pincident"] = pin
-        print(f"Incident Power: {pin}")
+        self._app.logger.info("Incident Power: %s", pin)
         real_gain = 2 * np.pi * np.abs(np.power(self.all_qtys["rETotal"], 2)) / pin / 377
         self.all_qtys["RealizedGain"] = real_gain
         self.all_qtys["RealizedGain_dB"] = 10 * np.log10(real_gain)
         self.max_gain = np.max(10 * np.log10(real_gain))
         self.min_gain = np.min(10 * np.log10(real_gain))
-        print(f"Peak Realized Gain: {self.max_gain} dB")
+        self._app.logger.info("Peak Realized Gain: %s dB", self.max_gain)
         self.all_qtys["Element_Location"] = array_positions
 
         return self.all_qtys
@@ -1537,8 +1534,8 @@ class FfdSolutionData(object):
         sol_setup_name_str = self.setup_name.replace(":", "_")
         path_dict = []
         for frequency in self.frequencies:
-            full_setup_str = f"{sol_setup_name_str}-{self.sphere_name}-{frequency}"
-            export_path = f"{self._app.working_directory}\\{full_setup_str}\\eep\\"
+            full_setup_str = "{}-{}-{}".format(sol_setup_name_str, self.sphere_name, frequency)
+            export_path = "{}\\{}\\eep\\".format(self._app.working_directory, full_setup_str)
             if not os.path.exists(export_path):
                 os.makedirs(export_path)
 
@@ -1585,7 +1582,7 @@ class FfdSolutionData(object):
                             port = port.split(":")[0]
                         path_dict[-1][port] = export_path + "/" + pattern[1] + ".ffd"
         elapsed_time = time.time() - time_before
-        self._app.logger.info(f"Exporting Embedded Element Patterns...Done: {elapsed_time}seconds")
+        self._app.logger.info("Exporting Embedded Element Patterns...Done: %s seconds", elapsed_time)
         return path_dict
 
     @pyaedt_function_handler()
@@ -1800,7 +1797,7 @@ class FfdSolutionData(object):
         ymax = float(bounding_box[4]) - float(bounding_box[1])
         zmax = float(bounding_box[5]) - float(bounding_box[2])
 
-        geo_path = f"{self._app.working_directory}\\geo\\"
+        geo_path = "{}\\geo\\".format(self._app.working_directory)
         if not os.path.exists(geo_path):
             os.makedirs(geo_path)
 
@@ -1820,7 +1817,7 @@ class FfdSolutionData(object):
 
         self.all_max = np.max(np.array([xmax, ymax, zmax]))
         elapsed_time = time.time() - time_before
-        self._app.logger.info(f"Exporting Geometry...Done: {elapsed_time}seconds")
+        self._app.logger.info("Exporting Geometry...Done: %s seconds", elapsed_time)
         return meshes
 
     @pyaedt_function_handler()

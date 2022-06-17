@@ -22,7 +22,7 @@ They are accessible through the ``post`` property:
    AdvancedPostProcessing.PostProcessor
    solutions.SolutionData
    solutions.FieldPlot
-   solutions.FfdData
+   solutions.FfdSolutionData
    AdvancedPostProcessing.ModelPlotter
    report_templates.Trace
    report_templates.LimitLine

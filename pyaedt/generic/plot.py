@@ -6,8 +6,6 @@ import warnings
 from collections import defaultdict
 from datetime import datetime
 
-import numpy
-
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import CSS4_COLORS
@@ -1426,10 +1424,6 @@ class ModelPlotter(object):
                     cmap=field.color_map,
                 )
                 field._cached_polydata["vectors"] = field._cached_polydata["vectors"] / field.vector_scale
-                if self.meshes:
-                    self.meshes += field._cached_polydata["vectors"]
-                else:
-                    self.meshes = field._cached_polydata["vectors"]
             elif self.range_max is not None and self.range_min is not None:
                 field._cached_mesh = self.pv.add_mesh(
                     field._cached_polydata,
@@ -1441,10 +1435,6 @@ class ModelPlotter(object):
                     opacity=field.opacity,
                     show_edges=field.show_edge,
                 )
-                if self.meshes:
-                    self.meshes += field._cached_polydata
-                else:
-                    self.meshes = field._cached_polydata
             else:
                 field._cached_mesh = self.pv.add_mesh(
                     field._cached_polydata,
@@ -1455,10 +1445,6 @@ class ModelPlotter(object):
                     opacity=field.opacity,
                     show_edges=field.show_edge,
                 )
-                if self.meshes:
-                    self.meshes += field._cached_polydata
-                else:
-                    self.meshes = field._cached_polydata
         if self.show_legend:
             self._add_buttons()
 
@@ -1704,6 +1690,12 @@ class ModelPlotter(object):
 
     @pyaedt_function_handler()
     def generate_geometry_mesh(self):
+        """Generate mesh for objects only.
+
+        Returns
+        -------
+        Mesh
+        """
         self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
         self._read_mesh_files()
         if self.array_coordinates:
