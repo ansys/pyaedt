@@ -540,7 +540,7 @@ class Components(object):
         if isinstance(sources, list):  # pragma: no cover
             for src in sources:
                 if not isinstance(src, Source):  # pragma: no cover
-                    self._logger.error("List of Source object must be passed as argument")
+                    self._logger.error("List of source objects must be passed as an argument.")
                     return False
         for source in sources:
             positive_pins = self.get_pin_from_component(source.positive_node.component, source.positive_node.net)
