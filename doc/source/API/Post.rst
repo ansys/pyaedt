@@ -20,8 +20,9 @@ They are accessible through the ``post`` property:
    :nosignatures:
 
    AdvancedPostProcessing.PostProcessor
-   PostProcessor.SolutionData
-   PostProcessor.FieldPlot
+   solutions.SolutionData
+   solutions.FieldPlot
+   solutions.FfdSolutionData
    AdvancedPostProcessing.ModelPlotter
    report_templates.Trace
    report_templates.LimitLine

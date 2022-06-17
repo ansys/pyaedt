@@ -34,6 +34,7 @@ test_circuit_name = "Switching_Speed_FET_And_Diode"
 sbr_file = "poc_scat_small"
 q3d_file = "via_gsg"
 eye_diagram = "SimpleChannel"
+array = "array_simple"
 
 
 class TestClass(BasisTest, object):
@@ -50,6 +51,7 @@ class TestClass(BasisTest, object):
         self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d)
         self.q2dtest = Q2d(projectname=q3d_file)
         self.eye_test = BasisTest.add_app(self, project_name=eye_diagram, application=Circuit)
+        self.array_test = BasisTest.add_app(self, project_name=array)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -289,6 +291,7 @@ class TestClass(BasisTest, object):
         if not is_ironpython:
             assert data.plot(is_polar=True)
             assert data.plot_3d()
+            assert self.field_test.post.create_3d_plot(data)
         self.field_test.modeler.create_polyline([[0, 0, 0], [0, 5, 30]], name="Poly1", non_model=True)
         variations2 = self.field_test.available_variations.nominal_w_values_dict
         variations2["Theta"] = ["All"]
@@ -794,13 +797,6 @@ class TestClass(BasisTest, object):
         assert os.path.exists(self.q3dtest.export_mesh_stats("Setup1", setup_type="AC RL"))
         assert os.path.exists(self.aedtapp.export_mesh_stats("Setup1"))
 
-    def test_62_delete_variations(self):
-        assert self.q3dtest.cleanup_solution()
-        vars = self.field_test.available_variations.get_variation_strings()
-        assert self.field_test.available_variations.variations()
-        assert self.field_test.cleanup_solution(vars, entire_solution=False)
-        assert self.field_test.cleanup_solution(vars, entire_solution=True)
-
     def test_62_eye_diagram(self):
         self.eye_test.analyze_nominal()
         rep = self.eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
@@ -890,3 +886,103 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.post.create_report_from_configuration(
             os.path.join(local_path, "example_models", "report_json", "Modal_Report.json")
         )
+
+    @pytest.mark.skipif(is_ironpython, reason="FarFieldSolution not supported by Ironpython")
+    def test_71_antenna_plot(self):
+        ffdata = self.field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere_name="3D")
+        assert ffdata.plot_farfield_contour(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            title="Contour at {}Hz".format(ffdata.frequency),
+            export_image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
+
+        ffdata.plot_2d_cut(
+            primary_sweep="theta",
+            secondary_sweep_value=[-180, -75, 75],
+            qty_str="RealizedGain",
+            title="Azimuth at {}Hz".format(ffdata.frequency),
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
+        ffdata.plot_2d_cut(
+            primary_sweep="phi",
+            secondary_sweep_value=30,
+            qty_str="RealizedGain",
+            title="Azimuth at {}Hz".format(ffdata.frequency),
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
+        )
+
+        assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
+
+        ffdata.polar_plot_3d(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
+
+        ffdata.polar_plot_3d_pyvista(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            show=False,
+            export_image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
+
+    @pytest.mark.skipif(is_ironpython, reason="FarFieldSolution not supported by Ironpython")
+    def test_72_antenna_plot(self):
+        ffdata = self.array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D")
+        ffdata.frequency = 3.5e9
+        assert ffdata.plot_farfield_contour(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            title="Contour at {}Hz".format(ffdata.frequency),
+            export_image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
+
+        ffdata.plot_2d_cut(
+            primary_sweep="theta",
+            secondary_sweep_value=[-180, -75, 75],
+            qty_str="RealizedGain",
+            title="Azimuth at {}Hz".format(ffdata.frequency),
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
+        ffdata.plot_2d_cut(
+            primary_sweep="phi",
+            secondary_sweep_value=30,
+            qty_str="RealizedGain",
+            title="Azimuth at {}Hz".format(ffdata.frequency),
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
+        )
+
+        assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
+
+        ffdata.polar_plot_3d(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
+
+        ffdata.polar_plot_3d_pyvista(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            show=False,
+            export_image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
+
+    def test_z99_delete_variations(self):
+        assert self.q3dtest.cleanup_solution()
+        vars = self.field_test.available_variations.get_variation_strings()
+        assert self.field_test.available_variations.variations()
+        assert self.field_test.cleanup_solution(vars, entire_solution=False)
+        assert self.field_test.cleanup_solution(vars, entire_solution=True)
