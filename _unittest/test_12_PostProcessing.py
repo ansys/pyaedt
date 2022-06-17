@@ -797,13 +797,6 @@ class TestClass(BasisTest, object):
         assert os.path.exists(self.q3dtest.export_mesh_stats("Setup1", setup_type="AC RL"))
         assert os.path.exists(self.aedtapp.export_mesh_stats("Setup1"))
 
-    def test_62_delete_variations(self):
-        assert self.q3dtest.cleanup_solution()
-        vars = self.field_test.available_variations.get_variation_strings()
-        assert self.field_test.available_variations.variations()
-        assert self.field_test.cleanup_solution(vars, entire_solution=False)
-        assert self.field_test.cleanup_solution(vars, entire_solution=True)
-
     def test_62_eye_diagram(self):
         self.eye_test.analyze_nominal()
         rep = self.eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
@@ -986,3 +979,10 @@ class TestClass(BasisTest, object):
             export_image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
+
+    def test_z99_delete_variations(self):
+        assert self.q3dtest.cleanup_solution()
+        vars = self.field_test.available_variations.get_variation_strings()
+        assert self.field_test.available_variations.variations()
+        assert self.field_test.cleanup_solution(vars, entire_solution=False)
+        assert self.field_test.cleanup_solution(vars, entire_solution=True)
