@@ -306,15 +306,6 @@ class TestClass(BasisTest, object):
             context="Poly1",
             report_category="Fields",
         )
-        data = self.field_test.post.get_solution_data(
-            "Mag_E",
-            self.field_test.nominal_adaptive,
-            variations=variations2,
-            primary_sweep_variable="Theta",
-            context="Poly1",
-            report_category="Fields",
-        )
-        assert data.units_sweeps["Phase"] == "deg"
         new_report = self.field_test.post.reports_by_category.fields("Mag_H", self.field_test.nominal_adaptive)
         new_report.variations = variations2
         new_report.polyline = "Poly1"
@@ -331,6 +322,15 @@ class TestClass(BasisTest, object):
         new_report = self.field_test.post.reports_by_category.modal_solution("S(1,1)")
         new_report.plot_type = "Smith Chart"
         assert new_report.create()
+        data = self.field_test.post.get_solution_data(
+            "Mag_E",
+            self.field_test.nominal_adaptive,
+            variations=variations2,
+            primary_sweep_variable="Theta",
+            context="Poly1",
+            report_category="Fields",
+        )
+        assert data.units_sweeps["Phase"] == "deg"
         pass
 
     def test_09b_export_report(self):  # pragma: no cover
