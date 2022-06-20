@@ -501,7 +501,6 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not working on AEDT 22R1")
     def test_40_test_flex(self):
         assert self.flex.enable_rigid_flex()
-        assert not self.flex.enable_rigid_flex()
         pass
 
     @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
