@@ -306,6 +306,15 @@ class TestClass(BasisTest, object):
             context="Poly1",
             report_category="Fields",
         )
+        data = self.field_test.post.get_solution_data(
+            "Mag_E",
+            self.field_test.nominal_adaptive,
+            variations=variations2,
+            primary_sweep_variable="Theta",
+            context="Poly1",
+            report_category="Fields",
+        )
+        assert data.units_sweeps["Phase"] == "deg"
         new_report = self.field_test.post.reports_by_category.fields("Mag_H", self.field_test.nominal_adaptive)
         new_report.variations = variations2
         new_report.polyline = "Poly1"
@@ -615,7 +624,7 @@ class TestClass(BasisTest, object):
         data2 = self.circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Time")
         assert data2.primary_sweep == "Time"
         assert data2.data_magnitude()
-        context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "200ns", "time_start": "0ps"}
+        context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "200ns", "test": ""}
         data3 = self.circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Spectral", context=context)
         assert data3.units_sweeps["Spectrum"] == "GHz"
         assert data3.data_real()
