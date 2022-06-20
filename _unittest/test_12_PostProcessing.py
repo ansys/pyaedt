@@ -999,7 +999,7 @@ class TestClass(BasisTest, object):
             title="Contour at {}Hz".format(ffdata1.frequency),
             export_image_path=os.path.join(self.local_scratch.path, "contour1.jpg"),
         )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
+        assert os.path.exists(os.path.join(self.local_scratch.path, "contour1.jpg"))
 
     def test_z99_delete_variations(self):
         assert self.q3dtest.cleanup_solution()
