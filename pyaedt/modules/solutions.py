@@ -60,6 +60,11 @@ class SolutionData(object):
             self._primary_sweep = self._sweeps_names[0]
         self.active_variation = self.variations[0]
         self.units_sweeps = {}
+        for intrinsic in self.intrinsics:
+            try:
+                self.units_sweeps[intrinsic] = self.nominal_variation.GetSweepUnits(intrinsic)
+            except:
+                self.units_sweeps[intrinsic] = None
         self._init_solutions_data()
         self._ifft = None
 

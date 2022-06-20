@@ -322,6 +322,15 @@ class TestClass(BasisTest, object):
         new_report = self.field_test.post.reports_by_category.modal_solution("S(1,1)")
         new_report.plot_type = "Smith Chart"
         assert new_report.create()
+        data = self.field_test.post.get_solution_data(
+            "Mag_E",
+            self.field_test.nominal_adaptive,
+            variations=variations2,
+            primary_sweep_variable="Theta",
+            context="Poly1",
+            report_category="Fields",
+        )
+        assert data.units_sweeps["Phase"] == "deg"
         pass
 
     def test_09b_export_report(self):  # pragma: no cover
@@ -615,6 +624,10 @@ class TestClass(BasisTest, object):
         data2 = self.circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Time")
         assert data2.primary_sweep == "Time"
         assert data2.data_magnitude()
+        context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "200ns", "test": ""}
+        data3 = self.circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Spectral", context=context)
+        assert data3.units_sweeps["Spectrum"] == "GHz"
+        assert data3.data_real()
         new_report = self.circuit_test.post.reports_by_category.spectral(["dB(V(net_11))"], "Transient")
         new_report.window = "Hanning"
         new_report.max_freq = "1GHz"
