@@ -862,13 +862,13 @@ class TestClass(BasisTest, object):
         local_path = os.path.dirname(os.path.realpath(__file__))
         self.circuit_test.analyze_setup("Transient")
         assert self.circuit_test.post.create_report_from_configuration(
-            os.path.join(local_path, "example_models", "report_json", "Spectral_Report_simple.json"),
+            os.path.join(local_path, "example_models", "report_json", "Spectral_Report_Simple.json"),
             solution_name="Transient",
         )
 
     def test_67_sweep_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
-        dict_vals = json_to_dict(os.path.join(local_path, "example_models", "report_json", "Modal_Report_simple.json"))
+        dict_vals = json_to_dict(os.path.join(local_path, "example_models", "report_json", "Modal_Report_Simple.json"))
         assert self.aedtapp.post.create_report_from_configuration(input_dict=dict_vals)
 
     @pytest.mark.skipif(
