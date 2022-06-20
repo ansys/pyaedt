@@ -338,6 +338,15 @@ AEDT_UNITS = {
         "kA_per_m": 1e3,
         "megA_per_m": 1e6,
         "gA_per_m": 1e9,
+        "fA_per_meter": 1e-15,
+        "pA_per_meter": 1e-12,
+        "nA_per_meter": 1e-9,
+        "uA_per_meter": 1e-6,
+        "mA_per_meter": 1e-3,
+        "A_per_meter": 1.0,
+        "kA_per_meter": 1e3,
+        "megA_per_meter": 1e6,
+        "gA_per_meter": 1e9,
     },
 }
 SI_UNITS = {
@@ -354,13 +363,14 @@ SI_UNITS = {
     "Mass": "kg",
     "None": "",
     "Resistance": "ohm",
+    "Speed": "m_per_sec",
     "Time": "s",
     "Torque": "NewtonMeter",
     "Voltage": "V",
     "Temperature": "kel",
     "Power": "W",
     "B-field": "tesla",
-    "H-field": "A_per_m",
+    "H-field": "A_per_meter",
 }
 UNIT_SYSTEM_OPERATIONS = {
     # Multiplication of physical domains
@@ -514,7 +524,7 @@ class FlipChipOrientation(object):
 class SolverType(object):
     """Provides solver type classes."""
 
-    (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout) = range(0, 7)
+    (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout, SiwaveSYZ, SiwaveDC) = range(0, 9)
 
 
 class CutoutSubdesignType(object):
@@ -531,6 +541,12 @@ class SweepType(object):
 
 class BasisOrder(object):
     (Mixed, Zero, single, Double) = range(0, 4)
+
+
+class NodeType(object):
+    """Type of node for source creation."""
+
+    (Positive, Negative, Floating) = range(0, 3)
 
 
 class SourceType(object):

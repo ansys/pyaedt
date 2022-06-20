@@ -963,7 +963,7 @@ class CommonReport(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.SolutionData`
+        :class:`pyaedt.modules.solutions.SolutionData`
             `Solution Data object.
         """
         solution_data = self._post.get_solution_data_per_variation(
@@ -2521,7 +2521,7 @@ class Spectral(CommonReport):
         self.window = "Rectangular"
         self.kaiser_coeff = 0
         self.adjust_coherent_gain = True
-        self.max_freq = "10MHz"
+        self.max_frequency = "10MHz"
         self.plot_continous_spectrum = False
         self.primary_sweep = "Spectrum"
 
@@ -2669,7 +2669,7 @@ class Spectral(CommonReport):
                 it,
                 "MF",
                 False,
-                self.max_freq,
+                self.max_frequency,
                 "NUMLEVELS",
                 False,
                 "0",
