@@ -992,6 +992,14 @@ class TestClass(BasisTest, object):
             export_image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
+        ffdata1 = self.array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D", overwrite=False)
+        assert ffdata1.plot_farfield_contour(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            title="Contour at {}Hz".format(ffdata1.frequency),
+            export_image_path=os.path.join(self.local_scratch.path, "contour1.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "contour1.jpg"))
 
     def test_z99_delete_variations(self):
         assert self.q3dtest.cleanup_solution()

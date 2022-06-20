@@ -1551,9 +1551,9 @@ class FfdSolutionData(object):
 
             file_exists = os.path.exists(export_path + exported_name_base + ".txt")
             path_dict.append({})
+            time_before = time.time()
             if self.overwrite or not file_exists:
                 self._app.logger.info("Exporting Embedded Element Patterns...")
-                time_before = time.time()
                 var = []
                 if self.variations:
                     for k, v in self.variations.items():
