@@ -6,6 +6,7 @@ from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.EDB_Data import Source
+from pyaedt.generic.constants import RadiationBoxType
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SourceType
 
@@ -1611,3 +1612,16 @@ if not config["skip_edb"]:
 
             sim_config = SimulationConfiguration(cfg_file)
             assert self.edbapp.build_simulation_project(sim_config)
+
+        def test_106_set_bounding_box_extent(self):
+            source_path = os.path.join(local_path, "example_models", "test_106.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_106.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            edb = Edb(target_path)
+            initial_extent_info = edb.active_cell.GetHFSSExtentInfo()
+            assert initial_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.Conforming
+            config = SimulationConfiguration()
+            config.radiation_box = RadiationBoxType.BoundingBox
+            assert edb.core_hfss.configure_hfss_extents(config)
+            final_extent_info = edb.active_cell.GetHFSSExtentInfo()
+            assert final_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.BoundingBox

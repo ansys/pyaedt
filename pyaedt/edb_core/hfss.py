@@ -868,7 +868,8 @@ class EdbHfss(object):
         hfss_extent.HonorUserDielectric = simulation_setup.honor_user_dielectric
         hfss_extent.TruncateAirBoxAtGround = simulation_setup.truncate_airbox_at_ground
         hfss_extent.UseOpenRegion = simulation_setup.use_radiation_boundary
-        return self._active_layout.GetCell().SetHFSSExtentInfo(hfss_extent)
+        self._active_layout.GetCell().SetHFSSExtentInfo(hfss_extent)  # returns void
+        return True
 
     @pyaedt_function_handler()
     def configure_hfss_analysis_setup(self, simulation_setup=None):
