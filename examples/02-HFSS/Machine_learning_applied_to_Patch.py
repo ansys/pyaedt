@@ -108,7 +108,7 @@ print("Its length is: " + str(len(dictionary_list)))
 ###############################################################################
 # Now, the HFSS design will be generated using the PyAEDT Stackup3D function.
 # Open an Hfss Design and create the stackup, add the different layers, add the patch.
-# In Stackup Library, the most of things are already parametrized like the layers and the patch.
+# In Stackup Library, most things are already parameterized like the layers and the patch.
 desktopVersion = "2022.1"
 
 hfss = Hfss(new_desktop_session=True, solution_type="Terminal", non_graphical=non_graphical,
