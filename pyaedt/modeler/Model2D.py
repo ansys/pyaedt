@@ -156,7 +156,7 @@ class Modeler2D(GeometryModeler, Primitives2D):
         list of :class:`pyaedt.modeler.Object3d`
         """
 
-        if len(bounding_box) not in [4, 6]:
+        if len(bounding_box) != 4 and len(bounding_box) != 6:
             raise ValueError("Bounding box must be a list of 4 or 6 elements.")
 
         if len(bounding_box) == 4:
