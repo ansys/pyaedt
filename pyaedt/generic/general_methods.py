@@ -30,7 +30,10 @@ except:
 is_remote_server = os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in ("true", "1", "t")
 
 if not is_ironpython:
-    import psutil
+    try:
+        import psutil
+    except ImportError:  # pragma: no cover
+        pass  # pragma: no cover
 
 
 class MethodNotSupportedError(Exception):

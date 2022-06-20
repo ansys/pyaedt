@@ -15,9 +15,11 @@ In addition to the runtime dependencies listed in the installation information, 
 
 Installing on CPython v3.7-v3.9 from pypi
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Install the prerequisite packages ``pythonnet`` and ``pywin32`` with:
+To install all the additional packages that extend PyAEDT, install using ``pip`` with::
 
-.. code:: python
+    pip install pyaedt[all]
+
+Install only with COM and GRPC interfaces with::
 
     pip install pyaedt
 
