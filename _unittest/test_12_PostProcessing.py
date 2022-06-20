@@ -617,7 +617,7 @@ class TestClass(BasisTest, object):
         assert data2.data_magnitude()
         context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "200ns", "time_start": "0ps"}
         data3 = self.circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Spectral", context=context)
-        assert data3.units_sweeps["Freq"] == "MHz"
+        assert data3.units_sweeps["Spectrum"] == "GHz"
         assert data3.data_real()
         new_report = self.circuit_test.post.reports_by_category.spectral(["dB(V(net_11))"], "Transient")
         new_report.window = "Hanning"
