@@ -1,14 +1,17 @@
 import os
 from collections import OrderedDict
 
-try:
-    import joblib
-except ImportError:
-    pass
-try:
-    import numpy as np
-except ImportError:
-    pass
+from pyaedt import is_ironpython
+
+if not is_ironpython:
+    try:
+        import joblib
+    except ImportError:
+        pass
+    try:
+        import numpy as np
+    except ImportError:
+        pass
 
 from pyaedt import constants
 from pyaedt.generic.general_methods import generate_unique_name
