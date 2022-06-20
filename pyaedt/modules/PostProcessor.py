@@ -1517,9 +1517,10 @@ class PostProcessorCommon(object):
             The report category will be in this case "Far Fields".
             Depending on the setup different categories are available.
             If `None` default category will be used (the first item in the Results drop down menu in AEDT).
-        context : str, optional
+        context : str, dict, optional
             The default is ``None``. It can be `None`, `"Differential Pairs"` or
             Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
+            If dictionary is passed, key is the report property name and value is property value.
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
@@ -1572,6 +1573,13 @@ class PostProcessorCommon(object):
         ... )
         >>> data3.plot("InputCurrent(PHA)")
 
+        >>> from pyaedt import Circuit
+        >>> circuit = Circuit()
+        >>> context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "2.5us", "time_start": "0ps"}
+        >>> spectralPlotData = circuit.post.get_solution_data(
+        ...     expressions="V(Vprobe1)", primary_sweep_variable="Spectrum", domain="Spectral",
+        ...     context=context
+        ...)
         """
         if domain in ["Spectral", "Spectrum"]:
             report_category = "Spectrum"
@@ -1608,11 +1616,17 @@ class PostProcessorCommon(object):
                 report.far_field_sphere = context
         elif report_category == "Near Fields":
             report.near_field = context
+        elif context and isinstance(context, dict):
+            for attribute in context:
+                if hasattr(report, attribute):
+                    report.__setattr__(attribute, context[attribute])
+                else:
+                    self.logger.warning("Parameter " + attribute + " is not available, check syntax.")
         elif context:
-            if context in self.modeler.line_names:
+            if hasattr(self.modeler, "lines_names") and context in self.modeler.line_names:
                 report.polyline = context
-
-        return report.get_solution_data()
+        solution_data = report.get_solution_data()
+        return solution_data
 
     @pyaedt_function_handler()
     def create_report_from_configuration(self, input_file=None, input_dict=None, solution_name=None):
