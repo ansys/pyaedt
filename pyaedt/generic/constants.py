@@ -181,6 +181,24 @@ def scale_units(scale_to_unit):
     return sunit
 
 
+def validate_enum_class_value(cls, value):
+    """Return bool whether value is a valid value for enumeration-class cls.
+
+    Parameters
+    ----------
+    cls : class
+        Enumeration-style class with integer members in range(0, N) where cls.Invalid equals N-1.
+    value : int
+        value to check
+
+    Returns
+    -------
+    bool
+        Whether value is a valid value for enumeration class cls.
+    """
+    return isinstance(value, int) and value >= 0 and value < cls.Invalid
+
+
 AEDT_UNITS = {
     "AngularSpeed": {
         "deg_per_hr": HOUR2SEC * DEG2RAD,
@@ -528,19 +546,19 @@ class SolverType(object):
 
 
 class CutoutSubdesignType(object):
-    (Conformal, BoundingBox) = range(0, 2)
+    (Conformal, BoundingBox, Invalid) = range(0, 3)
 
 
 class RadiationBoxType(object):
-    (Conformal, BoundingBox, ConvexHull) = range(0, 3)
+    (Conformal, BoundingBox, ConvexHull, Invalid) = range(0, 4)
 
 
 class SweepType(object):
-    (Linear, LogCount) = range(0, 2)
+    (Linear, LogCount, Invalid) = range(0, 3)
 
 
 class BasisOrder(object):
-    (Mixed, Zero, single, Double) = range(0, 4)
+    (Mixed, Zero, single, Double, Invalid) = range(0, 5)
 
 
 class NodeType(object):

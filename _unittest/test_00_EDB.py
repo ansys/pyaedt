@@ -1613,9 +1613,9 @@ if not config["skip_edb"]:
             sim_config = SimulationConfiguration(cfg_file)
             assert self.edbapp.build_simulation_project(sim_config)
 
-        def test_106_set_bounding_box_extent(self):
-            source_path = os.path.join(local_path, "example_models", "test_106.aedb")
-            target_path = os.path.join(self.local_scratch.path, "test_106.aedb")
+        def test_107_set_bounding_box_extent(self):
+            source_path = os.path.join(local_path, "example_models", "test_107.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_107.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
             edb = Edb(target_path)
             initial_extent_info = edb.active_cell.GetHFSSExtentInfo()
