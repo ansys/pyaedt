@@ -22,6 +22,12 @@ from sklearn.svm import SVR
 from pyaedt import Hfss
 from pyaedt.modeler.stackup_3d import Stackup3D
 
+##########################################################
+# Set Non Graphical Mode.
+# Default is False
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
 ###############################################################################
 # Generation of a database.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -102,9 +108,11 @@ print("Its length is: " + str(len(dictionary_list)))
 ###############################################################################
 # Now, the HFSS design will be generated using the PyAEDT Stackup3D function.
 # Open an Hfss Design and create the stackup, add the different layers, add the patch.
-# In Stackup Library, the most of things are already parametrized like the layers and the patch.
+# In Stackup Library, most things are already parameterized like the layers and the patch.
+desktopVersion = "2022.1"
 
-hfss = Hfss(new_desktop_session=True, solution_type="Terminal", non_graphical=False)
+hfss = Hfss(new_desktop_session=True, solution_type="Terminal", non_graphical=non_graphical,
+            specified_version=desktopVersion)
 
 stackup = Stackup3D(hfss)
 ground = stackup.add_ground_layer("ground", material="copper", thickness=0.035, fill_material="air")
@@ -380,7 +388,7 @@ joblib.dump(regression, model_file)
 # So we can load the model in another python file and predict different cases.
 # But here, we load the correct model with C=5e4 rather than the one made in this example.
 
-model_path = os.path.join(path_folder, "pyaedt", "misc", "patch_svr_model_100MHz_1GHz.joblib")
+model_path = os.path.join(path_folder, "misc", "patch_svr_model_100MHz_1GHz.joblib")
 regression = joblib.load(model_path)
 
 ###############################################################################
@@ -488,4 +496,4 @@ print("average is : " + str(average_relative_gap))
 ###############################################################################
 # Release the desktop.
 
-hfss.release_desktop(close_projects=False, close_desktop=False)
+hfss.release_desktop()
