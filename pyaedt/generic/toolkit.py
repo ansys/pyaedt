@@ -121,7 +121,6 @@ from System.Drawing import Size, Point
 
 from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption, BitmapCreateOptions
 from System import Uri, UriKind, Environment
-from System.Windows.Media.Imaging import BitmapImage
 
 
 @pyaedt_function_handler()
@@ -200,6 +199,7 @@ def copy_files_mkdir(root, files_in_subdir):
     Returns
     -------
     bool
+        ``True`` when successful, ``False`` when failed.
     """
     if not os.path.exists(root):
         os.mkdir(root)
