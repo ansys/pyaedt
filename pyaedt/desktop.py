@@ -639,7 +639,7 @@ class Desktop:
 
         launch_msg = "AEDT installation Path {}".format(base_path)
         self.logger.info(launch_msg)
-        self.logger.info("Launching AEDT with PyDesktopPlugin.")
+        self.logger.info("Launching AEDT with GRPC Plugin.")
         if (
             not self.port
             and not new_aedt_session
@@ -692,7 +692,7 @@ class Desktop:
                 self.logger.info("{} Started with process ID {}.".format(version, _proc))
 
         else:
-            self.logger.warning("PyDesktopPlugin is not supported in AEDT versions older than 2022.2.")
+            self.logger.warning("GRPC Plugin is not supported in AEDT versions older than 2022.2.")
 
     def _set_logger_file(self):
         # Set up the log file in the AEDT project directory
