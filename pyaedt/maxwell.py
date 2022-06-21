@@ -239,7 +239,7 @@ class Maxwell(object):
                 self.logger.info("Infinite is the only return path option in EddyCurrent")
                 return_path = ["infinite"] * len(sources)
 
-        if not self.solution_type in ["Transient", "ElectricTransient"]:
+        if self.solution_type not in ["Transient", "ElectricTransient"]:
             if not matrix_name:
                 matrix_name = generate_unique_name("Matrix")
             if not turns or len(sources) != len(self.modeler.convert_to_selections(turns, True)):
