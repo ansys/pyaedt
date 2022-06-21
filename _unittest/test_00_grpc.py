@@ -13,7 +13,7 @@ from pyaedt import settings
 
 test_project_name = "Coax_HFSS"
 
-if not is_ironpython and config["desktopVersion"] >= "2023.1":
+if not is_ironpython and config["desktopVersion"] >= "2022.2":
 
     class TestClass(BasisTest, object):
         def setup_class(self):

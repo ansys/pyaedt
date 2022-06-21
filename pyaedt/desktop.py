@@ -170,18 +170,17 @@ def release_desktop(close_projects=True, close_desktop=True):
             for project in projects:
                 desktop.CloseProject(project)
         pid = _main.oDesktop.GetProcessID()
-        if _com != "pythonnet_v3":
-            if settings.aedt_version >= "2022.2" and settings.use_grpc_api:
-                import ScriptEnv
+        if settings.aedt_version >= "2022.2" and settings.use_grpc_api and not is_ironpython:
+            import ScriptEnv
 
-                ScriptEnv.Release()
-            elif not inside_desktop:
-                i = 0
-                scopeID = 5
-                while i <= scopeID:
-                    _main.COMUtil.ReleaseCOMObjectScope(_main.COMUtil.PInvokeProxyAPI, i)
-                    i += 1
-            _delete_objects()
+            ScriptEnv.Release()
+        elif not inside_desktop:
+            i = 0
+            scopeID = 5
+            while i <= scopeID:
+                _main.COMUtil.ReleaseCOMObjectScope(_main.COMUtil.PInvokeProxyAPI, i)
+                i += 1
+        _delete_objects()
 
         if close_desktop:
             try:
