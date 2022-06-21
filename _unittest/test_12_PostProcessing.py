@@ -416,7 +416,8 @@ class TestClass(BasisTest, object):
         assert new_report.add_cartesian_y_marker("-55")
 
     @pytest.mark.skipif(
-        config["NonGraphical"], reason="Skipped because it cannot run on build machine in non-graphical mode"
+        config["desktopVersion"] < "2022.2",
+        reason="Skipped because it cannot run on build machine in non-graphical mode",
     )
     def test_09e_add_line_from_point(self):  # pragma: no cover
         assert self.aedtapp.post.create_report("dB(S(1,1))")
