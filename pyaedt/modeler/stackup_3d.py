@@ -2302,12 +2302,12 @@ class Trace(CommonObject, object):
             Variable Object.
         """
         # "(substrat_permittivity + 1)/2 +
-        # (substrat_permittivity - 1)/(2 * sqrt(1 + 10 * substrate_thickness/patch_width))"
+        # (substrat_permittivity - 1)/(2 * sqrt(1 + 12 * substrate_thickness/patch_width))"
         er = self._permittivity.name
         h = self._substrate_thickness.name
         w = self._width.name
         patch_eff_permittivity_formula = (
-            "(" + er + " + 1)/2 + (" + er + " - 1)/(2 * sqrt(1 + 10 * " + h + "/" + w + "))"
+            "(" + er + " + 1)/2 + (" + er + " - 1)/(2 * sqrt(1 + 12 * " + h + "/" + w + "))"
         )
         self._effective_permittivity = NamedVariable(
             self.application, self._name + "_eff_permittivity", patch_eff_permittivity_formula
