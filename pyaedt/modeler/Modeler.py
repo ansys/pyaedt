@@ -2587,7 +2587,7 @@ class GeometryModeler(Modeler, object):
         vArg2.append("YComponent:="), vArg2.append(Ypos)
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
         vArg2.append("Numclones:="), vArg2.append(str(nclones))
-        vArg3 = ["NAME:Options", "DuplicateBoundaries:=", "true"]
+        vArg3 = ["NAME:Options", "DuplicateBoundaries:=", True]
         if is_3d_comp:
             orig_3d = [i for i in self.components_3d_names]
         added_objs = self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
