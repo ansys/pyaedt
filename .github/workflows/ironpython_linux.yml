@@ -31,7 +31,7 @@ jobs:
         run: |
           export DISPLAY="127.0.0.1:1"
           chmod 777 _unittest_ironpython/run_unittests_batchmode_linux.cmd
-          timeout -k 2400s 2400s ./_unittest_ironpython/run_unittests_batchmode_linux.cmd
+          timeout -k 3600s 3600s ./_unittest_ironpython/run_unittests_batchmode_linux.cmd
           if [ $? -eq 124 ] ; then
             echo "ERROR: Timeout while waiting for the file _unittest_ironpython/tests_succeeded.log."
             exit 1
