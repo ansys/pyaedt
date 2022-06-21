@@ -167,3 +167,6 @@ class TestClass(BasisTest, object):
             with pytest.raises(ValueError):
                 bounding_box = [3, 4, 5]
                 self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
+            with pytest.raises(ValueError):
+                bounding_box_5_elements = [1, 2, 3, 4, 5]
+                self.aedtapp.modeler.objects_in_bounding_box(bounding_box_5_elements)

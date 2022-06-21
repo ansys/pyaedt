@@ -1489,9 +1489,9 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.AssignEMLoss
         """
-        if surface_objects == None:
+        if surface_objects is None:
             surface_objects = []
-        if object_list == None:
+        if object_list is None:
             object_list = []
 
         self.logger.info("Mapping HFSS EM losses.")

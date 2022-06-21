@@ -60,6 +60,11 @@ class SolutionData(object):
             self._primary_sweep = self._sweeps_names[0]
         self.active_variation = self.variations[0]
         self.units_sweeps = {}
+        for intrinsic in self.intrinsics:
+            try:
+                self.units_sweeps[intrinsic] = self.nominal_variation.GetSweepUnits(intrinsic)
+            except:
+                self.units_sweeps[intrinsic] = None
         self._init_solutions_data()
         self._ifft = None
 
@@ -1546,9 +1551,9 @@ class FfdSolutionData(object):
 
             file_exists = os.path.exists(export_path + exported_name_base + ".txt")
             path_dict.append({})
+            time_before = time.time()
             if self.overwrite or not file_exists:
                 self._app.logger.info("Exporting Embedded Element Patterns...")
-                time_before = time.time()
                 var = []
                 if self.variations:
                     for k, v in self.variations.items():

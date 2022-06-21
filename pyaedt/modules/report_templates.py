@@ -1998,11 +1998,11 @@ class FarField(CommonReport):
         self.domain = "Sweep"
         self.primary_sweep = "Phi"
         self.secondary_sweep = "Theta"
-        if not "Phi" in self.variations:
+        if "Phi" not in self.variations:
             self.variations["Phi"] = ["All"]
-        if not "Theta" in self.variations:
+        if "Theta" not in self.variations:
             self.variations["Theta"] = ["All"]
-        if not "Freq" in self.variations:
+        if "Freq" not in self.variations:
             self.variations["Freq"] = ["Nominal"]
 
     @property
@@ -2521,7 +2521,7 @@ class Spectral(CommonReport):
         self.window = "Rectangular"
         self.kaiser_coeff = 0
         self.adjust_coherent_gain = True
-        self.max_freq = "10MHz"
+        self.max_frequency = "10MHz"
         self.plot_continous_spectrum = False
         self.primary_sweep = "Spectrum"
 
@@ -2669,7 +2669,7 @@ class Spectral(CommonReport):
                 it,
                 "MF",
                 False,
-                self.max_freq,
+                self.max_frequency,
                 "NUMLEVELS",
                 False,
                 "0",

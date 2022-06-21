@@ -1191,7 +1191,6 @@ class ModelPlotter(object):
                         field.is_vector = False
                     field.log = log1
                 else:
-                    points = []
                     nodes = []
                     values = []
                     is_vector = False
