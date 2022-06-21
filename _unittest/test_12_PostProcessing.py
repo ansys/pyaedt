@@ -420,15 +420,14 @@ class TestClass(BasisTest, object):
         reason="Skipped because it cannot run on build machine in non-graphical mode",
     )
     def test_09e_add_line_from_point(self):  # pragma: no cover
-        assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
+        assert new_report.create()
         assert new_report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
     def test_09f_add_line_from_equation(self):
-        assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
         assert new_report.add_limit_line_from_equation(start_x=1, stop_x=20, step=0.5, units="GHz")
