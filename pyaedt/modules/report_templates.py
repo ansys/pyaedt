@@ -1998,11 +1998,11 @@ class FarField(CommonReport):
         self.domain = "Sweep"
         self.primary_sweep = "Phi"
         self.secondary_sweep = "Theta"
-        if not "Phi" in self.variations:
+        if "Phi" not in self.variations:
             self.variations["Phi"] = ["All"]
-        if not "Theta" in self.variations:
+        if "Theta" not in self.variations:
             self.variations["Theta"] = ["All"]
-        if not "Freq" in self.variations:
+        if "Freq" not in self.variations:
             self.variations["Freq"] = ["Nominal"]
 
     @property
