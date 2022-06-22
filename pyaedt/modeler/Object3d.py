@@ -2607,7 +2607,7 @@ class Object3d(object):
         Parameters
         ----------
         area : float
-            Value of the area to filter.
+            Value of the area to filter in model units.
         area_filter : str, optional
             Comparer symbol.
             Default value is "==".

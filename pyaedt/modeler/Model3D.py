@@ -478,7 +478,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         Parameters
         ----------
         bounding_box : list.
-            List of coordinates of bounding box.
+            List of coordinates of bounding box vertices.
         check_solids : bool, optional.
             Check solid objects.
         check_lines : bool, optional.
