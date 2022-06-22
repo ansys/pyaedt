@@ -170,18 +170,17 @@ def release_desktop(close_projects=True, close_desktop=True):
             for project in projects:
                 desktop.CloseProject(project)
         pid = _main.oDesktop.GetProcessID()
-        if _com != "pythonnet_v3":
-            if settings.aedt_version >= "2022.2" and settings.use_grpc_api:
-                import ScriptEnv
+        if settings.aedt_version >= "2022.2" and settings.use_grpc_api and not is_ironpython:
+            import ScriptEnv
 
-                ScriptEnv.Release()
-            elif not inside_desktop:
-                i = 0
-                scopeID = 5
-                while i <= scopeID:
-                    _main.COMUtil.ReleaseCOMObjectScope(_main.COMUtil.PInvokeProxyAPI, i)
-                    i += 1
-            _delete_objects()
+            ScriptEnv.Release()
+        elif not inside_desktop:
+            i = 0
+            scopeID = 5
+            while i <= scopeID:
+                _main.COMUtil.ReleaseCOMObjectScope(_main.COMUtil.PInvokeProxyAPI, i)
+                i += 1
+        _delete_objects()
 
         if close_desktop:
             try:
@@ -640,7 +639,7 @@ class Desktop:
 
         launch_msg = "AEDT installation Path {}".format(base_path)
         self.logger.info(launch_msg)
-        self.logger.info("Launching AEDT with PyDesktopPlugin.")
+        self.logger.info("Launching AEDT with GRPC Plugin.")
         if (
             not self.port
             and not new_aedt_session
@@ -693,7 +692,7 @@ class Desktop:
                 self.logger.info("{} Started with process ID {}.".format(version, _proc))
 
         else:
-            self.logger.warning("PyDesktopPlugin is not supported in AEDT versions older than 2022.2.")
+            self.logger.warning("GRPC Plugin is not supported in AEDT versions older than 2022.2.")
 
     def _set_logger_file(self):
         # Set up the log file in the AEDT project directory

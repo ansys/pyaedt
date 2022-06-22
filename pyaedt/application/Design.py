@@ -3281,7 +3281,7 @@ class Design(AedtObjects, object):
             else:
                 var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
         if var_obj:
-            if is_ironpython:  # pragma: no cover
+            if is_ironpython or settings.use_grpc_api:  # pragma: no cover
                 val = var_obj.Get_SIValue()
             else:
                 val = var_obj.Get_SIValue

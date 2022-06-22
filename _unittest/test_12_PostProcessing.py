@@ -416,18 +416,18 @@ class TestClass(BasisTest, object):
         assert new_report.add_cartesian_y_marker("-55")
 
     @pytest.mark.skipif(
-        config["NonGraphical"], reason="Skipped because it cannot run on build machine in non-graphical mode"
+        config["desktopVersion"] < "2022.2",
+        reason="Skipped because it cannot run on build machine in non-graphical mode",
     )
     def test_09e_add_line_from_point(self):  # pragma: no cover
-        assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
+        assert new_report.create()
         assert new_report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
     def test_09f_add_line_from_equation(self):
-        assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
         assert new_report.add_limit_line_from_equation(start_x=1, stop_x=20, step=0.5, units="GHz")
@@ -862,13 +862,13 @@ class TestClass(BasisTest, object):
         local_path = os.path.dirname(os.path.realpath(__file__))
         self.circuit_test.analyze_setup("Transient")
         assert self.circuit_test.post.create_report_from_configuration(
-            os.path.join(local_path, "example_models", "report_json", "Spectral_Report_simple.json"),
+            os.path.join(local_path, "example_models", "report_json", "Spectral_Report_Simple.json"),
             solution_name="Transient",
         )
 
     def test_67_sweep_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
-        dict_vals = json_to_dict(os.path.join(local_path, "example_models", "report_json", "Modal_Report_simple.json"))
+        dict_vals = json_to_dict(os.path.join(local_path, "example_models", "report_json", "Modal_Report_Simple.json"))
         assert self.aedtapp.post.create_report_from_configuration(input_dict=dict_vals)
 
     @pytest.mark.skipif(

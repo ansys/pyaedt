@@ -1570,7 +1570,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         bool
             `True` if bend is enabled `False` if bend is disabled.
+             In Non-graphical it returns always True due to bug in native API.
         """
         if settings.aedt_version >= "2022.2":
             self.modeler.oeditor.ProcessBentModelCmd()
+        if settings.non_graphical:
+            return True
         return True if self.variable_manager["BendModel"].expression == "1" else False

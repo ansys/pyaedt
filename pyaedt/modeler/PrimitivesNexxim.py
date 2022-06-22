@@ -82,7 +82,7 @@ class NexximComponents(CircuitComponents):
         return self._components_catalog
 
     @pyaedt_function_handler()
-    def create_subcircuit(self, location=None, angle=0, name=None, nested_subcircuit_id=None):
+    def create_subcircuit(self, location=None, angle=None, name=None, nested_subcircuit_id=None):
         """Add a new Circuit subcircuit to the design.
 
         Parameters
@@ -90,7 +90,7 @@ class NexximComponents(CircuitComponents):
         location : list of float, optional
             Position on the X axis and Y axis.
         angle : float, optional
-            Angle rotation in degrees. The default is ``0``.
+            Angle rotation in degrees. The default is ``None``.
         name : str, optional
             Name of the design. The default is ``None``, in which case
             a unique name is generated.
