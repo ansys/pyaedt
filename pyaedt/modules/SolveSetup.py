@@ -1376,7 +1376,7 @@ class Setup3DLayout(object):
 
     @property
     def is_solved(self):
-        """Verify if solutions are available for given setup.
+        """Verify if solutions are available for a given setup.
 
         Returns
         -------
