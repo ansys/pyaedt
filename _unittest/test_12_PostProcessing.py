@@ -57,9 +57,9 @@ class TestClass(BasisTest, object):
         BasisTest.my_teardown(self)
 
     def test_01B_Field_Plot(self):
-        assert len(self.aedtapp.post.available_display_types) > 0
+        assert len(self.aedtapp.post.available_display_types()) > 0
         assert len(self.aedtapp.post.available_report_types) > 0
-        assert len(self.aedtapp.post.available_report_quantities) > 0
+        assert len(self.aedtapp.post.available_report_quantities()) > 0
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
         assert self.aedtapp.setups[0].is_solved
@@ -324,7 +324,6 @@ class TestClass(BasisTest, object):
             variations=variations,
             plot_type="Smith Chart",
         )
-        assert self.field_test.setups[0].sweeps[0].is_solved
         new_report = self.field_test.post.reports_by_category.modal_solution("S(1,1)")
         new_report.plot_type = "Smith Chart"
         assert new_report.create()
@@ -667,9 +666,9 @@ class TestClass(BasisTest, object):
         pass
 
     def test_18_diff_plot(self):
-        assert len(self.diff_test.post.available_display_types) > 0
+        assert len(self.diff_test.post.available_display_types()) > 0
         assert len(self.diff_test.post.available_report_types) > 0
-        assert len(self.diff_test.post.available_report_quantities) > 0
+        assert len(self.diff_test.post.available_report_quantities()) > 0
         self.diff_test.analyze_setup("LinearFrequency")
         assert self.diff_test.setups[0].is_solved
         variations = self.diff_test.available_variations.nominal_w_values_dict
