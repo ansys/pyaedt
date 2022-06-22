@@ -57,8 +57,12 @@ class TestClass(BasisTest, object):
         BasisTest.my_teardown(self)
 
     def test_01B_Field_Plot(self):
+        assert len(self.aedtapp.post.available_display_types()) > 0
+        assert len(self.aedtapp.post.available_report_types) > 0
+        assert len(self.aedtapp.post.available_report_quantities()) > 0
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
+        assert self.aedtapp.setups[0].is_solved
         quantity_name = "ComplexMag_E"
         intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
         min_value = self.aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
@@ -254,6 +258,7 @@ class TestClass(BasisTest, object):
         assert data.primary_sweep == "Freq"
         assert data.expressions[0] == "S(1,1)"
         assert len(self.aedtapp.post.all_report_names) > 0
+
         variations = self.field_test.available_variations.nominal_w_values_dict
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -511,7 +516,7 @@ class TestClass(BasisTest, object):
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
     def test_09l_add_note(self):  # pragma: no cover
-        new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
+        new_report = self.aedtapp.post.reports_by_category.modal_solution()
         new_report.create()
 
         new_report.add_note("Test", 8000, 1500)
@@ -608,8 +613,11 @@ class TestClass(BasisTest, object):
         assert plot
 
     def test_17_circuit(self):
+        assert not self.circuit_test.setups[0].is_solved
+
         self.circuit_test.analyze_setup("LNA")
         self.circuit_test.analyze_setup("Transient")
+        assert self.circuit_test.setups[0].is_solved
         assert self.circuit_test.post.create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA")
         new_report = self.circuit_test.post.reports_by_category.standard(
             ["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA"
@@ -648,10 +656,21 @@ class TestClass(BasisTest, object):
         assert self.circuit_test.post.create_report(
             ["dB(V(net_11))", "dB(V(Port1))"], domain="Spectrum", setup_sweep_name="Transient"
         )
+        new_report = self.circuit_test.post.reports_by_category.spectral(None, "Transient")
+        new_report.window = "Hanning"
+        new_report.max_freq = "1GHz"
+        new_report.time_start = "1ns"
+        new_report.time_stop = "190ns"
+        new_report.plot_continous_spectrum = True
+        assert new_report.create()
         pass
 
     def test_18_diff_plot(self):
+        assert len(self.diff_test.post.available_display_types()) > 0
+        assert len(self.diff_test.post.available_report_types) > 0
+        assert len(self.diff_test.post.available_report_quantities()) > 0
         self.diff_test.analyze_setup("LinearFrequency")
+        assert self.diff_test.setups[0].is_solved
         variations = self.diff_test.available_variations.nominal_w_values_dict
         variations["Freq"] = ["All"]
         variations["l1"] = ["All"]
@@ -725,6 +744,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_ironpython, reason="plot_scene method is not supported in ironpython")
     def test_55_time_plot(self):
         self.sbr_test.analyze_nominal(use_auto_settings=False)
+        assert self.sbr_test.setups[0].is_solved
         solution_data = self.sbr_test.post.get_solution_data(
             expressions=["NearEX", "NearEY", "NearEZ"],
             variations={"_u": ["All"], "_v": ["All"], "Freq": ["All"]},
@@ -778,6 +798,8 @@ class TestClass(BasisTest, object):
         new_report = self.q2dtest.post.reports_by_category.rl_fields("Mag_H", polyline="Poly1")
         assert new_report.create()
         assert len(self.q2dtest.post.plots) == 3
+        new_report = self.q2dtest.post.reports_by_category.standard()
+        assert new_report.get_solution_data()
 
     def test_58_test_no_report(self):
         assert not self.aedtapp.post.reports_by_category.eye_diagram()
