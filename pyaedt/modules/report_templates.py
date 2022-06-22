@@ -842,6 +842,17 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def update_expressions_with_defaults(self, quantities_category=None):
+        """Update the list of expressions by taking all the quantities from a given category.
+
+        Parameters
+        ----------
+        quantities_category : str, optional
+            Quantity category to use. If None, the default category for the specified report should be used.
+
+        Returns
+        -------
+
+        """
         self.expressions = self._post.available_report_quantities(
             self.report_category, self.report_type, self.setup, quantities_category
         )
