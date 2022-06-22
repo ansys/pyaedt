@@ -2234,7 +2234,6 @@ class Trace(CommonObject, object):
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
             Variable Object.
         """
-        # "patch_wave_length / 2 - 2 * patch_added_length"
         d_l = self._added_length.name
         lbd = self._wave_length.name
         e_l = self._electrical_length.name
