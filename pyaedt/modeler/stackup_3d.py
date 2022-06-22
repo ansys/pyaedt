@@ -1359,14 +1359,12 @@ class Stackup3D(object):
         -------
         bool
         """
-        self._app["dielectric_x_position"] = (
-                element.position_x.name + " - " + element.length.name + " * " + str(percentage_offset)
-        )
-        self._app["dielectric_y_position"] = (
-                element.position_y.name + " - " + element.width.name + " * (0.5 + " + str(percentage_offset) + ")"
-        )
-        self._app["dielectric_length"] = element.length.name + " * (1 + " + str(percentage_offset) + " * 2)"
-        self._app["dielectric_width"] = element.width.name + " * (1 + " + str(percentage_offset) + " * 2)"
+        self.dielectric_x_position = \
+            element.position_x.name + " - " + element.length.name + " * " + str(percentage_offset)
+        self.dielectric_y_position = \
+            element.position_y.name + " - " + element.width.name + " * (0.5 + " + str(percentage_offset) + ")"
+        self.dielectric_length.expression = element.length.name + " * (1 + " + str(percentage_offset) + " * 2)"
+        self.dielectric_width.expression = element.width.name + " * (1 + " + str(percentage_offset) + " * 2)"
         return True
 
 
@@ -1908,6 +1906,11 @@ class Patch(CommonObject, object):
         feeding_line.position_x.expression = "-" + feeding_line.length.name
         return feeding_line
 
+    @property
+    def set_optimal_width(self):
+        f = self.frequency.name
+        er = self.permittivity.name
+        self.width.expression = "c0 * 1000/(2 * " + f + " * sqrt((" + er + " + 1)/2))"
 
 class Trace(CommonObject, object):
     """Provides a class to create a trace in stackup."""
