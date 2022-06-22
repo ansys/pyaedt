@@ -1909,7 +1909,7 @@ class Patch(CommonObject, object):
     def set_optimal_width(self):
         f = self.frequency.name
         er = self.permittivity.name
-        self.width.expression = "c0 * 1000/(2 * " + f + " * sqrt((" + er + " + 1)/2))"
+        self.width.expression = "(c0 * 1000/(2 * " + f + " * sqrt((" + er + " + 1)/2)))mm"
 
 class Trace(CommonObject, object):
     """Provides a class to create a trace in stackup."""
