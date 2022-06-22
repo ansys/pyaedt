@@ -1906,7 +1906,6 @@ class Patch(CommonObject, object):
         feeding_line.position_x.expression = "-" + feeding_line.length.name
         return feeding_line
 
-    @property
     def set_optimal_width(self):
         f = self.frequency.name
         er = self.permittivity.name
