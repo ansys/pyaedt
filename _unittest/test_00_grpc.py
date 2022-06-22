@@ -13,7 +13,7 @@ from pyaedt import settings
 
 test_project_name = "Coax_HFSS"
 
-if not is_ironpython and config["desktopVersion"] >= "2022.2":
+if not is_ironpython and config["desktopVersion"] >= "2023.1":
 
     class TestClass(BasisTest, object):
         def setup_class(self):
@@ -21,6 +21,7 @@ if not is_ironpython and config["desktopVersion"] >= "2022.2":
 
         def teardown_class(self):
             settings.use_grpc_api = config["use_grpc"]
+            settings.non_graphical = config["NonGraphical"]
 
         def test_00_destkop(self):
             d = Desktop(specified_version="2022.2", new_desktop_session=True)
@@ -33,7 +34,7 @@ if not is_ironpython and config["desktopVersion"] >= "2022.2":
             d.release_desktop(False, False)
 
         def test_02_destkop_new(self):
-            d = Desktop(specified_version="2022.2", new_desktop_session=True)
+            d = Desktop(specified_version="2022.2", new_desktop_session=True, non_graphical=True)
             assert d.port in grpc_active_sessions()
             d.release_desktop(False, False)
 
