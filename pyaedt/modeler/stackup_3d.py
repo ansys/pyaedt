@@ -153,15 +153,15 @@ class Layer3D(object):
     """Provides a class for a management of a parametric layer in 3D Modeler."""
 
     def __init__(
-        self,
-        stackup,
-        app,
-        name,
-        layer_type="S",
-        material="copper",
-        thickness=0.035,
-        fill_material="FR4_epoxy",
-        index=1,
+            self,
+            stackup,
+            app,
+            name,
+            layer_type="S",
+            material="copper",
+            thickness=0.035,
+            fill_material="FR4_epoxy",
+            index=1,
     ):
         self._stackup = stackup
         self._index = index
@@ -412,14 +412,14 @@ class Layer3D(object):
 
     @pyaedt_function_handler()
     def add_patch(
-        self,
-        frequency,
-        patch_width,
-        patch_length=None,
-        patch_position_x=0,
-        patch_position_y=0,
-        patch_name=None,
-        axis="X",
+            self,
+            frequency,
+            patch_width,
+            patch_length=None,
+            patch_position_x=0,
+            patch_position_y=0,
+            patch_name=None,
+            axis="X",
     ):
         """Create a parametric patch.
 
@@ -474,13 +474,13 @@ class Layer3D(object):
 
     @pyaedt_function_handler()
     def ml_patch(
-        self,
-        frequency,
-        patch_width,
-        patch_position_x=0,
-        patch_position_y=0,
-        patch_name=None,
-        axis="X",
+            self,
+            frequency,
+            patch_width,
+            patch_position_x=0,
+            patch_position_y=0,
+            patch_name=None,
+            axis="X",
     ):
         """Create a new parametric patch using machine learning algorithm rather than analytic formulas.
 
@@ -534,17 +534,17 @@ class Layer3D(object):
 
     @pyaedt_function_handler()
     def add_trace(
-        self,
-        line_width,
-        line_length,
-        is_electrical_length=False,
-        is_impedance=False,
-        line_position_x=0,
-        line_position_y=0,
-        line_name=None,
-        axis="X",
-        reference_system=None,
-        frequency=1e9,
+            self,
+            line_width,
+            line_length,
+            is_electrical_length=False,
+            is_impedance=False,
+            line_position_x=0,
+            line_position_y=0,
+            line_name=None,
+            axis="X",
+            reference_system=None,
+            frequency=1e9,
     ):
         """Create a trace.
 
@@ -1226,10 +1226,10 @@ class Stackup3D(object):
 
     @pyaedt_function_handler()
     def add_dielectric_layer(
-        self,
-        name,
-        material="FR4_epoxy",
-        thickness=0.035,
+            self,
+            name,
+            material="FR4_epoxy",
+            thickness=0.035,
     ):
         """Add a new dielectric layer to the stackup.
 
@@ -1360,10 +1360,10 @@ class Stackup3D(object):
         bool
         """
         self._app["dielectric_x_position"] = (
-            element.position_x.name + " - " + element.length.name + " * " + str(percentage_offset)
+                element.position_x.name + " - " + element.length.name + " * " + str(percentage_offset)
         )
         self._app["dielectric_y_position"] = (
-            element.position_y.name + " - " + element.width.name + " * (0.5 + " + str(percentage_offset) + ")"
+                element.position_y.name + " - " + element.width.name + " * (0.5 + " + str(percentage_offset) + ")"
         )
         self._app["dielectric_length"] = element.length.name + " * (1 + " + str(percentage_offset) + " * 2)"
         self._app["dielectric_width"] = element.width.name + " * (1 + " + str(percentage_offset) + " * 2)"
@@ -1486,18 +1486,18 @@ class Patch(CommonObject, object):
     """Patch Class in Stackup3D."""
 
     def __init__(
-        self,
-        application,
-        frequency,
-        patch_width,
-        signal_layer,
-        dielectric_layer,
-        patch_length=None,
-        patch_position_x=0,
-        patch_position_y=0,
-        patch_name="patch",
-        reference_system=None,
-        axis="X",
+            self,
+            application,
+            frequency,
+            patch_width,
+            signal_layer,
+            dielectric_layer,
+            patch_length=None,
+            patch_position_x=0,
+            patch_position_y=0,
+            patch_name="patch",
+            reference_system=None,
+            axis="X",
     ):
         CommonObject.__init__(self, application)
         self._frequency = NamedVariable(application, patch_name + "_frequency", str(frequency) + "Hz")
@@ -1728,8 +1728,8 @@ class Patch(CommonObject, object):
         h = self._substrate_thickness.name
         w = self._width.name
         patch_added_length_formula = (
-            "0.412 * " + h + " * (" + er_e + " + 0.3) * (" + w + "/" + h + " + 0.264)/"
-            "((" + er_e + " - 0.258) * (" + w + "/" + h + " + 0.813))"
+                "0.412 * " + h + " * (" + er_e + " + 0.3) * (" + w + "/" + h + " + 0.264)/"
+                                                                               "((" + er_e + " - 0.258) * (" + w + "/" + h + " + 0.813))"
         )
         self._added_length = NamedVariable(self.application, self._name + "_added_length", patch_added_length_formula)
         return self._added_length
@@ -1865,11 +1865,11 @@ class Patch(CommonObject, object):
         string_position_z = reference_layer.elevation.name
         string_width = self.width.name
         string_length = (
-            self._signal_layer.elevation.name
-            + " + "
-            + self._signal_layer.thickness.name
-            + " - "
-            + reference_layer.elevation.name
+                self._signal_layer.elevation.name
+                + " + "
+                + self._signal_layer.thickness.name
+                + " - "
+                + reference_layer.elevation.name
         )
         port = self.application.modeler.create_rectangle(
             csPlane=constants.PLANE.YZ,
@@ -1888,25 +1888,45 @@ class Patch(CommonObject, object):
             )
         return port
 
+    def quarter_wave_feeding_line(self, impedance_to_adapt=50):
+        string_formula = "sqrt(" + str(impedance_to_adapt) + "*" + self._impedance_bal.name + ")"
+        feeding_line = Trace(
+            self.application,
+            self.frequency.value,
+            string_formula,
+            None,
+            self.signal_layer,
+            self.dielectric_layer,
+            line_length=None,
+            line_electrical_length=90,
+            line_position_x=0,
+            line_position_y=0,
+            line_name=self.name + "_feeding_line",
+            reference_system=self.reference_system,
+            axis="X",
+        )
+        feeding_line.position_x.expression = "-" + feeding_line.length.name
+        return feeding_line
+
 
 class Trace(CommonObject, object):
     """Provides a class to create a trace in stackup."""
 
     def __init__(
-        self,
-        application,
-        frequency,
-        line_impedance,
-        line_width,
-        signal_layer,
-        dielectric_layer,
-        line_length=None,
-        line_electrical_length=90,
-        line_position_x=0,
-        line_position_y=0,
-        line_name="line",
-        reference_system=None,
-        axis="X",
+            self,
+            application,
+            frequency,
+            line_impedance,
+            line_width,
+            signal_layer,
+            dielectric_layer,
+            line_length=None,
+            line_electrical_length=90,
+            line_position_x=0,
+            line_position_y=0,
+            line_name="line",
+            reference_system=None,
+            axis="X",
     ):
         CommonObject.__init__(self, application)
         self._frequency = NamedVariable(application, line_name + "_frequency", str(frequency) + "Hz")
@@ -2096,36 +2116,36 @@ class Trace(CommonObject, object):
         z = self._charac_impedance.name
         er = self._permittivity.name
         a_formula = (
-            "("
-            + z
-            + " * sqrt(("
-            + er
-            + " + 1)/2)/60 + (0.23 + 0.11/"
-            + er
-            + ")"
-            + " * ("
-            + er
-            + "- 1)/("
-            + er
-            + "+ 1))"
+                "("
+                + z
+                + " * sqrt(("
+                + er
+                + " + 1)/2)/60 + (0.23 + 0.11/"
+                + er
+                + ")"
+                + " * ("
+                + er
+                + "- 1)/("
+                + er
+                + "+ 1))"
         )
         w_div_by_h_inf_2 = "(8 * exp(" + a_formula + ")/(exp(2 * " + a_formula + ") - 2))"
 
         b_formula = "(377 * pi/(2 * " + z + " * " + "sqrt(" + er + ")))"
         w_div_by_h_sup_2 = (
-            "(2 * ("
-            + b_formula
-            + " - 1 - log(2 * "
-            + b_formula
-            + " - 1) * ("
-            + er
-            + " - 1) * (log("
-            + b_formula
-            + " - 1) + 0.39 - 0.61/"
-            + er
-            + ")/(2 * "
-            + er
-            + "))/pi)"
+                "(2 * ("
+                + b_formula
+                + " - 1 - log(2 * "
+                + b_formula
+                + " - 1) * ("
+                + er
+                + " - 1) * (log("
+                + b_formula
+                + " - 1) + 0.39 - 0.61/"
+                + er
+                + ")/(2 * "
+                + er
+                + "))/pi)"
         )
 
         w_formula_inf = w_div_by_h_inf_2 + " * " + h
@@ -2208,8 +2228,8 @@ class Trace(CommonObject, object):
         h = self._substrate_thickness.name
         w = self._width.name
         patch_added_length_formula = (
-            "0.412 * " + h + " * (" + er_e + " + 0.3) * (" + w + "/" + h + " + 0.264)/"
-            "((" + er_e + " - 0.258) * (" + w + "/" + h + " + 0.813))"
+                "0.412 * " + h + " * (" + er_e + " + 0.3) * (" + w + "/" + h + " + 0.264)/"
+                                                                               "((" + er_e + " - 0.258) * (" + w + "/" + h + " + 0.813))"
         )
         self._added_length = NamedVariable(self.application, self._name + "_added_length", patch_added_length_formula)
         return self._added_length
@@ -2267,10 +2287,10 @@ class Trace(CommonObject, object):
         h = self._dielectric_layer.thickness.name
         er_e = self.effective_permittivity.name
         charac_impedance_formula_w_h = (
-            "60 * log(8 * " + h + "/" + w + " + " + w + "/(4 * " + h + "))/sqrt(" + er_e + ")"
+                "60 * log(8 * " + h + "/" + w + " + " + w + "/(4 * " + h + "))/sqrt(" + er_e + ")"
         )
         charac_impedance_formula_h_w = (
-            "120 * pi / (sqrt(" + er_e + ") * (" + w + "/" + h + "+ 1.393 + 0.667 * log(" + w + "/" + h + " + 1.444)))"
+                "120 * pi / (sqrt(" + er_e + ") * (" + w + "/" + h + "+ 1.393 + 0.667 * log(" + w + "/" + h + " + 1.444)))"
         )
         self._charac_impedance_w_h = NamedVariable(
             self.application, self._name + "_charac_impedance_w_h", charac_impedance_formula_w_h
@@ -2306,7 +2326,7 @@ class Trace(CommonObject, object):
         h = self._substrate_thickness.name
         w = self._width.name
         patch_eff_permittivity_formula = (
-            "(" + er + " + 1)/2 + (" + er + " - 1)/(2 * sqrt(1 + 12 * " + h + "/" + w + "))"
+                "(" + er + " + 1)/2 + (" + er + " - 1)/(2 * sqrt(1 + 12 * " + h + "/" + w + "))"
         )
         self._effective_permittivity = NamedVariable(
             self.application, self._name + "_eff_permittivity", patch_eff_permittivity_formula
@@ -2372,9 +2392,10 @@ class Trace(CommonObject, object):
         self._electrical_length = NamedVariable(self.application, self._name + "_elec_length", elec_length_formula)
         return self._electrical_length
 
+    """
     @pyaedt_function_handler()
     def create_lumped_port(self, reference_layer_name, change_side=False):
-        """Create a lumped port on the specified line.
+        Create a lumped port on the specified line.
 
         Parameters
         ----------
@@ -2387,7 +2408,6 @@ class Trace(CommonObject, object):
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
             Boundary object.
-        """
         if self._axis == "X":
             if change_side:
                 axisdir = self.application.AxisDir.XNeg
@@ -2422,21 +2442,72 @@ class Trace(CommonObject, object):
             ]
         )
         return p1
+    """
+
+    def create_lumped_port(self, reference_layer, opposite_side=False, port_name=None, axisdir=None):
+        """Create a parametrized lumped port.
+
+        Parameters
+        ----------
+
+        reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D
+            The reference layer, in most cases the ground layer.
+        opposite_side : bool, optional
+            Change the side where the port is created.
+        port_name : str, optional
+            Name of the lumped port.
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Position of the port. It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``Application.AxisDir.XNeg``.
+        Returns
+        -------
+        bool
+        """
+        string_position_x = self.position_x.name
+        if opposite_side:
+            string_position_x = self.position_x.name + " + " + self.length.name
+        string_position_y = self.position_y.name + " - " + self.width.name + "/2"
+        string_position_z = reference_layer.elevation.name
+        string_width = self.width.name
+        string_length = (
+                self._signal_layer.elevation.name
+                + " + "
+                + self._signal_layer.thickness.name
+                + " - "
+                + reference_layer.elevation.name
+        )
+        port = self.application.modeler.create_rectangle(
+            csPlane=constants.PLANE.YZ,
+            position=[string_position_x, string_position_y, string_position_z],
+            dimension_list=[string_width, string_length],
+            name=self.name + "_port",
+            matname=None,
+        )
+        if self.application.solution_type == "Modal":
+            if axisdir is None:
+                axisdir = self.application.AxisDir.ZPos
+            port = self.application.create_lumped_port_to_sheet(port.name, portname=port_name, axisdir=axisdir)
+        elif self.application.solution_type == "Terminal":
+            port = self.application.create_lumped_port_to_sheet(
+                port.name, portname=port_name, reference_object_list=[reference_layer.name]
+            )
+        return port
 
 
 class Polygon(CommonObject, object):
     """Polygon Class in Stackup3D."""
 
     def __init__(
-        self,
-        application,
-        point_list,
-        thickness,
-        signal_layer_name,
-        poly_name="poly",
-        mat_name="copper",
-        is_void=False,
-        reference_system=None,
+            self,
+            application,
+            point_list,
+            thickness,
+            signal_layer_name,
+            poly_name="poly",
+            mat_name="copper",
+            is_void=False,
+            reference_system=None,
     ):
         CommonObject.__init__(self, application)
 
@@ -2489,17 +2560,17 @@ class MachineLearningPatch(Patch, object):
     """MachineLearningPatch Class in Stackup3D."""
 
     def __init__(
-        self,
-        application,
-        frequency,
-        patch_width,
-        signal_layer,
-        dielectric_layer,
-        patch_position_x=0,
-        patch_position_y=0,
-        patch_name="patch",
-        reference_system=None,
-        axis="X",
+            self,
+            application,
+            frequency,
+            patch_width,
+            signal_layer,
+            dielectric_layer,
+            patch_position_x=0,
+            patch_position_y=0,
+            patch_name="patch",
+            reference_system=None,
+            axis="X",
     ):
         Patch.__init__(
             self,
