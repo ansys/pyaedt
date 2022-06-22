@@ -627,7 +627,7 @@ class PostProcessorCommon(object):
 
         Parameters
         ----------
-        report_category : str
+        report_category : str, optional
             Type of the report. The default value is ``None``.
 
         Returns
