@@ -1954,6 +1954,7 @@ class Trace(CommonObject, object):
         self._line_thickness = signal_layer.thickness
         self._width = None
         self._width_h_w = None
+        self._width_w_h = None
         self._axis = axis
         try:
             self._permittivity = NamedVariable(
@@ -1989,7 +1990,7 @@ class Trace(CommonObject, object):
             self._charac_impedance = NamedVariable(
                 self.application, line_name + "_charac_impedance_h_w", str(line_impedance)
             )
-            self._width, self._width_h_w = self._width_calcul
+            self._width_w_h, self._width_h_w = self._width_calcul
             self._effective_permittivity = self._effective_permittivity_calcul
             self._wave_length = self._wave_length_calcul
             self._added_length = self._added_length_calcul
@@ -2007,21 +2008,21 @@ class Trace(CommonObject, object):
                 application.logger.error("line_length must be a float.")
             if self.width_h_w.numeric_value < self.dielectric_layer.thickness.numeric_value * 2 \
                     and self.width_h_w.numeric_value < self.dielectric_layer.thickness.numeric_value * 2:
-                width = self.width_h_w
+                self._width = self._width_h_w
             else:
-                width = self.width
+                self._width = self._width_w_h
         if reference_system:
             application.modeler.set_working_coordinate_system(reference_system)
             if axis == "X":
                 start_point = [
                     "{0}_position_x".format(self._name),
-                    "{0}_position_y-{0}_width/2".format(self._name),
+                    "{0}_position_y-" + self.width.name + "/2".format(self._name),
                     0,
                 ]
             else:
 
                 start_point = [
-                    "{0}_position_x-{0}_width/2".format(self._name),
+                    "{0}_position_x-" + self.width.name + "/2".format(self._name),
                     "{}_position_y".format(self._name),
                     0,
                 ]
@@ -2038,16 +2039,16 @@ class Trace(CommonObject, object):
             )
             application.modeler.set_working_coordinate_system(line_name + "_CS")
             if axis == "X":
-                start_point = [0, "-{0}_width/2".format(self._name), 0]
+                start_point = [0, "-" + self.width.name + "/2", 0]
             else:
-                start_point = ["-{0}_width/2".format(self._name), 0, 0]
+                start_point = ["-" + self.width.name + "/2", 0, 0]
             self._reference_system = line_name + "_CS"
         if signal_layer.thickness:
             self._aedt_object = application.modeler.create_box(
                 position=start_point,
                 dimensions_list=[
                     "{}_length".format(self._name),
-                    width.name,
+                    self.width.name,
                     signal_layer.thickness.name,
                 ],
                 name=line_name,
@@ -2098,7 +2099,7 @@ class Trace(CommonObject, object):
 
     @property
     def width_h_w(self):
-        """Width H W.
+        """Width when the substrat thickness is two times upper than the width.
 
         Returns
         -------
@@ -2107,6 +2108,18 @@ class Trace(CommonObject, object):
         """
         if self._width_h_w is not None:
             return self._width_h_w
+
+    @property
+    def width_w_h(self):
+        """Width when the width is two times upper than substrat thickness.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
+        """
+        if self._width_w_h is not None:
+            return self._width_w_h
 
     @property
     def _width_calcul(self):
@@ -2163,9 +2176,9 @@ class Trace(CommonObject, object):
         w_formula_sup = w_div_by_h_sup_2 + " * " + h
 
         self._width_h_w = NamedVariable(self.application, self._name + "_width_h_w", w_formula_inf)
-        self._width = NamedVariable(self.application, self._name + "_width", w_formula_sup)
+        self._width_w_h = NamedVariable(self.application, self._name + "_width", w_formula_sup)
 
-        return self._width, self._width_h_w
+        return self._width_w_h, self._width_h_w
 
     @property
     def position_x(self):
