@@ -2389,17 +2389,7 @@ class Trace(CommonObject, object):
             + er
             + " + 1)/2 + ("
             + er
-            + " - 1)/(2 * sqrt(1 + 12 * "
-            + h
-            + "/"
-            + w
-            + ")) + ("
-            + er
-            + " - 1)/2 * 0.04 * (1 - 12 * "
-            + w
-            + "/"
-            + h
-            + ")**2)"
+            + " - 1)/2 * ((1 + 12 * " + h + "/" + w + ")**(-0.5) + 0.04 * (1 - 12 * " + w + "/" + h + ")**2)"
         )
         self._effective_permittivity_w_h = NamedVariable(
             self.application, self._name + "_eff_permittivity", patch_eff_permittivity_formula_w_h
