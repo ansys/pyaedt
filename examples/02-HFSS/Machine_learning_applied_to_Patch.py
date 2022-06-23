@@ -111,8 +111,9 @@ print("Its length is: " + str(len(dictionary_list)))
 # In Stackup Library, most things are already parameterized like the layers and the patch.
 desktopVersion = "2022.1"
 
-hfss = Hfss(new_desktop_session=True, solution_type="Terminal", non_graphical=non_graphical,
-            specified_version=desktopVersion)
+hfss = Hfss(
+    new_desktop_session=True, solution_type="Terminal", non_graphical=non_graphical, specified_version=desktopVersion
+)
 
 stackup = Stackup3D(hfss)
 ground = stackup.add_ground_layer("ground", material="copper", thickness=0.035, fill_material="air")
