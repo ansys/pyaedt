@@ -2392,7 +2392,7 @@ class Trace(CommonObject, object):
             + " - 1)/2 * ((1 + 12 * " + h + "/" + w + ")**(-0.5) + 0.04 * (1 - 12 * " + w + "/" + h + ")**2)"
         )
         self._effective_permittivity_w_h = NamedVariable(
-            self.application, self._name + "_eff_permittivity", patch_eff_permittivity_formula_w_h
+            self.application, self._name + "_eff_permittivity_w_h", patch_eff_permittivity_formula_w_h
         )
         self._effective_permittivity_h_w = NamedVariable(
             self.application, self._name + "_eff_permittivity", patch_eff_permittivity_formula_h_w
