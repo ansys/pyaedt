@@ -1914,6 +1914,7 @@ class Patch(CommonObject, object):
         er = self.permittivity.name
         self.width.expression = "(c0 * 1000/(2 * " + f + " * sqrt((" + er + " + 1)/2)))mm"
 
+
 class Trace(CommonObject, object):
     """Provides a class to create a trace in stackup."""
 
@@ -2004,6 +2005,11 @@ class Trace(CommonObject, object):
                 self._electrical_length = self._electrical_length_calcul
             else:
                 application.logger.error("line_length must be a float.")
+            if self.width_h_w.numeric_value < self.dielectric_layer.thickness.numeric_value * 2 \
+                    and self.width_h_w.numeric_value < self.dielectric_layer.thickness.numeric_value * 2:
+                width = self.width_h_w
+            else:
+                width = self.width
         if reference_system:
             application.modeler.set_working_coordinate_system(reference_system)
             if axis == "X":
@@ -2041,7 +2047,7 @@ class Trace(CommonObject, object):
                 position=start_point,
                 dimensions_list=[
                     "{}_length".format(self._name),
-                    "{}_width".format(self._name),
+                    width.name,
                     signal_layer.thickness.name,
                 ],
                 name=line_name,
