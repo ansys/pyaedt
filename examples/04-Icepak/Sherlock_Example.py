@@ -43,7 +43,7 @@ outline_polygon_name = "poly_14188"
 ###############################################################################
 # Import PyAEDT and Launch AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example launches AEDT 2022R1 in graphical mode.
+# This example launches AEDT 2022R2 in graphical mode.
 
 from pyaedt import Icepak
 from pyaedt import Desktop
@@ -54,7 +54,7 @@ from pyaedt import Desktop
 # You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch
 # AEDT in graphical mode.
 
-d = Desktop("2022.1", non_graphical=non_graphical, new_desktop_session=True)
+d = Desktop("2022.2", non_graphical=non_graphical, new_desktop_session=True)
 
 start = time.time()
 material_list = os.path.join(input_dir, material_name)

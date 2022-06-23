@@ -19,6 +19,7 @@ from pyaedt.generic.plot import plot_3d_chart
 from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
 
+
 if not is_ironpython:
     try:
         import numpy as np
@@ -1878,7 +1879,7 @@ class FfdSolutionData(object):
 
         # plot everything together
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
-        p = pv.Plotter()
+        p = pv.Plotter(notebook=is_notebook(), off_screen=not show)
         uf = UpdateBeamForm(self)
 
         p.add_slider_widget(
@@ -1969,7 +1970,6 @@ class FfdSolutionData(object):
             cad = p.add_mesh(cad_mesh, scalars=color_display_type, show_scalar_bar=False, opacity=0.5)
             p.add_checkbox_button_widget(toggle_vis_cad, value=True, position=(10, 70), size=30)
             p.add_text("Show Geometry", position=(70, 75), color="white", font_size=10)
-        p.off_screen = not show
         if export_image_path:
             p.show(screenshot=export_image_path)
         else:
@@ -2099,7 +2099,6 @@ class FfdSolutionData(object):
             size = int(p.window_size[1] / 40)
             p.add_checkbox_button_widget(toggle_vis_cad, size=size, value=True, position=(10, 70))
             p.add_text("Show Geometry", position=(70, 75), color="black", font_size=12)
-        p.off_screen = not show
         if export_image_path:
             p.show(screenshot=export_image_path)
         else:

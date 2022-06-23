@@ -462,7 +462,7 @@ def download_custom_reports(force_download=False, destination=None):
     >>> from pyaedt import examples
     >>> path = examples.download_custom_reports(force_download=True)
     >>> path
-    'C:/Users/user/AppData/local/temp/wpf_edb_merge/merge_wizard.py'
+    'C:/Users/user/AppData/local/temp/custom_reports'
     """
     if not destination:
         destination = EXAMPLES_PATH
@@ -478,6 +478,44 @@ def download_custom_reports(force_download=False, destination=None):
     _download_file("custom_reports", "Transient_CISPR_Basic.json", destination)
     _download_file("custom_reports", "Transient_CISPR_Custom.json", destination)
     return os.path.join(destination, "custom_reports")
+
+
+def download_3dcomponent(force_download=False, destination=None):
+    """Download an example of 3d component array with json template files.
+
+    Examples files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+
+    Parameters
+    ----------
+    force_download : bool
+        Force to delete cache and download files again.
+    destination : str, optional
+        Path where files will be downloaded. Optional. Default is user temp folder.
+
+    Returns
+    -------
+    str
+        Path to the example folder containing all example files.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file
+    >>> from pyaedt import examples
+    >>> path = examples.download_3dcomponent(force_download=True)
+    >>> path
+    'C:/Users/user/AppData/local/temp/array_3d_component'
+    """
+    if not destination:
+        destination = EXAMPLES_PATH
+    if force_download:
+        local_path = os.path.join(destination, "array_3d_component")
+        if os.path.exists(local_path):
+            shutil.rmtree(local_path, ignore_errors=True)
+    _download_file("array_3d_component", "Circ_Patch_5GHz.a3dcomp", destination)
+    _download_file("array_3d_component", "Circ_Patch_5GHz_hex.a3dcomp", destination)
+    _download_file("array_3d_component", "array_simple.json", destination)
+    return os.path.join(destination, "array_3d_component")
 
 
 def download_multiparts(destination=None):

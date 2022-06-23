@@ -71,7 +71,7 @@ class LinearArray:
 tmpfold = tempfile.gettempdir()
 aedb_path = os.path.join(tmpfold, generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = Edb(edbpath=aedb_path, edbversion="2022.1")
+edb = Edb(edbpath=aedb_path, edbversion="2022.2")
 
 
 ###############################################################################
@@ -211,7 +211,7 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 project = os.path.join(aedb_path, "edb.def")
-h3d = Hfss3dLayout(projectname=project, specified_version="2022.1", new_desktop_session=True, non_graphical=non_graphical)
+h3d = Hfss3dLayout(projectname=project, specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
 
 ###############################################################################
 # Plot the geometry

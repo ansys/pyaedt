@@ -25,12 +25,12 @@ if not os.path.exists(temp_folder):
 # Default is False
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
-version = "2022.1"
+version = "2022.2"
 
 ###############################################################################
 # Launch Maxwell3D in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches Maxwell3D 2022.1 in graphical mode.
+# This examples launches Maxwell3D 2022.2 in graphical mode.
 
 m3d = Maxwell3d(
     solution_type="EddyCurrent", specified_version=version, non_graphical=non_graphical, new_desktop_session=True

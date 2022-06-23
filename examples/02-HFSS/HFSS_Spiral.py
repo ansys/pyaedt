@@ -18,9 +18,9 @@ from pyaedt import Hfss, constants
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 #############################################################
-# Launch Hfss 2022R1 in non graphical mode.
+# Launch Hfss 2022R2 in non graphical mode.
 # Change units to micron
-hfss = Hfss(specified_version="2022.1", non_graphical=non_graphical, designname="A1")
+hfss = Hfss(specified_version="2022.2", non_graphical=non_graphical, designname="A1")
 hfss.modeler.model_units = "um"
 p = hfss.modeler
 

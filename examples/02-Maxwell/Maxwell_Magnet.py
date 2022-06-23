@@ -22,8 +22,8 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 ###############################################################################
 # Launch AEDT in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2022R1 in graphical mode.
-m3d = Maxwell3d(specified_version="2022.1", new_desktop_session=True, non_graphical=non_graphical)
+# This examples launches AEDT 2022R2 in graphical mode.
+m3d = Maxwell3d(specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
 
 
 ###############################################################################
