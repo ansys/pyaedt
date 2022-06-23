@@ -1863,22 +1863,23 @@ class Design(AedtObjects, object):
                         )
                 except:
                     pass
-        if self.design_properties and "ModelSetup" in self.design_properties:
-            for ds in self.design_properties["ModelSetup"]["MotionSetupList"]:
-                try:
-                    motion_list = "MotionSetupList"
-                    setup = "ModelSetup"
-                    if isinstance(self.design_properties[setup][motion_list][ds], (OrderedDict, dict)):
-                        boundaries.append(
-                            BoundaryObject(
-                                self,
-                                ds,
-                                self.design_properties["ModelSetup"]["MotionSetupList"][ds],
-                                self.design_properties["ModelSetup"]["MotionSetupList"][ds]["MotionType"],
+        if self.design_type == "Maxwell 2D" or self.design_type == "Maxwell 3D":
+            if self.design_properties and "ModelSetup" in self.design_properties:
+                for ds in self.design_properties["ModelSetup"]["MotionSetupList"]:
+                    try:
+                        motion_list = "MotionSetupList"
+                        setup = "ModelSetup"
+                        if isinstance(self.design_properties[setup][motion_list][ds], (OrderedDict, dict)):
+                            boundaries.append(
+                                BoundaryObject(
+                                    self,
+                                    ds,
+                                    self.design_properties["ModelSetup"]["MotionSetupList"][ds],
+                                    self.design_properties["ModelSetup"]["MotionSetupList"][ds]["MotionType"],
+                                )
                             )
-                        )
-                except:
-                    pass
+                    except:
+                        pass
         return boundaries
 
     @pyaedt_function_handler()
