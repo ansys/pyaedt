@@ -2094,7 +2094,10 @@ class Trace(CommonObject, object):
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
             Variable Object.
         """
-        return self._width
+        if self.width_h_w.numeric_value < self.dielectric_layer.thickness.numeric_value * 2 \
+                and self.width_h_w.numeric_value < self.dielectric_layer.thickness.numeric_value * 2:
+            return self._width_h_w
+        return self._width_w_h
 
     @property
     def width_h_w(self):
