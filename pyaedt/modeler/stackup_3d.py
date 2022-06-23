@@ -1970,7 +1970,7 @@ class Trace(CommonObject, object):
             self._width = NamedVariable(
                 application, line_name + "_width", application.modeler._arg_with_dim(line_width)
             )
-            self._effective_permittivity = self._effective_permittivity_calcul
+            self._effective_permittivity, self._effective_permittivity_h_w = self._effective_permittivity_calcul
             self._wave_length = self._wave_length_calcul
             self._added_length = self._added_length_calcul
             if isinstance(line_electrical_length, float) or isinstance(line_electrical_length, int):
@@ -1991,7 +1991,7 @@ class Trace(CommonObject, object):
                 self.application, line_name + "_charac_impedance_h_w", str(line_impedance)
             )
             self._width_w_h, self._width_h_w = self._width_calcul
-            self._effective_permittivity = self._effective_permittivity_calcul
+            self._effective_permittivity, self._effective_permittivity_h_w = self._effective_permittivity_calcul
             self._wave_length = self._wave_length_calcul
             self._added_length = self._added_length_calcul
             if isinstance(line_electrical_length, float) or isinstance(line_electrical_length, int):
@@ -2359,7 +2359,10 @@ class Trace(CommonObject, object):
         self._effective_permittivity = NamedVariable(
             self.application, self._name + "_eff_permittivity", patch_eff_permittivity_formula_w_h
         )
-        return self._effective_permittivity
+        self._effective_permittivity_h_w = NamedVariable(
+            self.application, self._name + "_eff_permittivity", patch_eff_permittivity_formula_h_w
+        )
+        return self._effective_permittivity, self._effective_permittivity_h_w
 
     @property
     def wave_length(self):
