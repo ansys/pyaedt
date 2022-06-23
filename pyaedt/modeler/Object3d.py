@@ -2607,7 +2607,7 @@ class Object3d(object):
         Parameters
         ----------
         area : float
-            Value of the area to filter.
+            Value of the area to filter in model units.
         area_filter : str, optional
             Comparer symbol.
             Default value is "==".
@@ -3492,12 +3492,17 @@ class CircuitComponent(object):
     @angle.setter
     def angle(self, angle=None):
         """Set the part angle."""
-        if not angle:
-            angle = str(self._angle) + "°"
+        if not settings.use_grpc_api:
+            if not angle:
+                angle = str(self._angle) + "°"
+            else:
+                angle = _dim_arg(angle, "°")
+            vMaterial = ["NAME:Component Angle", "Value:=", angle]
+            self.change_property(vMaterial)
         else:
-            angle = _dim_arg(angle, "°")
-        vMaterial = ["NAME:Component Angle", "Value:=", angle]
-        self.change_property(vMaterial)
+            self._circuit_components._app.logger.error(
+                "Grpc doesn't support angle settings because special characters are not supported."
+            )
 
     @property
     def mirror(self):

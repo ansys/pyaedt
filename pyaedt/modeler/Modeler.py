@@ -2361,7 +2361,14 @@ class GeometryModeler(Modeler, object):
         return True
 
     @pyaedt_function_handler()
-    def duplicate_and_mirror(self, objid, position, vector, is_3d_comp=False):
+    def duplicate_and_mirror(
+        self,
+        objid,
+        position,
+        vector,
+        is_3d_comp=False,
+        duplicate_assignment=True,
+    ):
         """Duplicate and mirror a selection.
 
         Parameters
@@ -2376,6 +2383,8 @@ class GeometryModeler(Modeler, object):
             Application.Position object for the vector.
         is_3d_comp : bool, optional
             If ``True``, the method will try to return the duplicated list of 3dcomponents. The default is ``False``.
+        duplicate_assignment : bool, optional
+            If True, the method duplicates selection assignments. The default value is ``True``.
 
         Returns
         -------
@@ -2399,7 +2408,7 @@ class GeometryModeler(Modeler, object):
         vArg2.append("DuplicateMirrorNormalX:="), vArg2.append(Xnorm)
         vArg2.append("DuplicateMirrorNormalY:="), vArg2.append(Ynorm)
         vArg2.append("DuplicateMirrorNormalZ:="), vArg2.append(Znorm)
-        vArg3 = ["NAME:Options", "DuplicateAssignments:=", False]
+        vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
         if is_3d_comp:
             orig_3d = [i for i in self.components_3d_names]
         added_objs = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
@@ -2489,7 +2498,16 @@ class GeometryModeler(Modeler, object):
         return True
 
     @pyaedt_function_handler()
-    def duplicate_around_axis(self, objid, cs_axis, angle=90, nclones=2, create_new_objects=True, is_3d_comp=False):
+    def duplicate_around_axis(
+        self,
+        objid,
+        cs_axis,
+        angle=90,
+        nclones=2,
+        create_new_objects=True,
+        is_3d_comp=False,
+        duplicate_assignment=True,
+    ):
         """Duplicate a selection around an axis.
 
         Parameters
@@ -2507,6 +2525,8 @@ class GeometryModeler(Modeler, object):
             default is ``True``.
         is_3d_comp : bool, optional
             If ``True``, the method will try to return the duplicated list of 3dcomponents. The default is ``False``.
+        duplicate_assignment : bool, optional
+            If True, the method duplicates selection assignments. The default value is ``True``.
 
         Returns
         -------
@@ -2531,7 +2551,7 @@ class GeometryModeler(Modeler, object):
             "Numclones:=",
             str(nclones),
         ]
-        vArg3 = ["NAME:Options", "DuplicateBoundaries:=", "true"]
+        vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
         if is_3d_comp:
             orig_3d = [i for i in self.components_3d_names]
         added_objs = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
@@ -2552,7 +2572,15 @@ class GeometryModeler(Modeler, object):
             return False, []
 
     @pyaedt_function_handler()
-    def duplicate_along_line(self, objid, vector, nclones=2, attachObject=False, is_3d_comp=False):
+    def duplicate_along_line(
+        self,
+        objid,
+        vector,
+        nclones=2,
+        attachObject=False,
+        is_3d_comp=False,
+        duplicate_assignment=True,
+    ):
         """Duplicate a selection along a line.
 
         Parameters
@@ -2568,6 +2596,9 @@ class GeometryModeler(Modeler, object):
             Number of clones. The default is ``2``.
         is_3d_comp : bool, optional
             If True, the method will try to return the duplicated list of 3dcomponents. The default is ``False``.
+        duplicate_assignment : bool, optional
+            If True, the method duplicates selection assignments. The default value is ``True``.
+
         Returns
         -------
         tuple
@@ -2587,7 +2618,7 @@ class GeometryModeler(Modeler, object):
         vArg2.append("YComponent:="), vArg2.append(Ypos)
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
         vArg2.append("Numclones:="), vArg2.append(str(nclones))
-        vArg3 = ["NAME:Options", "DuplicateBoundaries:=", "true"]
+        vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
         if is_3d_comp:
             orig_3d = [i for i in self.components_3d_names]
         added_objs = self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
@@ -2598,7 +2629,6 @@ class GeometryModeler(Modeler, object):
                 self.logger.info("Found 3D Components Duplication")
                 return True, added_3d_comps
         return True, list(added_objs)
-        # return self._duplicate_added_objects_tuple()
 
     @pyaedt_function_handler()
     def thicken_sheet(self, objid, thickness, bBothSides=False):

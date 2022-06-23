@@ -40,6 +40,24 @@ class Setup(object):
     """
 
     @property
+    def is_solved(self):
+        """Verify if solutions are available for given setup.
+
+        Returns
+        -------
+        bool
+            `True` if solutions are available.
+        """
+        if self.p_app.design_solutions.default_adaptive:
+            sol = self.p_app.post.reports_by_category.standard(
+                setup_name="{} : {}".format(self.name, self.p_app.design_solutions.default_adaptive)
+            )
+        else:
+            sol = self.p_app.post.reports_by_category.standard(setup_name=self.name)
+
+        return True if sol.get_solution_data() else False
+
+    @property
     def p_app(self):
         """Parent."""
         return self._app
@@ -93,13 +111,13 @@ class Setup(object):
                             app.pop("MoveBackwards", None)
                             for el in app:
                                 if isinstance(app[el], (OrderedDict, dict)):
-                                    self.sweeps.append(SweepHFSS(self.omodule, setupname, el, props=app[el]))
+                                    self.sweeps.append(SweepHFSS(self, setupname, el, props=app[el]))
 
                         else:
                             app = setup_data["Sweeps"]
                             for el in app:
                                 if isinstance(app[el], (OrderedDict, dict)):
-                                    self.sweeps.append(SweepQ3D(self.omodule, setupname, el, props=app[el]))
+                                    self.sweeps.append(SweepQ3D(self, setupname, el, props=app[el]))
                         setup_data.pop("Sweeps", None)
                     self.props = SetupProps(self, OrderedDict(setup_data))
             except:
@@ -441,9 +459,9 @@ class Setup(object):
             self._app.logger.warning("This method only applies to HFSS and Q3d. Use add_eddy_current_sweep method.")
             return False
         if self.setuptype <= 4:
-            sweep_n = SweepHFSS(self.omodule, self.name, sweepname, sweeptype)
+            sweep_n = SweepHFSS(self, self.name, sweepname, sweeptype)
         else:
-            sweep_n = SweepQ3D(self.omodule, self.name, sweepname, sweeptype)
+            sweep_n = SweepQ3D(self, self.name, sweepname, sweeptype)
         sweep_n.create()
         self.sweeps.append(sweep_n)
         return sweep_n
@@ -724,6 +742,18 @@ class SetupCircuit(object):
         self._Name = setupname
         self.props["Name"] = setupname
         self.auto_update = True
+
+    @property
+    def is_solved(self):
+        """Verify if solutions are available for given setup.
+
+        Returns
+        -------
+        bool
+            `True` if solutions are available.
+        """
+        sol = self.p_app.post.reports_by_category.standard(setup_name=self.name)
+        return True if sol.get_solution_data() else False
 
     @property
     def name(self):
@@ -1337,12 +1367,28 @@ class Setup3DLayout(object):
                         app = setup_data["Data"]
                         for el in app:
                             if isinstance(app[el], (OrderedDict, dict)):
-                                self.sweeps.append(SweepHFSS3DLayout(self.omodule, setupname, el, props=app[el]))
+                                self.sweeps.append(SweepHFSS3DLayout(self, setupname, el, props=app[el]))
 
                     self.props = SetupProps(self, OrderedDict(setup_data))
             except:
                 self.props = SetupProps(self, OrderedDict())
         self.auto_update = True
+
+    @property
+    def is_solved(self):
+        """Verify if solutions are available for a given setup.
+
+        Returns
+        -------
+        bool
+            `True` if solutions are available.
+        """
+        if self.props.get("SolveSetupType", "HFSS") == "HFSS":
+            sol = self._app.post.reports_by_category.standard(setup_name="{} : Last Adaptive".format(self.name))
+        else:
+            sol = self._app.post.reports_by_category.standard(setup_name=self.name)
+
+        return True if sol.get_solution_data() else False
 
     @property
     def setup_type(self):
@@ -1502,7 +1548,7 @@ class Setup3DLayout(object):
         """
         if not sweepname:
             sweepname = generate_unique_name("Sweep")
-        sweep_n = SweepHFSS3DLayout(self.omodule, self.name, sweepname, sweeptype)
+        sweep_n = SweepHFSS3DLayout(self, self.name, sweepname, sweeptype)
         if sweep_n.create():
             self.sweeps.append(sweep_n)
             return sweep_n

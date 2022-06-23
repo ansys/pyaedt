@@ -3,7 +3,6 @@ import math
 import os
 
 from _unittest.conftest import BasisTest
-from _unittest.conftest import config
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import isclose
 from pyaedt.maxwell import Maxwell2d
@@ -87,6 +86,18 @@ class TestClass(BasisTest, object):
         assert circle2.material_name == "copper"
         assert isclose(circle1.faces[0].area, math.pi * 3.0 * 3.0)
 
+    def test_06a_calculate_radius_2D(self):
+        circle1 = self.aedtapp.modeler.create_circle([0, -2, 0], 3)
+        radius = self.aedtapp.modeler.calculate_radius_2D(circle1.name)
+        assert type(radius) is float
+        radius = self.aedtapp.modeler.calculate_radius_2D(circle1.name, True)
+        assert type(radius) is float
+
+    def test_06b_radial_split(self):
+        circle1 = self.aedtapp.modeler.create_circle([0, -2, 0], 3)
+        radius = self.aedtapp.modeler.calculate_radius_2D(circle1.name)
+        assert self.aedtapp.modeler.radial_split_2D(radius, circle1.name)
+
     def test_07_create_ellipse(self):
         ellipse1 = self.aedtapp.modeler.create_ellipse([0, -2, 0], 4.0, 0.2)
         ellipse2 = self.aedtapp.modeler.create_ellipse(
@@ -117,7 +128,7 @@ class TestClass(BasisTest, object):
         assert pg2.material_name == "copper"
         assert isclose(pg2.faces[0].area, 5.196152422706631)
 
-    @pytest.mark.skipif(config["NonGraphical"] or is_ironpython, reason="Not running in ironpython")
+    @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
     def test_09_plot(self):
         self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
         self.aedtapp.modeler.create_regular_polygon(
@@ -135,3 +146,26 @@ class TestClass(BasisTest, object):
         poly = self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
         assert poly.faces[0].edges[0].move_along_normal(1)
         assert self.aedtapp.modeler.move_edge([poly.edges[0], poly.edges[1]])
+
+    def test_12_objects_in_bounding_box(self):
+        self.aedtapp.solution_type = "MagnetostaticXY"
+        bounding_box = [35, 42, -52, -68]
+        objects_xy_4 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
+        bounding_box = [20, 30, 10, -25, -36, -40]
+        objects_xy_6 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
+        assert type(objects_xy_4) is list
+        assert type(objects_xy_6) is list
+        self.aedtapp.solution_type = "MagnetostaticZ"
+        bounding_box = [35, 42, -52, -68]
+        objects_z_4 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
+        bounding_box = [20, 30, 10, -25, -36, -40]
+        objects_z_6 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
+        assert type(objects_z_4) is list
+        assert type(objects_z_6) is list
+        if not is_ironpython:
+            with pytest.raises(ValueError):
+                bounding_box = [3, 4, 5]
+                self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
+            with pytest.raises(ValueError):
+                bounding_box_5_elements = [1, 2, 3, 4, 5]
+                self.aedtapp.modeler.objects_in_bounding_box(bounding_box_5_elements)

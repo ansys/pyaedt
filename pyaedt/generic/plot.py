@@ -35,6 +35,7 @@ if not is_ironpython:
         import matplotlib.pyplot as plt
         from matplotlib.path import Path
         from matplotlib.patches import PathPatch
+
     except ImportError:
         warnings.warn(
             "The Matplotlib module is required to run some functionalities of PostProcess.\n"
@@ -42,6 +43,27 @@ if not is_ironpython:
         )
     except:
         pass
+
+
+@pyaedt_function_handler()
+def get_structured_mesh(theta, phi, ff_data):
+
+    if ff_data.min() < 0:
+        ff_data_renorm = ff_data + np.abs(ff_data.min())
+    else:
+        ff_data_renorm = ff_data
+    phi_grid, theta_grid = np.meshgrid(phi, theta)
+    r_no_renorm = np.reshape(ff_data, (len(theta), len(phi)))
+    r = np.reshape(ff_data_renorm, (len(theta), len(phi)))
+
+    x = r * np.sin(theta_grid) * np.cos(phi_grid)
+    y = r * np.sin(theta_grid) * np.sin(phi_grid)
+    z = r * np.cos(theta_grid)
+
+    mag = np.ndarray.flatten(r_no_renorm, order="F")
+    ff_mesh = pv.StructuredGrid(x, y, z)
+    ff_mesh["FarFieldData"] = mag
+    return ff_mesh
 
 
 def is_notebook():
@@ -356,7 +378,6 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
         Matplotlib fig object.
     """
     dpi = 100.0
-    dpi = 100.0
 
     ax = plt.subplot(111, projection="3d")
 
@@ -364,14 +385,21 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
         len(plot_data)
     except:
         plot_data = convert_remote_object(plot_data)
-    THETA, PHI = np.meshgrid(plot_data[0], plot_data[1])
-    R = np.array(plot_data[2])
-    X = R * np.sin(THETA) * np.cos(PHI)
-    Y = R * np.sin(THETA) * np.sin(PHI)
-    Z = R * np.cos(THETA)
+    if isinstance(plot_data[0], np.ndarray):
+        x = plot_data[0]
+        y = plot_data[1]
+        z = plot_data[2]
+    else:
+        theta_grid, phi_grid = np.meshgrid(plot_data[0], plot_data[1])
+        if isinstance(plot_data[2], list):
+            r = np.array(plot_data[2])
+        else:
+            r = plot_data[2]
+        x = r * np.sin(theta_grid) * np.cos(phi_grid)
+        y = r * np.sin(theta_grid) * np.sin(phi_grid)
+        z = r * np.cos(theta_grid)
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
-
-    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.5)
+    ax.plot_surface(x, y, z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.8)
     fig = plt.gcf()
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     if snapshot_path:
@@ -416,14 +444,18 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
     except:
         plot_data = convert_remote_object(plot_data)
     label_id = 1
-    for object in plot_data:
-        if len(object) == 3:
-            label = object[2]
+    for plo_obj in plot_data:
+        if len(plo_obj) == 3:
+            label = plo_obj[2]
         else:
             label = "Trace " + str(label_id)
-        x = [i for i, j in zip(object[0], object[1]) if j]
-        y = [i for i in object[1] if i]
-        ax.plot(np.array(x), np.array(y), label=label)
+        if isinstance(plo_obj[0], np.ndarray):
+            x = plo_obj[0]
+            y = plo_obj[1]
+        else:
+            x = np.array([i for i, j in zip(plo_obj[0], plo_obj[1]) if j])
+            y = np.array([i for i in plo_obj[1] if i])
+        ax.plot(x, y, label=label)
         label_id += 1
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
@@ -488,6 +520,63 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
         plt.savefig(snapshot_path)
     else:
         plt.show()
+    return plt
+
+
+@pyaedt_function_handler()
+def plot_contour(qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", title="", levels=64, snapshot_path=None):
+    """Create a matplotlib contour plot.
+
+    Parameters
+    ----------
+    qty_to_plot : :class:`numpy.ndarray`
+        Quantity to plot.
+    x : :class:`numpy.ndarray`
+        X axis quantity.
+    y : :class:`numpy.ndarray`
+        Y axis quantity.
+    size : tuple, list, optional
+        Window Size. Default is `(2000,1600)`.
+    xlabel : str, optional
+        X Label. Default is `""`.
+    ylabel : str, optional
+        Y Label. Default is `""`.
+    title : str, optional
+        Plot Title Label. Default is `""`.
+    levels : int, optional
+        Colormap levels. Default is `64`.
+    snapshot_path : str, optional
+        Full path to image to save. Default is None.
+
+    Returns
+    -------
+    :class:`matplotlib.plt`
+        Matplotlib fig object.
+    """
+    dpi = 100.0
+    figsize = (size[0] / dpi, size[1] / dpi)
+    fig, ax = plt.subplots(figsize=figsize)
+    if title:
+        plt.title(title)
+    if xlabel:
+        plt.xlabel(xlabel)
+    if ylabel:
+        plt.ylabel(ylabel)
+
+    plt.contourf(
+        x,
+        y,
+        qty_to_plot.T,
+        levels=levels,
+        cmap="jet",
+    )
+
+    plt.colorbar()
+    if snapshot_path:
+        plt.savefig(snapshot_path)
+    else:
+        plt.show()
+    return plt
 
 
 class ObjClass(object):
@@ -641,6 +730,8 @@ class ModelPlotter(object):
         self._isometric_view = True
         self.bounding_box = True
         self.color_bar = True
+        self.array_coordinates = []
+        self.meshes = None
 
     @property
     def isometric_view(self):
@@ -1069,6 +1160,10 @@ class ModelPlotter(object):
                 cad._cached_polydata = filedata
             color_cad = [i / 255 for i in cad.color]
             cad._cached_mesh = self.pv.add_mesh(cad._cached_polydata, color=color_cad, opacity=cad.opacity)
+            if self.meshes:
+                self.meshes += cad._cached_polydata
+            else:
+                self.meshes = cad._cached_polydata
         obj_to_iterate = [i for i in self._fields]
         if read_frames:
             for i in self.frames:
@@ -1096,7 +1191,6 @@ class ModelPlotter(object):
                         field.is_vector = False
                     field.log = log1
                 else:
-                    points = []
                     nodes = []
                     values = []
                     is_vector = False
@@ -1295,9 +1389,9 @@ class ModelPlotter(object):
         """
         start = time.time()
         self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+        self.meshes = None
         self.pv.background_color = [i / 255 for i in self.background_color]
         self._read_mesh_files()
-
         axes_color = [0 if i >= 128 else 1 for i in self.background_color]
         if self.color_bar:
             sargs = dict(
@@ -1329,7 +1423,6 @@ class ModelPlotter(object):
                     cmap=field.color_map,
                 )
                 field._cached_polydata["vectors"] = field._cached_polydata["vectors"] / field.vector_scale
-
             elif self.range_max is not None and self.range_min is not None:
                 field._cached_mesh = self.pv.add_mesh(
                     field._cached_polydata,
@@ -1593,3 +1686,21 @@ class ModelPlotter(object):
             return self.gif_file
         else:
             return True
+
+    @pyaedt_function_handler()
+    def generate_geometry_mesh(self):
+        """Generate mesh for objects only.
+
+        Returns
+        -------
+        Mesh
+        """
+        self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+        self._read_mesh_files()
+        if self.array_coordinates:
+            duplicate_mesh = self.meshes.copy()
+            for offset_xyz in self.array_coordinates:
+                translated_mesh = duplicate_mesh.copy()
+                translated_mesh.translate(offset_xyz, inplace=True)
+                self.meshes += translated_mesh
+        return self.meshes

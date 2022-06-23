@@ -34,6 +34,7 @@ test_circuit_name = "Switching_Speed_FET_And_Diode"
 sbr_file = "poc_scat_small"
 q3d_file = "via_gsg"
 eye_diagram = "SimpleChannel"
+array = "array_simple"
 
 
 class TestClass(BasisTest, object):
@@ -50,13 +51,18 @@ class TestClass(BasisTest, object):
         self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d)
         self.q2dtest = Q2d(projectname=q3d_file)
         self.eye_test = BasisTest.add_app(self, project_name=eye_diagram, application=Circuit)
+        self.array_test = BasisTest.add_app(self, project_name=array)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
 
     def test_01B_Field_Plot(self):
+        assert len(self.aedtapp.post.available_display_types()) > 0
+        assert len(self.aedtapp.post.available_report_types) > 0
+        assert len(self.aedtapp.post.available_report_quantities()) > 0
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
+        assert self.aedtapp.setups[0].is_solved
         quantity_name = "ComplexMag_E"
         intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
         min_value = self.aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
@@ -252,6 +258,7 @@ class TestClass(BasisTest, object):
         assert data.primary_sweep == "Freq"
         assert data.expressions[0] == "S(1,1)"
         assert len(self.aedtapp.post.all_report_names) > 0
+
         variations = self.field_test.available_variations.nominal_w_values_dict
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -289,6 +296,7 @@ class TestClass(BasisTest, object):
         if not is_ironpython:
             assert data.plot(is_polar=True)
             assert data.plot_3d()
+            assert self.field_test.post.create_3d_plot(data)
         self.field_test.modeler.create_polyline([[0, 0, 0], [0, 5, 30]], name="Poly1", non_model=True)
         variations2 = self.field_test.available_variations.nominal_w_values_dict
         variations2["Theta"] = ["All"]
@@ -319,6 +327,15 @@ class TestClass(BasisTest, object):
         new_report = self.field_test.post.reports_by_category.modal_solution("S(1,1)")
         new_report.plot_type = "Smith Chart"
         assert new_report.create()
+        data = self.field_test.post.get_solution_data(
+            "Mag_E",
+            self.field_test.nominal_adaptive,
+            variations=variations2,
+            primary_sweep_variable="Theta",
+            context="Poly1",
+            report_category="Fields",
+        )
+        assert data.units_sweeps["Phase"] == "deg"
         pass
 
     def test_09b_export_report(self):  # pragma: no cover
@@ -404,18 +421,18 @@ class TestClass(BasisTest, object):
         assert new_report.add_cartesian_y_marker("-55")
 
     @pytest.mark.skipif(
-        config["NonGraphical"], reason="Skipped because it cannot run on build machine in non-graphical mode"
+        config["desktopVersion"] < "2022.2",
+        reason="Skipped because it cannot run on build machine in non-graphical mode",
     )
     def test_09e_add_line_from_point(self):  # pragma: no cover
-        assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
+        assert new_report.create()
         assert new_report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
     def test_09f_add_line_from_equation(self):
-        assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
         assert new_report.add_limit_line_from_equation(start_x=1, stop_x=20, step=0.5, units="GHz")
@@ -499,7 +516,7 @@ class TestClass(BasisTest, object):
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
     def test_09l_add_note(self):  # pragma: no cover
-        new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
+        new_report = self.aedtapp.post.reports_by_category.modal_solution()
         new_report.create()
 
         new_report.add_note("Test", 8000, 1500)
@@ -596,8 +613,11 @@ class TestClass(BasisTest, object):
         assert plot
 
     def test_17_circuit(self):
+        assert not self.circuit_test.setups[0].is_solved
+
         self.circuit_test.analyze_setup("LNA")
         self.circuit_test.analyze_setup("Transient")
+        assert self.circuit_test.setups[0].is_solved
         assert self.circuit_test.post.create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA")
         new_report = self.circuit_test.post.reports_by_category.standard(
             ["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA"
@@ -612,6 +632,10 @@ class TestClass(BasisTest, object):
         data2 = self.circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Time")
         assert data2.primary_sweep == "Time"
         assert data2.data_magnitude()
+        context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "200ns", "test": ""}
+        data3 = self.circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Spectral", context=context)
+        assert data3.units_sweeps["Spectrum"] == "GHz"
+        assert data3.data_real()
         new_report = self.circuit_test.post.reports_by_category.spectral(["dB(V(net_11))"], "Transient")
         new_report.window = "Hanning"
         new_report.max_freq = "1GHz"
@@ -632,10 +656,21 @@ class TestClass(BasisTest, object):
         assert self.circuit_test.post.create_report(
             ["dB(V(net_11))", "dB(V(Port1))"], domain="Spectrum", setup_sweep_name="Transient"
         )
+        new_report = self.circuit_test.post.reports_by_category.spectral(None, "Transient")
+        new_report.window = "Hanning"
+        new_report.max_freq = "1GHz"
+        new_report.time_start = "1ns"
+        new_report.time_stop = "190ns"
+        new_report.plot_continous_spectrum = True
+        assert new_report.create()
         pass
 
     def test_18_diff_plot(self):
+        assert len(self.diff_test.post.available_display_types()) > 0
+        assert len(self.diff_test.post.available_report_types) > 0
+        assert len(self.diff_test.post.available_report_quantities()) > 0
         self.diff_test.analyze_setup("LinearFrequency")
+        assert self.diff_test.setups[0].is_solved
         variations = self.diff_test.available_variations.nominal_w_values_dict
         variations["Freq"] = ["All"]
         variations["l1"] = ["All"]
@@ -709,6 +744,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_ironpython, reason="plot_scene method is not supported in ironpython")
     def test_55_time_plot(self):
         self.sbr_test.analyze_nominal(use_auto_settings=False)
+        assert self.sbr_test.setups[0].is_solved
         solution_data = self.sbr_test.post.get_solution_data(
             expressions=["NearEX", "NearEY", "NearEZ"],
             variations={"_u": ["All"], "_v": ["All"], "Freq": ["All"]},
@@ -762,6 +798,8 @@ class TestClass(BasisTest, object):
         new_report = self.q2dtest.post.reports_by_category.rl_fields("Mag_H", polyline="Poly1")
         assert new_report.create()
         assert len(self.q2dtest.post.plots) == 3
+        new_report = self.q2dtest.post.reports_by_category.standard()
+        assert new_report.get_solution_data()
 
     def test_58_test_no_report(self):
         assert not self.aedtapp.post.reports_by_category.eye_diagram()
@@ -793,13 +831,6 @@ class TestClass(BasisTest, object):
         assert os.path.exists(self.q3dtest.export_mesh_stats("Setup1"))
         assert os.path.exists(self.q3dtest.export_mesh_stats("Setup1", setup_type="AC RL"))
         assert os.path.exists(self.aedtapp.export_mesh_stats("Setup1"))
-
-    def test_62_delete_variations(self):
-        assert self.q3dtest.cleanup_solution()
-        vars = self.field_test.available_variations.get_variation_strings()
-        assert self.field_test.available_variations.variations()
-        assert self.field_test.cleanup_solution(vars, entire_solution=False)
-        assert self.field_test.cleanup_solution(vars, entire_solution=True)
 
     def test_62_eye_diagram(self):
         self.eye_test.analyze_nominal()
@@ -853,13 +884,13 @@ class TestClass(BasisTest, object):
         local_path = os.path.dirname(os.path.realpath(__file__))
         self.circuit_test.analyze_setup("Transient")
         assert self.circuit_test.post.create_report_from_configuration(
-            os.path.join(local_path, "example_models", "report_json", "Spectral_Report_simple.json"),
+            os.path.join(local_path, "example_models", "report_json", "Spectral_Report_Simple.json"),
             solution_name="Transient",
         )
 
     def test_67_sweep_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
-        dict_vals = json_to_dict(os.path.join(local_path, "example_models", "report_json", "Modal_Report_simple.json"))
+        dict_vals = json_to_dict(os.path.join(local_path, "example_models", "report_json", "Modal_Report_Simple.json"))
         assert self.aedtapp.post.create_report_from_configuration(input_dict=dict_vals)
 
     @pytest.mark.skipif(
@@ -890,3 +921,111 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.post.create_report_from_configuration(
             os.path.join(local_path, "example_models", "report_json", "Modal_Report.json")
         )
+
+    @pytest.mark.skipif(is_ironpython, reason="FarFieldSolution not supported by Ironpython")
+    def test_71_antenna_plot(self):
+        ffdata = self.field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere_name="3D")
+        assert ffdata.plot_farfield_contour(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            title="Contour at {}Hz".format(ffdata.frequency),
+            export_image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
+
+        ffdata.plot_2d_cut(
+            primary_sweep="theta",
+            secondary_sweep_value=[-180, -75, 75],
+            qty_str="RealizedGain",
+            title="Azimuth at {}Hz".format(ffdata.frequency),
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
+        ffdata.plot_2d_cut(
+            primary_sweep="phi",
+            secondary_sweep_value=30,
+            qty_str="RealizedGain",
+            title="Azimuth at {}Hz".format(ffdata.frequency),
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
+        )
+
+        assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
+
+        ffdata.polar_plot_3d(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
+
+        ffdata.polar_plot_3d_pyvista(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            show=False,
+            export_image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
+
+    @pytest.mark.skipif(is_ironpython, reason="FarFieldSolution not supported by Ironpython")
+    def test_72_antenna_plot(self):
+        ffdata = self.array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D")
+        ffdata.frequency = 3.5e9
+        assert ffdata.plot_farfield_contour(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            title="Contour at {}Hz".format(ffdata.frequency),
+            export_image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
+
+        ffdata.plot_2d_cut(
+            primary_sweep="theta",
+            secondary_sweep_value=[-180, -75, 75],
+            qty_str="RealizedGain",
+            title="Azimuth at {}Hz".format(ffdata.frequency),
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
+        ffdata.plot_2d_cut(
+            primary_sweep="phi",
+            secondary_sweep_value=30,
+            qty_str="RealizedGain",
+            title="Azimuth at {}Hz".format(ffdata.frequency),
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
+        )
+
+        assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
+
+        ffdata.polar_plot_3d(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
+
+        ffdata.polar_plot_3d_pyvista(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            show=False,
+            export_image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
+        ffdata1 = self.array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D", overwrite=False)
+        assert ffdata1.plot_farfield_contour(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            title="Contour at {}Hz".format(ffdata1.frequency),
+            export_image_path=os.path.join(self.local_scratch.path, "contour1.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "contour1.jpg"))
+
+    def test_z99_delete_variations(self):
+        assert self.q3dtest.cleanup_solution()
+        vars = self.field_test.available_variations.get_variation_strings()
+        assert self.field_test.available_variations.variations()
+        assert self.field_test.cleanup_solution(vars, entire_solution=False)
+        assert self.field_test.cleanup_solution(vars, entire_solution=True)
