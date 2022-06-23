@@ -133,7 +133,7 @@ class TestClass(BasisTest, object):
         for edge in object_edges:
             assert len(edge.vertices) == 2
             assert len(edge.midpoint) == 3
-
+        assert o.edges[0].segment_info
         object_vertices = o.vertices
         for vertex in object_vertices:
             assert len(vertex.position) == 3
@@ -248,6 +248,8 @@ class TestClass(BasisTest, object):
         assert isinstance(o.bottom_edge_x, EdgePrimitive)
         assert isinstance(o.bottom_edge_y, EdgePrimitive)
         assert isinstance(o.bottom_edge_z, EdgePrimitive)
+        for edge in o.edges:
+            assert edge.segment_info
 
     def test_09_to_boolean(self):
         assert _to_boolean(True)
