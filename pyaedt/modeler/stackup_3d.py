@@ -1955,6 +1955,8 @@ class Trace(CommonObject, object):
         self._width = None
         self._width_h_w = None
         self._width_w_h = None
+        self._effective_permittivity_h_w = None
+        self._effective_permittivity_w_h = None
         self._axis = axis
         try:
             self._permittivity = NamedVariable(
@@ -1970,7 +1972,7 @@ class Trace(CommonObject, object):
             self._width = NamedVariable(
                 application, line_name + "_width", application.modeler._arg_with_dim(line_width)
             )
-            self._effective_permittivity, self._effective_permittivity_h_w = self._effective_permittivity_calcul
+            self._effective_permittivity_w_h, self._effective_permittivity_h_w = self._effective_permittivity_calcul
             self._wave_length = self._wave_length_calcul
             self._added_length = self._added_length_calcul
             if isinstance(line_electrical_length, float) or isinstance(line_electrical_length, int):
@@ -1991,7 +1993,7 @@ class Trace(CommonObject, object):
                 self.application, line_name + "_charac_impedance_h_w", str(line_impedance)
             )
             self._width_w_h, self._width_h_w = self._width_calcul
-            self._effective_permittivity, self._effective_permittivity_h_w = self._effective_permittivity_calcul
+            self._effective_permittivity_w_h, self._effective_permittivity_h_w = self._effective_permittivity_calcul
             self._wave_length = self._wave_length_calcul
             self._added_length = self._added_length_calcul
             if isinstance(line_electrical_length, float) or isinstance(line_electrical_length, int):
@@ -2248,7 +2250,7 @@ class Trace(CommonObject, object):
         # "0.412 * substrate_thickness * (patch_eff_permittivity + 0.3) * (patch_width/substrate_thickness + 0.264)"
         # " / ((patch_eff_permittivity - 0.258) * (patch_width/substrate_thickness + 0.813)) "
 
-        er_e = self._effective_permittivity.name
+        er_e = self.effective_permittivity.name
         h = self._substrate_thickness.name
         w = self.width.name
         patch_added_length_formula = (
@@ -2333,7 +2335,32 @@ class Trace(CommonObject, object):
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
             Variable Object.
         """
-        return self._effective_permittivity
+        if self.width.numeric_value >= self.dielectric_layer.thickness.numeric_value:
+            return self._effective_permittivity_w_h
+        else:
+            return self._effective_permittivity_h_w
+
+    @property
+    def effective_permittivity_w_h(self):
+        """Effective Permittivity when width is upper than dielectric thickness.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
+        """
+        return self._effective_permittivity_w_h
+
+    @property
+    def effective_permittivity_h_w(self):
+        """Effective Permittivity when dielectric thickness is upper than width.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable Object.
+        """
+        return self._effective_permittivity_h_w
 
     @property
     def _effective_permittivity_calcul(self):
@@ -2356,13 +2383,13 @@ class Trace(CommonObject, object):
         patch_eff_permittivity_formula_h_w = (
                 "(" + er + " + 1)/2 + (" + er + " - 1)/(2 * sqrt(1 + 12 * " + h + "/" + w + ")) + (" + er + " - 1)/2 * 0.04 * (1 - 12 * " + w + "/" + h + ")**2)"
         )
-        self._effective_permittivity = NamedVariable(
+        self._effective_permittivity_w_h = NamedVariable(
             self.application, self._name + "_eff_permittivity", patch_eff_permittivity_formula_w_h
         )
         self._effective_permittivity_h_w = NamedVariable(
             self.application, self._name + "_eff_permittivity", patch_eff_permittivity_formula_h_w
         )
-        return self._effective_permittivity, self._effective_permittivity_h_w
+        return self._effective_permittivity_w_h, self._effective_permittivity_h_w
 
     @property
     def wave_length(self):
@@ -2387,7 +2414,7 @@ class Trace(CommonObject, object):
         # "c0 * 1000/(patch_frequency * sqrt(patch_eff_permittivity))"
         # TODO it is currently only available for mm
         f = self._frequency.name
-        er_e = self._effective_permittivity.name
+        er_e = self.effective_permittivity.name
         patch_wave_length_formula = "(c0 * 1000/(" + f + "* sqrt(" + er_e + ")))mm"
         self._wave_length = NamedVariable(
             self.application,
