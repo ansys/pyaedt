@@ -2006,11 +2006,10 @@ class Trace(CommonObject, object):
                 self._electrical_length = self._electrical_length_calcul
             else:
                 application.logger.error("line_length must be a float.")
+            self._width = self._width_w_h
             if self.width_h_w.numeric_value < self.dielectric_layer.thickness.numeric_value * 2 \
                     and self.width_h_w.numeric_value < self.dielectric_layer.thickness.numeric_value * 2:
                 self._width = self._width_h_w
-            else:
-                self._width = self._width_w_h
         if reference_system:
             application.modeler.set_working_coordinate_system(reference_system)
             if axis == "X":
