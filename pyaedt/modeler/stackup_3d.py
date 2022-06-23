@@ -2006,22 +2006,18 @@ class Trace(CommonObject, object):
                 self._electrical_length = self._electrical_length_calcul
             else:
                 application.logger.error("line_length must be a float.")
-            self._width = self._width_w_h
-            if self.width_h_w.numeric_value < self.dielectric_layer.thickness.numeric_value * 2 \
-                    and self.width_h_w.numeric_value < self.dielectric_layer.thickness.numeric_value * 2:
-                self._width = self._width_h_w
         if reference_system:
             application.modeler.set_working_coordinate_system(reference_system)
             if axis == "X":
                 start_point = [
                     "{0}_position_x".format(self._name),
-                    "{0}_position_y-" + self.width.name + "/2".format(self._name),
+                    self.position_y.name + " - " + self.width.name + "/2".format(self._name),
                     0,
                 ]
             else:
 
                 start_point = [
-                    "{0}_position_x-" + self.width.name + "/2".format(self._name),
+                    self.position_x.name + " - " + self.width.name + "/2".format(self._name),
                     "{}_position_y".format(self._name),
                     0,
                 ]
@@ -2056,7 +2052,7 @@ class Trace(CommonObject, object):
         else:
             self._aedt_object = application.modeler.create_rectangle(
                 position=start_point,
-                dimension_list=["{}_length".format(self._name), "{}_width".format(self._name)],
+                dimension_list=["{}_length".format(self._name), self.width.name],
                 name=line_name,
                 matname=signal_layer.material_name,
             )
@@ -2094,7 +2090,9 @@ class Trace(CommonObject, object):
         :class:`pyaedt.modeler.stackup_3d.NamedVariable`
             Variable Object.
         """
-        if self.width_h_w.numeric_value < self.dielectric_layer.thickness.numeric_value * 2 \
+        if self._width is not None:
+            return self._width
+        elif self.width_h_w.numeric_value < self.dielectric_layer.thickness.numeric_value * 2 \
                 and self.width_h_w.numeric_value < self.dielectric_layer.thickness.numeric_value * 2:
             return self._width_h_w
         return self._width_w_h
@@ -2252,7 +2250,7 @@ class Trace(CommonObject, object):
 
         er_e = self._effective_permittivity.name
         h = self._substrate_thickness.name
-        w = self._width.name
+        w = self.width.name
         patch_added_length_formula = (
                 "0.412 * " + h + " * (" + er_e + " + 0.3) * (" + w + "/" + h + " + 0.264)/"
                                                                                "((" + er_e + " - 0.258) * (" + w + "/" + h + " + 0.813))"
@@ -2309,7 +2307,7 @@ class Trace(CommonObject, object):
         """
         # if w / h > 1: 60 * log(8 * h / w + w / (4 * h)) / sqrt(er_e)
         # if w / h < 1: 120 * pi / (sqrt(er_e) * (w / h + 1.393 + 0.667 * log(w / h + 1.444)))
-        w = self._width.name
+        w = self.width.name
         h = self._dielectric_layer.thickness.name
         er_e = self.effective_permittivity.name
         charac_impedance_formula_w_h = (
@@ -2350,7 +2348,7 @@ class Trace(CommonObject, object):
         # (substrat_permittivity - 1)/(2 * sqrt(1 + 12 * substrate_thickness/patch_width))"
         er = self._permittivity.name
         h = self._substrate_thickness.name
-        w = self._width.name
+        w = self.width.name
         patch_eff_permittivity_formula = (
                 "(" + er + " + 1)/2 + (" + er + " - 1)/(2 * sqrt(1 + 12 * " + h + "/" + w + "))"
         )
