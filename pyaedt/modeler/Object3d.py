@@ -444,7 +444,8 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         for prop in oo.GetChildObject(oo.GetChildNames()[0]).GetChildObject("Segment0").GetPropNames():
             if "/" not in prop:
                 segment[prop] = oo.GetChildObject(oo.GetChildNames()[0]).GetChildObject("Segment0").GetPropValue(prop)
-        self.oeditor.Delete(["NAME:Selections", "Selections:=", new_line[0]])
+        self._object3d._primitives._odesign.Undo()
+        self._object3d._primitives._odesign.Undo()
         return segment
 
     @property
