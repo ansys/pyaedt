@@ -28,7 +28,7 @@ matplotlib==3.5.2
 numpy==1.23.0
 # License: BSD-3-Clause License
 
-ipython==8.3.0
+ipython==8.4.0
 # License: BSD-3-Clause License
 
 jupyterlab==3.4.3
