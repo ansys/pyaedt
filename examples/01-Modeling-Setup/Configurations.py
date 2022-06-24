@@ -59,7 +59,7 @@ if not os.path.exists(temp_folder):
     os.makedirs(temp_folder)
 shutil.copy2(project_full_name, project_temp_name)
 
-ipk = Icepak(project_temp_name, specified_version="2022.1", new_desktop_session=True, non_graphical=non_graphical)
+ipk = Icepak(project_temp_name, specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
 ipk.save_project(os.path.join(temp_folder, "Graphics_card.aedt"))
 ipk.autosave_disable()
 
@@ -128,8 +128,8 @@ app.configurations.results.global_import_success
 
 
 ###############################################################################
-# Close ne project
-# ~~~~~~~~~~~~~~~
+# Close the project
+# ~~~~~~~~~~~~~~~~~
 
 if os.name != "posix":
     app.release_desktop()

@@ -5,7 +5,8 @@ This example shows how you can use PyAEDT to create a machine learning algorithm
 - Generate the database
 - Create the machine learning algorithm
 - Implement the model in a PyAEDT method
-These three steps are in one file here for the example but it is better to separate them in different python file.
+These three steps are in one file available for the example but it would be
+better to separate them in different python file.
 """
 
 import json
@@ -109,7 +110,7 @@ print("Its length is: " + str(len(dictionary_list)))
 # Now, the HFSS design will be generated using the PyAEDT Stackup3D function.
 # Open an Hfss Design and create the stackup, add the different layers, add the patch.
 # In Stackup Library, most things are already parameterized like the layers and the patch.
-desktopVersion = "2022.1"
+desktopVersion = "2022.2"
 
 hfss = Hfss(new_desktop_session=True, solution_type="Terminal", non_graphical=non_graphical,
             specified_version=desktopVersion)
@@ -142,6 +143,8 @@ hfss.modeler.primitives.create_polyline(position_list=points_list, name="adjust_
 pad_percent = [50, 50, 300, 50, 50, 10]
 region = hfss.modeler.primitives.create_region(pad_percent)
 hfss.assign_radiation_boundary_to_objects(region)
+
+hfss.plot(show=False)
 
 ###############################################################################
 # Then a setup and a frequency sweep will be created by frequency.

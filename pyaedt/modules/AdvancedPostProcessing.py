@@ -201,7 +201,7 @@ class PostProcessor(Post):
             return False
 
         model = ModelPlotter()
-
+        model.off_screen = True
         for file in files:
             if force_opacity_value:
                 model.add_object(file[0], file[1], force_opacity_value, self.modeler.model_units)

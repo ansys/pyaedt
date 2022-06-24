@@ -127,18 +127,28 @@ def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
 
 def _delete_objects():
     module = sys.modules["__main__"]
-    if "COMUtil" in dir(module):
+    try:
         del module.COMUtil
-    if "aedt_logger" in dir(module):
+    except AttributeError:
+        pass
+    try:
         del module.aedt_logger
-    if "oDesktop" in dir(module):
+    except AttributeError:
+        pass
+    try:
         del module.oDesktop
-    if "pyaedt_initialized" in dir(module):
+    except AttributeError:
+        pass
+    try:
         del module.pyaedt_initialized
-    if "_aedt_handler" in dir(module):
+    except AttributeError:
+        pass
+    try:
         _global = logging.getLogger("Global")
         for i in range(len(module._aedt_handler) - 1, -1, -1):
             _global.removeHandler(module._aedt_handler[i])
+    except AttributeError:
+        pass
     gc.collect()
 
 
@@ -160,10 +170,7 @@ def release_desktop(close_projects=True, close_desktop=True):
     """
 
     _main = sys.modules["__main__"]
-    if "oDesktop" not in dir(_main):
-        _delete_objects()
-        return False
-    else:
+    try:
         desktop = _main.oDesktop
         if close_projects:
             projects = desktop.GetProjectList()
@@ -190,7 +197,10 @@ def release_desktop(close_projects=True, close_desktop=True):
             except Exception:  # pragma: no cover
                 warnings.warn("Something went wrong in closing AEDT.")
                 return False
-    return True
+        return True
+    except AttributeError:
+        _delete_objects()
+        return False
 
 
 def force_close_desktop():

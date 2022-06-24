@@ -19,7 +19,7 @@ from pyaedt import generate_unique_name
 
 #################################################################################
 # Initialization: Maxwell version, path project and design name and type
-desktopVersion = "2022.1"
+desktopVersion = "2022.2"
 
 sName = "MySetupAuto"
 sType = "TransientXY"
