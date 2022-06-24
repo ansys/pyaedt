@@ -15,14 +15,17 @@ on:
         description: 'Linux Ironpython Manual Trigger'
   schedule:  # UTC at 0400
     - cron:  '0 4 * * *'
-   
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: Linux
+    runs-on: [Linux, pyaedt]
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v2
@@ -31,7 +34,7 @@ jobs:
         run: |
           export DISPLAY="127.0.0.1:1"
           chmod 777 _unittest_ironpython/run_unittests_batchmode_linux.cmd
-          timeout -k 2400s 2400s ./_unittest_ironpython/run_unittests_batchmode_linux.cmd
+          timeout -k 3600s 3600s ./_unittest_ironpython/run_unittests_batchmode_linux.cmd
           if [ $? -eq 124 ] ; then
             echo "ERROR: Timeout while waiting for the file _unittest_ironpython/tests_succeeded.log."
             exit 1

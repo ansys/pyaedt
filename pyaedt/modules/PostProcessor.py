@@ -24,7 +24,7 @@ TEMPLATES_BY_DESIGN = {
     "HFSS": [
         "Modal Solution Data",
         "Terminal Solution Data",
-        "EigenMode Parameters",
+        "Eigenmode Parameters",
         "Fields",
         "Far Fields",
         "Emissions",
@@ -55,6 +55,7 @@ TEMPLATES_BY_DESIGN = {
     "Icepak": ["Monitor", "Fields"],
     "Circuit Design": ["Standard", "Eye Diagram", "Spectrum"],
     "HFSS 3D Layout": ["Standard", "Fields", "Spectrum"],
+    "HFSS 3D Layout Design": ["Standard", "Fields", "Spectrum"],
     "Mechanical": ["Standard", "Fields"],
     "Q3D Extractor": ["Matrix", "CG Fields", "DC R/L Fields", "AC R/L Fields"],
     "2D Extractor": ["Matrix", "CG Fields", "RL Fields"],
@@ -73,7 +74,7 @@ TEMPLATES_BY_NAME = {
     "Far Fields": rt.FarField,
     "Near Fields": rt.NearField,
     "Eye Diagram": rt.EyeDiagram,
-    "EigenMode Parameters": rt.Standard,
+    "Eigenmode Parameters": rt.Standard,
     "Spectrum": rt.Spectral,
 }
 
@@ -481,8 +482,8 @@ class Reports(object):
         """
         if not setup_name:
             setup_name = self._post_app._app.nominal_sweep
-        if "EigenMode Parameters" in self._templates:
-            rep = rt.Standard(self._post_app, "EigenMode Parameters", setup_name)
+        if "Eigenmode Parameters" in self._templates:
+            rep = rt.Standard(self._post_app, "Eigenmode Parameters", setup_name)
             rep.expressions = expressions
             return rep
         return
@@ -608,6 +609,113 @@ class PostProcessorCommon(object):
         self._scratch = self._app.working_directory
         self.plots = self._get_plot_inputs()
         self.reports_by_category = Reports(self, self._app.design_type)
+
+    @property
+    def available_report_types(self):
+        """Report types.
+
+        References
+        ----------
+
+        >>> oModule.GetAvailableReportTypes
+        """
+        return list(self.oreportsetup.GetAvailableReportTypes())
+
+    @pyaedt_function_handler()
+    def available_display_types(self, report_category=None):
+        """Retrieve display types for a report categories.
+
+        Parameters
+        ----------
+        report_category : str, optional
+            Type of the report. The default value is ``None``.
+
+        Returns
+        -------
+        list
+            List of available report categories.
+
+        References
+        ----------
+        >>> oModule.GetAvailableDisplayTypes
+        """
+        if not report_category:
+            report_category = self.available_report_types[0]
+        if report_category:
+            return list(self.oreportsetup.GetAvailableDisplayTypes(report_category))
+        return []
+
+    @pyaedt_function_handler()
+    def available_quantities_categories(self, report_category=None, display_type=None, solution=None, context=""):
+        """Compute the list of all available report categories.
+
+        Parameters
+        ----------
+        report_category : str, optional
+            Report Category. Default is `None` which will take first default category.
+        display_type : str, optional
+            Report Display Type.
+            Default is `None` which will take first default type which is in most of the case "Rectangular Plot".
+        solution : str, optional
+            Report Setup. Default is `None` which will take first nominal_adpative solution.
+        context : str, optional
+            Report Category. Default is `""` which will take first default context.
+
+        Returns
+        -------
+        list
+        """
+        if not report_category:
+            report_category = self.available_report_types[0]
+        if not display_type:
+            display_type = self.available_display_types(report_category)[0]
+        if not solution:
+            solution = self._app.nominal_adaptive
+        if solution and report_category and display_type:
+            return list(self.oreportsetup.GetAllCategories(report_category, display_type, solution, context))
+        return []
+
+    @pyaedt_function_handler()
+    def available_report_quantities(
+        self, report_category=None, display_type=None, solution=None, quantities_category=None, context=""
+    ):
+        """Compute the list of all available report quantities of a given report quantity category.
+
+        Parameters
+        ----------
+        report_category : str, optional
+            Report Category. Default is `None` which will take first default category.
+        display_type : str, optional
+            Report Display Type.
+            Default is `None` which will take first default type which is in most of the case "Rectangular Plot".
+        solution : str, optional
+            Report Setup. Default is `None` which will take first nominal_adpative solution.
+        quantities_category : str, optional
+            The category to which quantities belong. It has to be one of `available_quantities_categories` method.
+            Default is `None` which will take first default quantity.".
+        context : str, optional
+            Report Category. Default is `""` which will take first default context.
+
+        Returns
+        -------
+        list
+        """
+        if not report_category:
+            report_category = self.available_report_types[0]
+        if not display_type:
+            display_type = self.available_display_types(report_category)[0]
+        if not solution:
+            solution = self._app.nominal_adaptive
+        if not quantities_category:
+            categories = self.available_quantities_categories(report_category, display_type, solution, context)
+            quantities_category = categories[0] if categories else None
+        if quantities_category and display_type and report_category and solution:
+            return list(
+                self.oreportsetup.GetAllQuantities(
+                    report_category, display_type, solution, context, quantities_category
+                )
+            )
+        return None
 
     @pyaedt_function_handler()
     def _get_plot_inputs(self):
@@ -1013,12 +1121,15 @@ class PostProcessorCommon(object):
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_adaptive
         sweep_list = _convert_dict_to_report_sel(sweeps)
-
-        data = list(
-            self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression)
-        )
-        self.logger.info("Solution Data Correctly Loaded.")
-        return SolutionData(data)
+        try:
+            data = list(
+                self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression)
+            )
+            self.logger.info("Solution Data Correctly Loaded.")
+            return SolutionData(data)
+        except:
+            self.logger.warning("Solution Data failed to load. Check solution, context or expression.")
+            return None
 
     @pyaedt_function_handler()
     def steal_focus_oneditor(self):
@@ -1762,37 +1873,6 @@ class PostProcessor(PostProcessorCommon, object):
         """
         return self._app.ofieldsreporter
 
-    @property
-    def report_types(self):
-        """Report types.
-
-        References
-        ----------
-
-        >>> oModule.GetAvailableReportTypes
-        """
-        return list(self.oreportsetup.GetAvailableReportTypes())
-
-    @pyaedt_function_handler()
-    def display_types(self, report_type):
-        """Retrieve display types for a report type.
-
-        Parameters
-        ----------
-        report_type : str
-            Type of the report.
-
-        Returns
-        -------
-        :attr:`pyaedt.modules.PostProcessor.PostProcessor.report_types`
-
-        References
-        ----------
-
-        >>> oModule.GetAvailableDisplayTypes
-        """
-        return self.oreportsetup.GetAvailableDisplayTypes(report_type)
-
     @pyaedt_function_handler()
     def _get_base_name(self, setup):
         setups_data = self._app.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
@@ -1805,7 +1885,11 @@ class PostProcessor(PostProcessorCommon, object):
             if isinstance(sim_data["SimSetup"], list):
                 for solution in sim_data["SimSetup"]:
                     base_name = solution["Name"]
-                    for sol in solution["Solution"]:
+                    if isinstance(solution["Solution"], (dict, OrderedDict)):
+                        sols = [solution["Solution"]]
+                    else:
+                        sols = solution["Solution"]
+                    for sol in sols:
                         if sol["ID"] == setups_data[setup]["SolutionId"]:
                             base_name += " : " + sol["Name"]
                             return base_name

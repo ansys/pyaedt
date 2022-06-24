@@ -24,7 +24,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 3 Bath Plate"
 Solver = "EddyCurrent"
-DesktopVersion = "2022.1"
+DesktopVersion = "2022.2"
 
 M3D = Maxwell3d(
     projectname=Project_Name,

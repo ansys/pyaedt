@@ -269,3 +269,13 @@ class TestClass(BasisTest, object):
         assert oModule.GetEddyEffect("Coil_1")
         self.aedtapp.eddy_effects_on(["Coil_1"], activate_eddy_effects=False)
         assert not oModule.GetEddyEffect("Coil_1")
+
+    def test_23_read_motion_boundary(self):
+        assert self.aedtapp.boundaries
+        for bound in self.aedtapp.boundaries:
+            if bound.name == "MotionSetup1":
+                assert bound.props["MotionType"] == "Band"
+                assert bound.props["InitPos"] == "Init_Pos"
+                bound.props["InitPos"] = "10deg"
+                assert bound.props["InitPos"] == "10deg"
+                assert bound.type == "Band"

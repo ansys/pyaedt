@@ -40,11 +40,11 @@ NewThread = True
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# This example launches AEDT 2022R1 in graphical model.
+# This example launches AEDT 2022R2 in graphical model.
 
 # This example uses SI units.
 
-desktopVersion = "2022.1"
+desktopVersion = "2022.2"
 
 
 ###############################################################################

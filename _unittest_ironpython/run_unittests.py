@@ -19,7 +19,7 @@ from pyaedt.generic.general_methods import is_ironpython
 if os.name != "posix":
     ansysem_install_dir = os.environ.get("ANSYSEM_INSTALL_DIR", "")
     if not ansysem_install_dir:
-        ansysem_install_dir = os.environ["ANSYSEM_ROOT221"]
+        ansysem_install_dir = os.environ["ANSYSEM_ROOT222"]
     sys.path.append(os.path.join(ansysem_install_dir, "PythonFiles", "DesktopPlugin"))
 path_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
 sys.path.append(path_dir)

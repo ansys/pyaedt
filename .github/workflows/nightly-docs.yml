@@ -5,6 +5,10 @@ on:
   schedule:  # UTC at 0400
     - cron:  '0 4 * * *'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   docs_build:
     runs-on: ubuntu-20.04

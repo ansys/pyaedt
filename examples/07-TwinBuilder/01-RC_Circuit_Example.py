@@ -15,14 +15,14 @@ from pyaedt import TwinBuilder
 ###############################################################################
 # Select Version and Launch Options
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example launches Twin Builder 2022R1 in graphical mode.
+# This example launches Twin Builder 2022R2 in graphical mode.
 
 # You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
 # Twin Builder in non graphical mode.
 # You can change the Boolean parameter ``new_thread`` to ``False`` to launch
 # Twin Builder in existing Desktop Session, if any.
 
-desktop_version = "2022.1"
+desktop_version = "2022.2"
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 new_thread = True

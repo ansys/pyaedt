@@ -127,6 +127,7 @@ class TestClass(BasisTest, object):
         setup.props["MaximumPasses"] = 1
         assert setup.update()
         assert self.aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401)
+        assert not self.aedtapp.setups[0].sweeps[0].is_solved
         assert self.aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401)
         assert self.aedtapp.create_linear_count_sweep(
             setupname="MySetup",
@@ -949,10 +950,11 @@ class TestClass(BasisTest, object):
         hfss2.close_project()
 
     @pytest.mark.skipif(
-        config["desktopVersion"] < "2022.2", reason="Not working in non-graphical in version lower than 2022.2"
+        is_ironpython or config["desktopVersion"] < "2022.2",
+        reason="Not working in non-graphical in version lower than 2022.2",
     )
     def test_51_array(self):
-        self.aedtapp.insert_design("Array_simple")
+        self.aedtapp.insert_design("Array_simple", "Modal")
         from pyaedt.generic.DataHandlers import json_to_dict
 
         dict_in = json_to_dict(os.path.join(local_path, "example_models", "array_simple.json"))
