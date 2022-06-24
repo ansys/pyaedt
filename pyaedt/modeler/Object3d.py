@@ -419,7 +419,8 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
     @property
     def segment_info(self):
-        """Compute the segment info using the object oriented method (from AEDT 21R2 with beta options).
+        """Compute segment information using the object-oriented method (from AEDT 2021 R2
+        with beta options).
 
         Returns
         -------
