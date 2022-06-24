@@ -117,12 +117,12 @@ class EDBNetsData(object):
 
     @pyaedt_function_handler()
     def plot(
-        self,
-        layers=None,
-        show_legend=True,
-        save_plot=None,
-        outline=None,
-        size=(2000, 1000),
+            self,
+            layers=None,
+            show_legend=True,
+            save_plot=None,
+            outline=None,
+            size=(2000, 1000),
     ):
         """Plot a net to Matplotlib 2D chart.
 
@@ -599,8 +599,8 @@ class EDBLayer(object):
             Name of the filling material if it exists.
         """
         if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
                 self._filling_material_name = self._layer.GetFillMaterial()
@@ -613,8 +613,8 @@ class EDBLayer(object):
     def filling_material_name(self, value):
 
         if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             self._filling_material_name = value
             self.update_layers()
@@ -629,8 +629,8 @@ class EDBLayer(object):
             ``True`` when negative, ``False`` otherwise..
         """
         if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
                 self._negative_layer = self._layer.GetNegative()
@@ -641,8 +641,8 @@ class EDBLayer(object):
     @negative_layer.setter
     def negative_layer(self, value):
         if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             self._negative_layer = value
             self.update_layers()
@@ -657,8 +657,8 @@ class EDBLayer(object):
             ``True`` if the layer has roughness, ``False`` otherwise.
         """
         if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
                 self._roughness_enabled = self._layer.IsRoughnessEnabled()
@@ -669,8 +669,8 @@ class EDBLayer(object):
     @roughness_enabled.setter
     def roughness_enabled(self, value):
         if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             self._roughness_enabled = value
             self.update_layers()
@@ -742,8 +742,8 @@ class EDBLayer(object):
             Etch factor if it exists, 0 otherwise.
         """
         if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
                 self._etch_factor = float(self._layer.GetEtchFactor().ToString())
@@ -757,20 +757,20 @@ class EDBLayer(object):
         if value is None:
             value = 0
         if (
-            self._layer_type == self._edb.Cell.LayerType.SignalLayer
-            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             self._etch_factor = float(value)
             self.update_layers()
 
     @pyaedt_function_handler()
     def plot(
-        self,
-        nets=None,
-        show_legend=True,
-        save_plot=None,
-        outline=None,
-        size=(2000, 1000),
+            self,
+            nets=None,
+            show_legend=True,
+            save_plot=None,
+            outline=None,
+            size=(2000, 1000),
     ):
         """Plot a layer to a Matplotlib 2D chart.
 
@@ -808,8 +808,8 @@ class EDBLayer(object):
             self._layer_type = self._layer.GetLayerType()
             self._thickness = self._layer.GetThicknessValue().ToString()
             if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                    self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                    or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
             ):
                 self._etch_factor = float(self._layer.GetEtchFactor().ToString())
                 self._filling_material_name = self._layer.GetFillMaterial()
@@ -824,16 +824,16 @@ class EDBLayer(object):
 
     @pyaedt_function_handler()
     def update_layer_vals(
-        self,
-        layerName,
-        newLayer,
-        etchMap,
-        materialMap,
-        fillMaterialMap,
-        thicknessMap,
-        negativeMap,
-        roughnessMap,
-        layerTypeMap,
+            self,
+            layerName,
+            newLayer,
+            etchMap,
+            materialMap,
+            fillMaterialMap,
+            thicknessMap,
+            negativeMap,
+            roughnessMap,
+            layerTypeMap,
     ):
         """Update layer properties.
 
@@ -1048,10 +1048,10 @@ class EDBLayers(object):
         allLayers = list(list(self.layer_collection.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         allStackuplayers = filter(
             lambda lyr: (lyr.GetLayerType() == self._edb.Cell.LayerType.DielectricLayer)
-            or (
-                lyr.GetLayerType() == self._edb.Cell.LayerType.SignalLayer
-                or lyr.GetLayerType() == self._edb.Cell.LayerType.ConductingLayer
-            ),
+                        or (
+                                lyr.GetLayerType() == self._edb.Cell.LayerType.SignalLayer
+                                or lyr.GetLayerType() == self._edb.Cell.LayerType.ConductingLayer
+                        ),
             allLayers,
         )
         return sorted(
@@ -1071,8 +1071,8 @@ class EDBLayers(object):
         self._signal_layers = OrderedDict({})
         for layer, edblayer in self.layers.items():
             if (
-                edblayer._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or edblayer._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                    edblayer._layer_type == self._edb.Cell.LayerType.SignalLayer
+                    or edblayer._layer_type == self._edb.Cell.LayerType.ConductingLayer
             ):
                 self._signal_layers[layer] = edblayer
         return self._signal_layers
@@ -1213,16 +1213,16 @@ class EDBLayers(object):
 
     @pyaedt_function_handler()
     def add_layer(
-        self,
-        layerName,
-        start_layer=None,
-        material="copper",
-        fillMaterial="",
-        thickness="35um",
-        layerType=0,
-        negative_layer=False,
-        roughness_enabled=False,
-        etchMap=None,
+            self,
+            layerName,
+            start_layer=None,
+            material="copper",
+            fillMaterial="",
+            thickness="35um",
+            layerType=0,
+            negative_layer=False,
+            roughness_enabled=False,
+            etchMap=None,
     ):
         """Add a layer after a specific layer.
 
@@ -1644,14 +1644,14 @@ class EDBPadProperties(object):
 
     @pyaedt_function_handler()
     def _update_pad_parameters_parameters(
-        self,
-        layer_name=None,
-        pad_type=None,
-        geom_type=None,
-        params=None,
-        offsetx=None,
-        offsety=None,
-        rotation=None,
+            self,
+            layer_name=None,
+            pad_type=None,
+            geom_type=None,
+            params=None,
+            offsetx=None,
+            offsety=None,
+            rotation=None,
     ):
         """Update padstack parameters.
 
@@ -2055,9 +2055,9 @@ class EDBPadstackInstance(object):
             return self._bounding_box
         bbox = (
             self._edb_padstackinstance.GetLayout()
-            .GetLayoutInstance()
-            .GetLayoutObjInstance(self._edb_padstackinstance, None)
-            .GetBBox()
+                .GetLayoutInstance()
+                .GetLayoutObjInstance(self._edb_padstackinstance, None)
+                .GetBBox()
         )
         self._bounding_box = [
             [bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()],
@@ -4663,16 +4663,16 @@ class SimulationConfiguration(object):
             return False
 
     def add_dc_source(
-        self,
-        source_type=SourceType.Vsource,
-        name="",
-        amplitude=1.0,
-        phase=0.0,
-        impedance=1.0,
-        positive_node_component="",
-        positive_node_net="",
-        negative_node_component="",
-        negative_node_net="",
+            self,
+            source_type=SourceType.Vsource,
+            name="",
+            amplitude=1.0,
+            phase=0.0,
+            impedance=1.0,
+            positive_node_component="",
+            positive_node_net="",
+            negative_node_component="",
+            negative_node_net="",
     ):
         """Add a source for the current SimulationConfiguration instance.
 
@@ -4764,3 +4764,740 @@ class SimulationConfiguration(object):
             return True
         except:  # pragma: no cover
             return False
+
+
+class EDBStatistics(object):
+    """"""
+
+    def __init__(self):
+        self._nb_layer = 1
+        self._nb_discrete_cmp = 0
+        self._nb_rlc_cmp = 0
+        self._nb_vias = 0
+        self._total_metal_area = 0.0
+        self._layout_size = [0.0, 0.0, 0.0, 0.0]
+        self._polygons = []
+        self._traces = []
+        self._layers = []
+        self._nets = []
+        self._discrete_components = []
+        self._rlc_components = []
+        self._via_holes = []
+
+    @property
+    def nb_layers(self):
+        return self._nb_layer
+
+    @nb_layers.setter
+    def nb_layers(self, value):
+        if isinstance(value, int):
+            self._nb_layer = value
+
+    @property
+    def num_discrete_components(self):
+        return self._nb_discrete_cmp
+
+    @num_discrete_components.setter
+    def num_discrete_components(self, value):
+        if isinstance(value, int):
+            self._nb_discrete_cmp = value
+
+    @property
+    def num_rlc_components(self):
+        return self._nb_rlc_cmp
+
+    @num_rlc_components.setter
+    def num_rlc_components(self, value):
+        if isinstance(value, int):
+            self._nb_rlc_cmp = value
+
+    @property
+    def nb_vias(self):
+        return self._nb_vias
+
+    @nb_vias.setter
+    def nb_vias(self, value):
+        if isinstance(value, int):
+            self._nb_vias = value
+
+    @property
+    def total_metal_area(self):
+        return self._total_metal_area
+
+    @total_metal_area.setter
+    def total_metal_area(self, value):
+        if isinstance(value, float):
+            self._total_metal_area = value
+
+    @property
+    def layout_size(self):
+        return self._layout_size
+
+    @layout_size.setter
+    def layout_size(self, value):
+        if isinstance(value, list):
+            if len([pt for pt in value if isinstance(pt, float)]) == len(value):
+                self._layout_size = value
+
+    @property
+    def polygons(self):
+        return self._polygons
+
+    @polygons.setter
+    def polygons(self, value):
+        if isinstance(value, list):
+            if [poly for poly in value if isinstance(poly, self.Polygon)]:
+                self._polygons = value
+
+    @property
+    def traces(self):
+        return self._traces
+
+    @traces.setter
+    def traces(self, value):
+        if isinstance(value, list):
+            if [trace for trace in value if isinstance(trace, self.Trace)]:
+                self._traces = value
+
+    @property
+    def discrete_components(self):
+        return self._discrete_components
+
+    @discrete_components.setter
+    def discrete_components(self, value):
+        if isinstance(value, list):
+            if [disc_cmp for disc_cmp in value if isinstance(disc_cmp, self.DiscreteComponent)]:
+                self._discrete_components = value
+
+    @property
+    def rlc_components(self):
+        return self._rlc_components
+
+    @rlc_components.setter
+    def rlc_components(self, value):
+        if isinstance(value, list):
+            if [rlc_cmp for rlc_cmp in value if isinstance(rlc_cmp, self.RlcComponent)]:
+                self._rlc_components = value
+
+    @property
+    def layers(self):
+        return self._layers
+
+    @layers.setter
+    def layers(self, value):
+        if isinstance(value, list):
+            if [layer for layer in value if isinstance(layer, self.Layer)]:
+                self._layers = value
+
+    @property
+    def nets(self):
+        return self._nets
+
+    @nets.setter
+    def nets(self, value):
+        if isinstance(value, list):
+            if [net for net in value if isinstance(net, self.Net)]:
+                self._nets = value
+
+    @property
+    def vias(self):
+        return self._via_holes
+
+    @vias.setter
+    def vias(self, value):
+        if isinstance(value, list):
+            if [via for via in value if isinstance(via, self.Via)]:
+                self._via_holes = value
+
+    class Polygon(object):
+        def __init__(self):
+            self._layer = EDBStatistics.Layer()
+            self._area = 0.0
+            self._net = ""
+            self._nb_voids = 0
+            self._is_void = False
+            self._points = []
+            self._id = -1
+
+        @property
+        def layer(self):
+            return self._layer
+
+        @layer.setter
+        def layer(self, value):
+            if isinstance(value, EDBStatistics.Layer):
+                self._layer = value
+
+        @property
+        def area(self):
+            return self._area
+
+        @area.setter
+        def area(self, value):
+            if isinstance(value, float):
+                self._area = value
+
+        @property
+        def net(self):
+            return self._net
+
+        @net.setter
+        def net(self, value):
+            if isinstance(value, EDBStatistics.Net):
+                self._net = value
+
+        @property
+        def is_void(self):
+            return self._is_void
+
+        @is_void.setter
+        def is_void(self, value):
+            if isinstance(value, bool):
+                self._is_void = value
+
+        @property
+        def points(self):
+            return self._points
+
+        @points.setter
+        def points(self, value):
+            if isinstance(value, list):
+                pts = [pt for pt in value if isinstance(pt, tuple)]
+                pts_check = [pt for pt in pts if isinstance(pt[0], float) and isinstance(pt[1], float)]
+                if len(pts) == len(value) and len(pts_check) == len(pts):
+                    self._points = value
+
+        @property
+        def id(self):
+            return self._id
+
+        @id.setter
+        def id(self, value):
+            if isinstance(value, int):
+                self._id = value
+
+        @property
+        def num_voids(self):
+            return self._nb_voids
+
+        @num_voids.setter
+        def num_voids(self, value):
+            if isinstance(value, int):
+                self._nb_voids = value
+
+    class Trace(object):
+        def __init__(self):
+            self._net = EDBStatistics.Net()
+            self._width = 0.0
+            self._center_line_points = []
+
+        @property
+        def net(self):
+            return self._net
+
+        @net.setter
+        def net(self, value):
+            if isinstance(value, EDBStatistics.Net):
+                self._net = value
+
+        @property
+        def width(self):
+            return self._width
+
+        @width.setter
+        def width(self, value):
+            if isinstance(value, float):
+                self._width = value
+
+        @property
+        def center_line_points(self):
+            return self._center_line_points
+
+        @center_line_points.setter
+        def center_line_points(self, value):
+            if isinstance(value, list):
+                pts = [pt for pt in value if isinstance(pt, tuple)]
+                pts_check = [pt for pt in pts if isinstance(pt[0], float) and isinstance(pt[1], float)]
+                if len(pts_check) == len(pts):
+                    self._center_line_points = value
+
+    class Layer(object):
+        def __init__(self):
+            self._name = ""
+            self._thickness = 0.0
+            self._material = EDBStatistics.Material()
+            self._type = "Signal"
+            self._filling_material = EDBStatistics.Material()
+            self._metal_area = 0.0
+            self._lower_elevation = 0.0
+            self._upper_elevation = 0.0
+
+        @property
+        def name(self):
+            return self._name
+
+        @name.setter
+        def name(self, value):
+            if isinstance(value, str):
+                self._name = value
+
+        @property
+        def thickness(self):
+            return self._thickness
+
+        @thickness.setter
+        def thickness(self, value):
+            if isinstance(value, float):
+                self._thickness = value
+
+        @property
+        def material(self):
+            return self._material
+
+        @material.setter
+        def material(self, value):
+            if isinstance(value, EDBStatistics.Material):
+                self._material = value
+
+        @property
+        def layer_type(self):
+            return self._type
+
+        @layer_type.setter
+        def layer_type(self, value):
+            if isinstance(value, str):
+                self._type = value
+
+        @property
+        def filling_material(self):
+            return self._filling_material
+
+        @filling_material.setter
+        def filling_material(self, value):
+            if isinstance(value, EDBStatistics.Material):
+                self._filling_material = value
+
+        @property
+        def metal_area(self):
+            return self._metal_area
+
+        @metal_area.setter
+        def metal_area(self, value):
+            if isinstance(value, float):
+                self._metal_area = value
+
+        @property
+        def upper_elevation(self):
+            return self._upper_elevation
+
+        @upper_elevation.setter
+        def upper_elevation(self, value):
+            if isinstance(value, float):
+                self._upper_elevation = value
+
+        @property
+        def lower_elevation(self):
+            return self._lower_elevation
+
+        @lower_elevation.setter
+        def lower_elevation(self, value):
+            if isinstance(value, float):
+                self._lower_elevation = value
+
+    class Material(object):
+        def __init__(self):
+            self._name = ""
+            self._epsr = 1.0
+            self._mur = 1.0
+            self._loss_tg = 0.0
+            self._conductivity = 0.0
+            self._type = "conductor"
+
+        @property
+        def name(self):
+            return self._name
+
+        @name.setter
+        def name(self, value):
+            if isinstance(value, str):
+                self._name = value
+
+        @property
+        def epsr(self):
+            return self._epsr
+
+        @epsr.setter
+        def epsr(self, value):
+            if isinstance(value, float):
+                self._epsr = value
+
+        @property
+        def mur(self):
+            return self._mur
+
+        @mur.setter
+        def mur(self, value):
+            if isinstance(value, float):
+                self._mur = value
+
+        @property
+        def loss_tg(self):
+            return self._loss_tg
+
+        @loss_tg.setter
+        def loss_tg(self, value):
+            if isinstance(value, float):
+                self._loss_tg = value
+
+        @property
+        def conductivity(self):
+            return self._conductivity
+
+        @conductivity.setter
+        def conductivity(self, value):
+            if isinstance(value, float):
+                self._conductivity = value
+
+        @property
+        def material_type(self):
+            return self._type
+
+        @material_type.setter
+        def material_type(self, value):
+            if isinstance(value, str):
+                self._type = value
+
+    class Net(object):
+        def __init__(self):
+            self._name = ""
+            self._area = 0.0
+            self._discrete_components = []
+            self._rlc_component = []
+            self._traces = []
+            self._polygons = []
+
+        @property
+        def name(self):
+            return self._name
+
+        @name.setter
+        def name(self, value):
+            if isinstance(value, str):
+                self._name = value
+
+        @property
+        def area(self):
+            return self._area
+
+        @area.setter
+        def area(self, value):
+            if isinstance(value, float):
+                self._area = value
+
+        @property
+        def discrete_components(self):
+            return self._discrete_components
+
+        @discrete_components.setter
+        def discrete_components(self, value):
+            if isinstance(value, list):
+                cmp_list = [cmp for cmp in value if isinstance(cmp, EDBStatistics.DiscreteComponent)]
+                if len(cmp_list) == len(value):
+                    self._discrete_components = value
+
+        @property
+        def rlc_components(self):
+            return self._rlc_component
+
+        @rlc_components.setter
+        def rlc_components(self, value):
+            if isinstance(value, list):
+                cmp_list = [cmp for cmp in value if isinstance(cmp, EDBStatistics.RlcComponent)]
+                if len(cmp_list) == len(value):
+                    self._rlc_component = value
+
+        @property
+        def traces(self):
+            return self._traces
+
+        @traces.setter
+        def traces(self, value):
+            if isinstance(value, list):
+                paths = [path for path in value if isinstance(path, EDBStatistics.Trace)]
+                if len(paths) == len(value):
+                    self._traces = value
+
+        @property
+        def polygons(self):
+            return self._polygons
+
+        @polygons.setter
+        def polygons(self, value):
+            if isinstance(value, list):
+                polys = [poly for poly in value if isinstance(poly, EDBStatistics.Polygon)]
+                if len(polys) == len(value):
+                    self._polygons = value
+
+    class DiscreteComponent(object):
+        def __init__(self):
+            self._refdes = ""
+            self._part = ""
+            self._nb_pins = 0.0
+            self._nets = []
+            self._vendor = ""
+            self._position = []
+            self._placement_layer = ""
+
+        @property
+        def refdes(self):
+            return self._refdes
+
+        @refdes.setter
+        def refdes(self, value):
+            if isinstance(value, str):
+                self._refdes = value
+
+        @property
+        def part(self):
+            return self._part
+
+        @part.setter
+        def part(self, value):
+            if isinstance(value, str):
+                self._part = value
+
+        @part.setter
+        def part(self, value):
+            if isinstance(value, str):
+                self._part = value
+
+        @property
+        def num_pins(self):
+            return self._nb_pins
+
+        @num_pins.setter
+        def num_pins(self, value):
+            if isinstance(value, int):
+                self._nb_pins = value
+
+        @property
+        def nets(self):
+            return self._nets
+
+        @nets.setter
+        def nets(self, value):
+            if isinstance(value, list):
+                net_list = [net for net in value if isinstance(net, str)]
+                if len(net_list) == len(value):
+                    self._nets = value
+
+        @property
+        def vendor(self):
+            return self._vendor
+
+        @vendor.setter
+        def vendor(self, value):
+            if isinstance(value, str):
+                self._vendor = value
+
+        @property
+        def position(self):
+            return self._position
+
+        @position.setter
+        def position(self, value):
+            if isinstance(value, list):
+                if len([val for val in value if isinstance(val, float)]) == len(value):
+                    self._position = value
+
+        @property
+        def placement_layer(self):
+            return self._placement_layer
+
+        @placement_layer.setter
+        def placement_layer(self, value):
+            if isinstance(value, str):
+                self._placement_layer = value
+
+    class RlcComponent(object):
+        def __init__(self):
+            self._ref_des = ""
+            self._part_name = ""
+            self._nb_pins = 2
+            self._nets = []
+            self._value = ""
+            self._vendor = ""
+            self._type = "Capacitor"
+            self._position = []
+            self._placement_layer = ""
+
+        @property
+        def refdes(self):
+            return self._refdes
+
+        @refdes.setter
+        def refdes(self, value):
+            if isinstance(value, str):
+                self._ref_des = value
+
+        @property
+        def part(self):
+            return self._part_name
+
+        @part.setter
+        def part(self, value):
+            if isinstance(value, str):
+                self._part_name = value
+
+        @property
+        def num_pins(self):
+            return self._nb_pins
+
+        @num_pins.setter
+        def num_pins(self, value):
+            if isinstance(value, int):
+                self._nb_pins = value
+
+        @property
+        def nets(self):
+            return self._nets
+
+        @nets.setter
+        def nets(self, value):
+            if isinstance(value, list):
+                net_list = [net for net in value if isinstance(net, EDBStatistics.Net)]
+                if len(net_list) == len(value):
+                    self._nets = value
+
+        @property
+        def rlc_value(self):
+            return self._value
+
+        @rlc_value.setter
+        def rlc_value(self, value):
+            if isinstance(value, str):
+                self._value = value
+
+        @property
+        def vendor(self):
+            return self._vendor
+
+        @vendor.setter
+        def vendor(self, value):
+            if isinstance(value, str):
+                self._vendor = value
+
+        @property
+        def component_type(self):
+            return self._type
+
+        @component_type.setter
+        def component_type(self, value):
+            if isinstance(value, str):
+                self._type = value
+
+        @property
+        def position(self):
+            return self._position
+
+
+        @position.setter
+        def position(self, value):
+            if isinstance(value, list):
+                if len([val for val in value if isinstance(val, float)]) == len(value):
+                    self._position = value
+
+        @property
+        def placement_layer(self):
+            return self._placement_layer
+
+        @placement_layer.setter
+        def placement_layer(self, value):
+            if isinstance(value, str):
+                self._placement_layer = value
+
+    class Via(object):
+        def __init__(self):
+            self._name = ""
+            self._start_layer = ""
+            self._stop_loayer = ""
+            self._is_pth = True
+            self._diameter = 0.0
+            self._pad_shape = "Circle"
+            self._pad_size = []
+            self._net = EDBStatistics.Net()
+
+        @property
+        def name(self):
+            return self._name
+
+        @name.setter
+        def name(self, value):
+            if isinstance(value, str):
+                self._name = value
+
+        @property
+        def start_layer(self):
+            return self._start_layer
+
+        @start_layer.setter
+        def start_layer(self, value):
+            if isinstance(value, str):
+                self._start_layer = value
+
+        @property
+        def stop_layer(self):
+            return self._stop_loayer
+
+        @stop_layer.setter
+        def stop_layer(self, value):
+            if isinstance(value, str):
+                self._stop_loayer = value
+
+        @property
+        def is_thru(self):
+            return self._is_pth
+
+        @is_thru.setter
+        def is_thru(self, value):
+            if isinstance(value, bool):
+                self._is_pth = value
+
+        @property
+        def hole_diameter(self):
+            return self._diameter
+
+        @hole_diameter.setter
+        def hole_diameter(self, value):
+            if isinstance(value, float):
+                self._diameter = value
+
+        @property
+        def pad_shape(self):
+            return self._pad_shape
+
+        @pad_shape.setter
+        def pad_shap(self, value):
+            if isinstance(value, str):
+                self._pad_shape = value
+
+        @property
+        def pad_size(self):
+            return self._pad_size
+
+        @pad_size.setter
+        def pad_size(self, value):
+            if isinstance(value, list):
+                pts = [pt for pt in value if isinstance(pt, tuple) and isinstance(pt[0], float)
+                       and isinstance(pt[1], float)]
+                if len(pts) == len(value):
+                    self._pad_size = value
+
+        @property
+        def net(self):
+            return self._net
+
+        @net.setter
+        def net(self, value):
+            if isinstance(value, EDBStatistics.Net):
+                self._net = value
