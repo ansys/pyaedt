@@ -133,10 +133,12 @@ class TestClass(BasisTest, object):
         for edge in object_edges:
             assert len(edge.vertices) == 2
             assert len(edge.midpoint) == 3
-
+        assert o.edges[0].segment_info
         object_vertices = o.vertices
         for vertex in object_vertices:
             assert len(vertex.position) == 3
+        circle = self.aedtapp.modeler.create_circle("Z", [0, 0, 0], 2)
+        assert circle.edges[0].segment_info["Command"] == "CreateCircle"
 
     def test_03_FacePrimitive(self):
         o_box = self.create_copper_box("PrimitiveBox")
@@ -248,6 +250,8 @@ class TestClass(BasisTest, object):
         assert isinstance(o.bottom_edge_x, EdgePrimitive)
         assert isinstance(o.bottom_edge_y, EdgePrimitive)
         assert isinstance(o.bottom_edge_z, EdgePrimitive)
+        for edge in o.edges:
+            assert edge.segment_info
 
     def test_09_to_boolean(self):
         assert _to_boolean(True)
