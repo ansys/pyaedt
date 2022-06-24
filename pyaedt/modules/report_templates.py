@@ -1345,7 +1345,7 @@ class CommonReport(object):
             props.append(["NAME:Min", "Value:=", min_scale])
         if max_scale:
             props.append(["NAME:Max", "Value:=", max_scale])
-        if minor_tick_divs:
+        if minor_tick_divs and linear_scaling:
             props.append(["NAME:Minor Tick Divs", "Value:=", str(minor_tick_divs)])
         if min_spacing:
             props.append(["NAME:Spacing", "Value:=", min_spacing])
@@ -1502,7 +1502,7 @@ class CommonReport(object):
             props.append(["NAME:Min", "Value:=", min_scale])
         if max_scale:
             props.append(["NAME:Max", "Value:=", max_scale])
-        if minor_tick_divs:
+        if minor_tick_divs and linear_scaling:
             props.append(["NAME:Minor Tick Divs", "Value:=", str(minor_tick_divs)])
         if min_spacing:
             props.append(["NAME:Spacing", "Value:=", min_spacing])
