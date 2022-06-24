@@ -15,7 +15,10 @@ on:
         description: 'Linux Ironpython Manual Trigger'
   schedule:  # UTC at 0400
     - cron:  '0 4 * * *'
-   
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
