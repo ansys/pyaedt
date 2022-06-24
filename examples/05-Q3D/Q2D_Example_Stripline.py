@@ -24,13 +24,13 @@ project_path = os.path.join(workdir, generate_unique_name("pyaedt_q2d_example") 
 ###############################################################################
 # Launch AEDT and Q2D
 # ~~~~~~~~~~~~~~~~~~~
-# This example launches AEDT 2022.1 in graphical mode.
+# This example launches AEDT 2022.2 in graphical mode.
 
 # This example uses SI units.
 
 
 q = Q2d(projectname=project_path, designname="differential_stripline",
-        specified_version="2022.1", non_graphical=non_graphical, new_desktop_session=True)
+        specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Create variables

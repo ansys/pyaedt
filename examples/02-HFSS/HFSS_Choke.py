@@ -27,9 +27,9 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 ###############################################################################
 # Launch HFSS in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches HFSS 2022.1 in graphical mode.
+# This examples launches HFSS 2022.2 in graphical mode.
 
-hfss = Hfss(specified_version="2022.1", non_graphical=non_graphical, new_desktop_session=True, solution_type="Terminal")
+hfss = Hfss(specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True, solution_type="Terminal")
 
 ###############################################################################
 # Rules and information of use

@@ -16,10 +16,10 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 ###############################################################################
 # Launch AEDT and Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2022R1 in graphical mode.
+# This examples launches AEDT 2022R2 in graphical mode.
 
 from pyaedt import Circuit
-circuit = Circuit(specified_version="2022.1", non_graphical=non_graphical, new_desktop_session=True)
+circuit = Circuit(specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Add new subcircuit

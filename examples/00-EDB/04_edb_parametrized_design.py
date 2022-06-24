@@ -8,7 +8,7 @@ This example shows how to use HFSS 3D Layout to create and solve a parametric de
 # Import the `Hfss3dlayout` Object
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example imports the `Hfss3dlayout` object and initializes it on version
-# 2022.1.
+# 2022.2.
 
 import tempfile
 from pyaedt import Edb
@@ -28,7 +28,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 tmpfold = tempfile.gettempdir()
 aedb_path = os.path.join(tmpfold, generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = Edb(edbpath=aedb_path, edbversion="2022.1")
+edb = Edb(edbpath=aedb_path, edbversion="2022.2")
 
 ###############################################################################
 # Define Parameters
@@ -263,7 +263,7 @@ edb.close_edb()
 
 ###############################################
 # opening edb in Electronics Desktop
-h3d = Hfss3dLayout(projectname=os.path.join(aedb_path, "edb.def"), specified_version="2022.1", non_graphical=non_graphical)
+h3d = Hfss3dLayout(projectname=os.path.join(aedb_path, "edb.def"), specified_version="2022.2", non_graphical=non_graphical)
 
 ###############################################
 # create wave ports
