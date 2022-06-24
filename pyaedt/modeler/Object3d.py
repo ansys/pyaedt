@@ -434,7 +434,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
             return {}
         ll = list(self.oeditor.GetObjectsInGroup("Lines"))
         self.oeditor.CreateObjectFromEdges(
-            ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "NonModel#"],
+            ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "NonModel"],
             ["NAME:Parameters", ["NAME:BodyFromEdgeToParameters", "Edges:=", [self.id]]],
             ["CreateGroupsForNewObjects:=", False],
         )
