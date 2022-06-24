@@ -418,6 +418,48 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         self.oeditor = object3d.m_Editor
 
     @property
+    def segment_info(self):
+        """Compute segment information using the object-oriented method (from AEDT 2021 R2
+        with beta options). The method manages segment info for lines, circles and ellipse
+        providing information about all of those.
+
+
+        Returns
+        -------
+            list
+                Segment info if available."""
+        try:
+            self.oeditor.GetChildNames()
+        except:  # pragma: no cover
+            return {}
+        ll = list(self.oeditor.GetObjectsInGroup("Lines"))
+        self.oeditor.CreateObjectFromEdges(
+            ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "NonModel"],
+            ["NAME:Parameters", ["NAME:BodyFromEdgeToParameters", "Edges:=", [self.id]]],
+            ["CreateGroupsForNewObjects:=", False],
+        )
+        new_line = [i for i in list(self.oeditor.GetObjectsInGroup("Lines")) if i not in ll]
+        self.oeditor.GenerateHistory(
+            ["NAME:Selections", "Selections:=", new_line[0], "NewPartsModelFlag:=", "NonModel", "UseCurrentCS:=", True]
+        )
+        oo = self.oeditor.GetChildObject(new_line[0])
+        segment = {}
+        if len(self.vertices) == 2:
+            oo1 = oo.GetChildObject(oo.GetChildNames()[0]).GetChildObject("Segment0")
+        else:
+            oo1 = oo.GetChildObject(oo.GetChildNames()[0])
+        for prop in oo1.GetPropNames():
+            if "/" not in prop:
+                val = oo1.GetPropValue(prop)
+                if "X:=" in val and len(val) == 6:
+                    segment[prop] = [val[1], val[3], val[5]]
+                else:
+                    segment[prop] = val
+        self._object3d._primitives._odesign.Undo()
+        self._object3d._primitives._odesign.Undo()
+        return segment
+
+    @property
     def vertices(self):
         """Vertices list.
 
@@ -476,10 +518,9 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         >>> oEditor.GetVertexPosition
 
         """
-        if len(self.vertices) == 2:
-            length = GeometryOperators.points_distance(self.vertices[0].position, self.vertices[1].position)
-            return float(length)
-        else:
+        try:
+            return float(self.oeditor.GetEdgeLength(self.id))
+        except:
             return False
 
     def __repr__(self):

@@ -336,14 +336,14 @@ solutions_types = {
             "options": "TemperatureAndFlow",
             "report_type": "Monitor",
             "default_setup": 11,
-            "default_adaptive": None,
+            "default_adaptive": "SteadyState",
         },
         "Transient": {
             "name": "Transient",
             "options": "TemperatureAndFlow",
             "report_type": "Monitor",
             "default_setup": 36,
-            "default_adaptive": None,
+            "default_adaptive": "Transient",
         },
     },
     "RMxprtSolution": {
