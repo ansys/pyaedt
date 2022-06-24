@@ -430,8 +430,8 @@ class EdgePrimitive(EdgeTypePrimitive, object):
                 Segment info if available."""
         try:
             self.oeditor.GetChildNames()
-        except:
-            return []
+        except:  # pragma: no cover
+            return {}
         ll = list(self.oeditor.GetObjectsInGroup("Lines"))
         self.oeditor.CreateObjectFromEdges(
             ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "NonModel#"],
