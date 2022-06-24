@@ -420,6 +420,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
     @property
     def segment_info(self):
         """Compute the segment info using the object oriented method (from AEDT 21R2 with beta options).
+        The method manages segment info for lines, circles and ellipse providing information about all of those.
 
         Returns
         -------
@@ -441,9 +442,17 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         )
         oo = self.oeditor.GetChildObject(new_line[0])
         segment = {}
-        for prop in oo.GetChildObject(oo.GetChildNames()[0]).GetChildObject("Segment0").GetPropNames():
+        if len(self.vertices) == 2:
+            oo1 = oo.GetChildObject(oo.GetChildNames()[0]).GetChildObject("Segment0")
+        else:
+            oo1 = oo.GetChildObject(oo.GetChildNames()[0])
+        for prop in oo1.GetPropNames():
             if "/" not in prop:
-                segment[prop] = oo.GetChildObject(oo.GetChildNames()[0]).GetChildObject("Segment0").GetPropValue(prop)
+                val = oo1.GetPropValue(prop)
+                if "X:=" in val and len(val) == 6:
+                    segment[prop] = [val[1], val[3], val[5]]
+                else:
+                    segment[prop] = val
         self._object3d._primitives._odesign.Undo()
         self._object3d._primitives._odesign.Undo()
         return segment
