@@ -1863,6 +1863,24 @@ class Design(AedtObjects, object):
                         )
                 except:
                     pass
+        if self.design_properties and "ModelSetup" in self.design_properties:
+            if "MotionSetupList" in self.design_properties["ModelSetup"]:
+                for ds in self.design_properties["ModelSetup"]["MotionSetupList"]:
+                    try:
+                        motion_list = "MotionSetupList"
+                        setup = "ModelSetup"
+                        # check moving part
+                        if isinstance(self.design_properties[setup][motion_list][ds], (OrderedDict, dict)):
+                            boundaries.append(
+                                BoundaryObject(
+                                    self,
+                                    ds,
+                                    self.design_properties["ModelSetup"]["MotionSetupList"][ds],
+                                    self.design_properties["ModelSetup"]["MotionSetupList"][ds]["MotionType"],
+                                )
+                            )
+                    except:
+                        pass
         return boundaries
 
     @pyaedt_function_handler()
