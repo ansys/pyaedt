@@ -212,6 +212,7 @@ class TestClass(BasisTest, object):
 
     def test_10_change_stackup(self):
         assert self.aedtapp.modeler.layers.change_stackup_type("Multizone", 4)
+        assert len(self.aedtapp.modeler.layers.zones) == 3
         assert self.aedtapp.modeler.layers.change_stackup_type("Overlap")
         assert self.aedtapp.modeler.layers.change_stackup_type("Laminate")
         assert not self.aedtapp.modeler.layers.change_stackup_type("lami")
