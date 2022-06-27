@@ -4767,9 +4767,7 @@ class SimulationConfiguration(object):
 
 
 class EDBStatistics(object):
-    """Statistics object
-
-    """
+    """Statistics object"""
 
     def __init__(self):
         self._nb_layer = 0
