@@ -194,7 +194,7 @@ class TestClass(BasisTest, object):
         setup_name = "RFBoardSetup"
         setup = self.aedtapp.create_setup(setupname=setup_name)
         assert setup.name == self.aedtapp.existing_analysis_setups[0]
-        assert setup.setup_type == "HFSS"
+        assert setup.solver_type == "HFSS"
 
     def test_15_edit_setup(self):
         setup_name = "RFBoardSetup2"

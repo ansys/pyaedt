@@ -20,7 +20,9 @@ class TestClass(BasisTest, object):
         setup1 = self.aedtapp.create_setup("My_HFSS_Setup", self.aedtapp.SETUPS.HFSSDrivenDefault)
         assert setup1.name == "My_HFSS_Setup"
         assert "SaveRadFieldsOnly" in setup1.props
-        setup1.props["SaveRadFieldsOnly"] = True
+        assert "SaveRadFieldsOnly" in setup1.available_properties
+        setup1["SaveRadFieldsonly"] = True
+        assert setup1.props["SaveRadFieldsOnly"] == setup1["SaveRadFieldsonly"]
         assert setup1.enable_adaptive_setup_multifrequency([1, 2, 3])
         assert setup1.props["MultipleAdaptiveFreqsSetup"]["1GHz"][0] == 0.02
         assert setup1.enable_adaptive_setup_broadband(1, 2.5, 10, 0.01)
@@ -51,6 +53,10 @@ class TestClass(BasisTest, object):
         setup1 = circuit.create_setup("circuit", self.aedtapp.SETUPS.NexximLNA)
         assert setup1.name == "circuit"
         setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 501"
+        setup1["SaveRadFieldsonly"] = True
+        setup1["SweepDefinition/Data"] = "LINC 0GHz 4GHz 301"
+        assert setup1.props["SweepDefinition"]["Data"] == "LINC 0GHz 4GHz 301"
+        assert "SweepDefinition" in setup1.available_properties
         setup1.update()
         setup1.disable()
         setup1.enable()

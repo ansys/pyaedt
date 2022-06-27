@@ -2057,7 +2057,10 @@ class SetupProps(OrderedDict):
     """AEDT Boundary Component Internal Parameters."""
 
     def __setitem__(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
+        if isinstance(value, (dict, OrderedDict)):
+            OrderedDict.__setitem__(self, key, SetupProps(self._pyaedt_setup, value))
+        else:
+            OrderedDict.__setitem__(self, key, value)
         if self._pyaedt_setup.auto_update:
             res = self._pyaedt_setup.update()
             if not res:

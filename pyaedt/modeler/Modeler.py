@@ -21,6 +21,7 @@ from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import PropsManager
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
@@ -76,7 +77,7 @@ class ListsProps(OrderedDict):
         OrderedDict.__setitem__(self, key, value)
 
 
-class BaseCoordinateSystem(object):
+class BaseCoordinateSystem(PropsManager, object):
     """Base methods common to FaceCoordinateSystem and CoordinateSystem.
 
     Parameters
@@ -887,7 +888,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         return coordinateSystemAttributes
 
 
-class Lists(object):
+class Lists(PropsManager, object):
     """Manages Lists data and execution.
 
     Parameters
@@ -4208,18 +4209,13 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.Import
         """
 
-        if isinstance(healing, int):
-            if healing == 0:
-                healing = False
-            else:
-                healing = True
+        if healing in [0, 1]:
             warnings.warn(
                 "Assigning `0` or `1` to `healing` option is deprecated. Assign `True` or `False` instead.",
                 DeprecationWarning,
             )
-
         vArg1 = ["NAME:NativeBodyParameters"]
-        vArg1.append("HealOption:="), vArg1.append(1 if healing else 0)
+        vArg1.append("HealOption:="), vArg1.append(int(healing))
         vArg1.append("Options:="), vArg1.append("-1")
         vArg1.append("FileType:="), vArg1.append("UnRecognized")
         vArg1.append("MaxStitchTol:="), vArg1.append(-1)

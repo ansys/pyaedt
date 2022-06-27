@@ -1,6 +1,7 @@
 import codecs
 import csv
 import datetime
+import difflib
 import fnmatch
 import inspect
 import itertools
@@ -794,6 +795,93 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
         except:
             pass
     return sessions
+
+
+class PropsManager(object):
+    def __getitem__(self, item):
+        """Get props value.
+
+        Parameters
+        ----------
+        item : str
+            Key to search
+        """
+        item_split = item.split("/")
+        props = self.props
+        found_el = []
+        for item_value in item_split:
+            found_el = difflib.get_close_matches(item_value, list(props.keys()), 1, 0.8)
+            if found_el:
+                props = props[found_el[0]]
+        if found_el:
+            return props
+        else:
+            self._app.logger.warning("Key %s not found.Check one of available keys in self.available_properties", item)
+            return None
+
+    def __setitem__(self, key, value):
+        """Set the `self.props` key value.
+
+        Parameters
+        ----------
+        key : str
+            Key to apply.
+        value : int or float or bool or str or dict
+            Value to apply
+        """
+        item_split = key.split("/")
+        found_el = []
+        props = self.props
+        for item_value in item_split:
+            found_el = self._recursive_search(props, item_value)
+            if found_el:
+                props = found_el[1][found_el[2]]
+        if found_el:
+            found_el[1][found_el[2]] = value
+            self.update()
+        else:
+            self._app.logger.warning("Key %s not found.", key)
+
+    @pyaedt_function_handler()
+    def _recursive_search(self, dict_in, key=""):
+        f = difflib.get_close_matches(key, list(dict_in.keys()), 1, 0.8)
+        if f:
+            return True, dict_in, f[0]
+        else:
+            for k, v in dict_in.items():
+                if isinstance(v, (dict, OrderedDict)):
+                    out_val = self._recursive_search(v, key)
+                    if out_val:
+                        return out_val
+        return False
+
+    @pyaedt_function_handler()
+    def _recursive_list(self, dict_in, prefix=""):
+        available_list = []
+        for k, v in dict_in.items():
+            if prefix:
+                name = prefix + "/" + k
+            else:
+                name = k
+            available_list.append(name)
+            if isinstance(v, (dict, OrderedDict)):
+                available_list.extend(self._recursive_list(v, name))
+        return available_list
+
+    @property
+    def available_properties(self):
+        """Available properties.
+
+        Returns
+        -------
+        list
+        """
+        return self._recursive_list(self.props)
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update method."""
+        pass
 
 
 class Settings(object):
