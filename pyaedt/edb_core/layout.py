@@ -467,14 +467,16 @@ class EdbLayout(object):
         return polygon
 
     @pyaedt_function_handler()
-    def create_trace(self,
+    def create_trace(
+        self,
         path_list,
         layer_name,
         width=1,
         net_name="",
         start_cap_style="Round",
         end_cap_style="Round",
-        corner_style="Round",):
+        corner_style="Round",
+    ):
         """
         Create a trace based on a list of points.
 
@@ -506,12 +508,15 @@ class EdbLayout(object):
             ``True`` when successful, ``False`` when failed.
         """
         path = self.Shape("Polygon", points=path_list)
-        return self.create_path(path,
-                         layer_name=layer_name,
-                         net_name=net_name, width=width,
-                         start_cap_style=start_cap_style,
-                         end_cap_style=end_cap_style,
-                         corner_style=corner_style)
+        return self.create_path(
+            path,
+            layer_name=layer_name,
+            net_name=net_name,
+            width=width,
+            start_cap_style=start_cap_style,
+            end_cap_style=end_cap_style,
+            corner_style=corner_style,
+        )
 
     @pyaedt_function_handler()
     def create_polygon(self, main_shape, layer_name, voids=[], net_name=""):
