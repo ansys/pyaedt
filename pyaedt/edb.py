@@ -1673,7 +1673,7 @@ class Edb(object):
             return False
 
     @pyaedt_function_handler()
-    def get_layout_stats(self):
+    def get_statistics(self):
         """Return the EDBStatistics object
 
         Returns

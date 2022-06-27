@@ -1616,4 +1616,4 @@ if not config["skip_edb"]:
             assert self.edbapp.core_stackup.get_layout_thickness()
 
         def test_107_get_layout_stats(self):
-            assert self.edbapp.core_primitives.get_layout_statistics()
+            assert self.edbapp.get_statistics()
