@@ -1671,3 +1671,14 @@ class Edb(object):
             return True
         except:  # pragma: no cover
             return False
+
+    @pyaedt_function_handler()
+    def get_layout_stats(self):
+        """Return the EDBStatistics object
+
+        Returns
+        -------
+        The EDBStatistics object from the loaded layout.
+
+        """
+        return self.core_primitives.get_layout_statistics()

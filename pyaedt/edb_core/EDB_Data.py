@@ -4767,7 +4767,26 @@ class SimulationConfiguration(object):
 
 
 class EDBStatistics(object):
-    """Statistics object"""
+    """Statistics object
+
+    Object properties example.
+    >>> stat_model = EDBStatistics()
+    >>> stat_model.num_capacitors
+    >>> stat_model.num_resistors
+    >>> stat_model.num_inductors
+    >>> stat_model.layout_size
+    >>> stat_model.num_discrete_components
+    >>> stat_model.num_inductors
+    >>> stat_model.num_resistors
+    >>> stat_model.num_capacitors
+    >>> stat_model.num_nets
+    >>> stat_model.num_traces
+    >>> stat_model.num_polygons
+    >>> stat_model.num_vias
+    >>> stat_model.stackup_thickness
+    >>> stat_model.occupying_surface
+    >>> stat_model.occupying_ratio
+    """
 
     def __init__(self):
         self._nb_layer = 0
