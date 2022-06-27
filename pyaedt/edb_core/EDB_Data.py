@@ -4770,19 +4770,19 @@ class EDBStatistics(object):
     """"""
 
     def __init__(self):
-        self._nb_layer = 1
+        self._nb_layer = 0
         self._stackup_thickness = 0.0
         self._nb_vias = 0
         self._occupying_ratio = 0.0
         self._occupying_surface = 0.0
-        self._layout_size = [(0.0, 0.0), (0.0, 0.0)]
-        self._nb_polygons = 0.0
-        self._nb_traces = 0.0
-        self._nb_nets = 0.0
-        self._nb_discrete_components = 0.0
-        self._nb_inductors = 0.0
-        self._nb_capacitors = 0.0
-        self._nb_resistors = 0.0
+        self._layout_size = [0.0, 0.0, 0.0, 0.0]
+        self._nb_polygons = 0
+        self._nb_traces = 0
+        self._nb_nets = 0
+        self._nb_discrete_components = 0
+        self._nb_inductors = 0
+        self._nb_capacitors = 0
+        self._nb_resistors = 0
 
     @property
     def num_layers(self):
@@ -4836,7 +4836,7 @@ class EDBStatistics(object):
     @layout_size.setter
     def layout_size(self, value):
         if isinstance(value, list):
-            if [pt for pt in value if isinstance(pt, tuple) and isinstance(pt[0], float) and isinstance(pt[1], float)]:
+            if len([pt for pt in value if isinstance(pt, float)]) == len(value):
                 self._layout_size = value
 
     @property
@@ -4867,10 +4867,10 @@ class EDBStatistics(object):
             self._nb_nets = value
 
     @property
-    def num_dicrete_components(self):
+    def num_discrete_components(self):
         return self._nb_discrete_components
 
-    @num_dicrete_components.setter
+    @num_discrete_components.setter
     def num_discrete_components(self, value):
         if isinstance(value, int):
             self._nb_discrete_components = value

@@ -1030,6 +1030,32 @@ class Edb(object):
         return True
 
     @pyaedt_function_handler()
+    def get_conformal_polygon_from_netlist(self, netlist=None):
+        """Returns an EDB conformal polygon based on net list.
+
+        Parameters
+        ----------
+
+        netlist : List of net name.
+            list[str]
+
+        Returns
+        -------
+
+        Edb polygon object
+            Edb.Cell.Primitive.Polygon object
+
+        """
+        if netlist:
+            nets = convert_py_list_to_net_list(
+                [net for net in list(self.active_layout.Nets) if net.GetName() in netlist]
+            )
+            _poly = self.active_layout.GetExpandedExtentFromNets(
+                    nets, self.edb.Geometry.ExtentType.Conforming, 0.0, True, True, 1)
+            if _poly:
+                return _poly
+
+    @pyaedt_function_handler()
     def arg_with_dim(self, Value, sUnits):
         """Format arguments with dimensions.
 
