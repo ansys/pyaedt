@@ -467,6 +467,53 @@ class EdbLayout(object):
         return polygon
 
     @pyaedt_function_handler()
+    def create_trace(self,
+        path_list,
+        layer_name,
+        width=1,
+        net_name="",
+        start_cap_style="Round",
+        end_cap_style="Round",
+        corner_style="Round",):
+        """
+        Create a trace based on a list of points.
+
+        Parameters
+        ----------
+        path_list : list
+            List of points.
+        layer_name : str
+            Name of the layer on which to create the path.
+        width : float, optional
+            Width of the path. The default is ``1``.
+        net_name : str, optional
+            Name of the net. The default is ``""``.
+        start_cap_style : str, optional
+            Style of the cap at its start. Options are ``"Round"``,
+            ``"Extended",`` and ``"Flat"``. The default is
+            ``"Round"``.
+        end_cap_style : str, optional
+            Style of the cap at its end. Options are ``"Round"``,
+            ``"Extended",`` and ``"Flat"``. The default is
+            ``"Round"``.
+        corner_style : str, optional
+            Style of the corner. Options are ``"Round"``,
+            ``"Sharp"`` and ``"Mitered"``. The default is ``"Round"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        path = self.Shape("Polygon", points=path_list)
+        return self.create_path(path,
+                         layer_name=layer_name,
+                         net_name=net_name, width=width,
+                         start_cap_style=start_cap_style,
+                         end_cap_style=end_cap_style,
+                         corner_style=corner_style)
+
+    @pyaedt_function_handler()
     def create_polygon(self, main_shape, layer_name, voids=[], net_name=""):
         """Create a polygon based on a list of points and voids.
 
