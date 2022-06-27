@@ -1137,8 +1137,11 @@ class EdbLayout(object):
         stat_model.num_resistors = len(self._pedb.core_components.resistors)
         stat_model.num_inductors = len(self._pedb.core_components.inductors)
         stat_model.layout_size = self._pedb._hfss.get_layout_bounding_box(self._active_layout)
-        stat_model.num_dicrete_components = len(self._pedb.core_components.Others) + \
-                                            len(self._pedb.core_components.ICs) + len(self._pedb.core_components.IOs)
+        stat_model.num_dicrete_components = (
+            len(self._pedb.core_components.Others)
+            + len(self._pedb.core_components.ICs)
+            + len(self._pedb.core_components.IOs)
+        )
         stat_model.num_inductors = len(self._pedb.core_components.inductors)
         stat_model.num_resistors = len(self._pedb.core_components.resistors)
         stat_model.num_capacitors = len(self._pedb.core_components.capacitors)
@@ -1149,8 +1152,9 @@ class EdbLayout(object):
         netlist = list(self._pedb.core_nets.nets.keys())
         _poly = self._pedb.get_conformal_polygon_from_netlist(netlist)
         stat_model.occupying_surface = _poly.Area()
-        outline_surface = (stat_model.layout_size[2] - stat_model.layout_size[0]) * \
-                          (stat_model.layout_size[3] - stat_model.layout_size[1])
+        outline_surface = (stat_model.layout_size[2] - stat_model.layout_size[0]) * (
+            stat_model.layout_size[3] - stat_model.layout_size[1]
+        )
         stat_model.occupying_ratio = stat_model.occupying_surface / outline_surface
         stat_model.stackup_thickness = self._pedb.core_stackup.get_layout_thickness()
         return stat_model
