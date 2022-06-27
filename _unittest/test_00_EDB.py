@@ -1611,3 +1611,6 @@ if not config["skip_edb"]:
 
             sim_config = SimulationConfiguration(cfg_file)
             assert self.edbapp.build_simulation_project(sim_config)
+
+        def test_106_layout_tchickness(self):
+            assert self.edbapp.core_stackup.get_layout_thickness()
