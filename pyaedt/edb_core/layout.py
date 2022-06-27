@@ -1131,7 +1131,22 @@ class EdbLayout(object):
             self._logger.info("NET: {} set to power/ground class".format(net.GetName()))
 
     @pyaedt_function_handler()
-    def get_layout_statistics(self):
+    def get_layout_statistics(self, evaluate_area=False):
+        """Returns EDBStatistics object from a layout.
+
+        Parameters
+        ----------
+
+        evaluate_area : optional bool
+            When True evaluates the layout metal surface, can take time-consuming,
+            avoid using this option on large design.
+
+        Returns
+        -------
+
+        EDBStatistics object
+
+        """
         stat_model = EDBStatistics()
         stat_model.num_capacitors = len(self._pedb.core_components.capacitors)
         stat_model.num_resistors = len(self._pedb.core_components.resistors)
@@ -1149,12 +1164,12 @@ class EdbLayout(object):
         stat_model.num_traces = len(self._pedb.core_primitives.paths)
         stat_model.num_polygons = len(self._pedb.core_primitives.polygons)
         stat_model.num_vias = len(self._pedb.core_padstack.padstack_instances)
-        netlist = list(self._pedb.core_nets.nets.keys())
-        _poly = self._pedb.get_conformal_polygon_from_netlist(netlist)
-        stat_model.occupying_surface = _poly.Area()
-        outline_surface = (stat_model.layout_size[2] - stat_model.layout_size[0]) * (
-            stat_model.layout_size[3] - stat_model.layout_size[1]
-        )
-        stat_model.occupying_ratio = stat_model.occupying_surface / outline_surface
         stat_model.stackup_thickness = self._pedb.core_stackup.get_layout_thickness()
+        if evaluate_area:
+            netlist = list(self._pedb.core_nets.nets.keys())
+            _poly = self._pedb.get_conformal_polygon_from_netlist(netlist)
+            stat_model.occupying_surface = _poly.Area()
+            outline_surface = (stat_model.layout_size[2] - stat_model.layout_size[0]) * (
+                stat_model.layout_size[3] - stat_model.layout_size[1])
+            stat_model.occupying_ratio = stat_model.occupying_surface / outline_surface
         return stat_model
