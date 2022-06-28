@@ -809,7 +809,7 @@ class PropsManager(object):
         item_split = item.split("/")
         props = self.props
         found_el = []
-        matching_percentage = 0.95
+        matching_percentage = 1
         while matching_percentage >= 0.4:
             for item_value in item_split:
                 found_el = difflib.get_close_matches(item_value, list(props.keys()), 1, 0.8)
@@ -818,7 +818,7 @@ class PropsManager(object):
             if found_el:
                 return props
             else:
-                matching_percentage -= 0.05
+                matching_percentage -= 0.02
         self._app.logger.warning("Key %s not found.Check one of available keys in self.available_properties", item)
         return None
 
