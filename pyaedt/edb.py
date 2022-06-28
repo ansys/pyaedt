@@ -1051,7 +1051,8 @@ class Edb(object):
                 [net for net in list(self.active_layout.Nets) if net.GetName() in netlist]
             )
             _poly = self.active_layout.GetExpandedExtentFromNets(
-                    nets, self.edb.Geometry.ExtentType.Conforming, 0.0, True, True, 1)
+                nets, self.edb.Geometry.ExtentType.Conforming, 0.0, True, True, 1
+            )
             if _poly:
                 return _poly
 
