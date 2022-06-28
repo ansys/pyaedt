@@ -67,6 +67,8 @@ class TestClass(BasisTest, object):
         bounds = self.aedtapp.assign_vector_potential(edge_object.id, 3)
         assert bounds
         assert bounds.props["Value"] == "3"
+        bounds["Value"] = "2"
+        assert bounds.props["Value"] == "2"
         line = self.aedtapp.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="myline")
         bound2 = self.aedtapp.assign_vector_potential(line.id, 2)
         assert bound2

@@ -158,8 +158,9 @@ for freq in frequency_list:
     current_setup.props["MaximumPasses"] = 30
     current_setup.props["MinimumConvergedPasses"] = 2
     current_setup.props["MaxDeltaS"] = 0.05
-    current_setup.props["SaveAnyFields"] = False
     current_setup.update()
+    current_setup["SaveAnyFields"] = False
+
     freq_start = freq * 0.75
     freq_stop = freq * 1.25
     sweep_name = "Sweep_of_" + setup_name

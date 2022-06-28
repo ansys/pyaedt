@@ -21,6 +21,7 @@ from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import PropsManager
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
@@ -76,7 +77,7 @@ class ListsProps(OrderedDict):
         OrderedDict.__setitem__(self, key, value)
 
 
-class BaseCoordinateSystem(object):
+class BaseCoordinateSystem(PropsManager, object):
     """Base methods common to FaceCoordinateSystem and CoordinateSystem.
 
     Parameters
@@ -887,7 +888,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         return coordinateSystemAttributes
 
 
-class Lists(object):
+class Lists(PropsManager, object):
     """Manages Lists data and execution.
 
     Parameters
@@ -3649,8 +3650,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modeler.Modeler.Lists`
+            List object when successful, ``False`` when failed.
 
         References
         ----------
@@ -3658,10 +3659,10 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.CreateEntityList
         """
         if name:
-            list_names = [i.name for i in self.user_lists]
-            if name in list_names:
-                self.logger.error("A List with the specified name already exists!")
-                return False
+            for i in self.user_lists:
+                if i.name == name:
+                    self.logger.warning("A List with the specified name already exists!")
+                    return i
         face_list = self.convert_to_selections(face_list, True)
         user_list = Lists(self)
         list_type = "Face"
@@ -3672,7 +3673,7 @@ class GeometryModeler(Modeler, object):
                 type=list_type,
             )
             if result:
-                return result
+                return user_list
             else:
                 self._app.logger.error("Wrong object definition. Review object list and type")
                 return False
@@ -3693,8 +3694,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modeler.Modeler.Lists`
+            List object when successful, ``False`` when failed.
 
         References
         ----------
@@ -3702,10 +3703,10 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.CreateEntityList
         """
         if name:
-            list_names = [i.name for i in self.user_lists]
-            if name in list_names:
-                self.logger.error("A List with the specified name already exists!")
-                return False
+            for i in self.user_lists:
+                if i.name == name:
+                    self.logger.warning("A List with the specified name already exists!")
+                    return i
         object_list = self.convert_to_selections(object_list, True)
         user_list = Lists(self)
         list_type = "Object"
@@ -3716,7 +3717,7 @@ class GeometryModeler(Modeler, object):
                 type=list_type,
             )
             if result:
-                return result
+                return user_list
             else:
                 self._app.logger.error("Wrong object definition. Review object list and type")
                 return False
@@ -4208,18 +4209,13 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.Import
         """
 
-        if isinstance(healing, int):
-            if healing == 0:
-                healing = False
-            else:
-                healing = True
+        if healing in [0, 1]:
             warnings.warn(
                 "Assigning `0` or `1` to `healing` option is deprecated. Assign `True` or `False` instead.",
                 DeprecationWarning,
             )
-
         vArg1 = ["NAME:NativeBodyParameters"]
-        vArg1.append("HealOption:="), vArg1.append(1 if healing else 0)
+        vArg1.append("HealOption:="), vArg1.append(int(healing))
         vArg1.append("Options:="), vArg1.append("-1")
         vArg1.append("FileType:="), vArg1.append("UnRecognized")
         vArg1.append("MaxStitchTol:="), vArg1.append(-1)
