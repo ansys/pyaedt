@@ -3650,8 +3650,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modeler.Modeler.Lists`
+            List object when successful, ``False`` when failed.
 
         References
         ----------
@@ -3694,8 +3694,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modeler.Modeler.Lists`
+            List object when successful, ``False`` when failed.
 
         References
         ----------
