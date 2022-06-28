@@ -3659,10 +3659,10 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.CreateEntityList
         """
         if name:
-            list_names = [i.name for i in self.user_lists]
-            if name in list_names:
-                self.logger.error("A List with the specified name already exists!")
-                return False
+            for i in self.user_lists:
+                if i.name == name:
+                    self.logger.warning("A List with the specified name already exists!")
+                    return i
         face_list = self.convert_to_selections(face_list, True)
         user_list = Lists(self)
         list_type = "Face"
@@ -3673,7 +3673,7 @@ class GeometryModeler(Modeler, object):
                 type=list_type,
             )
             if result:
-                return result
+                return user_list
             else:
                 self._app.logger.error("Wrong object definition. Review object list and type")
                 return False
@@ -3703,10 +3703,10 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.CreateEntityList
         """
         if name:
-            list_names = [i.name for i in self.user_lists]
-            if name in list_names:
-                self.logger.error("A List with the specified name already exists!")
-                return False
+            for i in self.user_lists:
+                if i.name == name:
+                    self.logger.warning("A List with the specified name already exists!")
+                    return i
         object_list = self.convert_to_selections(object_list, True)
         user_list = Lists(self)
         list_type = "Object"
@@ -3717,7 +3717,7 @@ class GeometryModeler(Modeler, object):
                 type=list_type,
             )
             if result:
-                return result
+                return user_list
             else:
                 self._app.logger.error("Wrong object definition. Review object list and type")
                 return False

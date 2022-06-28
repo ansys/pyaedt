@@ -54,7 +54,7 @@ cs1 = hfss.modeler.create_coordinate_system()
 # The `cs1` object exposes properties and methods to manipulate the coordinate system.
 # The origin can be changed.
 
-cs1.props["OriginX"] = 10
+cs1["OriginX"] = 10
 cs1.props["OriginY"] = 10
 cs1.props["OriginZ"] = 10
 

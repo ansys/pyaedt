@@ -9,7 +9,6 @@ from __future__ import absolute_import  # noreorder
 
 import os.path
 import warnings
-import difflib
 from collections import OrderedDict
 
 from pyaedt.generic.DataHandlers import _dict2arg
@@ -21,9 +20,10 @@ from pyaedt.modules.SetupTemplates import SweepHFSS
 from pyaedt.modules.SetupTemplates import SweepHFSS3DLayout
 from pyaedt.modules.SetupTemplates import SweepQ3D
 from pyaedt.modules.SetupTemplates import SetupProps
+from pyaedt.generic.general_methods import PropsManager
 
 
-class CommonSetup(object):
+class CommonSetup(PropsManager, object):
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
         self.auto_update = False
         self._app = None
@@ -41,50 +41,6 @@ class CommonSetup(object):
         self.sweeps = []
         self._init_props(isnewsetup)
         self.auto_update = True
-
-    def __getitem__(self, item):
-        """Get props value.
-
-        Parameters
-        ----------
-        item : str
-            Key to search
-        """
-        item_split = item.split("/")
-        props = self.props
-        found_el = []
-        for item_value in item_split:
-            found_el = difflib.get_close_matches(item_value, list(props.keys()), 1, 0.8)
-            if found_el:
-                props = props[found_el[0]]
-        if found_el:
-            return props
-        else:
-            self._app.logger.warning("Key %s not found.Check one of available keys in self.available_properties", item)
-            return None
-
-    def __setitem__(self, key, value):
-        """Set the `self.props` key value.
-
-        Parameters
-        ----------
-        key : str
-            Key to apply.
-        value : int or float or bool or str or dict
-            Value to apply
-        """
-        item_split = key.split("/")
-        found_el = []
-        props = self.props
-        for item_value in item_split:
-            found_el = self._recursive_search(props, item_value)
-            if found_el:
-                props = found_el[1][found_el[2]]
-        if found_el:
-            found_el[1][found_el[2]] = value
-            self.update()
-        else:
-            self._app.logger.warning("Key %s not found.", key)
 
     def __repr__(self):
         return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"

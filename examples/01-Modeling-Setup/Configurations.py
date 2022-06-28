@@ -84,12 +84,14 @@ ipk.assign_grille(air_faces=region.top_face_x.id, free_area_ratio=0.8)
 # Setup
 # ~~~~~
 # Create Setup
+# with new getters and setters, the properties can be setup from the setup object
+# and they don't to perfectly match the prop sintax.
 
 setup1 = ipk.create_setup()
-setup1.props["Flow Regime"] = "Turbulent"
-setup1.props["Convergence Criteria - Max Iterations"] = 5
-setup1.props["Linear Solver Type - Pressure"] = "flex"
-setup1.props["Linear Solver Type - Temperature"] = "flex"
+setup1["FlowRegime"] = "Turbulent"
+setup1["Max Iterations"] = 5
+setup1["Solver Type Pressure"] = "flex"
+setup1["Solver Type Temperature"] = "flex"
 ipk.save_project(r"C:\temp\Graphic_card.aedt")
 
 ###############################################################################

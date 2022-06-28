@@ -223,10 +223,16 @@ h3d.modeler.edb.core_nets.plot(None)
 ###############################################################################
 # Create Setup and Sweeps
 # ~~~~~~~~~~~~~~~~~~~~~~~
-#
+# New getters and setter facilitate the settings on nested property dictionary.
+# Previously the following command had to be used
+# `setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "20GHz"`
+# `setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 4`
+# Now there are simpler approaches like showed below.
+
 setup = h3d.create_setup()
-setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "20GHz"
-setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 4
+
+setup["AdaptiveFrequency"] = "20GHz"
+setup["AdaptiveSettings/SingleFrequencyDataList/AdaptiveFrequencyData/MaxPasses"] = 4
 h3d.create_linear_count_sweep(
     setupname=setup.name,
     unit="GHz",

@@ -180,7 +180,7 @@ for s, port_name in zip(port_faces, ["1", "2"]):
 # ~~~~~~~~~~~~~~~
 # This part creates setup and sweep.
 setup = hfss.create_setup("setup1")
-setup.props["Frequency"] = "2GHz"
+setup["Frequency"] = "2GHz"
 setup.props["MaximumPasses"] = 10
 setup.props["MinimumConvergedPasses"] = 2
 hfss.create_linear_count_sweep(

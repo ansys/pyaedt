@@ -233,7 +233,7 @@ class Icepak(FieldAnalysis3D):
         """
         boundary_name = generate_unique_name("Grille")
 
-        self.modeler.create_face_list(air_faces, "boundary_faces")
+        self.modeler.create_face_list(air_faces, "boundary_faces" + boundary_name)
         props = {}
         air_faces = self.modeler.convert_to_selections(air_faces, True)
 
@@ -289,7 +289,7 @@ class Icepak(FieldAnalysis3D):
         pyaedt info: Opening Assigned
         """
         boundary_name = generate_unique_name("Opening")
-        self.modeler.create_face_list(air_faces, "boundary_faces")
+        self.modeler.create_face_list(air_faces, "boundary_faces" + boundary_name)
         props = {}
         air_faces = self.modeler.convert_to_selections(air_faces, True)
 

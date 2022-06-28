@@ -15,7 +15,7 @@ from pyaedt.modules.OptimetricsTemplates import defaultstatisticalSetup
 from pyaedt.modules.SetupTemplates import SetupProps
 
 
-class CommonOptimetrics(PropsManager, robject):
+class CommonOptimetrics(PropsManager, object):
     """Creates and sets up optimizations.
 
     Parameters

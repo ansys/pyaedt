@@ -809,15 +809,18 @@ class PropsManager(object):
         item_split = item.split("/")
         props = self.props
         found_el = []
-        for item_value in item_split:
-            found_el = difflib.get_close_matches(item_value, list(props.keys()), 1, 0.8)
+        matching_percentage = 0.95
+        while matching_percentage >= 0.4:
+            for item_value in item_split:
+                found_el = difflib.get_close_matches(item_value, list(props.keys()), 1, 0.8)
+                if found_el:
+                    props = props[found_el[0]]
             if found_el:
-                props = props[found_el[0]]
-        if found_el:
-            return props
-        else:
-            self._app.logger.warning("Key %s not found.Check one of available keys in self.available_properties", item)
-            return None
+                return props
+            else:
+                matching_percentage -= 0.05
+        self._app.logger.warning("Key %s not found.Check one of available keys in self.available_properties", item)
+        return None
 
     def __setitem__(self, key, value):
         """Set the `self.props` key value.
@@ -832,25 +835,43 @@ class PropsManager(object):
         item_split = key.split("/")
         found_el = []
         props = self.props
-        for item_value in item_split:
-            found_el = self._recursive_search(props, item_value)
+        matching_percentage = 1
+        key_path = []
+        while matching_percentage >= 0.4:
+            for item_value in item_split:
+                found_el = self._recursive_search(props, item_value, matching_percentage)
+                if found_el:
+                    props = found_el[1][found_el[2]]
+                    key_path.append(found_el[2])
             if found_el:
-                props = found_el[1][found_el[2]]
+                if matching_percentage < 1:
+                    self._app.logger.info(
+                        "Key %s matched internal key '%s' with confidence of %s.",
+                        key,
+                        "/".join(key_path),
+                        round(matching_percentage * 100),
+                    )
+                matching_percentage = 0
+
+            else:
+                matching_percentage -= 0.02
         if found_el:
             found_el[1][found_el[2]] = value
             self.update()
         else:
-            self._app.logger.warning("Key %s not found.", key)
+            props[key] = value
+            self.update()
+            self._app.logger.warning("Key %s not found. Trying to applying new key ", key)
 
     @pyaedt_function_handler()
-    def _recursive_search(self, dict_in, key=""):
-        f = difflib.get_close_matches(key, list(dict_in.keys()), 1, 0.8)
+    def _recursive_search(self, dict_in, key="", matching_percentage=0.8):
+        f = difflib.get_close_matches(key, list(dict_in.keys()), 1, matching_percentage)
         if f:
             return True, dict_in, f[0]
         else:
             for k, v in dict_in.items():
                 if isinstance(v, (dict, OrderedDict)):
-                    out_val = self._recursive_search(v, key)
+                    out_val = self._recursive_search(v, key, matching_percentage)
                     if out_val:
                         return out_val
         return False
