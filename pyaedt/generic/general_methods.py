@@ -869,7 +869,7 @@ class PropsManager(object):
         if f:
             return True, dict_in, f[0]
         else:
-            for k, v in dict_in.items():
+            for v in list(dict_in.values()):
                 if isinstance(v, (dict, OrderedDict)):
                     out_val = self._recursive_search(v, key, matching_percentage)
                     if out_val:
