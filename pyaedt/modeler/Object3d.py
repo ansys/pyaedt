@@ -1833,6 +1833,7 @@ class Object3d(object):
             vMaterial = ["NAME:Material", "Value:=", chr(34) + matobj.name + chr(34)]
             self._change_property(vMaterial)
             self._material_name = matobj.name.lower()
+            self._solve_inside = None
         else:
             self.logger.warning("Material %s does not exist.", mat)
 

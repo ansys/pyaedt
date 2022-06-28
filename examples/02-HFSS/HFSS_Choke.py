@@ -179,7 +179,7 @@ region = hfss.modeler.create_region(pad_percent=1000)
 
 setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "50MHz"
-setup.props["MaximumPasses"] = 10
+setup["MaximumPasses"] = 10
 hfss.create_linear_count_sweep(
     setupname=setup.name,
     unit="MHz",
