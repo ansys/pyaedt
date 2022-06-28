@@ -799,7 +799,7 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
 
 class PropsManager(object):
     def __getitem__(self, item):
-        """Get props value.
+        """Get the `self.props` key value.
 
         Parameters
         ----------
