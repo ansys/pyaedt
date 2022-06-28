@@ -277,7 +277,7 @@ class EdbStackup(object):
 
     @pyaedt_function_handler()
     def get_layout_thickness(self):
-        """Returns the layout tchikness.
+        """Return the layout thickness.
 
         Parameters
         ----------

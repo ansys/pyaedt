@@ -1132,7 +1132,7 @@ class EdbLayout(object):
 
     @pyaedt_function_handler()
     def get_layout_statistics(self, evaluate_area=False):
-        """Returns EDBStatistics object from a layout.
+        """Return EDBStatistics object from a layout.
 
         Parameters
         ----------
@@ -1144,7 +1144,7 @@ class EdbLayout(object):
         Returns
         -------
 
-        EDBStatistics object
+        EDBStatistics object.
 
         """
         stat_model = EDBStatistics()
