@@ -1031,7 +1031,7 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def get_conformal_polygon_from_netlist(self, netlist=None):
-        """Returns an EDB conformal polygon based on net list.
+        """Return an EDB conformal polygon based on net list.
 
         Parameters
         ----------
@@ -1680,6 +1680,5 @@ class Edb(object):
         Returns
         -------
         The EDBStatistics object from the loaded layout.
-
         """
         return self.core_primitives.get_layout_statistics()

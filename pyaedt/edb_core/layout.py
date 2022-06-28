@@ -6,8 +6,8 @@ import os
 import warnings
 
 from pyaedt.edb_core.EDB_Data import EDBPrimitives
-from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.EDB_Data import EDBStatistics
+from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
