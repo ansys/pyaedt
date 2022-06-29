@@ -4,7 +4,6 @@ import time
 
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
-from pyaedt.edb_core.EDB_Data import EDBStatistics
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.EDB_Data import Source
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -1631,7 +1630,10 @@ if not config["skip_edb"]:
             )
 
         def test_110_edb_stats(self):
-            edb_stats = self.edbapp.get_statistics(compute_area=True)
+            example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
+            self.target_path = os.path.join(self.local_scratch.path, "test_create_source", "Galileo.aedb")
+            self.local_scratch.copyfolder(example_project, self.target_path)
+            edb_stats = Edb(self.target_path).get_statistics(compute_area=True)
             assert edb_stats
             assert edb_stats.num_layers
             assert edb_stats.stackup_thickness
