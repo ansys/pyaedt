@@ -1050,17 +1050,20 @@ class Edb(object):
             nets = convert_py_list_to_net_list(
                 [net for net in list(self.active_layout.Nets) if net.GetName() in netlist]
             )
-            _poly = self.active_layout.GetExpandedExtentFromNets(nets, self.edb.Geometry.ExtentType.Conforming,
-                                                                 0.0, True, True, 1)
+            _poly = self.active_layout.GetExpandedExtentFromNets(
+                nets, self.edb.Geometry.ExtentType.Conforming, 0.0, True, True, 1
+            )
         else:
             shutil.copytree(self.edbpath, os.path.join(self.edbpath, "_temp_aedb"))
             temp_edb = Edb(os.path.join(self.edbpath, "_temp_aedb"))
             for via in list(temp_edb.core_padstack.padstack_instances.values()):
                 via.pin.Delete()
-            nets = convert_py_list_to_net_list([net for net in
-                                                list(temp_edb.active_layout.Nets) if "gnd" in net.GetName().lower()])
-            _poly = temp_edb.active_layout.GetExpandedExtentFromNets(nets, self.edb.Geometry.ExtentType.Conforming,
-                                                                 0.0, True, True, 1)
+            nets = convert_py_list_to_net_list(
+                [net for net in list(temp_edb.active_layout.Nets) if "gnd" in net.GetName().lower()]
+            )
+            _poly = temp_edb.active_layout.GetExpandedExtentFromNets(
+                nets, self.edb.Geometry.ExtentType.Conforming, 0.0, True, True, 1
+            )
             temp_edb.close_edb()
         if _poly:
             return _poly
