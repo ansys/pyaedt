@@ -1675,7 +1675,7 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def get_statistics(self):
-        """Return the EDBStatistics object
+        """Return the EDBStatistics object.
 
         Returns
         -------
