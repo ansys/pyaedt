@@ -4,8 +4,10 @@ import time
 
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
+from pyaedt.edb_core.EDB_Data import EDBStatistics
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.EDB_Data import Source
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SourceType
 
@@ -1617,3 +1619,28 @@ if not config["skip_edb"]:
 
         def test_107_get_layout_stats(self):
             assert self.edbapp.get_statistics()
+
+        def test_109_get_conformal_polygon(self):
+            netlist = ["GND"]
+            nets = convert_py_list_to_net_list([net for net in list(self.edbapp.active_layout.Nets) if net.GetName()
+                                                in netlist])
+            assert nets
+            assert self.edbapp.active_layout.GetExpandedExtentFromNets(
+                nets, self.edbapp.edb.Geometry.ExtentType.Conforming, 0.0, True, False, 1)
+
+        def test_110_edb_stats(self):
+            edb_stats = self.edbapp.get_statistics(compute_area=True)
+            assert edb_stats
+            assert edb_stats.num_layers
+            assert edb_stats.stackup_thickness
+            assert edb_stats.num_vias
+            assert edb_stats.occupying_ratio
+            assert edb_stats.occupying_surface
+            assert edb_stats.layout_size
+            assert edb_stats.num_polygons
+            assert edb_stats.num_traces
+            assert edb_stats.num_nets
+            assert edb_stats.num_discrete_components
+            assert edb_stats.num_inductors
+            assert edb_stats.num_capacitors
+            assert edb_stats.num_resistors

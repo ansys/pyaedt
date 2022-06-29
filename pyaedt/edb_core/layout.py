@@ -1131,7 +1131,7 @@ class EdbLayout(object):
             self._logger.info("NET: {} set to power/ground class".format(net.GetName()))
 
     @pyaedt_function_handler()
-    def get_layout_statistics(self, evaluate_area=False):
+    def get_layout_statistics(self, evaluate_area=False, net_list=None):
         """Return EDBStatistics object from a layout.
 
         Parameters
@@ -1148,11 +1148,12 @@ class EdbLayout(object):
 
         """
         stat_model = EDBStatistics()
+        stat_model.num_layers = len(list(self._pedb.core_stackup.stackup_layers.layers.values()))
         stat_model.num_capacitors = len(self._pedb.core_components.capacitors)
         stat_model.num_resistors = len(self._pedb.core_components.resistors)
         stat_model.num_inductors = len(self._pedb.core_components.inductors)
         stat_model.layout_size = self._pedb._hfss.get_layout_bounding_box(self._active_layout)
-        stat_model.num_dicrete_components = (
+        stat_model.num_discrete_components = (
             len(self._pedb.core_components.Others)
             + len(self._pedb.core_components.ICs)
             + len(self._pedb.core_components.IOs)
@@ -1166,11 +1167,14 @@ class EdbLayout(object):
         stat_model.num_vias = len(self._pedb.core_padstack.padstack_instances)
         stat_model.stackup_thickness = self._pedb.core_stackup.get_layout_thickness()
         if evaluate_area:
-            netlist = list(self._pedb.core_nets.nets.keys())
-            _poly = self._pedb.get_conformal_polygon_from_netlist(netlist)
+            if net_list:
+                netlist = list(self._pedb.core_nets.nets.keys())
+                _poly = self._pedb.get_conformal_polygon_from_netlist(netlist)
+            else:
+                _poly = self._pedb.get_conformal_polygon_from_netlist()
             stat_model.occupying_surface = _poly.Area()
             outline_surface = (stat_model.layout_size[2] - stat_model.layout_size[0]) * (
-                stat_model.layout_size[3] - stat_model.layout_size[1]
+                    stat_model.layout_size[3] - stat_model.layout_size[1]
             )
             stat_model.occupying_ratio = stat_model.occupying_surface / outline_surface
         return stat_model
