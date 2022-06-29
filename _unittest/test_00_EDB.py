@@ -1622,11 +1622,13 @@ if not config["skip_edb"]:
 
         def test_109_get_conformal_polygon(self):
             netlist = ["GND"]
-            nets = convert_py_list_to_net_list([net for net in list(self.edbapp.active_layout.Nets) if net.GetName()
-                                                in netlist])
+            nets = convert_py_list_to_net_list(
+                [net for net in list(self.edbapp.active_layout.Nets) if net.GetName() in netlist]
+            )
             assert nets
             assert self.edbapp.active_layout.GetExpandedExtentFromNets(
-                nets, self.edbapp.edb.Geometry.ExtentType.Conforming, 0.0, True, False, 1)
+                nets, self.edbapp.edb.Geometry.ExtentType.Conforming, 0.0, True, False, 1
+            )
 
         def test_110_edb_stats(self):
             edb_stats = self.edbapp.get_statistics(compute_area=True)
