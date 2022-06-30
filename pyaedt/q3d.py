@@ -114,6 +114,22 @@ class QExtractor(FieldAnalysis3D, object):
         return matrix
 
     @pyaedt_function_handler()
+    def get_all_sources(self):
+        """Retrieve all setup sources.
+
+        Returns
+        -------
+        list of str
+            List of all setup sources.
+
+        References
+        ----------
+
+        >>> oModule.GetAllSources
+        """
+        return self.excitations
+
+    @pyaedt_function_handler()
     def get_traces_for_plot(
         self,
         get_self_terms=True,

@@ -183,4 +183,6 @@ class TestClass(BasisTest, object):
         assert not q3d.edit_sources(sources_ac)
         sources_dc = {"Box1:Source2": "2V"}
         assert not q3d.edit_sources(sources_dc)
+        sources = q3d.get_all_sources()
+        assert sources[0] == "Box1:Source1"
         self.aedtapp.close_project(q3d.project_name, False)
