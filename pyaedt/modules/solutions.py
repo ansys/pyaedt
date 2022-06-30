@@ -2285,11 +2285,29 @@ class FieldPlot:
             for index in self.volume_indexes:
                 info.append(str(index))
         if self.surfaces_indexes:
-            info.append("Surface")
-            info.append("FacesList")
-            info.append(len(self.surfaces_indexes))
+            model_faces = []
+            nonmodel_faces = []
+            models = self._postprocessor.modeler.model_objects
             for index in self.surfaces_indexes:
-                info.append(str(index))
+                try:
+                    oname = self._postprocessor.modeler.oeditor.GetObjectNameByFaceID(index)
+                    if oname in models:
+                        model_faces.append(str(index))
+                    else:
+                        nonmodel_faces.append(str(index))
+                except:
+                    pass
+            info.append("Surface")
+            if model_faces:
+                info.append("FacesList")
+                info.append(len(model_faces))
+                for index in model_faces:
+                    info.append(index)
+            if nonmodel_faces:
+                info.append("NonModelFaceList")
+                info.append(len(nonmodel_faces))
+                for index in nonmodel_faces:
+                    info.append(index)
         if self.cutplane_indexes:
             info.append("Surface")
             info.append("CutPlane")
