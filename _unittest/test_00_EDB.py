@@ -1603,6 +1603,33 @@ if not config["skip_edb"]:
             )
             assert Edb(self.target_path).build_simulation_project(sim_config)
 
+        def test_106_layout_tchickness(self):
+            assert self.edbapp.core_stackup.get_layout_thickness()
+
+        def test_107_get_layout_stats(self):
+            assert self.edbapp.get_statistics()
+
+        def test_110_edb_stats(self):
+            example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "Galileo_110.aedb")
+            self.local_scratch.copyfolder(example_project, target_path)
+            edb = Edb(target_path, edbversion=desktop_version)
+            edb_stats = edb.get_statistics(compute_area=True)
+            assert edb_stats
+            assert edb_stats.num_layers
+            assert edb_stats.stackup_thickness
+            assert edb_stats.num_vias
+            assert edb_stats.occupying_ratio
+            assert edb_stats.occupying_surface
+            assert edb_stats.layout_size
+            assert edb_stats.num_polygons
+            assert edb_stats.num_traces
+            assert edb_stats.num_nets
+            assert edb_stats.num_discrete_components
+            assert edb_stats.num_inductors
+            assert edb_stats.num_capacitors
+            assert edb_stats.num_resistors
+
         def test_Z_build_hfss_project_from_config_file(self):
             cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
             with open(cfg_file, "w") as f:
