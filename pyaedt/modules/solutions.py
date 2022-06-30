@@ -683,6 +683,7 @@ class SolutionData(object):
         math_formula : str , optional
             Mathematical formula to apply to the plot curve.
             Valid values are `"re"`, `"im"`, `"db20"`, `"db10"`, `"abs"`, `"mag"`, `"phasedeg"`, `"phaserad"`.
+            `None` value will plot only real value of the data stored in solution data.
         size : tuple, optional
             Image size in pixel (width, height).
         show_legend : bool
@@ -711,15 +712,14 @@ class SolutionData(object):
             curves = [curves]
         data_plot = []
         sweep_name = self.primary_sweep
-        if not math_formula:
-            math_formula = "mag"
         if is_polar:
             sw = self.to_radians(self._sweeps[sweep_name])
         else:
             sw = self._sweeps[sweep_name]
-
         for curve in curves:
-            if math_formula == "re":
+            if not math_formula:
+                data_plot.append([sw, self.data_real(curve), curve])
+            elif math_formula == "re":
                 data_plot.append([sw, self.data_real(curve), "{}({})".format(math_formula, curve)])
             elif math_formula == "im":
                 data_plot.append([sw, self.data_imag(curve), "{}({})".format(math_formula, curve)])
