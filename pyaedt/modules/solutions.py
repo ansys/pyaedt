@@ -1323,8 +1323,8 @@ class FfdSolutionData(object):
         array_positions = {}
         for port_name in self.all_port_names:
             index_str = self.get_array_index(port_name)
-            a = index_str[0]
-            b = index_str[1]
+            a = index_str[0] - 1
+            b = index_str[1] - 1
             w_mag = np.round(np.abs(self.assign_weight(a, b, taper=self.taper)), 3)
             w_ang = a * phase_shift_A_rad + b * phase_shift_B_rad
             w_dict[port_name] = np.sqrt(w_mag) * np.exp(1j * w_ang)
@@ -1531,7 +1531,7 @@ class FfdSolutionData(object):
         try:
             lattice_vectors = self._app.omodelsetup.GetLatticeVectors()
             lattice_vectors = [
-                float(vec) / AEDT_UNITS["Length"][self._app.modeler.model_units] for vec in lattice_vectors
+                float(vec) * AEDT_UNITS["Length"][self._app.modeler.model_units] for vec in lattice_vectors
             ]
 
         except:
@@ -1714,7 +1714,10 @@ class FfdSolutionData(object):
                 idx = self._find_nearest(data[y_key], el)
                 y = temp[idx]
                 if convert_to_db:
-                    y = 10 * np.log10(y)
+                    if "Gain" in qty_str or "Dir" in qty_str:
+                        y = 10 * np.log10(y)
+                    else:
+                        y = 20 * np.log10(y)
                 curves.append([x, y, "{}={}".format(y_key, el)])
         elif isinstance(secondary_sweep_value, list):
             list_inserted = []
@@ -1723,15 +1726,21 @@ class FfdSolutionData(object):
                 if theta_idx not in list_inserted:
                     y = temp[theta_idx]
                     if convert_to_db:
-                        y = 10 * np.log10(y)
+                        if "Gain" in qty_str or "Dir" in qty_str:
+                            y = 10 * np.log10(y)
+                        else:
+                            y = 20 * np.log10(y)
                     curves.append([x, y, "{}={}".format(y_key, el)])
                     list_inserted.append(theta_idx)
         else:
             theta_idx = self._find_nearest(data[y_key], secondary_sweep_value)
             y = temp[theta_idx]
             if convert_to_db:
-                y = 10 * np.log10(y)
-            curves.append([x, y, "{}={}".format(y_key, theta_idx)])
+                if "Gain" in qty_str or "Dir" in qty_str:
+                    y = 10 * np.log10(y)
+                else:
+                    y = 20 * np.log10(y)
+            curves.append([x, y, "{}={}".format(y_key, data[y_key][theta_idx])])
 
         return plot_2d_chart(curves, xlabel=xlabel, ylabel=qty_str, title=title, snapshot_path=export_image_path)
 
