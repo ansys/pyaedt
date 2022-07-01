@@ -4498,7 +4498,7 @@ class SimulationConfiguration(object):
                                 elif value.lower().startswith("zero"):
                                     self.basis_order = BasisOrder.Zero
                                 elif value.lower().startswith("first"):  # single
-                                    self.basis_order = BasisOrder.single
+                                    self.basis_order = BasisOrder.Single
                                 elif value.lower().startswith("second"):  # double
                                     self.basis_order = BasisOrder.Double
                                 else:
