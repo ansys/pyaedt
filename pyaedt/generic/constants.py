@@ -182,19 +182,19 @@ def scale_units(scale_to_unit):
 
 
 def validate_enum_class_value(cls, value):
-    """Return bool whether value is a valid value for enumeration-class cls.
+    """Check whether the value for the class ``enumeration-class`` is valid.
 
     Parameters
     ----------
     cls : class
         Enumeration-style class with integer members in range(0, N) where cls.Invalid equals N-1.
     value : int
-        value to check
+        Value to check.
 
     Returns
     -------
     bool
-        Whether value is a valid value for enumeration class cls.
+        ``True`` when the value is valid for the ``enumeration-class``, ``False`` otherwise.
     """
     return isinstance(value, int) and value >= 0 and value < cls.Invalid
 
@@ -558,7 +558,12 @@ class SweepType(object):
 
 
 class BasisOrder(object):
-    (Mixed, Zero, single, Double, Invalid) = range(0, 5)
+    """Enumeration-class for HFSS basis order settings.
+    
+    Warning: the value ``single`` has been renamed to ``Single`` for consistency. Please update references to
+    ``single``.
+    """
+    (Mixed, Zero, Single, Double, Invalid) = range(0, 5)
 
 
 class NodeType(object):
