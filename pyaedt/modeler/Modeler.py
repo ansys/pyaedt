@@ -1126,6 +1126,7 @@ class GeometryModeler(Modeler, object):
         self._coordinate_systems = None
         self._user_lists = None
         self._is3d = is3d
+        self._user_defined_models = None
 
     @property
     def coordinate_systems(self):
@@ -1140,6 +1141,13 @@ class GeometryModeler(Modeler, object):
         if not self._user_lists:
             self._user_lists = self._get_lists_data()
         return self._user_lists
+
+    @property
+    def user_defined_models(self):
+        """User Lists."""
+        if not self._user_defined_models:
+            self._user_defined_models = self._get_user_defined_models()
+        return self._user_defined_models
 
     @property
     def oeditor(self):
@@ -1354,6 +1362,31 @@ class GeometryModeler(Modeler, object):
             except:
                 self.logger.error("Lists were not retrieved from AEDT file")
         return design_lists
+
+    def _get_user_defined_models(self):
+        """Retrieve user defined models list data.
+
+        Returns
+        -------
+        [Dict with User Defined Model information]
+        """
+        udm_lists = {}
+        if self._app.design_properties and self._app.design_properties.get("ModelSetup", None):
+            key1 = "GeometryOperations"
+            key2 = "UserDefinedModels"
+            key3 = "UserDefinedModel"
+            try:
+                entity_list = self._app.design_properties["ModelSetup"]["GeometryCore"][key1][key2]
+                if entity_list:
+                    udm_entry = copy.deepcopy(entity_list[key3])
+                    if isinstance(udm_entry, (dict, OrderedDict)):
+                        udm_entry = [udm_entry]
+                    for data in udm_entry:
+                        name = data["Attributes"]["Name"]
+                        udm_lists[name] = list(self.oeditor.GetPartsForUserDefinedModel(name))
+            except:
+                self.logger.error("User Defined Models were not retrieved from AEDT file")
+        return udm_lists
 
     def __get__(self, instance, owner):
         self._app = instance

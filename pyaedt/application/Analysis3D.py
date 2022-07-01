@@ -364,7 +364,7 @@ class FieldAnalysis3D(Analysis, object):
 
     @pyaedt_function_handler()
     def copy_solid_bodies_from(self, design, object_list=None, no_vacuum=True, no_pec=True, include_sheets=False):
-        """Copy a list of objects from one design to the active design.
+        """Copy a list of objects and user defined models from one design to the active design.
 
         Parameters
         ----------
@@ -393,12 +393,22 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.Paste
         """
         body_list = design.modeler.solid_names
+        udm_list = design.modeler.user_defined_models
         if include_sheets:
             body_list += design.modeler.sheet_names
+        if udm_list:
+            for udm in udm_list:
+                body_list = body_list + udm_list[udm]
+            body_list = [i for i in body_list if body_list.count(i) == 1]
+
         selection_list = []
+        udm_selection = []
         material_properties = design.modeler.objects
-        if object_list:
-            selection_list = [i for i in object_list if i in body_list]
+        selections = self.modeler.convert_to_selections(object_list, True)
+
+        if selections:
+            selection_list = [i for i in selections if i in body_list]
+            udm_selection = [i for i in selections if i in udm_list]
         else:
             for body in body_list:
                 include_object = True
@@ -410,9 +420,16 @@ class FieldAnalysis3D(Analysis, object):
                             include_object = False
                 if include_object:
                     selection_list.append(body)
+            for udm in udm_list:
+                udm_selection.append(udm)
+        selection_list = selection_list + udm_selection
+
         design.modeler.oeditor.Copy(["NAME:Selections", "Selections:=", ",".join(selection_list)])
         self.modeler.oeditor.Paste()
         self.modeler.refresh_all_ids()
+        if udm_selection:
+            for udm in udm_selection:
+                self.modeler.user_defined_models[udm] = udm_list[udm]
         return True
 
     @pyaedt_function_handler()

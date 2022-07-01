@@ -1050,8 +1050,10 @@ class Primitives3D(Primitives, object):
         vArg1.append("ConnectionID:=")
         vArg1.append("")
         oname = self.oeditor.CreateUserDefinedModel(vArg1)
+        obj_list = self.oeditor.GetPartsForUserDefinedModel(oname)
+        self.modeler.user_defined_models[oname] = obj_list
         if oname:
-            object_lists = self.oeditor.GetPartsForUserDefinedModel(oname)
+            object_lists = obj_list
             for new_name in object_lists:
                 self._create_object(new_name)
             return True
