@@ -14,6 +14,7 @@ from pyaedt.generic.constants import RadiationBoxType
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SourceType
 from pyaedt.generic.constants import SweepType
+from pyaedt.generic.constants import validate_enum_class_value
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -3414,7 +3415,7 @@ class SimulationConfiguration(object):
 
     @cutout_subdesign_type.setter
     def cutout_subdesign_type(self, value):  # pragma: no cover
-        if isinstance(value, CutoutSubdesignType):
+        if validate_enum_class_value(CutoutSubdesignType, value):
             self._cutout_subdesign_type = value
 
     @property
@@ -3618,8 +3619,8 @@ class SimulationConfiguration(object):
         return self._radiation_box
 
     @radiation_box.setter
-    def radiation_box(self, value):  # pragma: no cover
-        if isinstance(value, RadiationBoxType):
+    def radiation_box(self, value):
+        if validate_enum_class_value(RadiationBoxType, value):
             self._radiation_box = value
 
     @property
@@ -3667,10 +3668,8 @@ class SimulationConfiguration(object):
 
     @sweep_type.setter
     def sweep_type(self, value):  # pragma: no cover
-        if isinstance(value, SweepType):
+        if validate_enum_class_value(SweepType, value):
             self._sweep_type = value
-        # if isinstance(value, str):
-        #     self._sweep_type = value
 
     @property
     def step_freq(self):  # pragma: no cover
@@ -3781,7 +3780,7 @@ class SimulationConfiguration(object):
 
     @basis_order.setter
     def basis_order(self, value):  # pragma: no cover
-        if isinstance(value, BasisOrder):
+        if validate_enum_class_value(BasisOrder, value):
             self._basis_order = value
 
     @property
@@ -4499,7 +4498,7 @@ class SimulationConfiguration(object):
                                 elif value.lower().startswith("zero"):
                                     self.basis_order = BasisOrder.Zero
                                 elif value.lower().startswith("first"):  # single
-                                    self.basis_order = BasisOrder.single
+                                    self.basis_order = BasisOrder.Single
                                 elif value.lower().startswith("second"):  # double
                                     self.basis_order = BasisOrder.Double
                                 else:
