@@ -14,6 +14,15 @@ from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import Matrix
 from pyaedt.application.Variables import decompose_variable_value
 
+from pyaedt import is_ironpython
+from pyaedt import settings
+
+if not is_ironpython:
+    try:
+        import numpy as np
+    except ImportError:
+        pass
+
 
 class QExtractor(FieldAnalysis3D, object):
     """Extracts a 2D or 3D field analysis.
@@ -906,6 +915,52 @@ class Q3d(QExtractor, object):
                 sweepdata.update()
                 return sweepdata
         return False
+
+    @pyaedt_function_handler()
+    def set_material_thresholds(
+        self, insulator_threshold=None, perfect_conductor_threshold=None, magnetic_threshold=None
+    ):
+        """Set material threshold.
+
+        Parameters
+        ----------
+        insulator_threshold : float, optional
+            Threshold for insulator/conductor.
+            If "None" its value is set to 10000.
+        perfect_conductor_threshold : float, optional
+            Threshold that decides whether a conductor is perfectly conducting. It must be higher than
+            insulator threshold.
+            If "None" its value is set to 1E+030.
+        magnetic_threshold : float, optional
+            Threshold that decides whether a material is magnetic.
+            If "None" its value is set to 1.01.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            if not insulator_threshold:
+                insulator_threshold = 10000
+            if not perfect_conductor_threshold:
+                perfect_conductor_threshold = float("1E+30")
+            else:
+                if perfect_conductor_threshold < insulator_threshold:
+                    msg = "Perfect conductor threshold must be higher than insulator threshold."
+                    raise ValueError(msg)
+            if not magnetic_threshold:
+                magnetic_threshold = 1.01
+
+            if not is_ironpython and not settings.use_grpc_api:
+                insulator_threshold = np.longdouble(insulator_threshold)
+                perfect_conductor_threshold = np.longdouble(perfect_conductor_threshold)
+                magnetic_threshold = np.longdouble(magnetic_threshold)
+
+            self.oboundary.SetMaterialThresholds(insulator_threshold, perfect_conductor_threshold, magnetic_threshold)
+            return True
+        except:
+            return False
 
 
 class Q2d(QExtractor, object):

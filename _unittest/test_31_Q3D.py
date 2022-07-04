@@ -119,6 +119,21 @@ class TestClass(BasisTest, object):
         assert net.update()
         assert net.name == "new_net_name"
 
+    def test_11a_set_material_thresholds(self):
+        assert self.aedtapp.set_material_thresholds()
+        insulator_threshold = 2000
+        perfect_conductor_threshold = 2e30
+        magnetic_threshold = 3
+        assert self.aedtapp.set_material_thresholds(
+            insulator_threshold, perfect_conductor_threshold, magnetic_threshold
+        )
+        insulator_threshold = 2000
+        perfect_conductor_threshold = 200
+        magnetic_threshold = 3
+        assert not self.aedtapp.set_material_thresholds(
+            insulator_threshold, perfect_conductor_threshold, magnetic_threshold
+        )
+
     def test_12_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
         assert self.aedtapp.mesh.initial_mesh_settings.props
