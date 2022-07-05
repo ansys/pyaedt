@@ -35,6 +35,7 @@ from pyaedt.generic.general_methods import (
     is_ironpython,
     inside_desktop,
 )
+from pyaedt.misc.misc import list_installed_ansysem
 from pyaedt.aedt_logger import AedtLogger
 from pyaedt.generic.process import SiwaveSolve
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -106,7 +107,7 @@ class Edb(object):
         edbpath=None,
         cellname=None,
         isreadonly=False,
-        edbversion="2021.2",
+        edbversion=None,
         isaedtowned=False,
         oproject=None,
         student_version=False,
@@ -139,6 +140,11 @@ class Edb(object):
 
             self.student_version = student_version
             self.logger.info("Logger is initialized in EDB.")
+            if not edbversion:
+                try:
+                    edbversion = list_installed_ansysem()[0]
+                except IndexError:
+                    raise Exception("No ANSYSEM_ROOTxxx found.")
             self.edbversion = edbversion
             self.isaedtowned = isaedtowned
             self._init_dlls()
