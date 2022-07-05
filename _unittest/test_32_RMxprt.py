@@ -64,3 +64,4 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.set_material_threshold(conductivity, permeability)
         assert self.aedtapp.set_material_threshold(str(conductivity), str(permeability))
         assert not self.aedtapp.set_material_threshold("e", str(permeability))
+        assert not self.aedtapp.set_material_threshold(conductivity, "p")
