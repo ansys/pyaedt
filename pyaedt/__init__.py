@@ -19,20 +19,18 @@ if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" no
             base_path = os.environ["ANSYSEM_ROOT221"]
         if base_path:
             pkg_dir = os.path.join(base_path, "common", "mono", "Linux64")
-            if os.getenv("LD_LIBRARY_PATH", None):
-                os.environ["LD_LIBRARY_PATH"] = (
+            if os.getenv("LD_RUN_PATH ", None):
+                os.environ["LD_RUN_PATH "] = (
                     os.path.join(pkg_dir, "lib64")
                     + os.pathsep
                     + os.path.join(pkg_dir, "lib")
                     + os.pathsep
-                    + os.environ["LD_LIBRARY_PATH"]
+                    + os.environ["LD_RUN_PATH"]
                 )
             else:
-                os.environ["LD_LIBRARY_PATH"] = (
-                    os.path.join(pkg_dir, "lib64") + os.pathsep + os.path.join(pkg_dir, "lib")
-                )
+                os.environ["LD_RUN_PATH "] = os.path.join(pkg_dir, "lib64") + os.pathsep + os.path.join(pkg_dir, "lib")
             os.environ["PATH"] += os.path.join(pkg_dir, "lib64") + os.pathsep + os.path.join(pkg_dir, "lib")
-        print(os.environ["LD_LIBRARY_PATH"])
+        print(os.environ["LD_RUN_PATH"])
         from clr_loader import get_coreclr
         from pythonnet import set_runtime
 
