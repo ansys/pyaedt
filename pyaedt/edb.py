@@ -260,11 +260,22 @@ class Edb(object):
                         self.base_path = edb_path
                         sys.path.append(edb_path)
                         os.environ[env_value(self.edbversion)] = self.base_path
+            if is_ironpython:
+                clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
+                clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
+                clr.AddReferenceToFile("EdbLib.dll")
+                clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
+            else:
+                pkg_dir = os.path.join(self.base_path, "common", "mono", "Linux64")
+                os.environ["PKG_DIR"] = "{}:$LD_LIBRARY_PATH".format(pkg_dir)
+                os.environ["LD_LIBRARY_PATH"] = "{}:{}:$LD_LIBRARY_PATH".format(
+                    os.path.join(pkg_dir, "lib64"), os.path.join(pkg_dir, "lib")
+                )
 
-            clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
-            clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
-            clr.AddReferenceToFile("EdbLib.dll")
-            clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
+                clr.AddReference("Ansys.Ansoft.Edb")
+                clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
+                clr.AddReference("EdbLib")
+                clr.AddReference("Ansys.Ansoft.SimSetupData")
         else:
             if self.student_version:
                 self.base_path = env_path_student(self.edbversion)

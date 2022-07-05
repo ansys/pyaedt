@@ -36,6 +36,7 @@ if sys.version_info >= (3, 9):
         "ipython",
         "matplotlib",
         "psutil",
+        "dotnetcore2 ==3.1.23;platform_system='Linux'",
     ]
     install("https://github.com/pyansys/PyAEDT/raw/release/0.3/pythonnet-2.5.2-cp39-cp39-win_amd64.whl")
 elif sys.version_info >= (3, 7):
@@ -49,6 +50,7 @@ elif sys.version_info >= (3, 7):
         "ipython",
         "matplotlib",
         "psutil",
+        "dotnetcore2 ==3.1.23;platform_system='Linux'",
     ]
 elif sys.version_info >= (3, 0):
     install_requires = [

@@ -17,6 +17,19 @@ from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_des
 from pyaedt.aedt_logger import AedtLogger
 
 
+if os.name == "posix" and not is_ironpython:
+    try:
+        from clr_loader import get_coreclr
+        from pythonnet import set_runtime
+
+        os.path.dirname(__file__)
+        runtime = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "dotnetcore2", "bin"))
+        json_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "misc", "pyaedt.runtimeconfig.json"))
+        rt = get_coreclr(json_file, runtime)
+        set_runtime(rt)
+    except ImportError:
+        pass
+
 try:
     from pyaedt.generic.design_types import Hfss3dLayout
 except:
