@@ -166,6 +166,12 @@ if not config["skip_edb"]:
             assert not signalnets[list(signalnets.keys())[0]].IsPowerGround()
             assert len(list(signalnets[list(signalnets.keys())[0]].primitives)) > 0
 
+            assert self.edbapp.core_nets.find_or_create_net("GND")
+            assert self.edbapp.core_nets.find_or_create_net(start_with="gn")
+            assert self.edbapp.core_nets.find_or_create_net(start_with="g", end_with="d")
+            assert self.edbapp.core_nets.find_or_create_net(end_with="d")
+            assert self.edbapp.core_nets.find_or_create_net(contain="usb")
+
         def test_09_assign_rlc(self):
             assert self.edbapp.core_components.set_component_rlc(
                 "C3B14", res_value=1e-3, cap_value="10e-6", isparallel=False
