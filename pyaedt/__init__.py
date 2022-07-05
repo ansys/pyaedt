@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
 
 os.environ["ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE"] = "1"
 os.environ["ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE"] = "1"
@@ -7,17 +8,7 @@ __version__ = ""
 if os.path.exists(os.path.join(os.path.dirname(__file__), "version.txt")):
     with open(os.path.join(os.path.dirname(__file__), "version.txt"), "r") as f:
         __version__ = f.read().strip()
-
-
-from pyaedt.generic.general_methods import settings
-
-from pyaedt.generic import constants
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, _retry_ntimes
-from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop, convert_remote_object
-from pyaedt.aedt_logger import AedtLogger
-
-
-if os.name == "posix" and not is_ironpython:
+if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" not in sys.version:
     try:
         from clr_loader import get_coreclr
         from pythonnet import set_runtime
@@ -48,9 +39,17 @@ if os.name == "posix" and not is_ironpython:
                 os.environ["LD_LIBRARY_PATH"] = (
                     os.path.join(pkg_dir, "lib64") + os.pathsep + os.path.join(pkg_dir, "lib")
                 )
-
     except ImportError:
         pass
+
+
+from pyaedt.generic.general_methods import settings
+
+from pyaedt.generic import constants
+from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, _retry_ntimes
+from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop, convert_remote_object
+from pyaedt.aedt_logger import AedtLogger
+
 
 try:
     from pyaedt.generic.design_types import Hfss3dLayout
