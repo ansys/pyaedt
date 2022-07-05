@@ -142,7 +142,7 @@ class Edb(object):
             self.logger.info("Logger is initialized in EDB.")
             if not edbversion:
                 try:
-                    edbversion = list_installed_ansysem()[0]
+                    edbversion = "20{}.{}".format(list_installed_ansysem()[0][-3:-1], list_installed_ansysem()[0][-1:])
                     self._logger.info("Edb version " + edbversion)
                 except IndexError:
                     raise Exception("No ANSYSEM_ROOTxxx found.")
