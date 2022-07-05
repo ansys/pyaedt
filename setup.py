@@ -27,7 +27,6 @@ def install(package):
 
 if sys.version_info >= (3, 9):
     install_requires = [
-        "jupyterlab;platform_system=='Linux'",
         "pythonnet == 3.0.0rc1",
         "jupyterlab",
         "rpyc==5.0.1",
