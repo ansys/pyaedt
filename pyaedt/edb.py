@@ -267,6 +267,14 @@ class Edb(object):
                 clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
             else:
                 pkg_dir = os.path.join(self.base_path, "common", "mono", "Linux64")
+                os.environ["LD_LIBRARY_PATH"] = (
+                    os.path.join(pkg_dir, "lib64")
+                    + os.pathsep
+                    + os.path.join(pkg_dir, "lib")
+                    + os.pathsep
+                    + os.getenv("LD_LIBRARY_PATH", "")
+                )
+
                 os.environ["LD_LIBRARY_PATH"] = "{}:{}:$LD_LIBRARY_PATH".format(
                     os.path.join(pkg_dir, "lib64"), os.path.join(pkg_dir, "lib")
                 )
