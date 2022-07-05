@@ -20,21 +20,18 @@ if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" no
         if base_path:
             pkg_dir = os.path.join(base_path, "common", "mono", "Linux64")
             if os.getenv("LD_LIBRARY_PATH", None):
-                os.system(
-                    "export LD_LIBRARY_PATH="
-                    + os.path.join(pkg_dir, "lib64")
+                os.environ["LD_LIBRARY_PATH"] = (
+                    os.path.join(pkg_dir, "lib64")
                     + os.pathsep
                     + os.path.join(pkg_dir, "lib")
                     + os.pathsep
                     + os.environ["LD_LIBRARY_PATH"]
                 )
             else:
-                os.system(
-                    "export LD_LIBRARY_PATH="
-                    + os.path.join(pkg_dir, "lib64")
-                    + os.pathsep
-                    + os.path.join(pkg_dir, "lib")
+                os.environ["LD_LIBRARY_PATH"] = (
+                    os.path.join(pkg_dir, "lib64") + os.pathsep + os.path.join(pkg_dir, "lib")
                 )
+            os.environ["PATH"] += os.path.join(pkg_dir, "lib64") + os.pathsep + os.path.join(pkg_dir, "lib")
         print(os.environ["LD_LIBRARY_PATH"])
         from clr_loader import get_coreclr
         from pythonnet import set_runtime
