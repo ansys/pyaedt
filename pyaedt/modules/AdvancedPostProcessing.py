@@ -73,8 +73,11 @@ class PostProcessor(Post):
             Jupyter notebook image.
 
         """
-        file_name = self.export_model_picture(show_axis=show_axis, show_grid=show_grid, show_ruler=show_ruler)
-        return Image(file_name, width=500)
+        if ipython_available:
+            file_name = self.export_model_picture(show_axis=show_axis, show_grid=show_grid, show_ruler=show_ruler)
+            return Image(file_name, width=500)
+        else:
+            warnings.warn("Ipython package is missed. Install it")
 
     @pyaedt_function_handler()
     def get_efields_data(self, setup_sweep_name="", ff_setup="Infinite Sphere1", freq="All"):
