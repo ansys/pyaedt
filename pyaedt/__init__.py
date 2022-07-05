@@ -19,11 +19,11 @@ if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" no
         json_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "misc", "pyaedt.runtimeconfig.json"))
         rt = get_coreclr(json_file, runtime)
         set_runtime(rt)
-        if "defer" not in os.getenv("LD_LIBRARY_PATH", "") or "mono" not in os.getenv("LD_LIBRARY_PATH", ""):
+        if "Delcross" not in os.getenv("LD_LIBRARY_PATH", "") or "mono" not in os.getenv("LD_LIBRARY_PATH", ""):
             warnings.warn("LD_LIBRARY_PATH needs to be setup to use pyaedt.")
             warnings.warn("export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64")
             msg = "export LD_LIBRARY_PATH="
-            msg += "$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/defer:$LD_LIBRARY_PATH"
+            msg += "$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH"
             warnings.warn(msg)
     except ImportError:
         pass
