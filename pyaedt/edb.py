@@ -143,6 +143,7 @@ class Edb(object):
             if not edbversion:
                 try:
                     edbversion = list_installed_ansysem()[0]
+                    self._logger.info("Edb version " + edbversion)
                 except IndexError:
                     raise Exception("No ANSYSEM_ROOTxxx found.")
             self.edbversion = edbversion
