@@ -27,6 +27,28 @@ if os.name == "posix" and not is_ironpython:
         json_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "misc", "pyaedt.runtimeconfig.json"))
         rt = get_coreclr(json_file, runtime)
         set_runtime(rt)
+        base_path = ""
+        if os.getenv("ANSYSEM_ROOT231", ""):
+            base_path = os.environ["ANSYSEM_ROOT231"]
+        elif os.getenv("ANSYSEM_ROOT222", ""):
+            base_path = os.environ["ANSYSEM_ROOT222"]
+        elif os.getenv("ANSYSEM_ROOT221", ""):
+            base_path = os.environ["ANSYSEM_ROOT221"]
+        if base_path:
+            pkg_dir = os.path.join(base_path, "common", "mono", "Linux64")
+            if os.getenv("LD_LIBRARY_PATH", None):
+                os.environ["LD_LIBRARY_PATH"] = (
+                    os.path.join(pkg_dir, "lib64")
+                    + os.pathsep
+                    + os.path.join(pkg_dir, "lib")
+                    + os.pathsep
+                    + os.environ["LD_LIBRARY_PATH"]
+                )
+            else:
+                os.environ["LD_LIBRARY_PATH"] = (
+                    os.path.join(pkg_dir, "lib64") + os.pathsep + os.path.join(pkg_dir, "lib")
+                )
+
     except ImportError:
         pass
 
