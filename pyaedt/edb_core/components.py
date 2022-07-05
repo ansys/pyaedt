@@ -1510,7 +1510,7 @@ class Components(object):
         """
         if is_ironpython:
             name = clr.Reference[String]()
-            response = pin.GetProductProperty(0, 11, name)
+            response = pin.GetProductProperty(self._edb.ProductId.Designer, 11, name)
         else:
             val = String("")
             response, name = pin.GetProductProperty(self._edb.ProductId.Designer, 11, val)
