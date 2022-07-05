@@ -1133,14 +1133,10 @@ class CircuitComponents(object):
 
         pointlist = [str(tuple(i)) for i in points_array]
         id = self.create_unique_id()
-        return self.oeditor.CreateLine(["NAME:LineData",
-                                        "Points:=", pointlist,
-                                        "LineWidth:=", line_width,
-                                        "Color:=", color,
-                                        "Id:=", id],
-                                       ["NAME:Attributes",
-                                        "Page:=", 1]
-                                       )
+        return self.oeditor.CreateLine(
+            ["NAME:LineData", "Points:=", pointlist, "LineWidth:=", line_width, "Color:=", color, "Id:=", id],
+            ["NAME:Attributes", "Page:=", 1],
+        )
 
 
 class ComponentInfo(object):
