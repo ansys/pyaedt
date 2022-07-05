@@ -104,6 +104,34 @@ class FieldAnalysisRMxprt(Analysis):
         return True
 
     @pyaedt_function_handler()
+    def set_material_threshold(self, conductivity=None, permeability=None):
+        """Set material threshold.
+
+        Parameters
+        ----------
+        conductivity : float, optional
+            Conductivity threshold.
+            If "None" default value is 100000.
+        permeability : float, optional
+            Permeability threshold.
+            If "None" default value is 100.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            if not conductivity:
+                conductivity = 100000
+            if not permeability:
+                permeability = 100
+            self.odesign.SetThreshold(conductivity, permeability)
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler()
     def _check_solution_consistency(self):
         """Check solution consistency."""
         if self.design_solutions:
