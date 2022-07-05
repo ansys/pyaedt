@@ -10,27 +10,6 @@ if os.path.exists(os.path.join(os.path.dirname(__file__), "version.txt")):
         __version__ = f.read().strip()
 if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" not in sys.version:
     try:
-        base_path = ""
-        if os.getenv("ANSYSEM_ROOT231", ""):
-            base_path = os.environ["ANSYSEM_ROOT231"]
-        elif os.getenv("ANSYSEM_ROOT222", ""):
-            base_path = os.environ["ANSYSEM_ROOT222"]
-        elif os.getenv("ANSYSEM_ROOT221", ""):
-            base_path = os.environ["ANSYSEM_ROOT221"]
-        if base_path:
-            pkg_dir = os.path.join(base_path, "common", "mono", "Linux64")
-            if os.getenv("LD_RUN_PATH", None):
-                os.environ["LD_RUN_PATH"] = (
-                    os.path.join(pkg_dir, "lib64")
-                    + os.pathsep
-                    + os.path.join(pkg_dir, "lib")
-                    + os.pathsep
-                    + os.environ["LD_RUN_PATH"]
-                )
-            else:
-                os.environ["LD_RUN_PATH"] = os.path.join(pkg_dir, "lib64") + os.pathsep + os.path.join(pkg_dir, "lib")
-            os.environ["PATH"] += os.path.join(pkg_dir, "lib64") + os.pathsep + os.path.join(pkg_dir, "lib")
-        print(os.environ["LD_RUN_PATH"])
         from clr_loader import get_coreclr
         from pythonnet import set_runtime
 
@@ -41,7 +20,6 @@ if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" no
         set_runtime(rt)
     except ImportError:
         pass
-
 
 from pyaedt.generic.general_methods import settings
 
