@@ -1640,7 +1640,7 @@ class Edb(object):
                 old_cell_name = self.active_cell.GetName()
                 if self.create_cutout(simulation_setup=simulation_setup, output_aedb_path=simulation_setup.output_aedb):
                     self.logger.info("Cutout processed.")
-                    old_cell = self.active_cell.FindByName(self._db, 0, old_cell_name)
+                    old_cell = self.active_cell.FindByName(self._db, self.edb.Cell.CellType.CircuitCell, old_cell_name)
                     if old_cell:
                         old_cell.Delete()
                 else:  # pragma: no cover
