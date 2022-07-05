@@ -22,6 +22,8 @@ try:
 except ImportError:  # pragma: no cover
     if os.name != "posix":
         warnings.warn("Python.NET is needed to run PyAEDT.")
+    elif sys.version[0] == 3 and sys.version[1] < 7:
+        warnings.warn("Edb requires on linux Python 3.7+")
 from pyaedt import settings
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder, SimulationConfiguration
