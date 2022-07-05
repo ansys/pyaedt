@@ -10,14 +10,6 @@ if os.path.exists(os.path.join(os.path.dirname(__file__), "version.txt")):
         __version__ = f.read().strip()
 if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" not in sys.version:
     try:
-        from clr_loader import get_coreclr
-        from pythonnet import set_runtime
-
-        os.path.dirname(__file__)
-        runtime = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "dotnetcore2", "bin"))
-        json_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "misc", "pyaedt.runtimeconfig.json"))
-        rt = get_coreclr(json_file, runtime)
-        set_runtime(rt)
         base_path = ""
         if os.getenv("ANSYSEM_ROOT231", ""):
             base_path = os.environ["ANSYSEM_ROOT231"]
@@ -39,6 +31,14 @@ if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" no
                 os.environ["LD_LIBRARY_PATH"] = (
                     os.path.join(pkg_dir, "lib64") + os.pathsep + os.path.join(pkg_dir, "lib")
                 )
+        from clr_loader import get_coreclr
+        from pythonnet import set_runtime
+
+        os.path.dirname(__file__)
+        runtime = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "dotnetcore2", "bin"))
+        json_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "misc", "pyaedt.runtimeconfig.json"))
+        rt = get_coreclr(json_file, runtime)
+        set_runtime(rt)
     except ImportError:
         pass
 
