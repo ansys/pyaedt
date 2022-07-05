@@ -28,10 +28,7 @@ if not is_ironpython:
 
         ipython_available = True
     except ImportError:
-        warnings.warn(
-            "The Ipython module is required to run some functionalities of PostProcess.\n"
-            "Install with \n\npip install ipython\n\nRequires CPython."
-        )
+        ipython_available = False
 
 
 class PostProcessor(Post):
