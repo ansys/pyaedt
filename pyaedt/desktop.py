@@ -640,7 +640,7 @@ class Desktop:
         if os.name == "posix":
             if os.environ.get("LD_LIBRARY_PATH"):
                 os.environ["LD_LIBRARY_PATH"] = (
-                    os.path.join(base_path, "defer") + os.pathsep + os.environ["LD_LIBARY_PATH"]
+                    os.path.join(base_path, "defer") + os.pathsep + os.environ["LD_LIBRARY_PATH"]
                 )
             else:
                 os.environ["LD_LIBRARY_PATH"] = os.path.join(base_path, "defer")
