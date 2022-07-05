@@ -5224,3 +5224,24 @@ class Hfss(FieldAnalysis3D, object):
             overwrite=overwrite,
             taper=taper,
         )
+
+    @pyaedt_function_handler()
+    def set_material_threshold(self, threshold=None):
+        """Set material threshold.
+        Parameters
+        ----------
+        threshold : float, optional
+            Conductivity threshold.
+            If "None" default value is 100000.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            if not threshold:
+                threshold = 100000
+            self.odesign.SetSolveInsideThreshold(threshold)
+            return True
+        except:
+            return False
