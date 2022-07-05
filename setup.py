@@ -28,7 +28,7 @@ def install(package):
 if sys.version_info >= (3, 9):
     install_requires = [
         "jupyterlab;platform_system=='Linux'",
-        "pywin32 >= 303;platform_system=='Windows'",
+        "pythonnet == 3.0.0rc1",
         "jupyterlab",
         "rpyc==5.0.1",
         "pyvista>=0.34.1",
@@ -38,11 +38,10 @@ if sys.version_info >= (3, 9):
         "psutil",
         "dotnetcore2 ==3.1.23;platform_system=='Linux'",
     ]
-    install("https://github.com/pyansys/PyAEDT/raw/release/0.3/pythonnet-2.5.2-cp39-cp39-win_amd64.whl")
 elif sys.version_info >= (3, 7):
     install_requires = [
         "pywin32 >= 303;platform_system=='Windows'",
-        "pythonnet >= 2.5.2;platform_system=='Windows'",
+        "pythonnet == 3.0.0rc1",
         "jupyterlab",
         "rpyc==5.0.1",
         "pyvista>=0.34.1",
@@ -55,7 +54,7 @@ elif sys.version_info >= (3, 7):
 elif sys.version_info >= (3, 0):
     install_requires = [
         "pywin32 >= 303;platform_system=='Windows'",
-        "pythonnet >= 2.5.2;platform_system=='Windows'",
+        "pythonnet == 3.0.0rc1",
         "jupyterlab",
         "rpyc==5.0.1",
         "pyvista>=0.33.3",
