@@ -27,17 +27,16 @@ To start AEDT on listening mode on remote machine:
 .. code::
 
    path/to/aedt/ansysedt.exe -grpcsrv portnumber  #windows
-
    path/to/aedt/ansysedt -grpcsrv portnumber   #linux
 
 If the connection is local, machine argument can be kept empty and the aedt session is started automatically by pyaedt.
 machine and port arguments are available to all applications except Edb.
 
 Legacy Approach
-===============
+~~~~~~~~~~~~~~
 
 Windows Server
-~~~~~~~~~~~~~~
+==============
 
 Here is an usage example for a Windows server:
 
@@ -51,7 +50,7 @@ Here is an usage example for a Windows server:
 
 
 Linux and Windows Clients
-~~~~~~~~~~~~~~~~~~~~~~~~~
+=========================
 
 Here is an usage example for the client side:
 
@@ -68,7 +67,7 @@ Here is an usage example for the client side:
 
 
 Linux Server
-~~~~~~~~~~~~
+============
 
 To bypass current IronPython limits, you can launch PyAEDT on a Linux machine:
 
