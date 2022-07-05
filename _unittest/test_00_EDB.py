@@ -168,7 +168,7 @@ if not config["skip_edb"]:
             assert self.edbapp.core_nets.find_or_create_net("GND")
             assert self.edbapp.core_nets.find_or_create_net(start_with="gn")
             assert self.edbapp.core_nets.find_or_create_net(start_with="g", end_with="d")
-            assert self.edbapp.core_nets.find_or_create_net(end_with="nd")
+            assert self.edbapp.core_nets.find_or_create_net(end_with="d")
             assert self.edbapp.core_nets.find_or_create_net(contain="usb")
 
         def test_09_assign_rlc(self):
