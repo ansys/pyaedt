@@ -5228,11 +5228,13 @@ class Hfss(FieldAnalysis3D, object):
     @pyaedt_function_handler()
     def set_material_threshold(self, threshold=None):
         """Set material threshold.
+
         Parameters
         ----------
         threshold : float, optional
             Conductivity threshold.
             If "None" default value is 100000.
+
         Returns
         -------
         bool
