@@ -53,7 +53,7 @@ elif sys.version_info >= (3, 7):
 elif sys.version_info >= (3, 0):
     install_requires = [
         "pywin32 >= 303;platform_system=='Windows'",
-        "pythonnet == 3.0.0rc1",
+        "pythonnet == 2.5.2;platform_system=='Windows'",
         "jupyterlab",
         "rpyc==5.0.1",
         "pyvista>=0.33.3",
@@ -61,7 +61,6 @@ elif sys.version_info >= (3, 0):
         "ipython",
         "matplotlib",
         "psutil",
-        "dotnetcore2 ==3.1.23;platform_system=='Linux'",
     ]
 elif not is_ironpython and sys.version_info < (3, 0):
     install_requires = ["pywin32 == 228;platform_system=='Windows'", "pythonnet >= 2.5.2;platform_system=='Windows'"]
