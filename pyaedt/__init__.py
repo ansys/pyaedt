@@ -31,6 +31,7 @@ if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" no
                 os.environ["LD_LIBRARY_PATH"] = (
                     os.path.join(pkg_dir, "lib64") + os.pathsep + os.path.join(pkg_dir, "lib")
                 )
+            print("LD_LIBRARY_PATH_SET")
         from clr_loader import get_coreclr
         from pythonnet import set_runtime
 
