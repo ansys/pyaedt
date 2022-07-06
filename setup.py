@@ -1,6 +1,6 @@
 import os
 
-import setuptools
+from setuptools import setup
 import sys
 import pip
 import logging
@@ -70,7 +70,7 @@ else:
     sys.exit("Pyaedt supports only CPython 3.7-3.10 and Ironpython 2.7")
 
 
-setuptools.setup(
+setup(
     name=name,
     version=version,
     author=author,
@@ -85,5 +85,9 @@ setuptools.setup(
     include_package_data=True,
     license=license,
     classifiers=classifiers,
-    cmdclass={'install': PostInstallCommand, },
+    entry_points={
+      },
+    cmdclass={
+        'install': PostInstallCommand,
+    }
 )
