@@ -27,7 +27,7 @@ def install(package):
 
 if sys.version_info >= (3, 9):
     install_requires = [
-        "pythonnet == 3.0.0rc1",
+        "pythonnet == 3.0.0rc2",
         "jupyterlab",
         "rpyc==5.0.1",
         "pyvista>=0.34.1",
@@ -40,7 +40,7 @@ if sys.version_info >= (3, 9):
 elif sys.version_info >= (3, 7):
     install_requires = [
         "pywin32 >= 303;platform_system=='Windows'",
-        "pythonnet == 3.0.0rc1",
+        "pythonnet == 3.0.0rc2",
         "jupyterlab",
         "rpyc==5.0.1",
         "pyvista>=0.34.1",

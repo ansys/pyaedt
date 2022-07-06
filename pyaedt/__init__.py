@@ -11,14 +11,15 @@ if os.path.exists(os.path.join(os.path.dirname(__file__), "version.txt")):
         __version__ = f.read().strip()
 if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" not in sys.version:
     try:
-        from clr_loader import get_coreclr
-        from pythonnet import set_runtime
+        # from clr_loader import get_coreclr
+        from pythonnet import load
 
         os.path.dirname(__file__)
         runtime = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "dotnetcore2", "bin"))
         json_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "misc", "pyaedt.runtimeconfig.json"))
-        rt = get_coreclr(json_file, runtime)
-        set_runtime(rt)
+        # rt = get_coreclr(json_file, runtime)
+        # set_runtime(rt)
+        load("coreclr", runtime_config=json_file, dotnet_root=runtime)
         if "Delcross" not in os.getenv("LD_LIBRARY_PATH", "") or "mono" not in os.getenv("LD_LIBRARY_PATH", ""):
             warnings.warn("LD_LIBRARY_PATH needs to be setup to use pyaedt.")
             warnings.warn("export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64")
