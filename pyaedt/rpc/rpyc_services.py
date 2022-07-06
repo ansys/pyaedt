@@ -767,12 +767,6 @@ class GlobalService(rpyc.Service):
         # (to finalize the service, if needed)
         pass
 
-    def redirect(self, stdout):
-        sys.stdout = stdout
-
-    def restore(self):
-        sys.stdout = sys.__stdout__
-
     def aedt_grpc(self, port=None, beta_options=None, use_aedt_relative_path=False, non_graphical=True):
         """Starts a new AEDT Desktop Session on a specified grpc port.
 

@@ -1,3 +1,4 @@
+import logging
 import os
 import socket
 import time
@@ -175,6 +176,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False):
             "allow_setattr": True,
             "safe_attrs": safe_attrs,
             "allow_delattr": True,
+            "logger": logging.getLogger(__name__),
         },
     )
     print("Starting the server on port {} on {}.".format(port, hostname))
