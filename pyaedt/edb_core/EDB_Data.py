@@ -487,10 +487,6 @@ class EDBLayer(object):
         return self._layer.Clone()
 
     @property
-    def _stackup_methods(self):
-        return self._pedblayers._stackup_methods
-
-    @property
     def _builder(self):
         return self._pedblayers._builder
 
@@ -1006,10 +1002,6 @@ class EDBLayers(object):
     def _logger(self):
         """Logger."""
         return self._pedbstackup._logger
-
-    @property
-    def _stackup_methods(self):
-        return self._pedbstackup._stackup_methods
 
     @property
     def _edb(self):

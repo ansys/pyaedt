@@ -126,10 +126,6 @@ class Components(object):
         return self._pedb.db
 
     @property
-    def _components_methods(self):
-        return self._pedb.edblib.Layout.ComponentsMethods
-
-    @property
     def components(self):
         """Component setup information.
 
