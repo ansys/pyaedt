@@ -5,7 +5,8 @@ This example shows how you can use PyAEDT to create a machine learning algorithm
 - Generate the database
 - Create the machine learning algorithm
 - Implement the model in a PyAEDT method
-These three steps are in one file here for the example but it is better to separate them in different python file.
+These three steps are in one file available for the example but it would be
+better to separate them in different python file.
 """
 
 import json
@@ -109,7 +110,7 @@ print("Its length is: " + str(len(dictionary_list)))
 # Now, the HFSS design will be generated using the PyAEDT Stackup3D function.
 # Open an Hfss Design and create the stackup, add the different layers, add the patch.
 # In Stackup Library, most things are already parameterized like the layers and the patch.
-desktopVersion = "2022.1"
+desktopVersion = "2022.2"
 
 hfss = Hfss(new_desktop_session=True, solution_type="Terminal", non_graphical=non_graphical,
             specified_version=desktopVersion)
@@ -143,6 +144,8 @@ pad_percent = [50, 50, 300, 50, 50, 10]
 region = hfss.modeler.primitives.create_region(pad_percent)
 hfss.assign_radiation_boundary_to_objects(region)
 
+hfss.plot(show=False)
+
 ###############################################################################
 # Then a setup and a frequency sweep will be created by frequency.
 
@@ -155,8 +158,9 @@ for freq in frequency_list:
     current_setup.props["MaximumPasses"] = 30
     current_setup.props["MinimumConvergedPasses"] = 2
     current_setup.props["MaxDeltaS"] = 0.05
-    current_setup.props["SaveAnyFields"] = False
     current_setup.update()
+    current_setup["SaveAnyFields"] = False
+
     freq_start = freq * 0.75
     freq_stop = freq * 1.25
     sweep_name = "Sweep_of_" + setup_name

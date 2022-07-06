@@ -276,6 +276,20 @@ class EdbStackup(object):
         return self._add_dielectric_material_model(name, material_def)
 
     @pyaedt_function_handler()
+    def get_layout_thickness(self):
+        """Return the layout thickness.
+
+        Returns
+        --------
+        Float, the thickness value.
+        """
+        layers_name = list(self.stackup_layers.layers.keys())
+        bottom_layer = self.stackup_layers.layers[layers_name[0]]
+        top_layer = self.stackup_layers.layers[layers_name[-1]]
+        thickness = top_layer.lower_elevation + top_layer.thickness_value - bottom_layer.lower_elevation
+        return thickness
+
+    @pyaedt_function_handler()
     def duplicate_material(self, material_name, new_material_name):
         """Duplicate a material from the database.
         It duplicates these five properties: ``permittivity``, ``permeability``, ` conductivity,``

@@ -6,6 +6,7 @@ from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.EDB_Data import Source
+from pyaedt.generic.constants import RadiationBoxType
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SourceType
 
@@ -164,6 +165,12 @@ if not config["skip_edb"]:
             assert not signalnets[list(signalnets.keys())[0]].is_power_ground
             assert not signalnets[list(signalnets.keys())[0]].IsPowerGround()
             assert len(list(signalnets[list(signalnets.keys())[0]].primitives)) > 0
+
+            assert self.edbapp.core_nets.find_or_create_net("GND")
+            assert self.edbapp.core_nets.find_or_create_net(start_with="gn")
+            assert self.edbapp.core_nets.find_or_create_net(start_with="g", end_with="d")
+            assert self.edbapp.core_nets.find_or_create_net(end_with="d")
+            assert self.edbapp.core_nets.find_or_create_net(contain="usb")
 
         def test_09_assign_rlc(self):
             assert self.edbapp.core_components.set_component_rlc(
@@ -582,6 +589,7 @@ if not config["skip_edb"]:
             ]
             path = self.edbapp.core_primitives.Shape("polygon", points=points)
             assert self.edbapp.core_primitives.create_path(path, "TOP")
+            assert self.edbapp.core_primitives.create_trace(points, "TOP")
 
         def test_60_create_outline(self):
             assert self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
@@ -1602,6 +1610,33 @@ if not config["skip_edb"]:
             )
             assert Edb(self.target_path).build_simulation_project(sim_config)
 
+        def test_106_layout_tchickness(self):
+            assert self.edbapp.core_stackup.get_layout_thickness()
+
+        def test_107_get_layout_stats(self):
+            assert self.edbapp.get_statistics()
+
+        def test_110_edb_stats(self):
+            example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "Galileo_110.aedb")
+            self.local_scratch.copyfolder(example_project, target_path)
+            edb = Edb(target_path, edbversion=desktop_version)
+            edb_stats = edb.get_statistics(compute_area=True)
+            assert edb_stats
+            assert edb_stats.num_layers
+            assert edb_stats.stackup_thickness
+            assert edb_stats.num_vias
+            assert edb_stats.occupying_ratio
+            assert edb_stats.occupying_surface
+            assert edb_stats.layout_size
+            assert edb_stats.num_polygons
+            assert edb_stats.num_traces
+            assert edb_stats.num_nets
+            assert edb_stats.num_discrete_components
+            assert edb_stats.num_inductors
+            assert edb_stats.num_capacitors
+            assert edb_stats.num_resistors
+
         def test_Z_build_hfss_project_from_config_file(self):
             cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
             with open(cfg_file, "w") as f:
@@ -1611,3 +1646,16 @@ if not config["skip_edb"]:
 
             sim_config = SimulationConfiguration(cfg_file)
             assert self.edbapp.build_simulation_project(sim_config)
+
+        def test_107_set_bounding_box_extent(self):
+            source_path = os.path.join(local_path, "example_models", "test_107.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_107.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            edb = Edb(target_path)
+            initial_extent_info = edb.active_cell.GetHFSSExtentInfo()
+            assert initial_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.Conforming
+            config = SimulationConfiguration()
+            config.radiation_box = RadiationBoxType.BoundingBox
+            assert edb.core_hfss.configure_hfss_extents(config)
+            final_extent_info = edb.active_cell.GetHFSSExtentInfo()
+            assert final_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.BoundingBox

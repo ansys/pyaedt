@@ -33,7 +33,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # This example inserts a Maxwell 2D design and then saves the project.
 
-maxwell_2d = Maxwell2d(solution_type="TransientXY", specified_version="2022.1", non_graphical=non_graphical,
+maxwell_2d = Maxwell2d(solution_type="TransientXY", specified_version="2022.2", non_graphical=non_graphical,
                        new_desktop_session=True)
 project_dir = maxwell_2d.generate_temp_project_directory("Example")
 maxwell_2d.save_project(os.path.join(project_dir, "M2d.aedt"))

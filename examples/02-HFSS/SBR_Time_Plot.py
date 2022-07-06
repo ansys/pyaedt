@@ -25,7 +25,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 
 project_file = examples.download_sbr_time()
 
-hfss = Hfss(project_file, specified_version="2022.1", non_graphical=non_graphical, new_desktop_session=True)
+hfss = Hfss(project_file, specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
 
 hfss.analyze_nominal()
 

@@ -127,18 +127,28 @@ def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
 
 def _delete_objects():
     module = sys.modules["__main__"]
-    if "COMUtil" in dir(module):
+    try:
         del module.COMUtil
-    if "aedt_logger" in dir(module):
+    except AttributeError:
+        pass
+    try:
         del module.aedt_logger
-    if "oDesktop" in dir(module):
+    except AttributeError:
+        pass
+    try:
         del module.oDesktop
-    if "pyaedt_initialized" in dir(module):
+    except AttributeError:
+        pass
+    try:
         del module.pyaedt_initialized
-    if "_aedt_handler" in dir(module):
+    except AttributeError:
+        pass
+    try:
         _global = logging.getLogger("Global")
         for i in range(len(module._aedt_handler) - 1, -1, -1):
             _global.removeHandler(module._aedt_handler[i])
+    except AttributeError:
+        pass
     gc.collect()
 
 
@@ -160,28 +170,24 @@ def release_desktop(close_projects=True, close_desktop=True):
     """
 
     _main = sys.modules["__main__"]
-    if "oDesktop" not in dir(_main):
-        _delete_objects()
-        return False
-    else:
+    try:
         desktop = _main.oDesktop
         if close_projects:
             projects = desktop.GetProjectList()
             for project in projects:
                 desktop.CloseProject(project)
         pid = _main.oDesktop.GetProcessID()
-        if _com != "pythonnet_v3":
-            if settings.aedt_version >= "2022.2" and settings.use_grpc_api:
-                import ScriptEnv
+        if settings.aedt_version >= "2022.2" and settings.use_grpc_api and not is_ironpython:
+            import ScriptEnv
 
-                ScriptEnv.Release()
-            elif not inside_desktop:
-                i = 0
-                scopeID = 5
-                while i <= scopeID:
-                    _main.COMUtil.ReleaseCOMObjectScope(_main.COMUtil.PInvokeProxyAPI, i)
-                    i += 1
-            _delete_objects()
+            ScriptEnv.Release()
+        elif not inside_desktop:
+            i = 0
+            scopeID = 5
+            while i <= scopeID:
+                _main.COMUtil.ReleaseCOMObjectScope(_main.COMUtil.PInvokeProxyAPI, i)
+                i += 1
+        _delete_objects()
 
         if close_desktop:
             try:
@@ -191,7 +197,10 @@ def release_desktop(close_projects=True, close_desktop=True):
             except Exception:  # pragma: no cover
                 warnings.warn("Something went wrong in closing AEDT.")
                 return False
-    return True
+        return True
+    except AttributeError:
+        _delete_objects()
+        return False
 
 
 def force_close_desktop():
@@ -640,7 +649,7 @@ class Desktop:
 
         launch_msg = "AEDT installation Path {}".format(base_path)
         self.logger.info(launch_msg)
-        self.logger.info("Launching AEDT with PyDesktopPlugin.")
+        self.logger.info("Launching AEDT with GRPC Plugin.")
         if (
             not self.port
             and not new_aedt_session
@@ -693,7 +702,7 @@ class Desktop:
                 self.logger.info("{} Started with process ID {}.".format(version, _proc))
 
         else:
-            self.logger.warning("PyDesktopPlugin is not supported in AEDT versions older than 2022.2.")
+            self.logger.warning("GRPC Plugin is not supported in AEDT versions older than 2022.2.")
 
     def _set_logger_file(self):
         # Set up the log file in the AEDT project directory

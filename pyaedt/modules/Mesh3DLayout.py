@@ -11,10 +11,11 @@ from collections import OrderedDict
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import PropsManager
 from pyaedt.modules.Mesh import MeshProps
 
 
-class Mesh3DOperation(object):
+class Mesh3DOperation(PropsManager, object):
     """Mesh3DOperation class.
 
     Parameters

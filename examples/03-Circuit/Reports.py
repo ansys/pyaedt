@@ -33,11 +33,11 @@ from pyaedt.generic.DataHandlers import json_to_dict
 ###############################################################################
 # Launch AEDT and Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# This example launches AEDT 2022R1 in graphical mode.
+# This example launches AEDT 2022R2 in graphical mode.
 
 # This examples uses SI units.
 
-desktopVersion = "2022.1"
+desktopVersion = "2022.2"
 
 
 

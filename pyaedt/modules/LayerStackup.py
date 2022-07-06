@@ -619,6 +619,21 @@ class Layers(object):
         return self._modeler.oeditor
 
     @property
+    def zones(self):
+        """List of all available zones.
+
+        Returns
+        -------
+        list
+        """
+        all_layers = list(self._modeler.oeditor.GetStackupLayerNames())
+        zones = []
+        for lay in all_layers:
+            if ";" in lay:
+                zones.append(lay.split(";")[0])
+        return list(set(zones))
+
+    @property
     def LengthUnit(self):
         """Length units."""
         return self._modeler.model_units
@@ -857,7 +872,7 @@ class Layers(object):
         """
         if mode.lower() == "multizone":
             zones = ["NAME:Zones", "Primary"]
-            for i in range(number_zones - 1):
+            for i in range(number_zones):
                 zones.append("Zone{}".format(i + 1))
             args = ["NAME:layers", "Mode:=", "Multizone", zones, ["NAME:pps"]]
         elif mode.lower() == "overlap":

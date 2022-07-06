@@ -1297,8 +1297,9 @@ class SweepHFSS(object):
 
     """
 
-    def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
-        self.oanalysis = oanalysis
+    def __init__(self, app, setupname, sweepname, sweeptype="Interpolating", props=None):
+        self._app = app
+        self.oanalysis = app.omodule
         self.props = {}
         self.setupname = setupname
         self.name = sweepname
@@ -1336,6 +1337,18 @@ class SweepHFSS(object):
             self.props["SMatrixOnlySolveMode"] = "Auto"
             self.props["SMatrixOnlySolveAbove"] = "1MHz"
             self.props["SweepRanges"] = {"Subrange": []}
+
+    @property
+    def is_solved(self):
+        """Verify if solutions are available for given sweep.
+
+        Returns
+        -------
+        bool
+            `True` if solutions are available.
+        """
+        sol = self._app.p_app.post.reports_by_category.standard(setup_name="{} : {}".format(self.setupname, self.name))
+        return True if sol.get_solution_data() else False
 
     @pyaedt_function_handler()
     def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz", save_single_fields=False, clear=False):
@@ -1492,14 +1505,15 @@ class SweepHFSS3DLayout(object):
 
     def __init__(
         self,
-        oanalysis,
+        app,
         setupname,
         sweepname,
         sweeptype="Interpolating",
         save_fields=True,
         props=None,
     ):
-        self.oanalysis = oanalysis
+        self._app = app
+        self.oanalysis = app.omodule
         self.props = {}
         self.setupname = setupname
         self.name = sweepname
@@ -1542,6 +1556,28 @@ class SweepHFSS3DLayout(object):
             self.props["AllDiagEntries"] = False
             self.props["AllOffDiagEntries"] = False
             self.props["MagMinThreshold"] = 0.01
+
+    @property
+    def combined_name(self):
+        """Compute the setupname : sweepname string.
+
+        Returns
+        -------
+        str
+        """
+        return "{} : {}".format(self.setupname, self.name)
+
+    @property
+    def is_solved(self):
+        """Verify if solutions are available for given sweep.
+
+        Returns
+        -------
+        bool
+            `True` if solutions are available.
+        """
+        sol = self._app._app.post.reports_by_category.standard(setup_name=self.combined_name)
+        return True if sol.get_solution_data() else False
 
     @pyaedt_function_handler()
     def change_type(self, sweeptype):
@@ -1738,8 +1774,9 @@ class SweepQ3D(object):
 
     """
 
-    def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
-        self.oanalysis = oanalysis
+    def __init__(self, app, setupname, sweepname, sweeptype="Interpolating", props=None):
+        self._app = app
+        self.oanalysis = app.omodule
         self.setupname = setupname
         self.name = sweepname
         self.props = {}
@@ -1772,6 +1809,18 @@ class SweepQ3D(object):
                 self.props["InterpMaxSolns"] = 50
                 self.props["InterpMinSolns"] = 0
                 self.props["InterpMinSubranges"] = 1
+
+    @property
+    def is_solved(self):
+        """Verify if solutions are available for given sweep.
+
+        Returns
+        -------
+        bool
+            `True` if solutions are available.
+        """
+        sol = self._app.p_app.post.reports_by_category.standard(setup_name="{} : {}".format(self.setupname, self.name))
+        return True if sol.get_solution_data() else False
 
     @pyaedt_function_handler()
     def add_subrange(self, type, start, end=None, count=None, unit="GHz", clear=False):
@@ -2008,7 +2057,10 @@ class SetupProps(OrderedDict):
     """AEDT Boundary Component Internal Parameters."""
 
     def __setitem__(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
+        if isinstance(value, (dict, OrderedDict)):
+            OrderedDict.__setitem__(self, key, SetupProps(self._pyaedt_setup, value))
+        else:
+            OrderedDict.__setitem__(self, key, value)
         if self._pyaedt_setup.auto_update:
             res = self._pyaedt_setup.update()
             if not res:

@@ -18,8 +18,8 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 ###############################################################################
 # Launch AEDT in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2022R1 in graphical mode.
-hfss = Hfss(specified_version="2022.1", solution_type="DrivenTerminal", new_desktop_session=True, non_graphical=non_graphical)
+# This examples launches AEDT 2022R2 in graphical mode.
+hfss = Hfss(specified_version="2022.2", solution_type="DrivenTerminal", new_desktop_session=True, non_graphical=non_graphical)
 hfss.change_material_override(True)
 hfss.change_automatically_use_causal_materials(True)
 hfss.create_open_region("100GHz")
@@ -180,7 +180,7 @@ for s, port_name in zip(port_faces, ["1", "2"]):
 # ~~~~~~~~~~~~~~~
 # This part creates setup and sweep.
 setup = hfss.create_setup("setup1")
-setup.props["Frequency"] = "2GHz"
+setup["Frequency"] = "2GHz"
 setup.props["MaximumPasses"] = 10
 setup.props["MinimumConvergedPasses"] = 2
 hfss.create_linear_count_sweep(

@@ -289,7 +289,7 @@ class Trace(object):
 class CommonReport(object):
     """Provides common reports."""
 
-    def __init__(self, app, report_category, setup_name):
+    def __init__(self, app, report_category, setup_name, expressions=None):
         self._post = app
         self.props = OrderedDict()
         self.report_category = report_category
@@ -305,6 +305,8 @@ class CommonReport(object):
             self.props["context"]["variations"][el] = k
         self.props["expressions"] = None
         self.props["plot_name"] = None
+        if expressions:
+            self.expressions = expressions
         self._is_created = True
 
     @property
@@ -363,11 +365,12 @@ class CommonReport(object):
 
     @expressions.setter
     def expressions(self, value):
-        if not isinstance(value, list):
+        self.props["expressions"] = {}
+        if value is None:
+            value = []
+        elif not isinstance(value, list):
             value = [value]
         for el in value:
-            if not self.props.get("expressions", None):
-                self.props["expressions"] = {}
             self.props["expressions"][el] = {}
 
     @property
@@ -837,8 +840,27 @@ class CommonReport(object):
     def _context(self):
         return []
 
+    @pyaedt_function_handler()
+    def update_expressions_with_defaults(self, quantities_category=None):
+        """Update the list of expressions by taking all the quantities from a given category.
+
+        Parameters
+        ----------
+        quantities_category : str, optional
+            Quantity category to use. If None, the default category for the specified report should be used.
+
+        Returns
+        -------
+
+        """
+        self.expressions = self._post.available_report_quantities(
+            self.report_category, self.report_type, self.setup, quantities_category
+        )
+
     @property
     def _trace_info(self):
+        if not self.expressions:
+            self.update_expressions_with_defaults()
         if isinstance(self.expressions, list):
             expr = self.expressions
         else:
@@ -966,14 +988,16 @@ class CommonReport(object):
         :class:`pyaedt.modules.solutions.SolutionData`
             `Solution Data object.
         """
+        if not self.expressions:
+            self.update_expressions_with_defaults()
         solution_data = self._post.get_solution_data_per_variation(
             self.report_category, self.setup, self._context, self.variations, self.expressions
         )
+        if not solution_data:
+            self._post._app.logger.warning("No Data Available. Check inputs")
+            return False
         if self.primary_sweep:
             solution_data.primary_sweep = self.primary_sweep
-        if not solution_data:
-            self._post._app.logger.error("No Data Available. Check inputs")
-            return False
         return solution_data
 
     @pyaedt_function_handler()
@@ -1321,7 +1345,7 @@ class CommonReport(object):
             props.append(["NAME:Min", "Value:=", min_scale])
         if max_scale:
             props.append(["NAME:Max", "Value:=", max_scale])
-        if minor_tick_divs:
+        if minor_tick_divs and linear_scaling:
             props.append(["NAME:Minor Tick Divs", "Value:=", str(minor_tick_divs)])
         if min_spacing:
             props.append(["NAME:Spacing", "Value:=", min_spacing])
@@ -1478,7 +1502,7 @@ class CommonReport(object):
             props.append(["NAME:Min", "Value:=", min_scale])
         if max_scale:
             props.append(["NAME:Max", "Value:=", max_scale])
-        if minor_tick_divs:
+        if minor_tick_divs and linear_scaling:
             props.append(["NAME:Minor Tick Divs", "Value:=", str(minor_tick_divs)])
         if min_spacing:
             props.append(["NAME:Spacing", "Value:=", min_spacing])
@@ -1783,8 +1807,8 @@ class CommonReport(object):
 class Standard(CommonReport):
     """Provides a reporting class that fits most of the application's standard reports."""
 
-    def __init__(self, app, report_category, setup_name):
-        CommonReport.__init__(self, app, report_category, setup_name)
+    def __init__(self, app, report_category, setup_name, expressions=None):
+        CommonReport.__init__(self, app, report_category, setup_name, expressions)
 
     @property
     def sub_design_id(self):
@@ -1908,8 +1932,8 @@ class Standard(CommonReport):
 class AntennaParameters(Standard):
     """Provides a reporting class that fits Antenna Parameters reports in HFSS plot."""
 
-    def __init__(self, app, report_category, setup_name, far_field_sphere=None):
-        Standard.__init__(self, app, report_category, setup_name)
+    def __init__(self, app, report_category, setup_name, far_field_sphere=None, expressions=None):
+        Standard.__init__(self, app, report_category, setup_name, expressions)
         self.far_field_sphere = far_field_sphere
 
     @property
@@ -1935,8 +1959,8 @@ class AntennaParameters(Standard):
 class Fields(CommonReport):
     """General Fields Class."""
 
-    def __init__(self, app, report_type, setup_name):
-        CommonReport.__init__(self, app, report_type, setup_name)
+    def __init__(self, app, report_type, setup_name, expressions=None):
+        CommonReport.__init__(self, app, report_type, setup_name, expressions)
         self.domain = "Sweep"
         self.polyline = None
         self.point_number = 1001
@@ -1967,8 +1991,8 @@ class Fields(CommonReport):
 class NearField(CommonReport):
     """Near Field Report Class."""
 
-    def __init__(self, app, report_type, setup_name):
-        CommonReport.__init__(self, app, report_type, setup_name)
+    def __init__(self, app, report_type, setup_name, expressions=None):
+        CommonReport.__init__(self, app, report_type, setup_name, expressions)
         self.domain = "Sweep"
 
     @property
@@ -1993,8 +2017,8 @@ class NearField(CommonReport):
 class FarField(CommonReport):
     """FarField Report Class."""
 
-    def __init__(self, app, report_type, setup_name):
-        CommonReport.__init__(self, app, report_type, setup_name)
+    def __init__(self, app, report_type, setup_name, expressions=None):
+        CommonReport.__init__(self, app, report_type, setup_name, expressions)
         self.domain = "Sweep"
         self.primary_sweep = "Phi"
         self.secondary_sweep = "Theta"
@@ -2027,8 +2051,8 @@ class FarField(CommonReport):
 class EyeDiagram(CommonReport):
     """Eye Diagram Report Class."""
 
-    def __init__(self, app, report_type, setup_name):
-        CommonReport.__init__(self, app, report_type, setup_name)
+    def __init__(self, app, report_type, setup_name, expressions=None):
+        CommonReport.__init__(self, app, report_type, setup_name, expressions)
         self.domain = "Time"
         self.time_start = "0ns"
         self.time_stop = "200ns"
@@ -2504,16 +2528,16 @@ class EyeDiagram(CommonReport):
 class Emission(CommonReport):
     """Emission Report Class."""
 
-    def __init__(self, app, report_type, setup_name):
-        CommonReport.__init__(self, app, report_type, setup_name)
+    def __init__(self, app, report_type, setup_name, expressions=None):
+        CommonReport.__init__(self, app, report_type, setup_name, expressions)
         self.domain = "Sweep"
 
 
 class Spectral(CommonReport):
     """Spectral Report from Transient data."""
 
-    def __init__(self, app, report_type, setup_name):
-        CommonReport.__init__(self, app, report_type, setup_name)
+    def __init__(self, app, report_type, setup_name, expressions=None):
+        CommonReport.__init__(self, app, report_type, setup_name, expressions)
         self.domain = "Spectrum"
         self.algorithm = "FFT"
         self.time_start = "0ns"

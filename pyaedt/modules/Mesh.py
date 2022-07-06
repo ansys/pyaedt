@@ -13,6 +13,7 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import MethodNotSupportedError
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+from pyaedt.generic.general_methods import PropsManager
 
 meshers = {
     "HFSS": "MeshSetup",
@@ -52,7 +53,7 @@ class MeshProps(OrderedDict):
         OrderedDict.__setitem__(self, key, value)
 
 
-class MeshOperation(object):
+class MeshOperation(PropsManager, object):
     """MeshOperation class.
 
     Parameters

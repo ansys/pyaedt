@@ -680,12 +680,15 @@ class Components(object):
                         return False
                 for net in net_list:
                     pins = [pin for pin in cmp_pins if pin.GetNet().GetName() == net]
-                    pin_group = self.create_pingroup_from_pins(pins)
-                    if not pin_group:
-                        return False
-                    pin_group_term = self._create_pin_group_terminal(pin_group)
-                    if pin_group_term:
-                        pin_group_term.SetReferenceTerminal(ref_pin_group_term)
+                    if pins:
+                        pin_group = self.create_pingroup_from_pins(pins)
+                        if not pin_group:
+                            return False
+                        pin_group_term = self._create_pin_group_terminal(pin_group)
+                        if pin_group_term:
+                            pin_group_term.SetReferenceTerminal(ref_pin_group_term)
+                    else:
+                        self._logger.info("No pins found on component {} for the net {}".format(component, net))
 
             else:
                 for net in net_list:

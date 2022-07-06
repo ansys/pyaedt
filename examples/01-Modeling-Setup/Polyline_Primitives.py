@@ -26,7 +26,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # type to ``"mm"``.
 
 M3D = Maxwell3d(
-    solution_type="Transient", designname="test_polyline_3D", specified_version="2022.1", new_desktop_session=True, non_graphical=non_graphical,
+    solution_type="Transient", designname="test_polyline_3D", specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical,
 )
 M3D.modeler.model_units = "mm"
 prim3D = M3D.modeler

@@ -449,7 +449,7 @@ class FieldAnalysisCircuit(Analysis):
         if props:
             for el in props:
                 setup.props._setitem_without_update(el, props[el])
-        setup.update()
+            setup.update()
         self.analysis_setup = name
         self.setups.append(setup)
         return setup

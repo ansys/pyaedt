@@ -19,6 +19,7 @@ from pyaedt.generic.plot import plot_3d_chart
 from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
 
+
 if not is_ironpython:
     try:
         import numpy as np
@@ -682,6 +683,7 @@ class SolutionData(object):
         math_formula : str , optional
             Mathematical formula to apply to the plot curve.
             Valid values are `"re"`, `"im"`, `"db20"`, `"db10"`, `"abs"`, `"mag"`, `"phasedeg"`, `"phaserad"`.
+            `None` value will plot only real value of the data stored in solution data.
         size : tuple, optional
             Image size in pixel (width, height).
         show_legend : bool
@@ -710,15 +712,14 @@ class SolutionData(object):
             curves = [curves]
         data_plot = []
         sweep_name = self.primary_sweep
-        if not math_formula:
-            math_formula = "mag"
         if is_polar:
             sw = self.to_radians(self._sweeps[sweep_name])
         else:
             sw = self._sweeps[sweep_name]
-
         for curve in curves:
-            if math_formula == "re":
+            if not math_formula:
+                data_plot.append([sw, self.data_real(curve), curve])
+            elif math_formula == "re":
                 data_plot.append([sw, self.data_real(curve), "{}({})".format(math_formula, curve)])
             elif math_formula == "im":
                 data_plot.append([sw, self.data_imag(curve), "{}({})".format(math_formula, curve)])
@@ -1322,8 +1323,8 @@ class FfdSolutionData(object):
         array_positions = {}
         for port_name in self.all_port_names:
             index_str = self.get_array_index(port_name)
-            a = index_str[0]
-            b = index_str[1]
+            a = index_str[0] - 1
+            b = index_str[1] - 1
             w_mag = np.round(np.abs(self.assign_weight(a, b, taper=self.taper)), 3)
             w_ang = a * phase_shift_A_rad + b * phase_shift_B_rad
             w_dict[port_name] = np.sqrt(w_mag) * np.exp(1j * w_ang)
@@ -1530,7 +1531,7 @@ class FfdSolutionData(object):
         try:
             lattice_vectors = self._app.omodelsetup.GetLatticeVectors()
             lattice_vectors = [
-                float(vec) / AEDT_UNITS["Length"][self._app.modeler.model_units] for vec in lattice_vectors
+                float(vec) * AEDT_UNITS["Length"][self._app.modeler.model_units] for vec in lattice_vectors
             ]
 
         except:
@@ -1713,7 +1714,10 @@ class FfdSolutionData(object):
                 idx = self._find_nearest(data[y_key], el)
                 y = temp[idx]
                 if convert_to_db:
-                    y = 10 * np.log10(y)
+                    if "Gain" in qty_str or "Dir" in qty_str:
+                        y = 10 * np.log10(y)
+                    else:
+                        y = 20 * np.log10(y)
                 curves.append([x, y, "{}={}".format(y_key, el)])
         elif isinstance(secondary_sweep_value, list):
             list_inserted = []
@@ -1722,15 +1726,21 @@ class FfdSolutionData(object):
                 if theta_idx not in list_inserted:
                     y = temp[theta_idx]
                     if convert_to_db:
-                        y = 10 * np.log10(y)
+                        if "Gain" in qty_str or "Dir" in qty_str:
+                            y = 10 * np.log10(y)
+                        else:
+                            y = 20 * np.log10(y)
                     curves.append([x, y, "{}={}".format(y_key, el)])
                     list_inserted.append(theta_idx)
         else:
             theta_idx = self._find_nearest(data[y_key], secondary_sweep_value)
             y = temp[theta_idx]
             if convert_to_db:
-                y = 10 * np.log10(y)
-            curves.append([x, y, "{}={}".format(y_key, theta_idx)])
+                if "Gain" in qty_str or "Dir" in qty_str:
+                    y = 10 * np.log10(y)
+                else:
+                    y = 20 * np.log10(y)
+            curves.append([x, y, "{}={}".format(y_key, data[y_key][theta_idx])])
 
         return plot_2d_chart(curves, xlabel=xlabel, ylabel=qty_str, title=title, snapshot_path=export_image_path)
 
@@ -1878,7 +1888,7 @@ class FfdSolutionData(object):
 
         # plot everything together
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
-        p = pv.Plotter()
+        p = pv.Plotter(notebook=is_notebook(), off_screen=not show)
         uf = UpdateBeamForm(self)
 
         p.add_slider_widget(
@@ -1969,7 +1979,6 @@ class FfdSolutionData(object):
             cad = p.add_mesh(cad_mesh, scalars=color_display_type, show_scalar_bar=False, opacity=0.5)
             p.add_checkbox_button_widget(toggle_vis_cad, value=True, position=(10, 70), size=30)
             p.add_text("Show Geometry", position=(70, 75), color="white", font_size=10)
-        p.off_screen = not show
         if export_image_path:
             p.show(screenshot=export_image_path)
         else:
@@ -2099,7 +2108,6 @@ class FfdSolutionData(object):
             size = int(p.window_size[1] / 40)
             p.add_checkbox_button_widget(toggle_vis_cad, size=size, value=True, position=(10, 70))
             p.add_text("Show Geometry", position=(70, 75), color="black", font_size=12)
-        p.off_screen = not show
         if export_image_path:
             p.show(screenshot=export_image_path)
         else:
@@ -2286,11 +2294,29 @@ class FieldPlot:
             for index in self.volume_indexes:
                 info.append(str(index))
         if self.surfaces_indexes:
-            info.append("Surface")
-            info.append("FacesList")
-            info.append(len(self.surfaces_indexes))
+            model_faces = []
+            nonmodel_faces = []
+            models = self._postprocessor.modeler.model_objects
             for index in self.surfaces_indexes:
-                info.append(str(index))
+                try:
+                    oname = self._postprocessor.modeler.oeditor.GetObjectNameByFaceID(index)
+                    if oname in models:
+                        model_faces.append(str(index))
+                    else:
+                        nonmodel_faces.append(str(index))
+                except:
+                    pass
+            info.append("Surface")
+            if model_faces:
+                info.append("FacesList")
+                info.append(len(model_faces))
+                for index in model_faces:
+                    info.append(index)
+            if nonmodel_faces:
+                info.append("NonModelFaceList")
+                info.append(len(nonmodel_faces))
+                for index in nonmodel_faces:
+                    info.append(index)
         if self.cutplane_indexes:
             info.append("Surface")
             info.append("CutPlane")

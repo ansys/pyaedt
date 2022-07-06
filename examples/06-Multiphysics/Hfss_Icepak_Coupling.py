@@ -43,11 +43,11 @@ from pyaedt import Icepak
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# This example launches AEDT 2022R1 in graphical mode.
+# This example launches AEDT 2022R2 in graphical mode.
 # This example uses SI units.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
-desktopVersion = "2022.1"
+desktopVersion = "2022.2"
 
 ###############################################################################
 # Launch AEDT in Non-Graphical Mode

@@ -29,9 +29,9 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 ###############################################################################
 # Launch AEDT in Graphical Mode
 # -----------------------------
-# This example launches AEDT 2022R1 in graphical mode.
+# This example launches AEDT 2022R2 in graphical mode.
 
-d = Desktop("2022.1", non_graphical=non_graphical, new_desktop_session=True)
+d = Desktop("2022.2", non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Insert an HFSS Design
@@ -54,7 +54,7 @@ cs1 = hfss.modeler.create_coordinate_system()
 # The `cs1` object exposes properties and methods to manipulate the coordinate system.
 # The origin can be changed.
 
-cs1.props["OriginX"] = 10
+cs1["OriginX"] = 10
 cs1.props["OriginY"] = 10
 cs1.props["OriginZ"] = 10
 

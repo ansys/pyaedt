@@ -1030,6 +1030,47 @@ class Edb(object):
         return True
 
     @pyaedt_function_handler()
+    def get_conformal_polygon_from_netlist(self, netlist=None):
+        """Return an EDB conformal polygon based on net list.
+
+        Parameters
+        ----------
+
+        netlist : List of net name.
+            list[str]
+
+        Returns
+        -------
+
+        Edb polygon object
+            Edb.Cell.Primitive.Polygon object
+
+        """
+        shutil.copytree(self.edbpath, os.path.join(self.edbpath, "_temp_aedb"))
+        temp_edb = Edb(os.path.join(self.edbpath, "_temp_aedb"))
+        for via in list(temp_edb.core_padstack.padstack_instances.values()):
+            via.pin.Delete()
+        if netlist:
+            nets = convert_py_list_to_net_list(
+                [net for net in list(self.active_layout.Nets) if net.GetName() in netlist]
+            )
+            _poly = temp_edb.active_layout.GetExpandedExtentFromNets(
+                nets, self.edb.Geometry.ExtentType.Conforming, 0.0, True, True, 1
+            )
+        else:
+            nets = convert_py_list_to_net_list(
+                [net for net in list(temp_edb.active_layout.Nets) if "gnd" in net.GetName().lower()]
+            )
+            _poly = temp_edb.active_layout.GetExpandedExtentFromNets(
+                nets, self.edb.Geometry.ExtentType.Conforming, 0.0, True, True, 1
+            )
+            temp_edb.close_edb()
+        if _poly:
+            return _poly
+        else:
+            return False
+
+    @pyaedt_function_handler()
     def arg_with_dim(self, Value, sUnits):
         """Format arguments with dimensions.
 
@@ -1645,3 +1686,13 @@ class Edb(object):
             return True
         except:  # pragma: no cover
             return False
+
+    @pyaedt_function_handler()
+    def get_statistics(self, compute_area=False):
+        """Return the EDBStatistics object.
+
+        Returns
+        -------
+        The EDBStatistics object from the loaded layout.
+        """
+        return self.core_primitives.get_layout_statistics(evaluate_area=compute_area, net_list=None)

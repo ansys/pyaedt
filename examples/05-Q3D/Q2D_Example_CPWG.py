@@ -19,10 +19,10 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 
 ###############################################################################
 # Launch AEDT and Q2D
-# This example launches AEDT 2022.1 in graphical mode.
+# This example launches AEDT 2022.2 in graphical mode.
 # This example use SI units.
 
-q = Q2d(specified_version="2022.1", non_graphical=non_graphical, new_desktop_session=True,
+q = Q2d(specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True,
         projectname=generate_unique_name("pyaedt_q2d_example"), designname="coplanar_waveguide")
 
 ###############################################################################
