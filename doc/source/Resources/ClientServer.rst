@@ -33,7 +33,7 @@ If the connection is local, machine argument can be kept empty and the aedt sess
 machine and port arguments are available to all applications except Edb.
 
 Legacy Approach
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 Windows Server
 ==============

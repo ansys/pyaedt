@@ -13,7 +13,7 @@ In addition to the runtime dependencies listed in the installation information, 
    Add how to install from the AEDT installer like as in https://mapdldocs.pyansys.com/getting_started/running_mapdl.html
 
 
-Installing on CPython v3.7-v3.9 from pypi
+Installing on CPython v3.7-v3.10 from pypi
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Install the prerequisite packages ``pythonnet`` and ``pywin32`` with:
 

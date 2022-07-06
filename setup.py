@@ -25,19 +25,7 @@ def install(package):
         pip._internal.main(["install", package])
 
 
-if sys.version_info >= (3, 9):
-    install_requires = [
-        "pythonnet == 3.0.0rc2",
-        "jupyterlab",
-        "rpyc==5.0.1",
-        "pyvista>=0.34.1",
-        "numpy",
-        "ipython",
-        "matplotlib",
-        "psutil",
-        "dotnetcore2 ==3.1.23;platform_system=='Linux'",
-    ]
-elif sys.version_info >= (3, 7):
+if sys.version_info >= (3, 7):
     install_requires = [
         "pywin32 >= 303;platform_system=='Windows'",
         "pythonnet == 3.0.0rc2",

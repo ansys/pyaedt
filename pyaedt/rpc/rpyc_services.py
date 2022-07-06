@@ -767,6 +767,89 @@ class GlobalService(rpyc.Service):
         # (to finalize the service, if needed)
         pass
 
+    def exposed_start_aedt_grpc(self, port=None, beta_options=None, use_aedt_relative_path=False):
+        """Starts a new Pyaedt Service and start listen.
+
+        Returns
+        -------
+        hostname : str
+            Hostname.
+        """
+        if not port:
+            port = check_port(random.randint(18500, 20000))
+
+        if port == 0:
+            print("Error. No Available ports.")
+            return False
+        ansysem_path = ""
+        non_graphical = True
+        if os.name == "posix":
+            ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
+            non_graphical = os.getenv("PYAEDT_SERVER_AEDT_NG", "True").lower() in ("true", "1", "t")
+        if os.name == "posix":
+            executable = "ansysedt"
+        else:
+            executable = "ansysedt.exe"
+        if ansysem_path and use_aedt_relative_path:
+            aedt_exe = os.path.join(ansysem_path, executable)
+        else:
+            aedt_exe = executable
+        if non_graphical:
+            ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION,SF159726_SCRIPTOBJECT"
+            if beta_options:
+                for option in range(beta_options.__len__()):
+                    if beta_options[option] not in ng_feature:
+                        ng_feature += "," + beta_options[option]
+
+            command = [
+                aedt_exe,
+                "-grpcsrv",
+                port,
+                ng_feature,
+                "-ng",
+
+            ]
+        else:
+            ng_feature = "-features=SF159726_SCRIPTOBJECT"
+            if beta_options:
+                for option in range(beta_options.__len__()):
+                    if beta_options[option] not in ng_feature:
+                        ng_feature += "," + beta_options[option]
+            command = [aedt_exe, "-grpcrv", port, ng_feature]
+
+
+        print(command)
+        subprocess.Popen(command)
+        print("Service Started on Port {}".format(port))
+        return port
+
+    def exposed_start_edb(self,
+                          edbpath=None,
+                          cellname=None,
+                          isreadonly=False,
+                          edbversion=None,
+                          isaedtowned=False,
+                          oproject=None,
+                          student_version=False,
+                          use_ppe=False,
+                          ):
+        """Starts a new EDB Session.
+
+        Returns
+        -------
+        hostname : str
+            Hostname.
+        """
+        edb = Edb(edbpath=edbpath,
+                  cellname=cellname,
+                  isreadonly=isreadonly,
+                  edbversion=edbversion,
+                  isaedtowned=isaedtowned,
+                  oproject=oproject,
+                  student_version=student_version,
+                  use_ppe=use_ppe, )
+        return edb
+
     def exposed_start_service(self, hostname, beta_options=None, use_aedt_relative_path=False):
         """Starts a new Pyaedt Service and start listen.
 
