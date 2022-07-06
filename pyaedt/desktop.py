@@ -72,10 +72,6 @@ elif IsWindows:  # pragma: no cover
         raise Exception("Error. No win32com.client or Pythonnet modules found. Install them and try again.")
 else:
     _com = "pythonnet_v3"
-    try:
-        import clr
-    except ImportError:
-        pass
 
 
 def _check_grpc_port(port, machine_name=""):
@@ -583,7 +579,8 @@ class Desktop:
         version_key,
         aedt_process_id=None,
     ):
-
+        if os.name == "posix":
+            raise Exception("Pyaedt supports COM Initialization in Windows Only. To use in Linux upgrade to 22R2")
         base_path = self._main.sDesktopinstallDirectory
         sys.path.append(base_path)
         sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
