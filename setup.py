@@ -85,9 +85,5 @@ setup(
     include_package_data=True,
     license=license,
     classifiers=classifiers,
-    entry_points={
-      },
-    cmdclass={
-        'install': PostInstallCommand,
-    }
+    cmdclass={'install': PostInstallCommand}
 )
