@@ -790,7 +790,7 @@ class GlobalService(rpyc.Service):
             executable = "ansysedt"
         else:
             executable = "ansysedt.exe"
-        if ansysem_path and use_aedt_relative_path:
+        if ansysem_path and not use_aedt_relative_path:
             aedt_exe = os.path.join(ansysem_path, executable)
         else:
             aedt_exe = executable
