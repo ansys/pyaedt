@@ -16,6 +16,7 @@ if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" no
 
         os.path.dirname(__file__)
         runtime = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "dotnetcore2", "bin"))
+        print(runtime)
         json_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "misc", "pyaedt.runtimeconfig.json"))
         # rt = get_coreclr(json_file, runtime)
         # set_runtime(rt)
