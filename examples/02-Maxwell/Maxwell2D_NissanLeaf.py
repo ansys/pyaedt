@@ -1,6 +1,6 @@
 """
 Maxwell 2d: PM Synchronous Motor Transient Analysis
-------------------------------
+---------------------------------------------------
 This example shows how you can use PyAEDT to create a Maxwell 2D Transient Analysis for an interior permanent magnet
 electric motor,starting from the parameter definition through the post-processing preparation
 Tested on pyaedt 0.4.70
