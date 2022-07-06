@@ -1,6 +1,13 @@
+import os
+
 import setuptools
 import sys
 import pip
+import logging
+
+logging.basicConfig(stream=sys.stderr, level=logging.INFO)
+log = logging.getLogger()
+
 from _setup_common import (
     name,
     version,
@@ -60,3 +67,15 @@ setuptools.setup(
     license=license,
     classifiers=classifiers,
 )
+
+log.info("Pyaedt {} Installed successfully".format(version))
+
+if os.name == "posix" and not is_ironpython:
+    log.info("Configure environment variable ANSYSEM_ROOT222 or above to AEDT Installation path to use it on linux ")
+    log.info("Configure ANSYSEM_ROOT222 or above and LD_LIBRARY_PATH to use it on linux.")
+    log.info("Example:")
+    log.info("export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64")
+    msg = "export LD_LIBRARY_PATH="
+    msg += "$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH"
+    log.info(msg)
+
