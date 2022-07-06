@@ -66,7 +66,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False):
         if not ansysem_path:
             aa = list_installed_ansysem()
             if aa:
-                ansysem_path = aa[0]
+                ansysem_path = os.environ[aa[0]]
             else:
                 raise Exception("no ANSYSEM_ROOTXXX environment variable defined.")
         os.environ["PYAEDT_SERVER_AEDT_PATH"] = ansysem_path
