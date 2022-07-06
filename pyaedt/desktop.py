@@ -28,6 +28,9 @@ from pyaedt import is_ironpython
 
 if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess
+
+    os.environ["ANS_NODEPCHECK"] = str(1)
+
 else:
     import subprocess
 
