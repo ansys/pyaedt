@@ -501,18 +501,26 @@ class Edb(object):
         if not working_dir:
             working_dir = os.path.dirname(input_file)
         if os.name == "posix":
-            cmd_translator = "{} {} {}".format(command, input_file, os.path.join(working_dir, aedb_name))
-            cmd_translator += " -l={}".format(os.path.join(working_dir, "Translator.log"))
+            cmd_translator = [
+                command,
+                input_file,
+                os.path.join(working_dir, aedb_name),
+                "-l={}".format(os.path.join(working_dir, "Translator.log")),
+            ]
         else:
-            cmd_translator = '"{}" "{}" "{}"'.format(command, input_file, os.path.join(working_dir, aedb_name))
-            cmd_translator += ' -l="{}"'.format(os.path.join(working_dir, "Translator.log"))
+            cmd_translator = [
+                command,
+                input_file,
+                os.path.join(working_dir, aedb_name),
+                '-l="{}"'.format(os.path.join(working_dir, "Translator.log")),
+            ]
         if not use_ppe:
-            cmd_translator += " -ppe=false"
+            cmd_translator.append("-ppe=false")
         if control_file and input_file[-3:] not in ["brd"]:
             if os.name == "posix":
-                cmd_translator += " -c={}".format(control_file)
+                cmd_translator.append("-c={}".format(control_file))
             else:
-                cmd_translator += ' -c="{}"'.format(control_file)
+                cmd_translator.append('-c="{}"'.format(control_file))
         p = subprocess.Popen(cmd_translator)
         p.wait()
         if not os.path.exists(os.path.join(working_dir, aedb_name)):
