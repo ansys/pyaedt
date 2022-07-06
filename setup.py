@@ -38,22 +38,10 @@ if sys.version_info >= (3, 7):
         "psutil",
         "dotnetcore2 ==3.1.23;platform_system=='Linux'",
     ]
-elif sys.version_info >= (3, 0):
-    install_requires = [
-        "pywin32 >= 303;platform_system=='Windows'",
-        "pythonnet == 2.5.2;platform_system=='Windows'",
-        "jupyterlab",
-        "rpyc==5.0.1",
-        "pyvista>=0.33.3",
-        "numpy",
-        "ipython",
-        "matplotlib",
-        "psutil",
-    ]
-elif not is_ironpython and sys.version_info < (3, 0):
-    install_requires = ["pywin32 == 228;platform_system=='Windows'", "pythonnet >= 2.5.2;platform_system=='Windows'"]
-else:
+elif is_ironpython:
     install_requires = []
+else:
+    sys.exit("Pyaedt supports only CPython 3.7-3.10 and Ironpython 2.7")
 
 
 setuptools.setup(
