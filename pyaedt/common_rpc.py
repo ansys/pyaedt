@@ -4,6 +4,7 @@ import time
 
 from pyaedt import is_ironpython
 from pyaedt.generic.general_methods import convert_remote_object
+from pyaedt.misc import list_installed_ansysem
 
 # import sys
 
@@ -62,6 +63,12 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False):
     if port1 != port:
         print("Port {} is already in use. Starting the server on {}.".format(port, port1))
     if os.name == "posix":
+        if not ansysem_path:
+            aa = list_installed_ansysem()
+            if aa:
+                ansysem_path = aa[0]
+            else:
+                raise Exception("no ANSYSEM_ROOTXXX environment variable defined.")
         os.environ["PYAEDT_SERVER_AEDT_PATH"] = ansysem_path
         os.environ["PYAEDT_SERVER_AEDT_NG"] = str(non_graphical)
         os.environ["ANS_NO_MONO_CLEANUP"] = str(1)
