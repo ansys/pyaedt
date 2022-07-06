@@ -68,7 +68,7 @@ setuptools.setup(
     classifiers=classifiers,
 )
 
-log.info("Pyaedt {} Installed successfully".format(version))
+print("Pyaedt {} Installed successfully".format(version))
 
 if os.name == "posix" and not is_ironpython:
     log.info("Configure environment variable ANSYSEM_ROOT222 or above to AEDT Installation path to use it on linux ")
