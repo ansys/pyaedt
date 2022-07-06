@@ -69,6 +69,7 @@ setup(
 )
 
 if os.name == "posix" and not is_ironpython:
+    print("====================================================================================================")
     print(
         "Configure environment variable ANSYSEM_ROOT222 or above to AEDT Installation path to use it on linux ")
     print("Configure ANSYSEM_ROOT222 or above and LD_LIBRARY_PATH to use it on linux.")
@@ -77,3 +78,4 @@ if os.name == "posix" and not is_ironpython:
     msg = "export LD_LIBRARY_PATH="
     msg += "$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH"
     print(msg)
+    print("====================================================================================================")
