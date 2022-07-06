@@ -804,7 +804,7 @@ class GlobalService(rpyc.Service):
             command = [
                 aedt_exe,
                 "-grpcsrv",
-                port,
+                str(port),
                 ng_feature,
                 "-ng",
 
@@ -815,7 +815,7 @@ class GlobalService(rpyc.Service):
                 for option in range(beta_options.__len__()):
                     if beta_options[option] not in ng_feature:
                         ng_feature += "," + beta_options[option]
-            command = [aedt_exe, "-grpcrv", port, ng_feature]
+            command = [aedt_exe, "-grpcrv", str(port), ng_feature]
 
 
         print(command)
