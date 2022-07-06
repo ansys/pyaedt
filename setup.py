@@ -45,23 +45,11 @@ if sys.version_info >= (3, 7):
         "matplotlib",
         "psutil",
         "dotnetcore2 ==3.1.23;platform_system=='Linux'",
-        "wheel"
     ]
 elif is_ironpython:
     install_requires = []
 else:
     sys.exit("Pyaedt supports only CPython 3.7-3.10 and Ironpython 2.7")
-
-
-if os.name == "posix" and not is_ironpython:
-    log.info(
-        "Configure environment variable ANSYSEM_ROOT222 or above to AEDT Installation path to use it on linux ")
-    log.info("Configure ANSYSEM_ROOT222 or above and LD_LIBRARY_PATH to use it on linux.")
-    log.info("Example:")
-    log.info("export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64")
-    msg = "export LD_LIBRARY_PATH="
-    msg += "$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH"
-    log.info(msg)
 
 setup(
     name=name,
@@ -79,3 +67,13 @@ setup(
     license=license,
     classifiers=classifiers,
 )
+
+if os.name == "posix" and not is_ironpython:
+    log.info(
+        "Configure environment variable ANSYSEM_ROOT222 or above to AEDT Installation path to use it on linux ")
+    log.info("Configure ANSYSEM_ROOT222 or above and LD_LIBRARY_PATH to use it on linux.")
+    log.info("Example:")
+    log.info("export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64")
+    msg = "export LD_LIBRARY_PATH="
+    msg += "$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH"
+    log.info(msg)
