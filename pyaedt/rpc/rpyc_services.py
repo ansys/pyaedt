@@ -767,13 +767,13 @@ class GlobalService(rpyc.Service):
         # (to finalize the service, if needed)
         pass
 
-    def exposed_start_aedt_grpc(self, port=None, beta_options=None, use_aedt_relative_path=False):
-        """Starts a new Pyaedt Service and start listen.
+    def aedt_grpc(self, port=None, beta_options=None, use_aedt_relative_path=False, non_graphical=True):
+        """Starts a new AEDT Desktop Session on a specified grpc port.
 
         Returns
         -------
-        hostname : str
-            Hostname.
+        port : int
+            Port number on which the AEDT Session has started.
         """
         if not port:
             port = check_port(random.randint(18500, 20000))
@@ -782,10 +782,8 @@ class GlobalService(rpyc.Service):
             print("Error. No Available ports.")
             return False
         ansysem_path = ""
-        non_graphical = True
         if os.name == "posix":
             ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
-            non_graphical = os.getenv("PYAEDT_SERVER_AEDT_NG", "True").lower() in ("true", "1", "t")
         if os.name == "posix":
             executable = "ansysedt"
         else:
@@ -817,22 +815,20 @@ class GlobalService(rpyc.Service):
                         ng_feature += "," + beta_options[option]
             command = [aedt_exe, "-grpcsrv", str(port), ng_feature]
 
-
-        print(command)
         subprocess.Popen(command)
         print("Service Started on Port {}".format(port))
         return port
 
-    def exposed_start_edb(self,
-                          edbpath=None,
-                          cellname=None,
-                          isreadonly=False,
-                          edbversion=None,
-                          isaedtowned=False,
-                          oproject=None,
-                          student_version=False,
-                          use_ppe=False,
-                          ):
+    def edb(self,
+            edbpath=None,
+            cellname=None,
+            isreadonly=False,
+            edbversion=None,
+            isaedtowned=False,
+            oproject=None,
+            student_version=False,
+            use_ppe=False,
+            ):
         """Starts a new EDB Session.
 
         Returns
