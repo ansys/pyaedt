@@ -275,7 +275,6 @@ class Edb(object):
                 clr.AddReferenceToFile("EdbLib.dll")
                 clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
             else:
-
                 clr.AddReference("Ansys.Ansoft.Edb")
                 clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
                 clr.AddReference("EdbLib")
@@ -306,7 +305,7 @@ class Edb(object):
     def edblib(self):
         """EdbLib object containing advanced EDB methods not accessible directly from Python."""
         if not self._edblib:
-            if os.name == "posix":
+            if os.name == "posix" and is_ironpython:
                 clr.AddReferenceToFile("EdbLib.dll")
                 clr.AddReferenceToFile("DataModel.dll")
             else:
