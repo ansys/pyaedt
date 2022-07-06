@@ -13,9 +13,11 @@ if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" no
     try:
         # from clr_loader import get_coreclr
         from pythonnet import load
+        from distutils.sysconfig import get_python_lib
 
+        site_package = get_python_lib()
         os.path.dirname(__file__)
-        runtime = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "dotnetcore2", "bin"))
+        runtime = os.path.abspath(site_package, "dotnetcore2", "bin")
         print(runtime)
         json_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "misc", "pyaedt.runtimeconfig.json"))
         # rt = get_coreclr(json_file, runtime)
