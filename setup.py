@@ -45,6 +45,7 @@ if sys.version_info >= (3, 7):
         "matplotlib",
         "psutil",
         "dotnetcore2 ==3.1.23;platform_system=='Linux'",
+        "wheel"
     ]
 elif is_ironpython:
     install_requires = []
