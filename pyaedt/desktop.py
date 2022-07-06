@@ -72,6 +72,10 @@ elif IsWindows:  # pragma: no cover
         raise Exception("Error. No win32com.client or Pythonnet modules found. Install them and try again.")
 else:
     _com = "pythonnet_v3"
+    try:
+        import clr
+    except ImportError:
+        pass
 
 
 def _check_grpc_port(port, machine_name=""):
