@@ -70,8 +70,6 @@ setup(
 
 if os.name == "posix" and not is_ironpython:
     print("====================================================================================================")
-    print(
-        "Configure environment variable ANSYSEM_ROOT222 or above to AEDT Installation path to use it on linux ")
     print("Configure ANSYSEM_ROOT222 or above and LD_LIBRARY_PATH to use it on linux.")
     print("Example:")
     print("export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64")
