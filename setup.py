@@ -69,11 +69,19 @@ setup(
 )
 
 if os.name == "posix" and not is_ironpython:
-    print("====================================================================================================")
+    print("     ")
+    print("     ")
+    print("     ")
+    print("==========================================================================================================")
+    print("     ")
     print("Configure ANSYSEM_ROOT222 or above and LD_LIBRARY_PATH to use it on linux.")
     print("Example:")
     print("export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64")
     msg = "export LD_LIBRARY_PATH="
     msg += "$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH"
     print(msg)
-    print("====================================================================================================")
+    print("     ")
+    print("==========================================================================================================")
+    print("     ")
+    print("     ")
+    print("     ")
