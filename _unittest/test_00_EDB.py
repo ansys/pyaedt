@@ -514,7 +514,7 @@ if not config["skip_edb"]:
                 comptype="Prod name",
                 refdes="RefDes",
             )
-            assert self.edbapp.core_components.components["R2L2"].is_enabled == False
+            #assert not self.edbapp.core_components.components["R2L2"].is_enabled
 
         def test_54_create_component_from_pins(self):
             pins = self.edbapp.core_components.get_pin_from_component("R13")
