@@ -14,6 +14,8 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject, MaxwellParameters
+from pyaedt.modeler.Object3d import EdgePrimitive
+from pyaedt.modeler.Object3d import FacePrimitive
 
 
 class Maxwell(object):
@@ -1220,6 +1222,67 @@ class Maxwell(object):
             ]
         )
         return True
+
+    @pyaedt_function_handler()
+    def assign_symmetry(self, entity_list, symmetry_name=None, is_odd=True):
+        """Assign symmetry boundary.
+
+        Parameters
+        ----------
+        entity_list : list
+            List of :class:`pyaedt.modeler.Object3d.EdgePrimitive` or
+            list of :class:`pyaedt.modeler.Object3d.FacePrimitive`.
+        symmetry_name: str, optional
+            Name of the symmetry.
+        is_odd : bool, optional
+            Type of symmetry. Default value is True which means H field is tangential to
+            the boundary. If False H field is normal to the boundary.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignSymmetry
+        """
+        try:
+            if symmetry_name is None:
+                symmetry_name = generate_unique_name("Symmetry")
+
+            object_list = []
+            if entity_list:
+                if self.design_type == "Maxwell 2D":
+                    for entity in entity_list:
+                        if isinstance(entity, EdgePrimitive):
+                            edge_id = entity.id
+                            object_list.append(edge_id)
+                        else:
+                            msg = "the input provided is not a valid edge object."
+                            raise ValueError(msg)
+                    prop = OrderedDict({"Name": symmetry_name, "Edges": object_list, "IsOdd": is_odd})
+                else:
+                    for entity in entity_list:
+                        if isinstance(entity, FacePrimitive):
+                            face_id = entity.id
+                            object_list.append(face_id)
+                        else:
+                            msg = "the input provided is not a valid face object."
+                            raise ValueError(msg)
+                    prop = OrderedDict({"Name": symmetry_name, "Faces": object_list, "IsOdd": is_odd})
+            else:
+                msg = "at least one edge has to be provided."
+                ValueError(msg)
+
+            bound = BoundaryObject(self, symmetry_name, prop, "Symmetry")
+            if bound.create():
+                self.boundaries.append(bound)
+                return bound
+            return True
+        except:
+            return False
 
     def __enter__(self):
         return self

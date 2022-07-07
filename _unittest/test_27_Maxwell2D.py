@@ -281,3 +281,19 @@ class TestClass(BasisTest, object):
                 bound.props["InitPos"] = "10deg"
                 assert bound.props["InitPos"] == "10deg"
                 assert bound.type == "Band"
+
+    def test_24_assign_symmetry(self):
+        self.aedtapp.set_active_design("Basis_Model_For_Test")
+        region = [x for x in self.aedtapp.modeler.object_list if x.name == "Region"]
+        band = [x for x in self.aedtapp.modeler.object_list if x.name == "Band"]
+        assert self.aedtapp.assign_symmetry([region[0].edges[0], band[0].edges[0]], "Symmetry_Test_IsOdd")
+        assert self.aedtapp.assign_symmetry([region[0].edges[0], band[0].edges[0]])
+        assert self.aedtapp.assign_symmetry([region[0].edges[0], band[0].edges[0]], "Symmetry_Test_IsEven", False)
+        assert not self.aedtapp.assign_symmetry([])
+        for bound in self.aedtapp.boundaries:
+            if bound.name == "Symmetry_Test_IsOdd":
+                assert bound.type == "Symmetry"
+                assert bound.props["IsOdd"]
+            if bound.name == "Symmetry_Test_IsEven":
+                assert bound.type == "Symmetry"
+                assert not bound.props["IsOdd"]
