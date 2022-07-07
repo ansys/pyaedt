@@ -2682,7 +2682,7 @@ class EDBComponent(object):
 
     @property
     def res_value(self):
-        """Resitance Value.
+        """Resitance value.
 
         Returns
         -------
