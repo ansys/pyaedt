@@ -135,7 +135,7 @@ To bypass current IronPython limits, you can launch PyAEDT on a Linux machine:
       # Launch the latest installed version of PyAEDT in graphical mode.
       
       from pyaedt.common_rpc import launch_ironpython_server
-      client = launch_ironpython_server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True, port=18000)
+      client = launch_ironpython_server(aedt_path="/path/to/ansys/executable/folder", non_graphical=True, port=18000)
       hfss = client.root.hfss()
       # put your code here
 

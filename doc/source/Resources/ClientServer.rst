@@ -8,10 +8,39 @@ You can launh PyAEDT on a remote machine if these conditions are met:
 #. The same Python version is used on the client and server. (CPython 3.6+ or
    IronPython is embedded in the AEDT installation.)
 
-Windows Server
-~~~~~~~~~~~~~~
+New Grpc Connection with AEDT 2022R2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+With AEDT 2022 R2 and later, PyAEDT fully supports the gRPC API (except for EDB).
+To use it:
 
-Here is an usage example for a Windows server:
+.. code:: python
+
+    # Launch the latest installed version of AEDT in graphical mode.
+    from pyaedt import Hfss
+    from pyaedt import settings
+    settings.use_grpc_api=True
+    hfss = Hfss(machine="fullmachinename", port=portnumber)
+
+If the ``machine`` argument is provided and the machine is a remote machine, AEDT
+must be up and running on the remote server listening on the specified port.
+
+To start AEDT in listening mode on the remote machine:
+
+.. code::
+
+   path/to/aedt/ansysedt.exe -grpcsrv portnumber  #windows
+   path/to/aedt/ansysedt -grpcsrv portnumber   #linux
+
+If the connection is local, the ``machine`` argument can be kept empty. The AEDT session is then started automatically by PyAEDT.
+Machine and port arguments are available to all applications except EDB.
+
+Legacy Approach
+~~~~~~~~~~~~~~~
+
+Windows Server
+==============
+
+Here is a usage example for a Windows server:
 
 .. code:: python
 
@@ -23,9 +52,9 @@ Here is an usage example for a Windows server:
 
 
 Linux and Windows Clients
-~~~~~~~~~~~~~~~~~~~~~~~~~
+=========================
 
-Here is an usage example for the client side:
+Here is a usage example for the client side:
 
 .. code:: python
 
@@ -40,7 +69,7 @@ Here is an usage example for the client side:
 
 
 Linux Server
-~~~~~~~~~~~~
+============
 
 To bypass current IronPython limits, you can launch PyAEDT on a Linux machine:
 
@@ -52,7 +81,7 @@ To bypass current IronPython limits, you can launch PyAEDT on a Linux machine:
       # Launch the latest installed version of PyAEDT in non-graphical mode.
 
       from pyaedt.common_rpc import launch_ironpython_server
-      client = launch_ironpython_server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True, port=18000)
+      client = launch_ironpython_server(aedt_path="/path/to/ansys/executable/folder", non_graphical=True, port=18000)
       hfss = client.root.hfss()
       # put your code here
 
@@ -63,7 +92,7 @@ To bypass current IronPython limits, you can launch PyAEDT on a Linux machine:
       # Launch the latest installed version of PyAEDT in non-graphical mode.
 
       from pyaedt.common_rpc import launch_ironpython_server
-      launch_ironpython_server(ansysem_path="/path/to/ansys/executable/folder",
+      launch_ironpython_server(aedt_path="/path/to/ansys/executable/folder",
                                launch_client=False,
                                non_graphical=True,
                                port=18000)

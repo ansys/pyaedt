@@ -767,8 +767,114 @@ class GlobalService(rpyc.Service):
         # (to finalize the service, if needed)
         pass
 
+    @staticmethod
+    def aedt_grpc(port=None, beta_options=None, use_aedt_relative_path=False, non_graphical=True):
+        """Starts a new AEDT session on a specified gRPC port.
+
+        Returns
+        -------
+        port : int
+            gRPC port on which the AEDT session has started.
+        """
+        if not port:
+            port = check_port(random.randint(18500, 20000))
+
+        if port == 0:
+            print("Error. No ports are available.")
+            return False
+        ansysem_path = ""
+        if os.name == "posix":
+            ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
+        if os.name == "posix":
+            executable = "ansysedt"
+        else:
+            executable = "ansysedt.exe"
+        if ansysem_path and not use_aedt_relative_path:
+            aedt_exe = os.path.join(ansysem_path, executable)
+        else:
+            aedt_exe = executable
+        if non_graphical:
+            ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION,SF159726_SCRIPTOBJECT"
+            if beta_options:
+                for option in range(beta_options.__len__()):
+                    if beta_options[option] not in ng_feature:
+                        ng_feature += "," + beta_options[option]
+
+            command = [
+                aedt_exe,
+                "-grpcsrv",
+                str(port),
+                ng_feature,
+                "-ng",
+
+            ]
+        else:
+            ng_feature = "-features=SF159726_SCRIPTOBJECT"
+            if beta_options:
+                for option in range(beta_options.__len__()):
+                    if beta_options[option] not in ng_feature:
+                        ng_feature += "," + beta_options[option]
+            command = [aedt_exe, "-grpcsrv", str(port), ng_feature]
+
+        subprocess.Popen(command)
+        print("Service has started on port {}".format(port))
+        return port
+
+    @staticmethod
+    def edb(edbpath=None,
+            cellname=None,
+            isreadonly=False,
+            edbversion=None,
+            isaedtowned=False,
+            oproject=None,
+            student_version=False,
+            use_ppe=False,
+            ):
+        """Starts a new EDB Session.
+
+        Parameters
+        ----------
+        edbpath : str, optional
+            Full path to the ``aedb`` folder. The variable can also contain
+            the path to a layout to import. Allowed formats are BRD,
+            XML (IPC2581), GDS, and DXF. The default is ``None``.
+            For GDS import, the Ansys control file, which is also XML, should have the same
+            name as the GDS file. Only the extensions of the two files should differ.
+        cellname : str, optional
+            Name of the cell to select. The default is ``None``.
+        isreadonly : bool, optional
+            Whether to open ``edb_core`` in read-only mode when it is
+            owned by HFSS 3D Layout. The default is ``False``.
+        edbversion : str, optional
+            Version of ``edb_core`` to use. The default is ``None``, in which case
+            the latest installed version is used.
+        isaedtowned : bool, optional
+            Whether to launch ``edb_core`` from HFSS 3D Layout. The
+            default is ``False``.
+        oproject : optional
+            Reference to the AEDT project object. The default is ``None``.
+        student_version : bool, optional
+            Whether to open the AEDT student version. The default is ``False.``
+        use_ppe : bool, optional
+            Whether to use PPE licensing. The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.edb.Edb`
+            Edb class.
+        """
+        edb = Edb(edbpath=edbpath,
+                  cellname=cellname,
+                  isreadonly=isreadonly,
+                  edbversion=edbversion,
+                  isaedtowned=isaedtowned,
+                  oproject=oproject,
+                  student_version=student_version,
+                  use_ppe=use_ppe, )
+        return edb
+
     def exposed_start_service(self, hostname, beta_options=None, use_aedt_relative_path=False):
-        """Starts a new Pyaedt Service and start listen.
+        """Starts and listens to a new PyAEDT service.
 
         Returns
         -------
