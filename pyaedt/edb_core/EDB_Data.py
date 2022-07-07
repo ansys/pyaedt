@@ -2665,7 +2665,7 @@ class EDBComponent(object):
 
     @property
     def is_enabled(self):
-        """Determines whether current object is enabled.
+        """Check if the current object is enabled.
 
         Returns
         -------
