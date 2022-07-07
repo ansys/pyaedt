@@ -23,7 +23,7 @@ except ImportError:  # pragma: no cover
     if os.name != "posix":
         warnings.warn("Python.NET is needed to run PyAEDT.")
     elif sys.version[0] == 3 and sys.version[1] < 7:
-        warnings.warn("Edb requires on linux Python 3.7+")
+        warnings.warn("EDB requires Linux Python 3.7 or later.")
 from pyaedt import settings
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder, SimulationConfiguration
@@ -147,7 +147,7 @@ class Edb(object):
                     edbversion = "20{}.{}".format(list_installed_ansysem()[0][-3:-1], list_installed_ansysem()[0][-1:])
                     self._logger.info("Edb version " + edbversion)
                 except IndexError:
-                    raise Exception("No ANSYSEM_ROOTxxx found.")
+                    raise Exception("No ANSYSEM_ROOTxxx is found.")
             self.edbversion = edbversion
             self.isaedtowned = isaedtowned
             self._init_dlls()

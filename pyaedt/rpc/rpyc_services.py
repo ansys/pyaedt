@@ -769,18 +769,18 @@ class GlobalService(rpyc.Service):
 
     @staticmethod
     def aedt_grpc(port=None, beta_options=None, use_aedt_relative_path=False, non_graphical=True):
-        """Starts a new AEDT Desktop Session on a specified grpc port.
+        """Starts a new AEDT session on a specified gRPC port.
 
         Returns
         -------
         port : int
-            Grpc port on which the AEDT Session has started.
+            gRPC port on which the AEDT session has started.
         """
         if not port:
             port = check_port(random.randint(18500, 20000))
 
         if port == 0:
-            print("Error. No Available ports.")
+            print("Error. No ports are available.")
             return False
         ansysem_path = ""
         if os.name == "posix":
@@ -817,7 +817,7 @@ class GlobalService(rpyc.Service):
             command = [aedt_exe, "-grpcsrv", str(port), ng_feature]
 
         subprocess.Popen(command)
-        print("Service Started on Port {}".format(port))
+        print("Service has started on port {}".format(port))
         return port
 
     @staticmethod
@@ -838,29 +838,30 @@ class GlobalService(rpyc.Service):
             Full path to the ``aedb`` folder. The variable can also contain
             the path to a layout to import. Allowed formats are BRD,
             XML (IPC2581), GDS, and DXF. The default is ``None``.
-            For GDS import the Ansys control file (also XML) should have the same
-            name as the GDS file except, of course, for the file extension.
+            For GDS import, the Ansys control file, which is also XML, should have the same
+            name as the GDS file. Only the extensions of the two files should differ.
         cellname : str, optional
             Name of the cell to select. The default is ``None``.
         isreadonly : bool, optional
             Whether to open ``edb_core`` in read-only mode when it is
             owned by HFSS 3D Layout. The default is ``False``.
         edbversion : str, optional
-            Version of ``edb_core`` to use. The default is ``"2021.2"``.
+            Version of ``edb_core`` to use. The default is ``None``, in which case
+            the latest installed version is used.
         isaedtowned : bool, optional
             Whether to launch ``edb_core`` from HFSS 3D Layout. The
             default is ``False``.
         oproject : optional
-            Reference to the AEDT project object.
+            Reference to the AEDT project object. The default is ``None``.
         student_version : bool, optional
             Whether to open the AEDT student version. The default is ``False.``
         use_ppe : bool, optional
-            Wheter to use or not new PPE Licensing. The default is ``False``.
+            Whether to use PPE licensing. The default is ``False``.
 
         Returns
         -------
         :class:`pyaedt.edb.Edb`
-            Edb Class
+            Edb class.
         """
         edb = Edb(edbpath=edbpath,
                   cellname=cellname,
@@ -873,7 +874,7 @@ class GlobalService(rpyc.Service):
         return edb
 
     def exposed_start_service(self, hostname, beta_options=None, use_aedt_relative_path=False):
-        """Starts a new Pyaedt Service and start listen.
+        """Starts and listens to a new PyAEDT service.
 
         Returns
         -------

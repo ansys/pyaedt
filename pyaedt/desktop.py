@@ -382,7 +382,7 @@ class Desktop:
                 self._init_ironpython(non_graphical, new_desktop_session, version)
             elif _com == "pythonnet_v3":
                 if version_key < "2022.2" or not (settings.use_grpc_api or os.name == "posix"):
-                    self._logger.info("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
+                    self._logger.info("Launching PyAEDT outside AEDT with CPython and Pythonnet.")
                     self._init_cpython(
                         non_graphical,
                         new_desktop_session,
@@ -580,7 +580,7 @@ class Desktop:
         aedt_process_id=None,
     ):
         if os.name == "posix":
-            raise Exception("Pyaedt supports COM Initialization in Windows Only. To use in Linux upgrade to 22R2")
+            raise Exception("PyAEDT supports COM initialization in Windows only. To use in Linux, upgrade to AEDT 2022 R2 or later.")
         base_path = self._main.sDesktopinstallDirectory
         sys.path.append(base_path)
         sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))

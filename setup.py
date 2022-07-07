@@ -49,7 +49,7 @@ if sys.version_info >= (3, 7):
 elif is_ironpython:
     install_requires = []
 else:
-    sys.exit("Pyaedt supports only CPython 3.7-3.10 and Ironpython 2.7")
+    sys.exit("PyAEDT supports only CPython 3.7-3.10 and IronPython 2.7.")
 
 setup(
     name=name,
@@ -74,7 +74,7 @@ if os.name == "posix" and not is_ironpython:
     print("     ")
     print("==========================================================================================================")
     print("     ")
-    print("Configure ANSYSEM_ROOT222 or above and LD_LIBRARY_PATH to use it on Linux like in the example below.")
+    print("Configure ANSYSEM_ROOT222 or later and LD_LIBRARY_PATH to use it on Linux like in the following example.")
     print("Example:")
     print("export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64")
     msg = "export LD_LIBRARY_PATH="
