@@ -10,7 +10,7 @@ You can launh PyAEDT on a remote machine if these conditions are met:
 
 New Grpc Connection with AEDT 2022R2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Starting from AEDT 22R2 Pyaedt is fully supporting GRPC API (except Edb).
+With AEDT 2022 R2 and later, PyAEDT fully supports the gRPC API (except for EDB).
 To use it:
 
 .. code:: python
