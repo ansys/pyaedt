@@ -23,7 +23,7 @@ try:
 except ImportError:
     if os.name != "posix":
         warnings.warn(
-            "The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module."
+            "The clr is missing. Install PythonNET or use an IronPython version if you want to use the EDB module."
         )
 
 

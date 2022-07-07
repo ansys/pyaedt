@@ -20,7 +20,7 @@ try:
 
 except ImportError:
     if os.name != "posix":
-        warnings.warn("This module requires Python.NET.")
+        warnings.warn("This module requires PythonNET.")
 
 logger = logging.getLogger(__name__)
 

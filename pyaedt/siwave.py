@@ -34,7 +34,7 @@ elif os.name == "nt":  # pragma: no cover
 
         _com = "pywin32"
     else:
-        raise Exception("Error. No win32com.client or Python.NET modules are found. They need to be installed.")
+        raise Exception("Error. No win32com.client or PythonNET modules are found. They need to be installed.")
 
 
 class Siwave:

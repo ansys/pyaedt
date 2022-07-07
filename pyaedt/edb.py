@@ -21,7 +21,7 @@ try:
     from System.Collections.Generic import List
 except ImportError:  # pragma: no cover
     if os.name != "posix":
-        warnings.warn("Python.NET is needed to run PyAEDT.")
+        warnings.warn("PythonNET is needed to run PyAEDT.")
     elif sys.version[0] == 3 and sys.version[1] < 7:
         warnings.warn("EDB requires Linux Python 3.7 or later.")
 from pyaedt import settings
@@ -54,7 +54,7 @@ try:
 except ImportError:
     if os.name != "posix":
         warnings.warn(
-            "The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module."
+            "The clr is missing. Install PythonNET or use an IronPython version if you want to use the EDB module."
         )
         edb_initialized = False
 
