@@ -74,7 +74,7 @@ if os.name == "posix" and not is_ironpython:
     print("     ")
     print("==========================================================================================================")
     print("     ")
-    print("Configure ANSYSEM_ROOT222 or above and LD_LIBRARY_PATH to use it on linux like in the example below.")
+    print("Configure ANSYSEM_ROOT222 or above and LD_LIBRARY_PATH to use it on Linux like in the example below.")
     print("Example:")
     print("export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64")
     msg = "export LD_LIBRARY_PATH="
