@@ -1112,6 +1112,32 @@ class CircuitComponents(object):
 
         return val
 
+    @pyaedt_function_handler()
+    def create_line(self, points_array, color=0, line_width=0):
+        """Draw a graphical line.
+
+        Parameters
+        ----------
+        points_array : list
+            A nested list of point coordinates. For example,
+            ``[[x1, y1], [x2, y2], ...]``.
+        color : string or 3 item list, optional
+            Color or the line. The default is ``0``.
+        line_width : float, optional
+            Width of the line. The default is ``0``.
+        Returns
+        -------
+
+        >>> oEditor.CreateLine
+        """
+
+        pointlist = [str(tuple(i)) for i in points_array]
+        id = self.create_unique_id()
+        return self.oeditor.CreateLine(
+            ["NAME:LineData", "Points:=", pointlist, "LineWidth:=", line_width, "Color:=", color, "Id:=", id],
+            ["NAME:Attributes", "Page:=", 1],
+        )
+
 
 class ComponentInfo(object):
     """Class that manage Circuit Catalog info."""
