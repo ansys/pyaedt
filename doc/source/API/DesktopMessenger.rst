@@ -1,5 +1,5 @@
 AEDT logger
-~~~~~~~~~~
+~~~~~~~~~~~
 This section lists modules for creating and editing
 PyAEDT log files.
 
