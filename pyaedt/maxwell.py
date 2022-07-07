@@ -1232,7 +1232,7 @@ class Maxwell(object):
         entity_list : list
             List of :class:`pyaedt.modeler.Object3d.EdgePrimitive` or
             list of :class:`pyaedt.modeler.Object3d.FacePrimitive`.
-        symmetry_name: str, optional
+        symmetry_name : str, optional
             Name of the symmetry.
         is_odd : bool, optional
             Type of symmetry. Default value is True which means H field is tangential to
