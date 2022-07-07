@@ -7,7 +7,7 @@ env:
   # Following env vars when changed will "reset" the mentioned cache,
   # by changing the cache file name. It is rendered as ...-v%RESET_XXX%-...
   # You should go up in number, if you go down (or repeat a previous value)
-  # you might end up reusing a previous cache if it haven't been deleted already.
+  # you might end up reusing a previous cache if it hasn't been deleted already.
   # It applies 7 days retention policy by default.
   RESET_PIP_CACHE: 0
   PACKAGE_NAME: PyAEDT
