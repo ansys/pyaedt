@@ -718,7 +718,7 @@ class Components(object):
             0.0,
         )
 
-        res, from_layer, to_layer = pin.GetLayerRange()
+        res, from_layer, _ = pin.GetLayerRange()
         cmp_name = pin.GetComponent().GetName()
         net_name = pin.GetNet().GetName()
         pin_name = pin.GetName()
@@ -1506,7 +1506,7 @@ class Components(object):
         """
         if is_ironpython:
             name = clr.Reference[String]()
-            response = pin.GetProductProperty(self._edb.ProductId.Designer, 11, name)
+            pin.GetProductProperty(self._edb.ProductId.Designer, 11, name)
         else:
             val = String("")
             response, name = pin.GetProductProperty(self._edb.ProductId.Designer, 11, val)

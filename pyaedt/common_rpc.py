@@ -374,7 +374,7 @@ def _download_dir(remotepath, localpath, server_name, server_port=18000):
 
 
 def launch_ironpython_server(
-    aedt_path, non_graphical=False, port=18000, launch_client=True, use_aedt_relative_path=False
+    aedt_path=None, non_graphical=False, port=18000, launch_client=True, use_aedt_relative_path=False
 ):
     """Start a process in IronPython and launch the rpc server on the specified port given an AEDT path on Linux.
 
@@ -385,8 +385,8 @@ def launch_ironpython_server(
 
     Parameters
     ----------
-    aedt_path : str
-        AEDT path on Linux.
+    aedt_path : str, optional
+        AEDT path on Linux. If not provided an ANSYSEM_ROOT2xx has to be setup.
     non_graphical : bool, optional
         Whether to start AEDT in non-graphical mode. The default is ``False``, in which case
         AEDT is started in graphical mode.
@@ -411,6 +411,12 @@ def launch_ironpython_server(
     >>> my_face_list = client.convert_remote_object(box.faces)
 
     """
+    if not aedt_path:
+        aa = list_installed_ansysem()
+        if aa:
+            aedt_path = os.environ[aa[0]]
+        else:
+            raise Exception("no ANSYSEM_ROOTXXX environment variable defined.")
     port1 = check_port(port)
     if port1 == 0:
         print("Error. No available ports.")

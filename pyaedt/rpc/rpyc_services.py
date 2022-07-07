@@ -767,13 +767,14 @@ class GlobalService(rpyc.Service):
         # (to finalize the service, if needed)
         pass
 
-    def aedt_grpc(self, port=None, beta_options=None, use_aedt_relative_path=False, non_graphical=True):
+    @staticmethod
+    def aedt_grpc(port=None, beta_options=None, use_aedt_relative_path=False, non_graphical=True):
         """Starts a new AEDT Desktop Session on a specified grpc port.
 
         Returns
         -------
         port : int
-            Port number on which the AEDT Session has started.
+            Grpc port on which the AEDT Session has started.
         """
         if not port:
             port = check_port(random.randint(18500, 20000))
@@ -819,8 +820,8 @@ class GlobalService(rpyc.Service):
         print("Service Started on Port {}".format(port))
         return port
 
-    def edb(self,
-            edbpath=None,
+    @staticmethod
+    def edb(edbpath=None,
             cellname=None,
             isreadonly=False,
             edbversion=None,
@@ -831,10 +832,35 @@ class GlobalService(rpyc.Service):
             ):
         """Starts a new EDB Session.
 
+        Parameters
+        ----------
+        edbpath : str, optional
+            Full path to the ``aedb`` folder. The variable can also contain
+            the path to a layout to import. Allowed formats are BRD,
+            XML (IPC2581), GDS, and DXF. The default is ``None``.
+            For GDS import the Ansys control file (also XML) should have the same
+            name as the GDS file except, of course, for the file extension.
+        cellname : str, optional
+            Name of the cell to select. The default is ``None``.
+        isreadonly : bool, optional
+            Whether to open ``edb_core`` in read-only mode when it is
+            owned by HFSS 3D Layout. The default is ``False``.
+        edbversion : str, optional
+            Version of ``edb_core`` to use. The default is ``"2021.2"``.
+        isaedtowned : bool, optional
+            Whether to launch ``edb_core`` from HFSS 3D Layout. The
+            default is ``False``.
+        oproject : optional
+            Reference to the AEDT project object.
+        student_version : bool, optional
+            Whether to open the AEDT student version. The default is ``False.``
+        use_ppe : bool, optional
+            Wheter to use or not new PPE Licensing. The default is ``False``.
+
         Returns
         -------
-        hostname : str
-            Hostname.
+        :class:`pyaedt.edb.Edb`
+            Edb Class
         """
         edb = Edb(edbpath=edbpath,
                   cellname=cellname,

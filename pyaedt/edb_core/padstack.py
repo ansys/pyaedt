@@ -336,15 +336,15 @@ class EdbPadstacks(object):
         if not padstackinstance.IsLayoutPin():
             padstackinstance.SetIsLayoutPin(True)
 
-        res, fromlayer, tolayer = padstackinstance.GetLayerRange()
+        res = padstackinstance.GetLayerRange()
         self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
             self._active_layout,
             padstackinstance.GetNet(),
             port_name,
             padstackinstance,
-            tolayer,
+            res[2],
         )
-        if res:
+        if res[0]:
             return port_name
         return ""
 

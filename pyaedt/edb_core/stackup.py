@@ -369,17 +369,17 @@ class EdbStackup(object):
         else:
             original_material = self._edb.Definition.MaterialDef.FindByName(self._db, material_name)
             if property_name == "permittivity":
-                res, property_box = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permittivity)
+                _, property_box = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permittivity)
             elif property_name == "permeability":
-                res, property_box = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permeability)
+                _, property_box = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permeability)
             elif property_name == "conductivity":
-                res, property_box = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Conductivity)
+                _, property_box = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Conductivity)
             elif property_name == "dielectric_loss_tangent":
-                res, property_box = original_material.GetProperty(
+                _, property_box = original_material.GetProperty(
                     self._edb.Definition.MaterialPropertyId.DielectricLossTangent
                 )
             elif property_name == "magnetic_loss_tangent":
-                res, property_box = original_material.GetProperty(
+                _, property_box = original_material.GetProperty(
                     self._edb.Definition.MaterialPropertyId.MagneticLossTangent
                 )
             else:
