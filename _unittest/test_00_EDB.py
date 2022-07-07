@@ -1380,7 +1380,6 @@ if not config["skip_edb"]:
             assert test_import._filename == json_file
 
         def test_99_duplicate_material(self):
-
             stack_up = self.edbapp.core_stackup
             duplicated_copper = stack_up.duplicate_material("copper", "my_new_copper")
             assert duplicated_copper
