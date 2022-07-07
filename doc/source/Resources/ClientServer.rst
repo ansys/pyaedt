@@ -29,7 +29,7 @@ To start AEDT on listening mode on remote machine:
    path/to/aedt/ansysedt.exe -grpcsrv portnumber  #windows
    path/to/aedt/ansysedt -grpcsrv portnumber   #linux
 
-If the connection is local, machine argument can be kept empty and the aedt session is started automatically by pyaedt.
+If the connection is local, machine argument can be kept empty and the AEDT session is started automatically by pyaedt.
 machine and port arguments are available to all applications except Edb.
 
 Legacy Approach
