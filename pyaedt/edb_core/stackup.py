@@ -20,7 +20,7 @@ from pyaedt.generic.general_methods import is_ironpython
 try:
     import clr
 except ImportError:
-    warnings.warn('This module requires the Python.net package.')
+    warnings.warn("This module requires the PythonNET package.")
 
 logger = logging.getLogger(__name__)
 
