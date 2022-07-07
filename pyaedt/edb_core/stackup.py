@@ -413,12 +413,13 @@ class EdbStackup(object):
             original_material = self._edb.Definition.MaterialDef.FindByName(self._db, material_name)
             if is_ironpython:  # pragma: no cover
                 property_box = clr.StrongBox[float]()
+                _, property_box = original_material.GetProperty(self.material_name_to_id(property_name), property_box)
+                return property_box
             else:
-                property_box = 0.0
-            _, property_box = original_material.GetProperty(
-                self.material_name_to_id(property_name), self._get_edb_value(property_box)
-            )
-            return property_box.ToDouble()
+                _, property_box = original_material.GetProperty(
+                    self.material_name_to_id(property_name), self._get_edb_value(0.0)
+                )
+                return property_box.ToDouble()
         return False
 
     @pyaedt_function_handler()
