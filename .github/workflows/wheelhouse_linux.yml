@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        python-version: [ 3.7, 3.8, 3.9, 3.10]
+        python-version: [ 3.7, 3.8, 3.9, '3.10']
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v2
@@ -46,6 +46,12 @@ jobs:
 
       - name: Verify pyaedt can be imported
         run: python -c "import pyaedt"
+
+      - name: Retrieve PyAEDT version
+        run: |
+          echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
+          echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
+        id: version
 
       - name: Generate wheelhouse
         run: |
