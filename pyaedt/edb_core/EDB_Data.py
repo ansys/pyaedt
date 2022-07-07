@@ -2670,7 +2670,7 @@ class EDBComponent(object):
         Returns
         -------
         bool
-            True if this component is enabled, False otherwise.
+            ``True`` if this current object is enabled, ``False`` otherwise.
         """
         return self.edbcomponent.GetComponentProperty().IsEnabled()
 
