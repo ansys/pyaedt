@@ -1414,6 +1414,7 @@ class Components(object):
             refdescolumn = None
             comptypecolumn = None
             valuecolumn = None
+            unmount_comp_list = list(self.components.keys())
             for line in Lines:
                 content_line = [i.strip() for i in line.split(delimiter)]
                 if valuefield in content_line:
@@ -1429,10 +1430,15 @@ class Components(object):
                     new_type = content_line[comptypecolumn]
                     if "resistor" in new_type.lower():
                         self.set_component_rlc(new_refdes, res_value=new_value)
+                        unmount_comp_list.remove(new_refdes)
                     elif "capacitor" in new_type.lower():
                         self.set_component_rlc(new_refdes, cap_value=new_value)
+                        unmount_comp_list.remove(new_refdes)
                     elif "inductor" in new_type.lower():
                         self.set_component_rlc(new_refdes, ind_value=new_value)
+                        unmount_comp_list.remove(new_refdes)
+            for comp in unmount_comp_list:
+                self.components[comp].is_enabled = False
         return found
 
     @pyaedt_function_handler()

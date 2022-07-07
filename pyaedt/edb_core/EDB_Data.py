@@ -2664,6 +2664,23 @@ class EDBComponent(object):
         return self.edbcomponent.GetName()
 
     @property
+    def is_enabled(self):
+        """Determines whether current object is enabled.
+
+        Returns
+        -------
+        bool
+            True if this component is enabled, False otherwise.
+        """
+        return self.edbcomponent.GetComponentProperty().IsEnabled()
+
+    @is_enabled.setter
+    def is_enabled(self, enabled):
+        """Sets whether current object is enabled."""
+        if self.edbcomponent.GetComponentType() in [1, 2, 3]:
+            self.edbcomponent.GetComponentProperty().SetEnabled(enabled)
+
+    @property
     def res_value(self):
         """Resitance Value.
 
