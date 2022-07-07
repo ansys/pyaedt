@@ -21,8 +21,10 @@ To use it:
     settings.use_grpc_api=True
     hfss = Hfss(machine="fullmachinename", port=portnumber)
 
-If machine argument is provided and machine is a remote machine, then AEDT has to be up and running on remote server listening on specific port.
-To start AEDT on listening mode on remote machine:
+If the ``machine`` argument is provided and the machine is a remote machine, AEDT
+must be up and running on the remote server listening on the specified port.
+
+To start AEDT in listening mode on the remote machine:
 
 .. code::
 
