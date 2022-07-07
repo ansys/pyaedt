@@ -7,6 +7,7 @@ from __future__ import absolute_import  # noreorder
 
 import logging
 import math
+import difflib
 
 from pyaedt.edb_core.EDB_Data import EDBLayers
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -332,6 +333,40 @@ class EdbStackup(object):
             edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.MagneticLossTangent, magnetic_loss_tangent)
             return edb_material
 
+    @pyaedt_function_handler
+    def material_name_to_id(self, property_name):
+        """Convert a material property name to material property id.
+
+        Parameters
+        ----------
+        property_name : str
+            Name of the material property.
+
+        Returns
+        -------
+        int
+        """
+        props = {
+            "Permittivity": self._edb.Definition.MaterialPropertyId.Permittivity,
+            "Permeability": self._edb.Definition.MaterialPropertyId.Permeability,
+            "Conductivity": self._edb.Definition.MaterialPropertyId.Conductivity,
+            "DielectricLossTangent": self._edb.Definition.MaterialPropertyId.DielectricLossTangent,
+            "MagneticLossTangent": self._edb.Definition.MaterialPropertyId.MagneticLossTangent,
+            "ThermalConductivity": self._edb.Definition.MaterialPropertyId.ThermalConductivity,
+            "MassDensity": self._edb.Definition.MaterialPropertyId.MassDensity,
+            "SpecificHeat": self._edb.Definition.MaterialPropertyId.SpecificHeat,
+            "YoungsModulus": self._edb.Definition.MaterialPropertyId.YoungsModulus,
+            "PoissonsRatio": self._edb.Definition.MaterialPropertyId.PoissonsRatio,
+            "ThermalExpansionCoefficient": self._edb.Definition.MaterialPropertyId.ThermalExpansionCoefficient,
+            "InvalidProperty": self._edb.Definition.MaterialPropertyId.InvalidProperty,
+        }
+
+        found_el = difflib.get_close_matches(property_name, list(props.keys()), 1, 0.7)
+        if found_el:
+            return props[found_el[0]]
+        else:
+            return self._edb.Definition.MaterialPropertyId.InvalidProperty
+
     @pyaedt_function_handler()
     def get_property_by_material_name(self, property_name, material_name):
         """Get the property of a material. If it is executed in ironpython,
@@ -368,30 +403,11 @@ class EdbStackup(object):
             self._logger.error("This material doesn't exists.")
         else:
             original_material = self._edb.Definition.MaterialDef.FindByName(self._db, material_name)
-            if property_name == "permittivity":
-                _, property_box = original_material.GetProperty(
-                    self._edb.Definition.MaterialPropertyId.Permittivity, self._get_edb_value(0.0)
-                )
-            elif property_name == "permeability":
-                _, property_box = original_material.GetProperty(
-                    self._edb.Definition.MaterialPropertyId.Permeability, self._get_edb_value(0.0)
-                )
-            elif property_name == "conductivity":
-                _, property_box = original_material.GetProperty(
-                    self._edb.Definition.MaterialPropertyId.Conductivity, self._get_edb_value(0.0)
-                )
-            elif property_name == "dielectric_loss_tangent":
-                _, property_box = original_material.GetProperty(
-                    self._edb.Definition.MaterialPropertyId.DielectricLossTangent, self._get_edb_value(0.0)
-                )
-            elif property_name == "magnetic_loss_tangent":
-                _, property_box = original_material.GetProperty(
-                    self._edb.Definition.MaterialPropertyId.MagneticLossTangent, self._get_edb_value(0.0)
-                )
-            else:
-                self._logger.error("Incorrect property name.")
-                return False
+            _, property_box = original_material.GetProperty(
+                self.material_name_to_id(property_name), self._get_edb_value(0.0)
+            )
             return property_box.ToDouble()
+        return False
 
     @pyaedt_function_handler()
     def _get_solder_height(self, layer_name):
