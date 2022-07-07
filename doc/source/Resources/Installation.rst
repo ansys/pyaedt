@@ -14,7 +14,7 @@ In addition to the runtime dependencies listed in the installation information, 
 
 
 Installing on CPython v3.7-v3.10 from pypi
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Install the prerequisite packages ``pythonnet`` and ``pywin32`` with:
 
 .. code:: python
