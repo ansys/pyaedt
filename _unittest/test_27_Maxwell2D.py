@@ -289,6 +289,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.assign_symmetry([region[0].edges[0], band[0].edges[0]], "Symmetry_Test_IsOdd")
         assert self.aedtapp.assign_symmetry([region[0].edges[0], band[0].edges[0]])
         assert self.aedtapp.assign_symmetry([region[0].edges[0], band[0].edges[0]], "Symmetry_Test_IsEven", False)
+        assert self.aedtapp.assign_symmetry([9556, 88656])
         assert not self.aedtapp.assign_symmetry([])
         for bound in self.aedtapp.boundaries:
             if bound.name == "Symmetry_Test_IsOdd":

@@ -390,6 +390,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.assign_symmetry(
             [outer_box[0].faces[0], inner_box[0].faces[0]], "Symmetry_Test_IsEven", False
         )
+        assert self.aedtapp.assign_symmetry([35, 7])
         assert not self.aedtapp.assign_symmetry([])
         for bound in self.aedtapp.boundaries:
             if bound.name == "Symmetry_Test_IsOdd":

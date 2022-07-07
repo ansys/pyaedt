@@ -1230,8 +1230,8 @@ class Maxwell(object):
         Parameters
         ----------
         entity_list : list
-            List of :class:`pyaedt.modeler.Object3d.EdgePrimitive` or
-            list of :class:`pyaedt.modeler.Object3d.FacePrimitive`.
+            List IDs or :class:`pyaedt.modeler.Object3d.EdgePrimitive` or
+            :class:`pyaedt.modeler.Object3d.FacePrimitive`.
         symmetry_name : str, optional
             Name of the symmetry.
         is_odd : bool, optional
@@ -1258,19 +1258,23 @@ class Maxwell(object):
                     for entity in entity_list:
                         if isinstance(entity, EdgePrimitive):
                             edge_id = entity.id
-                            object_list.append(edge_id)
+                        elif isinstance(entity, int):
+                            edge_id = entity
                         else:
-                            msg = "the input provided is not a valid edge object."
+                            msg = "the input provided is neither an edge object nor an int."
                             raise ValueError(msg)
+                        object_list.append(edge_id)
                     prop = OrderedDict({"Name": symmetry_name, "Edges": object_list, "IsOdd": is_odd})
                 else:
                     for entity in entity_list:
                         if isinstance(entity, FacePrimitive):
                             face_id = entity.id
-                            object_list.append(face_id)
+                        elif isinstance(entity, int):
+                            face_id = entity
                         else:
-                            msg = "the input provided is not a valid face object."
+                            msg = "the input provided is neither a valid face object nor an int."
                             raise ValueError(msg)
+                        object_list.append(face_id)
                     prop = OrderedDict({"Name": symmetry_name, "Faces": object_list, "IsOdd": is_odd})
             else:
                 msg = "at least one edge has to be provided."
