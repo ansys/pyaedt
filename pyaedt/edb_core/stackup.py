@@ -8,11 +8,19 @@ from __future__ import absolute_import  # noreorder
 import logging
 import math
 import difflib
+import warnings
 
 from pyaedt.edb_core.EDB_Data import EDBLayers
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.generic.general_methods import is_ironpython
+
+
+try:
+    import clr
+except ImportError:
+    warnings.warn('This module requires the "pythonnet" package.')
 
 logger = logging.getLogger(__name__)
 
@@ -403,8 +411,12 @@ class EdbStackup(object):
             self._logger.error("This material doesn't exists.")
         else:
             original_material = self._edb.Definition.MaterialDef.FindByName(self._db, material_name)
+            if is_ironpython:  # pragma: no cover
+                property_box = clr.StrongBox[float]()
+            else:
+                property_box = 0.0
             _, property_box = original_material.GetProperty(
-                self.material_name_to_id(property_name), self._get_edb_value(0.0)
+                self.material_name_to_id(property_name), self._get_edb_value(property_box)
             )
             return property_box.ToDouble()
         return False
