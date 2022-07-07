@@ -38,7 +38,7 @@ Legacy Approach
 Windows Server
 ==============
 
-Here is an usage example for a Windows server:
+Here is a usage example for a Windows server:
 
 .. code:: python
 
@@ -52,7 +52,7 @@ Here is an usage example for a Windows server:
 Linux and Windows Clients
 =========================
 
-Here is an usage example for the client side:
+Here is a usage example for the client side:
 
 .. code:: python
 
