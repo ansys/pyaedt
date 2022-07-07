@@ -20,7 +20,7 @@ from pyaedt.generic.general_methods import is_ironpython
 try:
     import clr
 except ImportError:
-    warnings.warn('This module requires the "pythonnet" package.')
+    warnings.warn('This module requires the Python.net package.')
 
 logger = logging.getLogger(__name__)
 
@@ -343,7 +343,7 @@ class EdbStackup(object):
 
     @pyaedt_function_handler
     def material_name_to_id(self, property_name):
-        """Convert a material property name to material property id.
+        """Convert a material property name to a material property ID.
 
         Parameters
         ----------
@@ -352,7 +352,7 @@ class EdbStackup(object):
 
         Returns
         -------
-        int
+        ID of the material property.
         """
         props = {
             "Permittivity": self._edb.Definition.MaterialPropertyId.Permittivity,
@@ -377,7 +377,7 @@ class EdbStackup(object):
 
     @pyaedt_function_handler()
     def get_property_by_material_name(self, property_name, material_name):
-        """Get the property of a material. If it is executed in ironpython,
+        """Get the property of a material. If it is executed in IronPython,
          you must only use the first element of the returned tuple, which is a float.
 
         Parameters
