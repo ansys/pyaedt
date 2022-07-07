@@ -1509,7 +1509,7 @@ class Components(object):
             pin.GetProductProperty(self._edb.ProductId.Designer, 11, name)
         else:
             val = String("")
-            response, name = pin.GetProductProperty(self._edb.ProductId.Designer, 11, val)
+            _, name = pin.GetProductProperty(self._edb.ProductId.Designer, 11, val)
         name = str(name).strip("'")
         return name
 
