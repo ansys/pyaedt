@@ -1118,12 +1118,12 @@ class CircuitComponents(object):
 
         Parameters
         ----------
-        points_array :
+        points_array : list
             A nested list of point coordinates. For example,
             ``[[x1, y1], [x2, y2], ...]``.
-        color :
+        color : string or 3 item list, optional
             Color or the line. The default is ``0``.
-        line_width :
+        line_width : float, optional
             Width of the line. The default is ``0``.
         Returns
         -------
