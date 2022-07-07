@@ -10,7 +10,7 @@ You can launh PyAEDT on a remote machine if these conditions are met:
 
 New Grpc Connection with AEDT 2022R2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Starting from AEDT 22R2 Pyaedt is fully supporting GRPC API (except Edb).
+With AEDT 2022 R2 and later, PyAEDT fully supports the gRPC API (except for EDB).
 To use it:
 
 .. code:: python
@@ -21,16 +21,18 @@ To use it:
     settings.use_grpc_api=True
     hfss = Hfss(machine="fullmachinename", port=portnumber)
 
-If machine argument is provided and machine is a remote machine, then AEDT has to be up and running on remote server listening on specific port.
-To start AEDT on listening mode on remote machine:
+If the ``machine`` argument is provided and the machine is a remote machine, AEDT
+must be up and running on the remote server listening on the specified port.
+
+To start AEDT in listening mode on the remote machine:
 
 .. code::
 
    path/to/aedt/ansysedt.exe -grpcsrv portnumber  #windows
    path/to/aedt/ansysedt -grpcsrv portnumber   #linux
 
-If the connection is local, machine argument can be kept empty and the AEDT session is started automatically by pyaedt.
-machine and port arguments are available to all applications except Edb.
+If the connection is local, the ``machine`` argument can be kept empty. The AEDT session is then started automatically by PyAEDT.
+Machine and port arguments are available to all applications except EDB.
 
 Legacy Approach
 ~~~~~~~~~~~~~~~
