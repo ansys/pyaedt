@@ -38,7 +38,7 @@ Legacy Approach
 Windows Server
 ==============
 
-Here is an usage example for a Windows server:
+Here is a usage example for a Windows server:
 
 .. code:: python
 
