@@ -369,18 +369,24 @@ class EdbStackup(object):
         else:
             original_material = self._edb.Definition.MaterialDef.FindByName(self._db, material_name)
             if property_name == "permittivity":
-                _, property_box = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permittivity)
+                _, property_box = original_material.GetProperty(
+                    self._edb.Definition.MaterialPropertyId.Permittivity, 0.0
+                )
             elif property_name == "permeability":
-                _, property_box = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permeability)
+                _, property_box = original_material.GetProperty(
+                    self._edb.Definition.MaterialPropertyId.Permeability, 0.0
+                )
             elif property_name == "conductivity":
-                _, property_box = original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Conductivity)
+                _, property_box = original_material.GetProperty(
+                    self._edb.Definition.MaterialPropertyId.Conductivity, 0.0
+                )
             elif property_name == "dielectric_loss_tangent":
                 _, property_box = original_material.GetProperty(
-                    self._edb.Definition.MaterialPropertyId.DielectricLossTangent
+                    self._edb.Definition.MaterialPropertyId.DielectricLossTangent, 0.0
                 )
             elif property_name == "magnetic_loss_tangent":
                 _, property_box = original_material.GetProperty(
-                    self._edb.Definition.MaterialPropertyId.MagneticLossTangent
+                    self._edb.Definition.MaterialPropertyId.MagneticLossTangent, 0.0
                 )
             else:
                 self._logger.error("Incorrect property name.")
