@@ -47,6 +47,12 @@ jobs:
       - name: Verify pyaedt can be imported
         run: python -c "import pyaedt"
 
+      - name: Retrieve PyAEDT version
+        run: |
+          echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
+          echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
+        id: version
+
       - name: Generate wheelhouse
         run: |
           pip install wheel setuptools -U
