@@ -2676,7 +2676,7 @@ class EDBComponent(object):
 
     @is_enabled.setter
     def is_enabled(self, enabled):
-        """Sets whether current object is enabled."""
+        """Enables the current object."""
         if self.edbcomponent.GetComponentType() in [1, 2, 3]:
             self.edbcomponent.GetComponentProperty().SetEnabled(enabled)
 
