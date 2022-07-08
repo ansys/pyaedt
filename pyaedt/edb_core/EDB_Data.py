@@ -2677,9 +2677,11 @@ class EDBComponent(object):
     @is_enabled.setter
     def is_enabled(self, enabled):
         """Enables the current object."""
-        if self.edbcomponent.GetComponentType() in [self._edb.Definition.ComponentType.Resistor,
-                                                    self._edb.Definition.ComponentType.Capacitor,
-                                                    self._edb.Definition.ComponentType.Inductor]:
+        if self.edbcomponent.GetComponentType() in [
+            self._edb.Definition.ComponentType.Resistor,
+            self._edb.Definition.ComponentType.Capacitor,
+            self._edb.Definition.ComponentType.Inductor
+        ]:
             self.edbcomponent.GetComponentProperty().SetEnabled(enabled)
 
     @property
