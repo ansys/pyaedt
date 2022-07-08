@@ -1236,7 +1236,7 @@ class Maxwell(object):
             Name of the symmetry.
         is_odd : bool, optional
             Type of symmetry. Default value is ``True`` which means H field is tangential to
-            the boundary. If False H field is normal to the boundary.
+            the boundary. If ``False`` H field is normal to the boundary.
 
         Returns
         -------
