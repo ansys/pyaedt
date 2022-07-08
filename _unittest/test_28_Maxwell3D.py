@@ -380,3 +380,22 @@ class TestClass(BasisTest, object):
         circle = self.aedtapp.modeler.create_circle(position=[10, 10, 0], radius=5, cs_plane="XY")
         self.aedtapp.solution_type = "Magnetostatic"
         assert self.aedtapp.assign_voltage_drop([circle.faces[0]])
+
+    def test_35_assign_symmetry(self):
+        self.aedtapp.set_active_design("Motion")
+        outer_box = [x for x in self.aedtapp.modeler.object_list if x.name == "Outer_Box"]
+        inner_box = [x for x in self.aedtapp.modeler.object_list if x.name == "Inner_Box"]
+        assert self.aedtapp.assign_symmetry([outer_box[0].faces[0], inner_box[0].faces[0]], "Symmetry_Test_IsOdd")
+        assert self.aedtapp.assign_symmetry([outer_box[0].faces[0], inner_box[0].faces[0]])
+        assert self.aedtapp.assign_symmetry(
+            [outer_box[0].faces[0], inner_box[0].faces[0]], "Symmetry_Test_IsEven", False
+        )
+        assert self.aedtapp.assign_symmetry([35, 7])
+        assert not self.aedtapp.assign_symmetry([])
+        for bound in self.aedtapp.boundaries:
+            if bound.name == "Symmetry_Test_IsOdd":
+                assert bound.type == "Symmetry"
+                assert bound.props["IsOdd"]
+            if bound.name == "Symmetry_Test_IsEven":
+                assert bound.type == "Symmetry"
+                assert not bound.props["IsOdd"]
