@@ -1,5 +1,5 @@
 =================
-API Documentation
+API documentation
 =================
 
 Welcome to PyAEDT API documentation.

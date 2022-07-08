@@ -1,15 +1,19 @@
 # #############################################################################
 # requirements
 # #############################################################################
-pywin32==303; python_version > '2.7'
+pywin32==303; python_version > '3.6'
 # https://github.com/mhammond/pywin32
 # License: PSF
 
-pythonnet==2.5.2; python_version > '2.7'
+pythonnet==3.0.0rc2; python_version > '3.6'
 # https://github.com/pythonnet/pythonnet
 # License: MIT
 
-rpyc==5.0.1; python_version > '2.7'
+rpyc==5.0.1; python_version > '3.6'
+# https://github.com/tomerfiliba-org/rpyc
+# License: MIT
+
+dotnetcore2==3.1.23; python_version > '3.6' and sys_platform == 'linux'
 # https://github.com/tomerfiliba-org/rpyc
 # License: MIT
 
@@ -17,23 +21,22 @@ rpyc==5.0.1; python_version > '2.7'
 # optional
 # #############################################################################
 
-pyvista==0.34.2; python_version >= '3.7'
-pyvista==0.33.3; python_version < '3.7'
+pyvista==0.34.2; python_version > '3.6'
 # License: MIT
 
-matplotlib==3.5.2
+matplotlib==3.5.2; python_version > '3.6'
 # License: https://github.com/matplotlib/matplotlib/blob/master/LICENSE/LICENSE
 # License: PSF
 
-numpy==1.23.0
+numpy==1.23.0; python_version > '3.6'
 # License: BSD-3-Clause License
 
-ipython==8.3.0
+ipython==8.4.0; python_version > '3.6'
 # License: BSD-3-Clause License
 
-jupyterlab==3.4.3
+jupyterlab==3.4.3; python_version > '3.6'
 # License: BSD-3-Clause License
 
-psutil==5.9.1
+psutil==5.9.1; python_version > '3.6'
 # License: BSD-3-Clause License
 

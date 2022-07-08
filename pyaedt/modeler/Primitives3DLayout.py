@@ -16,17 +16,6 @@ from pyaedt.modeler.object3dlayout import Polygons3DLayout
 from pyaedt.modeler.object3dlayout import Rect3dLayout
 from pyaedt.modeler.Primitives import default_materials
 
-# import pkgutil
-# modules = [tup[1] for tup in pkgutil.iter_modules()]
-# if "clr" in modules or is_ironpython:
-# try:
-#     import clr
-#     from System import String
-#     import System
-# except ImportError:
-#     if os.name != "posix":
-#         warnings.warn("Pythonnet has to be installed to run Pyaedt")
-
 
 class Primitives3DLayout(object):
     """Manages primitives in HFSS 3D Layout.

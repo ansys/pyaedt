@@ -6,6 +6,7 @@ from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.EDB_Data import Source
+from pyaedt.generic.constants import RadiationBoxType
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SourceType
 
@@ -164,6 +165,12 @@ if not config["skip_edb"]:
             assert not signalnets[list(signalnets.keys())[0]].is_power_ground
             assert not signalnets[list(signalnets.keys())[0]].IsPowerGround()
             assert len(list(signalnets[list(signalnets.keys())[0]].primitives)) > 0
+
+            assert self.edbapp.core_nets.find_or_create_net("GND")
+            assert self.edbapp.core_nets.find_or_create_net(start_with="gn")
+            assert self.edbapp.core_nets.find_or_create_net(start_with="g", end_with="d")
+            assert self.edbapp.core_nets.find_or_create_net(end_with="d")
+            assert self.edbapp.core_nets.find_or_create_net(contain="usb")
 
         def test_09_assign_rlc(self):
             assert self.edbapp.core_components.set_component_rlc(
@@ -1639,3 +1646,16 @@ if not config["skip_edb"]:
 
             sim_config = SimulationConfiguration(cfg_file)
             assert self.edbapp.build_simulation_project(sim_config)
+
+        def test_107_set_bounding_box_extent(self):
+            source_path = os.path.join(local_path, "example_models", "test_107.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_107.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            edb = Edb(target_path)
+            initial_extent_info = edb.active_cell.GetHFSSExtentInfo()
+            assert initial_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.Conforming
+            config = SimulationConfiguration()
+            config.radiation_box = RadiationBoxType.BoundingBox
+            assert edb.core_hfss.configure_hfss_extents(config)
+            final_extent_info = edb.active_cell.GetHFSSExtentInfo()
+            assert final_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.BoundingBox

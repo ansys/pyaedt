@@ -7,21 +7,20 @@ from __future__ import absolute_import  # noreorder
 
 import logging
 import math
-import os
+import difflib
 import warnings
 
 from pyaedt.edb_core.EDB_Data import EDBLayers
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.generic.general_methods import is_ironpython
+
 
 try:
     import clr
-    from System import Double
 except ImportError:
-    if os.name != "posix":
-        warnings.warn('This module requires the "pythonnet" package.')
+    warnings.warn("This module requires the PythonNET package.")
 
 logger = logging.getLogger(__name__)
 
@@ -67,11 +66,6 @@ class EdbStackup(object):
     def _db(self):
         """ """
         return self._pedb.db
-
-    @property
-    def _stackup_methods(self):
-        """ """
-        return self._pedb.edblib.Layout.StackupMethods
 
     @property
     def _logger(self):
@@ -347,9 +341,43 @@ class EdbStackup(object):
             edb_material.SetProperty(self._edb.Definition.MaterialPropertyId.MagneticLossTangent, magnetic_loss_tangent)
             return edb_material
 
+    @pyaedt_function_handler
+    def material_name_to_id(self, property_name):
+        """Convert a material property name to a material property ID.
+
+        Parameters
+        ----------
+        property_name : str
+            Name of the material property.
+
+        Returns
+        -------
+        ID of the material property.
+        """
+        props = {
+            "Permittivity": self._edb.Definition.MaterialPropertyId.Permittivity,
+            "Permeability": self._edb.Definition.MaterialPropertyId.Permeability,
+            "Conductivity": self._edb.Definition.MaterialPropertyId.Conductivity,
+            "DielectricLossTangent": self._edb.Definition.MaterialPropertyId.DielectricLossTangent,
+            "MagneticLossTangent": self._edb.Definition.MaterialPropertyId.MagneticLossTangent,
+            "ThermalConductivity": self._edb.Definition.MaterialPropertyId.ThermalConductivity,
+            "MassDensity": self._edb.Definition.MaterialPropertyId.MassDensity,
+            "SpecificHeat": self._edb.Definition.MaterialPropertyId.SpecificHeat,
+            "YoungsModulus": self._edb.Definition.MaterialPropertyId.YoungsModulus,
+            "PoissonsRatio": self._edb.Definition.MaterialPropertyId.PoissonsRatio,
+            "ThermalExpansionCoefficient": self._edb.Definition.MaterialPropertyId.ThermalExpansionCoefficient,
+            "InvalidProperty": self._edb.Definition.MaterialPropertyId.InvalidProperty,
+        }
+
+        found_el = difflib.get_close_matches(property_name, list(props.keys()), 1, 0.7)
+        if found_el:
+            return props[found_el[0]]
+        else:
+            return self._edb.Definition.MaterialPropertyId.InvalidProperty
+
     @pyaedt_function_handler()
     def get_property_by_material_name(self, property_name, material_name):
-        """Get the property of a material. If it is executed in ironpython,
+        """Get the property of a material. If it is executed in IronPython,
          you must only use the first element of the returned tuple, which is a float.
 
         Parameters
@@ -385,52 +413,14 @@ class EdbStackup(object):
             original_material = self._edb.Definition.MaterialDef.FindByName(self._db, material_name)
             if is_ironpython:  # pragma: no cover
                 property_box = clr.StrongBox[float]()
-                if property_name == "permittivity":
-                    original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permittivity, property_box)
-                elif property_name == "permeability":
-                    original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Permeability, property_box)
-                elif property_name == "conductivity":
-                    original_material.GetProperty(self._edb.Definition.MaterialPropertyId.Conductivity, property_box)
-                elif property_name == "dielectric_loss_tangent":
-                    original_material.GetProperty(
-                        self._edb.Definition.MaterialPropertyId.DielectricLossTangent, property_box
-                    )
-                elif property_name == "magnetic_loss_tangent":
-                    original_material.GetProperty(
-                        self._edb.Definition.MaterialPropertyId.MagneticLossTangent, property_box
-                    )
-                else:
-                    self._logger.error("Incorrect property name.")
-                    return False
-                property_float = float(property_box)
-                return property_float
+                original_material.GetProperty(self.material_name_to_id(property_name), property_box)
+                return float(property_box)
             else:
-                out_value = self._edb.Utility.Value("value_name")
-                if property_name == "permittivity":
-                    property_tuple = original_material.GetProperty(
-                        self._edb.Definition.MaterialPropertyId.Permittivity, out_value
-                    )
-                elif property_name == "permeability":
-                    property_tuple = original_material.GetProperty(
-                        self._edb.Definition.MaterialPropertyId.Permeability, out_value
-                    )
-                elif property_name == "conductivity":
-                    property_tuple = original_material.GetProperty(
-                        self._edb.Definition.MaterialPropertyId.Conductivity, out_value
-                    )
-                elif property_name == "dielectric_loss_tangent":
-                    property_tuple = original_material.GetProperty(
-                        self._edb.Definition.MaterialPropertyId.DielectricLossTangent, out_value
-                    )
-                elif property_name == "magnetic_loss_tangent":
-                    property_tuple = original_material.GetProperty(
-                        self._edb.Definition.MaterialPropertyId.MagneticLossTangent, out_value
-                    )
-                else:
-                    self._logger.error("Incorrect property name.")
-                    return False
-                property_float = float(property_tuple[1].ToDouble())
-                return property_float
+                _, property_box = original_material.GetProperty(
+                    self.material_name_to_id(property_name), self._get_edb_value(0.0)
+                )
+                return property_box.ToDouble()
+        return False
 
     @pyaedt_function_handler()
     def _get_solder_height(self, layer_name):
@@ -690,8 +680,8 @@ class EdbStackup(object):
             edb_cell.GetLayout(), self._active_layout.GetCell().GetName(), self._active_layout
         )
 
-        stackup_target = edb_cell.GetLayout().GetLayerCollection()
-        stackup_source = self._active_layout.GetLayerCollection()
+        stackup_target = self._edb.Cell.LayerCollection(edb_cell.GetLayout().GetLayerCollection())
+        stackup_source = self._edb.Cell.LayerCollection(self._active_layout.GetLayerCollection())
 
         if place_on_top:
             cell_inst2.SetPlacementLayer(list(stackup_target.Layers(self._edb.Cell.LayerTypeSet.SignalLayerSet))[0])
@@ -699,34 +689,13 @@ class EdbStackup(object):
             cell_inst2.SetPlacementLayer(list(stackup_target.Layers(self._edb.Cell.LayerTypeSet.SignalLayerSet))[-1])
         cell_inst2.SetIs3DPlacement(True)
         sig_set = self._edb.Cell.LayerTypeSet.SignalLayerSet
+        res = stackup_target.GetTopBottomStackupLayers(sig_set)
+        target_top_elevation = res[2]
+        target_bottom_elevation = res[4]
+        res_s = stackup_source.GetTopBottomStackupLayers(sig_set)
+        source_stack_top_elevation = res_s[2]
+        source_stack_bot_elevation = res_s[4]
 
-        if is_ironpython:  # pragma: no cover
-            res = stackup_target.GetTopBottomStackupLayers(sig_set)
-            target_top_elevation = res[2]
-            target_bottom_elevation = res[4]
-            res_s = stackup_source.GetTopBottomStackupLayers(sig_set)
-            source_stack_top_elevation = res_s[2]
-            source_stack_bot_elevation = res_s[4]
-        else:
-            target_top = None
-            target_top_elevation = Double(0.0)
-            target_bottom = None
-            target_bottom_elevation = Double(0.0)
-            source_stack_top = None
-            source_stack_top_elevation = Double(0.0)
-            source_stack_bot = None
-            source_stack_bot_elevation = Double(0.0)
-            res = stackup_target.GetTopBottomStackupLayers(
-                sig_set, target_top, target_top_elevation, target_bottom, target_bottom_elevation
-            )
-
-            res_s = stackup_source.GetTopBottomStackupLayers(
-                sig_set, source_stack_top, source_stack_top_elevation, source_stack_bot, source_stack_bot_elevation
-            )
-            target_top_elevation = res[2]
-            target_bottom_elevation = res[4]
-            source_stack_top_elevation = res_s[2]
-            source_stack_bot_elevation = res_s[4]
         if place_on_top and flipped_stackup:
             elevation = target_top_elevation + source_stack_top_elevation
         elif place_on_top:
@@ -792,24 +761,11 @@ class EdbStackup(object):
             self._get_edb_value(math.cos(_angle)), self._get_edb_value(-1 * math.sin(_angle)), zero_data
         )
 
-        stackup_target = self._active_layout.GetLayerCollection()
+        stackup_target = self._edb.Cell.LayerCollection(self._active_layout.GetLayerCollection())
         sig_set = self._edb.Cell.LayerTypeSet.SignalLayerSet
-        if is_ironpython:  # pragma: no cover
-            res = stackup_target.GetTopBottomStackupLayers(sig_set)
-            target_top_elevation = res[2]
-            target_bottom_elevation = res[4]
-        else:
-            target_top = None
-            target_top_elevation = Double(0.0)
-            target_bottom = None
-            target_bottom_elevation = Double(0.0)
-            res = stackup_target.GetTopBottomStackupLayers(
-                sig_set, target_top, target_top_elevation, target_bottom, target_bottom_elevation
-            )
-
-            target_top_elevation = res[2]
-            target_bottom_elevation = res[4]
-
+        res = stackup_target.GetTopBottomStackupLayers(sig_set)
+        target_top_elevation = res[2]
+        target_bottom_elevation = res[4]
         flip_angle = self._get_edb_value("0deg")
         if place_on_top:
             elevation = target_top_elevation
@@ -1011,23 +967,13 @@ class EdbStackup(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        stackup = self._active_layout.GetLayerCollection()
+        stackup = self._edb.Cell.LayerCollection(self._active_layout.GetLayerCollection())
         if only_metals:
             input_layers = self._edb.Cell.LayerTypeSet.SignalLayerSet
         else:
             input_layers = self._edb.Cell.LayerTypeSet.StackupLayerSet
 
-        if is_ironpython:
-            res, topl, topz, bottoml, bottomz = stackup.GetTopBottomStackupLayers(input_layers)
-        else:
-            topl = None
-            topz = Double(0.0)
-            bottoml = None
-            bottomz = Double(0.0)
-            res, topl, topz, bottoml, bottomz = stackup.GetTopBottomStackupLayers(
-                input_layers, topl, topz, bottoml, bottomz
-            )
-        h_stackup = abs(float(topz) - float(bottomz))
+        res, topl, topz, bottoml, bottomz = stackup.GetTopBottomStackupLayers(input_layers)
         return topl.GetName(), topz, bottoml.GetName(), bottomz
 
     def create_symmetric_stackup(

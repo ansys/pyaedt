@@ -1,10 +1,12 @@
 Setup
 =====
 This section lists setup modules:
-* Setup for ``Hfss``, ``Maxwell2D``, ``Maxwell3d``, ``Q2d`` and ``Q3d``
-* SetupCircuit for ``Circuit`` and ``Twin Builder``
-* Setup3DLayout for ``Hfss3dLayout``
-Setup object is accessible through the ``create_setup`` method and ``setups`` object list.
+
+* ``Setup`` for HFSS, Maxwell 2D, Maxwell 3D, Q2D Extractor, and Q3D Extractor
+* ``Setup3DLayout`` for HFSS 3D Layout
+* ``SetupCircuit`` for Circuit and Twin Builder
+
+The ``Setup`` object is accessible through the ``create_setup`` method and ``setups`` object list.
 
 .. currentmodule:: pyaedt.modules.SolveSetup
 
@@ -23,11 +25,11 @@ Setup object is accessible through the ``create_setup`` method and ``setups`` ob
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
-    # this call returns the Setup Class
+    # This call returns the Setup class
     my_setup = app.setups[0]
 
 
-    # this call returns a Setup Object
+    # This call returns a Setup object
     setup = app.create_setup("MySetup")
 
     ...
@@ -35,11 +37,13 @@ Setup object is accessible through the ``create_setup`` method and ``setups`` ob
 
 Sweep Classes
 =============
-This section lists Sweep classes and their default values.
-* SweepHFSS for ``Hfss``,
-* SweepQ3D for ``Q3d``
-* SweepHFSS3DLayout for ``Hfss3dLayout``
-Setup object is accessible through the methods available for sweep creation.
+This section lists sweep classes and their default values:
+
+* ``SweepHFSS`` for HFSS
+* ``SweepHFSS3DLayout`` for HFSS 3D Layout
+* ``SweepQ3D`` for Q3D Extractor
+
+The ``Setup`` object is accessible through the methods available for sweep creation.
 
 
 .. currentmodule:: pyaedt.modules.SetupTemplates

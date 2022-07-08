@@ -9,7 +9,6 @@ from pyaedt.edb_core.EDB_Data import EDBPadstack
 from pyaedt.edb_core.EDB_Data import EDBPadstackInstance
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 try:
@@ -71,6 +70,75 @@ class EdbPadstacks(object):
     def _layers(self):
         """ """
         return self._pedb.core_stackup.stackup_layers
+
+    @pyaedt_function_handler()
+    def int_to_pad_type(self, val=0):
+        """Convert an integer to an EDB.PadGeometryType.
+
+        Parameters
+        ----------
+        val : int
+
+        Returns
+        -------
+        object
+            EDB.PadType enumerator value.
+        """
+
+        if val == 0:
+            return self._edb.Definition.PadType.RegularPad
+        elif val == 1:
+            return self._edb.Definition.PadType.AntiPad
+        elif val == 2:
+            return self._edb.Definition.PadType.ThermalPad
+        elif val == 3:
+            return self._edb.Definition.PadType.Hole
+        elif val == 4:
+            return self._edb.Definition.PadType.UnknownGeomType
+        else:
+            return val
+
+    @pyaedt_function_handler()
+    def int_to_geometry_type(self, val=0):
+        """Convert an integer to an EDB.PadGeometryType.
+
+        Parameters
+        ----------
+        val : int
+
+        Returns
+        -------
+        object
+            EDB.PadGeometryType enumerator value.
+        """
+        if val == 0:
+            return self._edb.Definition.PadGeometryType.NoGeometry
+        elif val == 1:
+            return self._edb.Definition.PadGeometryType.Circle
+        elif val == 2:
+            return self._edb.Definition.PadGeometryType.Square
+        elif val == 3:
+            return self._edb.Definition.PadGeometryType.Rectangle
+        elif val == 4:
+            return self._edb.Definition.PadGeometryType.Oval
+        elif val == 5:
+            return self._edb.Definition.PadGeometryType.Bullet
+        elif val == 6:
+            return self._edb.Definition.PadGeometryType.NSidedPolygon
+        elif val == 7:
+            return self._edb.Definition.PadGeometryType.Polygon
+        elif val == 8:
+            return self._edb.Definition.PadGeometryType.Round45
+        elif val == 9:
+            return self._edb.Definition.PadGeometryType.Round90
+        elif val == 10:
+            return self._edb.Definition.PadGeometryType.Square45
+        elif val == 11:
+            return self._edb.Definition.PadGeometryType.Square90
+        elif val == 12:
+            return self._edb.Definition.PadGeometryType.InvalidGeometry
+        else:
+            return val
 
     @property
     def padstacks(self):
@@ -268,28 +336,16 @@ class EdbPadstacks(object):
         if not padstackinstance.IsLayoutPin():
             padstackinstance.SetIsLayoutPin(True)
 
-        if not is_ironpython:
-            res, fromlayer, tolayer = padstackinstance.GetLayerRange(None, None)
-            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
-                self._active_layout,
-                padstackinstance.GetNet(),
-                port_name,
-                padstackinstance,
-                tolayer,
-            )
-            if res:
-                return port_name
-        else:
-            res, fromlayer, tolayer = padstackinstance.GetLayerRange()
-            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
-                self._active_layout,
-                padstackinstance.GetNet(),
-                port_name,
-                padstackinstance,
-                tolayer,
-            )
-            if res:
-                return port_name
+        res = padstackinstance.GetLayerRange()
+        self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
+            self._active_layout,
+            padstackinstance.GetNet(),
+            port_name,
+            padstackinstance,
+            res[2],
+        )
+        if res[0]:
+            return port_name
         return ""
 
     @pyaedt_function_handler()
@@ -333,15 +389,18 @@ class EdbPadstacks(object):
         tuple
             Tuple of (GeometryType, ParameterList, OffsetX, OffsetY, Rot)
         """
+
         if "PadstackDef" in str(type(pin)):
-            padparams = self._padstack_methods.GetPadParametersValue(pin, layername, pad_type)
+            padparams = pin.GetData().GetPadParametersValue(layername, self.int_to_pad_type(pad_type))
         else:
-            padparams = self._padstack_methods.GetPadParametersValue(pin.GetPadstackDef(), layername, pad_type)
-        geom_type = int(padparams.Item1)
-        parameters = [i.ToString() for i in padparams.Item2]
-        offset_x = padparams.Item3.ToDouble()
-        offset_y = padparams.Item4.ToDouble()
-        rot = padparams.Item5.ToDouble()
+            padparams = self._edb.Definition.PadstackDefData(pin.GetPadstackDef().GetData()).GetPadParametersValue(
+                layername, self.int_to_pad_type(pad_type)
+            )
+        geom_type = int(padparams[1])
+        parameters = [i.ToString() for i in padparams[2]]
+        offset_x = padparams[3].ToDouble()
+        offset_y = padparams[4].ToDouble()
+        rot = padparams[5].ToDouble()
         return geom_type, parameters, offset_x, offset_y, rot
 
     @pyaedt_function_handler()
@@ -504,11 +563,8 @@ class EdbPadstacks(object):
 
     @pyaedt_function_handler()
     def _get_pin_layer_range(self, pin):
-        if not is_ironpython:
-            res, fromlayer, tolayer = pin.GetLayerRange(None, None)
 
-        else:
-            res, fromlayer, tolayer = pin.GetLayerRange()
+        res, fromlayer, tolayer = pin.GetLayerRange()
         if res:
             return fromlayer, tolayer
         else:
@@ -704,11 +760,11 @@ class EdbPadstacks(object):
             ``True`` if successful.
         """
         shape_dict = {
-            "Circle": 1,
-            "Square": 2,
-            "Rectangle": 3,
-            "Oval": 4,
-            "Bullet": 5,
+            "Circle": self._edb.Definition.PadGeometryType.Circle,
+            "Square": self._edb.Definition.PadGeometryType.Square,
+            "Rectangle": self._edb.Definition.PadGeometryType.Rectangle,
+            "Oval": self._edb.Definition.PadGeometryType.Oval,
+            "Bullet": self._edb.Definition.PadGeometryType.Bullet,
         }
         pad_shape = shape_dict[pad_shape]
         if not isinstance(pad_params, list):
@@ -735,7 +791,7 @@ class EdbPadstacks(object):
         for layer in layer_name:
             new_padstack_def.SetPadParameters(
                 layer,
-                0,
+                self._edb.Definition.PadType.RegularPad,
                 pad_shape,
                 pad_params,
                 pad_x_offset,
@@ -744,7 +800,7 @@ class EdbPadstacks(object):
             )
             new_padstack_def.SetPadParameters(
                 layer,
-                1,
+                self._edb.Definition.PadType.AntiPad,
                 antipad_shape,
                 antipad_params,
                 antipad_x_offset,
