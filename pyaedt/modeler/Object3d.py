@@ -1286,6 +1286,27 @@ class Object3d(object):
         return False
 
     @property
+    def touching_objects(self):
+        """Get the objects that touch one of the vertex, edge midpoint or face of the object."""
+        list_names = []
+        for v in self.vertices:
+            a = self._primitives.get_bodynames_from_position(v.position)
+            a = [i for i in a if i != self.name and i not in list_names]
+            if a:
+                list_names.extend(a)
+        for e in self.edges:
+            a = self._primitives.get_bodynames_from_position(e.midpoint)
+            a = [i for i in a if i != self.name and i not in list_names]
+            if a:
+                list_names.extend(a)
+        for f in self.faces:
+            a = self._primitives.get_bodynames_from_position(f.center)
+            a = [i for i in a if i != self.name and i not in list_names]
+            if a:
+                list_names.extend(a)
+        return list_names
+
+    @property
     def faces(self):
         """Information for each face in the given part.
 
