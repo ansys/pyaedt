@@ -2682,7 +2682,9 @@ class EDBComponent(object):
             self._edb.Definition.ComponentType.Capacitor,
             self._edb.Definition.ComponentType.Inductor,
         ]:
-            self.edbcomponent.GetComponentProperty().SetEnabled(enabled)
+            return self.edbcomponent.GetComponentProperty().SetEnabled(enabled)
+        else:
+            return False
 
     @property
     def res_value(self):
