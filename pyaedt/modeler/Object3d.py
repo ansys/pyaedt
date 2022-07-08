@@ -3746,12 +3746,12 @@ class UserDefinedComponent(object):
 
     >>> from pyaedt import Hfss
     >>> aedtapp = Hfss()
-    >>> prim = aedtapp.modeler
+    >>> prim = aedtapp.modeler.user_defined_components
 
-    Create a part, such as box, to return an :class:`pyaedt.modeler.Object3d.Object3d`.
+    Obtain user defined component names, to return an :class:`pyaedt.modeler.Object3d.UserDefinedComponent`.
 
-    >>> id = prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
-    >>> part = prim[id]
+    >>> component_names = aedtapp.modeler.user_defined_components
+    >>> component = aedtapp.modeler[component_names[0]]
     """
 
     def __init__(self, primitives, name=None):
@@ -3762,29 +3762,147 @@ class UserDefinedComponent(object):
             Inherited parent object.
         name : str
         """
+        self._fix_udm_props = [
+            "General[Name]",
+            "Group",
+            "Target Coordinate System",
+            "Target Coordinate System/Choices",
+            "Info[Name]",
+            "Location",
+            "Location/Choices",
+            "Company",
+            "Date",
+            "Purpose",
+            "Version",
+        ]
+        self._group_name = None
+        self._is3dcomponent = None
+        self._mesh_assembly = None
         if name:
             self._m_name = name
         else:
             self._m_name = _uname()
-        self._primitives = primitives
+        self._parameters = None
         self._parts = None
-        # self.flags = ""
-        # self._part_coordinate_system = "Global"
-        # self._material_name = None
+        self._primitives = primitives
+        self._target_coordinate_system = None
         # self._transparency = None
         # self._solve_inside = None
         self._is_updated = False
         self._all_props = None
-        # self._surface_material = None
-        # self._color = None
         # self._wireframe = None
-        self._part_coordinate_system = None
-        # self._model = None
-        self._m_groupName = None
-        self._is3dcomponent = None
-        self._isencrypted = None
+        # self._isencrypted = None
         # self._mass = 0.0
         # self._volume = 0.0
+
+    @property
+    def group_name(self):
+        """Group the component belongs to.
+
+        Returns
+        -------
+        str
+            Name of the group.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        if "Group" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
+            group = self._primitives.oeditor.GetChildObject(self.name).GetPropValue("Group")
+            return group
+        else:
+            self._logger.warning("Group could not be obtained.")
+            return None
+
+    @group_name.setter
+    def group_name(self, name):
+        """Assign Component to a specific group. it creates a new group if the group doesn't exist.
+
+        Parameters
+        ----------
+        name : str
+            Name of the group to assign. Group will be created if it does not exist.
+
+        Returns
+        -------
+        str
+            Name of the group.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        if "Group" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
+            if name not in list(self._primitives.oeditor.GetChildNames("Groups")):
+                try:
+                    arg = [
+                        "NAME:GroupParameter",
+                        "ParentGroupID:=",
+                        "Model",
+                        "Parts:=",
+                        "",
+                        "SubmodelInstances:=",
+                        "",
+                        "Groups:=",
+                        "",
+                    ]
+                    assigned_name = self._primitives.oeditor.CreateGroup(arg)
+                    self._primitives.oeditor.ChangeProperty(
+                        [
+                            "NAME:AllTabs",
+                            [
+                                "NAME:Attributes",
+                                ["NAME:PropServers", assigned_name],
+                                ["NAME:ChangedProps", ["NAME:Name", "Value:=", name]],
+                            ],
+                        ]
+                    )
+
+                except:
+                    self._logger.error("Group could not be created.")
+                    return self.group_name
+
+            pcs = ["NAME:Group", "Value:=", name]
+            vChangedProps = ["NAME:ChangedProps", pcs]
+            vPropServers = ["NAME:PropServers"]
+            vPropServers.append(self._m_name)
+            vGeo3d = ["NAME:General", vPropServers, vChangedProps]
+            vOut = ["NAME:AllTabs", vGeo3d]
+            val = _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, vOut)
+            if val:
+                self._group_name = name
+                return name
+            else:
+                self._logger.error("Group could not be assigned.")
+                return self.group_name
+        else:
+            self._logger.warning("Group could not be assigned.")
+            return self.group_name
+
+    @property
+    def is3dcomponent(self):
+        """3DComponent flag.
+
+        Returns
+        -------
+        bool
+           ``True`` if 3DComponent, ``False`` if User defined model
+
+        """
+        definitions = list(self._primitives.oeditor.Get3DComponentDefinitionNames())
+        for comp in definitions:
+            if self.name in self._primitives.oeditor.Get3DComponentInstanceNames(comp):
+                self._is_3dcomponent = True
+                return True
+        self._is_3dcomponent = False
+        return False
 
     @property
     def name(self):
@@ -3820,21 +3938,167 @@ class UserDefinedComponent(object):
                 vGeo3d = ["NAME:General", vPropServers, vChangedProps]
                 vOut = ["NAME:AllTabs", vGeo3d]
                 val = _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, vOut)
-                self._primitives.user_defined_components.update({component_name: self})
-                del self._primitives.user_defined_components[self._m_name]
-                self._project_dictionary = None
-                self._m_name = component_name
+                if val:
+                    self._primitives.user_defined_components.update({component_name: self})
+                    del self._primitives.user_defined_components[self._m_name]
+                    self._project_dictionary = None
+                    self._m_name = component_name
         else:
-            self.logger.warning("Name %s already assigned in the design", component_name)
+            self._logger.warning("Name %s already assigned in the design", component_name)
             pass
 
     @property
-    def _odesign(self):
-        """Design."""
-        return self._primitives._modeler._app._odesign
+    def parameters(self):
+        """Component parameters.
+
+        Returns
+        -------
+        dict
+            Parameters with values.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        if self.is3dcomponent:
+            parameters_tuple = list(self._primitives.oeditor.Get3DComponentParameters(self.name))
+            if parameters_tuple:
+                parameters = {}
+                for parameter in parameters_tuple:
+                    value = self._primitives.oeditor.GetChildObject(self.name).GetPropValue(parameter[0])
+                    parameters[parameter[0]] = value
+                self._parameters = parameters
+                return parameters
+            else:
+                return None
+        elif self.name in self._primitives.user_defined_component_names:
+            props = list(self._primitives.oeditor.GetChildObject(self.name).GetPropNames())
+            parameters_aedt = list(set(props) - set(self._fix_udm_props))
+            parameter_name = [par for par in parameters_aedt if not re.findall(r"/", par)]
+            parameters = {}
+            for parameter in parameter_name:
+                value = self._primitives.oeditor.GetChildObject(self.name).GetPropValue(parameter)
+                parameters[parameter] = value
+            self._parameters = parameters
+            return parameters
+        else:
+            self._logger.warning("Parameters could not be retrieved.")
+            return None
+
+    @parameters.setter
+    def parameters(self, tCS):
+        if (
+            "Target Coordinate System" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
+            and "Target Coordinate System/Choices" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
+        ):
+            tCS_options = list(
+                self._primitives.oeditor.GetChildObject(self.name).GetPropValue("Target Coordinate System/Choices")
+            )
+            if tCS in tCS_options:
+                pcs = ["NAME:Target Coordinate System", "Value:=", tCS]
+                vChangedProps = ["NAME:ChangedProps", pcs]
+                vPropServers = ["NAME:PropServers"]
+                vPropServers.append(self._m_name)
+                vGeo3d = ["NAME:General", vPropServers, vChangedProps]
+                vOut = ["NAME:AllTabs", vGeo3d]
+                val = _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, vOut)
+                if val:
+                    self._parameters = tCS
+                    return tCS
+                else:
+                    self._logger.error("Target Coordinate System could not be assigned.")
+                    return self.parameters
+            else:
+                self._logger.warning("Target Coordinate System specified does not exist in the design.")
+                return self.parameters
+        else:
+            self._logger.error("Target Coordinate System could not be assigned.")
+            return self.parameters
 
     @property
-    def m_Editor(self):
+    def parts(self):
+        """Dict of objects which belong to the User defined component.
+
+        Returns
+        -------
+        dict
+           :class:`pyaedt.modeler.Object3d
+
+        """
+        component_parts = list(self._primitives.oeditor.GetChildObject(self.name).GetChildNames())
+        parts_id = [
+            self._primitives.object_id_dict[part] for part in self._primitives.object_id_dict if part in component_parts
+        ]
+        parts_dict = {part_id: self._primitives.objects[part_id] for part_id in parts_id}
+        return parts_dict
+
+    @property
+    def target_coordinate_system(self):
+        """Target coordinate system.
+
+        Returns
+        -------
+        str
+            Name of the target coordinate system.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        if "Target Coordinate System" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
+            tCS = self._primitives.oeditor.GetChildObject(self.name).GetPropValue("Target Coordinate System")
+            return tCS
+        else:
+            self._logger.warning("Target Coordinate System could not be obtained.")
+            return None
+
+    @target_coordinate_system.setter
+    def target_coordinate_system(self, tCS):
+        if (
+            "Target Coordinate System" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
+            and "Target Coordinate System/Choices" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
+        ):
+            tCS_options = list(
+                self._primitives.oeditor.GetChildObject(self.name).GetPropValue("Target Coordinate System/Choices")
+            )
+            if tCS in tCS_options:
+                pcs = ["NAME:Target Coordinate System", "Value:=", tCS]
+                vChangedProps = ["NAME:ChangedProps", pcs]
+                vPropServers = ["NAME:PropServers"]
+                vPropServers.append(self._m_name)
+                vGeo3d = ["NAME:General", vPropServers, vChangedProps]
+                vOut = ["NAME:AllTabs", vGeo3d]
+                val = _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, vOut)
+                if val:
+                    self._target_coordinate_system = tCS
+                    return tCS
+                else:
+                    self.logger.error("Target Coordinate System could not be assigned.")
+                    return self.target_coordinate_system
+            else:
+                self.logger.warning("Target Coordinate System specified does not exist in the design.")
+                return self.target_coordinate_system
+        else:
+            self._logger.error("Target Coordinate System could not be assigned.")
+            return self.target_coordinate_system
+
+    @property
+    def _logger(self):
+        """Logger."""
+        return self._primitives.logger
+
+    @pyaedt_function_handler()
+    def _change_property(self, vPropChange):
+        return self._primitives._change_geometry_property(vPropChange, self._m_name)
+
+    @property
+    def _m_Editor(self):
         """Pointer to the oEditor object in the AEDT API. This property is
         intended primarily for use by FacePrimitive, EdgePrimitive, and
         VertexPrimitive child objects.
@@ -3846,120 +4110,9 @@ class UserDefinedComponent(object):
         """
         return self._primitives.oeditor
 
-    @property
-    def logger(self):
-        """Logger."""
-        return self._primitives.logger
-
-    @property
-    def parts(self):
-        """Dict of objects which belong to the User defined component.
-
-        Returns
-        -------
-        dict
-           :class:`pyaedt.modeler.Object3d
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        >>> oEditor.ChangeProperty
-
-        """
-        component_parts = list(self._primitives.oeditor.GetChildObject(self.name).GetChildNames())
-        parts_id = [
-            self._primitives.object_id_dict[part] for part in self._primitives.object_id_dict if part in component_parts
-        ]
-        parts_dict = {part_id: self._primitives.objects[part_id] for part_id in parts_id}
-        return parts_dict
-
-    @pyaedt_function_handler()
-    def _change_property(self, vPropChange):
-        return self._primitives._change_geometry_property(vPropChange, self._m_name)
-
     def _update(self):
         self._object3d._refresh_object_types()
         self._primitives.cleanup_objects()
-
-    # @property
-    # def group_name(self):
-    #     """Group the object belongs to.
-    #
-    #     Returns
-    #     -------
-    #     str
-    #         Name of the group.
-    #
-    #     References
-    #     ----------
-    #
-    #     >>> oEditor.GetPropertyValue
-    #     >>> oEditor.ChangeProperty
-    #
-    #     """
-    #     if self._m_groupName is not None:
-    #         return self._m_groupName
-    #     if "Group" in self.valid_properties:
-    #         self._m_groupName = _retry_ntimes(
-    #             10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Group"
-    #         )
-    #         return self._m_groupName
-    #
-    # @group_name.setter
-    # def group_name(self, name):
-    #     """Assign Object to a specific group. it creates a new group if the group doesn't exist.
-    #
-    #     Parameters
-    #     ----------
-    #     name : str
-    #         Name of the group to assign. Group will be created if it does not exist.
-    #
-    #     Returns
-    #     -------
-    #     str
-    #         Name of the group.
-    #
-    #     References
-    #     ----------
-    #
-    #     >>> oEditor.GetPropertyValue
-    #     >>> oEditor.ChangeProperty
-    #
-    #     """
-    #
-    #     if not list(self.m_Editor.GetObjectsInGroup(name)):
-    #         self.m_Editor.CreateGroup(
-    #             [
-    #                 "NAME:GroupParameter",
-    #                 "ParentGroupID:=",
-    #                 "Model",
-    #                 "Parts:=",
-    #                 self._m_name,
-    #                 "SubmodelInstances:=",
-    #                 "",
-    #                 "Groups:=",
-    #                 "",
-    #             ]
-    #         )
-    #         groupName = _retry_ntimes(
-    #             10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Group"
-    #         )
-    #         self.m_Editor.ChangeProperty(
-    #             [
-    #                 "NAME:AllTabs",
-    #                 [
-    #                     "NAME:Attributes",
-    #                     ["NAME:PropServers", groupName],
-    #                     ["NAME:ChangedProps", ["NAME:Name", "Value:=", name]],
-    #                 ],
-    #             ]
-    #         )
-    #         self._m_groupName = name
-    #     else:
-    #         vgroup = ["NAME:Group", "Value:=", name]
-    #         self._change_property(vgroup)
-    #         self._m_groupName = name
 
     # @pyaedt_function_handler()
     # def _bounding_box_unmodel(self):
@@ -4576,71 +4729,6 @@ class UserDefinedComponent(object):
     #         self._object_type = "Unclassified"  # pragma: no cover
     #     return self._isencrypted
 
-    # @property
-    # def is3dcomponent(self):
-    #     """Check for if the object is 3D.
-    #
-    #     Returns
-    #     -------
-    #     bool
-    #         ``True`` when successful, ``False`` when failed.
-    #
-    #     """
-    #     if self.object_type == "Solid":
-    #         return True
-    #     else:
-    #         return False
-
-    # @property
-    # def valid_properties(self):
-    #     """Valid properties.
-    #
-    #     References
-    #     ----------
-    #
-    #     >>> oEditor.GetProperties
-    #     """
-    #     if not self._all_props:
-    #         self._all_props = _retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DAttributeTab", self._m_name)
-    #     return self._all_props
-    #
-    # @property
-    # def object_units(self):
-    #     """Object units."""
-    #     return self._primitives.model_units
-    #
-    # @property
-    # def part_coordinate_system(self):
-    #     """Part coordinate system.
-    #
-    #     Returns
-    #     -------
-    #     str
-    #         Name of the part coordinate system.
-    #
-    #     References
-    #     ----------
-    #
-    #     >>> oEditor.GetPropertyValue
-    #     >>> oEditor.ChangeProperty
-    #
-    #     """
-    #     if self._part_coordinate_system is not None and not isinstance(self._part_coordinate_system, int):
-    #         return self._part_coordinate_system
-    #     if "Orientation" in self.valid_properties:
-    #         self._part_coordinate_system = _retry_ntimes(
-    #             10, self.m_Editor.GetPropertyValue, "Geometry3DAttributeTab", self._m_name, "Orientation"
-    #         )
-    #         return self._part_coordinate_system
-    #
-    # @part_coordinate_system.setter
-    # def part_coordinate_system(self, sCS):
-    #
-    #     pcs = ["NAME:Orientation", "Value:=", sCS]
-    #     self._change_property(pcs)
-    #     self._part_coordinate_system = sCS
-    #     return True
-    #
     # @property
     # def display_wireframe(self):
     #     """Wireframe property of the part.
