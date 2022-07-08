@@ -1138,7 +1138,7 @@ class Stackup3D(object):
         """Add a new layer to the stackup.
         The new layer can be a signal (S), ground (G), or dielectric (D).
         The layer is entirely filled with the specified fill material. Anything will be drawn
-        wmaterial.
+        material.
 
         Parameters
         ----------
@@ -1199,7 +1199,7 @@ class Stackup3D(object):
     def add_signal_layer(self, name, material="copper", thickness=0.035, fill_material="FR4_epoxy"):
         """Add a new ground layer to the stackup.
         A signal layer is positive. The layer is entirely filled with the fill material.
-        Anything will be drawn wmaterial.
+        Anything will be drawn material.
 
         Parameters
         ----------
