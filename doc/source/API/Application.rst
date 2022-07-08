@@ -4,7 +4,7 @@ The PyAEDT API includes classes for apps and modules. You must initialize the
 app case. All other classes and methods are inherited into the app class.
 The desktop app is implicitly launched in any of the other applications.
 
-Example with desktop:
+Example with AEDT:
 
 .. code:: python
 
