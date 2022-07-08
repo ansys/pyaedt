@@ -1,9 +1,8 @@
-Boundaries Objects
-==================
+Boundary objects
+================
 This section lists classes for creating and editing
-boundaries in the 3D tools:
-Those objects are returned by application methods and
-can be used to edit or delete a boundary condition.
+boundaries in the 3D tools. These objects are returned by
+app methods and can be used to edit or delete a boundary condition.
 
 
 .. currentmodule:: pyaedt.modules.Boundary
@@ -17,7 +16,7 @@ can be used to edit or delete a boundary condition.
    FarFieldSetup
    Matrix
 
-Example without NativeComponentObject:
+Example without ``Native Component Object``:
 
 .. code:: python
 
