@@ -2677,7 +2677,6 @@ class EDBComponent(object):
         else:
             return False
 
-
     @is_enabled.setter
     def is_enabled(self, enabled):
         """Enables the current object."""
