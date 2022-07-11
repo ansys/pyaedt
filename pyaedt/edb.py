@@ -70,17 +70,17 @@ class Edb(object):
         Full path to the ``aedb`` folder. The variable can also contain
         the path to a layout to import. Allowed formats are BRD,
         XML (IPC2581), GDS, and DXF. The default is ``None``.
-        For GDS import the Ansys control file (also XML) should have the same
-        name as the GDS file except, of course, for the file extension.
+        For GDS import, the Ansys control file (also XML) should have the same
+        name as the GDS file. Only the file extension differs.
     cellname : str, optional
         Name of the cell to select. The default is ``None``.
     isreadonly : bool, optional
-        Whether to open ``edb_core`` in read-only mode when it is
+        Whether to open EBD in read-only mode when it is
         owned by HFSS 3D Layout. The default is ``False``.
     edbversion : str, optional
-        Version of ``edb_core`` to use. The default is ``"2021.2"``.
+        Version of EDB to use. The default is ``"2021.2"``.
     isaedtowned : bool, optional
-        Whether to launch ``edb_core`` from HFSS 3D Layout. The
+        Whether to launch EDB from HFSS 3D Layout. The
         default is ``False``.
     oproject : optional
         Reference to the AEDT project object.
@@ -186,7 +186,7 @@ class Edb(object):
             else:
                 self.logger.info("Failed to initialize DLLs.")
         else:
-            warnings.warn("Failed to initialize DLLss")
+            warnings.warn("Failed to initialize DLLs.")
 
     def __enter__(self):
         return self
@@ -229,7 +229,7 @@ class Edb(object):
 
     @property
     def logger(self):
-        """Logger for the Edb.
+        """Logger for EDB.
 
         Returns
         -------
@@ -303,7 +303,7 @@ class Edb(object):
 
     @property
     def edblib(self):
-        """EdbLib object containing advanced EDB methods not accessible directly from Python."""
+        """EDB library object containing advanced EDB methods not accessible directly from Python."""
         if not self._edblib:
             if os.name == "posix" and is_ironpython:
                 clr.AddReferenceToFile("EdbLib.dll")
@@ -366,10 +366,10 @@ class Edb(object):
             self.logger.info(dllpath)
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
-            self.logger.info("Builder Initialized")
+            self.logger.info("Builder was initialized.")
         else:
             self.builder = None
-            self.logger.error("Builder Not Initialized")
+            self.logger.error("Builder was not initialized.")
 
         return self.builder
 
@@ -394,7 +394,7 @@ class Edb(object):
             hdl = Convert.ToUInt64(self.oproject.GetEDBHandle())
             db = self.edb.Database.Attach(hdl)
             if not db:
-                self.logger.warning("Error Getting db")
+                self.logger.warning("Error getting the database.")
                 self._db = None
                 self._active_cell = None
                 self.builder = None
@@ -436,7 +436,7 @@ class Edb(object):
         self.edb.Database.SetRunAsStandAlone(self.standalone)
         db = self.edb.Database.Create(self.edbpath)
         if not db:
-            self.logger.warning("Error Creating db")
+            self.logger.warning("Error creating the database.")
             self._db = None
             self._active_cell = None
             self.builder = None
@@ -458,23 +458,26 @@ class Edb(object):
         self, input_file, working_dir, init_dlls=False, anstranslator_full_path="", use_ppe=False, control_file=None
     ):
         """Import a board file and generate an ``edb.def`` file in the working directory.
-        It supports all AEDT Formats (dxf, gds, xml (ipc2581), brd, tgz....).
+        
+        This fuction supports all AEDT formats (dxf, gds, xml (ipc2581), brd, tgz ...).
 
         Parameters
         ----------
         input_file : str
             Full path to the board file.
         working_dir : str
-            Directory in which to create the ``aedb`` folder. The AEDB file name will be the
-            same as the BRD file name.
+            Directory in which to create the ``aedb`` folder. The name given to the AEDB file
+            is the same as the name of the board file.
         init_dlls : bool
             Whether to initialize DLLs. The default is ``False``.
         anstranslator_full_path : str, optional
             Full path to the Ansys translator. The default is ``""``.
         use_ppe : bool
-            Whether to use or not PPE License. The default is ``False``.
+            Whether to use the PPE License. The default is ``False``.
         control_file : str, optional
-            Path to xml file. If None, the tool will try to get it from the same path/name of the gds/dxf.
+            Path to the XML file. The default is ``None``, in which case an attempt is made to find
+            the XML file in the same directory as the board file. To succeed, the XML file and board file
+            must have the same name. Only the extension differs.
 
         Returns
         -------
@@ -540,10 +543,13 @@ class Edb(object):
         Parameters
         ----------
         ipc_path : str, optional
-            Path to the XML file. The default is ``None``.
+            Path to the XML file. The default is ``None``, in which case an attempt is made to find
+            the XML file in the same directory as the active EDB. To succeed, the XML file and active
+            EDT must have the same name. Only the extension differs.   
         units : str, optional
             Units of the IPC2581 file. Options are ``"millimeter"``,
             ``"inch"``, and ``"micron"``.The default is ``"millimeter"``.
+        
         Returns
         -------
         bool
@@ -551,12 +557,12 @@ class Edb(object):
 
         """
         if units.lower() not in ["millimeter", "inch", "micron"]:
-            self.logger.warning("Wrong unit entered. Setting default to millimiter")
+            self.logger.warning("The wrong unit is entered. Setting to the default, millimiter.")
             units = "millimeter"
 
         if not ipc_path:
             ipc_path = self.edbpath[:-4] + "xml"
-        self.logger.info("Export IPC 2581 is starting. This operation can take a while...")
+        self.logger.info("Export IPC 2581 is starting. This operation can take a while.")
         start = time.time()
         try:
             result = self.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout(
@@ -568,7 +574,7 @@ class Edb(object):
                 self.logger.info("File saved as %s", ipc_path)
                 return ipc_path
         except Exception as e:
-            self.logger.info("Error Exporting IPC 2581.")
+            self.logger.info("Error exporting IPC 2581.")
             self.logger.info(str(e))
             return False
 
@@ -594,7 +600,7 @@ class Edb(object):
 
     @property
     def db(self):
-        """Db object."""
+        """Database object."""
         return self._db
 
     @property
@@ -864,18 +870,19 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def import_cadence_file(self, inputBrd, WorkDir=None, anstranslator_full_path="", use_ppe=False):
-        """Import a BRD file and generate an ``edb.def`` file in the working directory.
+        """Import a board file and generate an ``edb.def`` file in the working directory.
 
         Parameters
         ----------
         inputBrd : str
-            Full path to the BRD file.
-        WorkDir : str
-            Directory in which to create the ``aedb`` folder. The AEDB file name will be
-            the same as the BRD file name. The default value is ``None``.
+            Full path to the board file.
+        WorkDir : str, optional
+            Directory in which to create the ``aedb`` folder. The default value is ``None``,
+            in which case the AEDB file is given the same name as the board file. Only
+            the extension differs.
         anstranslator_full_path : str, optional
             Full path to the Ansys translator.
-        use_ppe : bool
+        use_ppe : bool, optional
             Whether to use the PPE License. The default is ``False``.
 
         Returns
@@ -900,14 +907,17 @@ class Edb(object):
         inputGDS : str
             Full path to the GDS file.
         WorkDir : str, optional
-            Directory in which to create the ``aedb`` folder. The AEDB file name will be
-            the same as the GDS file name. The default value is ``None``.
+            Directory in which to create the ``aedb`` folder. The default value is ``None``,
+            in which case the AEDB file is given the same name as the GDS file. Only the extension
+            differs.
         anstranslator_full_path : str, optional
             Full path to the Ansys translator.
-        use_ppe : bool
+        use_ppe : bool, optional
             Whether to use the PPE License. The default is ``False``.
         control_file : str, optional
-            Path to xml file. If None, the tool will try to get it from the same path/name of the gds.
+            Path to the XML file. The default is ``None``, in which case an attempt is made to find
+            the XML file in the same directory as the GDS file. To succeed, the XML file and GDS file must
+            have the same name. Only the extension differs.
 
         Returns
         -------
@@ -1053,12 +1063,12 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def get_conformal_polygon_from_netlist(self, netlist=None):
-        """Return an EDB conformal polygon based on net list.
+        """Return an EDB conformal polygon based on a netlist.
 
         Parameters
         ----------
 
-        netlist : List of net name.
+        netlist : List of net names.
             list[str]
 
         Returns
@@ -1316,10 +1326,10 @@ class Edb(object):
         Parameters
         ----------
         path_to_output : str
-            Full path to the configuration file in which to save 3D export options.
+            Full path to the configuration file to save 3D export options to.
 
         config_dictionaries : dict, optional
-            The default is ``None``.
+            Configuration dictionaries. The default is ``None``.
 
         """
         option_config = {
@@ -1357,11 +1367,11 @@ class Edb(object):
             Full path and name for saving the AEDT file.
         net_list : list, optional
             List of nets to export if only certain ones are to be exported.
-            The default is ``None``.
+            The default is ``None``, in which case all nets are eported.
         num_cores : int, optional
             Number of cores to use for the export. The default is ``None``.
         aedt_file_name : str, optional
-            Name of the AEDT output file (without the ``.aedt`` extension). The default is ``None``,
+            Name of the AEDT output file without the ``.aedt`` extension. The default is ``None``,
             in which case the default name is used.
 
         Returns
@@ -1395,11 +1405,11 @@ class Edb(object):
             Full path and name for saving the AEDT file.
         net_list : list, optional
             List of nets to export only if certain ones are to be exported.
-            The default is ``None``.
+            The default is ``None``, in which case all nets are eported.
         num_cores : int, optional
             Number of cores to use for the export. The default is ``None``.
         aedt_file_name : str, optional
-            Name of the AEDT output file (without the ``.aedt`` extension). The default is ``None``,
+            Name of the AEDT output file without the ``.aedt`` extension. The default is ``None``,
             in which case the default name is used.
 
         Returns
@@ -1436,11 +1446,11 @@ class Edb(object):
             Full path and name for saving the AEDT file.
         net_list : list, optional
             List of nets to export only if certain ones are to be
-            exported. The default is ``None``.
+            exported. The default is ``None``, in which case all nets are exported.
         num_cores : int, optional
             Number of cores to use for the export. The default is ``None.``
         aedt_file_name : str, optional
-            Name of the AEDT output file (without the ``.aedt`` extension). The default is ``None``,
+            Name of the AEDT output file without the ``.aedt`` extension. The default is ``None``,
             in which case the default name is used.
 
         Returns
@@ -1489,7 +1499,8 @@ class Edb(object):
         Parameters
         ----------
         variable_name : str
-            Name of the variable. To be added as a project variable, the name must begin with ``$``.
+            Name of the variable. To added the variable as a project variable, the name
+            must begin with ``$``.
         variable_value : str, float
             Value of the variable with units.
         is_parameter : bool, optional
@@ -1574,7 +1585,7 @@ class Edb(object):
                 var_server = self.db.GetVariableServer()
                 string_message = [
                     "Value of the project variable %s has been changed from %s to %s.",
-                    "Project variable %s doesn't exist. You can create it using method add_design_variable.",
+                    "Project variable %s doesn't exist. You can create it using the method add_design_variable.",
                 ]
             else:
                 var_server = self.active_cell.GetVariableServer()
@@ -1588,7 +1599,7 @@ class Edb(object):
             string_message = [
                 "Value of the local variable %s has been changed from %s to %s.",
                 "Local variable or parameter default %s doesn't exist."
-                " You can create it using method add_design_variable.",
+                " You can create it using the method add_design_variable.",
             ]
         variables = var_server.GetAllVariableNames()
         if variable_name in list(variables):
@@ -1608,7 +1619,7 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def get_bounding_box(self):
-        """Retrieve the layout bounding box.
+        """Get the layout bounding box.
 
         Returns
         -------
@@ -1711,10 +1722,10 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def get_statistics(self, compute_area=False):
-        """Return the EDBStatistics object.
+        """Get the EDBStatistics object.
 
         Returns
         -------
-        The EDBStatistics object from the loaded layout.
+        EDBStatistics object from the loaded layout.
         """
         return self.core_primitives.get_layout_statistics(evaluate_area=compute_area, net_list=None)
