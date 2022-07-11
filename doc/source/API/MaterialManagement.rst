@@ -1,7 +1,7 @@
-Material and Stackup
+Material and stackup
 ====================
 This section lists material and stackup modules.
-Those classes cannot be used directly and can be accessed through Application.
+These classes cannot be used directly but can be accessed through an app.
 Example:
 
 
@@ -27,10 +27,10 @@ Example:
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
-    # this call return the Materials Class
+    # This call returns the Materials class
     my_materials = app.materials
-    # this call return the Material Class
+    # This call returns the Material class
     copper = my_materials["copper"]
-    # this property is from MatProperty Class
+    # This property is from the MatProperty class
     copper.conductivity
     ...

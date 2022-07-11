@@ -1,10 +1,10 @@
-Mesh Operations
+Mesh operations
 ===============
 The ``Mesh`` module includes these classes:
 
-* Mesh for ``Hfss``, ``Maxwell2D``, ``Maxwell3d``, ``Q2d`` and ``Q3d``
-* IcepakMesh for ``Icepak``
-* Mesh3d for ``Hfss3dLayout``.
+* ``Mesh`` for HFSS, Maxwell 2D, Maxwell 3D, Q2D Extractor, and Q3D Extractor
+* ``IcepakMesh`` for Icepak
+* ``Mesh3d`` for HFSS 3D Layout
 
 They are accessible through the mesh property:
 
@@ -24,8 +24,8 @@ They are accessible through the mesh property:
     app = Maxwell3d(specified_version="2022.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
-    # this call return the Mesh Class
+    # This call returns the Mesh class
     my_mesh = app.mesh
-    # this call execute a Mesh Methods
+    # This call executes a Mesh method
     my_mesh.assign_surface_mesh("MyBox", 2)
     ...

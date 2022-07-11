@@ -1,6 +1,6 @@
-AEDT Modules
+AEDT modules
 ============
-This section lists the core PyAEDT application modules:
+This section lists the core PyAEDT app modules:
 
 * Design
 * Variable
@@ -21,10 +21,10 @@ design and project variables in the 3D tools.
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
-    # this call return the VariableManager Class
+    # This call returns the VariableManager Class
     variable_manager = self.aedtapp._variable_manager
 
-    # Set and Get a variable
+    # Set and get a variable
     app["w"] = "10mm"
     a = app["w"]
     ...
@@ -78,10 +78,11 @@ optimetrics setups.
 
 
 
-Boundary Class
+Boundary class
 ~~~~~~~~~~~~~~
 
-Boundary class is very important because it automates the creation of the AEDT Syntax for any boundary and excitation creation.
+Boundary class is very important because it automates the creation of the AEDT syntax for any
+boundary and excitation creation.
 
 .. toctree::
    :maxdepth: 2

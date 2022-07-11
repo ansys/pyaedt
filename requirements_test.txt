@@ -1,4 +1,4 @@
-pyvista==0.34.2
+pyvista==0.35.1
 matplotlib==3.5.2
 numpy==1.23.0
 pytest==7.1.2

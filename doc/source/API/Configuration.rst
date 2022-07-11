@@ -1,10 +1,10 @@
-Configurations Files
-~~~~~~~~~~~~~~~~~~~~
-This module contains all methods to export project settings to json file
-and import and apply settings to a new design.
-Currently the configuration covers the following applications:
-* Hfss
-* Q2d and Q3d
+Configuration files
+~~~~~~~~~~~~~~~~~~~
+This module contains all methods to export project settings to a JSON file
+and import and apply settings to a new design. Currently the configuration
+cover the following apps:
+* HFSS
+* Q2D and Q3D Extractor
 * Maxwell
 * Icepak
 * Mechanical
@@ -18,10 +18,10 @@ The sections covered are:
 * Object Properties
 * Boundaries and Excitations
 
-When a boundary is attached to a face the tool will try to match it with a
-FaceByPosition on the same object name on the target design.
-If, for any reason, that face position has changed or object name in the target design has changed,
-the boundary will fail to apply.
+When a boundary is attached to a face, the tool tries to match it with a
+FaceByPosition on the same object name on the target design. If, for any
+reason, this face position has changed or the object name in the target design has changed,
+the boundary fails to apply.
 
 
 .. currentmodule:: pyaedt.generic.configurations

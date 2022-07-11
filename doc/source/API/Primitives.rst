@@ -1,4 +1,4 @@
-Modeler and  Primitives
+Modeler and  primitives
 =======================
 
 This section lists the core AEDT Modeler modules:
@@ -16,23 +16,23 @@ They are accessible through the ``modeler`` and ``modeler.objects`` property:
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
-    # this call return the Modeler3D Class
+    # This call return the Modeler3D class
     modeler = app.modeler
 
-    # this call return a Primitives3D Object
+    # This call returns a Primitives3D object
     primitives = modeler
 
-    # this call return a Object3d Object
+    # This call return an Object3d object
     my_box = primitives.create_box([0,0,0],[10,10,10])
     my_box = primitives.objects[my_box.id]
 
-    # this call return a FacePrimitive Object List
+    # This call return a FacePrimitive object list
     my_box.faces
-    # this call return a EdgePrimitive Object List
+    # This call returns an EdgePrimitive object list
     my_box.edges
     my_box.faces[0].edges
 
-    # this call return a VertexPrimitive Object List
+    # This call returns a VertexPrimitive object list
     my_box.vertices
     my_box.faces[0].vertices
     my_box.faces[0].edges[0].vertices
@@ -43,14 +43,15 @@ They are accessible through the ``modeler`` and ``modeler.objects`` property:
 Modeler
 ~~~~~~~
 
-This module contains all properties and methods needed to edit a
-modeler, including all primitives methods and properties.
-* Modeler3D for ``Hfss``, ``Maxwell3d``, ``Q3d`` and ``Icepak``
-* Modeler2D for ``Maxwell2D`` ``Q2d``
-* Modeler3DLayout for ``Hfss3dLayout``
-* ModelerNexxim for ``Circuit``
-* ModelerTwinBuilder for ``TwinBuilder``
-* ModelerEmit for ``Emit``
+The ``Modeler`` module contains all properties and methods needed to edit a
+modeler, including all primitives methods and properties:
+
+* ``Modeler2D`` for Maxwell 2D and Q2D Extractor
+* ``Modeler3D`` for HFSS, Maxwell 3D, Q3D Extactor, and Icepak
+* ``Modeler3DLayout`` for HFSS 3D Layout
+* ``ModelerNexxim`` for Circuit
+* ``ModelerTwinBuilder`` for Twin Builder
+* ``ModelerEmit`` for Emit
 
 
 .. currentmodule:: pyaedt.modeler
@@ -72,13 +73,15 @@ Primitives
 ~~~~~~~~~~
 
 The ``Primitives`` module includes these classes:
-* Primitives3D for ``Hfss``, ``Maxwell3d``, ``Q3d`` and ``Icepak``
-* Primitives2D for ``Maxwell2D`` ``Q2d``
-* Primitives3DLayout for ``Hfss3dLayout``
-* NexximComponents for ``Circuit``
-* TwinBuilderComponents for ``TwinBuilder``
-* CircuitComponents for ``Emit``
-Primives objects are accessible through ``modeler`` property for
+
+* ``Primitives2D`` for Maxwell 2D and Q2D Extractor
+* ``Primitives3D`` for HFSS, Maxwell 3D, Q3D Extractor, and Icepak
+* ``Primitives3DLayout`` for HFSS 3D Layout
+* ``NexximComponents`` for Circuit
+* ``TwinBuilderComponents`` for Twin Builder
+* ``CircuitComponents`` for Emit
+
+Primives objects are accessible through the ``modeler`` property for
 EM Solver and ``modeler.components`` for circuit solvers.
 
 
@@ -103,7 +106,7 @@ EM Solver and ``modeler.components`` for circuit solvers.
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
-    # this call return the NexximComponents Class
+    # This call returns the NexximComponents class
     components = app.modeler.components
 
     ...
@@ -111,8 +114,8 @@ EM Solver and ``modeler.components`` for circuit solvers.
 
 Objects
 ~~~~~~~
-Those classes define the objects properties for 3D and 2D Solvers (excluding ``Hfss3dLayout``).
-It contains all getter and setter to simplify object manipulation.
+The following classes define objects properties for 3D and 2D Solvers (excluding HFSS 3D Layout).
+They contain all getters and setters to simplify object manipulation.
 
 
 .. currentmodule:: pyaedt.modeler
@@ -136,13 +139,13 @@ It contains all getter and setter to simplify object manipulation.
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
-    # this call return the Modeler3D Class
+    # This call returns the Modeler3D class
     modeler = app.modeler
 
-    # this call return a Primitives3D Object
+    # This call returns a Primitives3D object
     primitives = modeler
 
-    # this call return a Object3d Object
+    # This call returns an Object3d object
     my_box = primitives.create_box([0,0,0],[10,10,10])
 
     # Getter and setter
@@ -153,10 +156,10 @@ It contains all getter and setter to simplify object manipulation.
 
     ...
 
-Objects in Circuit
-~~~~~~~~~~~~~~~~~~
-Those classes define the objects properties for circuit tools.
-It contains all getter and setter to simplify object manipulation.
+Objects in circuit tools
+~~~~~~~~~~~~~~~~~~~~~~~~
+The following classes define the objects properties for circuit tools.
+They contain all getters and setters to simplify object manipulation.
 
 .. currentmodule:: pyaedt.modeler
 
@@ -174,13 +177,13 @@ It contains all getter and setter to simplify object manipulation.
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
-    # this call return the Modeler Class
+    # This call returns the Modeler class
     modeler = app.modeler
 
-    # this call return a Schematic Object
+    # This call returns a Schematic object
     schematic = modeler.schematic
 
-    # this call return a Object3d Object
+    # This call return an Object3d object
     my_res = schematic.create_resistor("R1", 50)
 
     # Getter and setter
@@ -191,10 +194,10 @@ It contains all getter and setter to simplify object manipulation.
     ...
 
 
-Objects in Hfss3d Layout
-~~~~~~~~~~~~~~~~~~~~~~~~
-Those classes define the objects properties for ``Hfss3dLayout``.
-It contains all getter and setter to simplify object manipulation.
+Objects in HFSS 3D Layout
+~~~~~~~~~~~~~~~~~~~~~~~~~
+The following classes define the object properties for HFSS 3D Layout.
+They contain all getters and setters to simplify object manipulation.
 
 .. currentmodule:: pyaedt.modeler
 
@@ -219,13 +222,13 @@ It contains all getter and setter to simplify object manipulation.
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
-    # this call return the Modeler3DLayout Class
+    # This call returns the Modeler3DLayout class
     modeler = app.modeler
 
-    # this call return a Primitives3D Object
+    # This call returns a Primitives3D object
     primitives = modeler
 
-    # this call return a Object3d Object
+    # This call return a Object3d object
     my_rect = primitives.create_rectangle([0,0,0],[10,10])
 
     # Getter and setter
@@ -234,13 +237,14 @@ It contains all getter and setter to simplify object manipulation.
     ...
 
 
-Coordinate System and Geometry Operators
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Coordinate systems and geometry operators
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This module contains all properties and methods needed to edit a
-Coordinate System and a set of useful Geometry Operators.
-CoordinateSystem Class is accessible through ``create_coordinate_system`` method or ``coordinate_systems`` list.
-GeometryOperators can be imported and used as it is made by static methods.
+coordinate system and a set of useful geometry operators.
+The ``CoordinateSystem`` class is accessible through the ``create_coordinate_system``
+method or the ``coordinate_systems`` list. The ``GeometryOperators`` class can be
+imported and used because it is made by static methods.
 
 
 .. currentmodule:: pyaedt.modeler
@@ -260,10 +264,10 @@ GeometryOperators can be imported and used as it is made by static methods.
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
-    # this call returns the CoordinateSystem Object lists
+    # This call returns the CoordinateSystem object list
     cs = app.modeler.coordinate_systems
 
-    # this call returns a CoordinateSystem Object
+    # This call returns a CoordinateSystem object
     new_cs = app.modeler.create_coordinate_system()
 
     ...

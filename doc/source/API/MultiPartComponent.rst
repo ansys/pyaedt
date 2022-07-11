@@ -1,4 +1,4 @@
-Multi-Part Components
+Multi-part components
 =====================
 This section lists classes for creating and editing multi-part components in the 3D tools. 
 This consists of a set of one or more 3D component objects, linked together and parametrized 
