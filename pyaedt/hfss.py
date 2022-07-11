@@ -5182,7 +5182,7 @@ class Hfss(FieldAnalysis3D, object):
         variations : ditc, optional
             Variation dictionary.
         overwrite : bool, optional
-            Whehter to overwrite FFD files. The default is ``True``.
+            Whether to overwrite FFD files. The default is ``True``.
         taper : str, optional
             Type of taper to apply. The default is ``"flat"``. Options are
             ``"cosine"``, ``"triangular"``, ``"hamming"``, and ``"flat"``.

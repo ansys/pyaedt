@@ -459,7 +459,7 @@ class Edb(object):
     ):
         """Import a board file and generate an ``edb.def`` file in the working directory.
         
-        This fuction supports all AEDT formats (dxf, gds, xml (ipc2581), brd, tgz ...).
+        This function supports all AEDT formats (DXF, GDS, SML (PIC2581), BRD, TGZ ...).
 
         Parameters
         ----------
