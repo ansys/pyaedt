@@ -1143,3 +1143,9 @@ class TestClass(BasisTest, object):
             assert "The name of the polyline cannot be an empty string." in str(exc_info.args[0])
         else:
             assert False
+
+    def test_78_get_touching_objects(self):
+        box1 = self.aedtapp.modeler.create_box([-20, -20, -20], [1, 1, 1])
+        box2 = self.aedtapp.modeler.create_box([-20, -20, -19], [0.2, 0.2, 0.2])
+        assert box2.name in box1.touching_objects
+        assert box1.name in box2.touching_objects
