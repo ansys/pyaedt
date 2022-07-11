@@ -2677,20 +2677,10 @@ class EDBComponent(object):
     @is_enabled.setter
     def is_enabled(self, enabled):
         """Enables the current object."""
-        if is_ironpython:
-            if self.edbcomponent.GetComponentType() in [
-                self._edb.Definition.ComponentType.Resistor,
-                self._edb.Definition.ComponentType.Capacitor,
-                self._edb.Definition.ComponentType.Inductor,
-            ]:
-                return self.edbcomponent.GetComponentProperty().SetEnabled(enabled)
-            else:
-                return False
+        if self.edbcomponent.GetComponentType() in [1, 2, 3]:
+            return self.edbcomponent.GetComponentProperty().SetEnabled(enabled)
         else:
-            if self.edbcomponent.GetComponentType() in [1, 2, 3]:
-                return self.edbcomponent.GetComponentProperty().SetEnabled(enabled)
-            else:
-                return False
+            return False
 
     @property
     def res_value(self):
