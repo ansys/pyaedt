@@ -1299,8 +1299,8 @@ class Object3d(object):
             a = [i for i in a if i != self.name and i not in list_names]
             if a:
                 list_names.extend(a)
-        for f in self.faces:
-            a = self._primitives.get_bodynames_from_position(f.center)
+        for face in self.faces:
+            a = self._primitives.get_bodynames_from_position(face.center)
             a = [i for i in a if i != self.name and i not in list_names]
             if a:
                 list_names.extend(a)
