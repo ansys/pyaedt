@@ -459,7 +459,7 @@ class Edb(object):
     ):
         """Import a board file and generate an ``edb.def`` file in the working directory.
         
-        This function supports all AEDT formats (DXF, GDS, SML (PIC2581), BRD, TGZ ...).
+        This function supports all AEDT formats (DXF, GDS, SML (IPC2581), BRD, TGZ ...).
 
         Parameters
         ----------
@@ -548,7 +548,7 @@ class Edb(object):
             EDT must have the same name. Only the extension differs.   
         units : str, optional
             Units of the IPC2581 file. Options are ``"millimeter"``,
-            ``"inch"``, and ``"micron"``.The default is ``"millimeter"``.
+            ``"inch"``, and ``"micron"``. The default is ``"millimeter"``.
         
         Returns
         -------
