@@ -26,10 +26,15 @@ import warnings
 
 from pyaedt import is_ironpython
 
-if os.name == "posix" and is_ironpython:
+if os.name == "nt":
+    IsWindows = True
+else:
+    IsWindows = False
+    os.environ["ANS_NODEPCHECK"] = str(1)
+
+if not IsWindows and is_ironpython:
     import subprocessdotnet as subprocess
 
-    os.environ["ANS_NODEPCHECK"] = str(1)
 
 else:
     import subprocess
@@ -45,11 +50,6 @@ pathname = os.path.dirname(__file__)
 
 pyaedtversion = __version__
 
-
-if os.name == "nt":
-    IsWindows = True
-else:
-    IsWindows = False
 
 if is_ironpython:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
