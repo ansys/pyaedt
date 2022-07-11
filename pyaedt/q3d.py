@@ -423,8 +423,8 @@ class Q3d(QExtractor, object):
         It works only in 2022 R2 and later. The remote server must be up and
         running with the command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
-        Process ID for the instance of AEDT to point PyAEDT to. This parameter
-        is only used when ``new_desktop_session = False``. 
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
@@ -1038,8 +1038,8 @@ class Q2d(QExtractor, object):
         This parameter is ignored when creating a new server. It works only in 2022 R2 or later.
         The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
-        Process ID for the instance of AEDT to point PyAEDT to. This parameter is
-        only used when ``new_desktop_session = False``.
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------

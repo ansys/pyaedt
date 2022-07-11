@@ -159,15 +159,16 @@ class Rmxprt(FieldAnalysisRMxprt):
         Whether to open the AEDT student version. The default is ``False``.
     machine : str, optional
         Machine name to connect the oDesktop session to. This works only in 2022 R2 or
-        later. The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
-        If the machine is `"localhost"`, the server also starts if not present.
+        later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`, the
+        server also starts if not present.
     port : int, optional
         Port number on which to start the oDesktop communication on an already existing server.
         This parameter is ignored when creating a new server. It works only in 2022 R2 or later.
         The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
-        Process ID for the instance of AEDT to point PyAEDT at. This parameter is
-        only used when ``new_desktop_session = False``.
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------

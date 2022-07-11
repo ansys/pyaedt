@@ -65,8 +65,8 @@ class Circuit(FieldAnalysisCircuit, object):
         later. The remote server must be up and running with the command
         `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
-        Process ID for the instance of AEDT to point PyAEDT at. This parameter is only
-        used when ``new_desktop_session = False``.
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
