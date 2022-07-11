@@ -1290,18 +1290,18 @@ class Object3d(object):
         """Get the objects that touch one of the vertex, edge midpoint or face of the object."""
         list_names = []
         for vertex in self.vertices:
-            a = self._primitives.get_bodynames_from_position(vertex.position)
-            a = [i for i in a if i != self.name and i not in list_names]
+            body_names = self._primitives.get_bodynames_from_position(vertex.position)
+            a = [i for i in body_names if i != self.name and i not in list_names]
             if a:
                 list_names.extend(a)
         for edge in self.edges:
-            a = self._primitives.get_bodynames_from_position(edge.midpoint)
-            a = [i for i in a if i != self.name and i not in list_names]
+            body_names = self._primitives.get_bodynames_from_position(edge.midpoint)
+            a = [i for i in body_names if i != self.name and i not in list_names]
             if a:
                 list_names.extend(a)
         for face in self.faces:
-            a = self._primitives.get_bodynames_from_position(face.center)
-            a = [i for i in a if i != self.name and i not in list_names]
+            body_names = self._primitives.get_bodynames_from_position(face.center)
+            a = [i for i in body_names if i != self.name and i not in list_names]
             if a:
                 list_names.extend(a)
         return list_names
