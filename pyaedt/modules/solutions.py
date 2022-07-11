@@ -98,14 +98,25 @@ class SolutionData(object):
 
     @pyaedt_function_handler()
     def variation_values(self, variation_name):
+        """Get the list of the specific variation available values.
+
+        Parameters
+        ----------
+        variation_name : str
+            Name of variation to return.
+
+        Returns
+        -------
+        list
+        """
         if variation_name in self.intrinsics:
             return self.intrinsics[variation_name]
         else:
-            vars = []
+            vars_vals = []
             for el in self.variations:
-                if variation_name in el and el[variation_name] not in vars:
-                    vars.append(el[variation_name])
-            return vars
+                if variation_name in el and el[variation_name] not in vars_vals:
+                    vars_vals.append(el[variation_name])
+            return vars_vals
 
     @property
     def intrinsics(self):
