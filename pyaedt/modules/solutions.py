@@ -47,11 +47,9 @@ class SolutionData(object):
         self._nominal_variation = None
         self._nominal_variation = self._original_data[0]
         self.active_expression = self.expressions[0]
-        self._sweeps = None
         self._sweeps_names = []
         self.update_sweeps()
         self.variations = self._get_variations()
-        self.intrinsics = self._get_intrinsics()
         self.active_intrinsic = OrderedDict({})
         for k, v in self.intrinsics.items():
             self.active_intrinsic[k] = v[0]
@@ -84,6 +82,7 @@ class SolutionData(object):
         """
         if var_id < len(self.variations):
             self.active_variation = self.variations[var_id]
+            self.nominal_variation = var_id
             return True
         return False
 
@@ -98,7 +97,19 @@ class SolutionData(object):
         return variations_lists
 
     @pyaedt_function_handler()
-    def _get_intrinsics(self):
+    def variation_values(self, variation_name):
+        if variation_name in self.intrinsics:
+            return self.intrinsics[variation_name]
+        else:
+            vars = []
+            for el in self.variations:
+                if variation_name in el and el[variation_name] not in vars:
+                    vars.append(el[variation_name])
+            return vars
+
+    @property
+    def intrinsics(self):
+        "Get intrinics dictionary on active variation."
         _sweeps = OrderedDict({})
         intrinsics = [i for i in self._sweeps_names if i not in self.nominal_variation.GetDesignVariableNames()]
         for el in intrinsics:
@@ -106,16 +117,6 @@ class SolutionData(object):
             _sweeps[el] = [i for i in values]
             _sweeps[el] = list(OrderedDict.fromkeys(_sweeps[el]))
         return _sweeps
-
-    @property
-    def _sweeps_siunits(self):
-        """SI units for the sweep."""
-        data = {}
-        for el in self._sweeps:
-            data[el] = self._convert_list_to_SI(
-                self._sweeps[el], self._quantity(self.units_sweeps[el]), self.units_sweeps[el]
-            )
-        return data
 
     @property
     def nominal_variation(self):
@@ -126,7 +127,6 @@ class SolutionData(object):
     def nominal_variation(self, val):
         if 0 <= val <= self.number_of_variations:
             self._nominal_variation = self._original_data[val]
-            self._init_solutions_data()
         else:
             print(str(val) + " not in Variations")
 
@@ -158,11 +158,7 @@ class SolutionData(object):
         self._solutions_imag = self._solution_data_imag()
         self._solutions_mag = {}
         self.units_data = {}
-        if len(self._original_data) > 1:
-            for data in self._original_data:
-                for v in data.GetDesignVariableNames():
-                    if v not in self._sweeps_names:
-                        self._sweeps_names.append(v)
+
         for expr in self.expressions:
             self._solutions_mag[expr] = {}
             self.units_data[expr] = self.nominal_variation.GetDataUnits(expr)
@@ -182,24 +178,11 @@ class SolutionData(object):
         """
 
         names = list(self.nominal_variation.GetSweepNames())
-        self._sweeps = OrderedDict({})
-
-        for el in names:
-            values = list(self.nominal_variation.GetSweepValues(el, False))
-            self._sweeps[el] = [i for i in values]
-            self._sweeps[el] = list(OrderedDict.fromkeys(self._sweeps[el]))
         for data in self._original_data:
             for v in data.GetDesignVariableNames():
-                if v not in self._sweeps:
-                    self._sweeps[v] = [data.GetDesignVariableValue(v)]
+                if v not in self._sweeps_names:
                     self._sweeps_names.append(v)
-                else:
-                    self._sweeps[v].append(data.GetDesignVariableValue(v))
-        for k, v in self._sweeps.items():
-            self._sweeps[k] = list(set(v))
-            self._sweeps[k].sort()
         self._sweeps_names.extend((reversed(names)))
-        return self._sweeps
 
     @staticmethod
     @pyaedt_function_handler()
@@ -225,17 +208,17 @@ class SolutionData(object):
     def _solution_data_real(self):
         """ """
         sols_data = {}
-        for expression in self.expressions:
 
-            solution = []
-            for data in self._original_data:
-                solution.extend(list(data.GetRealDataValues(expression, False)))
-            values = []
-            for el in list(self.intrinsics.keys()):
-                values.append(self.intrinsics[el])
+        for expression in self.expressions:
             solution_Data = {}
-            i = 0
-            for comb in self.variations:
+
+            for data, comb in zip(self._original_data, self.variations):
+                solution = list(data.GetRealDataValues(expression, False))
+                values = []
+                for el in list(self.intrinsics.keys()):
+                    values.append(list(OrderedDict.fromkeys(data.GetSweepValues(el, False))))
+
+                i = 0
                 c = [comb[v] for v in list(comb.keys())]
                 for t in itertools.product(*values):
                     solution_Data[tuple(c + list(t))] = solution[i]
@@ -247,21 +230,19 @@ class SolutionData(object):
     def _solution_data_imag(self):
         """ """
         sols_data = {}
-        for expression in self.expressions:
 
-            solution = []
-            for data in self._original_data:
+        for expression in self.expressions:
+            solution_Data = {}
+            for data, comb in zip(self._original_data, self.variations):
                 if data.IsDataComplex(expression):
-                    solution.extend(list(data.GetImagDataValues(expression, False)))
+                    solution = list(data.GetImagDataValues(expression, False))
                 else:
                     l = len(list(data.GetRealDataValues(expression, False)))
-                    solution.extend([0] * l)
-            values = []
-            for el in list(self.intrinsics.keys()):
-                values.append(self.intrinsics[el])
-            solution_Data = {}
-            i = 0
-            for comb in self.variations:
+                    solution = [0] * l
+                values = []
+                for el in list(self.intrinsics.keys()):
+                    values.append(list(OrderedDict.fromkeys(data.GetSweepValues(el, False))))
+                i = 0
                 c = [comb[v] for v in list(comb.keys())]
                 for t in itertools.product(*values):
                     solution_Data[tuple(c + list(t))] = solution[i]
@@ -342,7 +323,8 @@ class SolutionData(object):
         solution_Data = self._solutions_mag[expression]
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
-        for el in self._sweeps[self.primary_sweep]:
+        sw = self.variation_values(self.primary_sweep)
+        for el in sw:
             temp[position] = el
             try:
                 sol.append(solution_Data[tuple(temp)])
@@ -490,7 +472,7 @@ class SolutionData(object):
             List of the primary sweep valid points for the expression.
 
         """
-        return self._sweeps[self.primary_sweep]
+        return self.variation_values(self.primary_sweep)
 
     @property
     def primary_sweep_variations(self):
@@ -509,7 +491,7 @@ class SolutionData(object):
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
 
-        for el in self._sweeps[self.primary_sweep]:
+        for el in self.primary_sweep_values:
             temp[position] = el
             if tuple(temp) in solution_Data:
                 sol_dict = OrderedDict({})
@@ -549,7 +531,7 @@ class SolutionData(object):
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
 
-        for el in self._sweeps[self.primary_sweep]:
+        for el in self.primary_sweep_values:
             temp[position] = el
             try:
                 sol.append(solution_Data[tuple(temp)])
@@ -588,7 +570,7 @@ class SolutionData(object):
         solution_Data = self._solutions_imag[expression]
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
-        for el in self._sweeps[self.primary_sweep]:
+        for el in self.primary_sweep_values:
             temp[position] = el
             try:
                 sol.append(solution_Data[tuple(temp)])
@@ -713,9 +695,9 @@ class SolutionData(object):
         data_plot = []
         sweep_name = self.primary_sweep
         if is_polar:
-            sw = self.to_radians(self._sweeps[sweep_name])
+            sw = self.to_radians(self.primary_sweep_values)
         else:
-            sw = self._sweeps[sweep_name]
+            sw = self.primary_sweep_values
         for curve in curves:
             if not math_formula:
                 data_plot.append([sw, self.data_real(curve), curve])
@@ -789,10 +771,12 @@ class SolutionData(object):
 
         if not math_formula:
             math_formula = "mag"
-        theta = self.to_radians(self._sweeps[x_axis])
+        theta = self.variation_values(x_axis)
+        y_axis_val = self.variation_values(y_axis)
+
         phi = []
         r = []
-        for el in self._sweeps[y_axis]:
+        for el in y_axis_val:
             self.active_variation[y_axis] = el
             phi.append(el * math.pi / 180)
 
@@ -840,10 +824,10 @@ class SolutionData(object):
         """
         if is_ironpython:
             return False
-        u = self._sweeps[u_axis]
-        if v_axis:
-            v = self._sweeps[v_axis]
-        freq = self._sweeps["Freq"]
+        u = self.variation_values(u_axis)
+        v = self.variation_values(v_axis)
+
+        freq = self.variation_values("Freq")
         vals_real_Ex = [j for j in self._solutions_real[curve_header + "X"].values()]
         vals_imag_Ex = [j for j in self._solutions_imag[curve_header + "X"].values()]
         vals_real_Ey = [j for j in self._solutions_real[curve_header + "Y"].values()]
@@ -928,8 +912,9 @@ class SolutionData(object):
         if not coord_system_center:
             coord_system_center = [0, 0, 0]
         t_matrix = self._ifft
-        x_c_list = self._sweeps[u_axis]
-        y_c_list = self._sweeps[v_axis]
+        x_c_list = self.variation_values(u_axis)
+        y_c_list = self.variation_values(v_axis)
+
         adj_x = coord_system_center[0]
         adj_y = coord_system_center[1]
         adj_z = coord_system_center[2]
