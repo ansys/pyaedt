@@ -2673,7 +2673,7 @@ class EDBComponent(object):
             ``True`` if current object is enabled, ``False`` otherwise.
         """
         if self.type in ["Resistor", "Capacitor", "Inductor"]:
-            return self.edbcomponent.GetComponentProperty().IsEnabled()
+            return self.component_property.IsEnabled()
         else:
             return False
 
@@ -2681,9 +2681,8 @@ class EDBComponent(object):
     def is_enabled(self, enabled):
         """Enables the current object."""
         if self.type in ["Resistor", "Capacitor", "Inductor"]:
-            return self.edbcomponent.GetComponentProperty().SetEnabled(enabled)
-        else:
-            return False
+            self.component_property.SetEnabled(enabled)
+            self.edbcomponent.SetComponentProperty(self.component_property)
 
     @property
     def res_value(self):
@@ -2696,8 +2695,7 @@ class EDBComponent(object):
         """
         cmp_type = int(self.edbcomponent.GetComponentType())
         if 0 < cmp_type < 4:
-            componentProperty = self.edbcomponent.GetComponentProperty()
-            model = componentProperty.GetModel()
+            model = self.component_property.GetModel().Clone()
             pinpairs = model.PinPairs
             for pinpair in pinpairs:
                 pair = model.GetPinPairRlc(pinpair)
@@ -2715,8 +2713,7 @@ class EDBComponent(object):
         """
         cmp_type = int(self.edbcomponent.GetComponentType())
         if 0 < cmp_type < 4:
-            componentProperty = self.edbcomponent.GetComponentProperty()
-            model = componentProperty.GetModel()
+            model = self.component_property.GetModel().Clone()
             pinpairs = model.PinPairs
             for pinpair in pinpairs:
                 pair = model.GetPinPairRlc(pinpair)
@@ -2734,8 +2731,7 @@ class EDBComponent(object):
         """
         cmp_type = int(self.edbcomponent.GetComponentType())
         if 0 < cmp_type < 4:
-            componentProperty = self.edbcomponent.GetComponentProperty()
-            model = componentProperty.GetModel()
+            model = self.component_property.GetModel().Clone()
             pinpairs = model.PinPairs
             for pinpair in pinpairs:
                 pair = model.GetPinPairRlc(pinpair)
@@ -2753,8 +2749,7 @@ class EDBComponent(object):
         """
         cmp_type = int(self.edbcomponent.GetComponentType())
         if 0 < cmp_type < 4:
-            componentProperty = self.edbcomponent.GetComponentProperty()
-            model = componentProperty.GetModel()
+            model = self.component_property.GetModel().Clone()
             pinpairs = model.PinPairs
             for pinpair in pinpairs:
                 pair = model.GetPinPairRlc(pinpair)
@@ -2905,7 +2900,7 @@ class EDBComponent(object):
         str
            Name of the placement layer.
         """
-        return self.edbcomponent.GetPlacementLayer().GetName()
+        return self.edbcomponent.GetPlacementLayer().Clone().GetName()
 
     @property
     def lower_elevation(self):
@@ -2916,7 +2911,7 @@ class EDBComponent(object):
         float
             Lower elevation of the placement layer.
         """
-        return self.edbcomponent.GetPlacementLayer().GetLowerElevation()
+        return self.edbcomponent.GetPlacementLayer().Clone().GetLowerElevation()
 
     @property
     def upper_elevation(self):
@@ -2928,7 +2923,7 @@ class EDBComponent(object):
             Upper elevation of the placement layer.
 
         """
-        return self.edbcomponent.GetPlacementLayer().GetUpperElevation()
+        return self.edbcomponent.GetPlacementLayer().Clone().GetUpperElevation()
 
     @property
     def top_bottom_association(self):
