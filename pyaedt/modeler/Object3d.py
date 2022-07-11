@@ -1294,8 +1294,8 @@ class Object3d(object):
             a = [i for i in a if i != self.name and i not in list_names]
             if a:
                 list_names.extend(a)
-        for e in self.edges:
-            a = self._primitives.get_bodynames_from_position(e.midpoint)
+        for edge in self.edges:
+            a = self._primitives.get_bodynames_from_position(edge.midpoint)
             a = [i for i in a if i != self.name and i not in list_names]
             if a:
                 list_names.extend(a)
