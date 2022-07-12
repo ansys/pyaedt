@@ -610,8 +610,8 @@ class Primitives3D(Primitives, object):
             Coordinate system plane for orienting the rectangle.
             :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
         position : list or Position
-            List of ``[x, y, z]`` coordinates for the center point of the rectangle or
-            the positionApplicationName.modeler.Position(x,y,z) object.
+            List of ``[x, y, z]`` coordinates of the lower-left corner of the rectangle or
+            the position ApplicationName.modeler.Position(x,y,z) object.
         dimension_list : list
             List of ``[width, height]`` dimensions.
         name : str, optional
