@@ -1259,7 +1259,10 @@ class ModelPlotter(object):
                 self.actor = actor
 
             def __call__(self, state):
-                self.actor.SetVisibility(state)
+                try:
+                    self.actor._cached_mesh.SetVisibility(state)
+                except AttributeError:
+                    self.actor.SetVisibility(state)
 
         class ChangePageCallback:
             """Helper callback to keep a reference to the actor being modified."""
@@ -1277,7 +1280,10 @@ class ModelPlotter(object):
                 self.text = []
 
             def __call__(self, state):
-                self.plot.button_widgets = [self.plot.button_widgets[0]]
+                try:
+                    self.plot.button_widgets = [self.plot.button_widgets[0]]
+                except:
+                    self.plot.button_widgets = []
                 self.id += 1
                 k = 0
                 startpos = self.startpos
@@ -1288,7 +1294,7 @@ class ModelPlotter(object):
                 self.text = []
                 k = 0
 
-                while k < self.max_elements:
+                while k < min(self.max_elements, len(self.actors)):
                     if self.i >= len(self.actors):
                         self.i = 0
                         self.id = 0
@@ -1315,50 +1321,55 @@ class ModelPlotter(object):
                     k += 1
                     self.i += 1
 
-        el = 1
-        for actor in self.objects:
-            if el < max_elements:
-                callback = SetVisibilityCallback(actor._cached_mesh)
-                buttons.append(
-                    self.pv.add_checkbox_button_widget(
-                        callback,
-                        value=True,
-                        position=(5.0, startpos + 50),
-                        size=size,
-                        border_size=1,
-                        color_on=[i / 255 for i in actor.color],
-                        color_off="grey",
-                        background_color=None,
-                    )
-                )
-                texts.append(
-                    self.pv.add_text(actor.name, position=(50.0, startpos + 50), font_size=size // 3, color=axes_color)
-                )
-                startpos = startpos - size - (size // 10)
-                el += 1
-        for actor in self.fields:
-            if actor._cached_mesh and el < max_elements:
-                callback = SetVisibilityCallback(actor._cached_mesh)
-                buttons.append(
-                    self.pv.add_checkbox_button_widget(
-                        callback,
-                        value=True,
-                        position=(5.0, startpos + 50),
-                        size=size,
-                        border_size=1,
-                        color_on="blue",
-                        color_off="grey",
-                        background_color=None,
-                    )
-                )
-                texts.append(
-                    self.pv.add_text(actor.name, position=(50.0, startpos + 50), font_size=size // 3, color=axes_color)
-                )
-                startpos = startpos - size - (size // 10)
-                el += 1
+        # el = 1
+        # for actor in self.objects:
+        #     if el < max_elements:
+        #         callback = SetVisibilityCallback(actor._cached_mesh)
+        #         buttons.append(
+        #             self.pv.add_checkbox_button_widget(
+        #                 callback,
+        #                 value=True,
+        #                 position=(5.0, startpos + 50),
+        #                 size=size,
+        #                 border_size=1,
+        #                 color_on=[i / 255 for i in actor.color],
+        #                 color_off="grey",
+        #                 background_color=None,
+        #             )
+        #         )
+        #         texts.append(
+        #             self.pv.add_text(actor.name, position=(50.0, startpos + 50), font_size=size // 3,
+        #             color=axes_color)
+        #         )
+        #         startpos = startpos - size - (size // 10)
+        #         el += 1
+        # for actor in self.fields:
+        #     if actor._cached_mesh and el < max_elements:
+        #         callback = SetVisibilityCallback(actor._cached_mesh)
+        #         buttons.append(
+        #             self.pv.add_checkbox_button_widget(
+        #                 callback,
+        #                 value=True,
+        #                 position=(5.0, startpos + 50),
+        #                 size=size,
+        #                 border_size=1,
+        #                 color_on="blue",
+        #                 color_off="grey",
+        #                 background_color=None,
+        #             )
+        #         )
+        #         texts.append(
+        #             self.pv.add_text(actor.name, position=(50.0, startpos + 50), font_size=size // 3,
+        #             color=axes_color)
+        #         )
+        #         startpos = startpos - size - (size // 10)
+        #         el += 1
         actors = [i for i in self._fields if i._cached_mesh] + self._objects
-        if texts and len(texts) >= max_elements:
-            callback = ChangePageCallback(self.pv, actors, axes_color)
+        # if texts and len(texts) < len(actors):
+        callback = ChangePageCallback(self.pv, actors, axes_color)
+
+        callback.__call__(False)
+        if callback.max_elements < len(actors):
             self.pv.add_checkbox_button_widget(
                 callback,
                 value=True,

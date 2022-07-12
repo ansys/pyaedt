@@ -262,8 +262,7 @@ class PostProcessor(Post):
             generate_mesh=False,
         )
 
-        if not show:
-            model.off_screen = True
+        model.off_screen = not show
         if export_path:
             model.plot(export_path)
         elif show:

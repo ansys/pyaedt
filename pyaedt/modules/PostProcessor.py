@@ -3052,7 +3052,8 @@ class PostProcessor(PostProcessorCommon, object):
         list
             Files obj path.
         """
-
+        if obj_list and not isinstance(obj_list, (list, tuple)):
+            obj_list = [obj_list]
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
         if not export_path:
             export_path = self._app.working_directory
