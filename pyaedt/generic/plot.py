@@ -1321,50 +1321,10 @@ class ModelPlotter(object):
                     k += 1
                     self.i += 1
 
-        # el = 1
-        # for actor in self.objects:
-        #     if el < max_elements:
-        #         callback = SetVisibilityCallback(actor._cached_mesh)
-        #         buttons.append(
-        #             self.pv.add_checkbox_button_widget(
-        #                 callback,
-        #                 value=True,
-        #                 position=(5.0, startpos + 50),
-        #                 size=size,
-        #                 border_size=1,
-        #                 color_on=[i / 255 for i in actor.color],
-        #                 color_off="grey",
-        #                 background_color=None,
-        #             )
-        #         )
-        #         texts.append(
-        #             self.pv.add_text(actor.name, position=(50.0, startpos + 50), font_size=size // 3,
-        #             color=axes_color)
-        #         )
-        #         startpos = startpos - size - (size // 10)
-        #         el += 1
-        # for actor in self.fields:
-        #     if actor._cached_mesh and el < max_elements:
-        #         callback = SetVisibilityCallback(actor._cached_mesh)
-        #         buttons.append(
-        #             self.pv.add_checkbox_button_widget(
-        #                 callback,
-        #                 value=True,
-        #                 position=(5.0, startpos + 50),
-        #                 size=size,
-        #                 border_size=1,
-        #                 color_on="blue",
-        #                 color_off="grey",
-        #                 background_color=None,
-        #             )
-        #         )
-        #         texts.append(
-        #             self.pv.add_text(actor.name, position=(50.0, startpos + 50), font_size=size // 3,
-        #             color=axes_color)
-        #         )
-        #         startpos = startpos - size - (size // 10)
-        #         el += 1
-        actors = [i for i in self._fields if i._cached_mesh] + self._objects
+        if len(self.objects) > 100:
+            actors = [i for i in self._fields if i._cached_mesh] + self._objects
+        else:
+            actors = [i for i in self._fields if i._cached_mesh] + self._objects
         # if texts and len(texts) < len(actors):
         callback = ChangePageCallback(self.pv, actors, axes_color)
 

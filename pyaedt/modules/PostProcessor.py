@@ -1187,7 +1187,7 @@ class PostProcessorCommon(object):
         >>> oModule.ExportReportDataToFile
         >>> oModule.ExportToFile
         """
-        npath = os.path.normpath(output_dir)
+        npath = output_dir
 
         if "." not in extension:
             extension = "." + extension
@@ -1259,7 +1259,7 @@ class PostProcessorCommon(object):
         >>> oModule.ExportImageToFile
         """
         # path
-        npath = os.path.normpath(project_dir)
+        npath = project_dir
         file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
         self.oreportsetup.ExportImageToFile(plot_name, file_name, 0, 0)
         return True

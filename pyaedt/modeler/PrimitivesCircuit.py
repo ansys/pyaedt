@@ -353,9 +353,8 @@ class CircuitComponents(object):
         num_terminal = int(os.path.splitext(touchstone_full_path)[1].lower().strip(".sp"))
         with open(touchstone_full_path, "r") as f:
             port_names = _parse_ports_name(f)
-        image_subcircuit_path = os.path.normpath(
-            os.path.join(self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp")
-        )
+        image_subcircuit_path = os.path.join(self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp")
+
         if not port_names:
             port_names = ["Port" + str(i + 1) for i in range(num_terminal)]
         arg = [
