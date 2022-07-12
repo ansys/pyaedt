@@ -24,7 +24,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 7 Asymmetric Conductor"
 Solver = "EddyCurrent"
-DesktopVersion = "2022.1"
+DesktopVersion = "2022.2"
 
 M3D = Maxwell3d(
     projectname=Project_Name, designname=Design_Name, solution_type=Solver, specified_version=DesktopVersion, non_graphical=non_graphical

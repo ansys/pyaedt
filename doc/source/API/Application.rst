@@ -1,10 +1,10 @@
-AEDT Applications
-=================
-The PyAEDT API includes classes for applications and modules. You must initialize the 
-application case. All other classes and methods are inherited into the application class.
-The desktop application is implicitly launched in any of the other applications.
+AEDT apps
+=========
+The PyAEDT API includes classes for apps and modules. You must initialize the 
+app case. All other classes and methods are inherited into the app class.
+The desktop app is implicitly launched in any of the other applications.
 
-Example with Desktop:
+Example with AEDT:
 
 .. code:: python
 
@@ -18,7 +18,7 @@ Example with Desktop:
      ...
      d.release_desktop()
 
-Example without Desktop:
+Example without desktop:
 
 .. code:: python
 

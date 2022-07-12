@@ -9,11 +9,9 @@ import warnings
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.EDB_Data import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SweepType
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
@@ -433,20 +431,9 @@ class EdbSiwave(object):
         pos_pin = source.positive_node.node_pins
         neg_pin = source.negative_node.node_pins
 
-        if is_ironpython:
-            res, fromLayer_pos, toLayer_pos = pos_pin.GetLayerRange()
-            res, fromLayer_neg, toLayer_neg = neg_pin.GetLayerRange()
-        else:
-            (
-                res,
-                fromLayer_pos,
-                toLayer_pos,
-            ) = source.positive_node.node_pins.GetLayerRange(None, None)
-            (
-                res,
-                fromLayer_neg,
-                toLayer_neg,
-            ) = source.negative_node.node_pins.GetLayerRange(None, None)
+        res, fromLayer_pos, toLayer_pos = pos_pin.GetLayerRange()
+        res, fromLayer_neg, toLayer_neg = neg_pin.GetLayerRange()
+
         pos_pingroup_terminal = _retry_ntimes(
             10,
             self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,

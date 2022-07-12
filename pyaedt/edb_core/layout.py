@@ -6,9 +6,9 @@ import os
 import warnings
 
 from pyaedt.edb_core.EDB_Data import EDBPrimitives
+from pyaedt.edb_core.EDB_Data import EDBStatistics
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 try:
@@ -18,7 +18,7 @@ try:
 
 except ImportError:
     if os.name != "posix":
-        warnings.warn("This module requires the Python.NET package.")
+        warnings.warn("This module requires the PythonNET package.")
 
 
 class EdbLayout(object):
@@ -467,6 +467,58 @@ class EdbLayout(object):
         return polygon
 
     @pyaedt_function_handler()
+    def create_trace(
+        self,
+        path_list,
+        layer_name,
+        width=1,
+        net_name="",
+        start_cap_style="Round",
+        end_cap_style="Round",
+        corner_style="Round",
+    ):
+        """
+        Create a trace based on a list of points.
+
+        Parameters
+        ----------
+        path_list : list
+            List of points.
+        layer_name : str
+            Name of the layer on which to create the path.
+        width : float, optional
+            Width of the path. The default is ``1``.
+        net_name : str, optional
+            Name of the net. The default is ``""``.
+        start_cap_style : str, optional
+            Style of the cap at its start. Options are ``"Round"``,
+            ``"Extended",`` and ``"Flat"``. The default is
+            ``"Round"``.
+        end_cap_style : str, optional
+            Style of the cap at its end. Options are ``"Round"``,
+            ``"Extended",`` and ``"Flat"``. The default is
+            ``"Round"``.
+        corner_style : str, optional
+            Style of the corner. Options are ``"Round"``,
+            ``"Sharp"`` and ``"Mitered"``. The default is ``"Round"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        path = self.Shape("Polygon", points=path_list)
+        return self.create_path(
+            path,
+            layer_name=layer_name,
+            net_name=net_name,
+            width=width,
+            start_cap_style=start_cap_style,
+            end_cap_style=end_cap_style,
+            corner_style=corner_style,
+        )
+
+    @pyaedt_function_handler()
     def create_polygon(self, main_shape, layer_name, voids=[], net_name=""):
         """Create a polygon based on a list of points and voids.
 
@@ -636,20 +688,13 @@ class EdbLayout(object):
         for void_circle in self.circles:
             if not void_circle.is_void:
                 continue
-            if is_ironpython:  # pragma: no cover
-                (
-                    res,
-                    center_x,
-                    center_y,
-                    radius,
-                ) = void_circle.primitive_object.GetParameters()
-            else:
-                (
-                    res,
-                    center_x,
-                    center_y,
-                    radius,
-                ) = void_circle.primitive_object.GetParameters(0.0, 0.0, 0.0)
+            (
+                res,
+                center_x,
+                center_y,
+                radius,
+            ) = void_circle.primitive_object.GetParameters()
+
             cloned_circle = self._edb.Cell.Primitive.Circle.Create(
                 self._active_layout,
                 void_circle.layer_name,
@@ -1128,3 +1173,52 @@ class EdbLayout(object):
         if isinstance(net, self._edb.Cell.Net):
             net.SetIsPowerGround(True)
             self._logger.info("NET: {} set to power/ground class".format(net.GetName()))
+
+    @pyaedt_function_handler()
+    def get_layout_statistics(self, evaluate_area=False, net_list=None):
+        """Return EDBStatistics object from a layout.
+
+        Parameters
+        ----------
+
+        evaluate_area : optional bool
+            When True evaluates the layout metal surface, can take time-consuming,
+            avoid using this option on large design.
+
+        Returns
+        -------
+
+        EDBStatistics object.
+
+        """
+        stat_model = EDBStatistics()
+        stat_model.num_layers = len(list(self._pedb.core_stackup.stackup_layers.layers.values()))
+        stat_model.num_capacitors = len(self._pedb.core_components.capacitors)
+        stat_model.num_resistors = len(self._pedb.core_components.resistors)
+        stat_model.num_inductors = len(self._pedb.core_components.inductors)
+        stat_model.layout_size = self._pedb._hfss.get_layout_bounding_box(self._active_layout)
+        stat_model.num_discrete_components = (
+            len(self._pedb.core_components.Others)
+            + len(self._pedb.core_components.ICs)
+            + len(self._pedb.core_components.IOs)
+        )
+        stat_model.num_inductors = len(self._pedb.core_components.inductors)
+        stat_model.num_resistors = len(self._pedb.core_components.resistors)
+        stat_model.num_capacitors = len(self._pedb.core_components.capacitors)
+        stat_model.num_nets = len(self._pedb.core_nets.nets)
+        stat_model.num_traces = len(self._pedb.core_primitives.paths)
+        stat_model.num_polygons = len(self._pedb.core_primitives.polygons)
+        stat_model.num_vias = len(self._pedb.core_padstack.padstack_instances)
+        stat_model.stackup_thickness = self._pedb.core_stackup.get_layout_thickness()
+        if evaluate_area:
+            if net_list:
+                netlist = list(self._pedb.core_nets.nets.keys())
+                _poly = self._pedb.get_conformal_polygon_from_netlist(netlist)
+            else:
+                _poly = self._pedb.get_conformal_polygon_from_netlist()
+            stat_model.occupying_surface = _poly.Area()
+            outline_surface = (stat_model.layout_size[2] - stat_model.layout_size[0]) * (
+                stat_model.layout_size[3] - stat_model.layout_size[1]
+            )
+            stat_model.occupying_ratio = stat_model.occupying_surface / outline_surface
+        return stat_model

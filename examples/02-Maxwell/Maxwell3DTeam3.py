@@ -24,7 +24,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 3 Bath Plate"
 Solver = "EddyCurrent"
-DesktopVersion = "2022.1"
+DesktopVersion = "2022.2"
 
 M3D = Maxwell3d(
     projectname=Project_Name,
@@ -115,9 +115,9 @@ M3D.eddy_effects_on(["SearchCoil"], activate_eddy_effects=False, activate_displa
 # Add a linear parametric sweep for the two coil positions
 sweepname = "CoilSweep"
 param = M3D.parametrics.add("Coil_Position", -20, 0, 20, "LinearStep", parametricname=sweepname)
-param.props["ProdOptiSetupDataV2"]["SaveFields"] = True
-param.props["ProdOptiSetupDataV2"]["CopyMesh"] = False
-param.props["ProdOptiSetupDataV2"]["SolveWithCopiedMeshOnly"] = True
+param["SaveFields"] = True
+param["CopyMesh"] = False
+param["SolveWithCopiedMeshOnly"] = True
 
 # Solve the model, we solve the parametric sweep directly so results of all variations are available.
 M3D.analyze_setup(sweepname)

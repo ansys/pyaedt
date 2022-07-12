@@ -1,4 +1,4 @@
-PyAEDT Documentation  |version|
+PyAEDT documentation  |version|
 ===============================
 
 ..

@@ -2822,7 +2822,7 @@ class Hfss(FieldAnalysis3D, object):
         sourcename : str, optional
             Perfect H name. The default is ``None``.
         rlctype : str, optional
-            Type of the RLC. Options are ``"Parallel"`` and ``"Series"``.
+            Type of the RLC. Options are ``"Parallel"`` and ``"Serial"``.
             The default is ``"Parallel"``.
         Rvalue : optional
             Resistance value in ohms. The default is ``None``,
@@ -2882,7 +2882,7 @@ class Hfss(FieldAnalysis3D, object):
             props = OrderedDict()
             props["Objects"] = [sheet_name]
             props["CurrentLine"] = OrderedDict({"Start": start, "End": stop})
-            props["RLC Type"] = [rlctype]
+            props["RLC Type"] = rlctype
             if Rvalue:
                 props["UseResist"] = True
                 props["Resistance"] = str(Rvalue) + "ohm"
@@ -3480,7 +3480,7 @@ class Hfss(FieldAnalysis3D, object):
         sourcename : str, optional
             Lumped RLC name. The default is ``None``.
         rlctype : str, optional
-            Type of the RLC. Options are ``"Parallel"`` and ``"Series"``. The default is ``"Parallel"``.
+            Type of the RLC. Options are ``"Parallel"`` and ``"Serial"``. The default is ``"Parallel"``.
         Rvalue : float, optional
             Resistance value in ohms. The default is ``None``, in which
             case this parameter is disabled.
@@ -3529,7 +3529,7 @@ class Hfss(FieldAnalysis3D, object):
             props = OrderedDict()
             props["Objects"] = [sheet_name]
             props["CurrentLine"] = OrderedDict({"Start": start, "End": stop})
-            props["RLC Type"] = [rlctype]
+            props["RLC Type"] = rlctype
             if Rvalue:
                 props["UseResist"] = True
                 props["Resistance"] = str(Rvalue) + "ohm"
@@ -5224,3 +5224,24 @@ class Hfss(FieldAnalysis3D, object):
             overwrite=overwrite,
             taper=taper,
         )
+
+    @pyaedt_function_handler()
+    def set_material_threshold(self, threshold=100000):
+        """Set material conductivity threshold.
+
+        Parameters
+        ----------
+        threshold : float, optional
+            Conductivity threshold.
+            The default value is 100000.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            self.odesign.SetSolveInsideThreshold(threshold)
+            return True
+        except:
+            return False

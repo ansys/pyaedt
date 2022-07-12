@@ -1863,6 +1863,24 @@ class Design(AedtObjects, object):
                         )
                 except:
                     pass
+        if self.design_properties and "ModelSetup" in self.design_properties:
+            if "MotionSetupList" in self.design_properties["ModelSetup"]:
+                for ds in self.design_properties["ModelSetup"]["MotionSetupList"]:
+                    try:
+                        motion_list = "MotionSetupList"
+                        setup = "ModelSetup"
+                        # check moving part
+                        if isinstance(self.design_properties[setup][motion_list][ds], (OrderedDict, dict)):
+                            boundaries.append(
+                                BoundaryObject(
+                                    self,
+                                    ds,
+                                    self.design_properties["ModelSetup"]["MotionSetupList"][ds],
+                                    self.design_properties["ModelSetup"]["MotionSetupList"][ds]["MotionType"],
+                                )
+                            )
+                    except:
+                        pass
         return boundaries
 
     @pyaedt_function_handler()
@@ -2894,7 +2912,7 @@ class Design(AedtObjects, object):
         return _retry_ntimes(10, self._odesign.RenameDesignInstance, self.design_name, new_name)
 
     @pyaedt_function_handler()
-    def copy_design_from(self, project_fullname, design_name):
+    def copy_design_from(self, project_fullname, design_name, save_project=True, set_active_design=True):
         """Copy a design from a project into the active design.
 
         Parameters
@@ -2906,6 +2924,10 @@ class Design(AedtObjects, object):
             Name of the design to copy into the active design. If a design with this
             name is already present in the destination project, AEDT automatically
             changes the name.
+        save_project : bool, optional
+            Save the project after the design has been copied. Default value is `True`.
+        set_active_design : bool, optional
+            Set the design active after it has been copied. Default value is `True`.
 
         Returns
         -------
@@ -2940,12 +2962,12 @@ class Design(AedtObjects, object):
             new_designname = new_designname[2:]  # name is returned as '2;EMDesign3'
         # close the source project
         self.odesktop.CloseProject(proj_from_name)
-        # reset the active design (very important)
-        self.save_project()
-        self._close_edb()
-        self._init_design(project_name=self.project_name, design_name=new_designname)
-        self.set_active_design(active_design)
-
+        if save_project:
+            self.save_project()
+        if set_active_design:
+            self._close_edb()
+            self._init_design(project_name=self.project_name, design_name=new_designname)
+            self.set_active_design(active_design)
         # return the pasted design name
         return new_designname
 

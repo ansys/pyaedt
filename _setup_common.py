@@ -61,13 +61,6 @@ packages = [
     "pyaedt.third_party.ironpython.rpyc_27.core",
     "pyaedt.third_party.ironpython.rpyc_27.lib",
     "pyaedt.third_party.ironpython.rpyc_27.utils",
-    "pyaedt.third_party.ironpython.plumbum",
-    "pyaedt.third_party.ironpython.plumbum.cli",
-    "pyaedt.third_party.ironpython.plumbum.colorlib",
-    "pyaedt.third_party.ironpython.plumbum.commands",
-    "pyaedt.third_party.ironpython.plumbum.fs",
-    "pyaedt.third_party.ironpython.plumbum.machines",
-    "pyaedt.third_party.ironpython.plumbum.path",
 ]
 
 data_files = [
@@ -84,10 +77,10 @@ license = "MIT"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 2.7",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "License :: OSI Approved :: MIT License",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX",

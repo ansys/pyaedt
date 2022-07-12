@@ -19,6 +19,7 @@ from pyaedt.generic.plot import plot_3d_chart
 from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
 
+
 if not is_ironpython:
     try:
         import numpy as np
@@ -46,11 +47,9 @@ class SolutionData(object):
         self._nominal_variation = None
         self._nominal_variation = self._original_data[0]
         self.active_expression = self.expressions[0]
-        self._sweeps = None
         self._sweeps_names = []
         self.update_sweeps()
         self.variations = self._get_variations()
-        self.intrinsics = self._get_intrinsics()
         self.active_intrinsic = OrderedDict({})
         for k, v in self.intrinsics.items():
             self.active_intrinsic[k] = v[0]
@@ -83,6 +82,7 @@ class SolutionData(object):
         """
         if var_id < len(self.variations):
             self.active_variation = self.variations[var_id]
+            self.nominal_variation = var_id
             return True
         return False
 
@@ -97,7 +97,30 @@ class SolutionData(object):
         return variations_lists
 
     @pyaedt_function_handler()
-    def _get_intrinsics(self):
+    def variation_values(self, variation_name):
+        """Get the list of the specific variation available values.
+
+        Parameters
+        ----------
+        variation_name : str
+            Name of variation to return.
+
+        Returns
+        -------
+        list
+        """
+        if variation_name in self.intrinsics:
+            return self.intrinsics[variation_name]
+        else:
+            vars_vals = []
+            for el in self.variations:
+                if variation_name in el and el[variation_name] not in vars_vals:
+                    vars_vals.append(el[variation_name])
+            return vars_vals
+
+    @property
+    def intrinsics(self):
+        "Get intrinics dictionary on active variation."
         _sweeps = OrderedDict({})
         intrinsics = [i for i in self._sweeps_names if i not in self.nominal_variation.GetDesignVariableNames()]
         for el in intrinsics:
@@ -105,16 +128,6 @@ class SolutionData(object):
             _sweeps[el] = [i for i in values]
             _sweeps[el] = list(OrderedDict.fromkeys(_sweeps[el]))
         return _sweeps
-
-    @property
-    def _sweeps_siunits(self):
-        """SI units for the sweep."""
-        data = {}
-        for el in self._sweeps:
-            data[el] = self._convert_list_to_SI(
-                self._sweeps[el], self._quantity(self.units_sweeps[el]), self.units_sweeps[el]
-            )
-        return data
 
     @property
     def nominal_variation(self):
@@ -125,7 +138,6 @@ class SolutionData(object):
     def nominal_variation(self, val):
         if 0 <= val <= self.number_of_variations:
             self._nominal_variation = self._original_data[val]
-            self._init_solutions_data()
         else:
             print(str(val) + " not in Variations")
 
@@ -157,11 +169,7 @@ class SolutionData(object):
         self._solutions_imag = self._solution_data_imag()
         self._solutions_mag = {}
         self.units_data = {}
-        if len(self._original_data) > 1:
-            for data in self._original_data:
-                for v in data.GetDesignVariableNames():
-                    if v not in self._sweeps_names:
-                        self._sweeps_names.append(v)
+
         for expr in self.expressions:
             self._solutions_mag[expr] = {}
             self.units_data[expr] = self.nominal_variation.GetDataUnits(expr)
@@ -181,24 +189,11 @@ class SolutionData(object):
         """
 
         names = list(self.nominal_variation.GetSweepNames())
-        self._sweeps = OrderedDict({})
-
-        for el in names:
-            values = list(self.nominal_variation.GetSweepValues(el, False))
-            self._sweeps[el] = [i for i in values]
-            self._sweeps[el] = list(OrderedDict.fromkeys(self._sweeps[el]))
         for data in self._original_data:
             for v in data.GetDesignVariableNames():
-                if v not in self._sweeps:
-                    self._sweeps[v] = [data.GetDesignVariableValue(v)]
+                if v not in self._sweeps_names:
                     self._sweeps_names.append(v)
-                else:
-                    self._sweeps[v].append(data.GetDesignVariableValue(v))
-        for k, v in self._sweeps.items():
-            self._sweeps[k] = list(set(v))
-            self._sweeps[k].sort()
         self._sweeps_names.extend((reversed(names)))
-        return self._sweeps
 
     @staticmethod
     @pyaedt_function_handler()
@@ -224,17 +219,17 @@ class SolutionData(object):
     def _solution_data_real(self):
         """ """
         sols_data = {}
-        for expression in self.expressions:
 
-            solution = []
-            for data in self._original_data:
-                solution.extend(list(data.GetRealDataValues(expression, False)))
-            values = []
-            for el in list(self.intrinsics.keys()):
-                values.append(self.intrinsics[el])
+        for expression in self.expressions:
             solution_Data = {}
-            i = 0
-            for comb in self.variations:
+
+            for data, comb in zip(self._original_data, self.variations):
+                solution = list(data.GetRealDataValues(expression, False))
+                values = []
+                for el in list(self.intrinsics.keys()):
+                    values.append(list(OrderedDict.fromkeys(data.GetSweepValues(el, False))))
+
+                i = 0
                 c = [comb[v] for v in list(comb.keys())]
                 for t in itertools.product(*values):
                     solution_Data[tuple(c + list(t))] = solution[i]
@@ -246,21 +241,19 @@ class SolutionData(object):
     def _solution_data_imag(self):
         """ """
         sols_data = {}
-        for expression in self.expressions:
 
-            solution = []
-            for data in self._original_data:
+        for expression in self.expressions:
+            solution_Data = {}
+            for data, comb in zip(self._original_data, self.variations):
                 if data.IsDataComplex(expression):
-                    solution.extend(list(data.GetImagDataValues(expression, False)))
+                    solution = list(data.GetImagDataValues(expression, False))
                 else:
                     l = len(list(data.GetRealDataValues(expression, False)))
-                    solution.extend([0] * l)
-            values = []
-            for el in list(self.intrinsics.keys()):
-                values.append(self.intrinsics[el])
-            solution_Data = {}
-            i = 0
-            for comb in self.variations:
+                    solution = [0] * l
+                values = []
+                for el in list(self.intrinsics.keys()):
+                    values.append(list(OrderedDict.fromkeys(data.GetSweepValues(el, False))))
+                i = 0
                 c = [comb[v] for v in list(comb.keys())]
                 for t in itertools.product(*values):
                     solution_Data[tuple(c + list(t))] = solution[i]
@@ -341,7 +334,8 @@ class SolutionData(object):
         solution_Data = self._solutions_mag[expression]
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
-        for el in self._sweeps[self.primary_sweep]:
+        sw = self.variation_values(self.primary_sweep)
+        for el in sw:
             temp[position] = el
             try:
                 sol.append(solution_Data[tuple(temp)])
@@ -489,7 +483,7 @@ class SolutionData(object):
             List of the primary sweep valid points for the expression.
 
         """
-        return self._sweeps[self.primary_sweep]
+        return self.variation_values(self.primary_sweep)
 
     @property
     def primary_sweep_variations(self):
@@ -508,7 +502,7 @@ class SolutionData(object):
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
 
-        for el in self._sweeps[self.primary_sweep]:
+        for el in self.primary_sweep_values:
             temp[position] = el
             if tuple(temp) in solution_Data:
                 sol_dict = OrderedDict({})
@@ -548,7 +542,7 @@ class SolutionData(object):
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
 
-        for el in self._sweeps[self.primary_sweep]:
+        for el in self.primary_sweep_values:
             temp[position] = el
             try:
                 sol.append(solution_Data[tuple(temp)])
@@ -587,7 +581,7 @@ class SolutionData(object):
         solution_Data = self._solutions_imag[expression]
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
-        for el in self._sweeps[self.primary_sweep]:
+        for el in self.primary_sweep_values:
             temp[position] = el
             try:
                 sol.append(solution_Data[tuple(temp)])
@@ -682,6 +676,7 @@ class SolutionData(object):
         math_formula : str , optional
             Mathematical formula to apply to the plot curve.
             Valid values are `"re"`, `"im"`, `"db20"`, `"db10"`, `"abs"`, `"mag"`, `"phasedeg"`, `"phaserad"`.
+            `None` value will plot only real value of the data stored in solution data.
         size : tuple, optional
             Image size in pixel (width, height).
         show_legend : bool
@@ -710,15 +705,14 @@ class SolutionData(object):
             curves = [curves]
         data_plot = []
         sweep_name = self.primary_sweep
-        if not math_formula:
-            math_formula = "mag"
         if is_polar:
-            sw = self.to_radians(self._sweeps[sweep_name])
+            sw = self.to_radians(self.primary_sweep_values)
         else:
-            sw = self._sweeps[sweep_name]
-
+            sw = self.primary_sweep_values
         for curve in curves:
-            if math_formula == "re":
+            if not math_formula:
+                data_plot.append([sw, self.data_real(curve), curve])
+            elif math_formula == "re":
                 data_plot.append([sw, self.data_real(curve), "{}({})".format(math_formula, curve)])
             elif math_formula == "im":
                 data_plot.append([sw, self.data_imag(curve), "{}({})".format(math_formula, curve)])
@@ -788,10 +782,12 @@ class SolutionData(object):
 
         if not math_formula:
             math_formula = "mag"
-        theta = self.to_radians(self._sweeps[x_axis])
+        theta = self.variation_values(x_axis)
+        y_axis_val = self.variation_values(y_axis)
+
         phi = []
         r = []
-        for el in self._sweeps[y_axis]:
+        for el in y_axis_val:
             self.active_variation[y_axis] = el
             phi.append(el * math.pi / 180)
 
@@ -839,10 +835,10 @@ class SolutionData(object):
         """
         if is_ironpython:
             return False
-        u = self._sweeps[u_axis]
-        if v_axis:
-            v = self._sweeps[v_axis]
-        freq = self._sweeps["Freq"]
+        u = self.variation_values(u_axis)
+        v = self.variation_values(v_axis)
+
+        freq = self.variation_values("Freq")
         vals_real_Ex = [j for j in self._solutions_real[curve_header + "X"].values()]
         vals_imag_Ex = [j for j in self._solutions_imag[curve_header + "X"].values()]
         vals_real_Ey = [j for j in self._solutions_real[curve_header + "Y"].values()]
@@ -927,8 +923,9 @@ class SolutionData(object):
         if not coord_system_center:
             coord_system_center = [0, 0, 0]
         t_matrix = self._ifft
-        x_c_list = self._sweeps[u_axis]
-        y_c_list = self._sweeps[v_axis]
+        x_c_list = self.variation_values(u_axis)
+        y_c_list = self.variation_values(v_axis)
+
         adj_x = coord_system_center[0]
         adj_y = coord_system_center[1]
         adj_z = coord_system_center[2]
@@ -1322,8 +1319,8 @@ class FfdSolutionData(object):
         array_positions = {}
         for port_name in self.all_port_names:
             index_str = self.get_array_index(port_name)
-            a = index_str[0]
-            b = index_str[1]
+            a = index_str[0] - 1
+            b = index_str[1] - 1
             w_mag = np.round(np.abs(self.assign_weight(a, b, taper=self.taper)), 3)
             w_ang = a * phase_shift_A_rad + b * phase_shift_B_rad
             w_dict[port_name] = np.sqrt(w_mag) * np.exp(1j * w_ang)
@@ -1530,7 +1527,7 @@ class FfdSolutionData(object):
         try:
             lattice_vectors = self._app.omodelsetup.GetLatticeVectors()
             lattice_vectors = [
-                float(vec) / AEDT_UNITS["Length"][self._app.modeler.model_units] for vec in lattice_vectors
+                float(vec) * AEDT_UNITS["Length"][self._app.modeler.model_units] for vec in lattice_vectors
             ]
 
         except:
@@ -1713,7 +1710,10 @@ class FfdSolutionData(object):
                 idx = self._find_nearest(data[y_key], el)
                 y = temp[idx]
                 if convert_to_db:
-                    y = 10 * np.log10(y)
+                    if "Gain" in qty_str or "Dir" in qty_str:
+                        y = 10 * np.log10(y)
+                    else:
+                        y = 20 * np.log10(y)
                 curves.append([x, y, "{}={}".format(y_key, el)])
         elif isinstance(secondary_sweep_value, list):
             list_inserted = []
@@ -1722,15 +1722,21 @@ class FfdSolutionData(object):
                 if theta_idx not in list_inserted:
                     y = temp[theta_idx]
                     if convert_to_db:
-                        y = 10 * np.log10(y)
+                        if "Gain" in qty_str or "Dir" in qty_str:
+                            y = 10 * np.log10(y)
+                        else:
+                            y = 20 * np.log10(y)
                     curves.append([x, y, "{}={}".format(y_key, el)])
                     list_inserted.append(theta_idx)
         else:
             theta_idx = self._find_nearest(data[y_key], secondary_sweep_value)
             y = temp[theta_idx]
             if convert_to_db:
-                y = 10 * np.log10(y)
-            curves.append([x, y, "{}={}".format(y_key, theta_idx)])
+                if "Gain" in qty_str or "Dir" in qty_str:
+                    y = 10 * np.log10(y)
+                else:
+                    y = 20 * np.log10(y)
+            curves.append([x, y, "{}={}".format(y_key, data[y_key][theta_idx])])
 
         return plot_2d_chart(curves, xlabel=xlabel, ylabel=qty_str, title=title, snapshot_path=export_image_path)
 
@@ -1878,7 +1884,7 @@ class FfdSolutionData(object):
 
         # plot everything together
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
-        p = pv.Plotter()
+        p = pv.Plotter(notebook=is_notebook(), off_screen=not show)
         uf = UpdateBeamForm(self)
 
         p.add_slider_widget(
@@ -1969,7 +1975,6 @@ class FfdSolutionData(object):
             cad = p.add_mesh(cad_mesh, scalars=color_display_type, show_scalar_bar=False, opacity=0.5)
             p.add_checkbox_button_widget(toggle_vis_cad, value=True, position=(10, 70), size=30)
             p.add_text("Show Geometry", position=(70, 75), color="white", font_size=10)
-        p.off_screen = not show
         if export_image_path:
             p.show(screenshot=export_image_path)
         else:
@@ -2099,7 +2104,6 @@ class FfdSolutionData(object):
             size = int(p.window_size[1] / 40)
             p.add_checkbox_button_widget(toggle_vis_cad, size=size, value=True, position=(10, 70))
             p.add_text("Show Geometry", position=(70, 75), color="black", font_size=12)
-        p.off_screen = not show
         if export_image_path:
             p.show(screenshot=export_image_path)
         else:
@@ -2286,11 +2290,29 @@ class FieldPlot:
             for index in self.volume_indexes:
                 info.append(str(index))
         if self.surfaces_indexes:
-            info.append("Surface")
-            info.append("FacesList")
-            info.append(len(self.surfaces_indexes))
+            model_faces = []
+            nonmodel_faces = []
+            models = self._postprocessor.modeler.model_objects
             for index in self.surfaces_indexes:
-                info.append(str(index))
+                try:
+                    oname = self._postprocessor.modeler.oeditor.GetObjectNameByFaceID(index)
+                    if oname in models:
+                        model_faces.append(str(index))
+                    else:
+                        nonmodel_faces.append(str(index))
+                except:
+                    pass
+            info.append("Surface")
+            if model_faces:
+                info.append("FacesList")
+                info.append(len(model_faces))
+                for index in model_faces:
+                    info.append(index)
+            if nonmodel_faces:
+                info.append("NonModelFaceList")
+                info.append(len(nonmodel_faces))
+                for index in nonmodel_faces:
+                    info.append(index)
         if self.cutplane_indexes:
             info.append("Surface")
             info.append("CutPlane")

@@ -60,7 +60,7 @@ capabilities in Ansys layout tools like HFSS 3D Layout and EDB. Its class and me
 structures simplify operation for the end user while reusing information as much as
 possible across the API.
 
-Documentation and Issues
+Documentation and issues
 ------------------------
 In addition to installation, usage, and contribution information, the PyAEDT
 documentation provides `API documentation <https://aedtdocs.pyansys.com/API/>`_,
@@ -76,7 +76,7 @@ Dependencies
 To run PyAEDT, you must have a local licenced copy of AEDT.
 PyAEDT supports AEDT versions 2021 R1 or newer.
 
-Student Version
+Student version
 ---------------
 
 PyAEDT supports AEDT Student version 2021 R2. For more information, see
@@ -109,21 +109,21 @@ The main advantages of PyAEDT are:
 - Unit tests of code to increase quality across different AEDT versions
 
 
-Example Workflow
+Example workflow
 -----------------
 1. Initialize the ``Desktop`` class with the version of AEDT to use.
 2. Initialize the application to use within AEDT.
 
 
-Connect to Desktop from Python IDE
-----------------------------------
+Connect to AEDT from Python IDE
+-------------------------------
 PyAEDT works both inside AEDT and as a standalone application.
-It automatically detects whether it is running in an IronPython or CPython
-environment and initializes AEDT accordingly. PyAEDT also
-provides advanced error management. Usage examples follow.
+This Python library automatically detects whether it is running
+in an IronPython or CPython environment and initializes AEDT accordingly.
+PyAEDT also provides advanced error management. Usage examples follow.
 
-Explicit Desktop Declaration and Error Management
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Explicit AEDT declaration and error management
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
 
@@ -141,8 +141,8 @@ Explicit Desktop Declaration and Error Management
     # Desktop is automatically released here.
 
 
-Implicit Desktop Declaration and Error Management
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Implicit AEDT declaration and error management
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
 
@@ -158,7 +158,7 @@ Implicit Desktop Declaration and Error Management
     # Desktop is automatically released here.
 
 
-Remote Application Call
+Remote application call
 ~~~~~~~~~~~~~~~~~~~~~~~
 You can make a remote application call on a CPython server
 or any Windows client machine.

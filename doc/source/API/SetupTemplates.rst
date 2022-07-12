@@ -7,12 +7,12 @@ You can edit a setup after it is created. Here is an example:
 
 .. code:: python
 
-    Launch AEDT 2021 R1 in Non-Graphical mode
+    Launch AEDT 2021 R1 in non-graphical mode
 
     from pyaedt import Hfss
 
     hfss = Hfss()
-    # Any property of this setup can be found in this page.
+    # Any property of this setup can be found on this page.
     setup = hfss.create_setup()
     setup.props["AdaptMultipleFreqs"] = True
     setup.update()
@@ -33,8 +33,8 @@ HFSS
    HFSSSBR
 
 
-Maxwell 2D/3D
-~~~~~~~~~~~~~
+Maxwell 2D or 3D
+~~~~~~~~~~~~~~~~
 
 .. autosummary::
    :toctree: _autosummary
@@ -46,8 +46,8 @@ Maxwell 2D/3D
    ElectricTransient
 
 
-Q3D/2D Extractor
-~~~~~~~~~~~~~~~~
+Q3D or Q2D Extractor
+~~~~~~~~~~~~~~~~~~~~
 
 .. autosummary::
    :toctree: _autosummary

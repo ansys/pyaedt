@@ -39,12 +39,12 @@ target = Hfss(
     projectname=project_full_name,
     designname="Cassegrain_",
     solution_type="SBR+",
-    specified_version="2022.1",
+    specified_version="2022.2",
     new_desktop_session=True,
     non_graphical=non_graphical
 )
 target.save_project(os.path.join(temp_folder, project_name + ".aedt"))
-source = Hfss(projectname=project_name, designname="feeder", specified_version="2022.1", new_desktop_session=False)
+source = Hfss(projectname=project_name, designname="feeder", specified_version="2022.2", new_desktop_session=False)
 
 ###############################################################################
 # Define a Linked Antenna
@@ -79,8 +79,8 @@ setup1.props["RadiationSetup"] = "ATK_3D"
 setup1.props["ComputeFarFields"] = True
 setup1.props["RayDensityPerWavelength"] = 2
 setup1.props["MaxNumberOfBounces"] = 3
-setup1.props["Sweeps"]["Sweep"]["RangeType"] = "SinglePoints"
-setup1.props["Sweeps"]["Sweep"]["RangeStart"] = "10GHz"
+setup1["RangeType"] = "SinglePoints"
+setup1["RangeStart"] = "10GHz"
 target.analyze_nominal()
 
 ###############################################################################

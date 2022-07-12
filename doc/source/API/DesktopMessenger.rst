@@ -1,7 +1,7 @@
-AedtLogger
-~~~~~~~~~~
+AEDT logger
+~~~~~~~~~~~
 This section lists modules for creating and editing
-pyaedt log files.
+PyAEDT log files.
 
 .. currentmodule:: pyaedt.aedt_logger
 

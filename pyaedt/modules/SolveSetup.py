@@ -20,24 +20,65 @@ from pyaedt.modules.SetupTemplates import SweepHFSS
 from pyaedt.modules.SetupTemplates import SweepHFSS3DLayout
 from pyaedt.modules.SetupTemplates import SweepQ3D
 from pyaedt.modules.SetupTemplates import SetupProps
+from pyaedt.generic.general_methods import PropsManager
 
 
-class Setup(object):
-    """Initializes, creates, and updates a 3D setup.
+class CommonSetup(PropsManager, object):
+    def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
+        self.auto_update = False
+        self._app = None
+        self.p_app = app
+        if solutiontype is None:
+            self.setuptype = self.p_app.design_solutions.default_setup
+        elif isinstance(solutiontype, int):
+            self.setuptype = solutiontype
+        elif solutiontype in SetupKeys.SetupNames:
+            self.setuptype = SetupKeys.SetupNames.index(solutiontype)
+        else:
+            self.setuptype = self.p_app.design_solutions._solution_options[solutiontype]["default_setup"]
+        self._setupname = setupname
+        self.props = {}
+        self.sweeps = []
+        self._init_props(isnewsetup)
+        self.auto_update = True
 
-    Parameters
-    ----------
-    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
-        Inherited app object.
-    solutiontype : int, str
-        Type of the setup.
-    setupname : str, optional
-        Name of the setup. The default is ``"MySetupAuto"``.
-    isnewsetup : bool, optional
-        Whether to create the setup from a template. The default is ``True``.
-        If ``False``, access is to the existing setup.
+    def __repr__(self):
+        return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"
 
-    """
+    @pyaedt_function_handler()
+    def _init_props(self, isnewsetup=False):
+        if isnewsetup:
+            setup_template = SetupKeys.SetupTemplates[self.setuptype]
+            for t in setup_template:
+                _tuple2dict(t, self.props)
+            self.props = SetupProps(self, self.props)
+        else:
+            try:
+                setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
+                if self.name in setups_data:
+                    setup_data = setups_data[self.name]
+                    if "Sweeps" in setup_data and self.setuptype not in [
+                        0,
+                        7,
+                    ]:  # 0 and 7 represent setup HFSSDrivenAuto
+                        if self.setuptype <= 4:
+                            app = setup_data["Sweeps"]
+                            app.pop("NextUniqueID", None)
+                            app.pop("MoveBackForward", None)
+                            app.pop("MoveBackwards", None)
+                            for el in app:
+                                if isinstance(app[el], (OrderedDict, dict)):
+                                    self.sweeps.append(SweepHFSS(self, self.name, el, props=app[el]))
+
+                        else:
+                            app = setup_data["Sweeps"]
+                            for el in app:
+                                if isinstance(app[el], (OrderedDict, dict)):
+                                    self.sweeps.append(SweepQ3D(self, self.name, el, props=app[el]))
+                        setup_data.pop("Sweeps", None)
+                    self.props = SetupProps(self, OrderedDict(setup_data))
+            except:
+                self.props = SetupProps(self, OrderedDict())
 
     @property
     def is_solved(self):
@@ -71,58 +112,36 @@ class Setup(object):
         """Analysis module."""
         return self._app.oanalysis
 
-    def __repr__(self):
-        return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"
+    @property
+    def name(self):
+        """Name."""
+        return self._setupname
+
+    @name.setter
+    def name(self, name):
+        self._setupname = name
+        self.props["Name"] = name
+
+
+class Setup(CommonSetup):
+    """Initializes, creates, and updates a 3D setup.
+
+    Parameters
+    ----------
+    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+        Inherited app object.
+    solutiontype : int, str
+        Type of the setup.
+    setupname : str, optional
+        Name of the setup. The default is ``"MySetupAuto"``.
+    isnewsetup : bool, optional
+        Whether to create the setup from a template. The default is ``True``.
+        If ``False``, access is to the existing setup.
+
+    """
 
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
-        self.auto_update = False
-        self._app = None
-        self.p_app = app
-        if solutiontype is None:
-            self.setuptype = self.p_app.design_solutions.default_setup
-        elif isinstance(solutiontype, int):
-            self.setuptype = solutiontype
-        elif solutiontype in SetupKeys.SetupNames:
-            self.setuptype = SetupKeys.SetupNames.index(solutiontype)
-        else:
-            self.setuptype = self.p_app.design_solutions._solution_options[solutiontype]["default_setup"]
-
-        self.name = setupname
-        self.props = {}
-        self.sweeps = []
-        if isnewsetup:
-            setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            for t in setup_template:
-                _tuple2dict(t, self.props)
-            self.props = SetupProps(self, self.props)
-        else:
-            try:
-                setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
-                if setupname in setups_data:
-                    setup_data = setups_data[setupname]
-                    if "Sweeps" in setup_data and self.setuptype not in [
-                        0,
-                        7,
-                    ]:  # 0 and 7 represent setup HFSSDrivenAuto
-                        if self.setuptype <= 4:
-                            app = setup_data["Sweeps"]
-                            app.pop("NextUniqueID", None)
-                            app.pop("MoveBackForward", None)
-                            app.pop("MoveBackwards", None)
-                            for el in app:
-                                if isinstance(app[el], (OrderedDict, dict)):
-                                    self.sweeps.append(SweepHFSS(self, setupname, el, props=app[el]))
-
-                        else:
-                            app = setup_data["Sweeps"]
-                            for el in app:
-                                if isinstance(app[el], (OrderedDict, dict)):
-                                    self.sweeps.append(SweepQ3D(self, setupname, el, props=app[el]))
-                        setup_data.pop("Sweeps", None)
-                    self.props = SetupProps(self, OrderedDict(setup_data))
-            except:
-                self.props = SetupProps(self, OrderedDict())
-        self.auto_update = True
+        CommonSetup.__init__(self, app, solutiontype, setupname, isnewsetup)
 
     @pyaedt_function_handler()
     def create(self):
@@ -689,7 +708,7 @@ class Setup(object):
         return self.update()
 
 
-class SetupCircuit(object):
+class SetupCircuit(CommonSetup):
     """Initializes, creates, and updates a circuit setup.
 
     Parameters
@@ -707,19 +726,10 @@ class SetupCircuit(object):
     """
 
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
+        CommonSetup.__init__(self, app, solutiontype, setupname, isnewsetup)
 
-        self.auto_update = False
-        self._app = None
-        self.p_app = app
-        if not solutiontype:
-            self.setuptype = self.p_app.design_solutions.default_setup
-        elif isinstance(solutiontype, int):
-            self.setuptype = solutiontype
-        elif solutiontype in SetupKeys.SetupNames:
-            self.setuptype = SetupKeys.SetupNames.index(solutiontype)
-        else:
-            self.setuptype = self.p_app.design_solutions._solution_options[solutiontype]["default_setup"]
-        self._Name = "LinearFrequency"
+    @pyaedt_function_handler()
+    def _init_props(self, isnewsetup=False):
         props = {}
         if isnewsetup:
             setup_template = SetupKeys.SetupTemplates[self.setuptype]
@@ -733,75 +743,18 @@ class SetupCircuit(object):
                 if type(setups_data) is not list:
                     setups_data = [setups_data]
                 for setup in setups_data:
-                    if setupname == setup["Name"]:
+                    if self.name == setup["Name"]:
                         setup_data = setup
                         setup_data.pop("Sweeps", None)
                         self.props = SetupProps(self, setup_data)
             except:
                 self.props = SetupProps(self, OrderedDict())
-        self._Name = setupname
-        self.props["Name"] = setupname
-        self.auto_update = True
-
-    @property
-    def is_solved(self):
-        """Verify if solutions are available for given setup.
-
-        Returns
-        -------
-        bool
-            `True` if solutions are available.
-        """
-        sol = self.p_app.post.reports_by_category.standard(setup_name=self.name)
-        return True if sol.get_solution_data() else False
-
-    @property
-    def name(self):
-        """Name."""
-        return self._Name
-
-    @name.setter
-    def name(self, name):
-        self._Name = name
-        self.props["Name"] = name
-
-    @property
-    def p_app(self):
-        """AEDT app module for setting up the analysis."""
-        return self._app
-
-    @p_app.setter
-    def p_app(self, name):
-        self._app = name
+        self.props["Name"] = self.name
 
     @property
     def _odesign(self):
         """Design."""
         return self._app._odesign
-
-    @property
-    def omodule(self):
-        """Analysis module.
-
-        Parameters
-        ----------
-        app : str
-            Inherited app object.
-        solutiontype : str, int
-            Type of the setup.
-        setupname : str, optional
-            Name of the setup. The default is ``"MySetupAuto"``.
-        isnewsetup : bool, optional
-          Whether to create the setup from a template. The default is ``True.``
-          If ``False``, access is to the existing setup.
-
-        Returns
-        -------
-        str
-            Name of the setup.
-
-        """
-        return self._app.oanalysis
 
     @pyaedt_function_handler()
     def create(self):
@@ -1312,7 +1265,7 @@ class SetupCircuit(object):
         return True
 
 
-class Setup3DLayout(object):
+class Setup3DLayout(CommonSetup):
     """Initializes, creates, and updates a 3D Layout setup.
 
     Parameters
@@ -1329,50 +1282,30 @@ class Setup3DLayout(object):
 
     """
 
-    @property
-    def omodule(self):
-        """Analysis module.
-
-        Returns
-        -------
-        type
-            Analysis module.
-
-        """
-        return self._app.oanalysis
-
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
-        self.auto_update = False
-        self._app = app
-        if not solutiontype:
-            self._solutiontype = self._app.design_solutions.default_setup
-        elif isinstance(solutiontype, int):
-            self._solutiontype = solutiontype
-        else:
-            self._solutiontype = self._app.design_solutions._solution_options[solutiontype]["default_setup"]
-        self.name = setupname
-        self.props = OrderedDict()
-        self.sweeps = []
+        CommonSetup.__init__(self, app, solutiontype, setupname, isnewsetup)
+
+    @pyaedt_function_handler()
+    def _init_props(self, isnewsetup=False):
         if isnewsetup:
-            setup_template = SetupKeys.SetupTemplates[self._solutiontype]
+            setup_template = SetupKeys.SetupTemplates[self.setuptype]
             for t in setup_template:
                 _tuple2dict(t, self.props)
             self.props = SetupProps(self, self.props)
         else:
             try:
                 setups_data = self._app.design_properties["Setup"]["Data"]
-                if setupname in setups_data:
-                    setup_data = setups_data[setupname]
+                if self.name in setups_data:
+                    setup_data = setups_data[self.name]
                     if "Data" in setup_data:  # 0 and 7 represent setup HFSSDrivenAuto
                         app = setup_data["Data"]
                         for el in app:
                             if isinstance(app[el], (OrderedDict, dict)):
-                                self.sweeps.append(SweepHFSS3DLayout(self, setupname, el, props=app[el]))
+                                self.sweeps.append(SweepHFSS3DLayout(self, self.name, el, props=app[el]))
 
                     self.props = SetupProps(self, OrderedDict(setup_data))
             except:
                 self.props = SetupProps(self, OrderedDict())
-        self.auto_update = True
 
     @property
     def is_solved(self):
@@ -1391,7 +1324,7 @@ class Setup3DLayout(object):
         return True if sol.get_solution_data() else False
 
     @property
-    def setup_type(self):
+    def solver_type(self):
         """Setup type.
 
         Returns

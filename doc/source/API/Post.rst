@@ -1,8 +1,7 @@
 Postprocessing
 ==============
 This section lists modules for creating and editing
-plots in the AEDT.
-They are accessible through the ``post`` property:
+plots in AEDT. They are accessible through the ``post`` property.
 
 .. note::
    The `AdvancedPostProcessing` module requires Python 3 and
@@ -41,16 +40,16 @@ They are accessible through the ``post`` property:
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
-    # this call return the PostProcessor Class
+    # This call return the PostProcessor class
     post = app.post
 
-    # this call return a FieldPlot Object
+    # This call return a FieldPlot object
     plotf = post.create_fieldplot_volume(object_list, quantityname, setup_name, intrinsic_dict)
 
-    # this call return a SolutionData Object
+    # This call return a SolutionData object
     my_data = post.get_report_data(expression=trace_names)
 
-    # this call return a new Standard Report Object and creates one or multiple report from it.
+    # This call returns a new standard report object and creates one or multiple reports from it.
     standard_report = post.report_by_category.standard("db(S(1,1))")
     standard_report.create()
     sols = standard_report.get_solution_data()

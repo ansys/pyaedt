@@ -26,8 +26,16 @@ import warnings
 
 from pyaedt import is_ironpython
 
-if os.name == "posix" and is_ironpython:
+if os.name == "nt":
+    IsWindows = True
+else:
+    IsWindows = False
+    os.environ["ANS_NODEPCHECK"] = str(1)
+
+if not IsWindows and is_ironpython:
     import subprocessdotnet as subprocess
+
+
 else:
     import subprocess
 
@@ -42,11 +50,6 @@ pathname = os.path.dirname(__file__)
 
 pyaedtversion = __version__
 
-
-if os.name == "nt":
-    IsWindows = True
-else:
-    IsWindows = False
 
 if is_ironpython:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
@@ -66,7 +69,7 @@ elif IsWindows:  # pragma: no cover
 
         _com = "pywin32"
     else:
-        raise Exception("Error. No win32com.client or Pythonnet modules found. Install them and try again.")
+        raise Exception("Error. No win32com.client or PythonNET modules found. Install them and try again.")
 else:
     _com = "pythonnet_v3"
 
@@ -127,18 +130,28 @@ def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
 
 def _delete_objects():
     module = sys.modules["__main__"]
-    if "COMUtil" in dir(module):
+    try:
         del module.COMUtil
-    if "aedt_logger" in dir(module):
+    except AttributeError:
+        pass
+    try:
         del module.aedt_logger
-    if "oDesktop" in dir(module):
+    except AttributeError:
+        pass
+    try:
         del module.oDesktop
-    if "pyaedt_initialized" in dir(module):
+    except AttributeError:
+        pass
+    try:
         del module.pyaedt_initialized
-    if "_aedt_handler" in dir(module):
+    except AttributeError:
+        pass
+    try:
         _global = logging.getLogger("Global")
         for i in range(len(module._aedt_handler) - 1, -1, -1):
             _global.removeHandler(module._aedt_handler[i])
+    except AttributeError:
+        pass
     gc.collect()
 
 
@@ -160,10 +173,7 @@ def release_desktop(close_projects=True, close_desktop=True):
     """
 
     _main = sys.modules["__main__"]
-    if "oDesktop" not in dir(_main):
-        _delete_objects()
-        return False
-    else:
+    try:
         desktop = _main.oDesktop
         if close_projects:
             projects = desktop.GetProjectList()
@@ -190,7 +200,10 @@ def release_desktop(close_projects=True, close_desktop=True):
             except Exception:  # pragma: no cover
                 warnings.warn("Something went wrong in closing AEDT.")
                 return False
-    return True
+        return True
+    except AttributeError:
+        _delete_objects()
+        return False
 
 
 def force_close_desktop():
@@ -368,8 +381,8 @@ class Desktop:
                 self._logger.info("Launching PyAEDT outside AEDT with IronPython.")
                 self._init_ironpython(non_graphical, new_desktop_session, version)
             elif _com == "pythonnet_v3":
-                if version_key < "2022.2" or not settings.use_grpc_api:
-                    self._logger.info("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
+                if version_key < "2022.2" or not (settings.use_grpc_api or os.name == "posix"):
+                    self._logger.info("Launching PyAEDT outside AEDT with CPython and PythonNET.")
                     self._init_cpython(
                         non_graphical,
                         new_desktop_session,
@@ -379,6 +392,7 @@ class Desktop:
                         aedt_process_id,
                     )
                 else:
+                    settings.use_grpc_api = True
                     self._init_cpython_new(non_graphical, new_desktop_session, version, self._main.student_version)
             else:
                 oAnsoftApp = win32com.client.Dispatch(version)
@@ -565,7 +579,10 @@ class Desktop:
         version_key,
         aedt_process_id=None,
     ):
-
+        if os.name == "posix":
+            raise Exception(
+                "PyAEDT supports COM initialization in Windows only. To use in Linux, upgrade to AEDT 2022 R2 or later."
+            )
         base_path = self._main.sDesktopinstallDirectory
         sys.path.append(base_path)
         sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
@@ -576,7 +593,7 @@ class Desktop:
         self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
         self._main.COMUtil = self.COMUtil
         StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
-        self.logger.info("Launching AEDT with module Pythonnet.")
+        self.logger.info("Launching AEDT with module PythonNET.")
         processID = []
         if IsWindows:
             processID = self._get_tasks_list_windows(student_version)
@@ -629,7 +646,7 @@ class Desktop:
         if os.name == "posix":
             if os.environ.get("LD_LIBRARY_PATH"):
                 os.environ["LD_LIBRARY_PATH"] = (
-                    os.path.join(base_path, "defer") + os.pathsep + os.environ["LD_LIBARY_PATH"]
+                    os.path.join(base_path, "defer") + os.pathsep + os.environ["LD_LIBRARY_PATH"]
                 )
             else:
                 os.environ["LD_LIBRARY_PATH"] = os.path.join(base_path, "defer")

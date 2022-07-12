@@ -8,6 +8,7 @@ from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Object3d import _dim_arg
 from pyaedt.modeler.Object3d import EdgePrimitive
@@ -50,7 +51,7 @@ class BoundaryProps(OrderedDict):
         OrderedDict.__setitem__(self, key, value)
 
 
-class BoundaryCommon(object):
+class BoundaryCommon(PropsManager):
     """ """
 
     @pyaedt_function_handler()

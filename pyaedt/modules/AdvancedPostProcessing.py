@@ -28,10 +28,7 @@ if not is_ironpython:
 
         ipython_available = True
     except ImportError:
-        warnings.warn(
-            "The Ipython module is required to run some functionalities of PostProcess.\n"
-            "Install with \n\npip install ipython\n\nRequires CPython."
-        )
+        ipython_available = False
 
 
 class PostProcessor(Post):
@@ -76,8 +73,11 @@ class PostProcessor(Post):
             Jupyter notebook image.
 
         """
-        file_name = self.export_model_picture(show_axis=show_axis, show_grid=show_grid, show_ruler=show_ruler)
-        return Image(file_name, width=500)
+        if ipython_available:
+            file_name = self.export_model_picture(show_axis=show_axis, show_grid=show_grid, show_ruler=show_ruler)
+            return Image(file_name, width=500)
+        else:
+            warnings.warn("The Ipython package is missing and must be installed.")
 
     @pyaedt_function_handler()
     def get_efields_data(self, setup_sweep_name="", ff_setup="Infinite Sphere1", freq="All"):
@@ -201,7 +201,7 @@ class PostProcessor(Post):
             return False
 
         model = ModelPlotter()
-
+        model.off_screen = True
         for file in files:
             if force_opacity_value:
                 model.add_object(file[0], file[1], force_opacity_value, self.modeler.model_units)

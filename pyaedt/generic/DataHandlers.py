@@ -25,7 +25,7 @@ try:
     from System import Double
 except ImportError:
     if os.name != "posix":
-        warnings.warn("Pythonnet is needed to run pyaedt")
+        warnings.warn("PythonNET is needed to run pyaedt")
 
 
 @pyaedt_function_handler()

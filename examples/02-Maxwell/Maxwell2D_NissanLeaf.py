@@ -1,6 +1,6 @@
 """
-Maxwell 2d: Magnet Transient Analysis
-------------------------------
+Maxwell 2d: PM Synchronous Motor Transient Analysis
+---------------------------------------------------
 This example shows how you can use PyAEDT to create a Maxwell 2D Transient Analysis for an interior permanent magnet
 electric motor,starting from the parameter definition through the post-processing preparation
 Tested on pyaedt 0.4.70
@@ -19,7 +19,7 @@ from pyaedt import generate_unique_name
 
 #################################################################################
 # Initialization: Maxwell version, path project and design name and type
-desktopVersion = "2022.1"
+desktopVersion = "2022.2"
 
 sName = "MySetupAuto"
 sType = "TransientXY"
@@ -454,6 +454,10 @@ M2D.change_inductance_computation(compute_transient_inductance=True, incremental
 ##########################################################
 # Design Settings: Set Model Depth
 M2D.model_depth = "Magnetic_Axial_Length"
+
+##########################################################
+# Design Settings: Set Symmetry Factor
+M2D.change_symmetry_multiplier("SymmetryFactor")
 
 ##########################################################
 # Setup: Create and Validate

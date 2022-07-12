@@ -418,6 +418,48 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         self.oeditor = object3d.m_Editor
 
     @property
+    def segment_info(self):
+        """Compute segment information using the object-oriented method (from AEDT 2021 R2
+        with beta options). The method manages segment info for lines, circles and ellipse
+        providing information about all of those.
+
+
+        Returns
+        -------
+            list
+                Segment info if available."""
+        try:
+            self.oeditor.GetChildNames()
+        except:  # pragma: no cover
+            return {}
+        ll = list(self.oeditor.GetObjectsInGroup("Lines"))
+        self.oeditor.CreateObjectFromEdges(
+            ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "NonModel"],
+            ["NAME:Parameters", ["NAME:BodyFromEdgeToParameters", "Edges:=", [self.id]]],
+            ["CreateGroupsForNewObjects:=", False],
+        )
+        new_line = [i for i in list(self.oeditor.GetObjectsInGroup("Lines")) if i not in ll]
+        self.oeditor.GenerateHistory(
+            ["NAME:Selections", "Selections:=", new_line[0], "NewPartsModelFlag:=", "NonModel", "UseCurrentCS:=", True]
+        )
+        oo = self.oeditor.GetChildObject(new_line[0])
+        segment = {}
+        if len(self.vertices) == 2:
+            oo1 = oo.GetChildObject(oo.GetChildNames()[0]).GetChildObject("Segment0")
+        else:
+            oo1 = oo.GetChildObject(oo.GetChildNames()[0])
+        for prop in oo1.GetPropNames():
+            if "/" not in prop:
+                val = oo1.GetPropValue(prop)
+                if "X:=" in val and len(val) == 6:
+                    segment[prop] = [val[1], val[3], val[5]]
+                else:
+                    segment[prop] = val
+        self._object3d._primitives._odesign.Undo()
+        self._object3d._primitives._odesign.Undo()
+        return segment
+
+    @property
     def vertices(self):
         """Vertices list.
 
@@ -476,10 +518,9 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         >>> oEditor.GetVertexPosition
 
         """
-        if len(self.vertices) == 2:
-            length = GeometryOperators.points_distance(self.vertices[0].position, self.vertices[1].position)
-            return float(length)
-        else:
+        try:
+            return float(self.oeditor.GetEdgeLength(self.id))
+        except:
             return False
 
     def __repr__(self):
@@ -1245,6 +1286,27 @@ class Object3d(object):
         return False
 
     @property
+    def touching_objects(self):
+        """Get the objects that touch one of the vertex, edge midpoint or face of the object."""
+        list_names = []
+        for vertex in self.vertices:
+            body_names = self._primitives.get_bodynames_from_position(vertex.position)
+            a = [i for i in body_names if i != self.name and i not in list_names]
+            if a:
+                list_names.extend(a)
+        for edge in self.edges:
+            body_names = self._primitives.get_bodynames_from_position(edge.midpoint)
+            a = [i for i in body_names if i != self.name and i not in list_names]
+            if a:
+                list_names.extend(a)
+        for face in self.faces:
+            body_names = self._primitives.get_bodynames_from_position(face.center)
+            a = [i for i in body_names if i != self.name and i not in list_names]
+            if a:
+                list_names.extend(a)
+        return list_names
+
+    @property
     def faces(self):
         """Information for each face in the given part.
 
@@ -1792,6 +1854,7 @@ class Object3d(object):
             vMaterial = ["NAME:Material", "Value:=", chr(34) + matobj.name + chr(34)]
             self._change_property(vMaterial)
             self._material_name = matobj.name.lower()
+            self._solve_inside = None
         else:
             self.logger.warning("Material %s does not exist.", mat)
 

@@ -181,6 +181,24 @@ def scale_units(scale_to_unit):
     return sunit
 
 
+def validate_enum_class_value(cls, value):
+    """Check whether the value for the class ``enumeration-class`` is valid.
+
+    Parameters
+    ----------
+    cls : class
+        Enumeration-style class with integer members in range(0, N) where cls.Invalid equals N-1.
+    value : int
+        Value to check.
+
+    Returns
+    -------
+    bool
+        ``True`` when the value is valid for the ``enumeration-class``, ``False`` otherwise.
+    """
+    return isinstance(value, int) and value >= 0 and value < cls.Invalid
+
+
 AEDT_UNITS = {
     "AngularSpeed": {
         "deg_per_hr": HOUR2SEC * DEG2RAD,
@@ -528,19 +546,26 @@ class SolverType(object):
 
 
 class CutoutSubdesignType(object):
-    (Conformal, BoundingBox) = range(0, 2)
+    (Conformal, BoundingBox, Invalid) = range(0, 3)
 
 
 class RadiationBoxType(object):
-    (Conformal, BoundingBox, ConvexHull) = range(0, 3)
+    (Conformal, BoundingBox, ConvexHull, Invalid) = range(0, 4)
 
 
 class SweepType(object):
-    (Linear, LogCount) = range(0, 2)
+    (Linear, LogCount, Invalid) = range(0, 3)
 
 
 class BasisOrder(object):
-    (Mixed, Zero, single, Double) = range(0, 4)
+    """Enumeration-class for HFSS basis order settings.
+
+
+    Warning: the value ``single`` has been renamed to ``Single`` for consistency. Please update references to
+    ``single``.
+    """
+
+    (Mixed, Zero, Single, Double, Invalid) = range(0, 5)
 
 
 class NodeType(object):

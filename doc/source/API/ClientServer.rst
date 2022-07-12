@@ -1,10 +1,10 @@
-Initial Setup and Launching AEDT
+Initial setup and launching AEDT
 ================================
 PyAEDT works both inside AEDT and as a standalone application.
 It automatically detects whether it is running in an IronPython or CPython
 environment and initializes AEDT accordingly.
 
-Initial Setup and Launching AEDT Locally
+Initial setup and launching AEDT locally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You can start AEDT from Python in the graphical or non-graphical mode.
 
@@ -39,7 +39,7 @@ You can obtain the same result with:
     # Desktop is automatically released here.
 
 
-Initial Setup and Launching AEDT Remotely
+Initial setup and launching AEDT remotely
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You can launch PyAEDT on a remote machine if the following conditions are met:
 
@@ -122,7 +122,7 @@ As an alternative, you can upload the script to the server and run it from there
     my_client.root.run_script(remote_script, ansysem_path=ansysem)
 
 
-CPython on Linux with Client-Server
+CPython on Linux with client-server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To bypass current IronPython limits, you can launch PyAEDT on a Linux machine:
@@ -135,7 +135,7 @@ To bypass current IronPython limits, you can launch PyAEDT on a Linux machine:
       # Launch the latest installed version of PyAEDT in graphical mode.
       
       from pyaedt.common_rpc import launch_ironpython_server
-      client = launch_ironpython_server(ansysem_path="/path/to/ansys/executable/folder", non_graphical=True, port=18000)
+      client = launch_ironpython_server(aedt_path="/path/to/ansys/executable/folder", non_graphical=True, port=18000)
       hfss = client.root.hfss()
       # put your code here
 

@@ -13,13 +13,21 @@ In addition to the runtime dependencies listed in the installation information, 
    Add how to install from the AEDT installer like as in https://mapdldocs.pyansys.com/getting_started/running_mapdl.html
 
 
-Installing on CPython v3.7-v3.9 from pypi
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Installing on CPython v3.7-v3.10 from pypi
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Install the prerequisite packages ``pythonnet`` and ``pywin32`` with:
 
 .. code:: python
 
     pip install pyaedt
+
+Pyaedt works with CPython in Linux starting from version 2022R2.
+The following environment variables have to be setup
+
+.. code::
+
+    export ANSYSEM_ROOT222=/path/to/AedtRoot/AnsysEM/v222/Linux64
+    export LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH
 
 
 Offline PyAEDT installation from a wheelhouse

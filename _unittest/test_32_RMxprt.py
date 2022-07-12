@@ -56,3 +56,12 @@ class TestClass(BasisTest, object):
         assert mysetup.props["RatedVoltage"]
         mysetup.props["RatedVoltage"] = "208V"
         assert mysetup.update()  # update only needed for assertion
+
+    def test_05_set_material_threshold(self):
+        assert self.aedtapp.set_material_threshold()
+        conductivity = 123123123
+        permeability = 3
+        assert self.aedtapp.set_material_threshold(conductivity, permeability)
+        assert self.aedtapp.set_material_threshold(str(conductivity), str(permeability))
+        assert not self.aedtapp.set_material_threshold("e", str(permeability))
+        assert not self.aedtapp.set_material_threshold(conductivity, "p")

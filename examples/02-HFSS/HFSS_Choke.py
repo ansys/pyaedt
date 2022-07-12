@@ -27,9 +27,9 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 ###############################################################################
 # Launch HFSS in Graphical Mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches HFSS 2022.1 in graphical mode.
+# This examples launches HFSS 2022.2 in graphical mode.
 
-hfss = Hfss(specified_version="2022.1", non_graphical=non_graphical, new_desktop_session=True, solution_type="Terminal")
+hfss = Hfss(specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True, solution_type="Terminal")
 
 ###############################################################################
 # Rules and information of use
@@ -179,7 +179,7 @@ region = hfss.modeler.create_region(pad_percent=1000)
 
 setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "50MHz"
-setup.props["MaximumPasses"] = 10
+setup["MaximumPasses"] = 10
 hfss.create_linear_count_sweep(
     setupname=setup.name,
     unit="MHz",

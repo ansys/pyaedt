@@ -24,8 +24,6 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SI_UNITS
 from pyaedt.generic.constants import unit_system
 from pyaedt.generic.general_methods import is_number, is_array
-from pyaedt import is_ironpython
-from pyaedt import settings
 
 
 class CSVDataset:
@@ -1353,11 +1351,11 @@ class Variable(object):
         """Read-only flag value."""
         if self._app:
             try:
-                if not is_ironpython and (settings.aedt_version < "2022.2" or not settings.use_grpc_api):
-                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_ReadOnly
-                else:  # pragma: no cover
-                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_ReadOnly()
-
+                return (
+                    self._aedt_obj.GetChildObject("Variables")
+                    .GetChildObject(self._variable_name)
+                    .GetPropValue("ReadOnly")
+                )
             except:
                 return self._readonly
         return self._readonly
@@ -1376,10 +1374,11 @@ class Variable(object):
         """Hidden flag value."""
         if self._app:
             try:
-                if not is_ironpython and (settings.aedt_version < "2022.2" or not settings.use_grpc_api):
-                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Hidden
-                else:  # pragma: no cover
-                    return self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Hidden()
+                return (
+                    self._aedt_obj.GetChildObject("Variables")
+                    .GetChildObject(self._variable_name)
+                    .GetPropValue("Hidden")
+                )
             except:
                 return self._hidden
         return self._hidden
@@ -1398,14 +1397,11 @@ class Variable(object):
         """Description value."""
         if self._app:
             try:
-                if not is_ironpython and (settings.aedt_version < "2022.2" or not settings.use_grpc_api):
-                    return (
-                        self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Description
-                    )
-                else:  # pragma: no cover
-                    return (
-                        self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name).Get_Description()
-                    )
+                return (
+                    self._aedt_obj.GetChildObject("Variables")
+                    .GetChildObject(self._variable_name)
+                    .GetPropValue("Description")
+                )
             except:
                 return self._description
         return self._description

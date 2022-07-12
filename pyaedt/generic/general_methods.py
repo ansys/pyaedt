@@ -1,6 +1,7 @@
 import codecs
 import csv
 import datetime
+import difflib
 import fnmatch
 import inspect
 import itertools
@@ -794,6 +795,114 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
         except:
             pass
     return sessions
+
+
+class PropsManager(object):
+    def __getitem__(self, item):
+        """Get the `self.props` key value.
+
+        Parameters
+        ----------
+        item : str
+            Key to search
+        """
+        item_split = item.split("/")
+        props = self.props
+        found_el = []
+        matching_percentage = 1
+        while matching_percentage >= 0.4:
+            for item_value in item_split:
+                found_el = difflib.get_close_matches(item_value, list(props.keys()), 1, 0.8)
+                if found_el:
+                    props = props[found_el[0]]
+            if found_el:
+                return props
+            else:
+                matching_percentage -= 0.02
+        self._app.logger.warning("Key %s not found.Check one of available keys in self.available_properties", item)
+        return None
+
+    def __setitem__(self, key, value):
+        """Set the `self.props` key value.
+
+        Parameters
+        ----------
+        key : str
+            Key to apply.
+        value : int or float or bool or str or dict
+            Value to apply
+        """
+        item_split = key.split("/")
+        found_el = []
+        props = self.props
+        matching_percentage = 1
+        key_path = []
+        while matching_percentage >= 0.4:
+            for item_value in item_split:
+                found_el = self._recursive_search(props, item_value, matching_percentage)
+                if found_el:
+                    props = found_el[1][found_el[2]]
+                    key_path.append(found_el[2])
+            if found_el:
+                if matching_percentage < 1:
+                    self._app.logger.info(
+                        "Key %s matched internal key '%s' with confidence of %s.",
+                        key,
+                        "/".join(key_path),
+                        round(matching_percentage * 100),
+                    )
+                matching_percentage = 0
+
+            else:
+                matching_percentage -= 0.02
+        if found_el:
+            found_el[1][found_el[2]] = value
+            self.update()
+        else:
+            props[key] = value
+            self.update()
+            self._app.logger.warning("Key %s not found. Trying to applying new key ", key)
+
+    @pyaedt_function_handler()
+    def _recursive_search(self, dict_in, key="", matching_percentage=0.8):
+        f = difflib.get_close_matches(key, list(dict_in.keys()), 1, matching_percentage)
+        if f:
+            return True, dict_in, f[0]
+        else:
+            for v in list(dict_in.values()):
+                if isinstance(v, (dict, OrderedDict)):
+                    out_val = self._recursive_search(v, key, matching_percentage)
+                    if out_val:
+                        return out_val
+        return False
+
+    @pyaedt_function_handler()
+    def _recursive_list(self, dict_in, prefix=""):
+        available_list = []
+        for k, v in dict_in.items():
+            if prefix:
+                name = prefix + "/" + k
+            else:
+                name = k
+            available_list.append(name)
+            if isinstance(v, (dict, OrderedDict)):
+                available_list.extend(self._recursive_list(v, name))
+        return available_list
+
+    @property
+    def available_properties(self):
+        """Available properties.
+
+        Returns
+        -------
+        list
+        """
+        return self._recursive_list(self.props)
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update method."""
+        pass
 
 
 class Settings(object):

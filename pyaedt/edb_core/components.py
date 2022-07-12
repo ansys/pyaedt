@@ -126,10 +126,6 @@ class Components(object):
         return self._pedb.db
 
     @property
-    def _components_methods(self):
-        return self._pedb.edblib.Layout.ComponentsMethods
-
-    @property
     def components(self):
         """Component setup information.
 
@@ -680,12 +676,15 @@ class Components(object):
                         return False
                 for net in net_list:
                     pins = [pin for pin in cmp_pins if pin.GetNet().GetName() == net]
-                    pin_group = self.create_pingroup_from_pins(pins)
-                    if not pin_group:
-                        return False
-                    pin_group_term = self._create_pin_group_terminal(pin_group)
-                    if pin_group_term:
-                        pin_group_term.SetReferenceTerminal(ref_pin_group_term)
+                    if pins:
+                        pin_group = self.create_pingroup_from_pins(pins)
+                        if not pin_group:
+                            return False
+                        pin_group_term = self._create_pin_group_terminal(pin_group)
+                        if pin_group_term:
+                            pin_group_term.SetReferenceTerminal(ref_pin_group_term)
+                    else:
+                        self._logger.info("No pins found on component {} for the net {}".format(component, net))
 
             else:
                 for net in net_list:
@@ -718,10 +717,8 @@ class Components(object):
             self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)),
             0.0,
         )
-        if not is_ironpython:
-            res, from_layer, to_layer = pin.GetLayerRange(None, None)
-        else:
-            res, from_layer, to_layer = pin.GetLayerRange()
+
+        res, from_layer, _ = pin.GetLayerRange()
         cmp_name = pin.GetComponent().GetName()
         net_name = pin.GetNet().GetName()
         pin_name = pin.GetName()
@@ -798,19 +795,14 @@ class Components(object):
             if not component:
                 self._logger.error("component %s not found.", component)
                 return False
-        if is_ironpython:
-            component_type = component.edbcomponent.GetComponentType()
-            if (
-                component_type == self._edb.Definition.ComponentType.Other
-                or component_type == self._edb.Definition.ComponentType.IC
-                or component_type == self._edb.Definition.ComponentType.IO
-            ):
-                self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
-                return False
-        else:
-            if not component.edbcomponent.GetComponentType() in [1, 2, 3]:
-                self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
-                return False
+        component_type = component.edbcomponent.GetComponentType()
+        if (
+            component_type == self._edb.Definition.ComponentType.Other
+            or component_type == self._edb.Definition.ComponentType.IC
+            or component_type == self._edb.Definition.ComponentType.IO
+        ):
+            self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
+            return False
         if create_circuit_port:
             self.add_port_on_rlc_component(component.refdes)
             return True
@@ -946,13 +938,8 @@ class Components(object):
         new_cmp.SetGroup(new_group)
         for pin in pins:
             pin.SetIsLayoutPin(True)
-            if is_ironpython:
-                test = new_group.AddMember(pin)
-            else:
-                if not self._components_methods.AddPinToGroup(new_group, pin):
-                    self._logger.error(
-                        "Failed to add pin {} to the group {}".format(pin.GetName(), new_group.GetName())
-                    )
+            new_group.AddMember(pin)
+
         if not placement_layer:
             new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
         else:
@@ -1519,10 +1506,10 @@ class Components(object):
         """
         if is_ironpython:
             name = clr.Reference[String]()
-            response = pin.GetProductProperty(0, 11, name)
+            pin.GetProductProperty(self._edb.ProductId.Designer, 11, name)
         else:
             val = String("")
-            response, name = pin.GetProductProperty(0, 11, val)
+            _, name = pin.GetProductProperty(self._edb.ProductId.Designer, 11, val)
         name = str(name).strip("'")
         return name
 
@@ -1548,13 +1535,8 @@ class Components(object):
         >>> edbapp.core_components.get_pin_position(pin)
 
         """
-        if is_ironpython:
-            res, pt_pos, rot_pos = pin.GetPositionAndRotation()
-        else:
-            res, pt_pos, rot_pos = pin.GetPositionAndRotation(
-                self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)),
-                0.0,
-            )
+        res, pt_pos, rot_pos = pin.GetPositionAndRotation()
+
         if pin.GetComponent().IsNull():
             transformed_pt_pos = pt_pos
         else:

@@ -1,14 +1,14 @@
 # This is a basic workflow to help you get started with Actions
 
-name: WheelHouse
+name: WheelHouse Linux
 
 env:
   python.venv: 'testvenv'
-  # Following env vars when changed will "reset" the mentioned cache,
+  # Following env vars when changed will "reset" the mentioned cache
   # by changing the cache file name. It is rendered as ...-v%RESET_XXX%-...
-  # You should go up in number, if you go down (or repeat a previous value)
-  # you might end up reusing a previous cache if it haven't been deleted already.
-  # It applies 7 days retention policy by default.
+  # You should go up in number. If you go down (or repeat a previous value),
+  # you might end up reusing a previous cache if it hasn't been deleted already.
+  # It applies a 7-day retention policy by default.
   RESET_PIP_CACHE: 0
   PACKAGE_NAME: PyAEDT
 # Controls when the workflow will run
@@ -28,7 +28,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: [Windows, pyaedt]
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         python-version: [ 3.7, 3.8, 3.9, '3.10']
@@ -40,27 +40,21 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: 'Create virtual env'
+      - name: Install pyaedt
         run: |
-          python -m venv testenv
-          testenv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
           pip install .
-          pip install jupyterlab
 
+      - name: Verify pyaedt can be imported
+        run: python -c "import pyaedt"
 
       - name: Retrieve PyAEDT version
         run: |
-          testenv\Scripts\Activate.ps1
           echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
           echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
         id: version
 
       - name: Generate wheelhouse
         run: |
-          testenv\Scripts\Activate.ps1
           pip install wheel setuptools -U
           pip wheel . -w wheelhouse
 

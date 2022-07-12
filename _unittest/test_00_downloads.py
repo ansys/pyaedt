@@ -50,3 +50,7 @@ class TestClass(BasisTest, object):
     def test_download_custom_report(self):
         out = self.examples.download_custom_reports()
         assert os.path.exists(out)
+
+    def test_download_3dcomp(self):
+        out = self.examples.download_3dcomponent()
+        assert os.path.exists(out)
