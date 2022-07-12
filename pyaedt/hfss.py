@@ -781,7 +781,9 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            raise AttributeError("Invalid `sweep_type`. It must be 'Discrete', 'Interpolating', or 'Fast'.")
+            raise AttributeError(
+                "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+            )
 
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
@@ -880,7 +882,9 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            raise AttributeError("Invalid `sweep_type`. It has to be 'Discrete', 'Interpolating', or 'Fast'.")
+            raise AttributeError(
+                "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+            )
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
