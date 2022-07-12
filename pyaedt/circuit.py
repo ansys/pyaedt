@@ -236,7 +236,9 @@ class Circuit(FieldAnalysisCircuit, object):
                         try:
                             float(fields[4])
                         except:
-                            self.logger.warning("Component {} was not imported. Check it and manually import".format(name))
+                            self.logger.warning(
+                                "Component {} was not imported. Check it and manually import".format(name)
+                            )
                             continue
                     if "{" in fields[3][0]:
                         value = fields[3].strip()[1:-1]
@@ -607,11 +609,11 @@ class Circuit(FieldAnalysisCircuit, object):
         """
         if source_project_name and self.project_name != source_project_name and not source_project_path:
             raise AttributeError(
-                "If the source project is different from the current one, " "``source_project_path`` must also be provided."
+                "If the source project is different from the current one, `source_project_path` must also be provided."
             )
         if source_project_path and not source_project_name:
             raise AttributeError(
-                "When ``source_project_path`` is specified, " "``source_project_name`` must also be provided."
+                "When `source_project_path` is specified, `source_project_name` must also be provided."
             )
         if not source_project_name or self.project_name == source_project_name:
             oSrcProject = self._desktop.GetActiveProject()
