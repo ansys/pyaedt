@@ -3809,7 +3809,7 @@ class Hfss(FieldAnalysis3D, object):
     @pyaedt_function_handler()
     def thicken_port_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
         """Create thickened sheets over a list of input port sheets.
-        
+
         This method is built to work with the output of ``modeler.find_port_faces``.
 
         Parameters
@@ -4480,7 +4480,9 @@ class Hfss(FieldAnalysis3D, object):
                     time_var = var_name
                     break
             if not time_var:
-                self.logger.error("No time variable is found. Set up or explicitly assign a time variable to the method.")
+                self.logger.error(
+                    "No time variable is found. Set up or explicitly assign a time variable to the method."
+                )
                 raise ValueError("No time variable is found.")
         setup = self._create_sbr_doppler_setup(
             "ChirpI",
@@ -5010,7 +5012,6 @@ class Hfss(FieldAnalysis3D, object):
     @pyaedt_function_handler()
     def add_3d_component_array_from_json(self, json_file, array_name=None):
         """Add or edit a new 3D component array from a JSON file.
-        
         The 3D component is placed in the layout if it is not present.
 
         Parameters
@@ -5019,7 +5020,6 @@ class Hfss(FieldAnalysis3D, object):
             Full path to either the JSON file or dictionary containing the array information.
         array_name : str, optional
             Name of the boundary to create or edit.
-
 
         Returns
         -------
