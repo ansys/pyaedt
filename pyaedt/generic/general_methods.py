@@ -1,3 +1,4 @@
+import ast
 import codecs
 import csv
 import datetime
@@ -138,7 +139,7 @@ def convert_remote_object(arg):
                 or _check_types(arg[0]) == "list"
                 or _check_types(arg[0]) == "dict"
             ):
-                a = list(eval(str(arg)))
+                a = list(ast.literal_eval(str(arg)))
                 for i, el in enumerate(a):
                     a[i] = convert_remote_object(el)
                 return a
@@ -147,7 +148,7 @@ def convert_remote_object(arg):
         else:
             return []
     elif _check_types(arg) == "dict":
-        a = dict(eval(str(arg)))
+        a = dict(ast.literal_eval(str(arg)))
         for k, v in a.items():
             a[k] = convert_remote_object(v)
         return a
@@ -511,7 +512,7 @@ def is_number(a):
 
 def is_array(a):
     try:
-        v = list(eval(a))
+        v = list(ast.literal_eval(a))
     except (ValueError, TypeError, NameError, SyntaxError):
         return False
     else:
