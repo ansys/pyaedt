@@ -5,7 +5,7 @@ pywin32==303; python_version > '3.6'
 # https://github.com/mhammond/pywin32
 # License: PSF
 
-pythonnet==3.0.0rc2; python_version > '3.6'
+pythonnet==3.0.0rc3; python_version > '3.6'
 # https://github.com/pythonnet/pythonnet
 # License: MIT
 
@@ -28,7 +28,7 @@ matplotlib==3.5.2; python_version > '3.6'
 # License: https://github.com/matplotlib/matplotlib/blob/master/LICENSE/LICENSE
 # License: PSF
 
-numpy==1.23.0; python_version > '3.6'
+numpy==1.23.1; python_version > '3.6'
 # License: BSD-3-Clause License
 
 ipython==8.4.0; python_version > '3.6'
