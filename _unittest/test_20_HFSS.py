@@ -186,7 +186,9 @@ class TestClass(BasisTest, object):
             )
         except AttributeError as e:
             exception_raised = True
-            assert e.args[0] == "Invalid `sweep_type`. It must be 'Discrete', 'Interpolating', or 'Fast'."
+            assert (
+                e.args[0] == "Invalid value for `sweep_type`. The value must be `Discrete`, `Interpolating`, or `Fast`."
+            )
         assert exception_raised
 
     def test_06b_setup_exists(self):
@@ -242,7 +244,9 @@ class TestClass(BasisTest, object):
             )
         except AttributeError as e:
             exception_raised = True
-            assert e.args[0] == "Invalid `sweep_type`. It has to be 'Discrete', 'Interpolating', or 'Fast'."
+            assert (
+                e.args[0] == "Invalid value for `sweep_type`. The value must be `Discrete`, `Interpolating`, or `Fast`."
+            )
         assert exception_raised
 
     def test_06d_create_single_point_sweep(self):
