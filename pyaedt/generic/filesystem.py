@@ -92,7 +92,16 @@ class Scratch:
             dst_file = os.path.join(self.path, dst_filename)
         else:
             dst_file = os.path.join(self.path, os.path.basename(src_file))
-        shutil.copy2(src_file, dst_file)
+        if os.path.exists(dst_file):
+            try:
+                os.unlink(dst_file)
+            except OSError:  # pragma: no cover
+                pass
+        try:
+            shutil.copy2(src_file, dst_file)
+        except shutil.SameFileError:  # pragma: no cover
+            pass
+
         return dst_file
 
     def copyfolder(self, src_folder, destfolder):
