@@ -501,7 +501,7 @@ class Desktop:
             if student_version:
                 specified_version += "SV"
                 student_version_flag = True
-            assert specified_version in self.version_keys, "Specified version {} is not known.".format(specified_version)
+            assert specified_version in self.version_keys, "Specified version {} is not known".format(specified_version)
             version_key = specified_version
         else:
             if student_version and self.current_version_student:
