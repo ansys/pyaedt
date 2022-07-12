@@ -458,7 +458,7 @@ class Edb(object):
         self, input_file, working_dir, init_dlls=False, anstranslator_full_path="", use_ppe=False, control_file=None
     ):
         """Import a board file and generate an ``edb.def`` file in the working directory.
-        
+
         This function supports all AEDT formats (DXF, GDS, SML (IPC2581), BRD, TGZ ...).
 
         Parameters
@@ -543,21 +543,21 @@ class Edb(object):
         Parameters
         ----------
         ipc_path : str, optional
-            Path to the XML file. The default is ``None``, in which case an attempt is made to find
-            the XML file in the same directory as the active EDB. To succeed, the XML file and active
-            EDT must have the same name. Only the extension differs.   
+            Path to the XML IPC2581 file. The default is ``None``, in which case
+            an attempt is made to find the XML IPC2581 file in the same directory
+            as the active EDB. To succeed, the XML IPC2581 file and the active
+            EDT must have the same name. Only the extension differs.
         units : str, optional
-            Units of the IPC2581 file. Options are ``"millimeter"``,
+            Units of the XML IPC2581 file. Options are ``"millimeter"``,
             ``"inch"``, and ``"micron"``. The default is ``"millimeter"``.
-        
+
         Returns
         -------
         bool
-            ``True`` if succeeded.
-
+            ``True`` if successful, ``False`` if failed.
         """
         if units.lower() not in ["millimeter", "inch", "micron"]:
-            self.logger.warning("The wrong unit is entered. Setting to the default, millimiter.")
+            self.logger.warning("The wrong unit is entered. Setting to the default, millimeter.")
             units = "millimeter"
 
         if not ipc_path:
