@@ -1187,7 +1187,7 @@ class PostProcessorCommon(object):
         >>> oModule.ExportReportDataToFile
         >>> oModule.ExportToFile
         """
-        npath = os.path.normpath(output_dir)
+        npath = output_dir
 
         if "." not in extension:
             extension = "." + extension
@@ -1259,7 +1259,7 @@ class PostProcessorCommon(object):
         >>> oModule.ExportImageToFile
         """
         # path
-        npath = os.path.normpath(project_dir)
+        npath = project_dir
         file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
         self.oreportsetup.ExportImageToFile(plot_name, file_name, 0, 0)
         return True
@@ -3052,7 +3052,8 @@ class PostProcessor(PostProcessorCommon, object):
         list
             Files obj path.
         """
-
+        if obj_list and not isinstance(obj_list, (list, tuple)):
+            obj_list = [obj_list]
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
         if not export_path:
             export_path = self._app.working_directory

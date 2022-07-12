@@ -776,12 +776,18 @@ class GlobalService(rpyc.Service):
         port : int
             gRPC port on which the AEDT session has started.
         """
+        from pyaedt.generic.general_methods import grpc_active_sessions
+
+        sessions = grpc_active_sessions()
         if not port:
             port = check_port(random.randint(18500, 20000))
 
         if port == 0:
             print("Error. No ports are available.")
             return False
+        elif port in sessions:
+            print("AEDT Session already opened on port {}.".format(port))
+            return True
         ansysem_path = ""
         if os.name == "posix":
             ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
