@@ -311,7 +311,7 @@ class TestClass(BasisTest, object):
         except AttributeError as e:
             exception_raised = True
             assert (
-                e.args[0] == "Invalid value for `sweep_type`. The value must be `Discrete`, `Interpolating`, or `Fast`."
+                e.args[0] == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
         assert exception_raised
 
