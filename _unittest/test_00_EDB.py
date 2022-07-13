@@ -514,6 +514,8 @@ if not config["skip_edb"]:
                 comptype="Prod name",
                 refdes="RefDes",
             )
+            assert not self.edbapp.core_components.components["R2L2"].is_enabled
+            self.edbapp.core_components.components["R2L2"].is_enabled = True
             assert self.edbapp.core_components.components["R2L2"].is_enabled
             assert not self.edbapp.core_components.components["R2L2"].is_parallel_rlc
 

@@ -2655,8 +2655,9 @@ class EDBComponent(object):
     def is_enabled(self, enabled):
         """Enables the current object."""
         if self.type in ["Resistor", "Capacitor", "Inductor"]:
-            self.component_property.SetEnabled(enabled)
-            self.edbcomponent.SetComponentProperty(self.component_property)
+            component_property = self.component_property
+            component_property.SetEnabled(enabled)
+            self.edbcomponent.SetComponentProperty(component_property)
 
     @property
     def res_value(self):
