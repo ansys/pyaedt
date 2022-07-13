@@ -23,7 +23,7 @@ You can start AEDT in non-graphical mode from Python:
     # Desktop is automatically closed here.
 
 
-The prededing code launches AEDT and initializes a new Circuit design.
+The preceding code launches AEDT and initializes a new Circuit design.
 
 .. image:: ./aedt_first_page.png
   :width: 800
