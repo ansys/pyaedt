@@ -1031,7 +1031,7 @@ class EdbSiwave(object):
             Stopping frequency. The default is ``1e9``.
         step_freq : float, optional
             Frequency size of the step. The default is ``1e6``.
-        discrete_sweep : bool, optonal
+        discrete_sweep : bool, optional
             Whether the sweep is discrete. The default is ``False``.
 
         Returns
@@ -1081,7 +1081,7 @@ class EdbSiwave(object):
             Stopping frequency. The default is ``1e9``.
         step_freq : float, optional
             Frequency size of the step. The default is ``1e6``.
-        discrete_sweep : bool, optonal
+        discrete_sweep : bool, optional
             Whether the sweep is discrete. The default is ``False``.
 
         Returns

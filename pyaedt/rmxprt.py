@@ -13,7 +13,7 @@ class RMXprtModule(object):
 
     @pyaedt_function_handler()
     def get_prop_server(self, parameter_name):
-        """Retrieve the properties of the server.
+        """Get the properties of the server.
 
         Parameters
         ----------
@@ -119,7 +119,7 @@ class Rotor(RMXprtModule):
 
 
 class Rmxprt(FieldAnalysisRMxprt):
-    """Provides the RMxprt application interface.
+    """Provides the RMxprt app interface.
 
     Parameters
     ----------
@@ -134,7 +134,7 @@ class Rmxprt(FieldAnalysisRMxprt):
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
-        ``None``, in which ase the default type is applied.
+        ``None``, in which case the default type is applied.
     model_units : str, optional
         Model units.
     setup_name : str, optional
@@ -154,20 +154,21 @@ class Rmxprt(FieldAnalysisRMxprt):
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
     close_on_exit : bool, optional
-        Whether to release AEDT on exit. The default is ``True``.
+        Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
     machine : str, optional
-        Machine name to which connect the oDesktop Session. Works only on 2022R2.
-        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
-        If machine is `"localhost"` the server will also start if not present.
+        Machine name to connect the oDesktop session to. This works only in 2022 R2 or
+        later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`, the
+        server also starts if not present.
     port : int, optional
-        Port number of which start the oDesktop communication on already existing server.
-        This parameter is ignored in new server creation. It works only on 2022R2.
-        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+        Port number on which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 or later.
+        The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
-        Only used when ``new_desktop_session = False``, specifies by process ID which instance
-        of Electronics Desktop to point PyAEDT at.
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------

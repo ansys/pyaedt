@@ -31,8 +31,8 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         ``None``, in which case the active setup is used or
         nothing is used.
     specified_version : str, optional
-        Version of AEDT to use. The default is ``None``. If ``None``,
-        the active setup is used or the latest installed version is
+        Version of AEDT to use. The default is ``None``, in which
+        case the active setup or latest installed version is
         used.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
@@ -43,20 +43,21 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
     close_on_exit : bool, optional
-        Whether to release AEDT on exit. The default is ``True``.
+        Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether open AEDT Student Version. The default is ``False``.
+        Whether to open the AEDT student version. The default is ``False``.
     machine : str, optional
-        Machine name to which connect the oDesktop Session. Works only on 2022R2.
-        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
-        If machine is `"localhost"` the server will also start if not present.
+        Machine name to connect the oDesktop session to. This works only in 2022 R2
+        or later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`,
+        the server also starts if not present.
     port : int, optional
-        Port number of which start the oDesktop communication on already existing server.
-        This parameter is ignored in new server creation. It works only on 2022R2.
-        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+        Port number on which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 or later.
+        The remote server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
-        Only used when ``new_desktop_session = False``, specifies by process ID which instance
-        of Electronics Desktop to point PyAEDT at.
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
@@ -272,7 +273,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         expression :
 
         analysis_name : str, optional
-             Name of the analysis. The default is ``"TR"``.
+            Name of the analysis. The default is ``"TR"``.
 
         Returns
         -------
