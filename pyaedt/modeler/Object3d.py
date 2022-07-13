@@ -4200,6 +4200,7 @@ class UserDefinedComponent(object):
 
         return False
 
+    @pyaedt_function_handler()
     def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
         """Duplicate the component around the axis.
 
@@ -4286,3 +4287,24 @@ class UserDefinedComponent(object):
 
         """
         return self._primitives.oeditor
+
+    def __str__(self):
+        return """
+         {}
+         is3dcomponent: {}   parts: {}
+         --- read/write properties  ----
+         name: {}
+         group_name: {}
+         mesh_assembly: {}
+         parameters: {}
+         target_coordinate_system: {}
+         """.format(
+            type(self),
+            self.is3dcomponent,
+            self.parts,
+            self.name,
+            self.group_name,
+            self.mesh_assembly,
+            self.parameters,
+            self.target_coordinate_system,
+        )
