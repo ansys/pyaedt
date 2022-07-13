@@ -3,6 +3,7 @@ This module contains these Primitives classes: `Polyline` and `Primitives`.
 """
 from __future__ import absolute_import  # noreorder
 
+import copy
 import math
 import os
 import time
@@ -19,6 +20,7 @@ from pyaedt.modeler.Object3d import _uname
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import Object3d
+from pyaedt.modeler.Object3d import UserDefinedComponent
 from pyaedt.modules.MaterialLib import Material
 from pyaedt.modeler.object3dlayout import Point
 
@@ -996,8 +998,8 @@ class Primitives(object):
         return self._all_object_names
 
     @property
-    def components_3d_names(self):
-        """List of the names of all 3d components objects.
+    def user_defined_component_names(self):
+        """List of the names of all 3D component objects.
 
         References
         ----------
@@ -1010,9 +1012,19 @@ class Primitives(object):
             comps3d = self.oeditor.Get3DComponentDefinitionNames()
             for comp3d in comps3d:
                 obs3d += list(self.oeditor.Get3DComponentInstanceNames(comp3d))
+            udm = self._get_user_defined_component_names()
+            obs3d = list(set(udm + obs3d))
+            new_obs3d = copy.deepcopy(obs3d)
+            if self.user_defined_components:
+                existing_components = list(self.user_defined_components.keys())
+                new_obs3d = [i for i in obs3d if i]
+                for _, value in enumerate(existing_components):
+                    if value not in new_obs3d:
+                        new_obs3d.append(value)
+
         except Exception as e:
-            obs3d = []
-        return obs3d
+            new_obs3d = []
+        return new_obs3d
 
     @property
     def _oproject(self):
@@ -1090,6 +1102,18 @@ class Primitives(object):
                 non_existent.append(name)
         report = {"Missing Objects": missing, "Non-Existent Objects": non_existent}
         return report
+
+    @pyaedt_function_handler()
+    def _change_component_property(self, vPropChange, names_list):
+        names = self._app.modeler.convert_to_selections(names_list, True)
+        vChangedProps = ["NAME:ChangedProps", vPropChange]
+        vPropServers = ["NAME:PropServers"]
+        for el in names:
+            vPropServers.append(el)
+        vGeo3d = ["NAME:General", vPropServers, vChangedProps]
+        vOut = ["NAME:AllTabs", vGeo3d]
+        _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        return True
 
     @pyaedt_function_handler()
     def _change_geometry_property(self, vPropChange, names_list):
@@ -1898,6 +1922,7 @@ class Primitives(object):
         self._unclassified = []
         self._all_object_names = []
         self.objects = {}
+        self.user_defined_components = {}
         self.object_id_dict = {}
         self._currentId = 0
         self.refresh_all_ids()
@@ -1981,6 +2006,24 @@ class Primitives(object):
                 added_objects.append(obj_name)
         return added_objects
 
+    @pyaedt_function_handler()
+    def add_new_user_defined_component(self):
+        """Add 3D components and user-defined models that have been created in the modeler by
+        previous operations.
+
+        Returns
+        -------
+        list
+            List of added components.
+
+        """
+        added_component = []
+        for comp_name in self.user_defined_component_names:
+            if comp_name not in self.user_defined_components:
+                self._create_user_defined_component(comp_name)
+            added_component.append(comp_name)
+        return added_component
+
     # TODO Eliminate this - check about import_3d_cad
     # Should no longer be a problem
     @pyaedt_function_handler()
@@ -1988,6 +2031,7 @@ class Primitives(object):
         """Refresh all IDs."""
 
         self.add_new_objects()
+        self.add_new_user_defined_component()
         self.cleanup_objects()
 
         return len(self.objects)
@@ -3290,6 +3334,12 @@ class Primitives(object):
         return o
 
     @pyaedt_function_handler()
+    def _create_user_defined_component(self, name):
+        o = UserDefinedComponent(self, name)
+        self.user_defined_components[name] = o
+        return o
+
+    @pyaedt_function_handler()
     def _create_point(self, name):
         point = Point(self, name)
         self._point_names[name] = point
@@ -3524,8 +3574,33 @@ class Primitives(object):
         return None
 
     @pyaedt_function_handler()
+    def _get_user_defined_component_names(self):
+        """Get list of names for user-defined models.
+
+        Returns
+        -------
+        list
+           List of names for user-defined models.
+        """
+        udm_lists = []
+        if self._app.design_properties and self._app.design_properties.get("ModelSetup", None):
+            try:
+                entity_list = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
+                    "UserDefinedModels"
+                ]
+                if entity_list:
+                    udm_entry = entity_list["UserDefinedModel"]
+                    if isinstance(udm_entry, (dict, OrderedDict)):
+                        udm_entry = [udm_entry]
+                    for data in udm_entry:
+                        udm_lists.append(data["Attributes"]["Name"])
+            except:
+                self.logger.error("User-defined models were not retrieved from the AEDT file.")
+        return udm_lists
+
+    @pyaedt_function_handler()
     def __getitem__(self, partId):
-        """Return the object ``Object3D`` for a given object ID or object name.
+        """Get the object ``Object3D`` for a given object ID or object name.
 
         Parameters
         ----------
@@ -3538,10 +3613,13 @@ class Primitives(object):
             Returns None if the part ID or the object name is not found.
 
         """
-        if isinstance(partId, int) and partId in self.objects:
-            return self.objects[partId]
+        if isinstance(partId, int):
+            if partId in self.objects:
+                return self.objects[partId]
         elif partId in self.object_id_dict:
             return self.objects[self.object_id_dict[partId]]
-        elif isinstance(partId, Object3d):
+        elif partId in self.user_defined_components:
+            return self.user_defined_components[partId]
+        elif isinstance(partId, Object3d) or isinstance(partId, UserDefinedComponent):
             return partId
         return None

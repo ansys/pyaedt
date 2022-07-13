@@ -2513,7 +2513,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objid : str, int, or Object3d
+        objid : str, int, Object3d or UserDefinedComponent
             Name or ID of the object.
         cs_axis :
             Coordinate system axis or the Application.CoordinateSystemAxis object.
@@ -2553,22 +2553,23 @@ class GeometryModeler(Modeler, object):
             str(nclones),
         ]
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
-        if is_3d_comp:
-            orig_3d = [i for i in self.components_3d_names]
         added_objs = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
         self._duplicate_added_objects_tuple()
         if is_3d_comp:
-            added_3d_comps = [i for i in self.components_3d_names if i not in orig_3d]
-            if added_3d_comps:
-                self.logger.info("Found 3D Components Duplication")
-                return True, added_3d_comps
-
+            return self._duplicate_added_components_tuple()
         return True, list(added_objs)
 
     def _duplicate_added_objects_tuple(self):
         added_objects = self.add_new_objects()
         if added_objects:
             return True, added_objects
+        else:
+            return False, []
+
+    def _duplicate_added_components_tuple(self):
+        added_component = self.add_new_user_defined_component()
+        if added_component:
+            return True, added_component
         else:
             return False, []
 
@@ -2620,15 +2621,10 @@ class GeometryModeler(Modeler, object):
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
         vArg2.append("Numclones:="), vArg2.append(str(nclones))
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
-        if is_3d_comp:
-            orig_3d = [i for i in self.components_3d_names]
         added_objs = self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
         self._duplicate_added_objects_tuple()
         if is_3d_comp:
-            added_3d_comps = [i for i in self.components_3d_names if i not in orig_3d]
-            if added_3d_comps:
-                self.logger.info("Found 3D Components Duplication")
-                return True, added_3d_comps
+            return self._duplicate_added_components_tuple()
         return True, list(added_objs)
 
     @pyaedt_function_handler()
