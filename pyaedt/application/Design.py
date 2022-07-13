@@ -490,7 +490,7 @@ class Design(AedtObjects, object):
 
         >>> oProject.GetPath
         """
-        return os.path.normpath(self.oproject.GetPath())
+        return self.oproject.GetPath()
 
     @property
     def project_time_stamp(self):
@@ -594,7 +594,7 @@ class Design(AedtObjects, object):
 
         >>> oDesktop.GetPersonalLibDirectory
         """
-        return os.path.normpath(self.odesktop.GetPersonalLibDirectory())
+        return self.odesktop.GetPersonalLibDirectory()
 
     @property
     def userlib(self):
@@ -610,7 +610,7 @@ class Design(AedtObjects, object):
 
         >>> oDesktop.GetUserLibDirectory
         """
-        return os.path.normpath(self.odesktop.GetUserLibDirectory())
+        return self.odesktop.GetUserLibDirectory()
 
     @property
     def syslib(self):
@@ -626,7 +626,7 @@ class Design(AedtObjects, object):
 
         >>> oDesktop.GetLibraryDirectory
         """
-        return os.path.normpath(self.odesktop.GetLibraryDirectory())
+        return self.odesktop.GetLibraryDirectory()
 
     @property
     def src_dir(self):
@@ -674,7 +674,7 @@ class Design(AedtObjects, object):
             Full absolute path for the ``temp`` directory.
 
         """
-        return os.path.normpath(self.odesktop.GetTempDirectory())
+        return self.odesktop.GetTempDirectory()
 
     @property
     def toolkit_directory(self):
@@ -690,7 +690,11 @@ class Design(AedtObjects, object):
 
         toolkit_directory = os.path.join(self.project_path, self.project_name + ".pyaedt")
         if not os.path.isdir(toolkit_directory):
-            os.mkdir(toolkit_directory)
+            try:
+                os.mkdir(toolkit_directory)
+            except FileNotFoundError:
+                toolkit_directory = self.results_directory
+
         return toolkit_directory
 
     @property
@@ -706,7 +710,10 @@ class Design(AedtObjects, object):
         """
         working_directory = os.path.join(self.toolkit_directory, self.design_name)
         if not os.path.isdir(working_directory):
-            os.mkdir(working_directory)
+            try:
+                os.mkdir(working_directory)
+            except FileNotFoundError:
+                working_directory = os.path.join(self.toolkit_directory, self.design_name + ".results")
         return working_directory
 
     @property
@@ -2912,7 +2919,7 @@ class Design(AedtObjects, object):
         return _retry_ntimes(10, self._odesign.RenameDesignInstance, self.design_name, new_name)
 
     @pyaedt_function_handler()
-    def copy_design_from(self, project_fullname, design_name):
+    def copy_design_from(self, project_fullname, design_name, save_project=True, set_active_design=True):
         """Copy a design from a project into the active design.
 
         Parameters
@@ -2924,6 +2931,10 @@ class Design(AedtObjects, object):
             Name of the design to copy into the active design. If a design with this
             name is already present in the destination project, AEDT automatically
             changes the name.
+        save_project : bool, optional
+            Save the project after the design has been copied. Default value is `True`.
+        set_active_design : bool, optional
+            Set the design active after it has been copied. Default value is `True`.
 
         Returns
         -------
@@ -2958,12 +2969,12 @@ class Design(AedtObjects, object):
             new_designname = new_designname[2:]  # name is returned as '2;EMDesign3'
         # close the source project
         self.odesktop.CloseProject(proj_from_name)
-        # reset the active design (very important)
-        self.save_project()
-        self._close_edb()
-        self._init_design(project_name=self.project_name, design_name=new_designname)
-        self.set_active_design(active_design)
-
+        if save_project:
+            self.save_project()
+        if set_active_design:
+            self._close_edb()
+            self._init_design(project_name=self.project_name, design_name=new_designname)
+            self.set_active_design(active_design)
         # return the pasted design name
         return new_designname
 

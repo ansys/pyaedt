@@ -26,8 +26,16 @@ import warnings
 
 from pyaedt import is_ironpython
 
-if os.name == "posix" and is_ironpython:
+if os.name == "nt":
+    IsWindows = True
+else:
+    IsWindows = False
+    os.environ["ANS_NODEPCHECK"] = str(1)
+
+if not IsWindows and is_ironpython:
     import subprocessdotnet as subprocess
+
+
 else:
     import subprocess
 
@@ -42,11 +50,6 @@ pathname = os.path.dirname(__file__)
 
 pyaedtversion = __version__
 
-
-if os.name == "nt":
-    IsWindows = True
-else:
-    IsWindows = False
 
 if is_ironpython:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
@@ -66,7 +69,7 @@ elif IsWindows:  # pragma: no cover
 
         _com = "pywin32"
     else:
-        raise Exception("Error. No win32com.client or Pythonnet modules found. Install them and try again.")
+        raise Exception("Error. No win32com.client or PythonNET modules found. Install them and try again.")
 else:
     _com = "pythonnet_v3"
 
@@ -378,8 +381,8 @@ class Desktop:
                 self._logger.info("Launching PyAEDT outside AEDT with IronPython.")
                 self._init_ironpython(non_graphical, new_desktop_session, version)
             elif _com == "pythonnet_v3":
-                if version_key < "2022.2" or not settings.use_grpc_api:
-                    self._logger.info("Launching PyAEDT outside Electronics Desktop with CPython and Pythonnet")
+                if version_key < "2022.2" or not (settings.use_grpc_api or os.name == "posix"):
+                    self._logger.info("Launching PyAEDT outside AEDT with CPython and PythonNET.")
                     self._init_cpython(
                         non_graphical,
                         new_desktop_session,
@@ -389,6 +392,7 @@ class Desktop:
                         aedt_process_id,
                     )
                 else:
+                    settings.use_grpc_api = True
                     self._init_cpython_new(non_graphical, new_desktop_session, version, self._main.student_version)
             else:
                 oAnsoftApp = win32com.client.Dispatch(version)
@@ -575,7 +579,10 @@ class Desktop:
         version_key,
         aedt_process_id=None,
     ):
-
+        if os.name == "posix":
+            raise Exception(
+                "PyAEDT supports COM initialization in Windows only. To use in Linux, upgrade to AEDT 2022 R2 or later."
+            )
         base_path = self._main.sDesktopinstallDirectory
         sys.path.append(base_path)
         sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
@@ -586,7 +593,7 @@ class Desktop:
         self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
         self._main.COMUtil = self.COMUtil
         StandalonePyScriptWrapper = AnsoftCOMUtil.Ansoft.CoreCOMScripting.COM.StandalonePyScriptWrapper
-        self.logger.info("Launching AEDT with module Pythonnet.")
+        self.logger.info("Launching AEDT with module PythonNET.")
         processID = []
         if IsWindows:
             processID = self._get_tasks_list_windows(student_version)
@@ -639,7 +646,7 @@ class Desktop:
         if os.name == "posix":
             if os.environ.get("LD_LIBRARY_PATH"):
                 os.environ["LD_LIBRARY_PATH"] = (
-                    os.path.join(base_path, "defer") + os.pathsep + os.environ["LD_LIBARY_PATH"]
+                    os.path.join(base_path, "defer") + os.pathsep + os.environ["LD_LIBRARY_PATH"]
                 )
             else:
                 os.environ["LD_LIBRARY_PATH"] = os.path.join(base_path, "defer")
@@ -876,7 +883,7 @@ class Desktop:
         else:
             oproject = self.odesktop.SetActiveProject(project_name)
         if oproject:
-            return os.path.normpath(oproject.GetPath())
+            return oproject.GetPath()
         return None
 
     @pyaedt_function_handler()
@@ -949,7 +956,7 @@ class Desktop:
             Full absolute path for the ``PersonalLib`` directory.
 
         """
-        return os.path.normpath(self.odesktop.GetPersonalLibDirectory())
+        return self.odesktop.GetPersonalLibDirectory()
 
     @property
     def userlib(self):
@@ -961,7 +968,7 @@ class Desktop:
             Full absolute path for the ``UserLib`` directory.
 
         """
-        return os.path.normpath(self.odesktop.GetUserLibDirectory())
+        return self.odesktop.GetUserLibDirectory()
 
     @property
     def syslib(self):
@@ -973,7 +980,7 @@ class Desktop:
             Full absolute path for the ``SysLib`` directory.
 
         """
-        return os.path.normpath(self.odesktop.GetLibraryDirectory())
+        return self.odesktop.GetLibraryDirectory()
 
     @property
     def aedt_version_id(self):

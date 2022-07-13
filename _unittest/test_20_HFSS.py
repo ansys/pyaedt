@@ -1,6 +1,6 @@
 import os
 
-from conftest import config
+from _unittest.conftest import config
 
 try:
     import pytest
@@ -980,3 +980,10 @@ class TestClass(BasisTest, object):
         dict_in["cells"][(3, 3)]["rotation"] = 90
         assert self.aedtapp.add_3d_component_array_from_json(dict_in)
         pass
+
+    def test_52_set_material_threshold(self):
+        assert self.aedtapp.set_material_threshold()
+        threshold = 123123123
+        assert self.aedtapp.set_material_threshold(threshold)
+        assert self.aedtapp.set_material_threshold(str(threshold))
+        assert not self.aedtapp.set_material_threshold("e")

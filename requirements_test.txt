@@ -1,6 +1,6 @@
-pyvista==0.34.2
+pyvista==0.35.1
 matplotlib==3.5.2
-numpy==1.23.0
+numpy==1.23.1
 pytest==7.1.2
 pytest-cov==3.0.0
 codecov==2.1.12

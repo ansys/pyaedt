@@ -353,9 +353,8 @@ class CircuitComponents(object):
         num_terminal = int(os.path.splitext(touchstone_full_path)[1].lower().strip(".sp"))
         with open(touchstone_full_path, "r") as f:
             port_names = _parse_ports_name(f)
-        image_subcircuit_path = os.path.normpath(
-            os.path.join(self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp")
-        )
+        image_subcircuit_path = os.path.join(self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp")
+
         if not port_names:
             port_names = ["Port" + str(i + 1) for i in range(num_terminal)]
         arg = [
@@ -1111,6 +1110,32 @@ class CircuitComponents(object):
             val = "{0}{1}".format(Value, sUnits)
 
         return val
+
+    @pyaedt_function_handler()
+    def create_line(self, points_array, color=0, line_width=0):
+        """Draw a graphical line.
+
+        Parameters
+        ----------
+        points_array : list
+            A nested list of point coordinates. For example,
+            ``[[x1, y1], [x2, y2], ...]``.
+        color : string or 3 item list, optional
+            Color or the line. The default is ``0``.
+        line_width : float, optional
+            Width of the line. The default is ``0``.
+        Returns
+        -------
+
+        >>> oEditor.CreateLine
+        """
+
+        pointlist = [str(tuple(i)) for i in points_array]
+        id = self.create_unique_id()
+        return self.oeditor.CreateLine(
+            ["NAME:LineData", "Points:=", pointlist, "LineWidth:=", line_width, "Color:=", color, "Id:=", id],
+            ["NAME:Attributes", "Page:=", 1],
+        )
 
 
 class ComponentInfo(object):

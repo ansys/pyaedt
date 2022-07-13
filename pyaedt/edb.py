@@ -21,7 +21,9 @@ try:
     from System.Collections.Generic import List
 except ImportError:  # pragma: no cover
     if os.name != "posix":
-        warnings.warn("Python.NET is needed to run PyAEDT.")
+        warnings.warn("PythonNET is needed to run PyAEDT.")
+    elif sys.version[0] == 3 and sys.version[1] < 7:
+        warnings.warn("EDB requires Linux Python 3.7 or later.")
 from pyaedt import settings
 from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder, SimulationConfiguration
@@ -35,6 +37,7 @@ from pyaedt.generic.general_methods import (
     is_ironpython,
     inside_desktop,
 )
+from pyaedt.misc.misc import list_installed_ansysem
 from pyaedt.aedt_logger import AedtLogger
 from pyaedt.generic.process import SiwaveSolve
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -51,7 +54,7 @@ try:
 except ImportError:
     if os.name != "posix":
         warnings.warn(
-            "The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module."
+            "The clr is missing. Install PythonNET or use an IronPython version if you want to use the EDB module."
         )
         edb_initialized = False
 
@@ -106,7 +109,7 @@ class Edb(object):
         edbpath=None,
         cellname=None,
         isreadonly=False,
-        edbversion="2021.2",
+        edbversion=None,
         isaedtowned=False,
         oproject=None,
         student_version=False,
@@ -139,6 +142,12 @@ class Edb(object):
 
             self.student_version = student_version
             self.logger.info("Logger is initialized in EDB.")
+            if not edbversion:
+                try:
+                    edbversion = "20{}.{}".format(list_installed_ansysem()[0][-3:-1], list_installed_ansysem()[0][-1:])
+                    self._logger.info("Edb version " + edbversion)
+                except IndexError:
+                    raise Exception("No ANSYSEM_ROOTxxx is found.")
             self.edbversion = edbversion
             self.isaedtowned = isaedtowned
             self._init_dlls()
@@ -260,11 +269,16 @@ class Edb(object):
                         self.base_path = edb_path
                         sys.path.append(edb_path)
                         os.environ[env_value(self.edbversion)] = self.base_path
-
-            clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
-            clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
-            clr.AddReferenceToFile("EdbLib.dll")
-            clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
+            if is_ironpython:
+                clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
+                clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
+                clr.AddReferenceToFile("EdbLib.dll")
+                clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
+            else:
+                clr.AddReference("Ansys.Ansoft.Edb")
+                clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
+                clr.AddReference("EdbLib")
+                clr.AddReference("Ansys.Ansoft.SimSetupData")
         else:
             if self.student_version:
                 self.base_path = env_path_student(self.edbversion)
@@ -291,7 +305,7 @@ class Edb(object):
     def edblib(self):
         """EdbLib object containing advanced EDB methods not accessible directly from Python."""
         if not self._edblib:
-            if os.name == "posix":
+            if os.name == "posix" and is_ironpython:
                 clr.AddReferenceToFile("EdbLib.dll")
                 clr.AddReferenceToFile("DataModel.dll")
             else:
@@ -487,18 +501,26 @@ class Edb(object):
         if not working_dir:
             working_dir = os.path.dirname(input_file)
         if os.name == "posix":
-            cmd_translator = "{} {} {}".format(command, input_file, os.path.join(working_dir, aedb_name))
-            cmd_translator += " -l={}".format(os.path.join(working_dir, "Translator.log"))
+            cmd_translator = [
+                command,
+                input_file,
+                os.path.join(working_dir, aedb_name),
+                "-l={}".format(os.path.join(working_dir, "Translator.log")),
+            ]
         else:
-            cmd_translator = '"{}" "{}" "{}"'.format(command, input_file, os.path.join(working_dir, aedb_name))
-            cmd_translator += ' -l="{}"'.format(os.path.join(working_dir, "Translator.log"))
+            cmd_translator = [
+                command,
+                input_file,
+                os.path.join(working_dir, aedb_name),
+                '-l="{}"'.format(os.path.join(working_dir, "Translator.log")),
+            ]
         if not use_ppe:
-            cmd_translator += " -ppe=false"
+            cmd_translator.append("-ppe=false")
         if control_file and input_file[-3:] not in ["brd"]:
             if os.name == "posix":
-                cmd_translator += " -c={}".format(control_file)
+                cmd_translator.append("-c={}".format(control_file))
             else:
-                cmd_translator += ' -c="{}"'.format(control_file)
+                cmd_translator.append('-c="{}"'.format(control_file))
         p = subprocess.Popen(cmd_translator)
         p.wait()
         if not os.path.exists(os.path.join(working_dir, aedb_name)):
@@ -1634,7 +1656,7 @@ class Edb(object):
                 old_cell_name = self.active_cell.GetName()
                 if self.create_cutout(simulation_setup=simulation_setup, output_aedb_path=simulation_setup.output_aedb):
                     self.logger.info("Cutout processed.")
-                    old_cell = self.active_cell.FindByName(self._db, 0, old_cell_name)
+                    old_cell = self.active_cell.FindByName(self._db, self.edb.Cell.CellType.CircuitCell, old_cell_name)
                     if old_cell:
                         old_cell.Delete()
                 else:  # pragma: no cover

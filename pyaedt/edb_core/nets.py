@@ -61,11 +61,6 @@ class EdbNets(object):
         return self._pedb.logger
 
     @property
-    def _nets_methods(self):
-        """ """
-        return self._pedb.edblib.Layout.NetsMethods
-
-    @property
     def nets(self):
         """Nets.
 
