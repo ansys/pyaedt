@@ -3907,7 +3907,7 @@ class UserDefinedComponent(object):
 
     @property
     def is3dcomponent(self):
-        """3DComponent flag.
+        """3D Component flag.
 
         Returns
         -------
