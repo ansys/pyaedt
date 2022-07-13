@@ -4150,8 +4150,7 @@ class UserDefinedComponent(object):
         Returns
         -------
         pyaedt.modeler.Object3d.UserDefinedComponent, bool
-            3D object.
-            ``False`` when failed.
+            3D object when successful, ``False`` when failed.
 
         References
         ----------
