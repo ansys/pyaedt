@@ -2513,7 +2513,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objid : str, int, Object3d or UserDefinedd
+        objid : str, int, Object3d or UserDefinedComponent
             Name or ID of the object.
         cs_axis :
             Coordinate system axis or the Application.CoordinateSystemAxis object.
