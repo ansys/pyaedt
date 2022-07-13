@@ -3983,7 +3983,6 @@ class UserDefinedComponent(object):
                 self._m_name = component_name
         else:
             self._logger.warning("Name %s already assigned in the design", component_name)
-            pass
 
     @property
     def parameters(self):
@@ -4259,7 +4258,7 @@ class UserDefinedComponent(object):
 
         """
         if self.is3dcomponent:
-            ret, added_objects = self._primitives.modeler.duplicate_along_line(
+            _, added_objects = self._primitives.modeler.duplicate_along_line(
                 self.name, vector, nclones, attachObject, True
             )
             return added_objects

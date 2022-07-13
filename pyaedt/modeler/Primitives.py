@@ -1018,9 +1018,9 @@ class Primitives(object):
             if self.user_defined_components:
                 existing_components = list(self.user_defined_components.keys())
                 new_obs3d = [i for i in obs3d if i]
-                for i in range(0, len(existing_components)):
-                    if existing_components[i] not in new_obs3d:
-                        new_obs3d.append(existing_components[i])
+                for _, value in enumerate(existing_components):
+                    if value not in new_obs3d:
+                        new_obs3d.append(value)
 
         except Exception as e:
             new_obs3d = []
