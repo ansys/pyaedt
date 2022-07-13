@@ -372,7 +372,7 @@ class FieldAnalysis3D(Analysis, object):
         design :
             Starting application object. For example, ``hfss1= HFSS3DLayout``.
         object_list : list, optional
-            List of objects to copy. The default is ``None``.
+            List of objects and user defined components to copy. The default is ``None``.
         no_vacuum : bool, optional
             Whether to include vacuum objects for the copied objects.
             The default is ``True``.
@@ -394,24 +394,34 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.Paste
         """
         body_list = design.modeler.solid_names
-        udm_list = design.modeler.user_defined_models
+        udc_list = design.modeler.user_defined_component_names
+        original_design_type = design.design_type
+        dest_design_type = self.design_type
+        new_udc_list = []
         if include_sheets:
             body_list += design.modeler.sheet_names
-        if udm_list:
-            for udm in udm_list:
-                body_list = body_list + udm.parts
-            body_list = [i for i in body_list if body_list.count(i) == 1]
+        if udc_list:
+            for udc in udc_list:
+                if (
+                    original_design_type != dest_design_type
+                    and not design.modeler.user_defined_components[udc].is3dcomponent
+                    or original_design_type == dest_design_type
+                ):
+                    new_udc_list.append(udc)
+                for part_id in design.modeler.user_defined_components[udc].parts:
+                    if design.modeler.user_defined_components[udc].parts[part_id].name in body_list:
+                        body_list.remove(design.modeler.user_defined_components[udc].parts[part_id].name)
 
         selection_list = []
-        udm_selection = []
+        udc_selection = []
         material_properties = design.modeler.objects
         selections = self.modeler.convert_to_selections(object_list, True)
 
         if selections:
             selection_list = [i for i in selections if i in body_list]
-            for udm in udm_list:
-                if udm.name in selections:
-                    udm_selection.append(udm.name)
+            for udc in new_udc_list:
+                if udc in selections:
+                    udc_selection.append(udc)
         else:
             for body in body_list:
                 include_object = True
@@ -423,16 +433,15 @@ class FieldAnalysis3D(Analysis, object):
                             include_object = False
                 if include_object:
                     selection_list.append(body)
-            for udm in udm_list:
-                udm_selection.append(udm.name)
-        selection_list = selection_list + udm_selection
-
+            for udm in new_udc_list:
+                udc_selection.append(udm)
+        selection_list = selection_list + udc_selection
         design.modeler.oeditor.Copy(["NAME:Selections", "Selections:=", ",".join(selection_list)])
         self.modeler.oeditor.Paste()
-        self.modeler.refresh_all_ids()
-        if udm_selection:
+        if udc_selection:
             self.save_project()
             self._project_dictionary = None
+        self.modeler.refresh_all_ids()
         return True
 
     @pyaedt_function_handler()

@@ -6,6 +6,7 @@ from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 from _unittest.conftest import scratch_path
+from pyaedt import Hfss
 from pyaedt import Icepak
 
 try:
@@ -301,15 +302,55 @@ class TestClass(BasisTest, object):
         new_design.delete_design(design_name)
         new_design.close_project(project_name)
 
-    def test_26_get_all_conductors(self):
+    def test_26_copy_solid_bodies_udm_3dcomponent(self):
+        my_udmPairs = []
+        mypair = ["ILD Thickness (ILD)", "0.006mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Line Spacing (LS)", "0.004mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Line Thickness (LT)", "0.005mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Line Width (LW)", "0.004mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["No. of Turns (N)", 2]
+        my_udmPairs.append(mypair)
+        mypair = ["Outer Diameter (OD)", "0.15mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Substrate Thickness", "0.2mm"]
+        my_udmPairs.append(mypair)
+        mypair = [
+            "Inductor Type",
+            '"Square,Square,Octagonal,Circular,Square-Differential,Octagonal-Differential,Circular-Differential"',
+        ]
+        my_udmPairs.append(mypair)
+        mypair = ["Underpass Thickness (UT)", "0.001mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Via Thickness (VT)", "0.001mm"]
+        my_udmPairs.append(mypair)
+
+        obj_udm = self.aedtapp.modeler.create_udm(
+            udmfullname="Maxwell3D/OnDieSpiralInductor.py", udm_params_list=my_udmPairs, udm_library="syslib"
+        )
+
+        compfile = self.aedtapp.components3d["ADDA_AB0305MB_GA0"]
+        obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile)
+        dest = Icepak(designname="IcepakDesign1", specified_version=desktop_version)
+        dest.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])
+        dest.delete_design("IcepakDesign1")
+        dest = Icepak(designname="IcepakDesign1", specified_version=desktop_version)
+        dest.copy_solid_bodies_from(self.aedtapp)
+        dest2 = Hfss(designname="uUSB", specified_version=desktop_version)
+        dest2.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])
+
+    def test_27_get_all_conductors(self):
         conductors = self.aedtapp.get_all_conductors_names()
-        assert sorted(conductors) == ["box", "network_box", "network_box2"]
+        assert sorted(conductors) == ["Inductor", "Paddle", "box", "network_box", "network_box2"]
 
-    def test_27_get_all_dielectrics(self):
+    def test_28_get_all_dielectrics(self):
         dielectrics = self.aedtapp.get_all_dielectrics_names()
-        assert sorted(dielectrics) == ["Region", "box2", "box3"]
+        assert sorted(dielectrics) == ["ADDA_AB0305MB_GA0_1_Box", "Region", "box2", "box3"]
 
-    def test_28_assign_surface_material(self):
+    def test_29_assign_surface_material(self):
         self.aedtapp.materials.add_surface_material("my_surface", 0.5)
         obj = ["box2", "box3"]
         assert self.aedtapp.assign_surface_material(obj, "my_surface")
@@ -319,18 +360,18 @@ class TestClass(BasisTest, object):
         mat.thermal_conductivity = [20, 20, 10]
         assert mat.thermal_conductivity.type == "anisotropic"
 
-    def test_33_create_region(self):
+    def test_30_create_region(self):
         self.aedtapp.modeler.delete("Region")
         assert isinstance(self.aedtapp.modeler.create_region([100, 100, 100, 100, 100, 100]).id, int)
 
-    def test_34_automatic_mesh_pcb(self):
+    def test_31_automatic_mesh_pcb(self):
         assert self.aedtapp.mesh.automatic_mesh_pcb()
 
-    def test_35_automatic_mesh_3d(self):
+    def test_32_automatic_mesh_3d(self):
         self.aedtapp.set_active_design("IcepakDesign1")
         assert self.aedtapp.mesh.automatic_mesh_3D(accuracy2=1)
 
-    def test_36_create_source(self):
+    def test_33_create_source(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="boxSource")
         assert self.aedtapp.create_source_power(self.aedtapp.modeler["boxSource"].top_face_z.id, input_power="2W")
         assert self.aedtapp.create_source_power(
@@ -339,7 +380,7 @@ class TestClass(BasisTest, object):
             temperature="28cel",
         )
 
-    def test_39_import_idf(self):
+    def test_34_import_idf(self):
         self.aedtapp.insert_design("IDF")
         assert self.aedtapp.import_idf(os.path.join(local_path, "example_models", "brd_board.emn"))
         assert self.aedtapp.import_idf(
@@ -355,16 +396,16 @@ class TestClass(BasisTest, object):
             high_surface_thick="0.1in",
         )
 
-    def test_40_create_fan(self):
+    def test_35_create_fan(self):
         fan = self.aedtapp.create_fan(origin=[5, 21, 1])
         assert fan
         assert fan.component_name in self.aedtapp.modeler.oeditor.Get3DComponentInstanceNames(fan.component_name)[0]
 
-    def test_88_create_heat_sink(self):
+    def test_36_create_heat_sink(self):
         self.aedtapp.insert_design("HS")
         assert self.aedtapp.create_parametric_fin_heat_sink()
 
-    def test_89_check_bounding_box(self):
+    def test_37_check_bounding_box(self):
 
         self.aedtapp.insert_design("Bbox")
         obj_1 = self.aedtapp.modeler.get_object_from_name("Region")
@@ -385,7 +426,7 @@ class TestClass(BasisTest, object):
         assert abs(sum([i - j for i, j in zip(exp_bounding, real_bound)])) < tol
 
     @pytest.mark.skipif(config["build_machine"], reason="Needs Workbench to run.")
-    def test_90_export_fluent_mesh(self):
+    def test_38_export_fluent_mesh(self):
         self.fluent = self.local_scratch.copyfile(source_fluent)
         app = Icepak(self.fluent, specified_version=desktop_version)
         assert app.get_liquid_objects() == ["Liquid"]

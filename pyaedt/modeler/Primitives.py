@@ -1017,14 +1017,11 @@ class Primitives(object):
             new_obs3d = copy.deepcopy(obs3d)
             if self.user_defined_components:
                 existing_components = list(self.user_defined_components.keys())
-                for i in range(0, len(obs3d)):
-                    if obs3d[i] not in existing_components:
-                        del new_obs3d[i]
-                        i -= 1
+                new_obs3d = [i for i in obs3d if i]
                 for i in range(0, len(existing_components)):
                     if existing_components[i] not in new_obs3d:
                         new_obs3d.append(existing_components[i])
-                        i -= 1
+
         except Exception as e:
             new_obs3d = []
         return new_obs3d
@@ -1105,6 +1102,18 @@ class Primitives(object):
                 non_existent.append(name)
         report = {"Missing Objects": missing, "Non-Existent Objects": non_existent}
         return report
+
+    @pyaedt_function_handler()
+    def _change_component_property(self, vPropChange, names_list):
+        names = self._app.modeler.convert_to_selections(names_list, True)
+        vChangedProps = ["NAME:ChangedProps", vPropChange]
+        vPropServers = ["NAME:PropServers"]
+        for el in names:
+            vPropServers.append(el)
+        vGeo3d = ["NAME:General", vPropServers, vChangedProps]
+        vOut = ["NAME:AllTabs", vGeo3d]
+        _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        return True
 
     @pyaedt_function_handler()
     def _change_geometry_property(self, vPropChange, names_list):
