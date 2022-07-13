@@ -999,7 +999,7 @@ class Primitives(object):
 
     @property
     def user_defined_component_names(self):
-        """List of the names of all 3d components objects.
+        """List of the names of all 3D component objects.
 
         References
         ----------
@@ -2008,7 +2008,7 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def add_new_user_defined_component(self):
-        """Add 3DComponents and User defined models that have been created in the modeler by
+        """Add 3D components and user-defined models that have been created in the modeler by
         previous operations.
 
         Returns
@@ -3575,11 +3575,12 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _get_user_defined_component_names(self):
-        """Retrieve user defined models list names.
+        """Get list of names for user-defined models.
 
         Returns
         -------
-        [List with User Defined Model names]
+       list
+           List of names for user-defined models.
         """
         udm_lists = []
         if self._app.design_properties and self._app.design_properties.get("ModelSetup", None):
@@ -3594,12 +3595,12 @@ class Primitives(object):
                     for data in udm_entry:
                         udm_lists.append(data["Attributes"]["Name"])
             except:
-                self.logger.error("User Defined Models were not retrieved from AEDT file")
+                self.logger.error("User-defined models were not retrieved from the AEDT file.")
         return udm_lists
 
     @pyaedt_function_handler()
     def __getitem__(self, partId):
-        """Return the object ``Object3D`` for a given object ID or object name.
+        """Get the object ``Object3D`` for a given object ID or object name.
 
         Parameters
         ----------

@@ -998,14 +998,14 @@ class Primitives3D(Primitives, object):
         udm_params_list :
             List of user-defined object pairs for the model.
         udm_library : str, optional
-            Name of library for the user-defined model. The default is ``"syslib"``.
+            Name of the library for the user-defined model. The default is ``"syslib"``.
         name : str, optional
-            User defined model name. Default is `None`.
+            Name of the user-defined model. The default is ``None```.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.UserDefinedComponent`
-            User defined component object.
+            User-defined component object.
 
         References
         ----------
@@ -1164,7 +1164,7 @@ class Primitives3D(Primitives, object):
         targetCS : str, optional
             Target coordinate system. The default is ``"Global"``.
         name : str, optional
-            3D component name. Default is `None`.
+            3D component name. The default is ``None``.
 
         Returns
         -------

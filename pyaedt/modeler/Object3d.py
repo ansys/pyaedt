@@ -3860,7 +3860,8 @@ class UserDefinedComponent(object):
         Parameters
         ----------
         name : str
-            Name of the group to assign. Group will be created if it does not exist.
+            Name of the group to assign the component to. A group is created if the one
+            specified does not exist.
 
         Returns
         -------
@@ -3911,7 +3912,7 @@ class UserDefinedComponent(object):
         Returns
         -------
         bool
-           ``True`` if 3DComponent, ``False`` if User defined model
+           ``True`` if a 3DComponent, ``False`` if a user-defined model.
 
         """
         definitions = list(self._primitives.oeditor.Get3DComponentDefinitionNames())
@@ -3929,7 +3930,7 @@ class UserDefinedComponent(object):
         Returns
         -------
         bool
-           ``True`` if Mesh assembly checked, ``None`` if user defined model
+           ``True`` if mesh assembly is checked, ``None`` if a user-defined model.
 
         """
         key = "Do Mesh Assembly"
@@ -3953,12 +3954,12 @@ class UserDefinedComponent(object):
 
     @property
     def name(self):
-        """Name of the object as a string value.
+        """Name of the object.
 
         Returns
         -------
         str
-           Name of object as a string value.
+           Name of the object.
 
         References
         ----------
@@ -4021,7 +4022,7 @@ class UserDefinedComponent(object):
 
     @property
     def parts(self):
-        """Dict of objects which belong to the User defined component.
+        """Dictionary of objects that belong to the user-defined component.
 
         Returns
         -------
@@ -4074,8 +4075,8 @@ class UserDefinedComponent(object):
 
     @pyaedt_function_handler()
     def delete(self):
-        """Delete the object. Project must be saved after the operation in order to update the user defined component
-        names list.
+        """Delete the object. The project must be saved after the operation to update the list
+        of names for user-defined components.
 
         References
         ----------
@@ -4207,7 +4208,7 @@ class UserDefinedComponent(object):
         ----------
         cs_axis : Application.CoordinateSystemAxis object
             Coordinate system axis of the object.
-        angle : float
+        angle : float, optional
             Angle of rotation in degrees. The default is ``90``.
         nclones : int, optional
             Number of clones. The default is ``2``.
@@ -4230,7 +4231,7 @@ class UserDefinedComponent(object):
                 self.name, cs_axis, angle, nclones, create_new_objects, True
             )
             return added_objects
-        self._logger.warning("User defined models does not support this operation")
+        self._logger.warning("User-defined models do not support this operation.")
         return False
 
     @pyaedt_function_handler()
@@ -4262,7 +4263,7 @@ class UserDefinedComponent(object):
                 self.name, vector, nclones, attachObject, True
             )
             return added_objects
-        self._logger.warning("User defined models does not support this operation")
+        self._logger.warning("User-defined models do not support this operation.")
         return False
 
     @property
