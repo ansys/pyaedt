@@ -1150,6 +1150,7 @@ class Hfss(FieldAnalysis3D, object):
         if native.create():
             self.native_components.append(native)
             self.logger.info("Native component %s %s has been correctly created.", antenna_type, antenna_name)
+            self.modeler._create_user_defined_component(native.antennaname)
             return native
         self.logger.error("Error in native component creation for %s %s.", antenna_type, antenna_name)
 

@@ -280,9 +280,7 @@ create_cs_magnets(OPM1_id, 'CS_' + OPM1_id.name, 'outer')
 #####################################################################################
 # Create Geometry: PMs are mirror-duplicated along with local CS
 mod2D.duplicate_and_mirror([IPM1_id, OPM1_id], position=[0, 0, 0],
-                           vector=["cos((360deg/SymmetryFactor/2)+90deg)",
-                                   "sin((360deg/SymmetryFactor/2)+90deg)", 0],
-                           is_3d_comp=True)
+                           vector=["cos((360deg/SymmetryFactor/2)+90deg)", "sin((360deg/SymmetryFactor/2)+90deg)", 0])
 id_PMs = mod2D.get_objects_w_string("PM", case_sensitive=True)
 
 ##########################################################
@@ -349,8 +347,7 @@ slot_OM_id = mod2D.create_polyline(position_list=slot_OM1_points, cover_surface=
 
 M2D.modeler.duplicate_and_mirror([slot_IM_id, slot_OM_id], position=[0, 0, 0],
                                  vector=["cos((360deg/SymmetryFactor/2)+90deg)",
-                                         "sin((360deg/SymmetryFactor/2)+90deg)", 0],
-                                 is_3d_comp=True)
+                                         "sin((360deg/SymmetryFactor/2)+90deg)", 0])
 
 id_holes = mod2D.get_objects_w_string("slot_", case_sensitive=True)
 M2D.modeler.subtract(rotor_id, id_holes, keepOriginals=True)
