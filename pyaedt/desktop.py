@@ -883,7 +883,7 @@ class Desktop:
         else:
             oproject = self.odesktop.SetActiveProject(project_name)
         if oproject:
-            return os.path.normpath(oproject.GetPath())
+            return oproject.GetPath()
         return None
 
     @pyaedt_function_handler()
@@ -956,7 +956,7 @@ class Desktop:
             Full absolute path for the ``PersonalLib`` directory.
 
         """
-        return os.path.normpath(self.odesktop.GetPersonalLibDirectory())
+        return self.odesktop.GetPersonalLibDirectory()
 
     @property
     def userlib(self):
@@ -968,7 +968,7 @@ class Desktop:
             Full absolute path for the ``UserLib`` directory.
 
         """
-        return os.path.normpath(self.odesktop.GetUserLibDirectory())
+        return self.odesktop.GetUserLibDirectory()
 
     @property
     def syslib(self):
@@ -980,7 +980,7 @@ class Desktop:
             Full absolute path for the ``SysLib`` directory.
 
         """
-        return os.path.normpath(self.odesktop.GetLibraryDirectory())
+        return self.odesktop.GetLibraryDirectory()
 
     @property
     def aedt_version_id(self):

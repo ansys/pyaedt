@@ -4188,7 +4188,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> oModule.CreateReport
 
         """
-        npath = os.path.normpath(project_dir)
+        npath = project_dir
 
         # Setup arguments list for createReport function
         args = [Xaxis + ":=", ["All"]]
