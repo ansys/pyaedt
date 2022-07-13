@@ -25,7 +25,7 @@ def start_aedt():
 
 @pytest.fixture(autouse=True, scope="session")
 def get_root_directory(doctest_namespace):
-    """Set up paths to the root and project directories.
+    """Set up paths to the root directory and project directories.
 
     These paths can be used in other fixtures when loading
     existing projects and designs.

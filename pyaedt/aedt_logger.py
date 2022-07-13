@@ -28,13 +28,13 @@ class MessageList:
     Attributes
     ----------
     global_level : list of str
-        List of strings representing the message content at the global level of the message manager
+        List of strings representing the message content at the global level of the message manager.
 
     project_level : list of str
-        List of strings representing the message content of the specifiec project
+        List of strings representing the message content within the specified project.
 
     design_level : list of str
-        List of strings representing the message content for the specified design within the specified project
+        List of strings representing the message content for the specified design within the specified project.
 
     """
 
@@ -196,7 +196,7 @@ class AedtLogger(object):
 
     @property
     def logger(self):
-        """Aedt Logger object."""
+        """AEDT logger object."""
         if self._log_on_file:
             return logging.getLogger(__name__)
         else:
@@ -216,7 +216,7 @@ class AedtLogger(object):
 
     def get_messages(self, project_name=None, design_name=None):
         """
-        Retrieve the message manager content for a specified project and design.
+        Get the message manager content for a specified project and design.
 
         If the specified project and design names are invalid, they are ignored.
 
