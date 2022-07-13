@@ -517,7 +517,6 @@ if not config["skip_edb"]:
             assert not self.edbapp.core_components.components["R2L2"].is_enabled
             self.edbapp.core_components.components["R2L2"].is_enabled = True
             assert self.edbapp.core_components.components["R2L2"].is_enabled
-            assert not self.edbapp.core_components.components["R2L2"].is_parallel_rlc
 
         def test_54_create_component_from_pins(self):
             pins = self.edbapp.core_components.get_pin_from_component("R13")
