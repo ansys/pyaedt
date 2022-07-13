@@ -3579,7 +3579,7 @@ class Primitives(object):
 
         Returns
         -------
-       list
+        list
            List of names for user-defined models.
         """
         udm_lists = []
