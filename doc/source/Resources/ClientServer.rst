@@ -1,17 +1,16 @@
-Client/Server
+Client-server
 -------------
 
-You can launh PyAEDT on a remote machine if these conditions are met:
+You can launch PyAEDT on a remote machine if these conditions are met:
 
-#. PyAEDT is installed on client and server machines. (There is no need to have AEDT
-   installed on the the client machine.)
-#. The same Python version is used on the client and server. (CPython 3.6+ or
-   IronPython is embedded in the AEDT installation.)
+- PyAEDT is installed on client and server machines. (There is no need to have AEDT
+  installed on the the client machine.)
+- The same Python version is used on the client and server machines. (CPython 3.6+ or
+  IronPython is embedded in the AEDT installation.)
 
-New Grpc Connection with AEDT 2022R2
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-With AEDT 2022 R2 and later, PyAEDT fully supports the gRPC API (except for EDB).
-To use it:
+gRPC connection in AEDT 2022 R2 and later
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In AEDT 2022 R2 and later, PyAEDT fully supports the gRPC API (except for EDB):
 
 .. code:: python
 
@@ -31,16 +30,18 @@ To start AEDT in listening mode on the remote machine:
    path/to/aedt/ansysedt.exe -grpcsrv portnumber  #windows
    path/to/aedt/ansysedt -grpcsrv portnumber   #linux
 
-If the connection is local, the ``machine`` argument can be kept empty. The AEDT session is then started automatically by PyAEDT.
-Machine and port arguments are available to all applications except EDB.
+If the connection is local, the ``machine`` argument can remain empty. PyAEDT then
+starts the AEDT session automatically. Machine and port arguments are available to
+all applications except EDB.
 
-Legacy Approach
+Legacy approach
 ~~~~~~~~~~~~~~~
+Usage examples follow for launching AEDT 2022 R1 or earlier.
 
-Windows Server
+Windows server
 ==============
 
-Here is a usage example for a Windows server:
+Lauch on a Windows server:
 
 .. code:: python
 
@@ -51,10 +52,10 @@ Here is a usage example for a Windows server:
 
 
 
-Linux and Windows Clients
+Linux and Windows clients
 =========================
 
-Here is a usage example for the client side:
+Launch on a Linux or Windows client:
 
 .. code:: python
 
@@ -68,13 +69,13 @@ Here is a usage example for the client side:
     ...
 
 
-Linux Server
+Linux server
 ============
 
 To bypass current IronPython limits, you can launch PyAEDT on a Linux machine:
 
 #. Using ``pip``, install PyAEDT 0.4.23 or later on a Linux machine.
-#. Launch CPython and run PyAEDT on the same machine.
+#. Launch CPython and run PyAEDT on the same machine:
 
    .. code:: python
 
@@ -85,7 +86,7 @@ To bypass current IronPython limits, you can launch PyAEDT on a Linux machine:
       hfss = client.root.hfss()
       # put your code here
 
-#. Launch CPython Server on a machine and connect to the server from anaother machinee.
+#. Launch CPython Server on a machine and connect to the server from another machine:
 
    .. code:: python
 
