@@ -3855,7 +3855,7 @@ class UserDefinedComponent(object):
 
     @group_name.setter
     def group_name(self, name):
-        """Assign Component to a specific group. it creates a new group if the group doesn't exist.
+        """Assign component to a specific group. A new group is created if the specified group doesn't exist.
 
         Parameters
         ----------
