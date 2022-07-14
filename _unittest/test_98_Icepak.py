@@ -233,6 +233,11 @@ class TestClass(BasisTest, object):
 
     def test_16_point_monitor(self):
         assert self.aedtapp.assign_point_monitor([0, 0, 0], monitor_name="monitor_point")
+        assert self.aedtapp.assign_point_monitor_in_object("box", monitor_name="monitor_point1") == "monitor_point1"
+        assert self.aedtapp.assign_point_monitor_in_object("box", monitor_name="monitor_point")
+        assert self.aedtapp.assign_point_monitor_in_object("box2")
+        assert not self.aedtapp.assign_point_monitor_in_object("box1")
+        assert not self.aedtapp.assign_point_monitor_in_object(["box"])
 
     def test_17_analyze(self):
         self.aedtapp.analyze_nominal()

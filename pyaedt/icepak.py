@@ -831,6 +831,59 @@ class Icepak(FieldAnalysis3D):
         return True
 
     @pyaedt_function_handler()
+    def assign_point_monitor_in_object(self, name, monitor_type="Temperature", monitor_name=None):
+        """Assign a point monitor in the centroid of a specific object.
+
+        Parameters
+        ----------
+        name : str
+            Name of the object to assign monitor points to.
+        monitor_type : str, optional
+            Type of the monitor.  The default is ``"Temperature"``.
+        monitor_name : str, optional
+            Name of the monitor. The default is ``None``, in which case
+            the default name is used.
+
+        Returns
+        -------
+        str
+            Monitor name when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignPointMonitor
+
+        Examples
+        --------
+
+        Create a box named ``"BlockBox1"`` and assign a temperature monitor point to that object.
+
+        >>> box = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
+        >>> icepak.assign_point_monitor(box.name)
+        True
+        """
+        if not isinstance(name, str):
+            self.logger.error("Object name must be a string")
+            return False
+        name = self.modeler.convert_to_selections(name, True)
+        original_monitors = list(self.odesign.GetChildObject("Monitor").GetChildNames())
+        if not monitor_name:
+            monitor_name = generate_unique_name("Monitor")
+        elif monitor_name in original_monitors:
+            monitor_name = generate_unique_name(monitor_name)
+        existing_names = list(set(name).intersection(self.modeler.object_names))
+        if existing_names:
+            self.omonitor.AssignPointMonitor(
+                ["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Objects:=", existing_names]
+            )
+        else:
+            self.logger.error("Object is not present in the design")
+            return False
+        new_monitors = list(self.odesign.GetChildObject("Monitor").GetChildNames())
+        return list(set(new_monitors).difference(original_monitors))[0]
+
+    @pyaedt_function_handler()
     def assign_block_from_sherlock_file(self, csv_name):
         """Assign block power to components based on a CSV file from Sherlock.
 
