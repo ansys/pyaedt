@@ -1,4 +1,4 @@
-Edb Examples
+EDB examples
 ~~~~~~~~~~~~
-This series of examples uses EDB with PyAEDT. Edb can be used both standalone
-and embedded in HFSS 3d Layout in Ansys Electronics Desktop.
+These examples use EDB with PyAEDT. EDB can be used both standalone
+and embedded in HFSS 3D Layout in AEDT.

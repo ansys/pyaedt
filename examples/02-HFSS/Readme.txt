@@ -1,5 +1,4 @@
-Hfss Examples
+HFSS examples
 ~~~~~~~~~~~~~
-This series of examples uses PyAEDT to show some Hfss, Hfss3d Layout and HFSS SBR+ end-to-end
-workflow. This includes model generation, setup, mesh and post-processing.
-Some of the methods requires external python package to run.
+These examples use PyAEDT to show some end-to-end workflows for HFSS, HFSS 3D Layout,
+and HFSS SBR+. This includes model generation, setup, meshing, and postprocessing.
