@@ -21,11 +21,11 @@ from collections import OrderedDict
 
 from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
+from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import MILS2METER
 from pyaedt.generic.general_methods import is_ironpython
-from pyaedt import settings
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)

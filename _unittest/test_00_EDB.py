@@ -15,11 +15,18 @@ from pyaedt.generic.constants import SourceType
 
 test_project_name = "Galileo_edb"
 bom_example = "bom_example.csv"
-from _unittest.conftest import config, desktop_version, local_path, scratch_path, is_ironpython, settings, BasisTest
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
+from _unittest.conftest import desktop_version
+from _unittest.conftest import is_ironpython
+from _unittest.conftest import local_path
+from _unittest.conftest import scratch_path
+from _unittest.conftest import settings
 
 try:
-    import pytest
     import unittest.mock
+
+    import pytest
 except ImportError:  # pragma: no cover
     import _unittest_ironpython.conf_unittest as pytest
 

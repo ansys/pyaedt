@@ -2,12 +2,12 @@
 
 from __future__ import absolute_import  # noreorder
 
+import ast
 import math
 import os
 import tempfile
 import warnings
 from collections import OrderedDict
-import ast
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.constants import INFINITE_SPHERE_TYPE

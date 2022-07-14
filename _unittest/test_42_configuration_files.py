@@ -7,7 +7,6 @@ from pyaedt import Icepak
 from pyaedt import Q2d
 from pyaedt import Q3d
 
-
 # Import required modules
 # Setup paths for module imports
 

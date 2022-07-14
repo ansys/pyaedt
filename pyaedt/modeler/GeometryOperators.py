@@ -5,8 +5,8 @@ import sys
 
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.constants import PLANE
-from pyaedt.generic.constants import scale_units
 from pyaedt.generic.constants import SWEEPDRAFT
+from pyaedt.generic.constants import scale_units
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 

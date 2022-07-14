@@ -12,8 +12,9 @@ if os.path.exists(os.path.join(pyaedt_path, "version.txt")):
         __version__ = f.read().strip()
 if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" not in sys.version:  # pragma: no cover
     try:
-        from pythonnet import load
         from distutils.sysconfig import get_python_lib
+
+        from pythonnet import load
 
         site_package = get_python_lib()
         runtime = os.path.join(site_package, "dotnetcore2", "bin")
@@ -29,34 +30,36 @@ if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" no
     except ImportError:
         pass
 
-from pyaedt.generic.general_methods import settings
-
-from pyaedt.generic import constants
-from pyaedt.generic.general_methods import pyaedt_function_handler, generate_unique_name, _retry_ntimes
-from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop, convert_remote_object
 from pyaedt.aedt_logger import AedtLogger
+from pyaedt.generic import constants
+from pyaedt.generic.general_methods import _pythonver
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import convert_remote_object
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import inside_desktop
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import settings
 
 try:
     from pyaedt.generic.design_types import Hfss3dLayout
 except:
     from pyaedt.generic.design_types import Hfss3dLayout
 
-from pyaedt.generic.design_types import (
-    Hfss,
-    Circuit,
-    Q2d,
-    Q3d,
-    Siwave,
-    Icepak,
-    Edb,
-    Maxwell3d,
-    Maxwell2d,
-    MaxwellCircuit,
-    Mechanical,
-    Rmxprt,
-    TwinBuilder,
-    Simplorer,
-    Emit,
-    get_pyaedt_app,
-    Desktop,
-)
+from pyaedt.generic.design_types import Circuit
+from pyaedt.generic.design_types import Desktop
+from pyaedt.generic.design_types import Edb
+from pyaedt.generic.design_types import Emit
+from pyaedt.generic.design_types import Hfss
+from pyaedt.generic.design_types import Icepak
+from pyaedt.generic.design_types import Maxwell2d
+from pyaedt.generic.design_types import Maxwell3d
+from pyaedt.generic.design_types import MaxwellCircuit
+from pyaedt.generic.design_types import Mechanical
+from pyaedt.generic.design_types import Q2d
+from pyaedt.generic.design_types import Q3d
+from pyaedt.generic.design_types import Rmxprt
+from pyaedt.generic.design_types import Simplorer
+from pyaedt.generic.design_types import Siwave
+from pyaedt.generic.design_types import TwinBuilder
+from pyaedt.generic.design_types import get_pyaedt_app

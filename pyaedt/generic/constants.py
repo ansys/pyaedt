@@ -1,7 +1,6 @@
 import math
 import warnings
 
-
 RAD2DEG = 180.0 / math.pi
 DEG2RAD = math.pi / 180
 HOUR2SEC = 3600.0

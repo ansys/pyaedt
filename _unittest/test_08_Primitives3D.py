@@ -9,13 +9,16 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, BasisTest, config
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
+from _unittest.conftest import local_path
+from pyaedt.generic.constants import AXIS
 from pyaedt.generic.general_methods import is_ironpython
-from pyaedt.modeler.Primitives import Polyline, PolylineSegment
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import Object3d
 from pyaedt.modeler.Object3d import UserDefinedComponent
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.generic.constants import AXIS
+from pyaedt.modeler.Primitives import Polyline
+from pyaedt.modeler.Primitives import PolylineSegment
 
 test = sys.modules.keys()
 

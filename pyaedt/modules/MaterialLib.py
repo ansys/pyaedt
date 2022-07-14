@@ -5,9 +5,9 @@ This module contains the `Materials` class.
 from __future__ import absolute_import  # noreorder
 
 import copy
+import fnmatch
 import json
 import os
-import fnmatch
 import re
 
 from pyaedt.generic.DataHandlers import _arg2dict
