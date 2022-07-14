@@ -10,7 +10,7 @@ EDB and Circuit (Nexxim).
 Requirements
 ~~~~~~~~~~~~
 In addition to the runtime dependencies listed in the installation information, PyAEDT requires ANSYS Electronics Desktop
-Suite 2021 R1 or later.
+2021 R1 or later.
 
 .. todo::
    Add how to install from the AEDT installer like as in https://mapdldocs.pyansys.com/getting_started/running_mapdl.html
