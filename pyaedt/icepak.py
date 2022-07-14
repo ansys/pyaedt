@@ -752,8 +752,8 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            Monitor name when successful, ``False`` when failed.
 
         References
         ----------
@@ -767,15 +767,17 @@ class Icepak(FieldAnalysis3D):
 
         >>> surface = icepak.modeler.create_rectangle(icepak.PLANE.XY,
         ...                                           [0, 0, 0], [10, 20], name="Surface1")
-        >>> icepak.assign_surface_monitor("Surface1")
-        True
+        >>> icepak.assign_surface_monitor("Surface1", monitor_name="monitor")
+        'monitor'
         """
+        original_monitors = list(self.odesign.GetChildObject("Monitor").GetChildNames())
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
         self.omonitor.AssignFaceMonitor(
             ["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Objects:=", [face_name]]
         )
-        return True
+        new_monitors = list(self.odesign.GetChildObject("Monitor").GetChildNames())
+        return list(set(new_monitors).difference(original_monitors))[0]
 
     @pyaedt_function_handler()
     def assign_point_monitor(self, point_position, monitor_type="Temperature", monitor_name=None):
@@ -793,8 +795,8 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            Monitor name when successful, ``False`` when failed.
 
         References
         ----------
@@ -806,11 +808,12 @@ class Icepak(FieldAnalysis3D):
 
         Create a temperature monitor at the point ``[1, 1, 1]``.
 
-        >>> icepak.assign_point_monitor([1, 1, 1])
-        True
+        >>> icepak.assign_point_monitor([1, 1, 1], monitor_name="monitor1")
+        'monitor1'
 
         """
         point_name = generate_unique_name("Point")
+        original_monitors = list(self.odesign.GetChildObject("Monitor").GetChildNames())
         self.modeler.oeditor.CreatePoint(
             [
                 "NAME:PointParameters",
@@ -828,7 +831,8 @@ class Icepak(FieldAnalysis3D):
         self.omonitor.AssignPointMonitor(
             ["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Points:=", [point_name]]
         )
-        return True
+        new_monitors = list(self.odesign.GetChildObject("Monitor").GetChildNames())
+        return list(set(new_monitors).difference(original_monitors))[0]
 
     @pyaedt_function_handler()
     def assign_point_monitor_in_object(self, name, monitor_type="Temperature", monitor_name=None):
@@ -860,8 +864,8 @@ class Icepak(FieldAnalysis3D):
         Create a box named ``"BlockBox1"`` and assign a temperature monitor point to that object.
 
         >>> box = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
-        >>> icepak.assign_point_monitor(box.name)
-        True
+        >>> icepak.assign_point_monitor(box.name, monitor_name="monitor2")
+        "'monitor2'
         """
         if not isinstance(name, str):
             self.logger.error("Object name must be a string")
