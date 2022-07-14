@@ -214,7 +214,7 @@ present in a design, edit them, and create them:
 Postprocessing
 ~~~~~~~~~~~~~~
 Postprocessing is essential in simulation. PyAEDT can read all solutions and plot results in AEDT or
-outside it using ``pyvista`` and ``matplotlib`` packages:
+outside it using `pyvista <https://www.pyvista.org/>`_ and `matplotlib <https://matplotlib.org/>_` packages:
 
 .. code:: python
 
