@@ -270,7 +270,7 @@ class Siwave:
         Parameters
         ----------
         save_project : bool, optional
-            Whether to save the current project before close it. The default is ``False``.
+            Whether to save the current project before closing it. The default is ``False``.
 
         Returns
         -------
@@ -330,7 +330,7 @@ class Siwave:
         file_path :
 
         bkground_color : str, optional
-            Color of the report's background. The default is ``"white"``.
+            Color of the report's background. The default is ``"White"``.
 
 
         Returns

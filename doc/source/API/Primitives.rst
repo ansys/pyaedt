@@ -131,6 +131,7 @@ They contain all getters and setters to simplify object manipulation.
    Primitives.PolylineSegment
    Primitives.Polyline
    Object3d.Padstack
+   Object3d.UserDefinedComponent
 
 .. code:: python
 

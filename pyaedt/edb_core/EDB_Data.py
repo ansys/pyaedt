@@ -2614,7 +2614,7 @@ class EDBComponent(object):
 
     @property
     def solder_ball_height(self):
-        """Solder ball height if available.."""
+        """Solder ball height if available."""
         if "GetSolderBallProperty" in dir(self.component_property):
             return self.component_property.GetSolderBallProperty().GetHeight()
         return None
@@ -2638,8 +2638,30 @@ class EDBComponent(object):
         return self.edbcomponent.GetName()
 
     @property
+    def is_enabled(self):
+        """Check if the current object is enabled.
+
+        Returns
+        -------
+        bool
+            ``True`` if current object is enabled, ``False`` otherwise.
+        """
+        if self.type in ["Resistor", "Capacitor", "Inductor"]:
+            return self.component_property.IsEnabled()
+        else:  # pragma: no cover
+            return False
+
+    @is_enabled.setter
+    def is_enabled(self, enabled):
+        """Enables the current object."""
+        if self.type in ["Resistor", "Capacitor", "Inductor"]:
+            component_property = self.component_property
+            component_property.SetEnabled(enabled)
+            self.edbcomponent.SetComponentProperty(component_property)
+
+    @property
     def res_value(self):
-        """Resitance Value.
+        """Resitance value.
 
         Returns
         -------
@@ -2705,8 +2727,7 @@ class EDBComponent(object):
         """
         cmp_type = int(self.edbcomponent.GetComponentType())
         if 0 < cmp_type < 4:
-            componentProperty = self.edbcomponent.GetComponentProperty()
-            model = componentProperty.GetModel()
+            model = self.component_property.GetModel().Clone()
             pinpairs = model.PinPairs
             for pinpair in pinpairs:
                 pair = model.GetPinPairRlc(pinpair)

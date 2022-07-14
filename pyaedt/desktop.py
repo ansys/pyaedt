@@ -69,7 +69,7 @@ elif IsWindows:  # pragma: no cover
 
         _com = "pywin32"
     else:
-        raise Exception("Error. No win32com.client or PythonNET modules found. Install them and try again.")
+        raise Exception("Error. No win32com.client or PythonNET modules are found. Install them and try again.")
 else:
     _com = "pythonnet_v3"
 
@@ -224,7 +224,7 @@ def force_close_desktop():
             for project in projects:
                 Module.oDesktop.CloseProject(project)
         except:
-            logger.warning("No projects. Closing the AEDT connection.")
+            logger.warning("No projects are open. Closing the AEDT connection.")
         try:
             i = 0
             scopeID = 5
@@ -254,7 +254,7 @@ def force_close_desktop():
 
 
 def run_process(command, bufsize=None):
-    """Run process with a subprocess.
+    """Run a process with a subprocess.
 
     Parameters
     ----------
@@ -296,16 +296,17 @@ class Desktop:
         Whether to open the AEDT student version. The default is
         ``False``.
     machine : str, optional
-        Machine name to which connect the oDesktop Session. Works only on 2022R2.
-        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
-        If machine is `"localhost"` the server will also start if not present.
+        Machine name to connect the oDesktop session to. This parameters works only in 2022 R2
+        and later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`, the server also
+        starts if not present.
     port : int, optional
-        Port number of which start the oDesktop communication on already existing server.
-        This parameter is ignored in new server creation. It works only on 2022R2.
-        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+        Port number on which to start the oDesktop communication on the already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 and
+        later. The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
-        Only used when ``new_desktop_session = False``, specifies by process ID which instance
-        of Electronics Desktop to point PyAEDT at.
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
@@ -491,16 +492,16 @@ class Desktop:
         if specified_version:
             if float(specified_version) < 2021:
                 if float(specified_version) < 2019:
-                    raise ValueError("PyAEDT supports AEDT versions 2021 R1 and newers.")
+                    raise ValueError("PyAEDT supports AEDT version 2021 R1 and later.")
                 else:
                     warnings.warn(
-                        """PyAEDT has limited capabilities when used with an AEDT version older than 2021 R1.
-                        PyAEDT officially supports AEDT versions 2021 R1 and newer."""
+                        """PyAEDT has limited capabilities when used with an AEDT version earlier than 2021 R1.
+                        PyAEDT officially supports AEDT version 2021 R1 and later."""
                     )
             if student_version:
                 specified_version += "SV"
                 student_version_flag = True
-            assert specified_version in self.version_keys, "Specified version {} not known.".format(specified_version)
+            assert specified_version in self.version_keys, "Specified version {} is not known".format(specified_version)
             version_key = specified_version
         else:
             if student_version and self.current_version_student:
@@ -635,7 +636,7 @@ class Desktop:
                     break
         else:
             self.logger.warning(
-                "PyAEDT is not supported in AEDT versions older than 2021.2. Trying to launch PyAEDT with PyWin32."
+                "PyAEDT is not supported in AEDT versions earlier than 2021 R2. Trying to launch PyAEDT with PyWin32."
             )
             self._dispatch_win32(version)
 
@@ -656,7 +657,7 @@ class Desktop:
 
         launch_msg = "AEDT installation Path {}".format(base_path)
         self.logger.info(launch_msg)
-        self.logger.info("Launching AEDT with GRPC Plugin.")
+        self.logger.info("Launching AEDT with the gRPC plugin.")
         if (
             not self.port
             and not new_aedt_session
@@ -668,17 +669,17 @@ class Desktop:
             if sessions:
                 self.port = sessions[0]
                 if len(sessions):
-                    self.logger.info("Found active GRPC session on port %s", self.port)
+                    self.logger.info("Found active gRPC session on port %s", self.port)
                 else:
                     self.logger.warning(
-                        "Multiple AEDT GRPC Session Found.  Setting active session on port %s", self.port
+                        "Multiple AEDT gRPC sessions are found. Setting the active session on port %s", self.port
                     )
         elif new_aedt_session or not self.port:
             self.port = _find_free_port()
-            self.logger.info("New Desktop session will start on GRPC port %s", self.port)
+            self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
             self.machine = ""
         elif self.port:
-            self.logger.info("Connecting to Aedt session on GRPC port %s", self.port)
+            self.logger.info("Connecting to AEDT session on gRPC port %s", self.port)
 
         if not new_aedt_session:
             # Local server running
@@ -709,7 +710,7 @@ class Desktop:
                 self.logger.info("{} Started with process ID {}.".format(version, _proc))
 
         else:
-            self.logger.warning("GRPC Plugin is not supported in AEDT versions older than 2022.2.")
+            self.logger.warning("The gRPC plugin is not supported in AEDT versions earlier than 2022 R2.")
 
     def _set_logger_file(self):
         # Set up the log file in the AEDT project directory
@@ -740,7 +741,7 @@ class Desktop:
 
     @pyaedt_function_handler()
     def project_list(self):
-        """Retrieve a list of projects.
+        """Get a list of projects.
 
         Returns
         -------
@@ -864,7 +865,7 @@ class Desktop:
 
     @pyaedt_function_handler()
     def project_path(self, project_name=None):
-        """Retrieve the path to the project.
+        """Get the path to the project.
 
         Parameters
         ----------
@@ -883,12 +884,12 @@ class Desktop:
         else:
             oproject = self.odesktop.SetActiveProject(project_name)
         if oproject:
-            return os.path.normpath(oproject.GetPath())
+            return oproject.GetPath()
         return None
 
     @pyaedt_function_handler()
     def design_list(self, project=None):
-        """Retrieve a list of the designs.
+        """Get a list of the designs.
 
         Parameters
         ----------
@@ -916,7 +917,7 @@ class Desktop:
 
     @pyaedt_function_handler()
     def design_type(self, project_name=None, design_name=None):
-        """Retrieve the type of a design.
+        """Get the type of a design.
 
         Parameters
         ----------
@@ -956,7 +957,7 @@ class Desktop:
             Full absolute path for the ``PersonalLib`` directory.
 
         """
-        return os.path.normpath(self.odesktop.GetPersonalLibDirectory())
+        return self.odesktop.GetPersonalLibDirectory()
 
     @property
     def userlib(self):
@@ -968,7 +969,7 @@ class Desktop:
             Full absolute path for the ``UserLib`` directory.
 
         """
-        return os.path.normpath(self.odesktop.GetUserLibDirectory())
+        return self.odesktop.GetUserLibDirectory()
 
     @property
     def syslib(self):
@@ -980,7 +981,7 @@ class Desktop:
             Full absolute path for the ``SysLib`` directory.
 
         """
-        return os.path.normpath(self.odesktop.GetLibraryDirectory())
+        return self.odesktop.GetLibraryDirectory()
 
     @property
     def aedt_version_id(self):
@@ -1256,7 +1257,7 @@ class Desktop:
 
 
 def get_version_env_variable(version_id):
-    """Retrieve the environment variable for the AEDT version.
+    """Get the environment variable for the AEDT version.
 
     Parameters
     ----------

@@ -490,7 +490,7 @@ class Design(AedtObjects, object):
 
         >>> oProject.GetPath
         """
-        return os.path.normpath(self.oproject.GetPath())
+        return self.oproject.GetPath()
 
     @property
     def project_time_stamp(self):
@@ -594,7 +594,7 @@ class Design(AedtObjects, object):
 
         >>> oDesktop.GetPersonalLibDirectory
         """
-        return os.path.normpath(self.odesktop.GetPersonalLibDirectory())
+        return self.odesktop.GetPersonalLibDirectory()
 
     @property
     def userlib(self):
@@ -610,7 +610,7 @@ class Design(AedtObjects, object):
 
         >>> oDesktop.GetUserLibDirectory
         """
-        return os.path.normpath(self.odesktop.GetUserLibDirectory())
+        return self.odesktop.GetUserLibDirectory()
 
     @property
     def syslib(self):
@@ -626,7 +626,7 @@ class Design(AedtObjects, object):
 
         >>> oDesktop.GetLibraryDirectory
         """
-        return os.path.normpath(self.odesktop.GetLibraryDirectory())
+        return self.odesktop.GetLibraryDirectory()
 
     @property
     def src_dir(self):
@@ -674,7 +674,7 @@ class Design(AedtObjects, object):
             Full absolute path for the ``temp`` directory.
 
         """
-        return os.path.normpath(self.odesktop.GetTempDirectory())
+        return self.odesktop.GetTempDirectory()
 
     @property
     def toolkit_directory(self):
@@ -690,7 +690,11 @@ class Design(AedtObjects, object):
 
         toolkit_directory = os.path.join(self.project_path, self.project_name + ".pyaedt")
         if not os.path.isdir(toolkit_directory):
-            os.mkdir(toolkit_directory)
+            try:
+                os.mkdir(toolkit_directory)
+            except FileNotFoundError:
+                toolkit_directory = self.results_directory
+
         return toolkit_directory
 
     @property
@@ -706,7 +710,10 @@ class Design(AedtObjects, object):
         """
         working_directory = os.path.join(self.toolkit_directory, self.design_name)
         if not os.path.isdir(working_directory):
-            os.mkdir(working_directory)
+            try:
+                os.mkdir(working_directory)
+            except FileNotFoundError:
+                working_directory = os.path.join(self.toolkit_directory, self.design_name + ".results")
         return working_directory
 
     @property

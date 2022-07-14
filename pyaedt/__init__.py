@@ -5,24 +5,21 @@ import warnings
 
 os.environ["ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE"] = "1"
 os.environ["ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE"] = "1"
+pyaedt_path = os.path.dirname(__file__)
 __version__ = ""
-if os.path.exists(os.path.join(os.path.dirname(__file__), "version.txt")):
-    with open(os.path.join(os.path.dirname(__file__), "version.txt"), "r") as f:
+if os.path.exists(os.path.join(pyaedt_path, "version.txt")):
+    with open(os.path.join(pyaedt_path, "version.txt"), "r") as f:
         __version__ = f.read().strip()
-if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" not in sys.version:
+if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" not in sys.version:  # pragma: no cover
     try:
-        # from clr_loader import get_coreclr
         from pythonnet import load
         from distutils.sysconfig import get_python_lib
 
         site_package = get_python_lib()
-        os.path.dirname(__file__)
         runtime = os.path.join(site_package, "dotnetcore2", "bin")
-        print(runtime)
-        json_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "misc", "pyaedt.runtimeconfig.json"))
-        # rt = get_coreclr(json_file, runtime)
-        # set_runtime(rt)
+        json_file = os.path.abspath(os.path.join(pyaedt_path, "misc", "pyaedt.runtimeconfig.json"))
         load("coreclr", runtime_config=json_file, dotnet_root=runtime)
+        print("DotNet Core correctly loaded.")
         if "Delcross" not in os.getenv("LD_LIBRARY_PATH", "") or "mono" not in os.getenv("LD_LIBRARY_PATH", ""):
             warnings.warn("LD_LIBRARY_PATH needs to be setup to use pyaedt.")
             warnings.warn("export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64")
