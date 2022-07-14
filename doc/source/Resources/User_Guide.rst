@@ -1,4 +1,4 @@
-User Guide
+User guide
 ----------
 
 PyAEDT works both inside AEDT and as a standalone application.
@@ -6,7 +6,7 @@ It automatically detects whether it is running in an IronPython or CPython
 environment and initializes AEDT accordingly. PyAEDT also provides
 advanced error management.
 
-You can start AEDT in non-graphical from Python:
+You can start AEDT in non-graphical mode from Python:
 
 .. code:: python
 
@@ -23,7 +23,7 @@ You can start AEDT in non-graphical from Python:
     # Desktop is automatically closed here.
 
 
-The previous code launches AEDT and initializes a new Circuit design.
+The preceding code launches AEDT and initializes a new Circuit design.
 
 .. image:: ./aedt_first_page.png
   :width: 800
@@ -49,7 +49,7 @@ Variables
 ~~~~~~~~~
 PyAEDT provides a simplified interface for getting and setting variables inside a project or a design.
 You simply need to initialize a variable as a dictionary key. If you use ``$`` as the prefix 
-for the variable name, a project-wide variable is created.
+for the variable name, a project-wide variable is created:
 
 .. code:: python
 
@@ -66,7 +66,7 @@ for the variable name, a project-wide variable is created.
 
 With Variable Manager, you can create advanced equations and manage them through PyAEDT.
 
-While you can set or get the variable value using the application setter and getter, you can
+While you can set or get the variable value using the app's setter and getter, you can
 access the ``variable_manager`` object for a more comprehensive set of functions:
 
 .. code:: python
@@ -89,8 +89,8 @@ access the ``variable_manager`` object for a more comprehensive set of functions
 
 Modeler
 ~~~~~~~
-Object-oriented programming is used to create and manage objects in the AEDT 3D and 2D Modelers. 
-You can create an object and change properties using getters and setters.
+In the AEDT 3D and 2D Modelers, object-oriented programming is used to create and manage objects. 
+You can use getters and setters to create an object and change its properties:
 
 .. code:: python
 
@@ -111,8 +111,8 @@ You can create an object and change properties using getters and setters.
   :alt: Modeler Object
 
 Once an object is created or is present in the design (from a loaded project), you can
-simply get the related object using getters. A getter works either with an object ID or
-object name. The object returned has all features even if it has not been created in PyAEDT.
+use a getter to get the related object. A getter works either with an object ID or
+object name. The object returned has all features, even if it has not been created in PyAEDT.
 
 This example shows how easily you can go deeper into edges and vertices of faces or 3D objects:
 
@@ -146,9 +146,9 @@ All objects support executing any modeler operation, such as union or subtractio
 
 Mesh
 ~~~~
-Mesh operations are very important in engineering simulation. PyAEDT is able to read all mesh
-operations already present in a design, edit them, and create new ones. All mesh operations
-are listed in the mesh object.
+Mesh operations are very important in engineering simulation. PyAEDT can read all mesh
+operations already present in a design, edit them, and create them. All mesh operations
+are listed in the mesh object:
 
 .. code:: python
 
@@ -169,9 +169,9 @@ are listed in the mesh object.
 
 Setup
 ~~~~~
-Setup, optimetrics, and wweeps are the last operations before running analysis.
-PyAEDT is able to read all setups, sweeps, and optimetrics already present in a design,
-edit them, and create new ones. All setup operations are listed in the setups list.
+Setup, optimetrics, and sweeps are the last operations before running analysis.
+PyAEDT can read all setups, optimetrics, and sweeps already present in a design,
+edit them, and create them. All setup operations are listed in the setups list:
 
 .. code:: python
 
@@ -192,11 +192,11 @@ edit them, and create new ones. All setup operations are listed in the setups li
   :alt: Setup Editing and Creation
 
 
-Optimization
-~~~~~~~~~~~~
+Optimetrics
+~~~~~~~~~~~
 Optimetrics allow you to set up parametric analysis, sensitivity analysis, optimization,
-and Design of Experients (DOE). PyAEDT is able to read all optimetrics setups already
-present in a design and create new ones.
+and Design of Experients (DOE). PyAEDT can read all optimetric setups already
+present in a design, edit them, and create them:
 
 .. code:: python
 
@@ -211,10 +211,10 @@ present in a design and create new ones.
   :alt: Optimetrics Creation
 
 
-Post-Processing
-~~~~~~~~~~~~~~~
-Post Processing is essential in Simulation. PyAEDT is able to read all solutions and plot results in AEDT or
-outside it using `Pyvista` and `matplotlib` packages.
+Postprocessing
+~~~~~~~~~~~~~~
+Postprocessing is essential in simulation. PyAEDT can read all solutions and plot results in AEDT or
+outside it using `pyvista <https://www.pyvista.org/>`_ and `matplotlib <https://matplotlib.org/>_` packages:
 
 .. code:: python
 

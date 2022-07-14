@@ -3,8 +3,7 @@ API documentation
 =================
 
 Welcome to PyAEDT API documentation.
-Use the search feature or click the following links to view API
-documentation.
+Use the search feature or click links to view API documentation.
 
 .. toctree::
    :maxdepth: 2
