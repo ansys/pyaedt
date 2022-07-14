@@ -181,9 +181,11 @@ def release_desktop(close_projects=True, close_desktop=True):
                 desktop.CloseProject(project)
         pid = _main.oDesktop.GetProcessID()
         if settings.aedt_version >= "2022.2" and settings.use_grpc_api and not is_ironpython:
-            import ScriptEnv
+            import PyDesktopPlugin
 
-            ScriptEnv.Release()
+            PyDesktopPlugin.Release()
+            _delete_objects()
+            return True
         elif not inside_desktop:
             i = 0
             scopeID = 5
@@ -696,6 +698,7 @@ class Desktop:
                     self.machine = socket.getfqdn()
             elif self.machine not in ["localhost", "127.0.0.1", socket.getfqdn(), socket.getfqdn().split(".")[0]]:
                 settings.remote_api = True
+
         ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
 
         if "oAnsoftApplication" in dir(self._main):

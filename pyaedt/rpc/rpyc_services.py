@@ -6,6 +6,8 @@ import threading
 import site
 
 import sys
+import time
+
 from pyaedt import generate_unique_name
 from pyaedt.generic.general_methods import env_path
 
@@ -823,6 +825,18 @@ class GlobalService(rpyc.Service):
             command = [aedt_exe, "-grpcsrv", str(port), ng_feature]
 
         subprocess.Popen(command)
+        timeout = 60
+        s = socket.socket()
+        machine_name = socket.getfqdn()
+        while timeout > 0:
+            try:
+                s.connect((machine_name, port))
+            except socket.error:
+                timeout -= 2
+                time.sleep(2)
+            else:
+                s.close()
+                timeout = 0
         print("Service has started on port {}".format(port))
         return port
 
