@@ -1,12 +1,14 @@
 """
-HFSS: Machine learning applied to Patch
+HFSS: machine learning applied to a patch
 ---------------------------------------
 This example shows how you can use PyAEDT to create a machine learning algorithm in three steps:
+
 - Generate the database
 - Create the machine learning algorithm
 - Implement the model in a PyAEDT method
-These three steps are in one file available for the example but it would be
-better to separate them in different python file.
+
+While these three steps are in one file in the example, it would be
+better to separate them into different Python files.
 """
 
 import json
