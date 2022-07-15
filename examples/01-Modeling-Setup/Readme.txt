@@ -1,4 +1,4 @@
-Modeler and Setup Examples
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-This series of examples uses PyAEDT to show some key features
-inside Ansys Electronics Desktop related to Modeling and Simulation Setup.
+General model and setup examples
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These examples use PyAEDT to show some general model and simulation
+setup features inside AEDT.
