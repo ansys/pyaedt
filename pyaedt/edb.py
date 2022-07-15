@@ -1144,6 +1144,7 @@ class Edb(object):
             Units of the point list. The default is ``"mm"``.
         output_aedb_path : str, optional
             Full path and name for the new AEDB file.
+            The aedb folder shall not exist otherwise the method will return ``False``.
         open_cutout_at_end : bool, optional
             Whether to open the cutout at the end. The default is ``True``.
         nets_to_include : list, optional
@@ -1290,7 +1291,9 @@ class Edb(object):
         _dbCells = [_cutout]
         if output_aedb_path:
             db2 = self.edb.Database.Create(output_aedb_path)
-            _success = db2.Save()
+            if not db2.Save():
+                self.logger.error("Failed to create new Edb. Check if the path already exists and remove it.")
+                return False
             _dbCells = convert_py_list_to_net_list(_dbCells)
             cell_copied = db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
             cell = list(cell_copied)[0]
