@@ -1056,7 +1056,7 @@ class EDBLayers(object):
         )
         return sorted(
             allStackuplayers,
-            key=lambda lyr=self._edb.Cell.StackupLayer: lyr.GetLowerElevation(),
+            key=lambda lyr=self._edb.Cell.StackupLayer: lyr.Clone().GetLowerElevation(),
         )
 
     @property
