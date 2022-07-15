@@ -1,5 +1,5 @@
 """
-Edb: Siwave analysis from EDB setup
+EDB: Siwave analysis from EDB setup
 -----------------------------------
 Use EDB to interact with a layout.
 """
@@ -51,7 +51,7 @@ print("Components {}".format(len(edb.core_components.components.keys())))
 print("elapsed time = ", time.time() - start)
 
 ###############################################################################
-# Get Pin Position
+# Get pin position
 # ~~~~~~~~~~~~~~~~
 # Get the position for a specific pin.
 # The next section shows how to get all pins for a specific component and
@@ -63,9 +63,9 @@ for pin in pins:
     print(edb.core_components.get_pin_position(pin))
 
 ###############################################################################
-# Get All Nets Connected to a Component
+# Get all nets connected to a component
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example get all nets connected to a specific component.
+# Get all nets connected to a specific component.
 
 edb.core_components.get_component_net_connection_info("U2")
 
@@ -181,8 +181,8 @@ edb.solve_siwave()
 edb.close_edb()
 
 ###############################################################################
-# Siwave Postprocesing
-# ~~~~~~~~~~~~~~~~~~~~
+# Postprocess in Siwave
+# ~~~~~~~~~~~~~~~~~~~~~
 # Open Siwave and generate a report. This works on Window only.
 
 # from pyaedt import Siwave

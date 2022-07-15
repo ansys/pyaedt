@@ -249,7 +249,7 @@ else:
         edb.core_padstack.place_padstack([xloc + "*-1", yloc + "*-1"], "GVIA", net_name="GND")
 
 ##################################################################################
-# Generare traces
+# Generate traces
 # ~~~~~~~~~~~~~~~
 # Generate and place parametric traces.
 
