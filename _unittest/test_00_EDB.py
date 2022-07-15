@@ -523,6 +523,7 @@ if not config["skip_edb"]:
             component = self.edbapp.core_components.create_component_from_pins(pins, "newcomp")
             assert component[0]
             assert component[1].GetName() == "newcomp"
+            assert len(list(component[1].LayoutObjs)) == 2
 
         def test_55b_create_cutout(self):
             output = os.path.join(self.local_scratch.path, "cutout.aedb")
