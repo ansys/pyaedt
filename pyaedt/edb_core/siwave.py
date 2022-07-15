@@ -246,7 +246,7 @@ class CircuitPort(Source):
     @property
     def get_type(self):
         """Get type."""
-        return self.type
+        return self._type
 
 
 class VoltageSource(Source):
@@ -289,7 +289,7 @@ class VoltageSource(Source):
     @property
     def source_type(self):
         """Source type."""
-        return self.source_type
+        return self._type
 
 
 class CurrentSource(Source):
@@ -332,7 +332,7 @@ class CurrentSource(Source):
     @property
     def source_type(self):
         """Source type."""
-        return self.source_type
+        return self._type
 
 
 class ResistorSource(Source):
@@ -350,12 +350,12 @@ class ResistorSource(Source):
 
     @rvalue.setter
     def rvalue(self, value):
-        self._rv = value
+        self._rvalue = value
 
     @property
     def source_type(self):
         """Source type."""
-        return self.source_type
+        return self._type
 
 
 class EdbSiwave(object):
@@ -701,7 +701,7 @@ class EdbSiwave(object):
         resistor = ResistorSource()
         resistor.positive_node.net = pos_pin.GetNet().GetName()
         resistor.negative_node.net = neg_pin.GetNet().GetName()
-        resistor.magnitude = rvalue
+        resistor.rvalue = rvalue
         if not resistor_name:
             resistor_name = "Res_{}_{}_{}_{}".format(
                 pos_pin.GetComponent().GetName(),
