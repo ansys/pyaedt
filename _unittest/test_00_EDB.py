@@ -524,7 +524,6 @@ if not config["skip_edb"]:
             assert component[0]
             assert component[1].GetName() == "newcomp"
             assert len(list(component[1].LayoutObjs)) == 2
-            pass
 
         def test_55b_create_cutout(self):
             output = os.path.join(self.local_scratch.path, "cutout.aedb")
