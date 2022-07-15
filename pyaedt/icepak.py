@@ -841,7 +841,7 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         name : str
-            Name of the object to assign monitor points to.
+            Name of the object to assign monitor point to.
         monitor_type : str, optional
             Type of the monitor.  The default is ``"Temperature"``.
         monitor_name : str, optional
