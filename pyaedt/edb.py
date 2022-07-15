@@ -38,7 +38,6 @@ from pyaedt.generic.general_methods import (
 from pyaedt.aedt_logger import AedtLogger
 from pyaedt.generic.process import SiwaveSolve
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.edb_core.general import convert_net_list_to_py_list
 
 if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess
