@@ -31,7 +31,7 @@ desktop_version = "2022.2"
 # This example downloads four files:
 #
 # - ``package.aedb`` folder containing a package example
-# - ``board.aedb``` folder containing a board example
+# - ``board.aedb`` folder containing a board example
 # - ``merge_wizard.py`` file containing the Python script to run
 # - ``merge_wizard_settings.json`` file containing the settings
 #
