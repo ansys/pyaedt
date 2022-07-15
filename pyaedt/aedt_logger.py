@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 import sys
 
@@ -214,18 +215,22 @@ class AedtLogger(object):
         """
         return self.get_messages(self._project_name, self._design_name)
 
-    def get_messages(self, project_name=None, design_name=None):
-        """
-        Get the message manager content for a specified project and design.
+    def get_messages(self, project_name=None, design_name=None, level=0, aedt_messages=False):
+        """Get the message manager content for a specified project and design.
 
         If the specified project and design names are invalid, they are ignored.
 
         Parameters
         ----------
         project_name : str
-            Name of the project.
+            Name of the project to read messages from. Leave empty string to get Desktop level messages.
         design_name : str
-            Name of the design within the specified project.
+            Name of the design to read messages from. Leave empty string to get Desktop level messages.
+        level : int
+            Level of messages to read. 0 – info and above, 1 – warning and above, 2 – error and fatal
+        aedt_messages : bool
+            Read content of message manager even if logger is disabled.
+
 
         Returns
         -------
@@ -233,14 +238,11 @@ class AedtLogger(object):
             List of messages for the specified project and design.
 
         """
-        if not project_name:
-            project_name = self._project_name
-        if not design_name:
-            design_name = self._design_name
-        if self._log_on_desktop:
-            global_message_data = self._desktop.GetMessages("", "", 0)
-            message_data = MessageList(global_message_data, project_name, design_name)
-            return message_data
+        project_name = project_name or self._project_name
+        design_name = design_name or self._design_name
+        if self._log_on_desktop or aedt_messages:
+            global_message_data = self._desktop.GetMessages("", "", level)
+            return MessageList(global_message_data, project_name, design_name)
         return MessageList([], project_name, design_name)
 
     def add_error_message(self, message_text, level=None):
