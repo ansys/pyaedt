@@ -244,7 +244,7 @@ class CircuitPort(Source):
     @property
     def get_type(self):
         """Get type."""
-        return self.type
+        return self._type
 
 
 class VoltageSource(Source):
@@ -287,7 +287,7 @@ class VoltageSource(Source):
     @property
     def source_type(self):
         """Source type."""
-        return self.source_type
+        return self._type
 
 
 class CurrentSource(Source):
@@ -330,7 +330,7 @@ class CurrentSource(Source):
     @property
     def source_type(self):
         """Source type."""
-        return self.source_type
+        return self._type
 
 
 class ResistorSource(Source):
@@ -348,12 +348,12 @@ class ResistorSource(Source):
 
     @rvalue.setter
     def rvalue(self, value):
-        self._rv = value
+        self._rvalue = value
 
     @property
     def source_type(self):
         """Source type."""
-        return self.source_type
+        return self._type
 
 
 class EdbSiwave(object):
@@ -659,7 +659,7 @@ class EdbSiwave(object):
 
     @pyaedt_function_handler()
     def create_resistor_on_pin(self, pos_pin, neg_pin, rvalue=1, resistor_name=""):
-        """Create a voltage source.
+        """Create a Resistor boundary between two given pins..
 
         Parameters
         ----------
@@ -688,7 +688,7 @@ class EdbSiwave(object):
         resistor = ResistorSource()
         resistor.positive_node.net = pos_pin.GetNet().GetName()
         resistor.negative_node.net = neg_pin.GetNet().GetName()
-        resistor.magnitude = rvalue
+        resistor.rvalue = rvalue
         if not resistor_name:
             resistor_name = "Res_{}_{}_{}_{}".format(
                 pos_pin.GetComponent().GetName(),
@@ -938,7 +938,7 @@ class EdbSiwave(object):
         rvalue=1,
         resistor_name="",
     ):
-        """Create a voltage source.
+        """Create a Resistor boundary between two given pins.
 
         Parameters
         ----------
@@ -979,7 +979,6 @@ class EdbSiwave(object):
         neg_node_cmp = self._pedb.core_components.get_component_by_name(negative_component_name)
         pos_node_pins = self._pedb.core_components.get_pin_from_component(positive_component_name, positive_net_name)
         neg_node_pins = self._pedb.core_components.get_pin_from_component(negative_component_name, negative_net_name)
-
         if resistor_name == "":
             resistor_name = "Port_{}_{}_{}_{}".format(
                 positive_component_name,
@@ -989,10 +988,10 @@ class EdbSiwave(object):
             )
         resistor.name = resistor_name
         resistor.positive_node.component_node = pos_node_cmp
-        resistor.positive_node.node_pins = pos_node_pins
+        resistor.positive_node.node_pins = pos_node_pins[0]
         resistor.negative_node.component_node = neg_node_cmp
-        resistor.negative_node.node_pins = neg_node_pins
-        return self.create_pin_group_terminal(resistor)
+        resistor.negative_node.node_pins = neg_node_pins[0]
+        return self._create_terminal_on_pins(resistor)
 
     @pyaedt_function_handler()
     def create_exec_file(self):

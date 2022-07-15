@@ -906,6 +906,23 @@ class Components(object):
             return False
 
     @pyaedt_function_handler()
+    def _getComponentDefinition(self, name, pins):
+        componentDefinition = self._edb.Definition.ComponentDef.FindByName(self._db, name)
+        if componentDefinition.IsNull():
+            componentDefinition = self._edb.Definition.ComponentDef.Create(self._db, name, None)
+            if componentDefinition.IsNull():
+                self._logger.error("Failed to create component definition {}".format(name))
+                return None
+            for pin in pins:
+                componentDefinitionPin = self._edb.Definition.ComponentDefPin.Create(componentDefinition, pin.GetName())
+                if componentDefinitionPin.IsNull():
+                    self._logger.error("Failed to create component definition pin {}-{}".format(name, pin.GetName()))
+                    return None
+        else:
+            self._logger.warning("Found existing component definition for footprint {}".format(name))
+        return componentDefinition
+
+    @pyaedt_function_handler()
     def create_component_from_pins(self, pins, component_name, placement_layer=None):
         """Create a component from pins.
 
@@ -933,13 +950,15 @@ class Components(object):
 
         """
         # try:
-        new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, component_name)
-        new_group = self._edb.Cell.Hierarchy.Group.Create(self._active_layout, component_name)
-        new_cmp.SetGroup(new_group)
+        compdef = self._getComponentDefinition(component_name, pins)
+        if not compdef:
+            return False
+        new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, compdef.GetName())
+
         for pin in pins:
             pin.SetIsLayoutPin(True)
-            new_group.AddMember(pin)
-
+            new_cmp.AddMember(pin)
+        new_cmp.SetComponentType(self._edb.Definition.ComponentType.Other)
         if not placement_layer:
             new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
         else:

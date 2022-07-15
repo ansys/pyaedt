@@ -3,6 +3,7 @@ import ntpath
 import os
 import warnings
 
+from pyaedt import settings
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.configurations import Configurations
 from pyaedt.generic.general_methods import _retry_ntimes
@@ -620,7 +621,7 @@ class FieldAnalysis3D(Analysis, object):
 
         if mat.lower() in self.materials.material_keys:
             matobj = self.materials.material_keys[mat.lower()]
-        elif self.materials._get_aedt_case_name(mat):
+        elif self.materials._get_aedt_case_name(mat) or settings.remote_api:
             matobj = self.materials._aedmattolibrary(mat)
         if matobj:
             if self.design_type == "HFSS":
