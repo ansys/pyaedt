@@ -30,7 +30,6 @@ if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" no
     except ImportError:
         pass
 
-from pyaedt.aedt_logger import AedtLogger
 from pyaedt.generic import constants
 from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
@@ -40,6 +39,8 @@ from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
+
+from pyaedt.aedt_logger import AedtLogger  # isort:skip
 
 try:
     from pyaedt.generic.design_types import Hfss3dLayout
