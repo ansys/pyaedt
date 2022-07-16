@@ -229,10 +229,15 @@ class TestClass(BasisTest, object):
 
     def test_16_surface_monitor(self):
         self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
-        assert self.aedtapp.assign_surface_monitor("surf1", monitor_name="monitor_surf")
+        assert self.aedtapp.assign_surface_monitor("surf1", monitor_name="monitor_surf") == "monitor_surf"
 
     def test_16_point_monitor(self):
-        assert self.aedtapp.assign_point_monitor([0, 0, 0], monitor_name="monitor_point")
+        assert self.aedtapp.assign_point_monitor([0, 0, 0], monitor_name="monitor_point") == "monitor_point"
+        assert self.aedtapp.assign_point_monitor_in_object("box", monitor_name="monitor_point1") == "monitor_point1"
+        assert self.aedtapp.assign_point_monitor_in_object("box", monitor_name="monitor_point")
+        assert self.aedtapp.assign_point_monitor_in_object("box2")
+        assert not self.aedtapp.assign_point_monitor_in_object("box1")
+        assert not self.aedtapp.assign_point_monitor_in_object(["box"])
 
     def test_17_analyze(self):
         self.aedtapp.analyze_nominal()

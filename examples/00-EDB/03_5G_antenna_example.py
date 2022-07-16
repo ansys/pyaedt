@@ -1,5 +1,5 @@
 """
-Edb: 5G linear array antenna
+EDB: 5G linear array antenna
 ----------------------------
 This example shows how to use HFSS 3D Layout to create and solve a 5G linear array antenna.
 """
@@ -13,8 +13,10 @@ import os
 
 
 ##########################################################
-# Set Non Graphical Mode.
-# Default is False
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Set non-graphical mode. The default is ``False``.
+
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -75,9 +77,9 @@ edb = Edb(edbpath=aedb_path, edbversion="2022.2")
 
 
 ###############################################################################
-# Create a Stackup
-# ~~~~~~~~~~~~~~~~
-# This method adds the stackup layers.
+# Add stackup layers
+# ~~~~~~~~~~~~~~~~~~
+# Add the stackup layers.
 #
 if edb:
     edb.core_stackup.stackup_layers.add_layer("Virt_GND")
@@ -87,9 +89,9 @@ if edb:
     edb.core_stackup.stackup_layers.add_layer("TOP", "Substrat")
 
 ###############################################################################
-# Creating the linear array.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# First patch
+# Create linear array
+# ~~~~~~~~~~~~~~~~~~~
+# Create the first patch of the linear array.
 
 first_patch = Patch(width=1.4e-3, height=1.2e-3, position=0.0)
 first_patch_poly = edb.core_primitives.Shape("polygon", points=first_patch.points)
@@ -100,8 +102,9 @@ first_line_poly = edb.core_primitives.Shape("polygon", points=first_line.points)
 edb.core_primitives.create_polygon(first_line_poly, "TOP", net_name="Array_antenna")
 
 ###############################################################################
-# Linear array
-# ~~~~~~~~~~~~
+# Patch linear array
+# ~~~~~~~~~~~~~~~~~~
+# Patch the linear array.
 
 patch = Patch(width=2.29e-3, height=3.3e-3)
 line = Line(length=1.9e-3, width=0.2e-3)
@@ -126,16 +129,18 @@ linear_array.length = current_position
 
 
 ###############################################################################
-# Adding ground
-# ~~~~~~~~~~~~~
+# Add ground
+# ~~~~~~~~~~
+# Add a ground.
 
 gnd_shape = edb.core_primitives.Shape("polygon", points=linear_array.points)
 edb.core_primitives.create_polygon(gnd_shape, "GND", net_name="GND")
 
 
 ###############################################################################
-# Connector central pin
-# ~~~~~~~~~~~~~~~~~~~~~
+# Add connector pin
+# ~~~~~~~~~~~~~~~~~
+# Add a central connector pin.
 
 edb.core_padstack.create_padstack(padstackname="Connector_pin", holediam="100um", paddiam="0", antipaddiam="200um")
 con_pin = edb.core_padstack.place_padstack(
@@ -149,8 +154,9 @@ con_pin = edb.core_padstack.place_padstack(
 
 
 ###############################################################################
-# Connector GND
-# ~~~~~~~~~~~~~
+# Add connector ground
+# ~~~~~~~~~~~~~~~~~~~~
+# Add a connector ground.
 
 virt_gnd_shape = edb.core_primitives.Shape("polygon", points=first_patch.points)
 edb.core_primitives.create_polygon(virt_gnd_shape, "Virt_GND", net_name="GND")
@@ -186,48 +192,56 @@ con_ref4 = edb.core_padstack.place_padstack(
 
 
 ###############################################################################
-# Adding excitation port
-# ~~~~~~~~~~~~~~~~~~~~~~
+# Add excitation port
+# ~~~~~~~~~~~~~~~~~~~
+# Add an excitation port.
+
 edb.core_padstack.set_solderball(con_pin, "Virt_GND", isTopPlaced=False, ballDiam=0.1e-3)
 port_name = edb.core_padstack.create_coax_port(con_pin)
 
 
 ###############################################################################
-# Plot the geometry
-# ~~~~~~~~~~~~~~~~~
+# Plot geometry
+# ~~~~~~~~~~~~~
+# Plot the geometry.
 
 edb.core_nets.plot(None)
 
 ###############################################################################
-# Save edb
+# Save EDB
 # ~~~~~~~~
+# Save EDB.
+
 if edb:
     edb.standalone = False
     edb.save_edb()
     edb.close_edb()
 print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 ###############################################################################
-# Launch Hfss3d Layout and open Edb
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#
+# Launch HFSS 3D Layout and open EDB
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Launch HFSS 3D Layout and open EDB.
+
 project = os.path.join(aedb_path, "edb.def")
 h3d = Hfss3dLayout(projectname=project, specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
 
 ###############################################################################
-# Plot the geometry
+# Plot geometry
 # ~~~~~~~~~~~~~~~~~
-# The edb methods are also accessible from h3d layout class.
+# Plot the geometry. The EDB methods are also accessible from the ``Hfss3dlayout`` class.
 
 h3d.modeler.edb.core_nets.plot(None)
 
 ###############################################################################
-# Create Setup and Sweeps
+# Create setup and sweeps
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# New getters and setter facilitate the settings on nested property dictionary.
-# Previously the following command had to be used
-# `setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "20GHz"`
-# `setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 4`
-# Now there are simpler approaches like showed below.
+# Getters and setter facilitate the settings on the nested property dictionary.
+# Previously, you had to use these commands:
+# 
+# - `setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "20GHz"`
+# - `setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 4`
+#
+# You can now use the simpler approach that follows.
 
 setup = h3d.create_setup()
 
@@ -249,18 +263,18 @@ h3d.create_linear_count_sweep(
 
 
 ###############################################################################
-# Solve Setup and create results
+# Solve setup and create results
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Solves the project and create report.
+# Solve the project and create report.
 
 h3d.analyze_nominal()
 h3d.post.create_report(["db(S({0},{1}))".format(port_name, port_name)])
 
 
 ###############################################################################
-# Plot Results Outside Electronics Desktop
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example plots results using matplotlib.
+# Plot results outside AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# Plot results using Matplotlib.
 
 solution = h3d.post.get_solution_data(["S({0},{1})".format(port_name, port_name)])
 solution.plot()
@@ -268,9 +282,9 @@ solution.plot()
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton is completed, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` method.
-# All methods provide for saving the project before exiting.
+# After the simulaton completes, you can close AEDT or release it using the
+# :func:`pyaedt.Desktop.release_desktop` function.
+# All functions provide for saving the project before closing AEDT.
 
 h3d.save_project()
 h3d.release_desktop()

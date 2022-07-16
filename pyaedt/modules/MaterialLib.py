@@ -19,6 +19,7 @@ from pyaedt.modules.Material import Material
 from pyaedt.modules.Material import MatProperties
 from pyaedt.modules.Material import OrderedDict
 from pyaedt.modules.Material import SurfaceMaterial
+from pyaedt import settings
 
 
 class Materials(object):
@@ -158,9 +159,14 @@ class Materials(object):
             # m = load_entire_aedt_file(amat)
             # mats.extend(list(m.keys()))
             mats.extend(get_mat_list(amat))
-
-        mats.remove("$index$")
-        mats.remove("$base_index$")
+        try:
+            mats.remove("$index$")
+        except ValueError:
+            pass
+        try:
+            mats.remove("$base_index$")
+        except ValueError:
+            pass
         mats.extend(self.odefinition_manager.GetProjectMaterialNames())
         return mats
 
@@ -232,6 +238,8 @@ class Materials(object):
                 self.material_keys[mat.lower()].update()
             return self.material_keys[mat.lower()]
         elif mat.lower() in self._mat_names_aedt_lower:
+            return self._aedmattolibrary(mat)
+        elif settings.remote_api:
             return self._aedmattolibrary(mat)
         return False
 
@@ -604,7 +612,7 @@ class Materials(object):
         -------
         :class:`pyaedt.modules.Material.Material`
         """
-        if matname not in self.odefinition_manager.GetProjectMaterialNames():
+        if matname not in self.odefinition_manager.GetProjectMaterialNames() and not settings.remote_api:
             matname = self._get_aedt_case_name(matname)
         props = {}
         _arg2dict(list(_retry_ntimes(20, self.omaterial_manager.GetData, matname)), props)

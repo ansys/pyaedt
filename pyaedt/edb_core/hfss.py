@@ -189,7 +189,7 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def create_resistor_on_pin(self, pos_pin, neg_pin, rvalue=1, resistor_name=""):
-        """Create a voltage source.
+        """Create a Resistor boundary between two given pins.
 
         Parameters
         ----------
@@ -382,7 +382,7 @@ class EdbHfss(object):
         rvalue=1,
         resistor_name="",
     ):
-        """Create a voltage source.
+        """Create a Resistor boundary between two given nets.
 
         Parameters
         ----------
