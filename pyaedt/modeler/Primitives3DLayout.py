@@ -4,8 +4,8 @@ import sys
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import _uname
 from pyaedt.modeler.Object3d import Padstack
+from pyaedt.modeler.Object3d import _uname
 from pyaedt.modeler.object3dlayout import Circle3dLayout
 from pyaedt.modeler.object3dlayout import Components3DLayout
 from pyaedt.modeler.object3dlayout import ComponentsSubCircuit3DLayout

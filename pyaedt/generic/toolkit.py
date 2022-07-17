@@ -104,23 +104,36 @@ else:
 
     clr.AddReference("System.Windows")
 
-from System.Threading import Thread, ThreadStart, ApartmentState
+from System import Environment
+from System import Uri
+from System import UriKind
+from System.Drawing import Point
+from System.Drawing import Size
+from System.Threading import ApartmentState
+from System.Threading import Thread
+from System.Threading import ThreadStart
+from System.Windows import Application
+from System.Windows import Input
 from System.Windows import LogicalTreeHelper
-from System.Windows import Window, Application, Visibility, Input, Thickness
-from System.Windows.Forms import Form, ListBox, Button, MessageBox, MessageBoxIcon, MessageBoxButtons
-from System.Windows.Forms import (
-    FormBorderStyle,
-    StatusBar,
-    SelectionMode,
-    DialogResult,
-    FolderBrowserDialog,
-    OpenFileDialog,
-)
+from System.Windows import Thickness
+from System.Windows import Visibility
+from System.Windows import Window
+from System.Windows.Forms import Button
+from System.Windows.Forms import DialogResult
+from System.Windows.Forms import FolderBrowserDialog
+from System.Windows.Forms import Form
+from System.Windows.Forms import FormBorderStyle
+from System.Windows.Forms import ListBox
+from System.Windows.Forms import MessageBox
+from System.Windows.Forms import MessageBoxButtons
+from System.Windows.Forms import MessageBoxIcon
+from System.Windows.Forms import OpenFileDialog
+from System.Windows.Forms import SelectionMode
+from System.Windows.Forms import StatusBar
 from System.Windows.Media import Brushes
-from System.Drawing import Size, Point
-
-from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption, BitmapCreateOptions
-from System import Uri, UriKind, Environment
+from System.Windows.Media.Imaging import BitmapCacheOption
+from System.Windows.Media.Imaging import BitmapCreateOptions
+from System.Windows.Media.Imaging import BitmapImage
 
 
 @pyaedt_function_handler()

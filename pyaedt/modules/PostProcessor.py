@@ -14,11 +14,12 @@ from collections import OrderedDict
 
 import pyaedt.modules.report_templates as rt
 from pyaedt.generic.DataHandlers import json_to_dict
-from pyaedt.generic.general_methods import _retry_ntimes, is_ironpython
+from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modules.solutions import SolutionData, FieldPlot
-
+from pyaedt.modules.solutions import FieldPlot
+from pyaedt.modules.solutions import SolutionData
 
 TEMPLATES_BY_DESIGN = {
     "HFSS": [

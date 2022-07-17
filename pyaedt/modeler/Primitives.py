@@ -15,14 +15,14 @@ from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import is_number
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import _dim_arg
-from pyaedt.modeler.Object3d import _uname
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import Object3d
 from pyaedt.modeler.Object3d import UserDefinedComponent
-from pyaedt.modules.MaterialLib import Material
+from pyaedt.modeler.Object3d import _dim_arg
+from pyaedt.modeler.Object3d import _uname
 from pyaedt.modeler.object3dlayout import Point
+from pyaedt.modules.MaterialLib import Material
 
 default_materials = {
     "Icepak": "air",

@@ -8,8 +8,8 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt import settings
+from pyaedt.generic.general_methods import is_ironpython
 
 test_project_name = "Coax_HFSS"
 

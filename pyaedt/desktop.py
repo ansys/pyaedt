@@ -39,12 +39,15 @@ if not IsWindows and is_ironpython:
 else:
     import subprocess
 
-from pyaedt.misc import list_installed_ansysem
+from pyaedt import __version__
+from pyaedt import aedt_logger
 from pyaedt import pyaedt_function_handler
-from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop, grpc_active_sessions
 from pyaedt import settings
-
-from pyaedt import aedt_logger, __version__
+from pyaedt.generic.general_methods import _pythonver
+from pyaedt.generic.general_methods import grpc_active_sessions
+from pyaedt.generic.general_methods import inside_desktop
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.misc import list_installed_ansysem
 
 pathname = os.path.dirname(__file__)
 

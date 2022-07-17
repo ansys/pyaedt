@@ -13,9 +13,10 @@ from pyaedt.generic.DataHandlers import float_units
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modules.Boundary import BoundaryObject, MaxwellParameters
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
+from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.Boundary import MaxwellParameters
 
 
 class Maxwell(object):
