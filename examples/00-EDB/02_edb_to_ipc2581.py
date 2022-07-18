@@ -47,8 +47,8 @@ edb = Edb(edbpath=targetfile, edbversion="2022.2")
 
 
 ###############################################################################
-# Parametrize a net
-# ~~~~~~~~~~~~~~~~~
+# Parametrize net
+# ~~~~~~~~~~~~~~~
 # Parameterize a net.
 
 edb.core_primitives.parametrize_trace_width(
