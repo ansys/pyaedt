@@ -490,11 +490,16 @@ if not config["skip_edb"]:
             )
 
         def test_39B_create_resistors(self):
-            assert "myRes" in self.edbapp.core_siwave.create_resistor_on_net(
-                "U2A5", "V1P5_S0", "U2A5", "GND", 50, "myRes"
+            assert self.edbapp.core_siwave.create_rlc_component_on_net(
+                positive_component_name="U2A5",
+                positive_net_name="V1P5_S0",
+                negative_component_name="U2A5",
+                negative_net_name="GND",
+                rvalue=10,
+                component_name="myRes"
             )
             pins = self.edbapp.core_components.get_pin_from_component("U2A5")
-            assert "RST4000" == self.edbapp.core_siwave.create_resistor_on_pin(
+            assert self.edbapp.core_siwave.create_resistor_on_pin(
                 pins[302], pins[10], 40, "RST4000"
             )
 
@@ -2245,13 +2250,13 @@ if not config["skip_edb"]:
             self.local_scratch.copyfolder(source_path, target_path)
             edb = Edb(target_path)
             assert edb.core_siwave.create_rlc_component_on_net(
-                "U2A5",
-                "M_DQ<0>",
-                "U2A5",
-                "GND",
+                positive_component_name="U2A5",
+                positive_net_name="M_DQ<0>",
+                negative_component_name="U2A5",
+                negative_net_name="GND",
                 rvalue=32,
                 component_name="test",
                 cvalue=12e-12,
                 lvalue=1e-10,
             )
-            edb.close_edb()
+            assert edb.close_edb()
