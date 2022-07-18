@@ -16,6 +16,8 @@ class AedtObjects(object):
             else:
                 self.oproject = self._odesktop.GetActiveProject()
                 self.odesign = self.oproject.GetActiveDesign()
+        print(self.oproject.GetName())
+        print(self.odesign.GetName())
         self._oboundary = None
         self._oimport_export = None
         self._ooptimetrics = None
