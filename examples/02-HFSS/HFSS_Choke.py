@@ -48,9 +48,9 @@ hfss = Hfss(specified_version="2022.2", non_graphical=non_graphical, new_desktop
 # ``"Simple"``.
 # 
 # You must not modify the primary or secondary keys. You can modify only their values.
-# The data types for these keys must not be changed. For the dictionaries from
+# You must not change the data types for these keys. For the dictionaries from
 # ``"Number of Windings"`` through ``"Wire Section"``, values must be Boolean. Only
-# one value by dictionary must be ``True``. If all values are ``True``, only the first one
+# one value per dictionary can be ``True``. If all values are ``True``, only the first one
 # remains set to ``True``. If all values are ``False``, the first value is chosen as the
 # correct one by default. For the dictionaries from ``"Core"`` through ``"Inner Winding"``,
 # values must be strings, floats, or integers.
@@ -69,7 +69,7 @@ hfss = Hfss(specified_version="2022.2", non_graphical=non_graphical, new_desktop
 # - ``"Inner Winding"``: Turns and turns spacing ("Coil Pit") for the third or inner layer if it is necessary
 # - ``"Occupation(%)"``: An informative parameter that is useless to modify
 #
-# The preceding parameter values work. You can modify them if you want.
+# The following parameter values work. You can modify them if you want.
 
 values = {
     "Number of Windings": {"1": False, "2": True, "3": False, "4": False},
@@ -192,7 +192,7 @@ region = hfss.modeler.create_region(pad_percent=1000)
 # Create setup
 # ~~~~~~~~~~~~
 # Create a setup with a sweep to run the simulation. Depending on your machine's
-# computing power, the simulation can take some time.
+# computing power, the simulation can take some time to run.
 
 setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "50MHz"
