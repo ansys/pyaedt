@@ -2662,7 +2662,7 @@ class MachineLearningPatch(Patch, object):
             training_file = None
             if 1e9 > frequency >= 1e8:
                 training_file = os.path.join(path_folder, "misc", "patch_svr_model_100MHz_1GHz.joblib")
-            elif 1e10 >= frequency > 1e9:
+            elif 1e10 >= frequency >= 1e9:
                 training_file = os.path.join(path_folder, "misc", "patch_svr_model_1GHz_10GHz.joblib")
             else:
                 self.application.logger.error("This ML algorithm can only predict patch antennas from 100 MHz to 10 GHz.")
