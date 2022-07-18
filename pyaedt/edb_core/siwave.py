@@ -939,7 +939,7 @@ class EdbSiwave(object):
         cvalue=0.0,
         lvalue=0.0,
         is_parallel=False,
-        resistor_name="",
+        component_name="",
     ):
         """Create a rlc components between two nets.
 
@@ -983,8 +983,8 @@ class EdbSiwave(object):
             negative_net_name = self._check_gnd(negative_component_name)
         pos_node_pins = self._pedb.core_components.get_pin_from_component(positive_component_name, positive_net_name)
         neg_node_pins = self._pedb.core_components.get_pin_from_component(negative_component_name, negative_net_name)
-        if resistor_name == "":
-            resistor_name = "Port_{}_{}_{}_{}".format(
+        if component_name == "":
+            component_name = "Port_{}_{}_{}_{}".format(
                 positive_component_name,
                 positive_net_name,
                 negative_component_name,
@@ -995,7 +995,7 @@ class EdbSiwave(object):
 
         return self._pedb.core_components.create_rlc(
             [pos_node_pins[0], neg_node_pins[0]],
-            resistor_name,
+            component_name,
             r_value=rvalue,
             l_value=lvalue,
             c_value=cvalue,
