@@ -54,7 +54,7 @@ if sys.version_info.major > 2:
     import base64
 
 
-class Design(AedtObjects, object):
+class Design(AedtObjects):
     """Contains all functions and objects connected to the active project and design.
 
     This class is inherited in the caller application and is accessible through it (for

@@ -3,7 +3,7 @@ import sys
 from pyaedt import pyaedt_function_handler
 
 
-class AedtObjects(object):
+class AedtObjects:
     def __init__(self, project=None, design=None, is_inherithed=False):
         self._odesktop = sys.modules["__main__"].oDesktop
         if not is_inherithed:
