@@ -185,7 +185,8 @@ def release_desktop(close_projects=True, close_desktop=True):
 
             PyDesktopPlugin.Release()
             _delete_objects()
-            return True
+            if settings.remote_api:
+                return True
         elif not inside_desktop:
             i = 0
             scopeID = 5
