@@ -41,7 +41,6 @@ class AedtObjects(object):
         self._o_symbol_manager = None
         self._opadstackmanager = None
         self._oradfield = None
-        self.oanalysis
 
     @property
     def oradfield(self):
