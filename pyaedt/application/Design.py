@@ -209,7 +209,7 @@ class Design(AedtObjects, object):
         self._variable_manager = VariableManager(self)
         self._project_datasets = []
         self._design_datasets = []
-        _mtime = self.project_time_stamp
+        # _mtime = self.project_time_stamp
         self.logger.info("Variable Manager initialized")
 
     @property
