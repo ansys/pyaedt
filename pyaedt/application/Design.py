@@ -16,6 +16,7 @@ import re
 import shutil
 import string
 import sys
+import tempfile
 import time
 import warnings
 from collections import OrderedDict
@@ -491,7 +492,10 @@ class Design(AedtObjects, object):
 
         >>> oProject.GetPath
         """
-        return self.oproject.GetPath()
+        ppath = self.oproject.GetPath()
+        if not ppath:
+            ppath = tempfile.gettempdir()
+        return ppath
 
     @property
     def project_time_stamp(self):
