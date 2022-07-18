@@ -84,10 +84,9 @@ class AedtObjects(object):
             self._opadstackmanager = self.oproject.GetDefinitionManager().GetManager("Padstack")
         return self._opadstackmanager
 
-    #
-    # @property
-    # def design_type(self):
-    #     return self.odesign.GetDesignType()
+    @property
+    def design_type(self):
+        return self.odesign.GetDesignType()
 
     @property
     def oboundary(self):
@@ -158,7 +157,6 @@ class AedtObjects(object):
         elif "EMIT" in self.design_type or "Maxwell Circuit" in self.design_type:
             self._oanalysis = None
         elif "Circuit Design" in self.design_type or "Twin Builder" in self.design_type:
-            print("Correct")
             self._oanalysis = self.get_module("SimSetup")
         else:
             self._oanalysis = self.get_module("AnalysisSetup")

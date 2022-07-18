@@ -16,7 +16,6 @@ import re
 import shutil
 import string
 import sys
-import tempfile
 import time
 import warnings
 from collections import OrderedDict
@@ -203,11 +202,11 @@ class Design(AedtObjects, object):
             self.design_solutions = DesignSolution(None, design_type, self._aedt_version)
         self.design_solutions._solution_type = solution_type
         self._temp_solution_type = solution_type
-
-        AedtObjects.__init__(self, is_inherithed=True)
         self.oproject = project_name
         self.odesign = design_name
+        AedtObjects.__init__(self, is_inherithed=True)
         self.logger.info("Aedt Objects initialized")
+
         self._variable_manager = VariableManager(self)
         self._project_datasets = []
         self._design_datasets = []
@@ -493,10 +492,7 @@ class Design(AedtObjects, object):
 
         >>> oProject.GetPath
         """
-        ppath = self.oproject.GetPath()
-        if not ppath:
-            ppath = tempfile.gettempdir()
-        return ppath
+        return self.oproject.GetPath()
 
     @property
     def project_time_stamp(self):
