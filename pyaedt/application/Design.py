@@ -206,6 +206,7 @@ class Design(AedtObjects, object):
         self.oproject = project_name
         self.odesign = design_name
         AedtObjects.__init__(self, is_inherithed=True)
+
         self.logger.info("Aedt Objects initialized")
         self._variable_manager = VariableManager(self)
         self._project_datasets = []

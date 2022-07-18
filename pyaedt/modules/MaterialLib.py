@@ -592,13 +592,14 @@ class Materials(object):
         return data
 
     def _load_from_project(self):
-        mats = self.odefinition_manager.GetProjectMaterialNames()
-        for el in mats:
-            if el not in list(self.material_keys.keys()):
-                try:
-                    self._aedmattolibrary(el)
-                except Exception as e:
-                    self.logger.info("aedmattolibrary failed for material %s", el)
+        if self.odefinition_manager:
+            mats = self.odefinition_manager.GetProjectMaterialNames()
+            for el in mats:
+                if el not in list(self.material_keys.keys()):
+                    try:
+                        self._aedmattolibrary(el)
+                    except Exception as e:
+                        self.logger.info("aedmattolibrary failed for material %s", el)
 
     @pyaedt_function_handler()
     def _aedmattolibrary(self, matname):
