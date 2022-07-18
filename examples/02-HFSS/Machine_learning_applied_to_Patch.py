@@ -299,7 +299,7 @@ with open(json_file_path, "w") as readfile:
 # The one we generated is imported to test our model after the training.
 
 path_folder = hfss.pyaedt_dir
-training_file = os.path.join(path_folder, "misc", "ml_data_file_train_100GMHz_1GHz.json")
+training_file = os.path.join(path_folder, "misc", "ml_data_file_train_100MHz_1GHz.json")
 with open(training_file) as readfile:
     my_dictio_list_train = json.load(readfile)
 
