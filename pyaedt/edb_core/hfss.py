@@ -923,7 +923,7 @@ class EdbHfss(object):
             sweep.UseQ3DForDC = simulation_setup.use_q3d_for_dc
             sweep.RelativeSError = simulation_setup.relative_error
             sweep.InterpUsePortImpedance = False
-            sweep.EnforceCausality = simulation_setup.start_frequency
+            sweep.EnforceCausality = simulation_setup.enforce_causality
             # sweep.EnforceCausality = False
             sweep.EnforcePassivity = simulation_setup.enforce_passivity
             sweep.PassivityTolerance = simulation_setup.passivity_tolerance
