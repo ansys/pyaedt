@@ -10,6 +10,9 @@ This example shows how you can use PyAEDT to create a machine learning algorithm
 While this example supplies the code for all three steps in one Python file, it would be
 better to separate the code for each step into its own Python file.
 """
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import json
 import os
@@ -27,6 +30,7 @@ from pyaedt.modeler.stackup_3d import Stackup3D
 
 ##########################################################
 # Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. The default is ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
@@ -396,7 +400,7 @@ print("number of training cases: " + str(len(output_for_training_list)))
 
 ###############################################################################
 # Convert lists in array
-# ----------------------
+# ~~~~~~~~~~~~~~~~~~~~~~
 # Convert the lists in an array.
 
 input_for_training_array = np.array(input_for_training_list, dtype=np.float32)
@@ -572,7 +576,7 @@ print("average is : " + str(average_relative_gap))
 
 ###############################################################################
 # Release AEDT
-# ~~~~~~~~~~~~
+# ------------
 # Release AEDT.
 
 hfss.release_desktop()

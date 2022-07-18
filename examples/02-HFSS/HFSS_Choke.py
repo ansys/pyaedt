@@ -3,6 +3,10 @@ HFSS: choke
 -----------
 This example shows how you can use PyAEDT to create a choke setup in HFSS.
 """
+###############################################################################
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import json
 import tempfile
@@ -26,8 +30,8 @@ if not os.path.exists(temp_folder):
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
-# Launch HFSS in graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Launch HFSS
+# ~~~~~~~~~~~
 # Launches HFSS 2022.2 in graphical mode.
 
 hfss = Hfss(specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True, solution_type="Terminal")
@@ -40,22 +44,23 @@ hfss = Hfss(specified_version="2022.2", non_graphical=non_graphical, new_desktop
 # the dictionary. The dictionary has many primary keys, including
 # ``"Number of Windings"``, ``"Layer"``, and ``"Layer Type"``, that have
 # dictionaries as values. The keys of these dictionaries are secondary keys
-# of the dictionary values, such as # "1", "2", "3", "4", and "Simple".
+# of the dictionary values, such as ``"1"``, ``"2"``, ``"3"``, ``"4"``, and
+# ``"Simple"``.
 # 
 # You must not modify the primary or secondary keys. You can modify only their values.
 # The data types for these keys must not be changed. For the dictionaries from
-# ``"Number of Windings"`` through ``"Wire Section``, values must be Boolean. Only
+# ``"Number of Windings"`` through ``"Wire Section"``, values must be Boolean. Only
 # one value by dictionary must be ``True``. If all values are ``True``, only the first one
-# remains so. If all values are ``False``, the first value is chosen as the correct one by
-# default. For the dictionaries from ``"Core"`` through ``"Inner Winding"``, values
-# must be strings, floats, or integers.
+# remains set to ``True``. If all values are ``False``, the first value is chosen as the
+# correct one by default. For the dictionaries from ``"Core"`` through ``"Inner Winding"``,
+# values must be strings, floats, or integers.
 #
 # Descriptions follow for primary keys:
 #
 # - ``"Number of Windings"``: Number of windings around the core
 # - ``"Layer"``: Number of layers of all windings
-# - ``"Layer Type"``: Whether layers of a winding are linked to each other.
-# - ``"Similar Layer"``: Whether layers of a winding have the number of turns and same spacing between turns
+# - ``"Layer Type"``: Whether layers of a winding are linked to each other
+# - ``"Similar Layer"``: Whether layers of a winding have the same number of turns and same spacing between turns
 # - ``"Mode"``: When there are only two windows, whether they are in common or differential mode
 # - ``"Wire Section"``: Type of wire section and number of segments
 # - ``"Core"``: Design of the core
@@ -122,7 +127,7 @@ print(dictionary_values)
 ###############################################################################
 # Create choke
 # ~~~~~~~~~~~~
-# Create the choke. The "create_choke" method takes the JSON file path in an 
+# Create the choke. The ``create_choke`` method takes the JSON file path in an 
 # argument and creates the choke.
 
 list_object = hfss.modeler.create_choke(json_path)

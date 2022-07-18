@@ -5,15 +5,19 @@ This example shows how you can use PyAEDT to create a multipart scenario in SBR+
 """
 
 ###############################################################################
-# Launch AEDT in graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT 202 2R2 in graphical mode.
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
+
 import os
 import tempfile
 import pyaedt
 from pyaedt import examples, generate_unique_name
 
-# Start AEDT
+# Launch AEDT
+# ~~~~~~~~~~~
+# Launch AEDT.
+
 aedt_version = "2022.2"
 projectname = "MicroDoppler_with_ADP"
 designname = "doppler"

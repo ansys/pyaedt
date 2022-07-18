@@ -45,8 +45,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 ###############################################################################
-# Launch AEDT in non-graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Launch AEDT
+# ~~~~~~~~~~~
 # Launch AEDT 2022 R2 in non-graphical mode.
 
 desktopVersion = "2022.2"
@@ -219,7 +219,7 @@ vals3d.plot_3d()
 #######################################
 # Close HFSS project and AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Close the HFSS project and AEDT.
+# Close the HFSS project and release AEDT.
 
 # hfss.close_project()
 hfss.save_project()

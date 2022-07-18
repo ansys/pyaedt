@@ -5,7 +5,10 @@ This example shows how to use PyAEDT to create an example using a 3D component f
 the analysis, solves it, and uses postprocessing functions to create plots using Matplotlib and
 PyVista without opening the HFSS user interface. This examples runs only on Windows using CPython.
 """
-
+###############################################################################
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import os
 from pyaedt import Hfss
@@ -72,8 +75,8 @@ ffdata = hfss.get_antenna_ffd_solution_data(sphere_name="Infinite Sphere1", setu
                                             frequencies=[5e9])
 
 ##########################################################
-# Generate a contour plot
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# Generate contour plot
+# ~~~~~~~~~~~~~~~~~~~~~
 # Generate a contour plot. You can define the Theta scan
 # and Phi scan.
 

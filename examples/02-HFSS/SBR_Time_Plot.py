@@ -8,7 +8,7 @@ and save it to a GIF file. This example works only on CPython.
 ###############################################################################
 # Import packages
 # ~~~~~~~~~~~~~~~
-# Import the FFSS package.
+# Import the packages.
 
 import os
 from pyaedt import Hfss, examples

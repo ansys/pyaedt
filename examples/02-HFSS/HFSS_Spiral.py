@@ -162,9 +162,9 @@ L_formula = "1e9*im(1/Y(1,1))/(2*pi*freq)"
 Q_formula = "im(Y(1,1))/re(Y(1,1))"
 
 ################################################################
-# Plot calculateds value on Matplotlib
+# Plot calculated values in Matplotlib
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Plot calculated values on Matplotlib.
+# Plot calculated values in Matplotlib.
 
 x = hfss.post.get_solution_data([L_formula, Q_formula])
 x.plot([L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q")

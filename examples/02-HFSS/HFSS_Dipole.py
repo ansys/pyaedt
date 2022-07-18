@@ -3,6 +3,9 @@ HFSS: dipole antenna
 --------------------
 This example shows how you can use PyAEDT to create a dipole antenna in HFSS and postprocess results.
 """
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import os
 import tempfile
@@ -24,15 +27,15 @@ if not os.path.exists(temp_folder):
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
-# Launch AEDT in graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Launch AEDT
+# ~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode.
 
 d = Desktop("2022.2", non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
-# Launch HFSS in graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Launch HFSS
+# ~~~~~~~~~~~
 # Launch HFSS 2022 R2 in graphical mode.
 
 hfss = Hfss(solution_type="Modal")
@@ -58,7 +61,7 @@ hfss.modeler.insert_3d_component(compfile, geometryparams)
 
 ###############################################################################
 # Create boundaries
-# -----------------
+# ~~~~~~~~~~~~~~~~~
 # Create boundaries. A region with openings is needed to run the analysis.
 
 hfss.create_open_region(Frequency="1GHz")

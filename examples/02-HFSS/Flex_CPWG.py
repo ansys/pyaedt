@@ -10,14 +10,15 @@ from math import radians, sin, cos, sqrt
 from pyaedt import Hfss
 
 ##########################################################
-# Set non-Graphical mode
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. The default is ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
-# Launch AEDT in graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Launch AEDT
+# ~~~~~~~~~~~
 # Launches AEDT 2022 R2 in graphical mode.
 
 hfss = Hfss(specified_version="2022.2", solution_type="DrivenTerminal", new_desktop_session=True, non_graphical=non_graphical)
@@ -199,8 +200,8 @@ hfss.create_linear_count_sweep(
 )
 
 ###############################################################################
-# Plot the model
-# ~~~~~~~~~~~~~~
+# Plot model
+# ~~~~~~~~~~
 # Plot the nmodel.
 
 my_plot = hfss.plot(show=False, plot_air_objects=False)
@@ -212,6 +213,8 @@ my_plot.plot(
 ###############################################################################
 # Analyze and release
 # ~~~~~~~~~~~~~~~~~~~~
-# Uncomment if you want to analyze the model and release AEDT.
+# Uncomment the ``hfss.analyze_nominal`` command if you want to analyze the
+# model and release AEDT.
+
 hfss.release_desktop()
 # hfss.analyze_nominal(num_cores=4)

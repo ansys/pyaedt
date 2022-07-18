@@ -7,7 +7,7 @@ This example shows how to use HFSS 3D Layout to create and solve a parametric vi
 
 ###############################################################################
 # Import object
-# ~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~
 # Import the ``Hfss3dlayout`` object and initialize it on version
 # 2022 R2.
 
@@ -16,13 +16,14 @@ import os
 
 ##########################################################
 # Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. The default is ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
-# Launch AEDT in graphical mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Launch AEDT
+# ~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode.
 
 h3d = Hfss3dLayout(specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
