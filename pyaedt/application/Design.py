@@ -2854,10 +2854,7 @@ class Design(AedtObjects, object):
                 )
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()
-        if ";" in name:
-            self.odesign = name.split(";")[1]
-        else:
-            self.odesign = name
+        self._odesign = new_design
         return name
 
     @pyaedt_function_handler()
