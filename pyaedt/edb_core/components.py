@@ -924,8 +924,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def create_rlc(self, pins, component_name, r_value=1.0, c_value=1e-9, l_value=1e-9, is_parallel=False):
-        """"
-        """
+        """ " """
         comp_def = self._getComponentDefinition(component_name, pins)
         if not comp_def:
             return False
@@ -963,7 +962,8 @@ class Components(object):
             rlc_model = self._edb.Cell.Hierarchy.PinPairModel()
             rlc_model.SetPinPairRlc(pin_pair, rlc)
             if not edb_rlc_component_property.SetModel(rlc_model) or not new_cmp.SetComponentProperty(
-                    edb_rlc_component_property):
+                edb_rlc_component_property
+            ):
                 return False
         return new_cmp
 
