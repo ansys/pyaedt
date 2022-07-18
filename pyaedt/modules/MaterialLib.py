@@ -5,11 +5,12 @@ This module contains the `Materials` class.
 from __future__ import absolute_import  # noreorder
 
 import copy
+import fnmatch
 import json
 import os
-import fnmatch
 import re
 
+from pyaedt import settings
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.general_methods import _create_json_file
 from pyaedt.generic.general_methods import _retry_ntimes
@@ -19,7 +20,6 @@ from pyaedt.modules.Material import Material
 from pyaedt.modules.Material import MatProperties
 from pyaedt.modules.Material import OrderedDict
 from pyaedt.modules.Material import SurfaceMaterial
-from pyaedt import settings
 
 
 class Materials(object):

@@ -33,8 +33,8 @@ if not is_ironpython:
 
     try:
         import matplotlib.pyplot as plt
-        from matplotlib.path import Path
         from matplotlib.patches import PathPatch
+        from matplotlib.path import Path
 
     except ImportError:
         warnings.warn(

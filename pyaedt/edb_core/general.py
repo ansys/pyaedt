@@ -15,8 +15,8 @@ try:
     import clr
 
     clr.AddReference("System.Collections")
-    from System.Collections.Generic import List
     from System import Tuple
+    from System.Collections.Generic import List
 
 except ImportError:
     if os.name != "posix":

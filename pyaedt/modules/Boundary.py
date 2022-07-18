@@ -6,14 +6,14 @@ from collections import OrderedDict
 from pyaedt.generic.constants import CATEGORIESQ3D
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
+from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Object3d import _dim_arg
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import VertexPrimitive
+from pyaedt.modeler.Object3d import _dim_arg
 
 
 class BoundaryProps(OrderedDict):

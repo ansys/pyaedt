@@ -19,7 +19,6 @@ from pyaedt.generic.plot import plot_3d_chart
 from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
 
-
 if not is_ironpython:
     try:
         import numpy as np

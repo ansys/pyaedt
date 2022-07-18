@@ -15,9 +15,9 @@ if not is_ironpython:
 
 from pyaedt import constants
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.MaterialLib import Material
-from pyaedt.generic.general_methods import is_ironpython
 
 LAYERS = {"s": "signal", "g": "ground", "d": "dielectric"}
 

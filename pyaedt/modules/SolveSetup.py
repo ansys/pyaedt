@@ -13,14 +13,14 @@ from collections import OrderedDict
 
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import _tuple2dict
+from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.SetupTemplates import SetupKeys
+from pyaedt.modules.SetupTemplates import SetupProps
 from pyaedt.modules.SetupTemplates import SweepHFSS
 from pyaedt.modules.SetupTemplates import SweepHFSS3DLayout
 from pyaedt.modules.SetupTemplates import SweepQ3D
-from pyaedt.modules.SetupTemplates import SetupProps
-from pyaedt.generic.general_methods import PropsManager
 
 
 class CommonSetup(PropsManager, object):
