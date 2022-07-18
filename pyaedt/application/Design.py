@@ -2837,6 +2837,8 @@ class Design(AedtObjects, object):
             )
         elif design_type == "Icepak":
             new_design = self._oproject.InsertDesign("Icepak", unique_design_name, "SteadyState TemperatureAndFlow", "")
+        elif design_type == "Circuit Design":
+            new_design = self._oproject.InsertDesign(design_type, unique_design_name, "None", "")
         else:
             if design_type == "HFSS" and self._aedt_version < "2021.2":
                 new_design = self._oproject.InsertDesign(design_type, unique_design_name, "DrivenModal", "")
