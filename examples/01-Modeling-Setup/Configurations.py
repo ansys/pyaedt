@@ -97,8 +97,8 @@ setup1["Solver Type Temperature"] = "flex"
 ipk.save_project(r"C:\temp\Graphic_card.aedt")
 
 ###############################################################################
-# Export to step file
-# ~~~~~~~~~~~~~~~~~~~
+# Export project to step file
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Export the current project to the step file.
 
 filename = ipk.design_name
@@ -126,7 +126,7 @@ app.modeler.import_3d_cad(file_path)
 # Import and apply configuration file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Import and apply the configuration file. You can apply all or part of the
-# JSON file imported using options in the ``configurations`` object.
+# JSON file that you import using options in the ``configurations`` object.
 
 out = app.configurations.import_config(conf_file)
 app.configurations.results.global_import_success
