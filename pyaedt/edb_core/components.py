@@ -933,7 +933,6 @@ class Components(object):
         for pin in pins:
             pin.SetIsLayoutPin(True)
             new_cmp.AddMember(pin)
-        new_cmp.SetComponentType(self._edb.Definition.ComponentType.Resistor)
         new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
         new_cmp_placement_layer = self._edb.Cell.Layer.FindByName(
             self._active_layout.GetLayerCollection(), new_cmp_layer_name
@@ -958,6 +957,15 @@ class Components(object):
                 rlc.C = self._get_edb_value(c_value)
             else:
                 rlc.CEnabled = False
+            if rlc.REnabled and not rlc.CEnabled and not rlc.CEnabled:
+                new_cmp.SetComponentType(self._edb.Definition.ComponentType.Resistor)
+            elif rlc.CEnabled and not rlc.REnabled and not rlc.LEnabled:
+                new_cmp.SetComponentType(self._edb.Definition.ComponentType.Capacitor)
+            elif rlc.LEnabled and not rlc.REnabled and not rlc.CEnabled:
+                new_cmp.SetComponentType(self._edb.Definition.ComponentType.Inductor)
+            else:
+                new_cmp.SetComponentType(self._edb.Definition.ComponentType.Resistor)
+
             pin_pair = self._edb.Utility.PinPair(pins[0].GetName(), pins[1].GetName())
             rlc_model = self._edb.Cell.Hierarchy.PinPairModel()
             rlc_model.SetPinPairRlc(pin_pair, rlc)

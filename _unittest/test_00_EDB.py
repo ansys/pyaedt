@@ -1670,3 +1670,11 @@ if not config["skip_edb"]:
             assert edb.core_hfss.configure_hfss_extents(config)
             final_extent_info = edb.active_cell.GetHFSSExtentInfo()
             assert final_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.BoundingBox
+            edb.close_edb()
+
+        def test_108_create_rlc_on_net(self):
+            source_path = os.path.join(local_path, "example_models", "test_107.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_107.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            edb = Edb(target_path)
+            edb.core_siwave.create_rlc_component_on_net()
