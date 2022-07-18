@@ -158,6 +158,7 @@ class AedtObjects(object):
         elif "EMIT" in self.design_type or "Maxwell Circuit" in self.design_type:
             self._oanalysis = None
         elif "Circuit Design" in self.design_type or "Twin Builder" in self.design_type:
+            print("Correct")
             self._oanalysis = self.get_module("SimSetup")
         else:
             self._oanalysis = self.get_module("AnalysisSetup")
