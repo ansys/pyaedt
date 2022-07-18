@@ -13,6 +13,9 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.edb_core.EDB_Data import SourceType
+import time
 
 
 class EdbHfss(object):
@@ -219,13 +222,13 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def create_circuit_port_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name="GND",
-        impedance_value=50,
-        port_name="",
+            self,
+            positive_component_name,
+            positive_net_name,
+            negative_component_name=None,
+            negative_net_name="GND",
+            impedance_value=50,
+            port_name="",
     ):
         """Create a circuit port on a NET.
         It groups all pins belonging to the specified net and then applies the port on PinGroups.
@@ -268,14 +271,14 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def create_voltage_source_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name="GND",
-        voltage_value=3.3,
-        phase_value=0,
-        source_name="",
+            self,
+            positive_component_name,
+            positive_net_name,
+            negative_component_name=None,
+            negative_net_name="GND",
+            voltage_value=3.3,
+            phase_value=0,
+            source_name="",
     ):
         """Create a voltage source.
 
@@ -321,14 +324,14 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def create_current_source_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name="GND",
-        current_value=0.1,
-        phase_value=0,
-        source_name="",
+            self,
+            positive_component_name,
+            positive_net_name,
+            negative_component_name=None,
+            negative_net_name="GND",
+            current_value=0.1,
+            phase_value=0,
+            source_name="",
     ):
         """Create a current source.
 
@@ -374,13 +377,13 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def create_resistor_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name="GND",
-        rvalue=1,
-        resistor_name="",
+            self,
+            positive_component_name,
+            positive_net_name,
+            negative_component_name=None,
+            negative_net_name="GND",
+            rvalue=1,
+            resistor_name="",
     ):
         """Create a Resistor boundary between two given nets.
 
@@ -457,15 +460,15 @@ class EdbHfss(object):
                         to_layer_pos,
                     ) = pin[1].pin.GetLayerRange()
                     if (
-                        res
-                        and from_layer_pos
-                        and self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
-                            self._active_layout,
-                            pin[1].pin.GetNet(),
-                            port_name,
-                            pin[1].pin,
-                            to_layer_pos,
-                        )
+                            res
+                            and from_layer_pos
+                            and self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
+                        self._active_layout,
+                        pin[1].pin.GetNet(),
+                        port_name,
+                        pin[1].pin,
+                        to_layer_pos,
+                    )
                     ):
                         coax.append(port_name)
         return coax
@@ -501,15 +504,15 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def create_edge_port_on_polygon(
-        self,
-        polygon=None,
-        reference_polygon=None,
-        terminal_point=None,
-        reference_point=None,
-        reference_layer=None,
-        port_name=None,
-        port_impedance=50.0,
-        force_circuit_port=False,
+            self,
+            polygon=None,
+            reference_polygon=None,
+            terminal_point=None,
+            reference_point=None,
+            reference_layer=None,
+            port_name=None,
+            port_impedance=50.0,
+            force_circuit_port=False,
     ):
         """Create lumped port between two edges from two different polygons. Can also create a vertical port when
         the reference layer name is only provided. When a port is created between two edge from two polygons which don't
@@ -605,11 +608,11 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def create_lumped_port_on_net(
-        self,
-        nets=None,
-        reference_layer=None,
-        return_points_only=False,
-        digit_resolution=6,
+            self,
+            nets=None,
+            reference_layer=None,
+            return_points_only=False,
+            digit_resolution=6,
     ):
         """Create an edge port on nets. Only ports on traces (e.g. Path) are currently supported.
         The command will look for traces on the nets and will try to assign vertical lumped port on first and last
@@ -676,7 +679,7 @@ class EdbHfss(object):
                             edges_pts.append(_pt)
                         else:
                             if not self._hfss_terminals.CreateEdgePort(
-                                path, pt, reference_layer, port_name
+                                    path, pt, reference_layer, port_name
                             ):  # pragma: no cover
                                 raise Exception(
                                     "edge port creation failed on point {}, {}".format(str(pt[0]), str(_pt[1]))
@@ -719,11 +722,11 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def create_circuit_ports_on_components_no_pin_group(
-        self,
-        signal_nets=None,
-        power_nets=None,
-        simulation_setup=None,
-        component_list=None,
+            self,
+            signal_nets=None,
+            power_nets=None,
+            simulation_setup=None,
+            component_list=None,
     ):
         """Create circuit ports on given components.
         For each component, create a coplanar circuit port at each signalNet pin.
@@ -794,7 +797,7 @@ class EdbHfss(object):
                 obj
                 for obj in list(comp.LayoutObjs)
                 if obj.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
-                and obj.GetNet().GetName() in signal_nets
+                   and obj.GetNet().GetName() in signal_nets
             ]
             for ii, pin in enumerate(pin_list):
                 pin_c = l_inst.GetLayoutObjInstance(pin, None).GetCenter()
@@ -1199,3 +1202,98 @@ class EdbHfss(object):
                         void.SetPolygonData(new_void_data)
 
         return True
+
+    @pyaedt_function_handler()
+    def _create_rlc_boundary_on_pins(self, source):
+        """Create hfss rlc boundary on pins.
+
+        Parameters
+        ----------
+        source : VoltageSource, CircuitPort, CurrentSource or ResistorSource
+            Name of the source.
+
+        """
+        pos_pin = source.positive_node.node_pins
+        neg_pin = source.negative_node.node_pins
+
+        res, fromLayer_pos, toLayer_pos = pos_pin.GetLayerRange()
+        res, fromLayer_neg, toLayer_neg = neg_pin.GetLayerRange()
+
+        pos_pingroup_terminal = _retry_ntimes(
+            10,
+            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,
+            self._active_layout,
+            pos_pin.GetNet(),
+            pos_pin.GetName(),
+            pos_pin,
+            toLayer_pos,
+        )
+        time.sleep(0.5)
+        neg_pingroup_terminal = _retry_ntimes(
+            20,
+            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,
+            self._active_layout,
+            neg_pin.GetNet(),
+            neg_pin.GetName(),
+            neg_pin,
+            toLayer_neg,
+        )
+        if source.type == SourceType.Port:
+            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+            pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.impedance))
+            pos_pingroup_terminal.SetIsCircuitPort(True)
+            neg_pingroup_terminal.SetIsCircuitPort(True)
+            pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
+            try:
+                pos_pingroup_terminal.SetName(source.name)
+            except:
+                name = generate_unique_name(source.name)
+                pos_pingroup_terminal.SetName(name)
+                self._logger.warning("%s already exists. Renaming to %s", source.name, name)
+        elif source.type == SourceType.CurrentSource:
+            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
+            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
+            pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.magnitude))
+            pos_pingroup_terminal.SetSourcePhase(self._get_edb_value(source.phase))
+            pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
+            try:
+                pos_pingroup_terminal.SetName(source.name)
+            except Exception as e:
+                name = generate_unique_name(source.name)
+                pos_pingroup_terminal.SetName(name)
+                self._logger.warning("%s already exists. Renaming to %s", source.name, name)
+
+        elif source.type == SourceType.VoltageSource:
+            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
+            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
+            pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.magnitude))
+            pos_pingroup_terminal.SetSourcePhase(self._get_edb_value(source.phase))
+            pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
+            try:
+                pos_pingroup_terminal.SetName(source.name)
+            except:
+                name = generate_unique_name(source.name)
+                pos_pingroup_terminal.SetName(name)
+                self._logger.warning("%s already exists. Renaming to %s", source.name, name)
+
+        elif source.type == SourceType.Resistor:
+            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
+            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
+            pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
+            pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.rvalue))
+            Rlc = self._edb.Utility.Rlc()
+            Rlc.CEnabled = False
+            Rlc.LEnabled = False
+            Rlc.REnabled = True
+            Rlc.R = self._get_edb_value(source.rvalue)
+            pos_pingroup_terminal.SetRlcBoundaryParameters(Rlc)
+            try:
+                pos_pingroup_terminal.SetName(source.name)
+            except:
+                name = generate_unique_name(source.name)
+                pos_pingroup_terminal.SetName(name)
+                self._logger.warning("%s already exists. Renaming to %s", source.name, name)
+        else:
+            pass
+        return pos_pingroup_terminal.GetName()

@@ -720,13 +720,13 @@ class EdbSiwave(object):
 
     @pyaedt_function_handler()
     def create_circuit_port_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name=None,
-        impedance_value=50,
-        port_name="",
+            self,
+            positive_component_name,
+            positive_net_name,
+            negative_component_name=None,
+            negative_net_name=None,
+            impedance_value=50,
+            port_name="",
     ):
         """Create a circuit port on a NET.
 
@@ -788,14 +788,14 @@ class EdbSiwave(object):
 
     @pyaedt_function_handler()
     def create_voltage_source_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name=None,
-        voltage_value=3.3,
-        phase_value=0,
-        source_name="",
+            self,
+            positive_component_name,
+            positive_net_name,
+            negative_component_name=None,
+            negative_net_name=None,
+            voltage_value=3.3,
+            phase_value=0,
+            source_name="",
     ):
         """Create a voltage source.
 
@@ -859,14 +859,14 @@ class EdbSiwave(object):
 
     @pyaedt_function_handler()
     def create_current_source_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name=None,
-        current_value=0.1,
-        phase_value=0,
-        source_name="",
+            self,
+            positive_component_name,
+            positive_net_name,
+            negative_component_name=None,
+            negative_net_name=None,
+            current_value=0.1,
+            phase_value=0,
+            source_name="",
     ):
         """Create a current source.
 
@@ -929,16 +929,19 @@ class EdbSiwave(object):
         return self.create_pin_group_terminal(current_source)
 
     @pyaedt_function_handler()
-    def create_resistor_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name=None,
-        rvalue=1,
-        resistor_name="",
+    def create_rlc_component_on_net(
+            self,
+            positive_component_name,
+            positive_net_name,
+            negative_component_name=None,
+            negative_net_name=None,
+            rvalue=1,
+            cvalue=0.0,
+            lvalue=0.0,
+            is_parallel=False,
+            resistor_name="",
     ):
-        """Create a Resistor boundary between two given pins.
+        """Create a rlc components between two nets.
 
         Parameters
         ----------
@@ -953,30 +956,31 @@ class EdbSiwave(object):
             Name of the negative net name. The default is ``None`` which will look for GND Nets.
         rvalue : float, optional
             Resistance value. The default is ``1``.
+        lvalue : float, optional
+            Inductance value. Default is ``0``.
+        cvalue : float, optional
+            Capacitance value. Default is ``0``.
+        is_parallel : bool, optional
+            Defining the model iias parallel, Default is ``False``.
         resistor_name : str, optional
             Name of the resistor. The default is ``""``.
 
         Returns
         -------
-        str
-            The name of the resistor.
+        Component created.
+            EDB component.
 
         Examples
         --------
         >>> from pyaedt import Edb
         >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_siwave.create_resistor_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 1, "resistor_name")
+        >>> edbapp.core_siwave.create_rlc_component_on_net("U2A5", "M_DQ<0>", "U2A5", "GND", rvalue=32,
+        >>> resistor_name="test_r", cvalue=12e-12, lvalue=1e-10)
         """
         if not negative_component_name:
             negative_component_name = positive_component_name
         if not negative_net_name:
             negative_net_name = self._check_gnd(negative_component_name)
-        resistor = ResistorSource()
-        resistor.positive_node.net = positive_net_name
-        resistor.negative_node.net = negative_net_name
-        resistor.magnitude = rvalue
-        pos_node_cmp = self._pedb.core_components.get_component_by_name(positive_component_name)
-        neg_node_cmp = self._pedb.core_components.get_component_by_name(negative_component_name)
         pos_node_pins = self._pedb.core_components.get_pin_from_component(positive_component_name, positive_net_name)
         neg_node_pins = self._pedb.core_components.get_pin_from_component(negative_component_name, negative_net_name)
         if resistor_name == "":
@@ -986,12 +990,12 @@ class EdbSiwave(object):
                 negative_component_name,
                 negative_net_name,
             )
-        resistor.name = resistor_name
-        resistor.positive_node.component_node = pos_node_cmp
-        resistor.positive_node.node_pins = pos_node_pins[0]
-        resistor.negative_node.component_node = neg_node_cmp
-        resistor.negative_node.node_pins = neg_node_pins[0]
-        return self._create_terminal_on_pins(resistor)
+        self._pedb.core_components.create_pingroup_from_pins(pos_node_pins)
+        self._pedb.core_components.create_pingroup_from_pins(neg_node_pins)
+
+        return self._pedb.core_components.create_rlc([pos_node_pins[0], neg_node_pins[0]], resistor_name,
+                                                     r_value=rvalue, l_value=lvalue, c_value=cvalue,
+                                                     is_parallel=is_parallel)
 
     @pyaedt_function_handler()
     def create_exec_file(self):
@@ -1005,14 +1009,14 @@ class EdbSiwave(object):
 
     @pyaedt_function_handler()
     def add_siwave_ac_analysis(
-        self,
-        accuracy_level=1,
-        decade_count=10,
-        sweeptype=1,
-        start_freq=1,
-        stop_freq=1e9,
-        step_freq=1e6,
-        discrete_sweep=False,
+            self,
+            accuracy_level=1,
+            decade_count=10,
+            sweeptype=1,
+            start_freq=1,
+            stop_freq=1e9,
+            step_freq=1e6,
+            discrete_sweep=False,
     ):
         """Add a SIwave AC analysis to EDB.
 
@@ -1055,14 +1059,14 @@ class EdbSiwave(object):
 
     @pyaedt_function_handler()
     def add_siwave_syz_analysis(
-        self,
-        accuracy_level=1,
-        decade_count=10,
-        sweeptype=1,
-        start_freq=1,
-        stop_freq=1e9,
-        step_freq=1e6,
-        discrete_sweep=False,
+            self,
+            accuracy_level=1,
+            decade_count=10,
+            sweeptype=1,
+            start_freq=1,
+            stop_freq=1e9,
+            step_freq=1e6,
+            discrete_sweep=False,
     ):
         """Add a SIwave SYZ analysis.
 

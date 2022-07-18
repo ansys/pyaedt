@@ -923,6 +923,51 @@ class Components(object):
         return componentDefinition
 
     @pyaedt_function_handler()
+    def create_rlc(self, pins, component_name, r_value=1.0, c_value=1e-9, l_value=1e-9, is_parallel=False):
+        """"
+        """
+        comp_def = self._getComponentDefinition(component_name, pins)
+        if not comp_def:
+            return False
+        new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, comp_def.GetName())
+
+        for pin in pins:
+            pin.SetIsLayoutPin(True)
+            new_cmp.AddMember(pin)
+        new_cmp.SetComponentType(self._edb.Definition.ComponentType.Resistor)
+        new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
+        new_cmp_placement_layer = self._edb.Cell.Layer.FindByName(
+            self._active_layout.GetLayerCollection(), new_cmp_layer_name
+        )
+        new_cmp.SetPlacementLayer(new_cmp_placement_layer)
+        edb_rlc_component_property = self._edb.Cell.Hierarchy.RLCComponentProperty()
+        if len(pins) == 2:
+            rlc = self._edb.Utility.Rlc()
+            rlc.IsParallel = is_parallel
+            if r_value:
+                rlc.REnabled = True
+                rlc.R = self._get_edb_value(r_value)
+            else:
+                rlc.REnabled = False
+            if l_value:
+                rlc.LEnabled = True
+                rlc.L = self._get_edb_value(l_value)
+            else:
+                rlc.LEnabled = False
+            if c_value:
+                rlc.CEnabled = True
+                rlc.C = self._get_edb_value(c_value)
+            else:
+                rlc.CEnabled = False
+            pin_pair = self._edb.Utility.PinPair(pins[0].GetName(), pins[1].GetName())
+            rlc_model = self._edb.Cell.Hierarchy.PinPairModel()
+            rlc_model.SetPinPairRlc(pin_pair, rlc)
+            if not edb_rlc_component_property.SetModel(rlc_model) or not new_cmp.SetComponentProperty(
+                    edb_rlc_component_property):
+                return False
+        return new_cmp
+
+    @pyaedt_function_handler()
     def create_component_from_pins(self, pins, component_name, placement_layer=None):
         """Create a component from pins.
 
