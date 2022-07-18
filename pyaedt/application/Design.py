@@ -1954,7 +1954,7 @@ class Design(AedtObjects, object):
         datasets = {}
         try:
             for ds in self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"]:
-                datas = self.project_properies["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
+                datas = self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
                 datasets[ds] = self._get_ds_data(ds, datas)
         except:
             pass

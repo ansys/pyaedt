@@ -20,8 +20,6 @@ from pyaedt.generic.general_methods import generate_unique_name, pyaedt_function
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.modules.Boundary import BoundaryObject, NativeComponentObject
 from pyaedt.generic.DataHandlers import random_string
-from pyaedt.generic.constants import unit_converter
-from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
@@ -2861,89 +2859,4 @@ class Icepak(FieldAnalysis3D):
                 if "Solar Normal Absorptance" in props:
                     sm.surface_incident_absorptance = oo.GetPropEvaluatedValue("Solar Normal Absorptance")
                 self.materials.surface_material_keys[mat.lower()] = sm
-        return True
-
-    @pyaedt_function_handler()
-    def power_budget(self, units="W"):
-        """Power budget calculation.
-
-        Parameters
-        ----------
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oEditor.ChangeProperty
-        """
-        available_bcs = self.boundaries
-        power_dict = {}
-        if not available_bcs:
-            self.logger.warning("No boundaries defined")
-            return True
-        for bc_obj in available_bcs:
-            if bc_obj.type == "Block":
-                if "Total Power Variation Data" not in bc_obj.props:
-                    n = len(bc_obj.props["Objects"])
-                    power_value = decompose_variable_value(bc_obj.props["Total Power"])
-                    if isinstance(power_value[0], str):
-                        power_value = self[power_value[0]]
-                    power_value = unit_converter(
-                        power_value[0], unit_system="Power", input_units=power_value[1], output_units=units
-                    )
-                    power_dict[bc_obj.name] = power_value * n
-            elif bc_obj.type == "Source":
-                if bc_obj.props["Thermal Condition"] == "Total Power":
-                    if "Total Power Variation Data" not in bc_obj.props:
-                        n = len(bc_obj.props["Objects"])
-                        power_value = decompose_variable_value(bc_obj.props["Total Power"])
-                        if isinstance(power_value[0], str):
-                            power_value = self[power_value[0]]
-                        power_value = unit_converter(
-                            power_value[0], unit_system="Power", input_units=power_value[1], output_units=units
-                        )
-                        power_dict[bc_obj.name] = power_value * n
-                elif bc_obj.props["Thermal Condition"] == "Surface Flux":
-                    if "Surface Heat Variation Data" not in bc_obj.props:
-                        heat_value = decompose_variable_value(bc_obj.props["Surface Heat"])
-                        if isinstance(heat_value[0], str):
-                            heat_value = self[heat_value[0]]
-                        heat_value = unit_converter(
-                            heat_value[0],
-                            unit_system="SurfaceHeat",
-                            input_units=heat_value[1],
-                            output_units="irrad_W_per_m2",
-                        )
-                        power_value = 0.0
-                        if "Faces" in bc_obj.props:
-                            for component in bc_obj.props["Objects"]:
-                                area = self.modeler.get_face_area(component)
-                                area = unit_converter(
-                                    area,
-                                    unit_system="Area",
-                                    input_units=self.modeler.model_units + "2",
-                                    output_units="m2",
-                                )
-                                power_value += heat_value * area
-                        if "Objects" in bc_obj.props:
-                            for component in bc_obj.props["Objects"]:
-                                object_assigned = self.modeler[component]
-                                for f in object_assigned.faces:
-                                    area = unit_converter(
-                                        f.area,
-                                        unit_system="Area",
-                                        input_units=self.modeler.model_units + "2",
-                                        output_units="m2",
-                                    )
-                                    power_value += heat_value * area
-
-                        power_value = unit_converter(
-                            power_value, unit_system="Power", input_units="W", output_units=units
-                        )
-                        power_dict[bc_obj.name] = power_value
-
         return True
