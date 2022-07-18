@@ -25,7 +25,7 @@ dotnetcore2==3.1.23; python_version > '3.6' and sys_platform == 'linux'
 # optional
 # #############################################################################
 
-pyvista==0.35.1; python_version > '3.6'
+pyvista==0.35.2; python_version > '3.6'
 # License: MIT
 
 matplotlib==3.5.2; python_version > '3.6'
