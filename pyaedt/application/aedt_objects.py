@@ -86,9 +86,10 @@ class AedtObjects(object):
             self._opadstackmanager = self.oproject.GetDefinitionManager().GetManager("Padstack")
         return self._opadstackmanager
 
-    @property
-    def design_type(self):
-        return self.odesign.GetDesignType()
+    #
+    # @property
+    # def design_type(self):
+    #     return self.odesign.GetDesignType()
 
     @property
     def oboundary(self):
