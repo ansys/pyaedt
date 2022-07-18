@@ -2516,6 +2516,7 @@ class Primitives(object):
         """
         try:
             pos = self.oeditor.GetVertexPosition(vertex_id)
+            pos = self.modeler.global_to_cs(pos, "cstest")
         except:
             position = []
         else:
