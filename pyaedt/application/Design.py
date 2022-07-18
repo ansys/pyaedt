@@ -205,11 +205,12 @@ class Design(AedtObjects, object):
         self.oproject = project_name
         self.odesign = design_name
         AedtObjects.__init__(self, is_inherithed=True)
-
+        self.logger.info("Aedt Objects initialized")
         self._variable_manager = VariableManager(self)
         self._project_datasets = []
         self._design_datasets = []
         _mtime = self.project_time_stamp
+        self.logger.info("Variable Manager initialized")
 
     @property
     def project_datasets(self):

@@ -56,7 +56,9 @@ class FieldAnalysisCircuit(Analysis):
         )
 
         self._modeler = ModelerNexxim(self)
+        self.logger.info("Modeler initialized")
         self._post = CircuitPostProcessor(self)
+        self.logger.info("Post Processor Initialized")
 
     @pyaedt_function_handler()
     def push_down(self, component_name):
