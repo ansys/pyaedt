@@ -549,7 +549,7 @@ M2D.mesh.assign_length_mesh(rotor_id, isinside=True, maxlength=3, maxel=None, me
 # ~~~~~~~~~~~~~~~~~~~~
 # Turn on eddy effects.
 
-M2D.eddy_effects_on(eddy_effects_list,activate_eddy_effects=True, activate_displacement_current=False)
+# M2D.eddy_effects_on(eddy_effects_list,activate_eddy_effects=True, activate_displacement_current=False)
 
 ##########################################################
 # Turn on core loss
