@@ -55,7 +55,7 @@ if sys.version_info.major > 2:
     import base64
 
 
-class Design(AedtObjects, object):
+class Design(AedtObjects):
     """Contains all functions and objects connected to the active project and design.
 
     This class is inherited in the caller application and is accessible through it (for
@@ -206,11 +206,13 @@ class Design(AedtObjects, object):
         self.oproject = project_name
         self.odesign = design_name
         AedtObjects.__init__(self, is_inherithed=True)
+        self.logger.info("Aedt Objects initialized")
 
         self._variable_manager = VariableManager(self)
         self._project_datasets = []
         self._design_datasets = []
-        _mtime = self.project_time_stamp
+        # _mtime = self.project_time_stamp
+        self.logger.info("Variable Manager initialized")
 
     @property
     def project_datasets(self):
@@ -2838,6 +2840,8 @@ class Design(AedtObjects, object):
             )
         elif design_type == "Icepak":
             new_design = self._oproject.InsertDesign("Icepak", unique_design_name, "SteadyState TemperatureAndFlow", "")
+        elif design_type == "Circuit Design":
+            new_design = self._oproject.InsertDesign(design_type, unique_design_name, "None", "")
         else:
             if design_type == "HFSS" and self._aedt_version < "2021.2":
                 new_design = self._oproject.InsertDesign(design_type, unique_design_name, "DrivenModal", "")
@@ -2847,10 +2851,7 @@ class Design(AedtObjects, object):
                 )
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()
-        if ";" in name:
-            self.odesign = name.split(";")[1]
-        else:
-            self.odesign = name
+        self._odesign = new_design
         return name
 
     @pyaedt_function_handler()

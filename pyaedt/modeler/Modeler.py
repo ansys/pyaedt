@@ -1443,7 +1443,7 @@ class GeometryModeler(Modeler, object):
 
         >>> oDesign.GetDesignType
         """
-        return self._odesign.GetDesignType()
+        return self._app.design_type
 
     @property
     def geometry_mode(self):
