@@ -13,17 +13,19 @@ Examples
 
 """
 
-from __future__ import absolute_import, division  # noreorder
+from __future__ import absolute_import  # noreorder
+from __future__ import division
 
 import os
 import re
 
 from pyaedt import pyaedt_function_handler
-from pyaedt.generic.constants import _resolve_unit_system
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SI_UNITS
+from pyaedt.generic.constants import _resolve_unit_system
 from pyaedt.generic.constants import unit_system
-from pyaedt.generic.general_methods import is_number, is_array
+from pyaedt.generic.general_methods import is_array
+from pyaedt.generic.general_methods import is_number
 
 
 class CSVDataset:

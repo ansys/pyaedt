@@ -100,6 +100,13 @@ solutions_types = {
             "default_setup": 8,
             "default_adaptive": "LastAdaptive",
         },
+        "ACConduction": {
+            "name": None,
+            "options": None,
+            "report_type": None,
+            "default_setup": None,
+            "default_adaptive": "LastAdaptive",
+        },
         "DCConduction": {
             "name": None,
             "options": None,

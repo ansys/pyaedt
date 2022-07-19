@@ -1,13 +1,14 @@
 # Setup paths for module imports
 from __future__ import division  # noreorder
+
 import math
 
 from _unittest.conftest import BasisTest
-from pyaedt.application.Variables import decompose_variable_value
+from pyaedt import MaxwellCircuit
 from pyaedt.application.Variables import Variable
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.general_methods import isclose
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt import MaxwellCircuit
 
 # Import required modules
 

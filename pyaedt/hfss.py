@@ -2,12 +2,12 @@
 
 from __future__ import absolute_import  # noreorder
 
+import ast
 import math
 import os
 import tempfile
 import warnings
 from collections import OrderedDict
-import ast
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
@@ -4362,7 +4362,7 @@ class Hfss(FieldAnalysis3D, object):
         velocity_resolution,
         min_velocity,
         max_velocity,
-        ray_density_per_wavelenght,
+        ray_density_per_wavelength,
         max_bounces,
         setup_name,
         include_coupling_effects=False,
@@ -4389,7 +4389,7 @@ class Hfss(FieldAnalysis3D, object):
         setup1.props["SbrRangeDopplerVelocityResolution"] = self.modeler._arg_with_dim(velocity_resolution, "m_per_sec")
         setup1.props["SbrRangeDopplerVelocityMin"] = self.modeler._arg_with_dim(min_velocity, "m_per_sec")
         setup1.props["SbrRangeDopplerVelocityMax"] = self.modeler._arg_with_dim(max_velocity, "m_per_sec")
-        setup1.props["DopplerRayDensityPerWavelength"] = ray_density_per_wavelenght
+        setup1.props["DopplerRayDensityPerWavelength"] = ray_density_per_wavelength
         setup1.props["MaxNumberOfBounces"] = max_bounces
         if setup_type != "PulseDoppler":
             setup1.props["IncludeRangeVelocityCouplingEffect"] = include_coupling_effects
@@ -4419,7 +4419,7 @@ class Hfss(FieldAnalysis3D, object):
         velocity_resolution=0.4,
         min_velocity=-20,
         max_velocity=20,
-        ray_density_per_wavelenght=0.2,
+        ray_density_per_wavelength=0.2,
         max_bounces=5,
         include_coupling_effects=False,
         doppler_ad_sampling_rate=20,
@@ -4498,7 +4498,7 @@ class Hfss(FieldAnalysis3D, object):
             velocity_resolution=velocity_resolution,
             min_velocity=min_velocity,
             max_velocity=max_velocity,
-            ray_density_per_wavelenght=ray_density_per_wavelenght,
+            ray_density_per_wavelength=ray_density_per_wavelength,
             max_bounces=max_bounces,
             include_coupling_effects=include_coupling_effects,
             doppler_ad_sampling_rate=doppler_ad_sampling_rate,
@@ -4523,7 +4523,7 @@ class Hfss(FieldAnalysis3D, object):
         velocity_resolution=0.4,
         min_velocity=-20,
         max_velocity=20,
-        ray_density_per_wavelenght=0.2,
+        ray_density_per_wavelength=0.2,
         max_bounces=5,
         include_coupling_effects=False,
         doppler_ad_sampling_rate=20,
@@ -4551,7 +4551,7 @@ class Hfss(FieldAnalysis3D, object):
             Minimum Doppler velocity in meters per second (m/s). The default is ``-20``.
         max_velocity : str, optional
             Maximum Doppler velocity in meters per second (m/s). The default is ``20``.
-        ray_density_per_wavelenght : float, optional
+        ray_density_per_wavelength : float, optional
             Doppler ray density per wavelength. The default is ``0.2``.
         max_bounces : int, optional
             Maximum number of bounces. The default is ``5``.
@@ -4598,7 +4598,7 @@ class Hfss(FieldAnalysis3D, object):
             velocity_resolution=velocity_resolution,
             min_velocity=min_velocity,
             max_velocity=max_velocity,
-            ray_density_per_wavelenght=ray_density_per_wavelenght,
+            ray_density_per_wavelength=ray_density_per_wavelength,
             max_bounces=max_bounces,
             include_coupling_effects=include_coupling_effects,
             doppler_ad_sampling_rate=doppler_ad_sampling_rate,
@@ -4623,7 +4623,7 @@ class Hfss(FieldAnalysis3D, object):
         velocity_resolution=0.4,
         min_velocity=-20,
         max_velocity=20,
-        ray_density_per_wavelenght=0.2,
+        ray_density_per_wavelength=0.2,
         max_bounces=5,
         setup_name=None,
     ):
@@ -4652,7 +4652,7 @@ class Hfss(FieldAnalysis3D, object):
         max_velocity : str, optional
             Maximum Doppler velocity in meters per second (m/s). The default
             is ``20``.
-        ray_density_per_wavelenght : float, optional
+        ray_density_per_wavelength : float, optional
             Doppler ray density per wavelength. The default is ``0.2``.
         max_bounces : int, optional
             Maximum number of bounces. The default is ``5``.
@@ -4695,7 +4695,7 @@ class Hfss(FieldAnalysis3D, object):
             velocity_resolution=velocity_resolution,
             min_velocity=min_velocity,
             max_velocity=max_velocity,
-            ray_density_per_wavelenght=ray_density_per_wavelenght,
+            ray_density_per_wavelength=ray_density_per_wavelength,
             max_bounces=max_bounces,
             setup_name=setup_name,
         )

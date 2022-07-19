@@ -2,37 +2,41 @@ import re
 import sys
 
 try:
-    from pyaedt.hfss3dlayout import Hfss3dLayout
-    from pyaedt.hfss import Hfss
     from pyaedt.circuit import Circuit
-    from pyaedt.q3d import Q2d, Q3d
-    from pyaedt.siwave import Siwave
-    from pyaedt.icepak import Icepak
+    from pyaedt.desktop import Desktop
     from pyaedt.edb import Edb
-    from pyaedt.maxwell import Maxwell2d, Maxwell3d
+    from pyaedt.emit import Emit
+    from pyaedt.hfss import Hfss
+    from pyaedt.hfss3dlayout import Hfss3dLayout
+    from pyaedt.icepak import Icepak
+    from pyaedt.maxwell import Maxwell2d
+    from pyaedt.maxwell import Maxwell3d
+    from pyaedt.maxwellcircuit import MaxwellCircuit
     from pyaedt.mechanical import Mechanical
+    from pyaedt.q3d import Q2d
+    from pyaedt.q3d import Q3d
     from pyaedt.rmxprt import Rmxprt
+    from pyaedt.siwave import Siwave
     from pyaedt.twinbuilder import TwinBuilder
     from pyaedt.twinbuilder import TwinBuilder as Simplorer  # noqa: F401 # namespace only for backward compatibility
-    from pyaedt.maxwellcircuit import MaxwellCircuit
-    from pyaedt.emit import Emit
-    from pyaedt.desktop import Desktop
 except ImportError:
-    from pyaedt.hfss3dlayout import Hfss3dLayout
-    from pyaedt.hfss import Hfss
     from pyaedt.circuit import Circuit
-    from pyaedt.q3d import Q2d, Q3d
-    from pyaedt.siwave import Siwave
-    from pyaedt.icepak import Icepak
+    from pyaedt.desktop import Desktop
     from pyaedt.edb import Edb
-    from pyaedt.maxwell import Maxwell2d, Maxwell3d
+    from pyaedt.emit import Emit
+    from pyaedt.hfss import Hfss
+    from pyaedt.hfss3dlayout import Hfss3dLayout
+    from pyaedt.icepak import Icepak
+    from pyaedt.maxwell import Maxwell2d
+    from pyaedt.maxwell import Maxwell3d
+    from pyaedt.maxwellcircuit import MaxwellCircuit
     from pyaedt.mechanical import Mechanical
+    from pyaedt.q3d import Q2d
+    from pyaedt.q3d import Q3d
     from pyaedt.rmxprt import Rmxprt
+    from pyaedt.siwave import Siwave
     from pyaedt.twinbuilder import TwinBuilder
     from pyaedt.twinbuilder import TwinBuilder as Simplorer  # noqa: F401 # namespace only for backward compatibility
-    from pyaedt.maxwellcircuit import MaxwellCircuit
-    from pyaedt.emit import Emit
-    from pyaedt.desktop import Desktop
 
 
 app_map = {

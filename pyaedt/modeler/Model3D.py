@@ -1,12 +1,13 @@
 from __future__ import absolute_import  # noreorder
+
 import datetime
 import warnings
 
-from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Modeler import GeometryModeler
 from pyaedt.modeler.Primitives3D import Primitives3D
-from pyaedt.generic.general_methods import _retry_ntimes
 
 
 class Modeler3D(GeometryModeler, Primitives3D, object):

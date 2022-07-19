@@ -6,10 +6,10 @@ import io
 import os
 import warnings
 
+from pyaedt import settings
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt import settings
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):

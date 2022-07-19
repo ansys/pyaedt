@@ -47,9 +47,8 @@ else:
 local_path = os.path.dirname(os.path.realpath(__file__))
 
 from pyaedt import Desktop
-
-# Import required modules
-from pyaedt import Hfss, Edb
+from pyaedt import Edb
+from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "test_primitives"
