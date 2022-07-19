@@ -627,12 +627,13 @@ class SOLUTIONS(object):
     class Hfss(object):
         """Provides HFSS solution types."""
 
-        (DrivenModal, DrivenTerminal, EigenMode, Transient, SBR) = (
+        (DrivenModal, DrivenTerminal, EigenMode, Transient, SBR, Characteristic) = (
             "Modal",
             "Terminal",
-            "EigenMode",
+            "Eigenmode",
             "Transient Network",
             "SBR+",
+            "Characteristic",
         )
 
     class Maxwell3d(object):
