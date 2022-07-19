@@ -1590,14 +1590,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     @pyaedt_function_handler
     def edit_hfss_extents(
             self,
-            diel_extent_type=None,
-            diel_extent_horizontal_padding=None,
-            diel_honor_primitives_on_diel_layers="keep",
-            air_extent_type=None,
-            air_truncate_model_at_ground_layer="keep",
-            air_vertical_positive_padding=None,
-            air_vertical_negative_padding=None,
-                         ):
+        diel_extent_type=None,
+        diel_extent_horizontal_padding=None,
+        diel_honor_primitives_on_diel_layers="keep",
+        air_extent_type=None,
+        air_truncate_model_at_ground_layer="keep",
+        air_vertical_positive_padding=None,
+        air_vertical_negative_padding=None,
+    ):
         """Edit hfss 3d layout extents.
 
         Parameters
