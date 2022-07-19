@@ -1606,7 +1606,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Dielectric extent type. The default is ``None``. Options are ``"BboxExtent"``,
             ``"ConformalExtent"``, and ``"ConvexHullExtent"``.
         diel_extent_horizontal_padding : str, optional
-            Dielectric extent horizonal padding. The default is ``None``.
+            Dielectric extent horizontal padding. The default is ``None``.
         diel_honor_primitives_on_diel_layers : str, optional
             Whether to set dielectric honor primitives on dielectric layers. The default is ``None``.
         air_extent_type : str, optional
