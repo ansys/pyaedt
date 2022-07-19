@@ -85,8 +85,8 @@ for n in range(len(layers)-1):
                                               material=layers[n+1]["material"])
 
 ###############################################################################
-# Create parameterized padstack for the signal via
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create padstack for signal via
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a parameterized padstack for the signal via.
 
 signal_via_padstack = "automated_via"

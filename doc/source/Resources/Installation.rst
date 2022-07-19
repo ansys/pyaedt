@@ -25,8 +25,8 @@ and ``pywin32`` with:
 
     pip install pyaedt
 
-PyAEDT works with CPython in Linux in AEDT 2022 R2 and later. However, the following environment variables
-must be set up:
+PyAEDT works with CPython in Linux in AEDT 2022 R2 and later. However, you must set up the following environment
+variables:
 
 .. code::
 

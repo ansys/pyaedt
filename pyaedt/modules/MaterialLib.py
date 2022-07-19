@@ -5,11 +5,12 @@ This module contains the `Materials` class.
 from __future__ import absolute_import  # noreorder
 
 import copy
+import fnmatch
 import json
 import os
-import fnmatch
 import re
 
+from pyaedt import settings
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.general_methods import _create_json_file
 from pyaedt.generic.general_methods import _retry_ntimes
@@ -19,7 +20,6 @@ from pyaedt.modules.Material import Material
 from pyaedt.modules.Material import MatProperties
 from pyaedt.modules.Material import OrderedDict
 from pyaedt.modules.Material import SurfaceMaterial
-from pyaedt import settings
 
 
 class Materials(object):
@@ -592,13 +592,14 @@ class Materials(object):
         return data
 
     def _load_from_project(self):
-        mats = self.odefinition_manager.GetProjectMaterialNames()
-        for el in mats:
-            if el not in list(self.material_keys.keys()):
-                try:
-                    self._aedmattolibrary(el)
-                except Exception as e:
-                    self.logger.info("aedmattolibrary failed for material %s", el)
+        if self.odefinition_manager:
+            mats = self.odefinition_manager.GetProjectMaterialNames()
+            for el in mats:
+                if el not in list(self.material_keys.keys()):
+                    try:
+                        self._aedmattolibrary(el)
+                    except Exception as e:
+                        self.logger.info("aedmattolibrary failed for material %s", el)
 
     @pyaedt_function_handler()
     def _aedmattolibrary(self, matname):

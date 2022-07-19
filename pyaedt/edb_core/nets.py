@@ -3,7 +3,8 @@ from __future__ import absolute_import  # noreorder
 import math
 import time
 
-from pyaedt.edb_core.EDB_Data import EDBNetsData, SimulationConfiguration
+from pyaedt.edb_core.EDB_Data import EDBNetsData
+from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython

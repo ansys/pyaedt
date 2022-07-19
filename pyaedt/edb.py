@@ -15,7 +15,6 @@ import time
 import traceback
 import warnings
 
-
 try:
     import clr
     from System.Collections.Generic import List
@@ -25,22 +24,29 @@ except ImportError:  # pragma: no cover
     elif sys.version[0] == 3 and sys.version[1] < 7:
         warnings.warn("EDB requires Linux Python 3.7 or later.")
 from pyaedt import settings
-from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
-from pyaedt.edb_core.EDB_Data import EdbBuilder, SimulationConfiguration
-from pyaedt.generic.constants import CutoutSubdesignType, SolverType, SourceType
-from pyaedt.generic.general_methods import (
-    pyaedt_function_handler,
-    env_path,
-    env_path_student,
-    env_value,
-    generate_unique_name,
-    is_ironpython,
-    inside_desktop,
-)
-from pyaedt.misc.misc import list_installed_ansysem
 from pyaedt.aedt_logger import AedtLogger
-from pyaedt.generic.process import SiwaveSolve
+from pyaedt.edb_core import Components
+from pyaedt.edb_core import EdbHfss
+from pyaedt.edb_core import EdbLayout
+from pyaedt.edb_core import EdbNets
+from pyaedt.edb_core import EdbPadstacks
+from pyaedt.edb_core import EdbSiwave
+from pyaedt.edb_core import EdbStackup
+from pyaedt.edb_core.EDB_Data import EdbBuilder
+from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.generic.constants import CutoutSubdesignType
+from pyaedt.generic.constants import SolverType
+from pyaedt.generic.constants import SourceType
+from pyaedt.generic.general_methods import env_path
+from pyaedt.generic.general_methods import env_path_student
+from pyaedt.generic.general_methods import env_value
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import inside_desktop
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.process import SiwaveSolve
+from pyaedt.misc.misc import list_installed_ansysem
 
 if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess

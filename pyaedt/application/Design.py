@@ -20,16 +20,17 @@ import time
 import warnings
 from collections import OrderedDict
 
-from pyaedt.application.design_solutions import model_names
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import DesignSolution
 from pyaedt.application.design_solutions import HFSSDesignSolution
 from pyaedt.application.design_solutions import IcepakDesignSolution
 from pyaedt.application.design_solutions import Maxwell2DDesignSolution
 from pyaedt.application.design_solutions import RmXprtDesignSolution
+from pyaedt.application.design_solutions import model_names
 from pyaedt.application.design_solutions import solutions_defaults
 from pyaedt.application.Variables import DataSet
 from pyaedt.application.Variables import VariableManager
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.desktop import Desktop
 from pyaedt.desktop import exception_to_desktop
 from pyaedt.desktop import get_version_env_variable
@@ -37,24 +38,24 @@ from pyaedt.desktop import release_desktop
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import unit_system
 from pyaedt.generic.DataHandlers import variation_string_to_dict
+from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.generic.general_methods import write_csv
-from pyaedt.generic.general_methods import settings
 from pyaedt.generic.general_methods import read_csv
 from pyaedt.generic.general_methods import read_tab
 from pyaedt.generic.general_methods import read_xlsx
-from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import settings
+from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
-from pyaedt.modules.Boundary import BoundaryObject, MaxwellParameters
-from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.Boundary import MaxwellParameters
 
 if sys.version_info.major > 2:
     import base64
 
 
-class Design(AedtObjects, object):
+class Design(AedtObjects):
     """Contains all functions and objects connected to the active project and design.
 
     This class is inherited in the caller application and is accessible through it (for
@@ -205,11 +206,13 @@ class Design(AedtObjects, object):
         self.oproject = project_name
         self.odesign = design_name
         AedtObjects.__init__(self, is_inherithed=True)
+        self.logger.info("Aedt Objects initialized")
 
         self._variable_manager = VariableManager(self)
         self._project_datasets = []
         self._design_datasets = []
-        _mtime = self.project_time_stamp
+        # _mtime = self.project_time_stamp
+        self.logger.info("Variable Manager initialized")
 
     @property
     def project_datasets(self):
@@ -2837,6 +2840,8 @@ class Design(AedtObjects, object):
             )
         elif design_type == "Icepak":
             new_design = self._oproject.InsertDesign("Icepak", unique_design_name, "SteadyState TemperatureAndFlow", "")
+        elif design_type == "Circuit Design":
+            new_design = self._oproject.InsertDesign(design_type, unique_design_name, "None", "")
         else:
             if design_type == "HFSS" and self._aedt_version < "2021.2":
                 new_design = self._oproject.InsertDesign(design_type, unique_design_name, "DrivenModal", "")
@@ -2846,10 +2851,7 @@ class Design(AedtObjects, object):
                 )
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()
-        if ";" in name:
-            self.odesign = name.split(";")[1]
-        else:
-            self.odesign = name
+        self._odesign = new_design
         return name
 
     @pyaedt_function_handler()

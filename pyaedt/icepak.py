@@ -16,11 +16,13 @@ else:
     import subprocess
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
-from pyaedt.generic.general_methods import generate_unique_name, pyaedt_function_handler
 from pyaedt.generic.DataHandlers import _arg2dict
-from pyaedt.modules.Boundary import BoundaryObject, NativeComponentObject
 from pyaedt.generic.DataHandlers import random_string
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.Boundary import NativeComponentObject
 
 
 class Icepak(FieldAnalysis3D):

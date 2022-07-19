@@ -8,7 +8,9 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, BasisTest, desktop_version
+from _unittest.conftest import BasisTest
+from _unittest.conftest import desktop_version
+from _unittest.conftest import local_path
 
 # Import required modules
 from pyaedt import Hfss3dLayout

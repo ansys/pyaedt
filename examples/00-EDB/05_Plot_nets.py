@@ -44,7 +44,7 @@ edb = Edb(edbpath=targetfolder, edbversion="2022.2")
 edb.core_nets.plot("V3P3_S0")
 
 ###############################################################################
-# Plot custom set of nets colored by Nets
+# Plot custom set of nets colored by nets
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Plot a custom set of nets colored by nets.
 

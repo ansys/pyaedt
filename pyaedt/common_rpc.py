@@ -12,15 +12,18 @@ from pyaedt.misc import list_installed_ansysem
 if is_ironpython:
     pyaedt_path = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
     # sys.path.insert(0, os.path.join(pyaedt_path, "third_party", "ironpython"))
+    from pyaedt.rpc.rpyc_services import GlobalService
+    from pyaedt.rpc.rpyc_services import check_port
     from pyaedt.third_party.ironpython import rpyc_27 as rpyc
-    from pyaedt.third_party.ironpython.rpyc_27.utils.server import ThreadedServer
-    from pyaedt.rpc.rpyc_services import GlobalService, check_port
     from pyaedt.third_party.ironpython.rpyc_27.core import consts
+    from pyaedt.third_party.ironpython.rpyc_27.utils.server import ThreadedServer
 else:
     import rpyc
-    from rpyc.utils.server import ThreadedServer
-    from pyaedt.rpc.rpyc_services import GlobalService, check_port
     from rpyc.core import consts
+    from rpyc.utils.server import ThreadedServer
+
+    from pyaedt.rpc.rpyc_services import GlobalService
+    from pyaedt.rpc.rpyc_services import check_port
 
 # Maximum Stream message size. Set to 256MB
 consts.STREAM_CHUNK = 256000000
