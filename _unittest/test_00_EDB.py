@@ -1670,3 +1670,19 @@ if not config["skip_edb"]:
             assert edb.core_hfss.configure_hfss_extents(config)
             final_extent_info = edb.active_cell.GetHFSSExtentInfo()
             assert final_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.BoundingBox
+
+        def test_112_configure_hfss_analysis_setup_enforce_causality(self):
+            source_path = os.path.join(local_path, "example_models", "lam_for_top_place_no_setups.aedb")
+            target_path = os.path.join(self.local_scratch.path, "lam_for_top_place_no_setups.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            edb = Edb(target_path)
+            assert len(list(edb.active_cell.SimulationSetups)) == 0
+            sim_config = SimulationConfiguration()
+            sim_config.enforce_causality = False
+            edb.core_hfss.configure_hfss_analysis_setup(sim_config)
+            assert len(list(edb.active_cell.SimulationSetups)) == 1
+            setup = list(edb.active_cell.SimulationSetups)[0]
+            ssi = setup.GetSimSetupInfo()
+            assert len(list(ssi.SweepDataList)) == 1
+            sweep = list(ssi.SweepDataList)[0]
+            assert not sweep.EnforceCausality
