@@ -1598,7 +1598,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         air_vertical_positive_padding=None,
         air_vertical_negative_padding=None,
     ):
-        """Edit hfss 3d layout extents.
+        """Edit HFSS 3D Layout extents.
 
         Parameters
         ----------
