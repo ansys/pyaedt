@@ -1589,7 +1589,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler
     def edit_hfss_extents(
-            self,
+        self,
         diel_extent_type=None,
         diel_extent_horizontal_padding=None,
         diel_honor_primitives_on_diel_layers="keep",
