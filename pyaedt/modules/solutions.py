@@ -18,7 +18,6 @@ from pyaedt.generic.plot import plot_2d_chart
 from pyaedt.generic.plot import plot_3d_chart
 from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
-from pyaedt.modeler.Object3d import FacePrimitive
 
 if not is_ironpython:
     try:
@@ -2295,8 +2294,6 @@ class FieldPlot:
             models = self._postprocessor.modeler.model_objects
             for index in self.surfaces_indexes:
                 try:
-                    if isinstance(index, FacePrimitive):
-                        index = index.id
                     oname = self._postprocessor.modeler.oeditor.GetObjectNameByFaceID(index)
                     if oname in models:
                         model_faces.append(str(index))
