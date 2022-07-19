@@ -2513,7 +2513,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objid : str, int, Object3d or UserDefinedComponent
+        objid : list, str, int, Object3d or UserDefinedComponent
             Name or ID of the object.
         cs_axis :
             Coordinate system axis or the Application.CoordinateSystemAxis object.
@@ -2587,7 +2587,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objid : str, int, or Object3d
+        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         vector : list
             List of ``[x1,y1,z1]`` coordinates or the Application.Position object for
@@ -2633,7 +2633,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objid :
+        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         thickness : float, str
             Amount to thicken the sheet by.
@@ -2665,7 +2665,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        obj_name : str, int
+        obj_name : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         face_id : int
             Face to sweep.
@@ -2711,7 +2711,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objid : str, int
+        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         sweep_vector : float
             List of ``[x1, y1, z1]`` coordinates or Application.Position object for
@@ -2754,7 +2754,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objid : str, int
+        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         sweep_object : str, int
             Name or ID of the sweep.
@@ -2791,12 +2791,12 @@ class GeometryModeler(Modeler, object):
         return self.update_object(objid)
 
     @pyaedt_function_handler()
-    def sweep_around_axis(self, objid, cs_axis, sweep_angle=360, draft_angle=0):
+    def sweep_around_axis(self, objid, cs_axis, sweep_angle=360, draft_angle=0, number_of_segments=0):
         """Sweep the selection around the axis.
 
         Parameters
         ----------
-        objid : str, int
+        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         cs_axis :
             Coordinate system axis or the Application.CoordinateSystemAxis object.
@@ -2804,6 +2804,8 @@ class GeometryModeler(Modeler, object):
             Sweep angle in degrees. The default is ``360``.
         draft_angle : float
             Draft angle in degrees. The default is ``0``.
+        number_of_segments : int, optional
+            Number of segments of the sweep operation. Default is ``0``.
 
         Returns
         -------
@@ -2831,7 +2833,7 @@ class GeometryModeler(Modeler, object):
             "SweepAngle:=",
             self._arg_with_dim(sweep_angle, "deg"),
             "NumOfSegments:=",
-            "0",
+            str(number_of_segments),
         ]
 
         self.oeditor.SweepAroundAxis(vArg1, vArg2)
@@ -2844,7 +2846,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        object_list : str, int, or Object3d
+        object_list : list, str, int, or  :class:`pyaedt.modeler.Object3d.Object3d`
             One or more objects to section.
         plane : str
             Coordinate plane or Application.PLANE object.
@@ -2918,7 +2920,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objid : int
+        objid :  list, str, int, or  :class:`pyaedt.modeler.Object3d.Object3d`
              ID of the object.
         cs_axis
             Coordinate system axis or the Application.CoordinateSystemAxis object.
