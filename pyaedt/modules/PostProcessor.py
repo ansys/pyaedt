@@ -2678,15 +2678,7 @@ class PostProcessor(PostProcessorCommon, object):
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
-        if not isinstance(objlist, (list, tuple)):
-            objlist = [objlist]
-        new_obj_list = []
-        for objs in objlist:
-            if self._app.modeler[objs]:
-                new_obj_list.extend([i.id for i in self._app.modeler[objs].faces])
-            else:
-                new_obj_list.append(objs)
-        return self._create_fieldplot(new_obj_list, quantityName, setup_name, intrinsincDict, "FacesList", plot_name)
+        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "FacesList", plot_name)
 
     @pyaedt_function_handler()
     def create_fieldplot_cutplane(self, objlist, quantityName, setup_name=None, intrinsincDict={}, plot_name=None):

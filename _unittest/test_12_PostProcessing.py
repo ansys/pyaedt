@@ -71,14 +71,6 @@ class TestClass(BasisTest, object):
         assert plot1.change_plot_scale(min_value, "30000")
         assert self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
 
-        assert self.aedtapp.post.create_fieldplot_surface(
-            self.aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic
-        )
-        assert self.aedtapp.post.create_fieldplot_surface(self.aedtapp.modeler["outer"], "Mag_E", setup_name, intrinsic)
-        assert self.aedtapp.post.create_fieldplot_surface(
-            self.aedtapp.modeler["outer"].faces, "Mag_E", setup_name, intrinsic
-        )
-
     @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
     def test_01_Animate_plt(self):
         cutlist = ["Global:XY"]
