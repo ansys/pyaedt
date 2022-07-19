@@ -1,19 +1,23 @@
 """
-General: Touchstone File Management
+Circuit: Touchstone file management
 -----------------------------------
-This example shows how to use Touchstone objects without opening AEDT.
+This example shows how to use objects in a Touchstone file without opening AEDT.
 
 To provide the advanced postprocessing features needed for this example, Matplotlib and NumPy
-must be installed on the machine.
+must be installed on your machine.
 
 This example runs only on Windows using CPython.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/nde.png'
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports and set the local path to the path for PyAEDT.
 
+# sphinx_gallery_thumbnail_path = 'Resources/nde.png'
 import os
 import pathlib
 import sys
 
+# Set local path to path for PyAEDT
 local_path = os.path.abspath("")
 module_path = pathlib.Path(local_path)
 root_path = module_path.parent
@@ -28,7 +32,7 @@ from pyaedt import examples
 example_path = examples.download_touchstone()
 
 ###############################################################################
-
+# Import Matplotlib and Touchstone file
 import matplotlib.pyplot as plt
 import numpy as np
 from pyaedt.generic.TouchstoneParser import (
@@ -41,14 +45,14 @@ from pyaedt.generic.TouchstoneParser import (
 )
 
 ###############################################################################
-
+# Read Touchstone file
 data = read_touchstone(example_path)
 
 ###############################################################################
-# Get Curve Names
+# Get curve names
 # ~~~~~~~~~~~~~~~
-# These methods identify the list of insertion losses, return losses, fext,
-# and next based on a few inputs and port names.
+# Get the curve names. The following code shows how to get lists of return losses,
+# insertion losses, fext, and next based on a few inputs and port names.
 
 rl_list = get_return_losses(data.ports)
 il_list = get_insertion_losses_from_prefix(data.ports, "U1", "U7")
@@ -57,9 +61,9 @@ next_list = get_next_xtalk(data.ports, "U1")
 
 
 ###############################################################################
-# Get Curve Worst Cases
+# Get curve worst cases
 # ~~~~~~~~~~~~~~~~~~~~~
-# These example get the worst cases for the curve.
+# Get curve worst cases for the curve.
 
 worst_rl, global_mean = get_worst_curve_from_solution_data(
     data, freq_min=1, freq_max=20, worst_is_higher=True, curve_list=rl_list
@@ -75,9 +79,9 @@ worst_next, mean4 = get_worst_curve_from_solution_data(
 )
 
 ###############################################################################
-# Use Matplotlib to Plot the Curves
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example uses Matplotlib to plot the curves.
+# Plot curves using Matplotlib
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Plot the curves using Matplotlib.
 
 fig, ax = plt.subplots(figsize=(20, 10))
 ax.set(xlabel="Frequency (Hz)", ylabel="Return Loss (dB)", title="Return Loss")
