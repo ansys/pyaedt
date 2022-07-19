@@ -547,43 +547,66 @@ class Components(object):
             negative_pin_group = self.create_pingroup_from_pins(negative_pins)
             if not negative_pin_group:  # pragma: no cover
                 return False
-            positive_pin_group_term = self._create_pin_group_terminal(positive_pin_group)
-            if positive_pin_group_term:  # pragma: no cover
+            if source.source_type == SourceType.Vsource:  # pragma: no cover
+                positive_pin_group_term = self._create_pin_group_terminal(positive_pin_group)
                 negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group)
-                if not negative_pin_group_term:  # pragma: no cover
-                    self._logger.error("Failed to create negative pin group terminal for source {}".format(source.name))
-                    return False
-                if source.source_type == SourceType.Vsource:  # pragma: no cover
-                    positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
-                    negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
-                elif source.source_type == SourceType.Isource:  # pragma: no cover
-                    positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
-                    negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
-                elif source.source_type == SourceType.Resistor:  # pragma: no cover
+                positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
+                negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
+                term_name = generate_unique_name(source.name)
+                positive_pin_group_term.SetName(term_name)
+                negative_pin_group_term.SetName("{}_ref".format(term_name))
+                positive_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
+                negative_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
+                positive_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
+                negative_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
+                positive_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
+                negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
+                positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
+            elif source.source_type == SourceType.Isource:  # pragma: no cover
+                positive_pin_group_term = self._create_pin_group_terminal(positive_pin_group)
+                negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group)
+                positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
+                negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
+                term_name = generate_unique_name(source.name)
+                positive_pin_group_term.SetName(term_name)
+                negative_pin_group_term.SetName("{}_ref".format(term_name))
+                positive_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
+                negative_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
+                positive_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
+                negative_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
+                positive_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
+                negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
+                positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
+            elif source.source_type == SourceType.Rlc:  # pragma: no cover
+                if not source.create_physical_resistor:
+                    positive_pin_group_term = self._create_pin_group_terminal(positive_pin_group)
+                    negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group)
                     positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
                     negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
                     rlc = self._edb.Utility.Rlc()
                     rlc.IsParallel = True
                     rlc.REnabled = True
-                    rlc.R = self._get_edb_value(source.impedance_value)
                     rlc.LEnabled = True
                     rlc.CEnabled = True
-                    positive_pin_group_term.SetImpedance(self._get_edb_value(source.impedance_value))
-                    negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance_value))
+                    rlc.R = self._get_edb_value(source.r_value)
+                    rlc.L = self._get_edb_value(source.l_value)
+                    rlc.C = self._get_edb_value(source.c_value)
                     positive_pin_group_term.SetRlcBoundaryParameters(rlc)
-                if (
-                    source.source_type == SourceType.Vsource or source.source_type == SourceType.Isource
-                ):  # pragma: no cover
-                    positive_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
-                    negative_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
-                    positive_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
-                    negative_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
-                    positive_pin_group_term.SetImpedance(self._get_edb_value(source.impedance_value))
-                    negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance_value))
-                term_name = generate_unique_name(source.name)
-                positive_pin_group_term.SetName(term_name)
-                negative_pin_group_term.SetName("{}_ref".format(term_name))
-                positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
+                    term_name = generate_unique_name(source.name)
+                    positive_pin_group_term.SetName(term_name)
+                    negative_pin_group_term.SetName("{}_ref".format(term_name))
+                    positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
+                else:
+                    self._pedb.core_siwave.create_rlc_component_on_net(
+                        positive_component_name=source.positive_node.component,
+                        positive_net_name=source.positive_node.net,
+                        negative_component_name=source.negative_node.component,
+                        negative_net_name=source.negative_node.net,
+                        rvalue=source.r_value,
+                        lvalue=source.l_value,
+                        cvalue=source.c_value,
+                        component_name=source.name
+                        )
         return True
 
     @pyaedt_function_handler()
@@ -929,7 +952,6 @@ class Components(object):
         if not comp_def:
             return False
         new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, comp_def.GetName())
-
         for pin in pins:
             pin.SetIsLayoutPin(True)
             new_cmp.AddMember(pin)
@@ -1022,7 +1044,7 @@ class Components(object):
         new_cmp.SetPlacementLayer(new_cmp_placement_layer)
         # cmp_transform = System.Activator.CreateInstance(self._edb.Utility.)
         # new_cmp.SetTransform(cmp_transform)
-        return (True, new_cmp)
+        return new_cmp
         # except:
         #    return (False, None)
 
