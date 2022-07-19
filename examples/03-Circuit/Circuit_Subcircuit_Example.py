@@ -4,6 +4,7 @@ Circuit: schematic subcircuit management
 This example shows how you can use PyAEDT to add a subcircuit to a circuit design.
 It pushes down the child subcircuit and pops up to the parent design.
 """
+##########################################################
 # Perform required import
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Perform the required import.

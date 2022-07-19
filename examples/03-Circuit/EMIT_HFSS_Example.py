@@ -5,6 +5,7 @@ This tutorial shows how you can use PyAEDT to open an AEDT project with
 an HFSS design, create an EMIT design in the project, and link the HFSS design
 as a coupling link in the EMIT design.
 """
+###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
@@ -25,7 +26,7 @@ from pyaedt import Desktop
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Change the ``non_graphical`` Boolean variable to ``False`` to open AEDT in
 # graphical mode. With ``NewThread = False``, an existing instance of AEDT
-# is used if one is available. Use AEDT 2022 R2.
+# is used if one is available. The following code uses AEDT 2022 R2.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = True
@@ -99,7 +100,7 @@ if rad2 and ant2:
 ###############################################################################
 # Define coupling among RF systems
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Define coupiong among RF systems.
+# Define coupling among RF systems.
 
 for link in aedtapp.couplings.linkable_design_names:
     aedtapp.couplings.add_link(link)

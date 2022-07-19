@@ -1,8 +1,8 @@
 """
 Icepack: setup from Sherlock inputs
-----------------------------------_
+-----------------------------------
 This example shows how to create an Icepak project starting from Sherlock
-# files (STEP and CSV) and an AEDB board.
+files (STEP and CSV) and an AEDB board.
 """
 ###############################################################################
 # Perform required imports
@@ -79,7 +79,7 @@ ipk = Icepak()
 ###############################################################################
 # Delete region to speed up import
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Delete region and disable autosave to speed up the import.
+# Delete the region and disable autosave to speed up the import.
 
 d.disable_autosave()
 ipk.modeler.delete("Region")
@@ -98,7 +98,7 @@ ipk.create_pcb_from_3dlayout(
 ###############################################################################
 # Create offset coordinate system
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create an offset coordinate system to match odb++ with the
+# Create an offset coordinate system to match ODB++ with the
 # Sherlock STEP file.
 
 ipk.modeler.create_coordinate_system([0, 0, stackup_thickness / 2], mode="view", view="XY")
@@ -143,7 +143,7 @@ ipk.modeler.create_air_region(*[20, 20, 300, 20, 20, 300])
 ###############################################################################
 # Assign materials
 # ~~~~~~~~~~~~~~~~
-# Assign materials from Sherlock files.
+# Assign materials from the the Sherlock file.
 
 ipk.assignmaterial_from_sherlock_files(component_list, material_list)
 
@@ -195,7 +195,7 @@ ipk.assign_openings(ipk.modeler.get_object_faces("Region"))
 
 ###############################################################################
 # Check for intersections
-# ~~~~~~~~~~~~~~~~~~~~~~!
+# ~~~~~~~~~~~~~~~~~~~~~~~
 # Check for intersections using validation and fix them by
 # assigning priorities.
 
@@ -207,7 +207,6 @@ ipk.assign_priority_on_intersections()
 # Save the project and release AEDT.
 
 ipk.save_project()
-
 
 end = time.time() - start
 if os.name != "posix":

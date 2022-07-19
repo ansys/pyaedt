@@ -1,7 +1,7 @@
 """
 Circuit: automatic report creation
 ----------------------------------
-# This example shows how to create reports automatically using a JSON file.
+This example shows how to create reports automatically using a JSON file.
 """
 
 ###############################################################################
@@ -53,7 +53,7 @@ NewThread = True
 # Launch AEDT with Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
-# and starts it on a specified version in a specified graphical mode. The Boolean
+# and starts a specified version in a specified mode. The Boolean
 # parameter ``NewThread`` defines whether to create a new instance of AEDT or try
 # to connect to an existing instance of it.
 
@@ -63,7 +63,7 @@ cir = Circuit(projectname=os.path.join(temp_folder, 'CISPR25_Radiated_Emissions_
 ###############################################################################
 # Create spectrum report
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Create a spectrum report. You can use the JSON file to create a simple setup
+# Create a spectrum report. You can use a JSON file to create a simple setup
 # or a fully customized one. The following code creates a simple setup and changes
 # the JSON file to customize it. In a spectrum report, you can add limitilines and
 # notes and edit axes, the grid, and the legend. You can create custom reports

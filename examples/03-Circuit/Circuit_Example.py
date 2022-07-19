@@ -4,6 +4,7 @@ Circuit: schematic creation and analysis
 This example shows how you can use PyAEDT to create a circuit design
 and run a Nexxim time-domain simulation.
 """
+###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
@@ -15,8 +16,8 @@ from pyaedt import Desktop
 import os
 
 ###############################################################################
-# Launch AEDT and Circuit
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# Launch AEDT
+# ~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode and use SI units.
 
 desktop_version = "2022.2"
@@ -32,8 +33,8 @@ new_thread = True
 ###############################################################################
 # Launch AEDT and Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# The :class:`pyaedt.Desktop` class initializes AEDT and starts it on a specified version in
-# a specified graphical mode. The Boolean parameter ``new_thread`` defines whether
+# The :class:`pyaedt.Desktop` class initializes AEDT and starts the specified version in
+# the specified mode. The Boolean parameter ``new_thread`` defines whether
 # to create a new instance of AEDT or try to connect to an existing instance of it.
 
 desktop = Desktop(desktop_version, non_graphical, new_thread)
@@ -42,7 +43,7 @@ aedt_app = Circuit()
 ###############################################################################
 # Create circuit setup
 # ~~~~~~~~~~~~~~~~~~~~
-# Create and customize a Linear Network Analysis (LNA) setup.
+# Create and customize an LNA (linear network analysis) setup.
 
 setup1 = aedt_app.create_setup("MyLNA")
 setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 10001"
@@ -57,8 +58,8 @@ resistor = aedt_app.modeler.schematic.create_resistor("R1", 50, [0.0254, 0])
 capacitor = aedt_app.modeler.schematic.create_capacitor("C1", 1e-12)
 
 ###############################################################################
-# Get component pins
-# ~~~~~~~~~~~~~~~~~~
+# Get all pins
+# ~~~~~~~~~~~~
 # Get all pins of a specified component.
 
 pins_resistor = resistor.pins

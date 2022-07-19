@@ -1,6 +1,6 @@
 """
-TwinBuilder: RC circuit design
-------------------------------
+Twin Builder: RC circuit design anaysis
+---------------------------------------
 This example shows how you can use PyAEDT to create a Twin Builder design
 and run a Twin Builder time-domain simulation.
 """
@@ -54,7 +54,7 @@ capacitor = tb.modeler.schematic.create_capacitor("C1", 1e-6, [20 * G, 0])
 ###############################################################################
 # Create ground
 # ~~~~~~~~~~~~~
-# Create a ground, which is needed for analog analysis in Twin Builder.
+# Create a ground, which is needed for analog analysis.
 
 gnd = tb.modeler.components.create_gnd([0, -10 * G])
 
@@ -78,7 +78,7 @@ tb.set_end_time("300ms")
 ###############################################################################
 # Solve transient setup
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
-# Solves the transient setup.
+# Solve the transient setup.
 
 tb.analyze_setup("TR")
 
@@ -100,7 +100,7 @@ x.plot([E_Value, C_Value], xlabel="Time", ylabel="Capacitor Voltage vs Input Pul
 ###############################################################################
 # Close Twin Builder
 # ~~~~~~~~~~~~~~~~~~
-# After the simulaton is completed, you can close Twin Builder or release it.
+# After the simulaton is completes, you can close Twin Builder or release it.
 # All methods provide for saving the project before closing.
 
 if os.name != "posix":

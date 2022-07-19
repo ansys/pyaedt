@@ -1,15 +1,14 @@
 """
 Circuit: netlist to schematic iport
 ------------------------------------
-# This example shows how to import netlist data into a
-# circuit design. HSPICE files are supported. Mentor files
-# are partially supported.
+# This example shows how to import netlist data into a circuit design.
+# HSPICE files are supported. Mentor files are partially supported.
 """
 
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports and set path.
+# Perform required imports and set paths.
 
 # sphinx_gallery_thumbnail_path = 'Resources/schematic.png'
 import os

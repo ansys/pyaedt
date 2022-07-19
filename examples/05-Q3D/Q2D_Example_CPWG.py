@@ -1,7 +1,7 @@
 """
 2D Extractor: CPWG analysis
 ---------------------------
-This example shows how you can use PyAEDT to create a CPWG (coplanar waveguide) design
+This example shows how you can use PyAEDT to create a CPWG (coplanar waveguide with ground) design
 in 2D Extractor and run a simulation.
 """
 ##########################################################
@@ -71,7 +71,7 @@ layer_2_lh = layer_1_uh + "+" + d_h
 layer_2_uh = layer_2_lh + "+" + cond_h
 
 ###############################################################################
-# Create a signal
+# Create signal
 # ~~~~~~~~~~~~~
 # Create a signal.
 
@@ -146,7 +146,7 @@ sm_obj.name = "solder_mask"
 ###############################################################################
 # Assign conductor
 # ~~~~~~~~~~~~~~~~
-# Assign conductor.
+# Assign a conductor.
 
 obj = q.modeler.get_object_from_name("signal")
 q.assign_single_conductor(

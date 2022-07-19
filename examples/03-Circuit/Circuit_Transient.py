@@ -4,9 +4,10 @@ Circuit: transient analysis and eye plot
 This example shows how you can use PyAEDT to create a circuit design,
 run a Nexxim time-domain simulation, and create an eye diagram.
 """
+##########################################################
 # Perform the required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform the required imports
+# Perform the required imports.
 
 import os
 from matplotlib import pyplot as plt
@@ -45,9 +46,9 @@ tr1 = cir.modeler.components.components_catalog["Ideal Distributed:TRLK_NX"].pla
 tr1.parameters["P"] = "50mm"
 
 ###############################################################################
-# Place resistor and ground
+# Create resistor and ground
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
-# Place a resistor and ground in the schematic.
+# Create a resistor and ground in the schematic.
 
 res = cir.modeler.components.create_resistor("R1", "1Meg")
 gnd1 = cir.modeler.components.create_gnd()
@@ -56,16 +57,16 @@ gnd1 = cir.modeler.components.create_gnd()
 ###############################################################################
 # Connect elements
 # ~~~~~~~~~~~~~~~~
-# Connect elements in schematic.
+# Connect elements in the schematic.
 
 tr1.pins[0].connect_to_component(ibs.pins[0])
 tr1.pins[1].connect_to_component(res.pins[0])
 res.pins[1].connect_to_component(gnd1.pins[0])
 
 ###############################################################################
-# Add probe
+# Place probe
 # ~~~~~~~~~
-# Add a probe and rename it to ``Vout``.
+# Place a probe and rename it to ``Vout``.
 
 pr1 = cir.modeler.components.components_catalog["Probes:VPROBE"].place("vout")
 pr1.parameters["Name"] = "Vout"

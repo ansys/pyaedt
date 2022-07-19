@@ -107,7 +107,7 @@ aedtapp.modeler.fit_all()
 ###############################################################################
 # Assign materials
 # ~~~~~~~~~~~~~~~~
-# You can assign materials either directly when creating the primitive,
+# Assign materials. You can assign materials either directly when creating the primitive,
 # which was done for ``id2``, or after the object is created.
 
 o1.material_name = "Copper"
@@ -139,7 +139,7 @@ aedtapp.mesh.assign_length_mesh(o2.faces, False, 1, 2000)
 # Create excitations. The ``create_wave_port_between_objects`` method automatically
 # identifies the closest faces on a predefined direction and creates a sheet to cover
 # the faces. It also assigns a port to this face. If ``add_pec_cap=True``, the method
-# also creates a PEC cap.
+# creates a PEC cap.
 
 aedtapp.create_wave_port_between_objects("inner", "outer", axisdir=1, add_pec_cap=True, portname="P1")
 aedtapp.create_wave_port_between_objects("inner", "outer", axisdir=4, add_pec_cap=True, portname="P2")
@@ -152,7 +152,7 @@ aedtapp.modeler.fit_all()
 # Create setup
 # ~~~~~~~~~~~~~
 # Create a setup. A setup is created with default values. After its creation,
-# you can change values and update the setup. The update method returns a Boolean
+# you can change values and update the setup. The ``update`` method returns a Boolean
 # value.
 
 aedtapp.set_active_design(aedtapp.design_name)
@@ -200,7 +200,7 @@ ipkapp.edit_design_settings(aedtapp.GravityDirection.ZNeg)
 # ~~~~~~~~~~~~~~~~~~~~~
 # Set up the Icepak project. When you create a setup, default settings are applied.
 # When you need to change a property of the setup, you can use the ``props``
-# command to pass the correct value to the property value. The update function
+# command to pass the correct value to the property. The ``update`` function
 # applies the settings to the setup. The setup creation process is identical
 # for all tools.
 
@@ -221,10 +221,9 @@ ipkapp.assign_openings(airfaces)
 ################################################################################
 # Close and open projects
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# Close and open the projects is necessary to ensure that
-# the HFSS - Icepak coupling works correctly in AEDT versions
-# 2019 R3 through 2021 R1. Closing and opening projects can be helpful
-# when performing operations on multiple projects.
+# Close and open the projects to ensure that the HFSS - Icepak coupling works
+# correctly in AEDT versions 2019 R3 through 2021 R1. Closing and opening projects
+# can be helpful when performing operations on multiple projects.
 
 aedtapp.save_project()
 aedtapp.close_project(project_name)
@@ -246,7 +245,7 @@ aedtapp.analyze_setup("MySetup")
 ################################################################################
 # Generate field plots and export
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Generates field plots on the HFSS project and export them as images.
+# Generate field plots on the HFSS project and export them as images.
 
 cutlist = [GLOBALCS.XY, GLOBALCS.ZX, GLOBALCS.YZ]
 vollist = [o2.name]
@@ -306,8 +305,8 @@ print("Total Time", endtime)
 ################################################################################
 # Create Icepak plots and export
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create Icepak plots and export as images using the same functions used early.
-# Only the quantity is different.
+# Create Icepak plots and export them as images using the same functions that
+# were used early. Only the quantity is different.
 
 quantity_name = "Temperature"
 setup_name = ipkapp.existing_analysis_sweeps[0]

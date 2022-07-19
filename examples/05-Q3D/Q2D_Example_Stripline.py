@@ -2,7 +2,7 @@
 2D Extractor: stripline analysis
 --------------------------------
 This example shows how you can use PyAEDT to create a differential stripline design in
-in Q2D and run a simulation.
+2D Extractor and run a simulation.
 """
 ##########################################################
 # Perform required imports
@@ -17,6 +17,7 @@ from pyaedt.generic.general_methods import generate_unique_name
 
 ##########################################################
 # Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. The default is ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
@@ -69,7 +70,7 @@ model_w = "{}*2+{}*2+{}*2+{}".format(co_gnd_w, clearance, sig_w, sig_gap)
 ###############################################################################
 # Create primitives
 # ~~~~~~~~~~~~~~~~~
-# Create primitives and define the layer heights
+# Create primitives and define the layer heights.
 
 layer_1_lh = 0
 layer_1_uh = cond_h
@@ -153,6 +154,7 @@ q.assign_single_conductor(
     name=obj.name, target_objects=[obj], conductor_type="SignalLine", solve_option="SolveOnBoundary", unit="mm"
 )
 
+###############################################################################
 # Reference ground
 # ~~~~~~~~~~~~~~~~
 # Reference the ground.
@@ -181,12 +183,14 @@ q.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_"
 matrix = q.insert_reduced_matrix(q.MATRIXOPERATIONS.DiffPair, ["signal_p", "signal_n"], rm_name="diff_pair")
 
 ###############################################################################
-# Create sweep setup and analyze and plot
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create a sweep setup, analyze, and plot solution data.
+# Create setup, analyze, and plot
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a setup, analyze, and plot solution data.
 
+# Create a setup.
 setup = q.create_setup(setupname="new_setup")
 
+# Add a sweep.
 sweep = setup.add_sweep(sweepname="sweep1", sweeptype="Discrete")
 sweep.props["RangeType"] = "LinearStep"
 sweep.props["RangeStart"] = "1GHz"
@@ -197,17 +201,13 @@ sweep.props["SaveRadFields"] = False
 sweep.props["Type"] = "Interpolating"
 sweep.update()
 
-# Analyze nominal design and plot characteristic impedance
-
+# Analyze the nominal design and plot characteristic impedance.
 q.analyze_nominal()
 plot_sources = matrix.get_sources_for_plot(category="Z0")
 a = q.post.get_solution_data(expressions=plot_sources, context=matrix.name)
 a.plot(snapshot_path=os.path.join(workdir, "plot.jpg")) # Save plot as jpg
 
-# Create parametric sweep and analyze
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create a parametric sweep and analyze it.
-
+# Add a parametric sweep and analyze.
 parametric = q.parametrics.add("sig_bot_w", 75, 100, 5, "LinearStep")
 parametric.add_variation("sig_gap", "100um", "200um", 5,variation_type="LinearCount")
 q.analyze_setup(name=parametric.name)

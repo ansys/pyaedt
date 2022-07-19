@@ -8,6 +8,7 @@ must be installed on your machine.
 
 This example runs only on Windows using CPython.
 """
+###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports and set the local path to the path for PyAEDT.
@@ -33,6 +34,9 @@ example_path = examples.download_touchstone()
 
 ###############################################################################
 # Import Matplotlib and Touchstone file
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Import Matplotlib and the Touchstone file.
+
 import matplotlib.pyplot as plt
 import numpy as np
 from pyaedt.generic.TouchstoneParser import (
@@ -46,12 +50,15 @@ from pyaedt.generic.TouchstoneParser import (
 
 ###############################################################################
 # Read Touchstone file
+# ~~~~~~~~~~~~~~~~~~~~
+# Read the Touchstone file.
+
 data = read_touchstone(example_path)
 
 ###############################################################################
 # Get curve names
 # ~~~~~~~~~~~~~~~
-# Get the curve names. The following code shows how to get lists of return losses,
+# Get the curve names. The following code shows how to get lists of the return losses,
 # insertion losses, fext, and next based on a few inputs and port names.
 
 rl_list = get_return_losses(data.ports)

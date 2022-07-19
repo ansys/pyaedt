@@ -4,8 +4,9 @@ EMIT: antenna
 This tutorial shows how you can use PyAEDT to create a project in EMIT for
 a simulation of an attenna.
 """
+###############################################################################
 # sphinx_gallery_thumbnail_path = 'Resources/emit.png'
-# Perfrom required inputs
+# Perform required inputs
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
@@ -18,7 +19,7 @@ from pyaedt import Desktop
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Change the ``non_graphical`` Boolean variable to ``False`` to open AEDT in
 # graphical mode. With ``NewThread = False``, an existing instance of AEDT
-# is used if one is available. Use AEDT 2022 R2.
+# is used if one is available. The following code uses AEDT 2022 R2.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = False
@@ -59,9 +60,9 @@ if rad3 and ant3:
 
 
 ###############################################################################
-# Define coupling among RF Systems
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Define thecoupling among the RF systems. This portion of the EMIT API is not
+# Define coupling among RF systems
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Define the coupling among the RF systems. This portion of the EMIT API is not
 # yet implemented.
 
 

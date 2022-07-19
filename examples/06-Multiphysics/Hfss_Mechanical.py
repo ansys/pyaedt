@@ -1,5 +1,5 @@
 """
-Multiphysics: HFSS-Mechanical Multiphysics Analysis
+Multiphysics: HFSS-Mechanical multiphysics analysis
 ---------------------------------------------------
 This example shows how to use PyAEDT to create a multiphysics workflow that includes Circuit, HFSS, and Mechanical.
 """
@@ -27,7 +27,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 ###############################################################################
 # Download and open project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
-# Download and project the example project. Save it to the temporary folder.
+# Download and open the project. Save it to the temporary folder.
 
 project_full_name = examples.download_via_wizard()
 tmpfold = tempfile.gettempdir()

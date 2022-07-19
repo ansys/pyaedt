@@ -2,7 +2,7 @@
 Icepak: graphic card thermal analysis
 -------------------------------------
 This example shows how you can use PyAEDT to create a graphic card setup in Icepak and postprocess results.
-The example file is an Icepak project with a model already created and with materials assigned.
+The example file is an Icepak project with a model that is already created and with materials assigned.
 """
 
 ###############################################################################
@@ -46,7 +46,7 @@ ipk.autosave_disable()
 ###############################################################################
 # Plot model
 # ~~~~~~~~~~
-# PLot the model.
+# Plot the model.
 
 ipk.plot(show=False, export_path=os.path.join(temp_folder, "Graphics_card.jpg"), plot_air_objects=False)
 
@@ -61,7 +61,7 @@ ipk.create_source_block(["MEMORY1", "MEMORY1_1"], "5W")
 ###############################################################################
 # Assign openings and grille
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Assign openings and grille.
+# Assign openings and a grille.
 
 region = ipk.modeler["Region"]
 ipk.assign_openings(air_faces=region.bottom_face_x.id)
@@ -95,8 +95,8 @@ setup1.props["Linear Solver Type - Temperature"] = "flex"
 ipk.save_project(r"C:\temp\Graphic_card.aedt")
 
 ###############################################################################
-# Solve project and postrocess
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Solve project and postprocess
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Solve the project and postprocess, plotting temperatures.
 
 quantity_name = "SurfTemperature"
@@ -110,6 +110,7 @@ plot5 = ipk.post.create_fieldplot_surface(surflist, "SurfTemperature")
 
 ipk.analyze_nominal()
 
+###############################################################################
 # Release AEDT
 # ~~~~~~~~~~~~
 # Release AEDT.

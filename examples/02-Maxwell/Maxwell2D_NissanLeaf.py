@@ -42,8 +42,8 @@ dName = "Sinusoidal"
 # variables and output variables.
 
 #################################################################################
-# Initialize geometry paraemeter definitions for stator, rotor, and shaft 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Initialize definitions for stator, rotor, and shaft 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize geometry parameter definitions for the stator, rotor, and shaft.
 # The naming refers to RMxprt primitives.
 
@@ -60,8 +60,8 @@ geom_params = {
 }
 
 #################################################################################
-# Initialize geometry parameter definitions for stator windings
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Initializedefinitions for stator windings
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize geometry parameter definitions for the stator windings. The naming
 # refers to RMxprt primitives.
 
@@ -80,8 +80,8 @@ wind_params = {
 }
 
 #################################################################################
-# Initialize geometry parameter definitions for model setup
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Initialize definitions for model setup
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize geometry parameter definitions for the model setup.
 
 mod_params = {
@@ -98,8 +98,8 @@ mod_params = {
 }
 
 #################################################################################
-# Initialize geometry parameter definitions for operational machine
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Initialize definitions for operational machine
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize geometry parameter definitions for the operational machine. This
 # identifies the operating point for the transient setup.
 
@@ -133,9 +133,9 @@ M2D = Maxwell2d(specified_version=desktopVersion, designname=dName,
 M2D.save_project(os.path.join(pathName, pName))
 
 ##########################################################
-# Create ``mod2D`` to access ``M2D.modeler``
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create ``mod2D`` to easily access the ``M2D.modeler``.
+# Create object to access 2D modeler
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create the object ``mod2D`` to easily access the 2D modeler.
 
 mod2D = M2D.modeler
 mod2D.delete()
@@ -331,9 +331,9 @@ OPM1_id = mod2D.create_polyline(position_list=OM1_points, cover_surface=True, na
 OPM1_id.color = (0, 128, 64)
 
 #####################################################################################
-# Create coordinate system for magnets in face center
+# Create coordinate system for PMs in face center
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create the coordinate system for the magnets in the face center.
+# Create the coordinate system for PMs in the face center.
 
 create_cs_magnets(IPM1_id, 'CS_' + IPM1_id.name, 'outer')
 create_cs_magnets(OPM1_id, 'CS_' + OPM1_id.name, 'outer')
@@ -384,9 +384,9 @@ bandOUT_id = mod2D.create_circle(position=[0, 0, 0], radius='(DiaGap - (0.5 * Ai
                                  num_sides='mapping_angle', is_covered=True, name='Outer_Band')
 
 ##########################################################
-# Assign motion setup to ``Band`` object
+# Assign motion setup to object
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Assign a motion setup to the ``Band`` object named ``RotatingBand_mid``.
+# Assign a motion setup to a ``Band`` object named ``RotatingBand_mid``.
 
 M2D.assign_rotate_motion('Band', coordinate_system="Global", axis="Z", positive_movement=True,
                          start_position="InitialPositionMD", angular_velocity="MachineRPM")
