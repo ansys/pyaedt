@@ -2,7 +2,7 @@
 Icepak: graphic card thermal analysis
 -------------------------------------
 This example shows how you can use PyAEDT to create a graphic card setup in Icepak and postprocess results.
-The example file is an Icepak project with a model that is already created and with materials assigned.
+The example file is an Icepak project with a model that is already created and has materials assigned.
 """
 
 ###############################################################################
@@ -97,7 +97,7 @@ ipk.save_project(r"C:\temp\Graphic_card.aedt")
 ###############################################################################
 # Solve project and postprocess
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Solve the project and postprocess, plotting temperatures.
+# Solve the project and plot temperatures.
 
 quantity_name = "SurfTemperature"
 surflist = [i.id for i in ipk.modeler["CPU"].faces]

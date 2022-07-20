@@ -46,7 +46,7 @@ from pyaedt import Icepak
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode and use SI units.
+# Launch AEDT 2022 R2 in graphical mode. This example uses SI units.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 desktopVersion = "2022.2"
@@ -84,7 +84,7 @@ aedtapp["inner"] = "3mm"
 # Create coaxial and cylinders
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a coaxial and three cylinders in the modeler. You can apply parameters
-# directly to the :func:`pyaedt.modeler.Primitives3D.Primitives3D.create_cylinder`
+# directly using the :func:`pyaedt.modeler.Primitives3D.Primitives3D.create_cylinder`
 # method. You can assign a material directly to the object creation action.
 # Optionally, you can assign a material using the :func:`assign_material` method.
 

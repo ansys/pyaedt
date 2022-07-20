@@ -24,8 +24,8 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 ###########################################################################################
 # Launch AEDT and Maxwell 3D
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT and Maxwell 3D. The following code set up the project and design names, the solver, and
-# the version. It also create an instance of the ``Maxwell3d`` class named ``M3D``. 
+# Launch AEDT and Maxwell 3D. The following code sets up the project and design names, the solver, and
+# the version. It also creates an instance of the ``Maxwell3d`` class named ``M3D``. 
 
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 7 Asymmetric Conductor"
@@ -171,7 +171,7 @@ M3D.eddy_effects_on(["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"],
 ################################################################################
 # Create expression for Z component of B in Gauss
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create an expression for the Z Component of B in Gauss using the fields calculator.
+# Create an expression for the Z component of B in Gauss using the fields calculator.
 
 Fields = M3D.odesign.GetModule("FieldsReporter")
 Fields.EnterQty("B")
@@ -185,7 +185,7 @@ Fields.AddNamedExpression("Bz", "Fields")
 
 ################################################################################
 # Draw two lines along which to plot Bz
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Draw two lines along which to plot Bz. The following code also adds a small cylinder
 # to refine the mesh locally around each line.
 

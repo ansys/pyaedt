@@ -100,7 +100,7 @@ x.plot([E_Value, C_Value], xlabel="Time", ylabel="Capacitor Voltage vs Input Pul
 ###############################################################################
 # Close Twin Builder
 # ~~~~~~~~~~~~~~~~~~
-# After the simulaton is completes, you can close Twin Builder or release it.
+# After the simulaton completes, you can close Twin Builder or release it.
 # All methods provide for saving the project before closing.
 
 if os.name != "posix":

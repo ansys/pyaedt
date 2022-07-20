@@ -142,7 +142,7 @@ q.modeler.create_rectangle(
 ###############################################################################
 # Assign conductors
 # ~~~~~~~~~~~~~~~~~
-# Assign conductors to signals.
+# Assign conductors to the signal.
 
 obj = q.modeler.get_object_from_name("signal_p")
 q.assign_single_conductor(

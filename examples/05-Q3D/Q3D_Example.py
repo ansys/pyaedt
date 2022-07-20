@@ -2,7 +2,7 @@
 Q3D Extractor: busbar analysis
 --------------------
 This example shows how you can use PyAEDT to create a busbar design in
-Q3D and run a simulation.
+Q3D Extractor and run a simulation.
 """
 ##########################################################
 # Perform required imports
@@ -25,7 +25,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 ###############################################################################
 # Launch AEDT and Q3D Extractor
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode and launch Q3D Extractor. This example use SI units.
+# Launch AEDT 2022 R2 in graphical mode and launch Q3D Extractor. This example uses SI units.
 
 
 q = Q3d(specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
@@ -91,7 +91,7 @@ bar3_sink.name = "Sink3"
 ###############################################################################
 # Print information
 # ~~~~~~~~~~~~~~~~~
-# There are different methods to print net and terminal information.
+# Use the different methods available to print net and terminal information.
 
 print(q.nets)
 print(q.net_sinks("Bar1"))
@@ -117,7 +117,7 @@ sw1.update()
 ###############################################################################
 # Get curves to plot
 # ~~~~~~~~~~~~~~~~~~~
-# Get the curves to plot. The following code simplifies the way to get the curves to plot.
+# Get the curves to plot. The following code simplifies the way to get curves.
 
 data_plot_self = q.matrices[0].get_sources_for_plot(get_self_terms=True, get_mutual_terms=False)
 data_plot_mutual = q.get_traces_for_plot(get_self_terms=False, get_mutual_terms=True, category="C")

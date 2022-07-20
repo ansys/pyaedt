@@ -24,7 +24,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # Launch AEDT and Maxwell 3D
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT and Maxwell 3D consists of setting up the project and design names, the solver, and
-# the version. The following code also create an instance of the ``Maxwell3d`` class named ``M3D``. 
+# the version. The following code also creates an instance of the ``Maxwell3d`` class named ``M3D``. 
 
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 3 Bath Plate"
@@ -233,7 +233,7 @@ solutions.plot()
 ###############################################################################
 # Plot induced current density on surface of ladder plate
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Plot the induced current density, ``"Mag_J"``) on the surface of the ladder plate.
+# Plot the induced current density, ``"Mag_J"``, on the surface of the ladder plate.
 
 surflist = modeler.get_object_faces("LadderPlate")
 intrinsic_dict = {"Freq": "50Hz", "Phase": "0deg"}

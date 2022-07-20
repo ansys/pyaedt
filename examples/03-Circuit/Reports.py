@@ -1,7 +1,7 @@
 """
 Circuit: automatic report creation
 ----------------------------------
-This example shows how to create reports automatically using a JSON file.
+This example shows how to use PyAEDT to create reports automatically using a JSON file.
 """
 
 ###############################################################################
@@ -37,7 +37,7 @@ from pyaedt.generic.DataHandlers import json_to_dict
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode and use SI units.
+# Launch AEDT 2022 R2 in graphical mode. This example uses SI units.
 
 desktopVersion = "2022.2"
 
@@ -53,7 +53,7 @@ NewThread = True
 # Launch AEDT with Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
-# and starts a specified version in a specified mode. The Boolean
+# and starts the specified version in the specified mode. The Boolean
 # parameter ``NewThread`` defines whether to create a new instance of AEDT or try
 # to connect to an existing instance of it.
 

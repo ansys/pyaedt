@@ -70,7 +70,7 @@ next_list = get_next_xtalk(data.ports, "U1")
 ###############################################################################
 # Get curve worst cases
 # ~~~~~~~~~~~~~~~~~~~~~
-# Get curve worst cases for the curve.
+# Get curve worst cases.
 
 worst_rl, global_mean = get_worst_curve_from_solution_data(
     data, freq_min=1, freq_max=20, worst_is_higher=True, curve_list=rl_list

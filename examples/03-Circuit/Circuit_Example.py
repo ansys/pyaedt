@@ -18,7 +18,7 @@ import os
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode and use SI units.
+# Launch AEDT 2022 R2 in graphical mode. This example uses SI units.
 
 desktop_version = "2022.2"
 
@@ -68,7 +68,7 @@ pins_resistor = resistor.pins
 ###############################################################################
 # Create port and ground
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Create a port and a ground, which are needed for a circuit anlaysis.
+# Create a port and a ground, which are needed for the circuit analysis.
 
 port = aedt_app.modeler.components.create_interface_port("myport")
 gnd = aedt_app.modeler.components.create_gnd()

@@ -146,7 +146,7 @@ sm_obj.name = "solder_mask"
 ###############################################################################
 # Assign conductor
 # ~~~~~~~~~~~~~~~~
-# Assign a conductor.
+# Assign a conductor to the signal.
 
 obj = q.modeler.get_object_from_name("signal")
 q.assign_single_conductor(

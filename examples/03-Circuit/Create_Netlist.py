@@ -40,7 +40,7 @@ from pyaedt import Desktop
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode and use SI units.
+# Launch AEDT 2022 R2 in graphical mode. This example uses SI units.
 
 desktopVersion = "2022.2"
 
@@ -57,7 +57,7 @@ NewThread = True
 # Launch AEDT with Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
-# and starts it on a specified version in a specified graphical mode. The Boolean
+# and starts it on the specified version in the specified graphical mode. The Boolean
 # parameter ``NewThread`` defines whether to create a new instance of AEDT or try
 # to connect to an existing instance of it.
 
@@ -81,7 +81,7 @@ aedtapp["Voltage"] = "5"
 ###############################################################################
 # Create schematic from netlist file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create a schematic from a netlist File The ``create_schematic_from_netlist``
+# Create a schematic from a netlist file. The ``create_schematic_from_netlist``
 # method reads the netlist file and parses it. All components are parsed
 # but only these specified categories are mapped: R, L, C, Q, U, J, V, and I.
 

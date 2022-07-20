@@ -60,7 +60,7 @@ geom_params = {
 }
 
 #################################################################################
-# Initializedefinitions for stator windings
+# Initialize definitions for stator windings
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize geometry parameter definitions for the stator windings. The naming
 # refers to RMxprt primitives.

@@ -100,7 +100,7 @@ if rad2 and ant2:
 ###############################################################################
 # Define coupling among RF systems
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Define coupling among RF systems.
+# Define coupling among the RF systems.
 
 for link in aedtapp.couplings.linkable_design_names:
     aedtapp.couplings.add_link(link)
