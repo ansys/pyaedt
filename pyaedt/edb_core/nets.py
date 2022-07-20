@@ -244,6 +244,8 @@ class EdbNets(object):
             nets = [nets]
 
         for path in self._pedb.core_primitives.paths:
+            if path.is_void:
+                continue
             net_name = path.net_name
             layer_name = path.layer_name
             if net_name in nets and layer_name in layers:
