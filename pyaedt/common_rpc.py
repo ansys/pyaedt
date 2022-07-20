@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import socket
 import sys
 import time
@@ -207,6 +208,7 @@ def connect(server_name, aedt_client_port):
             server_name, aedt_client_port, config={"allow_public_attrs": True, "sync_request_timeout": None}
         )
         client.root.redirect(sys.stdout)
+        client.filemanager = FileManagement(client)
         return client
     except:
         return "Error. No connection exists. Check if AEDT is running and if the port number is correct."
@@ -295,91 +297,82 @@ def client(server_name, server_port=18000, beta_options=None, use_aedt_relative_
         return "Error. No connection."
 
 
-def upload(localpath, remotepath, server_name, server_port=18000):
-    """Upload a file or a directory to the given remote path.
+class FileManagement(object):
+    """Class to manage file transfer."""
 
-    Parameters
-    ----------
-    localpath : str
-        Path to the local file or directory.
-    remotepath : str
-        Remote path.
-    server_name : str
-        Name of the server to connect to.
-    server_port : int, optional
-        Port number. The default is ``18000``.
-    """
-    if os.path.isdir(localpath):
-        _upload_dir(localpath, remotepath, server_name, server_port)
-    elif os.path.isfile(localpath):
-        _upload_file(localpath, remotepath, server_name, server_port)
+    def __init__(self, client):
+        self.client = client
 
+    def upload(self, localpath, remotepath):
+        """Upload a file or a directory to the given remote path.
 
-def download(remotepath, localpath, server_name, server_port=18000):
-    """Download a file or a directory from a given remote path to the local path.
+        Parameters
+        ----------
+        localpath : str
+            Path to the local file or directory.
+        remotepath : str
+            Remote path.
+        """
+        if os.path.isdir(localpath):
+            self._upload_dir(localpath, remotepath)
+        elif os.path.isfile(localpath):
+            self._upload_file(localpath, remotepath)
 
-    Parameters
-    ----------
-    remotepath : str
-        Remote path.
-    localpath : str
-        Path to the local file or directory.
-    server_name : str
-        Name of the server to connect to.
-    server_port : int, optional
-        Port number. The default is ``18000``.
-    """
-    if os.path.isdir(remotepath):
-        _download_dir(remotepath, localpath, server_name, server_port)
-    elif os.path.isfile(remotepath):
-        _download_file(localpath, remotepath, server_name, server_port)
+    def download_folder(self, remotepath, localpath):
+        """Download a directory from a given remote path to the local path.
 
+        Parameters
+        ----------
+        remotepath : str
+            Remote path.
+        localpath : str
+            Path to the local file or directory.
+        """
+        self._download_dir(remotepath, localpath)
 
-def _upload_file(local_file, remote_file, server_name, server_port=18000):
-    c = rpyc.connect(server_name, server_port, config={"sync_request_timeout": None})
-    if c.root.path_exists(remote_file):
-        return "File already exists on the server."
-    with open(local_file, "rb") as f:
-        lines = f.readlines()
-        new_file = c.root.create(remote_file)
-        for line in lines:
-            new_file.write(line)
-        new_file.close()
+    def download_file(self, remotepath, localpath):
+        """Download a file from a given remote path to the local path.
 
+        Parameters
+        ----------
+        remotepath : str
+            Remote path.
+        localpath : str
+            Path to the local file or directory.
+        """
+        self._download_file(remotepath, localpath)
 
-def _upload_dir(localpath, remotepath, server_name, server_port=18000):
-    c = rpyc.connect(server_name, server_port, config={"sync_request_timeout": None})
-    if c.root.path_exists(remotepath):
-        return "Folder already exists on the server."
-    c.root.makedirs(remotepath)
-    for fn in os.listdir(localpath):
-        lfn = os.path.join(localpath, fn)
-        rfn = os.path.join(remotepath, fn)
-        _upload_file(lfn, rfn, server_name, server_port=18000)
+    def _upload_file(self, local_file, remote_file):
+        if self.client.root.path_exists(remote_file):
+            return "File already exists on the server."
+        new_file = self.client.root.create(remote_file)
+        local = open(local_file, "rb")
+        shutil.copyfileobj(local, new_file)
 
+    def _upload_dir(self, localpath, remotepath):
+        if self.client.root.path_exists(remotepath):
+            print("Folder already exists on the server.")
+        self.client.root.makedirs(remotepath)
+        for fn in os.listdir(localpath):
+            lfn = os.path.join(localpath, fn)
+            rfn = remotepath + "/" + fn
+            self._upload_file(lfn, rfn)
 
-def _download_file(remote_file, local_file, server_name, server_port=18000):
-    c = rpyc.connect(server_name, server_port, config={"sync_request_timeout": None})
-    if os.path.exists(local_file):
-        return "File already exists on the server."
-    remote = c.root.open(remote_file)
-    lines = remote.readlines()
-    with open(local_file, "wb") as new_file:
-        for line in lines:
-            new_file.write(line)
-        new_file.close()
+    def _download_file(self, remote_file, local_file):
+        if os.path.exists(local_file):
+            print("File already exists on the server.")
+        remote = self.client.root.open(remote_file)
+        new_file = open(local_file, "wb")
+        shutil.copyfileobj(remote, new_file)
 
-
-def _download_dir(remotepath, localpath, server_name, server_port=18000):
-    c = rpyc.connect(server_name, server_port, config={"sync_request_timeout": None})
-    if os.path.exists(localpath):
-        return "Folder already exists on the local machine."
-    if not os.path.isdir(localpath):
-        os.makedirs(localpath)
-    for fn in c.root.listdir(remotepath):
-        lfn = os.path.join(localpath, fn)
-        rfn = os.path.join(remotepath, fn)
-        _download_file(rfn, lfn, server_name, server_port=18000)
+    def _download_dir(self, remotepath, localpath):
+        print("Folder already exists on the local machine.")
+        if not os.path.isdir(localpath):
+            os.makedirs(localpath)
+        for fn in self.client.root.listdir(remotepath):
+            lfn = os.path.join(localpath, fn)
+            rfn = remotepath + "/" + fn
+            self._download_file(rfn, lfn)
 
 
 def launch_ironpython_server(

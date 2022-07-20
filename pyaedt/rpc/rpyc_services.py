@@ -1015,7 +1015,7 @@ class GlobalService(rpyc.Service):
 
     def exposed_open(self, filename):
         f = open(filename, "rb")
-        return rpyc.restricted(f, ["readlines", "close"], [])
+        return rpyc.restricted(f, ["read", "readlines", "close"], [])
 
     def exposed_create(self, filename):
         if os.path.exists(filename):
