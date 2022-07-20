@@ -762,6 +762,7 @@ class GlobalService(rpyc.Service):
         # (to init the service, if needed)
         self.connection = connection
         self._processes = {}
+        self._edb = []
         pass
 
     def on_disconnect(self, connection):
@@ -769,6 +770,12 @@ class GlobalService(rpyc.Service):
         # (to finalize the service, if needed)
         if os.name != "posix":
             sys.stdout = sys.__stdout__
+        for edb in self._edb:
+            try:
+                edb.close_edb()
+            except:
+                pass
+
 
     def exposed_redirect(self, stdout):
         sys.stdout = stdout
@@ -890,15 +897,15 @@ class GlobalService(rpyc.Service):
         :class:`pyaedt.edb.Edb`
             Edb class.
         """
-        edb = Edb(edbpath=edbpath,
+        self._edb.append(Edb(edbpath=edbpath,
                   cellname=cellname,
                   isreadonly=isreadonly,
                   edbversion=edbversion,
                   isaedtowned=isaedtowned,
                   oproject=oproject,
                   student_version=student_version,
-                  use_ppe=use_ppe, )
-        return edb
+                  use_ppe=use_ppe, ))
+        return self._edb[-1]
 
     def exposed_start_service(self, hostname, beta_options=None, use_aedt_relative_path=False):
         """Starts and listens to a new PyAEDT service.

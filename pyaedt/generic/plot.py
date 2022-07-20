@@ -1,3 +1,4 @@
+import ast
 import csv
 import os
 import tempfile
@@ -499,16 +500,14 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
     fig, ax = plt.subplots(figsize=figsize)
-    try:
-        len(plot_data)
-    except:
-        plot_data = convert_remote_object(plot_data)
-    for object in plot_data:
-        if object[-1] == "fill":
-            plt.fill(object[0], object[1], c=object[2], label=object[3], alpha=object[4])
-        elif object[-1] == "path":
-            path = Path(object[0], object[1])
-            patch = PathPatch(path, color=object[2], alpha=object[4], label=object[3])
+    if isinstance(plot_data, str):
+        plot_data = ast.literal_eval(plot_data)
+    for points in plot_data:
+        if points[-1] == "fill":
+            plt.fill(points[0], points[1], c=points[2], label=points[3], alpha=points[4])
+        elif points[-1] == "path":
+            path = Path(points[0], points[1])
+            patch = PathPatch(path, color=points[2], alpha=points[4], label=points[3])
             ax.add_patch(patch)
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
