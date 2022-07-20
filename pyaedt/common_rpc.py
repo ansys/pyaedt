@@ -1,6 +1,7 @@
 import logging
 import os
 import socket
+import sys
 import time
 
 from pyaedt import is_ironpython
@@ -202,7 +203,11 @@ def connect(server_name, aedt_client_port):
     RPyC object.
     """
     try:
-        return rpyc.connect(server_name, aedt_client_port, config={"sync_request_timeout": None})
+        client = rpyc.connect(
+            server_name, aedt_client_port, config={"allow_public_attrs": True, "sync_request_timeout": None}
+        )
+        client.root.redirect(sys.stdout)
+        return client
     except:
         return "Error. No connection exists. Check if AEDT is running and if the port number is correct."
 

@@ -767,7 +767,14 @@ class GlobalService(rpyc.Service):
     def on_disconnect(self, connection):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
-        pass
+        if os.name != "posix":
+            sys.stdout = sys.__stdout__
+
+    def exposed_redirect(self, stdout):
+        sys.stdout = stdout
+
+    def exposed_restore(self):
+        sys.stdout = sys.__stdout__
 
     @staticmethod
     def aedt_grpc(port=None, beta_options=None, use_aedt_relative_path=False, non_graphical=True):
