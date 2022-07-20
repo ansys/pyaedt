@@ -133,9 +133,20 @@ class BaseCoordinateSystem(PropsManager, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        Clean all coordinate systems of the design.
+
+        >>> from pyaedt import Maxwell2d
+        >>> app = Maxwell2d()
+        >>> cs_copy = [i for i in app.modeler.coordinate_systems]
+        >>> [i.delete() for i in cs_copy]
         """
         self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-        self._modeler.coordinate_systems.remove(self)
+        for cs in range(0, len(self._modeler.coordinate_systems)):
+            if self._modeler.coordinate_systems[cs].name == self.name:
+                del self._modeler.coordinate_systems[cs]
+                break
         return True
 
     @pyaedt_function_handler()
@@ -1130,7 +1141,7 @@ class GeometryModeler(Modeler, object):
     @property
     def coordinate_systems(self):
         """Coordinate Systems."""
-        if not self._coordinate_systems:
+        if self._coordinate_systems is None or self._app.project_timestamp_changed:
             self._coordinate_systems = self._get_coordinates_data()
         return self._coordinate_systems
 
@@ -1317,6 +1328,7 @@ class GeometryModeler(Modeler, object):
                         cs.ref_cs = id2name[name2refid[cs.name]]
                     except:
                         pass
+        coord.reverse()
         return coord
 
     def _get_lists_data(self):
