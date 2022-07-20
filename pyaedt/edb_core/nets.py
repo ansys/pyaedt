@@ -1,6 +1,7 @@
 from __future__ import absolute_import  # noreorder
 
 import math
+import os
 import time
 
 from pyaedt.edb_core.EDB_Data import EDBNetsData
@@ -227,6 +228,12 @@ class EdbNets(object):
             If `False` the plot will be colored by layer. (default)
         outline : list, optional
             List of points of the outline to plot.
+        Returns
+        -------
+        list, str
+            list of data to be used in plot.
+            In case of remote session it will be returned a string that could be converted to list
+             using ast.literal_eval().
         """
         start_time = time.time()
         color_index = 0
@@ -348,7 +355,10 @@ class EdbNets(object):
                         objects_lists.append([vertices, codes, label_colors[label], "", 0.4, "path"])
         end_time = time.time() - start_time
         self._logger.info("Nets Point Generation time %s seconds", round(end_time, 3))
-        return objects_lists
+        if os.getenv("PYAEDT_SERVER_AEDT_PATH", None):
+            return str(objects_lists)
+        else:
+            return objects_lists
 
     @pyaedt_function_handler()
     def classify_nets(self, simulation_configuration_object=None):
