@@ -151,6 +151,53 @@ class NamedVariable(object):
         self._application.variable_manager[self._name].read_only = value
         return True
 
+class DuplicatedParametrizedMaterial(object):
+    """Provides a class to duplicate a material and manage its duplication in PyAEDT and in AEDT."""
+
+    def __init__(self, application, material_name, cloned_material_name=None, list_of_properties=None):
+        self._thickness = None
+        self._permittivity = None
+        self._permeability = None
+        self._conductivity = None
+        self._dielectric_loss_tangent = None
+        self._magnetic_loss_tangent = None
+        self._material = None
+        self._material_name = None
+        if application.materials.checkifmaterialexists(material_name):
+            if not cloned_material_name:
+                cloned_material_name = "cloned_" + material_name
+            if not list_of_properties:
+                cloned_material = application.materials.duplicate_material(material_name, cloned_material_name)
+                permittivity = cloned_material.permittivity.value
+                permeability = cloned_material.permeability.value
+                conductivity = cloned_material.conductivity.value
+                dielectric_loss_tan = cloned_material.dielectric_loss_tangent.value
+                magnetic_loss_tan = cloned_material.magnetic_loss_tangent.value
+                reformat_name = _replace_by_underscore(" ", cloned_material_name)
+                reformat_name = _replace_by_underscore("(", reformat_name)
+                reformat_name = _replace_by_underscore(")", reformat_name)
+                reformat_name = _replace_by_underscore("/", reformat_name)
+                reformat_name = _replace_by_underscore("-", reformat_name)
+                reformat_name = _replace_by_underscore(".", reformat_name)
+                reformat_name = _replace_by_underscore(",", reformat_name)
+                permittivity_variable = "$" + reformat_name + "_permittivity"
+                permeability_variable = "$" + reformat_name + "_permeability"
+                conductivity_variable = "$" + reformat_name + "_conductivity"
+                dielectric_loss_variable = "$" + reformat_name + "_dielectric_loss"
+                magnetic_loss_variable = "$" + reformat_name + "_magnetic_loss"
+                self._permittivity = NamedVariable(application, permittivity_variable, str(permittivity))
+                self._permeability = NamedVariable(application, permeability_variable, str(permeability))
+                self._conductivity = NamedVariable(application, conductivity_variable, str(conductivity))
+                self._dielectric_loss_tangent = NamedVariable(application, dielectric_loss_variable, str(dielectric_loss_tan))
+                self._magnetic_loss_tangent = NamedVariable(application, magnetic_loss_variable, str(magnetic_loss_tan))
+                cloned_material.permittivity = permittivity_variable
+                cloned_material.permeability = permeability_variable
+                cloned_material.conductivity = conductivity_variable
+                cloned_material.dielectric_loss_tangent = dielectric_loss_variable
+                cloned_material.magnetic_loss_tangent = magnetic_loss_variable
+                self._material = cloned_material
+                self._material_name = cloned_material_name
+
 
 class Layer3D(object):
     """Provides a class for a management of a parametric layer in 3D Modeler."""
@@ -161,7 +208,7 @@ class Layer3D(object):
         app,
         name,
         layer_type="S",
-        material="copper",
+        material_name="copper",
         thickness=0.035,
         fill_material="FR4_epoxy",
         index=1,
@@ -172,12 +219,12 @@ class Layer3D(object):
         self._name = name
         layer_position = "layer_" + name + "_position"
         self._position = NamedVariable(app, layer_position, "0mm")
-        self._thickness = None
+
         self._layer_type = LAYERS.get(layer_type.lower())
 
         self._obj_3d = []
         obj_3d = None
-        self._material = self.duplicate_parametrize_material(material)
+        self._material = self.duplicate_parametrize_material(material_name)
         self._material_name = self._material.name
         if self._layer_type != "dielectric":
             self._fill_material = self.duplicate_parametrize_material(fill_material)
@@ -370,48 +417,13 @@ class Layer3D(object):
         """
         application = self._app
         if isinstance(material_name, Material):
-            return material_name
+            material_name = material_name.name
         if isinstance(cloned_material_name, Material):
-            return cloned_material_name
-        if self._app.materials.checkifmaterialexists(material_name):
-            if not cloned_material_name:
-                cloned_material_name = "cloned_" + material_name
-            if not self._app.materials.checkifmaterialexists(cloned_material_name):
-                if not list_of_properties:
-                    cloned_material = application.materials.duplicate_material(material_name, cloned_material_name)
-                    permittivity = cloned_material.permittivity.value
-                    permeability = cloned_material.permeability.value
-                    conductivity = cloned_material.conductivity.value
-                    dielectric_loss_tan = cloned_material.dielectric_loss_tangent.value
-                    magnetic_loss_tan = cloned_material.magnetic_loss_tangent.value
-                    reformat_name = _replace_by_underscore(" ", cloned_material_name)
-                    reformat_name = _replace_by_underscore("(", reformat_name)
-                    reformat_name = _replace_by_underscore(")", reformat_name)
-                    reformat_name = _replace_by_underscore("/", reformat_name)
-                    reformat_name = _replace_by_underscore("-", reformat_name)
-                    reformat_name = _replace_by_underscore(".", reformat_name)
-                    reformat_name = _replace_by_underscore(",", reformat_name)
-                    permittivity_variable = "$" + reformat_name + "_permittivity"
-                    permeability_variable = "$" + reformat_name + "_permeability"
-                    conductivity_variable = "$" + reformat_name + "_conductivity"
-                    dielectric_loss_variable = "$" + reformat_name + "_dielectric_loss"
-                    magnetic_loss_variable = "$" + reformat_name + "_magnetic_loss"
-                    application[permittivity_variable] = str(permittivity)
-                    application[permeability_variable] = str(permeability)
-                    application[conductivity_variable] = str(conductivity)
-                    application[dielectric_loss_variable] = str(dielectric_loss_tan)
-                    application[magnetic_loss_variable] = str(magnetic_loss_tan)
-                    cloned_material.permittivity = permittivity_variable
-                    cloned_material.permeability = permeability_variable
-                    cloned_material.conductivity = conductivity_variable
-                    cloned_material.dielectric_loss_tangent = dielectric_loss_variable
-                    cloned_material.magnetic_loss_tangent = magnetic_loss_variable
-                    return cloned_material
-            else:
-                return application.materials[cloned_material_name]
+            cloned_material_name = cloned_material_name.name
+        if not self._app.materials.checkifmaterialexists(cloned_material_name):
+            return DuplicatedParametrizedMaterial(material_name, cloned_material_name, list_of_properties)
         else:
-            application.logger.error("The material name %s doesn't exist" % material_name)
-            return None
+            return application.materials[cloned_material_name]
 
     @pyaedt_function_handler()
     def add_patch(
@@ -1525,6 +1537,7 @@ class Patch(CommonObject, object):
         self._patch_thickness = signal_layer.thickness
         self._application = application
         self._aedt_object = None
+        self._permittivity = self._dielectric_layer.material.permittivity
         try:
             self._permittivity = NamedVariable(
                 application, patch_name + "_permittivity", float(self._dielectric_material.permittivity.value)
