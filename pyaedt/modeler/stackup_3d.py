@@ -2652,6 +2652,9 @@ class MachineLearningPatch(Patch, object):
             reference_system=reference_system,
             axis=axis,
         )
+        self.predict_length()
+
+    def predict_length(self):
         if not is_ironpython:
             try:
                 joblib
@@ -2660,9 +2663,9 @@ class MachineLearningPatch(Patch, object):
             path_file = os.path.dirname(__file__)
             path_folder = os.path.split(path_file)[0]
             training_file = None
-            if 1e9 > frequency >= 1e8:
+            if 1e9 >= self.frequency.numeric_value >= 1e8:
                 training_file = os.path.join(path_folder, "misc", "patch_svr_model_100MHz_1GHz.joblib")
-            elif 1e10 >= frequency >= 1e9:
+            elif 1e10 >= self.frequency.numeric_value > 1e9:
                 training_file = os.path.join(path_folder, "misc", "patch_svr_model_1GHz_10GHz.joblib")
             else:
                 self.application.logger.error("This ML algorithm can only predict patch antennas from 100 MHz to 10 GHz.")
@@ -2678,7 +2681,7 @@ class MachineLearningPatch(Patch, object):
                 ]
                 array_for_prediction = np.array(list_for_array, dtype=np.float32)
                 length = model.predict(array_for_prediction)[0]
-                self.length.expression = application.modeler._arg_with_dim(length)
+                self.length.expression = self.application.modeler._arg_with_dim(length)
         else:  # pragma: no cover
             self.application.logger.warning("Machine learning algorithm aren't covered in IronPython.")
 
