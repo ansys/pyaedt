@@ -1833,11 +1833,11 @@ class DataSet(object):
         arg2 = ["Name:Coordinates"]
         if self.z is None:
             arg2.append(["NAME:DimUnits", self.xunit, self.yunit])
-        elif self.v is not None and self.name[0] == "$":
+        elif self.v is not None:
             arg2.append(["NAME:DimUnits", self.xunit, self.yunit, self.zunit, self.vunit])
         else:
             return False
-        if self.z and self.name[0] == "$":
+        if self.z:
             x, y, z, v = (list(t) for t in zip(*sorted(zip(self.x, self.y, self.z, self.v), key=lambda e: float(e[0]))))
         else:
             x, y = (list(t) for t in zip(*sorted(zip(self.x, self.y), key=lambda e: float(e[0]))))
@@ -1847,7 +1847,7 @@ class DataSet(object):
                 arg3 = ["NAME:Point"]
                 arg3.append(float(x[i]))
                 arg3.append(float(y[i]))
-                if self.z and self.name[0] == "$":
+                if self.z:
                     arg3.append(float(z[i]))
                     arg3.append(float(v[i]))
                 arg2.append(arg3)
@@ -1857,7 +1857,7 @@ class DataSet(object):
                 arg4 = ["NAME:CoordPoint"]
                 arg4.append(float(x[i]))
                 arg4.append(float(y[i]))
-                if self.z and self.name[0] == "$":
+                if self.z:
                     arg4.append(float(z[i]))
                     arg4.append(float(v[i]))
                 arg3.append(arg4)
