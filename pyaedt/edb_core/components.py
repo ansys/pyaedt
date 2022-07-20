@@ -948,6 +948,8 @@ class Components(object):
     @pyaedt_function_handler()
     def create_rlc(self, pins, component_name, r_value=1.0, c_value=1e-9, l_value=1e-9, is_parallel=False):
         """ " """
+        hosting_cmp_pos = pins[0].GetComponent()
+        hosting_cmp_neg = pins[1].GetComponent()
         comp_def = self._getComponentDefinition(component_name, pins)
         if not comp_def:
             return False
@@ -995,6 +997,8 @@ class Components(object):
                 edb_rlc_component_property
             ):
                 return False
+            hosting_cmp_location = hosting_cmp_pos.GetLocation()
+            new_cmp.SetLocation(hosting_cmp_location[1], hosting_cmp_location[2])
         return new_cmp
 
     @pyaedt_function_handler()
