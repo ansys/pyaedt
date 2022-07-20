@@ -147,7 +147,7 @@ mat.conductivity = 3.526e7
 plate = M3D.modeler.create_box([0, 0, 0], [294, 294, 19], name="Plate", matname="team7_aluminium")
 M3D.modeler.fit_all()
 hole = M3D.modeler.create_box([18, 18, 0], [108, 108, 19], name="Hole")
-M3D.modeler.subtract("Plate", ["Hole"], keepOriginals=False)
+M3D.modeler.subtract("Plate", ["Hole"], keep_originals=False)
 
 # Draw a background region
 # ~~~~~~~~~~~~~~~~~~~~~~~~

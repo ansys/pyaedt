@@ -1591,7 +1591,7 @@ class Patch(CommonObject, object):
             )
             application.assign_coating(self._aedt_object.name, signal_layer.material)
         application.modeler.set_working_coordinate_system("Global")
-        application.modeler.subtract(blank_list=[signal_layer.name], tool_list=[patch_name], keepOriginals=True)
+        application.modeler.subtract(blank_list=[signal_layer.name], tool_list=[patch_name], keep_originals=True)
 
     @property
     def frequency(self):
@@ -2017,7 +2017,7 @@ class Trace(CommonObject, object):
                 matname=signal_layer.material_name,
             )
         application.modeler.set_working_coordinate_system("Global")
-        application.modeler.subtract(blank_list=[signal_layer.name], tool_list=[line_name], keepOriginals=True)
+        application.modeler.subtract(blank_list=[signal_layer.name], tool_list=[line_name], keep_originals=True)
 
     @property
     def frequency(self):
