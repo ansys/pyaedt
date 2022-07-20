@@ -2172,7 +2172,19 @@ class Design(AedtObjects):
         return self.create_dataset(dsname, xlist, ylist, is_project_dataset=True, xunit=xunit, yunit=yunit)
 
     @pyaedt_function_handler()
-    def create_dataset3d(self, dsname, xlist, ylist, zlist=None, vlist=None, xunit="", yunit="", zunit="", vunit=""):
+    def create_dataset3d(
+        self,
+        dsname,
+        xlist,
+        ylist,
+        zlist=None,
+        vlist=None,
+        xunit="",
+        yunit="",
+        zunit="",
+        vunit="",
+        is_project_dataset=True,
+    ):
         """Create a 3D dataset.
 
         Parameters
@@ -2195,6 +2207,8 @@ class Design(AedtObjects):
             Units for the Z axis for a 3D dataset only. The default is ``""``.
         vunit : str, optional
             Units for the V axis for a 3D dataset only. The default is ``""``.
+        is_project_dataset : bool, optional
+            Whether it is a project data set. The default is ``True``.
 
         Returns
         -------
@@ -2206,6 +2220,12 @@ class Design(AedtObjects):
 
         >>> oDesign.AddDataset
         """
+        if dsname[0] == "$":
+            dsname = dsname[1:]
+            is_project_dataset = True
+        if self.design_type != "Maxwell 3D" and self.design_type != "Icepak":
+            is_project_dataset = True
+
         return self.create_dataset(
             dsname=dsname,
             xlist=xlist,
@@ -2216,6 +2236,7 @@ class Design(AedtObjects):
             yunit=yunit,
             zunit=zunit,
             vunit=vunit,
+            is_project_dataset=is_project_dataset,
         )
 
     @pyaedt_function_handler()
@@ -2273,7 +2294,7 @@ class Design(AedtObjects):
         )
 
     @pyaedt_function_handler()
-    def import_dataset3d(self, filename, dsname=None, encoding="utf-8-sig"):
+    def import_dataset3d(self, filename, dsname=None, encoding="utf-8-sig", is_project_dataset=True):
         """Import a 3D dataset.
 
         Parameters
@@ -2284,6 +2305,8 @@ class Design(AedtObjects):
             Name of the dataset. The default is the file name.
         encoding : str, optional
             File encoding to be provided for csv.
+        is_project_dataset : bool, optional
+            Whether it is a project data set. The default is ``True``.
 
         Returns
         -------
@@ -2346,6 +2369,9 @@ class Design(AedtObjects):
 
         if dsname[0] == "$":
             dsname = dsname[1:]
+            is_project_dataset = True
+        if self.design_type != "Maxwell 3D" and self.design_type != "Icepak":
+            is_project_dataset = True
 
         return self.create_dataset(
             dsname,
@@ -2353,7 +2379,7 @@ class Design(AedtObjects):
             ylist,
             zlist,
             vlist,
-            is_project_dataset=True,
+            is_project_dataset=is_project_dataset,
             xunit=units[0],
             yunit=units[1],
             zunit=units[2],

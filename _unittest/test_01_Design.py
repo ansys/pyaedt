@@ -183,6 +183,10 @@ class TestClass(BasisTest, object):
         vunits = "cel"
         ds3 = self.aedtapp.create_dataset3d("Test_DataSet3D", x, y, z, v, vunit=vunits)
         assert ds3.name == "$Test_DataSet3D"
+        ds30 = self.aedtapp.create_dataset3d("Test_DataSet3D1", x, y, z, v, vunit=vunits, is_project_dataset=False)
+        assert ds30.name == "$Test_DataSet3D1"
+        ds31 = self.aedtapp.create_dataset3d("$Test_DataSet3D2", x, y, z, v, vunit=vunits, is_project_dataset=False)
+        assert ds31.name == "$Test_DataSet3D2"
 
     def test_19_edit_existing_dataset(self):
         ds = self.aedtapp.project_datasets["$AluminumconductivityTH0"]

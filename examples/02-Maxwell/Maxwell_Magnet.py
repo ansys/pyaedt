@@ -4,6 +4,7 @@ Maxwell 3D: magnet DC analysis
 This example shows how you can use PyAEDT to create a Maxwell DC analysis,
 compute mass center. and move coordinate systems.
 """
+##########################################################
 # Peform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
@@ -47,7 +48,7 @@ magnet = m3d.modeler.create_box([7, 4, 22], [10, 5, 30], name="Magnet", matname=
 
 
 ###############################################################################
-# Create Setup and assign voltage
+# Create setup and assign voltage
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create the setup and assign a voltage.
 
@@ -73,7 +74,7 @@ m3d.analyze_nominal()
 ###############################################################################
 # Compute mass center
 # ~~~~~~~~~~~~~~~~~~~
-# Compute mass center using the field calculator.
+# Compute mass center using the fields calculator.
 
 m3d.post.ofieldsreporter.EnterScalarFunc("X")
 m3d.post.ofieldsreporter.EnterVol(magnet.name)
@@ -93,7 +94,7 @@ m3d.post.ofieldsreporter.CalcStack("clear")
 ###############################################################################
 # Get mass center
 # ~~~~~~~~~~~~~~~
-# Get mass center using the field calculator.
+# Get mass center using the fields calculator.
 
 xval = m3d.post.get_scalar_field_value("CM_X", None)
 yval = m3d.post.get_scalar_field_value("CM_Y", None)

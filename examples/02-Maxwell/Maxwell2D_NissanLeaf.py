@@ -42,8 +42,8 @@ dName = "Sinusoidal"
 # variables and output variables.
 
 #################################################################################
-# Initialize geometry paraemeter definitions for stator, rotor, and shaft 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Initialize definitions for stator, rotor, and shaft 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize geometry parameter definitions for the stator, rotor, and shaft.
 # The naming refers to RMxprt primitives.
 
@@ -60,8 +60,8 @@ geom_params = {
 }
 
 #################################################################################
-# Initialize geometry parameter definitions for stator windings
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Initialize definitions for stator windings
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize geometry parameter definitions for the stator windings. The naming
 # refers to RMxprt primitives.
 
@@ -80,8 +80,8 @@ wind_params = {
 }
 
 #################################################################################
-# Initialize geometry parameter definitions for model setup
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Initialize definitions for model setup
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize geometry parameter definitions for the model setup.
 
 mod_params = {
@@ -98,8 +98,8 @@ mod_params = {
 }
 
 #################################################################################
-# Initialize geometry parameter definitions for operational machine
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Initialize definitions for operational machine
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize geometry parameter definitions for the operational machine. This
 # identifies the operating point for the transient setup.
 
@@ -133,9 +133,9 @@ M2D = Maxwell2d(specified_version=desktopVersion, designname=dName,
 M2D.save_project(os.path.join(pathName, pName))
 
 ##########################################################
-# Create ``mod2D`` to access ``M2D.modeler``
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create ``mod2D`` to easily access the ``M2D.modeler``.
+# Create object to access 2D modeler
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create the object ``mod2D`` to easily access the 2D modeler.
 
 mod2D = M2D.modeler
 mod2D.delete()
@@ -331,9 +331,9 @@ OPM1_id = mod2D.create_polyline(position_list=OM1_points, cover_surface=True, na
 OPM1_id.color = (0, 128, 64)
 
 #####################################################################################
-# Create coordinate system for magnets in face center
+# Create coordinate system for PMs in face center
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create the coordinate system for the magnets in the face center.
+# Create the coordinate system for PMs in the face center.
 
 create_cs_magnets(IPM1_id, 'CS_' + IPM1_id.name, 'outer')
 create_cs_magnets(OPM1_id, 'CS_' + OPM1_id.name, 'outer')
@@ -384,9 +384,9 @@ bandOUT_id = mod2D.create_circle(position=[0, 0, 0], radius='(DiaGap - (0.5 * Ai
                                  num_sides='mapping_angle', is_covered=True, name='Outer_Band')
 
 ##########################################################
-# Assign motion setup to ``Band`` object
+# Assign motion setup to object
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Assign a motion setup to the ``Band`` object named ``RotatingBand_mid``.
+# Assign a motion setup to a ``Band`` object named ``RotatingBand_mid``.
 
 M2D.assign_rotate_motion('Band', coordinate_system="Global", axis="Z", positive_movement=True,
                          start_position="InitialPositionMD", angular_velocity="MachineRPM")
@@ -409,14 +409,14 @@ for item in vacuum_obj_id:
 rotor_id = mod2D.create_circle(position=[0, 0, 0], radius='DiaRotorLam/2',
                                num_sides=0, name="Rotor", matname="30DH_20C_smooth")
 rotor_id.color = (0, 128, 255)
-mod2D.subtract(rotor_id, shaft_id, keepOriginals=True)
+mod2D.subtract(rotor_id, shaft_id, keep_originals=True)
 void_small_1_id = mod2D.create_circle(position=[62, 0, 0], radius="2.55mm",
                                       num_sides=0, name="void1", matname="vacuum")
 M2D.modeler.duplicate_around_axis(void_small_1_id, cs_axis="Z", angle="360deg/SymmetryFactor",
                                   nclones=2, create_new_objects=False)
 void_big_1_id = mod2D.create_circle(position=[29.5643, 12.234389332712, 0], radius='9.88mm/2',
                                     num_sides=0, name="void_big", matname="vacuum")
-mod2D.subtract(rotor_id, [void_small_1_id, void_big_1_id], keepOriginals=False)
+mod2D.subtract(rotor_id, [void_small_1_id, void_big_1_id], keep_originals=False)
 
 slot_IM1_points = [[37.5302872, 15.54555396, 0], [55.05576774, 1.098662669, 0], [57.33637589, 1.25, 0],
                    [57.28982158, 2.626565019, 0], [40.25081875, 16.67243502, 0]]
@@ -432,7 +432,7 @@ M2D.modeler.duplicate_and_mirror([slot_IM_id, slot_OM_id], position=[0, 0, 0],
                                          "sin((360deg/SymmetryFactor/2)+90deg)", 0])
 
 id_holes = mod2D.get_objects_w_string("slot_", case_sensitive=True)
-M2D.modeler.subtract(rotor_id, id_holes, keepOriginals=True)
+M2D.modeler.subtract(rotor_id, id_holes, keep_originals=True)
 
 ##########################################################
 # Create section of machine
@@ -549,7 +549,7 @@ M2D.mesh.assign_length_mesh(rotor_id, isinside=True, maxlength=3, maxel=None, me
 # ~~~~~~~~~~~~~~~~~~~~
 # Turn on eddy effects.
 
-M2D.eddy_effects_on(eddy_effects_list,activate_eddy_effects=True, activate_displacement_current=False)
+# M2D.eddy_effects_on(eddy_effects_list,activate_eddy_effects=True, activate_displacement_current=False)
 
 ##########################################################
 # Turn on core loss

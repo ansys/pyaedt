@@ -1,12 +1,13 @@
 """
-Maxwell 3D: bath plate
-----------------------
+Maxwell 3D: bath plate analysis
+-------------------------------
 This example uses PyAEDT to set up the TEAM 3 bath plate problem and
 solve it using the Maxwell 3D Eddy Current solver.
 """
-# Import package
-# ~~~~~~~~~~~~~~
-# Import the package.
+##########################################################
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import os
 
@@ -22,8 +23,8 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 ##################################################################################
 # Launch AEDT and Maxwell 3D
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT and Maxwell 3D. Set up the project and design names, the solver, and
-# the version. Create an instance of the ``Maxwell3d`` class named ``M3D``. 
+# Launch AEDT and Maxwell 3D consists of setting up the project and design names, the solver, and
+# the version. The following code also creates an instance of the ``Maxwell3d`` class named ``M3D``. 
 
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 3 Bath Plate"
@@ -44,8 +45,8 @@ modeler = M3D.modeler
 ###############################################################################
 # Add desgin variable
 # ~~~~~~~~~~~~~~~~~~~
-# Add a design variable named ``Coil_Position`` to adjust the position of the
-# coil later.
+# Add a design variable named ``Coil_Position`` that you use later to adjust the
+# position of the coil.
 
 Coil_Position = -20
 M3D["Coil_Position"] = str(Coil_Position) + uom  # Creates a design variable in Maxwell
@@ -59,8 +60,8 @@ mat = M3D.materials.add_material("team3_aluminium")
 mat.conductivity = 32780000
 
 ###############################################################################
-# Draw a background region
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Draw background region
+# ~~~~~~~~~~~~~~~~~~~~~~
 # Draw a background region that uses the default properties for an air region.
 
 M3D.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=100, z_neg=100)
@@ -73,7 +74,7 @@ M3D.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=
 M3D.modeler.create_box([-30, -55, 0], [60, 110, -6.35], name="LadderPlate", matname="team3_aluminium")
 M3D.modeler.create_box([-20, -35, 0], [40, 30, -6.35], name="CutoutTool1")
 M3D.modeler.create_box([-20, 5, 0], [40, 30, -6.35], name="CutoutTool2")
-M3D.modeler.subtract("LadderPlate", ["CutoutTool1", "CutoutTool2"], keepOriginals=False)
+M3D.modeler.subtract("LadderPlate", ["CutoutTool1", "CutoutTool2"], keep_originals=False)
 
 ################################################################################
 # Add mesh refinement to ladder plate
@@ -85,8 +86,8 @@ M3D.mesh.assign_length_mesh("LadderPlate", maxlength=3, maxel=None, meshop_name=
 ################################################################################
 # Draw search coil and assign excitation
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Draw a search coil and assign it a stranded current excitation. 
-# The `stranded` type forces current density to be constant in the coil.
+# Draw a search coil and assign it a `stranded`` current excitation. 
+# The stranded type forces the current density to be constant in the coil.
 
 M3D.modeler.create_cylinder(
     cs_axis="Z", position=[0, "Coil_Position", 15], radius=40, height=20, name="SearchCoil", matname="copper"
@@ -94,17 +95,18 @@ M3D.modeler.create_cylinder(
 M3D.modeler.create_cylinder(
     cs_axis="Z", position=[0, "Coil_Position", 15], radius=20, height=20, name="Bore", matname="copper"
 )
-M3D.modeler.subtract("SearchCoil", "Bore", keepOriginals=False)
+M3D.modeler.subtract("SearchCoil", "Bore", keep_originals=False)
 M3D.modeler.section("SearchCoil", "YZ")
 M3D.modeler.separate_bodies("SearchCoil_Section1")
 M3D.modeler.delete("SearchCoil_Section1_Separate1")
 M3D.assign_current(["SearchCoil_Section1"], amplitude=1260, solid=False, name="SearchCoil_Excitation")
 
 ################################################################################
-# Draw a line for plotting ``Bz`` later
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Draw a line for plotting ``Bz`` later. ``Bz~~ is the z-component of the flux
-# density. Add a small diameter cylinder to refine the mesh locally around the line.
+# Draw a line for plotting Bz
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Draw a line for plotting Bz later. Bz is the Z component of the flux
+# density. The following code also adds a small diameter cylinder to refine the
+# mesh locally around the line.
 
 Line_Points = [["0mm", "-55mm", "0.5mm"], ["0mm", "55mm", "0.5mm"]]
 P1 = modeler.create_polyline(Line_Points, name="Line_AB")
@@ -231,7 +233,7 @@ solutions.plot()
 ###############################################################################
 # Plot induced current density on surface of ladder plate
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Plot the induced current density (``"Mag_J"``) on the surface of the ladder plate.
+# Plot the induced current density, ``"Mag_J"``, on the surface of the ladder plate.
 
 surflist = modeler.get_object_faces("LadderPlate")
 intrinsic_dict = {"Freq": "50Hz", "Phase": "0deg"}

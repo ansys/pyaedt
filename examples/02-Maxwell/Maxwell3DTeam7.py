@@ -1,9 +1,10 @@
 """
-Maxwell 3D: asymmetric conductor with a hole
----------------------------------------------
+Maxwell 3D: asymmetric conductor analysis
+-----------------------------------------
 This example uses PyAEDT to set up the TEAM 7 problem for an assymetric
 conductor with a hole and solve it using the Maxwell 3D Eddy Current solver.
 """
+##########################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
@@ -23,8 +24,8 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 ###########################################################################################
 # Launch AEDT and Maxwell 3D
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT and Maxwell 3D. Set up the project and design names, the solver, and
-# the version. Create an instance of the ``Maxwell3d`` class named ``M3D``. 
+# Launch AEDT and Maxwell 3D. The following code sets up the project and design names, the solver, and
+# the version. It also creates an instance of the ``Maxwell3d`` class named ``M3D``. 
 
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 7 Asymmetric Conductor"
@@ -44,7 +45,7 @@ Plot = M3D.odesign.GetModule("ReportSetup")
 # ~~~~~~~~~~~~~~~~~~~~
 # Add a Maxwell 3D setup with frequency points at DC, 50 Hz, and 200Hz.
 # Otherwise, the default PyAEDT setup values are used. To approximate a DC field in the
-# ``EddyCurrent`` solver, use a low frequency value. Second order shape functions improve
+# Eddy Current solver, use a low frequency value. Second-order shape functions improve
 # the smoothness of the induced currents in the plate.
 
 dc_freq = 0.1
@@ -125,7 +126,7 @@ M3D.modeler.separate_bodies("Coil_Section1")
 M3D.modeler.delete("Coil_Section1_Separate1")
 
 # Add variable for coil excitation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Add a design variable for coil excitation. The NB units here are AmpereTurns.
 
 Coil_Excitation = 2742
@@ -147,7 +148,7 @@ mat.conductivity = 3.526e7
 plate = M3D.modeler.create_box([0, 0, 0], [294, 294, 19], name="Plate", matname="team7_aluminium")
 M3D.modeler.fit_all()
 hole = M3D.modeler.create_box([18, 18, 0], [108, 108, 19], name="Hole")
-M3D.modeler.subtract("Plate", ["Hole"], keepOriginals=False)
+M3D.modeler.subtract("Plate", ["Hole"], keep_originals=False)
 
 # Draw a background region
 # ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -168,9 +169,9 @@ M3D.eddy_effects_on(["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"],
                     activate_displacement_current=False)
 
 ################################################################################
-# Create expression for Z Component of B in Gauss
+# Create expression for Z component of B in Gauss
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create an expression for the Z Component of B in Gauss using the fields calculator.
+# Create an expression for the Z component of B in Gauss using the fields calculator.
 
 Fields = M3D.odesign.GetModule("FieldsReporter")
 Fields.EnterQty("B")
@@ -183,10 +184,10 @@ Fields.CalcOp("Smooth")
 Fields.AddNamedExpression("Bz", "Fields")
 
 ################################################################################
-# Draw two lines along which to plot ``Bz``
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Draw two lines along which to ploat ``Bz``. Add a small cylinder to refine the
-# mesh locally around each line.
+# Draw two lines along which to plot Bz
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Draw two lines along which to plot Bz. The following code also adds a small cylinder
+# to refine the mesh locally around each line.
 
 lines = ["Line_A1_B1", "Line_A2_B2"]
 mesh_diameter = "2mm"

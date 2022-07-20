@@ -762,12 +762,26 @@ class GlobalService(rpyc.Service):
         # (to init the service, if needed)
         self.connection = connection
         self._processes = {}
+        self._edb = []
         pass
 
     def on_disconnect(self, connection):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
-        pass
+        if os.name != "posix":
+            sys.stdout = sys.__stdout__
+        for edb in self._edb:
+            try:
+                edb.close_edb()
+            except:
+                pass
+
+
+    def exposed_redirect(self, stdout):
+        sys.stdout = stdout
+
+    def exposed_restore(self):
+        sys.stdout = sys.__stdout__
 
     @staticmethod
     def aedt_grpc(port=None, beta_options=None, use_aedt_relative_path=False, non_graphical=True):
@@ -883,15 +897,15 @@ class GlobalService(rpyc.Service):
         :class:`pyaedt.edb.Edb`
             Edb class.
         """
-        edb = Edb(edbpath=edbpath,
+        self._edb.append(Edb(edbpath=edbpath,
                   cellname=cellname,
                   isreadonly=isreadonly,
                   edbversion=edbversion,
                   isaedtowned=isaedtowned,
                   oproject=oproject,
                   student_version=student_version,
-                  use_ppe=use_ppe, )
-        return edb
+                  use_ppe=use_ppe, ))
+        return self._edb[-1]
 
     def exposed_start_service(self, hostname, beta_options=None, use_aedt_relative_path=False):
         """Starts and listens to a new PyAEDT service.
@@ -1008,7 +1022,7 @@ class GlobalService(rpyc.Service):
 
     def exposed_open(self, filename):
         f = open(filename, "rb")
-        return rpyc.restricted(f, ["readlines", "close"], [])
+        return rpyc.restricted(f, ["read", "readlines", "close"], [])
 
     def exposed_create(self, filename):
         if os.path.exists(filename):
@@ -1031,3 +1045,6 @@ class GlobalService(rpyc.Service):
         if os.path.exists(remotepath):
             return True
         return False
+
+    def exposed_isdir(self, remotepath):
+        return os.path.isdir(remotepath)

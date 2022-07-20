@@ -134,7 +134,7 @@ class Modeler2D(GeometryModeler, Primitives2D):
         objects = [i for i in self.modeler.object_names]
         self.oeditor.Paste()
         name1 = [i for i in self.modeler.object_names if i not in objects]
-        self.intersect([name1[0], cir.name], keeporiginal=False)
+        self.intersect([name1[0], cir.name], keep_originals=False)
         self.subtract(name, name1[0])
         return True
 
