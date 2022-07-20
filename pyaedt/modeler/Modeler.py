@@ -2978,7 +2978,7 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.Subtract
         """
         if "keepOriginals" in kwargs:
-            warnings.warn("keepOriginals has been deprecated. use keep_originals.")
+            warnings.warn("keepOriginals has been deprecated. use keep_originals.", DeprecationWarning)
             keep_originals = kwargs["keepOriginals"]
         szList = self.convert_to_selections(blank_list)
         szList1 = self.convert_to_selections(tool_list)
@@ -3258,7 +3258,7 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.Intersect
         """
         if "keeporiginal" in kwargs:
-            warnings.warn("keeporiginal has been deprecated. use keep_originals.")
+            warnings.warn("keeporiginal has been deprecated. use keep_originals.", DeprecationWarning)
             keep_originals = kwargs["keeporiginal"]
         unclassified = list(self.oeditor.GetObjectsInGroup("Unclassified"))
         szSelections = self.convert_to_selections(theList)
