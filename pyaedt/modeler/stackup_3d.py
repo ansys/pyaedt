@@ -151,6 +151,7 @@ class NamedVariable(object):
         self._application.variable_manager[self._name].read_only = value
         return True
 
+
 class DuplicatedParametrizedMaterial(object):
     """Provides a class to duplicate a material and manage its duplication in PyAEDT and in AEDT."""
 
@@ -197,6 +198,8 @@ class DuplicatedParametrizedMaterial(object):
                 cloned_material.magnetic_loss_tangent = magnetic_loss_variable
                 self._material = cloned_material
                 self._material_name = cloned_material_name
+        else:
+            application.logger.error("The material name %s doesn't exist" % material_name)
 
 
 class Layer3D(object):
