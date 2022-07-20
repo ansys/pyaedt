@@ -1,11 +1,12 @@
 """
-Maxwell 3D: choke
-----------------
+Maxwell 3D: choke setup
+-----------------------
 This example shows how you can use PyAEDT to create a choke setup in Maxwell 3D.
 """
+##########################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports.
+# Perform required imports and set paths.
 
 import json
 import tempfile
@@ -158,7 +159,7 @@ m3d.assign_current([third_winding_faces[-2]], amplitude=1000, phase="240deg", sw
 
 ###############################################################################
 # Assign matrix
-# -------------
+# ~~~~~~~~~~~~~
 # Assign the matrix.
 
 m3d.assign_matrix(["phase_1_in", "phase_2_in", "phase_3_in"], matrix_name="current_matrix")
@@ -192,7 +193,7 @@ region = m3d.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=10
 ###############################################################################
 # Create setup
 # ~~~~~~~~~~~~
-# Create a setup with a sweep to run the simulation. Depending on your machine's,
+# Create a setup with a sweep to run the simulation. Depending on your machine's
 # computing power, the simulation can take some time to run.
 
 setup = m3d.create_setup("MySetup")

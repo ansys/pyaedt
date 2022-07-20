@@ -1,7 +1,7 @@
 """
-HFSS: flex cable coplanar waveguide
------------------------------------
-This example shows how you can use PyAEDT to create a flex cable coplanar waveguide.
+HFSS: flex cable CPWG
+---------------------
+This example shows how you can use PyAEDT to create a flex cable CPWG (coplanar waveguide with ground).
 """
 
 
@@ -32,7 +32,7 @@ hfss.mesh.assign_initial_mesh_from_slider(applycurvilinear=True)
 ###############################################################################
 # Input variables
 # ~~~~~~~~~~~~~~~
-# Input variables for creating the flex cable coplanar waveguide.
+# Input variables for creating the flex cable CPWG.
 
 total_length = 300
 theta = 120
