@@ -1038,3 +1038,6 @@ class GlobalService(rpyc.Service):
         if os.path.exists(remotepath):
             return True
         return False
+
+    def exposed_isdir(self, remotepath):
+        return os.path.isdir(remotepath)

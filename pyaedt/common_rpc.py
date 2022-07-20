@@ -9,6 +9,8 @@ from pyaedt import is_ironpython
 from pyaedt.generic.general_methods import convert_remote_object
 from pyaedt.misc import list_installed_ansysem
 
+logging.basicConfig(stream=sys.stderr, level=logging.INFO)
+logger = logging.getLogger(__name__)
 # import sys
 
 if is_ironpython:
@@ -181,7 +183,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False):
             "allow_setattr": True,
             "safe_attrs": safe_attrs,
             "allow_delattr": True,
-            "logger": logging.getLogger(__name__),
+            "logger": logger,
         },
     )
     print("Starting the server on port {} on {}.".format(port, hostname))
@@ -344,35 +346,51 @@ class FileManagement(object):
 
     def _upload_file(self, local_file, remote_file):
         if self.client.root.path_exists(remote_file):
-            return "File already exists on the server."
+            logger.error("File already exists on the server.")
+            return False
         new_file = self.client.root.create(remote_file)
         local = open(local_file, "rb")
         shutil.copyfileobj(local, new_file)
+        logger.info("File %s uploaded to %s", local_file, remote_file)
 
     def _upload_dir(self, localpath, remotepath):
         if self.client.root.path_exists(remotepath):
-            print("Folder already exists on the server.")
+            logger.warning("Folder already exists on the server.")
         self.client.root.makedirs(remotepath)
+        i = 0
         for fn in os.listdir(localpath):
             lfn = os.path.join(localpath, fn)
             rfn = remotepath + "/" + fn
-            self._upload_file(lfn, rfn)
+            if os.path.isdir(rfn):
+                self._upload_dir(lfn, rfn)
+            else:
+                self._upload_file(lfn, rfn)
+            i += 1
+        logger.info("Directory %s uploaded. %s files copied", localpath, i)
 
     def _download_file(self, remote_file, local_file):
         if os.path.exists(local_file):
-            print("File already exists on the server.")
+            logger.warning("File already exists on the client.")
         remote = self.client.root.open(remote_file)
         new_file = open(local_file, "wb")
         shutil.copyfileobj(remote, new_file)
+        logger.info("File %s downloaded to %s", remote_file, local_file)
 
     def _download_dir(self, remotepath, localpath):
-        print("Folder already exists on the local machine.")
+        if os.path.exists(localpath):
+            logger.warning("Folder already exists on the local machine.")
         if not os.path.isdir(localpath):
             os.makedirs(localpath)
+        i = 0
         for fn in self.client.root.listdir(remotepath):
             lfn = os.path.join(localpath, fn)
             rfn = remotepath + "/" + fn
-            self._download_file(rfn, lfn)
+            if self.client.root.isdir(rfn):
+                self._download_dir(rfn, lfn)
+            else:
+                self._download_file(rfn, lfn)
+            i += 1
+        logger.info("Directory %s downloaded. %s files copied", localpath, i)
 
 
 def launch_ironpython_server(
