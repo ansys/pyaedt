@@ -73,7 +73,7 @@ M3D.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=
 M3D.modeler.create_box([-30, -55, 0], [60, 110, -6.35], name="LadderPlate", matname="team3_aluminium")
 M3D.modeler.create_box([-20, -35, 0], [40, 30, -6.35], name="CutoutTool1")
 M3D.modeler.create_box([-20, 5, 0], [40, 30, -6.35], name="CutoutTool2")
-M3D.modeler.subtract("LadderPlate", ["CutoutTool1", "CutoutTool2"], keepOriginals=False)
+M3D.modeler.subtract("LadderPlate", ["CutoutTool1", "CutoutTool2"], keep_originals=False)
 
 ################################################################################
 # Add mesh refinement to ladder plate
@@ -94,7 +94,7 @@ M3D.modeler.create_cylinder(
 M3D.modeler.create_cylinder(
     cs_axis="Z", position=[0, "Coil_Position", 15], radius=20, height=20, name="Bore", matname="copper"
 )
-M3D.modeler.subtract("SearchCoil", "Bore", keepOriginals=False)
+M3D.modeler.subtract("SearchCoil", "Bore", keep_originals=False)
 M3D.modeler.section("SearchCoil", "YZ")
 M3D.modeler.separate_bodies("SearchCoil_Section1")
 M3D.modeler.delete("SearchCoil_Section1_Separate1")

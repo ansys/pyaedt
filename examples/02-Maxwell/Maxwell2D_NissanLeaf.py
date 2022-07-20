@@ -409,14 +409,14 @@ for item in vacuum_obj_id:
 rotor_id = mod2D.create_circle(position=[0, 0, 0], radius='DiaRotorLam/2',
                                num_sides=0, name="Rotor", matname="30DH_20C_smooth")
 rotor_id.color = (0, 128, 255)
-mod2D.subtract(rotor_id, shaft_id, keepOriginals=True)
+mod2D.subtract(rotor_id, shaft_id, keep_originals=True)
 void_small_1_id = mod2D.create_circle(position=[62, 0, 0], radius="2.55mm",
                                       num_sides=0, name="void1", matname="vacuum")
 M2D.modeler.duplicate_around_axis(void_small_1_id, cs_axis="Z", angle="360deg/SymmetryFactor",
                                   nclones=2, create_new_objects=False)
 void_big_1_id = mod2D.create_circle(position=[29.5643, 12.234389332712, 0], radius='9.88mm/2',
                                     num_sides=0, name="void_big", matname="vacuum")
-mod2D.subtract(rotor_id, [void_small_1_id, void_big_1_id], keepOriginals=False)
+mod2D.subtract(rotor_id, [void_small_1_id, void_big_1_id], keep_originals=False)
 
 slot_IM1_points = [[37.5302872, 15.54555396, 0], [55.05576774, 1.098662669, 0], [57.33637589, 1.25, 0],
                    [57.28982158, 2.626565019, 0], [40.25081875, 16.67243502, 0]]
@@ -432,7 +432,7 @@ M2D.modeler.duplicate_and_mirror([slot_IM_id, slot_OM_id], position=[0, 0, 0],
                                          "sin((360deg/SymmetryFactor/2)+90deg)", 0])
 
 id_holes = mod2D.get_objects_w_string("slot_", case_sensitive=True)
-M2D.modeler.subtract(rotor_id, id_holes, keepOriginals=True)
+M2D.modeler.subtract(rotor_id, id_holes, keep_originals=True)
 
 ##########################################################
 # Create section of machine

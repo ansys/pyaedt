@@ -2953,7 +2953,7 @@ class GeometryModeler(Modeler, object):
         return True
 
     @pyaedt_function_handler()
-    def subtract(self, blank_list, tool_list, keepOriginals=True):
+    def subtract(self, blank_list, tool_list, keep_originals=True, **kwargs):
         """Subtract objects.
 
         Parameters
@@ -2964,7 +2964,7 @@ class GeometryModeler(Modeler, object):
         tool_list : list
             List of objects to subtract. The list can be of
             either Object3d objects or object IDs.
-        keepOriginals : bool, optional
+        keep_originals : bool, optional
             Whether to keep the original objects. The default is ``True``.
 
         Returns
@@ -2977,14 +2977,17 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Subtract
         """
+        if "keepOriginals" in kwargs:
+            warnings.warn("keepOriginals has been deprecated. use keep_originals.")
+            keep_originals = kwargs["keepOriginals"]
         szList = self.convert_to_selections(blank_list)
         szList1 = self.convert_to_selections(tool_list)
 
         vArg1 = ["NAME:Selections", "Blank Parts:=", szList, "Tool Parts:=", szList1]
-        vArg2 = ["NAME:SubtractParameters", "KeepOriginals:=", keepOriginals]
+        vArg2 = ["NAME:SubtractParameters", "KeepOriginals:=", keep_originals]
 
         self.oeditor.Subtract(vArg1, vArg2)
-        if not keepOriginals:
+        if not keep_originals:
             self.cleanup_objects()
 
         return True
@@ -3234,14 +3237,14 @@ class GeometryModeler(Modeler, object):
         return True, new_objects
 
     @pyaedt_function_handler()
-    def intersect(self, theList, keeporiginal=False):
+    def intersect(self, theList, keep_originals=False, **kwargs):
         """Intersect objects from a list.
 
         Parameters
         ----------
         theList : list
             List of objects.
-        keeporiginal : bool, optional
+        keep_originals : bool, optional
             Whether to keep the original object. The default is ``False``.
 
         Returns
@@ -3254,11 +3257,14 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Intersect
         """
+        if "keeporiginal" in kwargs:
+            warnings.warn("keeporiginal has been deprecated. use keep_originals.")
+            keep_originals = kwargs["keeporiginal"]
         unclassified = list(self.oeditor.GetObjectsInGroup("Unclassified"))
         szSelections = self.convert_to_selections(theList)
 
         vArg1 = ["NAME:Selections", "Selections:=", szSelections]
-        vArg2 = ["NAME:IntersectParameters", "KeepOriginals:=", keeporiginal]
+        vArg2 = ["NAME:IntersectParameters", "KeepOriginals:=", keep_originals]
 
         self.oeditor.Intersect(vArg1, vArg2)
         unclassified1 = list(self.oeditor.GetObjectsInGroup("Unclassified"))
