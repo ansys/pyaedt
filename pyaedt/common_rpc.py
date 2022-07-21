@@ -352,7 +352,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
     t.start()
 
 
-def create_session(server_name, client_port):
+def create_session(server_name, client_port=None):
     """
     Connect to an existing AEDT server session.
 
@@ -369,9 +369,12 @@ def create_session(server_name, client_port):
     """
     try:
         client = rpyc.connect(server_name, 17878, config={"allow_public_attrs": True, "sync_request_timeout": None})
+        if not client_port:
+            client_port = client.root.check_port()
         port = client.root.start_service(client_port)
         time.sleep(1)
         cl = connect(server_name, port)
+        logger.info("Created new session on port %s", port)
         settings.remote_rpc_session = cl
         settings.remote_rpc_session_temp_folder = os.path.join(tempfile.gettempdir(), server_name + "_" + str(port))
         if not os.path.exists(settings.remote_rpc_session_temp_folder):

@@ -1046,7 +1046,7 @@ class GlobalService(rpyc.Service):
         f = open(filename, open_options)
         return rpyc.restricted(f, ["read", "readlines", "close"], [])
 
-    def exposed_create(self, filename,create_options="w"):
+    def exposed_create(self, filename,create_options="wb"):
         if os.path.exists(filename):
             return "File already exists"
         f = open(filename, create_options)
@@ -1148,3 +1148,8 @@ class ServiceManager(rpyc.Service):
                 return False
 
         return True
+
+    @staticmethod
+    def exposed_check_port():
+        port_number = random.randint(18500, 20000)
+        return check_port(port_number)
