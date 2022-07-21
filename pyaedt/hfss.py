@@ -9,11 +9,13 @@ import tempfile
 import warnings
 from collections import OrderedDict
 
+from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.actors import Radar
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -4037,8 +4039,8 @@ class Hfss(FieldAnalysis3D, object):
         val_list.append(msg)
         msg = "Design validation messages:"
         val_list.append(msg)
-        if os.path.isfile(temp_val_file):
-            with open(temp_val_file, "r") as df:
+        if os.path.isfile(temp_val_file) or settings.remote_rpc_session:
+            with open_file(temp_val_file, "r") as df:
                 temp = df.read().splitlines()
                 val_list.extend(temp)
             os.remove(temp_val_file)
@@ -4099,7 +4101,7 @@ class Hfss(FieldAnalysis3D, object):
             msg = "No setup is detected."
             val_list.append(msg)
 
-        with open(validation_log_file, "w") as f:
+        with open_file(validation_log_file, "w") as f:
             for item in val_list:
                 f.write("%s\n" % item)
         return val_list, validation_ok  # Return all the information in a list for later use.
@@ -5088,7 +5090,9 @@ class Hfss(FieldAnalysis3D, object):
                     if v["name"] not in json_dict:
                         self.logger.error("a3comp is not present in design and not define correctly in json.")
                         return False
+
                     geometryparams = self.get_components3d_vars(json_dict[v["name"]])
+
                     self.modeler.insert_3d_component(json_dict[v["name"]], geometryparams)
                 cells_names[v["name"]] = [k1]
             if v.get("color", None):

@@ -26,6 +26,7 @@ from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import MILS2METER
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import open_file
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
@@ -1147,7 +1148,7 @@ class Object3d(object):
         if not os.path.isfile(filename):
             raise Exception("Cannot export the ACIS SAT file for object {}".format(self.name))
 
-        with open(filename, "r") as fh:
+        with open_file(filename, "r") as fh:
             temp = fh.read().splitlines()
         all_lines = [s for s in temp if s.startswith("body ")]
 

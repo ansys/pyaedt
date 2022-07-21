@@ -26,6 +26,7 @@ from pyaedt.generic.constants import _resolve_unit_system
 from pyaedt.generic.constants import unit_system
 from pyaedt.generic.general_methods import is_array
 from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import open_file
 
 
 class CSVDataset:
@@ -114,13 +115,13 @@ class CSVDataset:
 
         self._csv_file = csv_file
         if csv_file:
-            with open(csv_file, "r") as fi:
+            with open_file(csv_file, "r") as fi:
                 file_data = fi.readlines()
                 for line in file_data:
                     if self._header:
                         line_data = line.strip().split(self._separator)
                         # Check for invalid data in the line (fields with 'nan')
-                        if not "nan" in line_data:
+                        if "nan" not in line_data:
                             for j, value in enumerate(line_data):
                                 var_name = self._header[j]
                                 if var_name in self._unit_dict:

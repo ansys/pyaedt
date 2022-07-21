@@ -13,6 +13,7 @@ from math import sqrt
 from math import tan
 
 from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.actors import Bird
 from pyaedt.modeler.actors import Person
@@ -1673,7 +1674,7 @@ class Primitives3D(Primitives, object):
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
         >>> mychoke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
         """
-        with open(json_file, "r") as read_file:
+        with open_file(json_file, "r") as read_file:
             values = json.load(read_file)
         self.logger.info("CHOKE INFO: " + str(values))
 
@@ -2220,7 +2221,7 @@ class Primitives3D(Primitives, object):
         are_inequations_checkable = True
         security_factor = 1.1
         sr = security_factor
-        with open(json_file, "r") as read_file:
+        with open_file(json_file, "r") as read_file:
             values = json.load(read_file)
 
         for key, value in dictionary_model.items():
@@ -2588,10 +2589,10 @@ class Primitives3D(Primitives, object):
             if create_another_file:
                 root_path, extension_path = os.path.splitext(json_file)
                 new_path = root_path + "_Corrected" + extension_path
-                with open(new_path, "w") as outfile:
+                with open_file(new_path, "w") as outfile:
                     json.dump(values, outfile)
             else:
-                with open(json_file, "w") as outfile:
+                with open_file(json_file, "w") as outfile:
                     json.dump(values, outfile)
 
         return [are_inequations_checkable, values]
