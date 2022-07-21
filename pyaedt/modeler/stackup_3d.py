@@ -155,7 +155,7 @@ class NamedVariable(object):
 class DuplicatedParametrizedMaterial(object):
     """Provides a class to duplicate a material and manage its duplication in PyAEDT and in AEDT."""
 
-    def __init__(self, stackup, material_name, cloned_material_name, list_of_properties=None):
+    def __init__(self, application, material_name, cloned_material_name, list_of_properties=None):
         self._thickness = None
         self._permittivity = None
         self._permeability = None
@@ -164,9 +164,9 @@ class DuplicatedParametrizedMaterial(object):
         self._magnetic_loss_tangent = None
         self._material = None
         self._material_name = None
-        if stackup.application.materials.checkifmaterialexists(material_name):
+        if application.materials.checkifmaterialexists(material_name):
             if not list_of_properties:
-                cloned_material = stackup.application.materials.duplicate_material(material_name, cloned_material_name)
+                cloned_material = application.materials.duplicate_material(material_name, cloned_material_name)
                 permittivity = cloned_material.permittivity.value
                 permeability = cloned_material.permeability.value
                 conductivity = cloned_material.conductivity.value
@@ -184,11 +184,11 @@ class DuplicatedParametrizedMaterial(object):
                 conductivity_variable = "$" + reformat_name + "_conductivity"
                 dielectric_loss_variable = "$" + reformat_name + "_dielectric_loss"
                 magnetic_loss_variable = "$" + reformat_name + "_magnetic_loss"
-                self._permittivity = NamedVariable(stackup.application, permittivity_variable, str(permittivity))
-                self._permeability = NamedVariable(stackup.application, permeability_variable, str(permeability))
-                self._conductivity = NamedVariable(stackup.application, conductivity_variable, str(conductivity))
-                self._dielectric_loss_tangent = NamedVariable(stackup.application, dielectric_loss_variable, str(dielectric_loss_tan))
-                self._magnetic_loss_tangent = NamedVariable(stackup.application, magnetic_loss_variable, str(magnetic_loss_tan))
+                self._permittivity = NamedVariable(application, permittivity_variable, str(permittivity))
+                self._permeability = NamedVariable(application, permeability_variable, str(permeability))
+                self._conductivity = NamedVariable(application, conductivity_variable, str(conductivity))
+                self._dielectric_loss_tangent = NamedVariable(application, dielectric_loss_variable, str(dielectric_loss_tan))
+                self._magnetic_loss_tangent = NamedVariable(application, magnetic_loss_variable, str(magnetic_loss_tan))
                 cloned_material.permittivity = permittivity_variable
                 cloned_material.permeability = permeability_variable
                 cloned_material.conductivity = conductivity_variable
@@ -197,11 +197,15 @@ class DuplicatedParametrizedMaterial(object):
                 self._material = cloned_material
                 self._material_name = cloned_material_name
         else:
-            stackup.application.logger.error("The material name %s doesn't exist" % material_name)
+            application.logger.error("The material name %s doesn't exist" % material_name)
 
     @property
     def material(self):
         return self._material
+
+    @property
+    def material_name(self):
+        return self._material_name
 
     @property
     def permittivity(self):
@@ -355,6 +359,10 @@ class Layer3D(object):
             Material.
         """
         return self._material
+
+    @property
+    def duplicated_material(self):
+        return self._duplicated_material
 
     @property
     def filling_material(self):
@@ -1187,7 +1195,7 @@ class Stackup3D(object):
         return p
 
     @pyaedt_function_handler()
-    def add_layer(self, name, layer_type="S", material="copper", thickness=0.035, fill_material="FR4_epoxy"):
+    def add_layer(self, name, layer_type="S", material_name="copper", thickness=0.035, fill_material="FR4_epoxy"):
         """Add a new layer to the stackup.
         The new layer can be a signal (S), ground (G), or dielectric (D).
         The layer is entirely filled with the specified fill material. Anything will be drawn
@@ -1222,7 +1230,7 @@ class Stackup3D(object):
             app=self._app,
             name=name,
             layer_type=layer_type,
-            material=material,
+            material_name=material_name,
             thickness=thickness,
             fill_material=fill_material,
             index=self._shifted_index,
@@ -1277,7 +1285,7 @@ class Stackup3D(object):
             Layer object.
         """
         return self.add_layer(
-            name=name, layer_type="S", material=material, thickness=thickness, fill_material=fill_material
+            name=name, layer_type="S", material_name=material, thickness=thickness, fill_material=fill_material
         )
 
     @pyaedt_function_handler()
@@ -1304,7 +1312,7 @@ class Stackup3D(object):
         :class:`pyaedt.modeler.stackup_3d.Layer3D`
             Layer 0bject.
         """
-        return self.add_layer(name=name, layer_type="D", material=material, thickness=thickness, fill_material=None)
+        return self.add_layer(name=name, layer_type="D", material_name=material, thickness=thickness, fill_material=None)
 
     @pyaedt_function_handler()
     def add_ground_layer(self, name, material="copper", thickness=0.035, fill_material="air"):
@@ -1328,7 +1336,7 @@ class Stackup3D(object):
             Layer Object.
         """
         return self.add_layer(
-            name=name, layer_type="G", material=material, thickness=thickness, fill_material=fill_material
+            name=name, layer_type="G", material_name=material, thickness=thickness, fill_material=fill_material
         )
 
     @pyaedt_function_handler()
@@ -1350,12 +1358,6 @@ class Stackup3D(object):
             self._end_of_stackup3D.expression = layer.elevation.name + " + " + layer.thickness.name
         else:
             self._end_of_stackup3D.expression = layer.elevation.name
-
-    # if we call this function instantiation of the Layer, the first call, previous_layer_end is "0mm", and
-    # layer.position.expression is also "0mm" and self._end_of_stackup becomes the first layer.position + thickness
-    # if it has thickness, and so the second call, previous_layer_end is the previous layer position + thickness
-    # so the current layer position is the previous_layer_end and the end_of_stackup is the current layer position +
-    # thickness, and we just need to call this function after the construction of a layer3D.
 
     @pyaedt_function_handler()
     def resize(self, percentage_offset):
@@ -1578,16 +1580,8 @@ class Patch(CommonObject, object):
         self._patch_thickness = signal_layer.thickness
         self._application = application
         self._aedt_object = None
-        self._permittivity = self._dielectric_layer.material.permittivity
-        try:
-            self._permittivity = NamedVariable(
-                application, patch_name + "_permittivity", float(self._dielectric_material.permittivity.value)
-            )
-        except ValueError:
-            self._permittivity = NamedVariable(
-                application,
-                patch_name + "_permittivity",
-                float(application.variable_manager[self._dielectric_material.permittivity.value].value),
+        self._permittivity = NamedVariable(
+                application, patch_name + "_permittivity", self._dielectric_layer.duplicated_material.permittivty.name
             )
         if isinstance(patch_length, float) or isinstance(patch_length, int):
             self._length = NamedVariable(
