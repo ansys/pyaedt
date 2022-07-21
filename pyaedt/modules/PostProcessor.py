@@ -19,6 +19,7 @@ from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.solutions import FieldPlot
 from pyaedt.modules.solutions import SolutionData
@@ -2177,8 +2178,8 @@ class PostProcessor(PostProcessorCommon, object):
         file_name = os.path.join(self._app.working_directory, generate_unique_name("temp_fld") + ".fld")
         self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation_dict)
         value = None
-        if os.path.exists(file_name):
-            with open(file_name, "r") as f:
+        if os.path.exists(file_name) or settings.remote_rpc_session:
+            with open_file(file_name, "r") as f:
                 lines = f.readlines()
                 lines = [line.strip() for line in lines]
                 value = lines[-1]
@@ -2448,7 +2449,7 @@ class PostProcessor(PostProcessorCommon, object):
             )
         else:
             sample_points_file = os.path.join(self._app.working_directory, "temp_points.pts")
-            with open(sample_points_file, "w") as f:
+            with open_file(sample_points_file, "w") as f:
                 for point in sample_points_lists:
                     f.write(" ".join([str(i) for i in point]) + "\n")
             _retry_ntimes(

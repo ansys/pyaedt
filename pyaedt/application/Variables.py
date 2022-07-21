@@ -26,6 +26,7 @@ from pyaedt.generic.constants import _resolve_unit_system
 from pyaedt.generic.constants import unit_system
 from pyaedt.generic.general_methods import is_array
 from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import open_file
 
 
 class CSVDataset:
@@ -114,7 +115,7 @@ class CSVDataset:
 
         self._csv_file = csv_file
         if csv_file:
-            with open(csv_file, "r") as fi:
+            with open_file(csv_file, "r") as fi:
                 file_data = fi.readlines()
                 for line in file_data:
                     if self._header:

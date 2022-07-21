@@ -290,7 +290,7 @@ class FieldAnalysis3D(Analysis, object):
                 return vars
             else:
                 return False
-        with open(self.components3d[component3dname], "rb") as aedt_fh:
+        with open_file(self.components3d[component3dname], "rb") as aedt_fh:
             temp = aedt_fh.read().splitlines()
         _all_lines = []
         for line in temp:
@@ -759,7 +759,7 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> oEditor.AssignMaterial
         """
-        with open(csv_material) as csvfile:
+        with open_file(csv_material) as csvfile:
             csv_input = csv.reader(csvfile)
             material_header = next(csv_input)
             data = list(csv_input)
@@ -768,7 +768,7 @@ class FieldAnalysis3D(Analysis, object):
             for el in material_header:
                 material_data[el] = [i[k] for i in data]
                 k += 1
-        with open(csv_component) as csvfile:
+        with open_file(csv_component) as csvfile:
             csv_input = csv.reader(csvfile)
             component_header = next(csv_input)
             data = list(csv_input)

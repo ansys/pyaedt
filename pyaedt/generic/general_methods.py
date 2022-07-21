@@ -179,6 +179,7 @@ def open_file(file_path, file_options="r"):
     object
         Opened file
     """
+    file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
     if os.path.exists(file_path):
         return open(file_path, file_options)
     elif settings.remote_rpc_session:

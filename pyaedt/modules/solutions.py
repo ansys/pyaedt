@@ -13,6 +13,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
 from pyaedt.generic.general_methods import check_and_download_folder
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.plot import get_structured_mesh
 from pyaedt.generic.plot import is_notebook
@@ -962,7 +963,7 @@ class SolutionData(object):
             csv_list.append(output)
 
         txt_file_name = csv_dir + "fft_list.txt"
-        textfile = open(txt_file_name, "w")
+        textfile = open_file(txt_file_name, "w")
 
         for element in csv_list:
             textfile.write(element + "\n")
@@ -999,7 +1000,7 @@ class FfdSolutionData(object):
         valid_ffd = True
 
         if os.path.exists(self.ffd_dict[all_ports[0]]):
-            with open(self.ffd_dict[all_ports[0]], "r") as reader:
+            with open_file(self.ffd_dict[all_ports[0]], "r") as reader:
                 theta = [int(i) for i in reader.readline().split()]
                 phi = [int(i) for i in reader.readline().split()]
             reader.close()
@@ -1587,7 +1588,7 @@ class FfdSolutionData(object):
             local_path = "{}/{}/eep/".format(settings.remote_rpc_session_temp_folder, full_setup_str)
             export_path = check_and_download_folder(local_path, export_path)
             if os.path.exists(export_path + "/" + exported_name_map):
-                with open(export_path + "/" + exported_name_map, "r") as reader:
+                with open_file(export_path + "/" + exported_name_map, "r") as reader:
                     lines = [line.split(None) for line in reader]
                 reader.close()
                 lines = lines[1:]  # remove header

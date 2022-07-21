@@ -29,6 +29,7 @@ from pyaedt.generic.constants import GravityDirection
 from pyaedt.generic.constants import Plane
 from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import OptimizationSetups
@@ -1477,7 +1478,7 @@ class Analysis(Design, object):
         if acf_file:
             self._desktop.SetRegistryFromFile(acf_file)
             name = ""
-            with open(acf_file, "r") as f:
+            with open_file(acf_file, "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     if "ConfigName" in line:
@@ -1675,8 +1676,8 @@ class Analysis(Design, object):
             setting_file = os.path.join(path_file, "..", "misc", "Job_Settings.areg")
         shutil.copy(setting_file, destination_reg)
 
-        f1 = open(destination_reg, "w")
-        with open(setting_file) as f:
+        f1 = open_file(destination_reg, "w")
+        with open_file(setting_file) as f:
             lines = f.readlines()
             for line in lines:
                 if "\\	$begin" == line[:8]:
