@@ -94,7 +94,7 @@ class FileManagement(object):
         self._download_file(remotepath, localpath, overwrite=overwrite)
 
     def _upload_file(self, local_file, remote_file, overwrite=False):
-        if self.client.root.path_exists(remote_file):
+        if self.client.root.pathexists(remote_file):
             if overwrite:
                 logger.warning("File already exists on server. Overwriting it.")
             else:
@@ -107,7 +107,7 @@ class FileManagement(object):
         logger.info("File %s uploaded to %s", local_file, remote_file)
 
     def _upload_dir(self, localpath, remotepath, overwrite=False):
-        if self.client.root.path_exists(remotepath):
+        if self.client.root.pathexists(remotepath):
             logger.warning("Folder already exists on the server.")
         self.client.root.makedirs(remotepath)
         i = 0
@@ -169,7 +169,7 @@ class FileManagement(object):
         return []
 
     @staticmethod
-    def path_exists(remotepath):
+    def pathexists(remotepath):
         if os.path.exists(remotepath):
             return True
         return False
@@ -1063,7 +1063,7 @@ class GlobalService(rpyc.Service):
             return os.listdir(remotepath)
         return []
 
-    def exposed_path_exists(self, remotepath):
+    def exposed_pathexists(self, remotepath):
         if os.path.exists(remotepath):
             return True
         return False

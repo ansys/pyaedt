@@ -405,6 +405,18 @@ def connect(server_name, aedt_client_port):
         )
         client.root.redirect(sys.stdout)
         client.filemanager = FileManagement(client)
+        try:
+            client.aedt = client.root.aedt_grpc
+            client.edb = client.root.edb
+            client.open_file = client.root.open
+            client.create_file = client.root.create
+            client.list_dir = client.root.listdir
+            client.makedirs = client.root.makedirs
+            client.pathexists = client.root.pathexists
+            client.close_session = client.root.stop
+        except AttributeError:
+            pass
+
         return client
     except:
         logger.error("Error. No connection exists. Check if AEDT is running and if the port number is correct.")

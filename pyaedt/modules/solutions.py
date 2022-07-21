@@ -1548,7 +1548,7 @@ class FfdSolutionData(object):
             export_path = "{}/{}/eep/".format(self._app.working_directory, full_setup_str)
             if settings.remote_rpc_session:
                 settings.remote_rpc_session.root.makedirs(export_path)
-                file_exists = settings.remote_rpc_session.root.path_exists(export_path + exported_name_base + ".txt")
+                file_exists = settings.remote_rpc_session.root.pathexists(export_path + exported_name_base + ".txt")
             elif not os.path.exists(export_path):
                 os.makedirs(export_path)
                 file_exists = os.path.exists(export_path + exported_name_base + ".txt")
