@@ -395,14 +395,14 @@ class Components(object):
 
     @pyaedt_function_handler()
     def get_component_placement_vector(
-        self,
-        mounted_component,
-        hosting_component,
-        mounted_component_pin1,
-        mounted_component_pin2,
-        hosting_component_pin1,
-        hosting_component_pin2,
-        flipped=False,
+            self,
+            mounted_component,
+            hosting_component,
+            mounted_component_pin1,
+            mounted_component_pin2,
+            hosting_component_pin1,
+            hosting_component_pin2,
+            flipped=False,
     ):
         """Get the placement vector between 2 components.
 
@@ -578,45 +578,21 @@ class Components(object):
                 negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
                 positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
             elif source.source_type == SourceType.Rlc:  # pragma: no cover
-                if not source.create_physical_resistor:
-                    positive_pin_group_term = self._create_pin_group_terminal(positive_pin_group)
-                    negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group)
-                    positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
-                    negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
-                    rlc = self._edb.Utility.Rlc()
-                    rlc.IsParallel = True
-                    rlc.REnabled = True
-                    rlc.LEnabled = True
-                    rlc.CEnabled = True
-                    rlc.R = self._get_edb_value(source.r_value)
-                    rlc.L = self._get_edb_value(source.l_value)
-                    rlc.C = self._get_edb_value(source.c_value)
-                    positive_pin_group_term.SetRlcBoundaryParameters(rlc)
-                    term_name = generate_unique_name(source.name)
-                    positive_pin_group_term.SetName(term_name)
-                    negative_pin_group_term.SetName("{}_ref".format(term_name))
-                    positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
-                else:
-                    self._pedb.core_siwave.create_rlc_component_on_net(
-                        positive_component_name=source.positive_node.component,
-                        positive_net_name=source.positive_node.net,
-                        negative_component_name=source.negative_node.component,
-                        negative_net_name=source.negative_node.net,
-                        rvalue=source.r_value,
-                        lvalue=source.l_value,
-                        cvalue=source.c_value,
-                        component_name=source.name
-                        )
+                self.create_rlc_component(pins=[positive_pins[0], negative_pins[0]],
+                                          component_name=source.name,
+                                          r_value=source.r_value,
+                                          l_value=source.l_value,
+                                          c_value=source.c_value)
         return True
 
     @pyaedt_function_handler()
     def create_port_on_component(
-        self,
-        component,
-        net_list,
-        port_type=SourceType.CoaxPort,
-        do_pingroup=True,
-        reference_net="gnd",
+            self,
+            component,
+            net_list,
+            port_type=SourceType.CoaxPort,
+            do_pingroup=True,
+            reference_net="gnd",
     ):
         """Create ports on given component.
 
@@ -736,18 +712,20 @@ class Components(object):
         Edb terminal.
         """
 
-        res, pin_position, pin_rot = pin.GetPositionAndRotation(
-            self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)),
-            0.0,
-        )
-
+        # res, pin_position, pin_rot = pin.GetPositionAndRotation(
+        #     self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)),
+        #     0.0,
+        # )
+        pin_position = self.get_pin_position(pin)
+        pin_pos = self._edb.Geometry.PointData(self._get_edb_value(pin_position[0]),
+                                               self._get_edb_value(pin_position[1]))
         res, from_layer, _ = pin.GetLayerRange()
         cmp_name = pin.GetComponent().GetName()
         net_name = pin.GetNet().GetName()
         pin_name = pin.GetName()
         term_name = "{}_{}_{}".format(cmp_name, net_name, pin_name)
         term = self._edb.Cell.Terminal.PointTerminal.Create(
-            pin.GetLayout(), pin.GetNet(), term_name, pin_position, from_layer
+            pin.GetLayout(), pin.GetNet(), term_name, pin_pos, from_layer
         )
         return term
 
@@ -820,9 +798,9 @@ class Components(object):
                 return False
         component_type = component.edbcomponent.GetComponentType()
         if (
-            component_type == self._edb.Definition.ComponentType.Other
-            or component_type == self._edb.Definition.ComponentType.IC
-            or component_type == self._edb.Definition.ComponentType.IO
+                component_type == self._edb.Definition.ComponentType.Other
+                or component_type == self._edb.Definition.ComponentType.IC
+                or component_type == self._edb.Definition.ComponentType.IO
         ):
             self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
             return False
@@ -946,59 +924,82 @@ class Components(object):
         return componentDefinition
 
     @pyaedt_function_handler()
-    def create_rlc(self, pins, component_name, r_value=1.0, c_value=1e-9, l_value=1e-9, is_parallel=False):
+    def create_rlc_component(self, pins, component_name="", r_value=1.0, c_value=1e-9, l_value=1e-9, is_parallel=False):
         """ " """
-        hosting_cmp_pos = pins[0].GetComponent()
-        hosting_cmp_neg = pins[1].GetComponent()
+        if not len(pins) == 2:
+            self._logger.error("2 Pins must be provided to create an rlc component.")
+            return False
         comp_def = self._getComponentDefinition(component_name, pins)
         if not comp_def:
+            self._logger.error("Failed to create component definition")
             return False
         new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, comp_def.GetName())
+        hosting_component_location = pins[0].GetComponent().GetLocation()
         for pin in pins:
-            pin.SetIsLayoutPin(True)
-            new_cmp.AddMember(pin)
+            #new_padstack_def = self._edb.Definition.PadstackDef.Create(self._db, component_name)
+            # padstack_def = pin.GetPadstackDef()
+            # pin_pos = self.get_pin_position(pins[1])
+            # pin_position = self._edb.Geometry.PointData(self._get_edb_value(pin_pos[0]),
+            #                                             self._get_edb_value(pin_pos[1]))
+            # instance_name = "{}_{}".format(component_name, pin.GetName())
+            # pin_net = pin.GetNet()
+            # rotation = self._get_edb_value(0.0)
+            # from_layer = pin.GetLayerRange()[1]
+            # to_layer = pin.GetLayerRange()[2]
+            # solder_layer = pin.GetSolderBallLayer()
+            # new_pin = self._edb.Cell.Primitive.PadstackInstance.Create(
+            #                     self._active_layout,
+            #                     pin_net,
+            #                     instance_name,
+            #                     padstack_def,
+            #                     pin_position,
+            #                     rotation,
+            #                     from_layer,
+            #                     to_layer,
+            #                     None,
+            #                     None
+            #                     )
+            # new_pin.SetIsLayoutPin(True)
+            new_cmp.AddMember(pin.MemberwiseClone())
         new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
         new_cmp_placement_layer = self._edb.Cell.Layer.FindByName(
             self._active_layout.GetLayerCollection(), new_cmp_layer_name
         )
         new_cmp.SetPlacementLayer(new_cmp_placement_layer)
-        edb_rlc_component_property = self._edb.Cell.Hierarchy.RLCComponentProperty()
-        if len(pins) == 2:
-            rlc = self._edb.Utility.Rlc()
-            rlc.IsParallel = is_parallel
-            if r_value:
-                rlc.REnabled = True
-                rlc.R = self._get_edb_value(r_value)
-            else:
-                rlc.REnabled = False
-            if l_value:
-                rlc.LEnabled = True
-                rlc.L = self._get_edb_value(l_value)
-            else:
-                rlc.LEnabled = False
-            if c_value:
-                rlc.CEnabled = True
-                rlc.C = self._get_edb_value(c_value)
-            else:
-                rlc.CEnabled = False
-            if rlc.REnabled and not rlc.CEnabled and not rlc.CEnabled:
-                new_cmp.SetComponentType(self._edb.Definition.ComponentType.Resistor)
-            elif rlc.CEnabled and not rlc.REnabled and not rlc.LEnabled:
-                new_cmp.SetComponentType(self._edb.Definition.ComponentType.Capacitor)
-            elif rlc.LEnabled and not rlc.REnabled and not rlc.CEnabled:
-                new_cmp.SetComponentType(self._edb.Definition.ComponentType.Inductor)
-            else:
-                new_cmp.SetComponentType(self._edb.Definition.ComponentType.Resistor)
+        rlc = self._edb.Utility.Rlc()
+        rlc.IsParallel = is_parallel
+        if r_value:
+            rlc.REnabled = True
+            rlc.R = self._get_edb_value(r_value)
+        else:
+            rlc.REnabled = False
+        if l_value:
+            rlc.LEnabled = True
+            rlc.L = self._get_edb_value(l_value)
+        else:
+            rlc.LEnabled = False
+        if c_value:
+            rlc.CEnabled = True
+            rlc.C = self._get_edb_value(c_value)
+        else:
+            rlc.CEnabled = False
+        if rlc.REnabled and not rlc.CEnabled and not rlc.CEnabled:
+            new_cmp.SetComponentType(self._edb.Definition.ComponentType.Resistor)
+        elif rlc.CEnabled and not rlc.REnabled and not rlc.LEnabled:
+            new_cmp.SetComponentType(self._edb.Definition.ComponentType.Capacitor)
+        elif rlc.LEnabled and not rlc.REnabled and not rlc.CEnabled:
+            new_cmp.SetComponentType(self._edb.Definition.ComponentType.Inductor)
+        else:
+            new_cmp.SetComponentType(self._edb.Definition.ComponentType.Resistor)
 
-            pin_pair = self._edb.Utility.PinPair(pins[0].GetName(), pins[1].GetName())
-            rlc_model = self._edb.Cell.Hierarchy.PinPairModel()
-            rlc_model.SetPinPairRlc(pin_pair, rlc)
-            if not edb_rlc_component_property.SetModel(rlc_model) or not new_cmp.SetComponentProperty(
-                edb_rlc_component_property
-            ):
-                return False
-            hosting_cmp_location = hosting_cmp_pos.GetLocation()
-            new_cmp.SetLocation(hosting_cmp_location[1], hosting_cmp_location[2])
+        pin_pair = self._edb.Utility.PinPair(pins[0].GetName(), pins[1].GetName())
+        rlc_model = self._edb.Cell.Hierarchy.PinPairModel()
+        rlc_model.SetPinPairRlc(pin_pair, rlc)
+        edb_rlc_component_property = self._edb.Cell.Hierarchy.RLCComponentProperty()
+        if not edb_rlc_component_property.SetModel(rlc_model) or not new_cmp.SetComponentProperty(
+                    edb_rlc_component_property):
+            return False
+        new_cmp.SetLocation(hosting_component_location[1], hosting_component_location[2])
         return new_cmp
 
     @pyaedt_function_handler()
@@ -1374,12 +1375,12 @@ class Components(object):
 
     @pyaedt_function_handler()
     def set_component_rlc(
-        self,
-        componentname,
-        res_value=None,
-        ind_value=None,
-        cap_value=None,
-        isparallel=False,
+            self,
+            componentname,
+            res_value=None,
+            ind_value=None,
+            cap_value=None,
+            isparallel=False,
     ):
         """Update values for an RLC component.
 
@@ -1439,7 +1440,7 @@ class Components(object):
             rlc_model = self._edb.Cell.Hierarchy.PinPairModel()
             rlc_model.SetPinPairRlc(pin_pair, rlc)
             if not edb_rlc_component_property.SetModel(rlc_model) or not edb_component.SetComponentProperty(
-                edb_rlc_component_property
+                    edb_rlc_component_property
             ):
                 self._logger.error("Failed to set RLC model on component")
                 return False
@@ -1455,12 +1456,12 @@ class Components(object):
 
     @pyaedt_function_handler()
     def update_rlc_from_bom(
-        self,
-        bom_file,
-        delimiter=";",
-        valuefield="Func des",
-        comptype="Prod name",
-        refdes="Pos / Place",
+            self,
+            bom_file,
+            delimiter=";",
+            valuefield="Func des",
+            comptype="Prod name",
+            refdes="Pos / Place",
     ):
         """Update the EDC core component values (RLCs) with values coming from a BOM file.
 
@@ -1576,8 +1577,8 @@ class Components(object):
                 p
                 for p in list(component.LayoutObjs)
                 if int(p.GetObjType()) == 1
-                and p.IsLayoutPin()
-                and (self.get_aedt_pin_name(p) in pinName or p.GetName() in pinName)
+                   and p.IsLayoutPin()
+                   and (self.get_aedt_pin_name(p) in pinName or p.GetName() in pinName)
             ]
         else:
             pins = [p for p in list(component.LayoutObjs) if int(p.GetObjType()) == 1 and p.IsLayoutPin()]

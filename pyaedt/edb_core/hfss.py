@@ -1204,96 +1204,50 @@ class EdbHfss(object):
         return True
 
     @pyaedt_function_handler()
-    def _create_rlc_boundary_on_pins(self, source):
+    def create_rlc_boundary_on_pins(self, positive_pin=None, negative_pin=None, rvalue=0.0, lvalue=0.0, cvalue=0.0):
         """Create hfss rlc boundary on pins.
 
         Parameters
         ----------
-        source : VoltageSource, CircuitPort, CurrentSource or ResistorSource
-            Name of the source.
+        positive_pin : Positive pin.
+            Edb.Cell.Primitive.PadstackInstance
+
+        negative_pin : Negative pin.
+            Edb.Cell.Primitive.PadstackInstance
+
+        rvalue : Resistance value
+
+        lvalue : Inductance value
+
+        cvalue . Capacitance value.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
-        pos_pin = source.positive_node.node_pins
-        neg_pin = source.negative_node.node_pins
 
-        res, fromLayer_pos, toLayer_pos = pos_pin.GetLayerRange()
-        res, fromLayer_neg, toLayer_neg = neg_pin.GetLayerRange()
+        if positive_pin and negative_pin:
+            positive_pin_term = self._pedb.core_components._create_terminal(positive_pin)
+            negative_pin_term = self._create_terminal(negative_pin)
+            positive_pin_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
+            negative_pin_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
+            rlc = self._edb.Utility.Rlc()
+            rlc.IsParallel = True
+            rlc.REnabled = True
+            rlc.LEnabled = True
+            rlc.CEnabled = True
+            rlc.R = self._get_edb_value(rvalue)
+            rlc.L = self._get_edb_value(lvalue)
+            rlc.C = self._get_edb_value(cvalue)
+            positive_pin_term.SetRlcBoundaryParameters(rlc)
+            term_name = "{}_{}_{}".format(positive_pin.GetComponent().GetName(), positive_pin.GetNet().GetName(),
+                                          positive_pin.GetName())
+            positive_pin_term.SetName(term_name)
+            negative_pin_term.SetName("{}_ref".format(term_name))
+            positive_pin_term.SetReferenceTerminal(negative_pin_term)
+            return True
+        return False
 
-        pos_pingroup_terminal = _retry_ntimes(
-            10,
-            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,
-            self._active_layout,
-            pos_pin.GetNet(),
-            pos_pin.GetName(),
-            pos_pin,
-            toLayer_pos,
-        )
-        time.sleep(0.5)
-        neg_pingroup_terminal = _retry_ntimes(
-            20,
-            self._edb.Cell.Terminal.PadstackInstanceTerminal.Create,
-            self._active_layout,
-            neg_pin.GetNet(),
-            neg_pin.GetName(),
-            neg_pin,
-            toLayer_neg,
-        )
-        if source.type == SourceType.Port:
-            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-            pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.impedance))
-            pos_pingroup_terminal.SetIsCircuitPort(True)
-            neg_pingroup_terminal.SetIsCircuitPort(True)
-            pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
-            try:
-                pos_pingroup_terminal.SetName(source.name)
-            except:
-                name = generate_unique_name(source.name)
-                pos_pingroup_terminal.SetName(name)
-                self._logger.warning("%s already exists. Renaming to %s", source.name, name)
-        elif source.type == SourceType.CurrentSource:
-            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
-            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
-            pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.magnitude))
-            pos_pingroup_terminal.SetSourcePhase(self._get_edb_value(source.phase))
-            pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
-            try:
-                pos_pingroup_terminal.SetName(source.name)
-            except Exception as e:
-                name = generate_unique_name(source.name)
-                pos_pingroup_terminal.SetName(name)
-                self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
-        elif source.type == SourceType.VoltageSource:
-            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
-            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
-            pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.magnitude))
-            pos_pingroup_terminal.SetSourcePhase(self._get_edb_value(source.phase))
-            pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
-            try:
-                pos_pingroup_terminal.SetName(source.name)
-            except:
-                name = generate_unique_name(source.name)
-                pos_pingroup_terminal.SetName(name)
-                self._logger.warning("%s already exists. Renaming to %s", source.name, name)
-
-        elif source.type == SourceType.Resistor:
-            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
-            neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
-            pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
-            pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.rvalue))
-            Rlc = self._edb.Utility.Rlc()
-            Rlc.CEnabled = False
-            Rlc.LEnabled = False
-            Rlc.REnabled = True
-            Rlc.R = self._get_edb_value(source.rvalue)
-            pos_pingroup_terminal.SetRlcBoundaryParameters(Rlc)
-            try:
-                pos_pingroup_terminal.SetName(source.name)
-            except:
-                name = generate_unique_name(source.name)
-                pos_pingroup_terminal.SetName(name)
-                self._logger.warning("%s already exists. Renaming to %s", source.name, name)
-        else:
-            pass
-        return pos_pingroup_terminal.GetName()
