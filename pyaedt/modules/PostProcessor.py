@@ -13,8 +13,10 @@ import warnings
 from collections import OrderedDict
 
 import pyaedt.modules.report_templates as rt
+from pyaedt import settings
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -3084,6 +3086,9 @@ class PostProcessor(PostProcessorCommon, object):
             for el in obj_list:
                 fname = os.path.join(export_path, "{}.obj".format(el))
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
+                local_path = "{}/{}".format(settings.remote_rpc_session_temp_folder, "{}.obj".format(el))
+                fname = check_and_download_file(local_path, fname)
+
                 if not self._app.modeler[el].display_wireframe:
                     transp = 0.6
                     if self._app.modeler[el].transparency:

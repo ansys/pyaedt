@@ -1490,7 +1490,11 @@ class Analysis(Design, object):
         elif num_gpu or num_tasks or num_cores:
             config_name = "pyaedt_config"
             source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
-            target_name = os.path.join(self.working_directory, config_name + ".acf")
+            target_name = (
+                os.path.join(self.working_directory, config_name + ".acf").replace("\\", "/")
+                if self.working_directory[0] != "\\"
+                else os.path.join(self.working_directory, config_name + ".acf")
+            )
             shutil.copy2(source_name, target_name)
             if num_cores:
                 update_hpc_option(target_name, "NumCores", num_cores, False)

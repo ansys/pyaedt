@@ -692,7 +692,10 @@ class Design(AedtObjects):
         """
 
         toolkit_directory = os.path.join(self.project_path, self.project_name + ".pyaedt")
-        if not os.path.isdir(toolkit_directory):
+        if settings.remote_rpc_session:
+            toolkit_directory = self.project_path + "/" + self.project_name + ".pyaedt"
+            settings.remote_rpc_session.filemanager.makedirs(toolkit_directory)
+        elif not os.path.isdir(toolkit_directory):
             try:
                 os.mkdir(toolkit_directory)
             except FileNotFoundError:
@@ -712,7 +715,10 @@ class Design(AedtObjects):
 
         """
         working_directory = os.path.join(self.toolkit_directory, self.design_name)
-        if not os.path.isdir(working_directory):
+        if settings.remote_rpc_session:
+            working_directory = self.toolkit_directory + "/" + self.design_name
+            settings.remote_rpc_session.filemanager.makedirs(working_directory)
+        elif not os.path.isdir(working_directory):
             try:
                 os.mkdir(working_directory)
             except FileNotFoundError:

@@ -118,6 +118,22 @@ def _check_types(arg):
     return ""
 
 
+def check_and_download_file(local_path, remote_path):
+    if settings.remote_rpc_session:
+        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
+        settings.remote_rpc_session.filemanager.download_file(remote_path, local_path)
+        return local_path
+    return remote_path
+
+
+def check_and_download_folder(local_path, remote_path):
+    if settings.remote_rpc_session:
+        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
+        settings.remote_rpc_session.filemanager.download_folder(remote_path, local_path)
+        return local_path
+    return remote_path
+
+
 def convert_remote_object(arg):
     """Convert Remote list or dict to native list and dictionary.
 
@@ -930,6 +946,8 @@ class Settings(object):
         self.machine = ""
         self.port = 0
         self.formatter = None
+        self.remote_rpc_session = None
+        self.remote_rpc_session_temp_folder = ""
 
     @property
     def use_grpc_api(self):
