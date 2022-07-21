@@ -48,7 +48,7 @@ class FileManagement(object):
     def __init__(self, client):
         self.client = client
 
-    def upload(self, localpath, remotepath):
+    def upload(self, localpath, remotepath, overwrite=False):
         """Upload a file or a directory to the given remote path.
 
         Parameters
@@ -57,13 +57,15 @@ class FileManagement(object):
             Path to the local file or directory.
         remotepath : str
             Remote path.
+        overwrite : bool, optional
+            Either if overwrite the local file or not.
         """
         if os.path.isdir(localpath):
             self._upload_dir(localpath, remotepath)
         elif os.path.isfile(localpath):
             self._upload_file(localpath, remotepath)
 
-    def download_folder(self, remotepath, localpath):
+    def download_folder(self, remotepath, localpath, overwrite=True):
         """Download a directory from a given remote path to the local path.
 
         Parameters
@@ -72,10 +74,12 @@ class FileManagement(object):
             Remote path.
         localpath : str
             Path to the local file or directory.
-        """
-        self._download_dir(remotepath, localpath)
+        overwrite : bool, optional
+            Either if overwrite the local file or not.
+            """
+        self._download_dir(remotepath, localpath, overwrite=True)
 
-    def download_file(self, remotepath, localpath):
+    def download_file(self, remotepath, localpath, overwrite=True):
         """Download a file from a given remote path to the local path.
 
         Parameters
@@ -84,20 +88,25 @@ class FileManagement(object):
             Remote path.
         localpath : str
             Path to the local file or directory.
+        overwrite : bool, optional
+            Either if overwrite the local file or not.
         """
-        self._download_file(remotepath, localpath)
+        self._download_file(remotepath, localpath, overwrite=overwrite)
 
-    def _upload_file(self, local_file, remote_file):
+    def _upload_file(self, local_file, remote_file, overwrite=False):
         if self.client.root.path_exists(remote_file):
-            logger.error("File already exists on the server.")
-            return False
+            if overwrite:
+                logger.warning("File already exists on server. Overwriting it.")
+            else:
+                logger.error("File already exists on the server. Skipping it")
+                return False
         new_file = self.client.root.create(remote_file)
         local = open(local_file, "rb")
         shutil.copyfileobj(local, new_file)
         new_file.close()
         logger.info("File %s uploaded to %s", local_file, remote_file)
 
-    def _upload_dir(self, localpath, remotepath):
+    def _upload_dir(self, localpath, remotepath, overwrite=False):
         if self.client.root.path_exists(remotepath):
             logger.warning("Folder already exists on the server.")
         self.client.root.makedirs(remotepath)
@@ -106,21 +115,25 @@ class FileManagement(object):
             lfn = os.path.join(localpath, fn)
             rfn = remotepath + "/" + fn
             if os.path.isdir(rfn):
-                self._upload_dir(lfn, rfn)
+                self._upload_dir(lfn, rfn, overwrite=overwrite)
             else:
-                self._upload_file(lfn, rfn)
+                self._upload_file(lfn, rfn, overwrite=overwrite)
             i += 1
         logger.info("Directory %s uploaded. %s files copied", localpath, i)
 
-    def _download_file(self, remote_file, local_file):
+    def _download_file(self, remote_file, local_file, overwrite=True):
         if os.path.exists(local_file):
-            logger.warning("File already exists on the client.")
+            if overwrite:
+                logger.warning("File already exists on the client. Overwriting it.")
+            else:
+                logger.warning("File already exists on the client, skipping it.")
+                return
         remote = self.client.root.open(remote_file)
         new_file = open(local_file, "wb")
         shutil.copyfileobj(remote, new_file)
         logger.info("File %s downloaded to %s", remote_file, local_file)
 
-    def _download_dir(self, remotepath, localpath):
+    def _download_dir(self, remotepath, localpath, overwrite=True):
         if os.path.exists(localpath):
             logger.warning("Folder already exists on the local machine.")
         if not os.path.isdir(localpath):
@@ -130,11 +143,17 @@ class FileManagement(object):
             lfn = os.path.join(localpath, fn)
             rfn = remotepath + "/" + fn
             if self.client.root.isdir(rfn):
-                self._download_dir(rfn, lfn)
+                self._download_dir(rfn, lfn, overwrite=overwrite)
             else:
-                self._download_file(rfn, lfn)
+                self._download_file(rfn, lfn, overwrite=overwrite)
             i += 1
         logger.info("Directory %s downloaded. %s files copied", localpath, i)
+
+    def open_file(self, remote_file, open_options="r"):
+        return self.client.root.open(remote_file, open_options=open_options)
+
+    def create_file(self, remote_file, create_options="w"):
+        return self.client.root.open(remote_file, open_options=create_options)
 
     @staticmethod
     def makedirs(remotepath):
@@ -1023,15 +1042,15 @@ class GlobalService(rpyc.Service):
                   student_version=student_version,
                   use_ppe=use_ppe, )
 
-    def exposed_open(self, filename):
-        f = open(filename, "rb")
+    def exposed_open(self, filename, open_options="rb"):
+        f = open(filename, open_options)
         return rpyc.restricted(f, ["read", "readlines", "close"], [])
 
-    def exposed_create(self, filename):
+    def exposed_create(self, filename,create_options="w"):
         if os.path.exists(filename):
             return "File already exists"
-        f = open(filename, "wb")
-        return rpyc.restricted(f, ["read", "write", "close"], [])
+        f = open(filename, create_options)
+        return rpyc.restricted(f, ["read", "readlines", "write", "writelines", "close"], [])
 
     def exposed_makedirs(self, remotepath):
         if os.path.exists(remotepath):

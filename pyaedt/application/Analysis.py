@@ -9,10 +9,12 @@ from __future__ import absolute_import  # noreorder
 
 import os
 import shutil
+import tempfile
 import threading
 import warnings
 from collections import OrderedDict
 
+from pyaedt import settings
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
 from pyaedt.generic.constants import AXIS
@@ -1490,12 +1492,16 @@ class Analysis(Design, object):
         elif num_gpu or num_tasks or num_cores:
             config_name = "pyaedt_config"
             source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
-            target_name = (
-                os.path.join(self.working_directory, config_name + ".acf").replace("\\", "/")
-                if self.working_directory[0] != "\\"
-                else os.path.join(self.working_directory, config_name + ".acf")
-            )
+            if settings.remote_rpc_session:
+                target_name = os.path.join(tempfile.gettempdir(), generate_unique_name("config") + ".acf")
+            else:
+                target_name = (
+                    os.path.join(self.working_directory, config_name + ".acf").replace("\\", "/")
+                    if self.working_directory[0] != "\\"
+                    else os.path.join(self.working_directory, config_name + ".acf")
+                )
             shutil.copy2(source_name, target_name)
+
             if num_cores:
                 update_hpc_option(target_name, "NumCores", num_cores, False)
             if num_gpu:
@@ -1507,6 +1513,16 @@ class Analysis(Design, object):
             if self.design_type == "Icepak":
                 use_auto_settings = False
             update_hpc_option(target_name, "UseAutoSettings", self.design_type, use_auto_settings)
+
+            if settings.remote_rpc_session:
+                remote_name = (
+                    os.path.join(self.working_directory, config_name + ".acf").replace("\\", "/")
+                    if self.working_directory[0] != "\\"
+                    else os.path.join(self.working_directory, config_name + ".acf")
+                )
+                settings.remote_rpc_session.filemanager.upload(target_name, remote_name)
+                target_name = remote_name
+
             try:
                 self._desktop.SetRegistryFromFile(target_name)
                 self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name)
