@@ -9,6 +9,7 @@ from pyaedt.generic.configurations import Configurations
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Model2D import Modeler2D
 from pyaedt.modeler.Model3D import Modeler3D
@@ -272,9 +273,9 @@ class FieldAnalysis3D(Analysis, object):
         """
         vars = {}
         if component3dname not in self.components3d:
-            if os.path.exists(component3dname):
-                with open(component3dname, "rb") as aedt_fh:
-                    temp = aedt_fh.read().splitlines()
+            aedt_fh = open_file(component3dname, "rb")
+            if aedt_fh:
+                temp = aedt_fh.read().splitlines()
                 _all_lines = []
                 for line in temp:
                     try:
@@ -285,8 +286,10 @@ class FieldAnalysis3D(Analysis, object):
                     if "VariableProp(" in line:
                         line_list = line.split("'")
                         vars[line_list[1]] = line_list[len(line_list) - 2]
+                aedt_fh.close()
                 return vars
-            return False
+            else:
+                return False
         with open(self.components3d[component3dname], "rb") as aedt_fh:
             temp = aedt_fh.read().splitlines()
         _all_lines = []

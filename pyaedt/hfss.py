@@ -5088,10 +5088,8 @@ class Hfss(FieldAnalysis3D, object):
                     if v["name"] not in json_dict:
                         self.logger.error("a3comp is not present in design and not define correctly in json.")
                         return False
-                    if v["name"] + "_local" in json_dict:
-                        geometryparams = self.get_components3d_vars(json_dict[v["name"] + "_local"])
-                    else:
-                        geometryparams = self.get_components3d_vars(json_dict[v["name"]])
+
+                    geometryparams = self.get_components3d_vars(json_dict[v["name"]])
 
                     self.modeler.insert_3d_component(json_dict[v["name"]], geometryparams)
                 cells_names[v["name"]] = [k1]

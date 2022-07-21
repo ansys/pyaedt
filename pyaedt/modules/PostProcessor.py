@@ -3086,8 +3086,9 @@ class PostProcessor(PostProcessorCommon, object):
             for el in obj_list:
                 fname = os.path.join(export_path, "{}.obj".format(el))
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
-                local_path = "{}/{}".format(settings.remote_rpc_session_temp_folder, "{}.obj".format(el))
-                fname = check_and_download_file(local_path, fname)
+                if settings.remote_rpc_session_temp_folder:
+                    local_path = "{}/{}".format(settings.remote_rpc_session_temp_folder, "{}.obj".format(el))
+                    fname = check_and_download_file(local_path, fname)
 
                 if not self._app.modeler[el].display_wireframe:
                     transp = 0.6
