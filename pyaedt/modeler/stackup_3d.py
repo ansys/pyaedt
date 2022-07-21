@@ -155,7 +155,7 @@ class NamedVariable(object):
 class DuplicatedParametrizedMaterial(object):
     """Provides a class to duplicate a material and manage its duplication in PyAEDT and in AEDT."""
 
-    def __init__(self, application, material_name, cloned_material_name=None, list_of_properties=None):
+    def __init__(self, stackup, material_name, cloned_material_name, list_of_properties=None):
         self._thickness = None
         self._permittivity = None
         self._permeability = None
@@ -164,11 +164,9 @@ class DuplicatedParametrizedMaterial(object):
         self._magnetic_loss_tangent = None
         self._material = None
         self._material_name = None
-        if application.materials.checkifmaterialexists(material_name):
-            if not cloned_material_name:
-                cloned_material_name = "cloned_" + material_name
+        if stackup.application.materials.checkifmaterialexists(material_name):
             if not list_of_properties:
-                cloned_material = application.materials.duplicate_material(material_name, cloned_material_name)
+                cloned_material = stackup.application.materials.duplicate_material(material_name, cloned_material_name)
                 permittivity = cloned_material.permittivity.value
                 permeability = cloned_material.permeability.value
                 conductivity = cloned_material.conductivity.value
@@ -186,11 +184,11 @@ class DuplicatedParametrizedMaterial(object):
                 conductivity_variable = "$" + reformat_name + "_conductivity"
                 dielectric_loss_variable = "$" + reformat_name + "_dielectric_loss"
                 magnetic_loss_variable = "$" + reformat_name + "_magnetic_loss"
-                self._permittivity = NamedVariable(application, permittivity_variable, str(permittivity))
-                self._permeability = NamedVariable(application, permeability_variable, str(permeability))
-                self._conductivity = NamedVariable(application, conductivity_variable, str(conductivity))
-                self._dielectric_loss_tangent = NamedVariable(application, dielectric_loss_variable, str(dielectric_loss_tan))
-                self._magnetic_loss_tangent = NamedVariable(application, magnetic_loss_variable, str(magnetic_loss_tan))
+                self._permittivity = NamedVariable(stackup.application, permittivity_variable, str(permittivity))
+                self._permeability = NamedVariable(stackup.application, permeability_variable, str(permeability))
+                self._conductivity = NamedVariable(stackup.application, conductivity_variable, str(conductivity))
+                self._dielectric_loss_tangent = NamedVariable(stackup.application, dielectric_loss_variable, str(dielectric_loss_tan))
+                self._magnetic_loss_tangent = NamedVariable(stackup.application, magnetic_loss_variable, str(magnetic_loss_tan))
                 cloned_material.permittivity = permittivity_variable
                 cloned_material.permeability = permeability_variable
                 cloned_material.conductivity = conductivity_variable
@@ -199,7 +197,31 @@ class DuplicatedParametrizedMaterial(object):
                 self._material = cloned_material
                 self._material_name = cloned_material_name
         else:
-            application.logger.error("The material name %s doesn't exist" % material_name)
+            stackup.application.logger.error("The material name %s doesn't exist" % material_name)
+
+    @property
+    def material(self):
+        return self._material
+
+    @property
+    def permittivity(self):
+        return self._permittivity
+
+    @property
+    def permeability(self):
+        return self._permeability
+
+    @property
+    def conductivity(self):
+        return self._conductivity
+
+    @property
+    def dielectric_loss_tangent(self):
+        return self._dielectric_loss_tangent
+
+    @property
+    def magnetic_loss_tangent(self):
+        return self._magnetic_loss_tangent
 
 
 class Layer3D(object):
@@ -227,10 +249,12 @@ class Layer3D(object):
 
         self._obj_3d = []
         obj_3d = None
-        self._material = self.duplicate_parametrize_material(material_name)
+        self._duplicated_material = self.duplicate_parametrize_material(material_name)
+        self._material = self._duplicated_material.material
         self._material_name = self._material.name
         if self._layer_type != "dielectric":
-            self._fill_material = self.duplicate_parametrize_material(fill_material)
+            self._fill_duplicated_material = self.duplicate_parametrize_material(fill_material)
+            self._fill_material = self._fill_duplicated_material.material
             self._fill_material_name = self._fill_material.name
         self._thickness_variable = self._name + "_thickness"
         if thickness:
@@ -423,10 +447,15 @@ class Layer3D(object):
             material_name = material_name.name
         if isinstance(cloned_material_name, Material):
             cloned_material_name = cloned_material_name.name
-        if not self._app.materials.checkifmaterialexists(cloned_material_name):
-            return DuplicatedParametrizedMaterial(material_name, cloned_material_name, list_of_properties)
-        else:
-            return application.materials[cloned_material_name]
+        if not cloned_material_name:
+            cloned_material_name = "cloned_" + material_name
+        for duplicated_material in self._stackup.duplicated_material_list:
+            if duplicated_material.material_name == cloned_material_name:
+                return duplicated_material
+        duplicated_material = DuplicatedParametrizedMaterial(application, material_name, cloned_material_name, list_of_properties)
+        self._stackup.duplicated_material_list.append(duplicated_material)
+        return duplicated_material
+
 
     @pyaedt_function_handler()
     def add_patch(
@@ -935,6 +964,7 @@ class Stackup3D(object):
         self._signal_list = []
         self._signal_name_list = []
         self._signal_material = []
+        self._duplicated_material_list = []
         self._object_list = []
         self._vias = []
         self._end_of_stackup3D = NamedVariable(self._app, "StackUp_End", "0mm")
@@ -948,6 +978,10 @@ class Stackup3D(object):
         self._dielectric_width = NamedVariable(self._app, "dielectric_width", "1000mm")
         self._dielectric_length = NamedVariable(self._app, "dielectric_length", "1000mm")
         self._padstacks = []
+
+    @property
+    def application(self):
+        return self._app
 
     @property
     def padstacks(self):
@@ -1128,6 +1162,10 @@ class Stackup3D(object):
 
         """
         return self._z_position_offset
+
+    @property
+    def duplicated_material_list(self):
+        return self._duplicated_material_list
 
     @pyaedt_function_handler()
     def add_padstack(self, name, material="copper"):
