@@ -1581,7 +1581,7 @@ class Patch(CommonObject, object):
         self._application = application
         self._aedt_object = None
         self._permittivity = NamedVariable(
-                application, patch_name + "_permittivity", self._dielectric_layer.duplicated_material.permittivty.name
+                application, patch_name + "_permittivity", self._dielectric_layer.duplicated_material.permittivity.name
             )
         if isinstance(patch_length, float) or isinstance(patch_length, int):
             self._length = NamedVariable(
