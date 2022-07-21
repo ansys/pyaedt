@@ -43,8 +43,8 @@ else:
     import subprocess
 
 
-def pyaedt_service_manager(port=17878):
-    """Starts an RPyC server and listens on a specified port.
+def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False):
+    """Starts an RPyC server on CPython and listens on a specified port.
 
     This method must run on a server machine.
 
@@ -52,11 +52,15 @@ def pyaedt_service_manager(port=17878):
     ----------
     port : int, optional
         Port that the RPyC server is to listen on.
+    aedt_version : str, optional
+        Version of Aedt to instantiate with server. Default is latest available version installed on the machine.
+    student_version : bool, optional
+        Either to initialize Student version AEDT or Commercial version.
 
     Examples
     --------
-    >>> from pyaedt.common_rpc import launch_server
-    >>> launch_server()
+    >>> from pyaedt.common_rpc import pyaedt_service_manager
+    >>> pyaedt_service_manager()
 
     """
     port1 = check_port(port)
@@ -65,17 +69,23 @@ def pyaedt_service_manager(port=17878):
         return False
     if port1 != port:
         print("Port {} is already in use. Starting the server on port {}.".format(port, port1))
-    if os.name == "posix":
+    aa = list_installed_ansysem()
+    if aedt_version:
+        if student_version:
+            v = "ANSYSEMSV_ROOT{}".format(aedt_version[-4:].replace(".", ""))
+        else:
+            v = "ANSYSEM_ROOT{}".format(aedt_version[-4:].replace(".", ""))
 
-        aa = list_installed_ansysem()
+        valid_version = v
+    else:
         if aa:
-            ansysem_path = os.environ[aa[0]]
+            valid_version = aa[0]
         else:
             raise Exception("no ANSYSEM_ROOTXXX environment variable defined.")
-        os.environ["PYAEDT_SERVER_AEDT_PATH"] = ansysem_path
-        os.environ["PYAEDT_SERVER_AEDT_NG"] = "True"
-        os.environ["ANS_NO_MONO_CLEANUP"] = str(1)
-        os.environ["ANS_NODEPCHECK"] = str(1)
+
+    os.environ["PYAEDT_SERVER_AEDT_PATH"] = os.environ[valid_version]
+    os.environ["PYAEDT_SERVER_AEDT_NG"] = "True"
+    os.environ["ANS_NODEPCHECK"] = str(1)
 
     hostname = socket.gethostname()
     safe_attrs = {
@@ -216,17 +226,16 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
         return False
     if port1 != port:
         print("Port {} is already in use. Starting the server on port {}.".format(port, port1))
-    if os.name == "posix":
-        if not ansysem_path:
-            aa = list_installed_ansysem()
-            if aa:
-                ansysem_path = os.environ[aa[0]]
-            else:
-                raise Exception("no ANSYSEM_ROOTXXX environment variable defined.")
-        os.environ["PYAEDT_SERVER_AEDT_PATH"] = ansysem_path
-        os.environ["PYAEDT_SERVER_AEDT_NG"] = str(non_graphical)
-        os.environ["ANS_NO_MONO_CLEANUP"] = str(1)
-        os.environ["ANS_NODEPCHECK"] = str(1)
+    if not ansysem_path:
+        aa = list_installed_ansysem()
+        if aa:
+            ansysem_path = os.environ[aa[0]]
+        else:
+            raise Exception("no ANSYSEM_ROOTXXX environment variable defined.")
+    os.environ["PYAEDT_SERVER_AEDT_PATH"] = ansysem_path
+    os.environ["PYAEDT_SERVER_AEDT_NG"] = str(non_graphical)
+    os.environ["ANS_NO_MONO_CLEANUP"] = str(1)
+    os.environ["ANS_NODEPCHECK"] = str(1)
 
     hostname = socket.gethostname()
     safe_attrs = {
@@ -369,7 +378,9 @@ def create_session(server_name, client_port):
             os.makedirs(settings.remote_rpc_session_temp_folder)
         return cl
     except:
-        logger.error("Error. No connection exists. Check if AEDT is running and if the port number is correct.")
+        msg = "Error. No connection exists."
+        msg += " Check if pyaedt_service_manager is running and if the port number is correct."
+        logger.error(msg)
         return False
 
 

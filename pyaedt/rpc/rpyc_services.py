@@ -5,7 +5,7 @@ import tempfile
 import shutil
 import site
 import logging
-
+import signal
 import sys
 import time
 
@@ -136,24 +136,29 @@ class FileManagement(object):
             i += 1
         logger.info("Directory %s downloaded. %s files copied", localpath, i)
 
-    def makedirs(self, remotepath):
+    @staticmethod
+    def makedirs(remotepath):
         if os.path.exists(remotepath):
             return "Directory Exists!"
         os.makedirs(remotepath)
         return "Directory created!"
 
-    def exposed_listdir(self, remotepath):
+    @staticmethod
+    def listdir(remotepath):
         if os.path.exists(remotepath):
             return os.listdir(remotepath)
         return []
 
-    def exposed_path_exists(self, remotepath):
+    @staticmethod
+    def path_exists(remotepath):
         if os.path.exists(remotepath):
             return True
         return False
 
-    def exposed_isdir(self, remotepath):
+    @staticmethod
+    def isdir(self, remotepath):
         return os.path.isdir(remotepath)
+
 
 def check_port(port):
     """Check for an available port on the machine starting from input port.
@@ -887,9 +892,8 @@ class GlobalService(rpyc.Service):
         if os.name != "posix":
             sys.stdout = sys.__stdout__
 
-    def exposed_stop(self):
-        import platform
-        import signal
+    @staticmethod
+    def exposed_stop():
         pid = os.getpid()
         os.kill(pid, signal.SIGTERM)
 
@@ -920,9 +924,7 @@ class GlobalService(rpyc.Service):
         elif port in sessions:
             print("AEDT Session already opened on port {}.".format(port))
             return True
-        ansysem_path = ""
-        if os.name == "posix":
-            ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
+        ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
         if os.name == "posix":
             executable = "ansysedt"
         else:
@@ -953,7 +955,6 @@ class GlobalService(rpyc.Service):
                     if beta_options[option] not in ng_feature:
                         ng_feature += "," + beta_options[option]
             command = [aedt_exe, "-grpcsrv", str(port), ng_feature]
-
         subprocess.Popen(command)
         timeout = 60
         s = socket.socket()
@@ -970,7 +971,8 @@ class GlobalService(rpyc.Service):
         print("Service has started on port {}".format(port))
         return port
 
-    def edb(self, edbpath=None,
+    @staticmethod
+    def edb(edbpath=None,
             cellname=None,
             isreadonly=False,
             edbversion=None,
@@ -1050,16 +1052,6 @@ class GlobalService(rpyc.Service):
     def exposed_isdir(self, remotepath):
         return os.path.isdir(remotepath)
 
-    def exposed_stop_service(self):
-        """Stops a given Pyaedt Service on specified port.
-
-
-        Returns
-        -------
-        bool
-        """
-        os.kill(os.getpid(), 9)
-
 class ServiceManager(rpyc.Service):
     """Global class to manage rpyc Server of PyAEDT."""
 
@@ -1096,11 +1088,14 @@ class ServiceManager(rpyc.Service):
         """
         try:
             port = check_port(port)
-            aa = list_installed_ansysem()
-            if aa:
-                ansysem_path = os.environ[aa[0]]
+            if os.getenv("PYAEDT_SERVER_AEDT_PATH",""):
+                ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH","")
             else:
-                raise Exception("no ANSYSEM_ROOTXXX environment variable defined.")
+                aa = list_installed_ansysem()
+                if aa:
+                    ansysem_path = os.environ[aa[0]]
+                else:
+                    raise Exception("no ANSYSEM_ROOTXXX environment variable defined.")
             name = os.path.normpath(
                 os.path.join(os.path.abspath(os.path.dirname(__file__)), "local_server.py")
             )
