@@ -121,7 +121,7 @@ class CSVDataset:
                     if self._header:
                         line_data = line.strip().split(self._separator)
                         # Check for invalid data in the line (fields with 'nan')
-                        if not "nan" in line_data:
+                        if "nan" not in line_data:
                             for j, value in enumerate(line_data):
                                 var_name = self._header[j]
                                 if var_name in self._unit_dict:

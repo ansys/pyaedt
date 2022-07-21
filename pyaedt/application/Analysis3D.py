@@ -487,9 +487,9 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.Export
         """
 
-        if object_list == None:
+        if object_list is None:
             object_list = []
-        if removed_objects == None:
+        if removed_objects is None:
             removed_objects = []
 
         if not object_list:

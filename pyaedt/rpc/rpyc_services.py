@@ -1042,33 +1042,39 @@ class GlobalService(rpyc.Service):
                   student_version=student_version,
                   use_ppe=use_ppe, )
 
-    def exposed_open(self, filename, open_options="rb"):
+    @staticmethod
+    def exposed_open(filename, open_options="rb"):
         f = open(filename, open_options)
         return rpyc.restricted(f, ["read", "readlines", "close"], [])
 
-    def exposed_create(self, filename,create_options="wb"):
+    @staticmethod
+    def exposed_create(filename,create_options="wb"):
         if os.path.exists(filename):
             return "File already exists"
         f = open(filename, create_options)
         return rpyc.restricted(f, ["read", "readlines", "write", "writelines", "close"], [])
 
-    def exposed_makedirs(self, remotepath):
+    @staticmethod
+    def exposed_makedirs(remotepath):
         if os.path.exists(remotepath):
             return "Directory Exists!"
         os.makedirs(remotepath)
         return "Directory created!"
 
-    def exposed_listdir(self, remotepath):
+    @staticmethod
+    def exposed_listdir(remotepath):
         if os.path.exists(remotepath):
             return os.listdir(remotepath)
         return []
 
-    def exposed_pathexists(self, remotepath):
+    @staticmethod
+    def exposed_pathexists(remotepath):
         if os.path.exists(remotepath):
             return True
         return False
 
-    def exposed_isdir(self, remotepath):
+    @staticmethod
+    def exposed_isdir(remotepath):
         return os.path.isdir(remotepath)
 
 class ServiceManager(rpyc.Service):

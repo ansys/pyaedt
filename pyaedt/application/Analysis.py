@@ -1224,7 +1224,7 @@ class Analysis(Design, object):
         ...
         pyaedt info: Sweep was created correctly.
         """
-        if props == None:
+        if props is None:
             props = {}
 
         if setuptype is None:
