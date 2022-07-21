@@ -11,6 +11,7 @@ from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.DataHandlers import float_units
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import EdgePrimitive
@@ -1621,7 +1622,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         }
 
         design_file = os.path.join(self.working_directory, "design_data.json")
-        with open(design_file, "w") as fps:
+        with open_file(design_file, "w") as fps:
             json.dump(convert(self.design_data), fps, indent=4)
         return True
 
@@ -1636,7 +1637,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         """
         design_file = os.path.join(self.working_directory, "design_data.json")
-        with open(design_file, "r") as fps:
+        with open_file(design_file, "r") as fps:
             design_data = json.load(fps)
         return design_data
 

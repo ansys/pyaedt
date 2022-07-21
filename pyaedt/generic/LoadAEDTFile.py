@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import re
 
+from pyaedt.generic.general_methods import open_file
+
 # --------------------------------------------------------------------
 # public interface
 
@@ -340,7 +342,7 @@ def _read_aedt_file(filename):
     global _count
 
     # read the AEDT file
-    with open(filename, "rb") as aedt_fh:
+    with open_file(filename, "rb") as aedt_fh:
         raw_lines = aedt_fh.read().splitlines()
     ascii_lines = []
     for raw_line in raw_lines:

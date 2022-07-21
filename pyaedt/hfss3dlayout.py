@@ -9,6 +9,7 @@ import warnings
 from pyaedt import settings
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -496,7 +497,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         #
         val_list = []
         all_validate = outputdir + "\\all_validation.log"
-        with open(all_validate, "w") as validation:
+        with open_file(all_validate, "w") as validation:
 
             # Desktop Messages
             msg = "Desktop Messages:"
@@ -1444,7 +1445,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
         self.oexcitation.SaveDiffPairsToFile(tmpfile1)
-        with open(tmpfile1, "r") as fh:
+        with open_file(tmpfile1, "r") as fh:
             lines = fh.read().splitlines()
         old_arg = []
         for line in lines:
@@ -1511,7 +1512,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         try:
             new_file = os.path.join(os.path.dirname(filename), generate_unique_name("temp") + ".txt")
-            with open(filename, "r") as file:
+            with open_file(filename, "r") as file:
                 filedata = file.read().splitlines()
             with io.open(new_file, "w", newline="\n") as fh:
                 for line in filedata:

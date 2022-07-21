@@ -12,6 +12,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import convert_remote_object
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import open_file
 
 if not is_ironpython:
     try:
@@ -163,7 +164,7 @@ def _parse_aedtplt(filepath):
     vertices = []
     faces = []
     scalars = []
-    with open(filepath, "r") as f:
+    with open_file(filepath, "r") as f:
         drawing_found = False
         for line in f:
             if "$begin Drawing" in line:
@@ -275,7 +276,7 @@ def _parse_aedtplt(filepath):
 
 def _parse_streamline(filepath):
     streamlines = []
-    with open(filepath, "r") as f:
+    with open_file(filepath, "r") as f:
         lines = f.read().splitlines()
         new_line = False
         streamline = []
@@ -1193,7 +1194,7 @@ class ModelPlotter(object):
                     nodes = []
                     values = []
                     is_vector = False
-                    with open(field.path, "r") as f:
+                    with open_file(field.path, "r") as f:
                         try:
                             lines = f.read().splitlines()[field.header_lines :]
                             if ".csv" in field.path:

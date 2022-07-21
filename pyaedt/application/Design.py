@@ -41,6 +41,7 @@ from pyaedt.generic.DataHandlers import variation_string_to_dict
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_csv
 from pyaedt.generic.general_methods import read_tab
@@ -692,7 +693,10 @@ class Design(AedtObjects):
         """
 
         toolkit_directory = os.path.join(self.project_path, self.project_name + ".pyaedt")
-        if not os.path.isdir(toolkit_directory):
+        if settings.remote_rpc_session:
+            toolkit_directory = self.project_path + "/" + self.project_name + ".pyaedt"
+            settings.remote_rpc_session.filemanager.makedirs(toolkit_directory)
+        elif not os.path.isdir(toolkit_directory):
             try:
                 os.mkdir(toolkit_directory)
             except FileNotFoundError:
@@ -712,7 +716,10 @@ class Design(AedtObjects):
 
         """
         working_directory = os.path.join(self.toolkit_directory, self.design_name)
-        if not os.path.isdir(working_directory):
+        if settings.remote_rpc_session:
+            working_directory = self.toolkit_directory + "/" + self.design_name
+            settings.remote_rpc_session.filemanager.makedirs(working_directory)
+        elif not os.path.isdir(working_directory):
             try:
                 os.mkdir(working_directory)
             except FileNotFoundError:
@@ -906,7 +913,7 @@ class Design(AedtObjects):
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str, optional
-            Path to the object list. Example `"DesignName\Boundaries"`.
+            Path to the object list. Example `"DesignName\\Boundaries"`.
 
         Returns
         -------
@@ -1436,7 +1443,7 @@ class Design(AedtObjects):
         try:
             self.odesktop.SetRegistryFromFile(registry_file)
             if make_active:
-                with open(registry_file, "r") as f:
+                with open_file(registry_file, "r") as f:
                     for line in f:
                         stripped_line = line.strip()
                         if "ConfigName" in stripped_line:
@@ -2262,7 +2269,7 @@ class Design(AedtObjects):
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
-        with open(filename, "r") as f:
+        with open_file(filename, "r") as f:
             lines = f.read().splitlines()
         header = lines[0]
         points = lines[1:]
@@ -3073,7 +3080,7 @@ class Design(AedtObjects):
             # is self.design_name guaranteed to be there?
             design_info = [design for design in design_info if design["DesignName"] == self.design_name][0]
         image_data_str = design_info["Image64"]
-        with open(filename, "wb") as f:
+        with open_file(filename, "wb") as f:
             if sys.version_info.major == 2:
                 bytestring = bytes(image_data_str).decode("base64")
             else:
@@ -3136,7 +3143,7 @@ class Design(AedtObjects):
 
         """
         design_file = os.path.join(self.working_directory, "design_data.json")
-        with open(design_file, "r") as fps:
+        with open_file(design_file, "r") as fps:
             design_data = json.load(fps)
         return design_data
 

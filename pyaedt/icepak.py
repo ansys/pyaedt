@@ -15,10 +15,12 @@ if os.name == "posix" and is_ironpython:
 else:
     import subprocess
 
+from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
@@ -908,7 +910,7 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.AssignBlockBoundary
         """
-        with open(csv_name) as csvfile:
+        with open_file(csv_name) as csvfile:
             csv_input = csv.reader(csvfile)
             component_header = next(csv_input)
             data = list(csv_input)
@@ -976,7 +978,7 @@ class Icepak(FieldAnalysis3D):
         i = 2
         if validate == 0:
             priority_list = []
-            with open(temp_log, "r") as f:
+            with open_file(temp_log, "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     if "[error]" in line and component_prefix in line and "intersect" in line:
@@ -1781,8 +1783,8 @@ class Icepak(FieldAnalysis3D):
         i = 0
         filename = os.path.join(savedir, proj_icepak + "_HTCAndTemp_var" + str(i) + ".csv")
         # iterate the variations
-        while os.path.exists(filename):
-            with open(filename, "r") as f:
+        while os.path.exists(filename) or settings.remote_rpc_session:
+            with open_file(filename, "r") as f:
                 lines = f.readlines()
                 variation = lines[1]
                 # Searching file content for temp and power
@@ -1805,7 +1807,7 @@ class Icepak(FieldAnalysis3D):
             i += 1
             filename = os.path.join(savedir, proj_icepak + "_HTCAndTemp_var" + str(i) + ".csv")
         # write the new file
-        with open(newfilename, "w") as f:
+        with open_file(newfilename, "w") as f:
             f.writelines(newfilelines)
         # remove the single files variation
         for fr in filetoremove:
