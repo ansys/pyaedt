@@ -38,7 +38,7 @@ numpy==1.23.1; python_version > '3.6'
 ipython==8.4.0; python_version > '3.6'
 # License: BSD-3-Clause License
 
-jupyterlab==3.4.3; python_version > '3.6'
+jupyterlab==3.4.4; python_version > '3.6'
 # License: BSD-3-Clause License
 
 psutil==5.9.1; python_version > '3.6'
