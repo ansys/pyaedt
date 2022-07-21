@@ -2008,16 +2008,9 @@ class Trace(CommonObject, object):
         self._effective_permittivity_h_w = None
         self._effective_permittivity_w_h = None
         self._axis = axis
-        try:
-            self._permittivity = NamedVariable(
-                application, line_name + "_permittivity", float(self._dielectric_material.permittivity.value)
-            )
-        except ValueError:
-            self._permittivity = NamedVariable(
-                application,
-                line_name + "_permittivity",
-                float(application.variable_manager[self._dielectric_material.permittivity.value].value),
-            )
+        self._permittivity = NamedVariable(
+            application, line_name + "_permittivity", self._dielectric_layer.duplicated_material.permittivity.name
+        )
         if isinstance(line_width, float) or isinstance(line_width, int):
             self._width = NamedVariable(
                 application, line_name + "_width", application.modeler._arg_with_dim(line_width)
