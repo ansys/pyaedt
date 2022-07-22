@@ -1588,9 +1588,9 @@ class FfdSolutionData(object):
             local_path = "{}/{}/eep/".format(settings.remote_rpc_session_temp_folder, full_setup_str)
             export_path = check_and_download_folder(local_path, export_path)
             if os.path.exists(export_path + "/" + exported_name_map):
-                with open_file(export_path + "/" + exported_name_map, "r") as reader:
+                with open(export_path + "/" + exported_name_map, "r") as reader:
                     lines = [line.split(None) for line in reader]
-                reader.close()
+
                 lines = lines[1:]  # remove header
                 for pattern in lines:
                     if len(pattern) >= 2:
