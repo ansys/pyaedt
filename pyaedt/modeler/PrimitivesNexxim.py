@@ -5,6 +5,7 @@ import re
 import warnings
 
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.modeler.Object3d import CircuitComponent
@@ -1911,7 +1912,7 @@ class NexximComponents(CircuitComponents):
     @pyaedt_function_handler()
     def _parse_spice_model(self, model_path):
         models = []
-        with open(model_path, "r") as f:
+        with open_file(model_path, "r") as f:
             for line in f:
                 if ".subckt" in line.lower():
                     pinNames = [i.strip() for i in re.split(" |\t", line) if i]
@@ -1991,7 +1992,7 @@ class NexximComponents(CircuitComponents):
         )
 
         pin_names = []
-        with open(results_folder, "r") as f:
+        with open_file(results_folder, "r") as f:
             lines = f.read().splitlines()
             for line in lines:
                 if line[:4] == "PORT":

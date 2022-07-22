@@ -185,7 +185,8 @@ class AedtObjects(object):
         >>> oMaterialManager = oDefinitionManager.GetManager("Material")
         """
         if not self._omaterial_manager:
-            self._omaterial_manager = self.odefinition_manager.GetManager("Material")
+            if self.odefinition_manager:
+                self._omaterial_manager = self.odefinition_manager.GetManager("Material")
         return self._omaterial_manager
 
     @property

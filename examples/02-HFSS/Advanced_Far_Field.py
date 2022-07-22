@@ -1,14 +1,14 @@
 """
-Hfss: Advanced Far Field Postprocessing
+HFSS: advanced far field postprocessing
 ---------------------------------------
 This example shows how to use advanced postprocessing functions to create plots
 using Matplotlib without opening the HFSS user interface.
 This examples runs only on Windows using CPython.
 """
 ###############################################################################
-# Import Packages
+# Import packages
 # ~~~~~~~~~~~~~~~
-# Set the local path to the path for the PyAEDT.
+# Set the local path to the path for PyAEDT.
 
 import os
 import pathlib
@@ -30,33 +30,33 @@ from pyaedt.generic.general_methods import remove_project_lock
 
 
 ##########################################################
-# Set Non Graphical Mode.
-# Default is False
+# Set non-graphical mode
+# Set non-graphical mode. The default is ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 
 ###############################################################################
-# Import All Modules for Postprocessing
+# Import all modules for postprocessing
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example imports all modules for postprocessing.
+# Import all modules for postprocessing.
 
 import numpy as np
 import matplotlib.pyplot as plt
 
 ###############################################################################
-# Launch AEDT in Non-Graphical Mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example launches AEDT 2022R2 in graphical mode.
+# Launch AEDT
+# ~~~~~~~~~~~
+# Launch AEDT 2022 R2 in non-graphical mode.
 
 desktopVersion = "2022.2"
 NewThread = False
 desktop = Desktop(desktopVersion, non_graphical=non_graphical, new_desktop_session=NewThread)
 
 ###############################################################################
-# Open the HFSS Project
-# ~~~~~~~~~~~~~~~~~~~~~
-# This command opens the HFSS project.
+# Open HFSS project
+# ~~~~~~~~~~~~~~~~~
+# Open the HFSS project.
 
 remove_project_lock(project_name)
 
@@ -64,10 +64,10 @@ hfss = Hfss(project_name, "4X4_MultiCell_CA-Array")
 
 
 ###############################################################################
-# Solve the HFSS Project
-# ~~~~~~~~~~~~~~~~~~~~~~
-# This command solves the HFSS. project.
-# Solution time is computed.
+# Solve HFSS project
+# ~~~~~~~~~~~~~~~~~~~
+# Solves the HFSS project.
+# The solution time is computed.
 
 start = time.time()
 hfss.analyze_setup("Setup1")
@@ -76,21 +76,20 @@ end = time.time() - start
 print("Solution Time", end)
 
 #######################################
-#  Get EFields from Solution
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example gets efields data from the solution.
+# Get efields data from solution
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Gets efields data from the solution.
 
 start = time.time()
 ff_data = hfss.post.get_efields_data(ff_setup="3D")
 end = time.time() - start
-print("Post Processing Time", end)
+print("Postprocessing Time", end)
 
 ###############################################################################
-# Function to Calculate Far Field Values
-# --------------------------------------
-# This example generates the plot using Matplotlib by reading the solution
-# generated in ``ff_data`` and processing the field based on Phi and Theta.
-
+# Calculate far field values
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Use Matplotlib to read the solution generated in ``ff_data``and process
+# the field based on Phi and Theta and generate a plot.
 
 def ff_calc(x=0, y=0, qty="rETotal", dB=True):
     array_size = [4, 4]
@@ -176,9 +175,9 @@ def ff_calc(x=0, y=0, qty="rETotal", dB=True):
 
 
 ###############################################################################
-#  Create the Plot and Interact with It
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates the plot and interacts with it.
+# Create plot and interact with it
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create the plot and interact with it.
 
 ff_calc()
 
@@ -191,20 +190,24 @@ vals = hfss.post.get_far_field_data(
 )
 
 ###############################################################################
-# Polar Plot
-# ~~~~~~~~~~
+# Generate polar plot
+# ~~~~~~~~~~~~~~~~~~~
+# Generate a polar plot.
+
 vals.plot(math_formula="db20", is_polar=True)
 
 ###############################################################################
-#  Scalar Plot
-# ~~~~~~~~~~~~
+# Generate scalar plot
+# ~~~~~~~~~~~~~~~~~~~~
+# Generate a scalar plot.
+
 vals.plot(math_formula="db20", is_polar=False)
 
 
 ###############################################################################
-# Generate Plot Using Phi as the Primary Sweep
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example generates the plot using Phi as the primary sweep.
+# Generate plot using Phi as primary sweep
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Generate the plot using Phi as the primary sweep.
 
 vals3d = hfss.post.get_far_field_data(
     setup_sweep_name=hfss.nominal_sweep, expression="RealizedGainTotal", domain="Infinite Sphere1"
@@ -214,9 +217,9 @@ vals3d.plot_3d()
 
 
 #######################################
-# Close the HFSS Project and AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The following example closes the HFSS project and AEDT.
+# Close HFSS project and AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Close the HFSS project and release AEDT.
 
 # hfss.close_project()
 hfss.save_project()

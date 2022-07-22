@@ -9,6 +9,7 @@ from pyaedt.generic.configurations import Configurations
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Model2D import Modeler2D
 from pyaedt.modeler.Model3D import Modeler3D
@@ -272,9 +273,9 @@ class FieldAnalysis3D(Analysis, object):
         """
         vars = {}
         if component3dname not in self.components3d:
-            if os.path.exists(component3dname):
-                with open(component3dname, "rb") as aedt_fh:
-                    temp = aedt_fh.read().splitlines()
+            aedt_fh = open_file(component3dname, "rb")
+            if aedt_fh:
+                temp = aedt_fh.read().splitlines()
                 _all_lines = []
                 for line in temp:
                     try:
@@ -285,9 +286,11 @@ class FieldAnalysis3D(Analysis, object):
                     if "VariableProp(" in line:
                         line_list = line.split("'")
                         vars[line_list[1]] = line_list[len(line_list) - 2]
+                aedt_fh.close()
                 return vars
-            return False
-        with open(self.components3d[component3dname], "rb") as aedt_fh:
+            else:
+                return False
+        with open_file(self.components3d[component3dname], "rb") as aedt_fh:
             temp = aedt_fh.read().splitlines()
         _all_lines = []
         for line in temp:
@@ -484,9 +487,9 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.Export
         """
 
-        if object_list == None:
+        if object_list is None:
             object_list = []
-        if removed_objects == None:
+        if removed_objects is None:
             removed_objects = []
 
         if not object_list:
@@ -756,7 +759,7 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> oEditor.AssignMaterial
         """
-        with open(csv_material) as csvfile:
+        with open_file(csv_material) as csvfile:
             csv_input = csv.reader(csvfile)
             material_header = next(csv_input)
             data = list(csv_input)
@@ -765,7 +768,7 @@ class FieldAnalysis3D(Analysis, object):
             for el in material_header:
                 material_data[el] = [i[k] for i in data]
                 k += 1
-        with open(csv_component) as csvfile:
+        with open_file(csv_component) as csvfile:
             csv_input = csv.reader(csvfile)
             component_header = next(csv_input)
             data = list(csv_input)

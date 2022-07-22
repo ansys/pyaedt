@@ -118,6 +118,77 @@ def _check_types(arg):
     return ""
 
 
+def check_and_download_file(local_path, remote_path, overwrite=True):
+    """Check if a folder is remote and download it or simply return the path.
+
+    Parameters
+    ----------
+    local_path : str
+        Local path where to save the folder.
+    remote_path : str
+        Folder original path.
+    overwrite : bool
+        Either if overwrite or not files.
+
+    Returns
+    -------
+    str
+    """
+    if settings.remote_rpc_session:
+        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
+        settings.remote_rpc_session.filemanager.download_file(remote_path, local_path, overwrite=overwrite)
+        return local_path
+    return remote_path
+
+
+def check_and_download_folder(local_path, remote_path, overwrite=True):
+    """Check if a file is remote and download it or simply return the path.
+
+    Parameters
+    ----------
+    local_path : str
+        Local path where to save the file.
+    remote_path : str
+        File original path.
+    overwrite : bool
+        Either if overwrite or not files.
+
+    Returns
+    -------
+    str
+    """
+    if settings.remote_rpc_session:
+        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
+        settings.remote_rpc_session.filemanager.download_folder(remote_path, local_path, overwrite=overwrite)
+        return local_path
+    return remote_path
+
+
+def open_file(file_path, file_options="r"):
+    """Open a file and return the object either if local or remote.
+
+    Parameters
+    ----------
+    file_path : str
+        Full absolute path to the file (either local or remote.
+    file_options : str, optional
+        Open options
+
+    Returns
+    -------
+    object
+        Opened file
+    """
+    file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
+    dir_name = os.path.dirname(file_path)
+    if os.path.exists(dir_name):
+        return open(file_path, file_options)
+    elif settings.remote_rpc_session:
+        return settings.remote_rpc_session.open_file(file_path, file_options)
+    else:
+        return False
+
+
 def convert_remote_object(arg):
     """Convert Remote list or dict to native list and dictionary.
 
@@ -930,6 +1001,8 @@ class Settings(object):
         self.machine = ""
         self.port = 0
         self.formatter = None
+        self.remote_rpc_session = None
+        self.remote_rpc_session_temp_folder = ""
 
     @property
     def use_grpc_api(self):

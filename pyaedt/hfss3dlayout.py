@@ -9,6 +9,7 @@ import warnings
 from pyaedt import settings
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -496,7 +497,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         #
         val_list = []
         all_validate = outputdir + "\\all_validation.log"
-        with open(all_validate, "w") as validation:
+        with open_file(all_validate, "w") as validation:
 
             # Desktop Messages
             msg = "Desktop Messages:"
@@ -1444,7 +1445,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
         self.oexcitation.SaveDiffPairsToFile(tmpfile1)
-        with open(tmpfile1, "r") as fh:
+        with open_file(tmpfile1, "r") as fh:
             lines = fh.read().splitlines()
         old_arg = []
         for line in lines:
@@ -1511,7 +1512,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         try:
             new_file = os.path.join(os.path.dirname(filename), generate_unique_name("temp") + ".txt")
-            with open(filename, "r") as file:
+            with open_file(filename, "r") as file:
                 filedata = file.read().splitlines()
             with io.open(new_file, "w", newline="\n") as fh:
                 for line in filedata:
@@ -1586,3 +1587,65 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if settings.non_graphical:
             return True
         return True if self.variable_manager["BendModel"].expression == "1" else False
+
+    @pyaedt_function_handler
+    def edit_hfss_extents(
+        self,
+        diel_extent_type=None,
+        diel_extent_horizontal_padding=None,
+        diel_honor_primitives_on_diel_layers="keep",
+        air_extent_type=None,
+        air_truncate_model_at_ground_layer="keep",
+        air_vertical_positive_padding=None,
+        air_vertical_negative_padding=None,
+    ):
+        """Edit HFSS 3D Layout extents.
+
+        Parameters
+        ----------
+        diel_extent_type : str, optional
+            Dielectric extent type. The default is ``None``. Options are ``"BboxExtent"``,
+            ``"ConformalExtent"``, and ``"ConvexHullExtent"``.
+        diel_extent_horizontal_padding : str, optional
+            Dielectric extent horizontal padding. The default is ``None``.
+        diel_honor_primitives_on_diel_layers : str, optional
+            Whether to set dielectric honor primitives on dielectric layers. The default is ``None``.
+        air_extent_type : str, optional
+            Airbox extent type. The default is ``None``. Options are ``"BboxExtent"``,
+            ``"ConformalExtent"``, and ``"ConvexHullExtent"``.
+        air_truncate_model_at_ground_layer : str, optional
+            Whether to set airbox truncate model at ground layer. The default is ``None``.
+        air_vertical_positive_padding : str, optional
+            Airbox vertical positive padding. The default is ``None``.
+        air_vertical_negative_padding : str, optional
+            Airbox vertical negative padding. The default is ``None``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        arg = ["NAME:HfssExportInfo"]
+        if diel_extent_type:
+            arg.append("DielExtentType:=")
+            arg.append(diel_extent_type)
+        if diel_extent_horizontal_padding:
+            arg.append("DielExt:=")
+            arg.append(["Ext:=", diel_extent_horizontal_padding, "Dim:=", False])
+        if not diel_honor_primitives_on_diel_layers == "keep":
+            arg.append("HonorUserDiel:=")
+            arg.append(diel_honor_primitives_on_diel_layers)
+        if air_extent_type:
+            arg.append("ExtentType:=")
+            arg.append(air_extent_type)
+        if not air_truncate_model_at_ground_layer == "keep":
+            arg.append("TruncAtGnd:=")
+            arg.append(air_truncate_model_at_ground_layer)
+        if air_vertical_positive_padding:
+            arg.append("AirPosZExt:=")
+            arg.append(["Ext:=", air_vertical_positive_padding, "Dim:=", True])
+        if air_vertical_negative_padding:
+            arg.append("AirNegZExt:=")
+            arg.append(["Ext:=", air_vertical_negative_padding, "Dim:=", True])
+
+        self.odesign.EditHfssExtents(arg)
+        return True

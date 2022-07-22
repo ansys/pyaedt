@@ -539,3 +539,12 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not Working on Version earlier than 2022R2.")
     def test_93_clip_plane(self):
         assert self.aedtapp.modeler.clip_plane("CS1")
+
+    def test_94_edit_3dlayout_extents(self):
+        assert self.aedtapp.edit_hfss_extents(
+            diel_extent_type="ConformalExtent",
+            diel_extent_horizontal_padding="1mm",
+            air_extent_type="ConformalExtent",
+            air_vertical_positive_padding="10mm",
+            air_vertical_negative_padding="10mm",
+        )

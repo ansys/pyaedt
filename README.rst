@@ -42,11 +42,11 @@ PyAEDT includes functionality for interacting with the following AEDT tools and 
 
 - HFSS and HFSS 3D Layout
 - Icepak
-- Maxwell 2D/3D and RMxprt
-- Q3D/2DExtractor
+- Maxwell 2D, Maxwell 3D, and RMxprt
+- 2D Extractor and Q3D Extractor
 - Mechanical
 - Nexxim
-- EDB Database
+- EDB
 - Twin Builder
 
 What is PyAEDT?
@@ -54,11 +54,11 @@ What is PyAEDT?
 PyAEDT is a Python library that interacts directly with the AEDT API
 to make scripting simpler for the end user. Its architecture
 can be reused for all AEDT 3D products (HFSS, Icepak, Maxwell 3D, and
-Q3D), 2D tools, and Ansys Mechanical. It also provides support for circuit tools like
-Nexxim and system simulation tools like Twin Builder. Finally it provides scripting 
-capabilities in Ansys layout tools like HFSS 3D Layout and EDB. Its class and method
-structures simplify operation for the end user while reusing information as much as
-possible across the API.
+Q3D Extractor), 2D tools, and Ansys Mechanical. It also provides support for circuit
+tools like Nexxim and system simulation tools like Twin Builder. Finally it provides
+scripting capabilities in Ansys layout tools like HFSS 3D Layout and EDB. Its class
+and method structures simplify operation for the end user while reusing information
+as much as possible across the API.
 
 Documentation and issues
 ------------------------
@@ -169,17 +169,18 @@ On a CPython Server:
 
     Launch PyAEDT remote server on CPython
 
-    from pyaedt.common_rpc import launch_server
-    launch_server()
+    from pyaedt.common_rpc import pyaedt_service_manager
+    pyaedt_service_manager()
 
 
 On any Windows client machine:
 
 .. code:: python
 
-    from pyaedt.common_rpc import client
-    cl1 = client("server_name")
-    hfss = cl1.root.hfss()
+    from pyaedt.common_rpc import create_session
+    cl1 = create_session("server_name")
+    cl1.aedt(port=50000, non_graphical=False)
+    hfss = Hfss(machine="server_name", port=50000)
     # your code here
 
 Variables

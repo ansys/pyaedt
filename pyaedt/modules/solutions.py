@@ -8,9 +8,12 @@ from collections import OrderedDict
 
 from pyaedt import is_ironpython
 from pyaedt import pyaedt_function_handler
+from pyaedt import settings
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
+from pyaedt.generic.general_methods import check_and_download_folder
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.plot import get_structured_mesh
 from pyaedt.generic.plot import is_notebook
@@ -18,6 +21,7 @@ from pyaedt.generic.plot import plot_2d_chart
 from pyaedt.generic.plot import plot_3d_chart
 from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
+from pyaedt.modeler.Object3d import FacePrimitive
 
 if not is_ironpython:
     try:
@@ -959,7 +963,7 @@ class SolutionData(object):
             csv_list.append(output)
 
         txt_file_name = csv_dir + "fft_list.txt"
-        textfile = open(txt_file_name, "w")
+        textfile = open_file(txt_file_name, "w")
 
         for element in csv_list:
             textfile.write(element + "\n")
@@ -994,6 +998,7 @@ class FfdSolutionData(object):
     def _init_ffd(self):
         all_ports = list(self.ffd_dict.keys())
         valid_ffd = True
+
         if os.path.exists(self.ffd_dict[all_ports[0]]):
             with open(self.ffd_dict[all_ports[0]], "r") as reader:
                 theta = [int(i) for i in reader.readline().split()]
@@ -1537,15 +1542,19 @@ class FfdSolutionData(object):
     def _export_all_ffd(self):
         exported_name_base = "eep"
         exported_name_map = exported_name_base + ".txt"
-        sol_setup_name_str = self.setup_name.replace(":", "_")
+        sol_setup_name_str = self.setup_name.replace(":", "_").replace(" ", "")
         path_dict = []
         for frequency in self.frequencies:
             full_setup_str = "{}-{}-{}".format(sol_setup_name_str, self.sphere_name, frequency)
-            export_path = "{}\\{}\\eep\\".format(self._app.working_directory, full_setup_str)
-            if not os.path.exists(export_path):
+            export_path = "{}/{}/eep/".format(self._app.working_directory, full_setup_str)
+            if settings.remote_rpc_session:
+                settings.remote_rpc_session.root.makedirs(export_path)
+                file_exists = settings.remote_rpc_session.root.pathexists(export_path + exported_name_base + ".txt")
+            elif not os.path.exists(export_path):
                 os.makedirs(export_path)
-
-            file_exists = os.path.exists(export_path + exported_name_base + ".txt")
+                file_exists = os.path.exists(export_path + exported_name_base + ".txt")
+            else:
+                file_exists = os.path.exists(export_path + exported_name_base + ".txt")
             path_dict.append({})
             time_before = time.time()
             if self.overwrite or not file_exists:
@@ -1576,10 +1585,11 @@ class FfdSolutionData(object):
 
             else:
                 self._app.logger.info("Using Existing Embedded Element Patterns")
+            local_path = "{}/{}/eep/".format(settings.remote_rpc_session_temp_folder, full_setup_str)
+            export_path = check_and_download_folder(local_path, export_path)
             if os.path.exists(export_path + "/" + exported_name_map):
                 with open(export_path + "/" + exported_name_map, "r") as reader:
                     lines = [line.split(None) for line in reader]
-                reader.close()
                 lines = lines[1:]  # remove header
                 for pattern in lines:
                     if len(pattern) >= 2:
@@ -2294,6 +2304,8 @@ class FieldPlot:
             models = self._postprocessor.modeler.model_objects
             for index in self.surfaces_indexes:
                 try:
+                    if isinstance(index, FacePrimitive):
+                        index = index.id
                     oname = self._postprocessor.modeler.oeditor.GetObjectNameByFaceID(index)
                     if oname in models:
                         model_faces.append(str(index))

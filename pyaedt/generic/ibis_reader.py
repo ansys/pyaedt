@@ -1,6 +1,7 @@
 import os
 
 import pyaedt
+from pyaedt.generic.general_methods import open_file
 
 
 class Component:
@@ -524,7 +525,7 @@ class IbisReader(object):
         ibis = Ibis(ibis_name, self._circuit)
 
         # Read *.ibis file.
-        with open(self._filename, "r") as ibis_file:
+        with open_file(self._filename, "r") as ibis_file:
             while True:
                 current_line = ibis_file.readline()
                 if not current_line:
