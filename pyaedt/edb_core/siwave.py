@@ -1382,6 +1382,11 @@ class EdbSiwave(object):
             Created EDB component.
 
         """
-        return self._pedb.core_components.create_rlc_component(pins, component_name=component_name,
-                                                               r_value=r_value, c_value=c_value, l_value=l_value,
-                                                               is_parallel=is_parallel)
+        return self._pedb.core_components.create_rlc_component(
+            pins,
+            component_name=component_name,
+            r_value=r_value,
+            c_value=c_value,
+            l_value=l_value,
+            is_parallel=is_parallel,
+        )

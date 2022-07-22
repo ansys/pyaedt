@@ -395,14 +395,14 @@ class Components(object):
 
     @pyaedt_function_handler()
     def get_component_placement_vector(
-            self,
-            mounted_component,
-            hosting_component,
-            mounted_component_pin1,
-            mounted_component_pin2,
-            hosting_component_pin1,
-            hosting_component_pin2,
-            flipped=False,
+        self,
+        mounted_component,
+        hosting_component,
+        mounted_component_pin1,
+        mounted_component_pin2,
+        hosting_component_pin1,
+        hosting_component_pin2,
+        flipped=False,
     ):
         """Get the placement vector between 2 components.
 
@@ -578,21 +578,23 @@ class Components(object):
                 negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
                 positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
             elif source.source_type == SourceType.Rlc:  # pragma: no cover
-                self.create_rlc_component(pins=[positive_pins[0], negative_pins[0]],
-                                          component_name=source.name,
-                                          r_value=source.r_value,
-                                          l_value=source.l_value,
-                                          c_value=source.c_value)
+                self.create_rlc_component(
+                    pins=[positive_pins[0], negative_pins[0]],
+                    component_name=source.name,
+                    r_value=source.r_value,
+                    l_value=source.l_value,
+                    c_value=source.c_value,
+                )
         return True
 
     @pyaedt_function_handler()
     def create_port_on_component(
-            self,
-            component,
-            net_list,
-            port_type=SourceType.CoaxPort,
-            do_pingroup=True,
-            reference_net="gnd",
+        self,
+        component,
+        net_list,
+        port_type=SourceType.CoaxPort,
+        do_pingroup=True,
+        reference_net="gnd",
     ):
         """Create ports on given component.
 
@@ -717,8 +719,9 @@ class Components(object):
         #     0.0,
         # )
         pin_position = self.get_pin_position(pin)
-        pin_pos = self._edb.Geometry.PointData(self._get_edb_value(pin_position[0]),
-                                               self._get_edb_value(pin_position[1]))
+        pin_pos = self._edb.Geometry.PointData(
+            self._get_edb_value(pin_position[0]), self._get_edb_value(pin_position[1])
+        )
         res, from_layer, _ = pin.GetLayerRange()
         cmp_name = pin.GetComponent().GetName()
         net_name = pin.GetNet().GetName()
@@ -798,9 +801,9 @@ class Components(object):
                 return False
         component_type = component.edbcomponent.GetComponentType()
         if (
-                component_type == self._edb.Definition.ComponentType.Other
-                or component_type == self._edb.Definition.ComponentType.IC
-                or component_type == self._edb.Definition.ComponentType.IO
+            component_type == self._edb.Definition.ComponentType.Other
+            or component_type == self._edb.Definition.ComponentType.IC
+            or component_type == self._edb.Definition.ComponentType.IO
         ):
             self._logger.info("Component %s passed to deactivate is not an RLC.", component.refdes)
             return False
@@ -963,7 +966,7 @@ class Components(object):
         new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, comp_def.GetName())
         hosting_component_location = pins[0].GetComponent().GetLocation()
         for pin in pins:
-            #new_padstack_def = self._edb.Definition.PadstackDef.Create(self._db, component_name)
+            # new_padstack_def = self._edb.Definition.PadstackDef.Create(self._db, component_name)
             # padstack_def = pin.GetPadstackDef()
             # pin_pos = self.get_pin_position(pins[1])
             # pin_position = self._edb.Geometry.PointData(self._get_edb_value(pin_pos[0]),
@@ -1024,7 +1027,8 @@ class Components(object):
         rlc_model.SetPinPairRlc(pin_pair, rlc)
         edb_rlc_component_property = self._edb.Cell.Hierarchy.RLCComponentProperty()
         if not edb_rlc_component_property.SetModel(rlc_model) or not new_cmp.SetComponentProperty(
-                    edb_rlc_component_property):
+            edb_rlc_component_property
+        ):
             return False
         new_cmp.SetLocation(hosting_component_location[1], hosting_component_location[2])
         return new_cmp
@@ -1402,12 +1406,12 @@ class Components(object):
 
     @pyaedt_function_handler()
     def set_component_rlc(
-            self,
-            componentname,
-            res_value=None,
-            ind_value=None,
-            cap_value=None,
-            isparallel=False,
+        self,
+        componentname,
+        res_value=None,
+        ind_value=None,
+        cap_value=None,
+        isparallel=False,
     ):
         """Update values for an RLC component.
 
@@ -1467,7 +1471,7 @@ class Components(object):
             rlc_model = self._edb.Cell.Hierarchy.PinPairModel()
             rlc_model.SetPinPairRlc(pin_pair, rlc)
             if not edb_rlc_component_property.SetModel(rlc_model) or not edb_component.SetComponentProperty(
-                    edb_rlc_component_property
+                edb_rlc_component_property
             ):
                 self._logger.error("Failed to set RLC model on component")
                 return False
@@ -1483,12 +1487,12 @@ class Components(object):
 
     @pyaedt_function_handler()
     def update_rlc_from_bom(
-            self,
-            bom_file,
-            delimiter=";",
-            valuefield="Func des",
-            comptype="Prod name",
-            refdes="Pos / Place",
+        self,
+        bom_file,
+        delimiter=";",
+        valuefield="Func des",
+        comptype="Prod name",
+        refdes="Pos / Place",
     ):
         """Update the EDC core component values (RLCs) with values coming from a BOM file.
 
@@ -1604,8 +1608,8 @@ class Components(object):
                 p
                 for p in list(component.LayoutObjs)
                 if int(p.GetObjType()) == 1
-                   and p.IsLayoutPin()
-                   and (self.get_aedt_pin_name(p) in pinName or p.GetName() in pinName)
+                and p.IsLayoutPin()
+                and (self.get_aedt_pin_name(p) in pinName or p.GetName() in pinName)
             ]
         else:
             pins = [p for p in list(component.LayoutObjs) if int(p.GetObjType()) == 1 and p.IsLayoutPin()]

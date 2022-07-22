@@ -1242,12 +1242,11 @@ class EdbHfss(object):
             rlc.L = self._get_edb_value(lvalue)
             rlc.C = self._get_edb_value(cvalue)
             positive_pin_term.SetRlcBoundaryParameters(rlc)
-            term_name = "{}_{}_{}".format(positive_pin.GetComponent().GetName(), positive_pin.GetNet().GetName(),
-                                          positive_pin.GetName())
+            term_name = "{}_{}_{}".format(
+                positive_pin.GetComponent().GetName(), positive_pin.GetNet().GetName(), positive_pin.GetName()
+            )
             positive_pin_term.SetName(term_name)
             negative_pin_term.SetName("{}_ref".format(term_name))
             positive_pin_term.SetReferenceTerminal(negative_pin_term)
             return True
         return False
-
-

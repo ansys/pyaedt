@@ -116,12 +116,12 @@ class EDBNetsData(object):
 
     @pyaedt_function_handler()
     def plot(
-            self,
-            layers=None,
-            show_legend=True,
-            save_plot=None,
-            outline=None,
-            size=(2000, 1000),
+        self,
+        layers=None,
+        show_legend=True,
+        save_plot=None,
+        outline=None,
+        size=(2000, 1000),
     ):
         """Plot a net to Matplotlib 2D chart.
 
@@ -598,8 +598,8 @@ class EDBLayer(object):
             Name of the filling material if it exists.
         """
         if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
                 self._filling_material_name = self._cloned_layer.GetFillMaterial()
@@ -612,8 +612,8 @@ class EDBLayer(object):
     def filling_material_name(self, value):
 
         if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             self._filling_material_name = value
             self.update_layers()
@@ -628,8 +628,8 @@ class EDBLayer(object):
             ``True`` when negative, ``False`` otherwise..
         """
         if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
                 self._negative_layer = self._layer.GetNegative()
@@ -640,8 +640,8 @@ class EDBLayer(object):
     @negative_layer.setter
     def negative_layer(self, value):
         if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             self._negative_layer = value
             self.update_layers()
@@ -656,8 +656,8 @@ class EDBLayer(object):
             ``True`` if the layer has roughness, ``False`` otherwise.
         """
         if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
                 self._roughness_enabled = self._layer.IsRoughnessEnabled()
@@ -668,8 +668,8 @@ class EDBLayer(object):
     @roughness_enabled.setter
     def roughness_enabled(self, value):
         if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             self._roughness_enabled = value
             self.update_layers()
@@ -741,8 +741,8 @@ class EDBLayer(object):
             Etch factor if it exists, 0 otherwise.
         """
         if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             try:
                 self._etch_factor = float(self._cloned_layer.GetEtchFactor().ToString())
@@ -756,20 +756,20 @@ class EDBLayer(object):
         if value is None:
             value = 0
         if (
-                self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+            self._layer_type == self._edb.Cell.LayerType.SignalLayer
+            or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
         ):
             self._etch_factor = float(value)
             self.update_layers()
 
     @pyaedt_function_handler()
     def plot(
-            self,
-            nets=None,
-            show_legend=True,
-            save_plot=None,
-            outline=None,
-            size=(2000, 1000),
+        self,
+        nets=None,
+        show_legend=True,
+        save_plot=None,
+        outline=None,
+        size=(2000, 1000),
     ):
         """Plot a layer to a Matplotlib 2D chart.
 
@@ -807,8 +807,8 @@ class EDBLayer(object):
             self._layer_type = self._layer.GetLayerType()
             self._thickness = self._layer.GetThicknessValue().ToString()
             if (
-                    self._layer_type == self._edb.Cell.LayerType.SignalLayer
-                    or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                self._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
             ):
                 self._etch_factor = float(self._layer.GetEtchFactor().ToString())
                 self._filling_material_name = self._layer.GetFillMaterial()
@@ -823,16 +823,16 @@ class EDBLayer(object):
 
     @pyaedt_function_handler()
     def update_layer_vals(
-            self,
-            layerName,
-            newLayer,
-            etchMap,
-            materialMap,
-            fillMaterialMap,
-            thicknessMap,
-            negativeMap,
-            roughnessMap,
-            layerTypeMap,
+        self,
+        layerName,
+        newLayer,
+        etchMap,
+        materialMap,
+        fillMaterialMap,
+        thicknessMap,
+        negativeMap,
+        roughnessMap,
+        layerTypeMap,
     ):
         """Update layer properties.
 
@@ -1043,10 +1043,10 @@ class EDBLayers(object):
         allLayers = list(list(self.layer_collection.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         allStackuplayers = filter(
             lambda lyr: (lyr.GetLayerType() == self._edb.Cell.LayerType.DielectricLayer)
-                        or (
-                                lyr.GetLayerType() == self._edb.Cell.LayerType.SignalLayer
-                                or lyr.GetLayerType() == self._edb.Cell.LayerType.ConductingLayer
-                        ),
+            or (
+                lyr.GetLayerType() == self._edb.Cell.LayerType.SignalLayer
+                or lyr.GetLayerType() == self._edb.Cell.LayerType.ConductingLayer
+            ),
             allLayers,
         )
         return sorted(
@@ -1066,8 +1066,8 @@ class EDBLayers(object):
         self._signal_layers = OrderedDict({})
         for layer, edblayer in self.layers.items():
             if (
-                    edblayer._layer_type == self._edb.Cell.LayerType.SignalLayer
-                    or edblayer._layer_type == self._edb.Cell.LayerType.ConductingLayer
+                edblayer._layer_type == self._edb.Cell.LayerType.SignalLayer
+                or edblayer._layer_type == self._edb.Cell.LayerType.ConductingLayer
             ):
                 self._signal_layers[layer] = edblayer
         return self._signal_layers
@@ -1208,16 +1208,16 @@ class EDBLayers(object):
 
     @pyaedt_function_handler()
     def add_layer(
-            self,
-            layerName,
-            start_layer=None,
-            material="copper",
-            fillMaterial="",
-            thickness="35um",
-            layerType=0,
-            negative_layer=False,
-            roughness_enabled=False,
-            etchMap=None,
+        self,
+        layerName,
+        start_layer=None,
+        material="copper",
+        fillMaterial="",
+        thickness="35um",
+        layerType=0,
+        negative_layer=False,
+        roughness_enabled=False,
+        etchMap=None,
     ):
         """Add a layer after a specific layer.
 
@@ -1648,14 +1648,14 @@ class EDBPadProperties(object):
 
     @pyaedt_function_handler()
     def _update_pad_parameters_parameters(
-            self,
-            layer_name=None,
-            pad_type=None,
-            geom_type=None,
-            params=None,
-            offsetx=None,
-            offsety=None,
-            rotation=None,
+        self,
+        layer_name=None,
+        pad_type=None,
+        geom_type=None,
+        params=None,
+        offsetx=None,
+        offsety=None,
+        rotation=None,
     ):
         """Update padstack parameters.
 
@@ -2044,9 +2044,9 @@ class EDBPadstackInstance(object):
             return self._bounding_box
         bbox = (
             self._edb_padstackinstance.GetLayout()
-                .GetLayoutInstance()
-                .GetLayoutObjInstance(self._edb_padstackinstance, None)
-                .GetBBox()
+            .GetLayoutInstance()
+            .GetLayoutObjInstance(self._edb_padstackinstance, None)
+            .GetBBox()
         )
         self._bounding_box = [
             [bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()],
@@ -4698,15 +4698,17 @@ class SimulationConfiguration(object):
         else:
             return False
 
-    def add_voltage_source(self,
-                           name="",
-                           voltage_value=1,
-                           phase_value=0,
-                           impedance=1e-6,
-                           positive_node_component="",
-                           positive_node_net="",
-                           negative_node_component="",
-                           negative_node_net=""):
+    def add_voltage_source(
+        self,
+        name="",
+        voltage_value=1,
+        phase_value=0,
+        impedance=1e-6,
+        positive_node_component="",
+        positive_node_net="",
+        negative_node_component="",
+        negative_node_net="",
+    ):
         """Add a voltage source for the current SimulationConfiguration instance.
 
         Parameters
@@ -4767,15 +4769,17 @@ class SimulationConfiguration(object):
         except:  # pragma: no cover
             return False
 
-    def add_current_source(self,
-                           name="",
-                           current_value=0.1,
-                           phase_value=0,
-                           impedance=5e7,
-                           positive_node_component="",
-                           positive_node_net="",
-                           negative_node_component="",
-                           negative_node_net=""):
+    def add_current_source(
+        self,
+        name="",
+        current_value=0.1,
+        phase_value=0,
+        impedance=5e7,
+        positive_node_component="",
+        positive_node_net="",
+        negative_node_component="",
+        negative_node_net="",
+    ):
         """Add a current source for the current SimulationConfiguration instance.
 
         Parameters
@@ -4836,16 +4840,18 @@ class SimulationConfiguration(object):
         except:  # pragma: no cover
             return False
 
-    def add_rlc(self,
-                name="",
-                r_value=1.0,
-                c_value=0.0,
-                l_value=0.0,
-                positive_node_component="",
-                positive_node_net="",
-                negative_node_component="",
-                negative_node_net="",
-                create_physical_rlc=True):
+    def add_rlc(
+        self,
+        name="",
+        r_value=1.0,
+        c_value=0.0,
+        l_value=0.0,
+        positive_node_component="",
+        positive_node_net="",
+        negative_node_component="",
+        negative_node_net="",
+        create_physical_rlc=True,
+    ):
         """Add a voltage source for the current SimulationConfiguration instance.
 
         Parameters

@@ -496,7 +496,7 @@ if not config["skip_edb"]:
                 negative_component_name="U2A5",
                 negative_net_name="GND",
                 rvalue=10,
-                component_name="myRes"
+                component_name="myRes",
             )
             pins = self.edbapp.core_components.get_pin_from_component("U2A5")
             assert self.edbapp.core_siwave.create_resistor_on_pin(
@@ -2267,8 +2267,11 @@ if not config["skip_edb"]:
             edb = Edb(target_path)
             pos_pin = edb.core_components.get_pin_from_component("U2A5", "M_DQ<0>")[0]
             neg_pin = edb.core_components.get_pin_from_component("U2A5", "GND")[0]
-            assert edb.core_siwave.create_rlc_component(pins=[pos_pin, neg_pin], component_name="test_rlc",
-                                                 r_value=10.5,
-                                                 l_value=10e-12,
-                                                 c_value=10e-12)
+            assert edb.core_siwave.create_rlc_component(
+                pins=[pos_pin, neg_pin],
+                component_name="test_rlc",
+                r_value=10.5,
+                l_value=10e-12,
+                c_value=10e-12,
+            )
             assert edb.close_edb()
