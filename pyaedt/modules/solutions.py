@@ -1590,7 +1590,6 @@ class FfdSolutionData(object):
             if os.path.exists(export_path + "/" + exported_name_map):
                 with open(export_path + "/" + exported_name_map, "r") as reader:
                     lines = [line.split(None) for line in reader]
-
                 lines = lines[1:]  # remove header
                 for pattern in lines:
                     if len(pattern) >= 2:
