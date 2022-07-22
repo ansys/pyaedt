@@ -375,10 +375,7 @@ def create_session(server_name, client_port=None):
         time.sleep(1)
         cl = connect(server_name, port)
         logger.info("Created new session on port %s", port)
-        settings.remote_rpc_session = cl
-        settings.remote_rpc_session_temp_folder = os.path.join(tempfile.gettempdir(), server_name + "_" + str(port))
-        if not os.path.exists(settings.remote_rpc_session_temp_folder):
-            os.makedirs(settings.remote_rpc_session_temp_folder)
+
         return cl
     except:
         msg = "Error. No connection exists."
@@ -419,7 +416,12 @@ def connect(server_name, aedt_client_port):
             client.close_session = client.root.stop
         except AttributeError:
             pass
-
+        settings.remote_rpc_session = client
+        settings.remote_rpc_session_temp_folder = os.path.join(
+            tempfile.gettempdir(), server_name + "_" + str(aedt_client_port)
+        )
+        if not os.path.exists(settings.remote_rpc_session_temp_folder):
+            os.makedirs(settings.remote_rpc_session_temp_folder)
         return client
     except:
         logger.error("Error. No connection exists. Check if AEDT is running and if the port number is correct.")
