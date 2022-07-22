@@ -925,7 +925,34 @@ class Components(object):
 
     @pyaedt_function_handler()
     def create_rlc_component(self, pins, component_name="", r_value=1.0, c_value=1e-9, l_value=1e-9, is_parallel=False):
-        """ " """
+        """Create physical Rlc component.
+
+        Parameters
+        ----------
+        pins : list[Edb.Primitive.PadstackInstance]
+             List of EDB pins, length must be 2, since only 2 pins component are currently supported.
+
+        component_name : str
+            Component name.
+
+        r_value : float
+            Resistor value.
+
+        c_value : float
+            Capacitance value.
+
+        l_value : float
+            Inductor value.
+
+        is_parallel : bool
+            Using parallel model when ``True``, series when ``False``.
+
+        Returns
+        -------
+        Component
+            Created EDB component.
+
+        """
         if not len(pins) == 2:
             self._logger.error("2 Pins must be provided to create an rlc component.")
             return False

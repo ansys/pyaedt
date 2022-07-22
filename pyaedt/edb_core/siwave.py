@@ -1333,6 +1333,7 @@ class EdbSiwave(object):
             sim_setup = self._edb.Utility.SIWaveDCIRSimulationSetup(simsetup_info)
             return self._cell.AddSimulationSetup(sim_setup)
 
+    @pyaedt_function_handler()
     def _setup_decade_count_sweep(self, sweep, start_freq, stop_freq, decade_count):
         import math
 
@@ -1350,3 +1351,37 @@ class EdbSiwave(object):
         while freq < stop_f:
             freq = freq * math.pow(10, 1.0 / decade_cnt)
             sweep.Frequencies.Add(str(freq))
+
+    @pyaedt_function_handler()
+    def create_rlc_component(self, pins, component_name="", r_value=1.0, c_value=1e-9, l_value=1e-9, is_parallel=False):
+        """Create physical Rlc component.
+
+        Parameters
+        ----------
+        pins : list[Edb.Primitive.PadstackInstance]
+             List of EDB pins, length must be 2, since only 2 pins component are currently supported.
+
+        component_name : str
+            Component name.
+
+        r_value : float
+            Resistor value.
+
+        c_value : float
+            Capacitance value.
+
+        l_value : float
+            Inductor value.
+
+        is_parallel : bool
+            Using parallel model when ``True``, series when ``False``.
+
+        Returns
+        -------
+        Component
+            Created EDB component.
+
+        """
+        return self._pedb.core_components.create_rlc_component(pins, component_name=component_name,
+                                                               r_value=r_value, c_value=c_value, l_value=l_value,
+                                                               is_parallel=is_parallel)

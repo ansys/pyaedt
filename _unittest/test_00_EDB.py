@@ -2249,14 +2249,26 @@ if not config["skip_edb"]:
             target_path = os.path.join(self.local_scratch.path, "test_107.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
             edb = Edb(target_path)
-            assert edb.core_siwave.create_rlc_component_on_net(
-                positive_component_name="U2A5",
-                positive_net_name="M_DQ<0>",
-                negative_component_name="U2A5",
-                negative_net_name="GND",
+            pos_pin = edb.core_components.get_pin_from_component("U2A5", "M_DQ<0>")[0]
+            neg_pin = edb.core_components.get_pin_from_component("U2A5", "GND")[0]
+            assert edb.core_hfss.create_rlc_boundary_on_pins(
+                positive_pin=pos_pin,
+                negative_pin=neg_pin,
                 rvalue=32,
-                component_name="test",
                 cvalue=12e-12,
                 lvalue=1e-10,
             )
+            assert edb.close_edb()
+
+        def test_109_create_physical_rlc(self):
+            source_path = os.path.join(local_path, "example_models", "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_107.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            edb = Edb(target_path)
+            pos_pin = edb.core_components.get_pin_from_component("U2A5", "M_DQ<0>")[0]
+            neg_pin = edb.core_components.get_pin_from_component("U2A5", "GND")[0]
+            assert edb.core_siwave.create_rlc_component(pins=[pos_pin, neg_pin], component_name="test_rlc",
+                                                 r_value=10.5,
+                                                 l_value=10e-12,
+                                                 c_value=10e-12)
             assert edb.close_edb()

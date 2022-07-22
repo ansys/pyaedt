@@ -1230,7 +1230,7 @@ class EdbHfss(object):
 
         if positive_pin and negative_pin:
             positive_pin_term = self._pedb.core_components._create_terminal(positive_pin)
-            negative_pin_term = self._create_terminal(negative_pin)
+            negative_pin_term = self._pedb.core_components._create_terminal(negative_pin)
             positive_pin_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             negative_pin_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             rlc = self._edb.Utility.Rlc()
