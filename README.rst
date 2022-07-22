@@ -169,17 +169,18 @@ On a CPython Server:
 
     Launch PyAEDT remote server on CPython
 
-    from pyaedt.common_rpc import launch_server
-    launch_server()
+    from pyaedt.common_rpc import pyaedt_service_manager
+    pyaedt_service_manager()
 
 
 On any Windows client machine:
 
 .. code:: python
 
-    from pyaedt.common_rpc import client
-    cl1 = client("server_name")
-    hfss = cl1.root.hfss()
+    from pyaedt.common_rpc import create_session
+    cl1 = create_session("server_name")
+    cl1.aedt(port=50000, non_graphical=False)
+    hfss = Hfss(machine="server_name", port=50000)
     # your code here
 
 Variables
