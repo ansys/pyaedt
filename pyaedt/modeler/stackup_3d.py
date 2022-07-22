@@ -241,6 +241,7 @@ class Layer3D(object):
         thickness=0.035,
         fill_material="FR4_epoxy",
         index=1,
+        frequency=None,
     ):
         self._stackup = stackup
         self._index = index
@@ -250,6 +251,11 @@ class Layer3D(object):
         self._position = NamedVariable(app, layer_position, "0mm")
 
         self._layer_type = LAYERS.get(layer_type.lower())
+
+        if frequency:
+            self._frequency = NamedVariable(self._app, self._name + "frequency", frequency)
+        else:
+            self._frequency = stackup.frequency
 
         self._obj_3d = []
         obj_3d = None
@@ -431,6 +437,14 @@ class Layer3D(object):
         str, float
         """
         return self._app.variable_manager[self._position.name].value
+
+    @property
+    def stackup(self):
+        return self._stackup
+
+    @property
+    def frequency(self):
+        return self._frequency
 
     @pyaedt_function_handler()
     def duplicate_parametrize_material(self, material_name, cloned_material_name=None, list_of_properties=None):
@@ -960,7 +974,7 @@ class Padstack(object):
 class Stackup3D(object):
     """Main Stackup3D Class."""
 
-    def __init__(self, application):
+    def __init__(self, application, frequency=None):
         self._app = application
         self._layer_name = []
         self._layer_position = []
@@ -985,6 +999,10 @@ class Stackup3D(object):
         self._dielectric_y_position = NamedVariable(self._app, "dielectric_y_position", "0mm")
         self._dielectric_width = NamedVariable(self._app, "dielectric_width", "1000mm")
         self._dielectric_length = NamedVariable(self._app, "dielectric_length", "1000mm")
+        if frequency:
+            self._frequency = NamedVariable(self._app, "frequency", frequency)
+        else:
+            self._frequency = frequency
         self._padstacks = []
 
     @property
@@ -1170,6 +1188,10 @@ class Stackup3D(object):
 
         """
         return self._z_position_offset
+
+    @property
+    def frequency(self):
+        return self._frequency
 
     @property
     def duplicated_material_list(self):
@@ -1558,7 +1580,12 @@ class Patch(CommonObject, object):
         axis="X",
     ):
         CommonObject.__init__(self, application)
-        self._frequency = NamedVariable(application, patch_name + "_frequency", str(frequency) + "Hz")
+        if frequency:
+            self._frequency = NamedVariable(application, patch_name + "_frequency", str(frequency) + "Hz")
+        elif signal_layer.frequency:
+            self._frequency = signal_layer.frequency
+        else:
+            self._frequency = signal_layer.stackup.frequency
         self._signal_layer = signal_layer
         self._dielectric_layer = dielectric_layer
         self._substrate_thickness = dielectric_layer.thickness
