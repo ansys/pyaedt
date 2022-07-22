@@ -1000,7 +1000,7 @@ class FfdSolutionData(object):
         valid_ffd = True
 
         if os.path.exists(self.ffd_dict[all_ports[0]]):
-            with open_file(self.ffd_dict[all_ports[0]], "r") as reader:
+            with open(self.ffd_dict[all_ports[0]], "r") as reader:
                 theta = [int(i) for i in reader.readline().split()]
                 phi = [int(i) for i in reader.readline().split()]
             reader.close()
