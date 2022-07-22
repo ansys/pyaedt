@@ -253,7 +253,7 @@ class Layer3D(object):
         self._layer_type = LAYERS.get(layer_type.lower())
 
         if frequency:
-            self._frequency = NamedVariable(self._app, self._name + "frequency", frequency)
+            self._frequency = NamedVariable(self._app, self._name + "frequency", str(frequency) + "Hz")
         else:
             self._frequency = stackup.frequency
 
@@ -1000,7 +1000,7 @@ class Stackup3D(object):
         self._dielectric_width = NamedVariable(self._app, "dielectric_width", "1000mm")
         self._dielectric_length = NamedVariable(self._app, "dielectric_length", "1000mm")
         if frequency:
-            self._frequency = NamedVariable(self._app, "frequency", frequency)
+            self._frequency = NamedVariable(self._app, "frequency", str(frequency) + "Hz")
         else:
             self._frequency = frequency
         self._padstacks = []
@@ -1217,7 +1217,7 @@ class Stackup3D(object):
         return p
 
     @pyaedt_function_handler()
-    def add_layer(self, name, layer_type="S", material_name="copper", thickness=0.035, fill_material="FR4_epoxy"):
+    def add_layer(self, name, layer_type="S", material_name="copper", thickness=0.035, fill_material="FR4_epoxy", frequency=None):
         """Add a new layer to the stackup.
         The new layer can be a signal (S), ground (G), or dielectric (D).
         The layer is entirely filled with the specified fill material. Anything will be drawn
@@ -1256,6 +1256,7 @@ class Stackup3D(object):
             thickness=thickness,
             fill_material=fill_material,
             index=self._shifted_index,
+            frequency=frequency,
         )
         self._layer_position_manager(lay)
         if layer_type == "D":
@@ -1279,7 +1280,7 @@ class Stackup3D(object):
         return lay
 
     @pyaedt_function_handler()
-    def add_signal_layer(self, name, material="copper", thickness=0.035, fill_material="FR4_epoxy"):
+    def add_signal_layer(self, name, material="copper", thickness=0.035, fill_material="FR4_epoxy", frequency=None):
         """Add a new ground layer to the stackup.
         A signal layer is positive. The layer is entirely filled with the fill material.
         Anything will be drawn material.
@@ -1307,7 +1308,7 @@ class Stackup3D(object):
             Layer object.
         """
         return self.add_layer(
-            name=name, layer_type="S", material_name=material, thickness=thickness, fill_material=fill_material
+            name=name, layer_type="S", material_name=material, thickness=thickness, fill_material=fill_material, frequency=frequency
         )
 
     @pyaedt_function_handler()
@@ -1316,6 +1317,7 @@ class Stackup3D(object):
         name,
         material="FR4_epoxy",
         thickness=0.035,
+        frequency=None
     ):
         """Add a new dielectric layer to the stackup.
 
@@ -1334,10 +1336,10 @@ class Stackup3D(object):
         :class:`pyaedt.modeler.stackup_3d.Layer3D`
             Layer 0bject.
         """
-        return self.add_layer(name=name, layer_type="D", material_name=material, thickness=thickness, fill_material=None)
+        return self.add_layer(name=name, layer_type="D", material_name=material, thickness=thickness, fill_material=None, frequency=None)
 
     @pyaedt_function_handler()
-    def add_ground_layer(self, name, material="copper", thickness=0.035, fill_material="air"):
+    def add_ground_layer(self, name, material="copper", thickness=0.035, fill_material="air", frequency=None):
         """Add a new ground layer to the stackup. A ground layer is negative.
         The layer is entirely filled with  metal. Any polygon will draw a void in it.
 
@@ -1358,7 +1360,7 @@ class Stackup3D(object):
             Layer Object.
         """
         return self.add_layer(
-            name=name, layer_type="G", material_name=material, thickness=thickness, fill_material=fill_material
+            name=name, layer_type="G", material_name=material, thickness=thickness, fill_material=fill_material, frequency=frequency
         )
 
     @pyaedt_function_handler()
