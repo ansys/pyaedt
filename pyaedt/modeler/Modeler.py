@@ -142,11 +142,15 @@ class BaseCoordinateSystem(PropsManager, object):
         >>> cs_copy = [i for i in app.modeler.coordinate_systems]
         >>> [i.delete() for i in cs_copy]
         """
-        self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-        for cs in range(0, len(self._modeler.coordinate_systems)):
-            if self._modeler.coordinate_systems[cs].name == self.name:
-                del self._modeler.coordinate_systems[cs]
-                break
+        try:
+            self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
+            for cs in range(0, len(self._modeler.coordinate_systems)):
+                if self._modeler.coordinate_systems[cs].ref_cs == self.name:
+                    self._modeler.coordinate_systems.pop(cs)
+            self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(self))
+            self._modeler.cleanup_objects()
+        except:
+            self._modeler._app.logger.warning("Coordinate system does not exist")
         return True
 
     @pyaedt_function_handler()
@@ -393,7 +397,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
         self.props = CsProps(self, parameters)
         self._modeler.oeditor.CreateFaceCS(self._face_paramenters, self._attributes)
-        self._modeler.coordinate_systems.append(self)
+        self._modeler.coordinate_systems.insert(0, self)
         return True
 
     @pyaedt_function_handler()
@@ -828,7 +832,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
 
         self.props = CsProps(self, orientationParameters)
         self._modeler.oeditor.CreateRelativeCS(self._orientation, self._attributes)
-        self._modeler.coordinate_systems.append(self)
+        self._modeler.coordinate_systems.insert(0, self)
         # this workaround is necessary because the reference CS is ignored at creation, it needs to be modified later
         self.ref_cs = reference_cs
         return self.update()
@@ -1141,7 +1145,7 @@ class GeometryModeler(Modeler, object):
     @property
     def coordinate_systems(self):
         """Coordinate Systems."""
-        if self._coordinate_systems is None or self._app.project_timestamp_changed:
+        if self._coordinate_systems is None:
             self._coordinate_systems = self._get_coordinates_data()
         return self._coordinate_systems
 
