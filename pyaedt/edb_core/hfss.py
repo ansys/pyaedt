@@ -13,9 +13,6 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.generic.general_methods import _retry_ntimes
-from pyaedt.edb_core.EDB_Data import SourceType
-import time
 
 
 class EdbHfss(object):
