@@ -28,7 +28,8 @@ if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" no
             msg += "$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH"
             warnings.warn(msg)
     except ImportError:
-        pass
+        msg = "pythonnet or dotnetcore not installed. Pyaedt will work only in client mode."
+        warnings.warn(msg)
 
 from pyaedt.generic import constants
 from pyaedt.generic.general_methods import _pythonver
