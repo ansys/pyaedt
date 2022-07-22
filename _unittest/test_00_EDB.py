@@ -37,9 +37,7 @@ if not config["skip_edb"]:
             BasisTest.my_setup(self)
             self.edbapp = BasisTest.add_edb(self, test_project_name)
             example_project = os.path.join(local_path, "example_models", "Package.aedb")
-            self.target_path = os.path.join(
-                self.local_scratch.path, "Package_test_00.aedb"
-            )
+            self.target_path = os.path.join(self.local_scratch.path, "Package_test_00.aedb")
             self.local_scratch.copyfolder(example_project, self.target_path)
             example_project2 = os.path.join(local_path, "example_models", "simple.aedb")
             self.target_path2 = os.path.join(self.local_scratch.path, "simple_00.aedb")
@@ -61,15 +59,11 @@ if not config["skip_edb"]:
 
             if not is_ironpython:
                 # Test the export_to_ipc2581 method when IPC8521.ExportIPC2581FromLayout raises an exception internally.
-                with unittest.mock.patch(
-                    "pyaedt.Edb.edblib", new_callable=unittest.mock.PropertyMock
-                ) as edblib_mock:
+                with unittest.mock.patch("pyaedt.Edb.edblib", new_callable=unittest.mock.PropertyMock) as edblib_mock:
                     Edb.edblib.IPC8521 = unittest.mock.Mock()
                     Edb.edblib.IPC8521.IPCExporter = unittest.mock.Mock()
                     Edb.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout = unittest.mock.Mock(
-                        side_effect=Exception(
-                            "Exception for testing raised in ExportIPC2581FromLayout."
-                        )
+                        side_effect=Exception("Exception for testing raised in ExportIPC2581FromLayout.")
                     )
 
                     assert not self.edbapp.export_to_ipc2581(os.path.exists(ipc_path))
@@ -90,9 +84,7 @@ if not config["skip_edb"]:
             assert not self.edbapp.core_padstack.get_via_instance_from_net(["GND2"])
 
         def test_01C_create_coax_port_on_component(self):
-            assert self.edbapp.core_hfss.create_coax_port_on_component(
-                "U1A1", "M_DQS_N<1>"
-            )
+            assert self.edbapp.core_hfss.create_coax_port_on_component("U1A1", "M_DQS_N<1>")
 
         def test_02_get_properties(self):
             assert len(self.edbapp.core_components.components) > 0
@@ -112,13 +104,8 @@ if not config["skip_edb"]:
             assert len(self.edbapp.core_primitives.bondwires) == 0
             assert "TOP" in self.edbapp.core_primitives.polygons_by_layer.keys()
             assert len(self.edbapp.core_primitives.polygons_by_layer["TOP"]) > 0
-            assert (
-                len(self.edbapp.core_primitives.polygons_by_layer["UNNAMED_000"]) == 0
-            )
-            assert (
-                self.edbapp.core_primitives.polygons[0].is_void
-                == self.edbapp.core_primitives.polygons[0].IsVoid()
-            )
+            assert len(self.edbapp.core_primitives.polygons_by_layer["UNNAMED_000"]) == 0
+            assert self.edbapp.core_primitives.polygons[0].is_void == self.edbapp.core_primitives.polygons[0].IsVoid()
             poly0 = self.edbapp.core_primitives.polygons[0]
             assert isinstance(poly0.voids, list)
             assert isinstance(poly0.points_raw(), list)
@@ -139,11 +126,8 @@ if not config["skip_edb"]:
             assert self.edbapp.core_stackup.stackup_layers["TOP"]._builder
             assert self.edbapp.core_stackup.stackup_layers["TOP"].id
             assert (
-                isinstance(
-                    self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int
-                )
-                or str(type(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type))
-                == "<type 'LayerType'>"
+                isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int)
+                or str(type(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type)) == "<type 'LayerType'>"
             )
 
         def test_05_get_signal_layers(self):
@@ -157,27 +141,17 @@ if not config["skip_edb"]:
         def test_07_vias_creation(self):
             self.edbapp.core_padstack.create_padstack(padstackname="myVia")
             assert "myVia" in list(self.edbapp.core_padstack.padstacks.keys())
-            self.edbapp.core_padstack.create_padstack(
-                padstackname="myVia_bullet", antipad_shape="Bullet"
-            )
+            self.edbapp.core_padstack.create_padstack(padstackname="myVia_bullet", antipad_shape="Bullet")
             assert "myVia_bullet" in list(self.edbapp.core_padstack.padstacks.keys())
 
             self.edbapp.add_design_variable("via_x", 5e-3)
             self.edbapp.add_design_variable("via_y", 1e-3)
 
-            assert self.edbapp.core_padstack.place_padstack(
-                ["via_x", "via_x+via_y"], "myVia"
-            )
-            assert self.edbapp.core_padstack.place_padstack(
-                ["via_x", "via_x+via_y*2"], "myVia_bullet"
-            )
+            assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y"], "myVia")
+            assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*2"], "myVia_bullet")
 
-            padstack_id = self.edbapp.core_padstack.place_padstack(
-                ["via_x", "via_x+via_y*3"], "myVia", is_pin=True
-            )
-            padstack_instance = self.edbapp.core_padstack.padstack_instances[
-                padstack_id
-            ]
+            padstack_id = self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*3"], "myVia", is_pin=True)
+            padstack_instance = self.edbapp.core_padstack.padstack_instances[padstack_id]
             assert padstack_instance.is_pin
             assert padstack_instance.position
             padstack_instance.position = [0.001, 0.002]
@@ -201,9 +175,7 @@ if not config["skip_edb"]:
 
             assert self.edbapp.core_nets.find_or_create_net("GND")
             assert self.edbapp.core_nets.find_or_create_net(start_with="gn")
-            assert self.edbapp.core_nets.find_or_create_net(
-                start_with="g", end_with="d"
-            )
+            assert self.edbapp.core_nets.find_or_create_net(start_with="g", end_with="d")
             assert self.edbapp.core_nets.find_or_create_net(end_with="d")
             assert self.edbapp.core_nets.find_or_create_net(contain="usb")
 
@@ -217,13 +189,9 @@ if not config["skip_edb"]:
 
         def test_10_add_layer(self):
             layers = self.edbapp.core_stackup.stackup_layers
-            assert layers.add_layer(
-                "NewLayer", "TOP", "copper", "air", "10um", 0, roughness_enabled=True
-            )
+            assert layers.add_layer("NewLayer", "TOP", "copper", "air", "10um", 0, roughness_enabled=True)
             assert layers.add_layer("NewLayer2", None, "pec", "air", "0um", 0)
-            assert layers.add_layer(
-                "NewLayer3", None, "copper", "air", "0um", 0, negative_layer=True
-            )
+            assert layers.add_layer("NewLayer3", None, "copper", "air", "0um", 0, negative_layer=True)
 
         def test_11_add_dielectric(self):
             diel = self.edbapp.core_stackup.create_dielectric("MyDiel", 3.3, 0.02)
@@ -234,24 +202,18 @@ if not config["skip_edb"]:
             assert cond
 
         def test_13add_djordievic(self):
-            diel = self.edbapp.core_stackup.create_djordjevicsarkar_material(
-                "MyDjord", 3.3, 0.02, 3.3
-            )
+            diel = self.edbapp.core_stackup.create_djordjevicsarkar_material("MyDjord", 3.3, 0.02, 3.3)
             assert diel
 
         def test_14_add_debye(self):
-            diel = self.edbapp.core_stackup.create_debye_material(
-                "My_Debye", 3, 2.5, 0.02, 0.04, 1e6, 1e9
-            )
+            diel = self.edbapp.core_stackup.create_debye_material("My_Debye", 3, 2.5, 0.02, 0.04, 1e6, 1e9)
             assert diel
 
         def test_14b_add_multipole_debye(self):
             freq = [0, 2, 3, 4, 5, 6]
             rel_perm = [1e9, 1.1e9, 1.2e9, 1.3e9, 1.5e9, 1.6e9]
             loss_tan = [0.025, 0.026, 0.027, 0.028, 0.029, 0.030]
-            diel = self.edbapp.core_stackup.create_multipole_debye_material(
-                "My_MP_Debye", freq, rel_perm, loss_tan
-            )
+            diel = self.edbapp.core_stackup.create_multipole_debye_material("My_MP_Debye", freq, rel_perm, loss_tan)
             assert diel
 
         def test_15_update_layer(self):
@@ -259,42 +221,14 @@ if not config["skip_edb"]:
             assert "LYR_1" in self.edbapp.core_stackup.stackup_layers.layers.keys()
             assert self.edbapp.core_stackup.stackup_layers["LYR_1"].name
             self.edbapp.core_stackup.stackup_layers["LYR_1"].thickness_value = "100um"
-            assert (
-                abs(
-                    self.edbapp.core_stackup.stackup_layers["LYR_1"].thickness_value
-                    - 10e-5
-                )
-                < tol
-            )
+            assert abs(self.edbapp.core_stackup.stackup_layers["LYR_1"].thickness_value - 10e-5) < tol
             self.edbapp.core_stackup.stackup_layers["LYR_2"].material_name = "MyCond"
-            assert (
-                self.edbapp.core_stackup.stackup_layers["LYR_2"].material_name
-                == "MyCond"
-            )
-            assert (
-                self.edbapp.core_stackup.stackup_layers["LYR_1"].filling_material_name
-                is not None
-                or False
-            )
-            assert (
-                self.edbapp.core_stackup.stackup_layers["LYR_1"].top_bottom_association
-                is not None
-                or False
-            )
-            assert (
-                self.edbapp.core_stackup.stackup_layers["LYR_1"].lower_elevation
-                is not None
-                or False
-            )
-            assert (
-                self.edbapp.core_stackup.stackup_layers["LYR_1"].upper_elevation
-                is not None
-                or False
-            )
-            assert (
-                self.edbapp.core_stackup.stackup_layers["LYR_1"].etch_factor is not None
-                or False
-            )
+            assert self.edbapp.core_stackup.stackup_layers["LYR_2"].material_name == "MyCond"
+            assert self.edbapp.core_stackup.stackup_layers["LYR_1"].filling_material_name is not None or False
+            assert self.edbapp.core_stackup.stackup_layers["LYR_1"].top_bottom_association is not None or False
+            assert self.edbapp.core_stackup.stackup_layers["LYR_1"].lower_elevation is not None or False
+            assert self.edbapp.core_stackup.stackup_layers["LYR_1"].upper_elevation is not None or False
+            assert self.edbapp.core_stackup.stackup_layers["LYR_1"].etch_factor is not None or False
 
         def test_16_remove_layer(self):
             layers = self.edbapp.core_stackup.stackup_layers
@@ -304,39 +238,25 @@ if not config["skip_edb"]:
             assert "R1" in list(self.edbapp.core_components.components.keys())
             assert self.edbapp.core_components.components["R1"].res_value
             assert self.edbapp.core_components.components["R1"].placement_layer
-            assert isinstance(
-                self.edbapp.core_components.components["R1"].lower_elevation, float
-            )
-            assert isinstance(
-                self.edbapp.core_components.components["R1"].upper_elevation, float
-            )
-            assert (
-                self.edbapp.core_components.components["R1"].top_bottom_association == 0
-            )
+            assert isinstance(self.edbapp.core_components.components["R1"].lower_elevation, float)
+            assert isinstance(self.edbapp.core_components.components["R1"].upper_elevation, float)
+            assert self.edbapp.core_components.components["R1"].top_bottom_association == 0
             assert self.edbapp.core_components.components["R1"].pinlist
             pinname = self.edbapp.core_components.components["R1"].pinlist[0].GetName()
             assert (
-                self.edbapp.core_components.components["R1"]
-                .pins[pinname]
-                .lower_elevation
+                self.edbapp.core_components.components["R1"].pins[pinname].lower_elevation
                 == self.edbapp.core_components.components["R1"].lower_elevation
             )
             assert (
-                self.edbapp.core_components.components["R1"]
-                .pins[pinname]
-                .placement_layer
+                self.edbapp.core_components.components["R1"].pins[pinname].placement_layer
                 == self.edbapp.core_components.components["R1"].placement_layer
             )
             assert (
-                self.edbapp.core_components.components["R1"]
-                .pins[pinname]
-                .upper_elevation
+                self.edbapp.core_components.components["R1"].pins[pinname].upper_elevation
                 == self.edbapp.core_components.components["R1"].upper_elevation
             )
             assert (
-                self.edbapp.core_components.components["R1"]
-                .pins[pinname]
-                .top_bottom_association
+                self.edbapp.core_components.components["R1"].pins[pinname].top_bottom_association
                 == self.edbapp.core_components.components["R1"].top_bottom_association
             )
             assert self.edbapp.core_components.components["R1"].pins[pinname].position
@@ -381,14 +301,7 @@ if not config["skip_edb"]:
             assert len(self.edbapp.core_components.get_rats()) > 0
 
         def test_28_get_component_connections(self):
-            assert (
-                len(
-                    self.edbapp.core_components.get_component_net_connection_info(
-                        "U2A5"
-                    )
-                )
-                > 0
-            )
+            assert len(self.edbapp.core_components.get_component_net_connection_info("U2A5")) > 0
 
         def test_29_get_power_tree(self):
             OUTPUT_NET = "BST_V1P0_S0"
@@ -403,34 +316,16 @@ if not config["skip_edb"]:
             assert net_group
 
         def test_30_aedt_pinname_pin_position(self):
-            cmp_pinlist = self.edbapp.core_padstack.get_pinlist_from_component_and_net(
-                "U2A5", "GND"
-            )
+            cmp_pinlist = self.edbapp.core_padstack.get_pinlist_from_component_and_net("U2A5", "GND")
             pin_name = self.edbapp.core_components.get_aedt_pin_name(cmp_pinlist[0])
             assert type(pin_name) is str
             assert len(pin_name) > 0
-            assert (
-                len(self.edbapp.core_components.get_pin_position(cmp_pinlist[0])) == 2
-            )
+            assert len(self.edbapp.core_components.get_pin_position(cmp_pinlist[0])) == 2
 
         def test_31_get_pins_name_from_net(self):
             cmp_pinlist = self.edbapp.core_components.get_pin_from_component("U2A5")
-            assert (
-                len(
-                    self.edbapp.core_components.get_pins_name_from_net(
-                        cmp_pinlist, "GND"
-                    )
-                )
-                > 0
-            )
-            assert (
-                len(
-                    self.edbapp.core_components.get_pins_name_from_net(
-                        cmp_pinlist, "VCCC"
-                    )
-                )
-                == 0
-            )
+            assert len(self.edbapp.core_components.get_pins_name_from_net(cmp_pinlist, "GND")) > 0
+            assert len(self.edbapp.core_components.get_pins_name_from_net(cmp_pinlist, "VCCC")) == 0
 
         def test_32_delete_single_pin_rlc(self):
             assert len(self.edbapp.core_components.delete_single_pin_rlc()) > 0
@@ -445,21 +340,15 @@ if not config["skip_edb"]:
             assert self.edbapp.core_components.delete_component("R1")
 
         def test_36_create_coax_port(self):
-            assert self.edbapp.core_hfss.create_coax_port_on_component(
-                "U2A5", ["RSVD_0", "V1P0_S0"]
-            )
+            assert self.edbapp.core_hfss.create_coax_port_on_component("U2A5", ["RSVD_0", "V1P0_S0"])
 
         def test_37_create_circuit_port(self):
             initial_len = len(self.edbapp.core_padstack.pingroups)
             assert (
-                self.edbapp.core_siwave.create_circuit_port_on_net(
-                    "U2A5", "V1P5_S3", "U2A5", "GND", 50, "test"
-                )
+                self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "test")
                 == "test"
             )
-            p2 = self.edbapp.core_siwave.create_circuit_port_on_net(
-                "U2A5", "V3P3_S0", "U2A5", "GND", 50, "test"
-            )
+            p2 = self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
             assert p2 != "test" and "test" in p2
             pins = self.edbapp.core_components.get_pin_from_component("U2A5")
             p3 = self.edbapp.core_siwave.create_circuit_port_on_pin(pins[200], pins[0])
@@ -473,30 +362,19 @@ if not config["skip_edb"]:
                 "U2A5", "PCIE_RBIAS", "U2A5", "GND", 3.3, 0
             )
             pins = self.edbapp.core_components.get_pin_from_component("U2A5")
-            assert "VSource_" in self.edbapp.core_siwave.create_voltage_source_on_pin(
-                pins[300], pins[10], 3.3, 0
-            )
+            assert "VSource_" in self.edbapp.core_siwave.create_voltage_source_on_pin(pins[300], pins[10], 3.3, 0)
 
         def test_39_create_current_source(self):
-            assert (
-                self.edbapp.core_siwave.create_current_source_on_net(
-                    "U2A5", "DDR3_DM1", "U2A5", "GND", 0.1, 0
-                )
-                != ""
-            )
+            assert self.edbapp.core_siwave.create_current_source_on_net("U2A5", "DDR3_DM1", "U2A5", "GND", 0.1, 0) != ""
             pins = self.edbapp.core_components.get_pin_from_component("U2A5")
-            assert "I22" == self.edbapp.core_siwave.create_current_source_on_pin(
-                pins[301], pins[10], 0.1, 0, "I22"
-            )
+            assert "I22" == self.edbapp.core_siwave.create_current_source_on_pin(pins[301], pins[10], 0.1, 0, "I22")
 
         def test_39B_create_resistors(self):
             assert "myRes" in self.edbapp.core_siwave.create_resistor_on_net(
                 "U2A5", "V1P5_S0", "U2A5", "GND", 50, "myRes"
             )
             pins = self.edbapp.core_components.get_pin_from_component("U2A5")
-            assert "RST4000" == self.edbapp.core_siwave.create_resistor_on_pin(
-                pins[302], pins[10], 40, "RST4000"
-            )
+            assert "RST4000" == self.edbapp.core_siwave.create_resistor_on_pin(pins[302], pins[10], 40, "RST4000")
 
         def test_40_create_siwave_ac_analsyis(self):
             assert self.edbapp.core_siwave.add_siwave_ac_analysis()
@@ -510,9 +388,7 @@ if not config["skip_edb"]:
             assert self.edbapp.core_siwave.add_siwave_dc_analysis(settings_dc)
 
         def test_42_get_nets_from_pin_list(self):
-            cmp_pinlist = self.edbapp.core_padstack.get_pinlist_from_component_and_net(
-                "U2A5", "GND"
-            )
+            cmp_pinlist = self.edbapp.core_padstack.get_pinlist_from_component_and_net("U2A5", "GND")
             if cmp_pinlist:
                 assert cmp_pinlist[0].GetNet().GetName()
 
@@ -548,23 +424,15 @@ if not config["skip_edb"]:
             assert not result
             assert self.edbapp.core_primitives.parametrize_trace_width("A0_N")
             assert self.edbapp.core_primitives.parametrize_trace_width("A0_N_R")
-            result, var_server = self.edbapp.add_design_variable(
-                "my_parameter", "2mm", True
-            )
+            result, var_server = self.edbapp.add_design_variable("my_parameter", "2mm", True)
             assert result
             assert var_server.IsVariableParameter("my_parameter")
-            result, var_server = self.edbapp.add_design_variable(
-                "my_parameter", "2mm", True
-            )
+            result, var_server = self.edbapp.add_design_variable("my_parameter", "2mm", True)
             assert not result
-            result, var_server = self.edbapp.add_design_variable(
-                "$my_project_variable", "3mm"
-            )
+            result, var_server = self.edbapp.add_design_variable("$my_project_variable", "3mm")
             assert result
             assert var_server
-            result, var_server = self.edbapp.add_design_variable(
-                "$my_project_variable", "3mm"
-            )
+            result, var_server = self.edbapp.add_design_variable("$my_project_variable", "3mm")
             assert not result
 
         def test_45_delete_net(self):
@@ -603,22 +471,11 @@ if not config["skip_edb"]:
                 assert pad.hole_offset_x is not None or False
                 assert pad.hole_offset_y is not None or False
                 assert pad.hole_type is not None or False
-                assert (
-                    pad.pad_by_layer[pad.via_stop_layer].parameters is not None or False
-                )
-                assert (
-                    pad.pad_by_layer[pad.via_stop_layer].parameters_values is not None
-                    or False
-                )
-                assert (
-                    pad.pad_by_layer[pad.via_stop_layer].offset_x is not None or False
-                )
-                assert (
-                    pad.pad_by_layer[pad.via_stop_layer].offset_y is not None or False
-                )
-                assert isinstance(
-                    pad.pad_by_layer[pad.via_stop_layer].geometry_type, int
-                )
+                assert pad.pad_by_layer[pad.via_stop_layer].parameters is not None or False
+                assert pad.pad_by_layer[pad.via_stop_layer].parameters_values is not None or False
+                assert pad.pad_by_layer[pad.via_stop_layer].offset_x is not None or False
+                assert pad.pad_by_layer[pad.via_stop_layer].offset_y is not None or False
+                assert isinstance(pad.pad_by_layer[pad.via_stop_layer].geometry_type, int)
                 polygon = pad.pad_by_layer[pad.via_stop_layer].polygon_data
                 if polygon:
                     assert polygon.GetBBox()
@@ -646,12 +503,8 @@ if not config["skip_edb"]:
             assert pad.pad_by_layer[pad.via_stop_layer].parameters[0] == str(param)
 
         def test_51_save_edb_as(self):
-            assert self.edbapp.save_edb_as(
-                os.path.join(self.local_scratch.path, "Gelileo_new.aedb")
-            )
-            assert os.path.exists(
-                os.path.join(self.local_scratch.path, "Gelileo_new.aedb", "edb.def")
-            )
+            assert self.edbapp.save_edb_as(os.path.join(self.local_scratch.path, "Gelileo_new.aedb"))
+            assert os.path.exists(os.path.join(self.local_scratch.path, "Gelileo_new.aedb", "edb.def"))
 
         def test_52_parametrize_layout(self):
             assert len(self.edbapp.core_primitives.polygons) > 0
@@ -680,9 +533,7 @@ if not config["skip_edb"]:
 
         def test_54_create_component_from_pins(self):
             pins = self.edbapp.core_components.get_pin_from_component("R13")
-            component = self.edbapp.core_components.create_component_from_pins(
-                pins, "newcomp"
-            )
+            component = self.edbapp.core_components.create_component_from_pins(pins, "newcomp")
             assert component[0]
             assert component[1].GetName() == "newcomp"
             assert len(list(component[1].LayoutObjs)) == 2
@@ -739,12 +590,8 @@ if not config["skip_edb"]:
                 [-0.001, -0.001],
             ]
             void1 = self.edbapp.core_primitives.Shape("polygon", points=points)
-            void2 = self.edbapp.core_primitives.Shape(
-                "rectangle", [-0.002, 0.0], [-0.015, 0.0005]
-            )
-            assert self.edbapp.core_primitives.create_polygon(
-                plane, "TOP", [void1, void2]
-            )
+            void2 = self.edbapp.core_primitives.Shape("rectangle", [-0.002, 0.0], [-0.015, 0.0005])
+            assert self.edbapp.core_primitives.create_polygon(plane, "TOP", [void1, void2])
             points = [
                 [0, 0, 1],
             ]
@@ -772,9 +619,7 @@ if not config["skip_edb"]:
 
         def test_60_create_outline(self):
             assert self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
-            assert not self.edbapp.core_stackup.stackup_layers.add_outline_layer(
-                "Outline1"
-            )
+            assert not self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
 
         def test_61_create_edb(self):
             edb = Edb(os.path.join(self.local_scratch.path, "temp.aedb"))
@@ -782,9 +627,7 @@ if not config["skip_edb"]:
             assert edb.active_layout
             edb.close_edb()
 
-        @pytest.mark.skipif(
-            config["build_machine"], reason="Not running in non-graphical mode"
-        )
+        @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
         def test_62_export_to_hfss(self):
             edb = Edb(
                 edbpath=os.path.join(local_path, "example_models", "simple.aedb"),
@@ -797,9 +640,7 @@ if not config["skip_edb"]:
             assert os.path.exists(out)
             edb.close_edb()
 
-        @pytest.mark.skipif(
-            config["build_machine"], reason="Not running in non-graphical mode"
-        )
+        @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
         def test_63_export_to_q3d(self):
             edb = Edb(
                 edbpath=os.path.join(local_path, "example_models", "simple.aedb"),
@@ -808,15 +649,11 @@ if not config["skip_edb"]:
             options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
             out = edb.write_export3d_option_config_file(scratch_path, options_config)
             assert os.path.exists(out)
-            out = edb.export_q3d(
-                scratch_path, net_list=["ANALOG_A0", "ANALOG_A1", "ANALOG_A2"]
-            )
+            out = edb.export_q3d(scratch_path, net_list=["ANALOG_A0", "ANALOG_A1", "ANALOG_A2"])
             assert os.path.exists(out)
             edb.close_edb()
 
-        @pytest.mark.skipif(
-            config["build_machine"], reason="Not running in non-graphical mode"
-        )
+        @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
         def test_64_export_to_maxwell(self):
             edb = Edb(
                 edbpath=os.path.join(local_path, "example_models", "simple.aedb"),
@@ -836,19 +673,11 @@ if not config["skip_edb"]:
             assert self.edbapp.core_components.set_solder_ball("U1A1")
 
         def test_67_add_void(self):
-            plane_shape = self.edbapp.core_primitives.Shape(
-                "rectangle", pointA=["-5mm", "-5mm"], pointB=["5mm", "5mm"]
-            )
-            plane = self.edbapp.core_primitives.create_polygon(
-                plane_shape, "TOP", net_name="GND"
-            )
+            plane_shape = self.edbapp.core_primitives.Shape("rectangle", pointA=["-5mm", "-5mm"], pointB=["5mm", "5mm"])
+            plane = self.edbapp.core_primitives.create_polygon(plane_shape, "TOP", net_name="GND")
 
-            path = self.edbapp.core_primitives.Shape(
-                "polygon", points=[["0", "0"], ["0", "1mm"]]
-            )
-            void = self.edbapp.core_primitives.create_path(
-                path, layer_name="TOP", width="0.1mm"
-            )
+            path = self.edbapp.core_primitives.Shape("polygon", points=[["0", "0"], ["0", "1mm"]])
+            void = self.edbapp.core_primitives.create_path(path, layer_name="TOP", width="0.1mm")
             assert self.edbapp.core_primitives.add_void(plane, void)
 
         def test_69_create_solder_balls_on_component(self):
@@ -867,9 +696,7 @@ if not config["skip_edb"]:
             assert self.edbapp.core_primitives.fix_circle_void_for_clipping()
 
         def test_72_padstack_instance(self):
-            padstack_instances = (
-                self.edbapp.core_padstack.get_padstack_instance_by_net_name("GND")
-            )
+            padstack_instances = self.edbapp.core_padstack.get_padstack_instance_by_net_name("GND")
             assert len(padstack_instances)
             padstack_1 = list(padstack_instances.values())[0]
             assert padstack_1.id
@@ -894,9 +721,7 @@ if not config["skip_edb"]:
                 pad_shape="Circle",
                 pad_params="800um",
             )
-            assert self.edbapp.core_padstack.padstacks["VIA_18-10-28_SMB"].pad_by_layer[
-                "new"
-            ]
+            assert self.edbapp.core_padstack.padstacks["VIA_18-10-28_SMB"].pad_by_layer["new"]
 
         def test_75_primitives_area(self):
             i = 0
@@ -1033,9 +858,7 @@ if not config["skip_edb"]:
                 isreadonly=True,
             )
             for i in range(7):
-                padstack_instance = list(
-                    edb_padstacks.core_padstack.padstack_instances.values()
-                )[i]
+                padstack_instance = list(edb_padstacks.core_padstack.padstack_instances.values())[i]
                 result = padstack_instance.create_rectangle_in_pad("s")
                 assert result
             edb_padstacks.close_edb()
@@ -1098,21 +921,13 @@ if not config["skip_edb"]:
                 assert res
                 zeroValue = chipEdb.edb_value(0)
                 oneValue = chipEdb.edb_value(1)
-                originPoint = chipEdb.edb.Geometry.Point3DData(
-                    zeroValue, zeroValue, zeroValue
-                )
-                xAxisPoint = chipEdb.edb.Geometry.Point3DData(
-                    oneValue, zeroValue, zeroValue
-                )
+                originPoint = chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
+                xAxisPoint = chipEdb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
                 assert localOrigin.IsEqual(originPoint)
                 assert rotAxisFrom.IsEqual(xAxisPoint)
                 assert rotAxisTo.IsEqual(xAxisPoint)
                 assert angle.IsEqual(zeroValue)
-                assert loc.IsEqual(
-                    chipEdb.edb.Geometry.Point3DData(
-                        zeroValue, zeroValue, chipEdb.edb_value(170e-6)
-                    )
-                )
+                assert loc.IsEqual(chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, chipEdb.edb_value(170e-6)))
             finally:
                 chipEdb.close_edb()
                 laminateEdb.close_edb()
@@ -1168,21 +983,13 @@ if not config["skip_edb"]:
                 assert res
                 zeroValue = chipEdb.edb_value(0)
                 oneValue = chipEdb.edb_value(1)
-                originPoint = chipEdb.edb.Geometry.Point3DData(
-                    zeroValue, zeroValue, zeroValue
-                )
-                xAxisPoint = chipEdb.edb.Geometry.Point3DData(
-                    oneValue, zeroValue, zeroValue
-                )
+                originPoint = chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
+                xAxisPoint = chipEdb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
                 assert localOrigin.IsEqual(originPoint)
                 assert rotAxisFrom.IsEqual(xAxisPoint)
                 assert rotAxisTo.IsEqual(xAxisPoint)
                 assert angle.IsEqual(zeroValue)
-                assert loc.IsEqual(
-                    chipEdb.edb.Geometry.Point3DData(
-                        zeroValue, zeroValue, chipEdb.edb_value(-90e-6)
-                    )
-                )
+                assert loc.IsEqual(chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, chipEdb.edb_value(-90e-6)))
             finally:
                 chipEdb.close_edb()
                 laminateEdb.close_edb()
@@ -1238,21 +1045,13 @@ if not config["skip_edb"]:
                 assert res
                 zeroValue = chipEdb.edb_value(0)
                 oneValue = chipEdb.edb_value(1)
-                originPoint = chipEdb.edb.Geometry.Point3DData(
-                    zeroValue, zeroValue, zeroValue
-                )
-                xAxisPoint = chipEdb.edb.Geometry.Point3DData(
-                    oneValue, zeroValue, zeroValue
-                )
+                originPoint = chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
+                xAxisPoint = chipEdb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
                 assert localOrigin.IsEqual(originPoint)
                 assert rotAxisFrom.IsEqual(xAxisPoint)
                 assert rotAxisTo.IsEqual(xAxisPoint)
                 assert angle.IsEqual(zeroValue)
-                assert loc.IsEqual(
-                    chipEdb.edb.Geometry.Point3DData(
-                        zeroValue, zeroValue, chipEdb.edb_value(190e-6)
-                    )
-                )
+                assert loc.IsEqual(chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, chipEdb.edb_value(190e-6)))
             finally:
                 chipEdb.close_edb()
                 laminateEdb.close_edb()
@@ -1308,21 +1107,13 @@ if not config["skip_edb"]:
                 assert res
                 zeroValue = chipEdb.edb_value(0)
                 oneValue = chipEdb.edb_value(1)
-                originPoint = chipEdb.edb.Geometry.Point3DData(
-                    zeroValue, zeroValue, zeroValue
-                )
-                xAxisPoint = chipEdb.edb.Geometry.Point3DData(
-                    oneValue, zeroValue, zeroValue
-                )
+                originPoint = chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
+                xAxisPoint = chipEdb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
                 assert localOrigin.IsEqual(originPoint)
                 assert rotAxisFrom.IsEqual(xAxisPoint)
                 assert rotAxisTo.IsEqual(xAxisPoint)
                 assert angle.IsEqual(chipEdb.edb_value(math.pi))
-                assert loc.IsEqual(
-                    chipEdb.edb.Geometry.Point3DData(
-                        zeroValue, zeroValue, chipEdb.edb_value(-20e-6)
-                    )
-                )
+                assert loc.IsEqual(chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, chipEdb.edb_value(-20e-6)))
             finally:
                 chipEdb.close_edb()
                 laminateEdb.close_edb()
@@ -1378,21 +1169,13 @@ if not config["skip_edb"]:
                 assert res
                 zeroValue = chipEdb.edb_value(0)
                 oneValue = chipEdb.edb_value(1)
-                originPoint = chipEdb.edb.Geometry.Point3DData(
-                    zeroValue, zeroValue, zeroValue
-                )
-                xAxisPoint = chipEdb.edb.Geometry.Point3DData(
-                    oneValue, zeroValue, zeroValue
-                )
+                originPoint = chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
+                xAxisPoint = chipEdb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
                 assert localOrigin.IsEqual(originPoint)
                 assert rotAxisFrom.IsEqual(xAxisPoint)
                 assert rotAxisTo.IsEqual(xAxisPoint)
                 assert angle.IsEqual(zeroValue)
-                assert loc.IsEqual(
-                    chipEdb.edb.Geometry.Point3DData(
-                        zeroValue, zeroValue, chipEdb.edb_value(160e-6)
-                    )
-                )
+                assert loc.IsEqual(chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, chipEdb.edb_value(160e-6)))
             finally:
                 chipEdb.close_edb()
                 laminateEdb.close_edb()
@@ -1448,21 +1231,13 @@ if not config["skip_edb"]:
                 assert res
                 zeroValue = chipEdb.edb_value(0)
                 oneValue = chipEdb.edb_value(1)
-                originPoint = chipEdb.edb.Geometry.Point3DData(
-                    zeroValue, zeroValue, zeroValue
-                )
-                xAxisPoint = chipEdb.edb.Geometry.Point3DData(
-                    oneValue, zeroValue, zeroValue
-                )
+                originPoint = chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
+                xAxisPoint = chipEdb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
                 assert localOrigin.IsEqual(originPoint)
                 assert rotAxisFrom.IsEqual(xAxisPoint)
                 assert rotAxisTo.IsEqual(xAxisPoint)
                 assert angle.IsEqual(chipEdb.edb_value(math.pi))
-                assert loc.IsEqual(
-                    chipEdb.edb.Geometry.Point3DData(
-                        zeroValue, zeroValue, chipEdb.edb_value(10e-6)
-                    )
-                )
+                assert loc.IsEqual(chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, chipEdb.edb_value(10e-6)))
             finally:
                 chipEdb.close_edb()
                 laminateEdb.close_edb()
@@ -1518,21 +1293,13 @@ if not config["skip_edb"]:
                 assert res
                 zeroValue = chipEdb.edb_value(0)
                 oneValue = chipEdb.edb_value(1)
-                originPoint = chipEdb.edb.Geometry.Point3DData(
-                    zeroValue, zeroValue, zeroValue
-                )
-                xAxisPoint = chipEdb.edb.Geometry.Point3DData(
-                    oneValue, zeroValue, zeroValue
-                )
+                originPoint = chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
+                xAxisPoint = chipEdb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
                 assert localOrigin.IsEqual(originPoint)
                 assert rotAxisFrom.IsEqual(xAxisPoint)
                 assert rotAxisTo.IsEqual(xAxisPoint)
                 assert angle.IsEqual(zeroValue)
-                assert loc.IsEqual(
-                    chipEdb.edb.Geometry.Point3DData(
-                        zeroValue, zeroValue, chipEdb.edb_value(150e-6)
-                    )
-                )
+                assert loc.IsEqual(chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, chipEdb.edb_value(150e-6)))
             finally:
                 chipEdb.close_edb()
                 laminateEdb.close_edb()
@@ -1588,21 +1355,13 @@ if not config["skip_edb"]:
                 assert res
                 zeroValue = chipEdb.edb_value(0)
                 oneValue = chipEdb.edb_value(1)
-                originPoint = chipEdb.edb.Geometry.Point3DData(
-                    zeroValue, zeroValue, zeroValue
-                )
-                xAxisPoint = chipEdb.edb.Geometry.Point3DData(
-                    oneValue, zeroValue, zeroValue
-                )
+                originPoint = chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, zeroValue)
+                xAxisPoint = chipEdb.edb.Geometry.Point3DData(oneValue, zeroValue, zeroValue)
                 assert localOrigin.IsEqual(originPoint)
                 assert rotAxisFrom.IsEqual(xAxisPoint)
                 assert rotAxisTo.IsEqual(xAxisPoint)
                 assert angle.IsEqual(chipEdb.edb_value(math.pi))
-                assert loc.IsEqual(
-                    chipEdb.edb.Geometry.Point3DData(
-                        zeroValue, zeroValue, chipEdb.edb_value(20e-6)
-                    )
-                )
+                assert loc.IsEqual(chipEdb.edb.Geometry.Point3DData(zeroValue, zeroValue, chipEdb.edb_value(20e-6)))
             finally:
                 chipEdb.close_edb()
                 laminateEdb.close_edb()
@@ -1635,12 +1394,8 @@ if not config["skip_edb"]:
             assert comp.type == "Other"
 
         def test_85_deactivate_rlc(self):
-            assert self.edbapp.core_components.deactivate_rlc_component(
-                component="C1", create_circuit_port=True
-            )
-            assert self.edbapp.core_components.deactivate_rlc_component(
-                component="C2", create_circuit_port=False
-            )
+            assert self.edbapp.core_components.deactivate_rlc_component(component="C1", create_circuit_port=True)
+            assert self.edbapp.core_components.deactivate_rlc_component(component="C2", create_circuit_port=False)
 
         def test_86_create_symmetric_stackup(self):
             from pyaedt import Edb as local_edb
@@ -1655,9 +1410,7 @@ if not config["skip_edb"]:
             app_edb.close_edb()
 
         def test_86B_create_rectangle(self):
-            assert self.edbapp.core_primitives.create_rectangle(
-                "TOP", "SIG1", ["0", "0"], ["2mm", "3mm"]
-            )
+            assert self.edbapp.core_primitives.create_rectangle("TOP", "SIG1", ["0", "0"], ["2mm", "3mm"])
             assert self.edbapp.core_primitives.create_rectangle(
                 "TOP",
                 "SIG2",
@@ -1710,45 +1463,33 @@ if not config["skip_edb"]:
 
         def test_94_change_design_variable_value(self):
             self.edbapp.add_design_variable("ant_length", "1cm")
-            self.edbapp.add_design_variable(
-                "my_parameter_default", "1mm", is_parameter=True
-            )
+            self.edbapp.add_design_variable("my_parameter_default", "1mm", is_parameter=True)
             self.edbapp.add_design_variable("$my_project_variable", "1mm")
-            changed_variable_1 = self.edbapp.change_design_variable_value(
-                "ant_length", "1m"
-            )
+            changed_variable_1 = self.edbapp.change_design_variable_value("ant_length", "1m")
             if isinstance(changed_variable_1, tuple):
                 changed_variable_done, ant_length_value = changed_variable_1
                 assert changed_variable_done
             else:
                 assert changed_variable_1
-            changed_variable_2 = self.edbapp.change_design_variable_value(
-                "elephant_length", "1m"
-            )
+            changed_variable_2 = self.edbapp.change_design_variable_value("elephant_length", "1m")
             if isinstance(changed_variable_2, tuple):
                 changed_variable_done, elephant_length_value = changed_variable_2
                 assert not changed_variable_done
             else:
                 assert not changed_variable_2
-            changed_variable_3 = self.edbapp.change_design_variable_value(
-                "my_parameter_default", "1m"
-            )
+            changed_variable_3 = self.edbapp.change_design_variable_value("my_parameter_default", "1m")
             if isinstance(changed_variable_3, tuple):
                 changed_variable_done, my_parameter_value = changed_variable_3
                 assert changed_variable_done
             else:
                 assert changed_variable_3
-            changed_variable_4 = self.edbapp.change_design_variable_value(
-                "$my_project_variable", "1m"
-            )
+            changed_variable_4 = self.edbapp.change_design_variable_value("$my_project_variable", "1m")
             if isinstance(changed_variable_4, tuple):
                 changed_variable_done, my_project_variable_value = changed_variable_4
                 assert changed_variable_done
             else:
                 assert changed_variable_4
-            changed_variable_5 = self.edbapp.change_design_variable_value(
-                "$my_parameter", "1m"
-            )
+            changed_variable_5 = self.edbapp.change_design_variable_value("$my_parameter", "1m")
             if isinstance(changed_variable_5, tuple):
                 changed_variable_done, my_project_variable_value = changed_variable_4
                 assert not changed_variable_done
@@ -1757,9 +1498,7 @@ if not config["skip_edb"]:
 
         def test_95_etch_factor(self):
             layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]
-            added_layer = self.edbapp.core_stackup.stackup_layers.add_layer(
-                layerName="added_layer", etchMap=1.1
-            )
+            added_layer = self.edbapp.core_stackup.stackup_layers.add_layer(layerName="added_layer", etchMap=1.1)
             assert layer.etch_factor == 0
             layer.etch_factor = "1"
             print(type(layer._etch_factor))
@@ -1801,10 +1540,7 @@ if not config["skip_edb"]:
             user_layer = stackup._int_to_layer_types(14)
             assert user_layer == stackup.layer_types.UserLayer
             siwave_hfss_solver_regions = stackup._int_to_layer_types(16)
-            assert (
-                siwave_hfss_solver_regions
-                == stackup.layer_types.SIwaveHFSSSolverRegions
-            )
+            assert siwave_hfss_solver_regions == stackup.layer_types.SIwaveHFSSSolverRegions
             outline_layer = stackup._int_to_layer_types(18)
             assert outline_layer == stackup.layer_types.OutlineLayer
 
@@ -1812,66 +1548,42 @@ if not config["skip_edb"]:
             stackup = self.edbapp.core_stackup.stackup_layers
             signal_layer = stackup._layer_types_to_int(stackup.layer_types.SignalLayer)
             assert signal_layer == 0
-            dielectric_layer = stackup._layer_types_to_int(
-                stackup.layer_types.DielectricLayer
-            )
+            dielectric_layer = stackup._layer_types_to_int(stackup.layer_types.DielectricLayer)
             assert dielectric_layer == 1
-            conducting_layer = stackup._layer_types_to_int(
-                stackup.layer_types.ConductingLayer
-            )
+            conducting_layer = stackup._layer_types_to_int(stackup.layer_types.ConductingLayer)
             assert conducting_layer == 2
-            airlines_layer = stackup._layer_types_to_int(
-                stackup.layer_types.AirlinesLayer
-            )
+            airlines_layer = stackup._layer_types_to_int(stackup.layer_types.AirlinesLayer)
             assert airlines_layer == 3
             errors_layer = stackup._layer_types_to_int(stackup.layer_types.ErrorsLayer)
             assert errors_layer == 4
             symbol_layer = stackup._layer_types_to_int(stackup.layer_types.SymbolLayer)
             assert symbol_layer == 5
-            measure_layer = stackup._layer_types_to_int(
-                stackup.layer_types.MeasureLayer
-            )
+            measure_layer = stackup._layer_types_to_int(stackup.layer_types.MeasureLayer)
             assert measure_layer == 6
-            assembly_layer = stackup._layer_types_to_int(
-                stackup.layer_types.AssemblyLayer
-            )
+            assembly_layer = stackup._layer_types_to_int(stackup.layer_types.AssemblyLayer)
             assert assembly_layer == 8
-            silkscreen_layer = stackup._layer_types_to_int(
-                stackup.layer_types.SilkscreenLayer
-            )
+            silkscreen_layer = stackup._layer_types_to_int(stackup.layer_types.SilkscreenLayer)
             assert silkscreen_layer == 9
-            solder_mask_layer = stackup._layer_types_to_int(
-                stackup.layer_types.SolderMaskLayer
-            )
+            solder_mask_layer = stackup._layer_types_to_int(stackup.layer_types.SolderMaskLayer)
             assert solder_mask_layer == 10
-            solder_paste_layer = stackup._layer_types_to_int(
-                stackup.layer_types.SolderPasteLayer
-            )
+            solder_paste_layer = stackup._layer_types_to_int(stackup.layer_types.SolderPasteLayer)
             assert solder_paste_layer == 11
             glue_layer = stackup._layer_types_to_int(stackup.layer_types.GlueLayer)
             assert glue_layer == 12
-            wirebond_layer = stackup._layer_types_to_int(
-                stackup.layer_types.WirebondLayer
-            )
+            wirebond_layer = stackup._layer_types_to_int(stackup.layer_types.WirebondLayer)
             assert wirebond_layer == 13
             user_layer = stackup._layer_types_to_int(stackup.layer_types.UserLayer)
             assert user_layer == 14
-            siwave_hfss_solver_regions = stackup._layer_types_to_int(
-                stackup.layer_types.SIwaveHFSSSolverRegions
-            )
+            siwave_hfss_solver_regions = stackup._layer_types_to_int(stackup.layer_types.SIwaveHFSSSolverRegions)
             assert siwave_hfss_solver_regions == 16
-            outline_layer = stackup._layer_types_to_int(
-                stackup.layer_types.OutlineLayer
-            )
+            outline_layer = stackup._layer_types_to_int(stackup.layer_types.OutlineLayer)
             assert outline_layer == 18
 
         def test_98_export_import_json_for_config(self):
             sim_config = SimulationConfiguration()
             assert sim_config.output_aedb is None
             sim_config.output_aedb = os.path.join(self.local_scratch.path, "test.aedb")
-            assert sim_config.output_aedb == os.path.join(
-                self.local_scratch.path, "test.aedb"
-            )
+            assert sim_config.output_aedb == os.path.join(self.local_scratch.path, "test.aedb")
             json_file = os.path.join(self.local_scratch.path, "test.json")
             sim_config._filename = json_file
             sim_config.arc_angle = "90deg"
@@ -1885,75 +1597,43 @@ if not config["skip_edb"]:
             stack_up = self.edbapp.core_stackup
             duplicated_copper = stack_up.duplicate_material("copper", "my_new_copper")
             assert duplicated_copper
-            duplicated_fr4_epoxy = stack_up.duplicate_material(
-                "FR4_epoxy", "my_new_FR4"
-            )
+            duplicated_fr4_epoxy = stack_up.duplicate_material("FR4_epoxy", "my_new_FR4")
             assert duplicated_fr4_epoxy
             duplicated_pec = stack_up.duplicate_material("pec", "my_new_pec")
             assert duplicated_pec
-            cloned_permittivity = stack_up.get_property_by_material_name(
-                "permittivity", "my_new_pec"
-            )
+            cloned_permittivity = stack_up.get_property_by_material_name("permittivity", "my_new_pec")
             permittivity = stack_up.get_property_by_material_name("permittivity", "pec")
-            cloned_permeability = stack_up.get_property_by_material_name(
-                "permeability", "my_new_pec"
-            )
+            cloned_permeability = stack_up.get_property_by_material_name("permeability", "my_new_pec")
             permeability = stack_up.get_property_by_material_name("permeability", "pec")
-            cloned_conductivity = stack_up.get_property_by_material_name(
-                "conductivity", "my_new_pec"
-            )
+            cloned_conductivity = stack_up.get_property_by_material_name("conductivity", "my_new_pec")
             conductivity = stack_up.get_property_by_material_name("conductivity", "pec")
-            cloned_dielectric_loss = stack_up.get_property_by_material_name(
-                "dielectric_loss_tangent", "my_new_pec"
-            )
-            dielectric_loss = stack_up.get_property_by_material_name(
-                "dielectric_loss_tangent", "pec"
-            )
-            cloned_magnetic_loss = stack_up.get_property_by_material_name(
-                "magnetic_loss_tangent", "my_new_pec"
-            )
-            magnetic_loss = stack_up.get_property_by_material_name(
-                "magnetic_loss_tangent", "pec"
-            )
+            cloned_dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "my_new_pec")
+            dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "pec")
+            cloned_magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "my_new_pec")
+            magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "pec")
             assert cloned_permittivity == permittivity
             assert cloned_permeability == permeability
             assert cloned_conductivity == conductivity
             assert cloned_dielectric_loss == dielectric_loss
             assert cloned_magnetic_loss == magnetic_loss
-            non_duplicated = stack_up.duplicate_material(
-                "my_nonexistent_mat", "nothing"
-            )
+            non_duplicated = stack_up.duplicate_material("my_nonexistent_mat", "nothing")
             assert not non_duplicated
 
         def test_A100_get_property_by_material_name(self):
             stack_up = self.edbapp.core_stackup
-            permittivity = stack_up.get_property_by_material_name(
-                "permittivity", "FR4_epoxy"
-            )
-            permeability = stack_up.get_property_by_material_name(
-                "permeability", "FR4_epoxy"
-            )
-            conductivity = stack_up.get_property_by_material_name(
-                "conductivity", "copper"
-            )
-            dielectric_loss = stack_up.get_property_by_material_name(
-                "dielectric_loss_tangent", "FR4_epoxy"
-            )
-            magnetic_loss = stack_up.get_property_by_material_name(
-                "magnetic_loss_tangent", "FR4_epoxy"
-            )
+            permittivity = stack_up.get_property_by_material_name("permittivity", "FR4_epoxy")
+            permeability = stack_up.get_property_by_material_name("permeability", "FR4_epoxy")
+            conductivity = stack_up.get_property_by_material_name("conductivity", "copper")
+            dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "FR4_epoxy")
+            magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "FR4_epoxy")
             assert permittivity == 4.4
             assert permeability == 0
             assert conductivity == 59590000
             assert dielectric_loss == 0.02
             assert magnetic_loss == 0
-            failing_test_1 = stack_up.get_property_by_material_name(
-                "magnetic_loss_tangent", "inexistent_material"
-            )
+            failing_test_1 = stack_up.get_property_by_material_name("magnetic_loss_tangent", "inexistent_material")
             assert not failing_test_1
-            failing_test_2 = stack_up.get_property_by_material_name(
-                "none_property", "copper"
-            )
+            failing_test_2 = stack_up.get_property_by_material_name("none_property", "copper")
             assert not failing_test_2
 
         def test_A101_classify_nets(self):
@@ -1963,9 +1643,7 @@ if not config["skip_edb"]:
             self.edbapp.core_nets.classify_nets(sim_setup)
 
         def test_A102_place_a3dcomp_3d_placement(self):
-            source_path = os.path.join(
-                local_path, "example_models", "lam_for_bottom_place.aedb"
-            )
+            source_path = os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb")
             target_path = os.path.join(self.local_scratch.path, "output.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
             laminate_edb = Edb(target_path, edbversion=desktop_version)
@@ -2006,29 +1684,21 @@ if not config["skip_edb"]:
                 assert res
                 zero_value = laminate_edb.edb_value(0)
                 one_value = laminate_edb.edb_value(1)
-                origin_point = laminate_edb.edb.Geometry.Point3DData(
-                    zero_value, zero_value, zero_value
-                )
-                x_axis_point = laminate_edb.edb.Geometry.Point3DData(
-                    one_value, zero_value, zero_value
-                )
+                origin_point = laminate_edb.edb.Geometry.Point3DData(zero_value, zero_value, zero_value)
+                x_axis_point = laminate_edb.edb.Geometry.Point3DData(one_value, zero_value, zero_value)
                 assert local_origin.IsEqual(origin_point)
                 assert rotation_axis_from.IsEqual(x_axis_point)
                 assert rotation_axis_to.IsEqual(x_axis_point)
                 assert angle.IsEqual(zero_value)
                 assert loc.IsEqual(
-                    laminate_edb.edb.Geometry.Point3DData(
-                        zero_value, zero_value, laminate_edb.edb_value(170e-6)
-                    )
+                    laminate_edb.edb.Geometry.Point3DData(zero_value, zero_value, laminate_edb.edb_value(170e-6))
                 )
                 assert laminate_edb.save_edb()
             finally:
                 laminate_edb.close_edb()
 
         def test_A02b_place_a3dcomp_3d_placement_on_bottom(self):
-            source_path = os.path.join(
-                local_path, "example_models", "lam_for_bottom_place.aedb"
-            )
+            source_path = os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb")
             target_path = os.path.join(self.local_scratch.path, "output.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
             laminate_edb = Edb(target_path, edbversion=desktop_version)
@@ -2070,18 +1740,12 @@ if not config["skip_edb"]:
                 zero_value = laminate_edb.edb_value(0)
                 one_value = laminate_edb.edb_value(1)
                 flip_angle_value = laminate_edb.edb_value("180deg")
-                origin_point = laminate_edb.edb.Geometry.Point3DData(
-                    zero_value, zero_value, zero_value
-                )
-                x_axis_point = laminate_edb.edb.Geometry.Point3DData(
-                    one_value, zero_value, zero_value
-                )
+                origin_point = laminate_edb.edb.Geometry.Point3DData(zero_value, zero_value, zero_value)
+                x_axis_point = laminate_edb.edb.Geometry.Point3DData(one_value, zero_value, zero_value)
                 assert local_origin.IsEqual(origin_point)
                 assert rotation_axis_from.IsEqual(x_axis_point)
                 assert rotation_axis_to.IsEqual(
-                    laminate_edb.edb.Geometry.Point3DData(
-                        zero_value, laminate_edb.edb_value(-1.0), zero_value
-                    )
+                    laminate_edb.edb.Geometry.Point3DData(zero_value, laminate_edb.edb_value(-1.0), zero_value)
                 )
                 assert angle.IsEqual(flip_angle_value)
                 assert loc.IsEqual(
@@ -2100,11 +1764,7 @@ if not config["skip_edb"]:
                 edbpath=os.path.join(local_path, "example_models", "edge_ports.aedb"),
                 edbversion=desktop_version,
             )
-            poly_list = [
-                poly
-                for poly in list(edb.active_layout.Primitives)
-                if int(poly.GetPrimitiveType()) == 2
-            ]
+            poly_list = [poly for poly in list(edb.active_layout.Primitives) if int(poly.GetPrimitiveType()) == 2]
             port_poly = [poly for poly in poly_list if poly.GetId() == 17][0]
             ref_poly = [poly for poly in poly_list if poly.GetId() == 19][0]
             port_location = [-65e-3, -13e-3]
@@ -2159,9 +1819,7 @@ if not config["skip_edb"]:
 
         def test_A105_add_soure(self):
             example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
-            self.target_path = os.path.join(
-                self.local_scratch.path, "test_create_source", "Galileo.aedb"
-            )
+            self.target_path = os.path.join(self.local_scratch.path, "test_create_source", "Galileo.aedb")
             self.local_scratch.copyfolder(example_project, self.target_path)
             src = Source()
             src.source_type = SourceType.Vsource
@@ -2225,15 +1883,9 @@ if not config["skip_edb"]:
             self.local_scratch.copyfolder(source_path, target_path)
             edb = Edb(target_path)
             initial_extent_info = edb.active_cell.GetHFSSExtentInfo()
-            assert (
-                initial_extent_info.ExtentType
-                == edb.edb.Utility.HFSSExtentInfoType.Conforming
-            )
+            assert initial_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.Conforming
             config = SimulationConfiguration()
             config.radiation_box = RadiationBoxType.BoundingBox
             assert edb.core_hfss.configure_hfss_extents(config)
             final_extent_info = edb.active_cell.GetHFSSExtentInfo()
-            assert (
-                final_extent_info.ExtentType
-                == edb.edb.Utility.HFSSExtentInfoType.BoundingBox
-            )
+            assert final_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.BoundingBox
