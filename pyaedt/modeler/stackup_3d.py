@@ -2012,7 +2012,12 @@ class Trace(CommonObject, object):
         axis="X",
     ):
         CommonObject.__init__(self, application)
-        self._frequency = NamedVariable(application, line_name + "_frequency", str(frequency) + "Hz")
+        if frequency:
+            self._frequency = NamedVariable(application, line_name + "_frequency", str(frequency) + "Hz")
+        elif signal_layer.frequency:
+            self._frequency = signal_layer.frequency
+        else:
+            self._frequency = signal_layer.stackup.frequency
         self._signal_layer = signal_layer
         self._dielectric_layer = dielectric_layer
         self._substrate_thickness = dielectric_layer.thickness
