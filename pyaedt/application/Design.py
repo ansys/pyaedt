@@ -304,7 +304,7 @@ class Design(AedtObjects):
             Dictionary of the project properties.
         """
         start = time.time()
-        if not self._project_dictionary and os.path.exists(self.project_file):
+        if (not self._project_dictionary and os.path.exists(self.project_file)) or self.project_timestamp_changed:
             self._project_dictionary = load_entire_aedt_file(self.project_file)
             self._logger.info("aedt file load time {}".format(time.time() - start))
         return self._project_dictionary
