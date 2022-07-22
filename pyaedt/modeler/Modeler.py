@@ -144,9 +144,10 @@ class BaseCoordinateSystem(PropsManager, object):
         """
         try:
             self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-            for cs in range(0, len(self._modeler.coordinate_systems)):
-                if self._modeler.coordinate_systems[cs].ref_cs == self.name:
-                    self._modeler.coordinate_systems.pop(cs)
+            if "ref_cs" in dir(self):
+                for cs in range(0, len(self._modeler.coordinate_systems)):
+                    if self._modeler.coordinate_systems[cs].ref_cs == self.name:
+                        self._modeler.coordinate_systems.pop(cs)
             self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(self))
             self._modeler.cleanup_objects()
         except:
