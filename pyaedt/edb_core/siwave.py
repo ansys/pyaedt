@@ -10,6 +10,8 @@ from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.EDB_Data import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import SweepType
+from pyaedt.generic.constants import SolverType
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -1374,21 +1376,15 @@ class EdbSiwave(object):
                             simulation_setup.step_freq,
                         )
                     else:
-                        sweep.Frequencies = convert_py_list_to_net_list(
-                            self._pedb.simsetupdata.SweepData.SetFrequencies(
-                                simulation_setup.start_frequency,
-                                simulation_setup.stop_freq,
-                                simulation_setup.step_freq,
-                            )
-                        )
-                if is_ironpython:
-                    simsetup_info.SweepDataList.Add(sweep)
-                else:
-                    simsetup_info.SweepDataList = convert_py_list_to_net_list([sweep])
+                        sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
+                            simulation_setup.start_frequency,
+                            simulation_setup.stop_freq,
+                            simulation_setup.step_freq)
+                simsetup_info.SweepDataList.Add(sweep)
             except Exception as err:
                 self._logger.error("Exception in sweep configuration: {0}.".format(err))
-            sim_setup = self._edb.Utility.SIWaveSimulationSetup(simsetup_info)
-            return self._cell.AddSimulationSetup(sim_setup)
+            edb_sim_setup = self._edb.Utility.SIWaveSimulationSetup(simsetup_info)
+            return self._cell.AddSimulationSetup(edb_sim_setup)
         if simulation_setup.solver_type == SolverType.SiwaveDC:  # pragma: no cover
             simsetup_info = self._pedb.simsetupdata.SimSetupInfo[
                 self._pedb.simsetupdata.SIwave.SIWDCIRSimulationSettings
