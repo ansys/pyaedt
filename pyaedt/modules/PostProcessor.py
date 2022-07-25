@@ -18,7 +18,6 @@ from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.solutions import FieldPlot
@@ -728,10 +727,8 @@ class PostProcessorCommon(object):
         if names:
             for name in names:
                 obj = self._app.get_oo_object(self.oreportsetup, name)
-                if is_ironpython:
-                    report_type = obj.Get_ReportType()
-                else:
-                    report_type = obj.Get_ReportType
+                report_type = obj.GetPropValue("Report Type")
+
                 if report_type in TEMPLATES_BY_NAME:
                     report = TEMPLATES_BY_NAME[report_type]
                 else:
@@ -739,10 +736,7 @@ class PostProcessorCommon(object):
                 plots.append(report(self, report_type, None))
                 plots[-1].plot_name = name
                 plots[-1]._is_created = True
-                if is_ironpython:
-                    plots[-1].report_type = obj.Get_DisplayType()
-                else:
-                    plots[-1].report_type = obj.Get_DisplayType
+                plots[-1].report_type = obj.GetPropValue("Display Type")
         return plots
 
     @property

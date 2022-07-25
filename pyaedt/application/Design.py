@@ -304,10 +304,12 @@ class Design(AedtObjects):
             Dictionary of the project properties.
         """
         start = time.time()
-        if (not settings._project_properties and os.path.exists(self.project_file)) or self.project_timestamp_changed:
-            settings._project_properties = load_entire_aedt_file(self.project_file)
+        if (
+            os.path.exists(self.project_file) and self.project_file not in settings._project_properties
+        ) or self.project_timestamp_changed:
+            settings._project_properties[self.project_file] = load_entire_aedt_file(self.project_file)
             self._logger.info("aedt file load time {}".format(time.time() - start))
-        return settings._project_properties
+        return settings._project_properties[self.project_file]
 
     @property
     def design_properties(self):
@@ -3337,10 +3339,7 @@ class Design(AedtObjects):
             else:
                 var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
         if var_obj:
-            if is_ironpython or settings.use_grpc_api:  # pragma: no cover
-                val = var_obj.Get_SIValue()
-            else:
-                val = var_obj.Get_SIValue
+            val = var_obj.GetPropValue("SIValue")
         elif not val:
             try:
                 variation_string = self._odesign.GetNominalVariation()
