@@ -541,7 +541,7 @@ class Layer3D(object):
 
         Parameters
         ----------
-        frequency : float
+        frequency : float, None
             Frequency value for the patch calculation in Hz.
         patch_width : float
             Patch width.
@@ -567,9 +567,9 @@ class Layer3D(object):
         >>> from pyaedt.modeler.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
-        >>> gnd = st.add_ground_layer("gnd")
-        >>> st.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
-        >>> top = st.add_signal_layer("top")
+        >>> gnd = my_stackup.add_ground_layer("gnd")
+        >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+        >>> top = my_stackup.add_signal_layer("top")
         >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
         >>> my_stackup.resize_around_element(my_patch)
 
@@ -616,7 +616,7 @@ class Layer3D(object):
 
         Parameters
         ----------
-        frequency : float
+        frequency : float, None
             Frequency value for patch calculation in Hz.
         patch_width : float
             Patch width.
@@ -642,9 +642,9 @@ class Layer3D(object):
         >>> from pyaedt.modeler.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
-        >>> gnd = st.add_ground_layer("gnd")
-        >>> st.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
-        >>> top = st.add_signal_layer("top")
+        >>> gnd = my_stackup.add_ground_layer("gnd")
+        >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+        >>> top = my_stackup.add_signal_layer("top")
         >>> my_patch = top.ml_patch(frequency=None, patch_width=51, patch_name="MLPatch")
         >>> my_stackup.resize_around_element(my_patch)
 
@@ -727,11 +727,11 @@ class Layer3D(object):
 
         >>> from pyaedt import Hfss
         >>> from pyaedt.modeler.stackup_3d import Stackup3D
-        >>> hfss = Hfss()
+        >>> hfss = Hfss(new_desktop_session=True)
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
-        >>> gnd = st.add_ground_layer("gnd")
-        >>> st.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
-        >>> top = st.add_signal_layer("top")
+        >>> gnd = my_stackup.add_ground_layer("gnd")
+        >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+        >>> top = my_stackup.add_signal_layer("top")
         >>> my_trace = top.add_trace(line_width=2.5, line_length=22)
         >>> my_stackup.resize_around_element(my_trace)
 
@@ -794,14 +794,14 @@ class Layer3D(object):
         >>> from pyaedt.modeler.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
-        >>> gnd = st.add_ground_layer("gnd")
-        >>> st.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
-        >>> top = st.add_signal_layer("top")
-        >>> my_polygon = top.add_polygon([[0,0], [1,0], [0,1], [1,1]])
-        >>> my_stackup.dielectric_x_position = "-2mm"
-        >>> my_stackup.dielectric_y_position = "-2mm"
-        >>> my_stackup.dielectric_length = "3mm"
-        >>> my_stackup.dielectric_width= "-2mm"
+        >>> gnd = my_stackup.add_ground_layer("gnd")
+        >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+        >>> top = my_stackup.add_signal_layer("top")
+        >>> my_polygon = top.add_polygon([[0, 0], [0, 1], [1, 1], [1, 0]])
+        >>> my_stackup.dielectric_x_position = "2mm"
+        >>> my_stackup.dielectric_y_position = "2mm"
+        >>> my_stackup.dielectric_length = "-3mm"
+        >>> my_stackup.dielectric_width= "-3mm"
 
         """
         if not poly_name:
@@ -1538,7 +1538,7 @@ class Stackup3D(object):
 
         Parameters
         ----------
-        element : :class:`pyaedt.modeler.stackup_3d.Patch
+        element : :class:`pyaedt.modeler.stackup_3d.Patch, :class:`pyaedt.modeler.stackup_3d.Trace
             Element around which the resizing is done.
         percentage_offset : float, optional
             Offset of resize. Value accepted are greater than 0. O.25 by default.
