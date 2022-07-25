@@ -295,7 +295,7 @@ class Design(AedtObjects):
     # but after they are never updated along the different project steps.
 
     @property
-    def project_properies(self):
+    def project_properties(self):
         """Project properties.
 
         Returns
@@ -304,10 +304,12 @@ class Design(AedtObjects):
             Dictionary of the project properties.
         """
         start = time.time()
-        if (not self._project_dictionary and os.path.exists(self.project_file)) or self.project_timestamp_changed:
-            self._project_dictionary = load_entire_aedt_file(self.project_file)
+        if (
+            os.path.exists(self.project_file) and self.project_file not in settings._project_properties
+        ) or self.project_timestamp_changed:
+            settings._project_properties[self.project_file] = load_entire_aedt_file(self.project_file)
             self._logger.info("aedt file load time {}".format(time.time() - start))
-        return self._project_dictionary
+        return settings._project_properties[self.project_file]
 
     @property
     def design_properties(self):
@@ -319,18 +321,10 @@ class Design(AedtObjects):
            Dictionary of the design properties.
 
         """
-        # if self._design_dictionary is None and os.path.exists(self.project_file):
-        #     try:
-        #         start = time.time()
-        #         self._design_dictionary = load_keyword_in_aedt_file(self.project_file,
-        #                                                             self.design_name)[self.design_name]
-        #         self._logger.info("aedt design load time {}".format(time.time() - start))
-        #     except (KeyError, TypeError):
-        #         self._design_dictionary = OrderedDict()
-        # return self._design_dictionary
+
         try:
-            if model_names[self._design_type] in self.project_properies["AnsoftProject"]:
-                designs = self.project_properies["AnsoftProject"][model_names[self._design_type]]
+            if model_names[self._design_type] in self.project_properties["AnsoftProject"]:
+                designs = self.project_properties["AnsoftProject"][model_names[self._design_type]]
                 if isinstance(designs, list):
                     for design in designs:
                         if design["Name"] == self.design_name:
@@ -500,15 +494,15 @@ class Design(AedtObjects):
     def project_time_stamp(self):
         """Return Project time stamp."""
         if os.path.exists(self.project_file):
-            self._mttime = os.path.getmtime(self.project_file)
+            settings._project_time_stamp = os.path.getmtime(self.project_file)
         else:
-            self._mttime = 0
-        return self._mttime
+            settings._project_time_stamp = 0
+        return settings._project_time_stamp
 
     @property
     def project_timestamp_changed(self):
         """Return a bool if time stamp changed or not."""
-        old_time = self._mttime
+        old_time = settings._project_time_stamp
         return old_time != self.project_time_stamp
 
     @property
@@ -1949,8 +1943,8 @@ class Design(AedtObjects):
         """ """
         datasets = {}
         try:
-            for ds in self.project_properies["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"]:
-                datas = self.project_properies["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"][ds][
+            for ds in self.project_properties["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"]:
+                datas = self.project_properties["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"][ds][
                     "Coordinates"
                 ]
                 datasets[ds] = self._get_ds_data(ds, datas)
@@ -1964,7 +1958,7 @@ class Design(AedtObjects):
         datasets = {}
         try:
             for ds in self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"]:
-                datas = self.project_properies["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
+                datas = self.project_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
                 datasets[ds] = self._get_ds_data(ds, datas)
         except:
             pass
@@ -3074,7 +3068,7 @@ class Design(AedtObjects):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        design_info = self.project_properies["ProjectPreview"]["DesignInfo"]
+        design_info = self.project_properties["ProjectPreview"]["DesignInfo"]
         if not isinstance(design_info, dict):
             # there are multiple designs, find the right one
             # is self.design_name guaranteed to be there?
@@ -3345,10 +3339,7 @@ class Design(AedtObjects):
             else:
                 var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
         if var_obj:
-            if is_ironpython or settings.use_grpc_api:  # pragma: no cover
-                val = var_obj.Get_SIValue()
-            else:
-                val = var_obj.Get_SIValue
+            val = var_obj.GetPropValue("SIValue")
         elif not val:
             try:
                 variation_string = self._odesign.GetNominalVariation()

@@ -1003,6 +1003,8 @@ class Settings(object):
         self.formatter = None
         self.remote_rpc_session = None
         self.remote_rpc_session_temp_folder = ""
+        self._project_properties = {}
+        self._project_time_stamp = 0
 
     @property
     def use_grpc_api(self):
