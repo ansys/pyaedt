@@ -14,20 +14,7 @@ This example runs only on Windows using CPython.
 # Perform required imports and set the local path to the path for PyAEDT.
 
 # sphinx_gallery_thumbnail_path = 'Resources/nde.png'
-import os
-import pathlib
-import sys
 
-# Set local path to path for PyAEDT
-local_path = os.path.abspath("")
-module_path = pathlib.Path(local_path)
-root_path = module_path.parent
-root_path2 = root_path.parent
-root_path3 = root_path2.parent
-path1 = os.path.join(root_path2)
-path2 = os.path.join(root_path3)
-sys.path.append(path1)
-sys.path.append(path2)
 from pyaedt import examples
 
 example_path = examples.download_touchstone()

@@ -13,6 +13,7 @@ import random
 import re
 import string
 import sys
+import tempfile
 import time
 import traceback
 from collections import OrderedDict
@@ -513,6 +514,53 @@ def generate_unique_name(rootname, suffix="", n=6):
     if suffix:
         unique_name += "_" + suffix
     return unique_name
+
+
+@pyaedt_function_handler()
+def generate_unique_folder_name(rootname=None, folder_name=None):
+    """Generate a new aedt folder name given a rootname.
+
+    Parameters
+    ----------
+    rootname : str, optional
+        Root name where to create the new folder.
+    folder_name : str, optional
+        Either if the new folder has to be created or not.
+
+    Returns
+    -------
+    str
+    """
+    if not rootname:
+        rootname = tempfile.gettempdir()
+    if not folder_name:
+        folder_name = generate_unique_name("pyaedt_prj", n=3)
+    temp_folder = os.path.join(rootname, folder_name)
+    if not os.path.exists(temp_folder):
+        os.makedirs(temp_folder)
+
+    return temp_folder
+
+
+@pyaedt_function_handler()
+def generate_unique_project_name(rootname=None, folder_name=None, project_name=None):
+    """Generate a new aedt project name given a rootname.
+
+    Parameters
+    ----------
+    rootname : str, optional
+        Root name to which add 6 Random chars
+    folder_name : str, optional
+        Name of the folder to be created.
+    Returns
+    -------
+    str
+    """
+    if not project_name:
+        project_name = generate_unique_name("Project", n=3) + ".aedt"
+    else:
+        project_name += ".aedt"
+    return os.path.join(generate_unique_folder_name(rootname, folder_name=folder_name), project_name)
 
 
 def _retry_ntimes(n, function, *args, **kwargs):

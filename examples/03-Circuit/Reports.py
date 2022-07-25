@@ -14,17 +14,14 @@ import os
 
 import shutil
 from pyaedt import examples
-from pyaedt import generate_unique_name
+from pyaedt import generate_unique_folder_name
+
 import tempfile
 
 # Set local path to path for PyAEDT
-project_path = examples.download_custom_reports()
+temp_folder = generate_unique_folder_name()
+project_path = examples.download_custom_reports(temp_folder)
 
-tmpfold = tempfile.gettempdir()
-temp_folder = os.path.join(tmpfold, generate_unique_name("CustomReport"))
-
-
-shutil.copytree(project_path, temp_folder)
 
 ###############################################################################
 # Import main classes
@@ -44,7 +41,8 @@ desktopVersion = "2022.2"
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = True
@@ -57,7 +55,7 @@ NewThread = True
 # parameter ``NewThread`` defines whether to create a new instance of AEDT or try
 # to connect to an existing instance of it.
 
-cir = Circuit(projectname=os.path.join(temp_folder, 'CISPR25_Radiated_Emissions_Example22R1.aedtz'), non_graphical=non_graphical,
+cir = Circuit(projectname=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example22R1.aedtz'), non_graphical=non_graphical,
               specified_version=desktopVersion)
 
 ###############################################################################
@@ -69,10 +67,10 @@ cir = Circuit(projectname=os.path.join(temp_folder, 'CISPR25_Radiated_Emissions_
 # notes and edit axes, the grid, and the legend. You can create custom reports
 # in non-graphical mode in AEDT 2022 R2 and later.
 
-report1 = cir.post.create_report_from_configuration(os.path.join(temp_folder,'Spectrum_CISPR_Basic.json'))
+report1 = cir.post.create_report_from_configuration(os.path.join(project_path,'Spectrum_CISPR_Basic.json'))
 
 if not non_graphical:
-    report1_full = cir.post.create_report_from_configuration(os.path.join(temp_folder,'Spectrum_CISPR_Custom.json'))
+    report1_full = cir.post.create_report_from_configuration(os.path.join(project_path,'Spectrum_CISPR_Custom.json'))
 
 ###############################################################################
 # Create transient report
@@ -83,9 +81,9 @@ if not non_graphical:
 # mode in AEDT 2022 R2 and later.
 
 if non_graphical:
-    props = json_to_dict(os.path.join(temp_folder, 'Transient_CISPR_Basic.json'))
+    props = json_to_dict(os.path.join(project_path, 'Transient_CISPR_Basic.json'))
 else:
-    props = json_to_dict(os.path.join(temp_folder, 'Transient_CISPR_Custom.json'))
+    props = json_to_dict(os.path.join(project_path, 'Transient_CISPR_Custom.json'))
 
 report2 = cir.post.create_report_from_configuration(input_dict=props, solution_name="NexximTransient")
 props["expressions"] = {"V(Battery)": {}, "V(U1_VDD)": {}}
@@ -99,10 +97,10 @@ report3 = cir.post.create_report_from_configuration(input_dict=props, solution_n
 # an eye diagram and fully customize it. You can create custom reports in
 # non-graphical mode in AEDT 2022 R2 and later.
 
-report4 = cir.post.create_report_from_configuration(os.path.join(temp_folder,'EyeDiagram_CISPR_Basic.json'))
+report4 = cir.post.create_report_from_configuration(os.path.join(project_path,'EyeDiagram_CISPR_Basic.json'))
 
 if not non_graphical:
-    report4_full = cir.post.create_report_from_configuration(os.path.join(temp_folder,'EyeDiagram_CISPR_Custom.json'))
+    report4_full = cir.post.create_report_from_configuration(os.path.join(project_path,'EyeDiagram_CISPR_Custom.json'))
 
 if not non_graphical:
     cir.post.export_report_to_jpg(cir.working_directory, report4.plot_name)

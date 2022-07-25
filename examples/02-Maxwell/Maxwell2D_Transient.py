@@ -24,10 +24,13 @@ Install these with:
 
 import os
 from pyaedt import Maxwell2d
+from pyaedt import generate_unique_project_name
 
 ##########################################################
 # Set non-graphical mode
-# Set non-graphical mode. The default is ``False``.
+# ~~~~~~~~~~~~~~~~~~~~~~
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -37,9 +40,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # Insert a Maxwell 2D design and save the project.
 
 maxwell_2d = Maxwell2d(solution_type="TransientXY", specified_version="2022.2", non_graphical=non_graphical,
-                       new_desktop_session=True)
-project_dir = maxwell_2d.generate_temp_project_directory("Example")
-maxwell_2d.save_project(os.path.join(project_dir, "M2d.aedt"))
+                       new_desktop_session=True, projectname=generate_unique_project_name())
 
 ###############################################################################
 # Create rectangle and duplicate it

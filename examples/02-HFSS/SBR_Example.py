@@ -11,23 +11,17 @@ HFSS antenna and run a simulation.
 # directory.
 
 import os
-import tempfile
-from pyaedt import examples, generate_unique_name
-
-project_full_name = examples.download_sbr()
-project_name = os.path.basename(project_full_name)[:-5]
-tmpfold = tempfile.gettempdir()
-
-
-temp_folder = os.path.join(tmpfold, generate_unique_name("SBR"))
-if not os.path.exists(temp_folder):
-    os.mkdir(temp_folder)
+from pyaedt import examples, generate_unique_project_name
 from pyaedt import Hfss
+
+project_full_name = examples.download_sbr(generate_unique_project_name())
+
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -45,8 +39,7 @@ target = Hfss(
     new_desktop_session=True,
     non_graphical=non_graphical
 )
-target.save_project(os.path.join(temp_folder, project_name + ".aedt"))
-source = Hfss(projectname=project_name, designname="feeder", specified_version="2022.2", new_desktop_session=False)
+source = Hfss(projectname=target.project_name, designname="feeder", specified_version="2022.2", new_desktop_session=False)
 
 ###############################################################################
 # Define linked antenna

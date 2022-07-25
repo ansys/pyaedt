@@ -14,28 +14,32 @@ import os
 from pyaedt import Hfss
 from pyaedt import examples
 from pyaedt.generic.DataHandlers import json_to_dict
-from pyaedt.generic.general_methods import generate_unique_name
-import tempfile
+from pyaedt.generic.general_methods import generate_unique_project_name
+
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
+
+##########################################################
+# Download the 3d components
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Download the 3d components needed by the example to run.
 example_path = examples.download_3dcomponent()
 
 ##########################################################
 # Launch HFSS and save project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch HFSS and save the project.
+project_name = generate_unique_project_name()
+hfss = Hfss(projectname=project_name, specified_version="2022.2", designname="Array_Simple", non_graphical=non_graphical, new_desktop_session=True)
 
-hfss = Hfss(specified_version="2022.2", designname="Array_Simple", non_graphical=non_graphical, new_desktop_session=True)
-tmpfold = tempfile.gettempdir()
-name = generate_unique_name("array_demo")
-hfss.save_project(os.path.join(tmpfold, name+".aedt"))
-
-print(os.path.join(tmpfold, name+".aedt"))
+print("Project name " + project_name)
 
 ##########################################################
 # Read array definition from JSON file

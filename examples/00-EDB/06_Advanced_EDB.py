@@ -7,14 +7,11 @@ This example shows how to use EDB to create a layout.
 
 import os
 import numpy as np
-import tempfile
 from pyaedt import Edb
-from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import generate_unique_folder_name, generate_unique_name
 
-tmpfold = tempfile.gettempdir()
-if not os.path.exists(tmpfold):
-    os.mkdir(tmpfold)
-aedb_path = os.path.join(tmpfold, generate_unique_name("via_opt") + ".aedb")
+
+aedb_path = os.path.join(generate_unique_folder_name(), generate_unique_name("via_opt") + ".aedb")
 
 ###############################################################################
 # Create stackup

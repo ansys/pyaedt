@@ -155,6 +155,10 @@ def _delete_objects():
             _global.removeHandler(module._aedt_handler[i])
     except AttributeError:
         pass
+    try:
+        del module.oAnsoftApplication
+    except AttributeError:
+        pass
     gc.collect()
 
 

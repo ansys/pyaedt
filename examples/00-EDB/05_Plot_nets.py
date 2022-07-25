@@ -9,25 +9,18 @@ This example shows how to use the ``Edb`` class to plot a net or a layout.
 # ~~~~~~~~~~~~~~
 # Import section.
 
-import shutil
 import os
-import tempfile
-from pyaedt import generate_unique_name, examples, Edb
+from pyaedt import generate_unique_folder_name, examples, Edb
 
 ###############################################################################
 # Download file
 # ~~~~~~~~~~~~~
 # Download the AEDT file and copy it into the temporary folder.
 
-tmpfold = tempfile.gettempdir()
-temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder):
-    os.makedirs(temp_folder)
-example_path = examples.download_aedb()
-targetfolder = os.path.join(temp_folder, "Galileo.aedb")
-if os.path.exists(targetfolder):
-    shutil.rmtree(targetfolder)
-shutil.copytree(example_path[:-8], targetfolder)
+temp_folder = generate_unique_folder_name()
+
+targetfolder = os.path.dirname(examples.download_aedb(temp_folder))
+
 
 ###############################################################################
 # Launch EDB
