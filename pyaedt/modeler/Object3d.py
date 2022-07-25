@@ -608,6 +608,32 @@ class FacePrimitive(object):
         return self._object3d.object_units
 
     @property
+    def touching_objects(self):
+        """Get the objects that touch one of the vertex, edge midpoint or the actual face.
+
+        Returns
+        -------
+        list
+            Object names touching that face.
+        """
+        list_names = []
+        for vertex in self.vertices:
+            body_names = self._object3d._primitives.get_bodynames_from_position(vertex.position)
+            a = [i for i in body_names if i != self._object3d.name and i not in list_names]
+            if a:
+                list_names.extend(a)
+        for edge in self.edges:
+            body_names = self._object3d._primitives.get_bodynames_from_position(edge.midpoint)
+            a = [i for i in body_names if i != self._object3d.name and i not in list_names]
+            if a:
+                list_names.extend(a)
+        body_names = self._object3d._primitives.get_bodynames_from_position(self.center)
+        a = [i for i in body_names if i != self._object3d.name and i not in list_names]
+        if a:
+            list_names.extend(a)
+        return list_names
+
+    @property
     def edges(self):
         """Edges lists.
 
