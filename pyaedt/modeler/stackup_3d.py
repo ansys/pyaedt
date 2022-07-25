@@ -23,6 +23,27 @@ LAYERS = {"s": "signal", "g": "ground", "d": "dielectric"}
 
 
 def _replace_by_underscore(character, string):
+    """Replace each character of a string by underscores.
+    This method is used to create Hfss variable relative to a material,
+    and so reformat the material name into the variable name format.
+
+    Parameters
+    ----------
+    character : str
+        The character to replace by underscore.
+    string : str
+        The string where the replacement is made.
+
+    Examples
+    --------
+
+    >>> from pyaedt.modeler.stackup_3d import _replace_by_underscore
+    >>> name = "Duroid (tm)"
+    >>> name = _replace_by_underscore(" ", name)
+    >>> name = _replace_by_underscore("(", name)
+    >>> name = _replace_by_underscore(")", name)
+
+    """
     if not isinstance(character, str):
         raise TypeError("character must be str")
     if not isinstance(character, str):
@@ -51,7 +72,7 @@ class NamedVariable(object):
     --------
 
     >>> from pyaedt import Hfss
-    >>> from pyaedt.modeler.stackup_3d import Stackup3D
+    >>> from pyaedt.modeler.stackup_3d import NamedVariable
     >>> hfss = Hfss()
     >>> my_frequency = NamedVariable(hfss, "my_frequency", "900000Hz")
     >>> wave_length_formula = "c0/" + my_frequency.name
@@ -130,6 +151,7 @@ class NamedVariable(object):
             Whether the variable is a hidden variable. The default is ``True``.
 
         Returns
+        -------
         bool
         """
         self._application.variable_manager[self._name].hidden = value
@@ -153,7 +175,33 @@ class NamedVariable(object):
 
 
 class DuplicatedParametrizedMaterial(object):
-    """Provides a class to duplicate a material and manage its duplication in PyAEDT and in AEDT."""
+    """Provides a class to duplicate a material and manage its duplication in PyAEDT and in AEDT.
+    For each material property a NamedVariable is created as attribute.
+
+    Parameters
+    application : :class:`pyaedt.hfss.Hfss
+        HFSS design or project where the variable is to be created.
+    material_name : str
+        The material name which will be cloned.
+    cloned_material_name : str
+        The cloned material named
+    list_of_properties : list of string
+        Currently unavailable, but this parameter could be used to select the properties which needs to be parametrized.
+        Currently, the permittivity, permeability, conductivity, dielectric loss tangent and the magnetic loss tangent
+         are parametrized with a NamedVariable.
+
+    Examples
+    --------
+
+    >>> from pyaedt import Hfss
+    >>> from pyaedt.modeler.stackup_3d import DuplicatedParametrizedMaterial
+    >>> hfss = Hfss()
+    >>> my_copper = DuplicatedParametrizedMaterial(hfss, "copper", "my_copper")
+    >>> my_material_name = my_copper.material_name
+    >>> my_material = my_copper.material
+    >>> my_copper_conductivity = my_copper.conductivity
+
+     """
 
     def __init__(self, application, material_name, cloned_material_name, list_of_properties=None):
         self._thickness = None
@@ -478,7 +526,6 @@ class Layer3D(object):
         self._stackup.duplicated_material_list.append(duplicated_material)
         return duplicated_material
 
-
     @pyaedt_function_handler()
     def add_patch(
         self,
@@ -512,6 +559,20 @@ class Layer3D(object):
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.Patch`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> from pyaedt.modeler.stackup_3d import Stackup3D
+        >>> hfss = Hfss()
+        >>> my_stackup = Stackup3D(hfss, 2.5e9)
+        >>> gnd = st.add_ground_layer("gnd")
+        >>> st.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+        >>> top = st.add_signal_layer("top")
+        >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
+        >>> my_stackup.resize_around_element(my_patch)
+
         """
         if not patch_name:
             patch_name = generate_unique_name("{}_patch".format(self._name), n=3)
@@ -572,7 +633,21 @@ class Layer3D(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.stackup_3d.Patch`
+        :class:`pyaedt.modeler.stackup_3d.MachineLearningPatch`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> from pyaedt.modeler.stackup_3d import Stackup3D
+        >>> hfss = Hfss()
+        >>> my_stackup = Stackup3D(hfss, 2.5e9)
+        >>> gnd = st.add_ground_layer("gnd")
+        >>> st.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+        >>> top = st.add_signal_layer("top")
+        >>> my_patch = top.ml_patch(frequency=None, patch_width=51, patch_name="MLPatch")
+        >>> my_stackup.resize_around_element(my_patch)
+
         """
         if not patch_name:
             patch_name = generate_unique_name("{}_patch".format(self._name), n=3)
@@ -645,7 +720,21 @@ class Layer3D(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.stackup_3d.Line`
+        :class:`pyaedt.modeler.stackup_3d.Trace`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> from pyaedt.modeler.stackup_3d import Stackup3D
+        >>> hfss = Hfss()
+        >>> my_stackup = Stackup3D(hfss, 2.5e9)
+        >>> gnd = st.add_ground_layer("gnd")
+        >>> st.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+        >>> top = st.add_signal_layer("top")
+        >>> my_trace = top.add_trace(line_width=2.5, line_length=22)
+        >>> my_stackup.resize_around_element(my_trace)
+
         """
         if not line_name:
             line_name = generate_unique_name("{0}_line".format(self._name), n=3)
@@ -696,6 +785,11 @@ class Layer3D(object):
 
         Returns
         -------
+        :class:`pyaedt.modeler.stackup_3d.Polygon`
+
+        Examples
+        --------
+
 
         """
         if not poly_name:
