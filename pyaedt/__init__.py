@@ -2,6 +2,7 @@
 import os
 import sys
 import warnings
+from distutils.sysconfig import get_python_lib
 
 os.environ["ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE"] = "1"
 os.environ["ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE"] = "1"
@@ -12,12 +13,11 @@ if os.path.exists(os.path.join(pyaedt_path, "version.txt")):
         __version__ = f.read().strip()
 if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" not in sys.version:  # pragma: no cover
     try:
-        from distutils.sysconfig import get_python_lib
-
-        from pythonnet import load
-
         site_package = get_python_lib()
         runtime = os.path.join(site_package, "dotnetcore2", "bin")
+        os.environ["DOTNET_ROOT"] = runtime
+        from pythonnet import load
+
         json_file = os.path.abspath(os.path.join(pyaedt_path, "misc", "pyaedt.runtimeconfig.json"))
         load("coreclr", runtime_config=json_file, dotnet_root=runtime)
         print("DotNet Core correctly loaded.")
@@ -28,7 +28,8 @@ if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" no
             msg += "$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH"
             warnings.warn(msg)
     except ImportError:
-        pass
+        msg = "pythonnet or dotnetcore not installed. Pyaedt will work only in client mode."
+        warnings.warn(msg)
 
 from pyaedt.generic import constants
 from pyaedt.generic.general_methods import _pythonver
