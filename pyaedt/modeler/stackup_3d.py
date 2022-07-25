@@ -790,6 +790,18 @@ class Layer3D(object):
         Examples
         --------
 
+        >>> from pyaedt import Hfss
+        >>> from pyaedt.modeler.stackup_3d import Stackup3D
+        >>> hfss = Hfss()
+        >>> my_stackup = Stackup3D(hfss, 2.5e9)
+        >>> gnd = st.add_ground_layer("gnd")
+        >>> st.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+        >>> top = st.add_signal_layer("top")
+        >>> my_polygon = top.add_polygon([[0,0], [1,0], [0,1], [1,1]])
+        >>> my_stackup.dielectric_x_position = "-2mm"
+        >>> my_stackup.dielectric_y_position = "-2mm"
+        >>> my_stackup.dielectric_length = "3mm"
+        >>> my_stackup.dielectric_width= "-2mm"
 
         """
         if not poly_name:
