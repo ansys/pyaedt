@@ -373,55 +373,6 @@ class EdbHfss(object):
         )
 
     @pyaedt_function_handler()
-    def create_resistor_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name="GND",
-        rvalue=1,
-        resistor_name="",
-    ):
-        """Create a Resistor boundary between two given nets.
-
-        Parameters
-        ----------
-        positive_component_name : str
-            Name of the positive component.
-        positive_net_name : str
-            Name of the positive net.
-        negative_component_name : str, optional
-            Name of the negative component. The default is ``None``, in which case the name of
-            the positive net is assigned.
-        negative_net_name : str, optional
-            Name of the negative net. The default is ``"GND"``.
-        rvalue : float, optional
-            Resistance value. The default is ``1``.
-        resistor_name : str, optional
-            Name of the resistor. The default is ``""``.
-
-        Returns
-        -------
-        str
-            Resistor Name
-
-        Examples
-        --------
-
-        >>> from pyaedt import Edb
-        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_hfss.create_resistor_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 1, "resistor_name")
-        """
-        return self._pedb.core_siwave.create_resistor_on_net(
-            positive_component_name,
-            positive_net_name,
-            negative_component_name,
-            negative_net_name,
-            rvalue,
-            resistor_name,
-        )
-
-    @pyaedt_function_handler()
     def create_coax_port_on_component(self, ref_des_list, net_list):
         """Create a coaxial port on a component or component list on a net or net list.
 

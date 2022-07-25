@@ -370,9 +370,6 @@ if not config["skip_edb"]:
             assert "I22" == self.edbapp.core_siwave.create_current_source_on_pin(pins[301], pins[10], 0.1, 0, "I22")
 
         def test_39B_create_resistors(self):
-            assert "myRes" in self.edbapp.core_siwave.create_resistor_on_net(
-                "U2A5", "V1P5_S0", "U2A5", "GND", 50, "myRes"
-            )
             pins = self.edbapp.core_components.get_pin_from_component("U2A5")
             assert "RST4000" == self.edbapp.core_siwave.create_resistor_on_pin(pins[302], pins[10], 40, "RST4000")
 
@@ -534,9 +531,9 @@ if not config["skip_edb"]:
         def test_54_create_component_from_pins(self):
             pins = self.edbapp.core_components.get_pin_from_component("R13")
             component = self.edbapp.core_components.create_component_from_pins(pins, "newcomp")
-            assert component[0]
-            assert component[1].GetName() == "newcomp"
-            assert len(list(component[1].LayoutObjs)) == 2
+            assert component
+            assert component.GetName() == "newcomp"
+            assert len(list(component.LayoutObjs)) == 2
 
         def test_55b_create_cutout(self):
             output = os.path.join(self.local_scratch.path, "cutout.aedb")
@@ -1800,45 +1797,40 @@ if not config["skip_edb"]:
             sim_setup = SimulationConfiguration()
             sim_setup.do_cutout_subdesign = False
             sim_setup.solver_type = SolverType.SiwaveDC
-            sim_setup.add_dc_source(
-                source_type=SourceType.Vsource,
+            sim_setup.add_voltage_source(
                 positive_node_component="Q3",
                 positive_node_net="SOURCE_HBA_PHASEA",
                 negative_node_component="Q3",
                 negative_node_net="HV_DC+",
             )
-            sim_setup.add_dc_source(
-                source_type=SourceType.Isource,
+            sim_setup.add_current_source(
                 positive_node_component="Q5",
                 positive_node_net="SOURCE_HBB_PHASEB",
                 negative_node_component="Q5",
                 negative_node_net="HV_DC+",
             )
-            edb.build_simulation_project(sim_setup)
+            assert len(sim_setup.sources) == 2
+            assert edb.build_simulation_project(sim_setup)
             edb.close_edb()
 
         def test_A105_add_soure(self):
             example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
             self.target_path = os.path.join(self.local_scratch.path, "test_create_source", "Galileo.aedb")
             self.local_scratch.copyfolder(example_project, self.target_path)
-            src = Source()
-            src.source_type = SourceType.Vsource
             sim_config = SimulationConfiguration()
-            sim_config.add_dc_source(
-                source_type=SourceType.Vsource,
+            sim_config.add_voltage_source(
                 positive_node_component="U2A5",
                 positive_node_net="V3P3_S0",
                 negative_node_component="U2A5",
                 negative_node_net="GND",
             )
-            sim_config.add_dc_source(
-                source_type=SourceType.Isource,
+            sim_config.add_current_source(
                 positive_node_component="U2A5",
                 positive_node_net="V1P5_S0",
                 negative_node_component="U2A5",
                 negative_node_net="GND",
             )
-            assert Edb(self.target_path).build_simulation_project(sim_config)
+            assert len(sim_config.sources) == 2
 
         def test_106_layout_tchickness(self):
             assert self.edbapp.core_stackup.get_layout_thickness()
