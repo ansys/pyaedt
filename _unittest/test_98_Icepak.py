@@ -437,3 +437,13 @@ class TestClass(BasisTest, object):
         assert app.get_liquid_objects() == ["Liquid"]
         assert app.get_gas_objects() == ["Region"]
         assert app.generate_fluent_mesh()
+
+    def test_39_update_assignment(self):
+        self.aedtapp.insert_design("updateass")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
+        box2 = self.aedtapp.modeler.create_box([9, 9, 9], [5, 5, 5], "box2", "copper")
+        bound = self.aedtapp.create_source_block("box", "1W", False)
+        bound.props["Objects"].append(box2)
+        assert bound.update_assignment()
+        bound.props["Objects"].remove(box2)
+        assert bound.update_assignment()

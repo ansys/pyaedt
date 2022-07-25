@@ -620,8 +620,14 @@ class BoundaryObject(BoundaryCommon, object):
                     faces_out.append(f)
             self._app.oboundary.ReassignBoundary(["Name:" + self.name, "Faces:=", faces_out])
         elif "Objects" in self.props:
+            pr = []
+            for el in self.props["Objects"]:
+                try:
+                    pr.append(self._app.modeler[el].name)
+                except (KeyError, AttributeError):
+                    pass
 
-            self._app.oboundary.ReassignBoundary(["Name:" + self.name, "Objects:=", self.props["Objects"]])
+            self._app.oboundary.ReassignBoundary(["Name:" + self.name, "Objects:=", pr])
         else:
             return False
         return True
