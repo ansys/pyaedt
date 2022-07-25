@@ -17,6 +17,7 @@ from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.modules.Material import Material
 from pyaedt.modules.Material import MatProperties
 from pyaedt.modules.Material import OrderedDict
@@ -184,10 +185,9 @@ class Materials(object):
         """Get materials."""
         mats = {}
         try:
-            for ds in self._app.project_properies["AnsoftProject"]["Definitions"]["Materials"]:
-                mats[ds.lower()] = Material(
-                    self, ds, self._app.project_properies["AnsoftProject"]["Definitions"]["Materials"][ds]
-                )
+            file_data = load_keyword_in_aedt_file(self._app.project_file, "Materials")
+            for ds in file_data:
+                mats[ds.lower()] = Material(self, ds, file_data[ds])
         except:
             pass
         return mats
@@ -196,11 +196,12 @@ class Materials(object):
     def _get_surface_materials(self):
         mats = {}
         try:
-            for ds in self._app.project_properies["AnsoftProject"]["Definitions"]["SurfaceMaterials"]:
+            file_data = load_keyword_in_aedt_file(self._app.project_file, "SurfaceMaterials")
+            for ds in file_data:
                 mats[ds.lower()] = SurfaceMaterial(
                     self,
                     ds,
-                    self._app.project_properies["AnsoftProject"]["Definitions"]["SurfaceMaterials"][ds],
+                    file_data[ds],
                 )
         except:
             pass

@@ -26,7 +26,6 @@ from pyaedt.application.design_solutions import HFSSDesignSolution
 from pyaedt.application.design_solutions import IcepakDesignSolution
 from pyaedt.application.design_solutions import Maxwell2DDesignSolution
 from pyaedt.application.design_solutions import RmXprtDesignSolution
-from pyaedt.application.design_solutions import model_names
 from pyaedt.application.design_solutions import solutions_defaults
 from pyaedt.application.Variables import DataSet
 from pyaedt.application.Variables import VariableManager
@@ -49,6 +48,7 @@ from pyaedt.generic.general_methods import read_xlsx
 from pyaedt.generic.general_methods import settings
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
 
@@ -295,7 +295,7 @@ class Design(AedtObjects):
     # but after they are never updated along the different project steps.
 
     @property
-    def project_properies(self):
+    def project_properties(self):
         """Project properties.
 
         Returns
@@ -319,27 +319,29 @@ class Design(AedtObjects):
            Dictionary of the design properties.
 
         """
-        # if self._design_dictionary is None and os.path.exists(self.project_file):
-        #     try:
-        #         start = time.time()
-        #         self._design_dictionary = load_keyword_in_aedt_file(self.project_file,
-        #                                                             self.design_name)[self.design_name]
-        #         self._logger.info("aedt design load time {}".format(time.time() - start))
-        #     except (KeyError, TypeError):
-        #         self._design_dictionary = OrderedDict()
-        # return self._design_dictionary
-        try:
-            if model_names[self._design_type] in self.project_properies["AnsoftProject"]:
-                designs = self.project_properies["AnsoftProject"][model_names[self._design_type]]
-                if isinstance(designs, list):
-                    for design in designs:
-                        if design["Name"] == self.design_name:
-                            return design
-                else:
-                    if designs["Name"] == self.design_name:
-                        return designs
-        except:
-            return OrderedDict()
+
+        if self._design_dictionary is None and os.path.exists(self.project_file) or self.project_timestamp_changed:
+            try:
+                start = time.time()
+                self._design_dictionary = load_keyword_in_aedt_file(self.project_file, self.design_name)[
+                    self.design_name
+                ]
+                self._logger.info("aedt design load time {}".format(time.time() - start))
+            except (KeyError, TypeError):
+                self._design_dictionary = OrderedDict()
+        return self._design_dictionary
+        # try:
+        #     if model_names[self._design_type] in self.project_properties["AnsoftProject"]:
+        #         designs = self.project_properties["AnsoftProject"][model_names[self._design_type]]
+        #         if isinstance(designs, list):
+        #             for design in designs:
+        #                 if design["Name"] == self.design_name:
+        #                     return design
+        #         else:
+        #             if designs["Name"] == self.design_name:
+        #                 return designs
+        # except:
+        #     return OrderedDict()
 
     @property
     def aedt_version_id(self):
@@ -1948,14 +1950,14 @@ class Design(AedtObjects):
     def _get_project_datasets(self):
         """ """
         datasets = {}
-        try:
-            for ds in self.project_properies["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"]:
-                datas = self.project_properies["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"][ds][
-                    "Coordinates"
-                ]
-                datasets[ds] = self._get_ds_data(ds, datas)
-        except:
-            pass
+        if self._design_dictionary is None and os.path.exists(self.project_file) or self.project_timestamp_changed:
+            try:
+                file_data = load_keyword_in_aedt_file(self.project_file, "ProjectDatasets")["DatasetDefinitions"]
+                for ds in file_data:
+                    datas = file_data[ds]["Coordinates"]
+                    datasets[ds] = self._get_ds_data(ds, datas)
+            except:
+                pass
         return datasets
 
     @pyaedt_function_handler()
@@ -1963,8 +1965,9 @@ class Design(AedtObjects):
         """ """
         datasets = {}
         try:
-            for ds in self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"]:
-                datas = self.project_properies["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
+            file_data = load_keyword_in_aedt_file(self.project_file, "DesignDatasets")["DatasetDefinitions"]
+            for ds in file_data:
+                datas = file_data[ds]["Coordinates"]
                 datasets[ds] = self._get_ds_data(ds, datas)
         except:
             pass
@@ -3074,7 +3077,7 @@ class Design(AedtObjects):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        design_info = self.project_properies["ProjectPreview"]["DesignInfo"]
+        design_info = load_keyword_in_aedt_file(self.project_file, "ProjectPreview")["DesignInfo"]
         if not isinstance(design_info, dict):
             # there are multiple designs, find the right one
             # is self.design_name guaranteed to be there?
