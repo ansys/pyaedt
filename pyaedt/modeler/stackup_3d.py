@@ -373,7 +373,7 @@ class Layer3D(object):
 
             else:
                 obj_3d = self._app.modeler.create_rectangle(
-                    "Z",
+                    constants.PLANE.XY,
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
                     name=self._name,
@@ -389,7 +389,7 @@ class Layer3D(object):
                 )
             else:
                 obj_3d = self._app.modeler.create_rectangle(
-                    "Z",
+                    constants.PLANE.XY,
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
                     name=self._name,
@@ -3070,7 +3070,7 @@ class Polygon(CommonObject, object):
 
     >>> from pyaedt import Hfss
     >>> from pyaedt.modeler.stackup_3d import Stackup3D
-    >>> hfss = Hfss()
+    >>> hfss = Hfss(new_desktop_session=True)
     >>> my_stackup = Stackup3D(hfss, 2.5e9)
     >>> gnd = my_stackup.add_ground_layer("gnd", thickness=None)
     >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
