@@ -179,6 +179,7 @@ class DuplicatedParametrizedMaterial(object):
     For each material property a NamedVariable is created as attribute.
 
     Parameters
+    ----------
     application : :class:`pyaedt.hfss.Hfss
         HFSS design or project where the variable is to be created.
     material_name : str
@@ -277,7 +278,42 @@ class DuplicatedParametrizedMaterial(object):
 
 
 class Layer3D(object):
-    """Provides a class for a management of a parametric layer in 3D Modeler."""
+    """Provides a class for a management of a parametric layer in 3D Modeler. The Layer3D class is not intended
+    to be used with its constructor, but by using the method "add_layer" available in the Stackup3D class.
+
+    Parameters
+    ----------
+    stackup: :class:`pyaedt.modeler.stackup_3d.Stackup3D`
+        The stackup where the layers will be added.
+    app : :class:`pyaedt.hfss.Hfss
+        HFSS design or project where the variable is to be created.
+    name : str
+        The name of the layer.
+    layer_type : str
+        "S" for signal layers, "D" for dielectric layers, "G" for ground layers.
+    material_name : str
+        The material name of the layer.
+    thickness : float
+        The thickness of the layer.
+    fill_material : str
+        In ground and signal layers, the dielectric material name which will fill the non-conductive areas of the layer.
+    index : int
+        The number of the layer, starting from bottom to top.
+    frequency : float
+        The layer frequency, it will be common to all geometric shapes on the layer.
+
+    Examples
+    --------
+    >>> from pyaedt import Hfss
+    >>> from pyaedt.modeler.stackup_3d import Stackup3D
+    >>> hfss = Hfss()
+    >>> my_stackup = Stackup3D(hfss, 2.5e9)
+    >>> my_layer = my_stackup.add_layer("my_layer", layer_type="D", material_name="air", thickness=3, fill_material=None)
+    >>> gnd = my_stackup.add_ground_layer("gnd")
+    >>> diel = my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+    >>> top = my_stackup.add_signal_layer("top")
+
+    """
 
     def __init__(
         self,
@@ -1078,7 +1114,24 @@ class Padstack(object):
 
 
 class Stackup3D(object):
-    """Main Stackup3D Class."""
+    """Main Stackup3D Class.
+
+    Parameters
+    ----------
+    application : :class:`pyaedt.hfss.Hfss
+        HFSS design or project where the variable is to be created.
+    frequency : float
+        The stackup frequency, it will be common to all layers in the stackup.
+
+    Examples
+    --------
+
+    >>> from pyaedt import Hfss
+    >>> from pyaedt.modeler.stackup_3d import Stackup3D
+    >>> hfss = Hfss(new_desktop_session=True)
+    >>> my_stackup = Stackup3D(hfss, 2.5e9)
+
+    """
 
     def __init__(self, application, frequency=None):
         self._app = application
@@ -1335,18 +1388,31 @@ class Stackup3D(object):
             Layer name.
         layer_type : str, optional
             Layer type. Options are ``"S"``, ``"D"``, and ``"G"``. The default is ``"S"``.
-        material : str, optional
+        material_name : str, optional
             Material name. The default is ``"copper"``. The material will be parametrized.
         thickness : float, optional
             Thickness value. The default is ``0.035``. The thickness will be parametrized.
         fill_material : str, optional
             Fill material name. The default is ``"FR4_epoxy"``. The fill material will be
             parametrized. This parameter is not valid for dielectrics.
+        frequency : float, optional
+            The layer frequency, it will be common to all geometric shapes on the layer. The default is None, so each
+            shape must have their own frequency.
 
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.Layer3D`
             Layer object.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> from pyaedt.modeler.stackup_3d import Stackup3D
+        >>> hfss = Hfss()
+        >>> my_stackup = Stackup3D(hfss, 2.5e9)
+        >>> my_layer = my_stackup.add_layer("my_layer", layer_type="D", material_name="air", thickness=3, fill_material=None)
+
         """
         self._shifted_index += 1
         if not layer_type:
@@ -1380,7 +1446,6 @@ class Stackup3D(object):
             self._signal_list.extend(lay._obj_3d)
             self._signal_name_list.append(lay._name)
             self._signal_material.append(lay._material_name)
-            # With the function _layer_position_manager i think this part is not needed anymore or has to be reworked
             lay._obj_3d[-1].transparency = "0.8"
         self._stackup[lay._name] = lay
         return lay
@@ -1407,11 +1472,24 @@ class Stackup3D(object):
             Thickness value. Thickness will be parametrized. Default value is `0.035`.
         fill_material : str, optional
             Fill material name. Material will be parametrized. Default value is `"FR4_epoxy"`.
+        frequency : float, optional
+            The layer frequency, it will be common to all geometric shapes on the layer. The default is None, so each
+            shape must have their own frequency.
 
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.Layer3D`
             Layer object.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> from pyaedt.modeler.stackup_3d import Stackup3D
+        >>> hfss = Hfss()
+        >>> my_stackup = Stackup3D(hfss, 2.5e9)
+        >>> my_signal_layer = my_stackup.add_signal_layer("signal_layer")
+
         """
         return self.add_layer(
             name=name, layer_type="S", material_name=material, thickness=thickness, fill_material=fill_material, frequency=frequency
@@ -1435,14 +1513,26 @@ class Stackup3D(object):
             Material name. The default is ``"FR4_epoxy"``. The material will be parametrized.
         thickness : float, optional
             Thickness value. The default is ``0.035``. The thickness will be parametrized.
-
+        frequency : float, optional
+            The layer frequency, it will be common to all geometric shapes on the layer. The default is None, so each
+            shape must have their own frequency.
 
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.Layer3D`
-            Layer 0bject.
+            Layer object.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> from pyaedt.modeler.stackup_3d import Stackup3D
+        >>> hfss = Hfss()
+        >>> my_stackup = Stackup3D(hfss, 2.5e9)
+        >>> my_dielectric_layer = my_stackup.add_dielectric_layer("diel", thickness=1.5, material="Duroid (tm)")
+
         """
-        return self.add_layer(name=name, layer_type="D", material_name=material, thickness=thickness, fill_material=None, frequency=None)
+        return self.add_layer(name=name, layer_type="D", material_name=material, thickness=thickness, fill_material=None, frequency=frequency)
 
     @pyaedt_function_handler()
     def add_ground_layer(self, name, material="copper", thickness=0.035, fill_material="air", frequency=None):
@@ -1459,11 +1549,24 @@ class Stackup3D(object):
             Thickness value. Thickness will be parametrized.
         fill_material : str
             Fill Material name. Material will be parametrized.
+        frequency : float, optional
+            The layer frequency, it will be common to all geometric shapes on the layer. The default is None, so each
+            shape must have their own frequency.
 
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.Layer3D`
             Layer Object.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> from pyaedt.modeler.stackup_3d import Stackup3D
+        >>> hfss = Hfss()
+        >>> my_stackup = Stackup3D(hfss, 2.5e9)
+        >>> my_ground_layer = my_stackup.add_ground_layer("gnd")
+
         """
         return self.add_layer(
             name=name, layer_type="G", material_name=material, thickness=thickness, fill_material=fill_material, frequency=frequency
