@@ -353,6 +353,8 @@ class Layer3D(object):
         self._thickness_variable = self._name + "_thickness"
         if thickness:
             self._thickness = NamedVariable(self._app, self._thickness_variable, str(thickness) + "mm")
+        else:
+            self._thickness = None
         if self._layer_type == "dielectric":
             obj_3d = self._app.modeler.create_box(
                 ["dielectric_x_position", "dielectric_y_position", layer_position],
@@ -845,8 +847,7 @@ class Layer3D(object):
         polygon = Polygon(
             self._app,
             points,
-            thickness=self._thickness,
-            signal_layer_name=self._name,
+            signal_layer=self,
             mat_name=material,
             is_void=is_void,
             poly_name=poly_name,
@@ -1462,7 +1463,7 @@ class Stackup3D(object):
             Layer name.
         material : str
             Material name. Material will be parametrized.
-        thickness : float
+        thickness : float, None
             Thickness value. Thickness will be parametrized.
         fill_material : str
             Fill Material name. Material will be parametrized.=
@@ -1545,7 +1546,7 @@ class Stackup3D(object):
             Layer name.
         material : str, op
             Material name. Material will be parametrized.
-        thickness : float
+        thickness : float, None
             Thickness value. Thickness will be parametrized.
         fill_material : str
             Fill Material name. Material will be parametrized.
@@ -3043,21 +3044,50 @@ class Trace(CommonObject, object):
 
 class Polygon(CommonObject, object):
     """Polygon Class in Stackup3D. It is preferable to use the add_polygon method in the class Layer3D than directly
-     the class constructor.
+    the class constructor.
 
-     Parameters
-     ----------
-     application : :class:`pyaedt.hfss.Hfss
+    Parameters
+    ----------
+    application : :class:`pyaedt.hfss.Hfss
         HFSS design or project where the variable is to be created.
-    point_list : float, None
-     """
+    point_list : list
+        Points list of [x,y] coordinates.
+    signal_layer : :class:`pyaedt.modeler.stackup_3d.Layer3D`
+        The signal layer where the line will be drawn.
+    poly_name : str, optional
+            Polygon name. The default is ``poly``.
+    mat_name : str, optional
+        The polygon material name.
+    is_void : bool, optional
+            Whether the polygon is a void. The default is ``False``.
+            On ground layers, it will act opposite of the Boolean value because the ground
+            is negative.
+    reference_system : str, None, optional
+        Coordinate system of the polygon. By default, None.
+
+    Examples
+    --------
+
+    >>> from pyaedt import Hfss
+    >>> from pyaedt.modeler.stackup_3d import Stackup3D
+    >>> hfss = Hfss()
+    >>> my_stackup = Stackup3D(hfss, 2.5e9)
+    >>> gnd = my_stackup.add_ground_layer("gnd", thickness=None)
+    >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+    >>> top = my_stackup.add_signal_layer("top", thickness=None)
+    >>> my_polygon = top.add_polygon([[0, 0], [0, 1], [1, 1], [1, 0]])
+    >>> my_stackup.dielectric_x_position = "2mm"
+    >>> my_stackup.dielectric_y_position = "2mm"
+    >>> my_stackup.dielectric_length = "-3mm"
+    >>> my_stackup.dielectric_width = "-3mm"
+
+    """
 
     def __init__(
         self,
         application,
         point_list,
-        thickness,
-        signal_layer_name,
+        signal_layer,
         poly_name="poly",
         mat_name="copper",
         is_void=False,
@@ -3066,7 +3096,8 @@ class Polygon(CommonObject, object):
         CommonObject.__init__(self, application)
 
         self._is_void = is_void
-        self._layer_name = signal_layer_name
+        self._layer_name = signal_layer
+        self._thickness = signal_layer.thickness
         self._app = application
         pts = []
         for el in point_list:
@@ -3074,7 +3105,7 @@ class Polygon(CommonObject, object):
                 [
                     application.modeler._arg_with_dim(el[0]),
                     application.modeler._arg_with_dim(el[1]),
-                    "layer_" + str(signal_layer_name) + "_position",
+                    signal_layer.elevation.name,
                 ]
             )
         if reference_system:
@@ -3090,11 +3121,8 @@ class Polygon(CommonObject, object):
         self._aedt_object = application.modeler.create_polyline(
             position_list=pts, name=poly_name, matname=mat_name, cover_surface=True
         )
-        if thickness:
-            if isinstance(thickness, (float, int)):
-                application.modeler.sweep_along_vector(self._aedt_object, [0, 0, thickness], draft_type="Natural")
-            else:
-                application.modeler.sweep_along_vector(self._aedt_object, [0, 0, thickness.name], draft_type="Natural")
+        if self._thickness:
+            application.modeler.sweep_along_vector(self._aedt_object, [0, 0, self._thickness.name], draft_type="Natural")
         application.modeler.set_working_coordinate_system("Global")
 
     @property
