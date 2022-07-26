@@ -5,8 +5,10 @@ import time
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.edb_core.EDB_Data import Source
 from pyaedt.generic.constants import RadiationBoxType
 from pyaedt.generic.constants import SolverType
+from pyaedt.generic.constants import SourceType
 
 # Setup paths for module imports
 # Import required modules
@@ -1879,3 +1881,32 @@ if not config["skip_edb"]:
             assert edb.core_hfss.configure_hfss_extents(config)
             final_extent_info = edb.active_cell.GetHFSSExtentInfo()
             assert final_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.BoundingBox
+
+        def test_108_create_source(self):
+            source = Source()
+            source.l_value = 1e-9
+            assert source.l_value == 1e-9
+            source.r_value = 1.3
+            assert source.r_value == 1.3
+            source.c_value = 1e-13
+            assert source.c_value == 1e-13
+            source.create_physical_resistor = True
+            assert source.create_physical_resistor
+
+        def test_109_create_rlc(self):
+            sim_config = SimulationConfiguration()
+            sim_config.add_rlc(
+                "test",
+                r_value=1.5,
+                c_value=1e-13,
+                l_value=1e-10,
+                positive_node_net="test_net",
+                positive_node_component="U2",
+                negative_node_net="neg_net",
+                negative_node_component="U2",
+            )
+            assert sim_config.sources
+            assert sim_config.sources[0].source_type == SourceType.Rlc
+            assert sim_config.sources[0].r_value == 1.5
+            assert sim_config.sources[0].l_value == 1e-10
+            assert sim_config.sources[0].c_value == 1e-13

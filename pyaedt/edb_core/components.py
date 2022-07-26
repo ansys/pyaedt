@@ -714,10 +714,6 @@ class Components(object):
         Edb terminal.
         """
 
-        # res, pin_position, pin_rot = pin.GetPositionAndRotation(
-        #     self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)),
-        #     0.0,
-        # )
         pin_position = self.get_pin_position(pin)
         pin_pos = self._edb.Geometry.PointData(
             self._get_edb_value(pin_position[0]), self._get_edb_value(pin_position[1])
