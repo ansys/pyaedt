@@ -1822,6 +1822,15 @@ class Patch(CommonObject, object):
     Examples
     --------
 
+    >>> from pyaedt import Hfss
+    >>> from pyaedt.modeler.stackup_3d import Stackup3D
+    >>> hfss = Hfss()
+    >>> my_stackup = Stackup3D(hfss, 2.5e9)
+    >>> gnd = my_stackup.add_ground_layer("gnd")
+    >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+    >>> top = my_stackup.add_signal_layer("top")
+    >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
+    >>> my_stackup.resize_around_element(my_patch)
 
     """
 
@@ -2030,6 +2039,13 @@ class Patch(CommonObject, object):
 
     @property
     def _effective_permittivity_calcul(self):
+        """Create a NamedVariable containing the calculation of the patch effective permittivity and return it.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+            Variable object.
+        """
         # "(substrat_permittivity + 1)/2 + (substrat_permittivity -
         # 1)/(2 * sqrt(1 + 12 * substrate_thickness/patch_width))"
         er = self._permittivity.name
@@ -2054,7 +2070,7 @@ class Patch(CommonObject, object):
 
     @property
     def _added_length_calcul(self):
-        """Added length calculation.
+        """Create a NamedVariable containing the calculation of the patch added length and return it.
 
         Returns
         -------
@@ -2087,7 +2103,7 @@ class Patch(CommonObject, object):
 
     @property
     def _wave_length_calcul(self):
-        """Wave Length Calutation.
+        """Create a NamedVariable containing the calculation of the patch wave length and return it.
 
         Returns
         -------
@@ -2118,7 +2134,7 @@ class Patch(CommonObject, object):
 
     @property
     def _length_calcul(self):
-        """Length Calutation.
+        """Create a NamedVariable containing the calculation of the patch length and return it.
 
         Returns
         -------
@@ -2145,7 +2161,7 @@ class Patch(CommonObject, object):
 
     @property
     def _impedance_calcul(self):
-        """Impedance Calculation.
+        """Create NamedVariable containing the calculations of the patch impedance and return it.
 
         Returns
         -------
@@ -2197,6 +2213,21 @@ class Patch(CommonObject, object):
         Returns
         -------
         bool
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> from pyaedt.modeler.stackup_3d import Stackup3D
+        >>> hfss = Hfss()
+        >>> my_stackup = Stackup3D(hfss, 2.5e9)
+        >>> gnd = my_stackup.add_ground_layer("gnd")
+        >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+        >>> top = my_stackup.add_signal_layer("top")
+        >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
+        >>> my_stackup.resize_around_element(my_patch)
+        >>> my_patch.create_lumped_port(gnd)
+
         """
         string_position_x = self.position_x.name
         if opposite_side:
@@ -2229,6 +2260,35 @@ class Patch(CommonObject, object):
         return port
 
     def quarter_wave_feeding_line(self, impedance_to_adapt=50):
+        """Create a Trace to feed the patch. The trace length is the quarter wavelength, and this width is calculated
+        to return the desired impedance.
+
+        Parameters
+        ----------
+        impedance_to_adapt : float, optional
+            Impedance the feeding line must return. By default 50 Ohms.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.stackup_3d.Trace`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> from pyaedt.modeler.stackup_3d import Stackup3D
+        >>> hfss = Hfss()
+        >>> my_stackup = Stackup3D(hfss, 2.5e9)
+        >>> gnd = my_stackup.add_ground_layer("gnd")
+        >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+        >>> top = my_stackup.add_signal_layer("top")
+        >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
+        >>> my_stackup.resize_around_element(my_patch)
+        >>> my_feeding_line = my_patch.quarter_wave_feeding_line()
+        >>> my_stackup.dielectric_x_position.expression = my_stackup.dielectric_x_position.expression + " - " + my_feeding_line.length.name
+        >>> my_stackup.dielectric_length.expression = my_stackup.dielectric_length.expression + " + " + my_feeding_line.length.name
+
+        """
         string_formula = "sqrt(" + str(impedance_to_adapt) + "*" + self._impedance_bal.name + ")"
         feeding_line = Trace(
             self.application,
@@ -2249,24 +2309,93 @@ class Patch(CommonObject, object):
         return feeding_line
 
     def set_optimal_width(self):
+        """Set the expression of the NamedVariable corresponding to the patch width, to an optimal expression.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> from pyaedt.modeler.stackup_3d import Stackup3D
+        >>> hfss = Hfss()
+        >>> my_stackup = Stackup3D(hfss, 2.5e9)
+        >>> gnd = my_stackup.add_ground_layer("gnd")
+        >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+        >>> top = my_stackup.add_signal_layer("top")
+        >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
+        >>> my_stackup.resize_around_element(my_patch)
+        >>> my_patch.set_optimal_width()
+
+        """
         f = self.frequency.name
         er = self.permittivity.name
         self.width.expression = "(c0 * 1000/(2 * " + f + " * sqrt((" + er + " + 1)/2)))mm"
 
 
 class Trace(CommonObject, object):
-    """Provides a class to create a trace in stackup."""
+    """Trace Class in Stackup3D. Create a parametrized trace. It is preferable to use the add_trace method
+    in the class Layer3D than directly the class constructor.
+
+    Parameters
+    ----------
+
+    application : :class:`pyaedt.hfss.Hfss
+        HFSS design or project where the variable is to be created.
+    frequency : float, None
+        The patch frequency, it is used in prediction formulas. If it is None, the patch frequency will be that of the
+        layer or of the stackup.
+    line_width : float, None
+        The line width. If it is None, it will calculate it from characteristic impedance of the line.
+    line_impedance : float
+        The characteristic impedance of the line. If a line width is entered by the user, the characteristic impedance
+        will be calculated from it.
+    signal_layer : :class:`pyaedt.modeler.stackup_3d.Layer3D`
+        The signal layer where the line will be drawn.
+    dielectric_layer : :class:`pyaedt.modeler.stackup_3d.Layer3D`
+        The dielectric layer between the line and the ground layer. Its permittivity and thickness are used in
+        prediction formulas.
+    line_electrical_length : float, None, optional
+        The ratio between the line length and the wavelength in degree. By default 90 which is corresponding
+        to the quarter of the wavelength. If it is None, it will be directly calculated from the line length entered
+        by the user.
+    line_length : float, None, optional
+        The line length. By default, it is None and so the length is calculated by prediction formulas according to the
+        electrical length.
+    line_position_x : float, optional
+        Line x position, by default it is 0.
+    line_position_y : float, optional
+        Line y position, by default it is 0.
+    line_name : str, optional
+        Line name, by  default "line".
+    reference_system : str, None, optional
+        Coordinate system of the line. By default, None.
+    axis : str, optional
+        Line length axis, by default "X".
+
+    Examples
+    --------
+
+    >>> from pyaedt import Hfss
+    >>> from pyaedt.modeler.stackup_3d import Stackup3D
+    >>> hfss = Hfss(new_desktop_session=True)
+    >>> my_stackup = Stackup3D(hfss, 2.5e9)
+    >>> gnd = my_stackup.add_ground_layer("gnd")
+    >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+    >>> top = my_stackup.add_signal_layer("top")
+    >>> my_trace = top.add_trace(line_width=2.5, line_length=22)
+    >>> my_stackup.resize_around_element(my_trace)
+
+    """
 
     def __init__(
         self,
         application,
         frequency,
-        line_impedance,
         line_width,
+        line_impedance,
         signal_layer,
         dielectric_layer,
-        line_length=None,
         line_electrical_length=90,
+        line_length=None,
         line_position_x=0,
         line_position_y=0,
         line_name="line",
