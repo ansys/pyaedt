@@ -1543,7 +1543,7 @@ class Stackup3D(object):
         ----------
         name : str
             Layer name.
-        material : str
+        material : str, op
             Material name. Material will be parametrized.
         thickness : float
             Thickness value. Thickness will be parametrized.
@@ -1637,7 +1637,7 @@ class Stackup3D(object):
         return True
 
     def resize_around_element(self, element, percentage_offset=0.25):
-        """Resize the stackup around objects and make it parametrize.
+        """Resize the stackup around parametrized objects and make it parametrize.
 
         Parameters
         ----------
@@ -1649,6 +1649,20 @@ class Stackup3D(object):
         Returns
         -------
         bool
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> from pyaedt.modeler.stackup_3d import Stackup3D
+        >>> hfss = Hfss()
+        >>> my_stackup = Stackup3D(hfss, 2.5e9)
+        >>> gnd = my_stackup.add_ground_layer("gnd")
+        >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+        >>> top = my_stackup.add_signal_layer("top")
+        >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
+        >>> my_stackup.resize_around_element(my_patch)
+
         """
         self.dielectric_x_position = (
             element.position_x.name + " - " + element.length.name + " * " + str(percentage_offset)
@@ -1662,7 +1676,7 @@ class Stackup3D(object):
 
 
 class CommonObject(object):
-    """CommonObject Class in Stackup3D."""
+    """CommonObject Class in Stackup3D. This class must not be directly used."""
 
     def __init__(self, application):
         self._application = application
@@ -1774,7 +1788,42 @@ class CommonObject(object):
 
 
 class Patch(CommonObject, object):
-    """Patch Class in Stackup3D."""
+    """Patch Class in Stackup3D. Create a parametrized patch. It is preferable to use the add_patch method
+    in the class Layer3D than directly the class constructor.
+
+    Parameters
+    ----------
+
+    application : :class:`pyaedt.hfss.Hfss
+        HFSS design or project where the variable is to be created.
+    frequency : float, None
+        The patch frequency, it is used in prediction formulas. If it is None, the patch frequency will be that of the
+        layer or of the stackup.
+    patch_width : float
+        The patch width.
+    signal_layer : :class:`pyaedt.modeler.stackup_3d.Layer3D`
+        The signal layer where the patch will be drawn.
+    dielectric_layer : :class:`pyaedt.modeler.stackup_3d.Layer3D`
+        The dielectric layer between the patch and the ground layer. Its permittivity and thickness are used in
+        prediction formulas.
+    patch_length : float, None, optional
+        The patch length. By default, it is None and so the length is calculated by prediction formulas.
+    patch_position_x : float, optional
+        Patch x position, by default it is 0.
+    patch_position_y : float, optional
+        Patch y position, by default it is 0.
+    patch_name : str, optional
+        Patch name, by  default "patch".
+    reference_system : str, None, optional
+        Coordinate system of the patch. By default, None.
+    axis : str, optional
+        Patch length axis, by default "X".
+
+    Examples
+    --------
+
+
+    """
 
     def __init__(
         self,
@@ -1797,6 +1846,8 @@ class Patch(CommonObject, object):
             self._frequency = signal_layer.frequency
         else:
             self._frequency = signal_layer.stackup.frequency
+        if not self._frequency:
+            self.application.logger.error("The patch frequency must not be None.")
         self._signal_layer = signal_layer
         self._dielectric_layer = dielectric_layer
         self._substrate_thickness = dielectric_layer.thickness
