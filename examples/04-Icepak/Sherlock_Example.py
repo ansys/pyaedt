@@ -204,7 +204,8 @@ ipk.assign_priority_on_intersections()
 ipk.save_project()
 
 end = time.time() - start
-if os.name != "posix":
-    ipk.release_desktop()
 print("Elapsed time: {}".format(datetime.timedelta(seconds=end)))
 print("Project Saved in {} ".format(ipk.project_file))
+if os.name != "posix":
+    ipk.release_desktop()
+
