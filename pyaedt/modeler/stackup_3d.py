@@ -785,8 +785,8 @@ class Layer3D(object):
         created_line = Trace(
             self._app,
             frequency,
-            line_width if is_impedance else None,
             line_width if not is_impedance else None,
+            line_width if is_impedance else None,
             self,
             dielectric_layer,
             line_length=line_length if not is_electrical_length else None,
@@ -2341,7 +2341,7 @@ class Trace(CommonObject, object):
     application : :class:`pyaedt.hfss.Hfss
         HFSS design or project where the variable is to be created.
     frequency : float, None
-        The patch frequency, it is used in prediction formulas. If it is None, the patch frequency will be that of the
+        The line frequency, it is used in prediction formulas. If it is None, the line frequency will be that of the
         layer or of the stackup.
     line_width : float, None
         The line width. If it is None, it will calculate it from characteristic impedance of the line.
@@ -2593,7 +2593,7 @@ class Trace(CommonObject, object):
 
     @property
     def _width_calcul(self):
-        """Width calculation.
+        """Create NamedVariable containing the calculations of the line width and return it.
 
         Returns
         -------
@@ -2685,7 +2685,7 @@ class Trace(CommonObject, object):
 
     @property
     def _permittivity_calcul(self):
-        """Permittivity Calutation.
+        """Permittivity Calculation.
 
         Returns
         -------
@@ -2697,7 +2697,7 @@ class Trace(CommonObject, object):
 
     @property
     def added_length(self):
-        """Added Length Calutation.
+        """Added Length.
 
         Returns
         -------
@@ -2708,7 +2708,7 @@ class Trace(CommonObject, object):
 
     @property
     def _added_length_calcul(self):
-        """Added Length Calutation.
+        """Create a NamedVariable containing the calculation of the line added length and return it.
 
         Returns
         -------
@@ -2741,7 +2741,7 @@ class Trace(CommonObject, object):
 
     @property
     def _length_calcul(self):
-        """Length Calutation.
+        """Create a NamedVariable containing the calculation of the line length and return it.
 
         Returns
         -------
@@ -2768,7 +2768,7 @@ class Trace(CommonObject, object):
 
     @property
     def _charac_impedance_calcul(self):
-        """Characteristic Impedance Calutation.
+        """Create NamedVariable containing the calculations of the line characteristic impedance and return it.
 
         Returns
         -------
@@ -2832,7 +2832,7 @@ class Trace(CommonObject, object):
 
     @property
     def _effective_permittivity_calcul(self):
-        """Effective Permittivity Calutation.
+        """Create NamedVariable containing the calculations of the line effective permittivity and return it.
 
         Returns
         -------
@@ -2876,7 +2876,7 @@ class Trace(CommonObject, object):
 
     @property
     def _wave_length_calcul(self):
-        """Wave Length Calutation.
+        """Create a NamedVariable containing the calculation of the line wavelength and return it.
 
         Returns
         -------
@@ -2908,7 +2908,7 @@ class Trace(CommonObject, object):
 
     @property
     def _electrical_length_calcul(self):
-        """Electrical Length calculation.
+        """Create a NamedVariable containing the calculation of the line electrical length and return it.
 
         Returns
         -------
@@ -2993,6 +2993,22 @@ class Trace(CommonObject, object):
         Returns
         -------
         bool
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> from pyaedt.modeler.stackup_3d import Stackup3D
+        >>> hfss = Hfss(new_desktop_session=True)
+        >>> my_stackup = Stackup3D(hfss, 2.5e9)
+        >>> gnd = my_stackup.add_ground_layer("gnd")
+        >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+        >>> top = my_stackup.add_signal_layer("top")
+        >>> my_trace = top.add_trace(line_width=2.5, line_length=90, is_electrical_length=True)
+        >>> my_stackup.resize_around_element(my_trace)
+        >>> my_trace.create_lumped_port(gnd)
+        >>> my_trace.create_lumped_port(gnd, opposite_side=True)
+
         """
         string_position_x = self.position_x.name
         if opposite_side:
@@ -3150,32 +3166,4 @@ class MachineLearningPatch(Patch, object):
             self.application.logger.warning("Machine learning algorithm aren't covered in IronPython.")
 
 
-class ProbeFeedPatch(CommonObject, object):
-    def __init__(
-        self,
-        patch,
-        coax_inner_rad,
-        coax_outer_rad,
-        length,
-        position_x,
-        position_y,
-        coax_inner_material,
-        coax_outer_material,
-        application,
-        stackup,
-    ):
-        feed_padstack = Padstack(app=application, stackup=stackup, name="feed_padstack", material=coax_inner_material)
-        feed_padstack.plating_ratio = 1
-        first_layer_name = list(stackup.stackup_layers.items())[0][0]
-        feed_padstack.set_start_layer(first_layer_name)
-        feed_padstack.set_stop_layer(patch._layer_name)
-        feed_padstack.set_all_pad_value(coax_inner_rad)
-        feed_padstack.set_all_antipad_value(coax_outer_rad)
-        feed_padstack._padstacks_by_layer[first_layer_name]._antipad_radius = coax_outer_rad
-        feed_padstack.num_sides = 0
-        via = feed_padstack.add_via(
-            patch.length.name + " * " + str(position_x),
-            patch.width.name + " * " + str(position_y - 0.5),
-            reference_system=None,
-        )
-        print(via)
+
