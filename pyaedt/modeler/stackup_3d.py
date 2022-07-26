@@ -837,7 +837,7 @@ class Layer3D(object):
         >>> my_stackup.dielectric_x_position = "2mm"
         >>> my_stackup.dielectric_y_position = "2mm"
         >>> my_stackup.dielectric_length = "-3mm"
-        >>> my_stackup.dielectric_width= "-3mm"
+        >>> my_stackup.dielectric_width = "-3mm"
 
         """
         if not poly_name:
@@ -3042,7 +3042,15 @@ class Trace(CommonObject, object):
 
 
 class Polygon(CommonObject, object):
-    """Polygon Class in Stackup3D."""
+    """Polygon Class in Stackup3D. It is preferable to use the add_polygon method in the class Layer3D than directly
+     the class constructor.
+
+     Parameters
+     ----------
+     application : :class:`pyaedt.hfss.Hfss
+        HFSS design or project where the variable is to be created.
+    point_list : float, None
+     """
 
     def __init__(
         self,
