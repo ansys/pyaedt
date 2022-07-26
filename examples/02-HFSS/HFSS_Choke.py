@@ -18,7 +18,7 @@ from pyaedt.modules.Mesh import Mesh
 
 tmpfold = tempfile.gettempdir()
 
-project_name = generate_unique_project_name()
+project_name = generate_unique_project_name("choke")
 
 ##########################################################
 # Set non-graphical mode

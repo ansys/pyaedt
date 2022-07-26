@@ -14,7 +14,7 @@ import os
 from pyaedt import examples, generate_unique_project_name
 from pyaedt import Hfss
 
-project_full_name = examples.download_sbr(generate_unique_project_name())
+project_full_name = examples.download_sbr(generate_unique_project_name("sbr_time"))
 
 
 ##########################################################

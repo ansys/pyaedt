@@ -36,7 +36,7 @@ example_path = examples.download_3dcomponent()
 # Launch HFSS and save project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch HFSS and save the project.
-project_name = generate_unique_project_name()
+project_name = generate_unique_project_name(project_name="array")
 hfss = Hfss(projectname=project_name, specified_version="2022.2", designname="Array_Simple", non_graphical=non_graphical, new_desktop_session=True)
 
 print("Project name " + project_name)
