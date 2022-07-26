@@ -13,13 +13,14 @@ The example file is an Icepak project with a model that is already created and h
 import os
 import tempfile
 import shutil
-from pyaedt import examples, generate_unique_name
+from pyaedt import examples, generate_unique_folder_name
 from pyaedt import Icepak
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -28,19 +29,11 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download the project, open it, and save it to the temporary folder.
 
-project_full_name = examples.download_icepak()
+temp_folder = generate_unique_folder_name()
+project_temp_name = examples.download_icepak(temp_folder)
 
-tmpfold = tempfile.gettempdir()
-
-
-temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-project_temp_name = os.path.join(temp_folder, "Graphic_Card.aedt")
-if not os.path.exists(temp_folder):
-    os.makedirs(temp_folder)
-shutil.copy2(project_full_name, project_temp_name)
 
 ipk = Icepak(project_temp_name, specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
-ipk.save_project(os.path.join(temp_folder, "Graphics_card.aedt"))
 ipk.autosave_disable()
 
 ###############################################################################
@@ -92,7 +85,7 @@ setup1.props["Flow Regime"] = "Turbulent"
 setup1.props["Convergence Criteria - Max Iterations"] = 5
 setup1.props["Linear Solver Type - Pressure"] = "flex"
 setup1.props["Linear Solver Type - Temperature"] = "flex"
-ipk.save_project(r"C:\temp\Graphic_card.aedt")
+ipk.save_project()
 
 ###############################################################################
 # Solve project and postprocess

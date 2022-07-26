@@ -12,7 +12,7 @@ This example shows how you can use PyAEDT to create a multipart scenario in SBR+
 import os
 import tempfile
 import pyaedt
-from pyaedt import examples, generate_unique_name
+from pyaedt import examples, generate_unique_project_name
 
 # Launch AEDT
 # ~~~~~~~~~~~
@@ -26,7 +26,8 @@ library_path = examples.download_multiparts()
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -35,19 +36,14 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~
 # Download the project, open it, and save it to the temporary folder.
 
-tmpfold = tempfile.gettempdir()
-
-
-temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder):
-    os.makedirs(temp_folder)
+project_name = generate_unique_project_name(project_name="doppler")
 
 # Instantiate the application.
 app = pyaedt.Hfss(
     specified_version=aedt_version,
     solution_type="SBR+",
     new_desktop_session=True,
-    projectname=projectname,
+    projectname=project_name,
     close_on_exit=True,
     non_graphical=non_graphical
 )
@@ -60,7 +56,7 @@ app.autosave_disable()
 # ~~~~~~~~~~~~~
 # Save the project and rename the design.
 
-app.save_project(project_file=os.path.join(temp_folder, projectname + ".aedt"))
+app.save_project()
 app.rename_design(designname)
 
 

@@ -13,6 +13,7 @@ import random
 import re
 import string
 import sys
+import tempfile
 import time
 import traceback
 from collections import OrderedDict
@@ -513,6 +514,64 @@ def generate_unique_name(rootname, suffix="", n=6):
     if suffix:
         unique_name += "_" + suffix
     return unique_name
+
+
+@pyaedt_function_handler()
+def generate_unique_folder_name(rootname=None, folder_name=None):
+    """Generate a new aedt folder name given a rootname.
+
+    Parameters
+    ----------
+    rootname : str, optional
+        Root name where to create the new folder.
+    folder_name : str, optional
+        Either if the new folder has to be created or not.
+
+    Returns
+    -------
+    str
+    """
+    if not rootname:
+        rootname = tempfile.gettempdir()
+    if folder_name is None:
+        folder_name = generate_unique_name("pyaedt_prj", n=3)
+    temp_folder = os.path.join(rootname, folder_name)
+    if not os.path.exists(temp_folder):
+        os.makedirs(temp_folder)
+
+    return temp_folder
+
+
+@pyaedt_function_handler()
+def generate_unique_project_name(rootname=None, folder_name=None, project_name=None, project_format="aedt"):
+    """Generate a new aedt project name given a rootname.
+
+    Parameters
+    ----------
+    rootname : str, optional
+        Root name where the new folder will be created.
+    folder_name : str, optional
+        Name of the folder to be created. Default is None which creates a random port.
+        Use "" to not create a subfolder.
+    project_format : str, optional
+        Project format. Default is aedt. Option is aedb.
+    project_name : str, optional
+        Name of the project. If None, random project will be created.
+        If project exists, then a new suffix will be added.
+
+    Returns
+    -------
+    str
+    """
+    if not project_name:
+        project_name = generate_unique_name("Project", n=3)
+    name_with_ext = project_name + "." + project_format
+    folder_path = generate_unique_folder_name(rootname, folder_name=folder_name)
+    prj = os.path.join(folder_path, name_with_ext)
+    if os.path.exists(prj):
+        name_with_ext = generate_unique_name(project_name, n=3) + "." + project_format
+        prj = os.path.join(folder_path, name_with_ext)
+    return prj
 
 
 def _retry_ntimes(n, function, *args, **kwargs):

@@ -11,11 +11,18 @@ This example shows how you can use PyAEDT to create a spiral inductor, solve it,
 
 import os
 from pyaedt import Hfss, constants
+from pyaedt import generate_unique_project_name
+
+
+
+project_name = generate_unique_project_name(project_name="spiral")
+
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -175,6 +182,6 @@ x.plot([L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Save the project and close AEDT.
 
-hfss.save_project()
+hfss.save_project(project_name)
 if os.name != "posix":
     hfss.release_desktop()

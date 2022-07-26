@@ -30,10 +30,12 @@ targetfile = examples.download_aedb()
 print(targetfile)
 aedt_file = targetfile[:-12] + "aedt"
 
+
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = True

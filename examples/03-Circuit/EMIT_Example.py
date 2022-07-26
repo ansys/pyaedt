@@ -13,13 +13,14 @@ a simulation of an attenna.
 import os
 from pyaedt import Emit
 from pyaedt import Desktop
+from pyaedt import generate_unique_project_name
 
-###############################################################################
-# Specify initialization settings
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Change the ``non_graphical`` Boolean variable to ``False`` to open AEDT in
-# graphical mode. With ``NewThread = False``, an existing instance of AEDT
-# is used if one is available. The following code uses AEDT 2022 R2.
+
+##########################################################
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = False
@@ -35,7 +36,7 @@ desktop_version = "2022.2"
 # connect to existing instance of it if one is available.
 
 d = Desktop(desktop_version, non_graphical, NewThread)
-aedtapp = Emit()
+aedtapp = Emit(generate_unique_project_name())
 
 
 ###############################################################################

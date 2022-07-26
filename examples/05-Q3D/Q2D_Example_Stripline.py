@@ -12,19 +12,19 @@ This example shows how you can use PyAEDT to create a differential stripline des
 import os
 
 from pyaedt import Q2d
-from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import generate_unique_project_name
 
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
-home = os.path.expanduser("~")
-workdir = os.path.join(home, "Downloads", "pyaedt_example")
-project_path = os.path.join(workdir, generate_unique_name("pyaedt_q2d_example") + ".aedt")
+
+project_path = generate_unique_project_name()
 
 ###############################################################################
 # Launch AEDT and 2D Extractor
@@ -166,7 +166,7 @@ q.assign_single_conductor(
 
 ###############################################################################
 # Assign Huray model on signals
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Assign the Huray model on the signals.
 
 obj = q.modeler.get_object_from_name("signal_p")
@@ -205,7 +205,7 @@ sweep.update()
 q.analyze_nominal()
 plot_sources = matrix.get_sources_for_plot(category="Z0")
 a = q.post.get_solution_data(expressions=plot_sources, context=matrix.name)
-a.plot(snapshot_path=os.path.join(workdir, "plot.jpg")) # Save plot as jpg
+a.plot(snapshot_path=os.path.join(q.working_directory, "plot.jpg")) # Save plot as jpg
 
 # Add a parametric sweep and analyze.
 parametric = q.parametrics.add("sig_bot_w", 75, 100, 5, "LinearStep")

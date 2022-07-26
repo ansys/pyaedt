@@ -12,11 +12,14 @@ solve it using the Maxwell 3D Eddy Current solver.
 import os
 
 from pyaedt import Maxwell3d
+from pyaedt import generate_unique_project_name
+
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -32,7 +35,7 @@ Solver = "EddyCurrent"
 DesktopVersion = "2022.2"
 
 M3D = Maxwell3d(
-    projectname=Project_Name,
+    projectname=generate_unique_project_name(),
     designname=Design_Name,
     solution_type=Solver,
     specified_version=DesktopVersion,

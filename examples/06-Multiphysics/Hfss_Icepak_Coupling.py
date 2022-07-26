@@ -16,37 +16,20 @@ This examples runs only on Windows using CPython.
 
 import os
 import sys
-import tempfile
-import pathlib
+from pyaedt import generate_unique_project_name
 
 
-local_path = os.path.abspath("")
-module_path = pathlib.Path(local_path)
-aedt_lib_path = module_path.parent.parent.parent
-pdf_path1 = os.path.join(aedt_lib_path, "pyaedt", "core", "Dlls", "PDFReport")
-sys.path.append(os.path.join(module_path))
-sys.path.append(os.path.join(aedt_lib_path))
-sys.path.append(os.path.join(pdf_path1))
-from pyaedt import generate_unique_name
+
 from pyaedt.generic.constants import GLOBALCS
-
-tmpfold = tempfile.gettempdir()
-
-
-project_dir = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(project_dir):
-    os.makedirs(project_dir)
-print(project_dir)
-
-
 from pyaedt import Hfss
 from pyaedt import Icepak
 
 
-###############################################################################
-# Launch AEDT
-# ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode. This example uses SI units.
+##########################################################
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 desktopVersion = "2022.2"
@@ -57,8 +40,8 @@ desktopVersion = "2022.2"
 # Open the project.
 
 NewThread = True
-project_name = "HFSS_Icepak_Coupling"
-project_file = os.path.join(project_dir, project_name + ".aedt")
+
+project_file = generate_unique_project_name()
 
 ###############################################################################
 # Launch AEDT and initialize HFSS
@@ -66,7 +49,7 @@ project_file = os.path.join(project_dir, project_name + ".aedt")
 # Launch AEDT and initialize HFSS. If there is an active HFSS design, ``aedtapp``
 # is linked to it. Otherwise, a new design is created.
 
-aedtapp = Hfss(specified_version=desktopVersion, non_graphical=non_graphical, new_desktop_session=NewThread)
+aedtapp = Hfss(projectname=project_file, specified_version=desktopVersion, non_graphical=non_graphical, new_desktop_session=NewThread)
 
 ###############################################################################
 # Initialize variable settings
@@ -76,7 +59,6 @@ aedtapp = Hfss(specified_version=desktopVersion, non_graphical=non_graphical, ne
 # the project. Otherwise, the variable is created for the design.
 
 aedtapp["$coax_dimension"] = "100mm"
-aedtapp.save_project(project_file)
 udp = aedtapp.modeler.Position(0, 0, 0)
 aedtapp["inner"] = "3mm"
 
@@ -226,7 +208,7 @@ ipkapp.assign_openings(airfaces)
 # can be helpful when performing operations on multiple projects.
 
 aedtapp.save_project()
-aedtapp.close_project(project_name)
+aedtapp.close_project(aedtapp.project_name)
 aedtapp = Hfss(project_file)
 ipkapp = Icepak()
 ipkapp.solution_type = ipkapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow

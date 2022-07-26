@@ -8,20 +8,14 @@ import shutil
 
 import os
 import time
-import tempfile
-from pyaedt import generate_unique_name, examples
+from pyaedt import examples, generate_unique_folder_name
 
-tmpfold = tempfile.gettempdir()
-temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder):
-    os.makedirs(temp_folder)
-example_path = examples.download_aedb()
-targetfolder = os.path.join(temp_folder, "Galileo.aedb")
-if os.path.exists(targetfolder):
-    shutil.rmtree(targetfolder)
-shutil.copytree(example_path[:-8], targetfolder)
-targetfile = os.path.join(targetfolder)
-siwave_file = os.path.join(temp_folder, "Galileo.siw")
+temp_folder = generate_unique_folder_name()
+example_path = examples.download_aedb(temp_folder)
+
+targetfile = os.path.dirname(example_path)
+
+siwave_file = os.path.join(os.path.dirname(targetfile), "Galileo.siw")
 print(targetfile)
 aedt_file = targetfile[:-4] + "aedt"
 
