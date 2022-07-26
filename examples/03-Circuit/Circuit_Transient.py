@@ -49,7 +49,7 @@ tr1.parameters["P"] = "50mm"
 
 ###############################################################################
 # Create resistor and ground
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a resistor and ground in the schematic.
 
 res = cir.modeler.components.create_resistor("R1", "1Meg")
@@ -67,7 +67,7 @@ res.pins[1].connect_to_component(gnd1.pins[0])
 
 ###############################################################################
 # Place probe
-# ~~~~~~~~~
+# ~~~~~~~~~~~
 # Place a probe and rename it to ``Vout``.
 
 pr1 = cir.modeler.components.components_catalog["Probes:VPROBE"].place("vout")

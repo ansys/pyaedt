@@ -166,7 +166,7 @@ q.assign_single_conductor(
 
 ###############################################################################
 # Assign Huray model on signals
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Assign the Huray model on the signals.
 
 obj = q.modeler.get_object_from_name("signal_p")
