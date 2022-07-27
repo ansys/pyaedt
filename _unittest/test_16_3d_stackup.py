@@ -35,6 +35,7 @@ class TestClass(BasisTest, object):
 
     def test_02_line(self):
         top = self.st.stackup_layers["top"]
+        gnd = self.st.stackup_layers["gnd1"]
         line1 = top.add_trace(line_length=50, line_width=3, line_position_x=20, line_position_y=20, frequency=1e9)
         assert line1
         line2 = top.add_trace(
@@ -46,7 +47,7 @@ class TestClass(BasisTest, object):
             line_position_y=20,
             frequency=1e9,
         )
-        assert line1.create_lumped_port("gnd1", change_side=True)
+        assert line1.create_lumped_port(gnd, opposite_side=True)
         assert line2
         assert line2._added_length_calcul
         assert line2.frequency.numeric_value == 1e9
