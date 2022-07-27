@@ -962,30 +962,6 @@ class Components(object):
         new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, comp_def.GetName())
         hosting_component_location = pins[0].GetComponent().GetLocation()
         for pin in pins:
-            # new_padstack_def = self._edb.Definition.PadstackDef.Create(self._db, component_name)
-            # padstack_def = pin.GetPadstackDef()
-            # pin_pos = self.get_pin_position(pins[1])
-            # pin_position = self._edb.Geometry.PointData(self._get_edb_value(pin_pos[0]),
-            #                                             self._get_edb_value(pin_pos[1]))
-            # instance_name = "{}_{}".format(component_name, pin.GetName())
-            # pin_net = pin.GetNet()
-            # rotation = self._get_edb_value(0.0)
-            # from_layer = pin.GetLayerRange()[1]
-            # to_layer = pin.GetLayerRange()[2]
-            # solder_layer = pin.GetSolderBallLayer()
-            # new_pin = self._edb.Cell.Primitive.PadstackInstance.Create(
-            #                     self._active_layout,
-            #                     pin_net,
-            #                     instance_name,
-            #                     padstack_def,
-            #                     pin_position,
-            #                     rotation,
-            #                     from_layer,
-            #                     to_layer,
-            #                     None,
-            #                     None
-            #                     )
-            # new_pin.SetIsLayoutPin(True)
             new_cmp.AddMember(pin.MemberwiseClone())
         new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
         new_cmp_placement_layer = self._edb.Cell.Layer.FindByName(
@@ -1025,7 +1001,7 @@ class Components(object):
         if not edb_rlc_component_property.SetModel(rlc_model) or not new_cmp.SetComponentProperty(
             edb_rlc_component_property
         ):
-            return False
+            return False  # pragma no cover
         new_cmp.SetLocation(hosting_component_location[1], hosting_component_location[2])
         return new_cmp
 
