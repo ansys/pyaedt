@@ -1,7 +1,4 @@
 from collections import defaultdict
-from msilib.schema import Component
-
-import pyaedt
 
 from ..generic.general_methods import pyaedt_function_handler
 
@@ -201,6 +198,7 @@ class EmitComponents(object):
         comp_type = o.root_prop_node.props["Type"]
         o._add_property("Type", comp_type)
         return o
+
 
 class EmitComponent(object):
     """A component in the EMIT schematic."""
@@ -441,8 +439,8 @@ class EmitComponent(object):
 
     @pyaedt_function_handler()
     def get_connected_components(self):
-        """ Get all components that are connected (directly or indirectly) to this component.
-            
+        """Get all components that are connected (directly or indirectly) to this component.
+
         Args:
             None
 
@@ -451,20 +449,20 @@ class EmitComponent(object):
         """
         component_names = []
         to_search = [self.name]
-        while to_search: 
+        while to_search:
             cursor = self.components[to_search.pop()]
             ports = cursor.port_names()
-            
+
             for port in ports:
                 connection_name, _ = cursor.port_connection(port)
                 if connection_name not in component_names and connection_name not in to_search:
                     to_search.append(connection_name)
-            
+
             component_names.append(cursor.name)
-        
+
         components = map(lambda component_name: self.components[component_name], component_names)
         return list(components)
-    
+
     @pyaedt_function_handler()
     def get_type(self):
         """
@@ -477,14 +475,16 @@ class EmitComponent(object):
 
         return properties["Type"]
 
+
 @EmitComponent.register_subclass("Antenna")
 class EmitAntennaComponent(EmitComponent):
-    """ An Antenna component in the EMIT schematic."""
+    """An Antenna component in the EMIT schematic."""
+
     def __init__(self, components, component_name):
         super(EmitAntennaComponent, self).__init__(components, component_name)
-    
+
     def get_pattern_filename(self):
-        """ Get the filename of the Antenna Pattern defining this antenna
+        """Get the filename of the Antenna Pattern defining this antenna
         Args:
 
         Returns:
@@ -492,29 +492,29 @@ class EmitAntennaComponent(EmitComponent):
         """
         properties = self.get_node_properties()
         return properties["Filename"]
-    
+
     def get_orientation_rpy(self):
-        """ Get the RPY orientation of this Antenna.
-            
-        Args: 
+        """Get the RPY orientation of this Antenna.
+
+        Args:
             None
 
-        Returns: 
+        Returns:
             A tuple containing the Roll, Pitch, and Yaw values in degrees defining this orientation
         """
         properties = self.get_node_properties()
-        
+
         orientation_string = properties["Orientation"]
         orientation_type = properties["OrientationMode"]
 
         if orientation_string is None or orientation_type is None:
             return None
-        
+
         if orientation_type != "rpyDeg":
             # Handle other orientations by fixing up `orientation_string`.
             print("Unhandled orientation type: " + orientation_type)
             return None
-        
+
         # Build a tuple of the orientation values.
         parts = orientation_string.split()
         orientation = (float(parts[0]), float(parts[1]), float(parts[2]))
@@ -522,7 +522,7 @@ class EmitAntennaComponent(EmitComponent):
         return orientation
 
     def get_position(self):
-        """ Get the position of this Antenna.
+        """Get the position of this Antenna.
 
         Args:
             None
@@ -536,12 +536,13 @@ class EmitAntennaComponent(EmitComponent):
 
         if position_string is None:
             return None
-        
+
         # Build a tuple of the position
         parts = position_string.split()
         position = (float(parts[0]), float(parts[1]), float(parts[2]))
-        
+
         return position
+
 
 @EmitComponent.register_subclass("Radio")
 class EmitRadioComponent(EmitComponent):
@@ -569,11 +570,12 @@ class EmitRadioComponent(EmitComponent):
     def has_rx_channels(self):
         nodes = self.get_prop_nodes({"Type": "RxSusceptibilityProfNode", "Enabled": "true"})
         return len(nodes) > 0
-    
+
     def get_connected_antennas(self):
-       components = super().get_connected_components()
-       antennas = filter(lambda component: component.get_node_properties()["Type"] == "AntennaNode" , components)
-       return list(antennas)
+        components = super().get_connected_components()
+        antennas = filter(lambda component: component.get_node_properties()["Type"] == "AntennaNode", components)
+        return list(antennas)
+
 
 class EmitComponentPropNode(object):
     def __init__(self, editor, design, parent_component, node_name):

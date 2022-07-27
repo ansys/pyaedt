@@ -2,6 +2,7 @@
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from pyaedt import Emit
+from pyaedt.modeler.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.PrimitivesEmit import EmitComponents
 
@@ -34,7 +35,7 @@ class TestClass(BasisTest, object):
         assert isinstance(radio, EmitComponent)
         antenna = self.aedtapp.modeler.components.create_component("Antenna", "TestAntenna")
         assert antenna.name == "TestAntenna"
-        assert isinstance(antenna, EmitComponent)
+        assert isinstance(antenna, EmitAntennaComponent)
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Not functional in non-graphical mode")
     @pytest.mark.skipif(config["desktopVersion"] < "2021.2", reason="Skipped on versions lower than 2021.2")
@@ -47,6 +48,9 @@ class TestClass(BasisTest, object):
         connected_comp, connected_port = antenna.port_connection(antenna_port)
         assert connected_comp == radio.name
         assert connected_port == radio_port
+        # Test get_connected_components()
+        connected_components_list = radio.get_connected_components()
+        assert antenna in connected_components_list
         # Verify None,None is returned for an unconnected port
         radio2 = self.aedtapp.modeler.components.create_component("New Radio")
         radio2_port = radio2.port_names()[0]
@@ -66,3 +70,16 @@ class TestClass(BasisTest, object):
         assert band.enabled
         band.enabled = False
         assert not band.enabled
+
+    @pytest.mark.skipif(config["NonGraphical"], reason="Not functional in non-graphical mode")
+    def test_antenna_component(self):
+        antenna = self.aedtapp.modeler.components.create_component("Antenna")
+        # Default pattern filename is empty string
+        pattern_filename = antenna.get_pattern_filename()
+        assert pattern_filename is ""
+        # Default orientation is 0 0 0
+        orientation = antenna.get_orientation_rpy()
+        assert orientation == (0.0, 0.0, 0.0)
+        # Default position is 0 0 0
+        position = antenna.get_position()
+        assert position == (0.0, 0.0, 0.0)
