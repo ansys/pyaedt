@@ -9,25 +9,20 @@ This example shows how you can use PyAEDT to create a choke setup in Maxwell 3D.
 # Perform required imports and set paths.
 
 import json
-import tempfile
 import os
 
-from pyaedt import generate_unique_name
-from pyaedt import Desktop
+from pyaedt import generate_unique_project_name
 from pyaedt import Maxwell3d
 from pyaedt.modules.Mesh import Mesh
 
-tmpfold = tempfile.gettempdir()
 
-temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder):
-    os.mkdir(temp_folder)
 
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 version = "2022.2"
@@ -37,7 +32,7 @@ version = "2022.2"
 # ~~~~~~~~~~~~~~~~
 # Launch Maxwell 3D 2022 R2 in graphical mode.
 
-m3d = Maxwell3d(
+m3d = Maxwell3d(projectname=generate_unique_project_name(),
     solution_type="EddyCurrent", specified_version=version, non_graphical=non_graphical, new_desktop_session=True
 )
 
@@ -210,7 +205,7 @@ setup.add_eddy_current_sweep(range_type="LinearCount", start=100, end=1000, coun
 # ~~~~~~~~~~~~
 # Save the project.
 
-m3d.save_project(os.path.join(temp_folder, "My_Maxwell3d_Choke.aedt"))
+m3d.save_project()
 m3d.modeler.fit_all()
 m3d.plot(show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"), plot_air_objects=True)
 

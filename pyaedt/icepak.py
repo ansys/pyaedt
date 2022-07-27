@@ -474,6 +474,7 @@ class Icepak(FieldAnalysis3D):
         props = {}
         if not isinstance(object_name, list):
             object_name = [object_name]
+        object_name = self.modeler.convert_to_selections(object_name, True)
         props["Objects"] = object_name
 
         props["Block Type"] = "Solid"

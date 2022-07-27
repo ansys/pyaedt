@@ -13,14 +13,14 @@ import tempfile
 import os
 import shutil
 
-from pyaedt import examples, generate_unique_name
+from pyaedt import examples, generate_unique_folder_name
 from pyaedt import Hfss, Circuit, Mechanical
-
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -29,13 +29,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download and open the project. Save it to the temporary folder.
 
-project_full_name = examples.download_via_wizard()
-tmpfold = tempfile.gettempdir()
-temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-project_temp_name = os.path.join(temp_folder, "via_wizard.aedt")
-if not os.path.exists(temp_folder):
-    os.makedirs(temp_folder)
-shutil.copy2(project_full_name, project_temp_name)
+project_temp_name = examples.download_via_wizard(generate_unique_folder_name())
 
 
 ###############################################################################

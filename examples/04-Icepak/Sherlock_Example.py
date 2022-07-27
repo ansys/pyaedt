@@ -14,22 +14,17 @@ import os
 import tempfile
 import datetime
 
-from pyaedt import examples, generate_unique_name
+from pyaedt import examples, generate_unique_folder_name
 
 # Set paths
+project_folder = generate_unique_folder_name()
 input_dir = examples.download_sherlock()
-tmpfold = tempfile.gettempdir()
-
-
-temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder):
-    os.makedirs(temp_folder)
-print(temp_folder)
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -65,16 +60,16 @@ d = Desktop("2022.2", non_graphical=non_graphical, new_desktop_session=True)
 start = time.time()
 material_list = os.path.join(input_dir, material_name)
 component_list = os.path.join(input_dir, component_properties)
-validation = os.path.join(temp_folder, "validation.log")
+validation = os.path.join(project_folder, "validation.log")
 file_path = os.path.join(input_dir, component_step)
-project_name = os.path.join(temp_folder, component_step[:-3] + "aedt")
+project_name = os.path.join(project_folder, component_step[:-3] + "aedt")
 
 ###############################################################################
 # Create Icepak project
 # ~~~~~~~~~~~~~~~~~~~~~
 # Create an Icepak project.
 
-ipk = Icepak()
+ipk = Icepak(project_name)
 
 ###############################################################################
 # Delete region to speed up import
@@ -115,7 +110,7 @@ ipk.modeler.import_3d_cad(file_path, refresh_all_ids=False)
 # ~~~~~~~~~~~~~
 # Save the CAD file and refresh the properties from the parsing of the AEDT file.
 
-ipk.save_project(project_name, refresh_obj_ids_after_save=True)
+ipk.save_project(refresh_obj_ids_after_save=True)
 
 
 ###############################################################################
@@ -123,7 +118,7 @@ ipk.save_project(project_name, refresh_obj_ids_after_save=True)
 # ~~~~~~~~~~
 # Plot the model.
 
-ipk.plot(show=False, export_path=os.path.join(temp_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
+ipk.plot(show=False, export_path=os.path.join(project_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
 
 
 ###############################################################################
@@ -176,7 +171,7 @@ total_power = ipk.assign_block_from_sherlock_file(component_list)
 # ~~~~~~~~~~
 # Plot the model again now that materials are assigned.
 
-ipk.plot(show=False, export_path=os.path.join(temp_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
+ipk.plot(show=False, export_path=os.path.join(project_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
 
 
 ###############################################################################
@@ -209,7 +204,8 @@ ipk.assign_priority_on_intersections()
 ipk.save_project()
 
 end = time.time() - start
+print("Elapsed time: {}".format(datetime.timedelta(seconds=end)))
+print("Project Saved in {} ".format(ipk.project_file))
 if os.name != "posix":
     ipk.release_desktop()
-print("Elapsed time: {}".format(datetime.timedelta(seconds=end)))
-print("Project Saved in {} ".format(temp_folder))
+

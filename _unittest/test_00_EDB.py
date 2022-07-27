@@ -1910,3 +1910,16 @@ if not config["skip_edb"]:
             assert sim_config.sources[0].r_value == 1.5
             assert sim_config.sources[0].l_value == 1e-10
             assert sim_config.sources[0].c_value == 1e-13
+
+        def test_110_create_rlc_component(self):
+            example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "Galileo_110.aedb")
+            self.local_scratch.copyfolder(example_project, target_path)
+            edb = Edb(target_path, edbversion=desktop_version)
+            pins = edb.core_components.get_pin_from_component("U2A5", "V1P5_S0")
+            ref_pins = edb.core_components.get_pin_from_component("U2A5", "GND")
+            assert pins
+            assert ref_pins
+            assert edb.core_components.create_rlc_component(
+                [pins[0], ref_pins[0]], "test_rlc", r_value=1.67, l_value=1e-13, c_value=1e-11
+            )

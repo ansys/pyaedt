@@ -155,6 +155,14 @@ def _delete_objects():
             _global.removeHandler(module._aedt_handler[i])
     except AttributeError:
         pass
+    try:
+        del module.oAnsoftApplication
+    except AttributeError:
+        pass
+    try:
+        del module.desktop
+    except AttributeError:
+        pass
     gc.collect()
 
 
@@ -667,11 +675,17 @@ class Desktop:
         launch_msg = "AEDT installation Path {}".format(base_path)
         self.logger.info(launch_msg)
         self.logger.info("Launching AEDT with the gRPC plugin.")
-        if (
-            not self.port
-            and not new_aedt_session
-            and self.machine not in ["localhost", "127.0.0.1", socket.getfqdn(), socket.getfqdn().split(".")[0]]
-        ):
+        if not self.machine or self.machine in [
+            "localhost",
+            "127.0.0.1",
+            socket.getfqdn(),
+            socket.getfqdn().split(".")[0],
+        ]:
+            self.machine = ""
+        else:
+            settings.remote_api = True
+
+        if not self.port and not new_aedt_session and not self.machine:
             sessions = grpc_active_sessions(
                 version=version, student_version=student_version, non_graphical=non_graphical
             )
@@ -683,28 +697,14 @@ class Desktop:
                     self.logger.warning(
                         "Multiple AEDT gRPC sessions are found. Setting the active session on port %s", self.port
                     )
+            else:
+                self.port = _find_free_port()
+                self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
         elif new_aedt_session or not self.port:
             self.port = _find_free_port()
             self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
-            self.machine = ""
         elif self.port:
             self.logger.info("Connecting to AEDT session on gRPC port %s", self.port)
-
-        if not new_aedt_session:
-            # Local server running
-            if not self.machine:
-                if _check_grpc_port(self.port):
-                    self.machine = socket.getfqdn()
-            # Local Server
-            elif self.machine in ["localhost", "127.0.0.1", socket.getfqdn(), socket.getfqdn().split(".")[0]]:
-                # No AEDT started
-                if not _check_grpc_port(self.port):
-                    self.machine = ""
-                # AEDT existing
-                else:
-                    self.machine = socket.getfqdn()
-            elif self.machine not in ["localhost", "127.0.0.1", socket.getfqdn(), socket.getfqdn().split(".")[0]]:
-                settings.remote_api = True
 
         ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
 

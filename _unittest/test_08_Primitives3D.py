@@ -1156,6 +1156,8 @@ class TestClass(BasisTest, object):
         box2 = self.aedtapp.modeler.create_box([-20, -20, -19], [0.2, 0.2, 0.2])
         assert box2.name in box1.touching_objects
         assert box1.name in box2.touching_objects
+        assert box2.name in box1.faces[0].touching_objects
+        assert box2.name not in box1.faces[1].touching_objects
 
     def test_79_3dcomponent_operations(self):
         self.aedtapp.solution_type = "Modal"

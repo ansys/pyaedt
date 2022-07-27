@@ -6,23 +6,18 @@ This example shows how you can use PyAEDT to create and modify coordinate system
 # sphinx_gallery_thumbnail_path = 'Resources/coordinate_system.png'
 
 import os
-import tempfile
 
 from pyaedt import Hfss
 from pyaedt import Desktop
-from pyaedt import generate_unique_name
+from pyaedt import generate_unique_project_name
 
-tmpfold = tempfile.gettempdir()
-
-temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder):
-    os.mkdir(temp_folder)
 
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -39,7 +34,7 @@ d = Desktop("2022.2", non_graphical=non_graphical, new_desktop_session=True)
 # ~~~~~~~~~~~~~~~~~~
 # Insert an HFSS design with the default name.
 
-hfss = Hfss()
+hfss = Hfss(projectname=generate_unique_project_name(folder_name="CoordSysDemo"))
 
 ###############################################################################
 # Create coordinate system

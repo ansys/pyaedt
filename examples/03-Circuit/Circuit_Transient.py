@@ -13,11 +13,13 @@ import os
 from matplotlib import pyplot as plt
 import numpy as np
 from pyaedt import Circuit
+from pyaedt import generate_unique_project_name
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -26,7 +28,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode with Circuit.
 
-cir = Circuit(specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
+cir = Circuit(projectname=generate_unique_project_name(), specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
 
 
 ###############################################################################
@@ -47,7 +49,7 @@ tr1.parameters["P"] = "50mm"
 
 ###############################################################################
 # Create resistor and ground
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a resistor and ground in the schematic.
 
 res = cir.modeler.components.create_resistor("R1", "1Meg")
@@ -65,7 +67,7 @@ res.pins[1].connect_to_component(gnd1.pins[0])
 
 ###############################################################################
 # Place probe
-# ~~~~~~~~~
+# ~~~~~~~~~~~
 # Place a probe and rename it to ``Vout``.
 
 pr1 = cir.modeler.components.components_catalog["Probes:VPROBE"].place("vout")
@@ -167,5 +169,5 @@ plt.show()
 # Release AEDT
 # ~~~~~~~~~~~~
 # Release AEDT.
-
+cir.save_project()
 cir.release_desktop()

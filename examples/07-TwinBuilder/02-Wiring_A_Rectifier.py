@@ -14,6 +14,7 @@ import os
 import math
 import matplotlib.pyplot as plt
 from pyaedt import TwinBuilder
+from pyaedt import generate_unique_project_name
 
 ###############################################################################
 # Select version and set launch options
@@ -36,7 +37,7 @@ new_thread = True
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup.
 
-tb = TwinBuilder(specified_version=desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
+tb = TwinBuilder(projectname=generate_unique_project_name(),specified_version=desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
 
 ###############################################################################
 # Create components for bridge rectifier with capacitor filter

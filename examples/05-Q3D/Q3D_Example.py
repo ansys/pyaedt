@@ -14,11 +14,13 @@ Q3D Extractor and run a simulation.
 import os
 
 from pyaedt import Q3d
+from pyaedt import generate_unique_project_name
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -28,7 +30,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # Launch AEDT 2022 R2 in graphical mode and launch Q3D Extractor. This example uses SI units.
 
 
-q = Q3d(specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
+q = Q3d(projectname=generate_unique_project_name(), specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Create primitives
@@ -139,6 +141,7 @@ q.post.create_report(expressions=data_plot_mutual, context="Original", plot_type
 # Solve the setup.
 
 q.analyze_nominal()
+q.save_project()
 
 ###############################################################################
 # Get report data

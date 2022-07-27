@@ -13,6 +13,7 @@ and run a Nexxim time-domain simulation.
 
 from pyaedt import Circuit
 from pyaedt import Desktop
+from pyaedt import generate_unique_project_name
 import os
 
 ###############################################################################
@@ -25,7 +26,8 @@ desktop_version = "2022.2"
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 new_thread = True
@@ -38,7 +40,7 @@ new_thread = True
 # to create a new instance of AEDT or try to connect to an existing instance of it.
 
 desktop = Desktop(desktop_version, non_graphical, new_thread)
-aedt_app = Circuit()
+aedt_app = Circuit(projectname=generate_unique_project_name())
 
 ###############################################################################
 # Create circuit setup

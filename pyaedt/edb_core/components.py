@@ -714,9 +714,9 @@ class Components(object):
         Edb terminal.
         """
 
-        pin_position = self.get_pin_position(pin)
+        pin_position = self.get_pin_position(pin)  # pragma no cover
         pin_pos = self._edb.Geometry.PointData(
-            self._get_edb_value(pin_position[0]), self._get_edb_value(pin_position[1])
+            self._get_edb_value(pin_position[0]), self._get_edb_value(pin_position[1])  # pragma no cover
         )
         res, from_layer, _ = pin.GetLayerRange()
         cmp_name = pin.GetComponent().GetName()
