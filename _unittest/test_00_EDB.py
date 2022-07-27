@@ -1913,6 +1913,18 @@ if not config["skip_edb"]:
             )
             edb.close_edb()
 
+        def test_115_create_rlc_boundary(self):
+            example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "Galileo_115.aedb")
+            self.local_scratch.copyfolder(example_project, target_path)
+            edb = Edb(target_path, edbversion=desktop_version)
+            pins = edb.core_components.get_pin_from_component("U2A5", "V1P5_S0")
+            ref_pins = edb.core_components.get_pin_from_component("U2A5", "GND")
+            assert edb.core_hfss.create_rlc_boundary_on_pins(
+                pins[0], ref_pins[0], rvalue=1.05, lvalue=1.05e-12, cvalue=1.78e-13
+            )
+            edb.close_edb()
+
         def test_Z_build_hfss_project_from_config_file(self):
             cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
             with open(cfg_file, "w") as f:
