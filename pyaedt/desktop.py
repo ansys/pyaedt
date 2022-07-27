@@ -488,7 +488,7 @@ class Desktop:
         """Current AEDT version."""
         try:
             return self.version_keys[0]
-        except:
+        except (NameError, IndexError):
             return ""
 
     @property
