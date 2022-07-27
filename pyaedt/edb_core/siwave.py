@@ -1389,4 +1389,4 @@ class EdbSiwave(object):
             c_value=c_value,
             l_value=l_value,
             is_parallel=is_parallel,
-        )
+        )  # pragma no cover

@@ -1197,4 +1197,4 @@ class EdbHfss(object):
             negative_pin_term.SetName("{}_ref".format(term_name))
             positive_pin_term.SetReferenceTerminal(negative_pin_term)
             return True
-        return False
+        return False  # pragma no cover

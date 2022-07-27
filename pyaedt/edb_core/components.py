@@ -1018,7 +1018,7 @@ class Components(object):
         else:  # pragma no cover
             new_cmp.SetComponentType(self._edb.Definition.ComponentType.Resistor)
 
-        pin_pair = self._edb.Utility.PinPair(pins[0].GetName(), pins[1].GetName())
+        pin_pair = self._edb.Utility.PinPair(pins[0].GetName(), pins[1].GetName())  # pragma no cover
         rlc_model = self._edb.Cell.Hierarchy.PinPairModel()
         rlc_model.SetPinPairRlc(pin_pair, rlc)
         edb_rlc_component_property = self._edb.Cell.Hierarchy.RLCComponentProperty()
