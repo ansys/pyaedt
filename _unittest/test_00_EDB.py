@@ -1859,19 +1859,9 @@ if not config["skip_edb"]:
             assert edb_stats.num_capacitors
             assert edb_stats.num_resistors
 
-        def test_Z_build_hfss_project_from_config_file(self):
-            cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
-            with open(cfg_file, "w") as f:
-                f.writelines("SolverType = 'Hfss3dLayout'\n")
-                f.writelines("PowerNets = ['GND']\n")
-                f.writelines("Components = ['U2A5', 'U1B5']")
-
-            sim_config = SimulationConfiguration(cfg_file)
-            assert self.edbapp.build_simulation_project(sim_config)
-
-        def test_107_set_bounding_box_extent(self):
+        def test_111_set_bounding_box_extent(self):
             source_path = os.path.join(local_path, "example_models", "test_107.aedb")
-            target_path = os.path.join(self.local_scratch.path, "test_107.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_111.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
             edb = Edb(target_path)
             initial_extent_info = edb.active_cell.GetHFSSExtentInfo()
@@ -1882,7 +1872,7 @@ if not config["skip_edb"]:
             final_extent_info = edb.active_cell.GetHFSSExtentInfo()
             assert final_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.BoundingBox
 
-        def test_108_create_source(self):
+        def test_112_create_source(self):
             source = Source()
             source.l_value = 1e-9
             assert source.l_value == 1e-9
@@ -1893,7 +1883,7 @@ if not config["skip_edb"]:
             source.create_physical_resistor = True
             assert source.create_physical_resistor
 
-        def test_109_create_rlc(self):
+        def test_113_create_rlc(self):
             sim_config = SimulationConfiguration()
             sim_config.add_rlc(
                 "test",
@@ -1911,9 +1901,9 @@ if not config["skip_edb"]:
             assert sim_config.sources[0].l_value == 1e-10
             assert sim_config.sources[0].c_value == 1e-13
 
-        def test_110_create_rlc_component(self):
+        def test_114_create_rlc_component(self):
             example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
-            target_path = os.path.join(self.local_scratch.path, "Galileo_110.aedb")
+            target_path = os.path.join(self.local_scratch.path, "Galileo_114.aedb")
             self.local_scratch.copyfolder(example_project, target_path)
             edb = Edb(target_path, edbversion=desktop_version)
             pins = edb.core_components.get_pin_from_component("U2A5", "V1P5_S0")
@@ -1922,3 +1912,13 @@ if not config["skip_edb"]:
                 [pins[0], ref_pins[0]], "test_rlc", r_value=1.67, l_value=1e-13, c_value=1e-11
             )
             edb.close_edb()
+
+        def test_Z_build_hfss_project_from_config_file(self):
+            cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
+            with open(cfg_file, "w") as f:
+                f.writelines("SolverType = 'Hfss3dLayout'\n")
+                f.writelines("PowerNets = ['GND']\n")
+                f.writelines("Components = ['U2A5', 'U1B5']")
+
+            sim_config = SimulationConfiguration(cfg_file)
+            assert self.edbapp.build_simulation_project(sim_config)
