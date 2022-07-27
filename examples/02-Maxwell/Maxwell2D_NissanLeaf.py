@@ -13,11 +13,10 @@ an interior permanent magnet electric motor.
 from math import sqrt as mysqrt
 import csv
 import os
-import tempfile
 
 from pyaedt import Maxwell2d
 from pyaedt import examples
-from pyaedt import generate_unique_name
+from pyaedt import generate_unique_project_name
 
 #################################################################################
 # Initialize Maxwell 2D
@@ -29,10 +28,8 @@ desktopVersion = "2022.2"
 
 sName = "MySetupAuto"
 sType = "TransientXY"
-tmpfold = tempfile.gettempdir()
 
-pathName = os.path.join(tmpfold, generate_unique_name("Nissan", n=3))
-pName = "Example.aedt"
+pName = generate_unique_project_name()
 dName = "Sinusoidal"
 
 #################################################################################
@@ -118,7 +115,8 @@ oper_params = {
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -127,10 +125,9 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~~~~~~
 # Launch Maxwell 2D and save the project.
 
-M2D = Maxwell2d(specified_version=desktopVersion, designname=dName,
+M2D = Maxwell2d(projectname=pName, specified_version=desktopVersion, designname=dName,
                 solution_type=sType, new_desktop_session=False,
                 non_graphical=non_graphical)
-M2D.save_project(os.path.join(pathName, pName))
 
 ##########################################################
 # Create object to access 2D modeler

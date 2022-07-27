@@ -9,23 +9,20 @@ This example shows how you can use PyAEDT to create a choke setup in HFSS.
 # Perform required imports.
 
 import json
-import tempfile
 import os
 
-from pyaedt import generate_unique_name
+from pyaedt import generate_unique_project_name
 from pyaedt import Hfss
 from pyaedt.modules.Mesh import Mesh
 
-tmpfold = tempfile.gettempdir()
 
-temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder):
-    os.mkdir(temp_folder)
+project_name = generate_unique_project_name(project_name="choke")
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -34,7 +31,8 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~
 # Launches HFSS 2022.2 in graphical mode.
 
-hfss = Hfss(specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True, solution_type="Terminal")
+hfss = Hfss(projectname=project_name, specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True,
+            solution_type="Terminal")
 
 ###############################################################################
 # Rules and information of use
@@ -213,7 +211,6 @@ hfss.create_linear_count_sweep(
 # ~~~~~~~~~~~~
 # Save the project.
 
-hfss.save_project(os.path.join(temp_folder, "My_HFSS_Choke.aedt"))
 hfss.modeler.fit_all()
 hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
 

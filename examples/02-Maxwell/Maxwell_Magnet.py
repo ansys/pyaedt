@@ -10,17 +10,14 @@ compute mass center. and move coordinate systems.
 # Perform required imports.
 
 from pyaedt import Maxwell3d
+from pyaedt import generate_unique_project_name
 import os
-import tempfile
-
-tmpfold = tempfile.gettempdir()
-if not os.path.exists(tmpfold):
-    os.mkdir(tmpfold)
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -28,7 +25,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # Launch AEDT
 # ~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode.
-m3d = Maxwell3d(specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
+m3d = Maxwell3d(projectname=generate_unique_project_name(), specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
 
 
 ###############################################################################
@@ -126,5 +123,5 @@ cs1 = m3d.modeler.create_coordinate_system(
 # ~~~~~~~~~~~~~~
 # Save the project and close AEDT.
 
-m3d.save_project(os.path.join(tmpfold, "magnet.aedt"))
+m3d.save_project()
 m3d.release_desktop(close_projects=True, close_desktop=True)

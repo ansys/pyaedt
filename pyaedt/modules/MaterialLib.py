@@ -184,9 +184,9 @@ class Materials(object):
         """Get materials."""
         mats = {}
         try:
-            for ds in self._app.project_properies["AnsoftProject"]["Definitions"]["Materials"]:
+            for ds in self._app.project_properties["AnsoftProject"]["Definitions"]["Materials"]:
                 mats[ds.lower()] = Material(
-                    self, ds, self._app.project_properies["AnsoftProject"]["Definitions"]["Materials"][ds]
+                    self, ds, self._app.project_properties["AnsoftProject"]["Definitions"]["Materials"][ds]
                 )
         except:
             pass
@@ -196,11 +196,11 @@ class Materials(object):
     def _get_surface_materials(self):
         mats = {}
         try:
-            for ds in self._app.project_properies["AnsoftProject"]["Definitions"]["SurfaceMaterials"]:
+            for ds in self._app.project_properties["AnsoftProject"]["Definitions"]["SurfaceMaterials"]:
                 mats[ds.lower()] = SurfaceMaterial(
                     self,
                     ds,
-                    self._app.project_properies["AnsoftProject"]["Definitions"]["SurfaceMaterials"][ds],
+                    self._app.project_properties["AnsoftProject"]["Definitions"]["SurfaceMaterials"][ds],
                 )
         except:
             pass

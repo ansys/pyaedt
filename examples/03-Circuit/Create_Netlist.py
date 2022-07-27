@@ -15,18 +15,11 @@ import os
 
 # Import required modules
 from pyaedt import examples
-import tempfile
-
+from pyaedt import generate_unique_project_name
 netlist = examples.download_netlist()
-from pyaedt import generate_unique_name
 
-# Set local path to path for PyAEDT
-tmpfold = tempfile.gettempdir()
-temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder):
-    os.makedirs(temp_folder)
-myfile = os.path.join(netlist)
-print(temp_folder)
+project_name = generate_unique_project_name()
+print(project_name)
 
 
 ###############################################################################
@@ -48,7 +41,8 @@ desktopVersion = "2022.2"
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = True
@@ -62,14 +56,7 @@ NewThread = True
 # to connect to an existing instance of it.
 
 desktop = Desktop(desktopVersion, non_graphical, NewThread)
-aedtapp = Circuit()
-
-###############################################################################
-# Save project to temporary folder
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Save the project to the temporary folder. You can change this folder.
-
-aedtapp.save_project(os.path.join(temp_folder, "my_firt_netlist.aedt"))
+aedtapp = Circuit(projectname=project_name)
 
 ###############################################################################
 # Define design variable
@@ -85,7 +72,7 @@ aedtapp["Voltage"] = "5"
 # method reads the netlist file and parses it. All components are parsed
 # but only these specified categories are mapped: R, L, C, Q, U, J, V, and I.
 
-aedtapp.create_schematic_from_netlist(myfile)
+aedtapp.create_schematic_from_netlist(netlist)
 
 ###############################################################################
 # Close project and release AEDT

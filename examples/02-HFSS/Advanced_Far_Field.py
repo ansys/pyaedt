@@ -11,27 +11,22 @@ This examples runs only on Windows using CPython.
 # Set the local path to the path for PyAEDT.
 
 import os
-import pathlib
-
-local_path = os.path.abspath("")
-module_path = pathlib.Path(local_path)
-aedt_lib_path = module_path.parent.parent.parent
-from pyaedt import examples
-
-project_name = examples.download_antenna_array()
-
-
 import time
 
-
+from pyaedt import examples
 from pyaedt import Desktop
 from pyaedt import Hfss
 from pyaedt.generic.general_methods import remove_project_lock
 
+project_name = examples.download_antenna_array()
+
+
 
 ##########################################################
 # Set non-graphical mode
-# Set non-graphical mode. The default is ``False``.
+# ~~~~~~~~~~~~~~~~~~~~~~
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 

@@ -14,8 +14,7 @@ This example shows how to use PyAEDT to export an IPC2581 file.
 
 import shutil
 import os
-import tempfile
-from pyaedt import generate_unique_name, examples, Edb
+from pyaedt import generate_unique_name, examples, Edb, generate_unique_folder_name
 
 ###############################################################################
 # Download file
@@ -23,16 +22,10 @@ from pyaedt import generate_unique_name, examples, Edb
 # Download the AEDB file and copy it in the temporary folder.
 
 
-tmpfold = tempfile.gettempdir()
-temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder):
-    os.makedirs(temp_folder)
-example_path = examples.download_aedb()
-targetfolder = os.path.join(temp_folder, "Galileo.aedb")
-if os.path.exists(targetfolder):
-    shutil.rmtree(targetfolder)
-shutil.copytree(example_path[:-8], targetfolder)
-targetfile = os.path.join(targetfolder)
+temp_folder = generate_unique_folder_name()
+
+targetfile = os.path.dirname(examples.download_aedb(temp_folder))
+
 ipc2581_file = os.path.join(temp_folder, "Galileo.xml")
 
 print(targetfile)

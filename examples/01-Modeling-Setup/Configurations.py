@@ -35,13 +35,14 @@ import tempfile
 import shutil
 from pyaedt import Icepak
 from pyaedt import examples
-from pyaedt import generate_unique_name
+from pyaedt import generate_unique_folder_name
 
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -50,19 +51,9 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~
 # Download the project, open it, and save it to the temporary folder.
 
-project_full_name = examples.download_icepak()
+project_full_name = examples.download_icepak(generate_unique_folder_name("Graphic_Card"))
 
-tmpfold = tempfile.gettempdir()
-
-
-temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-project_temp_name = os.path.join(temp_folder, "Graphic_Card.aedt")
-if not os.path.exists(temp_folder):
-    os.makedirs(temp_folder)
-shutil.copy2(project_full_name, project_temp_name)
-
-ipk = Icepak(project_temp_name, specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
-ipk.save_project(os.path.join(temp_folder, "Graphics_card.aedt"))
+ipk = Icepak(project_full_name, specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
 ipk.autosave_disable()
 
 ###############################################################################

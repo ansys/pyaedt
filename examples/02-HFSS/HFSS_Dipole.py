@@ -11,18 +11,16 @@ import os
 import tempfile
 from pyaedt import Hfss
 from pyaedt import Desktop
-from pyaedt import generate_unique_name
+from pyaedt import generate_unique_project_name
 
-tmpfold = tempfile.gettempdir()
+project_name= generate_unique_project_name(project_name="dipole")
 
-temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder):
-    os.mkdir(temp_folder)
 
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. The default is ``False``.
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -38,7 +36,7 @@ d = Desktop("2022.2", non_graphical=non_graphical, new_desktop_session=True)
 # ~~~~~~~~~~~
 # Launch HFSS 2022 R2 in graphical mode.
 
-hfss = Hfss(solution_type="Modal")
+hfss = Hfss(projectname=project_name, solution_type="Modal")
 
 ###############################################################################
 # Define dipole length variable
@@ -105,7 +103,6 @@ hfss.create_linear_count_sweep(
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Save and run the simulation.
 
-hfss.save_project(os.path.join(temp_folder, "MyDipole.aedt"))
 hfss.analyze_setup("MySetup")
 
 ###############################################################################
