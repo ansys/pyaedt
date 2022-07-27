@@ -1669,7 +1669,7 @@ class Analysis(Design, object):
                 return False
         else:
             if not os.path.exists(aedt_full_exe_path):
-                self.logger.error("Aedt shared Path doesn't exists. Please provide a full path")
+                self.logger.error("AEDT shared path does not exist. Provide a full path.")
                 return False
             aedt_full_exe_path.replace("\\", "\\\\")
 
