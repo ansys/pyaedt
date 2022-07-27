@@ -658,8 +658,6 @@ class Layer3D(object):
             Frequency value for patch calculation in Hz.
         patch_width : float
             Patch width.
-        patch_length : float
-            Patch Length.
         patch_position_x : float, optional
             Patch start x position.
         patch_position_y : float, optional
@@ -3139,7 +3137,63 @@ class Polygon(CommonObject, object):
 
 
 class MachineLearningPatch(Patch, object):
-    """MachineLearningPatch Class in Stackup3D."""
+    """MachineLearningPatch Class in Stackup3D. Create an antenna whose length is predicted by a
+    machine learning algorithm.
+
+    The machine learning algorithm determines the length according to resonant frequency,
+    patch width, substrat thickness and relative permittivity. The other parameter have no or only a minor influence.
+    We can consider that the patch thickness has no influence as long as it is lower than 50 um,
+    for machine learning training is set to 35 um. The patch conductivity and other dielectric properties are
+    respectively those of copper and duroid (tm) for the machine learning training, but predictions work
+    regardless of the dielectric or the conductor. The predictions are, in the most of cases, better than the predictions
+    with formula used in the class Patch. The machine learning model used, is Support Vector Regression,
+    it is a classic model in the non-linear prediction, it can be used for other non-linear application.
+    Two models were created, one from 0.1 GHz to 1 GHz and another from 1 GHz to 10 GHz. The example of the creation of
+    these models is available in a PyAEDT example named Machine_learning_applied_to_Patch. The two databases and models
+    are available in PyAEDT in misc.
+
+    It is preferable to use the ml_patch method in the class Layer3D than directly the class constructor.
+
+    Parameters
+    ----------
+    application : :class:`pyaedt.hfss.Hfss
+        HFSS design or project where the variable is to be created.
+    frequency : float, None
+        The patch frequency, it is used in prediction formulas. If it is None, the patch frequency will be that of the
+        layer or of the stackup. From 0.1 to 10 GHz.
+    patch_width : float
+        The patch width. From O.5 to 1.5 of the optimal width value : c0 * 1000/(2 * f * sqrt((er  + 1)/2))
+    signal_layer : :class:`pyaedt.modeler.stackup_3d.Layer3D`
+        The signal layer where the patch will be drawn.
+    dielectric_layer : :class:`pyaedt.modeler.stackup_3d.Layer3D`
+        The dielectric layer between the patch and the ground layer. Its permittivity and thickness are used in
+        prediction formulas. Thickness must be from 0.003 to 0.05 of the wavelength in vacuum and relative permittivity
+        from 1 to 12.
+    patch_position_x : float, optional
+        Patch x position, by default it is 0.
+    patch_position_y : float, optional
+        Patch y position, by default it is 0.
+    patch_name : str, optional
+        Patch name, by  default "patch".
+    reference_system : str, None, optional
+        Coordinate system of the patch. By default, None.
+    axis : str, optional
+        Patch length axis, by default "X".
+
+    Examples
+    --------
+
+    >>> from pyaedt import Hfss
+    >>> from pyaedt.modeler.stackup_3d import Stackup3D
+    >>> hfss = Hfss()
+    >>> my_stackup = Stackup3D(hfss, 2.5e9)
+    >>> gnd = my_stackup.add_ground_layer("gnd")
+    >>> my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
+    >>> top = my_stackup.add_signal_layer("top")
+    >>> my_patch = top.ml_patch(frequency=None, patch_width=51, patch_name="MLPatch")
+    >>> my_stackup.resize_around_element(my_patch)
+
+    """
 
     def __init__(
         self,
