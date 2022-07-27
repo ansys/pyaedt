@@ -310,7 +310,8 @@ class Layer3D(object):
     >>> from pyaedt.modeler.stackup_3d import Stackup3D
     >>> hfss = Hfss()
     >>> my_stackup = Stackup3D(hfss, 2.5e9)
-    >>> my_layer = my_stackup.add_layer("my_layer", layer_type="D", material_name="air", thickness=3, fill_material=None)
+    >>> my_layer = my_stackup.add_layer("my_layer", layer_type="D", material_name="air",
+    >>> thickness=3, fill_material=None)
     >>> gnd = my_stackup.add_ground_layer("gnd")
     >>> diel = my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
     >>> top = my_stackup.add_signal_layer("top")
@@ -1416,7 +1417,8 @@ class Stackup3D(object):
         >>> from pyaedt.modeler.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
-        >>> my_layer = my_stackup.add_layer("my_layer", layer_type="D", material_name="air", thickness=3, fill_material=None)
+        >>> my_layer = my_stackup.add_layer("my_layer", layer_type="D", material_name="air",
+        >>> thickness=3, fill_material=None)
 
         """
         self._shifted_index += 1
@@ -2301,8 +2303,10 @@ class Patch(CommonObject, object):
         >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
         >>> my_stackup.resize_around_element(my_patch)
         >>> my_feeding_line = my_patch.quarter_wave_feeding_line()
-        >>> my_stackup.dielectric_x_position.expression = my_stackup.dielectric_x_position.expression + " - " + my_feeding_line.length.name
-        >>> my_stackup.dielectric_length.expression = my_stackup.dielectric_length.expression + " + " + my_feeding_line.length.name
+        >>> my_stackup.dielectric_x_position.expression = my_stackup.dielectric_x_position.expression +
+        >>> " - " + my_feeding_line.length.name
+        >>> my_stackup.dielectric_length.expression = my_stackup.dielectric_length.expression +
+        >>> " + " + my_feeding_line.length.name
 
         """
         string_formula = "sqrt(" + str(impedance_to_adapt) + "*" + self._impedance_bal.name + ")"
@@ -3172,8 +3176,8 @@ class MachineLearningPatch(Patch, object):
     We can consider that the patch thickness has no influence as long as it is lower than 50 um,
     for machine learning training is set to 35 um. The patch conductivity and other dielectric properties are
     respectively those of copper and duroid (tm) for the machine learning training, but predictions work
-    regardless of the dielectric or the conductor. The predictions are, in the most of cases, better than the predictions
-    with formula used in the class Patch. The machine learning model used, is Support Vector Regression,
+    regardless of the dielectric or the conductor. The predictions are, in the most of cases, better than the
+    predictions with formula used in the class Patch. The machine learning model used, is Support Vector Regression,
     it is a classic model in the non-linear prediction, it can be used for other non-linear application.
     Two models were created, one from 0.1 GHz to 1 GHz and another from 1 GHz to 10 GHz. The example of the creation of
     these models is available in a PyAEDT example named Machine_learning_applied_to_Patch. The two databases and models
