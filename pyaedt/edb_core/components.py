@@ -1033,7 +1033,7 @@ class Components(object):
 
                 edbRlcComponentProperty.SetModel(spiceMod)
                 if not edbComponent.SetComponentProperty(edbRlcComponentProperty):
-                    self._logger.error("Error Assigning the Touchstone model")
+                    self._logger.error("Error assigning the `Spice` model.")
                     return False
             else:
                 self._logger.error("Wrong number of Pins")
@@ -1060,7 +1060,7 @@ class Components(object):
             sParameterMod.SetReferenceNet(net)
             edbRlcComponentProperty.SetModel(sParameterMod)
             if not edbComponent.SetComponentProperty(edbRlcComponentProperty):
-                self._logger.error("Error Assigning the Touchstone model")
+                self._logger.error("Error assigning the `Touchstone` model")
                 return False
         return True
 
