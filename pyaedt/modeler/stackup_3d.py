@@ -202,7 +202,7 @@ class DuplicatedParametrizedMaterial(object):
     >>> my_material = my_copper.material
     >>> my_copper_conductivity = my_copper.conductivity
 
-     """
+    """
 
     def __init__(self, application, material_name, cloned_material_name, list_of_properties=None):
         self._thickness = None
@@ -236,7 +236,9 @@ class DuplicatedParametrizedMaterial(object):
                 self._permittivity = NamedVariable(application, permittivity_variable, str(permittivity))
                 self._permeability = NamedVariable(application, permeability_variable, str(permeability))
                 self._conductivity = NamedVariable(application, conductivity_variable, str(conductivity))
-                self._dielectric_loss_tangent = NamedVariable(application, dielectric_loss_variable, str(dielectric_loss_tan))
+                self._dielectric_loss_tangent = NamedVariable(
+                    application, dielectric_loss_variable, str(dielectric_loss_tan)
+                )
                 self._magnetic_loss_tangent = NamedVariable(application, magnetic_loss_variable, str(magnetic_loss_tan))
                 cloned_material.permittivity = permittivity_variable
                 cloned_material.permeability = permeability_variable
@@ -560,7 +562,9 @@ class Layer3D(object):
         for duplicated_material in self._stackup.duplicated_material_list:
             if duplicated_material.material_name == cloned_material_name:
                 return duplicated_material
-        duplicated_material = DuplicatedParametrizedMaterial(application, material_name, cloned_material_name, list_of_properties)
+        duplicated_material = DuplicatedParametrizedMaterial(
+            application, material_name, cloned_material_name, list_of_properties
+        )
         self._stackup.duplicated_material_list.append(duplicated_material)
         return duplicated_material
 
@@ -1375,7 +1379,9 @@ class Stackup3D(object):
         return p
 
     @pyaedt_function_handler()
-    def add_layer(self, name, layer_type="S", material_name="copper", thickness=0.035, fill_material="FR4_epoxy", frequency=None):
+    def add_layer(
+        self, name, layer_type="S", material_name="copper", thickness=0.035, fill_material="FR4_epoxy", frequency=None
+    ):
         """Add a new layer to the stackup.
         The new layer can be a signal (S), ground (G), or dielectric (D).
         The layer is entirely filled with the specified fill material. Anything will be drawn
@@ -1491,17 +1497,16 @@ class Stackup3D(object):
 
         """
         return self.add_layer(
-            name=name, layer_type="S", material_name=material, thickness=thickness, fill_material=fill_material, frequency=frequency
+            name=name,
+            layer_type="S",
+            material_name=material,
+            thickness=thickness,
+            fill_material=fill_material,
+            frequency=frequency,
         )
 
     @pyaedt_function_handler()
-    def add_dielectric_layer(
-        self,
-        name,
-        material="FR4_epoxy",
-        thickness=0.035,
-        frequency=None
-    ):
+    def add_dielectric_layer(self, name, material="FR4_epoxy", thickness=0.035, frequency=None):
         """Add a new dielectric layer to the stackup.
 
         Parameters
@@ -1531,7 +1536,14 @@ class Stackup3D(object):
         >>> my_dielectric_layer = my_stackup.add_dielectric_layer("diel", thickness=1.5, material="Duroid (tm)")
 
         """
-        return self.add_layer(name=name, layer_type="D", material_name=material, thickness=thickness, fill_material=None, frequency=frequency)
+        return self.add_layer(
+            name=name,
+            layer_type="D",
+            material_name=material,
+            thickness=thickness,
+            fill_material=None,
+            frequency=frequency,
+        )
 
     @pyaedt_function_handler()
     def add_ground_layer(self, name, material="copper", thickness=0.035, fill_material="air", frequency=None):
@@ -1568,7 +1580,12 @@ class Stackup3D(object):
 
         """
         return self.add_layer(
-            name=name, layer_type="G", material_name=material, thickness=thickness, fill_material=fill_material, frequency=frequency
+            name=name,
+            layer_type="G",
+            material_name=material,
+            thickness=thickness,
+            fill_material=fill_material,
+            frequency=frequency,
         )
 
     @pyaedt_function_handler()
@@ -1878,8 +1895,8 @@ class Patch(CommonObject, object):
         self._application = application
         self._aedt_object = None
         self._permittivity = NamedVariable(
-                application, patch_name + "_permittivity", self._dielectric_layer.duplicated_material.permittivity.name
-            )
+            application, patch_name + "_permittivity", self._dielectric_layer.duplicated_material.permittivity.name
+        )
         if isinstance(patch_length, float) or isinstance(patch_length, int):
             self._length = NamedVariable(
                 application, patch_name + "_length", application.modeler._arg_with_dim(patch_length)
@@ -2852,7 +2869,15 @@ class Trace(CommonObject, object):
             + er
             + " + 1)/2 + ("
             + er
-            + " - 1)/2 * ((1 + 12 * " + h + "/" + w + ")**(-0.5) + 0.04 * (1 - 12 * " + w + "/" + h + ")**2)"
+            + " - 1)/2 * ((1 + 12 * "
+            + h
+            + "/"
+            + w
+            + ")**(-0.5) + 0.04 * (1 - 12 * "
+            + w
+            + "/"
+            + h
+            + ")**2)"
         )
         self._effective_permittivity_w_h = NamedVariable(
             self.application, self._name + "_eff_permittivity_w_h", patch_eff_permittivity_formula_w_h
@@ -3120,7 +3145,9 @@ class Polygon(CommonObject, object):
             position_list=pts, name=poly_name, matname=mat_name, cover_surface=True
         )
         if self._thickness:
-            application.modeler.sweep_along_vector(self._aedt_object, [0, 0, self._thickness.name], draft_type="Natural")
+            application.modeler.sweep_along_vector(
+                self._aedt_object, [0, 0, self._thickness.name], draft_type="Natural"
+            )
         application.modeler.set_working_coordinate_system("Global")
 
     @property
@@ -3238,7 +3265,9 @@ class MachineLearningPatch(Patch, object):
             elif 1e10 >= self.frequency.numeric_value > 1e9:
                 training_file = os.path.join(path_folder, "misc", "patch_svr_model_1GHz_10GHz.joblib")
             else:
-                self.application.logger.error("This ML algorithm can only predict patch antennas from 100 MHz to 10 GHz.")
+                self.application.logger.error(
+                    "This ML algorithm can only predict patch antennas from 100 MHz to 10 GHz."
+                )
             if training_file:
                 model = joblib.load(training_file)
                 list_for_array = [
@@ -3254,6 +3283,3 @@ class MachineLearningPatch(Patch, object):
                 self.length.expression = self.application.modeler._arg_with_dim(length)
         else:  # pragma: no cover
             self.application.logger.warning("Machine learning algorithm aren't covered in IronPython.")
-
-
-
