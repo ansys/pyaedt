@@ -618,7 +618,7 @@ class NodeType(object):
 class SourceType(object):
     """Type of excitation enumerator."""
 
-    (CoaxPort, CircPort, LumpedPort, Vsource, Isource, Resistor, Inductor, Capacitor) = range(0, 8)
+    (CoaxPort, CircPort, LumpedPort, Vsource, Isource, Rlc) = range(0, 6)
 
 
 class SOLUTIONS(object):
