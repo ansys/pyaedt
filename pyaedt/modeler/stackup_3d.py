@@ -457,6 +457,13 @@ class Layer3D(object):
 
     @property
     def duplicated_material(self):
+        """Duplicated material.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.stackup_3d.DuplicatedParametrizedMaterial`
+            Material.
+        """
         return self._duplicated_material
 
     @property
@@ -529,10 +536,22 @@ class Layer3D(object):
 
     @property
     def stackup(self):
+        """Stackup.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.stackup_3d.Stackup3D`
+        """
         return self._stackup
 
     @property
     def frequency(self):
+        """Frequency variable.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+        """
         return self._frequency
 
     @pyaedt_function_handler()
@@ -1170,6 +1189,12 @@ class Stackup3D(object):
 
     @property
     def application(self):
+        """Application object.
+
+        Returns
+        -------
+        :class:`pyaedt.hfss.Hfss
+        """
         return self._app
 
     @property
@@ -1354,10 +1379,22 @@ class Stackup3D(object):
 
     @property
     def frequency(self):
+        """Frequency variable.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+        """
         return self._frequency
 
     @property
     def duplicated_material_list(self):
+        """List of all duplicated material.
+
+        Returns
+        -------
+        List
+        """
         return self._duplicated_material_list
 
     @pyaedt_function_handler()
