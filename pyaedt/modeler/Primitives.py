@@ -3323,7 +3323,8 @@ class Primitives(object):
         self._refresh_sheets()
         self._refresh_lines()
         self._refresh_points()
-        self._all_object_names = self._solids + self._sheets + self._lines + self._points
+        self._refresh_unclassified()
+        self._all_object_names = self._solids + self._sheets + self._lines + self._points + self._unclassified
 
     @pyaedt_function_handler()
     def _create_object(self, name):
