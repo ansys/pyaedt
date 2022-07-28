@@ -933,16 +933,19 @@ class Primitives(object):
     @property
     def solid_objects(self):
         """List of all solid objects."""
+        self._refresh_solids()
         return [self[name] for name in self.solid_names if self[name]]
 
     @property
     def sheet_objects(self):
         """List of all sheet objects."""
+        self._refresh_sheets()
         return [self[name] for name in self.sheet_names if self[name]]
 
     @property
     def line_objects(self):
         """List of all line objects."""
+        self._refresh_lines()
         return [self[name] for name in self.line_names if self[name]]
 
     @property
