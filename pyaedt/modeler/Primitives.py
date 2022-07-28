@@ -995,7 +995,7 @@ class Primitives(object):
     def object_names(self):
         """List of the names of all objects."""
         self._refresh_object_types()
-        return self._all_object_names
+        return [i for i in self._all_object_names if i not in self._unclassified]
 
     @property
     def user_defined_component_names(self):
@@ -2001,6 +2001,10 @@ class Primitives(object):
         """
         added_objects = []
         for obj_name in self.object_names:
+            if obj_name not in self.object_id_dict:
+                self._create_object(obj_name)
+                added_objects.append(obj_name)
+        for obj_name in self.unclassified_names:
             if obj_name not in self.object_id_dict:
                 self._create_object(obj_name)
                 added_objects.append(obj_name)
