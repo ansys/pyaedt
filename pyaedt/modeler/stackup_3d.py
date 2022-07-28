@@ -2536,7 +2536,7 @@ class Trace(CommonObject, object):
             if axis == "X":
                 start_point = [
                     "{0}_position_x".format(self._name),
-                    self.position_y.name + " - " + self.width.name + "/2".format(self._name),
+                    self.position_y.name + " - " + self.width.name + "/2",
                     0,
                 ]
             else:
