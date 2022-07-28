@@ -75,12 +75,12 @@ class CouplingsEmit(object):
         if desktop_version >= "2022.2":
             return self._odesign.GetAvailableLinkNames()
         else:
-            warnings.warn("The function linkable_design_names() requires AEDT 2022 R2 or newer.")
+            warnings.warn("The function linkable_design_names() requires AEDT 2022 R2 or later.")
             return []
         
     @property
     def cad_nodes(self):
-        """List the cad nodes.
+        """List the CAD nodes.
 
         Returns
         -------
