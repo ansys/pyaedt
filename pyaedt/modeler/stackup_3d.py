@@ -2987,58 +2987,6 @@ class Trace(CommonObject, object):
         self._electrical_length = NamedVariable(self.application, self._name + "_elec_length", elec_length_formula)
         return self._electrical_length
 
-    """
-    @pyaedt_function_handler()
-    def create_lumped_port(self, reference_layer_name, change_side=False):
-        Create a lumped port on the specified line.
-
-        Parameters
-        ----------
-        reference_layer_name : str
-            Name of the layer on which attach the reference.
-        change_side : bool, optional
-            Either if apply the port on one direction or the opposite. Default it is on Positive side.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
-        if self._axis == "X":
-            if change_side:
-                axisdir = self.application.AxisDir.XNeg
-            else:
-                axisdir = self.application.AxisDir.XPos
-        else:
-            if change_side:
-                axisdir = self.application.AxisDir.YNeg
-            else:
-                axisdir = self.application.AxisDir.YPos
-        p1 = self.application.create_lumped_port_between_objects(
-            reference_layer_name, self.aedt_object.name, axisdir=axisdir
-        )
-        z_elev = ""
-        start_count = False
-        for k, v in self._signal_layer._stackup.stackup_layers.items():
-            if k == reference_layer_name or k == self._signal_layer.name:
-                if not start_count:
-                    start_count = True
-                else:
-                    start_count = False
-            elif start_count:
-                z_elev += "-" + v.thickness.name
-        self.application.modeler.oeditor.ChangeProperty(
-            [
-                "NAME:AllTabs",
-                [
-                    "NAME:Geometry3DCmdTab",
-                    ["NAME:PropServers", self._name + ":Move:1"],
-                    ["NAME:ChangedProps", ["NAME:Move Vector", "X:=", "0mm", "Y:=", "0mm", "Z:=", z_elev]],
-                ],
-            ]
-        )
-        return p1
-    """
-
     def create_lumped_port(self, reference_layer, opposite_side=False, port_name=None, axisdir=None):
         """Create a parametrized lumped port.
 
