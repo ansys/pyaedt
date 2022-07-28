@@ -54,18 +54,23 @@ class CouplingsEmit(object):
         return self._odesign.GetLinkNames()
 
     def add_link(self, new_coupling_name):
-        """add a new link if it's not already there"""
+        """Add a new link if it's not already there."""
         if new_coupling_name not in self._odesign.GetLinkNames():
             self._odesign.AddLink(new_coupling_name)
 
     def update_link(self, coupling_name):
-        """update the link if it's a valid link"""
+        """Update the link if it's a valid link."""
         if coupling_name in self._odesign.GetLinkNames():
             self._odesign.UpdateLink(coupling_name)
 
     @property
     def linkable_design_names(self):
-        """list the available link names"""
+        """List the available link names.
+
+        Returns
+        -------
+        list
+        """
         desktop_version = self._desktop.GetVersion()[0:6]
         if desktop_version >= "2022.2":
             return self._odesign.GetAvailableLinkNames()
@@ -75,7 +80,12 @@ class CouplingsEmit(object):
         
     @property
     def cad_nodes(self):
-        """list the cad nodes"""
+        """List the cad nodes.
+
+        Returns
+        -------
+        dict
+        """
         coupling_node_name = 'CouplingNodeTree@EMIT'
         cad_node_list = {}
         for coupling in self._odesign.GetComponentNodeNames(coupling_node_name):
@@ -88,7 +98,12 @@ class CouplingsEmit(object):
 
     @property
     def antenna_pattern_nodes(self):
-        """list the antenna pattern nodes"""
+        """List the antenna pattern nodes.
+
+        Returns
+        -------
+        dict
+        """
         radios_node_name = 'NODE-*-RF Systems-*-RF System-*-Radios'
         antenna_patterns_list = {}
         for radio in self._odesign.GetComponentNodeNames(radios_node_name):
