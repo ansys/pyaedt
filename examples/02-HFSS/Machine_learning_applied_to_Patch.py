@@ -133,8 +133,9 @@ print("Its length is: " + str(len(dictionary_list)))
 
 desktopVersion = "2022.2"
 
-hfss = Hfss(new_desktop_session=True, solution_type="Terminal", non_graphical=non_graphical,
-            specified_version=desktopVersion)
+hfss = Hfss(
+    new_desktop_session=True, solution_type="Terminal", non_graphical=non_graphical, specified_version=desktopVersion
+)
 
 stackup = Stackup3D(hfss)
 ground = stackup.add_ground_layer("ground", material="copper", thickness=0.035, fill_material="air")
@@ -342,7 +343,7 @@ with open(json_file_path, "w") as readfile:
 # the model. Its eight cases are used later to test the model.
 
 path_folder = hfss.pyaedt_dir
-training_file = os.path.join(path_folder, "misc", "ml_data_file_train_100GMHz_1GHz.json")
+training_file = os.path.join(path_folder, "misc", "ml_data_file_train_100MHz_1GHz.json")
 with open(training_file) as readfile:
     my_dictio_list_train = json.load(readfile)
 
