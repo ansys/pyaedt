@@ -943,7 +943,7 @@ class Padstack(object):
 
     @plating_ratio.setter
     def plating_ratio(self, val):
-        if isinstance(val, (float, int)) and val > 0 and val <= 1:
+        if isinstance(val, (float, int)) and 0 < val <= 1:
             self._plating_ratio = val
         elif isinstance(val, str):
             self._plating_ratio = val
