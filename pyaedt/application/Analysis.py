@@ -1652,20 +1652,24 @@ class Analysis(Design, object):
         project_path = self.project_path
         if not aedt_full_exe_path:
             version = self.odesktop.GetVersion()[2:6]
-            if os.path.exists(r"\\" + clustername + r"\AnsysEM\AnsysEM{}\Win64\ansysedt.exe".format(version)):
+            if version >= "22.2":
+                version_name = "v" + version.replace(".", "")
+            else:
+                version_name = "AnsysEM" + version
+            if os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Win64\ansysedt.exe".format(version_name)):
                 aedt_full_exe_path = (
-                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\AnsysEM{}\\\\Win64\\\\ansysedt.exe".format(version)
+                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Win64\\\\ansysedt.exe".format(version_name)
                 )
-            elif os.path.exists(r"\\" + clustername + r"\AnsysEM\AnsysEM{}\Linux64\ansysedt".format(version)):
+            elif os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Linux64\ansysedt".format(version_name)):
                 aedt_full_exe_path = (
-                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\AnsysEM{}\\\\Linux64\\\\ansysedt".format(version)
+                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Linux64\\\\ansysedt".format(version_name)
                 )
             else:
-                self.logger.error("AEDT path does not exist. Please provide a full path.")
+                self.logger.error("AEDT shared path does not exist. Please provide a full path.")
                 return False
         else:
             if not os.path.exists(aedt_full_exe_path):
-                self.logger.error("Aedt Path doesn't exists. Please provide a full path")
+                self.logger.error("AEDT shared path does not exist. Provide a full path.")
                 return False
             aedt_full_exe_path.replace("\\", "\\\\")
 
