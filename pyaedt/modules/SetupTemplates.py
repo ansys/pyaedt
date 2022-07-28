@@ -1388,7 +1388,7 @@ class SweepHFSS(object):
                         new_list = [float(i) for i in v["Fields"]["IDDblMap"][1::2]]
                         new_list.sort()
                         fr.append(new_list)
-                    except:
+                    except (KeyError, NameError, IndexError):
                         pass
 
         count = 0
