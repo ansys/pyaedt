@@ -1,14 +1,14 @@
 """
 This module contains these classes: `CouplingsEmit`.
-This module provides the capability to interact with EMIT Analysis & Results windows.
+This module provides for interacting with EMIT Analysis and Results windows.
 """
 import warnings
 
 
 class CouplingsEmit(object):
-    """Provides for interaction with the EMIT Coupling folder
+    """Provides for interaction with the EMIT ```coupling`` folder,
     This class is accessible through the EMIT application results variable
-    object( eg. ``emit.couplings``).
+    object (``emit.couplings``).
     Parameters
     ----------
     app :

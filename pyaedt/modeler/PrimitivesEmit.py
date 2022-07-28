@@ -447,13 +447,13 @@ class EmitComponent(object):
 
     @pyaedt_function_handler()
     def get_connected_components(self):
-        """Get all components that are connected (directly or indirectly) to this component.
+        """Get all EMIT components that are connected (directly or indirectly) to this component.
 
         Args:
             None
 
         Returns:
-            A list containing all EmitComponents that are connected (directly or indirectly) to this component.
+            List containing all EMIT components that are connected to this component.
         """
         component_names = []
         to_search = [self.name]
@@ -492,23 +492,23 @@ class EmitAntennaComponent(EmitComponent):
         super(EmitAntennaComponent, self).__init__(components, component_name)
 
     def get_pattern_filename(self):
-        """Get the filename of the Antenna Pattern defining this antenna
+        """Get the filename of the antenna pattern defining this antenna.
         Args:
 
         Returns:
-            Filename of the Antenna Pattern defining this antenna
+            Filename of the antenna pattern.
         """
         properties = self.get_node_properties()
         return properties["Filename"]
 
     def get_orientation_rpy(self):
-        """Get the RPY orientation of this Antenna.
+        """Get the RPY orientation of this antenna.
 
         Args:
             None
 
         Returns:
-            A tuple containing the Roll, Pitch, and Yaw values in degrees defining this orientation
+            Tuple containing the roll, pitch, and yaw values in degrees defining this orientation.
         """
         properties = self.get_node_properties()
 
@@ -530,13 +530,13 @@ class EmitAntennaComponent(EmitComponent):
         return orientation
 
     def get_position(self):
-        """Get the position of this Antenna.
+        """Get the position of this antenna.
 
         Args:
             None
 
         Returns:
-            A tuple containing the X, Y, and Z offset values in meters
+            Tuple containing the X, Y, and Z offset values in meters.
 
         """
         properties = self.get_node_properties()

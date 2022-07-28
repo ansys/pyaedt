@@ -78,7 +78,7 @@ class TestClass(BasisTest, object):
         assert not band.enabled
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions lower than 2021.2"
+        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021 R2."
     )
     def test_antenna_component(self):
         antenna = self.aedtapp.modeler.components.create_component("Antenna")
