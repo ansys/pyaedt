@@ -192,11 +192,12 @@ class Dataset(object):
 
 
 class BasicValue(object):
-    """Manages thermal modifier calculations."""
+    """Manages thermal and spatial modifier calculations."""
 
     value = None
     dataset = None
     thermalmodifier = None
+    spatialmodifier = None
 
 
 class MatProperty(object):
@@ -212,6 +213,8 @@ class MatProperty(object):
         The default is ``None``.
     thermalmodifier
         The default is ``None``.
+    spatialmodifier
+        The default is ``None``.
 
     Examples
     --------
@@ -220,7 +223,7 @@ class MatProperty(object):
     >>> matproperty = app.materials["copper"].conductivity
     """
 
-    def __init__(self, material, name, val=None, thermalmodifier=None):
+    def __init__(self, material, name, val=None, thermalmodifier=None, spatialmodifier=None):
         self._material = material
         self.logger = self._material.logger
         self._type = "simple"
@@ -262,6 +265,11 @@ class MatProperty(object):
                     self._property_value[tm["Index:"]].thermalmodifier.TL = tm["TL"]
                     self._property_value[tm["Index:"]].thermalmodifier.TU = tm["TU"]
                     self._property_value[tm["Index:"]].thermalmodifier.autocalculation = tm["auto_calculation"]
+        if not isinstance(spatialmodifier, list):
+            spatialmodifier = [spatialmodifier]
+        for sm in spatialmodifier:
+            if sm:
+                self._property_value[sm["Index:"]].spatialmodifier = sm["free_form_value"]
 
     @property
     def type(self):
@@ -365,7 +373,10 @@ class MatProperty(object):
         type
 
         """
-        if "ModifierData" not in self._material._props:
+        if (
+            "ModifierData" not in self._material._props
+            or "ThermalModifierData" not in self._material._props["ModifierData"]
+        ):
             tm = OrderedDict(
                 {
                     "Property:": self.name,
@@ -375,16 +386,33 @@ class MatProperty(object):
                     "free_form_value": formula,
                 }
             )
-            self._material._props["ModifierData"] = OrderedDict(
-                {
-                    "ThermalModifierData": OrderedDict(
-                        {
-                            "modifier_data": "thermal_modifier_data",
-                            "all_thermal_modifiers": OrderedDict({"one_thermal_modifier": tm}),
-                        }
-                    )
-                }
-            )
+            if (
+                "ModifierData" in self._material._props
+                and "SpatialModifierData" in self._material._props["ModifierData"]
+            ):
+                self._material._props["ModifierData"] = OrderedDict(
+                    {
+                        "SpatialModifierData": self._material._props["ModifierData"]["SpatialModifierData"],
+                        "ThermalModifierData": OrderedDict(
+                            {
+                                "modifier_data": "thermal_modifier_data",
+                                "all_thermal_modifiers": OrderedDict({"one_spatial_modifier": tm}),
+                            }
+                        ),
+                    }
+                )
+            else:
+                self._material._props["ModifierData"] = OrderedDict(
+                    {
+                        "ThermalModifierData": OrderedDict(
+                            {
+                                "modifier_data": "thermal_modifier_data",
+                                "all_thermal_modifiers": OrderedDict({"one_thermal_modifier": tm}),
+                            }
+                        )
+                    }
+                )
+
         else:
             for tmname in self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
                 if isinstance(
@@ -531,7 +559,7 @@ class MatProperty(object):
 
         formula = "pwl({}, Temp)".format(dataset_name)
         self._property_value[index].thermalmodifier = formula
-        self._add_thermal_modifier(formula, index)
+        return self._add_thermal_modifier(formula, index)
 
     @pyaedt_function_handler()
     def add_thermal_modifier_closed_form(
@@ -634,23 +662,44 @@ class MatProperty(object):
                     "TMU": str(tmu),
                 }
             )
-        if "ModifierData" not in self._material._props:
-            self._material._props["ModifierData"] = OrderedDict(
-                {
-                    "ThermalModifierData": OrderedDict(
-                        {
-                            "modifier_data": "thermal_modifier_data",
-                            "all_thermal_modifiers": OrderedDict({"one_thermal_modifier": tm_new}),
-                        }
-                    )
-                }
-            )
+        if (
+            "ModifierData" not in self._material._props
+            or "ThermalModifierData" not in self._material._props["ModifierData"]
+        ):
+            if (
+                "ModifierData" in self._material._props
+                and "SpatialModifierData" in self._material._props["ModifierData"]
+            ):
+                self._material._props["ModifierData"] = OrderedDict(
+                    {
+                        "SpatialModifierData": self._material._props["ModifierData"]["SpatialModifierData"],
+                        "ThermalModifierData": OrderedDict(
+                            {
+                                "modifier_data": "thermal_modifier_data",
+                                "all_thermal_modifiers": OrderedDict({"one_spatial_modifier": tm_new}),
+                            }
+                        ),
+                    }
+                )
+            else:
+                self._material._props["ModifierData"] = OrderedDict(
+                    {
+                        "ThermalModifierData": OrderedDict(
+                            {
+                                "modifier_data": "thermal_modifier_data",
+                                "all_thermal_modifiers": OrderedDict({"one_thermal_modifier": tm_new}),
+                            }
+                        )
+                    }
+                )
         else:
             for tmname in self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]:
-                tml = self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]
-                if isinstance(tml, list):
+                tm_definition = self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][
+                    tmname
+                ]
+                if isinstance(tm_definition, list):
                     found = False
-                    for tm in tml:
+                    for tm in tm_definition:
                         if self.name == tm["Property:"] and index == tm["Index:"]:
                             found = True
                             tm["use_free_form"] = False
@@ -661,32 +710,42 @@ class MatProperty(object):
                             tm["TL"] = str(tl) + units
                             tm["TU"] = str(tu) + units
                             tm["auto_calculation"] = auto_calc
-                            if auto_calc:
+                            if not auto_calc:
                                 tm["TML"] = tml
                                 tm["TMU"] = tmu
                             else:
                                 tm.pop("TML", None)
                                 tm.pop("TMU", None)
                     if not found:
-                        tml.append(tm_new)
-                elif self.name == tml["Property:"] and index == tml["Index:"]:
-                    tml["use_free_form"] = False
-                    tml.pop("free_form_value", None)
-                    tml["Tref"] = str(tref) + units
-                    tml["C1"] = str(c1)
-                    tml["C2"] = str(c1)
-                    tml["TL"] = str(tl) + units
-                    tml["TU"] = str(tl) + units
-                    tml["auto_calculation"] = auto_calc
+                        tm_definition.append(tm_new)
+                elif self.name == tm_definition["Property:"] and index == tm_definition["Index:"]:
+                    tm_definition["use_free_form"] = False
+                    tm_definition.pop("free_form_value", None)
+                    tm_definition["Tref"] = str(tref) + units
+                    tm_definition["C1"] = str(c1)
+                    tm_definition["C2"] = str(c1)
+                    tm_definition["TL"] = str(tl) + units
+                    tm_definition["TU"] = str(tl) + units
+                    tm_definition["auto_calculation"] = auto_calc
                     if not auto_calc:
-                        tml["TML"] = str(tml)
-                        tml["TMU"] = str(tmu)
+                        tm_definition["TML"] = str(tml)
+                        tm_definition["TMU"] = str(tmu)
                     else:
-                        tml.pop("TML", None)
-                        tml.pop("TMU", None)
+                        tm_definition.pop("TML", None)
+                        tm_definition.pop("TMU", None)
                 else:
-                    tml = [tml]
-                    tml.append(tm_new)
+                    tm_definition = [tm_definition]
+                    tm_definition.append(tm_new)
+            self._material._props["ModifierData"] = OrderedDict(
+                {
+                    "ThermalModifierData": OrderedDict(
+                        {
+                            "modifier_data": "thermal_modifier_data",
+                            "all_thermal_modifiers": OrderedDict({"one_thermal_modifier": tm_definition}),
+                        }
+                    )
+                }
+            )
         return self._material.update()
 
     @pyaedt_function_handler()
@@ -738,6 +797,206 @@ class MatProperty(object):
             self._unit = [x_unit, y_unit]
         return self._material._update_props(self.name, self.value)
 
+    @property
+    def spatialmodifier(self):
+        """Spatial modifier."""
+        if len(self._property_value) == 1:
+            return self._property_value[0].spatialmodifier
+        else:
+            return [i.spatialmodifier for i in self._property_value]
+
+    @spatialmodifier.setter
+    def spatialmodifier(self, spatial_value):
+        """Spatial modifier.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
+        """
+        if isinstance(spatial_value, str):
+            self._add_spatial_modifier(spatial_value, 0)
+        else:
+            for i in spatial_value:
+                self._add_spatial_modifier(i, spatial_value.index(i))
+
+    def _add_spatial_modifier(self, formula, index):
+        """Add a spatial modifier.
+
+        Parameters
+        ----------
+        formula : str
+            Formula to apply.
+        index : int
+            Value for the index.
+
+        Returns
+        -------
+        type
+
+        """
+        if (
+            "ModifierData" not in self._material._props
+            or "SpatialModifierData" not in self._material._props["ModifierData"]
+        ):
+            sm = OrderedDict(
+                {
+                    "Property:": self.name,
+                    "Index:": index,
+                    "prop_modifier": "spatial_modifier",
+                    "free_form_value": formula,
+                }
+            )
+            if (
+                "ModifierData" in self._material._props
+                and "ThermalModifierData" in self._material._props["ModifierData"]
+            ):
+                self._material._props["ModifierData"] = OrderedDict(
+                    {
+                        "ThermalModifierData": self._material._props["ModifierData"]["ThermalModifierData"],
+                        "SpatialModifierData": OrderedDict(
+                            {
+                                "modifier_data": "spatial_modifier_data",
+                                "all_spatial_modifiers": OrderedDict({"one_spatial_modifier": sm}),
+                            }
+                        ),
+                    }
+                )
+            else:
+                self._material._props["ModifierData"] = OrderedDict(
+                    {
+                        "SpatialModifierData": OrderedDict(
+                            {
+                                "modifier_data": "spatial_modifier_data",
+                                "all_spatial_modifiers": OrderedDict({"one_spatial_modifier": sm}),
+                            }
+                        )
+                    }
+                )
+        else:
+            for smname in self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"]:
+                if isinstance(
+                    self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][smname], list
+                ):
+                    found = False
+                    for sm in self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][
+                        smname
+                    ]:
+                        if self.name == sm["Property:"] and index == sm["Index:"]:
+                            found = True
+                            sm["free_form_value"] = formula
+
+                    if not found:
+                        sm = OrderedDict(
+                            {
+                                "Property:": self.name,
+                                "Index:": index,
+                                "prop_modifier": "spatial_modifier",
+                                "free_form_value": formula,
+                            }
+                        )
+                        self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][
+                            smname
+                        ].append(sm)
+                elif (
+                    self.name
+                    == self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][smname][
+                        "Property:"
+                    ]
+                    and index
+                    == self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][smname][
+                        "Index:"
+                    ]
+                ):
+
+                    self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][smname][
+                        "free_form_value"
+                    ] = formula
+
+                else:
+                    self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][smname] = [
+                        self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][smname]
+                    ]
+                    sm = OrderedDict(
+                        {
+                            "Property:": self.name,
+                            "Index:": index,
+                            "prop_modifier": "spatial_modifier",
+                            "free_form_value": formula,
+                        }
+                    )
+                    self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][
+                        smname
+                    ].append(sm)
+        return self._material.update()
+
+    @pyaedt_function_handler()
+    def add_spatial_modifier_free_form(self, formula, index=0):
+        """Add a spatial modifier to a material property using a free-form formula.
+
+        Parameters
+        ----------
+        formula : str
+            Full formula to apply.
+        index : int, optional
+            Value for the index. The default is ``0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss(specified_version="2021.2")
+        >>> mat1 = hfss.materials.add_material("new_copper2")
+        >>> mat1.add_spatial_modifier_free_form("if(X > 1mm, 1, if(X < 1mm, 2, 1))")
+        """
+        self._property_value[index].spatialmodifier = formula
+        return self._add_spatial_modifier(formula, index)
+
+    @pyaedt_function_handler()
+    def add_spatial_modifier_dataset(self, dataset_name, index=0):
+        """Add a spatial modifier to a material property using an existing dataset.
+
+        Parameters
+        ----------
+        dataset_name : str
+            Name of the project dataset.
+        index : int, optional
+            Value for the index. The default is ``0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss(specified_version="2021.2")
+        >>> mat1 = hfss.materials.add_material("new_copper2")
+        >>> mat1.add_spatial_modifier_dataset("$ds1")
+        """
+
+        formula = "clp({}, X,Y,Z)".format(dataset_name)
+        self._property_value[index].spatialmodifier = formula
+        return self._add_spatial_modifier(formula, index)
+
 
 class CommonMaterial(object):
     """Manages datasets with frequency-dependent materials.
@@ -762,6 +1021,7 @@ class CommonMaterial(object):
         self.logger = self._materials.logger
         self.name = name
         self.coordinate_system = ""
+        self.is_sweep_material = False
         if props:
             self._props = props.copy()
         else:
@@ -920,27 +1180,42 @@ class Material(CommonMaterial, object):
                 }
             )
         for property in MatProperties.aedtname:
-            if property in self._props:
-                mods = None
-                if "ModifierData" in self._props:
+            tmods = None
+            smods = None
+            if "ModifierData" in self._props:
+                if "ThermalModifierData" in self._props["ModifierData"]:
                     modifiers = self._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]
                     for mod in modifiers:
                         if isinstance(modifiers[mod], list):
                             for one_tm in modifiers[mod]:
                                 if one_tm["Property:"] == property:
-                                    if mods:
-                                        mods = [mods]
-                                        mods.append(one_tm)
+                                    if tmods:
+                                        tmods = [tmods]
+                                        tmods.append(one_tm)
                                     else:
-                                        mods = one_tm
+                                        tmods = one_tm
                         else:
                             if modifiers[mod]["Property:"] == property:
-                                mods = modifiers[mod]
-                self.__dict__["_" + property] = MatProperty(self, property, self._props[property], mods)
-            else:
-                self.__dict__["_" + property] = MatProperty(
-                    self, property, MatProperties.get_defaultvalue(aedtname=property), None
-                )
+                                tmods = modifiers[mod]
+                if "SpatialModifierData" in self._props["ModifierData"]:
+                    modifiers = self._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"]
+                    for mod in modifiers:
+                        if isinstance(modifiers[mod], list):
+                            for one_tm in modifiers[mod]:
+                                if one_tm["Property:"] == property:
+                                    if smods:
+                                        smods = [smods]
+                                        smods.append(one_tm)
+                                    else:
+                                        smods = one_tm
+                        else:
+                            if modifiers[mod]["Property:"] == property:
+                                smods = modifiers[mod]
+
+            property_value = (
+                self._props[property] if property in self._props else MatProperties.get_defaultvalue(aedtname=property)
+            )
+            self.__dict__["_" + property] = MatProperty(self, property, property_value, tmods, smods)
         pass
 
     @property
@@ -1639,10 +1914,10 @@ class Material(CommonMaterial, object):
         """
 
         args = self._get_args()
-        if self._does_material_exists(self.name):
-            self.odefinition_manager.EditMaterial(self.name, args)
-        else:
+        if not self._does_material_exists(self.name):
             self.odefinition_manager.AddMaterial(args)
+        elif not self.is_sweep_material:
+            self.odefinition_manager.EditMaterial(self.name, args)
         return True
 
     @pyaedt_function_handler()

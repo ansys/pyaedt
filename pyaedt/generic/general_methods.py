@@ -1,14 +1,19 @@
+import ast
+import codecs
 import csv
 import datetime
+import difflib
 import fnmatch
 import inspect
 import itertools
+import json
 import logging
 import os
 import random
 import re
 import string
 import sys
+import tempfile
 import time
 import traceback
 from collections import OrderedDict
@@ -17,7 +22,6 @@ from functools import update_wrapper
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
 inside_desktop = True
-import sys
 
 try:
     import ScriptEnv
@@ -27,6 +31,9 @@ except:
     inside_desktop = False
 
 is_remote_server = os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in ("true", "1", "t")
+
+if not is_ironpython:
+    import psutil
 
 
 class MethodNotSupportedError(Exception):
@@ -112,6 +119,77 @@ def _check_types(arg):
     return ""
 
 
+def check_and_download_file(local_path, remote_path, overwrite=True):
+    """Check if a folder is remote and download it or simply return the path.
+
+    Parameters
+    ----------
+    local_path : str
+        Local path where to save the folder.
+    remote_path : str
+        Folder original path.
+    overwrite : bool
+        Either if overwrite or not files.
+
+    Returns
+    -------
+    str
+    """
+    if settings.remote_rpc_session:
+        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
+        settings.remote_rpc_session.filemanager.download_file(remote_path, local_path, overwrite=overwrite)
+        return local_path
+    return remote_path
+
+
+def check_and_download_folder(local_path, remote_path, overwrite=True):
+    """Check if a file is remote and download it or simply return the path.
+
+    Parameters
+    ----------
+    local_path : str
+        Local path where to save the file.
+    remote_path : str
+        File original path.
+    overwrite : bool
+        Either if overwrite or not files.
+
+    Returns
+    -------
+    str
+    """
+    if settings.remote_rpc_session:
+        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
+        settings.remote_rpc_session.filemanager.download_folder(remote_path, local_path, overwrite=overwrite)
+        return local_path
+    return remote_path
+
+
+def open_file(file_path, file_options="r"):
+    """Open a file and return the object either if local or remote.
+
+    Parameters
+    ----------
+    file_path : str
+        Full absolute path to the file (either local or remote.
+    file_options : str, optional
+        Open options
+
+    Returns
+    -------
+    object
+        Opened file
+    """
+    file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
+    dir_name = os.path.dirname(file_path)
+    if os.path.exists(dir_name):
+        return open(file_path, file_options)
+    elif settings.remote_rpc_session:
+        return settings.remote_rpc_session.open_file(file_path, file_options)
+    else:
+        return False
+
+
 def convert_remote_object(arg):
     """Convert Remote list or dict to native list and dictionary.
 
@@ -133,7 +211,7 @@ def convert_remote_object(arg):
                 or _check_types(arg[0]) == "list"
                 or _check_types(arg[0]) == "dict"
             ):
-                a = list(eval(str(arg)))
+                a = list(ast.literal_eval(str(arg)))
                 for i, el in enumerate(a):
                     a[i] = convert_remote_object(el)
                 return a
@@ -142,7 +220,7 @@ def convert_remote_object(arg):
         else:
             return []
     elif _check_types(arg) == "dict":
-        a = dict(eval(str(arg)))
+        a = dict(ast.literal_eval(str(arg)))
         for k, v in a.items():
             a[k] = convert_remote_object(v)
         return a
@@ -438,6 +516,64 @@ def generate_unique_name(rootname, suffix="", n=6):
     return unique_name
 
 
+@pyaedt_function_handler()
+def generate_unique_folder_name(rootname=None, folder_name=None):
+    """Generate a new aedt folder name given a rootname.
+
+    Parameters
+    ----------
+    rootname : str, optional
+        Root name where to create the new folder.
+    folder_name : str, optional
+        Either if the new folder has to be created or not.
+
+    Returns
+    -------
+    str
+    """
+    if not rootname:
+        rootname = tempfile.gettempdir()
+    if folder_name is None:
+        folder_name = generate_unique_name("pyaedt_prj", n=3)
+    temp_folder = os.path.join(rootname, folder_name)
+    if not os.path.exists(temp_folder):
+        os.makedirs(temp_folder)
+
+    return temp_folder
+
+
+@pyaedt_function_handler()
+def generate_unique_project_name(rootname=None, folder_name=None, project_name=None, project_format="aedt"):
+    """Generate a new aedt project name given a rootname.
+
+    Parameters
+    ----------
+    rootname : str, optional
+        Root name where the new folder will be created.
+    folder_name : str, optional
+        Name of the folder to be created. Default is None which creates a random port.
+        Use "" to not create a subfolder.
+    project_format : str, optional
+        Project format. Default is aedt. Option is aedb.
+    project_name : str, optional
+        Name of the project. If None, random project will be created.
+        If project exists, then a new suffix will be added.
+
+    Returns
+    -------
+    str
+    """
+    if not project_name:
+        project_name = generate_unique_name("Project", n=3)
+    name_with_ext = project_name + "." + project_format
+    folder_path = generate_unique_folder_name(rootname, folder_name=folder_name)
+    prj = os.path.join(folder_path, name_with_ext)
+    if os.path.exists(prj):
+        name_with_ext = generate_unique_name(project_name, n=3) + "." + project_format
+        prj = os.path.join(folder_path, name_with_ext)
+    return prj
+
+
 def _retry_ntimes(n, function, *args, **kwargs):
     """
 
@@ -502,7 +638,18 @@ def is_number(a):
             return False
     else:
         return False
-    # return str(a).replace(".", "").replace("+", "").replace("-", "").replace("e","").replace("E","").isnumeric()
+
+
+def is_array(a):
+    try:
+        v = list(ast.literal_eval(a))
+    except (ValueError, TypeError, NameError, SyntaxError):
+        return False
+    else:
+        if type(v) is list:
+            return True
+        else:
+            return False
 
 
 def is_project_locked(project_path):
@@ -539,6 +686,74 @@ def remove_project_lock(project_path):
     if os.path.exists(project_path + ".lock"):
         os.remove(project_path + ".lock")
     return True
+
+
+@pyaedt_function_handler()
+def read_csv(filename, encoding="utf-8"):
+    """Read information from a CSV file and return a list.
+
+    Parameters
+    ----------
+    filename : str
+            Full path and name for the csv file.
+    encoding : str, optional
+            File encoding to be provided for csv. The default is ``utf-8``.
+
+    Returns
+    -------
+    list
+
+    """
+
+    lines = []
+    with codecs.open(filename, "rb", encoding) as csvfile:
+        reader = csv.reader(csvfile, delimiter=",")
+        for row in reader:
+            lines.append(row)
+    return lines
+
+
+@pyaedt_function_handler()
+def read_tab(filename):
+    """Read information from a TAB file and return a list.
+
+    Parameters
+    ----------
+    filename : str
+            Full path and name for the tab file.
+
+    Returns
+    -------
+    list
+
+    """
+    with open(filename) as my_file:
+        lines = my_file.readlines()
+    return lines
+
+
+@pyaedt_function_handler()
+def read_xlsx(filename):
+    """Read information from a XLSX file and return a list.
+
+    Parameters
+    ----------
+    filename : str
+            Full path and name for the xlsx file.
+
+    Returns
+    -------
+    list
+
+    """
+    try:
+        import pandas as pd
+
+        lines = pd.read_excel(filename)
+        return lines
+    except:
+        lines = []
+        return lines
 
 
 @pyaedt_function_handler()
@@ -654,6 +869,173 @@ def number_aware_string_key(s):
     return tuple(result)
 
 
+@pyaedt_function_handler()
+def _create_json_file(json_dict, full_json_path):
+    if not is_ironpython:
+        with open(full_json_path, "w") as fp:
+            json.dump(json_dict, fp, indent=4)
+    else:
+        temp_path = full_json_path.replace(".json", "_temp.json")
+        with open(temp_path, "w") as fp:
+            json.dump(json_dict, fp, indent=4)
+        with open(temp_path, "r") as file:
+            filedata = file.read()
+        filedata = filedata.replace("True", "true")
+        filedata = filedata.replace("False", "false")
+        with open(full_json_path, "w") as file:
+            file.write(filedata)
+        os.remove(temp_path)
+    return True
+
+
+@pyaedt_function_handler()
+def grpc_active_sessions(version=None, student_version=False, non_graphical=False):
+    """Return the active grpc aedt session inf.
+
+    Parameters
+    ----------
+    version : str, optional
+        String of the version to check. By default checks on every version. Options are "222" or "2022.2".
+    student_version : bool, optional
+        Either if check for student version session or not.
+    non_graphical : bool, optional
+        Either to check for active graphical or non graphical sessions.
+
+    Returns
+    -------
+    list
+        List of grpc port.
+    """
+    if student_version:
+        keys = ["ansysedtsv.exe"]
+    else:
+        keys = ["ansysedt.exe"]
+    if version and "." in version:
+        version = version[-4:].replace(".", "")
+    sessions = []
+    for p in psutil.process_iter():
+        try:
+            if p.name() in keys:
+                cmd = p.cmdline()
+                if "-grpcsrv" in cmd:
+                    if non_graphical and "-ng" in cmd or not non_graphical:
+                        if not version or (version and version in cmd[0]):
+                            sessions.append(
+                                int(cmd[cmd.index("-grpcsrv") + 1]),
+                            )
+        except:
+            pass
+    return sessions
+
+
+class PropsManager(object):
+    def __getitem__(self, item):
+        """Get the `self.props` key value.
+
+        Parameters
+        ----------
+        item : str
+            Key to search
+        """
+        item_split = item.split("/")
+        props = self.props
+        found_el = []
+        matching_percentage = 1
+        while matching_percentage >= 0.4:
+            for item_value in item_split:
+                found_el = difflib.get_close_matches(item_value, list(props.keys()), 1, 0.8)
+                if found_el:
+                    props = props[found_el[0]]
+            if found_el:
+                return props
+            else:
+                matching_percentage -= 0.02
+        self._app.logger.warning("Key %s not found.Check one of available keys in self.available_properties", item)
+        return None
+
+    def __setitem__(self, key, value):
+        """Set the `self.props` key value.
+
+        Parameters
+        ----------
+        key : str
+            Key to apply.
+        value : int or float or bool or str or dict
+            Value to apply
+        """
+        item_split = key.split("/")
+        found_el = []
+        props = self.props
+        matching_percentage = 1
+        key_path = []
+        while matching_percentage >= 0.4:
+            for item_value in item_split:
+                found_el = self._recursive_search(props, item_value, matching_percentage)
+                if found_el:
+                    props = found_el[1][found_el[2]]
+                    key_path.append(found_el[2])
+            if found_el:
+                if matching_percentage < 1:
+                    self._app.logger.info(
+                        "Key %s matched internal key '%s' with confidence of %s.",
+                        key,
+                        "/".join(key_path),
+                        round(matching_percentage * 100),
+                    )
+                matching_percentage = 0
+
+            else:
+                matching_percentage -= 0.02
+        if found_el:
+            found_el[1][found_el[2]] = value
+            self.update()
+        else:
+            props[key] = value
+            self.update()
+            self._app.logger.warning("Key %s not found. Trying to applying new key ", key)
+
+    @pyaedt_function_handler()
+    def _recursive_search(self, dict_in, key="", matching_percentage=0.8):
+        f = difflib.get_close_matches(key, list(dict_in.keys()), 1, matching_percentage)
+        if f:
+            return True, dict_in, f[0]
+        else:
+            for v in list(dict_in.values()):
+                if isinstance(v, (dict, OrderedDict)):
+                    out_val = self._recursive_search(v, key, matching_percentage)
+                    if out_val:
+                        return out_val
+        return False
+
+    @pyaedt_function_handler()
+    def _recursive_list(self, dict_in, prefix=""):
+        available_list = []
+        for k, v in dict_in.items():
+            if prefix:
+                name = prefix + "/" + k
+            else:
+                name = k
+            available_list.append(name)
+            if isinstance(v, (dict, OrderedDict)):
+                available_list.extend(self._recursive_list(v, name))
+        return available_list
+
+    @property
+    def available_properties(self):
+        """Available properties.
+
+        Returns
+        -------
+        list
+        """
+        return self._recursive_list(self.props)
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update method."""
+        pass
+
+
 class Settings(object):
     """Class that manages all PyAEDT Environment Variables and global settings."""
 
@@ -673,6 +1055,31 @@ class Settings(object):
         self._enable_error_handler = True
         self._non_graphical = False
         self.aedt_version = None
+        self.remote_api = False
+        self._use_grpc_api = False
+        self.machine = ""
+        self.port = 0
+        self.formatter = None
+        self.remote_rpc_session = None
+        self.remote_rpc_session_temp_folder = ""
+        self.remote_rpc_service_manager_port = 17878
+        self._project_properties = {}
+        self._project_time_stamp = 0
+
+    @property
+    def use_grpc_api(self):
+        """Set/Get 20222R2 GPRC API usage or Legacy COM Objectr.
+
+        Returns
+        -------
+        bool
+        """
+        return self._use_grpc_api
+
+    @use_grpc_api.setter
+    def use_grpc_api(self, val):
+        """Set/Get 20222R2 GPRC API usage or Legacy COM Objectr."""
+        self._use_grpc_api = val
 
     @property
     def logger(self):

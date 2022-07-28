@@ -1,10 +1,11 @@
-AEDT Modules
+AEDT modules
 ============
-This section lists the core PyAEDT application modules:
+This section lists the core PyAEDT app modules:
 
 * Design
 * Variable
 * DesignXPloration
+* Configurations
 
 
 
@@ -16,14 +17,14 @@ design and project variables in the 3D tools.
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2021.1",
+    app = Hfss(specified_version="2022.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
-    # this call return the VariableManager Class
+    # This call returns the VariableManager Class
     variable_manager = self.aedtapp._variable_manager
 
-    # Set and Get a variable
+    # Set and get a variable
     app["w"] = "10mm"
     a = app["w"]
     ...
@@ -49,7 +50,7 @@ optimetrics setups.
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2021.1",
+    app = Hfss(specified_version="2022.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
@@ -70,22 +71,20 @@ optimetrics setups.
    :toctree: _autosummary
    :nosignatures:
 
-   ParametericSetups
+   ParametricSetups
    OptimizationSetups
    SetupParam
    SetupOpti
 
 
 
-Design Cache
-~~~~~~~~~~~~
-This module contains all properties and methods applicable to projects
-and designs.
+Boundary class
+~~~~~~~~~~~~~~
 
-.. currentmodule:: pyaedt.application.Design
+Boundary class is very important because it automates the creation of the AEDT syntax for any
+boundary and excitation creation.
 
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
+.. toctree::
+   :maxdepth: 2
 
-   DesignCache
+   Boundaries

@@ -119,6 +119,21 @@ class TestClass(BasisTest, object):
         assert net.update()
         assert net.name == "new_net_name"
 
+    def test_11a_set_material_thresholds(self):
+        assert self.aedtapp.set_material_thresholds()
+        insulator_threshold = 2000
+        perfect_conductor_threshold = 2e30
+        magnetic_threshold = 3
+        assert self.aedtapp.set_material_thresholds(
+            insulator_threshold, perfect_conductor_threshold, magnetic_threshold
+        )
+        insulator_threshold = 2000
+        perfect_conductor_threshold = 200
+        magnetic_threshold = 3
+        assert not self.aedtapp.set_material_thresholds(
+            insulator_threshold, perfect_conductor_threshold, magnetic_threshold
+        )
+
     def test_12_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
         assert self.aedtapp.mesh.initial_mesh_settings.props
@@ -153,4 +168,36 @@ class TestClass(BasisTest, object):
         assert q3d.matrices[0].get_sources_for_plot(first_element_filter="Box?", second_element_filter="B*2") == [
             "C(Box1,Box1_2)"
         ]
+        self.aedtapp.close_project(q3d.project_name, False)
+
+    def test_14_edit_sources(self):
+        q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+        sources_cg = {"Box1": ("2V", "45deg"), "Box1_2": "4V"}
+        sources_ac = {"Box1:Source1": "2A"}
+        assert q3d.edit_sources(sources_cg, sources_ac)
+
+        sources_cg = {"Box1": ("20V", "15deg"), "Box1_2": "40V"}
+        sources_ac = {"Box1:Source1": "2A", "Box1_1:Source2": "20A"}
+        sources_dc = {"Box1:Source1": "20V"}
+        assert q3d.edit_sources(sources_cg, sources_ac, sources_dc)
+
+        sources_cg = {"Box1": "2V"}
+        sources_ac = {"Box1:Source1": "2", "Box1_1:Source2": "5V"}
+        assert q3d.edit_sources(sources_cg, sources_ac)
+
+        sources_cg = {"Box1": ["20V"], "Box1_2": "4V"}
+        sources_ac = {"Box1:Source1": "2A"}
+        assert q3d.edit_sources(sources_cg, sources_ac)
+
+        sources_dc = {"Box1:Source1": "20"}
+        assert q3d.edit_sources(dcrl=sources_dc)
+
+        sources_cg = {"Box2": "2V"}
+        assert not q3d.edit_sources(sources_cg)
+        sources_ac = {"Box1:Source2": "2V"}
+        assert not q3d.edit_sources(sources_ac)
+        sources_dc = {"Box1:Source2": "2V"}
+        assert not q3d.edit_sources(sources_dc)
+        sources = q3d.get_all_sources()
+        assert sources[0] == "Box1:Source1"
         self.aedtapp.close_project(q3d.project_name, False)

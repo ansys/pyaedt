@@ -13,17 +13,20 @@ Examples
 
 """
 
-from __future__ import absolute_import, division  # noreorder
+from __future__ import absolute_import  # noreorder
+from __future__ import division
 
 import os
 import re
 
 from pyaedt import pyaedt_function_handler
-from pyaedt.generic.constants import _resolve_unit_system
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SI_UNITS
+from pyaedt.generic.constants import _resolve_unit_system
 from pyaedt.generic.constants import unit_system
+from pyaedt.generic.general_methods import is_array
 from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import open_file
 
 
 class CSVDataset:
@@ -112,13 +115,13 @@ class CSVDataset:
 
         self._csv_file = csv_file
         if csv_file:
-            with open(csv_file, "r") as fi:
+            with open_file(csv_file, "r") as fi:
                 file_data = fi.readlines()
                 for line in file_data:
                     if self._header:
                         line_data = line.strip().split(self._separator)
                         # Check for invalid data in the line (fields with 'nan')
-                        if not "nan" in line_data:
+                        if "nan" not in line_data:
                             for j, value in enumerate(line_data):
                                 var_name = self._header[j]
                                 if var_name in self._unit_dict:
@@ -214,8 +217,8 @@ class CSVDataset:
         if self._index < (self.number_of_rows - 1):
             output = []
             for column in self._header:
-                string_value = str(self._data[column][self._index])
-                output.append(string_value)
+                evaluated_value = str(self._data[column][self._index])
+                output.append(evaluated_value)
             output_string = " ".join(output)
             self._index += 1
         else:
@@ -279,6 +282,9 @@ def decompose_variable_value(variable_value, full_variables={}):
             if loc:
                 loc_units = loc.span()[0]
                 extract_units = variable_value[loc_units:]
+                chars = set("+*/()[]")
+                if any((c in chars) for c in extract_units):
+                    return variable_value, units
                 try:
                     float_value = float(variable_value[0:loc_units])
                     units = extract_units
@@ -436,6 +442,35 @@ class VariableManager(object):
         >>> oProject.GetChildObject("Variables").GetChildNames
         """
         return self._variable_dict([self._oproject])
+
+    @property
+    def post_processing_variables(self):
+        """Post Processing variables.
+
+        Returns
+        -------
+        dict
+            Dictionary of the post processing variables (constant numeric
+            values) available to the design.
+
+        References
+        ----------
+
+        >>> oProject.GetVariables
+        >>> oDesign.GetVariables
+        >>> oProject.GetChildObject("Variables").GetChildNames
+        >>> oDesign.GetChildObject("Variables").GetChildNames
+        """
+        try:
+            all_post_vars = list(self._odesign.GetPostProcessingVariables())
+        except:
+            all_post_vars = []
+        out = self.design_variables
+        post_vars = {}
+        for k, v in out.items():
+            if k in all_post_vars:
+                post_vars[k] = v
+        return post_vars
 
     @property
     def independent_variables(self):
@@ -644,24 +679,17 @@ class VariableManager(object):
         var_dict = {}
         all_names = {}
         for obj in object_list:
-            if self._app._is_object_oriented_enabled():
-                listvar = list(obj.GetChildObject("Variables").GetChildNames())
-            else:
-                listvar = list(obj.GetVariables())
+            listvar = self._get_var_list_from_aedt(obj)
             for variable_name in listvar:
                 variable_expression = self.get_expression(variable_name)
                 all_names[variable_name] = variable_expression
-                try:
-                    value = Variable(variable_expression)
-                    if independent and is_number(value.value):
-                        var_dict[variable_name] = value
-                    elif dependent and isinstance(value.value, str):
-                        float_value = self._app.get_evaluated_value(variable_name)
-                        var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
-                except:
-                    if dependent:
-                        float_value = self._app.get_evaluated_value(variable_name)
-                        var_dict[variable_name] = Expression(variable_expression, float_value, all_names)
+                si_value = self._app.get_evaluated_value(variable_name)
+                value = Variable(variable_expression, None, si_value, all_names, name=variable_name, app=self._app)
+                is_number_flag = is_number(value._calculated_value)
+                if independent and is_number_flag:
+                    var_dict[variable_name] = value
+                elif dependent and not is_number_flag:
+                    var_dict[variable_name] = value
         return var_dict
 
     @pyaedt_function_handler()
@@ -701,6 +729,7 @@ class VariableManager(object):
         description=None,
         overwrite=True,
         postprocessing=False,
+        circuit_parameter=True,
     ):
         """Set the value of a design property or project variable.
 
@@ -726,7 +755,12 @@ class VariableManager(object):
             Whether to overwrite an existing value for the design
             property or project variable. The default is ``False``, in
             which case this method is ignored.
-
+        postprocessing : bool, optional
+            Whether to define a postprocessing variable.
+             The default is ``False``, in which case the variable is not used in postprocessing.
+        circuit_parameter : bool, optional
+            Whether to define a parameter in a circuit design or a local parameter.
+             The default is ``True``, in which case a circuit variable is created as a parameter default.
         Returns
         -------
         bool
@@ -767,9 +801,22 @@ class VariableManager(object):
             description = ""
 
         desktop_object = self.aedt_object(variable_name)
-        test = desktop_object.GetName()
-        proj_name = self._oproject.GetName()
-        var_type = "Project" if "$" in variable_name[0] else "Local"
+        if variable_name.startswith("$"):
+            tab_name = "ProjectVariableTab"
+            prop_server = "ProjectVariables"
+        else:
+            tab_name = "LocalVariableTab"
+            prop_server = "LocalVariables"
+            if circuit_parameter and self._app.design_type in [
+                "HFSS 3D Layout Design",
+                "Circuit Design",
+                "Maxwell Circuit",
+                "Twin Builder",
+            ]:
+                tab_name = "DefinitionParameterTab"
+            if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
+                prop_server = "Instance:{}".format(desktop_object.GetName())
+
         prop_type = "VariableProp"
         if postprocessing or "post" in variable_name.lower()[0:5]:
             prop_type = "PostProcessingVariableProp"
@@ -778,7 +825,7 @@ class VariableManager(object):
             variable = expression
         elif isinstance(expression, Variable):
             # Handle input type variable
-            variable = expression.string_value
+            variable = expression.evaluated_value
         elif is_number(expression):
             # Handle input type int/float, etc (including numeric 0)
             variable = str(expression)
@@ -799,10 +846,7 @@ class VariableManager(object):
             raise Exception("Unhandled input type to the design property or project variable.")  # pragma: no cover
 
         # Get all design and project variables in lower case for a case-sensitive comparison
-        if self._app._is_object_oriented_enabled():
-            var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
-        else:
-            var_list = list(desktop_object.GetVariables())  # pragma: no cover
+        var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
         if variable_name.lower() not in lower_case_vars:
@@ -811,8 +855,8 @@ class VariableManager(object):
                     [
                         "NAME:AllTabs",
                         [
-                            "NAME:{0}VariableTab".format(var_type),
-                            ["NAME:PropServers", "{0}Variables".format(var_type)],
+                            "NAME:{0}".format(tab_name),
+                            ["NAME:PropServers", prop_server],
                             [
                                 "NAME:NewProps",
                                 [
@@ -841,8 +885,8 @@ class VariableManager(object):
                         [
                             "NAME:AllTabs",
                             [
-                                "NAME:{}VariableTab".format(var_type),
-                                ["NAME:PropServers", "{}Variables".format(var_type)],
+                                "NAME:{}".format(tab_name),
+                                ["NAME:PropServers", prop_server],
                                 [
                                     "NAME:ChangedProps",
                                     [
@@ -865,8 +909,8 @@ class VariableManager(object):
                 [
                     "NAME:AllTabs",
                     [
-                        "NAME:{}VariableTab".format(var_type),
-                        ["NAME:PropServers", "{}Variables".format(var_type)],
+                        "NAME:{}".format(tab_name),
+                        ["NAME:PropServers", prop_server],
                         [
                             "NAME:ChangedProps",
                             [
@@ -884,12 +928,9 @@ class VariableManager(object):
                     ],
                 ]
             )
-        if self._app._is_object_oriented_enabled():
-            var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
-        else:
-            var_list = list(desktop_object.GetVariables())  # pragma: no cover
+        var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [var_name.lower() for var_name in var_list]
-        if variable_name not in lower_case_vars:
+        if variable_name.lower() not in lower_case_vars:
             return False
         return True
 
@@ -957,12 +998,8 @@ class VariableManager(object):
         """
         desktop_object = self.aedt_object(var_name)
         var_type = "Project" if desktop_object == self._oproject else "Local"
-        if self._app._is_object_oriented_enabled():
-            var_list = list(desktop_object.GetChildObject("Variables").GetChildNames())
-        else:
-            var_list = list(desktop_object.GetVariables())  # pragma: no cover
+        var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [var_name.lower() for var_name in var_list]
-
         if var_name.lower() in lower_case_vars:
             try:
                 desktop_object.ChangeProperty(
@@ -980,13 +1017,22 @@ class VariableManager(object):
                 pass
         return False
 
+    @pyaedt_function_handler()
+    def _get_var_list_from_aedt(self, desktop_object):
+        var_list = []
+        if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
+            var_list += list(desktop_object.GetChildObject("Variables").GetChildNames())
+        tmp = [i for i in list(desktop_object.GetVariables()) if i not in var_list]
+        var_list += tmp
+        return var_list
+
 
 class Variable(object):
     """Stores design properties and project variables and provides operations to perform on them.
 
     Parameters
     ----------
-    value : float
+    value : float, str
         Numerical value of the variable in SI units.
     units : str
         Units for the value.
@@ -1012,16 +1058,40 @@ class Variable(object):
 
     """
 
-    def __init__(self, value, units=None):
-
+    def __init__(
+        self,
+        expression,
+        units=None,
+        si_value=None,
+        full_variables=None,
+        name=None,
+        app=None,
+        readonly=False,
+        hidden=False,
+        description=None,
+        postprocessing=False,
+        circuit_parameter=True,
+    ):
+        if not full_variables:
+            full_variables = {}
+        self._variable_name = name
+        self._app = app
+        self._readonly = readonly
+        self._hidden = hidden
+        self._postprocessing = postprocessing
+        self._circuit_parameter = circuit_parameter
+        self._description = description
+        self._is_optimization_included = None
         if units:
             if unit_system(units):
                 specified_units = units
-
         self._units = None
-        self._expression = value
-        self._value, self._units = decompose_variable_value(value)
-
+        self._expression = expression
+        self._calculated_value, self._units = decompose_variable_value(expression, full_variables)
+        if si_value:
+            self._value = si_value
+        else:
+            self._value = self._calculated_value
         # If units have been specified, check for a conflict and otherwise use the specified unit system
         if units:
             assert not self._units, "The unit specification {} is inconsistent with the identified units {}.".format(
@@ -1029,7 +1099,7 @@ class Variable(object):
             )
             self._units = specified_units
 
-        if is_number(self._value):
+        if not si_value and is_number(self._value):
             try:
                 scale = AEDT_UNITS[self.unit_system][self._units]
             except KeyError:
@@ -1038,6 +1108,375 @@ class Variable(object):
                 self._value = scale[0](self._value, inverse=False)
             else:
                 self._value = self._value * scale
+
+    @property
+    def _aedt_obj(self):
+        if "$" in self._variable_name and self._app:
+            return self._app._oproject
+        elif self._app:
+            return self._app._odesign
+        return None
+
+    @pyaedt_function_handler()
+    def _update_var(self):
+        if self._app:
+            return self._app.variable_manager.set_variable(
+                self._variable_name,
+                self._expression,
+                readonly=self._readonly,
+                postprocessing=self._postprocessing,
+                circuit_parameter=self._circuit_parameter,
+                description=self._description,
+                hidden=self._hidden,
+            )
+        return False
+
+    @property
+    def name(self):
+        """Variable name."""
+        return self._variable_name
+
+    @name.setter
+    def name(self, value):
+        fallback_val = self._variable_name
+        self._variable_name = value
+        if not self._update_var():
+            self._variable_name = fallback_val
+            if self._app:
+                self._app.logger.error('"Failed to update property "name".')
+
+    @property
+    def is_optimization_enabled(self):
+        """ "Check if optimization is enabled."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Optimization/Included")
+        return
+
+    @is_optimization_enabled.setter
+    def is_optimization_enabled(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Optimization/Included", value)
+
+    @property
+    def optimization_min_value(self):
+        """ "Optimization min value."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Optimization/Min")
+        return
+
+    @optimization_min_value.setter
+    def optimization_min_value(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Optimization/Min", value)
+
+    @property
+    def optimization_max_value(self):
+        """ "Optimization max value."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Optimization/Max")
+        return
+
+    @optimization_max_value.setter
+    def optimization_max_value(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Optimization/Max", value)
+
+    @property
+    def is_sensitivity_enabled(self):
+        """Check if Sensitivity is enabled."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Sensitivity/Included")
+        return
+
+    @is_sensitivity_enabled.setter
+    def is_sensitivity_enabled(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Sensitivity/Included", value)
+
+    @property
+    def sensitivity_min_value(self):
+        """ "Sensitivity min value."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Sensitivity/Min")
+        return
+
+    @sensitivity_min_value.setter
+    def sensitivity_min_value(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Sensitivity/Min", value)
+
+    @property
+    def sensitivity_max_value(self):
+        """ "Sensitivity max value."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Sensitivity/Max")
+        return
+
+    @sensitivity_max_value.setter
+    def sensitivity_max_value(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Sensitivity/Max", value)
+
+    @property
+    def sensitivity_initial_disp(self):
+        """ "Sensitivity initial value."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Sensitivity/IDisp")
+        return
+
+    @sensitivity_initial_disp.setter
+    def sensitivity_initial_disp(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Sensitivity/IDisp", value)
+
+    @property
+    def is_tuning_enabled(self):
+        """Check if tuning is enabled."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Tuning/Included")
+        return
+
+    @is_tuning_enabled.setter
+    def is_tuning_enabled(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Tuning/Included", value)
+
+    @property
+    def tuning_min_value(self):
+        """ "Tuning min value."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Tuning/Min")
+        return
+
+    @tuning_min_value.setter
+    def tuning_min_value(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Tuning/Min", value)
+
+    @property
+    def tuning_max_value(self):
+        """ "Tuning max value."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Tuning/Max")
+        return
+
+    @tuning_max_value.setter
+    def tuning_max_value(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Tuning/Max", value)
+
+    @property
+    def tuning_step_value(self):
+        """ "Tuning Step value."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Tuning/Step")
+        return
+
+    @tuning_step_value.setter
+    def tuning_step_value(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Tuning/Step", value)
+
+    @property
+    def is_statistical_enabled(self):
+        """Check if statistical is enabled."""
+
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                return oo.GetChildObject(self._variable_name).GetPropValue("Statistical/Included")
+        return
+
+    @is_statistical_enabled.setter
+    def is_statistical_enabled(self, value):
+        if self._app:
+            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
+            if oo:
+                oo.GetChildObject(self._variable_name).SetPropValue("Statistical/Included", value)
+
+    @property
+    def read_only(self):
+        """Read-only flag value."""
+        if self._app:
+            try:
+                return (
+                    self._aedt_obj.GetChildObject("Variables")
+                    .GetChildObject(self._variable_name)
+                    .GetPropValue("ReadOnly")
+                )
+            except:
+                return self._readonly
+        return self._readonly
+
+    @read_only.setter
+    def read_only(self, value):
+        fallback_val = self._readonly
+        self._readonly = value
+        if not self._update_var():
+            self._readonly = fallback_val
+            if self._app:
+                self._app.logger.error('Failed to update property "read_only".')
+
+    @property
+    def hidden(self):
+        """Hidden flag value."""
+        if self._app:
+            try:
+                return (
+                    self._aedt_obj.GetChildObject("Variables")
+                    .GetChildObject(self._variable_name)
+                    .GetPropValue("Hidden")
+                )
+            except:
+                return self._hidden
+        return self._hidden
+
+    @hidden.setter
+    def hidden(self, value):
+        fallback_val = self._hidden
+        self._hidden = value
+        if not self._update_var():
+            self._hidden = fallback_val
+            if self._app:
+                self._app.logger.error('Failed to update property "hidden".')
+
+    @property
+    def description(self):
+        """Description value."""
+        if self._app:
+            try:
+                return (
+                    self._aedt_obj.GetChildObject("Variables")
+                    .GetChildObject(self._variable_name)
+                    .GetPropValue("Description")
+                )
+            except:
+                return self._description
+        return self._description
+
+    @description.setter
+    def description(self, value):
+        fallback_val = self._description
+        self._description = value
+        if not self._update_var():
+            self._description = fallback_val
+            if self._app:
+                self._app.logger.error('Failed to update property "description".')
+
+    @property
+    def post_processing(self):
+        """Postprocessing flag value."""
+        if self._app:
+            return True if self._variable_name in self._app.variable_manager.post_processing_variables else False
+
+    @property
+    def circuit_parameter(self):
+        """Circuit parameter flag value."""
+        if "$" in self._variable_name:
+            return False
+        if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
+            prop_server = "Instance:{}".format(self._aedt_obj.GetName())
+            return (
+                True
+                if self._variable_name in self._aedt_obj.GetProperties("DefinitionParameterTab", prop_server)
+                else False
+            )
+        return False
+
+    @property
+    def expression(self):
+        """Expression."""
+        if self._aedt_obj:
+            return self._aedt_obj.GetVariableValue(self._variable_name)
+        return
+
+    @expression.setter
+    def expression(self, value):
+        fallback_val = self._expression
+        self._expression = value
+        if not self._update_var():
+            self._expression = fallback_val
+            if self._app:
+                self._app.logger.error("Failed to update property Expression.")
+
+    @property
+    def numeric_value(self):
+        """Numeric part of the expression as a float value."""
+        try:
+            if re.search(r"^[\w+]+\[\w+].*", str(self._value)):
+                var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
+                val, _ = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
+                return val
+        except TypeError:
+            pass
+        if is_array(self._value):
+            return list(eval(self._value))
+        if is_number(self._value):
+            try:
+                scale = AEDT_UNITS[self.unit_system][self._units]
+            except KeyError:
+                scale = 1
+            if isinstance(scale, tuple):
+                return scale[0](self._value, True)
+            else:
+                return self._value / scale
+        else:
+            return self._value
 
     @property
     def unit_system(self):
@@ -1055,20 +1494,7 @@ class Variable(object):
         return self._value
 
     @property
-    def numeric_value(self):
-        """Numeric part of the expression as a float value."""
-        if is_number(self._value):
-            try:
-                scale = AEDT_UNITS[self.unit_system][self._units]
-            except KeyError:
-                scale = 1
-        if isinstance(scale, tuple):
-            return scale[0](self._value, True)
-        else:
-            return self._value / scale
-
-    @property
-    def string_value(self):
+    def evaluated_value(self):
         """String value.
 
         The numeric value with the unit is concatenated and returned as a string. The numeric display
@@ -1362,32 +1788,6 @@ class Variable(object):
     #     return self.__rtruediv__(other)
 
 
-class Expression(Variable, object):
-    """Provides a framework for manipulating variable expressions.
-
-    Parameters
-    ----------
-    expression :
-
-    float_value :
-
-    """
-
-    def __init__(self, expression, float_value, full_variables={}):
-        self._expression = expression
-        self._value = float_value
-        try:
-            value, units = decompose_variable_value(expression, full_variables)
-            self._units = units
-        except:
-            self._units = ""
-
-    @property
-    def expression(self):
-        """Expression."""
-        return str(self._expression)
-
-
 class DataSet(object):
     """Manages datasets.
 
@@ -1434,25 +1834,35 @@ class DataSet(object):
         arg2 = ["Name:Coordinates"]
         if self.z is None:
             arg2.append(["NAME:DimUnits", self.xunit, self.yunit])
-        elif self.v is not None and self.name[0] == "$":
+        elif self.v is not None:
             arg2.append(["NAME:DimUnits", self.xunit, self.yunit, self.zunit, self.vunit])
         else:
             return False
-        if self.z and self.name[0] == "$":
+        if self.z:
             x, y, z, v = (list(t) for t in zip(*sorted(zip(self.x, self.y, self.z, self.v), key=lambda e: float(e[0]))))
         else:
             x, y = (list(t) for t in zip(*sorted(zip(self.x, self.y), key=lambda e: float(e[0]))))
+
         for i in range(len(x)):
-            arg3 = []
-            arg3.append("NAME:Coordinate")
-            arg4 = ["NAME:CoordPoint"]
-            arg4.append(float(x[i]))
-            arg4.append(float(y[i]))
-            if self.z and self.name[0] == "$":
-                arg4.append(float(z[i]))
-                arg4.append(float(v[i]))
-            arg3.append(arg4)
-            arg2.append(arg3)
+            if self._app._aedt_version >= "2022.1":
+                arg3 = ["NAME:Point"]
+                arg3.append(float(x[i]))
+                arg3.append(float(y[i]))
+                if self.z:
+                    arg3.append(float(z[i]))
+                    arg3.append(float(v[i]))
+                arg2.append(arg3)
+            else:
+                arg3 = []
+                arg3.append("NAME:Coordinate")
+                arg4 = ["NAME:CoordPoint"]
+                arg4.append(float(x[i]))
+                arg4.append(float(y[i]))
+                if self.z:
+                    arg4.append(float(z[i]))
+                    arg4.append(float(v[i]))
+                arg3.append(arg4)
+                arg2.append(arg3)
         arg.append(arg2)
         return arg
 

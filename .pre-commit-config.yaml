@@ -18,12 +18,12 @@ repos:
   - id: black
     args:
       - --line-length=120
-- repo: https://github.com/asottile/reorder_python_imports
-  rev: v3.0.1
+- repo: https://github.com/pycqa/isort
+  rev: 5.10.1
   hooks:
-  - id: reorder-python-imports
-    args: 
-    - --py37-plus
+    - id: isort
+      name: isort (python)
+      args: ['--force-single-line-imports', '--profile', 'black']
 - repo: https://gitlab.com/PyCQA/flake8
   rev: 3.9.2
   hooks:
@@ -35,10 +35,3 @@ repos:
   hooks:
   - id: codespell
     args: ["--ignore-words=ignore_words.txt"]
-# - repo: https://github.com/pycqa/pydocstyle
-#   rev: 6.1.1
-#   hooks:
-#   - id: pydocstyle
-#     files: ^pyaedt/
-#     args: ["--ignore=D205,D100,D213"]
-#     additional_dependencies: [toml]

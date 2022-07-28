@@ -5,8 +5,9 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 from pyaedt import Circuit  # Setup paths for module imports
-from pyaedt.generic.TouchstoneParser import read_touchstone  # Setup paths for module imports
-
+from pyaedt.generic.TouchstoneParser import (
+    read_touchstone,  # Setup paths for module imports
+)
 
 try:
     import pytest  # noqa: F401
@@ -53,6 +54,9 @@ class TestClass(BasisTest, object):
         mycap = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12, location=[0.6, 0.2])
         assert type(mycap.id) is int
         assert mycap.parameters["C"] == "1e-12"
+        tol = 1e-12
+        assert abs(mycap.pins[0].location[1] - 0.20066) < tol
+        assert abs(mycap.pins[0].location[0] - 0.5943600000000001) < tol
 
     def test_04_getpin_names(self):
         mycap2 = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12)
@@ -100,6 +104,9 @@ class TestClass(BasisTest, object):
             report_category="Standard",
             subdesign_id=myedb.id,
         )
+        new_report = self.aedtapp.post.reports_by_category.standard(insertions)
+        new_report.sub_design_id = myedb.id
+        assert new_report.create()
 
     def test_07_add_hfss_component(self):
         my_model, myname = self.aedtapp.modeler.schematic.create_field_model(
@@ -143,7 +150,6 @@ class TestClass(BasisTest, object):
         assert output
 
     def test_12_connect_components(self):
-
         myind = self.aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
         myres = self.aedtapp.modeler.schematic.create_resistor("R100", 50)
         mycap = self.aedtapp.modeler.schematic.create_capacitor("C100", 1e-12)
@@ -161,6 +167,14 @@ class TestClass(BasisTest, object):
         for pin in L1_pins:
             L1_pin2location[pin.name] = pin.location
 
+    def test_12a_connect_components(self):
+        myind = self.aedtapp.modeler.schematic.create_inductor("L101", 1e-9)
+        myres = self.aedtapp.modeler.schematic.create_resistor("R101", 50)
+        self.aedtapp.modeler.schematic.create_interface_port("Port2")
+        assert "Port2" in self.aedtapp.modeler.schematic.nets
+        assert myind.pins[1].connect_to_component(myres.pins[1], "port_name_test")
+        assert "port_name_test" in self.aedtapp.modeler.schematic.nets
+
     def test_13_properties(self):
         assert self.aedtapp.modeler.model_units
 
@@ -169,7 +183,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.move("L100", [0, 200], "mil")
 
     def test_15_rotate(self):
-        assert self.aedtapp.modeler.rotate("Port1")
+        assert self.aedtapp.modeler.rotate("IPort@Port1")
 
     def test_16_read_touchstone(self):
         data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))
@@ -197,7 +211,14 @@ class TestClass(BasisTest, object):
     def test_18_export_touchstone(self):
         assert self.aedtapp.analyze_nominal()
         time.sleep(30)
-        assert self.aedtapp.export_touchstone("Dom_LNA", "Dom_LNA", os.path.join(self.local_scratch.path, "new.s2p"))
+        solution_name = "Dom_LNA"
+        sweep_name = None
+        file_name = os.path.join(self.local_scratch.path, "new.s2p")
+        assert self.aedtapp.export_touchstone(solution_name, sweep_name, file_name)
+        assert os.path.exists(file_name)
+        assert self.aedtapp.existing_analysis_sweeps[0] == solution_name
+        assert self.aedtapp.setup_names[0] == solution_name
+        assert self.aedtapp.export_touchstone(solution_name, sweep_name)
 
     def test_19A_create_sweeps(self):
         setup_name = "Sweep_LNA"
@@ -221,7 +242,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.create_setup(setup_name, "NexximAMI")
 
     def test_20_create_AMI_plots(self):
-        ami_design = BasisTest.add_app(self, ami_project, application=Circuit)
+        ami_design = BasisTest.add_app(self, ami_project, design_name="Models Init Only", application=Circuit)
         report_name = "MyReport"
         assert (
             ami_design.post.create_ami_initial_response_plot(
@@ -352,3 +373,83 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345")
         assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")
+
+    def test_30_create_subcircuit(self):
+        subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0], angle=0)
+        assert type(subcircuit.location) is list
+        assert type(subcircuit.id) is int
+        assert subcircuit.component_info
+        assert subcircuit.location[0] == "0.0mil"
+        assert subcircuit.location[1] == "0.0mil"
+        assert subcircuit.angle == 0.0
+
+    @pytest.mark.skipif(config["NonGraphical"], reason="Duplicate doesn't work in non-graphical mode.")
+    def test_31_duplicate(self):  # pragma: no cover
+        subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
+        new_subcircuit = self.aedtapp.modeler.schematic.duplicate(
+            subcircuit.composed_name, location=[0.0508, 0.0], angle=0
+        )
+        assert type(new_subcircuit.location) is list
+        assert type(new_subcircuit.id) is int
+        assert new_subcircuit.location[0] == "1900mil"
+        assert new_subcircuit.location[1] == "-100mil"
+        assert new_subcircuit.angle == 0.0
+
+    def test_32_push_down(self):
+        self.aedtapp.insert_design("Circuit_Design_Push_Down")
+        subcircuit_1 = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
+        active_project_name_1 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        self.aedtapp.pop_up()
+        subcircuit_2 = self.aedtapp.modeler.schematic.create_subcircuit(
+            location=[0.0, 0.0], nested_subcircuit_id=subcircuit_1.component_info["RefDes"]
+        )
+        active_project_name_3 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        assert active_project_name_1 == active_project_name_3
+        assert subcircuit_2.component_info["RefDes"] == "U2"
+        assert self.aedtapp.push_down(subcircuit_1)
+
+    def test_33_pop_up(self):
+        self.aedtapp.insert_design("Circuit_Design_Pop_Up")
+        assert self.aedtapp.pop_up()
+        active_project_name_1 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
+        assert self.aedtapp.pop_up()
+        active_project_name_2 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        assert active_project_name_1 == active_project_name_2
+
+    def test_34_activate_variables(self):
+        self.aedtapp["desvar"] = "1mm"
+        self.aedtapp["$prjvar"] = "2mm"
+        assert self.aedtapp["desvar"] == "1mm"
+        assert self.aedtapp["$prjvar"] == "2mm"
+        assert self.aedtapp.activate_variable_tuning("desvar")
+        assert self.aedtapp.activate_variable_tuning("$prjvar")
+        assert self.aedtapp.deactivate_variable_tuning("desvar")
+        assert self.aedtapp.deactivate_variable_tuning("$prjvar")
+        try:
+            self.aedtapp.activate_variable_tuning("Idontexist")
+            assert False
+        except:
+            assert True
+
+    def test_35_netlist_data_block(self):
+        self.aedtapp.insert_design("data_block")
+        with open(os.path.join(self.local_scratch.path, "lc.net"), "w") as f:
+            for i in range(10):
+                f.write("L{} net_{} net_{} 1e-9\n".format(i, i, i + 1))
+                f.write("C{} net_{} 0 5e-12\n".format(i, i + 1))
+        assert self.aedtapp.add_netlist_datablock(os.path.join(self.local_scratch.path, "lc.net"))
+        self.aedtapp.modeler.components.create_interface_port("net_0", (0, 0))
+        self.aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
+
+        lna = self.aedtapp.create_setup("mylna", self.aedtapp.SETUPS.NexximLNA)
+        lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
+        assert self.aedtapp.analyze_nominal()
+
+    def test_36_create_voltage_probe(self):
+        myprobe = self.aedtapp.modeler.components.create_voltage_probe(probe_name="test_probe", location=[0.4, 0.2])
+        assert type(myprobe.id) is int
+
+    def test_37_draw_graphical_primitives(self):
+        line = self.aedtapp.modeler.components.create_line([[0, 0], [1, 1]])
+        assert line

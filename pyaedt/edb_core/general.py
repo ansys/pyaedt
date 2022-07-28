@@ -15,10 +15,12 @@ try:
     import clr
 
     clr.AddReference("System.Collections")
+    from System import Tuple
     from System.Collections.Generic import List
+
 except ImportError:
     if os.name != "posix":
-        warnings.warn("This module requires pythonnet.")
+        warnings.warn("This module requires PythonNET.")
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +47,20 @@ def convert_netdict_to_pydict(dict_in):
 
 
 @pyaedt_function_handler()
+def convert_pytuple_to_nettuple(_tuple):
+    """Convert a Python tuple into a .NET tuple.
+    Parameters
+    ----------
+    tuple : Python tuple
+
+    Returns
+    -------
+    .NET tuple.
+    """
+    return Tuple.Create(_tuple[0], _tuple[1])
+
+
+@pyaedt_function_handler()
 def convert_pydict_to_netdict(dict):
     """Convert a Python dictionarty to a Net dictionary.
 
@@ -64,7 +80,7 @@ def convert_pydict_to_netdict(dict):
 
 
 @pyaedt_function_handler()
-def convert_py_list_to_net_list(pylist):
+def convert_py_list_to_net_list(pylist, list_type=None):
     """Convert a Python list to a Net list.
 
     Parameters
@@ -81,7 +97,10 @@ def convert_py_list_to_net_list(pylist):
         pylist = [pylist]
     ls = list([type(item) for item in pylist])
     if len(ls) > 0:
-        net_list = List[ls[0]]()
+        if list_type:
+            net_list = List[list_type]()
+        else:
+            net_list = List[ls[0]]()
         for el in pylist:
             net_list.Add(el)
         return net_list

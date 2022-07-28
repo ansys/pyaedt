@@ -1,8 +1,10 @@
+import ast
 import csv
 import os
 import tempfile
 import time
 import warnings
+from collections import defaultdict
 from datetime import datetime
 
 from pyaedt import pyaedt_function_handler
@@ -10,6 +12,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import convert_remote_object
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import open_file
 
 if not is_ironpython:
     try:
@@ -32,8 +35,9 @@ if not is_ironpython:
 
     try:
         import matplotlib.pyplot as plt
-        from matplotlib.path import Path
         from matplotlib.patches import PathPatch
+        from matplotlib.path import Path
+
     except ImportError:
         warnings.warn(
             "The Matplotlib module is required to run some functionalities of PostProcess.\n"
@@ -41,6 +45,27 @@ if not is_ironpython:
         )
     except:
         pass
+
+
+@pyaedt_function_handler()
+def get_structured_mesh(theta, phi, ff_data):
+
+    if ff_data.min() < 0:
+        ff_data_renorm = ff_data + np.abs(ff_data.min())
+    else:
+        ff_data_renorm = ff_data
+    phi_grid, theta_grid = np.meshgrid(phi, theta)
+    r_no_renorm = np.reshape(ff_data, (len(theta), len(phi)))
+    r = np.reshape(ff_data_renorm, (len(theta), len(phi)))
+
+    x = r * np.sin(theta_grid) * np.cos(phi_grid)
+    y = r * np.sin(theta_grid) * np.sin(phi_grid)
+    z = r * np.cos(theta_grid)
+
+    mag = np.ndarray.flatten(r_no_renorm, order="F")
+    ff_mesh = pv.StructuredGrid(x, y, z)
+    ff_mesh["FarFieldData"] = mag
+    return ff_mesh
 
 
 def is_notebook():
@@ -77,6 +102,194 @@ def is_float(istring):
         return float(istring.strip())
     except Exception:
         return 0
+
+
+def _triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes=True):
+    trg_vertex = []
+    if num_nodes_per_element == 10 and take_all_nodes:
+        for e in elements_nodes:
+            trg_vertex.append([e[0], e[1], e[3]])
+            trg_vertex.append([e[1], e[2], e[4]])
+            trg_vertex.append([e[1], e[4], e[3]])
+            trg_vertex.append([e[3], e[4], e[5]])
+
+            trg_vertex.append([e[9], e[6], e[8]])
+            trg_vertex.append([e[6], e[0], e[3]])
+            trg_vertex.append([e[6], e[3], e[8]])
+            trg_vertex.append([e[8], e[3], e[5]])
+
+            trg_vertex.append([e[9], e[7], e[8]])
+            trg_vertex.append([e[7], e[2], e[4]])
+            trg_vertex.append([e[7], e[4], e[8]])
+            trg_vertex.append([e[8], e[4], e[5]])
+
+            trg_vertex.append([e[9], e[7], e[6]])
+            trg_vertex.append([e[7], e[2], e[1]])
+            trg_vertex.append([e[7], e[1], e[6]])
+            trg_vertex.append([e[6], e[1], e[0]])
+
+    elif num_nodes_per_element == 10 and not take_all_nodes:
+        for e in elements_nodes:
+            trg_vertex.append([e[0], e[2], e[5]])
+            trg_vertex.append([e[9], e[0], e[5]])
+            trg_vertex.append([e[9], e[2], e[0]])
+            trg_vertex.append([e[9], e[2], e[5]])
+
+    elif num_nodes_per_element == 6 and not take_all_nodes:
+        for e in elements_nodes:
+            trg_vertex.append([e[0], e[2], e[5]])
+
+    elif num_nodes_per_element == 6 and take_all_nodes:
+        for e in elements_nodes:
+            trg_vertex.append([e[0], e[1], e[3]])
+            trg_vertex.append([e[1], e[2], e[4]])
+            trg_vertex.append([e[1], e[4], e[3]])
+            trg_vertex.append([e[3], e[4], e[5]])
+
+    elif num_nodes_per_element == 4 and take_all_nodes:
+        for e in elements_nodes:
+            trg_vertex.append([e[0], e[1], e[3]])
+            trg_vertex.append([e[1], e[2], e[3]])
+            trg_vertex.append([e[0], e[1], e[2]])
+            trg_vertex.append([e[0], e[2], e[3]])
+
+    elif num_nodes_per_element == 3:
+        trg_vertex = elements_nodes
+
+    return trg_vertex
+
+
+def _parse_aedtplt(filepath):
+    lines = []
+    vertices = []
+    faces = []
+    scalars = []
+    with open_file(filepath, "r") as f:
+        drawing_found = False
+        for line in f:
+            if "$begin Drawing" in line:
+                drawing_found = True
+                l_tmp = []
+                continue
+            if "$end Drawing" in line:
+                lines.append(l_tmp)
+                drawing_found = False
+                continue
+            if drawing_found:
+                l_tmp.append(line)
+                continue
+    for drawing_lines in lines:
+        bounding = []
+        elements = []
+        nodes_list = []
+        solution = []
+        for l in drawing_lines:
+            if "BoundingBox(" in l:
+                bounding = l[l.find("(") + 1 : -2].split(",")
+                bounding = [i.strip() for i in bounding]
+            if "Elements(" in l:
+                elements = l[l.find("(") + 1 : -2].split(",")
+                elements = [int(i.strip()) for i in elements]
+            if "Nodes(" in l:
+                nodes_list = l[l.find("(") + 1 : -2].split(",")
+                nodes_list = [float(i.strip()) for i in nodes_list]
+            if "ElemSolution(" in l:
+                # convert list of strings to list of floats
+                sols = l[l.find("(") + 1 : -2].split(",")
+                sols = [is_float(value) for value in sols]
+                # sols = [float(i.strip()) for i in sols]
+                num_solution_per_element = int(sols[2])
+                num_elements = elements[1]
+                num_nodes = elements[6]
+                sols = sols[3:]
+                if num_nodes == num_solution_per_element or num_solution_per_element // num_nodes < 3:
+                    sols = [
+                        sols[i : i + num_solution_per_element] for i in range(0, len(sols), num_solution_per_element)
+                    ]
+                    solution = [sum(i) / num_solution_per_element for i in sols]
+                else:
+                    sols = [
+                        sols[i : i + num_solution_per_element] for i in range(0, len(sols), num_solution_per_element)
+                    ]
+                    solution = [
+                        [sum(i[::3]) / num_solution_per_element * 3 for i in sols],
+                        [sum(i[1::3]) / num_solution_per_element * 3 for i in sols],
+                        [sum(i[2::3]) / num_solution_per_element * 3 for i in sols],
+                    ]
+
+        nodes = [[nodes_list[i], nodes_list[i + 1], nodes_list[i + 2]] for i in range(0, len(nodes_list), 3)]
+        num_nodes = elements[0]
+        num_elements = elements[1]
+        elements = elements[2:]
+        element_type = elements[0]
+        num_nodes_per_element = elements[4]
+        header_length = 5
+        elements_nodes = []
+        for i in range(0, len(elements), num_nodes_per_element + header_length):
+            elements_nodes.append([elements[i + header_length + n] for n in range(num_nodes_per_element)])
+        if solution:
+            take_all_nodes = True  # solution case
+        else:
+            take_all_nodes = False  # mesh case
+        trg_vertex = _triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes)
+        # remove duplicates
+        nodup_list = [list(i) for i in list(set([frozenset(t) for t in trg_vertex]))]
+        log = True
+        if solution:
+            if isinstance(solution[0], list):
+                temps = []
+                for sol in solution:
+                    sv = {}
+                    sv_i = {}
+                    sv = defaultdict(lambda: 0, sv)
+                    sv_i = defaultdict(lambda: 1, sv_i)
+                    for els, s in zip(elements_nodes, sol):
+                        for el in els:
+                            sv[el] = (sv[el] + s) / sv_i[el]
+                            sv_i[el] = 2
+                    temps.append(np.array([sv[v] for v in sorted(sv.keys())]))
+            else:
+                sv = {}
+                sv_i = {}
+                sv = defaultdict(lambda: 0, sv)
+                sv_i = defaultdict(lambda: 1, sv_i)
+
+                for els, s in zip(elements_nodes, solution):
+                    for el in els:
+                        sv[el] = (sv[el] + s) / sv_i[el]
+                        sv_i[el] = 2
+                temps = np.array([sv[v] for v in sorted(sv.keys())])
+            scalars.append(temps)
+            if np.min(temps) <= 0:
+                log = False
+        array = [[3] + [j - 1 for j in i] for i in nodup_list]
+
+        faces.append(np.hstack(array))
+        vertices.append(np.array(nodes))
+        # surf = pv.PolyData(vertices, faces)
+
+        # surf.point_data[field.label] = temps
+    # field.log = log
+    # field._cached_polydata = surf
+    return vertices, faces, scalars, log
+
+
+def _parse_streamline(filepath):
+    streamlines = []
+    with open_file(filepath, "r") as f:
+        lines = f.read().splitlines()
+        new_line = False
+        streamline = []
+        for line in lines:
+            if "Streamline: " in line:
+                new_line = True
+                if streamline:
+                    streamlines.append(streamline)
+                    streamline = []
+
+            elif new_line:
+                streamline.append(line.split(" "))
+    return streamlines
 
 
 @pyaedt_function_handler()
@@ -167,7 +380,6 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
         Matplotlib fig object.
     """
     dpi = 100.0
-    dpi = 100.0
 
     ax = plt.subplot(111, projection="3d")
 
@@ -175,14 +387,21 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
         len(plot_data)
     except:
         plot_data = convert_remote_object(plot_data)
-    THETA, PHI = np.meshgrid(plot_data[0], plot_data[1])
-    R = np.array(plot_data[2])
-    X = R * np.sin(THETA) * np.cos(PHI)
-    Y = R * np.sin(THETA) * np.sin(PHI)
-    Z = R * np.cos(THETA)
+    if isinstance(plot_data[0], np.ndarray):
+        x = plot_data[0]
+        y = plot_data[1]
+        z = plot_data[2]
+    else:
+        theta_grid, phi_grid = np.meshgrid(plot_data[0], plot_data[1])
+        if isinstance(plot_data[2], list):
+            r = np.array(plot_data[2])
+        else:
+            r = plot_data[2]
+        x = r * np.sin(theta_grid) * np.cos(phi_grid)
+        y = r * np.sin(theta_grid) * np.sin(phi_grid)
+        z = r * np.cos(theta_grid)
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
-
-    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.5)
+    ax.plot_surface(x, y, z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.8)
     fig = plt.gcf()
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     if snapshot_path:
@@ -227,12 +446,18 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
     except:
         plot_data = convert_remote_object(plot_data)
     label_id = 1
-    for object in plot_data:
-        if len(object) == 3:
-            label = object[2]
+    for plo_obj in plot_data:
+        if len(plo_obj) == 3:
+            label = plo_obj[2]
         else:
             label = "Trace " + str(label_id)
-        ax.plot(np.array(object[0]), np.array(object[1]), label=label)
+        if isinstance(plo_obj[0], np.ndarray):
+            x = plo_obj[0]
+            y = plo_obj[1]
+        else:
+            x = np.array([i for i, j in zip(plo_obj[0], plo_obj[1]) if j])
+            y = np.array([i for i in plo_obj[1] if i])
+        ax.plot(x, y, label=label)
         label_id += 1
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
@@ -276,16 +501,14 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
     fig, ax = plt.subplots(figsize=figsize)
-    try:
-        len(plot_data)
-    except:
-        plot_data = convert_remote_object(plot_data)
-    for object in plot_data:
-        if object[-1] == "fill":
-            plt.fill(object[0], object[1], c=object[2], label=object[3], alpha=object[4])
-        elif object[-1] == "path":
-            path = Path(object[0], object[1])
-            patch = PathPatch(path, color=object[2], alpha=object[4], label=object[3])
+    if isinstance(plot_data, str):
+        plot_data = ast.literal_eval(plot_data)
+    for points in plot_data:
+        if points[-1] == "fill":
+            plt.fill(points[0], points[1], c=points[2], label=points[3], alpha=points[4])
+        elif points[-1] == "path":
+            path = Path(points[0], points[1])
+            patch = PathPatch(path, color=points[2], alpha=points[4], label=points[3])
             ax.add_patch(patch)
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
@@ -297,6 +520,63 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
         plt.savefig(snapshot_path)
     else:
         plt.show()
+    return plt
+
+
+@pyaedt_function_handler()
+def plot_contour(qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", title="", levels=64, snapshot_path=None):
+    """Create a matplotlib contour plot.
+
+    Parameters
+    ----------
+    qty_to_plot : :class:`numpy.ndarray`
+        Quantity to plot.
+    x : :class:`numpy.ndarray`
+        X axis quantity.
+    y : :class:`numpy.ndarray`
+        Y axis quantity.
+    size : tuple, list, optional
+        Window Size. Default is `(2000,1600)`.
+    xlabel : str, optional
+        X Label. Default is `""`.
+    ylabel : str, optional
+        Y Label. Default is `""`.
+    title : str, optional
+        Plot Title Label. Default is `""`.
+    levels : int, optional
+        Colormap levels. Default is `64`.
+    snapshot_path : str, optional
+        Full path to image to save. Default is None.
+
+    Returns
+    -------
+    :class:`matplotlib.plt`
+        Matplotlib fig object.
+    """
+    dpi = 100.0
+    figsize = (size[0] / dpi, size[1] / dpi)
+    fig, ax = plt.subplots(figsize=figsize)
+    if title:
+        plt.title(title)
+    if xlabel:
+        plt.xlabel(xlabel)
+    if ylabel:
+        plt.ylabel(ylabel)
+
+    plt.contourf(
+        x,
+        y,
+        qty_to_plot.T,
+        levels=levels,
+        cmap="jet",
+    )
+
+    plt.colorbar()
+    if snapshot_path:
+        plt.savefig(snapshot_path)
+    else:
+        plt.show()
+    return plt
 
 
 class ObjClass(object):
@@ -368,7 +648,7 @@ class FieldClass(object):
         log_scale=True,
         coordinate_units="meter",
         opacity=1,
-        color_map="rainbow",
+        color_map="jet",
         label="Field",
         tolerance=1e-3,
         headers=2,
@@ -388,6 +668,8 @@ class FieldClass(object):
         self.header_lines = headers
         self.show_edge = show_edge
         self._is_frame = False
+        self.is_vector = False
+        self.vector_scale = 1.0
 
 
 class ModelPlotter(object):
@@ -448,6 +730,8 @@ class ModelPlotter(object):
         self._isometric_view = True
         self.bounding_box = True
         self.color_bar = True
+        self.array_coordinates = []
+        self.meshes = None
 
     @property
     def isometric_view(self):
@@ -720,7 +1004,7 @@ class ModelPlotter(object):
         log_scale=True,
         coordinate_units="meter",
         opacity=1,
-        color_map="rainbow",
+        color_map="jet",
         label_name="Field",
         surface_mapping_tolerance=1e-3,
         header_lines=2,
@@ -774,7 +1058,7 @@ class ModelPlotter(object):
         log_scale=True,
         coordinate_units="meter",
         opacity=1,
-        color_map="rainbow",
+        color_map="jet",
         label_name="Field",
         surface_mapping_tolerance=1e-3,
         header_lines=2,
@@ -827,7 +1111,7 @@ class ModelPlotter(object):
         log_scale=True,
         coordinate_units="meter",
         opacity=1,
-        color_map="rainbow",
+        color_map="jet",
         label_name="Field",
         surface_mapping_tolerance=1e-3,
         show_edges=True,
@@ -869,60 +1153,6 @@ class ModelPlotter(object):
         self.fields[-1]._cached_polydata = filedata
 
     @pyaedt_function_handler()
-    def _triangle_vertex(self, elements_nodes, num_nodes_per_element, take_all_nodes=True):
-        trg_vertex = []
-        if num_nodes_per_element == 10 and take_all_nodes:
-            for e in elements_nodes:
-                trg_vertex.append([e[0], e[1], e[3]])
-                trg_vertex.append([e[1], e[2], e[4]])
-                trg_vertex.append([e[1], e[4], e[3]])
-                trg_vertex.append([e[3], e[4], e[5]])
-
-                trg_vertex.append([e[9], e[6], e[8]])
-                trg_vertex.append([e[6], e[0], e[3]])
-                trg_vertex.append([e[6], e[3], e[8]])
-                trg_vertex.append([e[8], e[3], e[5]])
-
-                trg_vertex.append([e[9], e[7], e[8]])
-                trg_vertex.append([e[7], e[2], e[4]])
-                trg_vertex.append([e[7], e[4], e[8]])
-                trg_vertex.append([e[8], e[4], e[5]])
-
-                trg_vertex.append([e[9], e[7], e[6]])
-                trg_vertex.append([e[7], e[2], e[1]])
-                trg_vertex.append([e[7], e[1], e[6]])
-                trg_vertex.append([e[6], e[1], e[0]])
-        elif num_nodes_per_element == 10 and not take_all_nodes:
-            for e in elements_nodes:
-                trg_vertex.append([e[0], e[2], e[5]])
-                trg_vertex.append([e[9], e[0], e[5]])
-                trg_vertex.append([e[9], e[2], e[0]])
-                trg_vertex.append([e[9], e[2], e[5]])
-
-        elif num_nodes_per_element == 6 and not take_all_nodes:
-            for e in elements_nodes:
-                trg_vertex.append([e[0], e[2], e[5]])
-
-        elif num_nodes_per_element == 6 and take_all_nodes:
-            for e in elements_nodes:
-                trg_vertex.append([e[0], e[1], e[3]])
-                trg_vertex.append([e[1], e[2], e[4]])
-                trg_vertex.append([e[1], e[4], e[3]])
-                trg_vertex.append([e[3], e[4], e[5]])
-
-        elif num_nodes_per_element == 4 and take_all_nodes:
-            for e in elements_nodes:
-                trg_vertex.append([e[0], e[1], e[3]])
-                trg_vertex.append([e[1], e[2], e[3]])
-                trg_vertex.append([e[0], e[1], e[2]])
-                trg_vertex.append([e[0], e[2], e[3]])
-
-        elif num_nodes_per_element == 3:
-            trg_vertex = elements_nodes
-
-        return trg_vertex
-
-    @pyaedt_function_handler()
     def _read_mesh_files(self, read_frames=False):
         for cad in self.objects:
             if not cad._cached_polydata:
@@ -930,6 +1160,10 @@ class ModelPlotter(object):
                 cad._cached_polydata = filedata
             color_cad = [i / 255 for i in cad.color]
             cad._cached_mesh = self.pv.add_mesh(cad._cached_polydata, color=color_cad, opacity=cad.opacity)
+            if self.meshes:
+                self.meshes += cad._cached_polydata
+            else:
+                self.meshes = cad._cached_polydata
         obj_to_iterate = [i for i in self._fields]
         if read_frames:
             for i in self.frames:
@@ -937,100 +1171,30 @@ class ModelPlotter(object):
         for field in obj_to_iterate:
             if field.path and not field._cached_polydata:
                 if ".aedtplt" in field.path:
-                    lines = []
-                    with open(field.path, "r") as f:
-                        drawing_found = False
-                        for line in f:
-                            if "$begin Drawing" in line:
-                                drawing_found = True
-                                l_tmp = []
-                                continue
-                            if "$end Drawing" in line:
-                                lines.append(l_tmp)
-                                drawing_found = False
-                                continue
-                            if drawing_found:
-                                l_tmp.append(line)
-                                continue
-                    surf = None
-                    for drawing_lines in lines:
-                        bounding = []
-                        elements = []
-                        nodes_list = []
-                        solution = []
-                        for l in drawing_lines:
-                            if "BoundingBox(" in l:
-                                bounding = l[l.find("(") + 1 : -2].split(",")
-                                bounding = [i.strip() for i in bounding]
-                            if "Elements(" in l:
-                                elements = l[l.find("(") + 1 : -2].split(",")
-                                elements = [int(i.strip()) for i in elements]
-                            if "Nodes(" in l:
-                                nodes_list = l[l.find("(") + 1 : -2].split(",")
-                                nodes_list = [float(i.strip()) for i in nodes_list]
-                            if "ElemSolution(" in l:
-                                # convert list of strings to list of floats
-                                sols = l[l.find("(") + 1 : -2].split(",")
-                                sols = [is_float(value) for value in sols]
+                    vertices, faces, scalars, log1 = _parse_aedtplt(field.path)
+                    fields_vals = pv.PolyData(vertices[0], faces[0])
+                    field._cached_polydata = fields_vals
+                    if isinstance(scalars[0], list):
+                        vector_scale = (max(fields_vals.bounds) - min(fields_vals.bounds)) / (
+                            50 * (np.vstack(scalars[0]).max() - np.vstack(scalars[0]).min())
+                        )
 
-                                # sols = [float(i.strip()) for i in sols]
-                                num_solution_per_element = int(sols[2])
-                                sols = sols[3:]
-                                sols = [
-                                    sols[i : i + num_solution_per_element]
-                                    for i in range(0, len(sols), num_solution_per_element)
-                                ]
-                                solution = [sum(i) / num_solution_per_element for i in sols]
+                        field._cached_polydata["vectors"] = np.vstack(scalars[0]).T * vector_scale
+                        field.label = "Vector " + field.label
+                        field._cached_polydata.point_data[field.label] = np.array(
+                            [np.linalg.norm(x) for x in np.vstack(scalars[0]).T]
+                        )
 
-                        nodes = [
-                            [nodes_list[i], nodes_list[i + 1], nodes_list[i + 2]] for i in range(0, len(nodes_list), 3)
-                        ]
-                        num_nodes = elements[0]
-                        num_elements = elements[1]
-                        elements = elements[2:]
-                        element_type = elements[0]
-                        num_nodes_per_element = elements[4]
-                        hl = 5  # header length
-                        elements_nodes = []
-                        for i in range(0, len(elements), num_nodes_per_element + hl):
-                            elements_nodes.append([elements[i + hl + n] for n in range(num_nodes_per_element)])
-                        if solution:
-                            take_all_nodes = True  # solution case
-                        else:
-                            take_all_nodes = False  # mesh case
-                        trg_vertex = self._triangle_vertex(elements_nodes, num_nodes_per_element, take_all_nodes)
-                        # remove duplicates
-                        nodup_list = [list(i) for i in list(set([frozenset(t) for t in trg_vertex]))]
-                        sols_vertex = []
-                        if solution:
-                            sv = {}
-                            for els, s in zip(elements_nodes, solution):
-                                for el in els:
-                                    if el in sv:
-                                        sv[el] = (sv[el] + s) / 2
-                                    else:
-                                        sv[el] = s
-                            sols_vertex = [sv[v] for v in sorted(sv.keys())]
-                        array = [[3] + [j - 1 for j in i] for i in nodup_list]
-                        faces = np.hstack(array)
-                        vertices = np.array(nodes)
-                        surf = pv.PolyData(vertices, faces)
-                        if sols_vertex:
-                            temps = np.array(sols_vertex)
-                            mean = np.mean(temps)
-                            std = np.std(temps)
-                            if np.min(temps) > 0:
-                                log = True
-                            else:
-                                log = False
-                            surf.point_data[field.label] = temps
-                    field.log = log
-                    field._cached_polydata = surf
+                        field.is_vector = True
+                    else:
+                        field._cached_polydata.point_data[field.label] = scalars[0]
+                        field.is_vector = False
+                    field.log = log1
                 else:
-                    points = []
                     nodes = []
                     values = []
-                    with open(field.path, "r") as f:
+                    is_vector = False
+                    with open_file(field.path, "r") as f:
                         try:
                             lines = f.read().splitlines()[field.header_lines :]
                             if ".csv" in field.path:
@@ -1045,9 +1209,18 @@ class ModelPlotter(object):
                         except:
                             lines = []
                         for line in lines:
-                            tmp = line.split(delimiter)
+                            tmp = line.strip().split(delimiter)
+                            if len(tmp) < 4:
+                                continue
                             nodes.append([float(tmp[0]), float(tmp[1]), float(tmp[2])])
-                            values.append(float(tmp[3]))
+                            if len(tmp) == 6:
+                                values.append([float(tmp[3]), float(tmp[4]), float(tmp[5])])
+                                is_vector = True
+                            elif len(tmp) == 9:
+                                values.append([float(tmp[3]), float(tmp[5]), float(tmp[7])])
+                                is_vector = True
+                            else:
+                                values.append(float(tmp[3]))
                     if nodes:
                         try:
                             conv = 1 / AEDT_UNITS["Length"][self.units]
@@ -1055,8 +1228,17 @@ class ModelPlotter(object):
                             conv = 1
                         vertices = np.array(nodes) * conv
                         filedata = pv.PolyData(vertices)
-                        filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
-                        filedata.point_data[field.label] = np.array(values)
+                        if is_vector:
+                            vector_scale = (max(filedata.bounds) - min(filedata.bounds)) / (
+                                20 * (np.vstack(values).max() - np.vstack(values).min())
+                            )
+                            filedata["vectors"] = np.vstack(values) * vector_scale
+                            field.label = "Vector " + field.label
+                            filedata.point_data[field.label] = np.array([np.linalg.norm(x) for x in np.vstack(values)])
+                            field.is_vector = True
+                        else:
+                            filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
+                            filedata.point_data[field.label] = np.array(values)
                         field._cached_polydata = filedata
 
     @pyaedt_function_handler()
@@ -1077,7 +1259,10 @@ class ModelPlotter(object):
                 self.actor = actor
 
             def __call__(self, state):
-                self.actor.SetVisibility(state)
+                try:
+                    self.actor._cached_mesh.SetVisibility(state)
+                except AttributeError:
+                    self.actor.SetVisibility(state)
 
         class ChangePageCallback:
             """Helper callback to keep a reference to the actor being modified."""
@@ -1092,9 +1277,13 @@ class ModelPlotter(object):
                 self.max_elements = (self.startpos - self.endpos) // (self.size + (self.size // 10))
                 self.i = self.max_elements
                 self.axes_color = axes_color
+                self.text = []
 
             def __call__(self, state):
-                self.plot.button_widgets = [self.plot.button_widgets[0]]
+                try:
+                    self.plot.button_widgets = [self.plot.button_widgets[0]]
+                except:
+                    self.plot.button_widgets = []
                 self.id += 1
                 k = 0
                 startpos = self.startpos
@@ -1105,7 +1294,7 @@ class ModelPlotter(object):
                 self.text = []
                 k = 0
 
-                while k < self.max_elements:
+                while k < min(self.max_elements, len(self.actors)):
                     if self.i >= len(self.actors):
                         self.i = 0
                         self.id = 0
@@ -1132,50 +1321,15 @@ class ModelPlotter(object):
                     k += 1
                     self.i += 1
 
-        el = 1
-        for actor in self.objects:
-            if el < max_elements:
-                callback = SetVisibilityCallback(actor._cached_mesh)
-                buttons.append(
-                    self.pv.add_checkbox_button_widget(
-                        callback,
-                        value=True,
-                        position=(5.0, startpos + 50),
-                        size=size,
-                        border_size=1,
-                        color_on=[i / 255 for i in actor.color],
-                        color_off="grey",
-                        background_color=None,
-                    )
-                )
-                texts.append(
-                    self.pv.add_text(actor.name, position=(50.0, startpos + 50), font_size=size // 3, color=axes_color)
-                )
-                startpos = startpos - size - (size // 10)
-                el += 1
-        for actor in self.fields:
-            if actor._cached_mesh and el < max_elements:
-                callback = SetVisibilityCallback(actor._cached_mesh)
-                buttons.append(
-                    self.pv.add_checkbox_button_widget(
-                        callback,
-                        value=True,
-                        position=(5.0, startpos + 50),
-                        size=size,
-                        border_size=1,
-                        color_on="blue",
-                        color_off="grey",
-                        background_color=None,
-                    )
-                )
-                texts.append(
-                    self.pv.add_text(actor.name, position=(50.0, startpos + 50), font_size=size // 3, color=axes_color)
-                )
-                startpos = startpos - size - (size // 10)
-                el += 1
-        actors = [i for i in self._fields if i._cached_mesh] + self._objects
-        if texts and len(texts) >= max_elements:
-            callback = ChangePageCallback(self.pv, actors, axes_color)
+        if len(self.objects) > 100:
+            actors = [i for i in self._fields if i._cached_mesh] + self._objects
+        else:
+            actors = [i for i in self._fields if i._cached_mesh] + self._objects
+        # if texts and len(texts) < len(actors):
+        callback = ChangePageCallback(self.pv, actors, axes_color)
+
+        callback.__call__(False)
+        if callback.max_elements < len(actors):
             self.pv.add_checkbox_button_widget(
                 callback,
                 value=True,
@@ -1206,9 +1360,9 @@ class ModelPlotter(object):
         """
         start = time.time()
         self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+        self.meshes = None
         self.pv.background_color = [i / 255 for i in self.background_color]
         self._read_mesh_files()
-
         axes_color = [0 if i >= 128 else 1 for i in self.background_color]
         if self.color_bar:
             sargs = dict(
@@ -1229,7 +1383,18 @@ class ModelPlotter(object):
                 position_y=2,
             )
         for field in self._fields:
-            if self.range_max is not None and self.range_min is not None:
+            if field.is_vector:
+                field._cached_polydata.set_active_vectors("vectors")
+                field._cached_polydata["vectors"] = field._cached_polydata["vectors"] * field.vector_scale
+                self.pv.add_mesh(
+                    field._cached_polydata.arrows,
+                    scalars=field.label,
+                    log_scale=field.log_scale,
+                    scalar_bar_args=sargs,
+                    cmap=field.color_map,
+                )
+                field._cached_polydata["vectors"] = field._cached_polydata["vectors"] / field.vector_scale
+            elif self.range_max is not None and self.range_min is not None:
                 field._cached_mesh = self.pv.add_mesh(
                     field._cached_polydata,
                     scalars=field.label,
@@ -1252,8 +1417,7 @@ class ModelPlotter(object):
                 )
         if self.show_legend:
             self._add_buttons()
-        end = time.time() - start
-        files_list = []
+
         if self.show_axes:
             self.pv.show_axes()
         if self.show_grid and not self.is_notebook:
@@ -1349,8 +1513,7 @@ class ModelPlotter(object):
 
         self.pv.background_color = [i / 255 for i in self.background_color]
         self._read_mesh_files(read_frames=True)
-        end = time.time() - start
-        files_list = []
+
         axes_color = [0 if i >= 128 else 1 for i in self.background_color]
 
         if self.show_axes:
@@ -1494,3 +1657,21 @@ class ModelPlotter(object):
             return self.gif_file
         else:
             return True
+
+    @pyaedt_function_handler()
+    def generate_geometry_mesh(self):
+        """Generate mesh for objects only.
+
+        Returns
+        -------
+        Mesh
+        """
+        self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+        self._read_mesh_files()
+        if self.array_coordinates:
+            duplicate_mesh = self.meshes.copy()
+            for offset_xyz in self.array_coordinates:
+                translated_mesh = duplicate_mesh.copy()
+                translated_mesh.translate(offset_xyz, inplace=True)
+                self.meshes += translated_mesh
+        return self.meshes

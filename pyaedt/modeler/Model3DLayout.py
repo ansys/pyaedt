@@ -2,23 +2,24 @@ import os
 import re
 from warnings import warn
 
+from pyaedt import settings
 from pyaedt.edb import Edb
 from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Modeler import Modeler
-from pyaedt.modeler.Object3d import ComponentsSubCircuit3DLayout
-from pyaedt.modeler.Primitives3DLayout import Geometries3DLayout
+from pyaedt.modeler.object3dlayout import ComponentsSubCircuit3DLayout
 from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
 from pyaedt.modules.LayerStackup import Layers
 
 
 class Modeler3DLayout(Modeler, Primitives3DLayout):
     """Manages Modeler 3D layouts.
-
     This class is inherited in the caller application and is accessible through the modeler variable
     object (for example, ``hfss3dlayout.modeler``).
 
@@ -37,7 +38,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
     def __init__(self, app):
         self._app = app
         self._edb = None
-        self._oeditor = self._app._odesign.SetActiveEditor("Layout")
         self.logger.info("Loading Modeler.")
         Modeler.__init__(self, app)
         self.logger.info("Modeler loaded.")
@@ -49,9 +49,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.logger.info("Primitives loaded.")
         self.layers.refresh_all_layers()
         self.o_def_manager = self._app.odefinition_manager
-        self.o_component_manager = self.o_def_manager.GetManager("Component")
-        self.o_model_manager = self.o_def_manager.GetManager("Model")
-        pass
+        self.rigid_flex = None
 
     @property
     def oeditor(self):
@@ -61,7 +59,17 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         ----------
 
         >>> oEditor = oDesign.SetActiveEditor("Layout")"""
-        return self._oeditor
+        return self._app.oeditor
+
+    @property
+    def o_component_manager(self):
+        """Component manager object."""
+        return self._app.o_component_manager
+
+    @property
+    def o_model_manager(self):
+        """Model manager object."""
+        return self._app.o_model_manager
 
     @property
     def _edb_folder(self):
@@ -81,6 +89,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
              EDB.
 
         """
+        if settings.remote_api:
+            return self._edb
         if not self._edb:
             self._edb = None
             if os.path.exists(self._edb_file) or (inside_desktop and is_ironpython):
@@ -185,17 +195,17 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return val
 
     def _pos_with_arg(self, pos, units=None):
-        posx = self._arg_with_dim(pos[0], units)
+        xpos = self._arg_with_dim(pos[0], units)
         if len(pos) < 2:
-            posy = self._arg_with_dim(0, units)
+            ypos = self._arg_with_dim(0, units)
         else:
-            posy = self._arg_with_dim(pos[1], units)
+            ypos = self._arg_with_dim(pos[1], units)
         if len(pos) < 3:
-            posz = self._arg_with_dim(0, units)
+            zpos = self._arg_with_dim(0, units)
         else:
-            posz = self._arg_with_dim(pos[2], units)
+            zpos = self._arg_with_dim(pos[2], units)
 
-        return posx, posy, posz
+        return xpos, ypos, zpos
 
     @pyaedt_function_handler()
     def change_property(self, property_object, property_name, property_value, property_tab="BaseElementTab"):
@@ -249,14 +259,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 ]
             )
         elif isinstance(property_value, (str, float, int)):
-            posx = self._arg_with_dim(property_value, self.model_units)
+            xpos = self._arg_with_dim(property_value, self.model_units)
             self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
                         "NAME:" + property_tab,
                         ["NAME:PropServers", property_object],
-                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", posx]],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", xpos]],
                     ],
                 ]
             )
@@ -384,6 +394,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 self.arg_with_dim(tolerance),
             ]
         )
+
         return True
 
     @pyaedt_function_handler()
@@ -431,14 +442,13 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         pos = [poly[0].GetX(), poly[0].GetY()]
         geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
         self.oeditor.Expand(self.arg_with_dim(size), expand_type, replace_original, ["NAME:elements", object_to_expand])
+        self._init_prims()
         if not replace_original:
             new_geom_names = [
                 i
                 for i in self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
                 if i not in geom_names
             ]
-            if self.is_outside_desktop:
-                self._geometries[new_geom_names[0]] = Geometries3DLayout(self, new_geom_names[0])
             return new_geom_names[0]
         return object_to_expand
 
@@ -562,13 +572,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             vArg1.append(tool)
         if self.oeditor is not None:
             self.oeditor.Subtract(vArg1)
-        if isinstance(tool, list):
-            for el in tool:
-                if self.is_outside_desktop:
-                    self._geometries.pop(el)
-        else:
-            if self.is_outside_desktop:
-                self._geometries.pop(tool)
+        self._init_prims()
         return True
 
     @pyaedt_function_handler()
@@ -595,10 +599,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             for el in objectlists:
                 vArg1.append(el)
             self.oeditor.Unite(vArg1)
-            for el in objectlists:
-                if not self.oeditor.FindObjects("Name", el):
-                    if self.is_outside_desktop:
-                        self._geometries.pop(el)
+            self._init_prims()
             return True
         else:
             self.logger.error("Input list must contain at least two elements.")
@@ -628,10 +629,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             for el in objectlists:
                 vArg1.append(el)
             self.oeditor.Intersect(vArg1)
-            for el in objectlists:
-                if not self.oeditor.FindObjects("Name", el):
-                    if self.is_outside_desktop:
-                        self._geometries.pop(el)
+            self._init_prims()
             return True
         else:
             self.logger.error("Input list must contain at least two elements.")
@@ -665,6 +663,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.oeditor.Duplicate(
             ["NAME:options", "count:=", count], ["NAME:elements", ",".join(objectlists)], direction_vector
         )
+        self._init_prims()
         return True
 
     @pyaedt_function_handler()
@@ -789,14 +788,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             self.o_model_manager.Add(args)
         if not subcircuit_name:
             subcircuit_name = model_name
-        with open(model_path, "r") as f:
+        with open_file(model_path, "r") as f:
             for line in f:
                 if "subckt" in line.lower():
                     pinNames = [i.strip() for i in re.split(" |\t", line) if i]
                     pinNames.remove(pinNames[0])
                     pinNames.remove(pinNames[0])
                     break
-        componentPins = [i.GetName() for i in self.edb.core_components.get_pin_from_component(component_name)]
+        componentPins = self.components[component_name].pins
         componentPins.reverse()
         if not pin_map:
             pin_map = []
@@ -833,3 +832,24 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.oeditor.UpdateModels(args)
         self.logger.info("Spice Model Correctly assigned to {}.".format(component_name))
         return True
+
+    @pyaedt_function_handler()
+    def clip_plane(self, name=None):
+        """Create a clip plane in Layout.
+
+        .. note::
+            It works only in AEDT from 2022R2.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the clip plane.
+
+        Returns
+        -------
+
+        """
+        if not name:
+            name = generate_unique_name("CS")
+        self.oeditor.ClipPlane(name)
+        return name

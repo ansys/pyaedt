@@ -1,10 +1,12 @@
 # Setup paths for module imports
 from __future__ import division  # noreorder
+
 import math
 
 from _unittest.conftest import BasisTest
-from pyaedt.application.Variables import decompose_variable_value
+from pyaedt import MaxwellCircuit
 from pyaedt.application.Variables import Variable
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.general_methods import isclose
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
@@ -44,15 +46,16 @@ class TestClass(BasisTest, object):
         var = self.aedtapp.variable_manager
         self.aedtapp["Var1"] = "1rpm"
         var_1 = self.aedtapp["Var1"]
-        var_2 = var["Var1"].string_value
+        var_2 = var["Var1"].expression
         assert var_1 == var_2
-        assert var["Var1"].numeric_value == 1.0
+        assert isclose(var["Var1"].numeric_value, 1.0)
         pass
 
     def test_02_test_formula(self):
         self.aedtapp["Var1"] = 3
         self.aedtapp["Var2"] = "12deg"
         self.aedtapp["Var3"] = "Var1 * Var2"
+
         self.aedtapp["$PrjVar1"] = "2*pi"
         self.aedtapp["$PrjVar2"] = 45
         self.aedtapp["$PrjVar3"] = "sqrt(34 * $PrjVar2/$PrjVar1 )"
@@ -76,18 +79,29 @@ class TestClass(BasisTest, object):
         v = self.aedtapp.variable_manager
 
         eval_p3_nom = v._app.get_evaluated_value("p3")
-        eval_p3_var = v._app.get_evaluated_value("p3", variation="p1=100mm p2=20mm")
-        assert eval_p3_nom == 0.0002
-        assert eval_p3_var == 0.002
+        assert isclose(eval_p3_nom, 0.0002)
+        v_app = self.aedtapp.variable_manager
+        assert v_app["p1"].read_only == False
+        v_app["p1"].read_only = True
+        assert v_app["p1"].read_only == True
+        assert v_app["p1"].hidden == False
+        v_app["p1"].hidden = True
+        assert v_app["p1"].hidden == True
+        assert v_app["p2"].description == ""
+        v_app["p2"].description = "myvar"
+        assert v_app["p2"].description == "myvar"
+        assert v_app["p2"].expression == "20mm"
+        v_app["p2"].expression = "5rad"
+        assert v_app["p2"].expression == "5rad"
 
     def test_04_set_variable(self):
 
         assert self.aedtapp.variable_manager.set_variable("p1", expression="10mm")
-        assert self.aedtapp["p1"] == "10.0mm"
+        assert self.aedtapp["p1"] == "10mm"
         assert self.aedtapp.variable_manager.set_variable("p1", expression="20mm", overwrite=False)
-        assert self.aedtapp["p1"] == "10.0mm"
+        assert self.aedtapp["p1"] == "10mm"
         assert self.aedtapp.variable_manager.set_variable("p1", expression="30mm")
-        assert self.aedtapp["p1"] == "30.0mm"
+        assert self.aedtapp["p1"] == "30mm"
         assert self.aedtapp.variable_manager.set_variable(
             variable_name="p2",
             expression="10mm",
@@ -104,7 +118,7 @@ class TestClass(BasisTest, object):
         assert num_value == 4.0
 
         v = v.rescale_to("meter")
-        test = v.string_value
+        test = v.evaluated_value
         assert v.numeric_value == 0.004
 
         v = Variable("100cel")
@@ -264,7 +278,7 @@ class TestClass(BasisTest, object):
         t = Variable("20s")
         distance = v * t
         assert distance.unit_system == "Length"
-        assert distance.string_value == "2000.0meter"
+        assert distance.evaluated_value == "2000.0meter"
         distance.rescale_to("in")
         assert isclose(distance.numeric_value, 2000 / 0.0254)
 
@@ -342,5 +356,127 @@ class TestClass(BasisTest, object):
         assert v1
         assert not self.aedtapp.variable_manager.set_variable("test2", "v1+1")
         assert self.aedtapp.variable_manager.set_variable("test2", "test_post1+1", postprocessing=True)
-        x1 = GeometryOperators.parse_dim_arg(self.aedtapp["test2"], variable_manager=self.aedtapp.variable_manager)
+        x1 = GeometryOperators.parse_dim_arg(
+            self.aedtapp.variable_manager["test2"].evaluated_value, variable_manager=self.aedtapp.variable_manager
+        )
         assert x1 == 11
+
+    def test_14_intrinsics(self):
+        self.aedtapp["fc"] = "Freq"
+        assert self.aedtapp["fc"] == "Freq"
+        assert self.aedtapp.variable_manager.dependent_variables["fc"].numeric_value == 1e9
+
+    def test_15_arrays(self):
+        self.aedtapp["arr_index"] = 0
+        self.aedtapp["arr1"] = "[1, 2, 3]"
+        self.aedtapp["arr2"] = [1, 2, 3]
+        self.aedtapp["getvalue1"] = "arr1[arr_index]"
+        self.aedtapp["getvalue2"] = "arr2[arr_index]"
+        assert self.aedtapp.variable_manager["getvalue1"].numeric_value == 1.0
+        assert self.aedtapp.variable_manager["getvalue2"].numeric_value == 1.0
+
+    def test_16_maxwell_circuit_variables(self):
+        mc = MaxwellCircuit()
+        mc["var2"] = "10mm"
+        assert mc["var2"] == "10mm"
+        v_circuit = mc.variable_manager
+        var_circuit = v_circuit.variable_names
+        assert "var2" in var_circuit
+        assert v_circuit.independent_variables["var2"].units == "mm"
+        mc["var3"] = "10deg"
+        mc["var4"] = "10rad"
+        assert mc["var3"] == "10deg"
+        assert mc["var4"] == "10rad"
+
+    def test_17_project_sweep_variable(self):
+        self.aedtapp["$my_proj_test"] = "1mm"
+        self.aedtapp["$my_proj_test2"] = 2
+        self.aedtapp["$my_proj_test3"] = "$my_proj_test*$my_proj_test2"
+        assert self.aedtapp.variable_manager["$my_proj_test3"].units == "mm"
+        assert self.aedtapp.variable_manager["$my_proj_test3"].numeric_value == 2.0
+        self.aedtapp.materials.add_material_sweep(["copper", "aluminum"], "sweep_alu")
+        assert "$sweep_alupermittivity" in self.aedtapp.variable_manager.dependent_variables
+
+    def test_18_test_optimization_properties(self):
+        var = "v1"
+        self.aedtapp[var] = "10mm"
+
+        v = self.aedtapp.variable_manager
+        assert not v[var].is_optimization_enabled
+        v[var].is_optimization_enabled = True
+        assert v[var].is_optimization_enabled
+        assert v[var].optimization_min_value == "5mm"
+        v[var].optimization_min_value = "4mm"
+        assert v[var].optimization_min_value == "4mm"
+        assert v[var].optimization_max_value == "15mm"
+        v[var].optimization_max_value = "14mm"
+        assert v[var].optimization_max_value == "14mm"
+        assert not v[var].is_tuning_enabled
+        v[var].is_tuning_enabled = True
+        assert v[var].is_tuning_enabled
+        assert v[var].tuning_min_value == "5mm"
+        v[var].tuning_min_value = "4mm"
+        assert v[var].tuning_min_value == "4mm"
+        assert v[var].tuning_max_value == "15mm"
+        v[var].tuning_max_value = "14mm"
+        assert v[var].tuning_max_value == "14mm"
+        assert v[var].tuning_step_value == "1mm"
+        v[var].tuning_step_value = "0.5mm"
+        assert v[var].tuning_step_value == "0.5mm"
+        assert not v[var].is_statistical_enabled
+        v[var].is_statistical_enabled = True
+        assert v[var].is_statistical_enabled
+        assert not v[var].is_sensitivity_enabled
+        v[var].is_sensitivity_enabled = True
+        assert v[var].is_sensitivity_enabled
+        assert v[var].sensitivity_min_value == "5mm"
+        v[var].sensitivity_min_value = "4mm"
+        assert v[var].sensitivity_min_value == "4mm"
+        assert v[var].sensitivity_max_value == "15mm"
+        v[var].sensitivity_max_value = "14mm"
+        assert v[var].sensitivity_max_value == "14mm"
+        assert v[var].sensitivity_initial_disp == "1mm"
+        v[var].sensitivity_initial_disp = "0.5mm"
+        assert v[var].sensitivity_initial_disp == "0.5mm"
+
+    def test_19_test_optimization_global_properties(self):
+
+        var = "$v1"
+        self.aedtapp[var] = "10mm"
+        v = self.aedtapp.variable_manager
+        assert not v[var].is_optimization_enabled
+        v[var].is_optimization_enabled = True
+        assert v[var].is_optimization_enabled
+        assert v[var].optimization_min_value == "5mm"
+        v[var].optimization_min_value = "4mm"
+        assert v[var].optimization_min_value == "4mm"
+        assert v[var].optimization_max_value == "15mm"
+        v[var].optimization_max_value = "14mm"
+        assert v[var].optimization_max_value == "14mm"
+        assert not v[var].is_tuning_enabled
+        v[var].is_tuning_enabled = True
+        assert v[var].is_tuning_enabled
+        assert v[var].tuning_min_value == "5mm"
+        v[var].tuning_min_value = "4mm"
+        assert v[var].tuning_min_value == "4mm"
+        assert v[var].tuning_max_value == "15mm"
+        v[var].tuning_max_value = "14mm"
+        assert v[var].tuning_max_value == "14mm"
+        assert v[var].tuning_step_value == "1mm"
+        v[var].tuning_step_value = "0.5mm"
+        assert v[var].tuning_step_value == "0.5mm"
+        assert not v[var].is_statistical_enabled
+        v[var].is_statistical_enabled = True
+        assert v[var].is_statistical_enabled
+        assert not v[var].is_sensitivity_enabled
+        v[var].is_sensitivity_enabled = True
+        assert v[var].is_sensitivity_enabled
+        assert v[var].sensitivity_min_value == "5mm"
+        v[var].sensitivity_min_value = "4mm"
+        assert v[var].sensitivity_min_value == "4mm"
+        assert v[var].sensitivity_max_value == "15mm"
+        v[var].sensitivity_max_value = "14mm"
+        assert v[var].sensitivity_max_value == "14mm"
+        assert v[var].sensitivity_initial_disp == "1mm"
+        v[var].sensitivity_initial_disp = "0.5mm"
+        assert v[var].sensitivity_initial_disp == "0.5mm"

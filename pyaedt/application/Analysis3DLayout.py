@@ -55,6 +55,9 @@ class FieldAnalysis3DLayout(Analysis):
     student_version : bool, optional
         Whether to enable the student version of AEDT. The default
         is ``False``.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     """
 
@@ -70,6 +73,9 @@ class FieldAnalysis3DLayout(Analysis):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
+        aedt_process_id=None,
     ):
         Analysis.__init__(
             self,
@@ -83,50 +89,16 @@ class FieldAnalysis3DLayout(Analysis):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
+            aedt_process_id,
         )
-        self._osolution = self._odesign.GetModule("SolveSetups")
-        self._oexcitation = self._odesign.GetModule("Excitations")
-        self._oboundary = self._odesign.GetModule("Excitations")
         self.logger.info("Analysis Loaded")
         self._modeler = Modeler3DLayout(self)
-        self._modeler.init_padstacks()
         self.logger.info("Modeler Loaded")
         self._mesh = Mesh3d(self)
         self._post = PostProcessor(self)
         # self._post = PostProcessor(self)
-
-    @property
-    def osolution(self):
-        """Solution Module.
-
-        References
-        ----------
-
-        >>> oModule = oDesign.GetModule("SolveSetups")
-        """
-        return self._osolution
-
-    @property
-    def oexcitation(self):
-        """Solution Module.
-
-        References
-        ----------
-
-        >>> oModule = oDesign.GetModule("Excitations")
-        """
-        return self._oexcitation
-
-    @property
-    def oboundary(self):
-        """Boundary Module.
-
-        References
-        ----------
-
-        >>> oModule = oDesign.GetModule("Excitations")
-        """
-        return self._oboundary
 
     @property
     def mesh(self):
@@ -441,7 +413,7 @@ class FieldAnalysis3DLayout(Analysis):
         if props:
             for el in props:
                 setup.props[el] = props[el]
-        setup.update()
+            setup.update()
         self.analysis_setup = name
         self.setups.append(setup)
         return setup

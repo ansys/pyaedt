@@ -1,30 +1,32 @@
 """
-Sbr+: HFSS to SBR+ Coupling
+SBR+: HFSS to SBR+ coupling
 ---------------------------
-This example shows how you can use PyAEDT to create an SBR+ project from Hfss
-antenna and run a simulation.
+This example shows how you can use PyAEDT to create an SBR+ project from an
+HFSS antenna and run a simulation.
 """
 ###############################################################################
-# Import Packages
+# Import packages
 # ~~~~~~~~~~~~~~~
-# This example sets up the local path to the path for the ``PyAEDT`` directory.
+# Import packages and set up the local path to the path for the ``PyAEDT``
+# directory.
 
 import os
-import tempfile
-from pyaedt import examples, generate_unique_name
-
-project_full_name = examples.download_sbr()
-project_name = os.path.basename(project_full_name)[:-5]
-tmpfold = tempfile.gettempdir()
-
-
-temp_folder = os.path.join(tmpfold, generate_unique_name("SBR"))
-if not os.path.exists(temp_folder):
-    os.mkdir(temp_folder)
+from pyaedt import examples, generate_unique_project_name
 from pyaedt import Hfss
 
+project_full_name = examples.download_sbr(generate_unique_project_name(project_name="sbr_freq"))
+
+
+##########################################################
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
 ###############################################################################
-# Define Designs
+# Define designs
 # ~~~~~~~~~~~~~~
 # Define two designs, one source and one target, with each one connected to
 # a different object.
@@ -33,53 +35,54 @@ target = Hfss(
     projectname=project_full_name,
     designname="Cassegrain_",
     solution_type="SBR+",
-    specified_version="2022.1",
+    specified_version="2022.2",
     new_desktop_session=True,
+    non_graphical=non_graphical
 )
-target.save_project(os.path.join(temp_folder, project_name + ".aedt"))
-source = Hfss(projectname=project_name, designname="feeder", specified_version="2022.1", new_desktop_session=False)
+source = Hfss(projectname=target.project_name, designname="feeder", specified_version="2022.2", new_desktop_session=False)
 
 ###############################################################################
-# Define a Linked Antenna
+# Define linked antenna
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# This is HFSS Far Field applied to SBR+.
+# Define a linked antenna. This is HFSS far field applied to SBR+.
 
 target.create_sbr_linked_antenna(source, target_cs="feederPosition", fieldtype="farfield")
 
 ###############################################################################
-# Assign Boundaries
+# Assign boundaries
 # ~~~~~~~~~~~~~~~~~
-# These commands assign boundaries.
+# Assign boundaries.
 
 target.assign_perfecte_to_sheets(["Reflector", "Subreflector"])
 target.mesh.assign_curvilinear_elements(["Reflector", "Subreflector"])
 
 
 ###############################################################################
-# Plot the model
-# ~~~~~~~~~~~~~~
+# Plot model
+# ~~~~~~~~~~
+# Plot the model.
 
 source.plot(show=False, export_path=os.path.join(target.working_directory, "Image.jpg"), plot_air_objects=True)
 
 
 ###############################################################################
-# Create a Setup and Solve
+# Create setup and solve
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates a setup and then solves it.
+# Create a setup and solve it.
 
 setup1 = target.create_setup()
 setup1.props["RadiationSetup"] = "ATK_3D"
 setup1.props["ComputeFarFields"] = True
 setup1.props["RayDensityPerWavelength"] = 2
 setup1.props["MaxNumberOfBounces"] = 3
-setup1.props["Sweeps"]["Sweep"]["RangeType"] = "SinglePoints"
-setup1.props["Sweeps"]["Sweep"]["RangeStart"] = "10GHz"
+setup1["RangeType"] = "SinglePoints"
+setup1["RangeStart"] = "10GHz"
 target.analyze_nominal()
 
 ###############################################################################
-# Plot Results
+# Plot results
 # ~~~~~~~~~~~~
-# This example plots results.
+# Plot results.
 
 variations = target.available_variations.nominal_w_values_dict
 variations["Freq"] = ["10GHz"]
@@ -95,9 +98,9 @@ target.post.create_report(
 )
 
 ###############################################################################
-# Plot Results Outside Electronics Desktop
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example plots results using matplotlib.
+# Plot results outside AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# Plot results using Matplotlib.
 
 solution = target.post.get_solution_data(
     "GainTotal",
@@ -111,9 +114,9 @@ solution.plot()
 
 
 ###############################################################################
-# Close and Exit Example
-# ~~~~~~~~~~~~~~~~~~~~~~
-# Release desktop and close example.
+# Release AEDT
+# ~~~~~~~~~~~~
+# Release AEDT and close the example.
 
 if os.name != "posix":
     target.release_desktop()

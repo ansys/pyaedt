@@ -21,11 +21,12 @@ from collections import OrderedDict
 
 from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
+from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import MILS2METER
 from pyaedt.generic.general_methods import is_ironpython
-from pyaedt import settings
+from pyaedt.generic.general_methods import open_file
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
@@ -368,7 +369,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
     def __init__(self, object3d, objid):
         self.id = objid
         self._object3d = object3d
-        self._oeditor = object3d.m_Editor
+        self.oeditor = object3d.m_Editor
 
     @property
     def position(self):
@@ -388,7 +389,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
 
         """
         try:
-            vertex_data = list(self._oeditor.GetVertexPosition(self.id))
+            vertex_data = list(self.oeditor.GetVertexPosition(self.id))
             return [float(i) for i in vertex_data]
         except Exception as e:
             return None
@@ -415,7 +416,49 @@ class EdgePrimitive(EdgeTypePrimitive, object):
     def __init__(self, object3d, edge_id):
         self.id = edge_id
         self._object3d = object3d
-        self._oeditor = object3d.m_Editor
+        self.oeditor = object3d.m_Editor
+
+    @property
+    def segment_info(self):
+        """Compute segment information using the object-oriented method (from AEDT 2021 R2
+        with beta options). The method manages segment info for lines, circles and ellipse
+        providing information about all of those.
+
+
+        Returns
+        -------
+            list
+                Segment info if available."""
+        try:
+            self.oeditor.GetChildNames()
+        except:  # pragma: no cover
+            return {}
+        ll = list(self.oeditor.GetObjectsInGroup("Lines"))
+        self.oeditor.CreateObjectFromEdges(
+            ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "NonModel"],
+            ["NAME:Parameters", ["NAME:BodyFromEdgeToParameters", "Edges:=", [self.id]]],
+            ["CreateGroupsForNewObjects:=", False],
+        )
+        new_line = [i for i in list(self.oeditor.GetObjectsInGroup("Lines")) if i not in ll]
+        self.oeditor.GenerateHistory(
+            ["NAME:Selections", "Selections:=", new_line[0], "NewPartsModelFlag:=", "NonModel", "UseCurrentCS:=", True]
+        )
+        oo = self.oeditor.GetChildObject(new_line[0])
+        segment = {}
+        if len(self.vertices) == 2:
+            oo1 = oo.GetChildObject(oo.GetChildNames()[0]).GetChildObject("Segment0")
+        else:
+            oo1 = oo.GetChildObject(oo.GetChildNames()[0])
+        for prop in oo1.GetPropNames():
+            if "/" not in prop:
+                val = oo1.GetPropValue(prop)
+                if "X:=" in val and len(val) == 6:
+                    segment[prop] = [val[1], val[3], val[5]]
+                else:
+                    segment[prop] = val
+        self._object3d._primitives._odesign.Undo()
+        self._object3d._primitives._odesign.Undo()
+        return segment
 
     @property
     def vertices(self):
@@ -433,7 +476,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
         """
         vertices = []
-        for vertex in self._oeditor.GetVertexIDsFromEdge(self.id):
+        for vertex in self.oeditor.GetVertexIDsFromEdge(self.id):
             vertex = int(vertex)
             vertices.append(VertexPrimitive(self._object3d, vertex))
         return vertices
@@ -476,10 +519,9 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         >>> oEditor.GetVertexPosition
 
         """
-        if len(self.vertices) == 2:
-            length = GeometryOperators.points_distance(self.vertices[0].position, self.vertices[1].position)
-            return float(length)
-        else:
+        try:
+            return float(self.oeditor.GetEdgeLength(self.id))
+        except:
             return False
 
     def __repr__(self):
@@ -487,6 +529,48 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
     def __str__(self):
         return "EdgeId " + str(self.id)
+
+    @pyaedt_function_handler()
+    def create_object(self):
+        """Return A new object from the selected edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateObjectFromEdges
+        """
+        return self._object3d._primitives.create_object_from_edge(self)
+
+    @pyaedt_function_handler()
+    def move_along_normal(self, offset=1.0):
+        """Move this edge.
+        This method moves an edge which belong to the same solid.
+
+        Parameters
+        ----------
+        offset : float, optional
+             Offset to apply in model units. The default is ``1.0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.MoveEdges
+
+        """
+        if self._object3d.object_type == "Solid":
+            self._object3d.logger.error("Edge Movement applies only to 2D objects.")
+            return False
+        return self._object3d._primitives.move_edge(self, offset)
 
 
 class FacePrimitive(object):
@@ -510,7 +594,8 @@ class FacePrimitive(object):
         self._object3d = object3d
 
     @property
-    def _oeditor(self):
+    def oeditor(self):
+        """Oeditor Module."""
         return self._object3d.m_Editor
 
     @property
@@ -521,6 +606,32 @@ class FacePrimitive(object):
     @property
     def _units(self):
         return self._object3d.object_units
+
+    @property
+    def touching_objects(self):
+        """Get the objects that touch one of the vertex, edge midpoint or the actual face.
+
+        Returns
+        -------
+        list
+            Object names touching that face.
+        """
+        list_names = []
+        for vertex in self.vertices:
+            body_names = self._object3d._primitives.get_bodynames_from_position(vertex.position)
+            a = [i for i in body_names if i != self._object3d.name and i not in list_names]
+            if a:
+                list_names.extend(a)
+        for edge in self.edges:
+            body_names = self._object3d._primitives.get_bodynames_from_position(edge.midpoint)
+            a = [i for i in body_names if i != self._object3d.name and i not in list_names]
+            if a:
+                list_names.extend(a)
+        body_names = self._object3d._primitives.get_bodynames_from_position(self.center)
+        a = [i for i in body_names if i != self._object3d.name and i not in list_names]
+        if a:
+            list_names.extend(a)
+        return list_names
 
     @property
     def edges(self):
@@ -538,7 +649,7 @@ class FacePrimitive(object):
 
         """
         edges = []
-        for edge in list(self._oeditor.GetEdgeIDsFromFace(self.id)):
+        for edge in list(self.oeditor.GetEdgeIDsFromFace(self.id)):
             edges.append(EdgePrimitive(self._object3d, int(edge)))
         return edges
 
@@ -558,7 +669,7 @@ class FacePrimitive(object):
 
         """
         vertices = []
-        for vertex in list(self._oeditor.GetVertexIDsFromFace(self.id)):
+        for vertex in list(self.oeditor.GetVertexIDsFromFace(self.id)):
             vertex = int(vertex)
             vertices.append(VertexPrimitive(self._object3d, int(vertex)))
         return vertices
@@ -584,7 +695,7 @@ class FacePrimitive(object):
 
         """
         try:
-            c = self._oeditor.GetFaceCenter(self.id)
+            c = self.oeditor.GetFaceCenter(self.id)
         except:
             self.logger.warning("Non-planar face does not provide a face center.")
             return False
@@ -601,7 +712,7 @@ class FacePrimitive(object):
         """
 
         try:
-            self._oeditor.GetFaceCenter(self.id)
+            self.oeditor.GetFaceCenter(self.id)
             return True
         except:
             return False
@@ -650,8 +761,109 @@ class FacePrimitive(object):
         >>> oEditor.GetFaceArea
 
         """
-        area = self._oeditor.GetFaceArea(self.id)
+        area = self.oeditor.GetFaceArea(self.id)
         return area
+
+    @property
+    def top_edge_z(self):
+        """Top edge in the Z direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        References
+        ----------
+
+        >>> oEditor.FaceCenter
+
+        """
+        try:
+            result = [(float(edge.midpoint[2]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_z(self):
+        """Bottom edge in the Z direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(edge.midpoint[2]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
+
+    @property
+    def top_edge_x(self):
+        """Top edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(edge.midpoint[0]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_x(self):
+        """Bottom edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(edge.midpoint[0]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
+
+    @property
+    def top_edge_y(self):
+        """Top edge in the Y direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(edge.midpoint[1]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_y(self):
+        """Bottom edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(edge.midpoint[1]), edge) for edge in self.edges]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
 
     @pyaedt_function_handler()
     def is_on_bounding(self, tol=1e-9):
@@ -667,7 +879,7 @@ class FacePrimitive(object):
         bool
             `True` if the face is on bounding box. `False` otherwise.
         """
-        b = [float(i) for i in list(self._oeditor.GetModelBoundingBox())]
+        b = [float(i) for i in list(self.oeditor.GetModelBoundingBox())]
         c = self.center
         if (
             abs(c[0] - b[0]) < tol
@@ -700,7 +912,7 @@ class FacePrimitive(object):
         >>> oEditor.MoveFaces
 
         """
-        self._oeditor.MoveFaces(
+        self.oeditor.MoveFaces(
             ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"],
             [
                 "NAME:Parameters",
@@ -743,7 +955,7 @@ class FacePrimitive(object):
         >>> oEditor.MoveFaces
 
         """
-        self._oeditor.MoveFaces(
+        self.oeditor.MoveFaces(
             ["NAME:Selections", "Selections:=", self._object3d.name, "NewPartsModelFlag:=", "Model"],
             [
                 "NAME:Parameters",
@@ -828,6 +1040,22 @@ class FacePrimitive(object):
         else:
             return inv_norm
 
+    @pyaedt_function_handler()
+    def create_object(self):
+        """Return A new object from the selected face.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateObjectFromFaces
+        """
+        return self._object3d._primitives.create_object_from_face(self)
+
 
 class Object3d(object):
     """Manages object attributes for the AEDT 3D Modeler.
@@ -880,6 +1108,8 @@ class Object3d(object):
         self._model = None
         self._m_groupName = None
         self._object_type = None
+        self._mass = 0.0
+        self._volume = 0.0
 
     @pyaedt_function_handler()
     def _bounding_box_unmodel(self):
@@ -944,7 +1174,7 @@ class Object3d(object):
         if not os.path.isfile(filename):
             raise Exception("Cannot export the ACIS SAT file for object {}".format(self.name))
 
-        with open(filename, "r") as fh:
+        with open_file(filename, "r") as fh:
             temp = fh.read().splitlines()
         all_lines = [s for s in temp if s.startswith("body ")]
 
@@ -988,6 +1218,8 @@ class Object3d(object):
         >>> oEditor.GetModelBoundingBox
 
         """
+        if self.object_type == "Unclassified":
+            return [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         if not self._primitives._app.student_version:
             bounding = self._bounding_box_sat()
             if bounding:
@@ -1028,9 +1260,6 @@ class Object3d(object):
     def plot(self, show=True):
         """Plot model with PyVista.
 
-        .. note::
-        Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
-
         Parameters
         ----------
         show : bool, optional
@@ -1040,6 +1269,10 @@ class Object3d(object):
         -------
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
+
+        Notes
+        -----
+        Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
         """
         if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
             return self._primitives._app.post.plot_model_obj(
@@ -1082,6 +1315,29 @@ class Object3d(object):
         return False
 
     @property
+    def touching_objects(self):
+        """Get the objects that touch one of the vertex, edge midpoint or face of the object."""
+        if self.object_type == "Unclassified":
+            return []
+        list_names = []
+        for vertex in self.vertices:
+            body_names = self._primitives.get_bodynames_from_position(vertex.position)
+            a = [i for i in body_names if i != self.name and i not in list_names]
+            if a:
+                list_names.extend(a)
+        for edge in self.edges:
+            body_names = self._primitives.get_bodynames_from_position(edge.midpoint)
+            a = [i for i in body_names if i != self.name and i not in list_names]
+            if a:
+                list_names.extend(a)
+        for face in self.faces:
+            body_names = self._primitives.get_bodynames_from_position(face.center)
+            a = [i for i in body_names if i != self.name and i not in list_names]
+            if a:
+                list_names.extend(a)
+        return list_names
+
+    @property
     def faces(self):
         """Information for each face in the given part.
 
@@ -1095,6 +1351,8 @@ class Object3d(object):
         >>> oEditor.GetFaceIDs
 
         """
+        if self.object_type == "Unclassified":
+            return []
         faces = []
         for face in list(self.m_Editor.GetFaceIDs(self.name)):
             face = int(face)
@@ -1107,13 +1365,104 @@ class Object3d(object):
 
         Returns
         -------
-        list
+        List of :class:`pyaedt.modeler.Object3d.FacePrimitive`
         """
         f_list = []
         for face in self.faces:
             if face.is_on_bounding():
-                f_list.append(face.id)
+                f_list.append(face)
         return f_list
+
+    @property
+    def face_closest_to_bounding_box(self):
+        """Return only the face ids of the face closest to the bounding box.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        """
+        b = [float(i) for i in list(self.m_Editor.GetModelBoundingBox())]
+        f_id = None
+        f_val = None
+        for face in self.faces:
+            c = face.center
+            p_dist = min(
+                [
+                    abs(c[0] - b[0]),
+                    abs(c[1] - b[1]),
+                    abs(c[2] - b[2]),
+                    abs(c[0] - b[3]),
+                    abs(c[1] - b[4]),
+                    abs(c[2] - b[5]),
+                ]
+            )
+
+            if f_val and p_dist < f_val or not f_val:
+                f_id = face
+                f_val = p_dist
+        return f_id
+
+    @pyaedt_function_handler()
+    def largest_face(self, n=1):
+        """Return only the face with the greatest area.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        """
+        f = []
+        for face in self.faces:
+            f.append((face.area, face))
+        f.sort(key=lambda tup: tup[0], reverse=True)
+        f_sorted = [x for y, x in f]
+        return f_sorted[:n]
+
+    @pyaedt_function_handler()
+    def longest_edge(self, n=1):
+        """Return only the edge with the greatest length.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+        """
+        e = []
+        for edge in self.edges:
+            e.append((edge.length, edge))
+        e.sort(key=lambda tup: tup[0], reverse=True)
+        e_sorted = [x for y, x in e]
+        return e_sorted[:n]
+
+    @pyaedt_function_handler()
+    def smallest_face(self, n=1):
+        """Return only the face with the smallest area.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        """
+        f = []
+        for face in self.faces:
+            f.append((face.area, face))
+        f.sort(key=lambda tup: tup[0])
+        f_sorted = [x for y, x in f]
+        return f_sorted[:n]
+
+    @pyaedt_function_handler()
+    def shortest_edge(self, n=1):
+        """Return only the edge with the smallest length.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+        """
+        e = []
+        for edge in self.edges:
+            e.append((edge.length, edge))
+        e.sort(
+            key=lambda tup: tup[0],
+        )
+        e_sorted = [x for y, x in e]
+        return e_sorted[:n]
 
     @property
     def top_face_z(self):
@@ -1242,6 +1591,107 @@ class Object3d(object):
             return None
 
     @property
+    def top_edge_z(self):
+        """Top edge in the Z direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        References
+        ----------
+
+        >>> oEditor.FaceCenter
+
+        """
+        try:
+            result = [(float(face.top_edge_z.midpoint[2]), face.top_edge_z) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_z(self):
+        """Bottom edge in the Z direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(face.bottom_edge_z.midpoint[2]), face.bottom_edge_z) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
+
+    @property
+    def top_edge_x(self):
+        """Top edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(face.top_edge_x.midpoint[0]), face.top_edge_x) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_x(self):
+        """Bottom edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(face.bottom_edge_x.midpoint[0]), face.bottom_edge_x) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
+
+    @property
+    def top_edge_y(self):
+        """Top edge in the Y direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(face.top_edge_y.midpoint[1]), face.top_edge_y) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[-1][1]
+        except:
+            return None
+
+    @property
+    def bottom_edge_y(self):
+        """Bottom edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+
+        """
+        try:
+            result = [(float(face.bottom_edge_y.midpoint[1]), face.bottom_edge_y) for face in self.faces]
+            result = sorted(result, key=lambda tup: tup[0])
+            return result[0][1]
+        except:
+            return None
+
+    @property
     def edges(self):
         """Information for each edge in the given part.
 
@@ -1255,6 +1705,8 @@ class Object3d(object):
         >>> oEditor.GetEdgeIDsFromObject
 
         """
+        if self.object_type == "Unclassified":
+            return []
         edges = []
         for edge in self._primitives.get_object_edges(self.name):
             edge = int(edge)
@@ -1275,6 +1727,8 @@ class Object3d(object):
         >>> oEditor.GetVertexIDsFromObject
 
         """
+        if self.object_type == "Unclassified":
+            return []
         vertices = []
         for vertex in self._primitives.get_object_vertices(self.name):
             vertex = int(vertex)
@@ -1292,7 +1746,7 @@ class Object3d(object):
         oEditor COM Object
 
         """
-        return self._primitives._oeditor
+        return self._primitives.oeditor
 
     @property
     def logger(self):
@@ -1430,12 +1884,14 @@ class Object3d(object):
 
     @material_name.setter
     def material_name(self, mat):
-        if self._primitives._materials.checkifmaterialexists(mat):
+        matobj = self._primitives._materials.checkifmaterialexists(mat)
+        if matobj:
             if not self.model:
                 self.model = True
-            vMaterial = ["NAME:Material", "Value:=", chr(34) + mat + chr(34)]
+            vMaterial = ["NAME:Material", "Value:=", chr(34) + matobj.name + chr(34)]
             self._change_property(vMaterial)
-            self._material_name = mat.lower()
+            self._material_name = matobj.name.lower()
+            self._solve_inside = None
         else:
             self.logger.warning("Material %s does not exist.", mat)
 
@@ -1468,8 +1924,8 @@ class Object3d(object):
         """
         if not self._id:
             try:
-                self._id = self._primitives._oeditor.GetObjectIDByName(self._m_name)
-            except Exception as e:
+                self._id = self._primitives.oeditor.GetObjectIDByName(self._m_name)
+            except:
                 return None
         return self._id
 
@@ -1516,6 +1972,56 @@ class Object3d(object):
             return False
 
     @property
+    def mass(self):
+        """Object mass.
+
+        Returns
+        -------
+        float or None
+            Mass of the object when successful, 0.0 otherwise. Mass of the volume in kg since AEDT mass density is
+            always in kg/m^3
+
+        References
+        ----------
+
+        >>> oEditor.GetObjectVolume
+
+        """
+        if self.model and self.material_name:
+            volume = self._primitives.oeditor.GetObjectVolume(self._m_name)
+            units = self.object_units
+            mass_density = (
+                float(self._primitives._materials[self.material_name].mass_density.value)
+                * float(volume)
+                * float(AEDT_UNITS["Length"][str(units)]) ** 3
+            )
+            self._mass = mass_density
+        else:
+            self._mass = 0.0
+        return self._mass
+
+    @property
+    def volume(self):
+        """Object volume.
+
+        Returns
+        -------
+        float
+            Volume of the object when successful, 0.0 otherwise.
+
+        References
+        ----------
+
+        >>> oEditor.GetObjectVolume
+
+        """
+        if self.object_type == "Solid":
+            self._volume = float(self._primitives.oeditor.GetObjectVolume(self._m_name))
+        else:
+            self._volume = 0.0
+        return self._volume
+
+    @property
     def name(self):
         """Name of the object as a string value.
 
@@ -1546,7 +2052,7 @@ class Object3d(object):
                 vPropServers.append(self._m_name)
                 vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
                 vOut = ["NAME:AllTabs", vGeo3d]
-                _retry_ntimes(10, self._primitives._oeditor.ChangeProperty, vOut)
+                _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, vOut)
                 self._m_name = obj_name
                 self._primitives.cleanup_objects()
         else:
@@ -1700,7 +2206,7 @@ class Object3d(object):
         >>> oEditor.ChangeProperty
 
         """
-        if self._part_coordinate_system is not None:
+        if self._part_coordinate_system is not None and not isinstance(self._part_coordinate_system, int):
             return self._part_coordinate_system
         if "Orientation" in self.valid_properties:
             self._part_coordinate_system = _retry_ntimes(
@@ -1866,15 +2372,18 @@ class Object3d(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pyaedt.modeler.Object3d.Object3d, bool
+            3D object.
+            ``False`` when failed.
 
         References
         ----------
 
         >>> oEditor.Mirror
         """
-        return self._primitives.modeler.mirror(self.id, position=position, vector=vector)
+        if self._primitives.modeler.mirror(self.id, position=position, vector=vector):
+            return self
+        return False
 
     @pyaedt_function_handler()
     def rotate(self, cs_axis, angle=90.0, unit="deg"):
@@ -1893,15 +2402,18 @@ class Object3d(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pyaedt.modeler.Object3d.Object3d, bool
+            3D object.
+            ``False`` when failed.
 
         References
         ----------
 
         >>> oEditor.Rotate
         """
-        return self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit)
+        if self._primitives.modeler.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit):
+            return self
+        return False
 
     @pyaedt_function_handler()
     def move(self, vector):
@@ -1917,14 +2429,17 @@ class Object3d(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pyaedt.modeler.Object3d.Object3d, bool
+            3D object.
+            ``False`` when failed.
 
         References
         ----------
         >>> oEditor.Move
         """
-        return self._primitives.modeler.move(self.id, vector=vector)
+        if self._primitives.modeler.move(self.id, vector=vector):
+            return self
+        return False
 
     def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
         """Duplicate the object around the axis.
@@ -1964,10 +2479,10 @@ class Object3d(object):
         ----------
         vector : list
             List of ``[x1 ,y1, z1]`` coordinates for the vector or the Application.Position object.
-        attachObject : bool, optional
-            Whether to attach the object. The default is ``False``.
         nclones : int, optional
             Number of clones. The default is ``2``.
+        attachObject : bool, optional
+            Whether to attach the object. The default is ``False``.
 
         Returns
         -------
@@ -2186,6 +2701,93 @@ class Object3d(object):
         self.__dict__ = {}
 
     @pyaedt_function_handler()
+    def faces_by_area(self, area, area_filter="==", tolerance=1e-12):
+        """Filter faces by area.
+
+        Parameters
+        ----------
+        area : float
+            Value of the area to filter in model units.
+        area_filter : str, optional
+            Comparer symbol.
+            Default value is "==".
+        tolerance : float, optional
+            tolerance for comparison.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d.FacePrimitive`
+            list of face primitives.
+        """
+
+        filters = ["==", "<=", ">=", "<", ">"]
+        if area_filter not in filters:
+            raise ValueError('Symbol not valid, enter one of the following: "==", "<=", ">=", "<", ">"')
+
+        faces = []
+        for face in self.faces:
+            if area_filter == "==":
+                if abs(face.area - area) < tolerance:
+                    faces.append(face)
+            if area_filter == ">=":
+                if (face.area - area) >= -tolerance:
+                    faces.append(face)
+            if area_filter == "<=":
+                if (face.area - area) <= tolerance:
+                    faces.append(face)
+            if area_filter == ">":
+                if (face.area - area) > 0:
+                    faces.append(face)
+            if area_filter == "<":
+                if (face.area - area) < 0:
+                    faces.append(face)
+
+        return faces
+
+    @pyaedt_function_handler()
+    def edges_by_length(self, length, length_filter="==", tolerance=1e-12):
+        """Filter edges by length.
+
+        Parameters
+        ----------
+        length : float
+            Value of the length to filter.
+        length_filter : str, optional
+            Comparer symbol.
+            Default value is "==".
+        tolerance : float, optional
+            tolerance for comparison.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+            list of edge primitives.
+        """
+        filters = ["==", "<=", ">=", "<", ">"]
+        if length_filter not in filters:
+            raise ValueError('Symbol not valid, enter one of the following: "==", "<=", ">=", "<", ">"')
+
+        edges = []
+        for edge in self.edges:
+            if length_filter == "==":
+                if abs(edge.length - length) < tolerance:
+                    edges.append(edge)
+            if length_filter == ">=":
+                if (edge.length - length) >= -tolerance:
+                    edges.append(edge)
+            if length_filter == "<=":
+                if (edge.length - length) <= tolerance:
+                    edges.append(edge)
+            if length_filter == ">":
+                if (edge.length - length) > 0:
+                    edges.append(edge)
+            if length_filter == "<":
+                if (edge.length - length) < 0:
+                    edges.append(edge)
+
+        return edges
+
+    @pyaedt_function_handler()
     def _change_property(self, vPropChange):
         return self._primitives._change_geometry_property(vPropChange, self._m_name)
 
@@ -2298,11 +2900,6 @@ class Padstack(object):
         def antipad(self):
             """Antipad."""
             return self._antipad
-
-        @property
-        def thermal(self):
-            """Thermal."""
-            return self._thermal
 
         @pad.setter
         def pad(self, value=None):
@@ -2638,13 +3235,15 @@ class CircuitPins(object):
         return ""
 
     @pyaedt_function_handler()
-    def connect_to_component(self, component_pin):
+    def connect_to_component(self, component_pin, page_name=None):
         """Connect schematic components.
 
         Parameters
         ----------
         component_pin : :class:`pyaedt.modeler.PrimitivesNexxim.CircuitPins`
            Component Pin to attach
+        name : str, optional
+            page port name.
 
         Returns
         -------
@@ -2661,9 +3260,10 @@ class CircuitPins(object):
         comp_angle = self._circuit_comp.angle * math.pi / 180
         if len(self._circuit_comp.pins) == 2:
             comp_angle += math.pi / 2
-        page_name = "{}_{}".format(
-            self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"), self.name
-        )
+        if page_name is None:
+            page_name = "{}_{}".format(
+                self._circuit_comp.composed_name.replace("CompInst@", "").replace(";", "_"), self.name
+            )
 
         if "Port" in self._circuit_comp.composed_name:
             try:
@@ -2771,10 +3371,13 @@ class CircuitComponent(object):
         else:
             return self.name + ";" + str(self.schematic_id)
 
-    def __init__(self, circuit_components, units="mm", tabname="PassedParameterTab"):
+    def __init__(self, circuit_components, units="mm", tabname="PassedParameterTab", custom_editor=None):
         self.name = ""
         self._circuit_components = circuit_components
-        self.m_Editor = self._circuit_components._oeditor
+        if custom_editor:
+            self.m_Editor = custom_editor
+        else:
+            self.m_Editor = self._circuit_components.oeditor
         self._modelName = None
         self.status = "Active"
         self.component = None
@@ -2791,10 +3394,12 @@ class CircuitComponent(object):
         self.InstanceName = None
         self._pins = None
         self._parameters = {}
+        self._component_info = {}
         self._model_data = {}
 
     @property
     def _property_data(self):
+        """Property Data List."""
         try:
             return list(self._circuit_components.o_component_manager.GetData(self.name.split("@")[1]))
         except:
@@ -2858,8 +3463,30 @@ class CircuitComponent(object):
         return self._parameters
 
     @property
+    def component_info(self):
+        """Component parameters.
+
+        References
+        ----------
+
+        >>> oEditor.GetProperties
+        >>> oEditor.GetPropertyValue
+        """
+        if self._component_info or self._circuit_components._app.design_type != "Circuit Design":
+            return self._component_info
+        _component_info = {}
+        tab = "Component"
+        proparray = self.m_Editor.GetProperties(tab, self.composed_name)
+
+        for j in proparray:
+            propval = _retry_ntimes(10, self.m_Editor.GetPropertyValue, tab, self.composed_name, j)
+            _component_info[j] = propval
+        self._component_info = ComponentParameters(self, tab, _component_info)
+        return self._component_info
+
+    @property
     def pins(self):
-        """Pins of component.
+        """Pins of the component.
 
         Returns
         -------
@@ -2875,7 +3502,7 @@ class CircuitComponent(object):
         else:
             pins = _retry_ntimes(10, self.m_Editor.GetComponentPins, self.composed_name)
 
-            if not pins:
+            if not pins or pins is True:
                 return []
             for pin in pins:
                 if self._circuit_components._app.design_type != "Twin Builder":
@@ -2965,12 +3592,17 @@ class CircuitComponent(object):
     @angle.setter
     def angle(self, angle=None):
         """Set the part angle."""
-        if not angle:
-            angle = str(self._angle) + "°"
+        if not settings.use_grpc_api:
+            if not angle:
+                angle = str(self._angle) + "°"
+            else:
+                angle = _dim_arg(angle, "°")
+            vMaterial = ["NAME:Component Angle", "Value:=", angle]
+            self.change_property(vMaterial)
         else:
-            angle = _dim_arg(angle, "°")
-        vMaterial = ["NAME:Component Angle", "Value:=", angle]
-        self.change_property(vMaterial)
+            self._circuit_components._app.logger.error(
+                "Grpc doesn't support angle settings because special characters are not supported."
+            )
 
     @property
     def mirror(self):
@@ -3157,523 +3789,36 @@ class CircuitComponent(object):
         return False
 
 
-class Objec3DLayout(object):
-    """Manages properties of objects in HFSS 3D Layout.
-
-    Parameters
-    -----------
-    primitives :
-
-    """
-
-    def __init__(self, primitives):
-        self._primitives = primitives
-        self.m_Editor = self._primitives._oeditor
-        self._n = 10
-
-    @property
-    def object_units(self):
-        """Object units."""
-        return self._primitives.model_units
-
-    @pyaedt_function_handler()
-    def change_property(self, vPropChange, names_list=None):
-        """Modify a property.
-
-        Parameters
-        ----------
-        vPropChange :
-
-        names_list : list, optional
-             The default is ``None``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oEditor.ChangeProperty
-        """
-        vChangedProps = ["NAME:ChangedProps", vPropChange]
-        if names_list:
-            vPropServers = ["NAME:PropServers"]
-            for el in names_list:
-                vPropServers.append(el)
-        else:
-            vPropServers = ["NAME:PropServers", self.name]
-        vGeo3dlayout = ["NAME:BaseElementTab", vPropServers, vChangedProps]
-        vOut = ["NAME:AllTabs", vGeo3dlayout]
-
-        self.m_Editor.ChangeProperty(vOut)
-        return True
-
-    @pyaedt_function_handler()
-    def set_property_value(self, property_name, property_value):
-        """Set a property value.
-
-        Parameters
-        ----------
-        property_name : str
-            Name of the property.
-        property_value :
-            Value of the property.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oEditor.ChangeProperty
-        """
-        vProp = ["NAME:" + property_name, "Value:=", property_value]
-        return self.change_property(vProp)
-
-
-class Components3DLayout(Objec3DLayout, object):
-    """Contains components in HFSS 3D Layout.
-
-    Parameters
-    ----------
-    parent :
-
-    name : string, optional
-        The default is ``""``.
-
-    """
-
-    def __init__(self, primitives, name="", edb_object=None):
-        Objec3DLayout.__init__(self, primitives)
-        self.name = name
-        self.edb_object = edb_object
-
-    @property
-    def location(self):
-        """Retrieve the component location.
-
-        Returns
-        -------
-        list
-           List of ``(x, y, z)`` coordinates for the component location.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        """
-        if self.edb_object:
-            return self.edb_object.center
-        location = _retry_ntimes(
-            self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location"
-        ).split(",")
-        l = []
-        for i in location:
-            try:
-                l.append(float(i))
-            except ValueError:
-                l.append(i)
-        return l
-
-    @property
-    def placement_layer(self):
-        """Retrieve the component placement layer.
-
-        Returns
-        -------
-        type
-            Component placement layer.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        """
-        if self.edb_object:
-            return self.edb_object.placement_layer
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
-
-    @property
-    def part(self):
-        """Retrieve the component part.
-
-        Returns
-        -------
-        type
-            Component part.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        """
-        if self.edb_object:
-            return self.edb_object.partname
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Part")
-
-    @property
-    def part_type(self):
-        """Retrieve the component part type.
-
-        Returns
-        -------
-        type
-            Component part type.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        """
-        if self.edb_object:
-            return self.edb_object.type
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Part Type")
-
-    @property
-    def _part_type_id(self):
-        parts = {"Other": 0, "Resistor": 1, "Inductor": 2, "Capacitor": 3, "IC": 4, "IO": 5}
-        if self.part_type in parts:
-            return parts[self.part_type]
-        return -1
-
-    @property
-    def angle(self):
-        """Retrieve the component angle.
-
-        Returns
-        -------
-        type
-            Component angle.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Angle")
-
-    @pyaedt_function_handler
-    def enabled(self, status=True):
-        """Enable or Disable the RLC Component.
-
-        Parameters
-        ----------
-        status : bool, optional
-            Set the RLC Component to Enable or Disable state.
-
-        Returns
-        -------
-        bool
-            `True` if succeeded.
-        """
-        if self._part_type_id in [0, 4, 5]:
-            return False
-        args = [
-            "NAME:Model Info",
-            ["NAME:Model", "RLCProp:=", ["CompPropEnabled:=", status], "CompType:=", self._part_type_id],
-        ]
-        return self.change_property(args)
-
-
-class Nets3DLayout(Objec3DLayout, object):
-    """Contains Nets in HFSS 3D Layout.
-
-    Parameters
-    ----------
-    primitives :
-
-    name : str, optional
-        The default is ``""``.
-
-    """
-
-    def __init__(self, primitives, name="", edb_object=None):
-        Objec3DLayout.__init__(self, primitives)
-        self.name = name
-        self.edb_object = edb_object
-
-
-class Pins3DLayout(Objec3DLayout, object):
-    """Contains the pins in HFSS 3D Layout.
-
-    Parameters
-    ----------
-    parent :
-
-    componentname : str, optional
-        Name of the component. The default is ``""``.
-    pinname : str, optional
-        Name of the pin. The default is ``""``.
-    name : str, optional
-        The default is ``""``.
-
-    """
-
-    def __init__(self, primitives, componentname="", pinname="", name=""):
-        Objec3DLayout.__init__(self, primitives)
-        self.componentname = componentname
-        self.pinname = pinname
-        self.name = name
-
-    @property
-    def location(self):
-        """Retrieve the pin locaton.
-
-        Returns
-        -------
-        list
-           List of ``(x, y, z)`` coordinates for the pin location.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        """
-        location = _retry_ntimes(
-            self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location"
-        ).split(",")
-        l = []
-        for pos in location:
-            try:
-                l.append(float(pos))
-            except ValueError:
-                l.append(pos)
-        return l
-
-    @property
-    def start_layer(self):
-        """Retrieve the starting layer of the pin.
-
-        Returns
-        -------
-        str
-            Name of the starting layer of the pin.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Start Layer")
-
-    @property
-    def stop_layer(self):
-        """Retrieve the starting layer of the pin.
-
-        Returns
-        -------
-        str
-            Name of the stopping layer of the pin.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Stop Layer")
-
-    @property
-    def holediam(self):
-        """Retrieve the hole diameter of the pin.
-
-        Returns
-        --------
-        float
-           Hole diameter of the pin.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "HoleDiameter")
-
-    @property
-    def angle(self):
-        """Retrieve the rotation angle of the pin in degrees.
-
-        Returns
-        -------
-        float
-            Rotation angle of the pin
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Angle")
-
-
-class Geometries3DLayout(Objec3DLayout, object):
-    """Contains geometries in HFSS 3D Layout.
-
-    Parameters
-    ----------
-    parent :
-
-    name :
-
-    id : int, optional
-        The default is ``0``.
-
-    """
-
-    def __init__(self, primitives, name, id=0):
-        Objec3DLayout.__init__(self, primitives)
-        self.name = name
-        self.id = id
-
-    @pyaedt_function_handler()
-    def get_placement_layer(self):
-        """Retrieve the placement layer of the object.
-
-        Returns
-        -------
-        type
-            Object placement layer.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
-
-    @pyaedt_function_handler()
-    def get_net_name(self):
-        """Retrieve the net name.
-
-        Returns
-        -------
-        str
-            Name of the net.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Net")
-
-    @pyaedt_function_handler()
-    def get_property_value(self, propertyname):
-        """Retrieve a property value.
-
-        Parameters
-        ----------
-        propertyname : str
-            Name of the property
-
-        Returns
-        -------
-        type
-            Value of the property.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, propertyname)
-
-    @pyaedt_function_handler()
-    def set_layer(self, layer_name):
-        """Set the object layer.
-
-        Parameters
-        ----------
-        layer_name : str
-            Name of the layer.
-
-        Returns
-        -------
-        type
-
-        References
-        ----------
-
-        >>> oEditor.ChangeProperty
-        """
-        vMaterial = ["NAME:PlacementLayer", "Value:=", layer_name]
-        return self.change_property(vMaterial)
-
-    @pyaedt_function_handler()
-    def set_lock_position(self, lock_position=True):
-        """Set the lock position.
-
-        Parameters
-        ----------
-        lock_position : bool, optional
-            The default value is ``True``.
-
-        Returns
-        -------
-        type
-
-        References
-        ----------
-
-        >>> oEditor.ChangeProperty
-        """
-        vMaterial = ["NAME:LockPosition", "Value:=", lock_position]
-        return self.change_property(vMaterial)
-
-    @pyaedt_function_handler()
-    def set_negative(self, negative=False):
-        """Set the negative.
-
-        Parameters
-        ----------
-        negative : bool, optional
-            The default is ``False``.
-        Returns
-        -------
-        type
-
-        References
-        ----------
-
-        >>> oEditor.ChangeProperty
-        """
-        vMaterial = ["NAME:Negative", "Value:=", negative]
-        return self.change_property(vMaterial)
-
-    @pyaedt_function_handler()
-    def set_net_name(self, netname=""):
-        """Set the net name.
-
-        Parameters
-        ----------
-        netname : str, optional
-            Name of the net. The default is ``""``.
-
-        Returns
-        -------
-        type
-
-        References
-        ----------
-
-        >>> oEditor.ChangeProperty
-        """
-        vMaterial = ["NAME:Net", "Value:=", netname]
-        return self.change_property(vMaterial)
-
-
-class Point(object):
-    """Manages point attributes for the AEDT 3D Modeler.
+class UserDefinedComponentParameters(dict):
+    def __setitem__(self, key, value):
+        try:
+            self._component._m_Editor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:Parameters",
+                        ["NAME:PropServers", self._component.name],
+                        ["NAME:ChangedProps", ["NAME:" + key, "Value:=", str(value)]],
+                    ],
+                ]
+            )
+            dict.__setitem__(self, key, value)
+        except:
+            self._component._logger.warning("Property %s has not been edited.Check if readonly", key)
+
+    def __init__(self, component, *args, **kw):
+        dict.__init__(self, *args, **kw)
+        self._component = component
+
+
+class UserDefinedComponent(object):
+    """Manages object attributes for 3DComponent and User Defined Model.
 
     Parameters
     ----------
     primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
         Inherited parent object.
     name : str
-        Name of the point.
 
     Examples
     --------
@@ -3681,24 +3826,491 @@ class Point(object):
 
     >>> from pyaedt import Hfss
     >>> aedtapp = Hfss()
-    >>> primitives = aedtapp.modeler.primitives
+    >>> prim = aedtapp.modeler.user_defined_components
 
-    Create a point, to return an :class:`pyaedt.modeler.Object3d.Point`.
+    Obtain user defined component names, to return an :class:`pyaedt.modeler.Object3d.UserDefinedComponent`.
 
-    >>> point = primitives.create_point([30, 30, 0], "my_point", (0, 195, 255))
-    >>> my_point = primitives.points_by_name[point.name]
+    >>> component_names = aedtapp.modeler.user_defined_components
+    >>> component = aedtapp.modeler[component_names[0]]
     """
 
-    def __init__(self, primitives, name):
-        self._name = name
-        self._point_coordinate_system = "Global"
-        self._color = None
-        self._position = None
+    def __init__(self, primitives, name=None):
+        """
+        Parameters
+        ----------
+        primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
+            Inherited parent object.
+        name : str
+        """
+        self._fix_udm_props = [
+            "General[Name]",
+            "Group",
+            "Target Coordinate System",
+            "Target Coordinate System/Choices",
+            "Info[Name]",
+            "Location",
+            "Location/Choices",
+            "Company",
+            "Date",
+            "Purpose",
+            "Version",
+        ]
+        self._group_name = None
+        self._is3dcomponent = None
+        self._mesh_assembly = None
+        if name:
+            self._m_name = name
+        else:
+            self._m_name = _uname()
+        self._parameters = {}
+        self._parts = None
         self._primitives = primitives
+        self._target_coordinate_system = None
+        self._is_updated = False
         self._all_props = None
 
     @property
-    def m_Editor(self):
+    def group_name(self):
+        """Group the component belongs to.
+
+        Returns
+        -------
+        str
+            Name of the group.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        group = None
+        if "Group" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
+            group = self._primitives.oeditor.GetChildObject(self.name).GetPropValue("Group")
+        return group
+
+    @group_name.setter
+    def group_name(self, name):
+        """Assign component to a specific group. A new group is created if the specified group doesn't exist.
+
+        Parameters
+        ----------
+        name : str
+            Name of the group to assign the component to. A group is created if the one
+            specified does not exist.
+
+        Returns
+        -------
+        str
+            Name of the group.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        if "Group" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames() and name not in list(
+            self._primitives.oeditor.GetChildNames("Groups")
+        ):
+            arg = [
+                "NAME:GroupParameter",
+                "ParentGroupID:=",
+                "Model",
+                "Parts:=",
+                "",
+                "SubmodelInstances:=",
+                "",
+                "Groups:=",
+                "",
+            ]
+            assigned_name = self._primitives.oeditor.CreateGroup(arg)
+            self._primitives.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:Attributes",
+                        ["NAME:PropServers", assigned_name],
+                        ["NAME:ChangedProps", ["NAME:Name", "Value:=", name]],
+                    ],
+                ]
+            )
+
+        pcs = ["NAME:Group", "Value:=", name]
+        self._change_property(pcs)
+        self._group_name = name
+
+    @property
+    def is3dcomponent(self):
+        """3DComponent flag.
+
+        Returns
+        -------
+        bool
+           ``True`` if a 3DComponent, ``False`` if a user-defined model.
+
+        """
+        definitions = list(self._primitives.oeditor.Get3DComponentDefinitionNames())
+        for comp in definitions:
+            if self.name in self._primitives.oeditor.Get3DComponentInstanceNames(comp):
+                self._is3dcomponent = True
+                return True
+        self._is3dcomponent = False
+        return False
+
+    @property
+    def mesh_assembly(self):
+        """Mesh assembly flag.
+
+        Returns
+        -------
+        bool
+           ``True`` if mesh assembly is checked, ``None`` if a user-defined model.
+
+        """
+        key = "Do Mesh Assembly"
+        if self.is3dcomponent and key in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
+            ma = self._primitives.oeditor.GetChildObject(self.name).GetPropValue(key)
+            self._mesh_assembly = ma
+            return ma
+        else:
+            return None
+
+    @mesh_assembly.setter
+    def mesh_assembly(self, ma):
+        key = "Do Mesh Assembly"
+        if (
+            self.is3dcomponent
+            and isinstance(ma, bool)
+            and key in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
+        ):
+            self._primitives.oeditor.GetChildObject(self.name).SetPropValue(key, ma)
+            self._mesh_assembly = ma
+
+    @property
+    def name(self):
+        """Name of the object.
+
+        Returns
+        -------
+        str
+           Name of the object.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        return self._m_name
+
+    @name.setter
+    def name(self, component_name):
+        if component_name not in self._primitives.user_defined_component_names + self._primitives.object_names + list(
+            self._primitives.oeditor.Get3DComponentDefinitionNames()
+        ):
+            if component_name != self._m_name:
+                pcs = ["NAME:Name", "Value:=", component_name]
+                self._change_property(pcs)
+                self._primitives.user_defined_components.update({component_name: self})
+                del self._primitives.user_defined_components[self._m_name]
+                self._project_dictionary = None
+                self._m_name = component_name
+        else:
+            self._logger.warning("Name %s already assigned in the design", component_name)
+
+    @property
+    def parameters(self):
+        """Component parameters.
+
+        Returns
+        -------
+        dict
+            :class:`pyaedt.modeler.Object3d.UserDefinedComponentParameters
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        self._parameters = None
+        if self.is3dcomponent:
+            parameters_tuple = list(self._primitives.oeditor.Get3DComponentParameters(self.name))
+            parameters = {}
+            for parameter in parameters_tuple:
+                value = self._primitives.oeditor.GetChildObject(self.name).GetPropValue(parameter[0])
+                parameters[parameter[0]] = value
+            self._parameters = UserDefinedComponentParameters(self, parameters)
+        else:
+            props = list(self._primitives.oeditor.GetChildObject(self.name).GetPropNames())
+            parameters_aedt = list(set(props) - set(self._fix_udm_props))
+            parameter_name = [par for par in parameters_aedt if not re.findall(r"/", par)]
+            parameters = {}
+            for parameter in parameter_name:
+                value = self._primitives.oeditor.GetChildObject(self.name).GetPropValue(parameter)
+                parameters[parameter] = value
+            self._parameters = UserDefinedComponentParameters(self, parameters)
+        return self._parameters
+
+    @property
+    def parts(self):
+        """Dictionary of objects that belong to the user-defined component.
+
+        Returns
+        -------
+        dict
+           :class:`pyaedt.modeler.Object3d
+
+        """
+        component_parts = list(self._primitives.oeditor.GetChildObject(self.name).GetChildNames())
+        parts_id = [
+            self._primitives.object_id_dict[part] for part in self._primitives.object_id_dict if part in component_parts
+        ]
+        parts_dict = {part_id: self._primitives.objects[part_id] for part_id in parts_id}
+        return parts_dict
+
+    @property
+    def target_coordinate_system(self):
+        """Target coordinate system.
+
+        Returns
+        -------
+        str
+            Name of the target coordinate system.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        self._target_coordinate_system = None
+        if "Target Coordinate System" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames():
+            tCS = self._primitives.oeditor.GetChildObject(self.name).GetPropValue("Target Coordinate System")
+            self._target_coordinate_system = tCS
+        return self._target_coordinate_system
+
+    @target_coordinate_system.setter
+    def target_coordinate_system(self, tCS):
+        if (
+            "Target Coordinate System" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
+            and "Target Coordinate System/Choices" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames()
+        ):
+            tCS_options = list(
+                self._primitives.oeditor.GetChildObject(self.name).GetPropValue("Target Coordinate System/Choices")
+            )
+            if tCS in tCS_options:
+                pcs = ["NAME:Target Coordinate System", "Value:=", tCS]
+                self._change_property(pcs)
+                self._target_coordinate_system = tCS
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the object. The project must be saved after the operation to update the list
+        of names for user-defined components.
+
+        References
+        ----------
+
+        >>> oEditor.Delete
+
+        Examples
+        --------
+
+        >>> from pyaedt import hfss
+        >>> hfss = Hfss()
+        >>> hfss.modeler["UDM"].delete()
+        >>> hfss.save_project()
+        >>> hfss._project_dictionary = None
+        >>> udc = hfss.modeler.user_defined_component_names
+
+        """
+        arg = ["NAME:Selections", "Selections:=", self._m_name]
+        self._m_Editor.Delete(arg)
+        del self._primitives.modeler.user_defined_components[self.name]
+        self._primitives.cleanup_objects()
+        self.__dict__ = {}
+
+    @pyaedt_function_handler()
+    def mirror(self, position, vector):
+        """Mirror a selection.
+
+        Parameters
+        ----------
+        position : int or float
+            List of the ``[x, y, z]`` coordinates or
+            the Application.Position object for the selection.
+        vector : float
+            List of the ``[x1, y1, z1]`` coordinates or
+            the Application.Position object for the vector.
+
+        Returns
+        -------
+        pyaedt.modeler.Object3d.UserDefinedComponent, bool
+            3D object when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Mirror
+        """
+        if self.is3dcomponent:
+            if self._primitives.modeler.mirror(self.name, position=position, vector=vector):
+                return self
+        else:
+            for part in self.parts:
+                self._primitives.modeler.mirror(part, position=position, vector=vector)
+            return self
+        return False
+
+    @pyaedt_function_handler()
+    def rotate(self, cs_axis, angle=90.0, unit="deg"):
+        """Rotate the selection.
+
+        Parameters
+        ----------
+        cs_axis
+            Coordinate system axis or the Application.CoordinateSystemAxis object.
+        angle : float, optional
+            Angle of rotation. The units, defined by ``unit``, can be either
+            degrees or radians. The default is ``90.0``.
+        unit : text, optional
+             Units for the angle. Options are ``"deg"`` or ``"rad"``.
+             The default is ``"deg"``.
+
+        Returns
+        -------
+        pyaedt.modeler.Object3d.UserDefinedComponent, bool
+            3D object when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Rotate
+        """
+        if self.is3dcomponent:
+            if self._primitives.modeler.rotate(self.name, cs_axis=cs_axis, angle=angle, unit=unit):
+                return self
+        else:
+            for part in self.parts:
+                self._primitives.modeler.rotate(part, cs_axis=cs_axis, angle=angle, unit=unit)
+            return self
+        return False
+
+    @pyaedt_function_handler()
+    def move(self, vector):
+        """Move component from a list.
+
+        Parameters
+        ----------
+        objid : list, Position object
+            List of object IDs.
+        vector : list
+            Vector of the direction move. It can be a list of the ``[x, y, z]``
+            coordinates or a Position object.
+
+        Returns
+        -------
+        pyaedt.modeler.Object3d.UserDefinedComponent, bool
+            3D object when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.Move
+        """
+        if self.is3dcomponent:
+            if self._primitives.modeler.move(self.name, vector=vector):
+                return self
+        else:
+            for part in self.parts:
+                self._primitives.modeler.move(part, vector=vector)
+            return self
+
+        return False
+
+    @pyaedt_function_handler()
+    def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
+        """Duplicate the component around the axis.
+
+        Parameters
+        ----------
+        cs_axis : Application.CoordinateSystemAxis object
+            Coordinate system axis of the object.
+        angle : float, optional
+            Angle of rotation in degrees. The default is ``90``.
+        nclones : int, optional
+            Number of clones. The default is ``2``.
+        create_new_objects : bool, optional
+            Whether to create copies as new objects. The default is ``True``.
+
+        Returns
+        -------
+        list
+            List of names of the newly added objects.
+
+        References
+        ----------
+
+        >>> oEditor.DuplicateAroundAxis
+
+        """
+        if self.is3dcomponent:
+            ret, added_objects = self._primitives.modeler.duplicate_around_axis(
+                self.name, cs_axis, angle, nclones, create_new_objects, True
+            )
+            return added_objects
+        self._logger.warning("User-defined models do not support this operation.")
+        return False
+
+    @pyaedt_function_handler()
+    def duplicate_along_line(self, vector, nclones=2, attachObject=False):
+        """Duplicate the object along a line.
+
+        Parameters
+        ----------
+        vector : list
+            List of ``[x1 ,y1, z1]`` coordinates for the vector or the Application.Position object.
+        attachObject : bool, optional
+            Whether to attach the object. The default is ``False``.
+        nclones : int, optional
+            Number of clones. The default is ``2``.
+
+        Returns
+        -------
+        list
+            List of names of the newly added objects.
+
+        References
+        ----------
+
+        >>> oEditor.DuplicateAlongLine
+
+        """
+        if self.is3dcomponent:
+            _, added_objects = self._primitives.modeler.duplicate_along_line(
+                self.name, vector, nclones, attachObject, True
+            )
+            return added_objects
+        self._logger.warning("User-defined models do not support this operation.")
+        return False
+
+    @property
+    def _logger(self):
+        """Logger."""
+        return self._primitives.logger
+
+    @pyaedt_function_handler()
+    def _change_property(self, vPropChange):
+        return self._primitives._change_component_property(vPropChange, self._m_name)
+
+    @property
+    def _m_Editor(self):
         """Pointer to the oEditor object in the AEDT API. This property is
         intended primarily for use by FacePrimitive, EdgePrimitive, and
         VertexPrimitive child objects.
@@ -3708,309 +4320,25 @@ class Point(object):
         oEditor COM Object
 
         """
-        return self._primitives._oeditor
-
-    @property
-    def logger(self):
-        """Logger."""
-        return self._primitives.logger
-
-    @property
-    def name(self):
-        """Name of the point as a string value.
-
-        Returns
-        -------
-        str
-           Name of object as a string value.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        >>> oEditor.ChangeProperty
-
-        """
-        return self._name
-
-    @name.setter
-    def name(self, point_name):
-        if point_name not in self._primitives.points_by_name.keys:
-            if point_name != self._name:
-                name_property = []
-                name_property.append("NAME:Name")
-                name_property.append("Value:=")
-                name_property.append(point_name)
-                changed_property = ["NAME:ChangedProps", name_property]
-                property_servers = ["NAME:PropServers"]
-                property_servers.append(self._name)
-                point_tab = ["NAME:Geometry3DPointTab", property_servers, changed_property]
-                all_tabs = ["NAME:AllTabs", point_tab]
-                _retry_ntimes(10, self._primitives._oeditor.ChangeProperty, all_tabs)
-                self._name = point_name
-                self._primitives.cleanup_objects()
-        else:
-            self.logger.warning("A point named '%s' already exists.", point_name)
-
-    @property
-    def valid_properties(self):
-        """Valid properties.
-
-        References
-        ----------
-
-        >>> oEditor.GetProperties
-        """
-        if not self._all_props:
-            self._all_props = _retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DPointTab", self._name)
-        return self._all_props
-
-    # Note: We currently cannot get the color property value because
-    # when we try to access it, we only get access to the 'edit' button.
-    # Following is the line that we would use but it currently returns 'edit'.
-    # color = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DPointTab", self._name, "Color")
-    def set_color(self, color_value):
-        """Set symbol color.
-
-        Parameters
-        ----------
-        color_value : string
-            String exposing the new color of the point in the format of "(001 255 255)".
-
-        References
-        ----------
-
-        >>> oEditor.ChangeProperty
-
-        Examples
-        --------
-        >>> point = self.aedtapp.modeler.primitives.create_point([30, 30, 0], "demo_point")
-        >>> point.set_color("(143 175 158)")
-
-        """
-        color_tuple = None
-        if isinstance(color_value, str):
-            try:
-                color_tuple = rgb_color_codes[color_value]
-            except KeyError:
-                parse_string = color_value.replace(")", "").replace("(", "").split()
-                if len(parse_string) == 3:
-                    color_tuple = tuple([int(x) for x in parse_string])
-        else:
-            try:
-                color_tuple = tuple([int(x) for x in color_value])
-            except ValueError:
-                pass
-
-        if color_tuple:
-            try:
-                R = clamp(color_tuple[0], 0, 255)
-                G = clamp(color_tuple[1], 0, 255)
-                B = clamp(color_tuple[2], 0, 255)
-                vColor = ["NAME:Color", "R:=", str(R), "G:=", str(G), "B:=", str(B)]
-                self._change_property(vColor)
-                self._color = (R, G, B)
-            except TypeError:
-                color_tuple = None
-        else:
-            msg_text = "Invalid color input {} for object {}.".format(color_value, self._name)
-            self._primitives.logger.warning(msg_text)
-
-    @property
-    def coordinate_system(self):
-        """Coordinate system of the point.
-
-        Returns
-        -------
-        str
-            Name of the point's coordinate system.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        >>> oEditor.ChangeProperty
-
-        """
-        if self._point_coordinate_system is not None:
-            return self._point_coordinate_system
-        if "Orientation" in self.valid_properties:
-            self._point_coordinate_system = _retry_ntimes(
-                10, self.m_Editor.GetPropertyValue, "Geometry3DPointTab", self._name, "Orientation"
-            )
-            return self._point_coordinate_system
-
-    @coordinate_system.setter
-    def coordinate_system(self, new_coordinate_system):
-
-        coordinate_system = ["NAME:Orientation", "Value:=", new_coordinate_system]
-        self._change_property(coordinate_system)
-        self._point_coordinate_system = new_coordinate_system
-        return True
-
-    @pyaedt_function_handler()
-    def delete(self):
-        """Delete the point.
-
-        References
-        ----------
-
-        >>> oEditor.Delete
-        """
-        arg = ["NAME:Selections", "Selections:=", self._name]
-        self.m_Editor.Delete(arg)
-        self._primitives.remove_point(self.name)
-        self.__dict__ = {}
-
-    @pyaedt_function_handler()
-    def _change_property(self, vPropChange):
-        return self._primitives._change_point_property(vPropChange, self.name)
+        return self._primitives.oeditor
 
     def __str__(self):
         return """
          {}
-         name: {}    id: {}    object_type: {}
+         is3dcomponent: {}   parts: {}
          --- read/write properties  ----
-         solve_inside: {}
-         model: {}
-         material_name: {}
-         color: {}
-         transparency: {}
-         display_wireframe {}
-         part_coordinate_system: {}
+         name: {}
+         group_name: {}
+         mesh_assembly: {}
+         parameters: {}
+         target_coordinate_system: {}
          """.format(
             type(self),
+            self.is3dcomponent,
+            self.parts,
             self.name,
-            self.id,
-            self.object_type,
-            self.solve_inside,
-            self.model,
-            self.material_name,
-            self.color,
-            self.transparency,
-            self.display_wireframe,
-            self.part_coordinate_system,
+            self.group_name,
+            self.mesh_assembly,
+            self.parameters,
+            self.target_coordinate_system,
         )
-
-
-class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
-    """Contains 3d Components in HFSS 3D Layout.
-
-    Parameters
-    ----------
-    parent :
-
-    name : string, optional
-        The default is ``""``.
-
-    """
-
-    def __init__(self, primitives, name=""):
-        Objec3DLayout.__init__(self, primitives)
-        self.name = name
-
-    @property
-    def component_info(self):
-        """Retrieve all component info."""
-        return self.m_Editor.GetComponentInfo(self.name)
-
-    @property
-    def component_name(self):
-        """Retrieve the component name."""
-        try:
-            return self.component_info[0].split("=")[1]
-        except IndexError:
-            return ""
-
-    @property
-    def location(self):
-        """Retrieve/Set the component location.
-
-        Returns
-        -------
-        list
-           List of ``(x, y)`` coordinates for the component location.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        """
-        location = _retry_ntimes(
-            self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location"
-        ).split(",")
-        l = []
-        for i in location:
-            try:
-                l.append(float(i))
-            except ValueError:
-                l.append(i)
-        return l
-
-    @location.setter
-    def location(self, position):
-        props = ["NAME:Location", "X:=", str(position[0]), "Y:=", str(position[0])]
-        self.change_property(props)
-
-    @property
-    def placement_layer(self):
-        """Retrieve/Set the component placement layer.
-
-        Returns
-        -------
-        str
-            Component placement layer.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        """
-        return _retry_ntimes(self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "PlacementLayer")
-
-    @placement_layer.setter
-    def placement_layer(self, layer):
-        props = ["NAME:PlacementLayer", "Value:=", layer.lower()]
-        self.change_property(props)
-
-    @property
-    def angle(self):
-        """Retrieve/Set the component angle.
-
-        Returns
-        -------
-        str
-            Component angle.
-
-        References
-        ----------
-
-        >>> oEditor.GetPropertyValue
-        """
-        if self.is_3d_placement:
-            ang = self.m_Editor.GetPropertyValue("BaseElementTab", self.name, "Rotation Angle")
-        else:
-            ang = self.m_Editor.GetPropertyValue("BaseElementTab", self.name, "Angle")
-        try:
-            return float(ang)
-        except ValueError:
-            return ang
-
-    @angle.setter
-    def angle(self, angle_val):
-        if isinstance(angle_val, (int, float)):
-            angle_val = "{}deg".format(angle_val)
-
-        if not self.is_3d_placement:
-            props = ["NAME:Angle", "Value:=", angle_val]
-        else:
-            props = ["NAME:Rotation Angle", "Value:=", angle_val]
-        self.change_property(props)
-
-    @property
-    def is_3d_placement(self):
-        """Retrieve if the component has 3d placement."""
-        if self.m_Editor.GetPropertyValue("BaseElementTab", self.name, "3D Placement") in ["true", "True"]:
-            return True
-        else:
-            return False

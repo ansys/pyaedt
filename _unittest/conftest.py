@@ -10,7 +10,7 @@ This module contains the configuration and fixture for the pytest-based unit tes
 The default configuration can be changed by placing a file called local_config.json in the same
 directory as this module. An example of the contents of local_config.json
 {
-  "desktopVersion": "2022.1",
+  "desktopVersion": "2022.2",
   "NonGraphical": false,
   "NewThread": false,
   "test_desktops": true
@@ -47,9 +47,8 @@ else:
 local_path = os.path.dirname(os.path.realpath(__file__))
 
 from pyaedt import Desktop
-
-# Import required modules
-from pyaedt import Hfss, Edb
+from pyaedt import Edb
+from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "test_primitives"
@@ -68,7 +67,7 @@ if os.path.exists(local_config_file):
     with open(local_config_file) as f:
         config = json.load(f)
 else:
-    default_version = "2022.1"
+    default_version = "2022.2"
     if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
         default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
     config = {
@@ -82,7 +81,9 @@ else:
         "skip_edb": False,
         "skip_debug": False,
         "local": False,
+        "use_grpc": False,
     }
+settings.use_grpc_api = config.get("use_grpc", False)
 settings.non_graphical = config["NonGraphical"]
 
 
@@ -219,25 +220,3 @@ def hfss():
     yield hfss
     hfss.close_project(hfss.project_name)
     gc.collect()
-
-
-from functools import wraps
-
-
-def pyaedt_unittest_check_desktop_error(func):
-    @wraps(func)
-    def inner_function(*args, **kwargs):
-        args[0].cache.update()
-        ret_val = func(*args, **kwargs)
-        try:
-            pass
-        except Exception as e:
-            pytest.exit("Desktop Crashed - Aborting the test!")
-        args[0].cache.update()
-        # model_report = args[0].aedtapp.modeler.model_consistency_report
-        # assert not model_report["Missing Objects"]
-        # assert not model_report["Non-Existent Objects"]
-        assert args[0].cache.no_new_errors
-        return ret_val
-
-    return inner_function

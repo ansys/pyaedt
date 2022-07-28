@@ -11,7 +11,7 @@ before attempting to contribute to PyAEDT.
  
 The following contribution information is specific to PyAEDT.
 
-Cloning the PyAEDT Repository
+Cloning the PyAEDT repository
 -----------------------------
 Run this code to clone and install the latest version of PyAEDT in development mode:
 
@@ -21,14 +21,14 @@ Run this code to clone and install the latest version of PyAEDT in development m
     cd pyaedt
     pip install -e .
 
-Posting Issues
+Posting issues
 --------------
 Use the `PyAEDT Issues <https://github.com/pyansys/pyaedt/issues>`_
 page to submit questions, report bugs, and request new features.
 
 To reach the project support team, email `pyansys.support@ansys.com <pyansys.support@ansys.com>`_.
 
-Viewing PyAEDT Documentation
+Viewing PyAEDT documentation
 -----------------------------
 Documentation for the latest stable release of PyAEDT is hosted at
 `PyAEDT Documentation <https://aedtdocs.pyansys.com>`_.  
@@ -37,7 +37,7 @@ Documentation for the latest development version, which tracks the
 ``main`` branch, is hosted at  `Development PyAEDT Documentation <https://dev.aedtdocs.pyansys.com/>`_.
 This version is automatically kept up to date via GitHub actions.
 
-Code Style
+Code style
 ----------
 PyAEDT follows PEP8 standard as outlined in the `PyAnsys Development Guide
 <https://dev.docs.pyansys.com>`_ and implements style checking using

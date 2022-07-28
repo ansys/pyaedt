@@ -1,7 +1,7 @@
+# -*- coding: utf-8 -*-
 import logging
 import sys
 
-from pyaedt import is_ironpython
 from pyaedt import log_handler
 from pyaedt import settings
 
@@ -29,13 +29,13 @@ class MessageList:
     Attributes
     ----------
     global_level : list of str
-        List of strings representing the message content at the global level of the message manager
+        List of strings representing the message content at the global level of the message manager.
 
     project_level : list of str
-        List of strings representing the message content of the specifiec project
+        List of strings representing the message content within the specified project.
 
     design_level : list of str
-        List of strings representing the message content for the specified design within the specified project
+        List of strings representing the message content for the specified design within the specified project.
 
     """
 
@@ -124,13 +124,15 @@ class AedtLogger(object):
         self.level = level
         self.filename = filename or settings.logger_file_path
         settings.logger_file_path = self.filename
-        if is_ironpython:
-            logging.basicConfig()
+        # if is_ironpython:
+        #     logging.basicConfig()
         self._global = logging.getLogger("Global")
         self._file_handler = None
         self._std_out_handler = None
-        self.formatter = logging.Formatter(settings.logger_formatter, datefmt=settings.logger_datefmt)
-
+        if settings.formatter:
+            self.formatter = settings.formatter
+        else:
+            self.formatter = logging.Formatter(settings.logger_formatter, datefmt=settings.logger_datefmt)
         if not settings.enable_logger:
             self._global.addHandler(logging.NullHandler())
             return
@@ -195,7 +197,7 @@ class AedtLogger(object):
 
     @property
     def logger(self):
-        """Aedt Logger object."""
+        """AEDT logger object."""
         if self._log_on_file:
             return logging.getLogger(__name__)
         else:
@@ -213,18 +215,22 @@ class AedtLogger(object):
         """
         return self.get_messages(self._project_name, self._design_name)
 
-    def get_messages(self, project_name=None, design_name=None):
-        """
-        Retrieve the message manager content for a specified project and design.
+    def get_messages(self, project_name=None, design_name=None, level=0, aedt_messages=False):
+        """Get the message manager content for a specified project and design.
 
         If the specified project and design names are invalid, they are ignored.
 
         Parameters
         ----------
         project_name : str
-            Name of the project.
+            Name of the project to read messages from. Leave empty string to get Desktop level messages.
         design_name : str
-            Name of the design within the specified project.
+            Name of the design to read messages from. Leave empty string to get Desktop level messages.
+        level : int
+            Level of messages to read. 0 – info and above, 1 – warning and above, 2 – error and fatal
+        aedt_messages : bool
+            Read content of message manager even if logger is disabled.
+
 
         Returns
         -------
@@ -232,14 +238,11 @@ class AedtLogger(object):
             List of messages for the specified project and design.
 
         """
-        if not project_name:
-            project_name = self._project_name
-        if not design_name:
-            design_name = self._design_name
-        if self._log_on_desktop:
-            global_message_data = self._desktop.GetMessages("", "", 0)
-            message_data = MessageList(global_message_data, project_name, design_name)
-            return message_data
+        project_name = project_name or self._project_name
+        design_name = design_name or self._design_name
+        if self._log_on_desktop or aedt_messages:
+            global_message_data = self._desktop.GetMessages("", "", level)
+            return MessageList(global_message_data, project_name, design_name)
         return MessageList([], project_name, design_name)
 
     def add_error_message(self, message_text, level=None):

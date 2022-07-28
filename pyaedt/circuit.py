@@ -12,6 +12,7 @@ from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.generic import ibis_reader
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -47,12 +48,26 @@ class Circuit(FieldAnalysisCircuit, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine.  The default is ``True``. This parameter is ignored when Script is launched within AEDT.
+        machine.  The default is ``True``. This parameter is ignored when
+        a script is launched within AEDT.
     close_on_exit : bool, optional
-        Whether to release AEDT on exit.
+        Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
         This parameter is ignored when Script is launched within AEDT.
+    machine : str, optional
+        Machine name to which connect the oDesktop Session. Works only in 2022 R2
+        or later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If a machine is `"localhost"`, the
+        server also starts if not present.
+    port : int, optional
+        Port number on which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 or
+        later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
@@ -101,6 +116,9 @@ class Circuit(FieldAnalysisCircuit, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
+        aedt_process_id=None,
     ):
         FieldAnalysisCircuit.__init__(
             self,
@@ -114,6 +132,9 @@ class Circuit(FieldAnalysisCircuit, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
+            aedt_process_id,
         )
 
         self.onetwork_data_explorer = self._desktop.GetTool("NdExplorer")
@@ -131,7 +152,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @pyaedt_function_handler()
     def create_schematic_from_netlist(self, file_to_import):
-        """Create a circuit schematic from an HSpice net list.
+        """Create a circuit schematic from an HSpice netlist.
 
         Supported currently are:
 
@@ -163,7 +184,7 @@ class Circuit(FieldAnalysisCircuit, object):
         if self._desktop.GetAutoSaveEnabled() == 1:
             self._desktop.EnableAutoSave(False)
             autosave = True
-        with open(file_to_import, "rb") as f:
+        with open_file(file_to_import, "rb") as f:
             for line in f:
                 line = line.decode("utf-8")
                 if ".param" in line[:7].lower():
@@ -189,7 +210,7 @@ class Circuit(FieldAnalysisCircuit, object):
             self.modeler.schematic.disable_data_netlist(component_name="Models_Netlist")
             xpos += 0.0254
         counter = 0
-        with open(file_to_import, "rb") as f:
+        with open_file(file_to_import, "rb") as f:
             for line in f:
                 line = line.decode("utf-8")
                 mycomp = None
@@ -216,7 +237,9 @@ class Circuit(FieldAnalysisCircuit, object):
                         try:
                             float(fields[4])
                         except:
-                            self.logger.warning("Component {} Not Imported. Check it and manually import".format(name))
+                            self.logger.warning(
+                                "Component {} was not imported. Check it and manually import".format(name)
+                            )
                             continue
                     if "{" in fields[3][0]:
                         value = fields[3].strip()[1:-1]
@@ -368,7 +391,7 @@ class Circuit(FieldAnalysisCircuit, object):
                         counter = 0
         if autosave:
             self._desktop.EnableAutoSave(True)
-        self.logger.info("Netlist correctly imported into %s", self.design_name)
+        self.logger.info("Netlist was correctly imported into %s", self.design_name)
         return True
 
     @pyaedt_function_handler()
@@ -392,7 +415,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @pyaedt_function_handler()
     def create_schematic_from_mentor_netlist(self, file_to_import):
-        """Create a circuit schematic from a Mentor net list.
+        """Create a circuit schematic from a Mentor netlist.
 
         Supported currently are:
 
@@ -419,7 +442,7 @@ class Circuit(FieldAnalysisCircuit, object):
         delta = 0.0508
         use_instance = True
         my_netlist = []
-        with open(file_to_import, "r") as f:
+        with open_file(file_to_import, "r") as f:
             for line in f:
                 my_netlist.append(line.split(" "))
         nets = [i for i in my_netlist if i[0] == "NET"]
@@ -506,7 +529,7 @@ class Circuit(FieldAnalysisCircuit, object):
                     if netname:
                         self.modeler.schematic.create_page_port(netname, [pos[0], pos[1]], angle)
                     else:
-                        self.logger.info("Page Port Not Created")
+                        self.logger.info("Page port was not created.")
                     id += 1
                 ypos += delta
                 if ypos > delta * (column_number):
@@ -526,12 +549,12 @@ class Circuit(FieldAnalysisCircuit, object):
                     xpos += delta
                     ypos = 0
 
-        self.logger.info("Netlist correctly imported into %s", self.design_name)
+        self.logger.info("Netlist was correctly imported into %s", self.design_name)
         return True
 
     @pyaedt_function_handler()
     def retrieve_mentor_comp(self, refid):
-        """Retrieve the type of the Mentor net list component for a given reference ID.
+        """Retrieve the type of the Mentor netlist component for a given reference ID.
 
         Parameters
         ----------
@@ -541,7 +564,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Returns
         -------
         str
-            Type of the Mentor net list component.
+            Type of the Mentor netlist component.
 
         """
         if refid[1] == "R":
@@ -587,11 +610,11 @@ class Circuit(FieldAnalysisCircuit, object):
         """
         if source_project_name and self.project_name != source_project_name and not source_project_path:
             raise AttributeError(
-                "If source project is different than the current one, " "``source_project_path`` must also be provided."
+                "If the source project is different from the current one, `source_project_path` must also be provided."
             )
         if source_project_path and not source_project_name:
             raise AttributeError(
-                "When ``source_project_path`` is specified, " "``source_project_name`` must also be provided."
+                "When `source_project_path` is specified, `source_project_name` must also be provided."
             )
         if not source_project_name or self.project_name == source_project_name:
             oSrcProject = self._desktop.GetActiveProject()
@@ -599,7 +622,7 @@ class Circuit(FieldAnalysisCircuit, object):
             self._desktop.OpenProject(source_project_path)
             oSrcProject = self._desktop.SetActiveProject(source_project_name)
         oDesign = oSrcProject.SetActiveDesign(source_design_name)
-        oModule = oDesign.GetModule("BoundarySetup")
+        tmp_oModule = oDesign.GetModule("BoundarySetup")
         port = None
         if port_selector == 1:
             port = "Wave Port"
@@ -609,7 +632,7 @@ class Circuit(FieldAnalysisCircuit, object):
             port = "Circuit Port"
         if not port:
             return False
-        pins = list(oModule.GetExcitationsOfType(port))
+        pins = list(tmp_oModule.GetExcitationsOfType(port))
         self.logger.info("%s Excitations Pins found.", len(pins))
         return pins
 
@@ -635,7 +658,7 @@ class Circuit(FieldAnalysisCircuit, object):
         >>> oDesign.ImportData
         """
         if filename[-2:] == "ts":
-            with open(filename, "r") as f:
+            with open_file(filename, "r") as f:
                 lines = f.readlines()
                 for i in lines:
                     if "[Number of Ports]" in i:
@@ -648,7 +671,7 @@ class Circuit(FieldAnalysisCircuit, object):
             m = re_filename.search(filename)
             ports = int(m.group("ports"))
             portnames = None
-            with open(filename, "r") as f:
+            with open_file(filename, "r") as f:
                 lines = f.readlines()
                 portnames = [i.split(" = ")[1].strip() for i in lines if "Port[" in i]
             if not portnames:
@@ -746,23 +769,25 @@ class Circuit(FieldAnalysisCircuit, object):
             "External",
         ]
         self.odesign.ImportData(arg, "", True)
-        self.logger.info("Touchstone correctly imported into %s", self.design_name)
+        self.logger.info("Touchstone file was correctly imported into %s", self.design_name)
         return portnames
 
     @pyaedt_function_handler()
-    def export_touchstone(self, solutionname, sweepname, filename=None, variation=None, variations_value=None):
+    def export_touchstone(
+        self, solution_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
+    ):
         """Export the Touchstone file to a local folder.
 
         Parameters
         ----------
-        solutionname : str
+        solution_name : str, optional
             Name of the solution that has been solved.
-        sweepname : str
+        sweep_name : str, optional
             Name of the sweep that has been solved.
-        filename : str, optional
-            Full path and name for the Touchstone file. The default is ``None``,
-            which exports the file to the working directory.
-        variation : list, optional
+        file_name : str, optional
+            Full path and name for the Touchstone file.
+            The default is ``None``, in which case the file is exported to the working directory.
+        variations : list, optional
             List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
             The default is ``None``.
         variations_value : list, optional
@@ -779,62 +804,13 @@ class Circuit(FieldAnalysisCircuit, object):
 
         >>> oDesign.ExportNetworkData
         """
-        if variation == None:
-            variation = []
-        if variations_value == None:
-            variations_value = []
-
-        # Normalize the save path
-        if not filename:
-            appendix = ""
-            for v, vv in zip(variation, variations_value):
-                appendix += "_" + v + vv.replace("'", "")
-            ext = ".S" + str(self.oboundary.GetNumExcitations()) + "p"
-            filename = os.path.join(self.working_directory, solutionname + "_" + sweepname + appendix + ext)
-        else:
-            filename = filename.replace("//", "/").replace("\\", "/")
-        self.logger.info("Exporting Touchstone " + filename)
-        DesignVariations = ""
-        i = 0
-        for el in variation:
-            DesignVariations += str(variation[i]) + "='" + str(variations_value[i].replace("'", "")) + "' "
-            i += 1
-            # DesignVariations = "$AmbientTemp=\'22cel\' $PowerIn=\'100\'"
-        # array containing "SetupName:SolutionName" pairs (note that setup and solution are separated by a colon)
-        SolutionSelectionArray = [solutionname + ":" + sweepname]
-        # 2=tab delimited spreadsheet (.tab), 3= touchstone (.sNp), 4= CitiFile (.cit),
-        # 7=Matlab (.m), 8=Terminal Z0 spreadsheet
-        FileFormat = 3
-        OutFile = filename  # full path of output file
-        # array containin the frequencies to export, use ["all"] for all frequencies
-        FreqsArray = ["all"]
-        DoRenorm = True  # perform renormalization before export
-        RenormImped = 50  # Real impedance value in ohm, for renormalization
-        DataType = "S"  # Type: "S", "Y", or "Z" matrix to export
-        Pass = -1  # The pass to export. -1 = export all passes.
-        ComplexFormat = 0  # 0=Magnitude/Phase, 1=Real/Immaginary, 2=dB/Phase
-        DigitsPrecision = 15  # Touchstone number of digits precision
-        IncludeGammaImpedance = True  # Include Gamma and Impedance in comments
-        NonStandardExtensions = False  # Support for non-standard Touchstone extensions
-
-        self.odesign.ExportNetworkData(
-            DesignVariations,
-            SolutionSelectionArray,
-            FileFormat,
-            OutFile,
-            FreqsArray,
-            DoRenorm,
-            RenormImped,
-            DataType,
-            Pass,
-            ComplexFormat,
-            DigitsPrecision,
-            False,
-            IncludeGammaImpedance,
-            NonStandardExtensions,
+        return self._export_touchstone(
+            solution_name=solution_name,
+            sweep_name=sweep_name,
+            file_name=file_name,
+            variations=variations,
+            variations_value=variations_value,
         )
-        self.logger.info("Touchstone correctly exported to %s", filename)
-        return True
 
     @pyaedt_function_handler()
     def export_fullwave_spice(
@@ -1030,8 +1006,8 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.SolutionData`
-           Class containing all Requested Data
+        :class:`pyaedt.modules.solutions.SolutionData`
+           Class containing all requested data.
 
         References
         ----------
@@ -1524,7 +1500,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
         self.odesign.SaveDiffPairsToFile(tmpfile1)
-        with open(tmpfile1, "r") as fh:
+        with open_file(tmpfile1, "r") as fh:
             lines = fh.read().splitlines()
         num_diffs_before = len(lines)
         old_arg = []
@@ -1567,10 +1543,10 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @pyaedt_function_handler()
     def load_diff_pairs_from_file(self, filename):
-        """Load differtential pairs definition from file.
+        """Load differtential pairs definition from a file.
 
-        File format can be obtained using ``save_diff_pairs_to_file`` method.
-        New definitions are added only if compatible with the existing definition already defined in the project.
+        You can use the the ``save_diff_pairs_to_file`` method to obtain the file format.
+        New definitions are added only if they are compatible with the existing definitions in the project.
 
         Parameters
         ----------
@@ -1587,11 +1563,11 @@ class Circuit(FieldAnalysisCircuit, object):
         >>> oDesign.LoadDiffPairsFromFile
         """
         if not os.path.isfile(filename):  # pragma: no cover
-            raise ValueError("{}: unable to find the specified file.".format(filename))
+            raise ValueError("{}: The specified file could not be found.".format(filename))
 
         try:
             new_file = os.path.join(os.path.dirname(filename), generate_unique_name("temp") + ".txt")
-            with open(filename, "r") as file:
+            with open_file(filename, "r") as file:
                 filedata = file.read().splitlines()
             with io.open(new_file, "w", newline="\n") as fh:
                 for line in filedata:
@@ -1607,7 +1583,7 @@ class Circuit(FieldAnalysisCircuit, object):
     def save_diff_pairs_to_file(self, filename):
         """Save differtential pairs definition to file.
 
-        If ``filename`` already exists, it will be overwritten.
+        If the file that is specified already exists, it is overwritten.
 
         Parameters
         ----------
@@ -1626,3 +1602,31 @@ class Circuit(FieldAnalysisCircuit, object):
         self.odesign.SaveDiffPairsToFile(filename)
 
         return os.path.isfile(filename)
+
+    @pyaedt_function_handler()
+    def add_netlist_datablock(self, netlist_file, datablock_name=None):
+        """Add a new netlist data block to the circuit schematic.
+
+        Parameters
+        ----------
+        netlist_file : str
+            Path to the netlist file.
+        datablock_name : str, optional
+            Name of the data block.
+
+        Returns
+        -------
+        bool
+            ``True`` if successfully created, ``False`` otherwise.
+        """
+        if not os.path.exists(netlist_file):
+            self.logger.error("Netlist File doesn't exists")
+            return False
+        if not datablock_name:
+            datablock_name = generate_unique_name("Inc")
+
+        tmp_oModule = self.odesign.GetModule("DataBlock")
+        tmp_oModule.AddNetlistDataBlock(
+            ["NAME:DataBlock", "name:=", datablock_name, "filename:=", netlist_file, "filelocation:=", 0]
+        )
+        return True

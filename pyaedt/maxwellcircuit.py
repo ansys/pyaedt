@@ -4,11 +4,12 @@ from __future__ import absolute_import  # noreorder
 import math
 
 from pyaedt.application.AnalysisMaxwellCircuit import AnalysisMaxwellCircuit
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class MaxwellCircuit(AnalysisMaxwellCircuit, object):
-    """Provides the Maxwell Circuit Editor application interface.
+    """Provides the Maxwell Circuit application interface.
 
     Parameters
     ----------
@@ -34,9 +35,21 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
     close_on_exit : bool, optional
-        Whether to release AEDT on exit. The default is ``True``.
+        Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether open AEDT Student Version. The default is ``False``.
+        Whether to open the AEDT student version. The default is ``False``.
+    machine : str, optional
+        Machine name to connect the oDesktop session to. This works only in 2022 R2
+        and later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`, the server
+        is also started if not present.
+    port : int, optional
+        Port number on which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 or
+        later. The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
@@ -74,6 +87,9 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
+        aedt_process_id=None,
     ):
         """Constructor."""
         AnalysisMaxwellCircuit.__init__(
@@ -86,6 +102,9 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
+            aedt_process_id,
         )
 
     @pyaedt_function_handler()
@@ -114,7 +133,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         ypos = 0
         delta = 0.0508
         use_instance = True
-        with open(file_to_import, "r") as f:
+        with open_file(file_to_import, "r") as f:
             for line in f:
                 mycomp = None
                 fields = line.split(" ")

@@ -6,13 +6,14 @@ from collections import OrderedDict
 from pyaedt.generic.constants import CATEGORIESQ3D
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
+from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Object3d import _dim_arg
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import VertexPrimitive
+from pyaedt.modeler.Object3d import _dim_arg
 
 
 class BoundaryProps(OrderedDict):
@@ -34,6 +35,14 @@ class BoundaryProps(OrderedDict):
             for key, value in props.items():
                 if isinstance(value, (OrderedDict, dict)):
                     OrderedDict.__setitem__(self, key, BoundaryProps(boundary, value))
+                elif isinstance(value, list):
+                    list_els = []
+                    for el in value:
+                        if isinstance(el, (OrderedDict, dict)):
+                            list_els.append(BoundaryProps(boundary, el))
+                        else:
+                            list_els.append(el)
+                    OrderedDict.__setitem__(self, key, list_els)
                 else:
                     OrderedDict.__setitem__(self, key, value)
         self._pyaedt_boundary = boundary
@@ -42,7 +51,7 @@ class BoundaryProps(OrderedDict):
         OrderedDict.__setitem__(self, key, value)
 
 
-class BoundaryCommon(object):
+class BoundaryCommon(PropsManager):
     """ """
 
     @pyaedt_function_handler()
@@ -76,7 +85,10 @@ class BoundaryCommon(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._app.oboundary.DeleteBoundaries([self.name])
+        if self.type == "Matrix" or self.type == "Force" or self.type == "Torque":
+            self._app.o_maxwell_parameters.DeleteParameters([self.name])
+        else:
+            self._app.oboundary.DeleteBoundaries([self.name])
         for el in self._app.boundaries:
             if el.name == self.name:
                 self._app.boundaries.remove(el)
@@ -325,22 +337,24 @@ class BoundaryObject(BoundaryCommon, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if self.type == "PerfectE":
+        if self.type == "Perfect E":
             self._app.oboundary.AssignPerfectE(self._get_args())
-        elif self.type == "PerfectH":
+        elif self.type == "Perfect H":
             self._app.oboundary.AssignPerfectH(self._get_args())
         elif self.type == "Aperture":
             self._app.oboundary.AssignAperture(self._get_args())
         elif self.type == "Radiation":
             self._app.oboundary.AssignRadiation(self._get_args())
-        elif self.type == "FiniteCond":
+        elif self.type == "Finite Conductivity":
             self._app.oboundary.AssignFiniteCond(self._get_args())
-        elif self.type == "LumpedRLC":
+        elif self.type == "Lumped RLC":
             self._app.oboundary.AssignLumpedRLC(self._get_args())
         elif self.type == "Impedance":
             self._app.oboundary.AssignImpedance(self._get_args())
+        elif self.type == "Layered Impedance":
+            self._app.oboundary.AssignLayeredImp(self._get_args())
         elif self.type == "Anisotropic Impedance":
-            self._app.oboundary.AssignAssignAnisotropicImpedance(self._get_args())
+            self._app.oboundary.AssignAnisotropicImpedance(self._get_args())
         elif self.type == "Primary":
             self._app.oboundary.AssignPrimary(self._get_args())
         elif self.type == "Secondary":
@@ -417,9 +431,9 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignBalloon(self._get_args())
         elif self.type == "Winding" or self.type == "Winding Group":
             self._app.oboundary.AssignWindingGroup(self._get_args())
-        elif self.type == "VectorPotential":
+        elif self.type == "Vector Potential":
             self._app.oboundary.AssignVectorPotential(self._get_args())
-        elif self.type == "CoilTerminal":
+        elif self.type == "CoilTerminal" or self.type == "Coil Terminal":
             self._app.oboundary.AssignCoilTerminal(self._get_args())
         elif self.type == "Coil":
             self._app.oboundary.AssignCoil(self._get_args())
@@ -437,13 +451,13 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignSingleSignalLine(self._get_args())
         elif self.type == "ReferenceGround":
             self._app.oboundary.AssignSingleReferenceGround(self._get_args())
-        elif self.type == "CircuitPort":
+        elif self.type == "Circuit Port":
             self._app.oboundary.AssignCircuitPort(self._get_args())
-        elif self.type == "LumpedPort":
+        elif self.type == "Lumped Port":
             self._app.oboundary.AssignLumpedPort(self._get_args())
-        elif self.type == "WavePort":
+        elif self.type == "Wave Port":
             self._app.oboundary.AssignWavePort(self._get_args())
-        elif self.type == "FloquetPort":
+        elif self.type == "Floquet Port":
             self._app.oboundary.AssignFloquetPort(self._get_args())
         elif self.type == "AutoIdentify":
             self._app.oboundary.AutoIdentifyPorts(
@@ -455,6 +469,8 @@ class BoundaryObject(BoundaryCommon, object):
             )
         elif self.type == "SBRTxRxSettings":
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())
+        elif self.type == "EndConnection":
+            self._app.oboundary.AssignEndConnection(self._get_args())
         else:
             return False
         return True
@@ -469,20 +485,22 @@ class BoundaryObject(BoundaryCommon, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if self.type == "PerfectE":
+        if self.type == "Perfect E":
             self._app.oboundary.EditPerfectE(self._boundary_name, self._get_args())
-        elif self.type == "PerfectH":
+        elif self.type == "Perfect H":
             self._app.oboundary.EditPerfectH(self._boundary_name, self._get_args())
         elif self.type == "Aperture":
             self._app.oboundary.EditAperture(self._boundary_name, self._get_args())
         elif self.type == "Radiation":
             self._app.oboundary.EditRadiation(self._boundary_name, self._get_args())
-        elif self.type in ["FiniteCond", "Finite Conductivity"]:
+        elif self.type == "Finite Conductivity":
             self._app.oboundary.EditFiniteCond(self._boundary_name, self._get_args())
-        elif self.type == "LumpedRLC":
+        elif self.type == "Lumped RLC":
             self._app.oboundary.EditLumpedRLC(self._boundary_name, self._get_args())
         elif self.type == "Impedance":
             self._app.oboundary.EditImpedance(self._boundary_name, self._get_args())
+        elif self.type == "Layered Impedance":
+            self._app.oboundary.EditLayeredImpedance(self._boundary_name, self._get_args())
         elif self.type == "Anisotropic Impedance":
             self._app.oboundary.EditAssignAnisotropicImpedance(
                 self._boundary_name, self._get_args()
@@ -548,12 +566,12 @@ class BoundaryObject(BoundaryCommon, object):
         elif self.type == "VoltageDrop":
             self._app.oboundary.EditVoltageDrop(self._boundary_name, self._get_args())
         elif self.type == "Current":
-            self._app.oboundary.Current(self._boundary_name, self._get_args())
+            self._app.oboundary.EditCurrent(self._boundary_name, self._get_args())
         elif self.type == "Winding" or self.type == "Winding Group":
             self._app.oboundary.EditWindingGroup(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "VectorPotential":
+        elif self.type == "Vector Potential":
             self._app.oboundary.EditVectorPotential(self._boundary_name, self._get_args())  # pragma: no cover
-        elif self.type == "CoilTerminal":
+        elif self.type == "CoilTerminal" or self.type == "Coil Terminal":
             self._app.oboundary.EditCoilTerminal(self._boundary_name, self._get_args())
         elif self.type == "Coil":
             self._app.oboundary.EditCoil(self._boundary_name, self._get_args())
@@ -563,16 +581,18 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
         elif self.type == "SignalNet" or self.type == "GroundNet" or self.type == "FloatingNet":
             self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
-        elif self.type in ["CircuitPort", "Circuit Port"]:
+        elif self.type in "Circuit Port":
             self._app.oboundary.EditCircuitPort(self._boundary_name, self._get_args())
-        elif self.type in ["LumpedPort", "Lumped Port"]:
+        elif self.type in "Lumped Port":
             self._app.oboundary.EditLumpedPort(self._boundary_name, self._get_args())
-        elif self.type in ["WavePort", "Wave Port"]:
+        elif self.type in "Wave Port":
             self._app.oboundary.EditWavePort(self._boundary_name, self._get_args())
         elif self.type == "SetSBRTxRxSettings":
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())  # pragma: no cover
-        elif self.type == "FloquetPort":
+        elif self.type == "Floquet Port":
             self._app.oboundary.EditFloquetPort(self._boundary_name, self._get_args())  # pragma: no cover
+        elif self.type == "End Connection":
+            self._app.oboundary.EditEndConnection(self._boundary_name, self._get_args())
         else:
             return False  # pragma: no cover
         self._boundary_name = self.name
@@ -600,10 +620,113 @@ class BoundaryObject(BoundaryCommon, object):
                     faces_out.append(f)
             self._app.oboundary.ReassignBoundary(["Name:" + self.name, "Faces:=", faces_out])
         elif "Objects" in self.props:
+            pr = []
+            for el in self.props["Objects"]:
+                try:
+                    pr.append(self._app.modeler[el].name)
+                except (KeyError, AttributeError):
+                    pass
 
-            self._app.oboundary.ReassignBoundary(["Name:" + self.name, "Objects:=", self.props["Objects"]])
+            self._app.oboundary.ReassignBoundary(["Name:" + self.name, "Objects:=", pr])
         else:
             return False
+        return True
+
+
+class MaxwellParameters(BoundaryCommon, object):
+    """Manages parameter data and execution.
+
+    Examples
+    --------
+
+    Create a matrix in Maxwell3D return a ``pyaedt.modules.Boundary.BoundaryObject``
+
+    >>> from pyaedt import Maxwell2d
+    >>> maxwell_2d = Maxwell2d()
+    >>> coil1 = maxwell_2d.modeler.create_rectangle([8.5,1.5, 0], [8, 3], True, "Coil_1", "vacuum")
+    >>> coil2 = maxwell_2d.modeler.create_rectangle([8.5,1.5, 0], [8, 3], True, "Coil_2", "vacuum")
+    >>> maxwell_2d.assign_matrix(["Coil_1", "Coil_2"])
+    """
+
+    def __init__(self, app, name, props, boundarytype):
+        self.auto_update = False
+        self._app = app
+        self._name = name
+        self.props = BoundaryProps(self, OrderedDict(props))
+        self.type = boundarytype
+        self._boundary_name = self.name
+        self.auto_update = True
+
+    @property
+    def name(self):
+        """Boundary Name."""
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+        self.update()
+
+    @pyaedt_function_handler()
+    def _get_args(self, props=None):
+        """Retrieve arguments.
+
+        Parameters
+        ----------
+        props :
+            The default is ``None``.
+
+        Returns
+        -------
+        list
+            List of boundary properties.
+
+        """
+        if props is None:
+            props = self.props
+        arg = ["NAME:" + self.name]
+        _dict2arg(props, arg)
+        return arg
+
+    @pyaedt_function_handler()
+    def create(self):
+        """Create a boundary.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        if self.type == "Matrix":
+            self._app.o_maxwell_parameters.AssignMatrix(self._get_args())
+        elif self.type == "Torque":
+            self._app.o_maxwell_parameters.AssignTorque(self._get_args())
+        elif self.type == "Force":
+            self._app.o_maxwell_parameters.AssignForce(self._get_args())
+        else:
+            return False
+        return True
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update the boundary.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        if self.type == "Matrix":
+            self._app.o_maxwell_parameters.EditMatrix(self._boundary_name, self._get_args())
+        elif self.type == "Force":
+            self._app.o_maxwell_parameters.EditForce(self._boundary_name, self._get_args())
+        elif self.type == "Torque":
+            self._app.o_maxwell_parameters.EditTorque(self._boundary_name, self._get_args())
+        else:
+            return False
+        self._boundary_name = self.name
         return True
 
 
@@ -616,7 +739,9 @@ class FieldSetup(BoundaryCommon, object):
     >>> from pyaedt import Hfss
     >>> hfss = Hfss()
     >>> sphere1 = hfss.insert_infinite_sphere()
-    >>> sphere1.props["ThetaStart"] = 45
+    >>> sphere1.props["ThetaStart"] = "-90deg"
+    >>> sphere1.props["ThetaStop"] = "90deg"
+    >>> sphere1.props["ThetaStep"] = "2deg"
     >>> sphere1.delete()
     """
 
@@ -716,7 +841,9 @@ class FarFieldSetup(FieldSetup, object):
     >>> from pyaedt import Hfss
     >>> hfss = Hfss()
     >>> sphere1 = hfss.insert_infinite_sphere()
-    >>> sphere1.props["ThetaStart"] = 45
+    >>> sphere1.props["ThetaStart"] = "-90deg"
+    >>> sphere1.props["ThetaStop"] = "90deg"
+    >>> sphere1.props["ThetaStep"] = "2deg"
     >>> sphere1.delete()
     """
 

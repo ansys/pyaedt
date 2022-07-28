@@ -1,11 +1,17 @@
 import os
 
+from _unittest.conftest import config
+
 try:
     import pytest
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 # Setup paths for module imports
-from _unittest.conftest import local_path, settings, BasisTest, desktop_version, is_ironpython
+from _unittest.conftest import BasisTest
+from _unittest.conftest import desktop_version
+from _unittest.conftest import is_ironpython
+from _unittest.conftest import local_path
+from _unittest.conftest import settings
 
 # Import required modules
 from pyaedt import Hfss
@@ -96,7 +102,7 @@ class TestClass(BasisTest, object):
         udp = self.aedtapp.modeler.Position(100, 0, 0)
         o6 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1a")
         port = self.aedtapp.create_wave_port_from_sheet(
-            o6, 0, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1a_Port", renorm=False, terminal_references=["outer"]
+            o6, 0, self.aedtapp.AxisDir.XNeg, 40, 2, "sheet1a_Port", renorm=True, terminal_references=["outer"]
         )
         assert port.name == "sheet1a_Port"
         assert port.name in [i.name for i in self.aedtapp.boundaries]
@@ -113,7 +119,9 @@ class TestClass(BasisTest, object):
         id6 = self.aedtapp.modeler.create_box([20, 20, 20], [10, 10, 2], matname="Copper", name="My_Box")
         id7 = self.aedtapp.modeler.create_box([20, 25, 30], [10, 2, 2], matname="Copper")
         rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [20, 25, 20], [2, 10])
-        ports = self.aedtapp.create_wave_port_from_sheet(rect, 5, self.aedtapp.AxisDir.ZNeg, 40, 2, "sheet3_Port", True)
+        ports = self.aedtapp.create_wave_port_from_sheet(
+            rect, 5, self.aedtapp.AxisDir.ZNeg, 40, 2, "sheet3_Port", False
+        )
         assert ports.name in [i.name for i in self.aedtapp.boundaries]
 
     def test_06a_create_linear_count_sweep(self):
@@ -123,6 +131,7 @@ class TestClass(BasisTest, object):
         setup.props["MaximumPasses"] = 1
         assert setup.update()
         assert self.aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401)
+        assert not self.aedtapp.setups[0].sweeps[0].is_solved
         assert self.aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401)
         assert self.aedtapp.create_linear_count_sweep(
             setupname="MySetup",
@@ -181,7 +190,9 @@ class TestClass(BasisTest, object):
             )
         except AttributeError as e:
             exception_raised = True
-            assert e.args[0] == "Invalid `sweep_type`. It must be 'Discrete', 'Interpolating', or 'Fast'."
+            assert (
+                e.args[0] == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+            )
         assert exception_raised
 
     def test_06b_setup_exists(self):
@@ -237,7 +248,9 @@ class TestClass(BasisTest, object):
             )
         except AttributeError as e:
             exception_raised = True
-            assert e.args[0] == "Invalid `sweep_type`. It has to be 'Discrete', 'Interpolating', or 'Fast'."
+            assert (
+                e.args[0] == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+            )
         assert exception_raised
 
     def test_06d_create_single_point_sweep(self):
@@ -277,7 +290,7 @@ class TestClass(BasisTest, object):
         box_sweep = self.aedtapp.modeler.create_box([0, 0, 20], [10, 10, 5], "box_sweep", "Copper")
         box_sweep2 = self.aedtapp.modeler.create_box([0, 0, 30], [10, 10, 5], "box_sweep2", "Copper")
         port = self.aedtapp.create_wave_port_between_objects(
-            "box_sweep", "box_sweep2", self.aedtapp.AxisDir.XNeg, 50, 1, "WaveForSweep", False
+            "box_sweep", "box_sweep2", self.aedtapp.AxisDir.XNeg, 75, 1, "WaveForSweep", False
         )
         setup = self.aedtapp.create_setup(setupname="MySetupForSweep")
         sweep = setup.add_sweep()
@@ -332,6 +345,16 @@ class TestClass(BasisTest, object):
 
     def test_07_set_power(self):
         assert self.aedtapp.edit_source("sheet1_Port" + ":1", "10W")
+        assert self.aedtapp.edit_sources(
+            {"sheet1_Port" + ":1": "10W", "sheet2_Port:1": ("20W", "20deg")},
+            include_port_post_processing=True,
+            max_available_power="40W",
+        )
+        assert self.aedtapp.edit_sources(
+            {"sheet1_Port" + ":1": "10W", "sheet2_Port:1": ("20W", "0deg", True)},
+            include_port_post_processing=True,
+            use_incident_voltage=True,
+        )
 
     def test_08_create_circuit_port_from_edges(self):
         plane = self.aedtapp.PLANE.XY
@@ -432,8 +455,8 @@ class TestClass(BasisTest, object):
         assert port.name == "Lump1xx"
         port.name = "Lump1"
         assert port.update()
-        assert self.aedtapp.create_lumped_port_between_objects(
-            "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump2", True, True
+        port = self.aedtapp.create_lumped_port_between_objects(
+            "BoxLumped1", "BoxLumped2", self.aedtapp.AxisDir.XNeg, 50, "Lump2", False, True
         )
 
     def test_11_create_circuit_on_objects(self):
@@ -478,6 +501,13 @@ class TestClass(BasisTest, object):
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
         assert imp.update()
 
+        box3 = self.aedtapp.modeler.create_box([0, 0, 20], [10, 10, 5], "rlc3", "copper")
+        lumped_rlc2 = self.aedtapp.create_lumped_rlc_between_objects(
+            "rlc2", "rlc3", self.aedtapp.AxisDir.XPos, Rvalue=50, Lvalue=1e-9, Cvalue=1e-9
+        )
+        assert lumped_rlc2.name in self.aedtapp.modeler.get_boundaries_name()
+        assert lumped_rlc2.update()
+
     def test_15_create_perfects_on_sheets(self):
         rect = self.aedtapp.modeler.create_rectangle(
             self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="RectBound", matname="Copper"
@@ -500,6 +530,15 @@ class TestClass(BasisTest, object):
             self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="rlcBound", matname="Copper"
         )
         imp = self.aedtapp.assign_lumped_rlc_to_sheet(rect.name, self.aedtapp.AxisDir.XPos, Rvalue=50, Lvalue=1e-9)
+        names = self.aedtapp.modeler.get_boundaries_name()
+        assert imp.name in self.aedtapp.modeler.get_boundaries_name()
+
+        rect2 = self.aedtapp.modeler.create_rectangle(
+            self.aedtapp.PLANE.XY, [0, 0, 10], [10, 2], name="rlcBound2", matname="Copper"
+        )
+        imp = self.aedtapp.assign_lumped_rlc_to_sheet(
+            rect.name, self.aedtapp.AxisDir.XPos, rlctype="Serial", Rvalue=50, Lvalue=1e-9
+        )
         names = self.aedtapp.modeler.get_boundaries_name()
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
 
@@ -565,12 +604,14 @@ class TestClass(BasisTest, object):
         assert mesh.delete()
         pass
 
-    def test_25_create_parametrics(self):
+    def test_25a_create_parametrics(self):
         self.aedtapp["w1"] = "10mm"
         self.aedtapp["w2"] = "2mm"
         setup1 = self.aedtapp.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
         assert setup1
         assert setup1.add_variation("w2", "0.1mm", 10, 11)
+        assert setup1.add_variation("w2", start_point="0.2mm", variation_type="SingleValue")
+        assert setup1.add_variation("w1", start_point="0.3mm", end_point=5, step=0.2, variation_type="LinearStep")
         assert setup1.add_calculation(
             calculation="dB(S(1,1))", ranges={"Freq": "5GHz"}, solution="MySetupForSweep : LastAdaptive"
         )
@@ -587,6 +628,19 @@ class TestClass(BasisTest, object):
         )
         oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\ParametricsfromFile")
         assert oo
+        assert self.aedtapp.parametrics.delete("ParametricsfromFile")
+
+    def test_25b_create_parametrics_sync(self):
+        self.aedtapp["a1"] = "10mm"
+        self.aedtapp["a2"] = "2mm"
+        setup1 = self.aedtapp.parametrics.add(
+            "a1", start_point=0.1, end_point=20, step=10, variation_type="LinearCount"
+        )
+        assert setup1
+        assert setup1.add_variation("a2", start_point="0.3mm", end_point=5, step=10, variation_type="LinearCount")
+        assert setup1.sync_variables(["a1", "a2"], sync_n=1)
+        assert setup1.sync_variables(["a1", "a2"], sync_n=0)
+        setup1.add_variation("a1", start_point="13mm", variation_type="SingleValue")
 
     def test_26_create_optimization(self):
         calculation = "db(S(Cir1,Cir1))"
@@ -616,6 +670,7 @@ class TestClass(BasisTest, object):
             if "NAME:Ranges" in el:
                 break
         assert "rd" in el[2]
+        assert self.aedtapp.optimizations.delete(setup2.name)
 
     def test_27_create_doe(self):
         setup2 = self.aedtapp.optimizations.add("db(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DXDOE")
@@ -623,6 +678,7 @@ class TestClass(BasisTest, object):
         assert setup2
         assert setup2.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
         assert setup2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
+        assert setup2.delete()
 
     def test_28A_create_dx(self):
         setup2 = self.aedtapp.optimizations.add(None, {"w1": "1mm", "w2": "2mm"}, optim_type="optiSLang")
@@ -662,7 +718,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.solution_type = "Terminal"
         assert self.aedtapp.create_wave_port_microstrip_between_objects(gnd.name, ms.name, portname="MS2", axisdir=1)
         assert self.aedtapp.create_wave_port_microstrip_between_objects(
-            gnd.name, ms.name, portname="MS3", axisdir=1, deembed_dist=1
+            gnd.name, ms.name, portname="MS3", axisdir=1, deembed_dist=1, impedance=77
         )
         self.aedtapp.solution_type = "Modal"
 
@@ -817,15 +873,15 @@ class TestClass(BasisTest, object):
         box2 = self.aedtapp.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig", matname="copper")
         sheet = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [-100, -100, 5], [200, 15], "port")
         port = self.aedtapp.create_lumped_port_between_objects(
-            box1, box2.name, self.aedtapp.AxisDir.XNeg, 50, "Lump1", True, False
+            box1, box2.name, self.aedtapp.AxisDir.XNeg, 75, "Lump1", True, False
         )
         assert "Lump1_T1" in self.aedtapp.excitations
         port2 = self.aedtapp.create_lumped_port_to_sheet(
-            sheet.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet", True, False, reference_object_list=[box1]
+            sheet.name, self.aedtapp.AxisDir.XNeg, 33, "Lump_sheet", True, False, reference_object_list=[box1]
         )
         assert port2.name + "_T1" in self.aedtapp.excitations
         port3 = self.aedtapp.create_lumped_port_between_objects(
-            box1, box2.name, self.aedtapp.AxisDir.XNeg, 50, "Lump3", True, True
+            box1, box2.name, self.aedtapp.AxisDir.XNeg, 50, "Lump3", False, True
         )
         assert port3.name + "_T1" in self.aedtapp.excitations
 
@@ -916,3 +972,26 @@ class TestClass(BasisTest, object):
         )
         assert not hfss2.set_differential_pair(positive_terminal="P2_T1", negative_terminal="P2_T3")
         hfss2.close_project()
+
+    @pytest.mark.skipif(
+        is_ironpython or config["desktopVersion"] < "2022.2",
+        reason="Not working in non-graphical in version lower than 2022.2",
+    )
+    def test_51_array(self):
+        self.aedtapp.insert_design("Array_simple", "Modal")
+        from pyaedt.generic.DataHandlers import json_to_dict
+
+        dict_in = json_to_dict(os.path.join(local_path, "example_models", "array_simple.json"))
+        dict_in["Circ_Patch_5GHz1"] = os.path.join(local_path, "example_models", "Circ_Patch_5GHz.a3dcomp")
+        dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
+        assert self.aedtapp.add_3d_component_array_from_json(dict_in)
+        dict_in["cells"][(3, 3)]["rotation"] = 90
+        assert self.aedtapp.add_3d_component_array_from_json(dict_in)
+        pass
+
+    def test_52_set_material_threshold(self):
+        assert self.aedtapp.set_material_threshold()
+        threshold = 123123123
+        assert self.aedtapp.set_material_threshold(threshold)
+        assert self.aedtapp.set_material_threshold(str(threshold))
+        assert not self.aedtapp.set_material_threshold("e")

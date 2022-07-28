@@ -1,6 +1,5 @@
 from collections import OrderedDict
 
-
 defaultparametricSetup = OrderedDict(
     {
         "IsEnabled": True,

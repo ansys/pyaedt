@@ -33,7 +33,7 @@ class Mechanical(FieldAnalysis3D, object):
     specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
-        This parameter is ignored when Script is launched within AEDT.
+        This parameter is ignored when a script is launched within AEDT.
     non_graphical : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
@@ -41,12 +41,25 @@ class Mechanical(FieldAnalysis3D, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored when Script is launched within AEDT.
+        machine. The default is ``True``. This parameter is ignored when
+        a script is launched within AEDT.
     close_on_exit : bool, optional
-        Whether to release AEDT on exit.
+        Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
-        This parameter is ignored when Script is launched within AEDT.
+        This parameter is ignored when a script is launched within AEDT.
+    machine : str, optional
+        Machine name to connect the oDesktop session to. Works only in 2022R2 and
+        later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`,
+        the server also starts if not present.
+    port : int, optional
+        Port number on which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 or
+        later. The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
@@ -91,6 +104,9 @@ class Mechanical(FieldAnalysis3D, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
+        aedt_process_id=None,
     ):
 
         FieldAnalysis3D.__init__(
@@ -105,6 +121,9 @@ class Mechanical(FieldAnalysis3D, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
+            aedt_process_id,
         )
 
     def __enter__(self):
@@ -154,7 +173,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignEMLoss
         """
-        assert self.solution_type == "Thermal", "This method works only in a Mechanical structural analysis."
+        assert self.solution_type == "Thermal", "This method works only in a Mechanical Structural analysis."
 
         self.logger.info("Mapping HFSS EM Lossess")
         oName = self.project_name
@@ -250,7 +269,7 @@ class Mechanical(FieldAnalysis3D, object):
         >>> oModule.AssignThermalCondition
         """
 
-        assert self.solution_type == "Structural", "This method works only in a Mechanical structural analysis."
+        assert self.solution_type == "Structural", "This method works only in a Mechanical Structural analysis."
 
         self.logger.info("Mapping HFSS EM Lossess")
         oName = self.project_name
@@ -314,7 +333,8 @@ class Mechanical(FieldAnalysis3D, object):
         temperature : str, optional
             Temperature. The default is ``"AmbientTemp"``.
         boundary_name : str, optional
-            Name of the boundary. The default is ``""``.
+            Name of the boundary. The default is ``""``, in which case the default
+            name is used.
 
         Returns
         -------
@@ -326,7 +346,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignConvection
         """
-        assert self.solution_type == "Thermal", "This method works only in a Mechanical structural analysis."
+        assert self.solution_type == "Thermal", "This method works only in a Mechanical Structural analysis."
 
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
@@ -354,7 +374,7 @@ class Mechanical(FieldAnalysis3D, object):
         """Assign a uniform temperature boundary.
 
         .. note::
-            This method works only in a Mechanical thermal analysis.
+            This method works only in a Mechanical Thermal analysis.
 
         Parameters
         ----------
@@ -375,7 +395,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignTemperature
         """
-        assert self.solution_type == "Thermal", "This method works only in a Mechanical structural analysis."
+        assert self.solution_type == "Thermal", "This method works only in a Mechanical Structural analysis."
 
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
@@ -401,14 +421,15 @@ class Mechanical(FieldAnalysis3D, object):
         """Assign a Mechanical frictionless support.
 
         .. note::
-            This method works only in a Mechanical structural analysis.
+            This method works only in a Mechanical Structural analysis.
 
         Parameters
         ----------
         objects_list : list
             List of faces to apply to the frictionless support.
         boundary_name : str, optional
-            Name of the boundary. The default is ``""``.
+            Name of the boundary. The default is ``""``, in which case the
+            default name is used.
 
         Returns
         -------
@@ -422,7 +443,7 @@ class Mechanical(FieldAnalysis3D, object):
         """
 
         if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
-            self.logger.error("This method works only in Mechanical atructural analysis.")
+            self.logger.error("This method works only in Mechanical Structural analysis.")
             return False
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
@@ -446,14 +467,15 @@ class Mechanical(FieldAnalysis3D, object):
         """Assign a Mechanical fixed support.
 
         .. note::
-           This method works only in a Mechanical structural analysis.
+           This method works only in a Mechanical Structural analysis.
 
         Parameters
         ----------
         objects_list : list
             List of faces to apply to the fixed support.
         boundary_name : str, optional
-            Name of the boundary. The default is ``""``.
+            Name of the boundary. The default is ``""``, in which case
+            the default name is used.
 
         Returns
         -------
@@ -466,7 +488,7 @@ class Mechanical(FieldAnalysis3D, object):
         >>> oModule.AssignFixedSupport
         """
         if not (self.solution_type == "Structural" or "Modal" in self.solution_type):
-            self.logger.error("This method works only in a Mechanical structural analysis.")
+            self.logger.error("This method works only in a Mechanical Structural analysis.")
             return False
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)

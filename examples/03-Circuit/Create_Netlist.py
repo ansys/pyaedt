@@ -1,95 +1,84 @@
 """
-Circuit: Netlist to Schematic Import
+Circuit: netlist to schematic iport
 ------------------------------------
-# This example shows how to import Netlist data into a
-# Circuit design. Supported Netlist files are HSPICE and,
-# partially, Mentor.
+# This example shows how to import netlist data into a circuit design.
+# HSPICE files are supported. Mentor files are partially supported.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/schematic.png'
 
+###############################################################################
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports and set paths.
+
+# sphinx_gallery_thumbnail_path = 'Resources/schematic.png'
 import os
 
-###############################################################################
-# Import Packages
-# ~~~~~~~~~~~~~~~
-# Set the local path to the path for PyAEDT.
-
+# Import required modules
 from pyaedt import examples
-import tempfile
-
+from pyaedt import generate_unique_project_name
 netlist = examples.download_netlist()
-from pyaedt import generate_unique_name
 
-tmpfold = tempfile.gettempdir()
-temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder):
-    os.makedirs(temp_folder)
-myfile = os.path.join(netlist)
-print(temp_folder)
+project_name = generate_unique_project_name()
+print(project_name)
+
 
 ###############################################################################
-# Import the main classes needed: :class:`pyaedt.Desktop` and :class:`pyaedt.Circuit`.
+# Import main classes
+# ~~~~~~~~~~~~~~~~~~~
+# Import the main classes that are needed: :class:`pyaedt.Desktop` and :class:`pyaedt.Circuit`.
 
 from pyaedt import Circuit
 from pyaedt import Desktop
 
 ###############################################################################
-# Launch AEDT and Circuit
-# ~~~~~~~~~~~~~~~~~~~~~~~
-# This example launches AEDT 2022R1 in graphical mode.
+# Launch AEDT
+# ~~~~~~~~~~~
+# Launch AEDT 2022 R2 in graphical mode. This example uses SI units.
 
-# This examples uses SI units.
-
-desktopVersion = "2022.1"
+desktopVersion = "2022.2"
 
 
-###############################################################################
-# Launch AEDT in Non-Graphical Mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Change the Boolean parameter ``NonGraphical`` to ``False`` to launch AEDT in
-# graphical mode.
+##########################################################
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
+# User can define `non_graphical` value either to `True` or `False`.
 
-NonGraphical = False
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = True
 
 ###############################################################################
-# Launch AEDT and Circuit
+# Launch AEDT with Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# The :class:`pyaedt.Desktop` class initializes AEDT and starts it on a specified version in
-# a specified graphical mode. The Boolean parameter ``NewThread`` defines whether
-# to create a new instance of AEDT or try to connect to existing instance of it.
+# Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
+# and starts it on the specified version in the specified graphical mode. The Boolean
+# parameter ``NewThread`` defines whether to create a new instance of AEDT or try
+# to connect to an existing instance of it.
 
-
-desktop = Desktop(desktopVersion, NonGraphical, NewThread)
-aedtapp = Circuit()
-
-###############################################################################
-# Save the Project to the Temp Folder
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The temp folder can be changed.
-
-aedtapp.save_project(os.path.join(temp_folder, "my_firt_netlist.aedt"))
+desktop = Desktop(desktopVersion, non_graphical, NewThread)
+aedtapp = Circuit(projectname=project_name)
 
 ###############################################################################
-# Define a Design Variable
-# ~~~~~~~~~~~~~~~~~~~~~~~~
-# Using a ``$`` prefix creates a project variable.
+# Define design variable
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Define a design variable by using a ``$`` prefix.
 
 aedtapp["Voltage"] = "5"
 
 ###############################################################################
-# Create a Schematic from a Netlist File
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method reads the netlist file and parses it. All components will be parsed
-# but only specified categories will be mapped. In particular, R, L, C, Q, U, J, V,
-# and I components will be mapped.
+# Create schematic from netlist file
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a schematic from a netlist file. The ``create_schematic_from_netlist``
+# method reads the netlist file and parses it. All components are parsed
+# but only these specified categories are mapped: R, L, C, Q, U, J, V, and I.
 
-aedtapp.create_schematic_from_netlist(myfile)
+aedtapp.create_schematic_from_netlist(netlist)
 
 ###############################################################################
-# Close the Project
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# After adding any other desired functionalities, close the project.
+# Close project and release AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# After adding any other desired functionalities, close the project and release
+# AEDT.
 
 if os.name != "posix":
     desktop.release_desktop()

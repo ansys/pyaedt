@@ -13,7 +13,7 @@ class RMXprtModule(object):
 
     @pyaedt_function_handler()
     def get_prop_server(self, parameter_name):
-        """Retrieve the properties of the server.
+        """Get the properties of the server.
 
         Parameters
         ----------
@@ -38,12 +38,21 @@ class RMXprtModule(object):
         return prop_server
 
     def __init__(self, oeditor):
-        self._oeditor = oeditor
+        self.oeditor = oeditor
 
     @pyaedt_function_handler()
     def __setitem__(self, parameter_name, value):
         self.set_rmxprt_parameter(parameter_name, value)
         return True
+
+    @pyaedt_function_handler()
+    def __getitem__(self, parameter_name):
+        prop_server = self.get_prop_server(parameter_name)
+        separator = ":" if prop_server else ""
+        val = self.oeditor.GetPropertyValue(
+            self.component, "{0}{1}{2}".format(self.component, separator, prop_server), parameter_name
+        )
+        return val
 
     @pyaedt_function_handler()
     def set_rmxprt_parameter(self, parameter_name, value):
@@ -68,7 +77,7 @@ class RMXprtModule(object):
         """
         prop_server = self.get_prop_server(parameter_name)
         separator = ":" if prop_server else ""
-        self._oeditor.ChangeProperty(
+        self.oeditor.ChangeProperty(
             [
                 "NAME:AllTabs",
                 [
@@ -110,7 +119,7 @@ class Rotor(RMXprtModule):
 
 
 class Rmxprt(FieldAnalysisRMxprt):
-    """Provides the RMxprt application interface.
+    """Provides the RMxprt app interface.
 
     Parameters
     ----------
@@ -125,7 +134,7 @@ class Rmxprt(FieldAnalysisRMxprt):
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
-        ``None``, in which ase the default type is applied.
+        ``None``, in which case the default type is applied.
     model_units : str, optional
         Model units.
     setup_name : str, optional
@@ -145,9 +154,21 @@ class Rmxprt(FieldAnalysisRMxprt):
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
     close_on_exit : bool, optional
-        Whether to release AEDT on exit. The default is ``True``.
+        Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
+    machine : str, optional
+        Machine name to connect the oDesktop session to. This works only in 2022 R2 or
+        later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`, the
+        server also starts if not present.
+    port : int, optional
+        Port number on which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 or later.
+        The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
@@ -186,6 +207,9 @@ class Rmxprt(FieldAnalysisRMxprt):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
+        aedt_process_id=None,
     ):
         FieldAnalysisRMxprt.__init__(
             self,
@@ -199,6 +223,9 @@ class Rmxprt(FieldAnalysisRMxprt):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
+            aedt_process_id,
         )
         if not model_units or model_units == "mm":
             model_units = "mm"

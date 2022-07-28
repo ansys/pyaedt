@@ -1,13 +1,21 @@
+import csv
 import ntpath
 import os
 import warnings
 
+from pyaedt import settings
 from pyaedt.application.Analysis import Analysis
+from pyaedt.generic.configurations import Configurations
 from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.Model2D import Modeler2D
 from pyaedt.modeler.Model3D import Modeler3D
+from pyaedt.modeler.stackup_3d import Stackup3D
 from pyaedt.modules.Mesh import Mesh
+from pyaedt.modules.MeshIcepak import IcepakMesh
 
 if is_ironpython:
     from pyaedt.modules.PostProcessor import PostProcessor
@@ -56,6 +64,9 @@ class FieldAnalysis3D(Analysis, object):
     student_version : bool, optional
         Whether to enable the student version of AEDT. The default
         is ``False``.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
     """
 
     def __init__(
@@ -70,6 +81,9 @@ class FieldAnalysis3D(Analysis, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
+        aedt_process_id=None,
     ):
         Analysis.__init__(
             self,
@@ -83,34 +97,24 @@ class FieldAnalysis3D(Analysis, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
+            aedt_process_id,
         )
-        self._osolution = self._odesign.GetModule("Solutions")
-        self._oboundary = self._odesign.GetModule("BoundarySetup")
-        self._modeler = Modeler3D(self)
-        self._mesh = Mesh(self)
+        self._modeler = Modeler2D(self) if application in ["Maxwell 2D", "2D Extractor"] else Modeler3D(self)
+        self._mesh = IcepakMesh(self) if application == "Icepak" else Mesh(self)
         self._post = PostProcessor(self)
+        self._configurations = Configurations(self)
 
     @property
-    def osolution(self):
-        """Solution Module.
+    def configurations(self):
+        """Property to import and export configuration files.
 
-        References
-        ----------
-
-        >>> oModule = oDesign.GetModule("Solutions")
+        Returns
+        -------
+        :class:`pyaedt.generic.configurations.Configurations`
         """
-        return self._osolution
-
-    @property
-    def oboundary(self):
-        """Boundary Module.
-
-        References
-        ----------
-
-        >>> oModule = oDesign.GetModule("BoundarySetup")
-        """
-        return self._oboundary
+        return self._configurations
 
     @property
     def modeler(self):
@@ -118,7 +122,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Model3D.Modeler3D`
+        :class:`pyaedt.modeler.Model3D.Modeler3D` or :class:`pyaedt.modeler.Model2D.Modeler2D`
         """
         return self._modeler
 
@@ -128,7 +132,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.Mesh`
+        :class:`pyaedt.modules.Mesh.Mesh` or :class:`pyaedt.modules.MeshIcepak.IcepakMesh`
         """
         return self._mesh
 
@@ -269,9 +273,9 @@ class FieldAnalysis3D(Analysis, object):
         """
         vars = {}
         if component3dname not in self.components3d:
-            if os.path.exists(component3dname):
-                with open(component3dname, "rb") as aedt_fh:
-                    temp = aedt_fh.read().splitlines()
+            aedt_fh = open_file(component3dname, "rb")
+            if aedt_fh:
+                temp = aedt_fh.read().splitlines()
                 _all_lines = []
                 for line in temp:
                     try:
@@ -282,9 +286,11 @@ class FieldAnalysis3D(Analysis, object):
                     if "VariableProp(" in line:
                         line_list = line.split("'")
                         vars[line_list[1]] = line_list[len(line_list) - 2]
+                aedt_fh.close()
                 return vars
-            return False
-        with open(self.components3d[component3dname], "rb") as aedt_fh:
+            else:
+                return False
+        with open_file(self.components3d[component3dname], "rb") as aedt_fh:
             temp = aedt_fh.read().splitlines()
         _all_lines = []
         for line in temp:
@@ -360,17 +366,17 @@ class FieldAnalysis3D(Analysis, object):
                     return val
         return None
 
-    # TODO Refactor this
     @pyaedt_function_handler()
     def copy_solid_bodies_from(self, design, object_list=None, no_vacuum=True, no_pec=True, include_sheets=False):
-        """Copy a list of objects from one design to the active design.
+        """Copy a list of objects and user defined models from one design to the active design.
+        If user defined models are selected, the project will be saved automatically.
 
         Parameters
         ----------
         design :
             Starting application object. For example, ``hfss1= HFSS3DLayout``.
         object_list : list, optional
-            List of objects to copy. The default is ``None``.
+            List of objects and user defined components to copy. The default is ``None``.
         no_vacuum : bool, optional
             Whether to include vacuum objects for the copied objects.
             The default is ``True``.
@@ -392,12 +398,34 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.Paste
         """
         body_list = design.modeler.solid_names
+        udc_list = design.modeler.user_defined_component_names
+        original_design_type = design.design_type
+        dest_design_type = self.design_type
+        new_udc_list = []
         if include_sheets:
             body_list += design.modeler.sheet_names
+        if udc_list:
+            for udc in udc_list:
+                if (
+                    original_design_type != dest_design_type
+                    and not design.modeler.user_defined_components[udc].is3dcomponent
+                    or original_design_type == dest_design_type
+                ):
+                    new_udc_list.append(udc)
+                for part_id in design.modeler.user_defined_components[udc].parts:
+                    if design.modeler.user_defined_components[udc].parts[part_id].name in body_list:
+                        body_list.remove(design.modeler.user_defined_components[udc].parts[part_id].name)
+
         selection_list = []
+        udc_selection = []
         material_properties = design.modeler.objects
-        if object_list:
-            selection_list = [i for i in object_list if i in body_list]
+        selections = self.modeler.convert_to_selections(object_list, True)
+
+        if selections:
+            selection_list = [i for i in selections if i in body_list]
+            for udc in new_udc_list:
+                if udc in selections:
+                    udc_selection.append(udc)
         else:
             for body in body_list:
                 include_object = True
@@ -409,8 +437,14 @@ class FieldAnalysis3D(Analysis, object):
                             include_object = False
                 if include_object:
                     selection_list.append(body)
+            for udm in new_udc_list:
+                udc_selection.append(udm)
+        selection_list = selection_list + udc_selection
         design.modeler.oeditor.Copy(["NAME:Selections", "Selections:=", ",".join(selection_list)])
         self.modeler.oeditor.Paste()
+        if udc_selection:
+            self.save_project()
+            self._project_dictionary = None
         self.modeler.refresh_all_ids()
         return True
 
@@ -453,9 +487,9 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.Export
         """
 
-        if object_list == None:
+        if object_list is None:
             object_list = []
-        if removed_objects == None:
+        if removed_objects is None:
             removed_objects = []
 
         if not object_list:
@@ -585,24 +619,59 @@ class FieldAnalysis3D(Analysis, object):
         >>> obj_names_list = [box1.name, box2.name, cylinder1.name, cylinder2.name]
         >>> hfss.assign_material(obj_names_list, "aluminum")
         """
-        mat = mat.lower()
+        matobj = None
         selections = self.modeler.convert_to_selections(obj, True)
 
-        mat_exists = False
-        if mat in self.materials.material_keys:
-            mat_exists = True
-        if mat_exists or self.materials.checkifmaterialexists(mat):
-            Mat = self.materials.material_keys[mat]
-            if mat_exists:
-                Mat.update()
-            self.logger.info("Assign Material " + mat + " to object " + str(selections))
-            for el in selections:
-                self.modeler[el].material_name = mat
-                self.modeler[el].color = self.materials.material_keys[mat].material_appearance
-                if Mat.is_dielectric():
-                    self.modeler[el].solve_inside = True
-                else:
-                    self.modeler[el].solve_inside = False
+        if mat.lower() in self.materials.material_keys:
+            matobj = self.materials.material_keys[mat.lower()]
+        elif self.materials._get_aedt_case_name(mat) or settings.remote_api:
+            matobj = self.materials._aedmattolibrary(mat)
+        if matobj:
+            if self.design_type == "HFSS":
+                solve_inside = matobj.is_dielectric()
+            else:
+                solve_inside = True
+            slice_sel = min(50, len(selections))
+            num_objects = len(selections)
+            remaining = num_objects
+            while remaining >= 1:
+                objs = selections[:slice_sel]
+                szSelections = self.modeler.convert_to_selections(objs)
+                vArg1 = [
+                    "NAME:Selections",
+                    "AllowRegionDependentPartSelectionForPMLCreation:=",
+                    True,
+                    "AllowRegionSelectionForPMLCreation:=",
+                    True,
+                    "Selections:=",
+                    szSelections,
+                ]
+                vArg2 = [
+                    "NAME:Attributes",
+                    "MaterialValue:=",
+                    '"{}"'.format(matobj.name),
+                    "SolveInside:=",
+                    solve_inside,
+                    "ShellElement:=",
+                    False,
+                    "ShellElementThickness:=",
+                    "nan ",
+                    "IsMaterialEditable:=",
+                    True,
+                    "UseMaterialAppearance:=",
+                    True,
+                    "IsLightweight:=",
+                    False,
+                ]
+                self.oeditor.AssignMaterial(vArg1, vArg2)
+                for el in objs:
+                    self.modeler[el]._material_name = matobj.name
+                    self.modeler[el]._color = matobj.material_appearance
+                    self.modeler[el]._solve_inside = solve_inside
+                remaining -= slice_sel
+                if remaining > 0:
+                    selections = selections[slice_sel:]
+
             return True
         else:
             self.logger.error("Material does not exist.")
@@ -622,11 +691,14 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> oEditor.GetObjectsByMaterial
         """
+        if len(self.modeler.objects) != len(self.modeler.object_names):
+            self.modeler.refresh_all_ids()
         cond = self.materials.conductors
-        cond = [i.lower() for i in cond]
+
         obj_names = []
-        for el in cond:
-            obj_names += list(self._modeler.oeditor.GetObjectsByMaterial(el))
+        for obj_val in list(self.modeler.objects.values()):
+            if obj_val.material_name in cond:
+                obj_names.append(obj_val.name)
         return obj_names
 
     @pyaedt_function_handler()
@@ -642,9 +714,184 @@ class FieldAnalysis3D(Analysis, object):
         ----------
         >>> oEditor.GetObjectsByMaterial
         """
+        if len(self.modeler.objects) != len(self.modeler.object_names):
+            self.modeler.refresh_all_ids()
         diel = self.materials.dielectrics
-        diel = [i.lower() for i in diel]
         obj_names = []
-        for el in diel:
-            obj_names += list(self._modeler.oeditor.GetObjectsByMaterial(el))
+        for obj_val in list(self.modeler.objects.values()):
+            if obj_val.material_name in diel:
+                obj_names.append(obj_val.name)
         return obj_names
+
+    @pyaedt_function_handler()
+    def _create_dataset_from_sherlock(self, material_string, property_name="Mass_Density"):
+        mats = material_string.split(",")
+        mat_temp = [[i.split("@")[0], i.split("@")[1]] for i in mats]
+        nominal_id = int(len(mat_temp) / 2)
+        nominal_val = float(mat_temp[nominal_id - 1][0])
+        ds_name = generate_unique_name(property_name)
+        self.create_dataset(
+            ds_name,
+            [float(i[1].replace("C", "").replace("K", "").replace("F", "")) for i in mat_temp],
+            [float(i[0]) / nominal_val for i in mat_temp],
+        )
+        return nominal_val, "$" + ds_name
+
+    @pyaedt_function_handler()
+    def assignmaterial_from_sherlock_files(self, csv_component, csv_material):
+        """Assign material to objects in a design based on a CSV file obtained from Sherlock.
+
+        Parameters
+        ----------
+        csv_component :  str
+            Name of the CSV file containing the component properties, including the
+            material name.
+        csv_material : str
+            Name of the CSV file containing the material properties.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.AssignMaterial
+        """
+        with open_file(csv_material) as csvfile:
+            csv_input = csv.reader(csvfile)
+            material_header = next(csv_input)
+            data = list(csv_input)
+            k = 0
+            material_data = {}
+            for el in material_header:
+                material_data[el] = [i[k] for i in data]
+                k += 1
+        with open_file(csv_component) as csvfile:
+            csv_input = csv.reader(csvfile)
+            component_header = next(csv_input)
+            data = list(csv_input)
+            k = 0
+            component_data = {}
+            for el in component_header:
+                component_data[el] = [i[k] for i in data]
+                k += 1
+        all_objs = self.modeler.object_names
+        i = 0
+        for mat in material_data["Name"]:
+            list_mat_obj = [
+                "COMP_" + rd for rd, md in zip(component_data["Ref Des"], component_data["Material"]) if md == mat
+            ]
+            list_mat_obj += [rd for rd, md in zip(component_data["Ref Des"], component_data["Material"]) if md == mat]
+            list_mat_obj = [mo for mo in list_mat_obj if mo in all_objs]
+            if list_mat_obj:
+                newmat = self.materials.checkifmaterialexists(mat)
+                if not newmat:
+                    newmat = self.materials.add_material(mat.lower())
+                if "Material Density" in material_data:
+                    if "@" in material_data["Material Density"][i] and "," in material_data["Material Density"][i]:
+                        nominal_val, dataset_name = self._create_dataset_from_sherlock(
+                            material_data["Material Density"][i], "Mass_Density"
+                        )
+                        newmat.mass_density = nominal_val
+                        newmat.mass_density.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                    else:
+                        value = material_data["Material Density"][i]
+                        newmat.mass_density = value
+                if "Thermal Conductivity" in material_data:
+                    if (
+                        "@" in material_data["Thermal Conductivity"][i]
+                        and "," in material_data["Thermal Conductivity"][i]
+                    ):
+                        nominal_val, dataset_name = self._create_dataset_from_sherlock(
+                            material_data["Thermal Conductivity"][i], "Thermal_Conductivity"
+                        )
+                        newmat.thermal_conductivity = nominal_val
+                        newmat.thermal_conductivity.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                    else:
+                        value = material_data["Thermal Conductivity"][i]
+                        newmat.thermal_conductivity = value
+                if "Material CTE" in material_data:
+                    if "@" in material_data["Material CTE"][i] and "," in material_data["Material CTE"][i]:
+                        nominal_val, dataset_name = self._create_dataset_from_sherlock(
+                            material_data["Material CTE"][i], "CTE"
+                        )
+                        newmat.thermal_expansion_coefficient = nominal_val
+                        newmat.thermal_expansion_coefficient.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                    else:
+                        value = material_data["Material CTE"][i]
+                        newmat.thermal_expansion_coefficient = value
+                if "Poisson Ratio" in material_data:
+                    if "@" in material_data["Poisson Ratio"][i] and "," in material_data["Poisson Ratio"][i]:
+                        nominal_val, dataset_name = self._create_dataset_from_sherlock(
+                            material_data["Poisson Ratio"][i], "Poisson_Ratio"
+                        )
+                        newmat.poissons_ratio = nominal_val
+                        newmat.poissons_ratio.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                    else:
+                        value = material_data["Poisson Ratio"][i]
+                        newmat.poissons_ratio = value
+                if "Elastic Modulus" in material_data:
+                    if "@" in material_data["Elastic Modulus"][i] and "," in material_data["Elastic Modulus"][i]:
+                        nominal_val, dataset_name = self._create_dataset_from_sherlock(
+                            material_data["Elastic Modulus"][i], "Youngs_Modulus"
+                        )
+                        newmat.youngs_modulus = nominal_val
+                        newmat.youngs_modulus.thermalmodifier = "pwl({}, Temp)".format(dataset_name)
+                    else:
+                        value = material_data["Elastic Modulus"][i]
+                        newmat.youngs_modulus = value
+                self.assign_material(list_mat_obj, mat)
+
+                for obj_name in list_mat_obj:
+                    if not self.modeler[obj_name].surface_material_name:
+                        self.modeler[obj_name].surface_material_name = "Steel-oxidised-surface"
+            i += 1
+            all_objs = [ao for ao in all_objs if ao not in list_mat_obj]
+        return True
+
+    @pyaedt_function_handler()
+    def cleanup_solution(self, variations="All", entire_solution=True, field=True, mesh=True, linked_data=True):
+        """Delete a set of Solution Variations or part of them.
+
+        Parameters
+        ----------
+        variations : List, str, optional
+            All variations to delete. Default is `"All"` which deletes all available solutions.
+        entire_solution : bool, optional
+            Either if delete entire Solution or part of it. If `True` other booleans will be ignored
+            as solution will be entirely deleted.
+        field : bool, optional
+            Either if delete entire Fields of variation or not. Default is `True`.
+        mesh : bool, optional
+            Either if delete entire Mesh of variation or not. Default is `True`.
+        linked_data : bool, optional
+            Either if delete entire Linked Data of variation or not. Default is `True`.
+
+        Returns
+        -------
+        bool
+            `True` if Delete operation succeeded.
+        """
+        if isinstance(variations, str):
+            variations = [variations]
+        if entire_solution:
+            self.odesign.DeleteFullVariation(variations, linked_data)
+        elif field:
+            self.odesign.DeleteFieldVariation(variations, mesh, linked_data)
+        elif linked_data:
+            self.odesign.DeleteLinkedDataVariation(variations)
+        return True
+
+    @pyaedt_function_handler
+    def add_stackup_3d(self):
+        """Create a stackup 3D object.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.stackup_3d.Stackup3D`
+            ``True`` when delete operation is successful.
+        """
+        st = Stackup3D(self)
+        return st

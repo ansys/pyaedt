@@ -7,6 +7,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import filter_string
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import recursive_glob
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
@@ -55,10 +56,7 @@ class CircuitComponents(object):
         self.logger = self._app.logger
         self.o_model_manager = self._modeler.o_model_manager
 
-        self._o_definition_manager = self._app._oproject.GetDefinitionManager()
-        self._o_symbol_manager = self.o_definition_manager.GetManager("Symbol")
-        self._o_component_manager = self.o_definition_manager.GetManager("Component")
-        self._oeditor = self._modeler.oeditor
+        self.oeditor = self._modeler.oeditor
         self._currentId = 0
         self.components = {}
         self.refresh_all_ids()
@@ -76,29 +74,18 @@ class CircuitComponents(object):
 
         >>> oDefinitionManager = oProject.GetDefinitionManager()
         """
-        return self._o_definition_manager
+
+        return self._app.oproject.GetDefinitionManager()
 
     @property
     def o_component_manager(self):
-        """Aedt oComponentManager.
-
-        References
-        ----------
-
-        >>> oComponentManager = oDefinitionManager.GetManager("Component")
-        """
-        return self._o_component_manager
+        """Component manager object."""
+        return self._app.o_component_manager
 
     @property
     def o_symbol_manager(self):
-        """Aedt oSymbolManger.
-
-        References
-        ----------
-
-        >>> oSymbolManger = oDefinitionManager.GetManager("Symbol")
-        """
-        return self._o_symbol_manager
+        """Model manager object."""
+        return self._app.o_symbol_manager
 
     @property
     def version(self):
@@ -123,7 +110,7 @@ class CircuitComponents(object):
     @property
     def nets(self):
         """List of all schematic nets."""
-        nets_comp = self._oeditor.GetAllNets()
+        nets_comp = self.oeditor.GetAllNets()
         nets = []
         for net in nets_comp:
             v = net.split(";")
@@ -182,7 +169,7 @@ class CircuitComponents(object):
         >>> oEditor.CreateWire
         """
         pointlist = [str(tuple(i)) for i in points_array]
-        self._oeditor.CreateWire(
+        self.oeditor.CreateWire(
             ["NAME:WireData", "Name:=", "", "Id:=", random.randint(20000, 23000), "Points:=", pointlist],
             ["NAME:Attributes", "Page:=", 1],
         )
@@ -211,7 +198,7 @@ class CircuitComponents(object):
         """
         comp_id = "CompInst@" + name + ";" + str(id_num) + ";395"
         arg1 = ["Name:Selections", "Selections:=", [comp_id]]
-        self._oeditor.AddPinIPorts(arg1)
+        self.oeditor.AddPinIPorts(arg1)
 
         return True
 
@@ -223,7 +210,7 @@ class CircuitComponents(object):
            Use :func:`Circuit.modeler.schematic.create_interface_port` instead.
         """
         warnings.warn("`create_iport` is deprecated. Use `create_interface_port` instead.", DeprecationWarning)
-        return self.create_interface_port(name, posx, posy, angle)
+        return self.create_interface_port(name, [posx, posy], angle)
 
     @pyaedt_function_handler()
     def create_interface_port(self, name, location=[], angle=0):
@@ -249,13 +236,13 @@ class CircuitComponents(object):
         >>> oEditor.CreateIPort
         """
         if location:
-            posx, posy = location[0], location[1]
+            xpos, ypos = location[0], location[1]
         else:
-            posx, posy = self._get_location(location)
+            xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
         arg1 = ["NAME:IPortProps", "Name:=", name, "Id:=", id]
-        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", posx, "Y:=", posy, "Angle:=", angle, "Flip:=", False]
-        id = self._oeditor.CreateIPort(arg1, arg2)
+        arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
+        id = self.oeditor.CreateIPort(arg1, arg2)
 
         id = int(id.split(";")[1])
         self.add_id_to_component(id)
@@ -294,7 +281,7 @@ class CircuitComponents(object):
             xpos, ypos = self._get_location(location)
 
         id = self.create_unique_id()
-        id = self._oeditor.CreatePagePort(
+        id = self.oeditor.CreatePagePort(
             ["NAME:PagePortProps", "Name:=", name, "Id:=", id],
             ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
         )
@@ -304,13 +291,15 @@ class CircuitComponents(object):
         return self.components[id]
 
     @pyaedt_function_handler()
-    def create_gnd(self, location=[]):
+    def create_gnd(self, location=[], angle=0):
         """Create a ground.
 
         Parameters
         ----------
         location : list, optional
             Position on the X and Y axis. The default is ``None``.
+        angle : optional
+            Angle rotation in degrees. The default is ``0``.
 
         Returns
         -------
@@ -325,9 +314,9 @@ class CircuitComponents(object):
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
 
-        name = self._oeditor.CreateGround(
+        name = self.oeditor.CreateGround(
             ["NAME:GroundProps", "Id:=", id],
-            ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", 0, "Flip:=", False],
+            ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
         )
         id = int(name.split(";")[1])
         self.add_id_to_component(id)
@@ -363,11 +352,10 @@ class CircuitComponents(object):
         if model_name in list(self.o_model_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
         num_terminal = int(os.path.splitext(touchstone_full_path)[1].lower().strip(".sp"))
-        with open(touchstone_full_path, "r") as f:
+        with open_file(touchstone_full_path, "r") as f:
             port_names = _parse_ports_name(f)
-        image_subcircuit_path = os.path.normpath(
-            os.path.join(self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp")
-        )
+        image_subcircuit_path = os.path.join(self._modeler._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp")
+
         if not port_names:
             port_names = ["Port" + str(i + 1) for i in range(num_terminal)]
         arg = [
@@ -640,7 +628,7 @@ class CircuitComponents(object):
             model_name = self.create_model_from_touchstone(model_name)
         arg1 = ["NAME:ComponentProps", "Name:=", model_name, "Id:=", str(id)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = _retry_ntimes(10, self._oeditor.CreateComponent, arg1, arg2)
+        id = _retry_ntimes(10, self.oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])
         self.add_id_to_component(id)
         return self.components[id]
@@ -695,7 +683,7 @@ class CircuitComponents(object):
         xpos, ypos = self._get_location(location)
 
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = _retry_ntimes(10, self._oeditor.CreateComponent, arg1, arg2)
+        id = _retry_ntimes(10, self.oeditor.CreateComponent, arg1, arg2)
         id = int(id.split(";")[1])
         # self.refresh_all_ids()
         self.add_id_to_component(id)
@@ -967,7 +955,7 @@ class CircuitComponents(object):
         ----------
 
         >>> oEditor.GetAllElements()"""
-        obj = self._oeditor.GetAllElements()
+        obj = self.oeditor.GetAllElements()
         obj = [i for i in obj if "Wire" not in i[:4]]
         for el in obj:
             if not self.get_obj_id(el):
@@ -977,10 +965,11 @@ class CircuitComponents(object):
                     o.name = name[0]
                     if len(name) == 2:
                         o.schematic_id = name[1]
+                        objID = int(o.schematic_id)
                     else:
                         o.id = int(name[1])
                         o.schematic_id = name[2]
-                    objID = o.id
+                        objID = o.id
                     self.components[objID] = o
         return len(self.components)
 
@@ -999,7 +988,7 @@ class CircuitComponents(object):
             Number of components.
 
         """
-        obj = _retry_ntimes(10, self._oeditor.GetAllElements)
+        obj = _retry_ntimes(10, self.oeditor.GetAllElements)
         for el in obj:
             name = el.split(";")
             if len(name) > 1 and str(id) == name[1]:
@@ -1055,12 +1044,12 @@ class CircuitComponents(object):
         >>> oEditor.GetComponentPins
         """
         if isinstance(partid, CircuitComponent):
-            pins = _retry_ntimes(10, self._oeditor.GetComponentPins, partid.composed_name)
+            pins = _retry_ntimes(10, self.oeditor.GetComponentPins, partid.composed_name)
         elif isinstance(partid, str):
-            pins = _retry_ntimes(10, self._oeditor.GetComponentPins, partid)
+            pins = _retry_ntimes(10, self.oeditor.GetComponentPins, partid)
             # pins = self.oeditor.GetComponentPins(partid)
         else:
-            pins = _retry_ntimes(10, self._oeditor.GetComponentPins, self.components[partid].composed_name)
+            pins = _retry_ntimes(10, self.oeditor.GetComponentPins, self.components[partid].composed_name)
             # pins = self.oeditor.GetComponentPins(self.components[partid].composed_name)
         return list(pins)
 
@@ -1086,14 +1075,14 @@ class CircuitComponents(object):
         >>> oEditor.GetComponentPinLocation
         """
         if isinstance(partid, str):
-            x = _retry_ntimes(30, self._oeditor.GetComponentPinLocation, partid, pinname, True)
-            y = _retry_ntimes(30, self._oeditor.GetComponentPinLocation, partid, pinname, False)
+            x = _retry_ntimes(30, self.oeditor.GetComponentPinLocation, partid, pinname, True)
+            y = _retry_ntimes(30, self.oeditor.GetComponentPinLocation, partid, pinname, False)
         else:
             x = _retry_ntimes(
-                30, self._oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, True
+                30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, True
             )
             y = _retry_ntimes(
-                30, self._oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, False
+                30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, False
             )
         return [x, y]
 
@@ -1122,6 +1111,32 @@ class CircuitComponents(object):
             val = "{0}{1}".format(Value, sUnits)
 
         return val
+
+    @pyaedt_function_handler()
+    def create_line(self, points_array, color=0, line_width=0):
+        """Draw a graphical line.
+
+        Parameters
+        ----------
+        points_array : list
+            A nested list of point coordinates. For example,
+            ``[[x1, y1], [x2, y2], ...]``.
+        color : string or 3 item list, optional
+            Color or the line. The default is ``0``.
+        line_width : float, optional
+            Width of the line. The default is ``0``.
+        Returns
+        -------
+
+        >>> oEditor.CreateLine
+        """
+
+        pointlist = [str(tuple(i)) for i in points_array]
+        id = self.create_unique_id()
+        return self.oeditor.CreateLine(
+            ["NAME:LineData", "Points:=", pointlist, "LineWidth:=", line_width, "Color:=", color, "Id:=", id],
+            ["NAME:Attributes", "Page:=", 1],
+        )
 
 
 class ComponentInfo(object):

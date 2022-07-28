@@ -12,10 +12,10 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
+from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.generic.general_methods import is_ironpython
 
 test_project_name = "Coax_HFSS"
-example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
 
 
 class TestClass(BasisTest, object):
@@ -43,20 +43,20 @@ class TestClass(BasisTest, object):
         self.aedtapp.design_name = "myname"
         assert self.aedtapp.design_name == "myname"
 
-    def test_version_id(self):
+    def test_01_version_id(self):
         assert self.aedtapp.aedt_version_id
 
-    def test_valid_design(self):
+    def test_01_valid_design(self):
         assert self.aedtapp.valid_design
 
-    def test_clean_proj_folder(self):
+    def test_01_clean_proj_folder(self):
         assert self.aedtapp.clean_proj_folder()
 
-    def test_copy_project(self):
+    def test_02_copy_project(self):
         assert self.aedtapp.copy_project(self.local_scratch.path, "new_file")
         assert self.aedtapp.copy_project(self.local_scratch.path, "Coax_HFSS")
 
-    def test_change_use_causalmaterial(self):
+    def test_02_use_causalmaterial(self):
         assert self.aedtapp.change_automatically_use_causal_materials(True)
         assert self.aedtapp.change_automatically_use_causal_materials(False)
 
@@ -117,15 +117,12 @@ class TestClass(BasisTest, object):
     def test_12_variables(self):
         self.aedtapp["test"] = "1mm"
         val = self.aedtapp["test"]
-        assert val == "1.0mm"
+        assert val == "1mm"
         del self.aedtapp["test"]
         assert "test" not in self.aedtapp.variable_manager.variables
 
     def test_13_designs(self):
-        assert (
-            self.aedtapp._insert_design("HFSS", design_name="TestTransient", solution_type="Transient Network")
-            == "TestTransient"
-        )
+        assert self.aedtapp._insert_design("HFSS", design_name="TestTransient") == "TestTransient"
         self.aedtapp.delete_design("TestTransient")
         self.aedtapp.insert_design("NewDesign")
 
@@ -133,6 +130,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.get_nominal_variation() != [] or self.aedtapp.get_nominal_variation() is not None
 
     def test_15a_duplicate_design(self):
+        self.aedtapp.duplicate_design("non_valid1", False)
         self.aedtapp.duplicate_design("myduplicateddesign")
         assert "myduplicateddesign" in self.aedtapp.design_list
         self.aedtapp.delete_design("myduplicateddesign", "NewDesign")
@@ -147,9 +145,9 @@ class TestClass(BasisTest, object):
         self.aedtapp.save_project(project_file=destin)
         new_design = self.aedtapp.copy_design_from(origin, "myduplicateddesign")
         assert new_design in self.aedtapp.design_list
-        self.aedtapp.load_project(project_file=self.test_project, close_active_proj=True)
 
     def test_16_renamedesign(self):
+        self.aedtapp.load_project(project_file=self.test_project, close_active_proj=True)
         self.aedtapp.rename_design("mydesign")
         assert self.aedtapp.design_name == "mydesign"
 
@@ -185,12 +183,49 @@ class TestClass(BasisTest, object):
         vunits = "cel"
         ds3 = self.aedtapp.create_dataset3d("Test_DataSet3D", x, y, z, v, vunit=vunits)
         assert ds3.name == "$Test_DataSet3D"
+        ds30 = self.aedtapp.create_dataset3d("Test_DataSet3D1", x, y, z, v, vunit=vunits, is_project_dataset=False)
+        assert ds30.name == "$Test_DataSet3D1"
+        ds31 = self.aedtapp.create_dataset3d("$Test_DataSet3D2", x, y, z, v, vunit=vunits, is_project_dataset=False)
+        assert ds31.name == "$Test_DataSet3D2"
 
     def test_19_edit_existing_dataset(self):
         ds = self.aedtapp.project_datasets["$AluminumconductivityTH0"]
         xl = len(ds.x)
         assert ds.add_point(300, 0.8)
         assert len(ds.x) == xl + 1
+
+    def test_19_import_dataset1d(self):
+        filename = os.path.join(local_path, "example_models", "ds_1d.tab")
+        ds4 = self.aedtapp.import_dataset1d(filename)
+        assert ds4.name == "$ds_1d"
+        ds5 = self.aedtapp.import_dataset1d(filename, dsname="dataset_test", is_project_dataset=False)
+        assert ds5.name == "dataset_test"
+        ds6 = self.aedtapp.import_dataset1d(filename, dsname="$dataset_test2")
+        assert ds6.name == "$dataset_test2"
+        ds7 = self.aedtapp.import_dataset1d(filename)
+        assert not ds7
+        assert ds4.delete()
+        assert self.aedtapp.import_dataset1d(filename)
+
+    def test_19a_import_dataset3d(self):
+        filename = os.path.join(local_path, "example_models", "Dataset_3D.tab")
+        ds8 = self.aedtapp.import_dataset3d(filename)
+        assert ds8.name == "$Dataset_3D"
+        filename = os.path.join(local_path, "example_models", "Dataset_3D.csv")
+        ds8 = self.aedtapp.import_dataset3d(filename, dsname="dataset_csv")
+        assert ds8.name == "$dataset_csv"
+        assert ds8.delete()
+        ds10 = self.aedtapp.import_dataset3d(filename, dsname="$dataset_test")
+        assert ds10.zunit == "mm"
+        filename = os.path.join(local_path, "example_models", "Dataset_3D.csv")
+        ds8 = self.aedtapp.import_dataset3d(filename, encoding="utf-8-sig", dsname="dataset_csv")
+        assert ds8.name == "$dataset_csv"
+
+    @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
+    def test_19b_import_dataset3d_xlsx(self):
+        filename = os.path.join(local_path, "example_models", "Dataset_3D.xlsx")
+        ds9 = self.aedtapp.import_dataset3d(filename, dsname="myExcel")
+        assert ds9.name == "$myExcel"
 
     def test_20_get_3dComponents_properties(self):
         assert len(self.aedtapp.components3d) > 0
@@ -230,7 +265,10 @@ class TestClass(BasisTest, object):
         if is_ironpython:
             assert str(type(self.aedtapp.odesktop)) in ["<type 'ADesktopWrapper'>", "<type 'ADispatchWrapper'>"]
         else:
-            assert str(type(self.aedtapp.odesktop)) == "<class 'win32com.client.CDispatch'>"
+            assert str(type(self.aedtapp.odesktop)) in [
+                "<class 'win32com.client.CDispatch'>",
+                "<class 'PyDesktopPlugin.AedtObjWrapper'>",
+            ]
 
     def test_28_get_pyaedt_app(self):
         app = get_pyaedt_app(self.aedtapp.project_name, self.aedtapp.design_name)
@@ -243,6 +281,8 @@ class TestClass(BasisTest, object):
         assert not desktop.change_registry_key("test_key", 2.0)
 
     def test_30_object_oriented(self):
+        self.aedtapp["my_oo_variable"] = "15mm"
+        # self.aedtapp.set_active_design("myname")
         assert self.aedtapp.get_oo_name(self.aedtapp.oproject, "Variables")
         assert self.aedtapp.get_oo_name(self.aedtapp.odesign, "Variables")
         assert not self.aedtapp.get_oo_name(self.aedtapp.odesign, "Variables1")
@@ -250,3 +290,18 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.get_oo_object(self.aedtapp.oproject, "Variables1")
         assert self.aedtapp.get_oo_properties(self.aedtapp.oproject, "Variables\\$height")
         assert self.aedtapp.get_oo_property_value(self.aedtapp.oproject, "Variables\\$height", "Value") == "10mm"
+
+    def test_31_make_hidden_variable(self):
+        self.aedtapp["my_hidden_variable"] = "15mm"
+        assert self.aedtapp.hidden_variable("my_hidden_variable")
+
+    def test_32_make_read_only_variable(self):
+        self.aedtapp["my_read_only_variable"] = "15mm"
+        assert self.aedtapp.read_only_variable("my_read_only_variable")
+
+    def test_33_aedt_object(self):
+        aedt_obj = AedtObjects()
+        assert aedt_obj.odesign
+        assert aedt_obj.oproject
+        aedt_obj = AedtObjects(self.aedtapp.oproject, self.aedtapp.odesign)
+        assert aedt_obj.odesign == self.aedtapp.odesign

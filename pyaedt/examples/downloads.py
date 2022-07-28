@@ -405,6 +405,119 @@ def download_sherlock(destination=None):
     return os.path.join(destination, "sherlock")
 
 
+def download_leaf(destination=None):
+    """Download an example of Nissan leaf files and return the def path.
+
+    Examples files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+
+    Parameters
+    ----------
+    destination : str, optional
+        Path where files will be downloaded. Optional. Default is user temp folder.
+
+    Returns
+    -------
+    (str, str)
+        Path to the 30DH_20C_smooth and BH_Arnold_Magnetics_N30UH_80C tabular material data file file.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file
+
+    >>> from pyaedt import examples
+    >>> path = examples.download_leaf(r"c:\temp")
+    >>> path
+    ('C:/temp/BH_Arnold_Magnetics_N30UH_80C.tab', 'C:/temp/BH_Arnold_Magnetics_N30UH_80C.tab')
+    """
+    if not destination:
+        destination = EXAMPLES_PATH
+    file1 = _download_file("nissan", "30DH_20C_smooth.tab", destination)
+    file2 = _download_file("nissan", "BH_Arnold_Magnetics_N30UH_80C.tab", destination)
+
+    return file1, file2
+
+
+def download_custom_reports(force_download=False, destination=None):
+    """Download an example of CISPR25 with customer reports json template files.
+
+    Examples files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+
+    Parameters
+    ----------
+    force_download : bool
+        Force to delete cache and download files again.
+    destination : str, optional
+        Path where files will be downloaded. Optional. Default is user temp folder.
+
+    Returns
+    -------
+    str
+        Path to the example folder containing all example files.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file
+    >>> from pyaedt import examples
+    >>> path = examples.download_custom_reports(force_download=True)
+    >>> path
+    'C:/Users/user/AppData/local/temp/custom_reports'
+    """
+    if not destination:
+        destination = EXAMPLES_PATH
+    if force_download:
+        local_path = os.path.join(destination, "custom_reports")
+        if os.path.exists(local_path):
+            shutil.rmtree(local_path, ignore_errors=True)
+    _download_file("custom_reports", "CISPR25_Radiated_Emissions_Example22R1.aedtz", destination)
+    _download_file("custom_reports", "EyeDiagram_CISPR_Basic.json", destination)
+    _download_file("custom_reports", "EyeDiagram_CISPR_Custom.json", destination)
+    _download_file("custom_reports", "Spectrum_CISPR_Basic.json", destination)
+    _download_file("custom_reports", "Spectrum_CISPR_Custom.json", destination)
+    _download_file("custom_reports", "Transient_CISPR_Basic.json", destination)
+    _download_file("custom_reports", "Transient_CISPR_Custom.json", destination)
+    return os.path.join(destination, "custom_reports")
+
+
+def download_3dcomponent(force_download=False, destination=None):
+    """Download an example of 3d component array with json template files.
+
+    Examples files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+
+    Parameters
+    ----------
+    force_download : bool
+        Force to delete cache and download files again.
+    destination : str, optional
+        Path where files will be downloaded. Optional. Default is user temp folder.
+
+    Returns
+    -------
+    str
+        Path to the example folder containing all example files.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file
+    >>> from pyaedt import examples
+    >>> path = examples.download_3dcomponent(force_download=True)
+    >>> path
+    'C:/Users/user/AppData/local/temp/array_3d_component'
+    """
+    if not destination:
+        destination = EXAMPLES_PATH
+    if force_download:
+        local_path = os.path.join(destination, "array_3d_component")
+        if os.path.exists(local_path):
+            shutil.rmtree(local_path, ignore_errors=True)
+    _download_file("array_3d_component", "Circ_Patch_5GHz.a3dcomp", destination)
+    _download_file("array_3d_component", "Circ_Patch_5GHz_hex.a3dcomp", destination)
+    _download_file("array_3d_component", "array_simple.json", destination)
+    return os.path.join(destination, "array_3d_component")
+
+
 def download_multiparts(destination=None):
     """Download an example of 3DComponents Multiparts.
 

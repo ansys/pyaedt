@@ -15,15 +15,19 @@ if os.name == "posix" and is_ironpython:
 else:
     import subprocess
 
-from pyaedt.application.AnalysisIcepak import FieldAnalysisIcepak
-from pyaedt.generic.general_methods import generate_unique_name, pyaedt_function_handler
+from pyaedt import settings
+from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import _arg2dict
-from pyaedt.modules.Boundary import BoundaryObject, NativeComponentObject
 from pyaedt.generic.DataHandlers import random_string
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.Boundary import NativeComponentObject
 
 
-class Icepak(FieldAnalysisIcepak):
+class Icepak(FieldAnalysis3D):
     """Provides the Icepak application interface.
 
     This class allows you to connect to an existing Icepack design or create a
@@ -60,10 +64,21 @@ class Icepak(FieldAnalysisIcepak):
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
     close_on_exit : bool, optional
-        Whether to release AEDT on exit.
+        Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
-        This parameter is ignored when Script is launched within AEDT.
+        This parameter is ignored when a script is launched within AEDT.
+    machine : str, optional
+        Machine name to connect the oDesktop session to. This works only in 2022 R2 or later.
+        The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+        If the machine is `"localhost"`, the server also starts if not present.
+    port : int, optional
+        Port number of which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 or later.
+        The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
@@ -118,8 +133,11 @@ class Icepak(FieldAnalysisIcepak):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
+        aedt_process_id=None,
     ):
-        FieldAnalysisIcepak.__init__(
+        FieldAnalysis3D.__init__(
             self,
             "Icepak",
             projectname,
@@ -131,6 +149,9 @@ class Icepak(FieldAnalysisIcepak):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
+            aedt_process_id,
         )
 
     def __enter__(self):
@@ -147,11 +168,6 @@ class Icepak(FieldAnalysisIcepak):
     @pyaedt_function_handler()
     def problem_type(self, value="TemperatureAndFlow"):
         self.design_solutions.problem_type = value
-
-    @property
-    def omodelsetup(self):
-        """AEDT Model Setup Object."""
-        return self._odesign.GetModule("ModelSetup")
 
     @property
     def existing_analysis_sweeps(self):
@@ -189,8 +205,8 @@ class Icepak(FieldAnalysisIcepak):
         air_faces : str, list
             List of face names.
         free_loss_coeff : bool
-            Whether to enable the free loss coefficient. The default is ``True``. If ``False``,
-            free loss coefficient is enabled.
+            Whether to use the free loss coefficient. The default is ``True``. If ``False``,
+            the free loss coefficient is not used.
         free_area_ratio : float, str
             Free loss coefficient value. The default is ``0.8``.
         resistance_type : int, optional
@@ -200,9 +216,10 @@ class Icepak(FieldAnalysisIcepak):
             - ``1`` for ``"Circular Metal Wire Screen"``
             - ``2`` for ``"Two-Plane Screen Cyl. Bars"``
 
-        external_temp : str
+            The default is ``0`` for ``"Perforated Thin Vent"``.
+        external_temp : str, optional
             External temperature. The default is ``"AmbientTemp"``.
-        expternal_pressure : str
+        expternal_pressure : str, optional
             External pressure. The default is ``"AmbientPressure"``.
         x_curve : list, optional
             List of X curves in m_per_sec. The default is ``["0", "1", "2"]``.
@@ -221,7 +238,7 @@ class Icepak(FieldAnalysisIcepak):
         """
         boundary_name = generate_unique_name("Grille")
 
-        self.modeler.create_face_list(air_faces, "boundary_faces")
+        self.modeler.create_face_list(air_faces, "boundary_faces" + boundary_name)
         props = {}
         air_faces = self.modeler.convert_to_selections(air_faces, True)
 
@@ -277,7 +294,7 @@ class Icepak(FieldAnalysisIcepak):
         pyaedt info: Opening Assigned
         """
         boundary_name = generate_unique_name("Opening")
-        self.modeler.create_face_list(air_faces, "boundary_faces")
+        self.modeler.create_face_list(air_faces, "boundary_faces" + boundary_name)
         props = {}
         air_faces = self.modeler.convert_to_selections(air_faces, True)
 
@@ -302,7 +319,7 @@ class Icepak(FieldAnalysisIcepak):
         Parameters
         ----------
         setup_name : str, optional
-            Name of the setup. The default is ``None``.
+            Name of the setup. The default is ``None``, in which case the active setup is used.
         number_of_iterations : int, optional
             Number of iterations. The default is ``2``.
         continue_ipk_iterations : bool, optional
@@ -457,6 +474,7 @@ class Icepak(FieldAnalysisIcepak):
         props = {}
         if not isinstance(object_name, list):
             object_name = [object_name]
+        object_name = self.modeler.convert_to_selections(object_name, True)
         props["Objects"] = object_name
 
         props["Block Type"] = "Solid"
@@ -739,8 +757,8 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            Monitor name when successful, ``False`` when failed.
 
         References
         ----------
@@ -754,14 +772,17 @@ class Icepak(FieldAnalysisIcepak):
 
         >>> surface = icepak.modeler.create_rectangle(icepak.PLANE.XY,
         ...                                           [0, 0, 0], [10, 20], name="Surface1")
-        >>> icepak.assign_surface_monitor("Surface1")
-        True
+        >>> icepak.assign_surface_monitor("Surface1", monitor_name="monitor")
+        'monitor'
         """
+        original_monitors = list(self.odesign.GetChildObject("Monitor").GetChildNames())
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
-        oModule = self.odesign.GetModule("Monitor")
-        oModule.AssignFaceMonitor(["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Objects:=", [face_name]])
-        return True
+        self.omonitor.AssignFaceMonitor(
+            ["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Objects:=", [face_name]]
+        )
+        new_monitors = list(self.odesign.GetChildObject("Monitor").GetChildNames())
+        return list(set(new_monitors).difference(original_monitors))[0]
 
     @pyaedt_function_handler()
     def assign_point_monitor(self, point_position, monitor_type="Temperature", monitor_name=None):
@@ -779,8 +800,8 @@ class Icepak(FieldAnalysisIcepak):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            Monitor name when successful, ``False`` when failed.
 
         References
         ----------
@@ -792,11 +813,12 @@ class Icepak(FieldAnalysisIcepak):
 
         Create a temperature monitor at the point ``[1, 1, 1]``.
 
-        >>> icepak.assign_point_monitor([1, 1, 1])
-        True
+        >>> icepak.assign_point_monitor([1, 1, 1], monitor_name="monitor1")
+        'monitor1'
 
         """
         point_name = generate_unique_name("Point")
+        original_monitors = list(self.odesign.GetChildObject("Monitor").GetChildNames())
         self.modeler.oeditor.CreatePoint(
             [
                 "NAME:PointParameters",
@@ -811,9 +833,64 @@ class Icepak(FieldAnalysisIcepak):
         )
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
-        oModule = self.odesign.GetModule("Monitor")
-        oModule.AssignPointMonitor(["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Points:=", [point_name]])
-        return True
+        self.omonitor.AssignPointMonitor(
+            ["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Points:=", [point_name]]
+        )
+        new_monitors = list(self.odesign.GetChildObject("Monitor").GetChildNames())
+        return list(set(new_monitors).difference(original_monitors))[0]
+
+    @pyaedt_function_handler()
+    def assign_point_monitor_in_object(self, name, monitor_type="Temperature", monitor_name=None):
+        """Assign a point monitor in the centroid of a specific object.
+
+        Parameters
+        ----------
+        name : str
+            Name of the object to assign monitor point to.
+        monitor_type : str, optional
+            Type of the monitor.  The default is ``"Temperature"``.
+        monitor_name : str, optional
+            Name of the monitor. The default is ``None``, in which case
+            the default name is used.
+
+        Returns
+        -------
+        str
+            Monitor name when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignPointMonitor
+
+        Examples
+        --------
+
+        Create a box named ``"BlockBox1"`` and assign a temperature monitor point to that object.
+
+        >>> box = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
+        >>> icepak.assign_point_monitor(box.name, monitor_name="monitor2")
+        "'monitor2'
+        """
+        if not isinstance(name, str):
+            self.logger.error("Object name must be a string")
+            return False
+        name = self.modeler.convert_to_selections(name, True)
+        original_monitors = list(self.odesign.GetChildObject("Monitor").GetChildNames())
+        if not monitor_name:
+            monitor_name = generate_unique_name("Monitor")
+        elif monitor_name in original_monitors:
+            monitor_name = generate_unique_name(monitor_name)
+        existing_names = list(set(name).intersection(self.modeler.object_names))
+        if existing_names:
+            self.omonitor.AssignPointMonitor(
+                ["NAME:" + monitor_name, "Quantities:=", [monitor_type], "Objects:=", existing_names]
+            )
+        else:
+            self.logger.error("Object is not present in the design")
+            return False
+        new_monitors = list(self.odesign.GetChildObject("Monitor").GetChildNames())
+        return list(set(new_monitors).difference(original_monitors))[0]
 
     @pyaedt_function_handler()
     def assign_block_from_sherlock_file(self, csv_name):
@@ -834,7 +911,7 @@ class Icepak(FieldAnalysisIcepak):
 
         >>> oModule.AssignBlockBoundary
         """
-        with open(csv_name) as csvfile:
+        with open_file(csv_name) as csvfile:
             csv_input = csv.reader(csvfile)
             component_header = next(csv_input)
             data = list(csv_input)
@@ -902,7 +979,7 @@ class Icepak(FieldAnalysisIcepak):
         i = 2
         if validate == 0:
             priority_list = []
-            with open(temp_log, "r") as f:
+            with open_file(temp_log, "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     if "[error]" in line and component_prefix in line and "intersect" in line:
@@ -1145,7 +1222,7 @@ class Icepak(FieldAnalysisIcepak):
         center[1] -= hs_height / 2
         center[2] += hs_basethick
         self.modeler.set_working_coordinate_system("Global")
-        self.modeler.translate(list_to_move, center)
+        self.modeler.move(list_to_move, center)
         if plane_enum == self.PLANE.XY:
             self.modeler.rotate(list_to_move, self.AXIS.X, rotation)
         elif plane_enum == self.PLANE.ZX:
@@ -1447,7 +1524,7 @@ class Icepak(FieldAnalysisIcepak):
             Name of the EM setup. The default is ``"Setup1"``.
         sweepname : str, optional
             Name of the EM sweep to use for the mapping. The default is ``"LastAdaptive"``.
-        map_frequency : optional
+        map_frequency : str, optional
             String containing the frequency to map. The default is ``None``.
             The value must be ``None`` for Eigenmode analysis.
         surface_objects : list, optional
@@ -1455,8 +1532,13 @@ class Icepak(FieldAnalysisIcepak):
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case the
             source from the same project is used.
-        paramlist :list, optional
-            List of all parameters in the EM to map. The default is ``None``.
+        paramlist : list, dict, optional
+            List of all parameters to map from source and Icepak design. The default is ``None``.
+            If ``None`` the variables are set to their values (no mapping).
+            If it is a list, the specified variables in the icepak design are mapped to variables
+            in the source design having the same name.
+            If it is a dictionary, it is possible to map variables to the source design having a different name.
+            The dictionary structure is {"source_design_variable": "icepak_variable"}.
         object_list : list, optional
             List of objects. The default is ``None``.
 
@@ -1470,11 +1552,9 @@ class Icepak(FieldAnalysisIcepak):
 
         >>> oModule.AssignEMLoss
         """
-        if surface_objects == None:
+        if surface_objects is None:
             surface_objects = []
-        if paramlist == None:
-            paramlist = []
-        if object_list == None:
+        if object_list is None:
             object_list = []
 
         self.logger.info("Mapping HFSS EM losses.")
@@ -1503,8 +1583,12 @@ class Icepak(FieldAnalysisIcepak):
         for el in self.available_variations.nominal_w_values_dict:
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
 
-        for el in paramlist:
-            argparam[el] = el
+        if paramlist and isinstance(paramlist, list):
+            for el in paramlist:
+                argparam[el] = el
+        elif paramlist and isinstance(paramlist, dict):
+            for el in paramlist:
+                argparam[el] = paramlist[el]
 
         props = OrderedDict(
             {
@@ -1554,10 +1638,11 @@ class Icepak(FieldAnalysisIcepak):
             Directory to save the CSV file to. The default is ``None``, in which
             case the file is exported to the working directory.
         filename : str, optional
-            Name of the CSV file. The default is ``None``.
+            Name of the CSV file. The default is ``None``, in which case the default
+            name is used.
         sweep_name : str, optional
             Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
-            The default is ``None``.
+            The default is ``None``, in which case the active setup and active sweep are used.
         parameter_dict_with_values : dict, optional
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
 
@@ -1626,10 +1711,11 @@ class Icepak(FieldAnalysisIcepak):
             Directory to save the CSV file to. The default is ``None``, in which
             case the file is exported to the working directory.
         filename :  str, optional
-            Name of the CSV file. The default is ``None``.
+            Name of the CSV file. The default is ``None``, in which case the default name
+            is used.
         sweep_name :
             Name of the setup and name of the sweep. For example, ``"IcepakSetup1 : SteatyState"``.
-            The default is ``None``.
+            The default is ``None``, in which case the active setup and active sweep are used.
         parameter_dict_with_values : dict, optional
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``
 
@@ -1698,8 +1784,8 @@ class Icepak(FieldAnalysisIcepak):
         i = 0
         filename = os.path.join(savedir, proj_icepak + "_HTCAndTemp_var" + str(i) + ".csv")
         # iterate the variations
-        while os.path.exists(filename):
-            with open(filename, "r") as f:
+        while os.path.exists(filename) or settings.remote_rpc_session:
+            with open_file(filename, "r") as f:
                 lines = f.readlines()
                 variation = lines[1]
                 # Searching file content for temp and power
@@ -1722,7 +1808,7 @@ class Icepak(FieldAnalysisIcepak):
             i += 1
             filename = os.path.join(savedir, proj_icepak + "_HTCAndTemp_var" + str(i) + ".csv")
         # write the new file
-        with open(newfilename, "w") as f:
+        with open_file(newfilename, "w") as f:
             f.writelines(newfilelines)
         # remove the single files variation
         for fr in filetoremove:
@@ -1748,7 +1834,8 @@ class Icepak(FieldAnalysisIcepak):
             The default is ``None``, in which case the fields summary
             is exported to the working directory.
         solution_name : str, optional
-            Name of the solution. The default is ``None``.
+            Name of the solution. The default is ``None``, in which case the
+            the default name is used.
         type : string, optional
             The default is ``"Object"``.
         geometryType : str, optional
@@ -1823,7 +1910,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @pyaedt_function_handler()
     def get_radiation_settings(self, radiation):
-        """Retrieve radiation settings.
+        """Get radiation settings.
 
         Parameters
         ----------
@@ -1855,7 +1942,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @pyaedt_function_handler()
     def get_link_data(self, linkData):
-        """Retrieve a list of linked data.
+        """Get a list of linked data.
 
         Parameters
         ----------
@@ -1921,7 +2008,7 @@ class Icepak(FieldAnalysisIcepak):
         Parameters
         ----------
         name : str, optional
-            Fan name. The default is ``None``.
+            Fan name. The default is ``None``, in which case the default name is used.
         is_2d : bool, optional
             Whether the fan is modeled as 2D. The default is ``False``, in which
             case the fan is modeled as 3D.
@@ -2177,7 +2264,7 @@ class Icepak(FieldAnalysisIcepak):
             Type of the extent. Options are ``"Polygon"`` and ``"Bounding Box"``. The default
             is ``"Bounding Box"``.
         outlinepolygon : str, optional
-            Name of the outline polygon if ``extentyype="Polygon"``. The default is ``""``.
+            Name of the outline polygon if ``extenttype="Polygon"``. The default is ``""``.
         close_linked_project_after_import : bool, optional
             Whether to close the linked AEDT project after the import. The default is ``True``.
         custom_x_resolution :
@@ -2301,7 +2388,6 @@ class Icepak(FieldAnalysisIcepak):
 
         >>> oModule.EditGlobalMeshRegion
         """
-        oModule = self.odesign.GetModule("MeshRegion")
 
         oBoundingBox = self.modeler.oeditor.GetModelBoundingBox()
         xsize = abs(float(oBoundingBox[0]) - float(oBoundingBox[3])) / (15 * meshtype * meshtype)
@@ -2309,7 +2395,7 @@ class Icepak(FieldAnalysisIcepak):
         zsize = abs(float(oBoundingBox[2]) - float(oBoundingBox[5])) / (10 * meshtype)
         MaxSizeRatio = 1 + (meshtype / 2)
 
-        oModule.EditGlobalMeshRegion(
+        self.omeshmodule.EditGlobalMeshRegion(
             [
                 "NAME:Settings",
                 "MeshMethod:=",
@@ -2455,11 +2541,10 @@ class Icepak(FieldAnalysisIcepak):
         arg2 = ["NAME:Attributes", "Name:=", point_name, "Color:=", "(143 175 143)"]
 
         self.modeler.oeditor.CreatePoint(arg1, arg2)
-        monitor = self._odesign.GetModule("Monitor")
 
         arg = ["NAME:" + str(point_name), "Quantities:=", ["Temperature"], "Points:=", [str(point_name)]]
 
-        monitor.AssignPointMonitor(arg)
+        self.omonitor.AssignPointMonitor(arg)
         return True
 
     @pyaedt_function_handler()
@@ -2510,12 +2595,12 @@ class Icepak(FieldAnalysisIcepak):
 
     @pyaedt_function_handler()
     def get_liquid_objects(self):
-        """Return the liquid materials objects.
+        """Get liquid material objects.
 
         Returns
         -------
         list
-            List of objects names
+            List of all liquid material objects.
         """
         mats = []
         for el in self.materials.liquids:
@@ -2524,7 +2609,7 @@ class Icepak(FieldAnalysisIcepak):
 
     @pyaedt_function_handler()
     def get_gas_objects(self):
-        """Retrieve gas objects.
+        """Get gas objects.
 
         Returns
         -------
@@ -2633,7 +2718,7 @@ class Icepak(FieldAnalysisIcepak):
             "-hidden",
             "-i" + '"' + fl_uscript_file_pointer + '"',
         ]
-        self.logger.info("Fluent will be started in BG!")
+        self.logger.info("Fluent is starting in BG.")
         subprocess.call(fl_ucommand)
         if os.path.exists(mesh_file_pointer + ".trn"):
             os.remove(mesh_file_pointer + ".trn")
@@ -2647,3 +2732,136 @@ class Icepak(FieldAnalysisIcepak):
         self.logger.error("Failed to create msh file")
 
         return False
+
+    @pyaedt_function_handler()
+    def apply_icepak_settings(
+        self,
+        ambienttemp=20,
+        gravityDir=5,
+        perform_minimal_val=True,
+        default_fluid="air",
+        default_solid="Al-Extruded",
+        default_surface="Steel-oxidised-surface",
+    ):
+        """Apply Icepak default design settings.
+
+        Parameters
+        ----------
+        ambienttemp : float, str, optional
+            Ambient temperature, which can be an integer or a parameter already
+            created in AEDT. The default is ``20``.
+        gravityDir : int, optional
+            Gravity direction index in the range ``[0, 5]``. The default is ``5``.
+        perform_minimal_val : bool, optional
+            Whether to perform minimal validation. The default is ``True``.
+            If ``False``, full validation is performend.
+        default_fluid : str, optional
+            Default for the type of fluid. The default is ``"Air"``.
+        default_solid :
+            Default for  the type of solid. The default is ``"Al-Extruded"``.
+        default_surface :
+            Default for the type of surface. The default is ``"Steel-oxidised-surface"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.SetDesignSettings
+        """
+
+        AmbientTemp = self.modeler._arg_with_dim(ambienttemp, "cel")
+
+        IceGravity = ["X", "Y", "Z"]
+        GVPos = False
+        if int(gravityDir) > 2:
+            GVPos = True
+        GVA = IceGravity[int(gravityDir) - 3]
+        self.odesign.SetDesignSettings(
+            [
+                "NAME:Design Settings Data",
+                "Perform Minimal validation:=",
+                perform_minimal_val,
+                "Default Fluid Material:=",
+                default_fluid,
+                "Default Solid Material:=",
+                default_solid,
+                "Default Surface Material:=",
+                default_surface,
+                "AmbientTemperature:=",
+                AmbientTemp,
+                "AmbientPressure:=",
+                "0n_per_meter_sq",
+                "AmbientRadiationTemperature:=",
+                AmbientTemp,
+                "Gravity Vector CS ID:=",
+                1,
+                "Gravity Vector Axis:=",
+                GVA,
+                "Positive:=",
+                GVPos,
+            ],
+            ["NAME:Model Validation Settings"],
+        )
+        return True
+
+    @pyaedt_function_handler()
+    def assign_surface_material(self, obj, mat):
+        """Assign a surface material to one or more objects.
+
+        Parameters
+        ----------
+        obj : str, list
+            One or more objects to assign surface materials to.
+        mat : str
+            Material to assign. The material must be present in the database.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
+        """
+        objs = ["NAME:PropServers"]
+        objs.extend(self.modeler.convert_to_selections(obj, True))
+        try:
+            self.modeler.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:Geometry3DAttributeTab",
+                        objs,
+                        ["NAME:ChangedProps", ["NAME:Surface Material", "Value:=", '"' + mat + '"']],
+                    ],
+                ]
+            )
+        except:
+            self.logger.warning("Warning. The material is not the database. Use add_surface_material.")
+            return False
+        if mat.lower() not in self.materials.surface_material_keys:
+            oo = self.get_oo_object(self.oproject, "Surface Materials/{}".format(mat))
+            if oo:
+                from pyaedt.modules.Material import SurfaceMaterial
+
+                sm = SurfaceMaterial(self.materials, mat)
+                sm.coordinate_system = oo.GetPropEvaluatedValue("Coordinate System Type")
+                props = oo.GetPropNames()
+                if "Surface Emissivity" in props:
+                    sm.emissivity = oo.GetPropEvaluatedValue("Surface Emissivity")
+                if "Surface Roughness" in props:
+                    sm.surface_roughness = oo.GetPropEvaluatedValue("Surface Roughness")
+                if "Solar Behavior" in props:
+                    sm.surface_clarity_type = oo.GetPropEvaluatedValue("Solar Behavior")
+                if "Solar Diffuse Absorptance" in props:
+                    sm.surface_diffuse_absorptance = oo.GetPropEvaluatedValue("Solar Diffuse Absorptance")
+                if "Solar Normal Absorptance" in props:
+                    sm.surface_incident_absorptance = oo.GetPropEvaluatedValue("Solar Normal Absorptance")
+                self.materials.surface_material_keys[mat.lower()] = sm
+        return True

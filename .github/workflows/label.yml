@@ -1,0 +1,85 @@
+name: Labeler
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+    paths:
+      - '../labels.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  label-syncer:
+    name: Syncer
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: micnncim/action-label-syncer@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  labeler:
+    name: Set labels
+    needs: [label-syncer]
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+
+    # Label based on modified files
+    - name: Label based on changed files
+      uses: actions/labeler@v4
+      with:
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        sync-labels: ''
+
+    # Label based on branch name
+    - uses: actions-ecosystem/action-add-labels@v1
+      if: |
+        startsWith(github.event.pull_request.head.ref, 'doc') || 
+        startsWith(github.event.pull_request.head.ref, 'docs')
+      with:
+        labels: documentation
+
+    - uses: actions-ecosystem/action-add-labels@v1
+      if: |
+        startsWith(github.event.pull_request.head.ref, 'maint') ||
+        startsWith(github.event.pull_request.head.ref, 'no-ci') ||
+        startsWith(github.event.pull_request.head.ref, 'ci')
+      with:
+        labels: maintenance
+
+    - uses: actions-ecosystem/action-add-labels@v1
+      if: startsWith(github.event.pull_request.head.ref, 'feat')
+      with:
+        labels: |
+          enhancement
+
+    - uses: actions-ecosystem/action-add-labels@v1
+      if: |
+        startsWith(github.event.pull_request.head.ref, 'fix') ||
+        startsWith(github.event.pull_request.head.ref, 'patch')
+      with:
+        labels: bug
+
+  commenter:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Suggest to add labels
+      uses: peter-evans/create-or-update-comment@v2
+      # Execute only when no labels have been applied to the pull request
+      if: toJSON(github.event.pull_request.labels.*.name) == '{}'
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        body: |
+          Please add one of the following labels to add this contribution to the Release Notes :point_down:
+          - [bug](https://github.com/pyansys/ansys-templates/pulls?q=label%3Abug+)
+          - [documentation](https://github.com/pyansys/ansys-templates/pulls?q=label%3Adocumentation+)
+          - [enhancement](https://github.com/pyansys/ansys-templates/pulls?q=label%3Aenhancement+)
+          - [good first issue](https://github.com/pyansys/ansys-templates/pulls?q=label%3Agood+first+issue)
+          - [maintenance](https://github.com/pyansys/ansys-templates/pulls?q=label%3Amaintenance+)
+          - [release](https://github.com/pyansys/ansys-templates/pulls?q=label%3Arelease+)

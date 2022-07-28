@@ -1,0 +1,80 @@
+# This is a basic workflow to help you get started with Actions
+
+name: WheelHouse Linux
+
+env:
+  python.venv: 'testvenv'
+  # Following env vars when changed will "reset" the mentioned cache
+  # by changing the cache file name. It is rendered as ...-v%RESET_XXX%-...
+  # You should go up in number. If you go down (or repeat a previous value),
+  # you might end up reusing a previous cache if it hasn't been deleted already.
+  # It applies a 7-day retention policy by default.
+  RESET_PIP_CACHE: 0
+  PACKAGE_NAME: PyAEDT
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    tags:
+     - 'v*'
+     - v*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: [ 3.7, 3.8, 3.9, '3.10']
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install pyaedt
+        run: |
+          pip install .
+
+      - name: Verify pyaedt can be imported
+        run: python -c "import pyaedt"
+
+      - name: Retrieve PyAEDT version
+        run: |
+          echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
+          echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
+        id: version
+
+      - name: Generate wheelhouse
+        run: |
+          pip install wheel setuptools -U
+          pip wheel . -w wheelhouse
+
+      - name: Zip wheelhouse
+        uses: vimtor/action-zip@v1
+        with:
+          files: wheelhouse
+          dest: ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-wheelhouse-${{ runner.os }}-${{ matrix.python-version }}.zip
+
+      - name: Upload Wheelhouse
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-wheelhouse-${{ runner.os }}-${{ matrix.python-version }}
+          path: '*.zip'
+          retention-days: 7
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        with:
+          generate_release_notes: true
+          files: |
+            ${{ env.PACKAGE_NAME }}-v${{ steps.version.outputs.PYAEDT_VERSION }}-wheelhouse-${{ runner.os }}-${{ matrix.python-version }}.zip

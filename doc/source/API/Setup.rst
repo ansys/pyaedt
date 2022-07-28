@@ -1,26 +1,12 @@
 Setup
 =====
 This section lists setup modules:
-* Setup for ``Hfss``, ``Maxwell2D``, ``Maxwell3d``, ``Q2d`` and ``Q3d``
-* SetupCircuit for ``Circuit`` and ``Twin Builder``
-* Setup3DLayout for ``Hfss3dLayout``
-Setup object is accessible through the ``create_setup`` method and ``setups`` object list.
 
-.. code:: python
+* ``Setup`` for HFSS, Maxwell 2D, Maxwell 3D, Q2D Extractor, and Q3D Extractor
+* ``Setup3DLayout`` for HFSS 3D Layout
+* ``SetupCircuit`` for Circuit and Twin Builder
 
-    from pyaedt import Hfss
-    app = Hfss(specified_version="2021.1",
-               non_graphical=False, new_desktop_session=True,
-               close_on_exit=True, student_version=False)
-
-    # this call returns the Setup Class
-    my_setup = app.setups[0]
-
-
-    # this call returns a Setup Object
-    setup = app.create_setup("MySetup")
-
-    ...
+The ``Setup`` object is accessible through the ``create_setup`` method and ``setups`` object list.
 
 .. currentmodule:: pyaedt.modules.SolveSetup
 
@@ -32,13 +18,32 @@ Setup object is accessible through the ``create_setup`` method and ``setups`` ob
    Setup3DLayout
    SetupCircuit
 
+.. code:: python
+
+    from pyaedt import Hfss
+    app = Hfss(specified_version="2022.1",
+               non_graphical=False, new_desktop_session=True,
+               close_on_exit=True, student_version=False)
+
+    # This call returns the Setup class
+    my_setup = app.setups[0]
+
+
+    # This call returns a Setup object
+    setup = app.create_setup("MySetup")
+
+    ...
+
+
 Sweep Classes
 =============
-This section lists Sweep classes and their default values.
-* SweepHFSS for ``Hfss``,
-* SweepQ3D for ``Q3d``
-* SweepHFSS3DLayout for ``Hfss3dLayout``
-Setup object is accessible through the methods available for sweep creation.
+This section lists sweep classes and their default values:
+
+* ``SweepHFSS`` for HFSS
+* ``SweepHFSS3DLayout`` for HFSS 3D Layout
+* ``SweepQ3D`` for Q3D Extractor
+
+The ``Setup`` object is accessible through the methods available for sweep creation.
 
 
 .. currentmodule:: pyaedt.modules.SetupTemplates

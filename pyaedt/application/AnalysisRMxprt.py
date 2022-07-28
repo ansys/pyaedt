@@ -30,6 +30,9 @@ class FieldAnalysisRMxprt(Analysis):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
+        aedt_process_id=None,
     ):
         Analysis.__init__(
             self,
@@ -43,6 +46,9 @@ class FieldAnalysisRMxprt(Analysis):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
+            aedt_process_id,
         )
 
         self._modeler = ModelerRMxprt(self)
@@ -96,6 +102,30 @@ class FieldAnalysisRMxprt(Analysis):
         self._design_type = "ModelCreation"
         self.solution_type = solution_type
         return True
+
+    @pyaedt_function_handler()
+    def set_material_threshold(self, conductivity=100000, permeability=100):
+        """Set material threshold.
+
+        Parameters
+        ----------
+        conductivity : float, optional
+            Conductivity threshold.
+            The default value is 100000.
+        permeability : float, optional
+            Permeability threshold.
+            The default value is 100.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            self.odesign.SetThreshold(conductivity, permeability)
+            return True
+        except:
+            return False
 
     @pyaedt_function_handler()
     def _check_solution_consistency(self):

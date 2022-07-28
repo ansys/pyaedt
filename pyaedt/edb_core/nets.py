@@ -1,9 +1,11 @@
 from __future__ import absolute_import  # noreorder
 
 import math
+import os
 import time
 
 from pyaedt.edb_core.EDB_Data import EDBNetsData
+from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
@@ -13,7 +15,7 @@ from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 
 class EdbNets(object):
-    """Manages EDB functionalities for nets.
+    """Manages EDB methods for nets management accessible from `Edb.core_nets` property.
 
     Examples
     --------
@@ -59,11 +61,6 @@ class EdbNets(object):
     def _logger(self):
         """Edb logger."""
         return self._pedb.logger
-
-    @property
-    def _nets_methods(self):
-        """ """
-        return self._pedb.edblib.Layout.NetsMethods
 
     @property
     def nets(self):
@@ -231,6 +228,12 @@ class EdbNets(object):
             If `False` the plot will be colored by layer. (default)
         outline : list, optional
             List of points of the outline to plot.
+        Returns
+        -------
+        list, str
+            list of data to be used in plot.
+            In case of remote session it will be returned a string that could be converted to list
+             using ast.literal_eval().
         """
         start_time = time.time()
         color_index = 0
@@ -248,6 +251,8 @@ class EdbNets(object):
             nets = [nets]
 
         for path in self._pedb.core_primitives.paths:
+            if path.is_void:
+                continue
             net_name = path.net_name
             layer_name = path.layer_name
             if net_name in nets and layer_name in layers:
@@ -259,7 +264,11 @@ class EdbNets(object):
                     if label not in label_colors:
                         color = path.layer.GetColor()
                         try:
-                            c = (float(color.Item1 / 255), float(color.Item2 / 255), float(color.Item3 / 255))
+                            c = (
+                                float(color.Item1 / 255),
+                                float(color.Item2 / 255),
+                                float(color.Item3 / 255),
+                            )
                             label_colors[label] = c
                         except:
                             label_colors[label] = list(CSS4_COLORS.keys())[color_index]
@@ -314,7 +323,11 @@ class EdbNets(object):
                     if label not in label_colors:
                         color = poly.GetLayer().GetColor()
                         try:
-                            c = (float(color.Item1 / 255), float(color.Item2 / 255), float(color.Item3 / 255))
+                            c = (
+                                float(color.Item1 / 255),
+                                float(color.Item2 / 255),
+                                float(color.Item3 / 255),
+                            )
                             label_colors[label] = c
                         except:
                             label_colors[label] = list(CSS4_COLORS.keys())[color_index]
@@ -342,11 +355,47 @@ class EdbNets(object):
                         objects_lists.append([vertices, codes, label_colors[label], "", 0.4, "path"])
         end_time = time.time() - start_time
         self._logger.info("Nets Point Generation time %s seconds", round(end_time, 3))
-        return objects_lists
+        if os.getenv("PYAEDT_SERVER_AEDT_PATH", None):
+            return str(objects_lists)
+        else:
+            return objects_lists
+
+    @pyaedt_function_handler()
+    def classify_nets(self, simulation_configuration_object=None):
+        """Sort nets based on SimulationConfiguration object.
+        If nets specified as ``power/ground`` or ``signal`` in the simulation
+        configuration object are not initially sorted.
+        in EDB, they are sorted accordingly.
+
+        Parameters
+        ----------
+        simulation_configuration_object : :class:`pyaedt.edb_core.EDB_Data.SimulationConfiguration`
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not isinstance(simulation_configuration_object, SimulationConfiguration):  # pragma: no cover
+            return False
+        for net in simulation_configuration_object.power_nets:
+            if net in self.signal_nets:  # pragma: no cover
+                self.signal_nets[net].net_object.SetIsPowerGround(True)
+        for net in simulation_configuration_object.signal_nets:
+            if net in self.power_nets:  # pragma: no cover
+                self.power_nets[net].net_object.SetIsPowerGround(False)
+        return True
 
     @pyaedt_function_handler()
     def plot(
-        self, nets, layers=None, color_by_net=False, show_legend=True, save_plot=None, outline=None, size=(2000, 1000)
+        self,
+        nets,
+        layers=None,
+        color_by_net=False,
+        show_legend=True,
+        save_plot=None,
+        outline=None,
+        size=(2000, 1000),
     ):
         """Plot a Net to Matplotlib 2D Chart.
 
@@ -379,7 +428,15 @@ class EdbNets(object):
             color_by_net,
             outline,
         )
-        plot_matplotlib(object_lists, size, show_legend, "X (m)", "Y (m)", self._pedb.active_cell.GetName(), save_plot)
+        plot_matplotlib(
+            object_lists,
+            size,
+            show_legend,
+            "X (m)",
+            "Y (m)",
+            self._pedb.active_cell.GetName(),
+            save_plot,
+        )
 
     @pyaedt_function_handler()
     def is_power_gound_net(self, netname_list):
@@ -497,7 +554,14 @@ class EdbNets(object):
             pins = self._pedb.core_components.get_pin_from_component(component=refdes, netName=el[2])
             el.append("-".join([i.GetName() for i in pins]))
 
-        component_list_columns = ["refdes", "pin_name", "net_name", "component_type", "component_partname", "pin_list"]
+        component_list_columns = [
+            "refdes",
+            "pin_name",
+            "net_name",
+            "component_type",
+            "component_partname",
+            "pin_list",
+        ]
         return component_list, component_list_columns, net_group
 
     @pyaedt_function_handler()
@@ -542,7 +606,7 @@ class EdbNets(object):
         return nets_deleted
 
     @pyaedt_function_handler()
-    def find_or_create_net(self, net_name=""):
+    def find_or_create_net(self, net_name="", start_with="", contain="", end_with=""):
         """Find or create the net with the given name in the layout.
 
         Parameters
@@ -550,19 +614,71 @@ class EdbNets(object):
         net_name : str, optional
             Name of the net to find or create. The default is ``""``.
 
+        start_with : str, optional
+            All net name starting with the string. Not case-sensitive.
+
+        contain : str, optional
+            All net name containing the string. Not case-sensitive.
+
+        end_with : str, optional
+            All net name ending with the string. Not case-sensitive.
+
         Returns
         -------
         object
             Net Object
         """
-        if not net_name:
+        if not net_name and not start_with and not contain and not end_with:
             net_name = generate_unique_name("NET_")
             net = self._edb.Cell.Net.Create(self._active_layout, net_name)
+            return net
         else:
-            net = self._edb.Cell.Net.FindByName(self._active_layout, net_name)
-            if net.IsNull():
-                net = self._edb.Cell.Net.Create(self._active_layout, net_name)
-        return net
+            if not start_with and not contain and not end_with:
+                net = self._edb.Cell.Net.FindByName(self._active_layout, net_name)
+                if net.IsNull():
+                    net = self._edb.Cell.Net.Create(self._active_layout, net_name)
+                return net
+            elif start_with:
+                nets_found = [
+                    self.nets[net].net_object for net in list(self.nets.keys()) if net.lower().startswith(start_with)
+                ]
+                return nets_found
+            elif start_with and end_with:
+                nets_found = [
+                    self.nets[net].net_object
+                    for net in list(self.nets.keys())
+                    if net.lower().startswith(start_with) and net.lower().endswith(end_with)
+                ]
+                return nets_found
+            elif start_with and contain and end_with:
+                nets_found = [
+                    self.nets[net].net_object
+                    for net in list(self.nets.keys())
+                    if net.lower().startswith(start_with) and net.lower().endswith(end_with) and contain in net.lower()
+                ]
+                return nets_found
+            elif start_with and contain:
+                nets_found = [
+                    self.nets[net].net_object
+                    for net in list(self.nets.keys())
+                    if net.lower().startswith(start_with) and contain in net.lower()
+                ]
+                return nets_found
+            elif contain and end_with:
+                nets_found = [
+                    self.nets[net].net_object
+                    for net in list(self.nets.keys())
+                    if net.lower().endswith(end_with) and contain in net.lower()
+                ]
+                return nets_found
+            elif end_with and not start_with and not contain:
+                nets_found = [
+                    self.nets[net].net_object for net in list(self.nets.keys()) if net.lower().endswith(end_with)
+                ]
+                return nets_found
+            elif contain and not start_with and not end_with:
+                nets_found = [self.nets[net].net_object for net in list(self.nets.keys()) if contain in net.lower()]
+                return nets_found
 
     @pyaedt_function_handler()
     def is_net_in_component(self, component_name, net_name):

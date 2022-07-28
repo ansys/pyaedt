@@ -31,8 +31,8 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         ``None``, in which case the active setup is used or
         nothing is used.
     specified_version : str, optional
-        Version of AEDT to use. The default is ``None``. If ``None``,
-        the active setup is used or the latest installed version is
+        Version of AEDT to use. The default is ``None``, in which
+        case the active setup or latest installed version is
         used.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
@@ -43,9 +43,21 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
     close_on_exit : bool, optional
-        Whether to release AEDT on exit. The default is ``True``.
+        Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether open AEDT Student Version. The default is ``False``.
+        Whether to open the AEDT student version. The default is ``False``.
+    machine : str, optional
+        Machine name to connect the oDesktop session to. This works only in 2022 R2
+        or later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`,
+        the server also starts if not present.
+    port : int, optional
+        Port number on which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 or later.
+        The remote server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
@@ -84,6 +96,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
+        aedt_process_id=None,
     ):
         """Constructor."""
         AnalysisTwinBuilder.__init__(
@@ -98,6 +113,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
+            aedt_process_id,
         )
 
     @pyaedt_function_handler()
@@ -255,7 +273,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         expression :
 
         analysis_name : str, optional
-             Name of the analysis. The default is ``"TR"``.
+            Name of the analysis. The default is ``"TR"``.
 
         Returns
         -------
@@ -268,7 +286,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         >>> oDesign.ChangeProperty
         """
         if isinstance(expression, Variable):
-            value_str = expression.string_value
+            value_str = expression.evaluated_value
         # Handle input type int/float, etc (including numeric 0)
         elif is_number(expression):
             value_str = str(expression)

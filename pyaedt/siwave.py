@@ -34,7 +34,7 @@ elif os.name == "nt":  # pragma: no cover
 
         _com = "pywin32"
     else:
-        raise Exception("Error. No win32com.client or Python.NET modules are found. They need to be installed.")
+        raise Exception("Error. No win32com.client or PythonNET modules are found. They need to be installed.")
 
 
 class Siwave:
@@ -270,7 +270,7 @@ class Siwave:
         Parameters
         ----------
         save_project : bool, optional
-            Whether to save the current project before close it. The default is ``False``.
+            Whether to save the current project before closing it. The default is ``False``.
 
         Returns
         -------
@@ -330,7 +330,7 @@ class Siwave:
         file_path :
 
         bkground_color : str, optional
-            Color of the report's background. The default is ``"white"``.
+            Color of the report's background. The default is ``"White"``.
 
 
         Returns

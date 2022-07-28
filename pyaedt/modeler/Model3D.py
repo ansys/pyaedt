@@ -1,9 +1,11 @@
 from __future__ import absolute_import  # noreorder
 
+import datetime
 import warnings
 
-from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Modeler import GeometryModeler
 from pyaedt.modeler.Primitives3D import Primitives3D
 
@@ -96,6 +98,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             exclude_region = True
         if not component_name:
             component_name = self._app.design_name
+        dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
         arg = [
             "NAME:CreateData",
             "ComponentName:=",
@@ -119,7 +122,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             "Email:=",
             "",
             "Date:=",
-            "9:44:15 AM  Mar 03, 2021",
+            dt_string,
             "HasLabel:=",
             False,
             "IsEncrypted:=",
@@ -157,16 +160,19 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             allcs = self.oeditor.GetCoordinateSystems()
         arg.append("IncludedCS:="), arg.append(allcs)
         arg.append("ReferenceCS:="), arg.append(activecs)
-        variables = variables_to_include
+        par_description = []
+        if variables_to_include:
+            variables = variables_to_include
+        else:
+            variables = self._app._variable_manager.independent_variable_names
+        for el in variables:
+            par_description.append(el + ":=")
+            par_description.append("")
         arg.append("IncludedParameters:="), arg.append(variables)
         variables = self._app._variable_manager.dependent_variable_names
-        par_description = []
-        for el in variables:
-            par_description.append(el)
-            par_description.append("")
         arg.append("IncludedDependentParameters:="), arg.append(variables)
         for el in variables:
-            par_description.append(el)
+            par_description.append(el + ":=")
             par_description.append("")
         arg.append("ParameterDescription:="), arg.append(par_description)
         arg.append("IsLicensed:="), arg.append(False)
@@ -178,25 +184,33 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             boundaries = boundaries_list
         else:
             boundaries = self.get_boundaries_name()
-        arg2.append("Boundaries:="), arg2.append(boundaries)
+        if boundaries:
+            arg2.append("Boundaries:="), arg2.append(boundaries)
         if self._app.design_type == "Icepak":
             meshregions = [name for name in self._app.mesh.meshregions.name]
             try:
                 meshregions.remove("Global")
             except:
                 pass
-            arg2.append("MeshRegions:="), arg2.append(meshregions)
+            if meshregions:
+                arg2.append("MeshRegions:="), arg2.append(meshregions)
         else:
             if excitation_list:
                 excitations = excitation_list
             else:
                 excitations = self._app.excitations
-            arg2.append("Excitations:="), arg2.append(excitations)
+                if self._app.design_type == "HFSS":
+                    exc = self._app.get_oo_name(self._app.odesign, "Excitations")
+                    if exc and exc[0] not in self._app.excitations:
+                        excitations.extend(exc)
+            excitations = list(set([i.split(":")[0] for i in excitations]))
+            if excitations:
+                arg2.append("Excitations:="), arg2.append(excitations)
         meshops = [el.name for el in self._app.mesh.meshoperations]
         arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
-        self.oeditor.Create3DComponent(arg, arg2, component_file, arg3)
-        return True
+
+        return _retry_ntimes(3, self.oeditor.Create3DComponent, arg, arg2, component_file, arg3)
 
     @pyaedt_function_handler()
     def create_coaxial(
@@ -437,9 +451,9 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                     origin[2] -= wg_thickness
                     origin[1] -= wg_thickness
             centers = [f.center for f in airbox.faces]
-            posx = [i[wg_direction_axis] for i in centers]
-            mini = posx.index(min(posx))
-            maxi = posx.index(max(posx))
+            xpos = [i[wg_direction_axis] for i in centers]
+            mini = xpos.index(min(xpos))
+            maxi = xpos.index(max(xpos))
             if create_sheets_on_openings:
                 p1 = self.create_object_from_face(airbox.faces[mini].id)
                 p2 = self.create_object_from_face(airbox.faces[maxi].id)
@@ -457,3 +471,66 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             return wgbox, p1, p2
         else:
             return None
+
+    @pyaedt_function_handler()
+    def objects_in_bounding_box(self, bounding_box, check_solids=True, check_lines=True, check_sheets=True):
+        """Given a bounding box checks if objects, sheets and lines are inside it.
+
+        Parameters
+        ----------
+        bounding_box : list.
+            List of coordinates of bounding box vertices.
+        check_solids : bool, optional.
+            Check solid objects.
+        check_lines : bool, optional.
+            Check line objects.
+        check_sheets : bool, optional.
+            Check sheet objects.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d`
+        """
+
+        if len(bounding_box) != 6:
+            raise ValueError("Bounding box list must have dimension 6.")
+
+        objects = []
+
+        if check_solids:
+            for obj in self.solid_objects:
+                if (
+                    bounding_box[3] <= obj.bounding_box[0] <= bounding_box[0]
+                    and bounding_box[4] <= obj.bounding_box[1] <= bounding_box[1]
+                    and bounding_box[5] <= obj.bounding_box[2] <= bounding_box[2]
+                    and bounding_box[3] <= obj.bounding_box[3] <= bounding_box[0]
+                    and bounding_box[4] <= obj.bounding_box[4] <= bounding_box[1]
+                    and bounding_box[5] <= obj.bounding_box[5] <= bounding_box[2]
+                ):
+                    objects.append(obj)
+
+        if check_lines:
+            for obj in self.line_objects:
+                if (
+                    bounding_box[3] <= obj.bounding_box[0] <= bounding_box[0]
+                    and bounding_box[4] <= obj.bounding_box[1] <= bounding_box[1]
+                    and bounding_box[5] <= obj.bounding_box[2] <= bounding_box[2]
+                    and bounding_box[3] <= obj.bounding_box[3] <= bounding_box[0]
+                    and bounding_box[4] <= obj.bounding_box[4] <= bounding_box[1]
+                    and bounding_box[5] <= obj.bounding_box[5] <= bounding_box[2]
+                ):
+                    objects.append(obj)
+
+        if check_sheets:
+            for obj in self.sheet_objects:
+                if (
+                    bounding_box[3] <= obj.bounding_box[0] <= bounding_box[0]
+                    and bounding_box[4] <= obj.bounding_box[1] <= bounding_box[1]
+                    and bounding_box[5] <= obj.bounding_box[2] <= bounding_box[2]
+                    and bounding_box[3] <= obj.bounding_box[3] <= bounding_box[0]
+                    and bounding_box[4] <= obj.bounding_box[4] <= bounding_box[1]
+                    and bounding_box[5] <= obj.bounding_box[5] <= bounding_box[2]
+                ):
+                    objects.append(obj)
+
+        return objects

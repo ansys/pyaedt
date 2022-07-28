@@ -1,4 +1,4 @@
-"""This module contains these classes: ``Hfss3dLayout``."""
+"""This module contains the ``Hfss3dLayout`` class."""
 
 from __future__ import absolute_import  # noreorder
 
@@ -6,8 +6,10 @@ import io
 import os
 import warnings
 
+from pyaedt import settings
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -21,10 +23,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     ----------
     projectname : str, optional
         Name of the project to select or the full path to the project
-        or AEDTZ archive to open or the path to aedb folder or edb.def file.
-        The default is ``None``, in which
-        case an attempt is made to get an active project. If no
-        projects are present, an empty project is created.
+        or AEDTZ archive to open or the path to the ``aedb`` folder or
+        ``edb.def`` file. The default is ``None``, in which case an
+        attempt is made to get an active project. If no projects are present,
+        an empty project is created.
     designname : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
@@ -48,9 +50,20 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``.
     close_on_exit : bool, optional
-        Whether to release AEDT on exit.
+        Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
+    machine : str, optional
+        Machine name to connect the oDesktop session to. This works only in 2022 R2 or later.
+        The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+        If the machine is `"localhost"`. the server also starts if not present.
+    port : int, optional
+        Port number on which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 or later.
+        The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
@@ -93,6 +106,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
+        aedt_process_id=None,
     ):
         FieldAnalysis3DLayout.__init__(
             self,
@@ -106,13 +122,25 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
+            aedt_process_id,
         )
 
     def __enter__(self):
         return self
 
     @pyaedt_function_handler()
-    def create_edge_port(self, primivitivename, edgenumber, iscircuit=True):
+    def create_edge_port(
+        self,
+        primivitivename,
+        edgenumber,
+        iscircuit=False,
+        iswave=False,
+        wave_horizontal_extension=5,
+        wave_vertical_extension=3,
+        wave_launcher="1mm",
+    ):
         """Create an edge port.
 
         Parameters
@@ -123,10 +151,19 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Edge number to create the edge port on.
         iscircuit : bool, optional
             Whether the edge port is a circuit port. The default is ``False``.
+        iswave : bool, optional
+            Whether the edge port is a wave port. The default is ``False``.
+        wave_horizontal_extension : float, optional
+            Horizontal port extension factor. The default is `5`.
+        wave_vertical_extension : float, optional
+            Vertical port extension factor. The default is `5`.
+        wave_launcher : str, optional
+            PEC (perfect electrical conductor) launcher size with units. The
+            default is `"1mm"`.
 
         Returns
         -------
-        type
+        str
             Name of the port when successful, ``False`` when failed.
 
         References
@@ -149,6 +186,34 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         listnew = self.port_list
         a = [i for i in listnew if i not in listp]
         if len(a) > 0:
+            if iswave:
+                self.modeler.change_property(
+                    property_object="Excitations:{}".format(a[0]),
+                    property_name="HFSS Type",
+                    property_value="Wave",
+                    property_tab="EM Design",
+                )
+                self.modeler.change_property(
+                    property_object="Excitations:{}".format(a[0]),
+                    property_name="Horizontal Extent Factor",
+                    property_value=str(wave_horizontal_extension),
+                    property_tab="EM Design",
+                )
+                if "Vertical Extent Factor" in list(
+                    self.modeler.oeditor.GetProperties("EM Design", "Excitations:{}".format(a[0]))
+                ):
+                    self.modeler.change_property(
+                        property_object="Excitations:{}".format(a[0]),
+                        property_name="Vertical Extent Factor",
+                        property_value=str(wave_vertical_extension),
+                        property_tab="EM Design",
+                    )
+                self.modeler.change_property(
+                    property_object="Excitations:{}".format(a[0]),
+                    property_name="PEC Launch Width",
+                    property_value=str(wave_launcher),
+                    property_tab="EM Design",
+                )
             return a[0]
         else:
             return False
@@ -161,11 +226,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ----------
         primivitivenames : list(str)
             List of the primitive names to create the wave port on.
-            The list length must be two for the two conductors or the method is not executed.
+            The list must have two entries, one entry for each of the two conductors,
+            or the method is not executed.
 
         edgenumbers :
             List of the edge number to create the wave port on.
-            The list length must be two for the two edges or the method is not executed.
+            The list must have two entries, one entry for each of the two edges,
+            or the method is not executed.
 
         Returns
         -------
@@ -396,8 +463,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         name : str, optional
             Name of the design to validate. The default is ``None``.
         outputdir : str, optional
-            Output directory to save the log file to.
-            The default is ``None``, in which case the file is exported to the working directory.
+            Output directory to save the log file to. The default is ``None``,
+            in which case the file is exported to the working directory.
 
         ports : str, optional
             Number of excitations that are expected. The default is ``None``.
@@ -430,7 +497,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         #
         val_list = []
         all_validate = outputdir + "\\all_validation.log"
-        with open(all_validate, "w") as validation:
+        with open_file(all_validate, "w") as validation:
 
             # Desktop Messages
             msg = "Desktop Messages:"
@@ -533,22 +600,27 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         )
 
     @pyaedt_function_handler()
-    def export_touchstone(self, solutionname, sweepname, filename, variation, variations_value):
+    def export_touchstone(
+        self, solution_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
+    ):
         """Export a Touchstone file.
 
         Parameters
         ----------
-        solutionname : str
+        solution_name : str, optional
             Name of the solution that has been solved.
-        sweepname : str
+        sweep_name : str, optional
             Name of the sweep that has been solved.
-        filename : str
-            Full path for the Touchstone file. The default is ``None``, in which
-            case the file is exported to the working directory.
-        variation : list
+        file_name : str, optional
+            Full path and name for the Touchstone file.
+            The default is ``None``, in which case the Touchstone file is exported to
+            the working directory.
+        variations : list, optional
             List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
-        variations_value : list
+            The default is ``None``.
+        variations_value : list, optional
             List of all parameter variation values. For example, ``["22cel", "100"]``.
+            The default is ``None``.
 
         Returns
         -------
@@ -560,53 +632,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oDesign.ExportNetworkData
         """
-        # normalize the save path
-        if not filename:
-            appendix = ""
-            for v, vv in zip(variation, variations_value):
-                appendix += "_" + v + vv.replace("'", "")
-            ext = ".S" + str(len(self.port_list)) + "p"
-            filename = os.path.join(self.working_directory, solutionname + "_" + sweepname + appendix + ext)
-        else:
-            filename = filename.replace("//", "/").replace("\\", "/")
-        print("Exporting Touchstone " + filename)
-        # array containing "SetupName:SolutionName" pairs (note that setup and solution are separated by a colon)
-        SolutionSelectionArray = [solutionname + ":" + sweepname]
-        # 2=tab delimited spreadsheet (.tab), 3= touchstone (.sNp), 4= CitiFile (.cit),
-        # 7=Matlab (.m), 8=Terminal Z0 spreadsheet
-        FileFormat = 3
-        OutFile = filename  # full path of output file
-        # array containin the frequencies to export, use ["all"] for all frequencies
-        FreqsArray = ["all"]
-        DoRenorm = True  # perform renormalization before export
-        RenormImped = 50  # Real impedance value in ohm, for renormalization
-        DataType = "S"  # Type: "S", "Y", or "Z" matrix to export
-        Pass = -1  # The pass to export. -1 = export all passes.
-        ComplexFormat = 0  # 0=Magnitude/Phase, 1=Real/Immaginary, 2=dB/Phase
-        DigitsPrecision = 15  # Touchstone number of digits precision
-        IncludeGammaImpedance = True  # Include Gamma and Impedance in comments
-        NonStandardExtensions = False  # Support for non-standard Touchstone extensions
-        variation_str = ""
-        for v, vv in zip(variation, variations_value):
-            variation_str += v + "=" + vv + " "
-
-        self.odesign.ExportNetworkData(
-            variation_str,
-            SolutionSelectionArray,
-            FileFormat,
-            OutFile,
-            FreqsArray,
-            DoRenorm,
-            RenormImped,
-            DataType,
-            Pass,
-            ComplexFormat,
-            DigitsPrecision,
-            IncludeGammaImpedance,
-            IncludeGammaImpedance,
-            NonStandardExtensions,
+        return self._export_touchstone(
+            solution_name=solution_name,
+            sweep_name=sweep_name,
+            file_name=file_name,
+            variations=variations,
+            variations_value=variations_value,
         )
-        return True
 
     @pyaedt_function_handler()
     def set_export_touchstone(self, activate, export_dir=""):
@@ -615,9 +647,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Parameters
         ----------
         activate : bool
-            Whether to export after the simulation.
+            Whether to export the Touchstone file after the simulation.
         export_dir str, optional
-            Path to export the file to. The default is ``""``.
+            Path to export the Touchstone file to. The default is ``""``.
 
         Returns
         -------
@@ -735,10 +767,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             ``"Interpolating"``, and ``"Discrete"``.  The default is
             ``"Interpolating"``.
         interpolation_tol_percent : float, optional
-            Error tolerance threshold for the interpolation
-            process. The default is ``0.5``.
+            Error tolerance threshold for the interpolation process.
+            The default is ``0.5``.
         interpolation_max_solutions : int, optional
-            Maximum number of solutions evaluated for the
+            Maximum number of solutions to evaluate for the
             interpolation process. The default is ``250``.
         use_q3d_for_dc : bool, optional
             Whether to use Q3D to solve the DC point. The default is ``False``.
@@ -754,7 +786,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         >>> oModule.AddSweep
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
+            raise AttributeError(
+                "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+            )
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
@@ -789,7 +823,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 sweep.props["UseQ3DForDC"] = use_q3d_for_dc
                 sweep.props["MaxSolutions"] = interpolation_max_solutions
                 sweep.update()
-                self.logger.info("Linear count sweep %s has been correctly created", sweepname)
+                self.logger.info("Linear count sweep %s has been correctly created.", sweepname)
                 return sweep
         return False
 
@@ -839,7 +873,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Error tolerance threshold for the interpolation
             process. The default is ``0.5``.
         interpolation_max_solutions : int, optional
-            Maximum number of solutions evaluated for the
+            Maximum number of solutions to evaluate for the
             interpolation process. The default is ``250``.
         use_q3d_for_dc : bool, optional
             Whether to use Q3D to solve the DC point. The default is ``False``.
@@ -855,7 +889,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         >>> oModule.AddSweep
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            raise AttributeError("Invalid `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
+            raise AttributeError(
+                "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+            )
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
@@ -968,8 +1004,53 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return False
 
     @pyaedt_function_handler()
-    def import_gds(self, gds_path, aedb_path=None, xml_path=None, set_as_active=True, close_active_project=False):
-        """Import grounds into HFSS 3D Layout and assign the stackup from an XML file if present.
+    def _import_cad(
+        self, cad_path, cad_format="gds", aedb_path=None, xml_path=None, set_as_active=True, close_active_project=False
+    ):
+        method = None
+        if cad_format == "gds":
+            method = self.oimport_export.ImportGDSII
+        elif cad_format == "dxf":
+            method = self.oimport_export.ImportAutoCAD
+        elif cad_format == "gerber":
+            method = self.oimport_export.ImportGerber
+        elif cad_format == "awr":
+            method = self.oimport_export.ImportAWRMicrowaveOffice
+        elif cad_format == "brd":
+            method = self.oimport_export.ImportExtracta
+        elif cad_format == "ipc2581":
+            method = self.oimport_export.ImportIPC
+        elif cad_format == "odb++":
+            method = self.oimport_export.ImportODB
+        if not method:
+            return False
+        active_project = self.project_name
+        path_ext = os.path.splitext(cad_path)
+        project_name = os.path.splitext(os.path.basename(cad_path))[0]
+        if not aedb_path:
+            aedb_path = path_ext[0] + ".aedb"
+        if os.path.exists(aedb_path):
+            old_name = project_name
+            project_name = generate_unique_name(project_name)
+            aedb_path = aedb_path.replace(old_name, project_name)
+            self.logger.warning("aedb_exists. Renaming it to %s", project_name)
+        if not xml_path:
+            xml_path = ""
+        if cad_format == "gds":
+            method(cad_path, aedb_path, xml_path, "")
+        else:
+            method(cad_path, aedb_path, xml_path)
+
+        if set_as_active:
+            self._close_edb()
+            self.__init__(project_name)
+        if close_active_project:
+            self.odesktop.CloseProject(active_project)
+        return True
+
+    @pyaedt_function_handler()
+    def import_gds(self, gds_path, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False):
+        """Import a GDS file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
         Parameters
         ----------
@@ -977,7 +1058,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Full path to the GDS file.
         aedb_path : str, optional
             Full path to the AEDB file.
-        xml_path : str, optional
+        control_file : str, optional
             Path to the XML file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
         set_as_active : bool, optional
@@ -994,29 +1075,193 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ----------
 
         >>> oModule.ImportGDSII
-        >>> oEditor.ImportStackupXML
         """
-        active_project = self.project_name
-        project_name = os.path.basename(gds_path)[:-4]
-        if not aedb_path:
-            aedb_path = gds_path.replace(".gds", ".aedb")
-        if os.path.exists(aedb_path):
-            old_name = project_name
-            project_name = generate_unique_name(project_name)
-            aedb_path = gds_path.replace(old_name + ".gds", project_name + ".aedb")
-            self.logger.warning("aedb_exists. Renaming it to %s", project_name)
+        return self._import_cad(gds_path, "gds", aedb_path, control_file, set_as_active, close_active_project)
 
-        self.oimport_export.ImportGDSII(gds_path, aedb_path, "", "")
-        project = self.odesktop.SetActiveProject(project_name)
-        oeditor = project.GetActiveDesign().SetActiveEditor("Layout")
-        if xml_path:
-            oeditor.ImportStackupXML(xml_path)
-        if set_as_active:
-            self._close_edb()
-            self.__init__(project_name)
-        if close_active_project:
-            self.odesktop.CloseProject(active_project)
-        return True
+    @pyaedt_function_handler()
+    def import_dxf(self, dxf_path, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False):
+        """Import a DXF file into HFSS 3D Layout and assign the stackup from an XML file if present.
+
+        Parameters
+        ----------
+        gds_path : str
+            Full path to the DXF file.
+        aedb_path : str, optional
+            Full path to the AEDB file.
+        control_file : str, optional
+            Path to the XML file with the stackup information. The default is ``None``, in
+            which case the stackup is not edited.
+        set_as_active : bool, optional
+            Whether to set the DXF file as active. The default is ``True``.
+        close_active_project : bool, optional
+            Whether to close the active project after loading the DXF file.
+            The default is ''False``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ImportDXF
+        """
+        return self._import_cad(dxf_path, "dxf", aedb_path, control_file, set_as_active, close_active_project)
+
+    @pyaedt_function_handler()
+    def import_gerber(
+        self, gerber_path, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False
+    ):
+        """Import a Gerber zip file into HFSS 3D Layout and assign the stackup from an XML file if present.
+
+        Parameters
+        ----------
+        gerber_path : str
+            Full path to the Gerber zip file.
+        aedb_path : str, optional
+            Full path to the AEDB file.
+        control_file : str, optional
+            Path to the XML file with the stackup information. The default is ``None``, in
+            which case the stackup is not edited.
+        set_as_active : bool, optional
+            Whether to set the Gerber zip file file as active. The default is ``True``.
+        close_active_project : bool, optional
+            Whether to close the active project after loading the Gerber zip file file.
+            The default is ''False``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ImportGerber
+        """
+        return self._import_cad(gerber_path, "gerber", aedb_path, control_file, set_as_active, close_active_project)
+
+    @pyaedt_function_handler()
+    def import_brd(
+        self, input_file, aedb_path=None, set_as_active=True, close_active_project=False
+    ):  # pragma: no cover
+        """Import a board file into HFSS 3D Layout and assign the stackup from an XML file if present.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the board file.
+        aedb_path : str, optional
+            Full path to the AEDB file.
+        set_as_active : bool, optional
+            Whether to set the board file as active. The default is ``True``.
+        close_active_project : bool, optional
+            Whether to close the active project after loading the board file.
+            The default is ''False``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ImportExtracta
+        """
+        return self._import_cad(input_file, "brd", aedb_path, "", set_as_active, close_active_project)
+
+    @pyaedt_function_handler()
+    def import_awr(
+        self, input_file, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False
+    ):  # pragma: no cover
+        """Import an AWR Microwave Office file into HFSS 3D Layout and assign the stackup from an XML file if present.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the AWR Microwave Office file.
+        aedb_path : str, optional
+            Full path to the AEDB file.
+        control_file : str, optional
+            Path to the XML file with the stackup information. The default is ``None``, in
+            which case the stackup is not edited.
+        set_as_active : bool, optional
+            Whether to set the AWR Microwave Office file as active. The default is ``True``.
+        close_active_project : bool, optional
+            Whether to close the active project after loading the AWR Microwave Office file.
+            The default is ''False``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ImportAWRMicrowaveOffice
+        """
+        return self._import_cad(input_file, "awr", aedb_path, control_file, set_as_active, close_active_project)
+
+    @pyaedt_function_handler()
+    def import_ipc2581(
+        self, input_file, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False
+    ):
+        """Import an IPC2581 file into HFSS 3D Layout and assign the stackup from an XML file if present.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the IPC2581 file.
+        aedb_path : str, optional
+            Full path to the AEDB file.
+        control_file : str, optional
+            Path to the XML file with the stackup information. The default is ``None``, in
+            which case the stackup is not edited.
+        set_as_active : bool, optional
+            Whether to set the IPC2581 file as active. The default is ``True``.
+        close_active_project : bool, optional
+            Whether to close the active project after loading the IPC2581 file.
+            The default is ''False``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ImportAWRMicrowaveOffice
+        """
+        return self._import_cad(input_file, "ipc2581", aedb_path, control_file, set_as_active, close_active_project)
+
+    @pyaedt_function_handler()
+    def import_odb(self, input_file, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False):
+        """Import an ODB++ file into HFSS 3D Layout and assign the stackup from an XML file if present.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the ODB++ file.
+        aedb_path : str, optional
+            Full path to the AEDB file.
+        control_file : str, optional
+            Path to the XML file with the stackup information. The default is ``None``, in
+            which case the stackup is not edited.
+        set_as_active : bool, optional
+            Whether to set the ODB++ file as active. The default is ``True``.
+        close_active_project : bool, optional
+            Whether to close the active project after loading the ODB++ file.
+            The default is ''False``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ImportAWRMicrowaveOffice
+        """
+        return self._import_cad(input_file, "odb++", aedb_path, control_file, set_as_active, close_active_project)
 
     @pyaedt_function_handler()
     def edit_cosim_options(
@@ -1149,17 +1394,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         negative_terminal : str
             Name of the terminal to use as the negative terminal.
         common_name : str, optional
-            Name for the common mode. Default is ``None`` in which case a unique name is chosen.
+            Name for the common mode. The default is ``None``, in which case a unique name is assigned.
         diff_name : str, optional
-            Name for the differential mode. Default is ``None`` in which case a unique name is chosen.
+            Name for the differential mode. The default is ``None``, in which case a unique name is assigned.
         common_ref_z : float, optional
-            Reference impedance for the common mode. Units are Ohm. Default is ``25``.
+            Reference impedance for the common mode in ohms. The default is ``25``.
         diff_ref_z : float, optional
-            Reference impedance for the differential mode. Units are Ohm. Default is ``100``.
+            Reference impedance for the differential mode in ohms. The default is ``100``.
         active : bool, optional
-            Set the differential pair as active. Default is ``True``.
+            Whether to set the differential pair as active. The default is ``True``.
         matched : bool, optional
-            Set the differential pair as active. Default is ``False``.
+            Whether to set the differential pair as active. The default is ``False``.
 
         Returns
         -------
@@ -1200,7 +1445,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
         self.oexcitation.SaveDiffPairsToFile(tmpfile1)
-        with open(tmpfile1, "r") as fh:
+        with open_file(tmpfile1, "r") as fh:
             lines = fh.read().splitlines()
         old_arg = []
         for line in lines:
@@ -1244,14 +1489,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     def load_diff_pairs_from_file(self, filename):
         """Load differtential pairs definition from file.
 
-        File format can be obtained using ``save_diff_pairs_to_file`` method.
-        File End Of Line must be UNIX (LF).
+        You can use the ``save_diff_pairs_to_file`` method to obtain the file format.
+        The ``File End Of Line`` must be UNIX (LF).
         New definitions are added only if compatible with the existing definition already defined in the project.
 
         Parameters
         ----------
         filename : str
-            Full qualified name of the file containing the differential pairs definition.
+            Fully qualified name of the file containing the differential pairs definition.
 
         Returns
         -------
@@ -1267,7 +1512,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         try:
             new_file = os.path.join(os.path.dirname(filename), generate_unique_name("temp") + ".txt")
-            with open(filename, "r") as file:
+            with open_file(filename, "r") as file:
                 filedata = file.read().splitlines()
             with io.open(new_file, "w", newline="\n") as fh:
                 for line in filedata:
@@ -1281,14 +1526,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def save_diff_pairs_to_file(self, filename):
-        """Save differtential pairs definition to file.
+        """Save differtential pairs definition to a file.
 
-        If ``filename`` already exists, it will be overwritten.
+        If a filee with the specified name already exists, it is overwritten.
 
         Parameters
         ----------
         filename : str
-            Full qualified name of the file containing the differential pairs definition.
+            Fully qualified name of the file containing the differential pairs definition.
 
         Returns
         -------
@@ -1302,3 +1547,105 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.oexcitation.SaveDiffPairsToFile(filename)
 
         return os.path.isfile(filename)
+
+    @pyaedt_function_handler()
+    def export_3d_model(self, file_name=None):
+        """Export the Ecad model to an ACIS 3D file.
+
+        Parameters
+        ----------
+        file_name : str, optional
+            Full name of the file to export. The default is None, in which case the file name is
+            set to the design name and saved as a SAT file in the working directory.
+            Extensions available are ``"sat"``, ``"sab"``, and ``"sm3"``.
+
+        Returns
+        -------
+        str
+            File name if successful.
+        """
+        if not file_name:
+            file_name = os.path.join(self.working_directory, self.design_name + ".sat")
+
+        self.modeler.oeditor.ExportAcis(["NAME:options", "FileName:=", file_name])
+        return file_name
+
+    @pyaedt_function_handler()
+    def enable_rigid_flex(self):
+        """Turn on or off the rigid flex of a board with bending if available.
+
+        This function is the same for both turning on and off rigid flex.
+
+        Returns
+        -------
+        bool
+            ``True`` if rigid flex is turned off, ``False``` if rigid flex is turned off.
+            In non-graphical, ``True`` is always returned due to a bug in the native API.
+        """
+        if settings.aedt_version >= "2022.2":
+            self.modeler.oeditor.ProcessBentModelCmd()
+        if settings.non_graphical:
+            return True
+        return True if self.variable_manager["BendModel"].expression == "1" else False
+
+    @pyaedt_function_handler
+    def edit_hfss_extents(
+        self,
+        diel_extent_type=None,
+        diel_extent_horizontal_padding=None,
+        diel_honor_primitives_on_diel_layers="keep",
+        air_extent_type=None,
+        air_truncate_model_at_ground_layer="keep",
+        air_vertical_positive_padding=None,
+        air_vertical_negative_padding=None,
+    ):
+        """Edit HFSS 3D Layout extents.
+
+        Parameters
+        ----------
+        diel_extent_type : str, optional
+            Dielectric extent type. The default is ``None``. Options are ``"BboxExtent"``,
+            ``"ConformalExtent"``, and ``"ConvexHullExtent"``.
+        diel_extent_horizontal_padding : str, optional
+            Dielectric extent horizontal padding. The default is ``None``.
+        diel_honor_primitives_on_diel_layers : str, optional
+            Whether to set dielectric honor primitives on dielectric layers. The default is ``None``.
+        air_extent_type : str, optional
+            Airbox extent type. The default is ``None``. Options are ``"BboxExtent"``,
+            ``"ConformalExtent"``, and ``"ConvexHullExtent"``.
+        air_truncate_model_at_ground_layer : str, optional
+            Whether to set airbox truncate model at ground layer. The default is ``None``.
+        air_vertical_positive_padding : str, optional
+            Airbox vertical positive padding. The default is ``None``.
+        air_vertical_negative_padding : str, optional
+            Airbox vertical negative padding. The default is ``None``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        arg = ["NAME:HfssExportInfo"]
+        if diel_extent_type:
+            arg.append("DielExtentType:=")
+            arg.append(diel_extent_type)
+        if diel_extent_horizontal_padding:
+            arg.append("DielExt:=")
+            arg.append(["Ext:=", diel_extent_horizontal_padding, "Dim:=", False])
+        if not diel_honor_primitives_on_diel_layers == "keep":
+            arg.append("HonorUserDiel:=")
+            arg.append(diel_honor_primitives_on_diel_layers)
+        if air_extent_type:
+            arg.append("ExtentType:=")
+            arg.append(air_extent_type)
+        if not air_truncate_model_at_ground_layer == "keep":
+            arg.append("TruncAtGnd:=")
+            arg.append(air_truncate_model_at_ground_layer)
+        if air_vertical_positive_padding:
+            arg.append("AirPosZExt:=")
+            arg.append(["Ext:=", air_vertical_positive_padding, "Dim:=", True])
+        if air_vertical_negative_padding:
+            arg.append("AirNegZExt:=")
+            arg.append(["Ext:=", air_vertical_negative_padding, "Dim:=", True])
+
+        self.odesign.EditHfssExtents(arg)
+        return True

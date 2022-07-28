@@ -20,11 +20,19 @@ class TestClass(BasisTest, object):
         setup1 = self.aedtapp.create_setup("My_HFSS_Setup", self.aedtapp.SETUPS.HFSSDrivenDefault)
         assert setup1.name == "My_HFSS_Setup"
         assert "SaveRadFieldsOnly" in setup1.props
-        setup1.props["SaveRadFieldsOnly"] = True
-        setup1.props["AdaptMultipleFreqs"] = True
-        setup1.props["MultipleAdaptiveFreqsSetup"]["1GHz"] = [0.01]
-        del setup1.props["MultipleAdaptiveFreqsSetup"]["5GHz"]
-        setup1.update()
+        assert "SaveRadFieldsOnly" in setup1.available_properties
+        setup1["SaveRadFieldsonly"] = True
+        assert setup1.props["SaveRadFieldsOnly"] == setup1["SaveRadFieldsonly"]
+        assert setup1.enable_adaptive_setup_multifrequency([1, 2, 3])
+        assert setup1.props["MultipleAdaptiveFreqsSetup"]["1GHz"][0] == 0.02
+        assert setup1.enable_adaptive_setup_broadband(1, 2.5, 10, 0.01)
+        assert setup1.props["MultipleAdaptiveFreqsSetup"]["Low"] == "1GHz"
+        assert setup1.props["MaximumPasses"] == 10
+        assert setup1.props["MaxDeltaS"] == 0.01
+        assert setup1.enable_adaptive_setup_single(3.5)
+        assert setup1.props["Frequency"] == "3.5GHz"
+        assert setup1.props["MaximumPasses"] == 10
+        assert setup1.props["MaxDeltaS"] == 0.01
         setup1.disable()
         setup1.enable()
 
@@ -45,6 +53,31 @@ class TestClass(BasisTest, object):
         setup1 = circuit.create_setup("circuit", self.aedtapp.SETUPS.NexximLNA)
         assert setup1.name == "circuit"
         setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 501"
+        setup1["SaveRadFieldsonly"] = True
+        setup1["SweepDefinition/Data"] = "LINC 0GHz 4GHz 301"
+        assert setup1.props["SweepDefinition"]["Data"] == "LINC 0GHz 4GHz 301"
+        assert "SweepDefinition" in setup1.available_properties
         setup1.update()
         setup1.disable()
         setup1.enable()
+
+    def test_03_non_valid_setup(self):
+        self.aedtapp.duplicate_design("non_valid")
+        setup1 = self.aedtapp.create_setup("My_HFSS_Setup2", self.aedtapp.SETUPS.HFSSDrivenAuto)
+        assert not setup1.enable_adaptive_setup_multifrequency([1, 2, 3])
+        assert not setup1.enable_adaptive_setup_broadband(1, 2.5, 10, 0.01)
+        assert not setup1.enable_adaptive_setup_single(3.5)
+        sol = self.aedtapp.solution_type
+        self.aedtapp.solution_type = "Transient"
+        assert not setup1.enable_adaptive_setup_multifrequency([1, 2, 3])
+        assert not setup1.enable_adaptive_setup_broadband(1, 2.5, 10, 0.01)
+        assert not setup1.enable_adaptive_setup_single(3.5)
+        self.aedtapp.solution_type = sol
+
+    def test_04_delete_setup(self):
+        self.aedtapp.insert_design("delete_setups")
+        setup1 = self.aedtapp.create_setup("My_HFSS_Setup2", self.aedtapp.SETUPS.HFSSDrivenAuto)
+        assert len(self.aedtapp.setups) == 1
+        assert setup1.delete()
+        assert len(self.aedtapp.setups) == 0
+        assert not self.aedtapp.get_setups()

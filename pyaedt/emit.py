@@ -7,7 +7,7 @@ class Emit(FieldAnalysisEmit, object):
     """Provides the Emit application interface.
 
     .. note::
-       This object creates only a skeleton for an empty design.
+       This class creates only a skeleton for an empty design.
        It has very limited functionalities, and no methods
        are implemented yet.
 
@@ -15,13 +15,13 @@ class Emit(FieldAnalysisEmit, object):
     ----------
     projectname : str, optional
         Name of the project to select or the full path to the project
-        or AEDTZ archive to open.  The default is ``None``. If
-        ``None``, try to get an active project and, if no projects are
-        present, create an empty project.
+        or AEDTZ archive to open.  The default is ``None``, in which case
+        an attempt is made to get an active project. If no projects are
+        present, an empty project is created.
     designname : str, optional
-        Name of the design to select. The default is ``None``. If
-        ``None``, try to get an active design and, if no designs are
-        present, create an empty design.
+        Name of the design to select. The default is ``None``, in which case
+        an attempt is made to get an active design. If no designs are
+        present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is ``None``, in which
         case the default type is applied.
@@ -42,9 +42,21 @@ class Emit(FieldAnalysisEmit, object):
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``True``.
     close_on_exit : bool, optional
-        Whether to release AEDT on exit. The default is ``True``.
+        Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
+    machine : str, optional
+        Machine name to which the oDesktop session is to connect to. This
+        parameter works only in 2022 R2 and later. The remote server must be
+        up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+        If the machine is `"localhost"`, the server starts if it is not present.
+    port : int, optional
+        Port number on which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 or
+        later. The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
@@ -84,6 +96,9 @@ class Emit(FieldAnalysisEmit, object):
         new_desktop_session=True,
         close_on_exit=True,
         student_version=False,
+        machine="",
+        port=0,
+        aedt_process_id=None,
     ):
         """Constructor."""
         FieldAnalysisEmit.__init__(
@@ -98,6 +113,9 @@ class Emit(FieldAnalysisEmit, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine=machine,
+            port=port,
+            aedt_process_id=aedt_process_id,
         )
 
     def __enter__(self):

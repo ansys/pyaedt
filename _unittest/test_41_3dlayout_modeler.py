@@ -2,6 +2,7 @@ import os
 import time
 
 from _unittest.conftest import BasisTest
+from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 from _unittest.conftest import scratch_path
@@ -15,6 +16,7 @@ except ImportError:
 
 # Input Data and version for the test
 test_project_name = "Test_RadioBoard"
+test_rigid_flex = "demo_flex"
 
 
 class TestClass(BasisTest, object):
@@ -22,6 +24,7 @@ class TestClass(BasisTest, object):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Hfss3dLayout)
         self.hfss3dl = BasisTest.add_app(self, project_name="differential_pairs", application=Hfss3dLayout)
+        self.flex = BasisTest.add_app(self, project_name=test_rigid_flex, application=Hfss3dLayout)
         example_project = os.path.join(local_path, "example_models", "Package.aedb")
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
@@ -149,9 +152,8 @@ class TestClass(BasisTest, object):
     def test_09_modify_padstack(self):
         pad_0 = self.aedtapp.modeler.padstacks["PlanarEMVia"]
         assert self.aedtapp.modeler.padstacks["PlanarEMVia"].plating != 55
-        pad_0.plating = 55
+        pad_0.plating = "55"
         pad_0.update()
-        self.aedtapp.modeler.init_padstacks()
         assert self.aedtapp.modeler.padstacks["PlanarEMVia"].plating == "55"
 
     def test_10_create_padstack(self):
@@ -178,6 +180,9 @@ class TestClass(BasisTest, object):
         assert line == "line1"
 
     def test_13a_create_edge_port(self):
+        port_wave = self.aedtapp.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
+        assert port_wave
+        assert self.aedtapp.delete_port(port_wave)
         assert self.aedtapp.create_edge_port("line1", 3, False)
         assert self.aedtapp.create_edge_port("line1", 0, True)
         assert len(self.aedtapp.excitations) > 0
@@ -189,7 +194,7 @@ class TestClass(BasisTest, object):
         setup_name = "RFBoardSetup"
         setup = self.aedtapp.create_setup(setupname=setup_name)
         assert setup.name == self.aedtapp.existing_analysis_setups[0]
-        assert setup.setup_type == "HFSS"
+        assert setup.solver_type == "HFSS"
 
     def test_15_edit_setup(self):
         setup_name = "RFBoardSetup2"
@@ -305,7 +310,9 @@ class TestClass(BasisTest, object):
             )
         except AttributeError as e:
             exception_raised = True
-            assert e.args[0] == "Invalid `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
+            assert (
+                e.args[0] == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+            )
         assert exception_raised
 
     def test_18c_create_single_point_sweep(self):
@@ -363,8 +370,13 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
     def test_19C_export_touchsthone(self):
         filename = os.path.join(scratch_path, "touchstone.s2p")
-        assert self.aedtapp.export_touchstone("RFBoardSetup3", "Last Adaptive", filename, [], [])
+        solution_name = "RFBoardSetup3"
+        sweep_name = "Last Adaptive"
+        assert self.aedtapp.export_touchstone(solution_name, sweep_name, filename)
         assert os.path.exists(filename)
+        assert self.aedtapp.export_touchstone(solution_name)
+        sweep_name = None
+        assert self.aedtapp.export_touchstone(solution_name, sweep_name)
 
     def test_19D_export_to_hfss(self):
         with Scratch(scratch_path) as local_scratch:
@@ -401,37 +413,37 @@ class TestClass(BasisTest, object):
     def test_25_get_fext_xtalk_list(self):
         assert self.aedtapp.get_fext_xtalk_list() == ["S(Port1,Port2)", "S(Port2,Port1)"]
 
-    def test26_duplicate(self):
+    def test_26_duplicate(self):
         assert self.aedtapp.modeler.duplicate("myrectangle", 2, [1, 1])
 
-    def test27_create_pin_port(self):
+    def test_27_create_pin_port(self):
         assert self.aedtapp.create_pin_port("PinPort1")
 
-    def test28_create_scattering(self):
+    def test_28_create_scattering(self):
         assert self.aedtapp.create_scattering()
 
-    def test29_duplicate_material(self):
+    def test_29_duplicate_material(self):
         material = self.aedtapp.materials.add_material("FirstMaterial")
         new_material = self.aedtapp.materials.duplicate_material("FirstMaterial", "SecondMaterial")
-        assert new_material.name == "secondmaterial"
+        assert new_material.name == "SecondMaterial"
 
-    def test30_expand(self):
+    def test_30_expand(self):
         self.aedtapp.modeler.create_rectangle("Bottom", [20, 20], [50, 50], name="rect_1")
         self.aedtapp.modeler.create_line("Bottom", [[25, 25], [40, 40]], name="line_3")
         out1 = self.aedtapp.modeler.expand("line_3", size=1, expand_type="ROUND", replace_original=False)
         assert isinstance(out1, str)
 
-    def test31_heal(self):
+    def test_31_heal(self):
         l1 = self.aedtapp.modeler.create_line("Bottom", [[0, 0], [100, 0]], 0.5, name="poly_1111")
         l2 = self.aedtapp.modeler.create_line("Bottom", [[100, 0], [120, -35]], 0.5, name="poly_2222")
         self.aedtapp.modeler.unite([l1, l2])
         assert self.aedtapp.modeler.colinear_heal("poly_2222", tolerance=0.25)
 
-    def test32_cosim_simulation(self):
+    def test_32_cosim_simulation(self):
         assert self.aedtapp.edit_cosim_options()
         assert not self.aedtapp.edit_cosim_options(interpolation_algorithm="auto1")
 
-    def test33_set_temperature_dependence(self):
+    def test_33_set_temperature_dependence(self):
         assert self.aedtapp.modeler.set_temperature_dependence(
             include_temperature_dependence=True,
             enable_feedback=True,
@@ -460,8 +472,42 @@ class TestClass(BasisTest, object):
         setup = self.aedtapp.create_setup(setupname=setup_name, setuptype="LNA3DLayout")
         assert setup_name == setup.name
 
+    def test_35a_export_layout(self):
+        output = self.aedtapp.export_3d_model()
+        assert os.path.exists(output)
+
+    def test_36_import_gds(self):
+        gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
+        control_file = ""
+        aedb_file = os.path.join(self.local_scratch.path, "gds_out.aedb")
+        assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
+        assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
+
+    @pytest.mark.skipif(os.name == "posix", reason="Failing on linux")
+    def test_37_import_gerber(self):
+        gerber_file = os.path.join(local_path, "example_models", "cad", "Gerber", "gerber1.zip")
+        control_file = os.path.join(local_path, "example_models", "cad", "Gerber", "gerber1.xml")
+        aedb_file = os.path.join(self.local_scratch.path, "gerber_out.aedb")
+        assert self.aedtapp.import_gerber(gerber_file, aedb_path=aedb_file, control_file=control_file)
+
+    def test_38_import_dxf(self):
+        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.dxf")
+        control_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf1.xml")
+        aedb_file = os.path.join(self.local_scratch.path, "dxf_out.aedb")
+        assert self.aedtapp.import_gerber(dxf_file, aedb_path=aedb_file, control_file=control_file)
+
+    def test_39_import_ipc(self):
+        dxf_file = os.path.join(local_path, "example_models", "cad", "ipc", "galileo.xml")
+        aedb_file = os.path.join(self.local_scratch.path, "dxf_out.aedb")
+        assert self.aedtapp.import_ipc2581(dxf_file, aedb_path=aedb_file, control_file="")
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not working on AEDT 22R1")
+    def test_40_test_flex(self):
+        assert self.flex.enable_rigid_flex()
+        pass
+
     @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
-    def test_35_set_differential_pairs(self):
+    def test_90_set_differential_pairs(self):
         assert self.hfss3dl.set_differential_pair(
             positive_terminal="Port3",
             negative_terminal="Port4",
@@ -475,7 +521,7 @@ class TestClass(BasisTest, object):
         assert self.hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
 
     @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
-    def test_36_load_and_save_diff_pair_file(self):
+    def test_91_load_and_save_diff_pair_file(self):
         diff_def_file = os.path.join(local_path, "example_models", "differential_pairs_definition.txt")
         diff_file = self.local_scratch.copyfile(diff_def_file)
         assert self.hfss3dl.load_diff_pairs_from_file(diff_file)
@@ -487,5 +533,18 @@ class TestClass(BasisTest, object):
         assert len(lines) == 3
 
     @pytest.mark.skipif(is_ironpython, reason="Crash on Ironpython")
-    def test_37_import_edb(self):
+    def test_92_import_edb(self):
         assert self.aedtapp.import_edb(self.target_path)
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not Working on Version earlier than 2022R2.")
+    def test_93_clip_plane(self):
+        assert self.aedtapp.modeler.clip_plane("CS1")
+
+    def test_94_edit_3dlayout_extents(self):
+        assert self.aedtapp.edit_hfss_extents(
+            diel_extent_type="ConformalExtent",
+            diel_extent_horizontal_padding="1mm",
+            air_extent_type="ConformalExtent",
+            air_vertical_positive_padding="10mm",
+            air_vertical_negative_padding="10mm",
+        )

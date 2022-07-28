@@ -15,28 +15,38 @@ import time
 import traceback
 import warnings
 
-
 try:
     import clr
     from System.Collections.Generic import List
 except ImportError:  # pragma: no cover
     if os.name != "posix":
-        warnings.warn("Pythonnet is needed to run PyAEDT.")
+        warnings.warn("PythonNET is needed to run PyAEDT.")
+    elif sys.version[0] == 3 and sys.version[1] < 7:
+        warnings.warn("EDB requires Linux Python 3.7 or later.")
 from pyaedt import settings
-from pyaedt.edb_core import Components, EdbNets, EdbPadstacks, EdbLayout, EdbHfss, EdbSiwave, EdbStackup
-from pyaedt.edb_core.EDB_Data import EdbBuilder
-from pyaedt.generic.general_methods import (
-    pyaedt_function_handler,
-    env_path,
-    env_path_student,
-    env_value,
-    generate_unique_name,
-    is_ironpython,
-    inside_desktop,
-)
 from pyaedt.aedt_logger import AedtLogger
-from pyaedt.generic.process import SiwaveSolve
+from pyaedt.edb_core import Components
+from pyaedt.edb_core import EdbHfss
+from pyaedt.edb_core import EdbLayout
+from pyaedt.edb_core import EdbNets
+from pyaedt.edb_core import EdbPadstacks
+from pyaedt.edb_core import EdbSiwave
+from pyaedt.edb_core import EdbStackup
+from pyaedt.edb_core.EDB_Data import EdbBuilder
+from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.generic.constants import CutoutSubdesignType
+from pyaedt.generic.constants import SolverType
+from pyaedt.generic.constants import SourceType
+from pyaedt.generic.general_methods import env_path
+from pyaedt.generic.general_methods import env_path_student
+from pyaedt.generic.general_methods import env_value
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import inside_desktop
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.process import SiwaveSolve
+from pyaedt.misc.misc import list_installed_ansysem
 
 if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess
@@ -50,7 +60,7 @@ try:
 except ImportError:
     if os.name != "posix":
         warnings.warn(
-            "The clr is missing. Install Python.NET or use an IronPython version if you want to use the EDB module."
+            "The clr is missing. Install PythonNET or use an IronPython version if you want to use the EDB module."
         )
         edb_initialized = False
 
@@ -66,17 +76,17 @@ class Edb(object):
         Full path to the ``aedb`` folder. The variable can also contain
         the path to a layout to import. Allowed formats are BRD,
         XML (IPC2581), GDS, and DXF. The default is ``None``.
-        For GDS import the Ansys control file (also XML) should have the same
-        name as the GDS file except, of course, for the file extension.
+        For GDS import, the Ansys control file (also XML) should have the same
+        name as the GDS file. Only the file extension differs.
     cellname : str, optional
         Name of the cell to select. The default is ``None``.
     isreadonly : bool, optional
-        Whether to open ``edb_core`` in read-only mode when it is
+        Whether to open EBD in read-only mode when it is
         owned by HFSS 3D Layout. The default is ``False``.
     edbversion : str, optional
-        Version of ``edb_core`` to use. The default is ``"2021.2"``.
+        Version of EDB to use. The default is ``"2021.2"``.
     isaedtowned : bool, optional
-        Whether to launch ``edb_core`` from HFSS 3D Layout. The
+        Whether to launch EDB from HFSS 3D Layout. The
         default is ``False``.
     oproject : optional
         Reference to the AEDT project object.
@@ -105,7 +115,7 @@ class Edb(object):
         edbpath=None,
         cellname=None,
         isreadonly=False,
-        edbversion="2021.2",
+        edbversion=None,
         isaedtowned=False,
         oproject=None,
         student_version=False,
@@ -138,6 +148,12 @@ class Edb(object):
 
             self.student_version = student_version
             self.logger.info("Logger is initialized in EDB.")
+            if not edbversion:
+                try:
+                    edbversion = "20{}.{}".format(list_installed_ansysem()[0][-3:-1], list_installed_ansysem()[0][-1:])
+                    self._logger.info("Edb version " + edbversion)
+                except IndexError:
+                    raise Exception("No ANSYSEM_ROOTxxx is found.")
             self.edbversion = edbversion
             self.isaedtowned = isaedtowned
             self._init_dlls()
@@ -158,7 +174,7 @@ class Edb(object):
                     edbpath = os.path.join(edbpath, generate_unique_name("layout") + ".aedb")
                 self.logger.info("No EDB is provided. Creating a new EDB {}.".format(edbpath))
             self.edbpath = edbpath
-            if isaedtowned and inside_desktop:
+            if isaedtowned and (inside_desktop or settings.remote_api):
                 self.open_edb_inside_aedt()
             elif edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
                 self.edbpath = edbpath[:-4] + ".aedb"
@@ -176,7 +192,7 @@ class Edb(object):
             else:
                 self.logger.info("Failed to initialize DLLs.")
         else:
-            warnings.warn("Failed to initialize DLLss")
+            warnings.warn("Failed to initialize DLLs.")
 
     def __enter__(self):
         return self
@@ -219,7 +235,7 @@ class Edb(object):
 
     @property
     def logger(self):
-        """Logger for the Edb.
+        """Logger for EDB.
 
         Returns
         -------
@@ -232,8 +248,7 @@ class Edb(object):
         """Cell name container.
         Returns
         -------
-        list of str
-            List of cell names.
+        list of str, cell names.
         """
         names = []
         for cell in list(self._db.TopCircuitCells):
@@ -260,11 +275,16 @@ class Edb(object):
                         self.base_path = edb_path
                         sys.path.append(edb_path)
                         os.environ[env_value(self.edbversion)] = self.base_path
-
-            clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
-            clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
-            clr.AddReferenceToFile("EdbLib.dll")
-            clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
+            if is_ironpython:
+                clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
+                clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
+                clr.AddReferenceToFile("EdbLib.dll")
+                clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
+            else:
+                clr.AddReference("Ansys.Ansoft.Edb")
+                clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
+                clr.AddReference("EdbLib")
+                clr.AddReference("Ansys.Ansoft.SimSetupData")
         else:
             if self.student_version:
                 self.base_path = env_path_student(self.edbversion)
@@ -289,9 +309,9 @@ class Edb(object):
 
     @property
     def edblib(self):
-        """EdbLib object containing advanced EDB methods not accessible directly from Python."""
+        """EDB library object containing advanced EDB methods not accessible directly from Python."""
         if not self._edblib:
-            if os.name == "posix":
+            if os.name == "posix" and is_ironpython:
                 clr.AddReferenceToFile("EdbLib.dll")
                 clr.AddReferenceToFile("DataModel.dll")
             else:
@@ -352,10 +372,10 @@ class Edb(object):
             self.logger.info(dllpath)
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
-            self.logger.info("Builder Initialized")
+            self.logger.info("Builder was initialized.")
         else:
             self.builder = None
-            self.logger.error("Builder Not Initialized")
+            self.logger.error("Builder was not initialized.")
 
         return self.builder
 
@@ -380,7 +400,7 @@ class Edb(object):
             hdl = Convert.ToUInt64(self.oproject.GetEDBHandle())
             db = self.edb.Database.Attach(hdl)
             if not db:
-                self.logger.warning("Error Getting db")
+                self.logger.warning("Error getting the database.")
                 self._db = None
                 self._active_cell = None
                 self.builder = None
@@ -422,7 +442,7 @@ class Edb(object):
         self.edb.Database.SetRunAsStandAlone(self.standalone)
         db = self.edb.Database.Create(self.edbpath)
         if not db:
-            self.logger.warning("Error Creating db")
+            self.logger.warning("Error creating the database.")
             self._db = None
             self._active_cell = None
             self.builder = None
@@ -443,29 +463,32 @@ class Edb(object):
     def import_layout_pcb(
         self, input_file, working_dir, init_dlls=False, anstranslator_full_path="", use_ppe=False, control_file=None
     ):
-        """Import a BRD file and generate an ``edb.def`` file in the working directory.
+        """Import a board file and generate an ``edb.def`` file in the working directory.
+
+        This function supports all AEDT formats (DXF, GDS, SML (IPC2581), BRD, TGZ ...).
 
         Parameters
         ----------
         input_file : str
-            Full path to the BRD file.
+            Full path to the board file.
         working_dir : str
-            Directory in which to create the ``aedb`` folder. The AEDB file name will be the
-            same as the BRD file name.
+            Directory in which to create the ``aedb`` folder. The name given to the AEDB file
+            is the same as the name of the board file.
         init_dlls : bool
             Whether to initialize DLLs. The default is ``False``.
         anstranslator_full_path : str, optional
             Full path to the Ansys translator. The default is ``""``.
         use_ppe : bool
-            Whether to use or not PPE License. The default is ``False``.
+            Whether to use the PPE License. The default is ``False``.
         control_file : str, optional
-            Path to xml file. If None, the tool will try to get it from the same path/name of the gds.
+            Path to the XML file. The default is ``None``, in which case an attempt is made to find
+            the XML file in the same directory as the board file. To succeed, the XML file and board file
+            must have the same name. Only the extension differs.
 
         Returns
         -------
         str
             Full path to the AEDB file.
-
         """
         self._components = None
         self._core_primitives = None
@@ -487,18 +510,26 @@ class Edb(object):
         if not working_dir:
             working_dir = os.path.dirname(input_file)
         if os.name == "posix":
-            cmd_translator = "{} {} {}".format(command, input_file, os.path.join(working_dir, aedb_name))
-            cmd_translator += " -l={}".format(os.path.join(working_dir, "Translator.log"))
+            cmd_translator = [
+                command,
+                input_file,
+                os.path.join(working_dir, aedb_name),
+                "-l={}".format(os.path.join(working_dir, "Translator.log")),
+            ]
         else:
-            cmd_translator = '"{}" "{}" "{}"'.format(command, input_file, os.path.join(working_dir, aedb_name))
-            cmd_translator += ' -l="{}"'.format(os.path.join(working_dir, "Translator.log"))
+            cmd_translator = [
+                command,
+                input_file,
+                os.path.join(working_dir, aedb_name),
+                '-l="{}"'.format(os.path.join(working_dir, "Translator.log")),
+            ]
         if not use_ppe:
-            cmd_translator += " -ppe=false"
-        if control_file and input_file[-3:] == "gds":
+            cmd_translator.append("-ppe=false")
+        if control_file and input_file[-3:] not in ["brd"]:
             if os.name == "posix":
-                cmd_translator += " -c={}".format(control_file)
+                cmd_translator.append("-c={}".format(control_file))
             else:
-                cmd_translator += ' -c="{}"'.format(control_file)
+                cmd_translator.append('-c="{}"'.format(control_file))
         p = subprocess.Popen(cmd_translator)
         p.wait()
         if not os.path.exists(os.path.join(working_dir, aedb_name)):
@@ -518,23 +549,26 @@ class Edb(object):
         Parameters
         ----------
         ipc_path : str, optional
-            Path to the XML file. The default is ``None``.
+            Path to the XML IPC2581 file. The default is ``None``, in which case
+            an attempt is made to find the XML IPC2581 file in the same directory
+            as the active EDB. To succeed, the XML IPC2581 file and the active
+            EDT must have the same name. Only the extension differs.
         units : str, optional
-            Units of the IPC2581 file. Options are ``"millimeter"``,
-            ``"inch"``, and ``"micron"``.The default is ``"millimeter"``.
+            Units of the XML IPC2581 file. Options are ``"millimeter"``,
+            ``"inch"``, and ``"micron"``. The default is ``"millimeter"``.
+
         Returns
         -------
         bool
-            ``True`` if succeeded.
-
+            ``True`` if successful, ``False`` if failed.
         """
         if units.lower() not in ["millimeter", "inch", "micron"]:
-            self.logger.warning("Wrong unit entered. Setting default to millimiter")
+            self.logger.warning("The wrong unit is entered. Setting to the default, millimeter.")
             units = "millimeter"
 
         if not ipc_path:
             ipc_path = self.edbpath[:-4] + "xml"
-        self.logger.info("Export IPC 2581 is starting. This operation can take a while...")
+        self.logger.info("Export IPC 2581 is starting. This operation can take a while.")
         start = time.time()
         try:
             result = self.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout(
@@ -546,7 +580,7 @@ class Edb(object):
                 self.logger.info("File saved as %s", ipc_path)
                 return ipc_path
         except Exception as e:
-            self.logger.info("Error Exporting IPC 2581.")
+            self.logger.info("Error exporting IPC 2581.")
             self.logger.info(str(e))
             return False
 
@@ -572,7 +606,7 @@ class Edb(object):
 
     @property
     def db(self):
-        """Db object."""
+        """Database object."""
         return self._db
 
     @property
@@ -692,7 +726,7 @@ class Edb(object):
 
         Parameters
         ----------
-        val : str, float int
+        val : str, float, int
 
 
         Returns
@@ -842,18 +876,19 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def import_cadence_file(self, inputBrd, WorkDir=None, anstranslator_full_path="", use_ppe=False):
-        """Import a BRD file and generate an ``edb.def`` file in the working directory.
+        """Import a board file and generate an ``edb.def`` file in the working directory.
 
         Parameters
         ----------
         inputBrd : str
-            Full path to the BRD file.
-        WorkDir : str
-            Directory in which to create the ``aedb`` folder. The AEDB file name will be
-            the same as the BRD file name. The default value is ``None``.
+            Full path to the board file.
+        WorkDir : str, optional
+            Directory in which to create the ``aedb`` folder. The default value is ``None``,
+            in which case the AEDB file is given the same name as the board file. Only
+            the extension differs.
         anstranslator_full_path : str, optional
             Full path to the Ansys translator.
-        use_ppe : bool
+        use_ppe : bool, optional
             Whether to use the PPE License. The default is ``False``.
 
         Returns
@@ -878,14 +913,17 @@ class Edb(object):
         inputGDS : str
             Full path to the GDS file.
         WorkDir : str, optional
-            Directory in which to create the ``aedb`` folder. The AEDB file name will be
-            the same as the GDS file name. The default value is ``None``.
+            Directory in which to create the ``aedb`` folder. The default value is ``None``,
+            in which case the AEDB file is given the same name as the GDS file. Only the extension
+            differs.
         anstranslator_full_path : str, optional
             Full path to the Ansys translator.
-        use_ppe : bool
+        use_ppe : bool, optional
             Whether to use the PPE License. The default is ``False``.
         control_file : str, optional
-            Path to xml file. If None, the tool will try to get it from the same path/name of the gds.
+            Path to the XML file. The default is ``None``, in which case an attempt is made to find
+            the XML file in the same directory as the GDS file. To succeed, the XML file and GDS file must
+            have the same name. Only the extension differs.
 
         Returns
         -------
@@ -906,13 +944,14 @@ class Edb(object):
 
     def create_cutout(
         self,
-        signal_list,
+        signal_list=[],
         reference_list=["GND"],
         extent_type="Conforming",
         expansion_size=0.002,
         use_round_corner=False,
         output_aedb_path=None,
         open_cutout_at_end=True,
+        simulation_setup=None,
     ):
         """Create a cutout and save it to a new AEDB file.
 
@@ -934,6 +973,8 @@ class Edb(object):
         open_cutout_at_end : bool, optional
             Whether to open the cutout at the end. The default
             is ``True``.
+        simulation_setup : EDB_Data.SimulationConfiguration object, optional
+            Simulation setup to use to overwrite the other parameters. The default is ``None``.
 
         Returns
         -------
@@ -941,34 +982,38 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        _signal_nets = []
+
+        if simulation_setup and isinstance(simulation_setup, SimulationConfiguration):
+            signal_list = simulation_setup.signal_nets
+            reference_list = simulation_setup.power_nets
+            if simulation_setup.cutout_subdesign_type == CutoutSubdesignType.Conformal:
+                extent_type = "Conforming"
+                expansion_size = float(simulation_setup.cutout_subdesign_expansion)
+                use_round_corner = bool(simulation_setup.cutout_subdesign_round_corner)
+
         # validate nets in layout
-        for _sig in signal_list:
-            _netobj = self.edb.Cell.Net.FindByName(self.active_layout, _sig)
-            _signal_nets.append(_netobj)
-
-        _ref_nets = []
+        net_signals = convert_py_list_to_net_list(
+            [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list]
+        )
         # validate references in layout
-        for _ref in reference_list:
-            _netobj = self.edb.Cell.Net.FindByName(self.active_layout, _ref)
-            _ref_nets.append(_netobj)
+        _netsClip = convert_py_list_to_net_list(
+            [net for net in list(self.active_layout.Nets) if net.GetName() in reference_list]
+        )
 
-        _netsClip = [
-            self.edb.Cell.Net.FindByName(self.active_layout, reference_list[i]) for i, p in enumerate(reference_list)
-        ]
-        _netsClip = convert_py_list_to_net_list(_netsClip)
-        net_signals = convert_py_list_to_net_list(_signal_nets)
         if extent_type == "Conforming":
             _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, True, use_round_corner, 1
             )
         else:
             _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
+                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, True, use_round_corner, 1
             )
 
         # Create new cutout cell/design
-        _cutout = self.active_cell.CutOut(net_signals, _netsClip, _poly)
+        included_nets = convert_py_list_to_net_list(
+            [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list + reference_list]
+        )
+        _cutout = self.active_cell.CutOut(included_nets, _netsClip, _poly, True)
 
         # Analysis setups do not come over with the clipped design copy,
         # so add the analysis setups from the original here.
@@ -1023,6 +1068,47 @@ class Edb(object):
         return True
 
     @pyaedt_function_handler()
+    def get_conformal_polygon_from_netlist(self, netlist=None):
+        """Return an EDB conformal polygon based on a netlist.
+
+        Parameters
+        ----------
+
+        netlist : List of net names.
+            list[str]
+
+        Returns
+        -------
+
+        Edb polygon object
+            Edb.Cell.Primitive.Polygon object
+
+        """
+        shutil.copytree(self.edbpath, os.path.join(self.edbpath, "_temp_aedb"))
+        temp_edb = Edb(os.path.join(self.edbpath, "_temp_aedb"))
+        for via in list(temp_edb.core_padstack.padstack_instances.values()):
+            via.pin.Delete()
+        if netlist:
+            nets = convert_py_list_to_net_list(
+                [net for net in list(self.active_layout.Nets) if net.GetName() in netlist]
+            )
+            _poly = temp_edb.active_layout.GetExpandedExtentFromNets(
+                nets, self.edb.Geometry.ExtentType.Conforming, 0.0, True, True, 1
+            )
+        else:
+            nets = convert_py_list_to_net_list(
+                [net for net in list(temp_edb.active_layout.Nets) if "gnd" in net.GetName().lower()]
+            )
+            _poly = temp_edb.active_layout.GetExpandedExtentFromNets(
+                nets, self.edb.Geometry.ExtentType.Conforming, 0.0, True, True, 1
+            )
+            temp_edb.close_edb()
+        if _poly:
+            return _poly
+        else:
+            return False
+
+    @pyaedt_function_handler()
     def arg_with_dim(self, Value, sUnits):
         """Format arguments with dimensions.
 
@@ -1052,22 +1138,27 @@ class Edb(object):
         output_aedb_path=None,
         open_cutout_at_end=True,
         nets_to_include=None,
+        include_partial_instances=False,
     ):
         """Create a cutout on a specified shape and save it to a new AEDB file.
 
         Parameters
         ----------
         point_list : list
-            List of points defining the cutout shape.
+            Points list defining the cutout shape.
         units : str
             Units of the point list. The default is ``"mm"``.
         output_aedb_path : str, optional
             Full path and name for the new AEDB file.
+            The aedb folder shall not exist otherwise the method will return ``False``.
         open_cutout_at_end : bool, optional
             Whether to open the cutout at the end. The default is ``True``.
         nets_to_include : list, optional
             List of nets to include in the cutout. The default is ``None``, in
             which case all nets are included.
+        include_partial_instances : bool, optional
+            Whether to include padstack instances that have bounding boxes intersecting with point list polygons.
+            This operation may slow down the cutout export.
 
         Returns
         -------
@@ -1081,13 +1172,24 @@ class Edb(object):
         point_list = [[self.arg_with_dim(i[0], units), self.arg_with_dim(i[1], units)] for i in point_list]
         plane = self.core_primitives.Shape("polygon", points=point_list)
         polygonData = self.core_primitives.shape_to_polygon_data(plane)
-
         _ref_nets = []
         if nets_to_include:
             self.logger.info("Creating cutout on {} nets.".format(len(nets_to_include)))
         else:
             self.logger.info("Creating cutout on all nets.")  # pragma: no cover
 
+        # Check Padstack Instances overlapping the cutout
+        pinstance_to_add = []
+        if include_partial_instances:
+            if nets_to_include:
+                pinst = [
+                    i for i in list(self.core_padstack.padstack_instances.values()) if i.net_name in nets_to_include
+                ]
+            else:
+                pinst = [i for i in list(self.core_padstack.padstack_instances.values())]
+            for p in pinst:
+                if p.in_polygon(polygonData):
+                    pinstance_to_add.append(p)
         # validate references in layout
         for _ref in self.core_nets.nets:
             if nets_to_include:
@@ -1095,7 +1197,6 @@ class Edb(object):
                     _ref_nets.append(self.core_nets.nets[_ref].net_object)
             else:
                 _ref_nets.append(self.core_nets.nets[_ref].net_object)  # pragma: no cover
-        # TODO check and insert via check on polygon intersection
         voids = [p for p in self.core_primitives.circles if p.is_void]
         voids2 = [p for p in self.core_primitives.polygons if p.is_void]
         voids.extend(voids2)
@@ -1109,6 +1210,49 @@ class Edb(object):
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
         layout = _cutout.GetLayout()
+        cutout_obj_coll = layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        ids = []
+        for obj in cutout_obj_coll.Items:
+            lobj = obj.GetLayoutObj()
+            if type(lobj) is self.edb.Cell.Primitive.PadstackInstance:
+                ids.append(lobj.GetId())
+
+        if include_partial_instances:
+            p_missing = [i for i in pinstance_to_add if i.id not in ids]
+            self.logger.info("Added {} padstack instances after cutout".format(len(p_missing)))
+            for p in p_missing:
+                position = self.edb.Geometry.PointData(self.edb_value(p.position[0]), self.edb_value(p.position[1]))
+                net = self.core_nets.find_or_create_net(p.net_name)
+                rotation = self.edb_value(p.rotation)
+                sign_layers = list(self.core_stackup.signal_layers.keys())
+                if not p.start_layer:
+                    fromlayer = self.core_stackup.signal_layers[sign_layers[-1]]._layer
+                else:
+                    fromlayer = self.core_stackup.signal_layers[p.start_layer]._layer
+
+                if not p.stop_layer:
+                    tolayer = self.core_stackup.signal_layers[sign_layers[0]]._layer
+                else:
+                    tolayer = self.core_stackup.signal_layers[p.stop_layer]._layer
+                padstack = None
+                for pad in list(self.core_padstack.padstacks.keys()):
+                    if pad == p.padstack_definition:
+                        padstack = self.core_padstack.padstacks[pad].edb_padstack
+                        padstack_instance = self.edb.Cell.Primitive.PadstackInstance.Create(
+                            _cutout.GetLayout(),
+                            net,
+                            p.name,
+                            padstack,
+                            position,
+                            rotation,
+                            fromlayer,
+                            tolayer,
+                            None,
+                            None,
+                        )
+                        padstack_instance.SetIsLayoutPin(p.is_pin)
+                        break
+
         for void_circle in voids_to_add:
             if void_circle.type == "Circle":
                 if is_ironpython:  # pragma: no cover
@@ -1153,7 +1297,9 @@ class Edb(object):
         _dbCells = [_cutout]
         if output_aedb_path:
             db2 = self.edb.Database.Create(output_aedb_path)
-            _success = db2.Save()
+            if not db2.Save():
+                self.logger.error("Failed to create new Edb. Check if the path already exists and remove it.")
+                return False
             _dbCells = convert_py_list_to_net_list(_dbCells)
             cell_copied = db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
             cell = list(cell_copied)[0]
@@ -1189,10 +1335,10 @@ class Edb(object):
         Parameters
         ----------
         path_to_output : str
-            Full path to the configuration file in which to save 3D export options.
+            Full path to the configuration file to save 3D export options to.
 
         config_dictionaries : dict, optional
-            The default is ``None``.
+            Configuration dictionaries. The default is ``None``.
 
         """
         option_config = {
@@ -1230,11 +1376,11 @@ class Edb(object):
             Full path and name for saving the AEDT file.
         net_list : list, optional
             List of nets to export if only certain ones are to be exported.
-            The default is ``None``.
+            The default is ``None``, in which case all nets are eported.
         num_cores : int, optional
             Number of cores to use for the export. The default is ``None``.
         aedt_file_name : str, optional
-            Name of the AEDT output file (without the ``.aedt`` extension). The default is ``None``,
+            Name of the AEDT output file without the ``.aedt`` extension. The default is ``None``,
             in which case the default name is used.
 
         Returns
@@ -1268,11 +1414,11 @@ class Edb(object):
             Full path and name for saving the AEDT file.
         net_list : list, optional
             List of nets to export only if certain ones are to be exported.
-            The default is ``None``.
+            The default is ``None``, in which case all nets are eported.
         num_cores : int, optional
             Number of cores to use for the export. The default is ``None``.
         aedt_file_name : str, optional
-            Name of the AEDT output file (without the ``.aedt`` extension). The default is ``None``,
+            Name of the AEDT output file without the ``.aedt`` extension. The default is ``None``,
             in which case the default name is used.
 
         Returns
@@ -1309,11 +1455,11 @@ class Edb(object):
             Full path and name for saving the AEDT file.
         net_list : list, optional
             List of nets to export only if certain ones are to be
-            exported. The default is ``None``.
+            exported. The default is ``None``, in which case all nets are exported.
         num_cores : int, optional
             Number of cores to use for the export. The default is ``None.``
         aedt_file_name : str, optional
-            Name of the AEDT output file (without the ``.aedt`` extension). The default is ``None``,
+            Name of the AEDT output file without the ``.aedt`` extension. The default is ``None``,
             in which case the default name is used.
 
         Returns
@@ -1356,8 +1502,71 @@ class Edb(object):
         return True
 
     @pyaedt_function_handler()
-    def add_design_variable(self, variable_name, variable_value):
+    def add_design_variable(self, variable_name, variable_value, is_parameter=False):
         """Add a design variable.
+
+        Parameters
+        ----------
+        variable_name : str
+            Name of the variable. To added the variable as a project variable, the name
+            must begin with ``$``.
+        variable_value : str, float
+            Value of the variable with units.
+        is_parameter : bool, optional
+            Whether to add the variable as a local variable. The default is ``False``.
+            When ``True``, the variable is added as a parameter default.
+
+        Returns
+        -------
+        tuple
+            Tuple containing the ``AddVariable`` result and variable server.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edb_app = Edb()
+        >>> boolean_1, ant_length = edb_app.add_design_variable("my_local_variable", "1cm")
+        >>> boolean_2, para_length = edb_app.change_design_variable_value("my_parameter", "1m", is_parameter=True
+        >>> boolean_3, project_length = edb_app.change_design_variable_value("$my_project_variable", "1m")
+
+
+        """
+        if "$" in variable_name:
+            if variable_name.index("$") == 0:
+                var_server = self.db.GetVariableServer()
+                is_parameter = False
+                string_message = [
+                    "Creating project variable %s.",
+                    "Project variable %s already exists. You can use it.",
+                ]
+            else:
+                var_server = self.active_cell.GetVariableServer()
+                self.logger.warning(
+                    "The character ``$`` must be placed at the beginning of your variable name,"
+                    " to make it a project variable."
+                )
+
+                string_message = ["Creating local variable %s.", "Local variable %s already exists. You can use it."]
+        else:
+            var_server = self.active_cell.GetVariableServer()
+            string_message = ["Creating local variable %s.", "Local variable %s already exists. You can use it."]
+        variables = var_server.GetAllVariableNames()
+        if variable_name in list(variables):
+            if var_server.IsVariableParameter(variable_name):
+                string_message[1] = "Parameter default %s already exists. You can use it."
+            self.logger.warning(string_message[1], variable_name)
+            return False, var_server
+        else:
+            if is_parameter:
+                string_message[0] = "Creating parameter default %s"
+            self.logger.info(string_message[0], variable_name)
+            var_server.AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
+            return True, var_server
+
+    @pyaedt_function_handler()
+    def change_design_variable_value(self, variable_name, variable_value):
+        """Change a variable value.
 
         Parameters
         ----------
@@ -1369,26 +1578,57 @@ class Edb(object):
         Returns
         -------
         tuple
-            tuple containing the ``AddVariable`` result and variable server.
+            Tuple containing the ``SetVariableValue`` result and variable server.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edb_app = Edb()
+        >>> boolean, ant_length = edb_app.add_design_variable("ant_length", "1cm")
+        >>> boolean, ant_length = edb_app.change_design_variable_value("ant_length", "1m")
+
         """
-        is_parameter = True
         if "$" in variable_name:
-            var_server = self.db.GetVariableServer()
-            is_parameter = False
+            if variable_name.index("$") == 0:
+                var_server = self.db.GetVariableServer()
+                string_message = [
+                    "Value of the project variable %s has been changed from %s to %s.",
+                    "Project variable %s doesn't exist. You can create it using the method add_design_variable.",
+                ]
+            else:
+                var_server = self.active_cell.GetVariableServer()
+                string_message = [
+                    "Value of the local variable %s has been changed from %s to %s.",
+                    "Local variable or parameter default %s doesn't exist."
+                    " You can create it using method add_design_variable.",
+                ]
         else:
             var_server = self.active_cell.GetVariableServer()
+            string_message = [
+                "Value of the local variable %s has been changed from %s to %s.",
+                "Local variable or parameter default %s doesn't exist."
+                " You can create it using the method add_design_variable.",
+            ]
         variables = var_server.GetAllVariableNames()
         if variable_name in list(variables):
-            self.logger.warning("Parameter %s exists. Using it.", variable_name)
-            return False, var_server
-        else:
-            self.logger.info("Creating parameter %s.", variable_name)
-            var_server.AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
+            if is_ironpython:
+                tuple_value = var_server.GetVariableValue(variable_name)
+            else:
+                out_value = self.edb.Utility.Value("")
+                tuple_value = var_server.GetVariableValue(variable_name, out_value)
+            var_server.SetVariableValue(variable_name, self.edb_value(variable_value))
+            if var_server.IsVariableParameter(variable_name):
+                string_message[0] = "Value of the parameter default %s has been changed from %s to %s."
+            self.logger.info(string_message[0], variable_name, tuple_value[1], variable_value)
             return True, var_server
+        else:
+            self.logger.error(string_message[1], variable_name)
+            return False
 
     @pyaedt_function_handler()
     def get_bounding_box(self):
-        """Retrieve the layout bounding box.
+        """Get the layout bounding box.
 
         Returns
         -------
@@ -1397,3 +1637,104 @@ class Edb(object):
         """
         bbox = self.edbutils.HfssUtilities.GetBBox(self.active_layout)
         return [[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()], [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]]
+
+    @pyaedt_function_handler()
+    def build_simulation_project(self, simulation_setup=None):
+        """Build a ready-to-solve simulation project.
+
+        Parameters
+        ----------
+        simulation_setup : EDB_Data.SimulationConfiguratiom object.
+            SimulationConfiguration object that can be instantiated or directly loaded with a
+            configuration file.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, False when ``Failed``.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+        >>> config_file = path_configuration_file
+        >>> source_file = path_to_edb_folder
+        >>> edb = Edb(source_file)
+        >>> sim_setup = SimulationConfiguration(config_file)
+        >>> edb.build_simulation_project(sim_setup)
+        >>> edb.save_edb()
+        >>> edb.close_edb()
+        """
+        self.logger.info("Building simulation project.")
+        try:
+            if not simulation_setup or not isinstance(simulation_setup, SimulationConfiguration):  # pragma: no cover
+                return False
+            self.core_nets.classify_nets(simulation_setup)
+            if simulation_setup.do_cutout_subdesign:
+                self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
+                old_cell_name = self.active_cell.GetName()
+                if self.create_cutout(simulation_setup=simulation_setup, output_aedb_path=simulation_setup.output_aedb):
+                    self.logger.info("Cutout processed.")
+                    old_cell = self.active_cell.FindByName(self._db, self.edb.Cell.CellType.CircuitCell, old_cell_name)
+                    if old_cell:
+                        old_cell.Delete()
+                else:  # pragma: no cover
+                    self.logger.error("Cutout failed.")
+            self.logger.info("Deleting existing ports.")
+            map(lambda port: port.Delete(), list(self.active_layout.Terminals))
+            map(lambda pg: pg.Delete(), list(self.active_layout.PinGroups))
+            if simulation_setup.solver_type == SolverType.Hfss3dLayout:
+                self.logger.info("Creating HFSS ports for signal nets.")
+                for cmp in simulation_setup.components:
+                    self.core_components.create_port_on_component(
+                        cmp,
+                        net_list=simulation_setup.signal_nets,
+                        do_pingroup=False,
+                        reference_net=simulation_setup.power_nets,
+                        port_type=SourceType.CoaxPort,
+                    )
+                if not self.core_hfss.set_coax_port_attributes(simulation_setup):  # pragma: no cover
+                    self.logger.error("Failed to configure coaxial port attributes.")
+                self.logger.info("Number of ports: {}".format(self.core_hfss.get_ports_number()))
+                self.logger.info("Configure HFSS extents.")
+                if simulation_setup.trim_reference_size:  # pragma: no cover
+                    self.logger.info(
+                        "Trimming the reference plane for coaxial ports: {0}".format(
+                            bool(simulation_setup.trim_reference_size)
+                        )
+                    )
+                    self.core_hfss.trim_component_reference_size(simulation_setup)  # pragma: no cover
+                self.core_hfss.configure_hfss_extents(simulation_setup)
+                if not self.core_hfss.configure_hfss_analysis_setup(simulation_setup):
+                    self.logger.error("Failed to configure HFSS simulation setup.")
+            if simulation_setup.solver_type == SolverType.SiwaveSYZ:
+                for cmp in simulation_setup.components:
+                    self.core_components.create_port_on_component(
+                        cmp,
+                        net_list=simulation_setup.signal_nets,
+                        do_pingroup=True,
+                        reference_net=simulation_setup.power_nets,
+                        port_type=SourceType.CircPort,
+                    )
+                self.logger.info("Configuring analysis setup.")
+                if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
+                    self.logger.error("Failed to configure Siwave simulation setup.")
+
+            if simulation_setup.solver_type == SolverType.SiwaveDC:
+                self.core_components.create_source_on_component(simulation_setup.sources)
+                if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
+                    self.logger.error("Failed to configure Siwave simulation setup.")
+            return True
+        except:  # pragma: no cover
+            return False
+
+    @pyaedt_function_handler()
+    def get_statistics(self, compute_area=False):
+        """Get the EDBStatistics object.
+
+        Returns
+        -------
+        EDBStatistics object from the loaded layout.
+        """
+        return self.core_primitives.get_layout_statistics(evaluate_area=compute_area, net_list=None)

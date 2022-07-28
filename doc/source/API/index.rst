@@ -1,26 +1,22 @@
 =================
-API Documentation
+API documentation
 =================
 
 Welcome to PyAEDT API documentation.
-Use the search feature or click the following links to view API
-documentation.
+Use the search feature or click links to view API documentation.
 
 .. toctree::
    :maxdepth: 2
 
-   ClientServer
-   Application
-   DesktopMessenger
-   CoreModules
+   Common
    CoreEdb
-   Primitives
-   Mesh
+   Application
    MaterialManagement
+   Primitives
+   CoreModules
+   Mesh
    Setup
    Post
-   SetupTemplates
-   Boundaries
-   MultiPartComponent
-   Constants
+
+
 

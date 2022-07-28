@@ -11,7 +11,7 @@ class EmitComponents(object):
 
     @property
     def oeditor(self):
-        """ """
+        """Oeditor Module."""
         return self.modeler.oeditor
 
     @property
@@ -51,28 +51,31 @@ class EmitComponents(object):
         References
         ----------
 
-        >>> oDefinitionManager = oProject.GetDefinitionManager()"""
+        >>> oDefinitionManager = oProject.GetDefinitionManager()
+        """
         return self._parent._oproject.GetDefinitionManager()
 
     @property
     def o_symbol_manager(self):
-        """Aedt Simbol Manager.
+        """AEDT Simbol Manager.
 
         References
         ----------
 
-        >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")"""
-        return self.o_definition_manager.GetManager("Symbol")
+        >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
+        """
+        return self._parent.o_symbol_manager
 
     @property
     def o_component_manager(self):
-        """Aedt Component Manager.
+        """AEDT Component Manager.
 
         References
         ----------
 
-        >>> oComponentManager = oDefinitionManager.GetManager("Component")"""
-        return self.o_definition_manager.GetManager("Component")
+        >>> oComponentManager = oDefinitionManager.GetManager("Component")
+        """
+        return self._parent.o_component_manager
 
     @property
     def design_type(self):
@@ -235,6 +238,11 @@ class EmitComponent(object):
         self.oeditor = components.oeditor
         self.odesign = components.odesign
         self.root_prop_node = None
+
+    @property
+    def composed_name(self):
+        """Component name. Needed for compatibility."""
+        return self.name
 
     @pyaedt_function_handler()
     def move_and_connect_to(self, component):

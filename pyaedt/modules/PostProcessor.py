@@ -6,33 +6,556 @@ This module provides all functionalities for creating and editing plots in the 3
 """
 from __future__ import absolute_import  # noreorder
 
-import itertools
-import math
 import os
 import random
 import string
-import sys
 import warnings
 from collections import OrderedDict
 
-from pyaedt.generic.constants import AEDT_UNITS
-from pyaedt.generic.constants import db10
-from pyaedt.generic.constants import db20
-from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.general_methods import _retry_ntimes, is_ironpython
+import pyaedt.modules.report_templates as rt
+from pyaedt import settings
+from pyaedt.generic.DataHandlers import json_to_dict
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.generic.general_methods import write_csv
-from pyaedt.generic.plot import plot_2d_chart, plot_polar_chart, plot_3d_chart
+from pyaedt.modules.solutions import FieldPlot
+from pyaedt.modules.solutions import SolutionData
 
-if not is_ironpython:
-    try:
-        import numpy as np
-    except ImportError:
-        warnings.warn(
-            "The NumPy module is required to run some functionalities of PostProcess.\n"
-            "Install with \n\npip install numpy\n\nRequires CPython."
-        )
+TEMPLATES_BY_DESIGN = {
+    "HFSS": [
+        "Modal Solution Data",
+        "Terminal Solution Data",
+        "Eigenmode Parameters",
+        "Fields",
+        "Far Fields",
+        "Emissions",
+        "Near Fields",
+        "Antenna Parameters",
+    ],
+    "Maxwell 3D": [
+        "Transient",
+        "EddyCurrent",
+        "Magnetostatic",
+        "Electrostatic",
+        "DCConduction",
+        "ElectroDCConduction",
+        "ElectricTransient",
+        "Fields",
+        "Spectrum",
+    ],
+    "Maxwell 2D": [
+        "Transient",
+        "EddyCurrent",
+        "Magnetostatic",
+        "Electrostatic",
+        "ElectricTransient",
+        "ElectroDCConduction",
+        "Fields",
+        "Spectrum",
+    ],
+    "Icepak": ["Monitor", "Fields"],
+    "Circuit Design": ["Standard", "Eye Diagram", "Spectrum"],
+    "HFSS 3D Layout": ["Standard", "Fields", "Spectrum"],
+    "HFSS 3D Layout Design": ["Standard", "Fields", "Spectrum"],
+    "Mechanical": ["Standard", "Fields"],
+    "Q3D Extractor": ["Matrix", "CG Fields", "DC R/L Fields", "AC R/L Fields"],
+    "2D Extractor": ["Matrix", "CG Fields", "RL Fields"],
+    "Twin Builder": ["Standard", "Spectrum"],
+}
+TEMPLATES_BY_NAME = {
+    "Standard": rt.Standard,
+    "Modal Solution Data": rt.Standard,
+    "Terminal Solution Data": rt.Standard,
+    "Fields": rt.Fields,
+    "CG Fields": rt.Fields,
+    "DC R/L Fields": rt.Fields,
+    "AC R/L Fields": rt.Fields,
+    "Matrix": rt.Standard,
+    "Monitor": rt.Standard,
+    "Far Fields": rt.FarField,
+    "Near Fields": rt.NearField,
+    "Eye Diagram": rt.EyeDiagram,
+    "Eigenmode Parameters": rt.Standard,
+    "Spectrum": rt.Spectral,
+}
+
+
+class Reports(object):
+    """Provides the names of default solution types."""
+
+    def __init__(self, post_app, design_type):
+        self._post_app = post_app
+        self._design_type = design_type
+        self._templates = TEMPLATES_BY_DESIGN.get(self._design_type, None)
+
+    @pyaedt_function_handler()
+    def standard(self, expressions=None, setup_name=None):
+        """Create a Standard or Default Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> cir = Circuit(my_project)
+        >>> report = cir.post.reports_by_category.standard("dB(S(1,1))", "LNA")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Standard" in self._templates:
+            rep = rt.Standard(self._post_app, "Standard", setup_name)
+            rep.expressions = expressions
+            return rep
+        elif self._post_app._app.design_solutions.report_type:
+            rep = rt.Standard(self._post_app, self._post_app._app.design_solutions.report_type, setup_name)
+            rep.expressions = expressions
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def monitor(self, expressions=None, setup_name=None):
+        """Create an Icepak Monitor Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Icepak
+        >>> ipk = Icepak(my_project)
+        >>> report = ipk.post.reports_by_category.monitor(["monitor_surf.Temperature","monitor_point.Temperature"])
+        >>> report = report.create()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Monitor" in self._templates:
+            rep = rt.Standard(self._post_app, "Monitor", setup_name)
+            rep.expressions = expressions
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def fields(self, expressions=None, setup_name=None, polyline=None):
+        """Create a Field Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Fields`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.reports_by_category.fields("Mag_E", "Setup : LastAdaptive", "Polyline1")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Fields" in self._templates:
+            rep = rt.Fields(self._post_app, "Fields", setup_name)
+            rep.expressions = expressions
+            rep.polyline = polyline
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def cg_fields(self, expressions=None, setup_name=None, polyline=None):
+        """Create a CG Field Report object in Q3d and Q2D.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Fields`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Q3d
+        >>> app = Q3d(my_project)
+        >>> report = app.post.reports_by_category.cg_fields("SmoothQ", "Setup : LastAdaptive", "Polyline1")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "CG Fields" in self._templates:
+            rep = rt.Fields(self._post_app, "CG Fields", setup_name)
+            rep.expressions = expressions
+            rep.polyline = polyline
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def dc_fields(self, expressions=None, setup_name=None, polyline=None):
+        """Create a DC Field Report object in Q3d.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Fields`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Q3d
+        >>> app = Q3d(my_project)
+        >>> report = app.post.reports_by_category.dc_fields("Mag_VolumeJdc", "Setup : LastAdaptive", "Polyline1")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "DC R/L Fields" in self._templates:
+            rep = rt.Fields(self._post_app, "DC R/L Fields", setup_name)
+            rep.expressions = expressions
+            rep.polyline = polyline
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def rl_fields(self, expressions=None, setup_name=None, polyline=None):
+        """Create an AC RL Field Report object in Q3d and Q2D.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Fields`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Q3d
+        >>> app = Q3d(my_project)
+        >>> report = app.post.reports_by_category.rl_fields("Mag_SurfaceJac", "Setup : LastAdaptive", "Polyline1")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "AC R/L Fields" in self._templates or "RL Fields" in self._templates:
+            if self._post_app._app.design_type == "Q3D Extractor":
+                rep = rt.Fields(self._post_app, "AC R/L Fields", setup_name)
+            else:
+                rep = rt.Fields(self._post_app, "RL Fields", setup_name)
+            rep.expressions = expressions
+            rep.polyline = polyline
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def far_field(self, expressions=None, setup_name=None, sphere_name=None):
+        """Create a Field Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+        sphere_name : str, optional
+            Name of the sphere on which create the far field.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.FarField`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.reports_by_category.far_field("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
+        >>> report.primary_sweep = "Phi"
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Far Fields" in self._templates:
+            rep = rt.FarField(self._post_app, "Far Fields", setup_name)
+            rep.expressions = expressions
+            rep.far_field_sphere = sphere_name
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def antenna_parameters(self, expressions=None, setup_name=None, sphere_name=None):
+        """Create an Antenna Parameters Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+        sphere_name : str, optional
+            Name of the sphere on which compute antenna parameters.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.AntennaParameters`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.reports_by_category.antenna_parameters("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Antenna Parameters" in self._templates:
+            rep = rt.AntennaParameters(self._post_app, "Antenna Parameters", setup_name, sphere_name)
+            rep.expressions = expressions
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def near_field(self, expressions=None, setup_name=None, near_field_name=None):
+        """Create a Field Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.NearField`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.reports_by_category.near_field("GainTotal", "Setup : LastAdaptive", "NF_1")
+        >>> report.primary_sweep = "Phi"
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Near Fields" in self._templates:
+            rep = rt.NearField(self._post_app, "Near Fields", setup_name)
+            rep.expressions = expressions
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def modal_solution(self, expressions=None, setup_name=None):
+        """Create a Standard or Default Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.reports_by_category.modal_solution("dB(S(1,1))")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Modal Solution Data" in self._templates:
+            rep = rt.Standard(self._post_app, "Modal Solution Data", setup_name)
+            rep.expressions = expressions
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def terminal_solution(self, expressions=None, setup_name=None):
+        """Create a Standard or Default Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.reports_by_category.terminal_solution("dB(S(1,1))")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Terminal Solution Data" in self._templates:
+            rep = rt.Standard(self._post_app, "Terminal Solution Data", setup_name)
+            rep.expressions = expressions
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def eigenmode(self, expressions=None, setup_name=None):
+        """Create a Standard or Default Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss(my_project)
+        >>> report = app.post.reports_by_category.eigenmode("dB(S(1,1))")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Eigenmode Parameters" in self._templates:
+            rep = rt.Standard(self._post_app, "Eigenmode Parameters", setup_name)
+            rep.expressions = expressions
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def eye_diagram(self, expressions=None, setup_name=None):
+        """Create a Standard or Default Report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> cir= Circuit()
+        >>> new_eye = cir.post.reports_by_category.eye_diagram("V(Vout)")
+        >>> new_eye.unit_interval = "1e-9s"
+        >>> new_eye.time_stop = "100ns"
+        >>> new_eye.create()
+
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Eye Diagram" in self._templates:
+            rep = rt.EyeDiagram(self._post_app, "Eye Diagram", setup_name)
+            rep.expressions = expressions
+            return rep
+        return
+
+    @pyaedt_function_handler()
+    def spectral(self, expressions=None, setup_name=None):
+        """Create a Spectral Report object.
+
+        Parameters
+        ----------
+        expressions : str or list, optional
+            Expression List.
+        setup_name : str, optional
+            Setup Name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Spectrum`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> cir= Circuit()
+        >>> new_eye = cir.post.reports_by_category.spectral("V(Vout)")
+        >>> new_eye.create()
+
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        if "Spectrum" in self._templates:
+            rep = rt.Spectral(self._post_app, "Spectrum", setup_name)
+            rep.expressions = expressions
+            return rep
+        return
 
 
 orientation_to_view = {
@@ -48,6 +571,8 @@ orientation_to_view = {
 
 @pyaedt_function_handler()
 def _convert_dict_to_report_sel(sweeps):
+    if isinstance(sweeps, list):
+        return sweeps
     sweep_list = []
     for el in sweeps:
         sweep_list.append(el + ":=")
@@ -56,1357 +581,6 @@ def _convert_dict_to_report_sel(sweeps):
         else:
             sweep_list.append([sweeps[el]])
     return sweep_list
-
-
-class SolutionData(object):
-    """Contains information from the :func:`GetSolutionDataPerVariation` method."""
-
-    def __init__(self, aedtdata):
-        self._original_data = aedtdata
-        self.number_of_variations = len(aedtdata)
-        self._nominal_variation = None
-        self._nominal_variation = self._original_data[0]
-        self._sweeps = None
-        self._sweeps_names = list(self.nominal_variation.GetSweepNames())
-        self.update_sweeps()
-
-        self._primary_sweep = self._sweeps_names[0]
-        self.nominal_sweeps = {}
-        self.units_sweeps = {}
-        for e in self.sweeps.keys():
-            try:
-                self.nominal_sweeps[e] = self.sweeps[e][0]
-                self.units_sweeps[e] = self.nominal_variation.GetSweepUnits(e)
-            except:
-                self.nominal_sweeps[e] = None
-        self._init_solutions_data()
-        self._ifft = None
-
-    @property
-    def sweeps(self):
-        """Sweeps."""
-        return self._sweeps
-
-    @property
-    def sweeps_siunits(self):
-        """SI units for the sweep."""
-        data = {}
-        for el in self._sweeps:
-            data[el] = self._convert_list_to_SI(
-                self._sweeps[el], self._quantity(self.units_sweeps[el]), self.units_sweeps[el]
-            )
-        return data
-
-    @property
-    def variations_value(self):
-        """Variation values for design variables."""
-        vars = self.nominal_variation.GetDesignVariableNames()
-        variationvals = {}
-        for v in vars:
-            variationvals[v] = self.nominal_variation.GetDesignVariableValue(v)
-        return variationvals
-
-    @property
-    def nominal_variation(self):
-        """Nominal variation."""
-        return self._nominal_variation
-
-    @nominal_variation.setter
-    def nominal_variation(self, val):
-        if 0 <= val <= self.number_of_variations:
-            self._nominal_variation = self._original_data[val]
-            self._init_solutions_data()
-        else:
-            print(str(val) + " not in Variations")
-
-    @property
-    def primary_sweep(self):
-        """Primary sweep.
-
-        Parameters
-        ----------
-        ps : float
-            Perimeter of the source.
-        """
-        return self._primary_sweep
-
-    @primary_sweep.setter
-    def primary_sweep(self, ps):
-        if ps in self.sweeps.keys():
-            self._primary_sweep = ps
-
-    @property
-    def expressions(self):
-        """Expressions."""
-        mydata = [i for i in self._nominal_variation.GetDataExpressions()]
-        return list(dict.fromkeys(mydata))
-
-    @pyaedt_function_handler()
-    def _init_solutions_data(self):
-        self.solutions_data_real = self._solution_data_real()
-        self.solutions_data_imag = self._solution_data_imag()
-        self.solutions_data_mag = {}
-        self.units_data = {}
-        for expr in self.expressions:
-            self.solutions_data_mag[expr] = {}
-            self.units_data[expr] = self.nominal_variation.GetDataUnits(expr)
-            for i in self.solutions_data_real[expr]:
-                self.solutions_data_mag[expr][i] = abs(
-                    complex(self.solutions_data_real[expr][i], self.solutions_data_imag[expr][i])
-                )
-
-    @pyaedt_function_handler()
-    def update_sweeps(self):
-        """Update sweeps.
-
-        Returns
-        -------
-        dict
-            Updated sweeps.
-        """
-
-        self._sweeps = OrderedDict({})
-        for el in self._sweeps_names:
-            values = list(self.nominal_variation.GetSweepValues(el, False))
-            self._sweeps[el] = [i for i in values]
-            self._sweeps[el] = list(OrderedDict.fromkeys(self._sweeps[el]))
-        return self._sweeps
-
-    @pyaedt_function_handler()
-    def _quantity(self, unit):
-        """
-
-        Parameters
-        ----------
-        unit :
-
-
-        Returns
-        -------
-
-        """
-        for el in AEDT_UNITS:
-            keys_units = [i.lower() for i in list(AEDT_UNITS[el].keys())]
-            if unit.lower() in keys_units:
-                return el
-        return None
-
-    @pyaedt_function_handler()
-    def _solution_data_real(self):
-        """ """
-        sols_data = {}
-        for expression in self.expressions:
-            combinations = []
-            if len(self._original_data) == 1:
-                solution = list(self.nominal_variation.GetRealDataValues(expression, False))
-            else:
-                solution = []
-                for data in self._original_data:
-                    for v in data.GetDesignVariableNames():
-                        if v not in self._sweeps_names:
-                            self._sweeps[v] = []
-                            self._sweeps_names.append(v)
-                            self.nominal_sweeps[v] = data.GetDesignVariableValue(v)
-                            self.units_sweeps[v] = data.GetDesignVariableUnits(v)
-                    comb = []
-                    for v in reversed(data.GetDesignVariableNames()):
-                        if data.GetDesignVariableValue(v) not in self._sweeps[v]:
-                            self._sweeps[v].append(data.GetDesignVariableValue(v))
-                        comb.append(data.GetDesignVariableValue(v))
-                    combinations.append(comb)
-                    solution.extend(list(data.GetRealDataValues(expression, False)))
-            values = []
-            for el in reversed(self._sweeps_names):
-                values.append(self.sweeps[el])
-
-            solution_Data = {}
-            i = 0
-            for t in itertools.product(*values):
-                if not combinations or (combinations and list(t[: len(combinations[0])]) in combinations):
-                    solution_Data[t] = solution[i]
-                    i += 1
-            sols_data[expression] = solution_Data
-        return sols_data
-
-    @pyaedt_function_handler()
-    def _solution_data_imag(self):
-        """ """
-        sols_data = {}
-        combinations = []
-        for expression in self.expressions:
-            if self.nominal_variation.IsDataComplex(expression):
-                if len(self._original_data) == 1:
-                    solution = list(self.nominal_variation.GetImagDataValues(expression, False))
-                else:
-                    solution = []
-                    for data in self._original_data:
-                        comb = []
-                        for v in reversed(data.GetDesignVariableNames()):
-                            if data.GetDesignVariableValue(v) not in self._sweeps[v]:
-                                self._sweeps[v].append(data.GetDesignVariableValue(v))
-                            comb.append(data.GetDesignVariableValue(v))
-                        combinations.append(comb)
-                        solution.extend(list(data.GetImagDataValues(expression, False)))
-            else:
-                solution = None
-            values = []
-            for el in reversed(self._sweeps_names):
-                values.append(self.sweeps[el])
-
-            solution_Data = {}
-            i = 0
-            for t in itertools.product(*values):
-                if not combinations or (combinations and list(t[: len(combinations[0])]) in combinations):
-                    if solution:
-                        solution_Data[t] = solution[i]
-                    else:
-                        solution_Data[t] = 0
-                    i += 1
-            sols_data[expression] = solution_Data
-        return sols_data
-
-    @pyaedt_function_handler()
-    def to_degrees(self, input_list):
-        """Convert an input list from radians to degrees.
-
-        Parameters
-        ----------
-        input_list : list
-            List of inputs in radians.
-
-        Returns
-        -------
-        list
-            List of inputs in degrees.
-
-        """
-        return [i * 360 / (2 * math.pi) for i in input_list]
-
-    @pyaedt_function_handler()
-    def to_radians(self, input_list):
-        """Convert an input list from degrees to radians.
-
-        Parameters
-        ----------
-        input_list : list
-            List of inputs in degrees.
-
-        Returns
-        -------
-        type
-            List of inputs in radians.
-
-        """
-        return [i * 2 * math.pi / 360 for i in input_list]
-
-    @pyaedt_function_handler()
-    def data_magnitude(self, expression=None, convert_to_SI=False):
-        """Retrieve the data magnitude of an expression.
-
-        Parameters
-        ----------
-        expression : str, optional
-            Name of the expression. The default is ``None``, in which case the
-            first expression is used.
-        convert_to_SI : bool, optional
-            Whether to convert the data to the SI unit system.
-            The default is ``False``.
-
-        Returns
-        -------
-        list
-            List of data.
-
-        """
-        if not expression:
-            expression = self.expressions[0]
-        elif expression not in self.expressions:
-            return False
-        temp = []
-        for it in self.nominal_sweeps:
-            temp.append(self.nominal_sweeps[it])
-        temp = list(reversed(temp))
-        try:
-            solution_Data = self.solutions_data_mag[expression]
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
-                sol.append(solution_Data[tuple(temp)])
-        except:
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
-                sol.append(0)
-        if convert_to_SI and self._quantity(self.units_data[expression]):
-            sol = self._convert_list_to_SI(
-                sol, self._quantity(self.units_data[expression]), self.units_data[expression]
-            )
-        return sol
-
-    @pyaedt_function_handler()
-    def _convert_list_to_SI(self, datalist, dataunits, units):
-        """Convert a data list to the SI unit system.
-
-        Parameters
-        ----------
-        datalist : list
-           List of data to convert.
-        dataunits :
-
-        units :
-
-
-        Returns
-        -------
-        list
-           List of the data converted to the SI unit system.
-
-        """
-        sol = datalist
-        if dataunits in AEDT_UNITS and units in AEDT_UNITS[dataunits]:
-            sol = [i * AEDT_UNITS[dataunits][units] for i in datalist]
-        return sol
-
-    @pyaedt_function_handler()
-    def data_db(self, expression=None, convert_to_SI=False):
-        """Retrieve the data in the database for an expression and convert in db10.
-
-        .. deprecated:: 0.4.8
-           Use :func:`data_db10` instead.
-
-        Parameters
-        ----------
-        expression : str, optional
-            Name of the expression. The default is ``None``,
-            in which case the first expression is used.
-        convert_to_SI : bool, optional
-            Whether to convert the data to the SI unit system.
-            The default is ``False``.
-
-        Returns
-        -------
-        list
-            List of the data in the database for the expression.
-
-        """
-        if not expression:
-            expression = self.expressions[0]
-
-        return [db10(i) for i in self.data_magnitude(expression, convert_to_SI)]
-
-    def data_db10(self, expression=None, convert_to_SI=False):
-        """Retrieve the data in the database for an expression and convert in db10.
-
-        Parameters
-        ----------
-        expression : str, optional
-            Name of the expression. The default is ``None``,
-            in which case the first expression is used.
-        convert_to_SI : bool, optional
-            Whether to convert the data to the SI unit system.
-            The default is ``False``.
-
-        Returns
-        -------
-        list
-            List of the data in the database for the expression.
-
-        """
-        if not expression:
-            expression = self.expressions[0]
-
-        return [db10(i) for i in self.data_magnitude(expression, convert_to_SI)]
-
-    def data_db20(self, expression=None, convert_to_SI=False):
-        """Retrieve the data in the database for an expression and convert in db20.
-
-        Parameters
-        ----------
-        expression : str, optional
-            Name of the expression. The default is ``None``,
-            in which case the first expression is used.
-        convert_to_SI : bool, optional
-            Whether to convert the data to the SI unit system.
-            The default is ``False``.
-
-        Returns
-        -------
-        list
-            List of the data in the database for the expression.
-
-        """
-        if not expression:
-            expression = self.expressions[0]
-
-        return [db20(i) for i in self.data_magnitude(expression, convert_to_SI)]
-
-    def data_phase(self, expression=None, radians=True):
-        """Retrieve the phase part of the data for an expression.
-
-        Parameters
-        ----------
-        expression : str, None
-            Name of the expression. The default is ``None``,
-            in which case the first expression is used.
-        radians : bool, optional
-            Whether to convert the data into radians or degree.
-            The default is ``True`` for radians.
-
-        Returns
-        -------
-        list
-            Phase data for the expression.
-
-        """
-        if not expression:
-            expression = self.expressions[0]
-        coefficient = 1
-        if not radians:
-            coefficient = 180 / math.pi
-        return [coefficient * math.atan(k / i) for i, k in zip(self.data_real(expression), self.data_imag(expression))]
-
-    def data_real(self, expression=None, convert_to_SI=False):
-        """Retrieve the real part of the data for an expression.
-
-        Parameters
-        ----------
-        expression : str, None
-            Name of the expression. The default is ``None``,
-            in which case the first expression is used.
-        convert_to_SI : bool, optional
-            Whether to convert the data to the SI unit system.
-            The default is ``False``.
-
-        Returns
-        -------
-        list
-            List of the real data for the expression.
-
-        """
-        if not expression:
-            expression = self.expressions[0]
-        temp = []
-        for it in self.nominal_sweeps:
-            temp.append(self.nominal_sweeps[it])
-        temp = list(reversed(temp))
-        try:
-            solution_Data = self.solutions_data_real[expression]
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
-                sol.append(solution_Data[tuple(temp)])
-        except:
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
-                sol.append(0)
-        if convert_to_SI and self._quantity(self.units_data[expression]):
-            sol = self._convert_list_to_SI(
-                sol, self._quantity(self.units_data[expression]), self.units_data[expression]
-            )
-        return sol
-
-    def data_imag(self, expression=None, convert_to_SI=False):
-        """Retrieve the imaginary part of the data for an expression.
-
-        Parameters
-        ----------
-        expression : str, optional
-            Name of the expression. The default is ``None``,
-            in which case the first expression is used.
-        convert_to_SI : bool, optional
-            Whether to convert the data to the SI unit system.
-            The default is ``False``.
-
-        Returns
-        -------
-        list
-            List of the imaginary data for the expression.
-
-        """
-        if not expression:
-            expression = self.expressions[0]
-        temp = []
-        for it in self.nominal_sweeps:
-            temp.append(self.nominal_sweeps[it])
-        temp = list(reversed(temp))
-        try:
-            solution_Data = self.solutions_data_imag[expression]
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
-                sol.append(solution_Data[tuple(temp)])
-        except:
-            sol = []
-            position = list(reversed(self._sweeps_names)).index(self.primary_sweep)
-            for el in self.sweeps[self.primary_sweep]:
-                temp[position] = el
-                sol.append(0)
-        if convert_to_SI and self._quantity(self.units_data[expression]):
-            sol = self._convert_list_to_SI(
-                sol, self._quantity(self.units_data[expression]), self.units_data[expression]
-            )
-        return sol
-
-    @pyaedt_function_handler()
-    def is_real_only(self, expression=None):
-        """Check if the expression has only real values or not.
-
-        Parameters
-        ----------
-        expression : str, optional
-            Name of the expression. The default is ``None``,
-            in which case the first expression is used.
-
-        Returns
-        -------
-        bool
-            ``True`` if the Solution Data for specific expression contains only real values.
-        """
-        if not expression:
-            expression = self.expressions[0]
-        for e, v in self.solutions_data_imag[expression].items():
-            if float(v) != 0.0:
-                return False
-        return True
-
-    @pyaedt_function_handler()
-    def export_data_to_csv(self, output, delimiter=";"):
-        """Save to output csv file the Solution Data.
-
-        Parameters
-        ----------
-        output : str,
-            Full path to csv file.
-        delimiter : str,
-            CSV Delimiter. Default is ``";"``.
-
-        Returns
-        -------
-        bool
-        """
-        header = [el for el in reversed(self._sweeps_names)]
-        for el in self.expressions:
-            if not self.is_real_only(el):
-                header.append(el + " (Real)")
-                header.append(el + " (Imag)")
-            else:
-                header.append(el)
-
-        list_full = [header]
-        for e, v in self.solutions_data_real[self.expressions[0]].items():
-            list_full.append(list(e))
-        for el in self.expressions:
-            i = 1
-            for e, v in self.solutions_data_real[el].items():
-                list_full[i].extend([v])
-                i += 1
-            i = 1
-            if not self.is_real_only(el):
-                for e, v in self.solutions_data_imag[el].items():
-                    list_full[i].extend([v])
-                    i += 1
-
-        return write_csv(output, list_full, delimiter=delimiter)
-
-    @pyaedt_function_handler()
-    def plot(
-        self,
-        curves=None,
-        math_formula=None,
-        size=(2000, 1000),
-        show_legend=True,
-        xlabel="",
-        ylabel="",
-        title="",
-        snapshot_path=None,
-        is_polar=False,
-    ):
-        """Create a matplotlib plot based on a list of data.
-
-        Parameters
-        ----------
-        curves : list
-            Curves to be plotted. If None, the first curve will be plotted.
-        math_formula : str , optional
-            Mathematical formula to apply to the plot curve.
-            Valid values are `"re"`, `"im"`, `"db20"`, `"db10"`, `"abs"`, `"mag"`, `"phasedeg"`, `"phaserad"`.
-        size : tuple, optional
-            Image size in pixel (width, height).
-        show_legend : bool
-            Either to show legend or not.
-        xlabel : str
-            Plot X label.
-        ylabel : str
-            Plot Y label.
-        title : str
-            Plot Title label.
-        snapshot_path : str
-            Full path to image file if a snapshot is needed.
-        is_polar : bool, optional
-            Set to `True` if this is a polar plot.
-
-        Returns
-        -------
-        :class:`matplotlib.plt`
-            Matplotlib fig object.
-        """
-        if is_ironpython:
-            return False  # pragma: no cover
-        if not curves:
-            curves = [self.expressions[0]]
-        if isinstance(curves, str):
-            curves = [curves]
-        data_plot = []
-        sweep_name = self.primary_sweep
-        if not math_formula:
-            math_formula = "mag"
-        if is_polar:
-            sw = self.to_radians(self.sweeps[sweep_name])
-        else:
-            sw = self.sweeps[sweep_name]
-
-        for curve in curves:
-            if math_formula == "re":
-                data_plot.append([sw, self.data_real(curve), "{}({})".format(math_formula, curve)])
-            elif math_formula == "im":
-                data_plot.append([sw, self.data_imag(curve), "{}({})".format(math_formula, curve)])
-            elif math_formula == "db20":
-                data_plot.append([sw, self.data_db20(curve), "{}({})".format(math_formula, curve)])
-            elif math_formula == "db10":
-                data_plot.append([sw, self.data_db10(curve), "{}({})".format(math_formula, curve)])
-            elif math_formula == "mag":
-                data_plot.append([sw, self.data_magnitude(curve), "{}({})".format(math_formula, curve)])
-            elif math_formula == "phasedeg":
-                data_plot.append([sw, self.data_phase(curve, False), "{}({})".format(math_formula, curve)])
-            elif math_formula == "phaserad":
-                data_plot.append([sw, self.data_phase(curve, True), "{}({})".format(math_formula, curve)])
-        if not xlabel:
-            xlabel = sweep_name
-        if not ylabel:
-            ylabel = math_formula
-        if not title:
-            title = "Simulation Results Plot"
-        if is_polar:
-            return plot_polar_chart(data_plot, size, show_legend, xlabel, ylabel, title, snapshot_path)
-        else:
-            return plot_2d_chart(data_plot, size, show_legend, xlabel, ylabel, title, snapshot_path)
-
-    @pyaedt_function_handler()
-    def plot_3d(
-        self,
-        curve=None,
-        x_axis="Theta",
-        y_axis="Phi",
-        xlabel="",
-        ylabel="",
-        title="",
-        math_formula=None,
-        size=(2000, 1000),
-        snapshot_path=None,
-    ):
-        """Create a matplotlib 3d plot based on a list of data.
-
-        Parameters
-        ----------
-        curve : str
-            Curve to be plotted. If None, the first curve will be plotted.
-        x_axis : str, optional
-            X Axis sweep. Default is `"Theta"`.
-        y_axis : str, optional
-            Y Axis sweep. Default is `"Phi"`.
-        math_formula : str , optional
-            Mathematical formula to apply to the plot curve.
-            Valid values are `"re"`, `"im"`, `"db20"`, `"db10"`, `"abs"`, `"mag"`, `"phasedeg"`, `"phaserad"`.
-        size : tuple, optional
-            Image size in pixel (width, height).
-        snapshot_path : str
-            Full path to image file if a snapshot is needed.
-        is_polar : bool, optional
-            Set to `True` if this is a polar plot.
-
-        Returns
-        -------
-        :class:`matplotlib.plt`
-            Matplotlib fig object.
-        """
-        if is_ironpython:
-            return False  # pragma: no cover
-        if not curve:
-            curve = self.expressions[0]
-
-        if not math_formula:
-            math_formula = "mag"
-        theta = self.to_radians(self.sweeps[x_axis])
-        phi = []
-        r = []
-        for el in self.sweeps[y_axis]:
-            self.nominal_sweeps[y_axis] = el
-            phi.append(el * math.pi / 180)
-
-            if math_formula == "re":
-                r.append(self.data_real(curve))
-            elif math_formula == "im":
-                r.append(self.data_imag(curve))
-            elif math_formula == "db20":
-                r.append(self.data_db20(curve))
-            elif math_formula == "db10":
-                r.append(self.data_db10(curve))
-            elif math_formula == "mag":
-                r.append(self.data_magnitude(curve))
-            elif math_formula == "phasedeg":
-                r.append(self.data_phase(curve, False))
-            elif math_formula == "phaserad":
-                r.append(self.data_phase(curve, True))
-        data_plot = [theta, phi, r]
-        if not xlabel:
-            xlabel = x_axis
-        if not ylabel:
-            ylabel = y_axis
-        if not title:
-            title = "Simulation Results Plot"
-        return plot_3d_chart(data_plot, size, xlabel, ylabel, title, snapshot_path)
-
-    @pyaedt_function_handler()
-    def ifft(self, curve_header="NearE", u_axis="_u", v_axis="_v", window=False):
-        """Create IFFT of given complex data.
-
-        Parameters
-        ----------
-        curve_header : curve header. Solution data must contain 3 curves with X, Y and Z components of curve header.
-        u_axis : str, optional
-            U Axis name. Default is Hfss name "_u"
-        v_axis : str, optional
-            V Axis name. Default is Hfss name "_v"
-        window : bool, optional
-            Either if Hanning windowing has to be applied.
-
-        Returns
-        -------
-        List
-            IFFT Matrix.
-        """
-        if is_ironpython:
-            return False
-        u = self.sweeps[u_axis]
-        if v_axis:
-            v = self.sweeps[v_axis]
-        freq = self.sweeps["Freq"]
-        vals_real_Ex = [j for j in self.solutions_data_real[curve_header + "X"].values()]
-        vals_imag_Ex = [j for j in self.solutions_data_imag[curve_header + "X"].values()]
-        vals_real_Ey = [j for j in self.solutions_data_real[curve_header + "Y"].values()]
-        vals_imag_Ey = [j for j in self.solutions_data_imag[curve_header + "Y"].values()]
-        vals_real_Ez = [j for j in self.solutions_data_real[curve_header + "Z"].values()]
-        vals_imag_Ez = [j for j in self.solutions_data_imag[curve_header + "Z"].values()]
-
-        E_realx = np.reshape(vals_real_Ex, (len(freq), len(v), len(u)))
-        E_imagx = np.reshape(vals_imag_Ex, (len(freq), len(v), len(u)))
-        E_realy = np.reshape(vals_real_Ey, (len(freq), len(v), len(u)))
-        E_imagy = np.reshape(vals_imag_Ey, (len(freq), len(v), len(u)))
-        E_realz = np.reshape(vals_real_Ez, (len(freq), len(v), len(u)))
-        E_imagz = np.reshape(vals_imag_Ez, (len(freq), len(v), len(u)))
-
-        Temp_E_compx = E_realx + 1j * E_imagx  # Here is the complex FD data matrix, ready for transforming
-        Temp_E_compy = E_realy + 1j * E_imagy
-        Temp_E_compz = E_realz + 1j * E_imagz
-
-        E_compx = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
-        E_compy = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
-        E_compz = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
-        if window:
-            timewin = np.hanning(len(freq))
-
-            for row in range(0, len(v)):
-                for col in range(0, len(u)):
-                    E_compx[:, row, col] = np.multiply(Temp_E_compx[:, row, col], timewin)
-                    E_compy[:, row, col] = np.multiply(Temp_E_compy[:, row, col], timewin)
-                    E_compz[:, row, col] = np.multiply(Temp_E_compz[:, row, col], timewin)
-        else:
-            E_compx = Temp_E_compx
-            E_compy = Temp_E_compy
-            E_compz = Temp_E_compz
-
-        E_time_x = np.fft.ifft(np.fft.fftshift(E_compx, 0), len(freq), 0, None)
-        E_time_y = np.fft.ifft(np.fft.fftshift(E_compy, 0), len(freq), 0, None)
-        E_time_z = np.fft.ifft(np.fft.fftshift(E_compz, 0), len(freq), 0, None)
-        E_time = np.zeros((np.size(freq), np.size(v), np.size(u)))
-        for i in range(0, len(freq)):
-            E_time[i, :, :] = np.abs(
-                np.sqrt(np.square(E_time_x[i, :, :]) + np.square(E_time_y[i, :, :]) + np.square(E_time_z[i, :, :]))
-            )
-        self._ifft = E_time
-
-        return self._ifft
-
-    @pyaedt_function_handler()
-    def ifft_to_file(
-        self,
-        u_axis="_u",
-        v_axis="_v",
-        coord_system_center=None,
-        db_val=False,
-        num_frames=None,
-        csv_dir=None,
-        name_str="res_",
-    ):
-        """Save IFFT Matrix to a list of csv files (one per time step).
-
-        Parameters
-        ----------
-        u_axis : str, optional
-            U Axis name. Default is Hfss name "_u"
-        v_axis : str, optional
-            V Axis name. Default is Hfss name "_v"
-        coord_system_center : list, optional
-            List of UV GlobalCS Center.
-        db_val : bool, optional
-            Either if data has to be exported in db or not.
-        num_frames : int, optional
-            Number of frames to export.
-        csv_dir : str
-            Output path
-        name_str : str, optional
-            csv file header.
-
-        Returns
-        -------
-        str
-            Path to file containing the list of csv files.
-        """
-        if not coord_system_center:
-            coord_system_center = [0, 0, 0]
-        t_matrix = self._ifft
-        x_c_list = self.sweeps[u_axis]
-        y_c_list = self.sweeps[v_axis]
-        adj_x = coord_system_center[0]
-        adj_y = coord_system_center[1]
-        adj_z = coord_system_center[2]
-        if num_frames:
-            frames = num_frames
-        else:
-            frames = t_matrix.shape[0]
-        csv_list = []
-        if os.path.exists(csv_dir):
-            files = [os.path.join(csv_dir, f) for f in os.listdir(csv_dir) if name_str in f and ".csv" in f]
-            for file in files:
-                os.remove(file)
-        else:
-            os.mkdir(csv_dir)
-
-        for frame in range(frames):
-            output = os.path.join(csv_dir, name_str + str(frame) + ".csv")
-            list_full = [["x", "y", "z", "val"]]
-            for i, y in enumerate(y_c_list):
-
-                for j, x in enumerate(x_c_list):
-                    y_coord = y + adj_y
-                    x_coord = x + adj_x
-                    z_coord = adj_z
-                    if db_val:
-                        val = 10.0 * np.log10(np.abs(t_matrix[frame, i, j]))
-                    else:
-                        val = t_matrix[frame, i, j]
-                    row_lst = [x_coord, y_coord, z_coord, val]
-                    list_full.append(row_lst)
-            write_csv(output, list_full, delimiter=",")
-            csv_list.append(output)
-
-        txt_file_name = csv_dir + "fft_list.txt"
-        textfile = open(txt_file_name, "w")
-
-        for element in csv_list:
-            textfile.write(element + "\n")
-        textfile.close()
-        return txt_file_name
-
-
-class FieldPlot:
-    """Creates and edits field plots.
-
-    Parameters
-    ----------
-    postprocessor : :class:`pyaedt.modules.PostProcessor.PostProcessor`
-
-    objlist : list
-        List of objects.
-    solutionName : str
-        Name of the solution.
-    quantityName : str
-        Name of the plot or the name of the object.
-    intrinsincList : dict, optional
-        Name of the intrinsic dictionary. The default is ``{}``.
-
-    """
-
-    def __init__(
-        self,
-        postprocessor,
-        objlist=[],
-        surfacelist=[],
-        linelist=[],
-        cutplanelist=[],
-        solutionName="",
-        quantityName="",
-        intrinsincList={},
-    ):
-        self._postprocessor = postprocessor
-        self.oField = postprocessor.ofieldsreporter
-        self.volume_indexes = objlist
-        self.surfaces_indexes = surfacelist
-        self.line_indexes = linelist
-        self.cutplane_indexes = cutplanelist
-        self.solutionName = solutionName
-        self.quantityName = quantityName
-        self.intrinsincList = intrinsincList
-        self.name = "Field_Plot"
-        self.plotFolder = "Field_Plot"
-        self.Filled = False
-        self.IsoVal = "Fringe"
-        self.SmoothShade = True
-        self.AddGrid = False
-        self.MapTransparency = True
-        self.Refinement = 0
-        self.Transparency = 0
-        self.SmoothingLevel = 0
-        self.ArrowUniform = True
-        self.ArrowSpacing = 0
-        self.MinArrowSpacing = 0
-        self.MaxArrowSpacing = 0
-        self.GridColor = [255, 255, 255]
-        self.PlotIsoSurface = True
-        self.PointSize = 1
-        self.CloudSpacing = 0.5
-        self.CloudMinSpacing = -1
-        self.CloudMaxSpacing = -1
-
-    @property
-    def plotGeomInfo(self):
-        """Plot geometry information."""
-        id = 0
-        if self.volume_indexes:
-            id += 1
-        if self.surfaces_indexes:
-            id += 1
-        if self.cutplane_indexes:
-            id += 1
-        if self.line_indexes:
-            id += 1
-        info = [id]
-        if self.volume_indexes:
-            info.append("Volume")
-            info.append("ObjList")
-            info.append(len(self.volume_indexes))
-            for index in self.volume_indexes:
-                info.append(str(index))
-        if self.surfaces_indexes:
-            info.append("Surface")
-            info.append("FacesList")
-            info.append(len(self.surfaces_indexes))
-            for index in self.surfaces_indexes:
-                info.append(str(index))
-        if self.cutplane_indexes:
-            info.append("Surface")
-            info.append("CutPlane")
-            info.append(len(self.cutplane_indexes))
-            for index in self.cutplane_indexes:
-                info.append(str(index))
-        if self.line_indexes:
-            info.append("Line")
-            info.append(len(self.line_indexes))
-            for index in self.line_indexes:
-                info.append(str(index))
-        return info
-
-    @property
-    def intrinsicVar(self):
-        """Intrinsic variable.
-
-        Returns
-        -------
-        list or dict
-            List or dictionary of the variables for the field plot.
-        """
-        var = ""
-        if type(self.intrinsincList) is list:
-            l = 0
-            while l < len(self.intrinsincList):
-                val = self.intrinsincList[l + 1]
-                if ":=" in self.intrinsincList[l] and type(self.intrinsincList[l + 1]) is list:
-                    val = self.intrinsincList[l + 1][0]
-                ll = self.intrinsincList[l].split(":=")
-                var += ll[0] + "='" + str(val) + "' "
-                l += 2
-        else:
-            for a in self.intrinsincList:
-                var += a + "='" + str(self.intrinsincList[a]) + "' "
-        return var
-
-    @property
-    def plotsettings(self):
-        """Plot settings.
-
-        Returns
-        -------
-        list
-            List of plot settings.
-        """
-        if self.surfaces_indexes:
-            arg = [
-                "NAME:PlotOnSurfaceSettings",
-                "Filled:=",
-                self.Filled,
-                "IsoValType:=",
-                self.IsoVal,
-                "SmoothShade:=",
-                self.SmoothShade,
-                "AddGrid:=",
-                self.AddGrid,
-                "MapTransparency:=",
-                self.MapTransparency,
-                "Refinement:=",
-                self.Refinement,
-                "Transparency:=",
-                self.Transparency,
-                "SmoothingLevel:=",
-                self.SmoothingLevel,
-                [
-                    "NAME:Arrow3DSpacingSettings",
-                    "ArrowUniform:=",
-                    self.ArrowUniform,
-                    "ArrowSpacing:=",
-                    self.ArrowSpacing,
-                    "MinArrowSpacing:=",
-                    self.MinArrowSpacing,
-                    "MaxArrowSpacing:=",
-                    self.MaxArrowSpacing,
-                ],
-                "GridColor:=",
-                self.GridColor,
-            ]
-        else:
-            arg = [
-                "NAME:PlotOnVolumeSettings",
-                "PlotIsoSurface:=",
-                self.PlotIsoSurface,
-                "PointSize:=",
-                self.PointSize,
-                "Refinement:=",
-                self.Refinement,
-                "CloudSpacing:=",
-                self.CloudSpacing,
-                "CloudMinSpacing:=",
-                self.CloudMinSpacing,
-                "CloudMaxSpacing:=",
-                self.CloudMaxSpacing,
-                [
-                    "NAME:Arrow3DSpacingSettings",
-                    "ArrowUniform:=",
-                    self.ArrowUniform,
-                    "ArrowSpacing:=",
-                    self.ArrowSpacing,
-                    "MinArrowSpacing:=",
-                    self.MinArrowSpacing,
-                    "MaxArrowSpacing:=",
-                    self.MaxArrowSpacing,
-                ],
-            ]
-        return arg
-
-    @property
-    def surfacePlotInstruction(self):
-        """Surface plot settings.
-
-        Returns
-        -------
-        list
-            List of surface plot settings.
-
-        """
-        return [
-            "NAME:" + self.name,
-            "SolutionName:=",
-            self.solutionName,
-            "QuantityName:=",
-            self.quantityName,
-            "PlotFolder:=",
-            self.plotFolder,
-            "UserSpecifyName:=",
-            1,
-            "UserSpecifyFolder:=",
-            1,
-            "StreamlinePlot:=",
-            False,
-            "AdjacentSidePlot:=",
-            False,
-            "FullModelPlot:=",
-            False,
-            "IntrinsicVar:=",
-            self.intrinsicVar,
-            "PlotGeomInfo:=",
-            self.plotGeomInfo,
-            "FilterBoxes:=",
-            [0],
-            self.plotsettings,
-            "EnableGaussianSmoothing:=",
-            False,
-        ]
-
-    @property
-    def field_plot_settings(self):
-        """Field Plot Settings.
-
-        Returns
-        -------
-        list
-            Field Plot Settings.
-        """
-        return [
-            "NAME:FieldsPlotItemSettings",
-            [
-                "NAME:PlotOnSurfaceSettings",
-                "Filled:=",
-                self.Filled,
-                "IsoValType:=",
-                self.IsoVal,
-                "AddGrid:=",
-                self.AddGrid,
-                "MapTransparency:=",
-                self.MapTransparency,
-                "Refinement:=",
-                self.Refinement,
-                "Transparency:=",
-                self.Transparency,
-                "SmoothingLevel:=",
-                self.SmoothingLevel,
-                "ShadingType:=",
-                self.SmoothShade,
-                [
-                    "NAME:Arrow3DSpacingSettings",
-                    "ArrowUniform:=",
-                    self.ArrowUniform,
-                    "ArrowSpacing:=",
-                    self.ArrowSpacing,
-                    "MinArrowSpacing:=",
-                    self.MinArrowSpacing,
-                    "MaxArrowSpacing:=",
-                    self.MaxArrowSpacing,
-                ],
-                "GridColor:=",
-                self.GridColor,
-            ],
-        ]
-
-    @pyaedt_function_handler()
-    def create(self):
-        """Create a field plot.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-
-        self.oField.CreateFieldPlot(self.surfacePlotInstruction, "Field")
-        return True
-
-    @pyaedt_function_handler()
-    def update(self):
-        """Update the field plot.
-
-        .. note::
-           This method works on any plot created inside PyAEDT.
-           For Plot already existing in AEDT Design it may produce incorrect results.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstruction)
-
-    @pyaedt_function_handler()
-    def update_field_plot_settings(self):
-        """Modify the field plot settings.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        self.oField.SetFieldPlotSettings(self.name, ["NAME:FieldsPlotItemSettings", self.plotsettings])
-        return True
-
-    @pyaedt_function_handler()
-    def delete(self):
-        """Delete the field plot."""
-        self.oField.DeleteFieldPlot([self.name])
-        self._postprocessor.field_plots.pop(self.name, None)
-
-    @pyaedt_function_handler()
-    def change_plot_scale(self, minimum_value, maximum_value, is_log=False, is_db=False):
-        """Change Field Plot Scale.
-
-        Parameters
-        ----------
-        minimum_value : str, float
-            Minimum value of the scale.
-        maximum_value : str, float
-            Maximum value of the scale.
-        is_log : bool, optional
-            Set to ``True`` if Log Scale is setup.
-        is_db : bool, optional
-            Set to ``True`` if dB Scale is setup.
-
-        Returns
-        -------
-        bool
-            ``True`` if successful.
-
-        References
-        ----------
-
-        >>> oModule.SetPlotFolderSettings
-        """
-        args = ["NAME:FieldsPlotSettings", "Real Time mode:=", True]
-        args += [
-            [
-                "NAME:ColorMaPSettings",
-                "ColorMapType:=",
-                "Spectrum",
-                "SpectrumType:=",
-                "Rainbow",
-                "UniformColor:=",
-                [127, 255, 255],
-                "RampColor:=",
-                [255, 127, 127],
-            ]
-        ]
-        args += [
-            [
-                "NAME:Scale3DSettings",
-                "minvalue:=",
-                minimum_value,
-                "maxvalue:=",
-                maximum_value,
-                "log:=",
-                not is_log,
-                "dB:=",
-                is_db,
-                "ScaleType:=",
-                1,
-            ]
-        ]
-        self.oField.SetPlotFolderSettings(self.plotFolder, args)
-        return True
-
-    @pyaedt_function_handler()
-    def export_image(self, full_path=None, width=1920, height=1080, orientation="isometric", display_wireframe=True):
-        """Export the active plot to an image file.
-
-        .. note::
-           There are some limitations on HFSS 3D Layout plots.
-
-        full_path : str, optional
-            Path for saving the image file. PNG and GIF formats are supported.
-            The default is ``None`` which export file in working_directory.
-        width : int, optional
-            Plot Width.
-        height : int, optional
-            Plot height.
-        orientation : str, optional
-            View of the exported plot. Options are ``isometric``,
-            ``top``, ``bottom``, ``right``, ``left``, ``front``,
-            ``back``, and any custom orientation.
-        display_wireframe : bool, optional
-            Set to ``True`` if the objects has to be put in wireframe mode.
-
-        Returns
-        -------
-        str
-            Full path to exported file if successful.
-
-        References
-        ----------
-
-        >>> oModule.ExportPlotImageToFile
-        >>> oModule.ExportPlotImageWithViewToFile
-        """
-        self.oField.UpdateQuantityFieldsPlots(self.plotFolder)
-        if not full_path:
-            full_path = os.path.join(self._postprocessor._app.working_directory, self.name + ".png")
-        status = self._postprocessor.export_field_jpg(
-            full_path,
-            self.name,
-            self.plotFolder,
-            orientation=orientation,
-            width=width,
-            height=height,
-            display_wireframe=display_wireframe,
-        )
-        if status:
-            return full_path
-        else:
-            return False
-
-    @pyaedt_function_handler()
-    def export_image_from_aedtplt(
-        self, export_path=None, view="isometric", plot_mesh=False, scale_min=None, scale_max=None
-    ):
-        """Save an image of the active plot using PyVista.
-
-        .. note::
-            This method only works if the CPython with PyVista module is installed.
-
-        Parameters
-        ----------
-        export_path : str, optional
-            Path where image will be saved.
-            The default is ``None`` which export file in working_directory.
-        view : str, optional
-            View of the exported plot. Options are ``isometric``,
-            ``top``, ``front``, ``left``, and ``all``.
-        plot_mesh : bool, optional
-            Plot mesh.
-        scale_min : float, optional
-            Scale output min.
-        scale_max : float, optional
-            Scale output max.
-
-        Returns
-        -------
-        str
-            Full path to exported file if successful.
-
-        References
-        ----------
-
-        >>> oModule.UpdateAllFieldsPlots
-        >>> oModule.UpdateQuantityFieldsPlots
-        >>> oModule.ExportFieldPlot
-        """
-        if not export_path:
-            export_path = self._postprocessor._app.working_directory
-        if sys.version_info.major > 2:
-            return self._postprocessor.plot_field_from_fieldplot(
-                self.name,
-                project_path=export_path,
-                meshplot=plot_mesh,
-                imageformat="jpg",
-                view=view,
-                plot_label=self.quantityName,
-                show=False,
-                scale_min=scale_min,
-                scale_max=scale_max,
-            )
-        else:
-            self._postprocessor.logger.info("This method wors only on CPython with PyVista")
-            return False
 
 
 class PostProcessorCommon(object):
@@ -1434,9 +608,136 @@ class PostProcessorCommon(object):
 
     def __init__(self, app):
         self._app = app
-        self._oeditor = self.modeler.oeditor
-        self._oreportsetup = self._odesign.GetModule("ReportSetup")
-        self._scratch = Scratch(self._app.temp_directory, volatile=True)
+        self.oeditor = self.modeler.oeditor
+        self._scratch = self._app.working_directory
+        self.plots = self._get_plot_inputs()
+        self.reports_by_category = Reports(self, self._app.design_type)
+
+    @property
+    def available_report_types(self):
+        """Report types.
+
+        References
+        ----------
+
+        >>> oModule.GetAvailableReportTypes
+        """
+        return list(self.oreportsetup.GetAvailableReportTypes())
+
+    @pyaedt_function_handler()
+    def available_display_types(self, report_category=None):
+        """Retrieve display types for a report categories.
+
+        Parameters
+        ----------
+        report_category : str, optional
+            Type of the report. The default value is ``None``.
+
+        Returns
+        -------
+        list
+            List of available report categories.
+
+        References
+        ----------
+        >>> oModule.GetAvailableDisplayTypes
+        """
+        if not report_category:
+            report_category = self.available_report_types[0]
+        if report_category:
+            return list(self.oreportsetup.GetAvailableDisplayTypes(report_category))
+        return []
+
+    @pyaedt_function_handler()
+    def available_quantities_categories(self, report_category=None, display_type=None, solution=None, context=""):
+        """Compute the list of all available report categories.
+
+        Parameters
+        ----------
+        report_category : str, optional
+            Report Category. Default is `None` which will take first default category.
+        display_type : str, optional
+            Report Display Type.
+            Default is `None` which will take first default type which is in most of the case "Rectangular Plot".
+        solution : str, optional
+            Report Setup. Default is `None` which will take first nominal_adpative solution.
+        context : str, optional
+            Report Category. Default is `""` which will take first default context.
+
+        Returns
+        -------
+        list
+        """
+        if not report_category:
+            report_category = self.available_report_types[0]
+        if not display_type:
+            display_type = self.available_display_types(report_category)[0]
+        if not solution:
+            solution = self._app.nominal_adaptive
+        if solution and report_category and display_type:
+            return list(self.oreportsetup.GetAllCategories(report_category, display_type, solution, context))
+        return []
+
+    @pyaedt_function_handler()
+    def available_report_quantities(
+        self, report_category=None, display_type=None, solution=None, quantities_category=None, context=""
+    ):
+        """Compute the list of all available report quantities of a given report quantity category.
+
+        Parameters
+        ----------
+        report_category : str, optional
+            Report Category. Default is `None` which will take first default category.
+        display_type : str, optional
+            Report Display Type.
+            Default is `None` which will take first default type which is in most of the case "Rectangular Plot".
+        solution : str, optional
+            Report Setup. Default is `None` which will take first nominal_adpative solution.
+        quantities_category : str, optional
+            The category to which quantities belong. It has to be one of `available_quantities_categories` method.
+            Default is `None` which will take first default quantity.".
+        context : str, optional
+            Report Category. Default is `""` which will take first default context.
+
+        Returns
+        -------
+        list
+        """
+        if not report_category:
+            report_category = self.available_report_types[0]
+        if not display_type:
+            display_type = self.available_display_types(report_category)[0]
+        if not solution:
+            solution = self._app.nominal_adaptive
+        if not quantities_category:
+            categories = self.available_quantities_categories(report_category, display_type, solution, context)
+            quantities_category = categories[0] if categories else None
+        if quantities_category and display_type and report_category and solution:
+            return list(
+                self.oreportsetup.GetAllQuantities(
+                    report_category, display_type, solution, context, quantities_category
+                )
+            )
+        return None
+
+    @pyaedt_function_handler()
+    def _get_plot_inputs(self):
+        names = self._app.get_oo_name(self.oreportsetup)
+        plots = []
+        if names:
+            for name in names:
+                obj = self._app.get_oo_object(self.oreportsetup, name)
+                report_type = obj.GetPropValue("Report Type")
+
+                if report_type in TEMPLATES_BY_NAME:
+                    report = TEMPLATES_BY_NAME[report_type]
+                else:
+                    report = rt.Standard
+                plots.append(report(self, report_type, None))
+                plots[-1].plot_name = name
+                plots[-1]._is_created = True
+                plots[-1].report_type = obj.GetPropValue("Display Type")
+        return plots
 
     @property
     def oreportsetup(self):
@@ -1451,7 +752,7 @@ class PostProcessorCommon(object):
 
         >>> oDesign.GetModule("ReportSetup")
         """
-        return self._oreportsetup
+        return self._app.oreportsetup
 
     @property
     def logger(self):
@@ -1605,7 +906,7 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        pyaedt.modules.PostProcessor.SolutionData
+        pyaedt.modules.solutions.SolutionData
 
         References
         ----------
@@ -1801,7 +1102,7 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        pyaedt.modules.PostProcessor.SolutionData
+        pyaedt.modules.solutions.SolutionData
 
 
         References
@@ -1818,12 +1119,15 @@ class PostProcessorCommon(object):
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_adaptive
         sweep_list = _convert_dict_to_report_sel(sweeps)
-
-        data = list(
-            self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression)
-        )
-        self.logger.info("Solution Data Correctly Loaded.")
-        return SolutionData(data)
+        try:
+            data = list(
+                self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression)
+            )
+            self.logger.info("Solution Data Correctly Loaded.")
+            return SolutionData(data)
+        except:
+            self.logger.warning("Solution Data failed to load. Check solution, context or expression.")
+            return None
 
     @pyaedt_function_handler()
     def steal_focus_oneditor(self):
@@ -1842,8 +1146,8 @@ class PostProcessorCommon(object):
         self._desktop.RestoreWindow()
         param = ["NAME:SphereParameters", "XCenter:=", "0mm", "YCenter:=", "0mm", "ZCenter:=", "0mm", "Radius:=", "1mm"]
         attr = ["NAME:Attributes", "Name:=", "DUMMYSPHERE1", "Flags:=", "NonModel#"]
-        self._oeditor.CreateSphere(param, attr)
-        self._oeditor.Delete(["NAME:Selections", "Selections:=", "DUMMYSPHERE1"])
+        self.oeditor.CreateSphere(param, attr)
+        self.oeditor.Delete(["NAME:Selections", "Selections:=", "DUMMYSPHERE1"])
         return True
 
     @pyaedt_function_handler()
@@ -1881,7 +1185,7 @@ class PostProcessorCommon(object):
         >>> oModule.ExportReportDataToFile
         >>> oModule.ExportToFile
         """
-        npath = os.path.normpath(output_dir)
+        npath = output_dir
 
         if "." not in extension:
             extension = "." + extension
@@ -1953,7 +1257,7 @@ class PostProcessorCommon(object):
         >>> oModule.ExportImageToFile
         """
         # path
-        npath = os.path.normpath(project_dir)
+        npath = project_dir
         file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
         self.oreportsetup.ExportImageToFile(plot_name, file_name, 0, 0)
         return True
@@ -2172,7 +1476,7 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        bool
+        :class:`pyaedt.modules.report_templates.Standard`
             ``True`` when successful, ``False`` when failed.
 
 
@@ -2215,33 +1519,78 @@ class PostProcessorCommon(object):
         ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
         ... )
         """
-
-        out = self._get_report_inputs(
-            expressions=expressions,
-            setup_sweep_name=setup_sweep_name,
-            domain=domain,
-            variations=variations,
-            primary_sweep_variable=primary_sweep_variable,
-            secondary_sweep_variable=secondary_sweep_variable,
-            report_category=report_category,
-            plot_type=plot_type,
-            context=context,
-            subdesign_id=subdesign_id,
-            polyline_points=polyline_points,
-            plotname=plotname,
-        )
-        if not out:
+        if domain in ["Spectral", "Spectrum"]:
+            report_category = "Spectrum"
+        elif not report_category and not self._app.design_solutions.report_type:
+            self.logger.error("Solution not supported")
             return False
-        self.oreportsetup.CreateReport(
-            out[0],
-            out[1],
-            out[2],
-            out[3],
-            out[4],
-            _convert_dict_to_report_sel(out[5]),
-            out[6],
-        )
-        return True
+        elif not report_category:
+            report_category = self._app.design_solutions.report_type
+        if report_category in TEMPLATES_BY_NAME:
+            report_class = TEMPLATES_BY_NAME[report_category]
+        elif "Fields" in report_category:
+            report_class = TEMPLATES_BY_NAME["Fields"]
+        else:
+            report_class = TEMPLATES_BY_NAME["Standard"]
+        if not setup_sweep_name:
+            setup_sweep_name = self._app.nominal_sweep
+        report = report_class(self, report_category, setup_sweep_name)
+        report.expressions = expressions
+        report.domain = domain
+        if primary_sweep_variable:
+            report.primary_sweep = primary_sweep_variable
+        if secondary_sweep_variable:
+            report.secondary_sweep = secondary_sweep_variable
+        if variations:
+            report.variations = variations
+        report.report_type = plot_type
+        report.sub_design_id = subdesign_id
+        report.point_number = polyline_points
+        if context == "Differential Pairs":
+            report.differential_pairs = True
+        elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
+            report.matrix = context
+        elif report_category == "Far Fields":
+            if not context and self._app._field_setups:
+                report.far_field_sphere = self._app.field_setups[0].name
+            else:
+                report.far_field_sphere = context
+        elif report_category == "Near Fields":
+            report.near_field = context
+        elif context:
+            if context in self.modeler.line_names:
+                report.polyline = context
+
+        result = report.create(plotname)
+        if result:
+            return report
+        return False
+        # out = self._get_report_inputs(
+        #     expressions=expressions,
+        #     setup_sweep_name=setup_sweep_name,
+        #     domain=domain,
+        #     variations=variations,
+        #     primary_sweep_variable=primary_sweep_variable,
+        #     secondary_sweep_variable=secondary_sweep_variable,
+        #     report_category=report_category,
+        #     plot_type=plot_type,
+        #     context=context,
+        #     subdesign_id=subdesign_id,
+        #     polyline_points=polyline_points,
+        #     plotname=plotname,
+        # )
+        # if not out:
+        #     return False
+        # self.oreportsetup.CreateReport(
+        #     out[0],
+        #     out[1],
+        #     out[2],
+        #     out[3],
+        #     out[4],
+        #     _convert_dict_to_report_sel(out[5]),
+        #     out[6],
+        # )
+        # return True
 
     @pyaedt_function_handler()
     def get_solution_data(
@@ -2277,22 +1626,20 @@ class PostProcessorCommon(object):
             The report category will be in this case "Far Fields".
             Depending on the setup different categories are available.
             If `None` default category will be used (the first item in the Results drop down menu in AEDT).
-        context : str, optional
+        context : str, dict, optional
             The default is ``None``. It can be `None`, `"Differential Pairs"` or
             Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
+            If dictionary is passed, key is the report property name and value is property value.
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
-        context : str, optional
-            The default is ``None``. It can be `None`, `"Differential Pairs"` or
-            Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
         polyline_points : int, optional,
             Number of points on which create the report for plots on polylines.
 
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.SolutionData`
+        :class:`pyaedt.modules.solutions.SolutionData`
             `Solution Data object.
 
 
@@ -2335,27 +1682,111 @@ class PostProcessorCommon(object):
         ... )
         >>> data3.plot("InputCurrent(PHA)")
 
+        >>> from pyaedt import Circuit
+        >>> circuit = Circuit()
+        >>> context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "2.5us", "time_start": "0ps"}
+        >>> spectralPlotData = circuit.post.get_solution_data(
+        ...     expressions="V(Vprobe1)", primary_sweep_variable="Spectrum", domain="Spectral",
+        ...     context=context
+        ...)
         """
-        out = self._get_report_inputs(
-            expressions=expressions,
-            setup_sweep_name=setup_sweep_name,
-            domain=domain,
-            variations=variations,
-            primary_sweep_variable=primary_sweep_variable,
-            report_category=report_category,
-            context=context,
-            subdesign_id=subdesign_id,
-            polyline_points=polyline_points,
-            only_get_method=True,
-        )
-
-        solution_data = self.get_solution_data_per_variation(out[1], out[3], out[4], out[5], expressions)
-        if primary_sweep_variable:
-            solution_data.primary_sweep = primary_sweep_variable
-        if not solution_data:
-            warnings.warn("No Data Available. Check inputs")
+        if domain in ["Spectral", "Spectrum"]:
+            report_category = "Spectrum"
+        if not report_category and not self._app.design_solutions.report_type:
+            self.logger.error("Solution not supported")
             return False
+        elif not report_category:
+            report_category = self._app.design_solutions.report_type
+        if report_category in TEMPLATES_BY_NAME:
+            report_class = TEMPLATES_BY_NAME[report_category]
+        elif "Fields" in report_category:
+            report_class = TEMPLATES_BY_NAME["Fields"]
+        else:
+            report_class = TEMPLATES_BY_NAME["Standard"]
+        if not setup_sweep_name:
+            setup_sweep_name = self._app.nominal_sweep
+        report = report_class(self, report_category, setup_sweep_name)
+        report.expressions = expressions
+        report.domain = domain
+        if primary_sweep_variable:
+            report.primary_sweep = primary_sweep_variable
+        if variations:
+            report.variations = variations
+        report.sub_design_id = subdesign_id
+        report.point_number = polyline_points
+        if context == "Differential Pairs":
+            report.differential_pairs = True
+        elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
+            report.matrix = context
+        elif report_category == "Far Fields":
+            if not context and self._app.field_setups:
+                report.far_field_sphere = self._app.field_setups[0].name
+            else:
+                report.far_field_sphere = context
+        elif report_category == "Near Fields":
+            report.near_field = context
+        elif context and isinstance(context, dict):
+            for attribute in context:
+                if hasattr(report, attribute):
+                    report.__setattr__(attribute, context[attribute])
+                else:
+                    self.logger.warning("Parameter " + attribute + " is not available, check syntax.")
+        elif context:
+            if hasattr(self.modeler, "line_names") and context in self.modeler.line_names:
+                report.polyline = context
+        solution_data = report.get_solution_data()
         return solution_data
+
+    @pyaedt_function_handler()
+    def create_report_from_configuration(self, input_file=None, input_dict=None, solution_name=None):
+        """Create a new report based on json file or dictionary of properties.
+
+        Parameters
+        ----------
+        input_file : str, optional
+            Path to a json file containing report settings.
+        input_dict : dict, optional
+            Dictionary containing report settings.
+        solution_name : setup name to use.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.Standard`
+            Report object if succeeded.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> aedtapp.post.create_report_from_configuration(r'C:\temp\my_report.json',
+        ...                                               solution_name="Setup1 : LastAdpative")
+        """
+        if not input_dict and not input_file:  # pragma: no cover
+            self.logger.error("Either one of a json file or a dictionary has to be passed as input.")
+            return False
+        if input_file:
+            props = json_to_dict(input_file)
+        else:
+            props = input_dict
+        if not solution_name:
+            solution_name = self._app.nominal_sweep
+        if props.get("report_category", None) and props["report_category"] in TEMPLATES_BY_NAME:
+            report_temp = TEMPLATES_BY_NAME[props["report_category"]]
+            report = report_temp(self, props["report_category"], solution_name)
+            for k, v in props.items():
+                report.props[k] = v
+            for el, k in self._app.available_variations.nominal_w_values_dict.items():
+                if (
+                    report.props.get("context", None)
+                    and report.props["context"].get("variations", None)
+                    and el not in report.props["context"]["variations"]
+                ):
+                    report.props["context"]["variations"][el] = k
+            report.create()
+            report._update_traces()
+            return report
+        return False  # pragma: no cover
 
 
 class PostProcessor(PostProcessorCommon, object):
@@ -2388,7 +1819,6 @@ class PostProcessor(PostProcessorCommon, object):
     def __init__(self, app):
         self._app = app
         self._post_osolution = self._app.osolution
-        self._ofieldsreporter = self._odesign.GetModule("FieldsReporter")
         self.field_plots = self._get_fields_plot()
         PostProcessorCommon.__init__(self, app)
 
@@ -2413,7 +1843,7 @@ class PostProcessor(PostProcessorCommon, object):
         str
            Model units, such as ``"mm"``.
         """
-        return _retry_ntimes(10, self._oeditor.GetModelUnits)
+        return _retry_ntimes(10, self.oeditor.GetModelUnits)
 
     @property
     def post_osolution(self):
@@ -2439,38 +1869,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oDesign.GetModule("FieldsReporter")
         """
-        return self._ofieldsreporter
-
-    @property
-    def report_types(self):
-        """Report types.
-
-        References
-        ----------
-
-        >>> oModule.GetAvailableReportTypes
-        """
-        return list(self.oreportsetup.GetAvailableReportTypes())
-
-    @pyaedt_function_handler()
-    def display_types(self, report_type):
-        """Retrieve display types for a report type.
-
-        Parameters
-        ----------
-        report_type : str
-            Type of the report.
-
-        Returns
-        -------
-        :attr:`pyaedt.modules.PostProcessor.PostProcessor.report_types`
-
-        References
-        ----------
-
-        >>> oModule.GetAvailableDisplayTypes
-        """
-        return self.oreportsetup.GetAvailableDisplayTypes(report_type)
+        return self._app.ofieldsreporter
 
     @pyaedt_function_handler()
     def _get_base_name(self, setup):
@@ -2484,7 +1883,11 @@ class PostProcessor(PostProcessorCommon, object):
             if isinstance(sim_data["SimSetup"], list):
                 for solution in sim_data["SimSetup"]:
                     base_name = solution["Name"]
-                    for sol in solution["Solution"]:
+                    if isinstance(solution["Solution"], (dict, OrderedDict)):
+                        sols = [solution["Solution"]]
+                    else:
+                        sols = solution["Solution"]
+                    for sol in sols:
                         if sol["ID"] == setups_data[setup]["SolutionId"]:
                             base_name += " : " + sol["Name"]
                             return base_name
@@ -2769,8 +2172,8 @@ class PostProcessor(PostProcessorCommon, object):
         file_name = os.path.join(self._app.working_directory, generate_unique_name("temp_fld") + ".fld")
         self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation_dict)
         value = None
-        if os.path.exists(file_name):
-            with open(file_name, "r") as f:
+        if os.path.exists(file_name) or settings.remote_rpc_session:
+            with open_file(file_name, "r") as f:
                 lines = f.readlines()
                 lines = [line.strip() for line in lines]
                 value = lines[-1]
@@ -3040,7 +2443,7 @@ class PostProcessor(PostProcessorCommon, object):
             )
         else:
             sample_points_file = os.path.join(self._app.working_directory, "temp_points.pts")
-            with open(sample_points_file, "w") as f:
+            with open_file(sample_points_file, "w") as f:
                 for point in sample_points_lists:
                     f.write(" ".join([str(i) for i in point]) + "\n")
             _retry_ntimes(
@@ -3261,7 +2664,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        type
+        :class:``pyaedt.modules.solutions.FieldPlot``
             Plot object.
 
         References
@@ -3272,7 +2675,15 @@ class PostProcessor(PostProcessorCommon, object):
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
-        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "FacesList", plot_name)
+        if not isinstance(objlist, (list, tuple)):
+            objlist = [objlist]
+        new_obj_list = []
+        for objs in objlist:
+            if self._app.modeler[objs]:
+                new_obj_list.extend([i.id for i in self._app.modeler[objs].faces])
+            else:
+                new_obj_list.append(objs)
+        return self._create_fieldplot(new_obj_list, quantityName, setup_name, intrinsincDict, "FacesList", plot_name)
 
     @pyaedt_function_handler()
     def create_fieldplot_cutplane(self, objlist, quantityName, setup_name=None, intrinsincDict={}, plot_name=None):
@@ -3296,7 +2707,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :class:``pyaedt.modules.PostProcessor.FieldPlot``
+        :class:``pyaedt.modules.solutions.FieldPlot``
             Plot object.
 
         References
@@ -3331,7 +2742,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :class:``pyaedt.modules.PostProcessor.FieldPlot``
+        :class:``pyaedt.modules.solutions.FieldPlot``
             Plot object
 
         References
@@ -3373,7 +2784,7 @@ class PostProcessor(PostProcessorCommon, object):
         ----------
 
         >>> oModule.ExportPlotImageToFile
-        >>> oModule.ExportPlotImageWithViewToFile
+        >>> oModule.ExportModelImageToFile
         """
         if self.post_solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
             wireframes = []
@@ -3395,19 +2806,29 @@ class PostProcessor(PostProcessorCommon, object):
                 self.ofieldsreporter.ExportPlotImageToFile(fileName, foldername, plotName, cs.name)
                 cs.delete()
             else:
-                self.ofieldsreporter.ExportPlotImageWithViewToFile(
-                    fileName, foldername, plotName, width, height, orientation
+
+                self.export_model_picture(
+                    full_name=fileName, width=width, height=height, orientation=orientation, field_selections=plotName
                 )
+                # self.ofieldsreporter.ExportPlotImageWithViewToFile(
+                #     fileName, foldername, plotName, width, height, orientation
+                # )
 
             for solid in wireframes:
                 self._primitives[solid].display_wireframe = False
         else:
-            self._oeditor.ExportImage(fileName, 1920, 1080)
+            self.ofieldsreporter.ExportPlotImageWithViewToFile(
+                fileName, foldername, plotName, width, height, orientation
+            )
+        # self.oeditor.ExportImage(fileName, 1920, 1080)
         return True
 
     @pyaedt_function_handler()
     def export_field_image_with_view(self, plotName, foldername, exportFilePath, view="isometric", wireframe=True):
         """Export a field plot image with a view.
+
+        .. deprecated:: 0.5.0
+           Use :func:`export_field_jpg` method instead.
 
         .. note::
            For AEDT 2019 R3, this method works only on the ISO view due to a bug in the API.
@@ -3435,8 +2856,12 @@ class PostProcessor(PostProcessorCommon, object):
         ----------
 
         >>> oModule.ExportPlotImageToFile
-        >>> oModule.ExportPlotImageWithViewToFile
+        >>> oModule.ExportModelImageToFile
         """
+        warnings.warn(
+            "`export_field_image_with_view` is deprecated. Use `export_field_jpg` property instead.", DeprecationWarning
+        )
+
         return self.export_field_jpg(
             exportFilePath, plotName, foldername, orientation=view, display_wireframe=wireframe
         )
@@ -3466,7 +2891,17 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler()
     def export_model_picture(
-        self, dir=None, name=None, picturename=None, show_axis=True, show_grid=True, show_ruler=True
+        self,
+        full_name=None,
+        show_axis=True,
+        show_grid=True,
+        show_ruler=True,
+        show_region="Default",
+        selections=None,
+        field_selections=None,
+        orientation="isometric",
+        width=0,
+        height=0,
     ):
         """Export a snapshot of the model to a JPG file.
 
@@ -3475,20 +2910,28 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        dir : str, optional
-            Path for exporting the JPG file. The default is ``None``, in which case
-            an internal volatile scratch in the ``temp`` directory is used.
-        name : str, optional
-            Name of the project, which is used to compose the directory path.
-        picturename : str, optional
-            Name of the JPG file. The default is ``None``, in which case the default
-            name is assigned. The extension ``".jpg"`` is added automatically.
+        full_name : str, optional
+            Full Path for exporting the image file. The default is ``None``, in which case working_dir will be used.
         show_axis : bool, optional
             Whether to show the axes. The default is ``True``.
         show_grid : bool, optional
             Whether to show the grid. The default is ``True``.
         show_ruler : bool, optional
             Whether to show the ruler. The default is ``True``.
+        show_region : bool, optional
+            Whether to show the region or not. The default is ``Default``.
+        selections : list, optional
+            Whether to export image of a selection or not. Default is `None`.
+        field_selections : str, list, optional
+            List of Fields plots to add to the image. Default is `None`. `"all"` for all field plots.
+        orientation : str, optional
+            Picture orientation. Orientation can be one of `"top"`, `"bottom"`, `"right"`, `"left"`,
+            `"front"`, `"back"`, `"trimetric"`, `"dimetric"`, `"isometric"`, or a custom
+            orientation that you added to the Orientation List.
+        width : int, optional
+            Export image picture width size in pixels. Default is 0 which takes the desktop size.
+        height : int, optional
+            Export image picture height size in pixels. Default is 0 which takes the desktop size.
 
         Returns
         -------
@@ -3501,49 +2944,54 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oEditor.ExportModelImageToFile
         """
         # Set up arguments list for createReport function
-        if not dir:
-            dir = self._scratch.path
-            self.logger.debug("Using scratch path {}".format(self._scratch.path))
-
-        assert os.path.exists(dir), "Specified directory does not exist: {}".format(dir)
-
-        if name:
-            project_subdirectory = os.path.join(dir, name)
-            if not os.path.exists(project_subdirectory):
-                os.mkdir(project_subdirectory)
-            file_path = os.path.join(project_subdirectory, "Pictures")
-            if not os.path.exists(file_path):
-                os.mkdir(file_path)
+        if selections:
+            selections = self.modeler.convert_to_selections(selections, False)
         else:
-            file_path = dir
-
-        if not picturename:
-            picturename = generate_unique_name("image")
-        else:
-            if picturename.endswith(".jpg"):
-                picturename = picturename[:-4]
+            selections = ""
+        if not full_name:
+            full_name = os.path.join(self._app.working_directory, generate_unique_name(self._app.design_name) + ".jpg")
 
         # open the 3D modeler and remove the selection on other objects
-        self._oeditor.ShowWindow()
-        self.steal_focus_oneditor()
-        self._oeditor.FitAll()
+        if self._app.design_type not in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
+            self.oeditor.ShowWindow()
+            self.steal_focus_oneditor()
+        self.modeler.fit_all()
         # export the image
+        if field_selections:
+            if isinstance(field_selections, str):
+                if field_selections.lower() == "all":
+                    field_selections = [""]
+                else:
+                    field_selections = [field_selections]
+
+        else:
+            field_selections = ["none"]
         arg = [
             "NAME:SaveImageParams",
             "ShowAxis:=",
-            show_axis,
+            str(show_axis),
             "ShowGrid:=",
-            show_grid,
+            str(show_grid),
             "ShowRuler:=",
-            show_ruler,
+            str(show_ruler),
             "ShowRegion:=",
-            "Default",
+            str(show_region),
             "Selections:=",
-            "",
+            selections,
+            "FieldPlotSelections:=",
+            ",".join(field_selections),
+            "Orientation:=",
+            orientation,
         ]
-        file_name = os.path.join(file_path, picturename + ".jpg")
-        self._oeditor.ExportModelImageToFile(file_name, 0, 0, arg)
-        return file_name
+        if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Maxwell Circuit", "Twin Builder"]:
+            if width == 0:
+                width = 1920
+            if height == 0:
+                height = 1080
+            self.oeditor.ExportImage(full_name, width, height)
+        else:
+            self.oeditor.ExportModelImageToFile(full_name, width, height, arg)
+        return full_name
 
     @pyaedt_function_handler()
     def get_far_field_data(
@@ -3569,7 +3017,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.SolutionData`
+        :class:`pyaedt.modules.solutions.SolutionData`
 
         References
         ----------
@@ -3610,7 +3058,8 @@ class PostProcessor(PostProcessorCommon, object):
         list
             Files obj path.
         """
-
+        if obj_list and not isinstance(obj_list, (list, tuple)):
+            obj_list = [obj_list]
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
         if not export_path:
             export_path = self._app.working_directory
@@ -3632,8 +3081,15 @@ class PostProcessor(PostProcessorCommon, object):
             for el in obj_list:
                 fname = os.path.join(export_path, "{}.obj".format(el))
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
+                if settings.remote_rpc_session_temp_folder:
+                    local_path = "{}/{}".format(settings.remote_rpc_session_temp_folder, "{}.obj".format(el))
+                    fname = check_and_download_file(local_path, fname)
+
                 if not self._app.modeler[el].display_wireframe:
-                    files_exported.append([fname, self._app.modeler[el].color, 1 - self._app.modeler[el].transparency])
+                    transp = 0.6
+                    if self._app.modeler[el].transparency:
+                        transp = self._app.modeler[el].transparency
+                    files_exported.append([fname, self._app.modeler[el].color, 1 - transp])
                 else:
                     files_exported.append([fname, self._app.modeler[el].color, 0.05])
             return files_exported

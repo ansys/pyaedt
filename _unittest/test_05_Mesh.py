@@ -43,6 +43,8 @@ class TestClass(BasisTest, object):
         surface = self.aedtapp.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3, meshop_name="Surface_Manual")
         assert "Surface_Manual" in [i.name for i in self.aedtapp.mesh.meshoperations]
         assert surface.props["SurfDev"] == 1e-6
+        surface["SurfDev"] = 1e-5
+        assert surface.props["SurfDev"] == 1e-5
         assert surface.props["AspectRatioChoice"] == 2
 
         cylinder_zx = self.aedtapp.modeler.create_cylinder(

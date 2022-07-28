@@ -9,24 +9,27 @@ from __future__ import absolute_import  # noreorder
 
 import os
 import shutil
+import tempfile
 import threading
 import warnings
 from collections import OrderedDict
 
+from pyaedt import settings
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
 from pyaedt.generic.constants import AXIS
-from pyaedt.generic.constants import CoordinateSystemAxis
-from pyaedt.generic.constants import CoordinateSystemPlane
 from pyaedt.generic.constants import GRAVITY
-from pyaedt.generic.constants import GravityDirection
 from pyaedt.generic.constants import PLANE
-from pyaedt.generic.constants import Plane
 from pyaedt.generic.constants import SETUPS
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.constants import VIEW
+from pyaedt.generic.constants import CoordinateSystemAxis
+from pyaedt.generic.constants import CoordinateSystemPlane
+from pyaedt.generic.constants import GravityDirection
+from pyaedt.generic.constants import Plane
 from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import OptimizationSetups
@@ -69,6 +72,9 @@ class Analysis(Design, object):
         Whether to release  AEDT on exit.
     student_version : bool
         Whether to enable the student version of AEDT.
+    aedt_process_id : int, optional
+        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        of Electronics Desktop to point PyAEDT at.
 
     """
 
@@ -84,6 +90,9 @@ class Analysis(Design, object):
         new_desktop_session,
         close_on_exit,
         student_version,
+        machine="",
+        port=0,
+        aedt_process_id=None,
     ):
         self.setups = []
         Design.__init__(
@@ -97,33 +106,24 @@ class Analysis(Design, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
+            aedt_process_id,
         )
-
         self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:
             self.analysis_setup = setup_name
-        self.solution_type = solution_type
         self._materials = Materials(self)
         self.logger.info("Materials Loaded")
         self._available_variations = self.AvailableVariations(self)
-        if "HFSS 3D Layout Design" in self.design_type:
-            self._oanalysis = self._odesign.GetModule("SolveSetups")
-        elif "EMIT" in self.design_type or "Maxwell Circuit" in self.design_type:
-            self._oanalysis = None
-        elif "Circuit Design" in self.design_type or "Twin Builder" in self.design_type:
-            self._oanalysis = self._odesign.GetModule("SimSetup")
-        else:
-            self._oanalysis = self._odesign.GetModule("AnalysisSetup")
 
         if self.design_type != "Maxwell Circuit":
-            self._ooptimetrics = self._odesign.GetModule("Optimetrics")
-            self._ooutput_variable = self._odesign.GetModule("OutputVariable")
             self.setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
 
         self.parametrics = ParametricSetups(self)
         self.optimizations = OptimizationSetups(self)
-        self.native_components = self._get_native_data()
+        self._native_components = []
         self.SOLUTIONS = SOLUTIONS()
         self.SETUPS = SETUPS()
         self.AXIS = AXIS()
@@ -132,39 +132,16 @@ class Analysis(Design, object):
         self.GRAVITY = GRAVITY()
 
     @property
-    def ooptimetrics(self):
-        """AEDT Optimetrics Module.
+    def native_components(self):
+        """Native Component dictionary.
 
-        References
-        ----------
-
-        >>> oDesign.GetModule("Optimetrics")
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modules.Boundaries.NativeComponentObject`]
         """
-        return self._ooptimetrics
-
-    @property
-    def ooutput_variable(self):
-        """AEDT Output Variable Module.
-
-        References
-        ----------
-
-        >>> oDesign.GetModule("OutputVariable")
-        """
-        return self._ooutput_variable
-
-    @property
-    def oanalysis(self):
-        """Analysis AEDT Module.
-
-        References
-        ----------
-
-        >>> oDesign.GetModule("SolveSetups")
-        >>> oDesign.GetModule("SimSetup")
-        >>> oDesign.GetModule("AnalysisSetup")
-        """
-        return self._oanalysis
+        if not self._native_components:
+            self._native_components = self._get_native_data()
+        return self._native_components
 
     @property
     def output_variables(self):
@@ -363,18 +340,19 @@ class Analysis(Design, object):
             sweep_list.reverse()
         else:
             for el in setup_list:
-                if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
-                    sweeps = self.oanalysis.GelAllSolutionNames()
+                sweeps = []
+                setuptype = self.design_solutions.default_adaptive
+                if setuptype:
+                    sweep_list.append(el + " : " + setuptype)
                 else:
-                    setuptype = self.design_solutions.default_adaptive
-                    if setuptype:
-                        sweep_list.append(el + " : " + setuptype)
-                    else:
-                        sweep_list.append(el)
-                try:
-                    sweeps = list(self.oanalysis.GetSweeps(el))
-                except:
-                    sweeps = []
+                    sweep_list.append(el)
+                if self.design_type in ["HFSS 3D Layout Design"]:
+                    sweeps = self.oanalysis.GelAllSolutionNames()
+                elif self.solution_type not in ["Eigenmode"]:
+                    try:
+                        sweeps = list(self.oanalysis.GetSweeps(el))
+                    except:
+                        sweeps = []
                 for sw in sweeps:
                     if el + " : " + sw not in sweep_list:
                         sweep_list.append(el + " : " + sw)
@@ -538,14 +516,14 @@ class Analysis(Design, object):
         get_mutual_terms : bool, optional
             Whether to return mutual terms. The default is ``True``.
         first_element_filter : str, optional
-            Filter to apply to the first element of the equation. This parameter accepts ``*``
-            and ``?`` as special characters. The default is ``None``.
+            Filter to apply to the first element of the equation.
+            This parameter accepts ``*`` and ``?`` as special characters. The default is ``None``.
         second_element_filter : str, optional
-            Filter to apply to the second element of the equation. This parameter accepts ``*``
-            and ``?`` as special characters. The default is ``None``.
+            Filter to apply to the second element of the equation.
+            This parameter accepts ``*`` and ``?`` as special characters. The default is ``None``.
         category : str
-            Plot category name as in the report (including operator). The default is ``"dB(S"`,
-            which is the plot category name for capacitance.
+            Plot category name as in the report (including operator).
+            The default is ``"dB(S"``,  which is the plot category name for capacitance.
 
         Returns
         -------
@@ -803,6 +781,8 @@ class Analysis(Design, object):
 
         >>> oModule.ExportConvergence
         """
+        if " : " in setup_name:
+            setup_name = setup_name.split(" : ")[0]
         if not file_path:
             file_path = os.path.join(self.working_directory, generate_unique_name("Convergence") + ".prop")
         if not variation_string:
@@ -925,21 +905,20 @@ class Analysis(Design, object):
 
             >>> oModule.GetAvailableVariations
             """
-            if not setup_sweep:
-                setup_sweep = self._app.existing_analysis_sweeps[0]
-            vs = self._app.osolution.GetAvailableVariations(setup_sweep)
+            vs = self.get_variation_strings(setup_sweep)
             families = []
-            for v in vs:
-                variations = v.split(" ")
-                family = []
-                for el in self.variables:
-                    family.append(el + ":=")
-                    i = 0
-                    while i < len(variations):
-                        if variations[i][0 : len(el)] == el:
-                            family.append([variations[i][len(el) + 2 : -1]])
-                        i += 1
-                families.append(family)
+            if vs:
+                for v in vs:
+                    variations = v.split(" ")
+                    family = []
+                    for el in self.variables:
+                        family.append(el + ":=")
+                        i = 0
+                        while i < len(variations):
+                            if variations[i][0 : len(el)] == el:
+                                family.append([variations[i][len(el) + 2 : -1]])
+                            i += 1
+                    families.append(family)
             return families
 
         @pyaedt_function_handler()
@@ -986,24 +965,14 @@ class Analysis(Design, object):
             >>> oDesign.GetVariableValue
             >>> oDesign.GetNominalVariation"""
             families = []
-            if self._app.design_type == "HFSS 3D Layout Design":
-                if self._app._is_object_oriented_enabled():
-                    listvar = list(self._app._odesign.GetChildObject("Variables").GetChildNames())
-                else:
-                    listvar = list(self._app._odesign.GetVariables())
-                for el in listvar:
-                    families.append(el + ":=")
-                    families.append([self._app._odesign.GetVariableValue(el)])
-            else:
-                variation = self._app._odesign.GetNominalVariation()
-                for el in self.variables:
-                    families.append(el + ":=")
-                    families.append([self._app._odesign.GetVariationVariableValue(variation, el)])
+            for k, v in list(self._app.variable_manager.independent_variables.items()):
+                families.append(k + ":=")
+                families.append([v.expression])
             return families
 
         @property
         def nominal_w_values_dict(self):
-            """Nominal with values in a dictionary.
+            """Nominal independent with values in a dictionary.
 
             References
             ----------
@@ -1013,22 +982,31 @@ class Analysis(Design, object):
             >>> oDesign.GetVariableValue
             >>> oDesign.GetNominalVariation"""
             families = {}
-            if self._app.design_type in ["HFSS 3D Layout Design", "Circuit Design", "Twin Builder"]:
-                if self._app._is_object_oriented_enabled():
-                    listvar = list(self._app._odesign.GetChildObject("Variables").GetChildNames())
-                else:
-                    listvar = list(self._app._odesign.GetVariables())
-                for el in listvar:
-                    families[el] = self._app._odesign.GetVariableValue(el)
-            else:
-                variation = self._app._odesign.GetNominalVariation()
-                for el in self.variables:
-                    families[el] = self._app._odesign.GetVariationVariableValue(variation, el)
+            for k, v in list(self._app.variable_manager.independent_variables.items()):
+                families[k] = v.expression
+
+            return families
+
+        @property
+        def nominal_w_values_dict_w_dependent(self):
+            """Nominal  with values in a dictionary.
+
+            References
+            ----------
+
+            >>> oDesign.GetChildObject('Variables').GetChildNames
+            >>> oDesign.GetVariables
+            >>> oDesign.GetVariableValue
+            >>> oDesign.GetNominalVariation"""
+            families = {}
+            for k, v in list(self._app.variable_manager.variables.items()):
+                families[k] = v.expression
+
             return families
 
         @property
         def all(self):
-            """All."""
+            """List of all independent variables with `["All"]` value."""
             families = []
             for el in self.variables:
                 families.append(el + ":=")
@@ -1148,7 +1126,7 @@ class Analysis(Design, object):
         self.analyze_nominal()
 
     @pyaedt_function_handler()
-    def analyze_nominal(self, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None):
+    def analyze_nominal(self, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None, use_auto_settings=True):
         """Solve the nominal design.
 
         Parameters
@@ -1161,6 +1139,8 @@ class Analysis(Design, object):
             Number of simulation graphic processing units to use.
         acf_file : str, optional
             Full path to the custom ACF file.
+        use_auto_settings : bool, optional
+            Either if use or not auto settings in task/cores. It is not supported by all Setup.
 
         Returns
         -------
@@ -1173,7 +1153,7 @@ class Analysis(Design, object):
         >>> oDesign.Analyze
         """
 
-        return self.analyze_setup(self.analysis_setup, num_cores, num_tasks, num_gpu, acf_file)
+        return self.analyze_setup(self.analysis_setup, num_cores, num_tasks, num_gpu, acf_file, use_auto_settings)
 
     @pyaedt_function_handler()
     def generate_unique_setup_name(self, setup_name=None):
@@ -1244,7 +1224,7 @@ class Analysis(Design, object):
         ...
         pyaedt info: Sweep was created correctly.
         """
-        if props == None:
+        if props is None:
             props = {}
 
         if setuptype is None:
@@ -1357,7 +1337,7 @@ class Analysis(Design, object):
         return setup
 
     @pyaedt_function_handler()
-    def create_output_variable(self, variable, expression):
+    def create_output_variable(self, variable, expression, solution=None):
         """Create or modify an output variable.
 
 
@@ -1367,6 +1347,9 @@ class Analysis(Design, object):
             Name of the variable.
         expression :
             Value for the variable.
+        solution :
+            Name of the solution in the format `"setup_name : sweep_name"`.
+            If `None`, the first available solution is used. Default is `None`.
 
         Returns
         -------
@@ -1379,22 +1362,25 @@ class Analysis(Design, object):
         >>> oModule.CreateOutputVariable
         """
         oModule = self.ooutput_variable
+        if solution is None:
+            solution = self.existing_analysis_sweeps[0]
         if variable in self.output_variables:
-            oModule.EditOutputVariable(
-                variable, expression, variable, self.existing_analysis_sweeps[0], self.solution_type, []
-            )
+            oModule.EditOutputVariable(variable, expression, variable, solution, self.solution_type, [])
         else:
-            oModule.CreateOutputVariable(variable, expression, self.existing_analysis_sweeps[0], self.solution_type, [])
+            oModule.CreateOutputVariable(variable, expression, solution, self.solution_type, [])
         return True
 
     @pyaedt_function_handler()
-    def get_output_variable(self, variable):
+    def get_output_variable(self, variable, solution=None):
         """Retrieve the value of the output variable.
 
         Parameters
         ----------
         variable : str
             Name of the variable.
+        solution :
+            Name of the solution in the format `"setup_name : sweep_name"`.
+            If `None`, the first available solution is used. Default is `None`.
 
         Returns
         -------
@@ -1409,10 +1395,11 @@ class Analysis(Design, object):
         """
         assert variable in self.output_variables, "Output variable {} does not exist.".format(variable)
         nominal_variation = self.odesign.GetNominalVariation()
+        if solution is None:
+            solution = self.existing_analysis_sweeps[0]
         value = self.ooutput_variable.GetOutputVariableValue(
-            variable, nominal_variation, self.existing_analysis_sweeps[0], self.solution_type, []
+            variable, nominal_variation, solution, self.solution_type, []
         )
-
         return value
 
     @pyaedt_function_handler()
@@ -1458,7 +1445,7 @@ class Analysis(Design, object):
         return dict
 
     @pyaedt_function_handler()
-    def analyze_setup(self, name, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None):
+    def analyze_setup(self, name, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None, use_auto_settings=True):
         """Analyze a design setup.
 
         Parameters
@@ -1473,6 +1460,8 @@ class Analysis(Design, object):
             Number of simulation graphics processing units. The default is ``None.``
         acf_file : str, optional
             Full path to custom ACF file. The default is ``None.``
+        use_auto_settings : bool, optional
+            Either if use or not auto settings in task/cores. It is not supported by all Setup.
 
         Returns
         -------
@@ -1489,7 +1478,7 @@ class Analysis(Design, object):
         if acf_file:
             self._desktop.SetRegistryFromFile(acf_file)
             name = ""
-            with open(acf_file, "r") as f:
+            with open_file(acf_file, "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     if "ConfigName" in line:
@@ -1504,8 +1493,16 @@ class Analysis(Design, object):
         elif num_gpu or num_tasks or num_cores:
             config_name = "pyaedt_config"
             source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
-            target_name = os.path.join(self.working_directory, config_name + ".acf")
+            if settings.remote_rpc_session:
+                target_name = os.path.join(tempfile.gettempdir(), generate_unique_name("config") + ".acf")
+            else:
+                target_name = (
+                    os.path.join(self.working_directory, config_name + ".acf").replace("\\", "/")
+                    if self.working_directory[0] != "\\"
+                    else os.path.join(self.working_directory, config_name + ".acf")
+                )
             shutil.copy2(source_name, target_name)
+
             if num_cores:
                 update_hpc_option(target_name, "NumCores", num_cores, False)
             if num_gpu:
@@ -1515,7 +1512,18 @@ class Analysis(Design, object):
             update_hpc_option(target_name, "ConfigName", config_name, True)
             update_hpc_option(target_name, "DesignType", self.design_type, True)
             if self.design_type == "Icepak":
-                update_hpc_option(target_name, "UseAutoSettings", self.design_type, False)
+                use_auto_settings = False
+            update_hpc_option(target_name, "UseAutoSettings", self.design_type, use_auto_settings)
+
+            if settings.remote_rpc_session:
+                remote_name = (
+                    os.path.join(self.working_directory, config_name + ".acf").replace("\\", "/")
+                    if self.working_directory[0] != "\\"
+                    else os.path.join(self.working_directory, config_name + ".acf")
+                )
+                settings.remote_rpc_session.filemanager.upload(target_name, remote_name)
+                target_name = remote_name
+
             try:
                 self._desktop.SetRegistryFromFile(target_name)
                 self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name)
@@ -1644,20 +1652,24 @@ class Analysis(Design, object):
         project_path = self.project_path
         if not aedt_full_exe_path:
             version = self.odesktop.GetVersion()[2:6]
-            if os.path.exists(r"\\" + clustername + r"\AnsysEM\AnsysEM{}\Win64\ansysedt.exe".format(version)):
+            if version >= "22.2":
+                version_name = "v" + version.replace(".", "")
+            else:
+                version_name = "AnsysEM" + version
+            if os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Win64\ansysedt.exe".format(version_name)):
                 aedt_full_exe_path = (
-                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\AnsysEM{}\\\\Win64\\\\ansysedt.exe".format(version)
+                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Win64\\\\ansysedt.exe".format(version_name)
                 )
-            elif os.path.exists(r"\\" + clustername + r"\AnsysEM\AnsysEM{}\Linux64\ansysedt".format(version)):
+            elif os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Linux64\ansysedt".format(version_name)):
                 aedt_full_exe_path = (
-                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\AnsysEM{}\\\\Linux64\\\\ansysedt".format(version)
+                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Linux64\\\\ansysedt".format(version_name)
                 )
             else:
-                self.logger.error("AEDT path does not exist. Please provide a full path.")
+                self.logger.error("AEDT shared path does not exist. Please provide a full path.")
                 return False
         else:
             if not os.path.exists(aedt_full_exe_path):
-                self.logger.error("Aedt Path doesn't exists. Please provide a full path")
+                self.logger.error("AEDT shared path does not exist. Provide a full path.")
                 return False
             aedt_full_exe_path.replace("\\", "\\\\")
 
@@ -1668,8 +1680,8 @@ class Analysis(Design, object):
             setting_file = os.path.join(path_file, "..", "misc", "Job_Settings.areg")
         shutil.copy(setting_file, destination_reg)
 
-        f1 = open(destination_reg, "w")
-        with open(setting_file) as f:
+        f1 = open_file(destination_reg, "w")
+        with open_file(setting_file) as f:
             lines = f.readlines()
             for line in lines:
                 if "\\	$begin" == line[:8]:
@@ -1694,3 +1706,146 @@ class Analysis(Design, object):
                     f1.write(line)
         f1.close()
         return self.odesktop.SubmitJob(os.path.join(project_path, "Job_settings.areg"), project_file)
+
+    @pyaedt_function_handler()
+    def _export_touchstone(
+        self, solution_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
+    ):
+        """Export the Touchstone file to a local folder.
+
+        Parameters
+        ----------
+        solution_name : str, optional
+            Name of the solution that has been solved.
+        sweep_name : str, optional
+            Name of the sweep that has been solved.
+            This parameter has to be ignored or set with same value as solution_name
+        file_name : str, optional
+            Full path and name for the Touchstone file. The default is ``None``,
+            which exports the file to the working directory.
+        variations : list, optional
+            List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
+            The default is ``None``.
+        variations_value : list, optional
+            List of all parameter variation values. For example, ``["22cel", "100"]``.
+            The default is ``None``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if variations is None:
+            variations = list(self.available_variations.nominal_w_values_dict.keys())
+            if variations_value is None:
+                variations_value = [str(x) for x in list(self.available_variations.nominal_w_values_dict.values())]
+
+        if solution_name is None:
+            nominal_sweep_list = [x.strip() for x in self.nominal_sweep.split(":")]
+            solution_name = nominal_sweep_list[0]
+        if self.design_type == "Circuit Design":
+            sweep_name = solution_name
+        else:
+            if sweep_name is None:
+                for sol in self.existing_analysis_sweeps:
+                    if solution_name == sol.split(":")[0].strip():
+                        sweep_name = sol.split(":")[1].strip()
+                        break
+
+        if self.design_type == "HFSS 3D Layout Design":
+            n = str(len(self.port_list))
+        else:
+            n = str(len(self.excitations))
+        # Normalize the save path
+        if not file_name:
+            appendix = ""
+            for v, vv in zip(variations, variations_value):
+                appendix += "_" + v + vv.replace("'", "")
+            ext = ".S" + n + "p"
+            filename = os.path.join(self.working_directory, solution_name + "_" + sweep_name + appendix + ext)
+        else:
+            filename = file_name.replace("//", "/").replace("\\", "/")
+        self.logger.info("Exporting Touchstone " + filename)
+        DesignVariations = ""
+        for i in range(len(variations)):
+            DesignVariations += str(variations[i]) + "='" + str(variations_value[i].replace("'", "")) + "' "
+            # DesignVariations = "$AmbientTemp=\'22cel\' $PowerIn=\'100\'"
+        # array containing "SetupName:SolutionName" pairs (note that setup and solution are separated by a colon)
+        SolutionSelectionArray = [solution_name + ":" + sweep_name]
+        # 2=tab delimited spreadsheet (.tab), 3= touchstone (.sNp), 4= CitiFile (.cit),
+        # 7=Matlab (.m), 8=Terminal Z0 spreadsheet
+        FileFormat = 3
+        OutFile = filename  # full path of output file
+        # array containin the frequencies to export, use ["all"] for all frequencies
+        FreqsArray = ["all"]
+        DoRenorm = True  # perform renormalization before export
+        RenormImped = 50  # Real impedance value in ohm, for renormalization
+        DataType = "S"  # Type: "S", "Y", or "Z" matrix to export
+        Pass = -1  # The pass to export. -1 = export all passes.
+        ComplexFormat = 0  # 0=Magnitude/Phase, 1=Real/Immaginary, 2=dB/Phase
+        DigitsPrecision = 15  # Touchstone number of digits precision
+        IncludeGammaImpedance = True  # Include Gamma and Impedance in comments
+        NonStandardExtensions = False  # Support for non-standard Touchstone extensions
+
+        if self.design_type == "HFSS":
+            self.osolution.ExportNetworkData(
+                DesignVariations,
+                SolutionSelectionArray,
+                FileFormat,
+                OutFile,
+                FreqsArray,
+                DoRenorm,
+                RenormImped,
+                DataType,
+                Pass,
+                ComplexFormat,
+                DigitsPrecision,
+                False,
+                IncludeGammaImpedance,
+                NonStandardExtensions,
+            )
+        else:
+            self.odesign.ExportNetworkData(
+                DesignVariations,
+                SolutionSelectionArray,
+                FileFormat,
+                OutFile,
+                FreqsArray,
+                DoRenorm,
+                RenormImped,
+                DataType,
+                Pass,
+                ComplexFormat,
+                DigitsPrecision,
+                False,
+                IncludeGammaImpedance,
+                NonStandardExtensions,
+            )
+        self.logger.info("Touchstone correctly exported to %s", filename)
+        return True
+
+    @pyaedt_function_handler()
+    def value_with_units(self, value, units=None):
+        """Combine a number and a string containing the unit in a single string e.g. "1.2mm".
+        If the units are not specified, the model units are used.
+        If value is a string (like containing an expression), it is returned as is.
+
+        Parameters
+        ----------
+        value : float, int, str
+            Value of the number or string containing an expression.
+        units : str, optional
+            Units to combine with value.
+
+        Returns
+        -------
+        str
+            String that combines the value and the units (e.g. "1.2mm").
+        """
+        if isinstance(value, str):
+            val = value
+        else:
+            if units is None:
+                units = self.modeler.model_units
+            val = "{0}{1}".format(value, units)
+        return val

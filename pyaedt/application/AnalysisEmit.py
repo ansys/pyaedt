@@ -35,6 +35,9 @@ class FieldAnalysisEmit(Design):
         new_desktop_session=True,
         close_on_exit=True,
         student_version=False,
+        machine="",
+        port=0,
+        aedt_process_id=None,
     ):
         Design.__init__(
             self,
@@ -47,9 +50,10 @@ class FieldAnalysisEmit(Design):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine=machine,
+            port=machine,
+            aedt_process_id=aedt_process_id,
         )
-        self.solution_type = solution_type
-        self.oanalysis = None
         self._modeler = ModelerEmit(self)
         self._couplings = CouplingsEmit(self)
 

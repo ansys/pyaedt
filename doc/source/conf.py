@@ -11,7 +11,7 @@ import pyvista
 import numpy as np
 import json
 from sphinx_gallery.sorting import FileNameSortKey
-from pyansys_sphinx_theme import pyansys_logo_black
+from ansys_sphinx_theme import pyansys_logo_black
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -37,7 +37,7 @@ else:
 with open(os.path.join(root_path, "pyaedt", "version.txt"), "r") as f:
     release = version = f.readline()
 
-
+os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx_PyAEDT extension module names here, as strings. They can be
@@ -96,6 +96,9 @@ numpydoc_validation_checks = {
 numpydoc_validation_exclude = {  # set of regex
     r"\.AEDTMessageManager.add_message$",  # bad SS05
 }
+
+# Favicon
+html_favicon = "favicon.png"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -209,7 +212,7 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyAEDT"
 html_show_sourcelink = True
-html_theme = "pyansys_sphinx_theme"
+html_theme = "ansys_sphinx_theme"
 html_logo = pyansys_logo_black
 
 html_theme_options = {

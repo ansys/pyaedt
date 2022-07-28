@@ -1,7 +1,6 @@
 # Setup paths for module imports
 from _unittest.conftest import BasisTest
-from _unittest.conftest import pyaedt_unittest_check_desktop_error
-from pyaedt.application.Design import DesignCache
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.Modeler import FaceCoordinateSystem
 from pyaedt.modeler.Primitives import PolylineSegment
 
@@ -15,7 +14,6 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, project_name="Coax_HFSS")
-        self.cache = DesignCache(self.aedtapp)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -47,34 +45,28 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.subtract(outer, core)
         self.aedtapp.modeler.subtract(core, inner)
 
-    @pyaedt_unittest_check_desktop_error
     def test_01_model_units(self):
         self.aedtapp.modeler.model_units = "cm"
         assert self.aedtapp.modeler.model_units == "cm"
         self.restore_model()
 
-    @pyaedt_unittest_check_desktop_error
     def test_02_boundingbox(self):
         bounding = self.aedtapp.modeler.obounding_box
         assert len(bounding) == 6
 
-    @pyaedt_unittest_check_desktop_error
     def test_03_objects(self):
         print(self.aedtapp.modeler.oeditor)
         print(self.aedtapp.modeler._odefinition_manager)
         print(self.aedtapp.modeler._omaterial_manager)
 
-    @pyaedt_unittest_check_desktop_error
     def test_04_convert_to_selection(self):
         assert type(self.aedtapp.modeler.convert_to_selections("inner", True)) is list
         assert type(self.aedtapp.modeler.convert_to_selections("inner", False)) is str
 
-    @pyaedt_unittest_check_desktop_error
     def test_05_split(self):
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
         assert self.aedtapp.modeler.split(box1.name, 2)
 
-    @pyaedt_unittest_check_desktop_error
     def test_06_duplicate_and_mirror(self):
         self.restore_model()
         udp = self.aedtapp.modeler.Position(20, 20, 20)
@@ -83,14 +75,12 @@ class TestClass(BasisTest, object):
         assert out[0]
         assert len(out[1]) > 0
 
-    @pyaedt_unittest_check_desktop_error
     def test_07_mirror(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         udp2 = self.aedtapp.modeler.Position(30, 40, 40)
         status = self.aedtapp.modeler.mirror("outer", udp, udp2)
         assert status
 
-    @pyaedt_unittest_check_desktop_error
     def test_08_duplicate_around_axis(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         num_clones = 3
@@ -99,7 +89,6 @@ class TestClass(BasisTest, object):
         assert type(mirror) is list
         assert len(mirror) == num_clones - 1
 
-    @pyaedt_unittest_check_desktop_error
     def test_08_duplicate_along_line(self):
         udp = self.aedtapp.modeler.Position(5, 5, 5)
         num_clones = 5
@@ -108,7 +97,6 @@ class TestClass(BasisTest, object):
         assert type(mirror) is list
         assert len(mirror) == num_clones - 1
 
-    @pyaedt_unittest_check_desktop_error
     def test_09_thicken_sheet(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         id5 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, udp, 10, name="sheet1")
@@ -118,8 +106,11 @@ class TestClass(BasisTest, object):
         assert status
         status = self.aedtapp.modeler.automatic_thicken_sheets(id6, 3, False)
         assert status
+        status = self.aedtapp.modeler.move_face([id6.faces[0].id, id6.faces[2]])
+        assert status
+        status = self.aedtapp.modeler.move_face([id6.faces[0].id, id5.faces[0]])
+        assert status
 
-    @pyaedt_unittest_check_desktop_error
     def test_11_split(self):
         self.restore_model()
         assert self.aedtapp.modeler.split(
@@ -206,12 +197,29 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.create_air_region(*[20, 20, 30, 50, 50, 100])
         assert self.aedtapp.modeler.edit_region_dimensions([40, 30, 30, 50, 50, 100])
 
-    def test_28_create_face_list(self):
+    def test_28A_create_face_list(self):
         fl = self.aedtapp.modeler.get_object_faces("Second_airbox")
-        assert self.aedtapp.modeler.create_face_list(fl, "my_face_list")
+        fl2 = self.aedtapp.modeler.create_face_list(fl, "my_face_list")
+        assert fl2
+        assert self.aedtapp.modeler.create_face_list(fl, "my_face_list") == fl2
+        assert self.aedtapp.modeler.create_face_list(fl)
+        assert self.aedtapp.modeler.create_face_list([str(fl[0])])
+        assert not self.aedtapp.modeler.create_face_list(["outer2"])
 
     def test_28B_create_object_list(self):
-        assert self.aedtapp.modeler.create_object_list(["Second_airbox"], "my_object_list")
+        fl1 = self.aedtapp.modeler.create_object_list(["Second_airbox"], "my_object_list")
+        assert fl1
+        assert self.aedtapp.modeler.create_object_list(["Second_airbox"], "my_object_list") == fl1
+        assert self.aedtapp.modeler.create_object_list(["Core", "outer"])
+        self.aedtapp.modeler.user_lists[4].props["List"] = ["outer", "Core", "inner"]
+        self.aedtapp.modeler.user_lists[4].auto_update = False
+        fl = self.aedtapp.modeler.get_object_faces("Core")
+        self.aedtapp.modeler.user_lists[4].props["Type"] = "Face"
+        self.aedtapp.modeler.user_lists[4].props["List"] = fl
+        self.aedtapp.modeler.user_lists[4].update()
+        assert self.aedtapp.modeler.user_lists[2].rename("new_list")
+        assert self.aedtapp.modeler.user_lists[2].delete()
+        assert not self.aedtapp.modeler.create_object_list(["Core2", "outer"])
 
     def test_29_create_outer_face_list(self):
         assert self.aedtapp.modeler.create_outer_facelist(["Second_airbox"])
@@ -241,6 +249,15 @@ class TestClass(BasisTest, object):
     def test_31_set_objects_unmodel(self):
         assert self.aedtapp.modeler.set_object_model_state("Second_airbox", False)
 
+    def test_32_find_port_faces(self):
+        wg_x = self.aedtapp.modeler.create_waveguide([0, 5000, 0], self.aedtapp.AXIS.Y, wg_length=1000, wg_thickness=40)
+        port1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.ZX, [-40, 5000, -40], [346.7, 613.4])
+        port2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.ZX, [-40, 6000, -40], [346.7, 613.4])
+        faces_created = self.aedtapp.modeler.find_port_faces([port1.name, port2.name])
+        assert len(faces_created) == 4
+        assert "_Face1Vacuum" in faces_created[1]
+        assert "_Face1Vacuum" in faces_created[3]
+
     def test_33_duplicate_around_axis(self):
         id1 = self.aedtapp.modeler.create_box([10, 10, 10], [4, 5, 5])
         axis = self.aedtapp.AXIS.X
@@ -256,6 +273,11 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.activate_variable_tuning("test_opti")
         assert self.aedtapp.activate_variable_tuning("$test_opti1", "1mm", "10mm")
         assert self.aedtapp.deactivate_variable_tuning("test_opti")
+        try:
+            self.aedtapp.activate_variable_tuning("Idontexist")
+            assert False
+        except:
+            assert True
 
     def test_36_activate_variable_for_optimization(self):
         assert self.aedtapp.activate_variable_optimization("test_opti")
@@ -291,7 +313,7 @@ class TestClass(BasisTest, object):
             cs.change_cs_mode(3)
             assert False
         except ValueError:
-            pass
+            assert True
 
         assert cs.change_cs_mode(0)
         assert cs.delete()
@@ -374,8 +396,8 @@ class TestClass(BasisTest, object):
         assert fcs.delete()
 
     def test_42A_update_coordinate_system(self):
-        for cs in self.aedtapp.modeler.coordinate_systems:
-            cs.delete()
+        CS_list = self.aedtapp.modeler.coordinate_systems
+        [l.delete() for l in CS_list]
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="CS1", view="rotate")
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2", mode="view", view="iso")
         cs2.ref_cs = "CS1"
@@ -395,8 +417,8 @@ class TestClass(BasisTest, object):
         assert cs2.delete()
 
     def test_42A_update_face_coordinate_system(self):
-        for cs in self.aedtapp.modeler.coordinate_systems:
-            cs.delete()
+        CS_list = self.aedtapp.modeler.coordinate_systems
+        [l.delete() for l in CS_list]
         box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
         face = box.faces[0]
         fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1], name="FCS1")
@@ -577,3 +599,37 @@ class TestClass(BasisTest, object):
             )
             == "5"
         )
+
+    def test_50_move_edge(self):
+        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "edge_movements")
+        assert not box1.faces[0].edges[0].move_along_normal(1)
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "edge_movements2")
+        assert self.aedtapp.modeler.move_edge([rect.edges[0], rect.edges[2]])
+        assert rect.faces[0].bottom_edge_x.move_along_normal()
+
+    def test_51_imprint(self):
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "imprint1")
+        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprint2")
+        assert self.aedtapp.modeler.imprint(rect, box1)
+
+    def test_51_imprint_projection(self):
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "imprintn1")
+        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprintn2")
+        assert self.aedtapp.modeler.imprint_normal_projection([rect, box1])
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "imprintn3")
+        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprintn3")
+        assert self.aedtapp.modeler.imprint_vector_projection([rect, box1], [3, 2, -5], 1)
+
+    def test_52_objects_in_bounding_box(self):
+        bounding_box = [100, 200, 100, -100, -300, -200]
+        objects_in_bounding_box = self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
+        assert type(objects_in_bounding_box) is list
+
+        bounding_box = [0, 0, 0, 0, 0, 0]
+        objects_in_bounding_box = self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
+        assert len(objects_in_bounding_box) == 0
+
+        if not is_ironpython:
+            with pytest.raises(ValueError):
+                bounding_box = [100, 200, 100, -100, -300]
+                self.aedtapp.modeler.objects_in_bounding_box(bounding_box)

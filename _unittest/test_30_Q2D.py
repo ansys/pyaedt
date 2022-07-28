@@ -81,3 +81,29 @@ class TestClass(BasisTest, object):
         assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.DiffPair, ["Circle2", "Circle3"], "Test5")
         assert q2d.matrices[5].name == "Test5"
         self.aedtapp.close_project(q2d.project_name, False)
+
+    def test_12_edit_sources(self):
+        q2d = Q2d(self.test_matrix, specified_version=desktop_version)
+        sources_cg = {"Circle2": ("10V", "45deg"), "Circle3": "4A"}
+        assert q2d.edit_sources(sources_cg)
+
+        sources_cg = {"Circle2": "1V", "Circle3": "4A"}
+        sources_ac = {"Circle3": "40A"}
+        assert q2d.edit_sources(sources_cg, sources_ac)
+
+        sources_cg = {"Circle2": ["10V"], "Circle3": "4A"}
+        sources_ac = {"Circle3": ("100A", "5deg")}
+        assert q2d.edit_sources(sources_cg, sources_ac)
+
+        sources_ac = {"Circle5": "40A"}
+        assert not q2d.edit_sources(sources_cg, sources_ac)
+        self.aedtapp.close_project(q2d.project_name, False)
+
+    def test_13_get_all_conductors(self):
+        self.aedtapp.insert_design("condcutors")
+        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", matname="Copper")
+        o1 = self.aedtapp.create_rectangle([7, 5], [5, 3], name="Rectangle2", matname="aluminum")
+        o3 = self.aedtapp.create_rectangle([27, 5], [5, 3], name="Rectangle3", matname="air")
+        conductors = self.aedtapp.get_all_conductors_names()
+        assert sorted(conductors) == ["Rectangle1", "Rectangle2"]
+        assert self.aedtapp.get_all_dielectrics_names() == ["Rectangle3"]

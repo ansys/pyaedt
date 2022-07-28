@@ -36,7 +36,7 @@ HFSSDrivenAuto = [
 """HFSS automatic setup properties and default values."""
 
 HFSSDrivenDefault = [
-    ("AdaptMultipleFreqs", False),
+    ("SolveType", "Single"),
     ("MultipleAdaptiveFreqsSetup", multifreq),
     ("Frequency", "5GHz"),
     ("MaxDeltaS", 0.02),
@@ -1171,19 +1171,110 @@ MechStructural = [
 
 # TODO complete the list of templates for other Solvers
 
-GRM = [
+RmxprtDefault = [
     ("Enabled", True),
-    ("MeshLink", meshlink),
-    ("RatedOutputPower", "1W"),
-    ("RatedVoltage", "208V"),
-    ("RatedSpeed", "3600rpm"),
-    ("OperatingTemperature", "75cel"),
     ("OperationType", "Motor"),
     ("LoadType", "ConstPower"),
+    ("RatedOutputPower", "1kW"),
+    ("RatedVoltage", "100V"),
+    ("RatedSpeed", "1000rpm"),
+    ("OperatingTemperature", "75cel"),
+]
+"""RMxprt Default setup properties and default values."""
+
+GRM = RmxprtDefault + [
     ("RatedPowerFactor", "0.8"),
     ("Frequency", "60Hz"),
     ("CapacitivePowerFactor", False),
 ]
+"""RMxprt GRM (Generic Rotating Machine) setup properties and default values."""
+
+DFIG = [
+    ("Enabled", True),
+    ("RatedOutputPower", "1kW"),
+    ("RatedVoltage", "100V"),
+    ("RatedSpeed", "1000rpm"),
+    ("OperatingTemperature", "75cel"),
+    ("OperationType", "Wind Generator"),
+    ("LoadType", "InfiniteBus"),
+    ("RatedPowerFactor", "0.8"),
+    ("Frequency", "60Hz"),
+    ("CapacitivePowerFactor", False),
+]
+"""RMxprt DFIG (Doubly-fed induction generator) setup properties."""
+
+TPIM = RmxprtDefault + [("Frequency", "60Hz"), ("WindingConnection", 0)]
+"""RMxprt TPIM (Three-Phase Induction Machine) setup properties."""
+
+SPIM = RmxprtDefault + [
+    ("Frequency", "60Hz"),
+]
+"""RMxprt SPIM (Single-Phase Induction Machine setup properties."""
+
+TPSM = [
+    ("Enabled", True),
+    ("RatedOutputPower", "100"),
+    ("RatedVoltage", "100V"),
+    ("RatedSpeed", "1000rpm"),
+    ("OperatingTemperature", "75cel"),
+    ("OperationType", "Generator"),
+    ("LoadType", "InfiniteBus"),
+    ("RatedPowerFactor", 0.8),
+    ("WindingConnection", False),
+    ("ExciterEfficiency", 90),
+    ("StartingFieldResistance", "0ohm"),
+    ("InputExcitingCurrent", False),
+    ("ExcitingCurrent", "0A"),
+]
+"""RMxprt TPSM=SYNM (Three-phase Synchronous Machine/Generator) setup properties."""
+
+NSSM = TPSM  # Non-salient Synchronous Machine defaults, same as salient synch mach
+
+ASSM = BLDC = PMDC = SRM = RmxprtDefault
+# --- ALL USING RMxprt DEFAULT VALUES --- #
+# ASSM = Adjustable-speed Synchronous Machine
+# BLDC = Brushless DC Machine
+# PMDC = Permanent Magnet DC Machine
+# SRM = Switched Reluctance Machine
+
+LSSM = RmxprtDefault + [
+    ("WindingConnection", False),
+]
+"""RMxprt LSSM (Line-start Synchronous Machine) setup properties."""
+
+UNIM = RmxprtDefault + [
+    ("Frequency", "60Hz"),
+]
+"""RMxprt UNIM (Universal Machine) setup properties."""
+
+DCM = [
+    ("Enabled", True),
+    ("RatedOutputPower", "1kW"),
+    ("RatedVoltage", "100V"),
+    ("RatedSpeed", "1000rpm"),
+    ("OperatingTemperature", "75cel"),
+    ("OperationType", "Generator"),
+    ("LoadType", "InfiniteBus"),
+    ("FieldExcitingType", False),
+    ("DeterminedbyRatedSpeed", False),
+    ("ExcitingVoltage", "100V"),
+    ("SeriesResistance", "1ohm"),
+]
+"""RMxprt DCM (DC Machine/Generator) setup properties."""
+
+CPSM = [
+    ("Enabled", True),
+    ("RatedOutputPower", "100"),
+    ("RatedVoltage", "100V"),
+    ("RatedSpeed", "1000rpm"),
+    ("OperatingTemperature", "75cel"),
+    ("OperationType", "Generator"),
+    ("LoadType", "InfiniteBus"),
+    ("RatedPowerFactor", "0.8"),
+    ("InputExcitingCurrent", False),
+    ("ExcitingCurrent", "0A"),
+]
+"""RMxprt CPSM (Claw-pole synchronous machine/generator) setup properties."""
 
 TR = []
 
@@ -1206,8 +1297,9 @@ class SweepHFSS(object):
 
     """
 
-    def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
-        self.oanalysis = oanalysis
+    def __init__(self, app, setupname, sweepname, sweeptype="Interpolating", props=None):
+        self._app = app
+        self.oanalysis = app.omodule
         self.props = {}
         self.setupname = setupname
         self.name = sweepname
@@ -1245,6 +1337,18 @@ class SweepHFSS(object):
             self.props["SMatrixOnlySolveMode"] = "Auto"
             self.props["SMatrixOnlySolveAbove"] = "1MHz"
             self.props["SweepRanges"] = {"Subrange": []}
+
+    @property
+    def is_solved(self):
+        """Verify if solutions are available for given sweep.
+
+        Returns
+        -------
+        bool
+            `True` if solutions are available.
+        """
+        sol = self._app.p_app.post.reports_by_category.standard(setup_name="{} : {}".format(self.setupname, self.name))
+        return True if sol.get_solution_data() else False
 
     @pyaedt_function_handler()
     def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz", save_single_fields=False, clear=False):
@@ -1401,14 +1505,15 @@ class SweepHFSS3DLayout(object):
 
     def __init__(
         self,
-        oanalysis,
+        app,
         setupname,
         sweepname,
         sweeptype="Interpolating",
         save_fields=True,
         props=None,
     ):
-        self.oanalysis = oanalysis
+        self._app = app
+        self.oanalysis = app.omodule
         self.props = {}
         self.setupname = setupname
         self.name = sweepname
@@ -1451,6 +1556,28 @@ class SweepHFSS3DLayout(object):
             self.props["AllDiagEntries"] = False
             self.props["AllOffDiagEntries"] = False
             self.props["MagMinThreshold"] = 0.01
+
+    @property
+    def combined_name(self):
+        """Compute the setupname : sweepname string.
+
+        Returns
+        -------
+        str
+        """
+        return "{} : {}".format(self.setupname, self.name)
+
+    @property
+    def is_solved(self):
+        """Verify if solutions are available for given sweep.
+
+        Returns
+        -------
+        bool
+            `True` if solutions are available.
+        """
+        sol = self._app._app.post.reports_by_category.standard(setup_name=self.combined_name)
+        return True if sol.get_solution_data() else False
 
     @pyaedt_function_handler()
     def change_type(self, sweeptype):
@@ -1647,8 +1774,9 @@ class SweepQ3D(object):
 
     """
 
-    def __init__(self, oanalysis, setupname, sweepname, sweeptype="Interpolating", props=None):
-        self.oanalysis = oanalysis
+    def __init__(self, app, setupname, sweepname, sweeptype="Interpolating", props=None):
+        self._app = app
+        self.oanalysis = app.omodule
         self.setupname = setupname
         self.name = sweepname
         self.props = {}
@@ -1681,6 +1809,18 @@ class SweepQ3D(object):
                 self.props["InterpMaxSolns"] = 50
                 self.props["InterpMinSolns"] = 0
                 self.props["InterpMinSubranges"] = 1
+
+    @property
+    def is_solved(self):
+        """Verify if solutions are available for given sweep.
+
+        Returns
+        -------
+        bool
+            `True` if solutions are available.
+        """
+        sol = self._app.p_app.post.reports_by_category.standard(setup_name="{} : {}".format(self.setupname, self.name))
+        return True if sol.get_solution_data() else False
 
     @pyaedt_function_handler()
     def add_subrange(self, type, start, end=None, count=None, unit="GHz", clear=False):
@@ -1838,6 +1978,19 @@ class SetupKeys(object):
         40: SiwaveDC3DLayout,
         41: SiwaveAC3DLayout,
         42: LNA3DLayout,
+        43: DFIG,
+        44: TPIM,
+        45: SPIM,
+        46: TPSM,
+        47: BLDC,
+        48: ASSM,
+        49: PMDC,
+        50: SRM,
+        51: LSSM,
+        52: UNIM,
+        53: DCM,
+        54: CPSM,
+        55: NSSM,
     }
 
     SetupNames = [
@@ -1884,6 +2037,19 @@ class SetupKeys(object):
         "SiwaveDC3DLayout",
         "SiwaveAC3DLayout",
         "LNA3DLayout",
+        "GRM",  # DFIG
+        "TPIM",
+        "SPIM",
+        "SYNM",  # TPSM/SYNM
+        "BLDC",
+        "ASSM",
+        "PMDC",
+        "SRM",
+        "LSSM",
+        "UNIM",
+        "DCM",
+        "CPSM",
+        "NSSM",
     ]
 
 
@@ -1891,7 +2057,10 @@ class SetupProps(OrderedDict):
     """AEDT Boundary Component Internal Parameters."""
 
     def __setitem__(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
+        if isinstance(value, (dict, OrderedDict)):
+            OrderedDict.__setitem__(self, key, SetupProps(self._pyaedt_setup, value))
+        else:
+            OrderedDict.__setitem__(self, key, value)
         if self._pyaedt_setup.auto_update:
             res = self._pyaedt_setup.update()
             if not res:

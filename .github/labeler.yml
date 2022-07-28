@@ -1,0 +1,12 @@
+documentation:
+- doc/source/**/*
+- README.rst
+maintenance:
+- .github/**/*
+- .flake8
+- setup.py
+- setup-distutils.py
+dependencies:
+- requirements.txt
+- requirements_docs.txt
+- requirements_test.txt

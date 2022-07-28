@@ -52,6 +52,9 @@ class AnalysisTwinBuilder(Analysis):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
+        aedt_process_id=None,
     ):
 
         Analysis.__init__(
@@ -66,8 +69,10 @@ class AnalysisTwinBuilder(Analysis):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
+            aedt_process_id,
         )
-        self.solution_type = solution_type
         self._modeler = ModelerTwinBuilder(self)
         self._post = CircuitPostProcessor(self)
 
@@ -116,7 +121,7 @@ class AnalysisTwinBuilder(Analysis):
         if props:
             for el in props:
                 setup.props[el] = props[el]
-        setup.update()
+            setup.update()
         self.analysis_setup = name
         self.setups.append(setup)
         return setup

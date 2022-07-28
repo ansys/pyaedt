@@ -101,13 +101,51 @@ class TestClass(BasisTest, object):
         except ValueError:
             assert True
 
-    def test_03_create_thermal_modifier(self):
+    def test_03_create_modifiers(self):
         assert self.aedtapp.materials["new_copper2"].mass_density.add_thermal_modifier_free_form(
             "if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))"
         )
+        assert self.aedtapp.materials["new_copper2"].mass_density.add_thermal_modifier_closed_form()
+        assert self.aedtapp.materials["new_copper2"].mass_density.add_thermal_modifier_closed_form(auto_calc=False)
         assert self.aedtapp.materials["new_copper2"].permittivity.add_thermal_modifier_closed_form()
         assert self.aedtapp.materials["new_copper2"].permeability.add_thermal_modifier_closed_form(auto_calc=False)
-        assert self.aedtapp.materials["new_copper2"].permittivity.add_thermal_modifier_closed_form(auto_calc=True)
+        assert self.aedtapp.materials["new_copper2"].permittivity.add_thermal_modifier_closed_form(auto_calc=False)
+        filename = os.path.join(local_path, "example_models", "ds_1d.tab")
+        ds1 = self.aedtapp.import_dataset1d(filename)
+        assert self.aedtapp.materials["new_copper2"].permittivity.add_thermal_modifier_dataset(ds1.name)
+
+        assert self.aedtapp.materials["new_copper2"].mass_density.add_spatial_modifier_free_form(
+            "if(X > 1mm, 1, if(X < 1mm, 2, 1))"
+        )
+        assert self.aedtapp.materials["new_copper2"].mass_density.add_spatial_modifier_free_form(
+            "if(X > 1mm, 1, if(X < 1mm, 3, 1))"
+        )
+        exp = self.aedtapp.materials["new_copper2"].mass_density.spatialmodifier = "X+1"
+        assert exp == "X+1"
+        exp = self.aedtapp.materials["new_copper2"].mass_density.spatialmodifier = ["Y+1"]
+        assert exp == ["Y+1"]
+        filename = os.path.join(local_path, "example_models", "ds_3d.tab")
+        ds2 = self.aedtapp.import_dataset3d(filename)
+        assert self.aedtapp.materials["new_copper2"].permeability.add_spatial_modifier_dataset(ds2.name)
+        mat1 = self.aedtapp.materials.add_material("new_mat")
+        mat1.mass_density.value == MatProperties.get_defaultvalue(aedtname="mass_density")
+        mat1.permittivity.value == MatProperties.get_defaultvalue(aedtname="permittivity")
+        assert self.aedtapp.materials["new_mat"].mass_density.add_spatial_modifier_free_form(
+            "if(X > 1mm, 1, if(X < 1mm, 3, 1))"
+        )
+        assert self.aedtapp.materials["new_mat"].mass_density.add_thermal_modifier_free_form(
+            "if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))"
+        )
+        assert self.aedtapp.materials["new_mat"].permittivity.add_thermal_modifier_free_form("X^2")
+        mat1 = self.aedtapp.materials.add_material("new_mat2")
+        mat1.mass_density.value == MatProperties.get_defaultvalue(aedtname="mass_density")
+        assert self.aedtapp.materials["new_mat2"].mass_density.add_spatial_modifier_free_form(
+            "if(X > 1mm, 1, if(X < 1mm, 3, 1))"
+        )
+        assert self.aedtapp.materials["new_mat2"].mass_density.add_thermal_modifier_closed_form()
+        mat1 = self.aedtapp.materials.add_material("new_mat3")
+        mat1.mass_density.value == MatProperties.get_defaultvalue(aedtname="mass_density")
+        assert self.aedtapp.materials["new_mat3"].mass_density.add_thermal_modifier_closed_form()
 
     def test_04_duplicate_material(self):
         assert self.aedtapp.materials.duplicate_material("new_copper2", "copper3")
@@ -172,3 +210,8 @@ class TestClass(BasisTest, object):
     def test_10_add_material_sweep(self):
         assert self.aedtapp.materials.add_material_sweep(["copper", "aluminum"], "sweep_copper")
         assert "sweep_copper" in list(self.aedtapp.materials.material_keys.keys())
+
+    def test_11_material_case(self):
+        assert self.aedtapp.materials["Aluminum"] == self.aedtapp.materials["aluminum"]
+        assert self.aedtapp.materials["Aluminum"].name == "aluminum"
+        assert self.aedtapp.materials.add_material("AluMinum") == self.aedtapp.materials["aluminum"]

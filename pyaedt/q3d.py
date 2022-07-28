@@ -5,8 +5,10 @@ import os
 import warnings
 from collections import OrderedDict
 
-from pyaedt.application.Analysis2D import FieldAnalysis2D
+from pyaedt import is_ironpython
+from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import MATRIXOPERATIONSQ2D
 from pyaedt.generic.constants import MATRIXOPERATIONSQ3D
 from pyaedt.generic.general_methods import generate_unique_name
@@ -14,8 +16,14 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import Matrix
 
+if not is_ironpython:
+    try:
+        import numpy as np
+    except ImportError:
+        pass
 
-class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
+
+class QExtractor(FieldAnalysis3D, object):
     """Extracts a 2D or 3D field analysis.
 
     Parameters
@@ -47,36 +55,26 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
+        aedt_process_id=None,
     ):
-        if Q3DType == "Q3D Extractor":
-            FieldAnalysis3D.__init__(
-                self,
-                "Q3D Extractor",
-                projectname,
-                designname,
-                solution_type,
-                setup_name,
-                specified_version,
-                non_graphical,
-                new_desktop_session,
-                close_on_exit,
-                student_version,
-            )
-        else:
-            FieldAnalysis2D.__init__(
-                self,
-                "2D Extractor",
-                projectname,
-                designname,
-                solution_type,
-                setup_name,
-                specified_version,
-                non_graphical,
-                new_desktop_session,
-                close_on_exit,
-                student_version,
-            )
-        self.omatrix = self.odesign.GetModule("ReduceMatrix")
+        FieldAnalysis3D.__init__(
+            self,
+            Q3DType,
+            projectname,
+            designname,
+            solution_type,
+            setup_name,
+            specified_version,
+            non_graphical,
+            new_desktop_session,
+            close_on_exit,
+            student_version,
+            machine,
+            port,
+            aedt_process_id,
+        )
         self.matrices = []
         for el in list(self.omatrix.ListReduceMatrixes()):
             self.matrices.append(Matrix(self, el))
@@ -109,7 +107,7 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
             List of sources or nets or arguments needed for the operation. The default
             is ``None``.
         rm_name : str, optional
-            Name of the reduced matrix The default is ``None``.
+            Name of the reduced matrix. The default is ``None``.
 
         Returns
         -------
@@ -124,6 +122,22 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         return matrix
 
     @pyaedt_function_handler()
+    def get_all_sources(self):
+        """Get all setup sources.
+
+        Returns
+        -------
+        list of str
+            List of all setup sources.
+
+        References
+        ----------
+
+        >>> oModule.GetAllSources
+        """
+        return self.excitations
+
+    @pyaedt_function_handler()
     def get_traces_for_plot(
         self,
         get_self_terms=True,
@@ -132,23 +146,23 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
         second_element_filter=None,
         category="C",
     ):
-        """Retrieve a list of traces of specified designs ready to use in plot reports.
+        """Get a list of traces of specified designs ready to use in plot reports.
 
         Parameters
         ----------
         get_self_terms : bool, optional
-            Whether to return self terms. The default is ``True``.
+            Whether to get self terms. The default is ``True``.
         get_mutual_terms : bool, optional
-            Whether to return mutual terms. The default is ``True``.
+            Whether to get mutual terms. The default is ``True``.
         first_element_filter : str, optional
-            Filter to apply to the first element of the equation. This parameter accepts ``*``
-            and ``?`` as special characters. The default is ``None``.
+            Filter to apply to the first element of the equation.
+            This parameter accepts ``*`` and ``?`` as special characters. The default is ``None``.
         second_element_filter : str, optional
-            Filter to apply to the second element of the equation. This parameter accepts ``*``
-            and ``?`` as special characters. The default is ``None``.
+            Filter to apply to the second element of the equation.
+            This parameter accepts ``*`` and ``?`` as special characters. The default is ``None``.
         category : str
-            Plot category name as in the report (including operator). The default is ``"C"`,
-            which is the plot category name for capacitance.
+            Plot category name as in the report, including operator.
+            The default is ``"C"``, which is the plot category name for capacitance.
 
         Returns
         -------
@@ -170,9 +184,193 @@ class QExtractor(FieldAnalysis3D, FieldAnalysis2D, object):
             category=category,
         )
 
+    @pyaedt_function_handler()
+    def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None, setup_type="CG"):
+        """Export mesh statistics to a file.
+
+        Parameters
+        ----------
+        setup_name :str
+            Setup name.
+        variation_string : str, optional
+            Variation list. The default is ``""``.
+        mesh_path : str, optional
+            Full path to the mesh statistics file. The default is ``None``, in which
+            case the working directory is used.
+        setup_type : str, optional
+            Setup type in Q3D. Options are ``"CG"``, ``"AC RL"``, and ``"DC RL"``. The
+            default is ``"CG"``.
+
+        Returns
+        -------
+        str
+            File path.
+
+        References
+        ----------
+        >>> oDesign.ExportMeshStats
+        """
+        if not mesh_path:
+            mesh_path = os.path.join(self.working_directory, "meshstats.ms")
+        self.odesign.ExportMeshStats(setup_name, variation_string, setup_type, mesh_path)
+        return mesh_path
+
+    @pyaedt_function_handler()
+    def edit_sources(
+        self,
+        cg=None,
+        acrl=None,
+        dcrl=None,
+    ):
+        """Set up the source loaded for Q3D or Q2D in multiple sources simultaneously.
+
+        Parameters
+        ----------
+        cg : dict, optional
+            Dictionary of input sources to modify the module and phase of a CG solution.
+            Dictionary values can be:
+            - 1 Value to set up ``0deg`` as the default
+            - 2 Values tuple or list (magnitude and phase)
+        acrl : dict, optional
+            Dictionary of input sources to modify the module and phase of an ACRL solution.
+            Dictionary values can be:
+            - 1 Value to set up 0deg as the default
+            - 2 Values tuple or list (magnitude and phase)
+        dcrl : dict, optional
+            Dictionary of input sources to modify the module and phase of a DCRL solution, This
+            parameter is only available for Q3D. Dictionary values can be:
+            - 1 Value to set up ``0deg`` as the default
+            - 2 Values tuple or list (magnitude and phase)
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> sources_cg = {"Box1": ("1V", "0deg"), "Box1_2": "1V"}
+        >>> sources_acrl = {"Box1:Source1": ("5A", "0deg")}
+        >>> sources_dcrl = {"Box1_1:Source2": ("5V", "0deg")}
+        >>> hfss.edit_sources(sources_cg, sources_acrl, sources_dcrl)
+        """
+        setting_AC = []
+        setting_CG = []
+        setting_DC = []
+        if cg:
+            net_list = ["NAME:Source Names"]
+            if self.default_solution_type == "Q3D Extractor":
+                excitation = self.nets
+            else:
+                excitation = self.excitations
+
+            for key, value in cg.items():
+                if key not in excitation:
+                    self.logger.error("Not existing net " + key)
+                    return False
+                else:
+                    net_list.append(key)
+
+            if self.default_solution_type == "Q3D Extractor":
+                value_list = ["NAME:Source Values"]
+                phase_list = ["NAME:Source Values"]
+            else:
+                value_list = ["NAME:Magnitude"]
+                phase_list = ["NAME:Phase"]
+
+            for key, vals in cg.items():
+                if isinstance(vals, str):
+                    value = vals
+                    phase = "0deg"
+                else:
+                    value = vals[0]
+                    if len(vals) == 1:
+                        phase = "0deg"
+                    else:
+                        phase = vals[1]
+                value_list.append(value)
+                phase_list.append(phase)
+            if self.default_solution_type == "Q3D Extractor":
+                setting_CG = ["NAME:Cap", "Value Type:=", "N", net_list, value_list, phase_list]
+            else:
+                setting_CG = ["NAME:CGSources", net_list, value_list, phase_list]
+        if acrl:
+            source_list = ["NAME:Source Names"]
+            unit = "V"
+            for key, value in acrl.items():
+                excitation = self.excitations
+                if key not in excitation:
+                    self.logger.error("Not existing excitation " + key)
+                    return False
+                else:
+                    source_list.append(key)
+            if self.default_solution_type == "Q3D Extractor":
+                value_list = ["NAME:Source Values"]
+                phase_list = ["NAME:Source Values"]
+            else:
+                value_list = ["NAME:Magnitude"]
+                phase_list = ["NAME:Phase"]
+            for key, vals in acrl.items():
+                if isinstance(vals, str):
+                    magnitude = decompose_variable_value(vals)
+                    value = vals
+                    phase = "0deg"
+                else:
+                    value = vals[0]
+                    magnitude = decompose_variable_value(value)
+                    if len(vals) == 1:
+                        phase = "0deg"
+                    else:
+                        phase = vals[1]
+                if magnitude[1]:
+                    unit = magnitude[1]
+                else:
+                    value += unit
+
+                value_list.append(value)
+                phase_list.append(phase)
+
+            if self.default_solution_type == "Q3D Extractor":
+                setting_AC = ["NAME:AC", "Value Type:=", unit, source_list, value_list]
+            else:
+                setting_AC = ["NAME:RLSources", source_list, value_list, phase_list]
+        if dcrl and self.default_solution_type == "Q3D Extractor":
+            unit = "V"
+            source_list = ["NAME:Source Names"]
+            for key, value in dcrl.items():
+                excitation = self.excitations
+                if key not in excitation:
+                    self.logger.error("Not existing excitation " + key)
+                    return False
+                else:
+                    source_list.append(key)
+            if self.default_solution_type == "Q3D Extractor":
+                value_list = ["NAME:Source Values"]
+            else:
+                value_list = ["NAME:Magnitude"]
+            for key, vals in dcrl.items():
+                magnitude = decompose_variable_value(vals)
+                if magnitude[1]:
+                    unit = magnitude[1]
+                else:
+                    vals += unit
+                if isinstance(vals, str):
+                    value = vals
+                else:
+                    value = vals[0]
+                value_list.append(value)
+            setting_DC = ["NAME:DC", "Value Type:=", unit, source_list, value_list]
+
+        if self.default_solution_type == "Q3D Extractor":
+            self.osolution.EditSources(setting_AC, setting_CG, setting_DC)
+        else:
+            self.osolution.EditSources(setting_CG, setting_AC)
+
+        return True
+
 
 class Q3d(QExtractor, object):
-    """Provides the Q3D application interface.
+    """Provides the Q3D app interface.
 
     This class allows you to create an instance of Q3D and link to an
     existing project or create a new one.
@@ -206,12 +404,26 @@ class Q3d(QExtractor, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored when Script is launched within AEDT.
+        machine. The default is ``True``. This parameter is ignored when
+        a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
-        This parameter is ignored when Script is launched within AEDT.
+        This parameter is ignored when a script is launched within AEDT.
+    machine : str, optional
+        Machine name to connect the oDesktop session to. This works only in
+        2022 R2 and later. The remote server must be up and running with the
+        command `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`,
+        the server also starts if not present.
+    port : int, optional
+        Port number on which to start the oDesktop communication on an already
+        existing server. This parameter is ignored when a new server is created.
+        It works only in 2022 R2 and later. The remote server must be up and
+        running with the command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
@@ -234,6 +446,9 @@ class Q3d(QExtractor, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
+        aedt_process_id=None,
     ):
         QExtractor.__init__(
             self,
@@ -247,16 +462,19 @@ class Q3d(QExtractor, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
+            aedt_process_id,
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ3D()
 
     @property
     def nets(self):
-        """Return the list of available nets in a Q3D project.
+        """Nets in a Q3D project.
 
         Returns
         -------
-        list
+        List of nets in a Q3D project.
 
         References
         ----------
@@ -305,7 +523,7 @@ class Q3d(QExtractor, object):
 
     @pyaedt_function_handler()
     def net_sinks(self, net_name):
-        """Check if a net has sinks and returns a list of sink names.
+        """Check if a net has sinks and return a list of sink names.
 
         Parameters
         ----------
@@ -336,7 +554,7 @@ class Q3d(QExtractor, object):
 
     @pyaedt_function_handler()
     def auto_identify_nets(self):
-        """Automatically identify nets.
+        """Identify nets automatically.
 
         Returns
         -------
@@ -424,13 +642,13 @@ class Q3d(QExtractor, object):
         Parameters
         ----------
         object_name : str, int
-            Name of the object or face id.
+            Name of the object or face ID.
         axisdir : int, optional
             Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
         source_name : str, optional
             Name of the source. The default is ``None``.
         net_name : str, optional
-            Name of the net. The default is ``None``, in which case ``object_name`` is considered.
+            Name of the net. The default is ``None``, in which case the ``object_name`` is considered.
 
         Returns
         -------
@@ -507,18 +725,18 @@ class Q3d(QExtractor, object):
         """Generate a sink on a face of an object.
 
         The face ID is selected based on the axis direction. It is the face that has
-        the maximum/minimum in this axis direction.
+        the maximum or minimum in this axis direction.
 
         Parameters
         ----------
         object_name : str, int
-            Name of the object or face id.
+            Name of the object or face ID.
         axisdir : int, optional
             Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
         sink_name : str, optional
             Name of the sink. The default is ``None``.
         net_name : str, optional
-            Name of the net. The default is ``None``, in which case ``object_name`` is considered.
+            Name of the net. The default is ``None``, in which case the ``object_name`` is considered.
 
         Returns
         -------
@@ -610,7 +828,8 @@ class Q3d(QExtractor, object):
         freqstep : optional
             Frequency step point.
         sweepname : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in which case the
+            default name is used.
 
         Returns
         -------
@@ -674,7 +893,8 @@ class Q3d(QExtractor, object):
             Units of the discrete frequency. For example, ``"MHz"`` or
             ``"GHz"``. The default is ``"GHz"``.
         sweepname : str, optional
-            Name of the sweep.
+            Name of the sweep. The default is ``None``, in which case
+            the default name is used.
         savefields : bool, optional
             Whether to save fields. The default is ``False``.
 
@@ -718,9 +938,55 @@ class Q3d(QExtractor, object):
                 return sweepdata
         return False
 
+    @pyaedt_function_handler()
+    def set_material_thresholds(
+        self, insulator_threshold=None, perfect_conductor_threshold=None, magnetic_threshold=None
+    ):
+        """Set material threshold.
+
+        Parameters
+        ----------
+        insulator_threshold : float, optional
+            Threshold for the insulator or conductor. The default is "None", in which
+            case the threshold is set to 10000.
+        perfect_conductor_threshold : float, optional
+            Threshold that decides whether a conductor is perfectly conducting. This value
+            must be higher than the value for the insulator threshold. The default is ``None``,
+            in which case the value is set to 1E+030.
+        magnetic_threshold : float, optional
+            Threshold that decides whether a material is magnetic. The default is "None",
+            in which case the value is set to 1.01.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            if not insulator_threshold:
+                insulator_threshold = 10000
+            if not perfect_conductor_threshold:
+                perfect_conductor_threshold = float("1E+30")
+            else:
+                if perfect_conductor_threshold < insulator_threshold:
+                    msg = "Perfect conductor threshold must be higher than insulator threshold."
+                    raise ValueError(msg)
+            if not magnetic_threshold:
+                magnetic_threshold = 1.01
+
+            if not is_ironpython and not settings.use_grpc_api:
+                insulator_threshold = np.longdouble(insulator_threshold)
+                perfect_conductor_threshold = np.longdouble(perfect_conductor_threshold)
+                magnetic_threshold = np.longdouble(magnetic_threshold)
+
+            self.oboundary.SetMaterialThresholds(insulator_threshold, perfect_conductor_threshold, magnetic_threshold)
+            return True
+        except:
+            return False
+
 
 class Q2d(QExtractor, object):
-    """Provides the Q2D application interface.
+    """Provides the Q2D app interface.
 
     This class allows you to create an instance of Q2D and link to an
     existing project or create a new one.
@@ -746,7 +1012,7 @@ class Q2d(QExtractor, object):
     specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.  This
-        parameter is ignored when Script is launched within AEDT.
+        parameter is ignored when a script is launched within AEDT.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -755,12 +1021,24 @@ class Q2d(QExtractor, object):
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``. This parameter is ignored
-        when Script is launched within AEDT.
+        when a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to open the AEDT student version. This parameter is
-        ignored when Script is launched within AEDT.
+        ignored when a script is launched within AEDT.
+    machine : str, optional
+        Machine name to connect the oDesktop session to. This works only in 2022 R2
+        and later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`,
+        the server also starts if not present.
+    port : int, optional
+        Port number on which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 or later.
+        The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
+    aedt_process_id : int, optional
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
@@ -799,6 +1077,9 @@ class Q2d(QExtractor, object):
         new_desktop_session=False,
         close_on_exit=False,
         student_version=False,
+        machine="",
+        port=0,
+        aedt_process_id=None,
     ):
         QExtractor.__init__(
             self,
@@ -812,6 +1093,9 @@ class Q2d(QExtractor, object):
             new_desktop_session,
             close_on_exit,
             student_version,
+            machine,
+            port,
+            aedt_process_id,
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ2D()
 
@@ -831,11 +1115,11 @@ class Q2d(QExtractor, object):
             the default name is assigned.
         matname : str, optional
             Name of the material. The default is ``None``, in which case
-            the default material is assigned.
+            the default material is used.
 
         Returns
         -------
-        pyaedt.modeler.Object3d.Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
 
         References
@@ -854,7 +1138,7 @@ class Q2d(QExtractor, object):
         target_objects : list
             List of Object3D.
         name : str, optional
-            Name of the conductor. The default is ``""``.
+            Name of the conductor. The default is ``""``, in which case the default name is used.
         solve_option : str, optional
             Method for solving. Options are ``"SolveInside"``, ``"SolveOnBoundary"``, and ``"Automatic"``.
             The default is ``"SolveInside"``.
@@ -895,7 +1179,7 @@ class Q2d(QExtractor, object):
         target_objects : list
             List of Object3D.
         name : str, optional
-            Name of the conductor. The default is ``""``.
+            Name of the conductor. The default is ``""``, in which case the default name is used.
         conductor_type : str
             Type of the conductor. Options are ``"SignalLine"`` and ``"ReferenceGround"``. The default is
             ``"SignalLine"``.
@@ -960,7 +1244,7 @@ class Q2d(QExtractor, object):
         unit : str, optional
             The default is ``"um"``.
         name : str, optional
-            The default is ``""``.
+            The default is ``""``, in which case the default name is used.
 
         Returns
         -------
@@ -984,7 +1268,7 @@ class Q2d(QExtractor, object):
 
         props = OrderedDict({"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)})
 
-        bound = BoundaryObject(self, name, props, "FiniteCond")
+        bound = BoundaryObject(self, name, props, "Finite Conductivity")
         if bound.create():
             self.boundaries.append(bound)
             return bound
@@ -1019,7 +1303,7 @@ class Q2d(QExtractor, object):
 
     @pyaedt_function_handler()
     def export_w_elements(self, analyze=False, export_folder=None):
-        """Export all available W-elements to files.
+        """Export all W-elements to files.
 
         Parameters
         ----------
@@ -1027,7 +1311,7 @@ class Q2d(QExtractor, object):
             Whether to analyze before export. Solutions must be present for the design.
             The default is ``False``.
         export_folder : str, optional
-            Full path to the folder to export files into. The default is ``None``, in
+            Full path to the folder to export files to. The default is ``None``, in
             which case the working directory is used.
 
         Returns
