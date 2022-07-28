@@ -1975,6 +1975,18 @@ class EDBPadstack(object):
         else:
             return 0
 
+    @hole_plating_thickness.setter
+    def hole_plating_thickness(self, value):
+        """Hole plating thickness.
+
+        Returns
+        -------
+        float
+            Thickness of the hole plating if present.
+        """
+        hr = 200 * float(value) / float(self.hole_properties[0])
+        self.hole_plating_ratio = hr
+
     @property
     def hole_finished_size(self):
         """Finished hole size.
