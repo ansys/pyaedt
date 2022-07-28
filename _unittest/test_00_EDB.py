@@ -486,8 +486,10 @@ if not config["skip_edb"]:
             pad.hole_offset_y = 1
             pad.hole_rotation = 0
             pad.hole_plating_ratio = 90
-            pad.material = "copper"
             assert pad.hole_plating_ratio == 90
+            pad.hole_plating_thickness = 0.3
+            assert abs(pad.hole_plating_thickness - 0.3) <= tol
+            pad.material = "copper"
             assert abs(pad.hole_properties[0] - hole_pad) < tol
             offset_x = 7
             offset_y = 1
