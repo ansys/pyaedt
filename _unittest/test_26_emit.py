@@ -63,7 +63,7 @@ class TestClass(BasisTest, object):
         assert connected_port is None
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions lower than 2022.2"
+        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2022 R2."
     )
     def test_radio_component(self):
         radio = self.aedtapp.modeler.components.create_component("New Radio")
