@@ -1,6 +1,5 @@
 """
 This module contains these classes: `CouplingsEmit`.
-
 This module provides the capability to interact with EMIT Analysis & Results windows.
 """
 import warnings
@@ -8,15 +7,12 @@ import warnings
 
 class CouplingsEmit(object):
     """Provides for interaction with the EMIT Coupling folder
-
     This class is accessible through the EMIT application results variable
     object( eg. ``emit.couplings``).
-
     Parameters
     ----------
     app :
         Inherited parent object.
-
     Examples
     --------
     >>> from pyaedt import Emit
@@ -66,7 +62,6 @@ class CouplingsEmit(object):
     @property
     def linkable_design_names(self):
         """List the available link names.
-
         Returns
         -------
         list
@@ -77,21 +72,20 @@ class CouplingsEmit(object):
         else:
             warnings.warn("The function linkable_design_names() requires AEDT 2022 R2 or later.")
             return []
-        
+
     @property
     def cad_nodes(self):
         """List the CAD nodes.
-
         Returns
         -------
         dict
         """
-        coupling_node_name = 'CouplingNodeTree@EMIT'
+        coupling_node_name = "CouplingNodeTree@EMIT"
         cad_node_list = {}
         for coupling in self._odesign.GetComponentNodeNames(coupling_node_name):
             properties_list = self._odesign.GetComponentNodeProperties(coupling_node_name, coupling)
             props = dict(p.split("=") for p in properties_list)
-            if (props["Type"] == "CADNode"): 
+            if props["Type"] == "CADNode":
                 # cad_node_list.append(coupling)
                 cad_node_list[coupling] = props
         return cad_node_list
@@ -99,18 +93,17 @@ class CouplingsEmit(object):
     @property
     def antenna_pattern_nodes(self):
         """List the antenna pattern nodes.
-
         Returns
         -------
         dict
         """
-        radios_node_name = 'NODE-*-RF Systems-*-RF System-*-Radios'
+        radios_node_name = "NODE-*-RF Systems-*-RF System-*-Radios"
         antenna_patterns_list = {}
         for radio in self._odesign.GetComponentNodeNames(radios_node_name):
             properties_list = self._odesign.GetComponentNodeProperties(radios_node_name, radio)
             props = dict(p.split("=") for p in properties_list)
             # TODO(bkaylor): Is this Type check necessary?
-            if (props["Type"] == "RadioNode"): 
+            if props["Type"] == "RadioNode":
                 # TODO(bkaylor): How to access the Antenna Pattern from the radio node?
                 antenna_patterns_list[radio] = props
         return antenna_patterns_list
