@@ -962,7 +962,7 @@ class Components(object):
         new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, comp_def.GetName())
         hosting_component_location = pins[0].GetComponent().GetLocation()
         for pin in pins:
-            new_cmp.AddMember(pin.MemberwiseClone())
+            new_cmp.AddMember(pin)
         new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
         new_cmp_placement_layer = self._edb.Cell.Layer.FindByName(
             self._active_layout.GetLayerCollection(), new_cmp_layer_name
