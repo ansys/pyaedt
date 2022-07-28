@@ -1218,6 +1218,8 @@ class Object3d(object):
         >>> oEditor.GetModelBoundingBox
 
         """
+        if self.object_type == "Unclassified":
+            return [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         if not self._primitives._app.student_version:
             bounding = self._bounding_box_sat()
             if bounding:
@@ -1315,6 +1317,8 @@ class Object3d(object):
     @property
     def touching_objects(self):
         """Get the objects that touch one of the vertex, edge midpoint or face of the object."""
+        if self.object_type == "Unclassified":
+            return []
         list_names = []
         for vertex in self.vertices:
             body_names = self._primitives.get_bodynames_from_position(vertex.position)
@@ -1347,6 +1351,8 @@ class Object3d(object):
         >>> oEditor.GetFaceIDs
 
         """
+        if self.object_type == "Unclassified":
+            return []
         faces = []
         for face in list(self.m_Editor.GetFaceIDs(self.name)):
             face = int(face)
@@ -1699,6 +1705,8 @@ class Object3d(object):
         >>> oEditor.GetEdgeIDsFromObject
 
         """
+        if self.object_type == "Unclassified":
+            return []
         edges = []
         for edge in self._primitives.get_object_edges(self.name):
             edge = int(edge)
@@ -1719,6 +1727,8 @@ class Object3d(object):
         >>> oEditor.GetVertexIDsFromObject
 
         """
+        if self.object_type == "Unclassified":
+            return []
         vertices = []
         for vertex in self._primitives.get_object_vertices(self.name):
             vertex = int(vertex)
