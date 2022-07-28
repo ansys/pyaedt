@@ -122,3 +122,11 @@ class TestClass(BasisTest, object):
         patch2 = top.ml_patch(1e9, patch_width=width, patch_position_x=0, patch_position_y=0)
         patch2.create_lumped_port(gnd, opposite_side=True)
         assert self.st.resize_around_element(patch2)
+
+    def test_08_duplicated_parametrized_material(self):
+        diel = self.st.stackup_layers["diel1"]
+        assert diel.duplicated_material.permittivity
+        assert diel.duplicated_material.permeability
+        assert diel.duplicated_material.conductivity
+        assert diel.duplicated_material.dielectric_loss_tangent
+        assert diel.duplicated_material.magnetic_loss_tangent
