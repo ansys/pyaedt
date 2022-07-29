@@ -1947,7 +1947,7 @@ if not config["skip_edb"]:
             sweep = list(ssi.SweepDataList)[0]
             assert not sweep.EnforceCausality
 
-        def test_113_add_hfss_config(self):
+        def test_117_add_hfss_config(self):
             source_path = os.path.join(local_path, "example_models", "Galileo.aedb")
             target_path = os.path.join(self.local_scratch.path, "test_113.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
