@@ -920,6 +920,7 @@ class EDBLayer(object):
             ``True`` when successful, ``False`` when failed.
         """
         thisLC = self._edb.Cell.LayerCollection(self._active_layout.GetLayerCollection())
+        layer_collection_mode = thisLC.GetMode()
         layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         layers.reverse()
         newLayers = List[self._edb.Cell.Layer]()
@@ -953,8 +954,12 @@ class EDBLayer(object):
 
         lcNew = self._edb.Cell.LayerCollection()
         newLayers.Reverse()
-        if not lcNew.AddLayers(newLayers) or not self._active_layout.SetLayerCollection(lcNew):
+        if not lcNew.AddLayers(newLayers):
             self._logger.error("Failed to set new layers when updating the stackup information.")
+            return False
+        lcNew.SetMode(layer_collection_mode)
+        if not self._active_layout.SetLayerCollection(lcNew):
+            self._logger.error("Failed to set new layer stackup mode when updating the stackup information.")
             return False
         self._pedblayers._update_edb_objects()
         time.sleep(1)
