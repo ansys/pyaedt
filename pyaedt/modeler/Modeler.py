@@ -2428,11 +2428,11 @@ class GeometryModeler(Modeler, object):
         vArg2.append("DuplicateMirrorNormalZ:="), vArg2.append(Znorm)
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
         if is_3d_comp:
-            orig_3d = [i for i in self.components_3d_names]
+            orig_3d = [i for i in self.user_defined_component_names]
         added_objs = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
         self.add_new_objects()
         if is_3d_comp:
-            added_3d_comps = [i for i in self.components_3d_names if i not in orig_3d]
+            added_3d_comps = [i for i in self.user_defined_component_names if i not in orig_3d]
             if added_3d_comps:
                 self.logger.info("Found 3D Components Duplication")
                 return True, added_3d_comps

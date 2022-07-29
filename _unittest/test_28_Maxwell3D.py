@@ -71,6 +71,10 @@ class TestClass(BasisTest, object):
         assert cur2.delete()
         assert volt
         assert volt.delete()
+        self.aedtapp.solution_type = self.aedtapp.SOLUTIONS.Maxwell3d.TransientAPhiFormulation
+        cur2 = self.aedtapp.assign_current(["Coil_Section1"], amplitude=212)
+        assert cur2
+        assert cur2.delete()
         self.aedtapp.solution_type = "EddyCurrent"
 
     def test_05_winding(self):
@@ -340,7 +344,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.close_project(m3d1.project_name, False)
 
     def test_32_matrix(self):
-        m3d = Maxwell3d(self.file_path, specified_version=desktop_version)
+        m3d = Maxwell3d(specified_version=desktop_version, designname="Matrix1")
         m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
         m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
         m3d.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", matname="aluminum")
@@ -370,7 +374,34 @@ class TestClass(BasisTest, object):
         winding4 = m3d.assign_winding("Sheet4", name="Current4")
         L = m3d.assign_matrix(sources="Current1")
         assert not L
-        self.aedtapp.close_project(m3d.project_name, False)
+
+    def test_32B_matrix(self):
+        m3d = Maxwell3d(specified_version=desktop_version, designname="Matrix2")
+        m3d.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+        m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
+        m3d.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", matname="aluminum")
+        m3d.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", matname="aluminum")
+        m3d.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", matname="aluminum")
+
+        rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        rectangle4 = m3d.modeler.create_rectangle(0, [32.5, 1.5, 0], [2.5, 5], name="Sheet4")
+
+        m3d.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
+        m3d.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
+        m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
+        m3d.assign_current(rectangle4.faces[0], amplitude=1, name="Cur4")
+
+        L = m3d.assign_matrix(sources=["Cur1", "Cur2", "Cur3"])
+        out = L.join_series(["Cur1", "Cur2"])
+        assert isinstance(out[0], str)
+        assert isinstance(out[1], str)
+        out = L.join_parallel(["Cur1", "Cur3"])
+        assert isinstance(out[0], str)
+        assert isinstance(out[1], str)
+        out = L.join_parallel(["Cur5"])
+        assert not out[0]
 
     def test_33_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings

@@ -373,55 +373,6 @@ class EdbHfss(object):
         )
 
     @pyaedt_function_handler()
-    def create_resistor_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name="GND",
-        rvalue=1,
-        resistor_name="",
-    ):
-        """Create a Resistor boundary between two given nets.
-
-        Parameters
-        ----------
-        positive_component_name : str
-            Name of the positive component.
-        positive_net_name : str
-            Name of the positive net.
-        negative_component_name : str, optional
-            Name of the negative component. The default is ``None``, in which case the name of
-            the positive net is assigned.
-        negative_net_name : str, optional
-            Name of the negative net. The default is ``"GND"``.
-        rvalue : float, optional
-            Resistance value. The default is ``1``.
-        resistor_name : str, optional
-            Name of the resistor. The default is ``""``.
-
-        Returns
-        -------
-        str
-            Resistor Name
-
-        Examples
-        --------
-
-        >>> from pyaedt import Edb
-        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_hfss.create_resistor_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 1, "resistor_name")
-        """
-        return self._pedb.core_siwave.create_resistor_on_net(
-            positive_component_name,
-            positive_net_name,
-            negative_component_name,
-            negative_net_name,
-            rvalue,
-            resistor_name,
-        )
-
-    @pyaedt_function_handler()
     def create_coax_port_on_component(self, ref_des_list, net_list):
         """Create a coaxial port on a component or component list on a net or net list.
 
@@ -1202,3 +1153,51 @@ class EdbHfss(object):
                         void.SetPolygonData(new_void_data)
 
         return True
+
+    @pyaedt_function_handler()
+    def create_rlc_boundary_on_pins(self, positive_pin=None, negative_pin=None, rvalue=0.0, lvalue=0.0, cvalue=0.0):
+        """Create hfss rlc boundary on pins.
+
+        Parameters
+        ----------
+        positive_pin : Positive pin.
+            Edb.Cell.Primitive.PadstackInstance
+
+        negative_pin : Negative pin.
+            Edb.Cell.Primitive.PadstackInstance
+
+        rvalue : Resistance value
+
+        lvalue : Inductance value
+
+        cvalue . Capacitance value.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+
+        if positive_pin and negative_pin:
+            positive_pin_term = self._pedb.core_components._create_terminal(positive_pin)
+            negative_pin_term = self._pedb.core_components._create_terminal(negative_pin)
+            positive_pin_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
+            negative_pin_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
+            rlc = self._edb.Utility.Rlc()
+            rlc.IsParallel = True
+            rlc.REnabled = True
+            rlc.LEnabled = True
+            rlc.CEnabled = True
+            rlc.R = self._get_edb_value(rvalue)
+            rlc.L = self._get_edb_value(lvalue)
+            rlc.C = self._get_edb_value(cvalue)
+            positive_pin_term.SetRlcBoundaryParameters(rlc)
+            term_name = "{}_{}_{}".format(
+                positive_pin.GetComponent().GetName(), positive_pin.GetNet().GetName(), positive_pin.GetName()
+            )
+            positive_pin_term.SetName(term_name)
+            negative_pin_term.SetName("{}_ref".format(term_name))
+            positive_pin_term.SetReferenceTerminal(negative_pin_term)
+            return True
+        return False  # pragma no cover

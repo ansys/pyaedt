@@ -507,22 +507,15 @@ class Edb(object):
             command = os.path.join(self.base_path, "anstranslator")
             if os.name != "posix":
                 command += ".exe"
+
         if not working_dir:
             working_dir = os.path.dirname(input_file)
-        if os.name == "posix":
-            cmd_translator = [
-                command,
-                input_file,
-                os.path.join(working_dir, aedb_name),
-                "-l={}".format(os.path.join(working_dir, "Translator.log")),
-            ]
-        else:
-            cmd_translator = [
-                command,
-                input_file,
-                os.path.join(working_dir, aedb_name),
-                '-l="{}"'.format(os.path.join(working_dir, "Translator.log")),
-            ]
+        cmd_translator = [
+            command,
+            input_file,
+            os.path.join(working_dir, aedb_name),
+            "-l={}".format(os.path.join(working_dir, "Translator.log")),
+        ]
         if not use_ppe:
             cmd_translator.append("-ppe=false")
         if control_file and input_file[-3:] not in ["brd"]:
@@ -1367,7 +1360,7 @@ class Edb(object):
         return os.path.join(path_to_output, "options.config")
 
     @pyaedt_function_handler()
-    def export_hfss(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None):
+    def export_hfss(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None, hidden=False):
         """Export EDB to HFSS.
 
         Parameters
@@ -1382,6 +1375,8 @@ class Edb(object):
         aedt_file_name : str, optional
             Name of the AEDT output file without the ``.aedt`` extension. The default is ``None``,
             in which case the default name is used.
+        hidden : bool, optional
+            Open Siwave in embedding mode. User will only see Siwave Icon but UI will be hidden.
 
         Returns
         -------
@@ -1402,10 +1397,10 @@ class Edb(object):
 
         """
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
-        return siwave_s.export_3d_cad("HFSS", path_to_output, net_list, num_cores, aedt_file_name)
+        return siwave_s.export_3d_cad("HFSS", path_to_output, net_list, num_cores, aedt_file_name, hidden=hidden)
 
     @pyaedt_function_handler()
-    def export_q3d(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None):
+    def export_q3d(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None, hidden=False):
         """Export EDB to Q3D.
 
         Parameters
@@ -1420,6 +1415,8 @@ class Edb(object):
         aedt_file_name : str, optional
             Name of the AEDT output file without the ``.aedt`` extension. The default is ``None``,
             in which case the default name is used.
+        hidden : bool, optional
+            Open Siwave in embedding mode. User will only see Siwave Icon but UI will be hidden.
 
         Returns
         -------
@@ -1442,11 +1439,11 @@ class Edb(object):
 
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
         return siwave_s.export_3d_cad(
-            "Q3D", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name
+            "Q3D", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name, hidden=hidden
         )
 
     @pyaedt_function_handler()
-    def export_maxwell(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None):
+    def export_maxwell(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None, hidden=False):
         """Export EDB to Maxwell 3D.
 
         Parameters
@@ -1461,6 +1458,8 @@ class Edb(object):
         aedt_file_name : str, optional
             Name of the AEDT output file without the ``.aedt`` extension. The default is ``None``,
             in which case the default name is used.
+        hidden : bool, optional
+            Open Siwave in embedding mode. User will only see Siwave Icon but UI will be hidden.
 
         Returns
         -------
@@ -1482,7 +1481,12 @@ class Edb(object):
         """
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
         return siwave_s.export_3d_cad(
-            "Maxwell", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name
+            "Maxwell",
+            path_to_output,
+            net_list,
+            num_cores=num_cores,
+            aedt_file_name=aedt_file_name,
+            hidden=hidden,
         )
 
     @pyaedt_function_handler()

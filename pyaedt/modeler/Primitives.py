@@ -933,16 +933,19 @@ class Primitives(object):
     @property
     def solid_objects(self):
         """List of all solid objects."""
+        self._refresh_solids()
         return [self[name] for name in self.solid_names if self[name]]
 
     @property
     def sheet_objects(self):
         """List of all sheet objects."""
+        self._refresh_sheets()
         return [self[name] for name in self.sheet_names if self[name]]
 
     @property
     def line_objects(self):
         """List of all line objects."""
+        self._refresh_lines()
         return [self[name] for name in self.line_names if self[name]]
 
     @property
@@ -995,7 +998,7 @@ class Primitives(object):
     def object_names(self):
         """List of the names of all objects."""
         self._refresh_object_types()
-        return self._all_object_names
+        return [i for i in self._all_object_names if i not in self._unclassified]
 
     @property
     def user_defined_component_names(self):
@@ -2001,6 +2004,10 @@ class Primitives(object):
         """
         added_objects = []
         for obj_name in self.object_names:
+            if obj_name not in self.object_id_dict:
+                self._create_object(obj_name)
+                added_objects.append(obj_name)
+        for obj_name in self.unclassified_names:
             if obj_name not in self.object_id_dict:
                 self._create_object(obj_name)
                 added_objects.append(obj_name)
@@ -3323,7 +3330,8 @@ class Primitives(object):
         self._refresh_sheets()
         self._refresh_lines()
         self._refresh_points()
-        self._all_object_names = self._solids + self._sheets + self._lines + self._points
+        self._refresh_unclassified()
+        self._all_object_names = self._solids + self._sheets + self._lines + self._points + self._unclassified
 
     @pyaedt_function_handler()
     def _create_object(self, name):
