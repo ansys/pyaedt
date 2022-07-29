@@ -3235,7 +3235,6 @@ class SimulationConfiguration(object):
         self._solver_type = SolverType.Hfss3dLayout
         self._output_aedb = None
         self._sources = []
-        self._use_default_lambda = True
         self._mesh_sizefactor = 0.0
         self._read_cfg()
 

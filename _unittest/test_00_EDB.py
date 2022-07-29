@@ -1438,6 +1438,10 @@ if not config["skip_edb"]:
             sim_setup.power_nets = ["RSVD_0", "RSVD_1"]
             sim_setup.signal_nets = ["V3P3_S0"]
             self.edbapp.core_nets.classify_nets(sim_setup)
+            sim_setup.mesh_sizefactor = 0.1
+            assert sim_setup.do_lambda_refinement
+            assert sim_setup.mesh_sizefactor == 0.1
+            assert not sim_setup.do_lambda_refinement
 
         def test_A102_place_a3dcomp_3d_placement(self):
             source_path = os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb")
