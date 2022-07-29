@@ -71,6 +71,10 @@ class TestClass(BasisTest, object):
         assert cur2.delete()
         assert volt
         assert volt.delete()
+        self.aedtapp.solution_type = self.aedtapp.SOLUTIONS.Maxwell3d.TransientAPhiFormulation
+        cur2 = self.aedtapp.assign_current(["Coil_Section1"], amplitude=212)
+        assert cur2
+        assert cur2.delete()
         self.aedtapp.solution_type = "EddyCurrent"
 
     def test_05_winding(self):

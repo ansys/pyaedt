@@ -639,13 +639,22 @@ class SOLUTIONS(object):
     class Maxwell3d(object):
         """Provides Maxwell 3D solution types."""
 
-        (Transient, Magnetostatic, EddyCurrent, ElectroStatic, ElectroDCConduction, ElectroDCTransient) = (
+        (
+            Transient,
+            Magnetostatic,
+            EddyCurrent,
+            ElectroStatic,
+            ElectroDCConduction,
+            ElectroDCTransient,
+            TransientAPhiFormulation,
+        ) = (
             "Transient",
             "Magnetostatic",
             "EddyCurrent",
             "Electrostatic",
             "ElectroDCConduction",
             "ElectricTransient",
+            "TransientAPhiFormulation",
         )
 
     class Maxwell2d(object):
