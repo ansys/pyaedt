@@ -521,7 +521,7 @@ class Edb(object):
                 command,
                 input_file,
                 os.path.join(working_dir, aedb_name),
-                '-l="{}"'.format(os.path.join(working_dir, "Translator.log")),
+                "-l='{}'".format(os.path.join(working_dir, "Translator.log")),
             ]
         if not use_ppe:
             cmd_translator.append("-ppe=false")
