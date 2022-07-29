@@ -3235,6 +3235,8 @@ class SimulationConfiguration(object):
         self._solver_type = SolverType.Hfss3dLayout
         self._output_aedb = None
         self._sources = []
+        self._use_default_lambda = True
+        self._mesh_sizefactor = 0.0
         self._read_cfg()
 
     @property
@@ -4329,6 +4331,17 @@ class SimulationConfiguration(object):
     def output_aedb(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._output_aedb = value
+
+    @property
+    def mesh_sizefactor(self):
+        return self._mesh_sizefactor
+
+    @mesh_sizefactor.setter
+    def mesh_sizefactor(self, value):
+        if isinstance(value, float):
+            self._mesh_sizefactor = value
+            if value > 0.0:
+                self._do_lambda_refinement = False
 
     @property
     def sources(self):  # pragma: no cover
