@@ -1438,10 +1438,6 @@ if not config["skip_edb"]:
             sim_setup.power_nets = ["RSVD_0", "RSVD_1"]
             sim_setup.signal_nets = ["V3P3_S0"]
             self.edbapp.core_nets.classify_nets(sim_setup)
-            sim_setup.mesh_sizefactor = 0.1
-            assert sim_setup.do_lambda_refinement
-            assert sim_setup.mesh_sizefactor == 0.1
-            assert not sim_setup.do_lambda_refinement
 
         def test_A102_place_a3dcomp_3d_placement(self):
             source_path = os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb")
@@ -1652,16 +1648,6 @@ if not config["skip_edb"]:
             assert edb_stats.num_capacitors
             assert edb_stats.num_resistors
 
-        def test_Z_build_hfss_project_from_config_file(self):
-            cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
-            with open(cfg_file, "w") as f:
-                f.writelines("SolverType = 'Hfss3dLayout'\n")
-                f.writelines("PowerNets = ['GND']\n")
-                f.writelines("Components = ['U2A5', 'U1B5']")
-
-            sim_config = SimulationConfiguration(cfg_file)
-            assert self.edbapp.build_simulation_project(sim_config)
-
         def test_107_set_bounding_box_extent(self):
             source_path = os.path.join(local_path, "example_models", "test_107.aedb")
             target_path = os.path.join(self.local_scratch.path, "test_107.aedb")
@@ -1683,6 +1669,10 @@ if not config["skip_edb"]:
             assert len(list(edb.active_cell.SimulationSetups)) == 0
             sim_config = SimulationConfiguration()
             sim_config.enforce_causality = False
+            assert sim_config.do_lambda_refinement
+            sim_config.mesh_sizefactor = 0.1
+            assert sim_config.mesh_sizefactor == 0.1
+            assert not sim_config.do_lambda_refinement
             edb.core_hfss.configure_hfss_analysis_setup(sim_config)
             assert len(list(edb.active_cell.SimulationSetups)) == 1
             setup = list(edb.active_cell.SimulationSetups)[0]
@@ -1690,3 +1680,13 @@ if not config["skip_edb"]:
             assert len(list(ssi.SweepDataList)) == 1
             sweep = list(ssi.SweepDataList)[0]
             assert not sweep.EnforceCausality
+
+        def test_Z_build_hfss_project_from_config_file(self):
+            cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
+            with open(cfg_file, "w") as f:
+                f.writelines("SolverType = 'Hfss3dLayout'\n")
+                f.writelines("PowerNets = ['GND']\n")
+                f.writelines("Components = ['U2A5', 'U1B5']")
+
+            sim_config = SimulationConfiguration(cfg_file)
+            assert self.edbapp.build_simulation_project(sim_config)
