@@ -858,7 +858,9 @@ class EdbHfss(object):
                 [adapt]
             )
         simsetup_info.SimulationSettings.InitialMeshSettings.LambdaRefine = simulation_setup.do_lambda_refinement
-        simsetup_info.SimulationSettings.InitialMeshSettings.UseDefaultLambda = True
+        if simulation_setup.mesh_sizefactor > 0.0:
+            simsetup_info.SimulationSettings.InitialMeshSettings.MeshSizefactor = simulation_setup.mesh_sizefactor
+            simsetup_info.SimulationSettings.InitialMeshSettings.LambdaRefine = False
         simsetup_info.SimulationSettings.AdaptiveSettings.MaxRefinePerPass = 30
         simsetup_info.SimulationSettings.AdaptiveSettings.MinPasses = simulation_setup.min_num_passes
         simsetup_info.SimulationSettings.AdaptiveSettings.MinConvergedPasses = 1
