@@ -1681,6 +1681,24 @@ if not config["skip_edb"]:
             sweep = list(ssi.SweepDataList)[0]
             assert not sweep.EnforceCausality
 
+        def test_113_add_hfss_config(self):
+            source_path = os.path.join(local_path, "example_models", "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_113.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            edb = Edb(target_path)
+            sim_setup = SimulationConfiguration()
+            sim_setup.mesh_sizefactor = 1.9
+            assert not sim_setup.do_lambda_refinement
+            edb.core_hfss.configure_hfss_analysis_setup(sim_setup)
+            mesh_size_factor = (
+                list(edb.active_cell.SimulationSetups)[1]
+                .GetSimSetupInfo()
+                .get_SimulationSettings()
+                .get_InitialMeshSettings()
+                .get_MeshSizefactor()
+            )
+            assert mesh_size_factor == 1.9
+
         def test_Z_build_hfss_project_from_config_file(self):
             cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
             with open(cfg_file, "w") as f:
