@@ -1956,13 +1956,20 @@ if not config["skip_edb"]:
             sim_setup.mesh_sizefactor = 1.9
             assert not sim_setup.do_lambda_refinement
             edb.core_hfss.configure_hfss_analysis_setup(sim_setup)
-            mesh_size_factor = (
-                list(edb.active_cell.SimulationSetups)[1]
-                .GetSimSetupInfo()
-                .get_SimulationSettings()
-                .get_InitialMeshSettings()
-                .get_MeshSizefactor()
-            )
+            if is_ironpython:
+                mesh_size_factor = (
+                    list(edb.active_cell.SimulationSetups)[1]
+                    .GetSimSetupInfo()
+                    .SimulationSettings.InitialMeshSettings.MeshSizefactor
+                )
+            else:
+                mesh_size_factor = (
+                    list(edb.active_cell.SimulationSetups)[1]
+                    .GetSimSetupInfo()
+                    .get_SimulationSettings()
+                    .get_InitialMeshSettings()
+                    .get_MeshSizefactor()
+                )
             assert mesh_size_factor == 1.9
 
         def test_Z_build_hfss_project_from_config_file(self):
