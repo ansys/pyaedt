@@ -564,7 +564,12 @@ class Maxwell(object):
                         "Current": amplitude,
                     }
                 )
-            if self.solution_type not in ["Magnetostatic", "DCConduction", "ElectricTransient"]:
+            if self.solution_type not in [
+                "Magnetostatic",
+                "DCConduction",
+                "ElectricTransient",
+                "TransientAPhiFormulation",
+            ]:
                 props["Phase"] = phase
                 if self.solution_type not in ["DCConduction", "ElectricTransient"]:
                     props["IsSolid"] = solid

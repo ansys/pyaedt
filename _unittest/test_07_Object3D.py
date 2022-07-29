@@ -520,3 +520,13 @@ class TestClass(BasisTest, object):
         if not is_ironpython:
             with pytest.raises(ValueError):
                 self.aedtapp.modeler.object_list[0].edges_by_length(10, "<<")
+
+    def test_26_unclassified_object(self):
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
+        box2 = self.aedtapp.modeler.create_box([2, 2, 2], [2, 2, 2])
+        self.aedtapp.modeler.intersect([box1, box2])
+        vArg1 = ["NAME:Selections", "Selections:=", ", ".join([box1.name, box2.name])]
+        vArg2 = ["NAME:IntersectParameters", "KeepOriginals:=", False]
+
+        self.aedtapp.modeler.oeditor.Intersect(vArg1, vArg2)
+        assert box1 in self.aedtapp.modeler.unclassified_objects

@@ -1267,3 +1267,8 @@ class TestClass(BasisTest, object):
         udp = self.aedtapp.modeler.Position(5, 5, 5)
         num_clones = 5
         assert not obj_udm.duplicate_along_line(udp, num_clones)
+
+    def test_81_duplicate_and_mirror_3dcomponent(self):
+        assert self.aedtapp.modeler.duplicate_and_mirror(
+            self.aedtapp.modeler.user_defined_component_names[0], [0, 0, 0], [1, 0, 0], is_3d_comp=True
+        )

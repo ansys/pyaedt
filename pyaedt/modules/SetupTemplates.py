@@ -1,7 +1,9 @@
+import os.path
 from collections import OrderedDict
 
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
 meshlink = [("ImportMesh", False)]
 autosweep = [("RangeType", "LinearStep"), ("RangeStart", "1GHz"), ("RangeEnd", "10GHz"), ("RangeStep", "1GHz")]
@@ -1349,6 +1351,57 @@ class SweepHFSS(object):
         """
         sol = self._app.p_app.post.reports_by_category.standard(setup_name="{} : {}".format(self.setupname, self.name))
         return True if sol.get_solution_data() else False
+
+    @property
+    def frequencies(self):
+        """Get the list of all frequencies of the active sweep.
+        The project has to be saved and solved in order to see values.
+
+        Returns
+        -------
+        list of float
+            Frequency points.
+        """
+        sol = self._app.p_app.post.reports_by_category.standard(setup_name="{} : {}".format(self.setupname, self.name))
+        soldata = sol.get_solution_data()
+        if soldata and "Freq" in soldata.intrinsics:
+            return soldata.intrinsics["Freq"]
+        return []
+
+    @property
+    def basis_frequencies(self):
+        """Get the list of all frequencies which have fields available.
+        The project has to be saved and solved in order to see values.
+
+        Returns
+        -------
+        list of float
+            Frequency points.
+        """
+        solutions_file = os.path.join(self._app.p_app.results_directory, "{}.asol".format(self._app.p_app.design_name))
+        fr = []
+        if os.path.exists(solutions_file):
+            solutions = load_entire_aedt_file(solutions_file)
+            for k, v in solutions.items():
+                if "SolutionBlock" in k and "SolutionName" in v and v["SolutionName"] == self.name and "Fields" in v:
+                    try:
+                        new_list = [float(i) for i in v["Fields"]["IDDblMap"][1::2]]
+                        new_list.sort()
+                        fr.append(new_list)
+                    except (KeyError, NameError, IndexError):
+                        pass
+
+        count = 0
+        for el in self._app.p_app.setups:
+            if el.name == self.setupname:
+                for sweep in el.sweeps:
+                    if sweep.name == self.name:
+                        return fr[count] if len(fr) >= count + 1 else []
+            else:
+                for sweep in el.sweeps:
+                    if sweep.name == self.name:
+                        count += 1
+        return []
 
     @pyaedt_function_handler()
     def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz", save_single_fields=False, clear=False):

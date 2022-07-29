@@ -368,7 +368,11 @@ def create_session(server_name, client_port=None):
     RPyC object.
     """
     try:
-        client = rpyc.connect(server_name, 17878, config={"allow_public_attrs": True, "sync_request_timeout": None})
+        client = rpyc.connect(
+            server_name,
+            settings.remote_rpc_service_manager_port,
+            config={"allow_public_attrs": True, "sync_request_timeout": None},
+        )
         if not client_port:
             client_port = client.root.check_port()
         port = client.root.start_service(client_port)

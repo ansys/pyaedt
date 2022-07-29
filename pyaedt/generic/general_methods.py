@@ -1062,6 +1062,7 @@ class Settings(object):
         self.formatter = None
         self.remote_rpc_session = None
         self.remote_rpc_session_temp_folder = ""
+        self.remote_rpc_service_manager_port = 17878
         self._project_properties = {}
         self._project_time_stamp = 0
 
