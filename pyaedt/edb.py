@@ -507,22 +507,15 @@ class Edb(object):
             command = os.path.join(self.base_path, "anstranslator")
             if os.name != "posix":
                 command += ".exe"
+
         if not working_dir:
             working_dir = os.path.dirname(input_file)
-        if os.name == "posix":
-            cmd_translator = [
-                command,
-                input_file,
-                os.path.join(working_dir, aedb_name),
-                "-l={}".format(os.path.join(working_dir, "Translator.log")),
-            ]
-        else:
-            cmd_translator = [
-                command,
-                input_file,
-                os.path.join(working_dir, aedb_name),
-                "-l='{}'".format(os.path.join(working_dir, "Translator.log")),
-            ]
+        cmd_translator = [
+            command,
+            input_file,
+            os.path.join(working_dir, aedb_name),
+            "-l={}".format(os.path.join(working_dir, "Translator.log")),
+        ]
         if not use_ppe:
             cmd_translator.append("-ppe=false")
         if control_file and input_file[-3:] not in ["brd"]:
