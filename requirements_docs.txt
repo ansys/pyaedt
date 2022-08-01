@@ -2,7 +2,7 @@ recommonmark==0.7.1
 matplotlib==3.5.2
 imageio==2.20.0
 imageio-ffmpeg==0.4.7
-pyvista==0.35.1
+pyvista==0.36.1
 numpydoc==1.4.0
 Sphinx==5.1.1
 sphinx-autobuild==2021.3.14
