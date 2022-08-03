@@ -41,6 +41,24 @@ class TestClass(BasisTest, object):
         assert plate.solve_inside
         assert plate.material_name == "aluminum"
 
+    def test_01A_litz_wire(self):
+        cylinder = self.aedtapp.modeler.create_cylinder(
+            cs_axis="X", position=[50, 0, 0], radius=0.8, height=20, name="Wire", matname="magnesium"
+        )
+        self.aedtapp.materials["magnesium"].stacking_type = "Litz Wire"
+        self.aedtapp.materials["magnesium"].wire_type = "Round"
+        self.aedtapp.materials["magnesium"].strand_number = 3
+        self.aedtapp.materials["magnesium"].wire_diameter = "1mm"
+
+        self.aedtapp.materials["magnesium"].wire_type = "Square"
+        self.aedtapp.materials["magnesium"].wire_width = "2mm"
+
+        self.aedtapp.materials["magnesium"].wire_type = "Rectangular"
+        self.aedtapp.materials["magnesium"].wire_width = "2mm"
+        self.aedtapp.materials["magnesium"].wire_thickness = "1mm"
+        self.aedtapp.materials["magnesium"].wire_thickness_direction = "V(2)"
+        self.aedtapp.materials["magnesium"].wire_width_direction = "V(3)"
+
     def test_02_create_coil(self):
         center_hole = self.aedtapp.modeler.Position(119, 25, 49)
         center_coil = self.aedtapp.modeler.Position(94, 0, 49)
