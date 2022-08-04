@@ -127,7 +127,7 @@ Explicit AEDT declaration and error management
 
 .. code:: python
 
-    Launch AEDT 2021 R1 in non-graphical mode
+    # Launch AEDT 2022 R1 in non-graphical mode
 
     from pyaedt import Desktop, Circuit
     with Desktop(specified_version="2022.1",
@@ -167,7 +167,7 @@ On a CPython Server:
 
 .. code:: python
 
-    Launch PyAEDT remote server on CPython
+    # Launch PyAEDT remote server on CPython
 
     from pyaedt.common_rpc import pyaedt_service_manager
     pyaedt_service_manager()
