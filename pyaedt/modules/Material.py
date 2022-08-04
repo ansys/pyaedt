@@ -1091,6 +1091,10 @@ class CommonMaterial(object):
             self._props[propname] = str(provpavlue)
             if update_aedt:
                 return self.update()
+        elif isinstance(provpavlue, OrderedDict):
+            self._props[propname] = provpavlue
+            if update_aedt:
+                return self.update()
         elif isinstance(provpavlue, list) and self.__dict__["_" + propname].type == "nonlinear":
             if propname == "permeability":
                 bh = OrderedDict({"DimUnits": ["", ""]})
@@ -1617,13 +1621,15 @@ class Material(CommonMaterial, object):
             raise ValueError("Composition of the wire can either be 'Solid', 'Lamination' or 'Litz Wire'.")
 
         self._stacking_type = value
-        self._props["stacking_type"] = OrderedDict(
-            {
-                "property_type": "ChoiceProperty",
-                "Choice": value,
-            }
+        self._update_props(
+            "stacking_type",
+            OrderedDict(
+                {
+                    "property_type": "ChoiceProperty",
+                    "Choice": value,
+                }
+            ),
         )
-        self.update()
 
     @property
     def wire_type(self):
@@ -1647,8 +1653,7 @@ class Material(CommonMaterial, object):
             raise ValueError("The type of the wire can either be 'Round', 'Square' or 'Rectangular'.")
 
         self._wire_type = value
-        self._props["wire_type"] = OrderedDict({"property_type": "ChoiceProperty", "Choice": value})
-        self.update()
+        self._update_props("wire_type", OrderedDict({"property_type": "ChoiceProperty", "Choice": value}))
 
     @property
     def wire_thickness_direction(self):
@@ -1668,12 +1673,13 @@ class Material(CommonMaterial, object):
 
     @wire_thickness_direction.setter
     def wire_thickness_direction(self, value):
-        if not value in ["V(1)", "V(2)" or "V(3)"]:
+        if not value in ["V(1)", "V(2)", "V(3)"]:
             raise ValueError("Thickness direction of the wire can either be 'V(1)', 'V(2)' or 'V(3)'.")
 
-        self.wire_thickness_direction = value
-        self._props["wire_thickness_direction"] = OrderedDict({"property_type": "ChoiceProperty", "Choice": value})
-        self.update()
+        self._wire_thickness_direction = value
+        self._update_props(
+            "wire_thickness_direction", OrderedDict({"property_type": "ChoiceProperty", "Choice": value})
+        )
 
     @property
     def wire_width_direction(self):
@@ -1693,12 +1699,11 @@ class Material(CommonMaterial, object):
 
     @wire_width_direction.setter
     def wire_width_direction(self, value):
-        if not value in ["V(1)", "V(2)" or "V(3)"]:
+        if not value in ["V(1)", "V(2)", "V(3)"]:
             raise ValueError("Width direction of the wire can either be 'V(1)', 'V(2)' or 'V(3)'.")
 
-        self.wire_width_direction = value
-        self._props["wire_width_direction"] = OrderedDict({"property_type": "ChoiceProperty", "Choice": value})
-        self.update()
+        self._wire_width_direction = value
+        self._update_props("wire_width_direction", OrderedDict({"property_type": "ChoiceProperty", "Choice": value}))
 
     @property
     def strand_number(self):
@@ -1740,7 +1745,7 @@ class Material(CommonMaterial, object):
     @wire_thickness.setter
     def wire_thickness(self, value):
         self._wire_thickness = value
-        self._wire_thickness("wire_thickness", value)
+        self._update_props("wire_thickness", value)
 
     @property
     def wire_diameter(self):
@@ -1761,7 +1766,7 @@ class Material(CommonMaterial, object):
     @wire_diameter.setter
     def wire_diameter(self, value):
         self._wire_diameter = value
-        self._wire_diameter("wire_diameter", value)
+        self._update_props("wire_diameter", value)
 
     @property
     def wire_width(self):
@@ -1782,7 +1787,7 @@ class Material(CommonMaterial, object):
     @wire_width.setter
     def wire_width(self, value):
         self._wire_width = value
-        self._wire_width("wire_width", value)
+        self._update_props("wire_width", value)
 
     @pyaedt_function_handler()
     def set_magnetic_coercitivity(self, value=0, x=1, y=0, z=0):
