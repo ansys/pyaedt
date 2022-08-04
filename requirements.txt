@@ -13,7 +13,7 @@ pythonnet==3.0.0rc4; python_version > '3.6'
 # https://github.com/pythonnet/pythonnet
 # License: MIT
 
-rpyc==5.0.1; python_version > '3.6'
+rpyc==5.2.3; python_version > '3.6'
 # https://github.com/tomerfiliba-org/rpyc
 # License: MIT
 
