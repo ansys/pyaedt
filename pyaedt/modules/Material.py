@@ -1778,22 +1778,9 @@ class Material(CommonMaterial, object):
         self._props["core_loss_curves"]["Frequency"] = "{}Hz".format(frequency)
         self._props["core_loss_curves"]["Thickness"] = thickness
         self._props["core_loss_curves"]["IsTemperatureDependent"] = False
+
         self._props["core_loss_curves"]["BPCoordinates"] = OrderedDict({})
-
         self._props["core_loss_curves"]["BPCoordinates"]["Point"] = []
-        # self._props["AttachedData"] = OrderedDict(
-        #     {
-        #         "MatAppearanceData": OrderedDict(
-        #             {
-        #                 "property_data": "appearance_data",
-        #                 "Red": self._material_appearance[0],
-        #                 "Green": self._material_appearance[1],
-        #                 "Blue": self._material_appearance[2],
-        #             }
-        #         )
-        #     }
-        # )
-
         for points in point_list:
             self._props["core_loss_curves"]["BPCoordinates"]["Point"].append(points)
         return self.update()
