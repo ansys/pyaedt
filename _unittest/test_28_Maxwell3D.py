@@ -430,3 +430,16 @@ class TestClass(BasisTest, object):
             if bound.name == "Symmetry_Test_IsEven":
                 assert bound.type == "Symmetry"
                 assert not bound.props["IsOdd"]
+
+    def test_36_set_bp_curve_loss(self):
+        bp_curve_box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="bp_curve_box")
+        bp_curve_box.material = "magnesium"
+        assert self.aedtapp.materials["magnesium"].set_bp_curve_coreloss(
+            [[0, 0], [0.6, 1.57], [1.0, 4.44], [1.5, 20.562], [2.1, 44.23]],
+            kdc=0.002,
+            cut_depth=0.0009,
+            punit="w/kg",
+            bunit="tesla",
+            frequency=50,
+            thickness="0.5mm",
+        )
