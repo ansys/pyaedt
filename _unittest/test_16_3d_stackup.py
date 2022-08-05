@@ -23,6 +23,7 @@ class TestClass(BasisTest, object):
         self.st.add_dielectric_layer("diel3", thickness=1.2)
         p1 = self.st.add_signal_layer("p1", thickness=0)
         gnd2 = self.st.add_ground_layer("gnd2", thickness=0)
+        self.st.add
         assert gnd
         assert lay1
         assert top
@@ -59,8 +60,9 @@ class TestClass(BasisTest, object):
     def test_03_padstackline(self):
         p1 = self.st.add_padstack("Massimo", material="aluminum")
         p1.plating_ratio = 0.7
-        p1.set_start_layer("lay1")
-        p1.set_stop_layer("top")
+        assert p1.set_start_layer("lay1")
+        assert p1.set_stop_layer("top")
+        assert p1.set_start_layer("lay1")
         p1.set_all_pad_value(1)
         p1.set_all_antipad_value(3)
         p1.num_sides = 8

@@ -1021,9 +1021,11 @@ class Padstack(object):
             if k == layer:
                 found = True
             if found and layer not in self._padstacks_by_layer:
-                new_stackup[k] = PadstackLayer(self, k, v.elevation)
+                new_stackup[k] = PadstackLayer(self, k, v.elevation, v.thickness)
             elif found:
                 new_stackup[k] = self._padstacks_by_layer[k]
+            else:
+                raise ValueError("The layer named: '{}' does not exist".format(layer))
         self._padstacks_by_layer = new_stackup
         return True
 
