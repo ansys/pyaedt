@@ -1052,6 +1052,7 @@ class Padstack(object):
             if not found and k in list(self._padstacks_by_layer.keys()):
                 new_stackup[k] = self._padstacks_by_layer[k]
         self._padstacks_by_layer = new_stackup
+        return True
 
     @pyaedt_function_handler()
     def add_via(self, position_x=0, position_y=0, instance_name=None, reference_system=None):
