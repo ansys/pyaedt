@@ -59,6 +59,10 @@ class TestClass(BasisTest, object):
     def test_03_padstackline(self):
         p1 = self.st.add_padstack("Massimo", material="aluminum")
         p1.plating_ratio = 0.7
+        try:
+            p1.set_start_layer("non_existing_layer")
+        except ValueError:
+            assert True
         assert p1.set_start_layer("lay1")
         assert p1.set_stop_layer("top")
         p1.set_all_pad_value(1)
