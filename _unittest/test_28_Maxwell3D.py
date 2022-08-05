@@ -49,15 +49,26 @@ class TestClass(BasisTest, object):
         self.aedtapp.materials["magnesium"].wire_type = "Round"
         self.aedtapp.materials["magnesium"].strand_number = 3
         self.aedtapp.materials["magnesium"].wire_diameter = "1mm"
+        assert self.aedtapp.materials["magnesium"].stacking_type == "Litz Wire"
+        assert self.aedtapp.materials["magnesium"].wire_type == "Round"
+        assert self.aedtapp.materials["magnesium"].strand_number == 3
+        assert self.aedtapp.materials["magnesium"].wire_diameter == "1mm"
 
         self.aedtapp.materials["magnesium"].wire_type = "Square"
         self.aedtapp.materials["magnesium"].wire_width = "2mm"
+        assert self.aedtapp.materials["magnesium"].wire_type == "Square"
+        assert self.aedtapp.materials["magnesium"].wire_width == "2mm"
 
         self.aedtapp.materials["magnesium"].wire_type = "Rectangular"
         self.aedtapp.materials["magnesium"].wire_width = "2mm"
         self.aedtapp.materials["magnesium"].wire_thickness = "1mm"
         self.aedtapp.materials["magnesium"].wire_thickness_direction = "V(2)"
         self.aedtapp.materials["magnesium"].wire_width_direction = "V(3)"
+        assert self.aedtapp.materials["magnesium"].wire_type == "Rectangular"
+        assert self.aedtapp.materials["magnesium"].wire_width == "2mm"
+        assert self.aedtapp.materials["magnesium"].wire_thickness == "1mm"
+        assert self.aedtapp.materials["magnesium"].wire_thickness_direction == "V(2)"
+        assert self.aedtapp.materials["magnesium"].wire_width_direction == "V(3)"
 
     def test_02_create_coil(self):
         center_hole = self.aedtapp.modeler.Position(119, 25, 49)
