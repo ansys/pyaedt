@@ -4,24 +4,28 @@ HFSS: flex cable CPWG
 This example shows how you can use PyAEDT to create a flex cable CPWG (coplanar waveguide with ground).
 """
 
+###############################################################################
+# Perform required immoprts
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import os
 from math import radians, sin, cos, sqrt
 from pyaedt import Hfss
 
-
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launches AEDT 2022 R2 in graphical mode.
+# Launch AEDT 2022 R2 in graphical mode.
 
 hfss = Hfss(specified_version="2022.2", solution_type="DrivenTerminal", new_desktop_session=True, non_graphical=non_graphical)
 hfss.change_material_override(True)
@@ -32,9 +36,9 @@ hfss.mesh.assign_initial_mesh_from_slider(applycurvilinear=True)
 
 
 ###############################################################################
-# Input variables
-# ~~~~~~~~~~~~~~~
-# Input variables for creating the flex cable CPWG.
+# Create variables
+# ~~~~~~~~~~~~~~~~
+# Create input variables for creating the flex cable CPWG.
 
 total_length = 300
 theta = 120
@@ -51,8 +55,8 @@ xt = (total_length - r * radians(theta)) / 2
 ###############################################################################
 # Create bend
 # ~~~~~~~~~~~
-# Create the bend. This method creates a list of points for the bend based
-# on the curvature radius and extension.
+# Create the bend. The ``create_bending`` method creates a list of points for
+# the bend based on the curvature radius and extension.
 
 def create_bending(radius, extension=0):
     position_list = [(-xt, 0, -radius), (0, 0, -radius)]
@@ -204,7 +208,7 @@ hfss.create_linear_count_sweep(
 ###############################################################################
 # Plot model
 # ~~~~~~~~~~
-# Plot the nmodel.
+# Plot the model.
 
 my_plot = hfss.plot(show=False, plot_air_objects=False)
 my_plot.show_axes = False

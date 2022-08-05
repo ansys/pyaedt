@@ -7,18 +7,19 @@ This example shows how you can use PyAEDT to create and manipulate polylines.
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform the required imports from PyAEDT and connect to AEDT.
+# Perform required imports.
 
 import os
 from pyaedt.maxwell import Maxwell3d
 from pyaedt.modeler.Primitives import PolylineSegment
 
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 ###############################################################################
@@ -35,13 +36,13 @@ prim3D = M3D.modeler
 ###############################################################################
 # Clear existing objects
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Clear any existing objects.
+# Clear existing objects.
 
 prim3D.delete()
 
 ###############################################################################
-# Define design variables
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# Define variables
+# ~~~~~~~~~~~~~~~~
 # Define two design variables as parameters for the polyline objects.
 
 M3D["p1"] = "100mm"
@@ -57,8 +58,10 @@ M3D["p2"] = "71mm"
 test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
 
 ###############################################################################
-# Polyline primitive examples
-# ---------------------------
+# Polyline primitives
+# -------------------
+# The following examples are for creating polyline primitives.
+
 # Create line primitive
 # ~~~~~~~~~~~~~~~~~~~~~
 # Create a line primitive. The basic polyline command takes a list of positions
@@ -134,8 +137,8 @@ P = prim3D.create_polyline(
 )
 
 ###############################################################################
-# Compound polyline examples
-# --------------------------
+# Compound polylines
+# ------------------ 
 # You can use a list of points in a single command to create a multi-segment
 # polyline.
 #
@@ -147,7 +150,7 @@ P = prim3D.create_polyline(position_list=test_points, name="PL06_segmented_compo
 ###############################################################################
 # You can specify the segment type with the parameter ``segment_type``.
 # In this case, you must specify that the four input points in ``position_list``
-# are to be connected as a ``"Line"`` segment followed by a 3-point ``"Arc"`` segment.
+# are to be connected as a line segment followed by a 3-point arc segment.
 
 P = prim3D.create_polyline(position_list=test_points, segment_type=["Line", "Arc"], name="PL05_compound_line_arc")
 
@@ -166,8 +169,10 @@ P = prim3D.create_polyline(position_list=test_points, close_surface=True, name="
 P = prim3D.create_polyline(position_list=test_points, cover_surface=True, name="SPL01_segmented_compound_line")
 
 ###############################################################################
-# Compound line examples
-# ----------------------
+# Compound lines
+# --------------
+# The following examples are for inserting compound lines.
+#
 # Insert line segment
 # ~~~~~~~~~~~~~~~~~~~
 # Insert a line segment starting at vertex 1 ``["100mm", "0mm", "0mm"]``
@@ -301,7 +306,7 @@ P = prim3D.create_polyline(MDL_points, segment_type=MDL_segments, name="MDL_Poly
 
 ###############################################################################
 # Save project
-# ~~~~~~~~~~~~
+# ------------
 # Save the project.
 
 project_dir = r"C:\temp"

@@ -1,14 +1,14 @@
 """
 HFSS: advanced far field postprocessing
 ---------------------------------------
-This example shows how to use advanced postprocessing functions to create plots
+This example shows how you can use advanced postprocessing functions to create plots
 using Matplotlib without opening the HFSS user interface.
 This examples runs only on Windows using CPython.
 """
 ###############################################################################
-# Import packages
-# ~~~~~~~~~~~~~~~
-# Set the local path to the path for PyAEDT.
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import os
 import time
@@ -20,21 +20,20 @@ from pyaedt.generic.general_methods import remove_project_lock
 
 project_name = examples.download_antenna_array()
 
-
-
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 
 ###############################################################################
-# Import all modules for postprocessing
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Import all modules for postprocessing.
+# Import modules for postprocessing
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Import modules for postprocessing.
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -83,7 +82,7 @@ print("Postprocessing Time", end)
 ###############################################################################
 # Calculate far field values
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Use Matplotlib to read the solution generated in ``ff_data``and process
+# Use Matplotlib to read the solution generated in ``ff_data``. Process
 # the field based on Phi and Theta and generate a plot.
 
 def ff_calc(x=0, y=0, qty="rETotal", dB=True):

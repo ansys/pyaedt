@@ -28,7 +28,7 @@ design has changed, the boundary fails to apply.
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports from PyAEDT and connect to AEDT.
+# Perform required imports from PyAEDT.
 
 import os
 import tempfile
@@ -38,11 +38,12 @@ from pyaedt import examples
 from pyaedt import generate_unique_folder_name
 
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -59,7 +60,7 @@ ipk.autosave_disable()
 ###############################################################################
 # Create source blocks
 # ~~~~~~~~~~~~~~~~~~~~
-# Create a source block on the CPU and memmories.
+# Create a source block on the CPU and memories.
 
 ipk.create_source_block("CPU", "25W")
 ipk.create_source_block(["MEMORY1", "MEMORY1_1"], "5W")
@@ -76,8 +77,8 @@ ipk.assign_grille(air_faces=region.top_face_x.id, free_area_ratio=0.8)
 ###############################################################################
 # Create setup
 # ~~~~~~~~~~~~
-# Create the setup. With getters and setters, the properties can be set up
-# from the ``setup`` object. They don't have to perfectly match the property
+# Create the setup. Properties can be set up from the ``setup`` object
+# with getters and setters. They don't have to perfectly match the property
 # syntax.
 
 setup1 = ipk.create_setup()
@@ -108,7 +109,7 @@ ipk.close_project()
 ###############################################################################
 # Create project
 # ~~~~~~~~~~~~~~
-# Create a new Icepak project and import the step.
+# Create an Icepak project and import the step.
 
 app = Icepak(projectname="new_proj_Ipk")
 app.modeler.import_3d_cad(file_path)

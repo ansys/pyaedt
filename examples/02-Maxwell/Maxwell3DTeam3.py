@@ -4,7 +4,7 @@ Maxwell 3D: bath plate analysis
 This example uses PyAEDT to set up the TEAM 3 bath plate problem and
 solve it using the Maxwell 3D Eddy Current solver.
 """
-##########################################################
+##################################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
@@ -15,19 +15,21 @@ from pyaedt import Maxwell3d
 from pyaedt import generate_unique_project_name
 
 
-##########################################################
+##################################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ##################################################################################
 # Launch AEDT and Maxwell 3D
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT and Maxwell 3D consists of setting up the project and design names, the solver, and
-# the version. The following code also creates an instance of the ``Maxwell3d`` class named ``M3D``. 
+# Launch AEDT and Maxwell 3D after first setting up the project and design names,
+# the solver, and the version. The following code also creates an instance of the
+# ``Maxwell3d`` class named ``M3D``. 
 
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 3 Bath Plate"
@@ -46,8 +48,8 @@ uom = M3D.modeler.model_units = "mm"
 modeler = M3D.modeler
 
 ###############################################################################
-# Add desgin variable
-# ~~~~~~~~~~~~~~~~~~~
+# Add variable
+# ~~~~~~~~~~~~
 # Add a design variable named ``Coil_Position`` that you use later to adjust the
 # position of the coil.
 
@@ -89,7 +91,7 @@ M3D.mesh.assign_length_mesh("LadderPlate", maxlength=3, maxel=None, meshop_name=
 ################################################################################
 # Draw search coil and assign excitation
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Draw a search coil and assign it a `stranded`` current excitation. 
+# Draw a search coil and assign it a ``stranded`` current excitation. 
 # The stranded type forces the current density to be constant in the coil.
 
 M3D.modeler.create_cylinder(
@@ -137,8 +139,8 @@ Setup.add_eddy_current_sweep("LinearStep", 50, 200, 150, clear=True)
 
 
 ################################################################################
-# Adjust eddy effects for ladder plate and search coil
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Adjust eddy effects
+# ~~~~~~~~~~~~~~~~~~~
 # Adjust eddy effects for the ladder plate and the search coil. The setting for
 # eddy effect is ignored for the stranded conductor type used in the search coil.
 
@@ -146,8 +148,8 @@ M3D.eddy_effects_on(["LadderPlate"], activate_eddy_effects=True, activate_displa
 M3D.eddy_effects_on(["SearchCoil"], activate_eddy_effects=False, activate_displacement_current=True)
 
 ################################################################################
-# Add linear parametric sweep for coil positions
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Add linear parametric sweep
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Add a linear parametric sweep for the two coil positions.
 
 sweepname = "CoilSweep"
