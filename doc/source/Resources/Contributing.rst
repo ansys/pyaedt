@@ -54,6 +54,7 @@ and activate this tool with:
 You can also install this as a pre-commit hook with:
 
 .. code:: bash
+
   pre-commit install
 
 This way, it's not possible for you to push code that fails the style checks.
