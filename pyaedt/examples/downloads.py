@@ -565,7 +565,7 @@ def download_twin_builder_data(file_name, force_download=False, destination=None
     file_name : str
         Path of the file in Twin Builder folder.
     force_download : bool, optional
-        Force to delete cache and download files again.
+        Force to delete file and download file again.
     destination : str, optional
         Path where files will be downloaded. Optional. Default is user temp folder.
 
@@ -585,9 +585,9 @@ def download_twin_builder_data(file_name, force_download=False, destination=None
     if not destination:
         destination = EXAMPLES_PATH
     if force_download:
-        local_path = os.path.join(destination, "twin_builder")
+        local_path = os.path.join(destination, os.path.join("twin_builder", file_name))
         if os.path.exists(local_path):
-            shutil.rmtree(local_path, ignore_errors=True)
+            os.unlink(local_path)
     _download_file("twin_builder", file_name, destination)
     return os.path.join(destination, "twin_builder")
 
