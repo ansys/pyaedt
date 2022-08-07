@@ -1,6 +1,6 @@
 """
 Twin Builder: Dynamic ROM Creation and Simulation (2023 R1 Beta)
----------------------------------------------------------
+----------------------------------------------------------------
 This example shows how you can use PyAEDT to create a Dynamic ROM in Twin Builder
 and run a Twin Builder time-domain simulation.
 
@@ -11,7 +11,7 @@ with the minimum build date of 8/7/2022
 
 ###############################################################################
 # Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform the required imports.
 
 import os
@@ -125,7 +125,7 @@ tb.set_hmax("1s")
 
 ###############################################################################
 # Solve transient setup
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~
 # Solve the transient setup.
 
 tb.analyze_setup("TR")
