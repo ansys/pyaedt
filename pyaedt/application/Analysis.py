@@ -1865,22 +1865,22 @@ class Analysis(Design, object):
         default_adaptive=None,
         is_post_processed=False,
     ):
-        """export R/L matrix after solving.
+        """Export R/L matrix after solving.
 
         Parameters
         ----------
-        matrix_name: str
+        matrix_name : str
             Matrix name to be exported.
-        file_path: str
+        file_path : str
             File path to export R/L matrix file.
-        is_format_default: bool, optional
+        is_format_default : bool, optional
             Whether the exported format is default or not.
             If False the custom format is set (no exponential).
-        width: int, optional
+        width : int, optional
             Column width in exported .txt file.
-        precision: int, optional
+        precision : int, optional
             Decimal precision number in exported .txt file.
-        is_exponential: bool, optional
+        is_exponential : bool, optional
             Whether the format number is exponential or not.
         setup_name : str, optional
             Name of the setup.
