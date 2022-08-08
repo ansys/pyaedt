@@ -9,8 +9,6 @@ Q3D Extractor and run a simulation.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-# sphinx_gallery_thumbnail_path = 'Resources/busbar.png'
-
 import os
 
 from pyaedt import Q3d
@@ -157,7 +155,7 @@ a.plot()
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton completes, you can close AEDT or release it using the
+# After the simulation completes, you can close AEDT or release it using the
 # ``release_desktop`` method. All methods provide for saving projects before closing.
 
 if os.name != "posix":

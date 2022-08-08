@@ -176,7 +176,7 @@ obj = q.modeler.get_object_from_name("signal_n")
 q.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_" + obj.name)
 
 ###############################################################################
-# Define differnetial pair
+# Define differential pair
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Define the differential pair.
 

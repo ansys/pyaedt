@@ -236,7 +236,7 @@ h3d.modeler.edb.core_nets.plot(None)
 ###############################################################################
 # Create setup and sweeps
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# Getters and setter facilitate the settings on the nested property dictionary.
+# Getters and setters facilitate the settings on the nested property dictionary.
 # Previously, you had to use these commands:
 # 
 # - ``setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "20GHz"``
@@ -283,7 +283,7 @@ solution.plot()
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton completes, you can close AEDT or release it using the
+# After the simulation completes, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing AEDT.
 

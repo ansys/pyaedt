@@ -71,7 +71,7 @@ hfss.analyze_nominal(num_cores=4)
 ##########################################################
 # Get far field data
 # ~~~~~~~~~~~~~~~~~~
-# Get far field data. After the simualtion completes, the far
+# Get far field data. After the simulation completes, the far
 # field data is generated port by port and stored in a data class.
 
 ffdata = hfss.get_antenna_ffd_solution_data(sphere_name="Infinite Sphere1", setup_name=hfss.nominal_adaptive,
@@ -103,7 +103,7 @@ ffdata.plot_2d_cut(primary_sweep="phi", secondary_sweep_value=30,
                    convert_to_db=True)
 
 ##########################################################
-# Genereate 3D polar plots in Matplotlib
+# Generate 3D polar plots in Matplotlib
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Generate 3D polar plots in Matplotlib. You can define
 # the Theta scan and Phi scan.

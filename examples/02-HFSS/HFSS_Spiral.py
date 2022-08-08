@@ -65,7 +65,7 @@ def create_line(pts):
 # Create spiral inductor
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create the spiral inductor. This spiral inductor is not
-# parameteric, but you could parametrize it later.
+# parametric, but you could parametrize it later.
 
 ind = hfss.modeler.create_spiral(
     internal_radius=rin,

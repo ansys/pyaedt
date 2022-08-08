@@ -118,7 +118,7 @@ with open(json_path, "w") as outfile:
 # the JSON file path as an argument and does the following:
 #
 # - Checks if the JSON file is correctly written (as explained in the rules)
-# - Checks inequations on windings parameters to avoid having unintended intersections
+# - Checks in equations on windings parameters to avoid having unintended intersections
 
 dictionary_values = hfss.modeler.check_choke_values(json_path, create_another_file=False)
 print(dictionary_values)
@@ -219,7 +219,7 @@ hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jp
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton completes, you can close AEDT or release it using the
+# After the simulation completes, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
