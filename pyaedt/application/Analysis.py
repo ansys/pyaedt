@@ -31,6 +31,7 @@ from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.Boundary import MaxwellParameters
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import OptimizationSetups
 from pyaedt.modules.DesignXPloration import ParametricSetups
@@ -1849,3 +1850,104 @@ class Analysis(Design, object):
                 units = self.modeler.model_units
             val = "{0}{1}".format(value, units)
         return val
+
+    # Add test and check if Analysis.py is the best place to have the method
+    @pyaedt_function_handler()
+    def export_rl_matrix(
+        self,
+        matrix_name,
+        file_path,
+        is_format_default=True,
+        width=8,
+        precision=2,
+        is_exponential=False,
+        setup_name=None,
+        default_adaptive=None,
+        is_post_processed=False,
+    ):
+        """export R/L matrix after solving.
+
+        Parameters
+        ----------
+        matrix_name: str
+            Matrix name to be exported.
+        file_path: str
+            File path to export R/L matrix file.
+        is_format_default: bool, optional
+            Whether the exported format is default or not.
+            If False the custom format is set (no exponential).
+        width: int, optional
+            Column width in exported .txt file.
+        precision: int, optional
+            Decimal precision number in exported .txt file.
+        is_exponential: bool, optional
+            Whether the format number is exponential or not.
+        setup_name : str, optional
+            Name of the setup.
+        default_adaptive : str, optional
+            Adaptive type.
+        is_post_processed : bool, optional
+            Boolean to check if it is post processed.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            if not self.solution_type == "EddyCurrent":
+                msg = "RL Matrix can only be exported if solution type is Eddy Current."
+                raise ValueError(msg)
+            matrix_list = [bound for bound in self.boundaries if isinstance(bound, MaxwellParameters)]
+            if matrix_name is None:
+                msg = "Matrix name to be exported must be provided."
+                raise ValueError(msg)
+            if matrix_list:
+                if not [
+                    matrix
+                    for matrix in matrix_list
+                    if matrix.name == matrix_name or [x for x in matrix.available_properties if matrix_name in x]
+                ]:
+                    msg = "Matrix name doesn't exist, provide and existing matrix name."
+                    raise ValueError(msg)
+            else:
+                msg = "Matrix list parameters is empty, can't export a valid matrix."
+                raise ValueError(msg)
+
+            if file_path is None:
+                msg = "File path to export R/L matrix must be provided."
+                raise ValueError(msg)
+            elif os.path.splitext(file_path)[1] != ".txt":
+                msg = "File extension must be .txt"
+                raise ValueError(msg)
+
+            if setup_name is None:
+                setup_name = self.analysis_setup
+            if default_adaptive is None:
+                default_adaptive = self.design_solutions.default_adaptive
+            analysis_setup = setup_name + " : " + default_adaptive
+
+            if not self.available_variations.nominal_w_values_dict:
+                variations = ""
+            else:
+                variations = self.available_variations.nominal_w_values_dict
+
+            if not is_format_default:
+                self.oanalysis.ExportSolnData(
+                    analysis_setup,
+                    matrix_name,
+                    is_post_processed,
+                    variations,
+                    file_path,
+                    -1,
+                    is_format_default,
+                    width,
+                    precision,
+                    is_exponential,
+                )
+            else:
+                self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, file_path)
+
+            return True
+        except:
+            return False
