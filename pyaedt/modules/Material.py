@@ -1778,9 +1778,11 @@ class Material(CommonMaterial, object):
         self._props["core_loss_curves"]["Frequency"] = "{}Hz".format(frequency)
         self._props["core_loss_curves"]["Thickness"] = thickness
         self._props["core_loss_curves"]["IsTemperatureDependent"] = False
-        self._props["core_loss_curves"]["Point"] = []
+
+        self._props["core_loss_curves"]["BPCoordinates"] = OrderedDict({})
+        self._props["core_loss_curves"]["BPCoordinates"]["Point"] = []
         for points in point_list:
-            self._props["core_loss_curves"]["Point"].append(points)
+            self._props["core_loss_curves"]["BPCoordinates"]["Point"].append(points)
         return self.update()
 
     @pyaedt_function_handler()
