@@ -1104,9 +1104,9 @@ class CommonReport(object):
         text : string
             Text of the note.
         x_position : float, optional
-            x position of the note. The default is ``0``.
+            x position of the note. The default is ``0.0``.
         y_position : float, optional
-            y position of the note. The default is ``0``.
+            y position of the note. The default is ``0.0``.
         note_name : string, optional
             Internal name of the note.
 
@@ -1554,7 +1554,7 @@ class CommonReport(object):
             Plot (R, G, B) color. The default is ``(255, 255, 255)``. Each color value
             must be an integer in a range from 0 to 255.
         enable_y_stripes : bool, optional
-            Whether to Y stripes. The default is ``True``.
+            Whether to enable Y stripes. The default is ``True``.
         field_width : int, optional
             Field width. The default is ``4``.
         precision : int, optional
@@ -2476,7 +2476,7 @@ class EyeDiagram(CommonReport):
         Parameters
         ----------
         value : bool
-            Whether to enable the rectagular plot. The defaultis ``True``. When
+            Whether to enable the rectangular plot. The default is ``True``. When
             ``False``, the rectangular plot is disabled.
 
         Returns

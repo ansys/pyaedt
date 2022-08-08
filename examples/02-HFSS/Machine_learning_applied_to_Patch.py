@@ -428,7 +428,7 @@ print("output array for training: " + str(output_for_training_array))
 # (Analyze Neuronal Network). The following code uses SVR because it is easier
 # to implement. ANN is a more general method that also works with other
 # high frequency components. While it is more likely to work for other app,
-# implenting ANN is much more complex.
+# implementing ANN is much more complex.
 #
 # For SVR, there are three different kernels. For the patch antenna, RBF (Radial Basic
 # Function) is preferred. There are three other arguments that have a big impact

@@ -103,7 +103,7 @@ values = {
 ###############################################################################
 # Convert dictionary to JSON file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Covert a dictionary to a JSON file. You must supply the path of the
+# Convert a dictionary to a JSON file. You must supply the path of the
 # JSON file as an argument. 
 
 json_path = os.path.join(hfss.working_directory, "choke_example.json")

@@ -21,7 +21,7 @@ project_name= generate_unique_project_name(project_name="dipole")
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-grapical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# Set non-graphical mode. ``PYAEDT_NON_GRAPHICAL`` is needed to generate
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
