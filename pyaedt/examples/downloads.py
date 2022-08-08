@@ -563,7 +563,7 @@ def download_twin_builder_data(file_name, force_download=False, destination=None
     Parameters
     ----------
     file_name : str
-        Path of the file in Twin Builder folder.
+        Path of the file in the Twin Builder folder.
     force_download : bool, optional
         Force to delete file and download file again. Default value is ``False``.
     destination : str, optional

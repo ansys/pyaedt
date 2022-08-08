@@ -1,18 +1,18 @@
 """
-Twin Builder: Dynamic ROM Creation and Simulation (2023 R1 Beta)
+Twin Builder: dynamic ROM creation and simulation (2023 R1 beta)
 ----------------------------------------------------------------
-This example shows how you can use PyAEDT to create a Dynamic ROM in Twin Builder
+This example shows how you can use PyAEDT to create a dynamic ROM in Twin Builder
 and run a Twin Builder time-domain simulation.
 
-Usage Notice:
-This example uses functionality only available in Twin Builder 2023 R1 or higher
-with the minimum build date of 8/7/2022
+.. note::
+    This example uses functionality only available in Twin Builder 2023 R1 and later.
+    For 2023 R1, the build date must be 8/7/2022 or later. 
 """
 
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform the required imports.
+# Perform required imports.
 
 import os
 import math
@@ -39,8 +39,8 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 new_thread = True
 
 ###############################################################################
-# Setup Input Data
-# ~~~~~~~~~~~~~~~~
+# Set up input data
+# ~~~~~~~~~~~~~~~~~
 # Define needed file name
 
 source_snapshot_data_zipfilename = "Ex1_Mechanical_DynamicRom.zip"
@@ -62,7 +62,7 @@ shutil.copyfile(os.path.join(source_data_folder ,source_build_conf_file), os.pat
 
 
 ###############################################################################
-# Launch Twin Builder and build the Dynamic ROM Component
+# Launch Twin Builder and build the dynamic ROM component
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup.
@@ -73,7 +73,7 @@ tb = TwinBuilder(projectname=generate_unique_project_name(),specified_version=de
 romMgr = tb._odesign.GetROMManager()
 dromBuilder = romMgr.GetDynamicROMBuilder()
 
-# Build the Dynamic ROM with specified configuration file
+# Build the dynamic ROM with specified configuration file
 confpath = os.path.join(data_folder,source_build_conf_file)
 dromBuilder.Build(confpath.replace('\\', '/'))
 
@@ -89,11 +89,11 @@ romMgr.CreateROMComponent(drompath.replace('\\', '/'),'dynarom')
 
 
 ###############################################################################
-# Schematic Creation
-# ~~~~~~~~~~~~~~~~~~
-# Place components to create a schematic.
+# Create schematic
+# ~~~~~~~~~~~~~~~~
+# Place components to create a schematic
  
-# Define the grid distance for ease in calculations.
+# Define the grid distance for ease in calculations
 
 G = 0.00254
 
@@ -101,12 +101,12 @@ G = 0.00254
 
 rom1 = tb.modeler.schematic.create_component("ROM1","","dynarom", [36 * G, 28 * G])
 
-# Place two Excitation sources.
+# Place two excitation sources
 
 source1 = tb.modeler.schematic.create_periodic_waveform_source(None, "PULSE", 190, 0.002, "300deg", 210, 0, [20 * G, 29 * G])
 source2 = tb.modeler.schematic.create_periodic_waveform_source(None, "PULSE", 190, 0.002, "300deg", 210, 0, [20 * G, 25 * G])
 
-# Connect components with wires.
+# Connect components with wires
 
 tb.modeler.schematic.create_wire([[22 * G, 29 * G], [33 * G, 29 * G]])
 tb.modeler.schematic.create_wire([[22 * G, 25 * G], [30 * G, 25 * G], [30 * G, 28 * G], [33 * G, 28 * G]])
@@ -136,7 +136,7 @@ tb.analyze_setup("TR")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Get report data and plot it using Matplotlib. The following code gets and plots
 # the values for the voltage on the pulse voltage source and the values for the
-# output of the Dynamic ROM.
+# output of the dynamic ROM.
 
 E_Value = "PULSE1.VAL"
 x = tb.post.get_solution_data(E_Value, "TR", "Time")
