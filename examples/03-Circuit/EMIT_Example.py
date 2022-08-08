@@ -2,7 +2,7 @@
 EMIT: antenna
 ---------------------
 This example shows how you can use PyAEDT to create a project in EMIT for
-the simulation of an attenna.
+the simulation of an antenna.
 """
 ###############################################################################
 # Perform required inputs
