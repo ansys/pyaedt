@@ -56,5 +56,5 @@ class TestClass(BasisTest, object):
         assert os.path.exists(out)
 
     def test_download_twin_builder_data(self):
-        out = self.examples.download_twin_builder_data("Ex1_Mechanical_DynamicRom.zip", True)
-        assert os.path.exists(out)
+        example_folder = self.examples.download_twin_builder_data("Ex1_Mechanical_DynamicRom.zip", True)
+        assert os.path.exists(example_folder)

@@ -97,7 +97,7 @@ romMgr.CreateROMComponent(drompath.replace('\\', '/'),'dynarom')
 
 G = 0.00254
 
-# Place an Dynamic ROM component.
+# Place a Dynamic ROM component.
 
 rom1 = tb.modeler.schematic.create_component("ROM1","","dynarom", [36 * G, 28 * G])
 
@@ -155,7 +155,7 @@ plt.show()
 ###############################################################################
 # Close Twin Builder
 # ~~~~~~~~~~~~~~~~~~
-# After the simulaton is completed, you can close Twin Builder or release it.
+# After the simulation is completed, you can close Twin Builder or release it.
 # All methods provide for saving the project before closing.
 
 # Clean up the downloaded data
