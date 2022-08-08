@@ -3,10 +3,10 @@ Maxwell 3D: choke setup
 -----------------------
 This example shows how you can use PyAEDT to create a choke setup in Maxwell 3D.
 """
-##########################################################
+###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports and set paths.
+# Perform required imports.
 
 import json
 import os
@@ -15,14 +15,12 @@ from pyaedt import generate_unique_project_name
 from pyaedt import Maxwell3d
 from pyaedt.modules.Mesh import Mesh
 
-
-
-
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can define ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 version = "2022.2"
@@ -127,8 +125,8 @@ print(dictionary_values)
 ###############################################################################
 # Create choke
 # ~~~~~~~~~~~~
-# Create the choke. The ``create_choke`` method takes the JSON file path in an 
-# argument and creates the choke.
+# Create the choke. The ``create_choke`` method takes the JSON file path as an 
+# argument.
 
 list_object = m3d.modeler.create_choke(json_path)
 print(list_object)

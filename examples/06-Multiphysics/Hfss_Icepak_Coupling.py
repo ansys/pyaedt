@@ -1,8 +1,8 @@
 """
 Multiphysics: HFSS-Icepack multiphysics analysis
 ------------------------------------------------
-This example shows how to create a full project from scratch in HFSS and Icepak (linked to HFSS).
-The project creates a setup, solves it, and creates postprocessing outputs.
+This example shows how you can create a project from scratch in HFSS and Icepak (linked to HFSS).
+This includes creating a setup, solving it, and creating postprocessing outputs.
 
 To provide the advanced postprocessing features needed for this example, Matplotlib, NumPy, and
 PyVista must be installed on the machine.
@@ -10,26 +10,24 @@ PyVista must be installed on the machine.
 This examples runs only on Windows using CPython.
 """
 ###############################################################################
-# Perform required imports and set paths
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports and set paths.
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import os
 import sys
 from pyaedt import generate_unique_project_name
 
-
-
 from pyaedt.generic.constants import GLOBALCS
 from pyaedt import Hfss
 from pyaedt import Icepak
 
-
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 desktopVersion = "2022.2"
@@ -46,8 +44,8 @@ project_file = generate_unique_project_name()
 ###############################################################################
 # Launch AEDT and initialize HFSS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT and initialize HFSS. If there is an active HFSS design, ``aedtapp``
-# is linked to it. Otherwise, a new design is created.
+# Launch AEDT and initialize HFSS. If there is an active HFSS design, the ``aedtapp``
+# object is linked to it. Otherwise, a new design is created.
 
 aedtapp = Hfss(projectname=project_file, specified_version=desktopVersion, non_graphical=non_graphical, new_desktop_session=NewThread)
 
@@ -65,7 +63,7 @@ aedtapp["inner"] = "3mm"
 ###############################################################################
 # Create coaxial and cylinders
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create a coaxial and three cylinders in the modeler. You can apply parameters
+# Create a coaxial and three cylinders. You can apply parameters
 # directly using the :func:`pyaedt.modeler.Primitives3D.Primitives3D.create_cylinder`
 # method. You can assign a material directly to the object creation action.
 # Optionally, you can assign a material using the :func:`assign_material` method.
@@ -178,7 +176,7 @@ ipkapp.assign_em_losses(
 ipkapp.edit_design_settings(aedtapp.GravityDirection.ZNeg)
 
 ################################################################################
-# Set Up Icepak project
+# Set up Icepak project
 # ~~~~~~~~~~~~~~~~~~~~~
 # Set up the Icepak project. When you create a setup, default settings are applied.
 # When you need to change a property of the setup, you can use the ``props``

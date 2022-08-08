@@ -1,13 +1,13 @@
 """
 SBR+: HFSS to SBR+ coupling
 ---------------------------
-This example shows how you can use PyAEDT to create an SBR+ project from an
+This example shows how you can use PyAEDT to create an HFSS SBR+ project from an
 HFSS antenna and run a simulation.
 """
 ###############################################################################
-# Import packages
-# ~~~~~~~~~~~~~~~
-# Import packages and set up the local path to the path for the ``PyAEDT``
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perrform rquired imports and set up the local path to the path for the PyAEDT
 # directory.
 
 import os
@@ -17,18 +17,19 @@ from pyaedt import Hfss
 project_full_name = examples.download_sbr(generate_unique_project_name(project_name="sbr_freq"))
 
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
 # Define designs
 # ~~~~~~~~~~~~~~
-# Define two designs, one source and one target, with each one connected to
+# Define two designs, one source and one target, with each design connected to
 # a different object.
 
 target = Hfss(
@@ -44,7 +45,7 @@ source = Hfss(projectname=target.project_name, designname="feeder", specified_ve
 ###############################################################################
 # Define linked antenna
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# Define a linked antenna. This is HFSS far field applied to SBR+.
+# Define a linked antenna. This is HFSS far field applied to HFSS SBR+.
 
 target.create_sbr_linked_antenna(source, target_cs="feederPosition", fieldtype="farfield")
 
