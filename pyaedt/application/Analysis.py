@@ -1851,7 +1851,6 @@ class Analysis(Design, object):
             val = "{0}{1}".format(value, units)
         return val
 
-    # Add test and check if Analysis.py is the best place to have the method
     @pyaedt_function_handler()
     def export_rl_matrix(
         self,
