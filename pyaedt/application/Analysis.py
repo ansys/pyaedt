@@ -1896,8 +1896,7 @@ class Analysis(Design, object):
         """
         try:
             if not self.solution_type == "EddyCurrent":
-                msg = "RL Matrix can only be exported if solution type is Eddy Current."
-                raise ValueError(msg)
+                raise ValueError("RL Matrix can only be exported if solution type is Eddy Current.")
             matrix_list = [bound for bound in self.boundaries if isinstance(bound, MaxwellParameters)]
             if matrix_name is None:
                 msg = "Matrix name to be exported must be provided."
