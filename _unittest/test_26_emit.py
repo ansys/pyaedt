@@ -84,7 +84,7 @@ class TestClass(BasisTest, object):
         antenna = self.aedtapp.modeler.components.create_component("Antenna")
         # Default pattern filename is empty string
         pattern_filename = antenna.get_pattern_filename()
-        assert pattern_filename is ""
+        assert pattern_filename == ""
         # Default orientation is 0 0 0
         orientation = antenna.get_orientation_rpy()
         assert orientation == (0.0, 0.0, 0.0)

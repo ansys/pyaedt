@@ -432,6 +432,25 @@ class TestClass(BasisTest, object):
         out = L.join_parallel(["Cur5"])
         assert not out[0]
 
+    def test_32a_export_rl_matrix(self):
+        self.aedtapp.set_active_design("Matrix2")
+        L = self.aedtapp.assign_matrix(sources=["Cur1", "Cur2", "Cur3"], matrix_name="matrix_export_test")
+        L.join_series(["Cur1", "Cur2"], matrix_name="reduced_matrix_export_test")
+        setup_name = "setupTestMatrixRL"
+        setup = self.aedtapp.create_setup(setupname=setup_name)
+        setup.props["MaximumPasses"] = 2
+        export_path_1 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test1.txt")
+        assert not self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
+        assert not self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1, False, 10, 3, True)
+        self.aedtapp.validate_simple()
+        self.aedtapp.analyze_setup(setup_name)
+        assert self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
+        assert not self.aedtapp.export_rl_matrix("abcabc", export_path_1)
+        assert os.path.exists(export_path_1)
+        export_path_2 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test2.txt")
+        assert self.aedtapp.export_rl_matrix("matrix_export_test", export_path_2, False, 10, 3, True)
+        assert os.path.exists(export_path_2)
+
     def test_33_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
         assert self.aedtapp.mesh.initial_mesh_settings.props
