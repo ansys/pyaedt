@@ -1887,7 +1887,7 @@ class Analysis(Design, object):
         default_adaptive : str, optional
             Adaptive type.
         is_post_processed : bool, optional
-            Boolean to check if it is post processed.
+            Boolean to check if it is post processed. Default value is ``False``.
 
         Returns
         -------
