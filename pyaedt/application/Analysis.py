@@ -1878,7 +1878,7 @@ class Analysis(Design, object):
         width : int, optional
             Column width in exported .txt file.
         precision : int, optional
-            Decimal precision number in exported .txt file.
+            Decimal precision number in exported *.txt file.
         is_exponential : bool, optional
             Whether the format number is exponential or not.
         setup_name : str, optional
