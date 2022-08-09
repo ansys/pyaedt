@@ -1893,44 +1893,45 @@ class Analysis(Design, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        try:
-            if not self.solution_type == "EddyCurrent":
-                raise ValueError("RL Matrix can only be exported if solution type is Eddy Current.")
-            matrix_list = [bound for bound in self.boundaries if isinstance(bound, MaxwellParameters)]
-            if matrix_name is None:
-                msg = "Matrix name to be exported must be provided."
-                raise ValueError(msg)
-            if matrix_list:
-                if not [
-                    matrix
-                    for matrix in matrix_list
-                    if matrix.name == matrix_name or [x for x in matrix.available_properties if matrix_name in x]
-                ]:
-                    msg = "Matrix name doesn't exist, provide and existing matrix name."
-                    raise ValueError(msg)
-            else:
-                msg = "Matrix list parameters is empty, can't export a valid matrix."
-                raise ValueError(msg)
+        if not self.solution_type == "EddyCurrent":
+            self.logger.error("RL Matrix can only be exported if solution type is Eddy Current.")
+            return False
+        matrix_list = [bound for bound in self.boundaries if isinstance(bound, MaxwellParameters)]
+        if matrix_name is None:
+            self.logger.error("Matrix name to be exported must be provided.")
+            return False
+        if matrix_list:
+            if not [
+                matrix
+                for matrix in matrix_list
+                if matrix.name == matrix_name or [x for x in matrix.available_properties if matrix_name in x]
+            ]:
+                self.logger.error("Matrix name doesn't exist, provide and existing matrix name.")
+                return False
+        else:
+            self.logger.error("Matrix list parameters is empty, can't export a valid matrix.")
+            return False
 
-            if file_path is None:
-                msg = "File path to export R/L matrix must be provided."
-                raise ValueError(msg)
-            elif os.path.splitext(file_path)[1] != ".txt":
-                msg = "File extension must be .txt"
-                raise ValueError(msg)
+        if file_path is None:
+            self.logger.error("File path to export R/L matrix must be provided.")
+            return False
+        elif os.path.splitext(file_path)[1] != ".txt":
+            self.logger.error("File extension must be .txt")
+            return False
 
-            if setup_name is None:
-                setup_name = self.analysis_setup
-            if default_adaptive is None:
-                default_adaptive = self.design_solutions.default_adaptive
-            analysis_setup = setup_name + " : " + default_adaptive
+        if setup_name is None:
+            setup_name = self.analysis_setup
+        if default_adaptive is None:
+            default_adaptive = self.design_solutions.default_adaptive
+        analysis_setup = setup_name + " : " + default_adaptive
 
-            if not self.available_variations.nominal_w_values_dict:
-                variations = ""
-            else:
-                variations = self.available_variations.nominal_w_values_dict
+        if not self.available_variations.nominal_w_values_dict:
+            variations = ""
+        else:
+            variations = self.available_variations.nominal_w_values_dict
 
-            if not is_format_default:
+        if not is_format_default:
+            try:
                 self.oanalysis.ExportSolnData(
                     analysis_setup,
                     matrix_name,
@@ -1943,9 +1944,14 @@ class Analysis(Design, object):
                     precision,
                     is_exponential,
                 )
-            else:
+            except:
+                self.logger.error("Solutions are empty. Solve before exporting.")
+                return False
+        else:
+            try:
                 self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, file_path)
+            except:
+                self.logger.error("Solutions are empty. Solve before exporting.")
+                return False
 
-            return True
-        except:
-            return False
+        return True

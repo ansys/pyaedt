@@ -308,9 +308,11 @@ class TestClass(BasisTest, object):
         setup_name = "setupTestMatrixRL"
         setup = self.aedtapp.create_setup(setupname=setup_name)
         setup.props["MaximumPasses"] = 2
+        export_path_1 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test1.txt")
+        assert not self.aedtapp.export_rl_matrix("Test1", export_path_1)
+        assert not self.aedtapp.export_rl_matrix("Test2", export_path_1, False, 10, 3, True)
         self.aedtapp.validate_simple()
         self.aedtapp.analyze_setup(setup_name)
-        export_path_1 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test1.txt")
         assert self.aedtapp.export_rl_matrix("Test1", export_path_1)
         assert not self.aedtapp.export_rl_matrix("abcabc", export_path_1)
         assert os.path.exists(export_path_1)
