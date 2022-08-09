@@ -430,3 +430,10 @@ class TestClass(BasisTest, object):
             if bound.name == "Symmetry_Test_IsEven":
                 assert bound.type == "Symmetry"
                 assert not bound.props["IsOdd"]
+
+    def test_37_assign_insulating(self):
+        insulated_box = self.aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="insulated_box")
+        insulating_assignment = self.aedtapp.assign_insulating(insulated_box.name, "InsulatingExample")
+        assert insulating_assignment.name == "InsulatingExample"
+        insulating_assignment.name = "InsulatingExampleModified"
+        assert insulating_assignment.update()

@@ -1419,6 +1419,88 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         )
         Maxwell.__init__(self)
 
+    @pyaedt_function_handler()
+    def assign_insulating(self, geometry_selection, insulation=None):
+        """Create an insulating boundary condition.
+
+        Parameters
+        ----------
+        geometry_selection : str
+            Name of the sheet to apply the boundary to.
+        insulation_name : str, optional
+            Name of the insulation. The default is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignInsulating
+
+        Examples
+        --------
+
+        Create a box and use it to create an impedance.
+
+        >>> insulated_box = maxwell3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="Plate")
+        >>> insulating_assignment = hfss.assign_impedance_to_sheet(insulated_box, "InsulatingExample")
+        >>> type(insulating_assignment)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
+        """
+
+        if self.solution_type in [
+            "EddyCurrent",
+            "Transient",
+            "TransientAPhiFormulation",
+            "DCConduction",
+            "ElectroDCConduction",
+        ]:
+
+            if not insulation:
+                insulation = generate_unique_name("Insulation")
+            elif insulation in self.modeler.get_boundaries_name():
+                insulation = generate_unique_name(insulation)
+
+            listobj = self.modeler.convert_to_selections(geometry_selection, True)
+            props = {"Objects": listobj}
+
+            return self._create_boundary(insulation, props, "Insulating")
+        return False
+
+    @pyaedt_function_handler()
+    def _create_boundary(self, name, props, boundary_type):
+        """Create a boundary.
+
+        Parameters
+        ---------
+        name : str
+            Name of the boundary.
+        props : list
+            List of properties for the boundary.
+        boundary_type :
+            Type of the boundary.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        """
+
+        bound = BoundaryObject(self, name, props, boundary_type)
+        result = bound.create()
+        if result:
+            self.boundaries.append(bound)
+            self.logger.info("Boundary %s %s has been correctly created.", boundary_type, name)
+            return bound
+
+        self.logger.error("Error in boundary creation for %s %s.", boundary_type, name)
+        return result
+
 
 class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     """Provides the Maxwell 2D application interface.
