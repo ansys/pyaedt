@@ -19,7 +19,7 @@ PyAEDT documentation  |version|
 
 
 
-Indices and Tables
+Indices and tables
 ==================
 * :ref:`genindex`
 * :ref:`modindex`

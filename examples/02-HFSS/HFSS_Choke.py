@@ -18,18 +18,19 @@ from pyaedt.modules.Mesh import Mesh
 
 project_name = generate_unique_project_name(project_name="choke")
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
 # Launch HFSS
 # ~~~~~~~~~~~
-# Launches HFSS 2022.2 in graphical mode.
+# Launches HFSS 2022 R2 in graphical mode.
 
 hfss = Hfss(projectname=project_name, specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True,
             solution_type="Terminal")
@@ -102,8 +103,8 @@ values = {
 ###############################################################################
 # Convert dictionary to JSON file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Covert a dictionary to a JSON file. PyAEDT methods ask for the path of the
-# JSON file as an argument. You can convert a dictionary to a JSON file.
+# Convert a dictionary to a JSON file. You must supply the path of the
+# JSON file as an argument. 
 
 json_path = os.path.join(hfss.working_directory, "choke_example.json")
 
@@ -125,8 +126,8 @@ print(dictionary_values)
 ###############################################################################
 # Create choke
 # ~~~~~~~~~~~~
-# Create the choke. The ``create_choke`` method takes the JSON file path in an 
-# argument and creates the choke.
+# Create the choke. The ``create_choke`` method takes the JSON file path as an 
+# argument.
 
 list_object = hfss.modeler.create_choke(json_path)
 print(list_object)

@@ -1,9 +1,12 @@
 """
 EDB: parametric via creation
 ----------------------------
-This example shows how to use EDB to create a layout.
+This example shows how you can use EDB to create a layout.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/viawizard.png'
+###############################################################################
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import os
 import numpy as np
@@ -16,7 +19,8 @@ aedb_path = os.path.join(generate_unique_folder_name(), generate_unique_name("vi
 ###############################################################################
 # Create stackup
 # ~~~~~~~~~~~~~~
-# The ``StackupSimple`` class creates a stackup based on few inputs. It is used later.
+# The ``StackupSimple`` class creates a stackup based on few inputs. This stackup
+# is used later.
 
 class StackupSimple:
     """Creates a typical PCB stackup"""
@@ -180,8 +184,8 @@ StackupSimple(
 ).create_stackup()
 
 ##################################################################################
-# Create parameters
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create variables
+# ~~~~~~~~~~~~~~~~
 # Create all variables. If a variable has a ``$`` prefix, it is a project variable.
 # Otherwise, is is a design variable.
 

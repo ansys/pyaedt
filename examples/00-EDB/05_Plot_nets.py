@@ -1,13 +1,13 @@
 """
 EDB: plot nets with Matplotlib
 ------------------------------
-This example shows how to use the ``Edb`` class to plot a net or a layout.
+This example shows how you can use the ``Edb`` class to plot a net or a layout.
 """
 
 ###############################################################################
-# Import section
-# ~~~~~~~~~~~~~~
-# Import section.
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports, which includes importing a section.
 
 import os
 from pyaedt import generate_unique_folder_name, examples, Edb

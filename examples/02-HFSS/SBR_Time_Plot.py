@@ -6,22 +6,23 @@ and save it to a GIF file. This example works only on CPython.
 """
 
 ###############################################################################
-# Import packages
+# Perform required imports.
 # ~~~~~~~~~~~~~~~
-# Import the packages.
+# Perform requried imports.
 
 import os
 from pyaedt import Hfss, examples
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical model. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
-##########################################################
+###############################################################################
 # Launch AEDT and load project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT and load the project.
@@ -36,7 +37,7 @@ hfss.analyze_nominal()
 # Get solution data
 # ~~~~~~~~~~~~~~~~~
 # Get solution data. After simulation is performed, you can load solutions
-# in ``solution_data``.
+# in the ``solution_data`` object.
 
 solution_data = hfss.post.get_solution_data(expressions=["NearEX", "NearEY", "NearEZ"],
                                             variations={"_u": ["All"], "_v": ["All"], "Freq": ["All"]},
@@ -52,9 +53,9 @@ t_matrix = solution_data.ifft("NearE", window=True)
 
 
 ###############################################################################
-# Export IFFT to CSV files
+# Export IFFT to CSV file
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Export the IFFT to CSV files.
+# Export IFFT to a CSV file.
 
 frames_list_file = solution_data.ifft_to_file(coord_system_center=[-0.15, 0, 0], db_val=True,
                                               csv_dir=os.path.join(hfss.working_directory, "csv"))
