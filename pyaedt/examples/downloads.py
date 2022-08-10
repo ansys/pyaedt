@@ -572,7 +572,7 @@ def download_twin_builder_data(file_name, force_download=False, destination=None
     Returns
     -------
     str
-        Path to the example folder containing all example files.
+        Path to the folder containing all Twin Builder example data files.
 
     Examples
     --------
