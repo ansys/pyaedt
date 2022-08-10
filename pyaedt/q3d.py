@@ -368,6 +368,82 @@ class QExtractor(FieldAnalysis3D, object):
 
         return True
 
+    def export_matrix_data(
+        self,
+        file_name,
+        problem_type,
+        variation=None,
+        analysis_setup=None,
+        reduce_matrix=None,
+        r_unit=None,
+        l_unit=None,
+        c_unit=None,
+        g_unit=None,
+        freq=None,
+        matrix_type=None,
+    ):
+        """Export Matrix Data.
+
+        Parameters
+        ----------
+        file_name : str
+            File path to save matrix data.
+            Possible file extensions are: *.m, *.lvl, *.csv, *.txt.
+        problem_type : str
+            Problem type.
+            Possible values are: "C", "AC RL", "DC RL".
+        variation : str, optional
+            Design variation.
+            Empty string uses the current nominal variation.
+        analysis_setup : str, optional
+            Analysis setup.
+            Default value is setup name + solution frequency.
+        reduce_matrix : str, optional
+            Name of the matrix to display.
+            Default value is "Original".
+        r_unit : str, optional
+            Resistance unit value.
+            Default value is "ohm".
+        l_unit : str, optional
+            Inductance unit value.
+            Default value is "nH".
+        c_unit : str, optional
+            Capacitance unit value.
+            Default value is "pF".
+        g_unit : str, optional
+            Conductance unit value.
+            Default value is "pF".
+        freq : str, optional
+            Selected frequency.
+            Default Value is 0Hz.
+        matrix_type : str, optional
+            Matrix Type.
+            Possible Values are "Maxwell", "Spice" and "Couple".
+            Default value is "Maxwell, Spice, Couple".
+
+
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self.odesign.ExportMatrixData(
+            file_name,
+            problem_type,
+            variation,
+            analysis_setup,
+            reduce_matrix,
+            r_unit,
+            l_unit,
+            c_unit,
+            g_unit,
+            freq,
+            matrix_type,
+        )
+        # export_AC_DC_res, precision, field_width, use_sci_notation
+        pass
+
 
 class Q3d(QExtractor, object):
     """Provides the Q3D app interface.
