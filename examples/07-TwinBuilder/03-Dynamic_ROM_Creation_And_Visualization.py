@@ -62,14 +62,14 @@ shutil.copyfile(os.path.join(source_data_folder ,source_build_conf_file), os.pat
 
 
 ###############################################################################
-# Launch Twin Builder and build the dynamic ROM component
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Launch Twin Builder and build ROM component
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch Twin Builder using an implicit declaration and add a new design with
-# a default setup.
+# a default setup for building the dynamic ROM component.
 
 tb = TwinBuilder(projectname=generate_unique_project_name(),specified_version=desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
 
-# Get the Dynamic ROM Builder object
+# Get the dynamic ROM builder object
 romMgr = tb._odesign.GetROMManager()
 dromBuilder = romMgr.GetDynamicROMBuilder()
 
@@ -91,13 +91,13 @@ romMgr.CreateROMComponent(drompath.replace('\\', '/'),'dynarom')
 ###############################################################################
 # Create schematic
 # ~~~~~~~~~~~~~~~~
-# Place components to create a schematic
+# Place components to create a schematic.
  
 # Define the grid distance for ease in calculations
 
 G = 0.00254
 
-# Place a Dynamic ROM component.
+# Place a dynamic ROM component
 
 rom1 = tb.modeler.schematic.create_component("ROM1","","dynarom", [36 * G, 28 * G])
 

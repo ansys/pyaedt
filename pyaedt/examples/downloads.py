@@ -555,10 +555,10 @@ def download_multiparts(destination=None):
 
 
 def download_twin_builder_data(file_name, force_download=False, destination=None):
-    """Download specified Twin Builder example data file.
+    """Download a Twin Builder example data file.
 
     Examples files are downloaded to a persistent cache to avoid
-    re-downloading the same file twice.
+    downloading the same file twice.
 
     Parameters
     ----------
@@ -567,7 +567,7 @@ def download_twin_builder_data(file_name, force_download=False, destination=None
     force_download : bool, optional
         Force to delete file and download file again. Default value is ``False``.
     destination : str, optional
-        Path where files will be downloaded. Default is ``user temp`` folder.
+        Path to download files to. The default is the user's temporary folder.
 
     Returns
     -------
