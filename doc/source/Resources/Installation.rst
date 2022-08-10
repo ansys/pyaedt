@@ -16,9 +16,9 @@ In addition to the runtime dependencies listed in the installation information, 
    Add how to install from the AEDT installer like as in https://mapdldocs.pyansys.com/getting_started/running_mapdl.html
 
 
-Installing on CPython from PyPI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You can install PyAEDT on CPython 3.7 through 3.10 from PyPi. Install the prerequisite packages ``pythonnet``
+Install on CPython from PyPI
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can install PyAEDT on CPython 3.7 through 3.10 from PyPI. Install the prerequisite packages ``pythonnet``
 and ``pywin32`` with:
 
 .. code:: python
@@ -34,8 +34,8 @@ variables:
     export LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH
 
 
-Installing offline from a wheelhouse
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Install offline from a wheelhouse
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You can install PyAEDT from a wheelhouse in a release's assets. Wheelhouses for CPython 3.7, 3.8, and 3.9
 are available in the releases for PyAEDT v0.4.70 and later.
 
@@ -50,8 +50,8 @@ For example, here is a command for installing the PyAEDT package and all its dep
     pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v<release_version>-wheelhouse-Windows-3.7 pyaedt
 
 
-Installing from a batch file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Install from a batch file
+~~~~~~~~~~~~~~~~~~~~~~~~~
 AEDT already includes CPython 3.7, which can be used to run PyAEDT.
 If you are running on Windows, you can download
 :download:`PyAEDT Environment with IDE bat file <pyaedt_with_IDE.bat>`
@@ -107,8 +107,8 @@ Otherwise, you must download and use the correct wheelhouse:
     pyaedt_with_IDE.bat -p <path-to-python3.9-root-folder> -w <path_to_wheelhouse>PyAEDT-v<release_version>-wheelhouse-Windows-3.9
 
 
-Using IronPython in AEDT
-~~~~~~~~~~~~~~~~~~~~~~~~
+Use IronPython in AEDT
+~~~~~~~~~~~~~~~~~~~~~~
 To use IronPython in AEDT:
 
 1. Download the PyAEDT package from ``https://pypi.org/project/pyaedt/#files``.

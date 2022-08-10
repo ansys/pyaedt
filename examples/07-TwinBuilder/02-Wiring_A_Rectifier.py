@@ -140,7 +140,7 @@ plt.show()
 ###############################################################################
 # Close Twin Builder
 # ~~~~~~~~~~~~~~~~~~
-# After the simulaton is completed, you can close Twin Builder or release it.
+# After the simulation is completed, you can close Twin Builder or release it.
 # All methods provide for saving the project before closing.
 
 if os.name != "posix":

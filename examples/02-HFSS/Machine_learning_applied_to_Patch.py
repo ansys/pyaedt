@@ -148,7 +148,7 @@ patch = signal.add_patch(patch_length=1009.86, patch_width=1185.9, patch_name="P
 ###############################################################################
 # Resize layers around patch
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Resise the layers around the patch so that they change when the patch changes.
+# Resize the layers around the patch so that they change when the patch changes.
 
 stackup.resize_around_element(patch)
 
@@ -340,7 +340,7 @@ with open(json_file_path, "w") as readfile:
 #
 # Import training cases
 # ~~~~~~~~~~~~~~~~~~~~~
-# Import the 3,300 cases in the suppplied JSON file to train the model. As mentioned
+# Import the 3,300 cases in the supplied JSON file to train the model. As mentioned
 # earlier, you cannot use the small database that you generated earlier for training
 # the model. Its 8 cases are used later to test the model.
 
@@ -460,7 +460,7 @@ joblib.dump(regression, model_file)
 ###############################################################################
 # Implement model in PyAEDT method
 # -------------------------------------
-# This section describes the third step, which is for implementating the model
+# This section describes the third step, which is for implementing the model
 # in the PyAEDT method.
 # 
 # Load model

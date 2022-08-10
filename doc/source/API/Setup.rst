@@ -35,7 +35,7 @@ The ``Setup`` object is accessible through the ``create_setup`` method and ``set
     ...
 
 
-Sweep Classes
+Sweep classes
 =============
 This section lists sweep classes and their default values:
 

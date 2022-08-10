@@ -1,5 +1,5 @@
 """
-Circuit: netlist to schematic iport
+Circuit: netlist to schematic import
 ------------------------------------
 This example shows how you can import netlist data into a circuit design.
 HSPICE files are fully supported. Mentor files are partially supported.

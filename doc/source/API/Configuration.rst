@@ -12,11 +12,11 @@ cover the following apps:
 The sections covered are:
 
 * Variables
-* Mesh Operations
-* Setup and Optimetrics
-* Material Properties
-* Object Properties
-* Boundaries and Excitations
+* Mesh operations
+* Setup and optimetrics
+* Material properties
+* Object properties
+* Boundaries and excitations
 
 When a boundary is attached to a face, the tool tries to match it with a
 FaceByPosition on the same object name on the target design. If, for any
