@@ -141,8 +141,8 @@ Explicit AEDT declaration and error management
     # Desktop is automatically released here.
 
 
-Implicit AEDT declaration and error management
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Implicittt AEDT declaration and error manoffagement
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
 

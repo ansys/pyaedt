@@ -26,6 +26,7 @@ jobs:
           vale_flags: "--config=doc/.vale.ini"
 
   docs_build:
+    name: Documentation Build
     runs-on: ubuntu-20.04
 
     steps:
