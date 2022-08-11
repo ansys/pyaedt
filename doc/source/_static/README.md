@@ -2,5 +2,5 @@
 
 Place custom CSS files in this folder.
 
-Emphasis shouldd beofr on improving the ``pyansys-sphinx-theme`` and
+Emphasis should be on improving the ``pyansys-sphinx-theme`` and
 having a unified "feel" across the PyAnsys packages.
