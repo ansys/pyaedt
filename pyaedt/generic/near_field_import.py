@@ -3,6 +3,8 @@ import glob
 import os
 import re
 
+from pyaedt.generic.general_methods import open_file
+
 
 class BoxFacePointsAndFields(object):
     """Data model class containing field component and coordinates."""
@@ -83,7 +85,7 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
         # Read in all data for the current file
         x, y, z = [], [], []
         real, imag = [], []
-        with open(data_file, "r") as f:
+        with open_file(data_file, "r") as f:
             for line in f:
                 line = line.strip().split(" ")
                 if len(line) == 5:
@@ -131,7 +133,7 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
     commented_header_line = "#Index, X, Y, Z, Ex(real, imag), Ey(real, imag), Ez(real, imag), "
     commented_header_line += "Hx(real, imag), Hy(real, imag), Hz(real, imag)\n"
 
-    with open(nfd_full_file, "w") as file:
+    with open_file(nfd_full_file, "w") as file:
         writer = csv.writer(file, delimiter=",", lineterminator="\n")
         file.write(commented_header_line)
         file.write("Frequencies 1\n")
@@ -155,7 +157,7 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
     cy_mm = center_y * 1000
     cz_mm = center_z * 1000
 
-    with open(and_full_file, "w") as file:
+    with open_file(and_full_file, "w") as file:
         file.write("$begin 'NearFieldHeader'\n")
         file.write("	type='nfd'\n")
         file.write("	fields='EH'\n")

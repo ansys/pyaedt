@@ -5,8 +5,8 @@ import sys
 
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.constants import PLANE
-from pyaedt.generic.constants import scale_units
 from pyaedt.generic.constants import SWEEPDRAFT
+from pyaedt.generic.constants import scale_units
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -104,7 +104,7 @@ class GeometryOperators(object):
                 if not variable_manager.set_variable("temp_var", string):
                     if not variable_manager.set_variable("temp_var", string, postprocessing=True):
                         return string
-                value = variable_manager["temp_var"].value
+                value = variable_manager["temp_var"].value / sunit
                 del variable_manager["temp_var"]
                 return value
 

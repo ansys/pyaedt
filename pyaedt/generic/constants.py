@@ -1,7 +1,6 @@
 import math
 import warnings
 
-
 RAD2DEG = 180.0 / math.pi
 DEG2RAD = math.pi / 180
 HOUR2SEC = 3600.0
@@ -346,6 +345,26 @@ AEDT_UNITS = {
         "megtesla": 1e6,
         "gtesla": 1e9,
     },
+    "E-field": {
+        "fV_per_m": 1e-15,
+        "pV_per_m": 1e-12,
+        "nV_per_m": 1e-9,
+        "uV_per_m": 1e-6,
+        "mV_per_m": 1e-3,
+        "V_per_m": 1.0,
+        "kV_per_m": 1e3,
+        "megV_per_m": 1e6,
+        "gV_per_m": 1e9,
+        "fV_per_meter": 1e-15,
+        "pV_per_meter": 1e-12,
+        "nV_per_meter": 1e-9,
+        "uV_per_meter": 1e-6,
+        "mV_per_meter": 1e-3,
+        "V_per_meter": 1.0,
+        "kV_per_meter": 1e3,
+        "megV_per_meter": 1e6,
+        "gV_per_meter": 1e9,
+    },
     "H-field": {
         "fA_per_m": 1e-15,
         "pA_per_m": 1e-12,
@@ -365,6 +384,26 @@ AEDT_UNITS = {
         "kA_per_meter": 1e3,
         "megA_per_meter": 1e6,
         "gA_per_meter": 1e9,
+    },
+    "J-field": {
+        "fA_per_m2": 1e-15,
+        "pA_per_m2": 1e-12,
+        "nA_per_m2": 1e-9,
+        "uA_per_m2": 1e-6,
+        "mA_per_m2": 1e-3,
+        "A_per_m2": 1.0,
+        "kA_per_m2": 1e3,
+        "megA_per_m2": 1e6,
+        "gA_per_m2": 1e9,
+        "fA_per_meter2": 1e-15,
+        "pA_per_meter2": 1e-12,
+        "nA_per_meter2": 1e-9,
+        "uA_per_meter2": 1e-6,
+        "mA_per_meter2": 1e-3,
+        "A_per_meter2": 1.0,
+        "kA_per_meter2": 1e3,
+        "megA_per_meter2": 1e6,
+        "gA_per_meter2": 1e9,
     },
 }
 SI_UNITS = {
@@ -388,7 +427,9 @@ SI_UNITS = {
     "Temperature": "kel",
     "Power": "W",
     "B-field": "tesla",
+    "E-field": "V_per_meter",
     "H-field": "A_per_meter",
+    "J-field": "A_per_m2",
 }
 UNIT_SYSTEM_OPERATIONS = {
     # Multiplication of physical domains
@@ -577,7 +618,7 @@ class NodeType(object):
 class SourceType(object):
     """Type of excitation enumerator."""
 
-    (CoaxPort, CircPort, LumpedPort, Vsource, Isource, Resistor, Inductor, Capacitor) = range(0, 8)
+    (CoaxPort, CircPort, LumpedPort, Vsource, Isource, Rlc) = range(0, 6)
 
 
 class SOLUTIONS(object):
@@ -586,24 +627,34 @@ class SOLUTIONS(object):
     class Hfss(object):
         """Provides HFSS solution types."""
 
-        (DrivenModal, DrivenTerminal, EigenMode, Transient, SBR) = (
+        (DrivenModal, DrivenTerminal, EigenMode, Transient, SBR, Characteristic) = (
             "Modal",
             "Terminal",
-            "EigenMode",
+            "Eigenmode",
             "Transient Network",
             "SBR+",
+            "Characteristic",
         )
 
     class Maxwell3d(object):
         """Provides Maxwell 3D solution types."""
 
-        (Transient, Magnetostatic, EddyCurrent, ElectroStatic, ElectroDCConduction, ElectroDCTransient) = (
+        (
+            Transient,
+            Magnetostatic,
+            EddyCurrent,
+            ElectroStatic,
+            ElectroDCConduction,
+            ElectroDCTransient,
+            TransientAPhiFormulation,
+        ) = (
             "Transient",
             "Magnetostatic",
             "EddyCurrent",
             "Electrostatic",
             "ElectroDCConduction",
             "ElectricTransient",
+            "TransientAPhiFormulation",
         )
 
     class Maxwell2d(object):

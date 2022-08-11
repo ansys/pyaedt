@@ -1,34 +1,38 @@
 """
-Q3d: Busbar Analysis
+Q3D Extractor: busbar analysis
 --------------------
 This example shows how you can use PyAEDT to create a busbar design in
-in Q3D and run a simulation.
+Q3D Extractor and run a simulation.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/busbar.png'
+###############################################################################
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import os
 
 from pyaedt import Q3d
+from pyaedt import generate_unique_project_name
 
-
-##########################################################
-# Set Non Graphical Mode.
-# Default is False
+###############################################################################
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
-# Launch AEDT and Q3D
-# ~~~~~~~~~~~~~~~~~~~
-# This example launches AEDT 2022R2 in graphical mode.
-
-# This example use SI units.
+# Launch AEDT and Q3D Extractor
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Launch AEDT 2022 R2 in graphical mode and launch Q3D Extractor. This example uses SI units.
 
 
-q = Q3d(specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
+q = Q3d(projectname=generate_unique_project_name(), specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
-# Create Primitives
+# Create primitives
 # ~~~~~~~~~~~~~~~~~
 # Create polylines for three busbars and a box for the substrate.
 
@@ -69,7 +73,7 @@ q.modeler["substrate"].transparency = 0.8
 q.plot(show=False, export_path=os.path.join(q.working_directory, "Q3D.jpg"), plot_air_objects=False)
 
 ###############################################################################
-# Set Up Boundaries
+# Set up boundaries
 # ~~~~~~~~~~~~~~~~~
 # Identify nets and assign sources and sinks to all nets.
 # There is a source and sink for each busbar.
@@ -86,9 +90,10 @@ bar3_sink = q.assign_sink_to_objectface("Bar3", axisdir=q.AxisDir.YPos)
 bar3_sink.name = "Sink3"
 
 ###############################################################################
-# Print Infos
-# ~~~~~~~~~~~
-# There are different methods to print nets and terminal informations.
+# Print information
+# ~~~~~~~~~~~~~~~~~
+# Use the different methods available to print net and terminal information.
+
 print(q.nets)
 print(q.net_sinks("Bar1"))
 print(q.net_sinks("Bar2"))
@@ -98,10 +103,10 @@ print(q.net_sources("Bar2"))
 print(q.net_sources("Bar3"))
 
 ###############################################################################
-# Add a Q3D Setup
-# ~~~~~~~~~~~~~~~
-# This command adds a setup to the project and defines the adaptive frequency
-# value.
+# Create setup
+# ~~~~~~~~~~~~
+# Create a setup for Q3D Extractor and add a sweep that defines the adaptive
+# frequency value.
 
 setup1 = q.create_setup(props={"AdaptiveFreq": "100MHz"})
 sw1 = setup1.add_sweep()
@@ -111,9 +116,9 @@ sw1.props["RangeStep"] = "5MHz"
 sw1.update()
 
 ###############################################################################
-# Get Curves for plot
+# Get curves to plot
 # ~~~~~~~~~~~~~~~~~~~
-# This command simplify the way you can get curves to be plotted.
+# Get the curves to plot. The following code simplifies the way to get curves.
 
 data_plot_self = q.matrices[0].get_sources_for_plot(get_self_terms=True, get_mutual_terms=False)
 data_plot_mutual = q.get_traces_for_plot(get_self_terms=False, get_mutual_terms=True, category="C")
@@ -121,24 +126,26 @@ data_plot_self
 data_plot_mutual
 
 ###############################################################################
-# Create a Rectangular Plot
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
-# This command creates a rectangular plot and a Data Table.
+# Create rectangular plot
+# ~~~~~~~~~~~~~~~~~~~~~~~
+# Create a rectangular plot and a data table.
+
 q.post.create_report(expressions=data_plot_self)
 
 q.post.create_report(expressions=data_plot_mutual, context="Original", plot_type="Data Table")
 
 ###############################################################################
-# Solve the Setup
-# ~~~~~~~~~~~~~~~
-# This command solves the setup.
+# Solve setup
+# ~~~~~~~~~~~
+# Solve the setup.
 
 q.analyze_nominal()
+q.save_project()
 
 ###############################################################################
-# Get Report Data
+# Get report data
 # ~~~~~~~~~~~~~~~
-# This command get the report data into a Data Structure that allows to manipulate them.
+# Get the report data into a data structure that allows you to manipulate it.
 
 a = q.post.get_solution_data(expressions=data_plot_self, context="Original")
 a.intrinsics["Freq"]
@@ -148,8 +155,8 @@ a.plot()
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton is completed, you can close AEDT or release it using the
-# `release_desktop` method.
-# All methods provide for saving projects before exiting.
+# After the simulation completes, you can close AEDT or release it using the
+# ``release_desktop`` method. All methods provide for saving projects before closing.
+
 if os.name != "posix":
     q.release_desktop(close_projects=True, close_desktop=True)

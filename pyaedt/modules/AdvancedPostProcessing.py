@@ -10,6 +10,7 @@ import time
 import warnings
 
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.plot import ModelPlotter
 from pyaedt.modules.PostProcessor import PostProcessor as Post
@@ -262,8 +263,7 @@ class PostProcessor(Post):
             generate_mesh=False,
         )
 
-        if not show:
-            model.off_screen = True
+        model.off_screen = not show
         if export_path:
             model.plot(export_path)
         elif show:
@@ -585,7 +585,7 @@ class PostProcessor(Post):
 
         """
         if isinstance(frames_list, str) and os.path.exists(frames_list):
-            with open(frames_list, "r") as f:
+            with open_file(frames_list, "r") as f:
                 lines = f.read()
                 temp_list = lines.splitlines()
             frames_paths_list = [i for i in temp_list]

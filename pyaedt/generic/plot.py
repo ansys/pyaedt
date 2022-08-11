@@ -1,3 +1,4 @@
+import ast
 import csv
 import os
 import tempfile
@@ -11,6 +12,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import convert_remote_object
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import open_file
 
 if not is_ironpython:
     try:
@@ -33,8 +35,8 @@ if not is_ironpython:
 
     try:
         import matplotlib.pyplot as plt
-        from matplotlib.path import Path
         from matplotlib.patches import PathPatch
+        from matplotlib.path import Path
 
     except ImportError:
         warnings.warn(
@@ -162,7 +164,7 @@ def _parse_aedtplt(filepath):
     vertices = []
     faces = []
     scalars = []
-    with open(filepath, "r") as f:
+    with open_file(filepath, "r") as f:
         drawing_found = False
         for line in f:
             if "$begin Drawing" in line:
@@ -274,7 +276,7 @@ def _parse_aedtplt(filepath):
 
 def _parse_streamline(filepath):
     streamlines = []
-    with open(filepath, "r") as f:
+    with open_file(filepath, "r") as f:
         lines = f.read().splitlines()
         new_line = False
         streamline = []
@@ -499,16 +501,14 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
     fig, ax = plt.subplots(figsize=figsize)
-    try:
-        len(plot_data)
-    except:
-        plot_data = convert_remote_object(plot_data)
-    for object in plot_data:
-        if object[-1] == "fill":
-            plt.fill(object[0], object[1], c=object[2], label=object[3], alpha=object[4])
-        elif object[-1] == "path":
-            path = Path(object[0], object[1])
-            patch = PathPatch(path, color=object[2], alpha=object[4], label=object[3])
+    if isinstance(plot_data, str):
+        plot_data = ast.literal_eval(plot_data)
+    for points in plot_data:
+        if points[-1] == "fill":
+            plt.fill(points[0], points[1], c=points[2], label=points[3], alpha=points[4])
+        elif points[-1] == "path":
+            path = Path(points[0], points[1])
+            patch = PathPatch(path, color=points[2], alpha=points[4], label=points[3])
             ax.add_patch(patch)
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
@@ -1194,7 +1194,7 @@ class ModelPlotter(object):
                     nodes = []
                     values = []
                     is_vector = False
-                    with open(field.path, "r") as f:
+                    with open_file(field.path, "r") as f:
                         try:
                             lines = f.read().splitlines()[field.header_lines :]
                             if ".csv" in field.path:
@@ -1259,7 +1259,10 @@ class ModelPlotter(object):
                 self.actor = actor
 
             def __call__(self, state):
-                self.actor.SetVisibility(state)
+                try:
+                    self.actor._cached_mesh.SetVisibility(state)
+                except AttributeError:
+                    self.actor.SetVisibility(state)
 
         class ChangePageCallback:
             """Helper callback to keep a reference to the actor being modified."""
@@ -1277,7 +1280,10 @@ class ModelPlotter(object):
                 self.text = []
 
             def __call__(self, state):
-                self.plot.button_widgets = [self.plot.button_widgets[0]]
+                try:
+                    self.plot.button_widgets = [self.plot.button_widgets[0]]
+                except:
+                    self.plot.button_widgets = []
                 self.id += 1
                 k = 0
                 startpos = self.startpos
@@ -1288,7 +1294,7 @@ class ModelPlotter(object):
                 self.text = []
                 k = 0
 
-                while k < self.max_elements:
+                while k < min(self.max_elements, len(self.actors)):
                     if self.i >= len(self.actors):
                         self.i = 0
                         self.id = 0
@@ -1315,50 +1321,15 @@ class ModelPlotter(object):
                     k += 1
                     self.i += 1
 
-        el = 1
-        for actor in self.objects:
-            if el < max_elements:
-                callback = SetVisibilityCallback(actor._cached_mesh)
-                buttons.append(
-                    self.pv.add_checkbox_button_widget(
-                        callback,
-                        value=True,
-                        position=(5.0, startpos + 50),
-                        size=size,
-                        border_size=1,
-                        color_on=[i / 255 for i in actor.color],
-                        color_off="grey",
-                        background_color=None,
-                    )
-                )
-                texts.append(
-                    self.pv.add_text(actor.name, position=(50.0, startpos + 50), font_size=size // 3, color=axes_color)
-                )
-                startpos = startpos - size - (size // 10)
-                el += 1
-        for actor in self.fields:
-            if actor._cached_mesh and el < max_elements:
-                callback = SetVisibilityCallback(actor._cached_mesh)
-                buttons.append(
-                    self.pv.add_checkbox_button_widget(
-                        callback,
-                        value=True,
-                        position=(5.0, startpos + 50),
-                        size=size,
-                        border_size=1,
-                        color_on="blue",
-                        color_off="grey",
-                        background_color=None,
-                    )
-                )
-                texts.append(
-                    self.pv.add_text(actor.name, position=(50.0, startpos + 50), font_size=size // 3, color=axes_color)
-                )
-                startpos = startpos - size - (size // 10)
-                el += 1
-        actors = [i for i in self._fields if i._cached_mesh] + self._objects
-        if texts and len(texts) >= max_elements:
-            callback = ChangePageCallback(self.pv, actors, axes_color)
+        if len(self.objects) > 100:
+            actors = [i for i in self._fields if i._cached_mesh] + self._objects
+        else:
+            actors = [i for i in self._fields if i._cached_mesh] + self._objects
+        # if texts and len(texts) < len(actors):
+        callback = ChangePageCallback(self.pv, actors, axes_color)
+
+        callback.__call__(False)
+        if callback.max_elements < len(actors):
             self.pv.add_checkbox_button_widget(
                 callback,
                 value=True,

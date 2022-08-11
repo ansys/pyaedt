@@ -8,9 +8,11 @@ from __future__ import absolute_import  # noreorder
 
 import re
 
-from pyaedt import pyaedt_function_handler, _retry_ntimes
-from pyaedt.modeler.Object3d import rgb_color_codes, clamp
+from pyaedt import _retry_ntimes
+from pyaedt import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.Object3d import clamp
+from pyaedt.modeler.Object3d import rgb_color_codes
 
 
 class Objec3DLayout(object):

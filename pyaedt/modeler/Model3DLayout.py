@@ -10,6 +10,7 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Modeler import Modeler
 from pyaedt.modeler.object3dlayout import ComponentsSubCircuit3DLayout
@@ -787,7 +788,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             self.o_model_manager.Add(args)
         if not subcircuit_name:
             subcircuit_name = model_name
-        with open(model_path, "r") as f:
+        with open_file(model_path, "r") as f:
             for line in f:
                 if "subckt" in line.lower():
                     pinNames = [i.strip() for i in re.split(" |\t", line) if i]

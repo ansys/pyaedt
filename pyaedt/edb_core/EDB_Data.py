@@ -920,6 +920,7 @@ class EDBLayer(object):
             ``True`` when successful, ``False`` when failed.
         """
         thisLC = self._edb.Cell.LayerCollection(self._active_layout.GetLayerCollection())
+        layer_collection_mode = thisLC.GetMode()
         layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         layers.reverse()
         newLayers = List[self._edb.Cell.Layer]()
@@ -953,8 +954,12 @@ class EDBLayer(object):
 
         lcNew = self._edb.Cell.LayerCollection()
         newLayers.Reverse()
-        if not lcNew.AddLayers(newLayers) or not self._active_layout.SetLayerCollection(lcNew):
+        if not lcNew.AddLayers(newLayers):
             self._logger.error("Failed to set new layers when updating the stackup information.")
+            return False
+        lcNew.SetMode(layer_collection_mode)
+        if not self._active_layout.SetLayerCollection(lcNew):
+            self._logger.error("Failed to set new layer stackup mode when updating the stackup information.")
             return False
         self._pedblayers._update_edb_objects()
         time.sleep(1)
@@ -1975,6 +1980,18 @@ class EDBPadstack(object):
         else:
             return 0
 
+    @hole_plating_thickness.setter
+    def hole_plating_thickness(self, value):
+        """Hole plating thickness.
+
+        Returns
+        -------
+        float
+            Thickness of the hole plating if present.
+        """
+        hr = 200 * float(value) / float(self.hole_properties[0])
+        self.hole_plating_ratio = hr
+
     @property
     def hole_finished_size(self):
         """Finished hole size.
@@ -2614,7 +2631,7 @@ class EDBComponent(object):
 
     @property
     def solder_ball_height(self):
-        """Solder ball height if available.."""
+        """Solder ball height if available."""
         if "GetSolderBallProperty" in dir(self.component_property):
             return self.component_property.GetSolderBallProperty().GetHeight()
         return None
@@ -2638,8 +2655,30 @@ class EDBComponent(object):
         return self.edbcomponent.GetName()
 
     @property
+    def is_enabled(self):
+        """Check if the current object is enabled.
+
+        Returns
+        -------
+        bool
+            ``True`` if current object is enabled, ``False`` otherwise.
+        """
+        if self.type in ["Resistor", "Capacitor", "Inductor"]:
+            return self.component_property.IsEnabled()
+        else:  # pragma: no cover
+            return False
+
+    @is_enabled.setter
+    def is_enabled(self, enabled):
+        """Enables the current object."""
+        if self.type in ["Resistor", "Capacitor", "Inductor"]:
+            component_property = self.component_property
+            component_property.SetEnabled(enabled)
+            self.edbcomponent.SetComponentProperty(component_property)
+
+    @property
     def res_value(self):
-        """Resitance Value.
+        """Resitance value.
 
         Returns
         -------
@@ -2705,8 +2744,7 @@ class EDBComponent(object):
         """
         cmp_type = int(self.edbcomponent.GetComponentType())
         if 0 < cmp_type < 4:
-            componentProperty = self.edbcomponent.GetComponentProperty()
-            model = componentProperty.GetModel()
+            model = self.component_property.GetModel().Clone()
             pinpairs = model.PinPairs
             for pinpair in pinpairs:
                 pair = model.GetPinPairRlc(pinpair)
@@ -2980,7 +3018,11 @@ class Source(object):
         self._negative_node = Node()
         self._amplitude = 1.0
         self._phase = 0.0
-        self._impedance_value = 1.0
+        self._impedance = 1.0
+        self._r = 1.0
+        self._l = 0.0
+        self._c = 0.0
+        self._create_physical_resistor = True
         self._config_init()
 
     def _config_init(self):
@@ -3009,11 +3051,13 @@ class Source(object):
         if isinstance(value, int):
             self._source_type = value
             if value == 3:
-                self._impedance_value = 1e-6
+                self._impedance = 1e-6
             if value == 4:
-                self._impedance_value = 5e7
+                self._impedance = 5e7
             if value == 5:
-                self._impedance_value = 1.0
+                self._r = 1.0
+                self._l = 0.0
+                self._c = 0.0
 
     @property
     def positive_node(self):  # pragma: no cover
@@ -3058,14 +3102,50 @@ class Source(object):
             self._phase = value
 
     @property
-    def impedance_value(self):  # pragma: no cover
+    def impedance(self):  # pragma: no cover
         """Impedance values of the source."""
-        return self._impedance_value
+        return self._impedance
 
-    @impedance_value.setter
-    def impedance_value(self, value):  # pragma: no cover
+    @impedance.setter
+    def impedance(self, value):  # pragma: no cover
         if isinstance(value, float):
-            self._impedance_value = value
+            self._impedance = value
+
+    @property
+    def r_value(self):
+        return self._r
+
+    @r_value.setter
+    def r_value(self, value):
+        if isinstance(value, float) or isinstance(value, int):
+            self._r = value
+
+    @property
+    def l_value(self):
+        return self._l
+
+    @l_value.setter
+    def l_value(self, value):
+        if isinstance(value, float) or isinstance(value, int):
+            self._l = value
+
+    @property
+    def c_value(self):
+        return self._c
+
+    @c_value.setter
+    def c_value(self, value):
+        if isinstance(value, float) or isinstance(value, int):
+            self._c = value
+
+    @property
+    def create_physical_resistor(self):
+        return self._create_physical_resistor
+
+    @create_physical_resistor.setter
+    def create_physical_resistor(self, value):
+        if isinstance(value, bool):
+            self._create_physical_resistor = value
 
     def _json_format(self):  # pragma: no cover
         dict_out = {}
@@ -3214,6 +3294,7 @@ class SimulationConfiguration(object):
         self._solver_type = SolverType.Hfss3dLayout
         self._output_aedb = None
         self._sources = []
+        self._mesh_sizefactor = 0.0
         self._read_cfg()
 
     @property
@@ -4310,6 +4391,17 @@ class SimulationConfiguration(object):
             self._output_aedb = value
 
     @property
+    def mesh_sizefactor(self):
+        return self._mesh_sizefactor
+
+    @mesh_sizefactor.setter
+    def mesh_sizefactor(self, value):
+        if isinstance(value, float):
+            self._mesh_sizefactor = value
+            if value > 0.0:
+                self._do_lambda_refinement = False
+
+    @property
     def sources(self):  # pragma: no cover
         return self._sources
 
@@ -4635,33 +4727,29 @@ class SimulationConfiguration(object):
         else:
             return False
 
-    def add_dc_source(
+    def add_voltage_source(
         self,
-        source_type=SourceType.Vsource,
         name="",
-        amplitude=1.0,
-        phase=0.0,
-        impedance=1.0,
+        voltage_value=1,
+        phase_value=0,
+        impedance=1e-6,
         positive_node_component="",
         positive_node_net="",
         negative_node_component="",
         negative_node_net="",
     ):
-        """Add a source for the current SimulationConfiguration instance.
+        """Add a voltage source for the current SimulationConfiguration instance.
 
         Parameters
         ----------
-        source_type : SourceType
-            Source type that is defined.
-
         name : str
             Source name.
 
-        amplitude : float
+        voltage_value : float
             Amplitude value of the source. Either amperes for current source or volts for
             voltage source.
 
-        phase : float
+        phase_value : float
             Phase value of the source.
 
         impedance : float
@@ -4682,56 +4770,174 @@ class SimulationConfiguration(object):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when a file name is not provided.
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
         >>> edb = Edb(target_file)
         >>> sim_setup = SimulationConfiguration()
-        >>> sim_setup.solver_type = SolverType.SiwaveDC
-        >>> sim_setup.add_dc_source(source_type=SourceType.Vsource, positive_node_component="V1",
+        >>> sim_setup.add_voltage_source(voltage_value=1.0, phase_value=0, positive_node_component="V1",
         >>> positive_node_net="HSG", negative_node_component="V1", negative_node_net="SW")
 
         """
-        if not isinstance(source_type, int):  # pragma: no cover
-            return False
         if name == "":  # pragma: no cover
-            if isinstance(source_type, int):
-                if source_type == 3:
-                    name = generate_unique_name("v_source")
-                elif source_type == 4:
-                    name = generate_unique_name("I_source")
-                elif source_type == 5:
-                    name = generate_unique_name("R")
-        if not isinstance(amplitude, float):  # pragma: no cover
-            return False
-        if not isinstance(phase, float):  # pragma: no cover
-            return False
-        if not isinstance(positive_node_component, str):  # pragma: no cover
-            return False
-        if not isinstance(positive_node_net, str):  # pragma: no cover
-            return False
-        if not isinstance(negative_node_component, str):  # pragma: no cover
-            return False
-        if not isinstance(negative_node_net, str):  # pragma: no cover
-            return False
-        if not isinstance(impedance, float):  # pragma: no cover
-            return False
+            name = generate_unique_name("v_source")
         source = Source()
-        if source_type == 3:  # pragma: no cover
-            source.source_type = SourceType.Vsource
-        elif source_type == 4:  # pragma: no cover
-            source.source_type = SourceType.Isource
-        elif source_type == 5:  # pragma: no cover
-            source.source_type = SourceType.Resistor
+        source.source_type = SourceType.Vsource
         source.name = name
-        source.amplitude = amplitude
-        source.phase = phase
+        source.amplitude = voltage_value
+        source.phase = phase_value
         source.positive_node.component = positive_node_component
         source.positive_node.net = positive_node_net
         source.negative_node.component = negative_node_component
         source.negative_node.net = negative_node_net
         source.impedance_value = impedance
+        try:  # pragma: no cover
+            self.sources.append(source)
+            return True
+        except:  # pragma: no cover
+            return False
+
+    def add_current_source(
+        self,
+        name="",
+        current_value=0.1,
+        phase_value=0,
+        impedance=5e7,
+        positive_node_component="",
+        positive_node_net="",
+        negative_node_component="",
+        negative_node_net="",
+    ):
+        """Add a current source for the current SimulationConfiguration instance.
+
+        Parameters
+        ----------
+        name : str
+            Source name.
+
+        current_value : float
+            Amplitude value of the source. Either amperes for current source or volts for
+            voltage source.
+
+        phase_value : float
+            Phase value of the source.
+
+        impedance : float
+            Impedance value of the source.
+
+        positive_node_component : str
+            Name of the component used for the positive node.
+
+        negative_node_component : str
+            Name of the component used for the negative node.
+
+        positive_node_net : str
+            Net used for the positive node.
+
+        negative_node_net : str
+            Net used for the negative node.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> edb = Edb(target_file)
+        >>> sim_setup = SimulationConfiguration()
+        >>> sim_setup.add_voltage_source(voltage_value=1.0, phase_value=0, positive_node_component="V1",
+        >>> positive_node_net="HSG", negative_node_component="V1", negative_node_net="SW")
+        """
+
+        if name == "":  # pragma: no cover
+            name = generate_unique_name("I_source")
+        source = Source()
+        source.source_type = SourceType.Isource
+        source.name = name
+        source.amplitude = current_value
+        source.phase = phase_value
+        source.positive_node.component = positive_node_component
+        source.positive_node.net = positive_node_net
+        source.negative_node.component = negative_node_component
+        source.negative_node.net = negative_node_net
+        source.impedance_value = impedance
+        try:  # pragma: no cover
+            self.sources.append(source)
+            return True
+        except:  # pragma: no cover
+            return False
+
+    def add_rlc(
+        self,
+        name="",
+        r_value=1.0,
+        c_value=0.0,
+        l_value=0.0,
+        positive_node_component="",
+        positive_node_net="",
+        negative_node_component="",
+        negative_node_net="",
+        create_physical_rlc=True,
+    ):
+        """Add a voltage source for the current SimulationConfiguration instance.
+
+        Parameters
+        ----------
+        name : str
+            Source name.
+
+        r_value : float
+            Resistor value in Ohms.
+
+        l_value : float
+            Inductance value in Henry.
+
+        c_value : float
+            Capacitance value in Farrad.
+
+        positive_node_component : str
+            Name of the component used for the positive node.
+
+        negative_node_component : str
+            Name of the component used for the negative node.
+
+        positive_node_net : str
+            Net used for the positive node.
+
+        negative_node_net : str
+            Net used for the negative node.
+
+        create_physical_rlc : bool
+            When True create a physical Rlc component. Recommended setting to True to be compatible with Siwave.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> edb = Edb(target_file)
+        >>> sim_setup = SimulationConfiguration()
+        >>> sim_setup.add_voltage_source(voltage_value=1.0, phase_value=0, positive_node_component="V1",
+        >>> positive_node_net="HSG", negative_node_component="V1", negative_node_net="SW")
+        """
+
+        if name == "":  # pragma: no cover
+            name = generate_unique_name("Rlc")
+        source = Source()
+        source.source_type = SourceType.Rlc
+        source.name = name
+        source.r_value = r_value
+        source.l_value = l_value
+        source.c_value = c_value
+        source.create_physical_resistor = create_physical_rlc
+        source.positive_node.component = positive_node_component
+        source.positive_node.net = positive_node_net
+        source.negative_node.component = negative_node_component
+        source.negative_node.net = negative_node_net
         try:  # pragma: no cover
             self.sources.append(source)
             return True

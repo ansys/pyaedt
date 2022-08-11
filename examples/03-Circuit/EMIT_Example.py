@@ -1,21 +1,28 @@
 """
-EMIT: Antenna Example
+EMIT: antenna
 ---------------------
-This tutorial shows how you can use PyAEDT to create a project in EMIT.
+This example shows how you can use PyAEDT to create a project in EMIT for
+the simulation of an antenna.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/emit.png'
+###############################################################################
+# Perform required inputs
+# ~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
+
 import os
 from pyaedt import Emit
 from pyaedt import Desktop
+from pyaedt import generate_unique_project_name
+
 
 ###############################################################################
-# Initialization Settings
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Change NonGraphical Boolean to False to open AEDT in graphical mode
-# With NewThread = False, an existing instance of AEDT will be used, if
-# available. This example will use AEDT 2022R2. However this example is supposed to work
-# on AEDT 2022R2 and on.
-
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
+# The ``NewThread`` Boolean variable defines whether to create a new instance
+# of AEDT or try to connect to existing instance of it if one is available.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = False
@@ -23,20 +30,20 @@ desktop_version = "2022.2"
 
 
 ###############################################################################
-# Launch AEDT and EMIT Design
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Desktop class initializes AEDT and starts it on specified version and
-# specified graphical mode. NewThread Boolean variable defines if a user wants
-# to create a new instance of AEDT or try to connect to existing instance of
-# it.
+# Launch AEDT with EMIT
+# ~~~~~~~~~~~~~~~~~~~~~
+# Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
+# on the specified version and in the specified graphical mode.
+
 d = Desktop(desktop_version, non_graphical, NewThread)
-aedtapp = Emit()
+aedtapp = Emit(generate_unique_project_name())
 
 
 ###############################################################################
-# Create and Connect EMIT Components
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create 3 radios and connect an antenna to each.
+# Create and connect EMIT components
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create three radios and connect an antenna to each one.
+
 rad1 = aedtapp.modeler.components.create_component("UE - Handheld")
 ant1 = aedtapp.modeler.components.create_component("Antenna")
 if rad1 and ant1:
@@ -54,22 +61,24 @@ if rad3 and ant3:
 
 
 ###############################################################################
-# Define Coupling Among the RF Systems
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This portion of the EMIT API is not yet implemented.
+# Define coupling among RF systems
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Define the coupling among the RF systems. This portion of the EMIT API is not
+# yet implemented.
 
 
 ###############################################################################
-# Run the EMIT Simulation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This portion of the EMIT API is not yet implemented.
+# Run EMIT simulation
+# ~~~~~~~~~~~~~~~~~~~
+# Run the EMIT simulation. This portion of the EMIT API is not yet implemented.
 
 
 ###############################################################################
-# Close Desktop
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# After the simulaton is completed user can close the desktop or release it
-# (using release_desktop method). All methods give possibility to save projects
-# before exit.
+# Save project and close AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# After the simulation completes, you can close AEDT or release it using the
+# :func:`pyaedt.Desktop.force_close_desktop` method.
+# All methods provide for saving the project before closing.
+
 aedtapp.save_project()
 aedtapp.release_desktop(close_projects=True, close_desktop=True)

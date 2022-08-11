@@ -1,3 +1,4 @@
+import ast
 import codecs
 import csv
 import datetime
@@ -12,6 +13,7 @@ import random
 import re
 import string
 import sys
+import tempfile
 import time
 import traceback
 from collections import OrderedDict
@@ -117,6 +119,77 @@ def _check_types(arg):
     return ""
 
 
+def check_and_download_file(local_path, remote_path, overwrite=True):
+    """Check if a folder is remote and download it or simply return the path.
+
+    Parameters
+    ----------
+    local_path : str
+        Local path where to save the folder.
+    remote_path : str
+        Folder original path.
+    overwrite : bool
+        Either if overwrite or not files.
+
+    Returns
+    -------
+    str
+    """
+    if settings.remote_rpc_session:
+        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
+        settings.remote_rpc_session.filemanager.download_file(remote_path, local_path, overwrite=overwrite)
+        return local_path
+    return remote_path
+
+
+def check_and_download_folder(local_path, remote_path, overwrite=True):
+    """Check if a file is remote and download it or simply return the path.
+
+    Parameters
+    ----------
+    local_path : str
+        Local path where to save the file.
+    remote_path : str
+        File original path.
+    overwrite : bool
+        Either if overwrite or not files.
+
+    Returns
+    -------
+    str
+    """
+    if settings.remote_rpc_session:
+        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
+        settings.remote_rpc_session.filemanager.download_folder(remote_path, local_path, overwrite=overwrite)
+        return local_path
+    return remote_path
+
+
+def open_file(file_path, file_options="r"):
+    """Open a file and return the object either if local or remote.
+
+    Parameters
+    ----------
+    file_path : str
+        Full absolute path to the file (either local or remote.
+    file_options : str, optional
+        Open options
+
+    Returns
+    -------
+    object
+        Opened file
+    """
+    file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
+    dir_name = os.path.dirname(file_path)
+    if os.path.exists(dir_name):
+        return open(file_path, file_options)
+    elif settings.remote_rpc_session:
+        return settings.remote_rpc_session.open_file(file_path, file_options)
+    else:
+        return False
+
+
 def convert_remote_object(arg):
     """Convert Remote list or dict to native list and dictionary.
 
@@ -138,7 +211,7 @@ def convert_remote_object(arg):
                 or _check_types(arg[0]) == "list"
                 or _check_types(arg[0]) == "dict"
             ):
-                a = list(eval(str(arg)))
+                a = list(ast.literal_eval(str(arg)))
                 for i, el in enumerate(a):
                     a[i] = convert_remote_object(el)
                 return a
@@ -147,7 +220,7 @@ def convert_remote_object(arg):
         else:
             return []
     elif _check_types(arg) == "dict":
-        a = dict(eval(str(arg)))
+        a = dict(ast.literal_eval(str(arg)))
         for k, v in a.items():
             a[k] = convert_remote_object(v)
         return a
@@ -443,6 +516,65 @@ def generate_unique_name(rootname, suffix="", n=6):
     return unique_name
 
 
+@pyaedt_function_handler()
+def generate_unique_folder_name(rootname=None, folder_name=None):
+    """Generate a new AEDT folder name given a rootname.
+
+    Parameters
+    ----------
+    rootname : str, optional
+        Root name for generating the new folder. The default is
+        ``None``.
+    folder_name : str, optional
+        Name for the new AEDT folder if one must be created.
+
+    Returns
+    -------
+    str
+    """
+    if not rootname:
+        rootname = tempfile.gettempdir()
+    if folder_name is None:
+        folder_name = generate_unique_name("pyaedt_prj", n=3)
+    temp_folder = os.path.join(rootname, folder_name)
+    if not os.path.exists(temp_folder):
+        os.makedirs(temp_folder)
+
+    return temp_folder
+
+
+@pyaedt_function_handler()
+def generate_unique_project_name(rootname=None, folder_name=None, project_name=None, project_format="aedt"):
+    """Generate a new aedt project name given a rootname.
+
+    Parameters
+    ----------
+    rootname : str, optional
+        Root name where the new folder will be created.
+    folder_name : str, optional
+        Name of the folder to be created. Default is None which creates a random port.
+        Use "" to not create a subfolder.
+    project_format : str, optional
+        Project format. Default is aedt. Option is aedb.
+    project_name : str, optional
+        Name of the project. If None, random project will be created.
+        If project exists, then a new suffix will be added.
+
+    Returns
+    -------
+    str
+    """
+    if not project_name:
+        project_name = generate_unique_name("Project", n=3)
+    name_with_ext = project_name + "." + project_format
+    folder_path = generate_unique_folder_name(rootname, folder_name=folder_name)
+    prj = os.path.join(folder_path, name_with_ext)
+    if os.path.exists(prj):
+        name_with_ext = generate_unique_name(project_name, n=3) + "." + project_format
+        prj = os.path.join(folder_path, name_with_ext)
+    return prj
+
+
 def _retry_ntimes(n, function, *args, **kwargs):
     """
 
@@ -511,7 +643,7 @@ def is_number(a):
 
 def is_array(a):
     try:
-        v = list(eval(a))
+        v = list(ast.literal_eval(a))
     except (ValueError, TypeError, NameError, SyntaxError):
         return False
     else:
@@ -929,6 +1061,11 @@ class Settings(object):
         self.machine = ""
         self.port = 0
         self.formatter = None
+        self.remote_rpc_session = None
+        self.remote_rpc_session_temp_folder = ""
+        self.remote_rpc_service_manager_port = 17878
+        self._project_properties = {}
+        self._project_time_stamp = 0
 
     @property
     def use_grpc_api(self):

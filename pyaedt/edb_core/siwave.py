@@ -8,7 +8,7 @@ import warnings
 
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.EDB_Data import SourceType
-from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SweepType
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
@@ -244,7 +244,7 @@ class CircuitPort(Source):
     @property
     def get_type(self):
         """Get type."""
-        return self.type
+        return self._type
 
 
 class VoltageSource(Source):
@@ -287,7 +287,7 @@ class VoltageSource(Source):
     @property
     def source_type(self):
         """Source type."""
-        return self.source_type
+        return self._type
 
 
 class CurrentSource(Source):
@@ -330,7 +330,7 @@ class CurrentSource(Source):
     @property
     def source_type(self):
         """Source type."""
-        return self.source_type
+        return self._type
 
 
 class ResistorSource(Source):
@@ -348,12 +348,12 @@ class ResistorSource(Source):
 
     @rvalue.setter
     def rvalue(self, value):
-        self._rv = value
+        self._rvalue = value
 
     @property
     def source_type(self):
         """Source type."""
-        return self.source_type
+        return self._type
 
 
 class EdbSiwave(object):
@@ -659,7 +659,7 @@ class EdbSiwave(object):
 
     @pyaedt_function_handler()
     def create_resistor_on_pin(self, pos_pin, neg_pin, rvalue=1, resistor_name=""):
-        """Create a voltage source.
+        """Create a Resistor boundary between two given pins..
 
         Parameters
         ----------
@@ -688,7 +688,7 @@ class EdbSiwave(object):
         resistor = ResistorSource()
         resistor.positive_node.net = pos_pin.GetNet().GetName()
         resistor.negative_node.net = neg_pin.GetNet().GetName()
-        resistor.magnitude = rvalue
+        resistor.rvalue = rvalue
         if not resistor_name:
             resistor_name = "Res_{}_{}_{}_{}".format(
                 pos_pin.GetComponent().GetName(),
@@ -929,72 +929,6 @@ class EdbSiwave(object):
         return self.create_pin_group_terminal(current_source)
 
     @pyaedt_function_handler()
-    def create_resistor_on_net(
-        self,
-        positive_component_name,
-        positive_net_name,
-        negative_component_name=None,
-        negative_net_name=None,
-        rvalue=1,
-        resistor_name="",
-    ):
-        """Create a voltage source.
-
-        Parameters
-        ----------
-        positive_component_name : str
-            Name of the positive component.
-        positive_net_name : str
-            Name of the positive net.
-        negative_component_name : str, optional
-            Name of the negative component. The default is ``None``, in which case the name of
-            the positive net is assigned.
-        negative_net_name : str, optional
-            Name of the negative net name. The default is ``None`` which will look for GND Nets.
-        rvalue : float, optional
-            Resistance value. The default is ``1``.
-        resistor_name : str, optional
-            Name of the resistor. The default is ``""``.
-
-        Returns
-        -------
-        str
-            The name of the resistor.
-
-        Examples
-        --------
-        >>> from pyaedt import Edb
-        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
-        >>> edb.core_siwave.create_resistor_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 1, "resistor_name")
-        """
-        if not negative_component_name:
-            negative_component_name = positive_component_name
-        if not negative_net_name:
-            negative_net_name = self._check_gnd(negative_component_name)
-        resistor = ResistorSource()
-        resistor.positive_node.net = positive_net_name
-        resistor.negative_node.net = negative_net_name
-        resistor.magnitude = rvalue
-        pos_node_cmp = self._pedb.core_components.get_component_by_name(positive_component_name)
-        neg_node_cmp = self._pedb.core_components.get_component_by_name(negative_component_name)
-        pos_node_pins = self._pedb.core_components.get_pin_from_component(positive_component_name, positive_net_name)
-        neg_node_pins = self._pedb.core_components.get_pin_from_component(negative_component_name, negative_net_name)
-
-        if resistor_name == "":
-            resistor_name = "Port_{}_{}_{}_{}".format(
-                positive_component_name,
-                positive_net_name,
-                negative_component_name,
-                negative_net_name,
-            )
-        resistor.name = resistor_name
-        resistor.positive_node.component_node = pos_node_cmp
-        resistor.positive_node.node_pins = pos_node_pins
-        resistor.negative_node.component_node = neg_node_cmp
-        resistor.negative_node.node_pins = neg_node_pins
-        return self.create_pin_group_terminal(resistor)
-
-    @pyaedt_function_handler()
     def create_exec_file(self):
         """Create an executable file."""
         workdir = os.path.dirname(self._pedb.edbpath)
@@ -1031,7 +965,7 @@ class EdbSiwave(object):
             Stopping frequency. The default is ``1e9``.
         step_freq : float, optional
             Frequency size of the step. The default is ``1e6``.
-        discrete_sweep : bool, optonal
+        discrete_sweep : bool, optional
             Whether the sweep is discrete. The default is ``False``.
 
         Returns
@@ -1081,7 +1015,7 @@ class EdbSiwave(object):
             Stopping frequency. The default is ``1e9``.
         step_freq : float, optional
             Frequency size of the step. The default is ``1e6``.
-        discrete_sweep : bool, optonal
+        discrete_sweep : bool, optional
             Whether the sweep is discrete. The default is ``False``.
 
         Returns
@@ -1375,21 +1309,14 @@ class EdbSiwave(object):
                             simulation_setup.step_freq,
                         )
                     else:
-                        sweep.Frequencies = convert_py_list_to_net_list(
-                            self._pedb.simsetupdata.SweepData.SetFrequencies(
-                                simulation_setup.start_frequency,
-                                simulation_setup.stop_freq,
-                                simulation_setup.step_freq,
-                            )
+                        sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
+                            simulation_setup.start_frequency, simulation_setup.stop_freq, simulation_setup.step_freq
                         )
-                if is_ironpython:
-                    simsetup_info.SweepDataList.Add(sweep)
-                else:
-                    simsetup_info.SweepDataList = convert_py_list_to_net_list([sweep])
+                simsetup_info.SweepDataList.Add(sweep)
             except Exception as err:
                 self._logger.error("Exception in sweep configuration: {0}.".format(err))
-            sim_setup = self._edb.Utility.SIWaveSimulationSetup(simsetup_info)
-            return self._cell.AddSimulationSetup(sim_setup)
+            edb_sim_setup = self._edb.Utility.SIWaveSimulationSetup(simsetup_info)
+            return self._cell.AddSimulationSetup(edb_sim_setup)
         if simulation_setup.solver_type == SolverType.SiwaveDC:  # pragma: no cover
             simsetup_info = self._pedb.simsetupdata.SimSetupInfo[
                 self._pedb.simsetupdata.SIwave.SIWDCIRSimulationSettings
@@ -1398,6 +1325,7 @@ class EdbSiwave(object):
             sim_setup = self._edb.Utility.SIWaveDCIRSimulationSetup(simsetup_info)
             return self._cell.AddSimulationSetup(sim_setup)
 
+    @pyaedt_function_handler()
     def _setup_decade_count_sweep(self, sweep, start_freq, stop_freq, decade_count):
         import math
 
@@ -1415,3 +1343,50 @@ class EdbSiwave(object):
         while freq < stop_f:
             freq = freq * math.pow(10, 1.0 / decade_cnt)
             sweep.Frequencies.Add(str(freq))
+
+    @pyaedt_function_handler()
+    def create_rlc_component(
+        self,
+        pins,
+        component_name="",
+        r_value=1.0,
+        c_value=1e-9,
+        l_value=1e-9,
+        is_parallel=False,
+    ):
+        """Create physical Rlc component.
+
+        Parameters
+        ----------
+        pins : list[Edb.Primitive.PadstackInstance]
+             List of EDB pins, length must be 2, since only 2 pins component are currently supported.
+
+        component_name : str
+            Component name.
+
+        r_value : float
+            Resistor value.
+
+        c_value : float
+            Capacitance value.
+
+        l_value : float
+            Inductor value.
+
+        is_parallel : bool
+            Using parallel model when ``True``, series when ``False``.
+
+        Returns
+        -------
+        Component
+            Created EDB component.
+
+        """
+        return self._pedb.core_components.create_rlc_component(
+            pins,
+            component_name=component_name,
+            r_value=r_value,
+            c_value=c_value,
+            l_value=l_value,
+            is_parallel=is_parallel,
+        )  # pragma no cover

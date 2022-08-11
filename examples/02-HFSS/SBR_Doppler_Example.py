@@ -1,48 +1,51 @@
 """
-Sbr+: Doppler Setup
+SBR+: doppler setup
 -------------------
-This example shows how you can use PyAEDT to create a Multipart Scenario in SBR+ and setup a doppler Analysis.
+This example shows how you can use PyAEDT to create a multipart scenario in HFSS SBR+
+and set up a doppler analysis.
 """
 
 ###############################################################################
-# Launch AEDT in Graphical Mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2022R2 in graphical mode.
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
+
 import os
 import tempfile
 import pyaedt
-from pyaedt import examples, generate_unique_name
+from pyaedt import examples, generate_unique_project_name
 
-# Start Electronics Desktop
+# Launch AEDT
+# ~~~~~~~~~~~
+# Launch AEDT.
+
 aedt_version = "2022.2"
 projectname = "MicroDoppler_with_ADP"
 designname = "doppler"
 library_path = examples.download_multiparts()
 
-##########################################################
-# Set Non Graphical Mode.
-# Default is False
+###############################################################################
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
-# Open Project
-# ~~~~~~~~~~~~
-# Download Project, opens it and save to TEMP Folder.
+# Download and open project
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# Download and open the project.
 
-tmpfold = tempfile.gettempdir()
-
-
-temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder):
-    os.makedirs(temp_folder)
+project_name = generate_unique_project_name(project_name="doppler")
 
 # Instantiate the application.
 app = pyaedt.Hfss(
     specified_version=aedt_version,
     solution_type="SBR+",
     new_desktop_session=True,
-    projectname=projectname,
+    projectname=project_name,
     close_on_exit=True,
     non_graphical=non_graphical
 )
@@ -51,18 +54,18 @@ app = pyaedt.Hfss(
 app.autosave_disable()
 
 ###############################################################################
-# Create Design
-# ~~~~~~~~~~~~~
 # Save project and rename design
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Save the project to the temporary folder and rename the design.
 
-app.save_project(project_file=os.path.join(temp_folder, projectname + ".aedt"))
+app.save_project()
 app.rename_design(designname)
 
 
 ###############################################################################
-# Libraries
-# ~~~~~~~~~~~~~~~
-# Setup Library Path to 3d Components
+# Set up library paths
+# ~~~~~~~~~~~~~~~~~~~~
+# Set up library paths to 3D components.
 
 actor_lib = os.path.join(library_path, "actor_library")
 env_lib = os.path.join(library_path, "environment_library")
@@ -74,17 +77,18 @@ bike_folder = os.path.join(actor_lib, "bike1")
 bird_folder = os.path.join(actor_lib, "bird1")
 
 ###############################################################################
-# Environment
-# ~~~~~~~~~~~~~~
-# Define background environment
+# Define environment
+# ~~~~~~~~~~~~~~~~~~
+# Define the background environment.
 
 road1 = app.modeler.add_environment(env_folder=env_folder, environment_name="Bari")
 prim = app.modeler
 
 ###############################################################################
-# Actors
-# ~~~~~~~~~~~~~~~~~~~~~
-# Put Actors in environment. This example has persons, birds, bikes and cars.
+# Place actors
+# ~~~~~~~~~~~~
+# Place actors in the environment. This code places persons, birds, bikes, and cars
+# in the environment.
 
 person1 = app.modeler.add_person(
     actor_folder=person_folder, speed=1.0, global_offset=[25, 1.5, 0], yaw=180, actor_name="Massimo"
@@ -110,9 +114,10 @@ bird2 = app.modeler.add_bird(
 )
 
 ###############################################################################
-# Radar
-# ~~~~~~~~~~~~~~~~~~~~~
-# Put radar on car. The radar will be created relative to the car coordinate system.
+# Place radar
+# ~~~~~~~~~~~
+# Place radar on the car. The radar is created relative to the car's coordinate
+# system.
 
 radar1 = app.create_sbr_radar_from_json(
     radar_file=radar_lib,
@@ -123,25 +128,28 @@ radar1 = app.create_sbr_radar_from_json(
 )
 
 ###############################################################################
-# Setup and validation
-# ~~~~~~~~~~~~~~~~~~~~~
-# Create setup and validate it. This command will create a setup and a parametric sweep on the time variable of the
-# duration of 2 seconds. the step is computed automatically from CPI.
+# Create setup
+# ~~~~~~~~~~~~
+# Create setup and validate it. The ``create_sbr_pulse_doppler_setup`` method
+# creates a setup and a parametric sweep on the time variable with a
+# duration of two seconds. The step is computed automatically from CPI.
 
 setup, sweep = app.create_sbr_pulse_doppler_setup(sweep_time_duration=2)
 app.set_sbr_current_sources_options()
 app.validate_simple()
 
 ###############################################################################
-# Plot the model
-# ~~~~~~~~~~~~~~
+# Plot model
+# ~~~~~~~~~~
+# Plot the model.
 
 app.plot(show=False, export_path=os.path.join(app.working_directory, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
-# Solve and release desktop
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Solves problem and close it. Uncomment the next command to activate the simulation
+# Solve and release AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Solve and release AEDT. To solve, uncomment the ``app.analyze_setup`` command
+# to activate the simulation. 
 
 # app.analyze_setup(sweep.name)
 app.save_project()

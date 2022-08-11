@@ -1,6 +1,5 @@
-Multiphysics Examples
+Multiphysics examples
 ~~~~~~~~~~~~~~~~~~~~~
-This series of examples uses PyAEDT to create a multiphysics workflow.
-This may include an Electromagnetic tool like HFSS or Maxwell and a Thermal or
-Structural tool like Icepak or Mechanical.
-
+These examples use PyAEDT to create some multiphysics workflows. They might use
+an electromagnetic tool like HFSS or Maxwell and a thermal or structural tool
+like Icepak or Mechanical.

@@ -11,11 +11,13 @@ from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.DataHandlers import float_units
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modules.Boundary import BoundaryObject, MaxwellParameters
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
+from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.Boundary import MaxwellParameters
 
 
 class Maxwell(object):
@@ -52,12 +54,12 @@ class Maxwell(object):
 
     @pyaedt_function_handler()
     def change_symmetry_multiplier(self, value=1):
-        """Set the Design Symmetry Multiplier to the selected value.
+        """Set the Design Symmetry Multiplier to a specified value.
 
         Parameters
         ----------
         value : int, optional
-            Value used as the Design Symmetry Multiplier coefficient. The default value is ``1``.
+            Value to use as the Design Symmetry Multiplier coefficient. The default value is ``1``.
 
         Returns
         -------
@@ -156,10 +158,11 @@ class Maxwell(object):
         return_path : list, str, optional
             Return path. The default is ``infinite``
         group_sources : dict, list optional
-            Dictionary consisting of ``{Group Name: list of source names}``. This dictionary is used to add
-            multiple groups. A list of strings could be also defined. The default is not define a group.
+            Dictionary consisting of ``{Group Name: list of source names}`` to add
+            multiple groups. You can also define a list of strings. The default is ``None``.
         branches : : list, int, optional
-            Number of branches. The default is 1.
+            Number of branches. The default is ``None``, which indicates that only one
+            branch exists.
 
         Returns
         -------
@@ -238,7 +241,7 @@ class Maxwell(object):
                 group_sources = None
                 branches = None
                 turns = ["1"] * len(sources)
-                self.logger.info("Infinite is the only return path option in EddyCurrent")
+                self.logger.info("Infinite is the only return path option in EddyCurrent.")
                 return_path = ["infinite"] * len(sources)
 
         if self.solution_type not in ["Transient", "ElectricTransient"]:
@@ -307,7 +310,7 @@ class Maxwell(object):
                 self.boundaries.append(bound)
                 return bound
         else:
-            self.logger.error("Solution Type has not Matrix Parameter")
+            self.logger.error("Solution type does not have matrix parameters")
             return False
 
     @pyaedt_function_handler()
@@ -325,7 +328,7 @@ class Maxwell(object):
         keep_modifications : bool, optional
             Whether to save the changes. The default value is ``False``.
         python_interpreter : str, optional
-             The default value is ``None``.
+             Python interpreter to use. The default value is ``None``.
         aedt_lib_dir : str, optional
              Full path to the ``pyaedt`` directory. The default value is ``None``.
 
@@ -469,13 +472,13 @@ class Maxwell(object):
 
     @pyaedt_function_handler()
     def setup_y_connection(self, windings_name=None):
-        """Setup the y connection.
+        """Setup the Y connection.
 
         Parameters
         ----------
         winding_name : list, optional
-            List of windings. For instance ["PhaseA", "PhaseB", "PhaseC"].
-            The default value is ``None``. In that case the design have none Y connection.
+            List of windings. For example, ``["PhaseA", "PhaseB", "PhaseC"]``.
+            The default value is ``None``, in which case the design has no Y connection.
 
         Returns
         -------
@@ -489,8 +492,8 @@ class Maxwell(object):
 
         Examples
         --------
-        Setup Y Connection for three existing windings respectively named ``PhaseA``, ``PhaseB``, ``PhaseC``.
-        This will create one ``YConnection`` group containing those 3 phases.
+        Set up the Y connection for three existing windings named ``PhaseA``, ``PhaseB``, and ``PhaseC``.
+        This creates one ``YConnection`` group containing these three phases.
 
         >>> from pyaedt import Maxwell2d
         >>> aedtapp = Maxwell2d("Motor_EM_R2019R3.aedt")
@@ -561,7 +564,12 @@ class Maxwell(object):
                         "Current": amplitude,
                     }
                 )
-            if self.solution_type not in ["Magnetostatic", "DCConduction", "ElectricTransient"]:
+            if self.solution_type not in [
+                "Magnetostatic",
+                "DCConduction",
+                "ElectricTransient",
+                "TransientAPhiFormulation",
+            ]:
                 props["Phase"] = phase
                 if self.solution_type not in ["DCConduction", "ElectricTransient"]:
                     props["IsSolid"] = solid
@@ -570,7 +578,7 @@ class Maxwell(object):
             if type(object_list[0]) is str:
                 props = OrderedDict({"Objects": object_list, "Current": amplitude, "IsPositive": swap_direction})
             else:
-                self.logger.warning("Input has to be a 2D Object.")
+                self.logger.warning("Input must be a 2D object.")
                 return False
         bound = BoundaryObject(self, name, props, "Current")
         if bound.create():
@@ -610,7 +618,7 @@ class Maxwell(object):
         positive_movement : bool, optional
             Whether movement is positive. The default is ``True``.
         start_position : float or str, optional
-            Starting position of the movement. The default is ``o``. If a float
+            Starting position of the movement. The default is ``0``. If a float
             value is used, default modeler units are applied.
         periodic_translate : bool, optional
             Whether movement is periodic. The default is ``False``.
@@ -883,11 +891,11 @@ class Maxwell(object):
         res : float, optional
             Resistance in ohms. The default is ``0``.
         ind : float, optional
-            Henry. The default is ``0``.
+            Henry (H). The default is ``0``.
         voltage : float, optional
             Voltage value. The default is ``0``.
         parallel_branches : int, optional
-            The number of parallel branches. The default is ``1``.
+            Number of parallel branches. The default is ``1``.
         name : str, optional
             Name of the boundary. The default is ``None``.
 
@@ -1040,7 +1048,8 @@ class Maxwell(object):
         is_virtual : bool, optional
             Whether the force is virtual. The default is ``True.``
         force_name : str, optional
-            Name of the force. The default is ``None``.
+            Name of the force. The default is ``None``, in which case the default
+            name is used.
 
         Returns
         -------
@@ -1101,7 +1110,8 @@ class Maxwell(object):
         axis : str, optional
             Axis to apply the torque to. The default is ``"Z"``.
         torque_name : str, optional
-            Name of the torque. The default is ``None``.
+            Name of the torque. The default is ``None``, in which
+            case the default name is used.
 
         Returns
         -------
@@ -1235,8 +1245,9 @@ class Maxwell(object):
         symmetry_name : str, optional
             Name of the symmetry.
         is_odd : bool, optional
-            Type of symmetry. Default value is ``True`` which means H field is tangential to
-            the boundary. If ``False`` H field is normal to the boundary.
+            Type of the symmetry. The default is ``True`,` in which case the H field
+            is tangential to the boundary. If ``False``, the H field is normal to
+            the boundary.
 
         Returns
         -------
@@ -1261,7 +1272,7 @@ class Maxwell(object):
                         elif isinstance(entity, int):
                             edge_id = entity
                         else:
-                            msg = "the input provided is neither an edge object nor an int."
+                            msg = "The input is not an edge object or an integer."
                             raise ValueError(msg)
                         object_list.append(edge_id)
                     prop = OrderedDict({"Name": symmetry_name, "Edges": object_list, "IsOdd": is_odd})
@@ -1272,12 +1283,12 @@ class Maxwell(object):
                         elif isinstance(entity, int):
                             face_id = entity
                         else:
-                            msg = "the input provided is neither a valid face object nor an int."
+                            msg = "The input is not a valid face object or an integer."
                             raise ValueError(msg)
                         object_list.append(face_id)
                     prop = OrderedDict({"Name": symmetry_name, "Faces": object_list, "IsOdd": is_odd})
             else:
-                msg = "at least one edge has to be provided."
+                msg = "At least one edge must be provided."
                 ValueError(msg)
 
             bound = BoundaryObject(self, symmetry_name, prop, "Symmetry")
@@ -1319,7 +1330,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used. This
-        parameter is ignored when Script is launched within AEDT.
+        parameter is ignored when a script is launched within AEDT.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical
@@ -1329,24 +1340,25 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``True``. This parameter is ignored
-        when Script is launched within AEDT.
+        when a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is
-        ``False``. This parameter is ignored when Script is launched
+        ``False``. This parameter is ignored when a script is launched
         within AEDT.
     machine : str, optional
-        Machine name to which connect the oDesktop Session. Works only on 2022R2.
-        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
-        If machine is `"localhost"` the server will also start if not present.
+        Machine name to connect the oDesktop session to. This works only in 2022 R2
+        or later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`, the
+        server also starts if not present.
     port : int, optional
-        Port number of which start the oDesktop communication on already existing server.
-        This parameter is ignored in new server creation. It works only on 2022R2.
-        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+        Port number on which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when a new server is created. It works only in 2022 R2 or later.
+        The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
-        Only used when ``new_desktop_session = False``, specifies by process ID which instance
-        of Electronics Desktop to point PyAEDT at.
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
@@ -1435,7 +1447,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     specified_version : str, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
-        This parameter is ignored when Script is launched within AEDT.
+        This parameter is ignored when a script is launched within AEDT.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -1443,23 +1455,25 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``. This parameter is ignored when Script is launched within AEDT.
+        machine. The default is ``True``. This parameter is ignored when
+        a script is launched within AEDT.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
-        This parameter is ignored when Script is launched within AEDT.
+        This parameter is ignored when a script is launched within AEDT.
     machine : str, optional
-        Machine name to which connect the oDesktop Session. Works only on 2022R2.
-        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
-        If machine is `"localhost"` the server will also start if not present.
+        Machine name to connect the oDesktop session to. This works only in 2022 R2
+        or later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`,
+        the server also starts if not present.
     port : int, optional
-        Port number of which start the oDesktop communication on already existing server.
-        This parameter is ignored in new server creation. It works only on 2022R2.
-        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+        Port number of which to start the oDesktop communication on an already existing
+        server. This parameter is ignored when creating a new server. It works only in 2022
+        R2 or later. The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
-        Only used when ``new_desktop_session = False``, specifies by process ID which instance
-        of Electronics Desktop to point PyAEDT at.
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
@@ -1534,7 +1548,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
     @property
     def xy_plane(self):
-        """Maxwell 2D plane between `True` and `False`."""
+        """Maxwell 2D plane between ``True`` and ``False``."""
         return self.design_solutions.xy_plane
 
     @xy_plane.setter
@@ -1613,7 +1627,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         }
 
         design_file = os.path.join(self.working_directory, "design_data.json")
-        with open(design_file, "w") as fps:
+        with open_file(design_file, "w") as fps:
             json.dump(convert(self.design_data), fps, indent=4)
         return True
 
@@ -1628,7 +1642,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         """
         design_file = os.path.join(self.working_directory, "design_data.json")
-        with open(design_file, "r") as fps:
+        with open_file(design_file, "r") as fps:
             design_data = json.load(fps)
         return design_data
 
@@ -1641,7 +1655,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         edge_list : list
             List of edges.
         bound_name : str, optional
-            Name of the boundary. The default is ``None``.
+            Name of the boundary. The default is ``None``, in which
+            case the default name is used.
 
         Returns
         -------
@@ -1677,7 +1692,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         vectorvalue : float, optional
             Value of the vector. The default is ``0``.
         bound_name : str, optional
-            Name of the boundary. The default is ``None``.
+            Name of the boundary. The default is ``None``, in which
+            case the default name is used.
 
         Returns
         -------
@@ -1723,7 +1739,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         same_as_master : bool, optional
             Whether the B-Field of the slave edge and master edge are the same. The default is ``True``.
         bound_name : str, optional
-            Name of the master boundary. The name of the slave boundary will have a ``_dep`` suffix.
+            Name of the master boundary. The default is ``None``, in which case the default name
+            is used. The name of the slave boundary has a ``_dep`` suffix.
 
         Returns
         -------
@@ -1767,20 +1784,21 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def assign_end_connection(self, objects, resistance=0, inductance=0, bound_name=None):
-        """Assign End connection to a list of objects.
+        """Assign an end connection to a list of objects.
 
         Parameters
         ----------
         objects : list of int or str or :class:`pyaedt.modeler.Object3d.Object3d`
-            List of objects to apply end connection.
+            List of objects to assign an end connection to.
         resistance : float or str, optional
-            Resistance value. If float is provided then it is assumed in Ohm.
-            The default value is "0ohm".
+            Resistance value. If float is provided, the units are assumed to be ohms.
+            The default value is ``0``,
         inductance : float or str, optional
-            Inductance value. If float is provided then it is assumed in Henry.
-            The default value is "0H".
+            Inductance value. If a float is provided, the units are assumed to Henry (H).
+            The default value is ``0``.
         bound_name : str, optional
-            Name of the End connection boundary.
+            Name of the end connection boundary. The default is ``None``, in which case the
+            default name is used.
 
         Returns
         -------

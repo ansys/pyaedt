@@ -9,12 +9,16 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, BasisTest, config
-from pyaedt.generic.general_methods import is_ironpython
-from pyaedt.modeler.Primitives import Polyline, PolylineSegment
-from pyaedt.modeler.Object3d import Object3d
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
+from _unittest.conftest import local_path
 from pyaedt.generic.constants import AXIS
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.Object3d import Object3d
+from pyaedt.modeler.Object3d import UserDefinedComponent
+from pyaedt.modeler.Primitives import Polyline
+from pyaedt.modeler.Primitives import PolylineSegment
 
 test = sys.modules.keys()
 
@@ -822,8 +826,8 @@ class TestClass(BasisTest, object):
         compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]
         geometryparams = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
         geometryparams["dipole_length"] = "l_dipole"
-        name = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
-        assert isinstance(name, str)
+        obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
+        assert isinstance(obj_3dcomp, UserDefinedComponent)
 
     def test_66b_group_components(self):
         self.aedtapp["l_dipole"] = "13.5cm"
@@ -831,9 +835,12 @@ class TestClass(BasisTest, object):
         compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]
         geometryparams = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
         geometryparams["dipole_length"] = "l_dipole"
-        name = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
-        name2 = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
-        assert self.aedtapp.modeler.create_group(components=[name, name2], group_name="test_group") == "test_group"
+        obj_3dcomp1 = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
+        obj_3dcomp2 = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
+        assert (
+            self.aedtapp.modeler.create_group(components=[obj_3dcomp1.name, obj_3dcomp2.name], group_name="test_group")
+            == "test_group"
+        )
 
     def test_67_assign_material(self):
         box1 = self.aedtapp.modeler.create_box([60, 60, 60], [4, 5, 5])
@@ -1149,3 +1156,119 @@ class TestClass(BasisTest, object):
         box2 = self.aedtapp.modeler.create_box([-20, -20, -19], [0.2, 0.2, 0.2])
         assert box2.name in box1.touching_objects
         assert box1.name in box2.touching_objects
+        assert box2.name in box1.faces[0].touching_objects
+        assert box2.name not in box1.faces[1].touching_objects
+
+    def test_79_3dcomponent_operations(self):
+        self.aedtapp.solution_type = "Modal"
+        self.aedtapp["l_dipole"] = "13.5cm"
+        compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]
+        geometryparams = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
+        geometryparams["dipole_length"] = "l_dipole"
+        obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
+        assert isinstance(obj_3dcomp, UserDefinedComponent)
+        assert obj_3dcomp.group_name == "Model"
+        obj_3dcomp.group_name = "test_group1"
+        assert obj_3dcomp.group_name == "test_group1"
+        obj_3dcomp.group_name = "test_group"
+        assert obj_3dcomp.group_name == "test_group"
+        assert obj_3dcomp.is3dcomponent
+        assert not obj_3dcomp.mesh_assembly
+        obj_3dcomp.mesh_assembly = True
+        assert obj_3dcomp.mesh_assembly
+        obj_3dcomp.name = "Dipole_pyaedt"
+        assert "Dipole_pyaedt" in self.aedtapp.modeler.user_defined_component_names
+        obj_3dcomp.name = "MyTorus"
+        assert obj_3dcomp.name == "Dipole_pyaedt"
+        assert obj_3dcomp.parameters["dipole_length"] == "l_dipole"
+        self.aedtapp["l_dipole2"] = "15.5cm"
+        obj_3dcomp.parameters["dipole_length"] = "l_dipole2"
+        assert obj_3dcomp.parameters["dipole_length"] == "l_dipole2"
+        cs = self.aedtapp.modeler.create_coordinate_system()
+        obj_3dcomp.target_coordinate_system = cs.name
+        assert obj_3dcomp.target_coordinate_system == cs.name
+        obj_3dcomp.delete()
+        self.aedtapp.save_project()
+        self.aedtapp._project_dictionary = None
+        assert "Dipole_pyaedt" not in self.aedtapp.modeler.user_defined_component_names
+        udp = self.aedtapp.modeler.Position(0, 0, 0)
+        udp2 = self.aedtapp.modeler.Position(30, 40, 40)
+        self.aedtapp.modeler.set_working_coordinate_system("Global")
+        obj_3dcomp = self.aedtapp.modeler["Dipole_Antenna2"]
+        assert obj_3dcomp.mirror(udp, udp2)
+        assert obj_3dcomp.rotate(cs_axis="Y", angle=180)
+        assert obj_3dcomp.move(udp2)
+        new_comps = obj_3dcomp.duplicate_around_axis(cs_axis="Z", angle=8, nclones=3)
+        assert new_comps[0] in self.aedtapp.modeler.user_defined_component_names
+        udp = self.aedtapp.modeler.Position(5, 5, 5)
+        num_clones = 5
+        new_comps = obj_3dcomp.duplicate_along_line(udp, num_clones)
+        assert new_comps[0] in self.aedtapp.modeler.user_defined_component_names
+
+    def test_80_udm_operations(self):
+        my_udmPairs = []
+        mypair = ["OuterRadius", "20.2mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Tau", "0.65"]
+        my_udmPairs.append(mypair)
+        mypair = ["Sigma", "0.81"]
+        my_udmPairs.append(mypair)
+        mypair = ["Delta_Angle", "45deg"]
+        my_udmPairs.append(mypair)
+        mypair = ["Beta_Angle", "45deg"]
+        my_udmPairs.append(mypair)
+        mypair = ["Port_Gap_Width", "8.1mm"]
+        my_udmPairs.append(mypair)
+        obj_udm = self.aedtapp.modeler.create_udm(
+            udmfullname="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
+            udm_params_list=my_udmPairs,
+            udm_library="syslib",
+            name="test_udm",
+        )
+        assert isinstance(obj_udm, UserDefinedComponent)
+        assert len(self.aedtapp.modeler.user_defined_component_names) == len(
+            self.aedtapp.modeler.user_defined_components
+        )
+        assert obj_udm.group_name == "Model"
+        obj_udm.group_name = "test_group1"
+        assert obj_udm.group_name == "test_group1"
+        obj_udm.group_name = "test_group"
+        assert obj_udm.group_name == "test_group"
+        assert not obj_udm.is3dcomponent
+        assert not obj_udm.mesh_assembly
+        obj_udm.mesh_assembly = True
+        assert not obj_udm.mesh_assembly
+        obj_udm.name = "antenna_pyaedt"
+        assert "antenna_pyaedt" in self.aedtapp.modeler.user_defined_component_names
+        obj_udm.name = "MyTorus"
+        assert obj_udm.name == "antenna_pyaedt"
+        assert obj_udm.parameters["OuterRadius"] == "20.2mm"
+        obj_udm.parameters["OuterRadius"] = "21mm"
+        assert obj_udm.parameters["OuterRadius"] == "21mm"
+        cs = self.aedtapp.modeler.create_coordinate_system()
+        obj_udm.target_coordinate_system = cs.name
+        assert obj_udm.target_coordinate_system == cs.name
+        obj_udm.delete()
+        self.aedtapp.save_project()
+        self.aedtapp._project_dictionary = None
+        assert "antenna_pyaedt" not in self.aedtapp.modeler.user_defined_component_names
+        udp = self.aedtapp.modeler.Position(0, 0, 0)
+        udp2 = self.aedtapp.modeler.Position(30, 40, 40)
+        obj_udm = self.aedtapp.modeler.create_udm(
+            udmfullname="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
+            udm_params_list=my_udmPairs,
+            udm_library="syslib",
+            name="test_udm",
+        )
+        assert obj_udm.mirror(udp, udp2)
+        assert obj_udm.rotate(cs_axis="Y", angle=180)
+        assert obj_udm.move(udp2)
+        assert not obj_udm.duplicate_around_axis(cs_axis="Z", angle=8, nclones=3)
+        udp = self.aedtapp.modeler.Position(5, 5, 5)
+        num_clones = 5
+        assert not obj_udm.duplicate_along_line(udp, num_clones)
+
+    def test_81_duplicate_and_mirror_3dcomponent(self):
+        assert self.aedtapp.modeler.duplicate_and_mirror(
+            self.aedtapp.modeler.user_defined_component_names[0], [0, 0, 0], [1, 0, 0], is_3d_comp=True
+        )

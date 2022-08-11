@@ -2,18 +2,20 @@
 
 from __future__ import absolute_import  # noreorder
 
+import ast
 import math
 import os
 import tempfile
 import warnings
 from collections import OrderedDict
-import ast
 
+from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.actors import Radar
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -68,16 +70,17 @@ class Hfss(FieldAnalysis3D, object):
         ``False``. This parameter is ignored when a script is launched
         within AEDT.
     machine : str, optional
-        Machine name to which connect the oDesktop Session. Works only on 2022R2.
-        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
-        If machine is `"localhost"` the server will also start if not present.
+        Machine name to connect the oDesktop session to. This parameter works only on
+        2022 R2 or later. The remote Server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If the machine is `"localhost"`, the server
+        starts if it is not present.
     port : int, optional
-        Port number of which start the oDesktop communication on already existing server.
-        This parameter is ignored in new server creation. It works only on 2022R2.
-        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+        Port number on which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 or later.
+        The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
-        Only used when ``new_desktop_session = False``, specifies by process ID which instance
-        of Electronics Desktop to point PyAEDT at.
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
@@ -181,7 +184,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @property
     def field_setups(self):
-        """List of AEDT Radiation Fields.
+        """List of AEDT radiation fields.
 
         Returns
         -------
@@ -235,7 +238,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Examples
         --------
-        Enable auto open type for PML boundary.
+        Enable auto open type for the PML boundary.
 
         >>> hfss.set_auto_open(True, "PML")
         """
@@ -602,9 +605,9 @@ class Hfss(FieldAnalysis3D, object):
         isinfgnd : bool, optional
             Whether the finite conductivity is an infinite ground. The default is ``False``.
         istwoside : bool, optional
-            The default is ``False``.
+            Whether the finite conductivity is two-sided. The default is ``False``.
         isInternal : bool, optional
-            The default is ``True``.
+            Whether the finite conductivity is internal. The default is ``True``.
         issheelElement : bool, optional
             The default is ``False``.
         usehuray : bool, optional
@@ -780,7 +783,9 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            raise AttributeError("Invalid `sweep_type`. It must be 'Discrete', 'Interpolating', or 'Fast'.")
+            raise AttributeError(
+                "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+            )
 
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
@@ -879,7 +884,9 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
-            raise AttributeError("Invalid `sweep_type`. It has to be 'Discrete', 'Interpolating', or 'Fast'.")
+            raise AttributeError(
+                "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+            )
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
@@ -976,12 +983,12 @@ class Hfss(FieldAnalysis3D, object):
 
         if isinstance(save_single_field, list):
             if not isinstance(freq, list) or len(save_single_field) != len(freq):
-                raise AttributeError("The length of save_single_field must be the same as freq length.")
+                raise AttributeError("The length of save_single_field must be the same as the frequency length.")
 
         add_subranges = False
         if isinstance(freq, list):
             if not freq:
-                raise AttributeError("Frequency list is empty! Specify at least one frequency point.")
+                raise AttributeError("Frequency list is empty. Specify at least one frequency point.")
             freq0 = freq.pop(0)
             if freq:
                 add_subranges = True
@@ -1145,6 +1152,7 @@ class Hfss(FieldAnalysis3D, object):
         if native.create():
             self.native_components.append(native)
             self.logger.info("Native component %s %s has been correctly created.", antenna_type, antenna_name)
+            self.modeler._create_user_defined_component(native.antennaname)
             return native
         self.logger.error("Error in native component creation for %s %s.", antenna_type, antenna_name)
 
@@ -1331,12 +1339,12 @@ class Hfss(FieldAnalysis3D, object):
             The default is ``"SbrAntennas.Conical Horn"``.
         target_cs : str, optional
             Target coordinate system. The default is ``None``, in which case
-            the active coodiantes system is used.
+            the active coodiante system is used.
         model_units : str, optional
             Model units to apply to the object. The default is
             ``None``, in which case the active modeler units are applied.
         parameters_dict : dict, optional
-            The default is ``None``.
+            Dictionary of parameters. The default is ``None``.
         use_current_source_representation : bool, optional
             Whether to use the current source representation. The default is ``False``.
         is_array : bool, optional
@@ -1564,8 +1572,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create two boxes that will be used to create a circuit port
-        named ``'CircuitExample'``.
+        Create two boxes for creating a circuit port named ``'CircuitExample'``.
 
         >>> box1 = hfss.modeler.create_box([0, 0, 80], [10, 10, 5],
         ...                                "BoxCircuit1", "copper")
@@ -1579,7 +1586,7 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
-            self.logger.error("One or both objects doesn't exists. Check and retry.")
+            self.logger.error("One or both objects do not exist. Check and retry.")
             return False
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             out, parallel = self.modeler.find_closest_edges(startobj, endobject, axisdir)
@@ -1913,8 +1920,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create two boxes that will be used to create a voltage source
-        named ``'VoltageSource'``.
+        Create two boxes for creating a voltage source named ``'VoltageSource'``.
 
         >>> box1 = hfss.modeler.create_box([30, 0, 0], [40, 10, 5],
         ...                                "BoxVolt1", "copper")
@@ -1970,8 +1976,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create two boxes that will be used to create a current source
-        named ``'CurrentSource'``.
+        Create two boxes for creating a current source named ``'CurrentSource'``.
 
         >>> box1 = hfss.modeler.create_box([30, 0, 20], [40, 10, 5],
         ...                                "BoxCurrent1", "copper")
@@ -2628,7 +2633,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create two boxes that will be used to create a Perfect E named ``'PerfectE'``.
+        Create two boxes for creating a Perfect E named ``'PerfectE'``.
 
         >>> box1 = hfss.modeler.create_box([0,0,0], [10,10,5],
         ...                                "perfect1", "Copper")
@@ -2689,7 +2694,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create two boxes that will be used to create a Perfect H named ``'PerfectH'``.
+        Create two boxes for creating a Perfect H named ``'PerfectH'``.
 
         >>> box1 = hfss.modeler.create_box([0,0,20], [10,10,5],
         ...                                "perfect1", "Copper")
@@ -2850,8 +2855,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create two boxes that will be used to create a lumped RLC named
-        ``'LumpedRLC'``.
+        Create two boxes for creating a lumped RLC named ``'LumpedRLC'``.
 
         >>> box1 = hfss.modeler.create_box([0, 0, 50], [10, 10, 5],
         ...                                           "rlc1", "copper")
@@ -2947,8 +2951,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create two boxes that will be used to create an impedance named
-        named ``'ImpedanceExample'``.
+        Create two boxes for creating an impedance named ``'ImpedanceExample'``.
 
         >>> box1 = hfss.modeler.create_box([0, 0, 70], [10, 10, 5],
         ...                                           "box1", "copper")
@@ -3122,8 +3125,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a circle sheet that will be used to create a wave port named
-        ``'WavePortFromSheet'``.
+        Create a circle sheet for creating a wave port named ``'WavePortFromSheet'``.
 
         >>> origin_position = hfss.modeler.Position(0, 0, 0)
         >>> circle = hfss.modeler.create_circle(hfss.PLANE.YZ,
@@ -3224,8 +3226,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a rectangle sheet that will be used to create a lumped port named
-        ``'LumpedPortFromSheet'``.
+        Create a rectangle sheet for creating a lumped port named ``'LumpedPortFromSheet'``.
 
         >>> rectangle = hfss.modeler.create_rectangle(hfss.PLANE.XY,
         ...                                                      [0, 0, 0], [10, 2], name="lump_port",
@@ -3256,7 +3257,7 @@ class Hfss(FieldAnalysis3D, object):
                 else:
                     faces = self.modeler.get_object_faces(sheet_name)[0]
                 if not faces:  # pragma: no cover
-                    self.logger.error("Wrong input object. It must be a face id or a sheet.")
+                    self.logger.error("Wrong input object. It must be a face ID or a sheet.")
                     return False
                 if deemb:
                     deembed = 0
@@ -3485,10 +3486,10 @@ class Hfss(FieldAnalysis3D, object):
             Resistance value in ohms. The default is ``None``, in which
             case this parameter is disabled.
         Lvalue : optional
-            Inductance value in H. The default is ``None``, in which
+            Inductance value in Henry (H). The default is ``None``, in which
             case this parameter is disabled.
         Cvalue : optional
-            Capacitance value in F. The default is ``None``, in which
+            Capacitance value in  farads (F). The default is ``None``, in which
             case this parameter is disabled.
 
         Returns
@@ -3682,16 +3683,16 @@ class Hfss(FieldAnalysis3D, object):
     def edit_sources(
         self, excitations, include_port_post_processing=True, max_available_power=None, use_incident_voltage=False
     ):
-        """Set up the power loaded for Hfss Post-Processing in multiple sources simultaneously.
+        """Set up the power loaded for HFSS postprocessing in multiple sources simultaneously.
 
         Parameters
         ----------
         excitations : dict
             Dictionary of input sources to modify module and phase.
             Dictionary values can be:
-            - 1 Value to setup 0deg as default
+            - 1 value to setup 0deg as default
             - 2 values tuple or list (magnitude and phase) or
-            - 3 values (magnitude, phase and termination flag) for Terminal Solution in case of incident voltage usage.
+            - 3 values (magnitude, phase, and termination flag) for Terminal solution in case of incident voltage usage.
 
         Returns
         -------
@@ -3752,19 +3753,19 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def edit_source(self, portandmode=None, powerin="1W", phase="0deg"):
-        """Set up the power loaded for Hfss Post-Processing.
+        """Set up the power loaded for HFSS postprocessing.
 
         Parameters
         ----------
         portandmode : str, optional
             Port name and mode. For example, ``"Port1:1"``.
-            It must be defined if solution type is other than Eigenmodal. It is ignored for solution type Eigenmodal.
+            The port name must be defined if the solution type is other than Eigenmodal. This parameter
+            is ignored if the solution type is Eigenmodal.
         powerin : str, optional
-            Power in Watts or the project variable to put as stored energy in the project.
+            Power in watts (W) or the project variable to put as stored energy in the project.
             The default is ``"1W"``.
         phase : str, optional
-            Phase of the excitation.
-            The default is ``"0deg"``.
+            Phase of the excitation. The default is ``"0deg"``.
 
         Returns
         -------
@@ -3780,7 +3781,7 @@ class Hfss(FieldAnalysis3D, object):
         --------
 
         Create a circle sheet and use it to create a wave port.
-        Set up the thermal power for the port created above.
+        Set up the thermal power for this wave port.
 
         >>> sheet = hfss.modeler.create_circle(hfss.PLANE.YZ,
         ...                                    [-20, 0, 0], 10,
@@ -3796,7 +3797,7 @@ class Hfss(FieldAnalysis3D, object):
 
         if self.solution_type != "Eigenmode":
             if portandmode is None:
-                self.logger.error("Port and Mode must be defined for solution type {}".format(self.solution_type))
+                self.logger.error("Port and mode must be defined for solution type {}".format(self.solution_type))
                 return False
             self.logger.info('Setting up power to "{}" = {}'.format(portandmode, powerin))
             self.osolution.EditSources(
@@ -3815,6 +3816,7 @@ class Hfss(FieldAnalysis3D, object):
     @pyaedt_function_handler()
     def thicken_port_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
         """Create thickened sheets over a list of input port sheets.
+
         This method is built to work with the output of ``modeler.find_port_faces``.
 
         Parameters
@@ -3833,7 +3835,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         Dict
-            For each input sheet returns the port IDs where thickened sheets were created
+            For each input sheet, returns the port IDs where thickened sheets were created
             if the name contains the word "Vacuum".
 
         References
@@ -3988,7 +3990,7 @@ class Hfss(FieldAnalysis3D, object):
         list of str
             List of all the validation information for later use.
         bool
-            Indicates if the validation was successful or not.
+            ``True`` if the validation was successful, ``False`` otherwise.
 
         References
         ----------
@@ -3998,8 +4000,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Validate the current design and save the log file into
-        the current project directory.
+        Validate the current design and save the log file in the current project directory.
 
         >>> validation = hfss.validate_full_design()
         pyaedt info: Design Validation Checks
@@ -4008,7 +4009,7 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        self.logger.info("Design Validation Checks")
+        self.logger.info("Design validation checks.")
         validation_ok = True
         val_list = []
         if not dname:
@@ -4019,7 +4020,7 @@ class Hfss(FieldAnalysis3D, object):
         validation_log_file = os.path.join(outputdir, pname + "_" + dname + "_validation.log")
 
         # Desktop Messages
-        msg = "Desktop Messages:"
+        msg = "Desktop messages:"
         val_list.append(msg)
         temp_msg = list(self._desktop.GetMessages(pname, dname, 0))
         if temp_msg:
@@ -4036,10 +4037,10 @@ class Hfss(FieldAnalysis3D, object):
             msg = "Design validation check ERROR."
             validation_ok = False
         val_list.append(msg)
-        msg = "Design Validation Messages:"
+        msg = "Design validation messages:"
         val_list.append(msg)
-        if os.path.isfile(temp_val_file):
-            with open(temp_val_file, "r") as df:
+        if os.path.isfile(temp_val_file) or settings.remote_rpc_session:
+            with open_file(temp_val_file, "r") as df:
                 temp = df.read().splitlines()
                 val_list.extend(temp)
             os.remove(temp_val_file)
@@ -4051,7 +4052,7 @@ class Hfss(FieldAnalysis3D, object):
         val_list.append(msg)
 
         # Find the excitations and check or list them out
-        msg = "Excitations Check:"
+        msg = "Excitations check:"
         val_list.append(msg)
         if self.solution_type != "Eigenmode":
             detected_excitations = self.excitations
@@ -4081,7 +4082,7 @@ class Hfss(FieldAnalysis3D, object):
             val_list.append(msg)
 
         # Find the number of analysis setups and output the info.
-        msg = "Analysis Setup Messages:"
+        msg = "Analysis setup messages:"
         val_list.append(msg)
         setups = list(self.oanalysis.GetSetups())
         if setups:
@@ -4100,7 +4101,7 @@ class Hfss(FieldAnalysis3D, object):
             msg = "No setup is detected."
             val_list.append(msg)
 
-        with open(validation_log_file, "w") as f:
+        with open_file(validation_log_file, "w") as f:
             for item in val_list:
                 f.write("%s\n" % item)
         return val_list, validation_ok  # Return all the information in a list for later use.
@@ -4187,7 +4188,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> oModule.CreateReport
 
         """
-        npath = os.path.normpath(project_dir)
+        npath = project_dir
 
         # Setup arguments list for createReport function
         args = [Xaxis + ":=", ["All"]]
@@ -4242,7 +4243,8 @@ class Hfss(FieldAnalysis3D, object):
         activate : bool
             Whether to export the Touchstone file after simulation finishes.
         export_dir : str, optional
-            Directory to export the Touchstone file to. The default is ``""``.
+            Directory to export the Touchstone file to. The default is ``""``,
+            in which case the Touchstone file is exported to the working directory.
 
         Returns
         -------
@@ -4362,7 +4364,7 @@ class Hfss(FieldAnalysis3D, object):
         velocity_resolution,
         min_velocity,
         max_velocity,
-        ray_density_per_wavelenght,
+        ray_density_per_wavelength,
         max_bounces,
         setup_name,
         include_coupling_effects=False,
@@ -4389,7 +4391,7 @@ class Hfss(FieldAnalysis3D, object):
         setup1.props["SbrRangeDopplerVelocityResolution"] = self.modeler._arg_with_dim(velocity_resolution, "m_per_sec")
         setup1.props["SbrRangeDopplerVelocityMin"] = self.modeler._arg_with_dim(min_velocity, "m_per_sec")
         setup1.props["SbrRangeDopplerVelocityMax"] = self.modeler._arg_with_dim(max_velocity, "m_per_sec")
-        setup1.props["DopplerRayDensityPerWavelength"] = ray_density_per_wavelenght
+        setup1.props["DopplerRayDensityPerWavelength"] = ray_density_per_wavelength
         setup1.props["MaxNumberOfBounces"] = max_bounces
         if setup_type != "PulseDoppler":
             setup1.props["IncludeRangeVelocityCouplingEffect"] = include_coupling_effects
@@ -4419,7 +4421,7 @@ class Hfss(FieldAnalysis3D, object):
         velocity_resolution=0.4,
         min_velocity=-20,
         max_velocity=20,
-        ray_density_per_wavelenght=0.2,
+        ray_density_per_wavelength=0.2,
         max_bounces=5,
         include_coupling_effects=False,
         doppler_ad_sampling_rate=20,
@@ -4436,18 +4438,18 @@ class Hfss(FieldAnalysis3D, object):
             Duration for the sweep time. The default is ``0.`` If a value greater
             than ``0`` is specified, a parametric sweep is created.
         center_freq : float, optional
-            Center frequency in GHz. The default is ``76.5``.
+            Center frequency in gigahertz (GHz). The default is ``76.5``.
         resolution : float, optional
-            Doppler resolution in meters. The default is ``1``.
+            Doppler resolution in meters (m). The default is ``1``.
         period : float, optional
-            Period of analysis in meters. The default is ``200``.
+            Period of analysis in meters (m). The default is ``200``.
         velocity_resolution : float, optional
-            Doppler velocity resolution in meters per second. The default is ``0.4``.
+            Doppler velocity resolution in meters per second (m/s). The default is ``0.4``.
         min_velocity : str, optional
-            Minimum Doppler velocity in meters per second. The default is ``-20``.
+            Minimum Doppler velocity in meters per second (m/s). The default is ``-20``.
         max_velocity : str, optional
-            Maximum Doppler velocity in meters per second. The default is ``20``.
-        ray_density_per_wavelenght : float, optional
+            Maximum Doppler velocity in meters per second (m/s). The default is ``20``.
+        ray_density_per_wavelength : float, optional
             Doppler ray density per wavelength. The default is ``0.2``.
         max_bounces : int, optional
             Maximum number of bounces. The default is ``5``.
@@ -4457,7 +4459,7 @@ class Hfss(FieldAnalysis3D, object):
             Doppler AD sampling rate to use if ``include_coupling_effects``
             is ``True``. The default is ``20``.
         setup_name : str, optional
-            Name of the setup. The default is ``None``.
+            Name of the setup. The default is ``None``, in which case the active setup is used.
 
         Returns
         -------
@@ -4485,7 +4487,9 @@ class Hfss(FieldAnalysis3D, object):
                     time_var = var_name
                     break
             if not time_var:
-                self.logger.error("No time variable is found. Set up or explicitly assign to the method.")
+                self.logger.error(
+                    "No time variable is found. Set up or explicitly assign a time variable to the method."
+                )
                 raise ValueError("No time variable is found.")
         setup = self._create_sbr_doppler_setup(
             "ChirpI",
@@ -4496,7 +4500,7 @@ class Hfss(FieldAnalysis3D, object):
             velocity_resolution=velocity_resolution,
             min_velocity=min_velocity,
             max_velocity=max_velocity,
-            ray_density_per_wavelenght=ray_density_per_wavelenght,
+            ray_density_per_wavelength=ray_density_per_wavelength,
             max_bounces=max_bounces,
             include_coupling_effects=include_coupling_effects,
             doppler_ad_sampling_rate=doppler_ad_sampling_rate,
@@ -4521,7 +4525,7 @@ class Hfss(FieldAnalysis3D, object):
         velocity_resolution=0.4,
         min_velocity=-20,
         max_velocity=20,
-        ray_density_per_wavelenght=0.2,
+        ray_density_per_wavelength=0.2,
         max_bounces=5,
         include_coupling_effects=False,
         doppler_ad_sampling_rate=20,
@@ -4538,18 +4542,18 @@ class Hfss(FieldAnalysis3D, object):
             Duration of the sweep time. The default is ``0``. If a value greater
             than ``0`` is specified, a parametric sweep is created.
         center_freq : float, optional
-            Center frequency in GHz. The default is ``76.5``.
+            Center frequency in gighertz (GHz). The default is ``76.5``.
         resolution : float, optional
-            Doppler resolution in meters. The default is ``1``.
+            Doppler resolution in meters (m). The default is ``1``.
         period : float, optional
-            Period of analysis in meters. The default is ``200``.
+            Period of analysis in meters (m). The default is ``200``.
         velocity_resolution : float, optional
-            Doppler velocity resolution in meters per second. The default is ``0.4``.
+            Doppler velocity resolution in meters per second (m/s). The default is ``0.4``.
         min_velocity : str, optional
-            Minimum Doppler velocity in meters per second. The default is ``-20``.
+            Minimum Doppler velocity in meters per second (m/s). The default is ``-20``.
         max_velocity : str, optional
-            Maximum Doppler velocity in meters per second. The default is ``20``.
-        ray_density_per_wavelenght : float, optional
+            Maximum Doppler velocity in meters per second (m/s). The default is ``20``.
+        ray_density_per_wavelength : float, optional
             Doppler ray density per wavelength. The default is ``0.2``.
         max_bounces : int, optional
             Maximum number of bounces. The default is ``5``.
@@ -4559,7 +4563,8 @@ class Hfss(FieldAnalysis3D, object):
             Doppler AD sampling rate to use if ``include_coupling_effects`` is
             ``True``. The default is ``20``.
         setup_name : str, optional
-            Name of the setup. The default is ``None``.
+            Name of the setup. The default is ``None``, in which case the active
+            setup is used.
 
         Returns
         -------
@@ -4595,7 +4600,7 @@ class Hfss(FieldAnalysis3D, object):
             velocity_resolution=velocity_resolution,
             min_velocity=min_velocity,
             max_velocity=max_velocity,
-            ray_density_per_wavelenght=ray_density_per_wavelenght,
+            ray_density_per_wavelength=ray_density_per_wavelength,
             max_bounces=max_bounces,
             include_coupling_effects=include_coupling_effects,
             doppler_ad_sampling_rate=doppler_ad_sampling_rate,
@@ -4620,7 +4625,7 @@ class Hfss(FieldAnalysis3D, object):
         velocity_resolution=0.4,
         min_velocity=-20,
         max_velocity=20,
-        ray_density_per_wavelenght=0.2,
+        ray_density_per_wavelength=0.2,
         max_bounces=5,
         setup_name=None,
     ):
@@ -4635,26 +4640,27 @@ class Hfss(FieldAnalysis3D, object):
             Duration of the sweep time. The default is ``0``. If a value greater
             than ``0`` is specified, a parametric sweep is created.
         center_freq : float, optional
-            Center frequency in GHz. The default is ``76.5``.
+            Center frequency in gigahertz (GHz). The default is ``76.5``.
         resolution : float, optional
-            Doppler resolution in meters. The default is ``1``.
+            Doppler resolution in meters (m). The default is ``1``.
         period : float, optional
-            Period of analysis in meters. The default is ``200``.
+            Period of analysis in meters (m). The default is ``200``.
         velocity_resolution : float, optional
-            Doppler velocity resolution in meters per second.
+            Doppler velocity resolution in meters per second (m/s).
             The default is ``0.4``.
         min_velocity : str, optional
-            Minimum Doppler velocity in meters per second. The default
+            Minimum Doppler velocity in meters per second (m/s). The default
             is ``-20``.
         max_velocity : str, optional
-            Maximum Doppler velocity in meters per second. The default
+            Maximum Doppler velocity in meters per second (m/s). The default
             is ``20``.
-        ray_density_per_wavelenght : float, optional
+        ray_density_per_wavelength : float, optional
             Doppler ray density per wavelength. The default is ``0.2``.
         max_bounces : int, optional
             Maximum number of bounces. The default is ``5``.
         setup_name : str, optional
-            Name of the setup. The default is ``None``.
+            Name of the setup. The default is ``None``, in which case the active
+            setup is used.
 
         Returns
         -------
@@ -4691,7 +4697,7 @@ class Hfss(FieldAnalysis3D, object):
             velocity_resolution=velocity_resolution,
             min_velocity=min_velocity,
             max_velocity=max_velocity,
-            ray_density_per_wavelenght=ray_density_per_wavelenght,
+            ray_density_per_wavelength=ray_density_per_wavelength,
             max_bounces=max_bounces,
             setup_name=setup_name,
         )
@@ -4833,7 +4839,7 @@ class Hfss(FieldAnalysis3D, object):
         custom_radiation_faces : str, optional
             List of radiation faces to use for far field computation. The default is ``None``.
         custom_coordinate_system : str, optional
-            Local coordinate system to used for far field computation. The default is
+            Local coordinate system to use for far field computation. The default is
             ``None``.
         use_slant_polarization : bool, optional
             Whether to use slant polarization. The default is ``False``.
@@ -4952,17 +4958,17 @@ class Hfss(FieldAnalysis3D, object):
         negative_terminal : str
             Name of the terminal to use as the negative terminal.
         common_name : str, optional
-            Name for the common mode. Default is ``None`` in which case a unique name is chosen.
+            Name for the common mode. The default is ``None``, in which case a unique name is assigned.
         diff_name : str, optional
-            Name for the differential mode. Default is ``None`` in which case a unique name is chosen.
+            Name for the differential mode. The default is ``None``, in which case a unique name is assigned.
         common_ref_z : float, optional
-            Reference impedance for the common mode. Units are Ohm. Default is ``25``.
+            Reference impedance for the common mode in ohms. The default is ``25``.
         diff_ref_z : float, optional
-            Reference impedance for the differential mode. Units are Ohm. Default is ``100``.
+            Reference impedance for the differential mode in ohms. The default is ``100``.
         active : bool, optional
-            Set the differential pair as active. Default is ``True``.
+            Whether the differential pair is active. The default is ``True``.
         matched : bool, optional
-            Set the differential pair as active. Default is ``False``.
+            Whether the differential pair is matched. The default is ``False``.
 
         Returns
         -------
@@ -5012,19 +5018,20 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def add_3d_component_array_from_json(self, json_file, array_name=None):
-        """Add/edit a new 3d Component Array from json file. 3D Component will be placed in the layout if not present.
+        """Add or edit a new 3D component array from a JSON file.
+        The 3D component is placed in the layout if it is not present.
 
         Parameters
         ----------
         json_file : str, dict
-            Full path to json file containing array info or dictionary containing the array info.
+            Full path to either the JSON file or dictionary containing the array information.
         array_name : str, optional
-            Name of boundary to create/edit.
-
+            Name of the boundary to create or edit.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
@@ -5083,7 +5090,9 @@ class Hfss(FieldAnalysis3D, object):
                     if v["name"] not in json_dict:
                         self.logger.error("a3comp is not present in design and not define correctly in json.")
                         return False
+
                     geometryparams = self.get_components3d_vars(json_dict[v["name"]])
+
                     self.modeler.insert_3d_component(json_dict[v["name"]], geometryparams)
                 cells_names[v["name"]] = [k1]
             if v.get("color", None):
@@ -5168,23 +5177,24 @@ class Hfss(FieldAnalysis3D, object):
     def get_antenna_ffd_solution_data(
         self, frequencies, setup_name=None, sphere_name=None, variations=None, overwrite=True, taper="flat"
     ):
-        """Export Antenna Parameters to ffd files and return the FfdSolutionData object.
+        """Export antenna parameters to Far Field Data (FFD) files and return the ``FfdSolutionData`` object.
 
         Parameters
         ----------
         frequencies : float, list
-            Frequency value or list of frequencies to compute ffd.
+            Frequency value or list of frequencies to compute far field data.
         setup_name : str, optional
-            Name of setup to use. Default will be None which will use nominal_adaptive.
+            Name of the setup to use. The default is ``None,`` in which case ``nominal_adaptive`` is used.
         sphere_name : str, optional
-            Infinite Sphere to use. Default is None which will create a new Sphere or use existing one.
+            Infinite sphere to use. The default is ``None``, in which case an existing sphere is used or a new
+            one is created.
         variations : ditc, optional
             Variation dictionary.
         overwrite : bool, optional
-            Either if overwrite ffd files or not.
+            Whether to overwrite FFD files. The default is ``True``.
         taper : str, optional
-            This is the type of taper we want to apply. The default is 'flat'.
-            It can be ``"cosine"``, ``"triangular"``, ``"hamming"`` or ``"flat"``.
+            Type of taper to apply. The default is ``"flat"``. Options are
+            ``"cosine"``, ``"triangular"``, ``"hamming"``, and ``"flat"``.
 
         Returns
         -------
@@ -5198,22 +5208,22 @@ class Hfss(FieldAnalysis3D, object):
         if sphere_name:
             names = [i.name for i in self.field_setups]
             if sphere_name in names:
-                self.logger.info("Far Field Sphere %s assigned", sphere_name)
+                self.logger.info("Far field sphere %s is assigned", sphere_name)
 
             else:
                 self.insert_infinite_sphere(
                     x_start=0, x_stop=180, x_step=5, y_start=-180, y_stop=180, y_step=5, name=sphere_name
                 )
-                self.logger.info("Far Field Sphere %s created", sphere_name)
+                self.logger.info("Far field sphere %s is created.", sphere_name)
         elif self.field_setups:
             sphere_name = self.field_setups[0].name
-            self.logger.info("No Far Field Sphere Defined. Using %s", sphere_name)
+            self.logger.info("No far field sphere is defined. Using %s", sphere_name)
         else:
             sphere_name = "Infinite Sphere1"
             self.insert_infinite_sphere(
                 x_start=0, x_stop=180, x_step=5, y_start=-180, y_stop=180, y_step=5, name=sphere_name
             )
-            self.logger.info("Far Field Sphere %s created", setup_name)
+            self.logger.info("Far field sphere %s is created.", setup_name)
 
         return FfdSolutionData(
             self,
@@ -5227,13 +5237,12 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def set_material_threshold(self, threshold=100000):
-        """Set material conductivity threshold.
+        """Set the material conductivity threshold.
 
         Parameters
         ----------
         threshold : float, optional
-            Conductivity threshold.
-            The default value is 100000.
+            Conductivity threshold. The default value is ``100000``.
 
         Returns
         -------

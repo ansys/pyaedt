@@ -13,14 +13,14 @@ from collections import OrderedDict
 
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import _tuple2dict
+from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.SetupTemplates import SetupKeys
+from pyaedt.modules.SetupTemplates import SetupProps
 from pyaedt.modules.SetupTemplates import SweepHFSS
 from pyaedt.modules.SetupTemplates import SweepHFSS3DLayout
 from pyaedt.modules.SetupTemplates import SweepQ3D
-from pyaedt.modules.SetupTemplates import SetupProps
-from pyaedt.generic.general_methods import PropsManager
 
 
 class CommonSetup(PropsManager, object):
@@ -283,11 +283,11 @@ class Setup(CommonSetup):
                         "IsConvergence:=",
                         isconvergence,
                         "UseRelativeConvergence:=",
-                        1,
+                        userelative,
                         "MaxConvergenceDelta:=",
-                        1,
+                        conv_criteria,
                         "MaxConvergeValue:=",
-                        "0.01",
+                        str(conv_criteria),
                         "ReportType:=",
                         report_type,
                         ["NAME:ExpressionContext"],
@@ -1450,7 +1450,7 @@ class Setup3DLayout(CommonSetup):
         >>> oModule.ExportToHfss
         """
 
-        file_fullname = os.path.normpath(file_fullname)
+        file_fullname = file_fullname
         if not os.path.isdir(os.path.dirname(file_fullname)):
             return False
         file_fullname = os.path.splitext(file_fullname)[0] + ".aedt"

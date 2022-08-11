@@ -11,7 +11,6 @@ from pyaedt import Q2d
 from pyaedt import Q3d
 from pyaedt import settings
 
-
 try:
     import pytest
 except ImportError:

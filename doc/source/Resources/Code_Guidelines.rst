@@ -1,6 +1,5 @@
-Code Guidelines
+Code guidelines
 ===============
-
 All contributors must adhere to the following guidelines to:
 
 #. Prevent against common programming errors
@@ -13,22 +12,21 @@ To ensure program homogeneity and code stability, be sure to follow
 the guidelines presented herein.
 
 
-PyAEDT Python Coding Guidelines
--------------------------------
+Python coding guidelines
+------------------------
 The following sections summarize the key points from `PEP8
 <https://www.python.org/dev/peps/pep-0008/>`_ and how they apply to
-PyAEDT and other PyAnsys modules. PyAnsys libraries will attempt to
-be consistent in style and formatting with the "big three" data science
-libraries: `numpy <https://numpy.org/>`_, `scipy
+PyAEDT and other PyAnsys modules. PyAnsys libraries attempt to
+be consistent in style and formatting with the packages for the
+"big three" data science libraries: `numpy <https://numpy.org/>`_, `scipy
 <https://www.scipy.org/>`_, and `pandas <https://pandas.pydata.org/>`_.
 
-
 Imports
-~~~~~~~
+-------
 Imports should always be placed at the top of the file, just after any
-module comments and docstrings and before module globals and
-constants.  This reduces the likelihood of an ``ImportError`` that might only
-be discovered during runtime.
+module comments and docstrings and before module globals and constants.
+This reduces the likelihood of an ``ImportError`` that might only be
+discovered during runtime.
 
 Avoid this:
 
@@ -124,7 +122,7 @@ Instead:
     from my_package.my_module import myclass
 
 
-Indentation and Line Breaks
+Indentation and line breaks
 ---------------------------
 Proper and consistent indentation is important to producing
 easy-to-read and maintainable code. In Python, use four spaces per
@@ -212,14 +210,14 @@ This way, it's clear when a "paragraph" of code is complete and
 a new section is starting.
 
 
-Maximum Line Length
+Maximum line length
 -------------------
 For source code lines, best practice is to keep the length at or below
-79 characters.  For docstrings and comments, best practice is to keep
+79 characters. For docstrings and comments, best practice is to keep
 the length at or below 72 characters.
 
 Lines longer than this might not display properly on some terminals and tools 
-or might be difficult to follow.  For example, this line is difficult to follow:
+or might be difficult to follow. For example, this line is difficult to follow:
 
 .. code:: python
 
@@ -236,7 +234,7 @@ Alternatively, instead of writing a list comprehension, you can use a
 classic loop.
 
 
-Naming Conventions
+Naming conventions
 ------------------
 It is important to use concise and descriptive names for classes,
 methods, functions, and constants for readable and maintainable
@@ -251,32 +249,32 @@ global rules to determine the correct names:
 #. Avoid encodings. Do not append prefixes or type information.
 
 
-Names to Avoid
+Names to avoid
 ~~~~~~~~~~~~~~
 Do not use the characters ``'l'``, ``'O'`` , or ``'I'`` as
 single-character variable names. In some fonts, these characters are
 indistinguishable from the numerals one and zero.
 
 
-Package and Module Naming Conventions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Package and module naming
+~~~~~~~~~~~~~~~~~~~~~~~~~
 Use a short, lowercase word or words for module names. Separate words
-with underscores to improve readability.  For example, ``module.py`` or
+with underscores to improve readability. For example, ``module.py`` or
 ``my_module.py``.
 
-For a package name, use a short, lowercase word or words.  Avoid
-underscores as these will have to be represented as dashes when
-installing from PyPi.
+For a package name, use a short, lowercase word or words. Avoid
+underscores because these must be represented as dashes when
+installing from PyPI.
 
 .. code::
 
    pip install package
 
 
-Class Naming Conventions
-~~~~~~~~~~~~~~~~~~~~~~~~
-Use camel case when naming classes.  Do not separate words
-with underscores.  For example:
+Class naming
+~~~~~~~~~~~~
+Use camel case when naming classes. Do not separate words
+with underscores. For example:
 
 .. code:: python
 
@@ -285,10 +283,10 @@ with underscores.  For example:
        pass
 
 
-Function and Method Naming Conventions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Function and method naming
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 Use a lowercase word or words for Python functions or methods. Separate
-words with underscores to improve readability. 
+words with underscores to improve readability.
 
 .. code:: python
 
@@ -324,8 +322,8 @@ words with underscores to improve readability.
            self._value += 2
 
 
-Variable Naming Conventions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Variable naming
+~~~~~~~~~~~~~~~
 Use a lowercase single letter, word, or words when naming
 variables. Separate words with underscores to improve readability.
 
@@ -372,7 +370,7 @@ Here are general guidelines for writing comments:
 #. Clarify the code.
 #. Warn of consequences.
 
-Obvious portions of the source code should not be commented. 
+Obvious portions of the source code should not be commented.
 For example:
 
 .. code:: python
@@ -381,23 +379,24 @@ For example:
    i += 1
 
 However, important portions of the behavior that are not self-apparent
-should include a note from the developer writing it.  Otherwise,
-future developers may remove what they see as unnecessary. For example:
+should include a note from the developer writing it. Otherwise,
+future developers can remove what they see as unnecessary. For example:
 
 .. code:: python
 
    # Be sure to reset the object's cache prior to exporting, otherwise
    # some portions of the database in memory will not be written.
+   
    obj.update_cache()
    obj.write(filename)
 
 
-Inline Comments
+Inline comments
 ~~~~~~~~~~~~~~~
-Inline comments should be used sparingly. An inline comment is a comment 
+Inline comments should be used sparingly. An inline comment is a comment
 on the same line as a statement.
 
-Inline comments should be separated by two spaces from the statement. 
+Inline comments should be separated by two spaces from the statement.
 For example:
 
 .. code:: python
@@ -412,7 +411,7 @@ Inline comments that state the obvious are distracting. Again, avoid:
 
 
 Focus on writing self-documenting code and using short, but
-descriptive variable names.  
+descriptive variable names.
 
 Rather than:
 
@@ -427,10 +426,10 @@ Use:
     user_name = 'John Smith'
 
 
-Documentation Convention
-------------------------
+Docstrings
+----------
 A docstring is a string literal that occurs as the first statement in
-a module, function, class, or method definition.  A docstring becomes
+a module, function, class, or method definition. A docstring becomes
 the doc special attribute of the object.
 
 Write docstrings for all public modules, functions, classes, and
@@ -451,23 +450,24 @@ For a multi-line docstring, put the ending ``"""`` on a line by itself.
 
 PyAEDT follows the `numpydoc
 <https://numpydoc.readthedocs.io/en/latest/format.html>`_
-documentation style, which is used by `numpy <https://numpy.org/>`_,
-`scipy <https://www.scipy.org/>`_, `pandas
-<https://pandas.pydata.org/>`_, and a variety of other Python open
-source projects.  For a full description of the code style, reference
-`PyAnsys sphinxdocs <https://sphinxdocs.pyansys.com/style.html>`_.
+documentation style, which is used by the `numpy <https://numpy.org/>`_,
+`scipy <https://www.scipy.org/>`_, and `pandas
+<https://pandas.pydata.org/>`_ packages and a variety of other Python open
+source projects. For more information, see
+`Coding style <https://dev.docs.pyansys.com/coding-style/index.html>`_
+in the *PyAnsys Developer's Guide*.
 
 
-Programming Recommendations
+Programming recommendations
 ---------------------------
 This section provides some of the `PEP8
 <https://www.python.org/dev/peps/pep-0008/>`_ suggestions for removing
-ambiguity and preserving consistency.  They address some common pitfalls 
+ambiguity and preserving consistency. They address some common pitfalls 
 when writing Python code.
 
 
-Booleans and Comparisons
-~~~~~~~~~~~~~~~~~~~~~~~~
+Boolean values and comparisons
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Don't compare Boolean values to ``True`` or ``False`` using the
 equivalence operator.
 
@@ -525,7 +525,7 @@ Also, avoid ``if x:`` when you mean ``if x is not None:``.  This is
 especially important when parsing arguments.
 
 
-Handling Strings
+Handling strings
 ~~~~~~~~~~~~~~~~
 Use ``.startswith()`` and ``.endswith()`` instead of slicing.
 
@@ -550,9 +550,9 @@ Use:
        print('The file is a JPEG')
 
 
-Reading the Windows Registry
+Reading the Windows registry
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Never read the Windows registry or write to it because this is dangerous and 
+Never read the Windows registry or write to it because this is dangerous and
 makes it difficult to deploy libraries on different environments or operating
 systems.
 
@@ -569,7 +569,7 @@ Bad practice - Example 2
     EMInstall = (string)Registry.GetValue(string.Format(@"HKEY_LOCAL_MACHINE\SOFTWARE\Ansoft\ElectronicsDesktop{0}\Desktop", AnsysEmInstall.DesktopVersion), "InstallationDirectory", null);
 
 
-Duplicated Code
+Duplicated code
 ~~~~~~~~~~~~~~~
 Follow the DRY principle, which states that "Every piece of knowledge
 must have a single, unambiguous, authoritative representation within a
@@ -613,9 +613,9 @@ Now, you can execute and get the exact same output with:
    new_temp_k = fahr_to_kelvin(46)
 
 This is a trivial example, but the approach can be applied for a
-variety of both simple and complex algorithms and workflows.  Another
+variety of both simple and complex algorithms and workflows. Another
 advantage of this approach is that you can now implement unit testing
-for this method.  For example:
+for this method. For example:
 
 .. code:: python
 
@@ -629,7 +629,7 @@ testing framework such as ``pytest``, you can verify that the method is
 correct.
 
 
-Nested Blocks
+Nested blocks
 ~~~~~~~~~~~~~
 
 Avoid deeply nested block structures (such as conditional blocks and loops)
@@ -690,7 +690,7 @@ Implement a list comprehension with:
 
 
 If the loop is too complicated for creating a list comprehension,
-consider creating small functions and calling these instead.  For
+consider creating small functions and calling these instead. For
 example, extract all consonants in a sentence:
 
 .. code:: python
@@ -719,22 +719,22 @@ letter is a consonant.
    ['T', 'h', 's', 's', 's', 'm', 'p', 'l', 's', 'n', 't', 'n', 'c']
 
 The advantage of the second approach is it is more readable and better
-documented.  Additionally, while it's a trivial example, you could
+documented. Additionally, while it's a trivial example, you could
 implement a unit test for ``is_consonant``.
 
 
-PyAEDT-Specific Coding Guidelines
----------------------------------
-These guidelines are specific to PyAEDT.
+PyAEDT-specific guidelines
+--------------------------
+These coding guidelines are specific to PyAEDT.
 
 
-Logging Errors
+Logging errors
 ~~~~~~~~~~~~~~
 PyAEDT has an internal logging tool named ``Messenger``
 and a log file that is automatically generated in the project
-folder. 
+folder.
 
-The following examples demonstrate how Messenger is used to 
+The following examples demonstrate how Messenger is used to
 write both to the internal AEDT message windows and the log file:
 
 .. code:: python
@@ -743,7 +743,7 @@ write both to the internal AEDT message windows and the log file:
     self.logger.warning("This is a warning message.")
     self.logger.info("This is an info message.")
 
-These examples demonstrate how to to write messages only to the log file:
+These examples demonstrate how to write messages only to the log file:
 
 .. code:: python
 
@@ -752,12 +752,13 @@ These examples demonstrate how to to write messages only to the log file:
     self.logger.info("This is an info message.")
 
 
-Exception Handling
+Exception handling
 ~~~~~~~~~~~~~~~~~~
-PyAEDT uses a specific decorator,  
-``@pyaedt_function_handler``, to handle exceptions caused by
-methods and by the AEDT API. This exception handler decorator 
-makes PyAEDT fault tolerant to errors that can occur in any method. 
+PyAEDT uses a specific decorator, ``@pyaedt_function_handler``,
+to handle exceptions caused by methods and by the AEDT API.
+This exception handler decorator makes PyAEDT fault tolerant
+to errors that can occur in any method.
+
 For example:
 
 .. code:: python
@@ -767,7 +768,7 @@ For example:
        pass
 
 Every method may return a value of ``True`` in case of success and
-``False`` in case of failure.  When a failure occurs, the error
+``False`` in case of failure. When a failure occurs, the error
 handler returns information about the error in both the console and
 log file. Here is an example of an error:
 
@@ -789,13 +790,13 @@ log file. Here is an example of an error:
    ************************************************************
    Method Docstring:
 
-   Create a Box
+   Create a box.
 
    Parameters
    ----------
    ...
 
 
-Hard-Coding Values
+Hard-coding values
 ~~~~~~~~~~~~~~~~~~
 Do not write hard-coded values to the registry. Instead, use the Configuration service.

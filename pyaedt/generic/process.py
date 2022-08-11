@@ -211,7 +211,9 @@ class SiwaveSolve(object):
             p = subprocess.Popen(" ".join(command))
             p.wait()
 
-    def export_3d_cad(self, format_3d="Q3D", output_folder=None, net_list=None, num_cores=None, aedt_file_name=None):
+    def export_3d_cad(
+        self, format_3d="Q3D", output_folder=None, net_list=None, num_cores=None, aedt_file_name=None, hidden=False
+    ):
         """Export edb to Q3D or HFSS
 
         Parameters
@@ -261,6 +263,8 @@ class SiwaveSolve(object):
         else:
             _exe = '"' + os.path.join(self.installer_path, "siwave.exe") + '"'
         command = [_exe]
+        if hidden:
+            command.append("-embedding")
         command.append("-RunScriptAndExit")
         command.append(scriptname)
         print(command)

@@ -41,6 +41,35 @@ class TestClass(BasisTest, object):
         assert plate.solve_inside
         assert plate.material_name == "aluminum"
 
+    def test_01A_litz_wire(self):
+        cylinder = self.aedtapp.modeler.create_cylinder(
+            cs_axis="X", position=[50, 0, 0], radius=0.8, height=20, name="Wire", matname="magnesium"
+        )
+        self.aedtapp.materials["magnesium"].stacking_type = "Litz Wire"
+        self.aedtapp.materials["magnesium"].wire_type = "Round"
+        self.aedtapp.materials["magnesium"].strand_number = 3
+        self.aedtapp.materials["magnesium"].wire_diameter = "1mm"
+        assert self.aedtapp.materials["magnesium"].stacking_type == "Litz Wire"
+        assert self.aedtapp.materials["magnesium"].wire_type == "Round"
+        assert self.aedtapp.materials["magnesium"].strand_number == 3
+        assert self.aedtapp.materials["magnesium"].wire_diameter == "1mm"
+
+        self.aedtapp.materials["magnesium"].wire_type = "Square"
+        self.aedtapp.materials["magnesium"].wire_width = "2mm"
+        assert self.aedtapp.materials["magnesium"].wire_type == "Square"
+        assert self.aedtapp.materials["magnesium"].wire_width == "2mm"
+
+        self.aedtapp.materials["magnesium"].wire_type = "Rectangular"
+        self.aedtapp.materials["magnesium"].wire_width = "2mm"
+        self.aedtapp.materials["magnesium"].wire_thickness = "1mm"
+        self.aedtapp.materials["magnesium"].wire_thickness_direction = "V(2)"
+        self.aedtapp.materials["magnesium"].wire_width_direction = "V(3)"
+        assert self.aedtapp.materials["magnesium"].wire_type == "Rectangular"
+        assert self.aedtapp.materials["magnesium"].wire_width == "2mm"
+        assert self.aedtapp.materials["magnesium"].wire_thickness == "1mm"
+        assert self.aedtapp.materials["magnesium"].wire_thickness_direction == "V(2)"
+        assert self.aedtapp.materials["magnesium"].wire_width_direction == "V(3)"
+
     def test_02_create_coil(self):
         center_hole = self.aedtapp.modeler.Position(119, 25, 49)
         center_coil = self.aedtapp.modeler.Position(94, 0, 49)
@@ -71,6 +100,10 @@ class TestClass(BasisTest, object):
         assert cur2.delete()
         assert volt
         assert volt.delete()
+        self.aedtapp.solution_type = self.aedtapp.SOLUTIONS.Maxwell3d.TransientAPhiFormulation
+        cur2 = self.aedtapp.assign_current(["Coil_Section1"], amplitude=212)
+        assert cur2
+        assert cur2.delete()
         self.aedtapp.solution_type = "EddyCurrent"
 
     def test_05_winding(self):
@@ -340,7 +373,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.close_project(m3d1.project_name, False)
 
     def test_32_matrix(self):
-        m3d = Maxwell3d(self.file_path, specified_version=desktop_version)
+        m3d = Maxwell3d(specified_version=desktop_version, designname="Matrix1")
         m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
         m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
         m3d.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", matname="aluminum")
@@ -370,7 +403,53 @@ class TestClass(BasisTest, object):
         winding4 = m3d.assign_winding("Sheet4", name="Current4")
         L = m3d.assign_matrix(sources="Current1")
         assert not L
-        self.aedtapp.close_project(m3d.project_name, False)
+
+    def test_32B_matrix(self):
+        m3d = Maxwell3d(specified_version=desktop_version, designname="Matrix2")
+        m3d.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
+        m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
+        m3d.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", matname="aluminum")
+        m3d.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", matname="aluminum")
+        m3d.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", matname="aluminum")
+
+        rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        rectangle4 = m3d.modeler.create_rectangle(0, [32.5, 1.5, 0], [2.5, 5], name="Sheet4")
+
+        m3d.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
+        m3d.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
+        m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
+        m3d.assign_current(rectangle4.faces[0], amplitude=1, name="Cur4")
+
+        L = m3d.assign_matrix(sources=["Cur1", "Cur2", "Cur3"])
+        out = L.join_series(["Cur1", "Cur2"])
+        assert isinstance(out[0], str)
+        assert isinstance(out[1], str)
+        out = L.join_parallel(["Cur1", "Cur3"])
+        assert isinstance(out[0], str)
+        assert isinstance(out[1], str)
+        out = L.join_parallel(["Cur5"])
+        assert not out[0]
+
+    def test_32a_export_rl_matrix(self):
+        self.aedtapp.set_active_design("Matrix2")
+        L = self.aedtapp.assign_matrix(sources=["Cur1", "Cur2", "Cur3"], matrix_name="matrix_export_test")
+        L.join_series(["Cur1", "Cur2"], matrix_name="reduced_matrix_export_test")
+        setup_name = "setupTestMatrixRL"
+        setup = self.aedtapp.create_setup(setupname=setup_name)
+        setup.props["MaximumPasses"] = 2
+        export_path_1 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test1.txt")
+        assert not self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
+        assert not self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1, False, 10, 3, True)
+        self.aedtapp.validate_simple()
+        self.aedtapp.analyze_setup(setup_name)
+        assert self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
+        assert not self.aedtapp.export_rl_matrix("abcabc", export_path_1)
+        assert os.path.exists(export_path_1)
+        export_path_2 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test2.txt")
+        assert self.aedtapp.export_rl_matrix("matrix_export_test", export_path_2, False, 10, 3, True)
+        assert os.path.exists(export_path_2)
 
     def test_33_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
@@ -399,3 +478,16 @@ class TestClass(BasisTest, object):
             if bound.name == "Symmetry_Test_IsEven":
                 assert bound.type == "Symmetry"
                 assert not bound.props["IsOdd"]
+
+    def test_36_set_bp_curve_loss(self):
+        bp_curve_box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="bp_curve_box")
+        bp_curve_box.material = "magnesium"
+        assert self.aedtapp.materials["magnesium"].set_bp_curve_coreloss(
+            [[0, 0], [0.6, 1.57], [1.0, 4.44], [1.5, 20.562], [2.1, 44.23]],
+            kdc=0.002,
+            cut_depth=0.0009,
+            punit="w/kg",
+            bunit="tesla",
+            frequency=50,
+            thickness="0.5mm",
+        )

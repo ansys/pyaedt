@@ -1,36 +1,38 @@
 """
-Hfss 3D Layout: Parametric Via Analysis
+HFSS 3D Layout: parametric via analysis
 ---------------------------------------
-This example shows how to use HFSS 3D Layout to create and solve a parametric design.
+This example shows how you can use HFSS 3D Layout to create and solve a
+parametric via analysis.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/3dlayout.png'
 
 ###############################################################################
-# # Import the `Hfss3dlayout` Object
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example imports the `Hfss3dlayout` object and initializes it on version
-# 2022R2.
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required inports.
 
 from pyaedt import Hfss3dLayout
 import os
 
-##########################################################
-# Set Non Graphical Mode.
-# Default is False
+###############################################################################
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
-# Launch AEDT in Graphical Mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2022R2 in graphical mode.
+# Launch AEDT
+# ~~~~~~~~~~~
+# Launch AEDT 2022 R2 in graphical mode.
 
 h3d = Hfss3dLayout(specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
 
 ###############################################################################
-# Set Up Parametric Variables
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example sets up all parametric variables to use in the layout.
+# Set up variables
+# ~~~~~~~~~~~~~~~~
+# Set up all parametric variables to use in the layout.
 
 h3d["viatotrace"] = "5mm"
 h3d["viatovia"] = "10mm"
@@ -39,27 +41,27 @@ h3d["sp"] = "0.5mm"
 h3d["len"] = "50mm"
 
 ###############################################################################
-# Create a Stackup
-# ~~~~~~~~~~~~~~~~
-# This example creates a stackup.
+# Add stackup layers
+# ~~~~~~~~~~~~~~~~~~
+# Add stackup layers.
 
 h3d.modeler.layers.add_layer("GND", "signal", thickness="0", isnegative=True)
 h3d.modeler.layers.add_layer("diel", "dielectric", thickness="0.2mm", material="FR4_epoxy")
 h3d.modeler.layers.add_layer("TOP", "signal", thickness="0.035mm", elevation="0.2mm")
 
 ###############################################################################
-# Create a Signal Net and Ground Planes
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example create a signal net and ground planes.
+# Create signal net and ground planes
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a signal net and ground planes.
 
 h3d.modeler.create_line("TOP", [[0, 0], ["len", 0]], lw="w1", netname="microstrip", name="microstrip")
 h3d.modeler.create_rectangle("TOP", [0, "-w1/2-sp"], ["len", "-w1/2-sp-20mm"])
 h3d.modeler.create_rectangle("TOP", [0, "w1/2+sp"], ["len", "w1/2+sp+20mm"])
 
 ###############################################################################
-# Create Vias with Parametric Positions
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates vias with parametric positions.
+# Create vias
+# ~~~~~~~~~~~
+# Create vias with parametric positions.
 
 h3d.modeler.create_via(x="viatovia", y="-viatotrace", name="via1")
 h3d.modeler.create_via(x="viatovia", y="viatotrace", name="via2")
@@ -69,17 +71,17 @@ h3d.modeler.create_via(x="3*viatovia", y="-viatotrace")
 h3d.modeler.create_via(x="3*viatovia", y="viatotrace")
 
 ###############################################################################
-# Add Circuit Ports
-# ~~~~~~~~~~~~~~~~~
-# This example adds circuit ports to the setup.
+# Create circuit ports
+# ~~~~~~~~~~~~~~~~~~~~
+# Create circuit ports.
 
 h3d.create_edge_port("microstrip", 0)
 h3d.create_edge_port("microstrip", 2)
 
 ###############################################################################
-# Create a Setup and Sweep
-# ~~~~~~~~~~~~~~~~~~~~~~~~
-# This example create a setup and sweep.
+# Create setup and sweep
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Create a setup and a sweep.
 
 setup = h3d.create_setup()
 h3d.create_linear_count_sweep(
@@ -97,18 +99,19 @@ h3d.create_linear_count_sweep(
 )
 
 ###############################################################################
-# Solve and Plot Results
+# Solve and plot results
 # ~~~~~~~~~~~~~~~~~~~~~~
-# This example solves and plots results.
+# Solve and plot the results.
 
 h3d.analyze_nominal()
 traces = h3d.get_traces_for_plot(first_element_filter="Port1")
 h3d.post.create_report(traces, families_dict=h3d.available_variations.nominal_w_values_dict)
 
 ###############################################################################
-# Create Report outside AEDT
+# Create report outside AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create Report using Matplotlib.
+# Create a report using Matplotlib.
+
 traces = h3d.get_traces_for_plot(first_element_filter="Port1", category="S")
 
 solutions = h3d.post.get_solution_data(expressions=traces)
@@ -118,9 +121,9 @@ solutions.plot(math_formula="db20")
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton is completed, you can close AEDT or release it using the
+# After the simulation completes, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
-# All methods provide for saving the project before exiting.
+# All methods provide for saving the project before closing.
 
 if os.name != "posix":
     h3d.release_desktop()

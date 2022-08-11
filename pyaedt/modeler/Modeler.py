@@ -17,11 +17,11 @@ from collections import OrderedDict
 
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.generic.general_methods import PropsManager
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
@@ -133,9 +133,25 @@ class BaseCoordinateSystem(PropsManager, object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        Clean all coordinate systems of the design.
+
+        >>> from pyaedt import Maxwell2d
+        >>> app = Maxwell2d()
+        >>> cs_copy = [i for i in app.modeler.coordinate_systems]
+        >>> [i.delete() for i in cs_copy]
         """
-        self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-        self._modeler.coordinate_systems.remove(self)
+        try:
+            self._modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
+            if "ref_cs" in dir(self):
+                for cs in range(0, len(self._modeler.coordinate_systems)):
+                    if self._modeler.coordinate_systems[cs].ref_cs == self.name:
+                        self._modeler.coordinate_systems.pop(cs)
+            self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(self))
+            self._modeler.cleanup_objects()
+        except:
+            self._modeler._app.logger.warning("Coordinate system does not exist")
         return True
 
     @pyaedt_function_handler()
@@ -382,7 +398,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
         self.props = CsProps(self, parameters)
         self._modeler.oeditor.CreateFaceCS(self._face_paramenters, self._attributes)
-        self._modeler.coordinate_systems.append(self)
+        self._modeler.coordinate_systems.insert(0, self)
         return True
 
     @pyaedt_function_handler()
@@ -817,7 +833,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
 
         self.props = CsProps(self, orientationParameters)
         self._modeler.oeditor.CreateRelativeCS(self._orientation, self._attributes)
-        self._modeler.coordinate_systems.append(self)
+        self._modeler.coordinate_systems.insert(0, self)
         # this workaround is necessary because the reference CS is ignored at creation, it needs to be modified later
         self.ref_cs = reference_cs
         return self.update()
@@ -1130,7 +1146,7 @@ class GeometryModeler(Modeler, object):
     @property
     def coordinate_systems(self):
         """Coordinate Systems."""
-        if not self._coordinate_systems:
+        if self._coordinate_systems is None:
             self._coordinate_systems = self._get_coordinates_data()
         return self._coordinate_systems
 
@@ -1317,6 +1333,7 @@ class GeometryModeler(Modeler, object):
                         cs.ref_cs = id2name[name2refid[cs.name]]
                     except:
                         pass
+        coord.reverse()
         return coord
 
     def _get_lists_data(self):
@@ -1443,7 +1460,7 @@ class GeometryModeler(Modeler, object):
 
         >>> oDesign.GetDesignType
         """
-        return self._odesign.GetDesignType()
+        return self._app.design_type
 
     @property
     def geometry_mode(self):
@@ -2411,11 +2428,11 @@ class GeometryModeler(Modeler, object):
         vArg2.append("DuplicateMirrorNormalZ:="), vArg2.append(Znorm)
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
         if is_3d_comp:
-            orig_3d = [i for i in self.components_3d_names]
+            orig_3d = [i for i in self.user_defined_component_names]
         added_objs = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
         self.add_new_objects()
         if is_3d_comp:
-            added_3d_comps = [i for i in self.components_3d_names if i not in orig_3d]
+            added_3d_comps = [i for i in self.user_defined_component_names if i not in orig_3d]
             if added_3d_comps:
                 self.logger.info("Found 3D Components Duplication")
                 return True, added_3d_comps
@@ -2513,7 +2530,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objid : str, int, or Object3d
+        objid : list, str, int, Object3d or UserDefinedComponent
             Name or ID of the object.
         cs_axis :
             Coordinate system axis or the Application.CoordinateSystemAxis object.
@@ -2553,22 +2570,23 @@ class GeometryModeler(Modeler, object):
             str(nclones),
         ]
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
-        if is_3d_comp:
-            orig_3d = [i for i in self.components_3d_names]
         added_objs = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
         self._duplicate_added_objects_tuple()
         if is_3d_comp:
-            added_3d_comps = [i for i in self.components_3d_names if i not in orig_3d]
-            if added_3d_comps:
-                self.logger.info("Found 3D Components Duplication")
-                return True, added_3d_comps
-
+            return self._duplicate_added_components_tuple()
         return True, list(added_objs)
 
     def _duplicate_added_objects_tuple(self):
         added_objects = self.add_new_objects()
         if added_objects:
             return True, added_objects
+        else:
+            return False, []
+
+    def _duplicate_added_components_tuple(self):
+        added_component = self.add_new_user_defined_component()
+        if added_component:
+            return True, added_component
         else:
             return False, []
 
@@ -2586,7 +2604,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objid : str, int, or Object3d
+        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         vector : list
             List of ``[x1,y1,z1]`` coordinates or the Application.Position object for
@@ -2620,15 +2638,10 @@ class GeometryModeler(Modeler, object):
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
         vArg2.append("Numclones:="), vArg2.append(str(nclones))
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
-        if is_3d_comp:
-            orig_3d = [i for i in self.components_3d_names]
         added_objs = self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
         self._duplicate_added_objects_tuple()
         if is_3d_comp:
-            added_3d_comps = [i for i in self.components_3d_names if i not in orig_3d]
-            if added_3d_comps:
-                self.logger.info("Found 3D Components Duplication")
-                return True, added_3d_comps
+            return self._duplicate_added_components_tuple()
         return True, list(added_objs)
 
     @pyaedt_function_handler()
@@ -2637,7 +2650,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objid :
+        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         thickness : float, str
             Amount to thicken the sheet by.
@@ -2669,7 +2682,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        obj_name : str, int
+        obj_name : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         face_id : int
             Face to sweep.
@@ -2715,7 +2728,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objid : str, int
+        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         sweep_vector : float
             List of ``[x1, y1, z1]`` coordinates or Application.Position object for
@@ -2758,7 +2771,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objid : str, int
+        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         sweep_object : str, int
             Name or ID of the sweep.
@@ -2795,12 +2808,12 @@ class GeometryModeler(Modeler, object):
         return self.update_object(objid)
 
     @pyaedt_function_handler()
-    def sweep_around_axis(self, objid, cs_axis, sweep_angle=360, draft_angle=0):
+    def sweep_around_axis(self, objid, cs_axis, sweep_angle=360, draft_angle=0, number_of_segments=0):
         """Sweep the selection around the axis.
 
         Parameters
         ----------
-        objid : str, int
+        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         cs_axis :
             Coordinate system axis or the Application.CoordinateSystemAxis object.
@@ -2808,6 +2821,8 @@ class GeometryModeler(Modeler, object):
             Sweep angle in degrees. The default is ``360``.
         draft_angle : float
             Draft angle in degrees. The default is ``0``.
+        number_of_segments : int, optional
+            Number of segments of the sweep operation. Default is ``0``.
 
         Returns
         -------
@@ -2835,7 +2850,7 @@ class GeometryModeler(Modeler, object):
             "SweepAngle:=",
             self._arg_with_dim(sweep_angle, "deg"),
             "NumOfSegments:=",
-            "0",
+            str(number_of_segments),
         ]
 
         self.oeditor.SweepAroundAxis(vArg1, vArg2)
@@ -2848,7 +2863,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        object_list : str, int, or Object3d
+        object_list : list, str, int, or  :class:`pyaedt.modeler.Object3d.Object3d`
             One or more objects to section.
         plane : str
             Coordinate plane or Application.PLANE object.
@@ -2922,7 +2937,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        objid : int
+        objid :  list, str, int, or  :class:`pyaedt.modeler.Object3d.Object3d`
              ID of the object.
         cs_axis
             Coordinate system axis or the Application.CoordinateSystemAxis object.
@@ -2955,7 +2970,7 @@ class GeometryModeler(Modeler, object):
         return True
 
     @pyaedt_function_handler()
-    def subtract(self, blank_list, tool_list, keepOriginals=True):
+    def subtract(self, blank_list, tool_list, keep_originals=True, **kwargs):
         """Subtract objects.
 
         Parameters
@@ -2966,7 +2981,7 @@ class GeometryModeler(Modeler, object):
         tool_list : list
             List of objects to subtract. The list can be of
             either Object3d objects or object IDs.
-        keepOriginals : bool, optional
+        keep_originals : bool, optional
             Whether to keep the original objects. The default is ``True``.
 
         Returns
@@ -2979,14 +2994,17 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Subtract
         """
+        if "keepOriginals" in kwargs:
+            warnings.warn("keepOriginals has been deprecated. use keep_originals.", DeprecationWarning)
+            keep_originals = kwargs["keepOriginals"]
         szList = self.convert_to_selections(blank_list)
         szList1 = self.convert_to_selections(tool_list)
 
         vArg1 = ["NAME:Selections", "Blank Parts:=", szList, "Tool Parts:=", szList1]
-        vArg2 = ["NAME:SubtractParameters", "KeepOriginals:=", keepOriginals]
+        vArg2 = ["NAME:SubtractParameters", "KeepOriginals:=", keep_originals]
 
         self.oeditor.Subtract(vArg1, vArg2)
-        if not keepOriginals:
+        if not keep_originals:
             self.cleanup_objects()
 
         return True
@@ -3236,14 +3254,14 @@ class GeometryModeler(Modeler, object):
         return True, new_objects
 
     @pyaedt_function_handler()
-    def intersect(self, theList, keeporiginal=False):
+    def intersect(self, theList, keep_originals=False, **kwargs):
         """Intersect objects from a list.
 
         Parameters
         ----------
         theList : list
             List of objects.
-        keeporiginal : bool, optional
+        keep_originals : bool, optional
             Whether to keep the original object. The default is ``False``.
 
         Returns
@@ -3256,11 +3274,14 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Intersect
         """
+        if "keeporiginal" in kwargs:
+            warnings.warn("keeporiginal has been deprecated. use keep_originals.", DeprecationWarning)
+            keep_originals = kwargs["keeporiginal"]
         unclassified = list(self.oeditor.GetObjectsInGroup("Unclassified"))
         szSelections = self.convert_to_selections(theList)
 
         vArg1 = ["NAME:Selections", "Selections:=", szSelections]
-        vArg2 = ["NAME:IntersectParameters", "KeepOriginals:=", keeporiginal]
+        vArg2 = ["NAME:IntersectParameters", "KeepOriginals:=", keep_originals]
 
         self.oeditor.Intersect(vArg1, vArg2)
         unclassified1 = list(self.oeditor.GetObjectsInGroup("Unclassified"))

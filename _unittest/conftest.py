@@ -10,7 +10,7 @@ This module contains the configuration and fixture for the pytest-based unit tes
 The default configuration can be changed by placing a file called local_config.json in the same
 directory as this module. An example of the contents of local_config.json
 {
-  "desktopVersion": "2022.1",
+  "desktopVersion": "2022.2",
   "NonGraphical": false,
   "NewThread": false,
   "test_desktops": true
@@ -47,9 +47,8 @@ else:
 local_path = os.path.dirname(os.path.realpath(__file__))
 
 from pyaedt import Desktop
-
-# Import required modules
-from pyaedt import Hfss, Edb
+from pyaedt import Edb
+from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "test_primitives"

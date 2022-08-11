@@ -1,91 +1,72 @@
 """
-Multiphisics: HFSS-Icepack Multyphisics Analysis
+Multiphysics: HFSS-Icepack multiphysics analysis
 ------------------------------------------------
-This example shows how to create a full project from scratch in HFSS and Icepak (linked to HFSS).
-The project creates a setup, solves it, and creates post-processing output. It includes several
-commands to show PyAEDT's capabilities.
+This example shows how you can create a project from scratch in HFSS and Icepak (linked to HFSS).
+This includes creating a setup, solving it, and creating postprocessing outputs.
 
-To provide the advanced postprocessing features needed for this example, Matplotlib, NumPy, and
-PyVista must be installed on the machine.
+To provide the advanced postprocessing features needed for this example, the ``numpy``,
+``matplotlib``, and ``pyvista`` packages must be installed on the machine.
 
 This examples runs only on Windows using CPython.
 """
+###############################################################################
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import os
 import sys
-import tempfile
-import pathlib
+from pyaedt import generate_unique_project_name
 
-
-local_path = os.path.abspath("")
-module_path = pathlib.Path(local_path)
-aedt_lib_path = module_path.parent.parent.parent
-pdf_path1 = os.path.join(aedt_lib_path, "pyaedt", "core", "Dlls", "PDFReport")
-sys.path.append(os.path.join(module_path))
-sys.path.append(os.path.join(aedt_lib_path))
-sys.path.append(os.path.join(pdf_path1))
-from pyaedt import generate_unique_name
 from pyaedt.generic.constants import GLOBALCS
-
-tmpfold = tempfile.gettempdir()
-
-
-project_dir = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(project_dir):
-    os.makedirs(project_dir)
-print(project_dir)
-
-
 from pyaedt import Hfss
 from pyaedt import Icepak
 
-
 ###############################################################################
-# Launch AEDT
-# ~~~~~~~~~~~
-# This example launches AEDT 2022R2 in graphical mode.
-# This example uses SI units.
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 desktopVersion = "2022.2"
 
 ###############################################################################
-# Launch AEDT in Non-Graphical Mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You can change the Boolean parameter ``NonGraphical`` to ``False`` to launch
-# AEDT in graphical mode.
+# Open project
+# ~~~~~~~~~~~~
+# Open the project.
 
 NewThread = True
-project_name = "HFSS_Icepak_Coupling"
-project_file = os.path.join(project_dir, project_name + ".aedt")
+
+project_file = generate_unique_project_name()
 
 ###############################################################################
-# Launch AEDT and Initialize HFSS
+# Launch AEDT and initialize HFSS
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example launches AEDT and initializes HFSS.
-# If there is an active HFSS design, ``aedtapp`` is linked to it. Otherwise, a
-# new design is created.
+# Launch AEDT and initialize HFSS. If there is an active HFSS design, the ``aedtapp``
+# object is linked to it. Otherwise, a new design is created.
 
-aedtapp = Hfss(specified_version=desktopVersion, non_graphical=non_graphical, new_desktop_session=NewThread)
+aedtapp = Hfss(projectname=project_file, specified_version=desktopVersion, non_graphical=non_graphical, new_desktop_session=NewThread)
 
 ###############################################################################
-# Initialize Variable Settings
+# Initialize variable settings
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# A variable can be initialized simply by creating it as a list object.
-# If you enter the prefix ``$``, the variable is created for the project.
-# Otherwise, the variable is created for the design.
+# Initialize variable settings. You can initialize a variable simply by creating
+# it as a list object. If you enter the prefix ``$``, the variable is created for
+# the project. Otherwise, the variable is created for the design.
 
 aedtapp["$coax_dimension"] = "100mm"
-aedtapp.save_project(project_file)
 udp = aedtapp.modeler.Position(0, 0, 0)
 aedtapp["inner"] = "3mm"
 
 ###############################################################################
-# Create a Coaxial and Three Cylinders in the Modeler
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Parameters can be applied directly to the :func:`pyaedt.modeler.Primitives3D.Primitives3D.create_cylinder` method.
-# A material can be assigned directly to the object creation action.
-# Alternatively, the material can be assigned using the :func:`assign_material` function.
+# Create coaxial and cylinders
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a coaxial and three cylinders. You can apply parameters
+# directly using the :func:`pyaedt.modeler.Primitives3D.Primitives3D.create_cylinder`
+# method. You can assign a material directly to the object creation action.
+# Optionally, you can assign a material using the :func:`assign_material` method.
 
 # TODO: How does this work when two truesurfaces are defined?
 o1 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.ZX, udp, "inner", "$coax_dimension", numSides=0, name="inner")
@@ -93,9 +74,9 @@ o2 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.ZX, udp, 8, "$coax_dimension"
 o3 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.ZX, udp, 10, "$coax_dimension", numSides=0, name="outer")
 
 ###############################################################################
-# Assign a Color
-# ~~~~~~~~~~~~~~
-# You can assign change color to every primitve created.
+# Assign colors
+# ~~~~~~~~~~~~~
+# Assign colors to each primitive.
 
 o1.color = (255, 0, 0)
 o2.color = (0, 255, 0)
@@ -104,40 +85,41 @@ o3.transparency = 0.8
 aedtapp.modeler.fit_all()
 
 ###############################################################################
-# Assign a Material
-# ~~~~~~~~~~~~~~~~~~
-# You can assign a material either directly when creating the primitive,
-# as done for ``id2``, or after the object is created.
+# Assign materials
+# ~~~~~~~~~~~~~~~~
+# Assign materials. You can assign materials either directly when creating the primitive,
+# which was done for ``id2``, or after the object is created.
 
 o1.material_name = "Copper"
 o3.material_name = "Copper"
 
 ###############################################################################
-# Perform Modeler Operations
+# Perform modeler operations
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# You can subtract, add, and perform other operations using either
-# the object ID or object name.
+# Perform modeler operations. You can subtract, add, and perform other operations
+# using either the object ID or object name.
 
 aedtapp.modeler.subtract(o3, o2, True)
 aedtapp.modeler.subtract(o2, o1, True)
 
 ###############################################################################
-# Perform Mesh Operations
+# Perform mesh operations
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# Most mesh operations are available.
-# After a mesh is created, a mesh operation is accessible for
-# editing or reviewing parameters.
+# Perform mesh operations. Most mesh operations are available.
+# After a mesh is created, you can access a mesh operation to
+# edit or review parameter values.
 
 aedtapp.mesh.assign_initial_mesh_from_slider(6)
 aedtapp.mesh.assign_model_resolution([o1.name, o3.name], None)
 aedtapp.mesh.assign_length_mesh(o2.faces, False, 1, 2000)
 
 ###############################################################################
-# Create Excitations
+# Create excitations
 # ~~~~~~~~~~~~~~~~~~
-# This method automatically identifies the closest faces on a predefined direction
-# and then creates a sheet to cover the faces and assigns a port to this face.
-# If selected, a PEC cap is also created.
+# Create excitations. The ``create_wave_port_between_objects`` method automatically
+# identifies the closest faces on a predefined direction and creates a sheet to cover
+# the faces. It also assigns a port to this face. If ``add_pec_cap=True``, the method
+# creates a PEC cap.
 
 aedtapp.create_wave_port_between_objects("inner", "outer", axisdir=1, add_pec_cap=True, portname="P1")
 aedtapp.create_wave_port_between_objects("inner", "outer", axisdir=4, add_pec_cap=True, portname="P2")
@@ -147,11 +129,11 @@ aedtapp.modeler.fit_all()
 
 
 ###############################################################################
-# Generate a Setup
-# ~~~~~~~~~~~~~~~~
-# A setup is created with default values. After it is created,
-# you can apply any change and then update the setup.
-# The update method returns a Boolean value.
+# Create setup
+# ~~~~~~~~~~~~~
+# Create a setup. A setup is created with default values. After its creation,
+# you can change values and update the setup. The ``update`` method returns a Boolean
+# value.
 
 aedtapp.set_active_design(aedtapp.design_name)
 setup = aedtapp.create_setup("MySetup")
@@ -160,25 +142,26 @@ setup.props["BasisOrder"] = 2
 setup.props["MaximumPasses"] = 1
 
 ###############################################################################
-# Generate a Sweep
-# ~~~~~~~~~~~~~~~~
-# A sweep is created with default values.
+# Create sweep
+# ~~~~~~~~~~~~
+# Create a sweep. A sweep is created with default values.
 
 sweepname = aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401, sweep_type="Interpolating")
 
 ################################################################################
-# Create an Icepak Model
-# ~~~~~~~~~~~~~~~~~~~~~~
-# After an HFSS setup is ready, link it to an Icepak project to run a
-# coupled physics analysis.
-# The :func:`FieldAnalysis3D.copy_solid_bodies_from` imports a model
-# from HFSS with all material settings.
+# Create Icepak model
+# ~~~~~~~~~~~~~~~~~~~
+# Create an Icepak model. After an HFSS setup is ready, link this model to an Icepak
+# project and run a coupled physics analysis. The :func:`FieldAnalysis3D.copy_solid_bodies_from`
+# method imports a model from HFSS with all material settings.
 
 ipkapp = Icepak()
 ipkapp.copy_solid_bodies_from(aedtapp)
 
 ################################################################################
-# After the model is imported, you must link sources to EM Losses.
+# Link sources to EM losses
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# Link sources to the EM losses.
 
 surfaceobj = ["inner", "outer"]
 ipkapp.assign_em_losses(
@@ -186,27 +169,29 @@ ipkapp.assign_em_losses(
 )
 
 #################################################################################
-# The gravity setting is important for a fluid analysis.
+# Edit gravity setting
+# ~~~~~~~~~~~~~~~~~~~~
+# Edit the gravity setting if necessary because it is important for a fluid analysis.
 
 ipkapp.edit_design_settings(aedtapp.GravityDirection.ZNeg)
 
 ################################################################################
-# Set Up the Icepak Project
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
-# When you create a setup, default settings are applied.
+# Set up Icepak project
+# ~~~~~~~~~~~~~~~~~~~~~
+# Set up the Icepak project. When you create a setup, default settings are applied.
 # When you need to change a property of the setup, you can use the ``props``
-# command and pass the correct value to the property value.
-# The update function applies the settings to the setup.
-# The setup creation process is identical for all tools.
+# command to pass the correct value to the property. The ``update`` function
+# applies the settings to the setup. The setup creation process is identical
+# for all tools.
 
 setup_ipk = ipkapp.create_setup("SetupIPK")
 setup_ipk.props["Convergence Criteria - Max Iterations"] = 3
 
 ################################################################################
-# Edit or Review Mesh Parameters
+# Edit or review mesh parameters
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# After a mesh is created, a mesh operation is accessible for
-# editing or reviewing parameters.
+# Edit or review the mesh parameters. After a mesh is created, you can access
+# a mesh operation to edit or review parameter values.
 
 airbox = ipkapp.modeler.get_obj_id("Region")
 ipkapp.modeler[airbox].display_wireframe = True
@@ -214,25 +199,23 @@ airfaces = ipkapp.modeler.get_object_faces(airbox)
 ipkapp.assign_openings(airfaces)
 
 ################################################################################
-# Close and Open Projects
+# Close and open projects
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# Closing and opening the projects is necessary to ensure that
-# the HFSS - Icepak coupling works correctly in AEDT versions
-# 2019 R3 - 2021 R1.
-# This can be helpful when performing operations on multiple projects.
+# Close and open the projects to ensure that the HFSS - Icepak coupling works
+# correctly in AEDT versions 2019 R3 through 2021 R1. Closing and opening projects
+# can be helpful when performing operations on multiple projects.
 
 aedtapp.save_project()
-aedtapp.close_project(project_name)
+aedtapp.close_project(aedtapp.project_name)
 aedtapp = Hfss(project_file)
 ipkapp = Icepak()
 ipkapp.solution_type = ipkapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow
 ipkapp.modeler.fit_all()
 
 ################################################################################
-# Solve the Icepak Project
-# ~~~~~~~~~~~~~~~~~~~~~~~~
-# This example solves the Icepak project and then the
-# HFSS sweep.
+# Solve Icepak project
+# ~~~~~~~~~~~~~~~~~~~~
+# Solve the Icepak project and the HFSS sweep.
 
 setup1 = ipkapp.analyze_setup("SetupIPK")
 aedtapp.save_project()
@@ -240,10 +223,9 @@ aedtapp.modeler.fit_all()
 aedtapp.analyze_setup("MySetup")
 
 ################################################################################
-# Generate Field Plots and Export as an Image
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example generates field plots on the HFSS project and
-# exports them as an image.
+# Generate field plots and export
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Generate field plots on the HFSS project and export them as images.
 
 cutlist = [GLOBALCS.XY, GLOBALCS.ZX, GLOBALCS.YZ]
 vollist = [o2.name]
@@ -268,9 +250,9 @@ aedtapp.post.plot_field_from_fieldplot(
 )
 
 ################################################################################
-# Generate Animation from Field Plots
+# Generate animation from field plots
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example generates field plot animation using PyVista.
+# Generate an animation from field plots using PyVista.
 
 import time
 
@@ -301,10 +283,10 @@ endtime = time.time() - start
 print("Total Time", endtime)
 
 ################################################################################
-# Create Icepak Plots and Export as an Image
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example uses the same functions as used above for HFSS. Only the quantity
-# is different.
+# Create Icepak plots and export
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create Icepak plots and export them as images using the same functions that
+# were used early. Only the quantity is different.
 
 quantity_name = "Temperature"
 setup_name = ipkapp.existing_analysis_sweeps[0]
@@ -324,9 +306,9 @@ ipkapp.post.plot_field_from_fieldplot(
 aedtapp.save_project()
 
 ################################################################################
-# Use Matplotlib and Numpy to Generate Graphs
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example uses Matplotlib and Numpy to generate report outside of Electronics Desktop.
+# Generate plots outside of AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Generate plots outside of AEDT using Matplotlib and NumPy.
 
 trace_names = aedtapp.get_traces_for_plot(category="S")
 cxt = ["Domain:=", "Sweep"]
@@ -335,9 +317,9 @@ my_data = aedtapp.post.get_solution_data(expressions=trace_names)
 my_data.plot(trace_names, "db20", xlabel="Frequency (Ghz)", ylabel="SParameters(dB)", title="Scattering Chart")
 
 ################################################################################
-# Close the Project and AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example closes the project and then closes AEDT.
+# Close project and release AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Close the project and release AEDT.
 
 # aedtapp.close_project(aedtapp.project_name)
 aedtapp.release_desktop()

@@ -13,6 +13,7 @@ from math import sqrt
 from math import tan
 
 from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.actors import Bird
 from pyaedt.modeler.actors import Person
@@ -610,8 +611,8 @@ class Primitives3D(Primitives, object):
             Coordinate system plane for orienting the rectangle.
             :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
         position : list or Position
-            List of ``[x, y, z]`` coordinates for the center point of the rectangle or
-            the positionApplicationName.modeler.Position(x,y,z) object.
+            List of ``[x, y, z]`` coordinates of the lower-left corner of the rectangle or
+            the position ApplicationName.modeler.Position(x,y,z) object.
         dimension_list : list
             List of ``[width, height]`` dimensions.
         name : str, optional
@@ -982,7 +983,13 @@ class Primitives3D(Primitives, object):
         return True
 
     @pyaedt_function_handler()
-    def create_udm(self, udmfullname, udm_params_list, udm_library="syslib"):
+    def create_udm(
+        self,
+        udmfullname,
+        udm_params_list,
+        udm_library="syslib",
+        name=None,
+    ):
         """Create a user-defined model.
 
         Parameters
@@ -992,12 +999,14 @@ class Primitives3D(Primitives, object):
         udm_params_list :
             List of user-defined object pairs for the model.
         udm_library : str, optional
-            Name of library for the user-defined model. The default is ``"syslib"``.
+            Name of the library for the user-defined model. The default is ``"syslib"``.
+        name : str, optional
+            Name of the user-defined model. The default is ``None```.
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
-            3D object.
+        :class:`pyaedt.modeler.Object3d.UserDefinedComponent`
+            User-defined component object.
 
         References
         ----------
@@ -1010,25 +1019,25 @@ class Primitives3D(Primitives, object):
 
         for pair in udm_params_list:
             if isinstance(pair, list):
-                name = pair[0]
+                name_param = pair[0]
                 val = pair[1]
             else:
-                name = pair.Name
+                name_param = pair.Name
                 val = pair.Value
             if isinstance(val, int):
                 vArgParamVector.append(
-                    ["NAME:UDMParam", "Name:=", name, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 2]
+                    ["NAME:UDMParam", "Name:=", name_param, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 2]
                 )
             elif str(val)[0] in "0123456789":
                 vArgParamVector.append(
-                    ["NAME:UDMParam", "Name:=", name, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 4]
+                    ["NAME:UDMParam", "Name:=", name_param, "Value:=", str(val), "PropType2:=", 3, "PropFlag2:=", 4]
                 )
             else:
                 vArgParamVector.append(
                     [
                         "NAME:UDMParam",
                         "Name:=",
-                        name,
+                        name_param,
                         "Value:=",
                         str(val),
                         "DataType:=",
@@ -1051,10 +1060,13 @@ class Primitives3D(Primitives, object):
         vArg1.append("")
         oname = self.oeditor.CreateUserDefinedModel(vArg1)
         if oname:
-            object_lists = self.oeditor.GetPartsForUserDefinedModel(oname)
-            for new_name in object_lists:
+            obj_list = list(self.oeditor.GetPartsForUserDefinedModel(oname))
+            for new_name in obj_list:
                 self._create_object(new_name)
-            return True
+            udm_obj = self._create_user_defined_component(oname)
+            if name:
+                udm_obj.name = name
+            return udm_obj
         else:
             return False
 
@@ -1129,7 +1141,15 @@ class Primitives3D(Primitives, object):
         return p1
 
     @pyaedt_function_handler()
-    def insert_3d_component(self, compFile, geoParams=None, szMatParams="", szDesignParams="", targetCS="Global"):
+    def insert_3d_component(
+        self,
+        compFile,
+        geoParams=None,
+        szMatParams="",
+        szDesignParams="",
+        targetCS="Global",
+        name=None,
+    ):
         """Insert a new 3D component.
 
         Parameters
@@ -1144,11 +1164,13 @@ class Primitives3D(Primitives, object):
             Design parameters. The default is ``""``.
         targetCS : str, optional
             Target coordinate system. The default is ``"Global"``.
+        name : str, optional
+            3D component name. The default is ``None``.
 
         Returns
         -------
-        str
-            Name of the created 3D component.
+        :class:`pyaedt.modeler.Object3d.UserDefinedComponent`
+            User defined component object.
 
         References
         ----------
@@ -1181,8 +1203,14 @@ class Primitives3D(Primitives, object):
         varg2.append(szDesignParams)
         vArg1.append(varg2)
         new_object_name = self.oeditor.Insert3DComponent(vArg1)
-        # TODO return an object
-        self.refresh_all_ids()
+        if new_object_name:
+            obj_list = list(self.oeditor.Get3DComponentPartNames(new_object_name))
+            for new_name in obj_list:
+                self._create_object(new_name)
+            udm_obj = self._create_user_defined_component(new_object_name)
+            if name:
+                udm_obj.name = name
+            return udm_obj
         return new_object_name
 
     @pyaedt_function_handler()
@@ -1646,7 +1674,7 @@ class Primitives3D(Primitives, object):
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
         >>> mychoke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
         """
-        with open(json_file, "r") as read_file:
+        with open_file(json_file, "r") as read_file:
             values = json.load(read_file)
         self.logger.info("CHOKE INFO: " + str(values))
 
@@ -2193,7 +2221,7 @@ class Primitives3D(Primitives, object):
         are_inequations_checkable = True
         security_factor = 1.1
         sr = security_factor
-        with open(json_file, "r") as read_file:
+        with open_file(json_file, "r") as read_file:
             values = json.load(read_file)
 
         for key, value in dictionary_model.items():
@@ -2561,10 +2589,10 @@ class Primitives3D(Primitives, object):
             if create_another_file:
                 root_path, extension_path = os.path.splitext(json_file)
                 new_path = root_path + "_Corrected" + extension_path
-                with open(new_path, "w") as outfile:
+                with open_file(new_path, "w") as outfile:
                     json.dump(values, outfile)
             else:
-                with open(json_file, "w") as outfile:
+                with open_file(json_file, "w") as outfile:
                     json.dump(values, outfile)
 
         return [are_inequations_checkable, values]

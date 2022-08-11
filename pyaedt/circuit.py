@@ -12,6 +12,7 @@ from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.generic import ibis_reader
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -47,23 +48,26 @@ class Circuit(FieldAnalysisCircuit, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine.  The default is ``True``. This parameter is ignored when Script is launched within AEDT.
+        machine.  The default is ``True``. This parameter is ignored when
+        a script is launched within AEDT.
     close_on_exit : bool, optional
-        Whether to release AEDT on exit.
+        Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
         This parameter is ignored when Script is launched within AEDT.
     machine : str, optional
-        Machine name to which connect the oDesktop Session. Works only on 2022R2.
-        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
-        If machine is `"localhost"` the server will also start if not present.
+        Machine name to which connect the oDesktop Session. Works only in 2022 R2
+        or later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`. If a machine is `"localhost"`, the
+        server also starts if not present.
     port : int, optional
-        Port number of which start the oDesktop communication on already existing server.
-        This parameter is ignored in new server creation. It works only on 2022R2.
-        Remote Server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
+        Port number on which to start the oDesktop communication on an already existing server.
+        This parameter is ignored when creating a new server. It works only in 2022 R2 or
+        later. The remote server must be up and running with the command
+        `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
-        Only used when ``new_desktop_session = False``, specifies by process ID which instance
-        of Electronics Desktop to point PyAEDT at.
+        Process ID for the instance of AEDT to point PyAEDT at. The default is
+        ``None``. This parameter is only used when ``new_desktop_session = False``.
 
     Examples
     --------
@@ -148,7 +152,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @pyaedt_function_handler()
     def create_schematic_from_netlist(self, file_to_import):
-        """Create a circuit schematic from an HSpice net list.
+        """Create a circuit schematic from an HSpice netlist.
 
         Supported currently are:
 
@@ -180,7 +184,7 @@ class Circuit(FieldAnalysisCircuit, object):
         if self._desktop.GetAutoSaveEnabled() == 1:
             self._desktop.EnableAutoSave(False)
             autosave = True
-        with open(file_to_import, "rb") as f:
+        with open_file(file_to_import, "rb") as f:
             for line in f:
                 line = line.decode("utf-8")
                 if ".param" in line[:7].lower():
@@ -206,7 +210,7 @@ class Circuit(FieldAnalysisCircuit, object):
             self.modeler.schematic.disable_data_netlist(component_name="Models_Netlist")
             xpos += 0.0254
         counter = 0
-        with open(file_to_import, "rb") as f:
+        with open_file(file_to_import, "rb") as f:
             for line in f:
                 line = line.decode("utf-8")
                 mycomp = None
@@ -233,7 +237,9 @@ class Circuit(FieldAnalysisCircuit, object):
                         try:
                             float(fields[4])
                         except:
-                            self.logger.warning("Component {} Not Imported. Check it and manually import".format(name))
+                            self.logger.warning(
+                                "Component {} was not imported. Check it and manually import".format(name)
+                            )
                             continue
                     if "{" in fields[3][0]:
                         value = fields[3].strip()[1:-1]
@@ -385,7 +391,7 @@ class Circuit(FieldAnalysisCircuit, object):
                         counter = 0
         if autosave:
             self._desktop.EnableAutoSave(True)
-        self.logger.info("Netlist correctly imported into %s", self.design_name)
+        self.logger.info("Netlist was correctly imported into %s", self.design_name)
         return True
 
     @pyaedt_function_handler()
@@ -409,7 +415,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @pyaedt_function_handler()
     def create_schematic_from_mentor_netlist(self, file_to_import):
-        """Create a circuit schematic from a Mentor net list.
+        """Create a circuit schematic from a Mentor netlist.
 
         Supported currently are:
 
@@ -436,7 +442,7 @@ class Circuit(FieldAnalysisCircuit, object):
         delta = 0.0508
         use_instance = True
         my_netlist = []
-        with open(file_to_import, "r") as f:
+        with open_file(file_to_import, "r") as f:
             for line in f:
                 my_netlist.append(line.split(" "))
         nets = [i for i in my_netlist if i[0] == "NET"]
@@ -523,7 +529,7 @@ class Circuit(FieldAnalysisCircuit, object):
                     if netname:
                         self.modeler.schematic.create_page_port(netname, [pos[0], pos[1]], angle)
                     else:
-                        self.logger.info("Page Port Not Created")
+                        self.logger.info("Page port was not created.")
                     id += 1
                 ypos += delta
                 if ypos > delta * (column_number):
@@ -543,12 +549,12 @@ class Circuit(FieldAnalysisCircuit, object):
                     xpos += delta
                     ypos = 0
 
-        self.logger.info("Netlist correctly imported into %s", self.design_name)
+        self.logger.info("Netlist was correctly imported into %s", self.design_name)
         return True
 
     @pyaedt_function_handler()
     def retrieve_mentor_comp(self, refid):
-        """Retrieve the type of the Mentor net list component for a given reference ID.
+        """Retrieve the type of the Mentor netlist component for a given reference ID.
 
         Parameters
         ----------
@@ -558,7 +564,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Returns
         -------
         str
-            Type of the Mentor net list component.
+            Type of the Mentor netlist component.
 
         """
         if refid[1] == "R":
@@ -604,11 +610,11 @@ class Circuit(FieldAnalysisCircuit, object):
         """
         if source_project_name and self.project_name != source_project_name and not source_project_path:
             raise AttributeError(
-                "If source project is different than the current one, " "``source_project_path`` must also be provided."
+                "If the source project is different from the current one, `source_project_path` must also be provided."
             )
         if source_project_path and not source_project_name:
             raise AttributeError(
-                "When ``source_project_path`` is specified, " "``source_project_name`` must also be provided."
+                "When `source_project_path` is specified, `source_project_name` must also be provided."
             )
         if not source_project_name or self.project_name == source_project_name:
             oSrcProject = self._desktop.GetActiveProject()
@@ -652,7 +658,7 @@ class Circuit(FieldAnalysisCircuit, object):
         >>> oDesign.ImportData
         """
         if filename[-2:] == "ts":
-            with open(filename, "r") as f:
+            with open_file(filename, "r") as f:
                 lines = f.readlines()
                 for i in lines:
                     if "[Number of Ports]" in i:
@@ -665,7 +671,7 @@ class Circuit(FieldAnalysisCircuit, object):
             m = re_filename.search(filename)
             ports = int(m.group("ports"))
             portnames = None
-            with open(filename, "r") as f:
+            with open_file(filename, "r") as f:
                 lines = f.readlines()
                 portnames = [i.split(" = ")[1].strip() for i in lines if "Port[" in i]
             if not portnames:
@@ -763,7 +769,7 @@ class Circuit(FieldAnalysisCircuit, object):
             "External",
         ]
         self.odesign.ImportData(arg, "", True)
-        self.logger.info("Touchstone correctly imported into %s", self.design_name)
+        self.logger.info("Touchstone file was correctly imported into %s", self.design_name)
         return portnames
 
     @pyaedt_function_handler()
@@ -1001,7 +1007,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Returns
         -------
         :class:`pyaedt.modules.solutions.SolutionData`
-           Class containing all Requested Data
+           Class containing all requested data.
 
         References
         ----------
@@ -1494,7 +1500,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
         self.odesign.SaveDiffPairsToFile(tmpfile1)
-        with open(tmpfile1, "r") as fh:
+        with open_file(tmpfile1, "r") as fh:
             lines = fh.read().splitlines()
         num_diffs_before = len(lines)
         old_arg = []
@@ -1537,10 +1543,10 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @pyaedt_function_handler()
     def load_diff_pairs_from_file(self, filename):
-        """Load differtential pairs definition from file.
+        """Load differtential pairs definition from a file.
 
-        File format can be obtained using ``save_diff_pairs_to_file`` method.
-        New definitions are added only if compatible with the existing definition already defined in the project.
+        You can use the the ``save_diff_pairs_to_file`` method to obtain the file format.
+        New definitions are added only if they are compatible with the existing definitions in the project.
 
         Parameters
         ----------
@@ -1557,11 +1563,11 @@ class Circuit(FieldAnalysisCircuit, object):
         >>> oDesign.LoadDiffPairsFromFile
         """
         if not os.path.isfile(filename):  # pragma: no cover
-            raise ValueError("{}: unable to find the specified file.".format(filename))
+            raise ValueError("{}: The specified file could not be found.".format(filename))
 
         try:
             new_file = os.path.join(os.path.dirname(filename), generate_unique_name("temp") + ".txt")
-            with open(filename, "r") as file:
+            with open_file(filename, "r") as file:
                 filedata = file.read().splitlines()
             with io.open(new_file, "w", newline="\n") as fh:
                 for line in filedata:
@@ -1577,7 +1583,7 @@ class Circuit(FieldAnalysisCircuit, object):
     def save_diff_pairs_to_file(self, filename):
         """Save differtential pairs definition to file.
 
-        If ``filename`` already exists, it will be overwritten.
+        If the file that is specified already exists, it is overwritten.
 
         Parameters
         ----------
@@ -1611,7 +1617,7 @@ class Circuit(FieldAnalysisCircuit, object):
         Returns
         -------
         bool
-            `True` if successfully created.
+            ``True`` if successfully created, ``False`` otherwise.
         """
         if not os.path.exists(netlist_file):
             self.logger.error("Netlist File doesn't exists")

@@ -396,8 +396,8 @@ class TestClass(BasisTest, object):
         assert fcs.delete()
 
     def test_42A_update_coordinate_system(self):
-        for cs in self.aedtapp.modeler.coordinate_systems:
-            cs.delete()
+        CS_list = self.aedtapp.modeler.coordinate_systems
+        [l.delete() for l in CS_list]
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="CS1", view="rotate")
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2", mode="view", view="iso")
         cs2.ref_cs = "CS1"
@@ -417,8 +417,8 @@ class TestClass(BasisTest, object):
         assert cs2.delete()
 
     def test_42A_update_face_coordinate_system(self):
-        for cs in self.aedtapp.modeler.coordinate_systems:
-            cs.delete()
+        CS_list = self.aedtapp.modeler.coordinate_systems
+        [l.delete() for l in CS_list]
         box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
         face = box.faces[0]
         fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1], name="FCS1")

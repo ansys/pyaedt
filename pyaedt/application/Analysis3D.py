@@ -3,11 +3,13 @@ import ntpath
 import os
 import warnings
 
+from pyaedt import settings
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.configurations import Configurations
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Model2D import Modeler2D
 from pyaedt.modeler.Model3D import Modeler3D
@@ -271,9 +273,9 @@ class FieldAnalysis3D(Analysis, object):
         """
         vars = {}
         if component3dname not in self.components3d:
-            if os.path.exists(component3dname):
-                with open(component3dname, "rb") as aedt_fh:
-                    temp = aedt_fh.read().splitlines()
+            aedt_fh = open_file(component3dname, "rb")
+            if aedt_fh:
+                temp = aedt_fh.read().splitlines()
                 _all_lines = []
                 for line in temp:
                     try:
@@ -284,9 +286,11 @@ class FieldAnalysis3D(Analysis, object):
                     if "VariableProp(" in line:
                         line_list = line.split("'")
                         vars[line_list[1]] = line_list[len(line_list) - 2]
+                aedt_fh.close()
                 return vars
-            return False
-        with open(self.components3d[component3dname], "rb") as aedt_fh:
+            else:
+                return False
+        with open_file(self.components3d[component3dname], "rb") as aedt_fh:
             temp = aedt_fh.read().splitlines()
         _all_lines = []
         for line in temp:
@@ -364,14 +368,15 @@ class FieldAnalysis3D(Analysis, object):
 
     @pyaedt_function_handler()
     def copy_solid_bodies_from(self, design, object_list=None, no_vacuum=True, no_pec=True, include_sheets=False):
-        """Copy a list of objects from one design to the active design.
+        """Copy a list of objects and user defined models from one design to the active design.
+        If user defined models are selected, the project will be saved automatically.
 
         Parameters
         ----------
         design :
             Starting application object. For example, ``hfss1= HFSS3DLayout``.
         object_list : list, optional
-            List of objects to copy. The default is ``None``.
+            List of objects and user defined components to copy. The default is ``None``.
         no_vacuum : bool, optional
             Whether to include vacuum objects for the copied objects.
             The default is ``True``.
@@ -393,12 +398,34 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.Paste
         """
         body_list = design.modeler.solid_names
+        udc_list = design.modeler.user_defined_component_names
+        original_design_type = design.design_type
+        dest_design_type = self.design_type
+        new_udc_list = []
         if include_sheets:
             body_list += design.modeler.sheet_names
+        if udc_list:
+            for udc in udc_list:
+                if (
+                    original_design_type != dest_design_type
+                    and not design.modeler.user_defined_components[udc].is3dcomponent
+                    or original_design_type == dest_design_type
+                ):
+                    new_udc_list.append(udc)
+                for part_id in design.modeler.user_defined_components[udc].parts:
+                    if design.modeler.user_defined_components[udc].parts[part_id].name in body_list:
+                        body_list.remove(design.modeler.user_defined_components[udc].parts[part_id].name)
+
         selection_list = []
+        udc_selection = []
         material_properties = design.modeler.objects
-        if object_list:
-            selection_list = [i for i in object_list if i in body_list]
+        selections = self.modeler.convert_to_selections(object_list, True)
+
+        if selections:
+            selection_list = [i for i in selections if i in body_list]
+            for udc in new_udc_list:
+                if udc in selections:
+                    udc_selection.append(udc)
         else:
             for body in body_list:
                 include_object = True
@@ -410,8 +437,14 @@ class FieldAnalysis3D(Analysis, object):
                             include_object = False
                 if include_object:
                     selection_list.append(body)
+            for udm in new_udc_list:
+                udc_selection.append(udm)
+        selection_list = selection_list + udc_selection
         design.modeler.oeditor.Copy(["NAME:Selections", "Selections:=", ",".join(selection_list)])
         self.modeler.oeditor.Paste()
+        if udc_selection:
+            self.save_project()
+            self._project_dictionary = None
         self.modeler.refresh_all_ids()
         return True
 
@@ -454,9 +487,9 @@ class FieldAnalysis3D(Analysis, object):
         >>> oEditor.Export
         """
 
-        if object_list == None:
+        if object_list is None:
             object_list = []
-        if removed_objects == None:
+        if removed_objects is None:
             removed_objects = []
 
         if not object_list:
@@ -591,7 +624,7 @@ class FieldAnalysis3D(Analysis, object):
 
         if mat.lower() in self.materials.material_keys:
             matobj = self.materials.material_keys[mat.lower()]
-        elif self.materials._get_aedt_case_name(mat):
+        elif self.materials._get_aedt_case_name(mat) or settings.remote_api:
             matobj = self.materials._aedmattolibrary(mat)
         if matobj:
             if self.design_type == "HFSS":
@@ -726,7 +759,7 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> oEditor.AssignMaterial
         """
-        with open(csv_material) as csvfile:
+        with open_file(csv_material) as csvfile:
             csv_input = csv.reader(csvfile)
             material_header = next(csv_input)
             data = list(csv_input)
@@ -735,7 +768,7 @@ class FieldAnalysis3D(Analysis, object):
             for el in material_header:
                 material_data[el] = [i[k] for i in data]
                 k += 1
-        with open(csv_component) as csvfile:
+        with open_file(csv_component) as csvfile:
             csv_input = csv.reader(csvfile)
             component_header = next(csv_input)
             data = list(csv_input)

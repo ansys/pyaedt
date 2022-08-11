@@ -7,7 +7,11 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 # Setup paths for module imports
-from _unittest.conftest import local_path, settings, BasisTest, desktop_version, is_ironpython
+from _unittest.conftest import BasisTest
+from _unittest.conftest import desktop_version
+from _unittest.conftest import is_ironpython
+from _unittest.conftest import local_path
+from _unittest.conftest import settings
 
 # Import required modules
 from pyaedt import Hfss
@@ -186,7 +190,9 @@ class TestClass(BasisTest, object):
             )
         except AttributeError as e:
             exception_raised = True
-            assert e.args[0] == "Invalid `sweep_type`. It must be 'Discrete', 'Interpolating', or 'Fast'."
+            assert (
+                e.args[0] == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+            )
         assert exception_raised
 
     def test_06b_setup_exists(self):
@@ -242,7 +248,9 @@ class TestClass(BasisTest, object):
             )
         except AttributeError as e:
             exception_raised = True
-            assert e.args[0] == "Invalid `sweep_type`. It has to be 'Discrete', 'Interpolating', or 'Fast'."
+            assert (
+                e.args[0] == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
+            )
         assert exception_raised
 
     def test_06d_create_single_point_sweep(self):

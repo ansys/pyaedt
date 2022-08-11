@@ -13,12 +13,15 @@ import warnings
 from collections import OrderedDict
 
 import pyaedt.modules.report_templates as rt
+from pyaedt import settings
 from pyaedt.generic.DataHandlers import json_to_dict
-from pyaedt.generic.general_methods import _retry_ntimes, is_ironpython
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modules.solutions import SolutionData, FieldPlot
-
+from pyaedt.modules.solutions import FieldPlot
+from pyaedt.modules.solutions import SolutionData
 
 TEMPLATES_BY_DESIGN = {
     "HFSS": [
@@ -724,10 +727,8 @@ class PostProcessorCommon(object):
         if names:
             for name in names:
                 obj = self._app.get_oo_object(self.oreportsetup, name)
-                if is_ironpython:
-                    report_type = obj.Get_ReportType()
-                else:
-                    report_type = obj.Get_ReportType
+                report_type = obj.GetPropValue("Report Type")
+
                 if report_type in TEMPLATES_BY_NAME:
                     report = TEMPLATES_BY_NAME[report_type]
                 else:
@@ -735,10 +736,7 @@ class PostProcessorCommon(object):
                 plots.append(report(self, report_type, None))
                 plots[-1].plot_name = name
                 plots[-1]._is_created = True
-                if is_ironpython:
-                    plots[-1].report_type = obj.Get_DisplayType()
-                else:
-                    plots[-1].report_type = obj.Get_DisplayType
+                plots[-1].report_type = obj.GetPropValue("Display Type")
         return plots
 
     @property
@@ -1187,7 +1185,7 @@ class PostProcessorCommon(object):
         >>> oModule.ExportReportDataToFile
         >>> oModule.ExportToFile
         """
-        npath = os.path.normpath(output_dir)
+        npath = output_dir
 
         if "." not in extension:
             extension = "." + extension
@@ -1259,7 +1257,7 @@ class PostProcessorCommon(object):
         >>> oModule.ExportImageToFile
         """
         # path
-        npath = os.path.normpath(project_dir)
+        npath = project_dir
         file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
         self.oreportsetup.ExportImageToFile(plot_name, file_name, 0, 0)
         return True
@@ -2174,8 +2172,8 @@ class PostProcessor(PostProcessorCommon, object):
         file_name = os.path.join(self._app.working_directory, generate_unique_name("temp_fld") + ".fld")
         self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation_dict)
         value = None
-        if os.path.exists(file_name):
-            with open(file_name, "r") as f:
+        if os.path.exists(file_name) or settings.remote_rpc_session:
+            with open_file(file_name, "r") as f:
                 lines = f.readlines()
                 lines = [line.strip() for line in lines]
                 value = lines[-1]
@@ -2445,7 +2443,7 @@ class PostProcessor(PostProcessorCommon, object):
             )
         else:
             sample_points_file = os.path.join(self._app.working_directory, "temp_points.pts")
-            with open(sample_points_file, "w") as f:
+            with open_file(sample_points_file, "w") as f:
                 for point in sample_points_lists:
                     f.write(" ".join([str(i) for i in point]) + "\n")
             _retry_ntimes(
@@ -2556,8 +2554,7 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler()
     def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsincList, listtype, plot_name=None):
-        if isinstance(objlist, (str, int)):
-            objlist = [objlist]
+        objlist = self._app.modeler.convert_to_selections(objlist, True)
         if not setup_name:
             setup_name = self._app.existing_analysis_sweeps[0]
         self._desktop.CloseAllWindows()
@@ -2677,7 +2674,15 @@ class PostProcessor(PostProcessorCommon, object):
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
-        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "FacesList", plot_name)
+        if not isinstance(objlist, (list, tuple)):
+            objlist = [objlist]
+        new_obj_list = []
+        for objs in objlist:
+            if self._app.modeler[objs]:
+                new_obj_list.extend([i.id for i in self._app.modeler[objs].faces])
+            else:
+                new_obj_list.append(objs)
+        return self._create_fieldplot(new_obj_list, quantityName, setup_name, intrinsincDict, "FacesList", plot_name)
 
     @pyaedt_function_handler()
     def create_fieldplot_cutplane(self, objlist, quantityName, setup_name=None, intrinsincDict={}, plot_name=None):
@@ -3052,7 +3057,8 @@ class PostProcessor(PostProcessorCommon, object):
         list
             Files obj path.
         """
-
+        if obj_list and not isinstance(obj_list, (list, tuple)):
+            obj_list = [obj_list]
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
         if not export_path:
             export_path = self._app.working_directory
@@ -3074,6 +3080,10 @@ class PostProcessor(PostProcessorCommon, object):
             for el in obj_list:
                 fname = os.path.join(export_path, "{}.obj".format(el))
                 self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
+                if settings.remote_rpc_session_temp_folder:
+                    local_path = "{}/{}".format(settings.remote_rpc_session_temp_folder, "{}.obj".format(el))
+                    fname = check_and_download_file(local_path, fname)
+
                 if not self._app.modeler[el].display_wireframe:
                     transp = 0.6
                     if self._app.modeler[el].transparency:

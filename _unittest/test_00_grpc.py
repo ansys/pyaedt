@@ -8,12 +8,12 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt import settings
+from pyaedt.generic.general_methods import is_ironpython
 
 test_project_name = "Coax_HFSS"
 
-if not is_ironpython and config["desktopVersion"] >= "2023.1":
+if not is_ironpython and config["desktopVersion"] >= "2023.2":
 
     class TestClass(BasisTest, object):
         def setup_class(self):

@@ -2,10 +2,13 @@ import socket
 import os
 import random
 import tempfile
-import threading
+import shutil
 import site
-
+import logging
+import signal
 import sys
+import time
+
 from pyaedt import generate_unique_name
 from pyaedt.generic.general_methods import env_path
 
@@ -23,6 +26,9 @@ else:
     import rpyc
     from rpyc import ThreadedServer
 
+logging.basicConfig(stream=sys.stderr, level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 from pyaedt import Edb
 from pyaedt import Hfss
 from pyaedt import Hfss3dLayout
@@ -33,6 +39,144 @@ from pyaedt import Q2d
 from pyaedt import Circuit
 from pyaedt import Icepak
 from pyaedt import Mechanical
+from pyaedt.misc import list_installed_ansysem
+
+
+class FileManagement(object):
+    """Class to manage file transfer."""
+
+    def __init__(self, client):
+        self.client = client
+
+    def upload(self, localpath, remotepath, overwrite=False):
+        """Upload a file or a directory to the given remote path.
+
+        Parameters
+        ----------
+        localpath : str
+            Path to the local file or directory.
+        remotepath : str
+            Remote path.
+        overwrite : bool, optional
+            Either if overwrite the local file or not.
+        """
+        if os.path.isdir(localpath):
+            self._upload_dir(localpath, remotepath)
+        elif os.path.isfile(localpath):
+            self._upload_file(localpath, remotepath)
+
+    def download_folder(self, remotepath, localpath, overwrite=True):
+        """Download a directory from a given remote path to the local path.
+
+        Parameters
+        ----------
+        remotepath : str
+            Remote path.
+        localpath : str
+            Path to the local file or directory.
+        overwrite : bool, optional
+            Either if overwrite the local file or not.
+            """
+        self._download_dir(remotepath, localpath, overwrite=True)
+
+    def download_file(self, remotepath, localpath, overwrite=True):
+        """Download a file from a given remote path to the local path.
+
+        Parameters
+        ----------
+        remotepath : str
+            Remote path.
+        localpath : str
+            Path to the local file or directory.
+        overwrite : bool, optional
+            Either if overwrite the local file or not.
+        """
+        self._download_file(remotepath, localpath, overwrite=overwrite)
+
+    def _upload_file(self, local_file, remote_file, overwrite=False):
+        if self.client.root.pathexists(remote_file):
+            if overwrite:
+                logger.warning("File already exists on server. Overwriting it.")
+            else:
+                logger.error("File already exists on the server. Skipping it")
+                return False
+        new_file = self.client.root.create(remote_file)
+        local = open(local_file, "rb")
+        shutil.copyfileobj(local, new_file)
+        new_file.close()
+        logger.info("File %s uploaded to %s", local_file, remote_file)
+
+    def _upload_dir(self, localpath, remotepath, overwrite=False):
+        if self.client.root.pathexists(remotepath):
+            logger.warning("Folder already exists on the server.")
+        self.client.root.makedirs(remotepath)
+        i = 0
+        for fn in os.listdir(localpath):
+            lfn = os.path.join(localpath, fn)
+            rfn = remotepath + "/" + fn
+            if os.path.isdir(rfn):
+                self._upload_dir(lfn, rfn, overwrite=overwrite)
+            else:
+                self._upload_file(lfn, rfn, overwrite=overwrite)
+            i += 1
+        logger.info("Directory %s uploaded. %s files copied", localpath, i)
+
+    def _download_file(self, remote_file, local_file, overwrite=True):
+        if os.path.exists(local_file):
+            if overwrite:
+                logger.warning("File already exists on the client. Overwriting it.")
+            else:
+                logger.warning("File already exists on the client, skipping it.")
+                return
+        remote = self.client.root.open(remote_file)
+        new_file = open(local_file, "wb")
+        shutil.copyfileobj(remote, new_file)
+        logger.info("File %s downloaded to %s", remote_file, local_file)
+
+    def _download_dir(self, remotepath, localpath, overwrite=True):
+        if os.path.exists(localpath):
+            logger.warning("Folder already exists on the local machine.")
+        if not os.path.isdir(localpath):
+            os.makedirs(localpath)
+        i = 0
+        for fn in self.client.root.listdir(remotepath):
+            lfn = os.path.join(localpath, fn)
+            rfn = remotepath + "/" + fn
+            if self.client.root.isdir(rfn):
+                self._download_dir(rfn, lfn, overwrite=overwrite)
+            else:
+                self._download_file(rfn, lfn, overwrite=overwrite)
+            i += 1
+        logger.info("Directory %s downloaded. %s files copied", localpath, i)
+
+    def open_file(self, remote_file, open_options="r"):
+        return self.client.root.open(remote_file, open_options=open_options)
+
+    def create_file(self, remote_file, create_options="w"):
+        return self.client.root.open(remote_file, open_options=create_options)
+
+    @staticmethod
+    def makedirs(remotepath):
+        if os.path.exists(remotepath):
+            return "Directory Exists!"
+        os.makedirs(remotepath)
+        return "Directory created!"
+
+    @staticmethod
+    def listdir(remotepath):
+        if os.path.exists(remotepath):
+            return os.listdir(remotepath)
+        return []
+
+    @staticmethod
+    def pathexists(remotepath):
+        if os.path.exists(remotepath):
+            return True
+        return False
+
+    @staticmethod
+    def isdir(self, remotepath):
+        return os.path.isdir(remotepath)
 
 
 def check_port(port):
@@ -759,13 +903,24 @@ class GlobalService(rpyc.Service):
         # code that runs when a connection is created
         # (to init the service, if needed)
         self.connection = connection
-        self._processes = {}
         pass
 
     def on_disconnect(self, connection):
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
-        pass
+        if os.name != "posix":
+            sys.stdout = sys.__stdout__
+
+    @staticmethod
+    def exposed_stop():
+        pid = os.getpid()
+        os.kill(pid, signal.SIGTERM)
+
+    def exposed_redirect(self, stdout):
+        sys.stdout = stdout
+
+    def exposed_restore(self):
+        sys.stdout = sys.__stdout__
 
     @staticmethod
     def aedt_grpc(port=None, beta_options=None, use_aedt_relative_path=False, non_graphical=True):
@@ -776,15 +931,19 @@ class GlobalService(rpyc.Service):
         port : int
             gRPC port on which the AEDT session has started.
         """
+        from pyaedt.generic.general_methods import grpc_active_sessions
+
+        sessions = grpc_active_sessions()
         if not port:
             port = check_port(random.randint(18500, 20000))
 
         if port == 0:
             print("Error. No ports are available.")
             return False
-        ansysem_path = ""
-        if os.name == "posix":
-            ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
+        elif port in sessions:
+            print("AEDT Session already opened on port {}.".format(port))
+            return True
+        ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
         if os.name == "posix":
             executable = "ansysedt"
         else:
@@ -815,8 +974,19 @@ class GlobalService(rpyc.Service):
                     if beta_options[option] not in ng_feature:
                         ng_feature += "," + beta_options[option]
             command = [aedt_exe, "-grpcsrv", str(port), ng_feature]
-
         subprocess.Popen(command)
+        timeout = 60
+        s = socket.socket()
+        machine_name = socket.getfqdn()
+        while timeout > 0:
+            try:
+                s.connect((machine_name, port))
+            except socket.error:
+                timeout -= 2
+                time.sleep(2)
+            else:
+                s.close()
+                timeout = 0
         print("Service has started on port {}".format(port))
         return port
 
@@ -863,7 +1033,7 @@ class GlobalService(rpyc.Service):
         :class:`pyaedt.edb.Edb`
             Edb class.
         """
-        edb = Edb(edbpath=edbpath,
+        return Edb(edbpath=edbpath,
                   cellname=cellname,
                   isreadonly=isreadonly,
                   edbversion=edbversion,
@@ -871,143 +1041,121 @@ class GlobalService(rpyc.Service):
                   oproject=oproject,
                   student_version=student_version,
                   use_ppe=use_ppe, )
-        return edb
 
-    def exposed_start_service(self, hostname, beta_options=None, use_aedt_relative_path=False):
-        """Starts and listens to a new PyAEDT service.
+    @staticmethod
+    def exposed_open(filename, open_options="rb"):
+        f = open(filename, open_options)
+        return rpyc.restricted(f, ["read", "readlines", "close"], [])
+
+    @staticmethod
+    def exposed_create(filename,create_options="wb"):
+        if os.path.exists(filename):
+            return "File already exists"
+        f = open(filename, create_options)
+        return rpyc.restricted(f, ["read", "readlines", "write", "writelines", "close"], [])
+
+    @staticmethod
+    def exposed_makedirs(remotepath):
+        if os.path.exists(remotepath):
+            return "Directory Exists!"
+        os.makedirs(remotepath)
+        return "Directory created!"
+
+    @staticmethod
+    def exposed_listdir(remotepath):
+        if os.path.exists(remotepath):
+            return os.listdir(remotepath)
+        return []
+
+    @staticmethod
+    def exposed_pathexists(remotepath):
+        if os.path.exists(remotepath):
+            return True
+        return False
+
+    @staticmethod
+    def exposed_isdir(remotepath):
+        return os.path.isdir(remotepath)
+
+class ServiceManager(rpyc.Service):
+    """Global class to manage rpyc Server of PyAEDT."""
+
+    def on_connect(self, connection):
+        # code that runs when a connection is created
+        # (to init the service, if needed)
+        self.connection = connection
+        self._processes = {}
+        self._edb = []
+        pass
+
+    def on_disconnect(self, connection):
+        # code that runs after the connection has already closed
+        # (to finalize the service, if needed)
+        if os.name != "posix":
+            sys.stdout = sys.__stdout__
+        for edb in self._edb:
+            try:
+                edb.close_edb()
+            except:
+                pass
+
+    def start_service(self, port):
+        """Connect to remove service manager and run a new server on specified port.
+
+        Parameters
+        ----------
+        aedt_client_port : int
+            Port that the RPyC server is running on inside AEDT.
 
         Returns
         -------
-        hostname : str
-            Hostname.
+        RPyC object.
         """
-
-        port = check_port(random.randint(18500, 20000))
-        if port == 0:
-            print("Error. No Available ports.")
-            return False
-        ansysem_path = ""
-        non_graphical = True
-        if os.name == "posix":
-            ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
-            non_graphical = os.getenv("PYAEDT_SERVER_AEDT_NG", "True").lower() in ("true", "1", "t")
-        if is_ironpython and os.name == "posix":
-            if ansysem_path:
-                executable = "ansysedt"
-                pyaedt_path = os.path.normpath(os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", ".."))
-                script_file = os.path.normpath(
-                    os.path.join(os.path.abspath(os.path.dirname(__file__)), "pyaedt_client_linux.py")
-                )
-                dest_file = os.path.join(tempfile.gettempdir(), "pyaedt_client_linux_{}.py".format(port))
-                print(dest_file)
-                with open(dest_file, "w") as f:
-                    f.write("port={}\n".format(port))
-                    f.write("hostname='{}'\n".format(hostname))
-                    f.write("pyaedt_path='{}'\n".format(pyaedt_path))
-                    with open(script_file, "r") as f1:
-                        lines = f1.readlines()
-                        for line in lines:
-                            f.write(line)
-                if not use_aedt_relative_path:
-                    aedt_exe = os.path.join(ansysem_path, executable)
-                else:
-                    aedt_exe = executable
-                if non_graphical:
-                    ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION,SF159726_SCRIPTOBJECT"
-                    if beta_options:
-                        for option in range(beta_options.__len__()):
-                            if beta_options[option] not in ng_feature:
-                                ng_feature += "," + beta_options[option]
-
-                    command = [
-                        aedt_exe,
-                        ng_feature,
-                        "-ng",
-                        "-RunScriptAndExit",
-                        dest_file,
-                    ]
-                else:
-                    ng_feature = "-features=SF159726_SCRIPTOBJECT"
-                    if beta_options:
-                        for option in range(beta_options.__len__()):
-                            if beta_options[option] not in ng_feature:
-                                ng_feature += "," + beta_options[option]
-                    command = [aedt_exe, ng_feature, "-RunScriptAndExit", dest_file]
-                print(command)
-                subprocess.Popen(command)
-                return port
+        try:
+            port = check_port(port)
+            if os.getenv("PYAEDT_SERVER_AEDT_PATH",""):
+                ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH","")
             else:
-                return "Error. Ansys EM Path has to be provided"
-
-        elif os.name == "posix":
-            t = threading.Thread(
-                target=ThreadedServer(
-                    PyaedtServiceLinux,
-                    hostname=hostname,
-                    port=port,
-                    protocol_config={
-                        "sync_request_timeout": None,
-                        "allow_public_attrs": True,
-                        "allow_setattr": True,
-                        "allow_delattr": True,
-                    },
-                ).start
-            )
-            t.start()
-        else:
+                aa = list_installed_ansysem()
+                if aa:
+                    ansysem_path = os.environ[aa[0]]
+                else:
+                    raise Exception("no ANSYSEM_ROOTXXX environment variable defined.")
             name = os.path.normpath(
-                os.path.join(os.path.abspath(os.path.dirname(__file__)), "pyaedt_client_windows.py")
+                os.path.join(os.path.abspath(os.path.dirname(__file__)), "local_server.py")
             )
-            cmd_service = [sys.executable, name, str(port), hostname]
-            print(" ".join(cmd_service))
-            p = subprocess.Popen(" ".join(cmd_service))
+            cmd_service = [sys.executable, name, ansysem_path, "1", str(port)]
+            print(cmd_service)
+            p = subprocess.Popen(cmd_service)
+            time.sleep(2)
             self._processes[port] = p
-        print("Service Started on Port {}".format(port))
-        return port
+            return port
+        except:
+            logger.error("Error. No connection exists. Check if AEDT is running and if the port number is correct.")
+            return False
 
-    def exposed_stop_service(self, port_number):
+    def exposed_stop_service(self, port):
         """Stops a given Pyaedt Service on specified port.
 
         Parameters
         ----------
-        port_number : int
+        port : int
             port id on which there is the service to kill.
 
         Returns
         -------
         bool
         """
-        if port_number in list(self._processes.keys()):
+        if port in list(self._processes.keys()):
             try:
-                self._processes[port_number].terminate()
+                self._processes[port].terminate()
                 return True
             except:
                 return False
 
         return True
 
-    def exposed_open(self, filename):
-        f = open(filename, "rb")
-        return rpyc.restricted(f, ["readlines", "close"], [])
-
-    def exposed_create(self, filename):
-        if os.path.exists(filename):
-            return "File already exists"
-        f = open(filename, "wb")
-        return rpyc.restricted(f, ["read", "write", "close"], [])
-
-    def exposed_makedirs(self, remotepath):
-        if os.path.exists(remotepath):
-            return "Directory Exists!"
-        os.makedirs(remotepath)
-        return "Directory created!"
-
-    def exposed_listdir(self, remotepath):
-        if os.path.exists(remotepath):
-            return os.listdir(remotepath)
-        return []
-
-    def exposed_path_exists(self, remotepath):
-        if os.path.exists(remotepath):
-            return True
-        return False
+    @staticmethod
+    def exposed_check_port():
+        port_number = random.randint(18500, 20000)
+        return check_port(port_number)
