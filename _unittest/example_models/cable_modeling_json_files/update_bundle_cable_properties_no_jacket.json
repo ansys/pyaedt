@@ -3,7 +3,7 @@
 	"IsJacketTypeInsulation": "False",
 	"IsJacketTypeBraidShield": "False",
 	"IsJacketTypeNoJacket": "True",
-	"UpdatedName": "",
+	"UpdatedName": "New_test_updated_name_cable_bundle_no_jacket",
 	"CablesToRemove": "",
 	"CablesToBundle": {
 		"CablesToAdd": "",
@@ -30,7 +30,7 @@
 					},
 					"VirtualJacketParams": {
 						"JacketMaterial": "copper",
-						"InnerDiameter": "2.5mm"
+						"InnerDiameter": "5mm"
 					}
 				},
 				"BundleAttribs": {

@@ -1,9 +1,9 @@
 {
-	"CableType":"bundle",
+	"CableType":"straight wire",
 	"IsJacketTypeInsulation": "False",
-	"IsJacketTypeBraidShield": "False",
-	"IsJacketTypeNoJacket": "True",
-	"UpdatedName": "",
+	"IsJacketTypeBraidShield": "True",
+	"IsJacketTypeNoJacket": "False",
+	"UpdatedName": "updated_name_cable_straight_wire",
 	"CablesToRemove": "",
 	"CablesToBundle": {
 		"CablesToAdd": "",
@@ -34,21 +34,21 @@
 					}
 				},
 				"BundleAttribs": {
-					"Name": "Bundle_Cable_NoJacket"
+					"Name": "Bundle_Cable_Shielding"
 				}
 			},
 			"StWireCable": {
 					"StWireParams": {
 						"WireStandard": "ISO",
-						"WireGauge": "2.5",
-						"CondDiameter": "10mm",
+						"WireGauge": "0.13",
+						"CondDiameter": "0.5mm",
 						"CondMaterial": "pec",
-						"InsThickness": "0.9mm",
+						"InsThickness": "0.25mm",
 						"InsMaterial": "copper",
 						"InsType": "Thin Wall"
 					},
 					"StWireAttribs": {
-						"Name": "stwire_Test_ISO_70"
+						"Name": "straight_wire_cable"
 					}
 			},
 			"TwistedPairCable": {

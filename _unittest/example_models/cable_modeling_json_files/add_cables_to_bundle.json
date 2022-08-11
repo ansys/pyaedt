@@ -1,14 +1,14 @@
 {
 	"CableType":"bundle",
-	"IsJacketTypeInsulation": "False",
+	"IsJacketTypeInsulation": "True",
 	"IsJacketTypeBraidShield": "False",
-	"IsJacketTypeNoJacket": "True",
+	"IsJacketTypeNoJacket": "False",
 	"UpdatedName": "",
 	"CablesToRemove": "",
 	"CablesToBundle": {
-		"CablesToAdd": "",
-		"BundleCable": "",
-		"NumberOfCableToAdd": 1
+		"CablesToAdd": "straight_wire_cable",
+		"BundleCable": "New_test_updated_name_cable_bundle_insulation",
+		"NumberOfCableToAdd": 3
 	},
 	"CableManager": {
 		"Definitions": {
@@ -34,7 +34,7 @@
 					}
 				},
 				"BundleAttribs": {
-					"Name": "Bundle_Cable_NoJacket"
+					"Name": "Bundle_Cable_Insulation"
 				}
 			},
 			"StWireCable": {

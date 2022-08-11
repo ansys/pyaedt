@@ -1,9 +1,9 @@
 {
 	"CableType":"bundle",
-	"IsJacketTypeInsulation": "False",
+	"IsJacketTypeInsulation": "True",
 	"IsJacketTypeBraidShield": "False",
-	"IsJacketTypeNoJacket": "True",
-	"UpdatedName": "",
+	"IsJacketTypeNoJacket": "False",
+	"UpdatedName": "New_test_updated_name_cable_bundle_insulation",
 	"CablesToRemove": "",
 	"CablesToBundle": {
 		"CablesToAdd": "",
@@ -16,9 +16,9 @@
 				"BundleParams": {
 					"AutoPack": "True",
 					"InsulationJacketParams": {
-						"InsThickness": "3.66mm",
+						"InsThickness": "5mm",
 						"JacketMaterial": "pec",
-						"InnerDiameter": "2.88mm"
+						"InnerDiameter": "3mm"
 					},
 					"BraidShieldJacketParams": {
 						"JacketMaterial": "pec",
@@ -34,7 +34,7 @@
 					}
 				},
 				"BundleAttribs": {
-					"Name": "Bundle_Cable_NoJacket"
+					"Name": "Bundle_Cable_Insulation"
 				}
 			},
 			"StWireCable": {

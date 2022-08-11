@@ -1,9 +1,9 @@
 {
 	"CableType":"bundle",
 	"IsJacketTypeInsulation": "False",
-	"IsJacketTypeBraidShield": "False",
-	"IsJacketTypeNoJacket": "True",
-	"UpdatedName": "",
+	"IsJacketTypeBraidShield": "True",
+	"IsJacketTypeNoJacket": "False",
+	"UpdatedName": "New_test_updated_name_cable_bundle_shielding",
 	"CablesToRemove": "",
 	"CablesToBundle": {
 		"CablesToAdd": "",
@@ -22,11 +22,11 @@
 					},
 					"BraidShieldJacketParams": {
 						"JacketMaterial": "pec",
-						"InnerDiameter": "6mm",
-						"NumCarriers": "36",
-						"NumWiresInCarrier": "52",
-						"WireDiameter": "0.242424mm",
-						"WeaveAngle": "33deg"
+						"InnerDiameter": "10mm",
+						"NumCarriers": "22",
+						"NumWiresInCarrier": "23",
+						"WireDiameter": "0.212mm",
+						"WeaveAngle": "35deg"
 					},
 					"VirtualJacketParams": {
 						"JacketMaterial": "copper",
@@ -34,7 +34,7 @@
 					}
 				},
 				"BundleAttribs": {
-					"Name": "Bundle_Cable_NoJacket"
+					"Name": "Bundle_Cable_Shielding"
 				}
 			},
 			"StWireCable": {

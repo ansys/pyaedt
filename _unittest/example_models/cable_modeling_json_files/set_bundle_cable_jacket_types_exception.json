@@ -3,7 +3,13 @@
 	"IsJacketTypeInsulation": "True",
 	"IsJacketTypeBraidShield": "True",
 	"IsJacketTypeNoJacket": "False",
-	"UpdatedName": "Updated_Bundle_test_Giulia_Shield",
+	"UpdatedName": "",
+	"CablesToRemove": "",
+	"CablesToBundle": {
+		"CablesToAdd": "",
+		"BundleCable": "",
+		"NumberOfCableToAdd": 1
+	},
 	"CableManager": {
 		"Definitions": {
 			"CableBundle":{
