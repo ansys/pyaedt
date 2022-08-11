@@ -8,3 +8,8 @@ updates:
     labels:
       - "maintenance"
       - "dependencies"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github"
+    schedule:
+      interval: "daily"
