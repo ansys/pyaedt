@@ -1,13 +1,14 @@
 """
-EDB: fully parameterized design
--------------------------------
-This example shows how to use HFSS 3D Layout to create and solve a parametric design.
+EDB: fully parametrized design
+------------------------------
+This example shows how you can use HFSS 3D Layout to create and solve a parametric design.
 """
 
 ###############################################################################
-# Import object
-# ~~~~~~~~~~~~~
-# Import the ``Hfss3dlayout`` object and initialize it on version 2022 R2.
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports, which includes importing the ``Hfss3dlayout`` object
+# and initializing it on version 2022 R2.
 
 from pyaedt import Edb
 from pyaedt.generic.general_methods import generate_unique_folder_name, generate_unique_name
@@ -24,7 +25,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 ##########################################################
 # Launch EDB
 # ~~~~~~~~~~
-# Launch EDT.
+# Launch EDB.
 
 aedb_path = os.path.join(generate_unique_folder_name(), generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
@@ -33,6 +34,7 @@ edb = Edb(edbpath=aedb_path, edbversion="2022.2")
 ######################################################################
 # Define parameters
 # ~~~~~~~~~~~~~~~~~
+# Define the parameters.
 
 params = {"$ms_width": "0.4mm",
           "$sl_width": "0.2mm",
@@ -54,8 +56,9 @@ for par_name in params:
 ######################################################################
 # Define stackup layers
 # ~~~~~~~~~~~~~~~~~~~~~
-# Define stackup layers from bottom to top.
-# Note that in the stackup definition, layer_type = (0:signal, 1:dielectric).
+# Define the stackup layers from bottom to top.
+# Note that in the stackup definition, ``"layer_type":0`` is signal and
+# ``"layer_type":1`` is dielectric.
 
 layers = [{"name": "bottom", "layer_type": 0, "thickness": "35um", "material": "copper"},
           {"name": "diel_3", "layer_type": 1, "thickness": "275um", "material": "FR4_epoxy"},
@@ -85,7 +88,7 @@ for n in range(len(layers)-1):
 ###############################################################################
 # Create padstack for signal via
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create a parameterized padstack for the signal via.
+# Create a parametrized padstack for the signal via.
 
 signal_via_padstack = "automated_via"
 edb.core_padstack.create_padstack(
@@ -152,9 +155,9 @@ edb.core_padstack.place_padstack(
 
 
 # ###############################################################################
-# Draw parameterized traces
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
-# Draw parameterized traces.
+# Draw parametrized traces
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Draw parametrized traces.
 # Trace the width and the routing (Microstrip-Stripline-Microstrip).
 # Applies to both p and n nets.
 
@@ -204,8 +207,10 @@ points_n = [
            ["$pcb_len", "-($ms_width + $ms_spacing)/2"],
           ],
          ]
-
+# ###############################################################################
 # Add traces to EDB
+# ~~~~~~~~~~~~~~~~~
+# Add traces to EDB.
 
 for n in range(len(points_p)):
     path_p = edb.core_primitives.Shape("polygon", points=points_p[n])
@@ -317,7 +322,7 @@ h3d.create_linear_count_sweep(
 ###############################################################################
 # Start HFSS solver
 # ~~~~~~~~~~~~~~~~~
-# Start HFSS solver. Uncomment to solve.
+# Start the HFSS solver by uncommenting the ``h3d.analyze_nominal()`` command.
 
 # h3d.analyze_nominal()
 

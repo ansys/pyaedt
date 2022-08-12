@@ -11,13 +11,14 @@ used in this example:
 - `Numpty <https://pypi.org/project/numpy/>`_
 - `PyVista <https://pypi.org/project/pyvista/>`_
 
-Install these with:
+Install these libraries with:
 
 .. code::
 
    pip install numpy pyvista matplotlib
 
 """
+###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
@@ -26,11 +27,12 @@ import os
 from pyaedt import Maxwell2d
 from pyaedt import generate_unique_project_name
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -45,7 +47,7 @@ maxwell_2d = Maxwell2d(solution_type="TransientXY", specified_version="2022.2", 
 ###############################################################################
 # Create rectangle and duplicate it
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create a rectangle and duplicates it.
+# Create a rectangle and duplicate it.
 
 rect1 = maxwell_2d.modeler.create_rectangle([0, 0, 0], [10, 20], name="winding", matname="copper")
 added = rect1.duplicate_along_line([14, 0, 0])

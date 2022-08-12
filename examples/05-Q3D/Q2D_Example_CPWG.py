@@ -4,7 +4,7 @@
 This example shows how you can use PyAEDT to create a CPWG (coplanar waveguide with ground) design
 in 2D Extractor and run a simulation.
 """
-##########################################################
+###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
@@ -15,11 +15,12 @@ from pyaedt import Q2d, Desktop
 from pyaedt.generic.general_methods import generate_unique_name
 
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -33,9 +34,9 @@ q = Q2d(specified_version="2022.2", non_graphical=non_graphical, new_desktop_ses
         projectname=generate_unique_name("pyaedt_q2d_example"), designname="coplanar_waveguide")
 
 ###############################################################################
-# Create variables
+# Define variables
 # ~~~~~~~~~~~~~~~~
-# Create variables.
+# Define variables.
 
 e_factor = "e_factor"
 sig_bot_w = "sig_bot_w"
@@ -155,9 +156,9 @@ q.assign_single_conductor(
 )
 
 ###############################################################################
-# Reference ground
-# ~~~~~~~~~~~~~~~~
-# Reference the ground.
+# Create reference ground
+# ~~~~~~~~~~~~~~~~~~~~~~~
+# Create a reference ground.
 
 obj = [q.modeler.get_object_from_name(i) for i in ["co_gnd_left", "co_gnd_right", "ref_gnd"]]
 q.assign_single_conductor(

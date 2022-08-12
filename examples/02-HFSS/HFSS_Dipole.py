@@ -3,6 +3,8 @@ HFSS: dipole antenna
 --------------------
 This example shows how you can use PyAEDT to create a dipole antenna in HFSS and postprocess results.
 """
+
+###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
@@ -16,11 +18,12 @@ from pyaedt import generate_unique_project_name
 project_name= generate_unique_project_name(project_name="dipole")
 
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``PYAEDT_NON_GRAPHICAL`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -39,9 +42,9 @@ d = Desktop("2022.2", non_graphical=non_graphical, new_desktop_session=True)
 hfss = Hfss(projectname=project_name, solution_type="Modal")
 
 ###############################################################################
-# Define dipole length variable
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Define a dipole length variable.
+# Define variable
+# ~~~~~~~~~~~~~~~
+# Define a variable for the dipole length.
 
 hfss["l_dipole"] = "13.5cm"
 
@@ -106,9 +109,9 @@ hfss.create_linear_count_sweep(
 hfss.analyze_setup("MySetup")
 
 ###############################################################################
-# Generate scattering plot and far fields plot
+# Create scattering plot and far fields report
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Generate a scattering plot and a far fields plot.
+# Create a scattering plot and a far fields report.
 
 hfss.create_scattering("MyScattering")
 variations = hfss.available_variations.nominal_w_values_dict
@@ -125,10 +128,10 @@ hfss.post.create_report(
 )
 
 ###############################################################################
-# Generate plot using report objects
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Generate a plot using the ``report_by_category`` method.
-# This plot creation method gives you more freedom. 
+# Create far fields report using report objects
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a far fields report using the ``report_by_category.far field`` method,
+# which gives you more freedom.
 
 new_report = hfss.post.reports_by_category.far_field("db(RealizedGainTotal)", hfss.nominal_adaptive, "3D")
 new_report.variations = variations
@@ -148,7 +151,7 @@ new_report.create("Realized3D")
 ###############################################################################
 # Get solution data
 # ~~~~~~~~~~~~~~~~~
-# Get solution data using the object ``new_report` and postprocess or plot the
+# Get solution data using the object ``new_report``` and postprocess or plot the
 # data outside of AEDT.
 
 solution_data = new_report.get_solution_data()
@@ -205,7 +208,7 @@ solutions.plot_3d()
 ###############################################################################
 # Generate 3D far fields plot using Matplotlib
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Generate a far field plot using Matplotlib.
+# Generate a far fields plot using Matplotlib.
 
 new_report.far_field_sphere = "Sphere_Custom"
 solutions_custom = new_report.get_solution_data()
@@ -214,15 +217,15 @@ solutions_custom.plot_3d()
 ###############################################################################
 # Generate 2D plot using Matplotlib
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Generate a 2D plot using Matplotlib where you decide whether it is a polar
-# plot or rectangular plot.
+# Generate a 2D plot using Matplotlib where you specify whether it is a polar
+# plot or a rectangular plot.
 
 solutions.plot(math_formula="db20", is_polar=True)
 
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton completes, you can close AEDT or release it using the
+# After the simulation completes, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 

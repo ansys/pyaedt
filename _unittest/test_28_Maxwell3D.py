@@ -41,6 +41,35 @@ class TestClass(BasisTest, object):
         assert plate.solve_inside
         assert plate.material_name == "aluminum"
 
+    def test_01A_litz_wire(self):
+        cylinder = self.aedtapp.modeler.create_cylinder(
+            cs_axis="X", position=[50, 0, 0], radius=0.8, height=20, name="Wire", matname="magnesium"
+        )
+        self.aedtapp.materials["magnesium"].stacking_type = "Litz Wire"
+        self.aedtapp.materials["magnesium"].wire_type = "Round"
+        self.aedtapp.materials["magnesium"].strand_number = 3
+        self.aedtapp.materials["magnesium"].wire_diameter = "1mm"
+        assert self.aedtapp.materials["magnesium"].stacking_type == "Litz Wire"
+        assert self.aedtapp.materials["magnesium"].wire_type == "Round"
+        assert self.aedtapp.materials["magnesium"].strand_number == 3
+        assert self.aedtapp.materials["magnesium"].wire_diameter == "1mm"
+
+        self.aedtapp.materials["magnesium"].wire_type = "Square"
+        self.aedtapp.materials["magnesium"].wire_width = "2mm"
+        assert self.aedtapp.materials["magnesium"].wire_type == "Square"
+        assert self.aedtapp.materials["magnesium"].wire_width == "2mm"
+
+        self.aedtapp.materials["magnesium"].wire_type = "Rectangular"
+        self.aedtapp.materials["magnesium"].wire_width = "2mm"
+        self.aedtapp.materials["magnesium"].wire_thickness = "1mm"
+        self.aedtapp.materials["magnesium"].wire_thickness_direction = "V(2)"
+        self.aedtapp.materials["magnesium"].wire_width_direction = "V(3)"
+        assert self.aedtapp.materials["magnesium"].wire_type == "Rectangular"
+        assert self.aedtapp.materials["magnesium"].wire_width == "2mm"
+        assert self.aedtapp.materials["magnesium"].wire_thickness == "1mm"
+        assert self.aedtapp.materials["magnesium"].wire_thickness_direction == "V(2)"
+        assert self.aedtapp.materials["magnesium"].wire_width_direction == "V(3)"
+
     def test_02_create_coil(self):
         center_hole = self.aedtapp.modeler.Position(119, 25, 49)
         center_coil = self.aedtapp.modeler.Position(94, 0, 49)
@@ -403,6 +432,25 @@ class TestClass(BasisTest, object):
         out = L.join_parallel(["Cur5"])
         assert not out[0]
 
+    def test_32a_export_rl_matrix(self):
+        self.aedtapp.set_active_design("Matrix2")
+        L = self.aedtapp.assign_matrix(sources=["Cur1", "Cur2", "Cur3"], matrix_name="matrix_export_test")
+        L.join_series(["Cur1", "Cur2"], matrix_name="reduced_matrix_export_test")
+        setup_name = "setupTestMatrixRL"
+        setup = self.aedtapp.create_setup(setupname=setup_name)
+        setup.props["MaximumPasses"] = 2
+        export_path_1 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test1.txt")
+        assert not self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
+        assert not self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1, False, 10, 3, True)
+        self.aedtapp.validate_simple()
+        self.aedtapp.analyze_setup(setup_name)
+        assert self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
+        assert not self.aedtapp.export_rl_matrix("abcabc", export_path_1)
+        assert os.path.exists(export_path_1)
+        export_path_2 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test2.txt")
+        assert self.aedtapp.export_rl_matrix("matrix_export_test", export_path_2, False, 10, 3, True)
+        assert os.path.exists(export_path_2)
+
     def test_33_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
         assert self.aedtapp.mesh.initial_mesh_settings.props
@@ -430,6 +478,19 @@ class TestClass(BasisTest, object):
             if bound.name == "Symmetry_Test_IsEven":
                 assert bound.type == "Symmetry"
                 assert not bound.props["IsOdd"]
+
+    def test_36_set_bp_curve_loss(self):
+        bp_curve_box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="bp_curve_box")
+        bp_curve_box.material = "magnesium"
+        assert self.aedtapp.materials["magnesium"].set_bp_curve_coreloss(
+            [[0, 0], [0.6, 1.57], [1.0, 4.44], [1.5, 20.562], [2.1, 44.23]],
+            kdc=0.002,
+            cut_depth=0.0009,
+            punit="w/kg",
+            bunit="tesla",
+            frequency=50,
+            thickness="0.5mm",
+        )
 
     def test_37_assign_insulating(self):
         insulated_box = self.aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="insulated_box")

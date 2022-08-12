@@ -1,4 +1,4 @@
-Setup Templates
+Setup templates
 ===============
 
 This section lists all setup templates with their default values and keys. 
@@ -67,8 +67,8 @@ Icepak
    TransientTemperatureAndFlow
 
 
-Nexxim Analysis
-~~~~~~~~~~~~~~~
+Nexxim
+~~~~~~
 
 .. autosummary::
    :toctree: _autosummary
@@ -87,8 +87,8 @@ HFSS 3D Layout
    HFSS3DLayout
 
 
-Mechanical Analysis
-~~~~~~~~~~~~~~~~~~~
+Mechanical
+~~~~~~~~~~
 
 .. autosummary::
    :toctree: _autosummary
@@ -98,8 +98,8 @@ Mechanical Analysis
    MechStructural
 
 
-RMXprt Analysis
-===============
+RMXprt
+======
 
 .. autosummary::
    :toctree: _autosummary

@@ -17,7 +17,7 @@ from pyaedt import generate_unique_project_name
 ###############################################################################
 # Select version and set launch options
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Select the Twin Builder version and set launch options. The following code
+# Select the Twin Builder version and set the launch options. The following code
 # launches Twin Builder 2022 R2 in graphical mode.
 #
 # You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
@@ -39,8 +39,8 @@ new_thread = True
 tb = TwinBuilder(projectname=generate_unique_project_name(), specified_version=desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
 
 ###############################################################################
-# Create components for RC circuit driven by pulse voltage source
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create components for RC circuit
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create components for an RC circuit driven by a pulse voltage source. Define
 # the grid distance for ease in calculations.
 
@@ -55,7 +55,7 @@ capacitor = tb.modeler.schematic.create_capacitor("C1", 1e-6, [20 * G, 0])
 ###############################################################################
 # Create ground
 # ~~~~~~~~~~~~~
-# Create a ground, which is needed for analog analysis.
+# Create a ground, which is needed for an analog analysis.
 
 gnd = tb.modeler.components.create_gnd([0, -10 * G])
 
@@ -102,7 +102,7 @@ tb.save_project()
 ###############################################################################
 # Close Twin Builder
 # ~~~~~~~~~~~~~~~~~~
-# After the simulaton completes, you can close Twin Builder or release it.
+# After the simulation completes, you can close Twin Builder or release it.
 # All methods provide for saving the project before closing.
 
 if os.name != "posix":
