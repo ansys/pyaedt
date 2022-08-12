@@ -838,6 +838,10 @@ class TestClass(BasisTest, object):
         assert os.path.exists(self.q3dtest.export_mesh_stats("Setup1", setup_type="AC RL"))
         assert os.path.exists(self.aedtapp.export_mesh_stats("Setup1"))
 
+    def test_61a_export_matrix_data(self):
+        test = self.q3dtest.exprot_matrix_data("file path here")
+        pass
+
     def test_62_eye_diagram(self):
         self.eye_test.analyze_nominal()
         rep = self.eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")

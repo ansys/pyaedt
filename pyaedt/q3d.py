@@ -15,6 +15,7 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import Matrix
+from pyaedt.modules.Boundary import MaxwellParameters
 
 if not is_ironpython:
     try:
@@ -371,9 +372,10 @@ class QExtractor(FieldAnalysis3D, object):
     def export_matrix_data(
         self,
         file_name,
-        problem_type,
-        variation=None,
-        analysis_setup=None,
+        problem_type=None,
+        variations=None,
+        setup_name=None,
+        solution_frequency=None,
         reduce_matrix=None,
         r_unit=None,
         l_unit=None,
@@ -381,6 +383,10 @@ class QExtractor(FieldAnalysis3D, object):
         g_unit=None,
         freq=None,
         matrix_type=None,
+        export_AC_DC_res=None,
+        precision=None,
+        field_width=None,
+        use_sci_notation=None,
     ):
         """Export Matrix Data.
 
@@ -389,15 +395,19 @@ class QExtractor(FieldAnalysis3D, object):
         file_name : str
             File path to save matrix data.
             Possible file extensions are: *.m, *.lvl, *.csv, *.txt.
-        problem_type : str
+        problem_type : str, optional
             Problem type.
+            Default value is "C".
             Possible values are: "C", "AC RL", "DC RL".
-        variation : str, optional
+        variations : str, optional
             Design variation.
             Empty string uses the current nominal variation.
-        analysis_setup : str, optional
-            Analysis setup.
-            Default value is setup name + solution frequency.
+        setup_name : str, optional
+            Setup Name.
+            Default value is first analysis setup name.
+        solution_frequency : str, optional
+            Solution frequency.
+            Default value is default adaptive.
         reduce_matrix : str, optional
             Name of the matrix to display.
             Default value is "Original".
@@ -420,29 +430,169 @@ class QExtractor(FieldAnalysis3D, object):
             Matrix Type.
             Possible Values are "Maxwell", "Spice" and "Couple".
             Default value is "Maxwell, Spice, Couple".
-
-
+        export_AC_DC_res : bool, optional
+            Whether to add the AC and DC res.
+            Default value is False.
+        precision : int, optional
+            Precision format.
+            Default value is 15.
+        field_width : int, optional
+            Field Width.
+            Default value is 20.
+        use_sci_notation: bool, optional
+            Use sci notation.
+            True to use scientific notation. False to use display format.
+            Default value is True.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.odesign.ExportMatrixData(
-            file_name,
-            problem_type,
-            variation,
-            analysis_setup,
-            reduce_matrix,
-            r_unit,
-            l_unit,
-            c_unit,
-            g_unit,
-            freq,
-            matrix_type,
-        )
-        # export_AC_DC_res, precision, field_width, use_sci_notation
-        pass
+        if file_name is None:
+            self.logger.error("File path to export matrix data must be provided.")
+            return False
+        else:
+            if os.path.exists(file_name):
+                if os.path.splitext(file_name)[1] not in [".m", ".lvl", ".csv", ".txt"]:
+                    self.logger.error(
+                        "Provided extension is not valid. Available extensions are" " *.m, *.lvl, *.csv, *.txt."
+                    )
+                    return False
+            else:
+                self.logger.error("File path doesn't exist. Provide a valid path.")
+                return False
+
+        if problem_type is None:
+            problem_type = "C"
+        else:
+            problem_type_array = problem_type.split(", ")
+            # TEST IT!
+            if [x for x in problem_type_array if x in ["C", "AC RL", "DC RL"]]:
+                if "C" in problem_type_array:
+                    if matrix_type is None:
+                        matrix_type = "Maxwell, Spice, Couple"
+                else:
+                    matrix_type = "Maxwell, Couple"
+            else:
+                self.logger.error("Invalid problem type. Available values are C, AC RL, DC RL")
+                return False
+
+        if variations is None:
+            # CHECK
+            if not self.available_variations.nominal_w_values_dict:
+                variations = ""
+            else:
+                variations = self.available_variations.nominal_w_values_dict
+        # VALIDATE THE ENTERED VARIATIONS WITH NOMINAL_W_VALUES_DICT
+
+        # CHECK IF ANALYSIS SETUP IS BUILT CORRECTLY
+        if setup_name is None:
+            setup_name = self.analysis_setup
+        if solution_frequency is None:
+            solution_frequency = self.design_solutions.default_adaptive
+        analysis_setup = setup_name + " : " + solution_frequency
+
+        matrix_list = [bound for bound in self.boundaries if isinstance(bound, MaxwellParameters)]
+        if reduce_matrix is None:
+            reduce_matrix = "Original"
+        else:
+            if matrix_list:
+                if not [
+                    matrix
+                    for matrix in matrix_list
+                    if matrix.name == reduce_matrix or [x for x in matrix.available_properties if reduce_matrix in x]
+                ]:
+                    self.logger.error("Matrix doesn't exist, provide and existing matrix.")
+                    return False
+            else:
+                self.logger.error("Matrix list parameters is empty, can't export a valid matrix.")
+                return False
+
+        if r_unit is None:
+            r_unit = "ohm"
+        else:
+            if not r_unit.endswith("ohm"):
+                self.logger.error("Provide a valid unit for resistor.")
+                return False
+
+        if l_unit is None:
+            l_unit = "nH"
+        else:
+            if not r_unit.endswith("H"):
+                self.logger.error("Provide a valid unit for inductor.")
+                return False
+
+        if c_unit is None:
+            c_unit = "pF"
+        else:
+            if c_unit not in ["fF", "pF", "nF", "uF", "mF", "F"]:
+                self.logger.error("Provide a valid unit for Capacitance.")
+                return False
+
+        if g_unit is None:
+            g_unit = "pF"
+        else:
+            if c_unit not in [
+                "fF",
+                "pF",
+                "nF",
+                "uF",
+                "mF",
+                "F",
+                "fSie",
+                "pSie",
+                "nSie",
+                "uSie",
+                "mSie",
+                "Sie",
+                "kSie",
+                "megSie",
+                "mho",
+                "perohm",
+                "apV",
+            ]:
+                self.logger.error("Provide a valid unit for Conductance.")
+                return False
+
+        if freq is None:
+            freq = "0Hz"
+        # CHECK HOW TO GET AVAILABLE FREQS
+
+        if export_AC_DC_res is None:
+            export_AC_DC_res = False
+
+        if precision is None:
+            precision = 15
+
+        if field_width is None:
+            field_width = 20
+
+        if use_sci_notation is None:
+            use_sci_notation = True
+
+        try:
+            self.odesign.ExportMatrixData(
+                file_name,
+                problem_type,
+                variations,
+                analysis_setup,
+                reduce_matrix,
+                r_unit,
+                l_unit,
+                c_unit,
+                g_unit,
+                freq,
+                matrix_type,
+                export_AC_DC_res,
+                precision,
+                field_width,
+                use_sci_notation,
+            )
+            return True
+        except:
+            self.logger.error("Export matrix data wasn't successful.")
+            return False
 
 
 class Q3d(QExtractor, object):
