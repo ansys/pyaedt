@@ -518,14 +518,15 @@ def generate_unique_name(rootname, suffix="", n=6):
 
 @pyaedt_function_handler()
 def generate_unique_folder_name(rootname=None, folder_name=None):
-    """Generate a new aedt folder name given a rootname.
+    """Generate a new AEDT folder name given a rootname.
 
     Parameters
     ----------
     rootname : str, optional
-        Root name where to create the new folder.
+        Root name for generating the new folder. The default is
+        ``None``.
     folder_name : str, optional
-        Either if the new folder has to be created or not.
+        Name for the new AEDT folder if one must be created.
 
     Returns
     -------

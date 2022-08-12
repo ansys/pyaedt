@@ -5,24 +5,23 @@ This example shows how you can use PyAEDT to create a spiral inductor, solve it,
 """
 
 #############################################################
-# Import packages
-# ~~~~~~~~~~~~~~~
-# Import packages.
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import os
 from pyaedt import Hfss, constants
 from pyaedt import generate_unique_project_name
 
 
-
 project_name = generate_unique_project_name(project_name="spiral")
 
-
-##########################################################
+#############################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical model. ``"PYAEDT_NON_GRAPHICAL"``` is needed to
+# generate documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -37,9 +36,9 @@ hfss.modeler.model_units = "um"
 p = hfss.modeler
 
 #############################################################
-# Input variables
-# ~~~~~~~~~~~~~~~
-# Input variables. You can use the values that follow or edit
+# Define variables
+# ~~~~~~~~~~~~~~~~
+# Define input variables. You can use the values that follow or edit
 # them.
 
 rin = 10
@@ -55,8 +54,8 @@ Tsub = 6
 #############################################################
 # Standardize polyline
 # ~~~~~~~~~~~~~~~~~~~~
-# Standardize the polyline using the ``create_line`` to fix
-# the width, thickness and material.
+# Standardize the polyline using the ``create_line`` method to fix
+# the width, thickness, and material.
 
 def create_line(pts):
     p.create_polyline(pts, xsection_type="Rectangle", xsection_width=width, xsection_height=thickness, matname="copper")
@@ -64,9 +63,9 @@ def create_line(pts):
 
 ################################################################
 # Create spiral inductor
-#  ~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~
 # Create the spiral inductor. This spiral inductor is not
-# parameteric, but you could parametrize it later.
+# parametric, but you could parametrize it later.
 
 ind = hfss.modeler.create_spiral(
     internal_radius=rin,
@@ -114,7 +113,7 @@ hfss.create_lumped_port_to_sheet(sheet_name="port2", axisdir=constants.AXIS.Z)
 ################################################################
 # Create silicon substrate and ground plane
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create the silicon substrate and ground plane.
+# Create the silicon substrate and the ground plane.
 
 p.create_box([x1 - 20, x1 - 20, -Tsub - thickness / 2], [-2 * x1 + 40, -2 * x1 + 40, Tsub], matname="silicon")
 
@@ -123,7 +122,7 @@ p.create_box([x1 - 20, x1 - 20, -Tsub - thickness / 2], [-2 * x1 + 40, -2 * x1 +
 ################################################################
 # Assign airbox and radiation
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Assign the airbox and radiation.
+# Assign the airbox and the radiation.
 
 box = p.create_box(
     [x1 - 20, x1 - 20, -Tsub - thickness / 2 - 0.1], [-2 * x1 + 40, -2 * x1 + 40, 100], name="airbox", matname="air"
@@ -162,7 +161,7 @@ hfss.analyze_all()
 ################################################################
 # Get report data
 # ~~~~~~~~~~~~~~~
-# Get report data and use these formulas to calculate
+# Get report data and use the following formulas to calculate
 # the inductance and quality factor.
 
 L_formula = "1e9*im(1/Y(1,1))/(2*pi*freq)"
@@ -171,7 +170,7 @@ Q_formula = "im(Y(1,1))/re(Y(1,1))"
 ################################################################
 # Plot calculated values in Matplotlib
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Plot calculated values in Matplotlib.
+# Plot the calculated values in Matplotlib.
 
 x = hfss.post.get_solution_data([L_formula, Q_formula])
 x.plot([L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q")

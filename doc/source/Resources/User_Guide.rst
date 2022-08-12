@@ -195,7 +195,7 @@ edit them, and create them. All setup operations are listed in the setups list:
 Optimetrics
 ~~~~~~~~~~~
 Optimetrics allow you to set up parametric analysis, sensitivity analysis, optimization,
-and Design of Experients (DOE). PyAEDT can read all optimetric setups already
+and Design of Experiments (DOE). PyAEDT can read all optimetrics setups already
 present in a design, edit them, and create them:
 
 .. code:: python
@@ -208,13 +208,14 @@ present in a design, edit them, and create them:
 
 .. image:: ./Optimetrics_Parametric.png
   :width: 800
-  :alt: Optimetrics Creation
+  :alt: Optimetrics creation
 
 
 Postprocessing
 ~~~~~~~~~~~~~~
 Postprocessing is essential in simulation. PyAEDT can read all solutions and plot results in AEDT or
-outside it using `pyvista <https://www.pyvista.org/>`_ and `matplotlib <https://matplotlib.org/>_` packages:
+outside it using the `pyvista <https://www.pyvista.org/>`_ and `matplotlib <https://matplotlib.org/>_`
+packages:
 
 .. code:: python
 

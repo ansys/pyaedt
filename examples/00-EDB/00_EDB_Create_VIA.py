@@ -1,7 +1,7 @@
 """
 EDB: geometry creation
 ----------------------
-This example shows how to use EDB to create a layout.
+This example shows how you can use EDB to create a layout.
 """
 
 ##########################

@@ -1,9 +1,13 @@
 """
 EDB: 5G linear array antenna
 ----------------------------
-This example shows how to use HFSS 3D Layout to create and solve a 5G linear array antenna.
+This example shows how you can use HFSS 3D Layout to create and solve a 5G linear array antenna.
 """
 
+##########################################################
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import tempfile
 from pyaedt import Edb
@@ -11,15 +15,12 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt import Hfss3dLayout
 import os
 
-
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. The default is ``False``.
 
-
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
-
 
 
 class Patch:
@@ -235,11 +236,11 @@ h3d.modeler.edb.core_nets.plot(None)
 ###############################################################################
 # Create setup and sweeps
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# Getters and setter facilitate the settings on the nested property dictionary.
+# Getters and setters facilitate the settings on the nested property dictionary.
 # Previously, you had to use these commands:
 # 
-# - `setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "20GHz"`
-# - `setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 4`
+# - ``setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "20GHz"``
+# - ``setup.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 4``
 #
 # You can now use the simpler approach that follows.
 
@@ -263,9 +264,9 @@ h3d.create_linear_count_sweep(
 
 
 ###############################################################################
-# Solve setup and create results
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Solve the project and create report.
+# Solve setup and create report
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Solve the project and create a report.
 
 h3d.analyze_nominal()
 h3d.post.create_report(["db(S({0},{1}))".format(port_name, port_name)])
@@ -282,9 +283,9 @@ solution.plot()
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` function.
-# All functions provide for saving the project before closing AEDT.
+# After the simulation completes, you can close AEDT or release it using the
+# :func:`pyaedt.Desktop.release_desktop` method.
+# All methods provide for saving the project before closing AEDT.
 
 h3d.save_project()
 h3d.release_desktop()

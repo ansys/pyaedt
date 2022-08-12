@@ -298,3 +298,24 @@ class TestClass(BasisTest, object):
             if bound.name == "Symmetry_Test_IsEven":
                 assert bound.type == "Symmetry"
                 assert not bound.props["IsOdd"]
+
+    def test_25_export_rl_matrix(self):
+        self.aedtapp.set_active_design("Y_Connections")
+        assert not self.aedtapp.export_rl_matrix("Test1", " ")
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        self.aedtapp.assign_matrix(sources=["Current_1", "Current_2"], matrix_name="Test1")
+        self.aedtapp.assign_matrix(sources=["PhaseA", "PhaseB", "PhaseC"], matrix_name="Test2")
+        setup_name = "setupTestMatrixRL"
+        setup = self.aedtapp.create_setup(setupname=setup_name)
+        setup.props["MaximumPasses"] = 2
+        export_path_1 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test1.txt")
+        assert not self.aedtapp.export_rl_matrix("Test1", export_path_1)
+        assert not self.aedtapp.export_rl_matrix("Test2", export_path_1, False, 10, 3, True)
+        self.aedtapp.validate_simple()
+        self.aedtapp.analyze_setup(setup_name)
+        assert self.aedtapp.export_rl_matrix("Test1", export_path_1)
+        assert not self.aedtapp.export_rl_matrix("abcabc", export_path_1)
+        assert os.path.exists(export_path_1)
+        export_path_2 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test2.txt")
+        assert self.aedtapp.export_rl_matrix("Test2", export_path_2, False, 10, 3, True)
+        assert os.path.exists(export_path_2)

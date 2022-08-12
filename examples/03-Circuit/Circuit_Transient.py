@@ -4,10 +4,10 @@ Circuit: transient analysis and eye plot
 This example shows how you can use PyAEDT to create a circuit design,
 run a Nexxim time-domain simulation, and create an eye diagram.
 """
-##########################################################
-# Perform the required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform the required imports.
+###############################################################################
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import os
 from matplotlib import pyplot as plt
@@ -15,11 +15,12 @@ import numpy as np
 from pyaedt import Circuit
 from pyaedt import generate_unique_project_name
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode, ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -125,7 +126,7 @@ sol.plot()
 ###############################################################################
 # Create eye diagram inside AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create an eye diagram inside AEDT using the ``new_report`` object. 
+# Create an eye diagram inside AEDT using the ``new_eye`` object. 
 
 new_eye = cir.post.reports_by_category.eye_diagram("V(Vout)")
 new_eye.unit_interval = "1e-9s"

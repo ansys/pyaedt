@@ -1,11 +1,10 @@
 """
 EMIT: antenna
 ---------------------
-This tutorial shows how you can use PyAEDT to create a project in EMIT for
-a simulation of an attenna.
+This example shows how you can use PyAEDT to create a project in EMIT for
+the simulation of an antenna.
 """
 ###############################################################################
-# sphinx_gallery_thumbnail_path = 'Resources/emit.png'
 # Perform required inputs
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
@@ -16,11 +15,14 @@ from pyaedt import Desktop
 from pyaedt import generate_unique_project_name
 
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
+# The ``NewThread`` Boolean variable defines whether to create a new instance
+# of AEDT or try to connect to existing instance of it if one is available.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = False
@@ -31,9 +33,7 @@ desktop_version = "2022.2"
 # Launch AEDT with EMIT
 # ~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
-# on the specified version and in the specified graphical mode. The ``NewThread``
-# Boolean variable defines whether to create a new instance of AEDT or try to
-# connect to existing instance of it if one is available.
+# on the specified version and in the specified graphical mode.
 
 d = Desktop(desktop_version, non_graphical, NewThread)
 aedtapp = Emit(generate_unique_project_name())
@@ -76,7 +76,7 @@ if rad3 and ant3:
 ###############################################################################
 # Save project and close AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# After the simulaton completes, you can close AEDT or release it using the
+# After the simulation completes, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.
 
