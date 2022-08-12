@@ -1443,7 +1443,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a box and use it to create an impedance.
+        Create a box and assign insulating boundary to it.
 
         >>> insulated_box = maxwell3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="Plate")
         >>> insulating_assignment = maxwell3d_app.assign_insulating(insulated_box, "InsulatingExample")
