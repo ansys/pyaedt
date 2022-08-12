@@ -1426,9 +1426,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Parameters
         ----------
         geometry_selection : str
-            Name of the sheet to apply the boundary to.
+            Objects to apply the insulating boundary to.
         insulation_name : str, optional
-            Name of the insulation. The default is ``None``.
+            Name of the insulation. The default is ``None`` in which case a unique name is chosen.
 
         Returns
         -------
@@ -1446,7 +1446,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Create a box and use it to create an impedance.
 
         >>> insulated_box = maxwell3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="Plate")
-        >>> insulating_assignment = hfss.assign_impedance_to_sheet(insulated_box, "InsulatingExample")
+        >>> insulating_assignment = maxwell3d_app.assign_insulating(insulated_box, "InsulatingExample")
         >>> type(insulating_assignment)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
