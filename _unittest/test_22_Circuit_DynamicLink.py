@@ -176,6 +176,14 @@ class TestClass(BasisTest, object):
         ports_list = ["Excitation_1", "Excitation_2"]
         assert self.aedtapp.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
 
+        filepath = os.path.join(local_path, "example_models", "frequency_dependent_source1.fds")
+        ports_list = ["Excitation_1", "Excitation_2"]
+        assert not self.aedtapp.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
+
+        filepath = os.path.join(local_path, "example_models", "frequency_dependent_source.fds")
+        ports_list = ["Excitation_1", "Excitation_3"]
+        assert not self.aedtapp.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
+
         excitation_settings = ["1 V", "0deg", "0V", "25V", "1V", "2.5GHz", "0s", "0", "0deg", "0Hz"]
         ports_list = ["Excitation_1"]
         assert self.aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list, excitation_settings)

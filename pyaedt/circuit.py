@@ -1452,6 +1452,14 @@ class Circuit(FieldAnalysisCircuit, object):
 
         >>> oDesign.UpdateSources
         """
+        if not os.path.exists(filepath) or os.path.splitext(filepath)[1] != ".fds":
+            self.logger.error("Introduced file is not correct. Check path and format.")
+            return False
+
+        if not all(elem in self.modeler.schematic.nets for elem in ports):
+            self.logger.error("Defined ports do not exist")
+            return False
+
         id = self.modeler.schematic.create_unique_id()
 
         arg1 = [
