@@ -1445,7 +1445,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Create a box and assign insulating boundary to it.
 
-        >>> insulated_box = maxwell3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="Plate")
+        >>> insulated_box = maxwell3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="InsulatedBox")
         >>> insulating_assignment = maxwell3d_app.assign_insulating(insulated_box, "InsulatingExample")
         >>> type(insulating_assignment)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
