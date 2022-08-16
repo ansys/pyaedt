@@ -1,6 +1,6 @@
 """
 Twin Builder: static ROM creation and simulation (2023 R1 beta)
-----------------------------------------------------------------
+---------------------------------------------------------------
 This example shows how you can use PyAEDT to create a static ROM in Twin Builder
 and run a Twin Builder time-domain simulation.
 
