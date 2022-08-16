@@ -53,7 +53,7 @@ source_data_folder = examples.download_twin_builder_data(source_snapshot_data_zi
 source_data_folder = examples.download_twin_builder_data(source_build_conf_file, True, temp_folder)
 source_data_folder = examples.download_twin_builder_data(source_props_conf_file, True, temp_folder)
 
-# Toggle these for local testing 
+# Uncomment the following line for local testing 
 # source_data_folder = "D:\\Scratch\\TempStatic"
 
 data_folder = os.path.join(source_data_folder, "Ex04")
@@ -72,22 +72,22 @@ shutil.copyfile(os.path.join(source_data_folder ,source_props_conf_file), os.pat
 tb = TwinBuilder(projectname=generate_unique_project_name(),specified_version=desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
 
 # Get the static ROM builder object
-romMgr = tb._odesign.GetROMManager()
-sromBuilder = romMgr.GetStaticROMBuilder()
+rom_manager = tb._odesign.GetROMManager()
+static_rom_builder = rom_manager.GetStaticROMBuilder()
 
 # Build the static ROM with specified configuration file
 confpath = os.path.join(data_folder,source_build_conf_file)
-sromBuilder.Build(confpath.replace('\\', '/'))
+static_rom_builder.Build(confpath.replace('\\', '/'))
 
 # Test if ROM was created sucessfully
-srompath = os.path.join(data_folder,'StaticRom.rom')
-if os.path.exists(srompath):
-	tb._odesign.AddMessage("Info","path exists: {}".format(srompath.replace('\\', '/')), "")
+static_rom_path = os.path.join(data_folder,'StaticRom.rom')
+if os.path.exists(static_rom_path):
+	tb._odesign.AddMessage("Info","path exists: {}".format(static_rom_path.replace('\\', '/')), "")
 else:
-	tb._odesign.AddMessage("Info","path does not exist: {}".format(srompath), "")
+	tb._odesign.AddMessage("Info","path does not exist: {}".format(static_rom_path), "")
 
 #Create the ROM component definition in Twin Builder
-romMgr.CreateROMComponent(srompath.replace('\\', '/'),'staticrom') 
+rom_manager.CreateROMComponent(static_rom_path.replace('\\', '/'),'staticrom') 
 
 
 ###############################################################################
@@ -96,15 +96,12 @@ romMgr.CreateROMComponent(srompath.replace('\\', '/'),'staticrom')
 # Place components to create a schematic.
  
 # Define the grid distance for ease in calculations
-
 G = 0.00254
 
 # Place a dynamic ROM component
-
 rom1 = tb.modeler.schematic.create_component("ROM1","","staticrom", [40 * G, 25 * G])
 
 # Place two excitation sources
-
 source1 = tb.modeler.schematic.create_periodic_waveform_source(None, "SINE", 2.5, 0.01, 0, 7.5, 0, [20 * G, 29 * G])
 source2 = tb.modeler.schematic.create_periodic_waveform_source(None, "SINE", 50, 0.02, 0, 450, 0, [20 * G, 25 * G])
 
@@ -146,21 +143,21 @@ tb.analyze_setup("TR")
 # the values for the voltage on the pulse voltage source and the values for the
 # output of the dynamic ROM.
 
-E_Value = "ROM1.outfield_mode_1"
-x = tb.post.get_solution_data(E_Value, "TR", "Time")
-plt.plot(x.intrinsics["Time"], x.data_real(E_Value))
+e_value = "ROM1.outfield_mode_1"
+x = tb.post.get_solution_data(e_value, "TR", "Time")
+plt.plot(x.intrinsics["Time"], x.data_real(e_value))
 
-E_Value = "ROM1.outfield_mode_2"
-x = tb.post.get_solution_data(E_Value, "TR", "Time")
-plt.plot(x.intrinsics["Time"], x.data_real(E_Value))
+e_value = "ROM1.outfield_mode_2"
+x = tb.post.get_solution_data(e_value, "TR", "Time")
+plt.plot(x.intrinsics["Time"], x.data_real(e_value))
 
-E_Value = "SINE1.VAL"
-x = tb.post.get_solution_data(E_Value, "TR", "Time")
-plt.plot(x.intrinsics["Time"], x.data_real(E_Value))
+e_value = "SINE1.VAL"
+x = tb.post.get_solution_data(e_value, "TR", "Time")
+plt.plot(x.intrinsics["Time"], x.data_real(e_value))
 
-E_Value = "SINE2.VAL"
-x = tb.post.get_solution_data(E_Value, "TR", "Time")
-plt.plot(x.intrinsics["Time"], x.data_real(E_Value))
+e_value = "SINE2.VAL"
+x = tb.post.get_solution_data(e_value, "TR", "Time")
+plt.plot(x.intrinsics["Time"], x.data_real(e_value))
 
 plt.grid()
 plt.xlabel("Time")
