@@ -63,7 +63,7 @@ jobs:
           python doc/print_errors.py
 
       - name: Upload Documentation
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Documentation
           path: doc/_build/html
