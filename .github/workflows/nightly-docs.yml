@@ -44,7 +44,7 @@ jobs:
           echo "dev.aedtdocs.pyansys.com" >> doc/_build/html/CNAME
 
       - name: Upload Documentation
-        uses: actions/upload-artifact@v2.2.3
+        uses: actions/upload-artifact@v3
         with:
           name: Documentation
           path: doc/_build/html
