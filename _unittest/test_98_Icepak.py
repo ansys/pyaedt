@@ -242,29 +242,29 @@ class TestClass(BasisTest, object):
     def test_17_analyze(self):
         self.aedtapp.analyze_nominal()
 
-    def test_17_post_processing(self):
+    def test_18_post_processing(self):
         rep = self.aedtapp.post.reports_by_category.monitor(["monitor_surf.Temperature", "monitor_point.Temperature"])
         assert rep.create()
         assert len(self.aedtapp.post.plots) == 1
 
-    def test_17_get_output_variable(self):
+    def test_19_get_output_variable(self):
         value = self.aedtapp.get_output_variable("OutputVariable1")
         tol = 1e-9
         assert abs(value - 0.5235987755982988) < tol
 
-    def test_18_export_summary(self):
+    def test_20_export_summary(self):
         assert self.aedtapp.export_summary()
 
-    def test_19_eval_htc(self):
+    def test_21_eval_htc(self):
         box = [i.id for i in self.aedtapp.modeler["box"].faces]
         assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
 
-    def test_20_eval_tempc(self):
+    def test_22_eval_tempc(self):
         assert os.path.exists(
             self.aedtapp.eval_volume_quantity_from_field_summary(["box"], "Temperature", savedir=scratch_path)
         )
 
-    def test_21_ExportFLDFil(self):
+    def test_23_ExportFLDFil(self):
         object_list = "box"
         fld_file = os.path.join(scratch_path, "test_fld.fld")
         self.aedtapp.post.export_field_file(
@@ -272,7 +272,7 @@ class TestClass(BasisTest, object):
         )
         assert os.path.exists(fld_file)
 
-    def test_22_create_source_blocks_from_list(self):
+    def test_23_create_source_blocks_from_list(self):
         self.aedtapp.modeler.create_box([1, 1, 1], [3, 3, 3], "box3", "copper")
         result = self.aedtapp.create_source_blocks_from_list([["box2", 2], ["box3", 3]])
         assert result[1].props["Total Power"] == "2W"
