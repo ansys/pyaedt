@@ -634,7 +634,18 @@ class BoundaryObject(BoundaryCommon, object):
 
 
 class MaxwellParameters(BoundaryCommon, object):
-    """Manages parameter data and execution.
+    """Manages parameters data and execution.
+
+    Parameters
+    ----------
+    app : :class:`pyaedt.maxwell.Maxwell3d`, :class:`pyaedt.maxwell.Maxwell2d`
+        Either ``Maxwell3d`` or ``Maxwell2d`` application.
+    name : str
+        Name of the boundary.
+    props : dict
+        Properties of the boundary.
+    boundarytype : str
+        Type of the boundary.
 
     Examples
     --------
