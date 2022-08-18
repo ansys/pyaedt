@@ -62,10 +62,10 @@ as much as possible across the API.
 
 Documentation and issues
 ------------------------
-In addition to installation, usage, and contribution information, the PyAEDT
-documentation provides `API documentation <https://aedtdocs.pyansys.com/API/>`_,
-`examples <https://aedtdocs.pyansys.com/examples/index.html>`_, and `code guidelines 
-<https://aedtdocs.pyansys.com/Resources/Code_Guidelines.html>`_.
+In addition to installation and usage information, the PyAEDT
+documentation provides `API reference <https://aedtdocs.pyansys.com/API/>`_,
+`Examples <https://aedtdocs.pyansys.com/examples/index.html>`_, and `Contribute 
+<https://aedtdocs.pyansys.com/Resources/Contributing.html>`_ sections.
 
 On the `PyAEDT Issues <https://github.com/pyansys/PyAEDT/issues>`_ page, you can
 create issues to submit questions, report bugs, and request new features. To reach
@@ -79,7 +79,7 @@ PyAEDT supports AEDT versions 2021 R1 or newer.
 Student version
 ---------------
 
-PyAEDT supports AEDT Student version 2021 R2. For more information, see
+PyAEDT supports AEDT Student version 2021 R2 and later. For more information, see
 `Student Version page <https://www.ansys.com/academic/students/ansys-e
 lectronics-desktop-student>`_.
 

@@ -1,16 +1,15 @@
 Installation
 ============
-
-PyAEDT consolidates and extends all existing capital around scripting for Ansys Electronics Desktop (AEDT),
+PyAEDT consolidates and extends all existing capital around scripting for AEDT,
 allowing re-use of existing code, sharing of best practices, and collaboration.
 
-This PyAnsys library has been tested on HFSS, Icepak, and Maxwell 3D. It also provides basic support for
-EDB and Circuit (Nexxim).
+This PyAnsys library has been tested on HFSS, Icepak, and Maxwell 3D. It also provides
+basic support for EDB and Circuit (Nexxim).
 
 Requirements
 ~~~~~~~~~~~~
-In addition to the runtime dependencies listed in the installation information, PyAEDT requires ANSYS Electronics Desktop
-2021 R1 or later.
+In addition to the runtime dependencies listed in the installation information, PyAEDT
+requires AEDT 2021 R1 or later.
 
 .. todo::
    Add how to install from the AEDT installer like as in https://mapdldocs.pyansys.com/getting_started/running_mapdl.html
@@ -40,7 +39,7 @@ You can install PyAEDT from a wheelhouse in a release's assets. Wheelhouses for 
 are available in the releases for PyAEDT v0.4.70 and later.
 
 Using a wheelhouse can be helpful if you work for a company that restricts access to external networks.
-You can install PyAEDT and all its dependencies from one single entry point that can be shared internally,
+You can install PyAEDT and all of its dependencies from one single entry point that can be shared internally,
 which eases the security review of the PyAEDT package content.
 
 For example, here is a command for installing the PyAEDT package and all its dependencies from a wheelhouse:

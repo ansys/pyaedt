@@ -1,0 +1,59 @@
+$begin '$base_index$'
+  $begin 'properties'
+    all_levels=000000000000
+    time(year=000000002022, month=000000000008, day=000000000018, hour=000000000010, min=000000000013, sec=000000000045)
+    version=000000000000
+  $end 'properties'
+  $begin '$base_index$'
+    $index$(pos=000000001304, lin=000000000040, lvl=000000000000)
+  $end '$base_index$'
+$end '$base_index$'
+$begin 'SolutionBlock1'
+	ProductName=''
+	CircuitName='IcepakDesign1'
+	VersionID=250
+	PostProcess=false
+	LossLess=true
+	NextUniqueID=22
+	MoveBackwards=false
+	$begin 'LinkedDataList'
+	$end 'LinkedDataList'
+	$begin 'Meshes'
+		NextUniqueID=2
+		MoveBackwards=false
+	$end 'Meshes'
+$end 'SolutionBlock1'
+$begin 'BlockMapName'
+	FileHeader='SolutionBlock1'
+	'SolutionKey(SimSetup=9, Instance=\'SetupDefinition\', Solution=-1, VersionID=0)'='SolutionBlock3'
+	'SolutionKey(SimSetup=9, Instance=\'SolutionDefinition\', Solution=10, VersionID=11)'='SolutionBlock2'
+$end 'BlockMapName'
+$begin 'SolutionBlock2'
+	SolutionName='SteadyState'
+	SolutionID=10
+	V=11
+	$begin 'States'
+	$end 'States'
+	$begin 'Definition'
+		SamplingInterpolation=false
+		Frequencies()
+		SolutionType=1
+		CenterFreq=0
+	$end 'Definition'
+$end 'SolutionBlock2'
+$begin 'SolutionBlock3'
+	SimSetupID=9
+	SimSetupName='MySetupAuto'
+	VersionID=0
+	SolveSetupID=2
+$end 'SolutionBlock3'
+$begin '$index$'
+	$begin '$index$'
+		SolutionBlock2(pos=942, lin=21, lvl=0)
+		SolutionBlock3(pos=1187, lin=34, lvl=0)
+		BlockMapName(pos=667, lin=16, lvl=0)
+		SolutionBlock1(pos=370, lin=1, lvl=0)
+		$base_index$(pos=0, lin=1, lvl=0)
+		$index$(pos=1304, lin=40, lvl=0)
+	$end '$index$'
+$end '$index$'
