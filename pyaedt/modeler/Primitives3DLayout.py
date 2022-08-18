@@ -1067,18 +1067,20 @@ class Primitives3DLayout(object):
         args = [
             "NAME:Contents",
             "textGeometry:=",
-            ["Name:=", name,
-             "LayerName:=", "Postprocessing",
-             "x:=", position[0],
-             "y:=", position[1],
-             "ang:=", angle,
-             "isPlot:=", False,
-             "font:=", "Arial",
-             "size:=", font_size,
-             "weight:=", 3,
-             "just:=", 4,
-             "mirror:=", False,
-             "text:=", text]
+            [
+                "Name:=", name,
+                 "LayerName:=", "Postprocessing",
+                 "x:=", position[0],
+                 "y:=", position[1],
+                 "ang:=", angle,
+                 "isPlot:=", False,
+                 "font:=", "Arial",
+                 "size:=", font_size,
+                 "weight:=", 3,
+                 "just:=", 4,
+                 "mirror:=", False,
+                 "text:=", text
+            ]
         ]
         return self.modeler.oeditor.CreateText(args)
     
