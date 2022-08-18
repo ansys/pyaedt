@@ -798,7 +798,7 @@ class Primitives3DLayout(object):
         return name
 
     @pyaedt_function_handler()
-    def create_rectangle(self, layername, origin, dimensions, corner_radius=0, angle=0, name=None, netname=None):
+    def create_rectangle(self, layername, origin, dimensions, corner_radius=0, angle=0, name=None, net_name=None):
         """Create a rectangle on a layer.
 
         Parameters
@@ -850,7 +850,18 @@ class Primitives3DLayout(object):
         vArg2.append("ang="), vArg2.append(self.arg_with_dim(angle))
         vArg1.append(vArg2)
         self.oeditor.CreateRectangle(vArg1)
-        self._rectangles[name] = Rect3dLayout(self, name, False)
+        primitive = Rect3dLayout(self, name, False)
+        self._rectangles[name] = primitive
+
+        if net_name:
+            primitive.change_property(property_val=[
+
+                    "NAME:Net",
+                 "Value:=",
+                 net_name
+
+            ])
+
         return name
 
     @pyaedt_function_handler()
