@@ -1045,7 +1045,7 @@ class Primitives3DLayout(object):
         return comp  #
 
     def create_text(self, text, position, angle=0, font_size=12):
-        """Creates a text primitive object.
+        """Create a text primitive object.
 
         Parameters
         ----------
