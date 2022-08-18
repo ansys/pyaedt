@@ -736,7 +736,7 @@ class Primitives3DLayout(object):
         return name
 
     @pyaedt_function_handler()
-    def create_circle(self, layername, x, y, radius, name=None, netname=None):
+    def create_circle(self, layername, x, y, radius, name=None, net_name=None):
         """Create a circle on a layer.
 
         Parameters
@@ -783,7 +783,18 @@ class Primitives3DLayout(object):
         vArg2.append("r:="), vArg2.append(self.arg_with_dim(radius))
         vArg1.append(vArg2)
         self.oeditor.CreateCircle(vArg1)
-        self._circles[name] = Circle3dLayout(self, name, False)
+        primitive = Circle3dLayout(self, name, False)
+        self._circles[name] = primitive
+
+        if net_name:
+            primitive.change_property(property_val=[
+
+                    "NAME:Net",
+                 "Value:=",
+                 net_name
+
+            ])
+
         return name
 
     @pyaedt_function_handler()
