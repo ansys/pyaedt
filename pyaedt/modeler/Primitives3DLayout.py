@@ -1057,6 +1057,7 @@ class Primitives3DLayout(object):
             Angle of the text. The default value is ``0``.
         font_size : int, optional
             Font size. The default value is ``12``.
+        
         Returns
         -------
         str
