@@ -787,13 +787,7 @@ class Primitives3DLayout(object):
         self._circles[name] = primitive
 
         if net_name:
-            primitive.change_property(property_val=[
-
-                    "NAME:Net",
-                 "Value:=",
-                 net_name
-
-            ])
+            primitive.change_property(property_val=["NAME:Net", "Value:=", net_name])
 
         return name
 
@@ -854,13 +848,7 @@ class Primitives3DLayout(object):
         self._rectangles[name] = primitive
 
         if net_name:
-            primitive.change_property(property_val=[
-
-                    "NAME:Net",
-                 "Value:=",
-                 net_name
-
-            ])
+            primitive.change_property(property_val=["NAME:Net", "Value:=", net_name])
 
         return name
 
@@ -938,13 +926,7 @@ class Primitives3DLayout(object):
         self._lines[name] = primitive
 
         if net_name:
-            primitive.change_property(property_val=[
-
-                    "NAME:Net",
-                 "Value:=",
-                 net_name
-
-            ])
+            primitive.change_property(property_val=["NAME:Net", "Value:=", net_name])
 
         return name
 
