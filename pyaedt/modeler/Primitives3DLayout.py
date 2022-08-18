@@ -800,9 +800,9 @@ class Primitives3DLayout(object):
         layername : str
             Name of the layer.
         origin : list
-            Origin of the coordinate system in a list of ``[x, y, z]`` coordinates.
+            Origin of the coordinate system in a list of ``[x, y]`` coordinates.
         dimensions : list
-            Dimensions for the box in a list of ``[x, y, z]`` coordinates.
+            Dimensions for the box in a list of ``[x, y]`` coordinates.
         corner_radius : float, optional
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
@@ -861,7 +861,7 @@ class Primitives3DLayout(object):
         layername : str
             Name of the layer to create the line on.
         center_line_list : list
-            List of centerline coordinates in the form of ``[x, y, z]``.
+            List of centerline coordinates in the form of ``[x, y]``.
         lw : float, optional
             Line width. The default is ``1``.
         start_style :
