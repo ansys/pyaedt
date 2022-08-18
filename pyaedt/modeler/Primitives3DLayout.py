@@ -1050,7 +1050,7 @@ class Primitives3DLayout(object):
         Parameters
         ----------
         text : str
-            Text string.
+            Name for the text primitive object.
         position : list
             Position of the text.
         angle : float, optional
