@@ -752,7 +752,7 @@ class Primitives3DLayout(object):
         name : str, optional
             Name of the circle. The default is ``None``, in which case the
             default name is assigned.
-        netname : str, optional
+        net_name : str, optional
             Name of the net. The default is ``None``, in which case the
             default name is assigned.
 
@@ -815,7 +815,7 @@ class Primitives3DLayout(object):
         name : str, optional
             Name of the rectangle. The default is ``None``, in which case the
             default name is assigned.
-        netname : str, optional
+        net_name : str, optional
             Name of the net. The default is ``None``, in which case the
             default name is assigned.
 
@@ -865,7 +865,7 @@ class Primitives3DLayout(object):
         return name
 
     @pyaedt_function_handler()
-    def create_line(self, layername, center_line_list, lw=1, start_style=0, end_style=0, name=None, netname=None):
+    def create_line(self, layername, center_line_list, lw=1, start_style=0, end_style=0, name=None, net_name=None):
         """Create a line based on a list of points.
 
         Parameters
@@ -890,7 +890,7 @@ class Primitives3DLayout(object):
         name : str, optional
             Name  of the line. The default is ``None``, in which case the
             default name is assigned.
-        netname : str, optional
+        net_name : str, optional
             Name of the net. The default is ``None``, in which case the
             default name is assigned.
 
@@ -934,7 +934,18 @@ class Primitives3DLayout(object):
             arg2.append(a[1])
         arg.append(arg2)
         self.oeditor.CreateLine(arg)
-        self._lines[name] = Line3dLayout(self, name, False)
+        primitive = Line3dLayout(self, name, False)
+        self._lines[name] = primitive
+
+        if net_name:
+            primitive.change_property(property_val=[
+
+                    "NAME:Net",
+                 "Value:=",
+                 net_name
+
+            ])
+
         return name
 
     @pyaedt_function_handler()
