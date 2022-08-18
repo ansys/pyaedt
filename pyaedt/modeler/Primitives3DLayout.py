@@ -1,5 +1,6 @@
 import os
 import sys
+import warnings
 
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -766,6 +767,10 @@ class Primitives3DLayout(object):
 
         >>> oEditor.CreateCircle
         """
+        warnings.warn(
+            "`netname` is deprecated. Use `net_name` instead.",
+            DeprecationWarning,
+        )
         if not name:
             name = _uname()
         else:
@@ -823,7 +828,10 @@ class Primitives3DLayout(object):
 
         >>> oEditor.CreateRectangle
         """
-
+        warnings.warn(
+            "`netname` is deprecated. Use `net_name` instead.",
+            DeprecationWarning,
+        )
         if not name:
             name = _uname()
         else:
@@ -892,6 +900,10 @@ class Primitives3DLayout(object):
 
         >>> oEditor.CreateLine
         """
+        warnings.warn(
+            "`netname` is deprecated. Use `net_name` instead.",
+            DeprecationWarning,
+        )
         if not name:
             name = _uname()
         else:
