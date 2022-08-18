@@ -98,6 +98,17 @@ class BoundaryCommon(PropsManager):
 class NativeComponentObject(BoundaryCommon, object):
     """Manages Native Component data and execution.
 
+    Parameters
+    ----------
+    app : object
+        An AEDT application from ``pyaedt.application``.
+    component_type : str
+        Type of the component.
+    component_name : str
+        Name of the component.
+    props : dict
+        Properties of the boundary.
+
     Examples
     --------
     in this example the par_beam returned object is a ``pyaedt.modules.Boundary.NativeComponentObject``
@@ -272,6 +283,17 @@ class NativeComponentObject(BoundaryCommon, object):
 
 class BoundaryObject(BoundaryCommon, object):
     """Manages boundary data and execution.
+
+    Parameters
+    ----------
+    app : object
+        An AEDT application from ``pyaedt.application``.
+    name : str
+        Name of the boundary.
+    props : dict
+        Properties of the boundary.
+    boundarytype : str
+        Type of the boundary.
 
     Examples
     --------
