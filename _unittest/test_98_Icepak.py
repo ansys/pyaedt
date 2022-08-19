@@ -252,19 +252,15 @@ class TestClass(BasisTest, object):
         tol = 1e-9
         assert abs(value - 0.5235987755982988) < tol
 
-    def test_20_export_summary(self):
         assert self.aedtapp.export_summary()
 
-    def test_21_eval_htc(self):
         box = [i.id for i in self.aedtapp.modeler["box"].faces]
         assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
 
-    def test_22_eval_tempc(self):
         assert os.path.exists(
             self.aedtapp.eval_volume_quantity_from_field_summary(["box"], "Temperature", savedir=scratch_path)
         )
 
-    def test_23_ExportFLDFil(self):
         object_list = "box"
         fld_file = os.path.join(scratch_path, "test_fld.fld")
         self.aedtapp.post.export_field_file(
