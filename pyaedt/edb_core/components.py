@@ -1300,10 +1300,10 @@ class Components(object):
             Diameter of the solder ball.
         sball_height : str, float, optional
             Height of the solder ball.
-        shape: str, optional
+        shape : str, optional
             Shape of solder ball. Options are ``"Cylinder"``,
             ``"Spheroid"``. The default is ``"Cylinder"``.
-        sball_mid_diam: str, float, optional
+        sball_mid_diam : str, float, optional
             Mid diameter of the solder ball.
         Returns
         -------
