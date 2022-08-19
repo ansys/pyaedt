@@ -167,3 +167,4 @@ class TestClass(BasisTest, object):
         assert not q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), c_unit="H")
         assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), g_unit="fSie")
         assert not q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), g_unit="A")
+        self.aedtapp.close_project(q2d.project_name, False)
