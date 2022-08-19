@@ -1296,19 +1296,15 @@ class Components(object):
         ----------
         component_name : str or EDB component
             Name of the discrete component.
-
-        shape: str, optional
-            Shape of solderball. Options are ``"Cylinder"``,
-            ``"Spheroid``. The default is ``"Cylinder"``.
-
         sball_diam  : str, float, optional
             Diameter of the solder ball.
-
         sball_height : str, float, optional
             Height of the solder ball.
-
+        shape: str, optional
+            Shape of solder ball. Options are ``"Cylinder"``,
+            ``"Spheroid"``. The default is ``"Cylinder"``.
         sball_mid_diam: str, float, optional
-            Mid diamter of the solder ball.
+            Mid diameter of the solder ball.
         Returns
         -------
         bool
