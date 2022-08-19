@@ -187,7 +187,7 @@ StackupSimple(
 # Create variables
 # ~~~~~~~~~~~~~~~~
 # Create all variables. If a variable has a ``$`` prefix, it is a project variable.
-# Otherwise, is is a design variable.
+# Otherwise, is a design variable.
 
 giva_angle_rad = gvia_angle / 180 * np.pi
 
@@ -272,7 +272,7 @@ edb.core_primitives.create_path(
 ##################################################################################
 # Generate ground layers
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Geneerate and place ground layers.
+# Generate and place ground layers.
 
 ground_layers = ["L" + str(i + 1) for i in np.arange(layout_count)]
 ground_layers.remove(trace_in_layer)

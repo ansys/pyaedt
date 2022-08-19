@@ -4,8 +4,8 @@ Multiphysics: HFSS-Icepack multiphysics analysis
 This example shows how you can create a project from scratch in HFSS and Icepak (linked to HFSS).
 This includes creating a setup, solving it, and creating postprocessing outputs.
 
-To provide the advanced postprocessing features needed for this example, Matplotlib, NumPy, and
-PyVista must be installed on the machine.
+To provide the advanced postprocessing features needed for this example, the ``numpy``,
+``matplotlib``, and ``pyvista`` packages must be installed on the machine.
 
 This examples runs only on Windows using CPython.
 """
@@ -52,7 +52,7 @@ aedtapp = Hfss(projectname=project_file, specified_version=desktopVersion, non_g
 ###############################################################################
 # Initialize variable settings
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Initialize variable settings. You can initialzie a variable simply by creating
+# Initialize variable settings. You can initialize a variable simply by creating
 # it as a list object. If you enter the prefix ``$``, the variable is created for
 # the project. Otherwise, the variable is created for the design.
 
@@ -308,7 +308,7 @@ aedtapp.save_project()
 ################################################################################
 # Generate plots outside of AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Generate plots outside of AEDT using Matplotlib and Numpy.
+# Generate plots outside of AEDT using Matplotlib and NumPy.
 
 trace_names = aedtapp.get_traces_for_plot(category="S")
 cxt = ["Domain:=", "Sweep"]

@@ -170,8 +170,14 @@ h3d.create_linear_count_sweep(
 
 # h3d.analyze_nominal()
 
-# Release AEDT
-# ~~~~~~~~~~~~
-# Release AEDT.
+# Save AEDT
+h3d.save_project()
 
+# Release AEDT.
 h3d.release_desktop()
+
+aedt_path = aedb_path.replace(".aedb", ".aedt")
+print("****************************************",
+      "***Your AEDT project is save to " + aedt_path,
+      "****************************************",
+      sep="\n")

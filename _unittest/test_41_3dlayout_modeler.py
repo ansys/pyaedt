@@ -548,3 +548,6 @@ class TestClass(BasisTest, object):
             air_vertical_positive_padding="10mm",
             air_vertical_negative_padding="10mm",
         )
+
+    def test_95_create_text(self):
+        assert self.aedtapp.modeler.create_text("test", [0, 0])

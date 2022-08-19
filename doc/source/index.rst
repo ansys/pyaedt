@@ -14,9 +14,7 @@ PyAEDT documentation  |version|
    Resources/ClientServer
    API/index
    examples/index
-   Resources/Code_Guidelines
    Resources/Contributing
-
 
 
 Indices and tables

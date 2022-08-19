@@ -554,6 +554,44 @@ def download_multiparts(destination=None):
     return os.path.join(dest_folder, "library")
 
 
+def download_twin_builder_data(file_name, force_download=False, destination=None):
+    """Download a Twin Builder example data file.
+
+    Examples files are downloaded to a persistent cache to avoid
+    downloading the same file twice.
+
+    Parameters
+    ----------
+    file_name : str
+        Path of the file in the Twin Builder folder.
+    force_download : bool, optional
+        Force to delete file and download file again. Default value is ``False``.
+    destination : str, optional
+        Path to download files to. The default is the user's temporary folder.
+
+    Returns
+    -------
+    str
+        Path to the folder containing all Twin Builder example data files.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file
+    >>> from pyaedt import examples
+    >>> path = examples.download_twin_builder_data(file_name="Example1.zip",force_download=True)
+    >>> path
+    'C:/Users/user/AppData/local/temp/twin_builder'
+    """
+    if not destination:
+        destination = EXAMPLES_PATH
+    if force_download:
+        local_path = os.path.join(destination, os.path.join("twin_builder", file_name))
+        if os.path.exists(local_path):
+            os.unlink(local_path)
+    _download_file("twin_builder", file_name, destination)
+    return os.path.join(destination, "twin_builder")
+
+
 def unzip(source_filename, dest_dir):
     with zipfile.ZipFile(source_filename) as zf:
         zf.extractall(dest_dir)

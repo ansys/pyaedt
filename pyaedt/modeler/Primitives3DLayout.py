@@ -1043,3 +1043,55 @@ class Primitives3DLayout(object):
         comp = ComponentsSubCircuit3DLayout(self, comp_name.split(";")[-1])
         self.components_3d[comp_name.split(";")[-1]] = comp
         return comp  #
+
+    def create_text(self, text, position, angle=0, font_size=12):
+        """Create a text primitive object.
+
+        Parameters
+        ----------
+        text : str
+            Name for the text primitive object.
+        position : list
+            Position of the text.
+        angle : float, optional
+            Angle of the text. The default value is ``0``.
+        font_size : int, optional
+            Font size. The default value is ``12``.
+
+        Returns
+        -------
+        str
+            Name of the text primitive.
+        """
+        name = _uname("text_")
+        args = [
+            "NAME:Contents",
+            "textGeometry:=",
+            [
+                "Name:=",
+                name,
+                "LayerName:=",
+                "Postprocessing",
+                "x:=",
+                position[0],
+                "y:=",
+                position[1],
+                "ang:=",
+                angle,
+                "isPlot:=",
+                False,
+                "font:=",
+                "Arial",
+                "size:=",
+                font_size,
+                "weight:=",
+                3,
+                "just:=",
+                4,
+                "mirror:=",
+                False,
+                "text:=",
+                text,
+            ],
+        ]
+        return self.modeler.oeditor.CreateText(args)

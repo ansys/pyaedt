@@ -118,7 +118,7 @@ for link in aedtapp.couplings.coupling_names:
 ###############################################################################
 # Save project and close AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# After the simulaton completes, you can close AEDT or release it using the
+# After the simulation completes, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.
 
