@@ -2,6 +2,7 @@
 from __future__ import absolute_import  # noreorder
 
 import os
+import re
 import warnings
 from collections import OrderedDict
 
@@ -13,9 +14,9 @@ from pyaedt.generic.constants import MATRIXOPERATIONSQ2D
 from pyaedt.generic.constants import MATRIXOPERATIONSQ3D
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.GeometryOperators import GeometryOperators as go
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import Matrix
-from pyaedt.modules.Boundary import MaxwellParameters
 
 if not is_ironpython:
     try:
@@ -375,18 +376,21 @@ class QExtractor(FieldAnalysis3D, object):
         problem_type=None,
         variations=None,
         setup_name=None,
-        solution_frequency=None,
+        sweep=None,
         reduce_matrix=None,
         r_unit=None,
         l_unit=None,
         c_unit=None,
         g_unit=None,
         freq=None,
+        freq_unit=None,
         matrix_type=None,
         export_AC_DC_res=None,
         precision=None,
         field_width=None,
         use_sci_notation=None,
+        length_settings=None,
+        length=None,
     ):
         """Export Matrix Data.
 
@@ -405,7 +409,7 @@ class QExtractor(FieldAnalysis3D, object):
         setup_name : str, optional
             Setup Name.
             Default value is first analysis setup name.
-        solution_frequency : str, optional
+        sweep : str, optional
             Solution frequency.
             Default value is default adaptive.
         reduce_matrix : str, optional
@@ -426,6 +430,9 @@ class QExtractor(FieldAnalysis3D, object):
         freq : str, optional
             Selected frequency.
             Default Value is 0Hz.
+        freq_unit : str, optional
+            Frequency unit.
+            Default value is the one set in Default unit.
         matrix_type : str, optional
             Matrix Type.
             Possible Values are "Maxwell", "Spice" and "Couple".
@@ -443,66 +450,110 @@ class QExtractor(FieldAnalysis3D, object):
             Use sci notation.
             True to use scientific notation. False to use display format.
             Default value is True.
+        length_settings : str, optional
+            Length settings if 2D design.
+            If None default value is Distributed.
+        length : str, optional
+            Length.
+            If None default value is 1meter.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if file_name is None:
-            self.logger.error("File path to export matrix data must be provided.")
+        if os.path.splitext(file_name)[1] not in [".m", ".lvl", ".csv", ".txt"]:
+            self.logger.error("Provided extension is not valid. Available extensions are" " *.m, *.lvl, *.csv, *.txt.")
             return False
-        else:
-            if os.path.exists(file_name):
-                if os.path.splitext(file_name)[1] not in [".m", ".lvl", ".csv", ".txt"]:
-                    self.logger.error(
-                        "Provided extension is not valid. Available extensions are" " *.m, *.lvl, *.csv, *.txt."
-                    )
-                    return False
-            else:
-                self.logger.error("File path doesn't exist. Provide a valid path.")
-                return False
 
-        if problem_type is None:
-            problem_type = "C"
-        else:
-            problem_type_array = problem_type.split(", ")
-            # TEST IT!
-            if [x for x in problem_type_array if x in ["C", "AC RL", "DC RL"]]:
-                if "C" in problem_type_array:
-                    if matrix_type is None:
-                        matrix_type = "Maxwell, Spice, Couple"
+        if self.dim == "2D":
+            if problem_type is None:
+                problem_type = "CG"
+                if matrix_type is None:
+                    matrix_type = "Maxwell, Spice, Couple"
                 else:
-                    matrix_type = "Maxwell, Couple"
+                    matrix_type_array = matrix_type.split(", ")
+                    if not [x for x in matrix_type_array if x in ["Maxwell", "Spice", "Couple"]]:
+                        self.logger.error("Invalid input matrix type. Possible values are Maxwell, Spice, Couple")
+                        return False
             else:
-                self.logger.error("Invalid problem type. Available values are C, AC RL, DC RL")
-                return False
+                problem_type_array = problem_type.split(", ")
+                if [x for x in problem_type_array if x in ["CG", "RL"]]:
+                    if "CG" in problem_type_array:
+                        if matrix_type is None:
+                            matrix_type = "Maxwell, Spice, Couple"
+                    else:
+                        if matrix_type is None:
+                            matrix_type = "Maxwell, Couple"
+                        else:
+                            matrix_type_array = matrix_type.split(", ")
+                            if [x for x in matrix_type_array if x == "Spice"]:
+                                self.logger.error("Spice can't be a matrix type if problem type is RL.")
+                                return False
+                else:
+                    self.logger.error("Invalid problem type. Available values are CG and RL.")
+                    return False
+
+        else:
+            if problem_type is None:
+                problem_type = "C"
+                if matrix_type is None:
+                    matrix_type = "Maxwell, Spice, Couple"
+                else:
+                    matrix_type_array = matrix_type.split(", ")
+                    if not [x for x in matrix_type_array if x in ["Maxwell", "Spice", "Couple"]]:
+                        self.logger.error("Invalid input matrix type. Possible values are Maxwell, Spice, Couple")
+                        return False
+            else:
+                problem_type_array = problem_type.split(", ")
+                if [x for x in problem_type_array if x in ["C", "AC RL", "DC RL"]]:
+                    if "C" in problem_type_array:
+                        if matrix_type is None:
+                            matrix_type = "Maxwell, Spice, Couple"
+                    else:
+                        if matrix_type is None:
+                            matrix_type = "Maxwell, Couple"
+                        else:
+                            matrix_type_array = matrix_type.split(", ")
+                            if [x for x in matrix_type_array if x == "Spice"]:
+                                self.logger.error("Spice can't be a matrix type if problem types are AC RL or DC RL")
+                                return False
+                else:
+                    self.logger.error("Invalid problem type. Available values are C, AC RL, DC RL")
+                    return False
 
         if variations is None:
-            # CHECK
             if not self.available_variations.nominal_w_values_dict:
                 variations = ""
             else:
-                variations = self.available_variations.nominal_w_values_dict
-        # VALIDATE THE ENTERED VARIATIONS WITH NOMINAL_W_VALUES_DICT
+                variations_list = []
+                for x in range(0, len(self.available_variations.nominal_w_values_dict)):
+                    variation = "{}='{}'".format(
+                        list(self.available_variations.nominal_w_values_dict.keys())[x],
+                        list(self.available_variations.nominal_w_values_dict.values())[x],
+                    )
+                    variations_list.append(variation)
+                variations = ",".join(variations_list)
 
-        # CHECK IF ANALYSIS SETUP IS BUILT CORRECTLY
         if setup_name is None:
             setup_name = self.analysis_setup
-        if solution_frequency is None:
-            solution_frequency = self.design_solutions.default_adaptive
-        analysis_setup = setup_name + " : " + solution_frequency
+        elif setup_name != self.analysis_setup:
+            self.logger.error("Setup name is not valid, please provide a valid analysis setup name.")
+            return False
+        if sweep is None:
+            sweep = self.design_solutions.default_adaptive
+        else:
+            sweep_array = [x.split(": ")[1] for x in self.existing_analysis_sweeps]
+            if sweep.replace(" ", "") not in sweep_array:
+                self.logger.error("Sweep is not valid, please provide a valid sweep.")
+                return False
+        analysis_setup = setup_name + " : " + sweep.replace(" ", "")
 
-        matrix_list = [bound for bound in self.boundaries if isinstance(bound, MaxwellParameters)]
         if reduce_matrix is None:
             reduce_matrix = "Original"
         else:
-            if matrix_list:
-                if not [
-                    matrix
-                    for matrix in matrix_list
-                    if matrix.name == reduce_matrix or [x for x in matrix.available_properties if reduce_matrix in x]
-                ]:
+            if self.matrices:
+                if not [matrix for matrix in self.matrices if matrix.name == reduce_matrix]:
                     self.logger.error("Matrix doesn't exist, provide and existing matrix.")
                     return False
             else:
@@ -519,27 +570,21 @@ class QExtractor(FieldAnalysis3D, object):
         if l_unit is None:
             l_unit = "nH"
         else:
-            if not r_unit.endswith("H"):
+            if not l_unit.endswith("H"):
                 self.logger.error("Provide a valid unit for inductor.")
                 return False
 
         if c_unit is None:
             c_unit = "pF"
         else:
-            if c_unit not in ["fF", "pF", "nF", "uF", "mF", "F"]:
+            if c_unit not in ["fF", "pF", "nF", "uF", "mF", "farad"]:
                 self.logger.error("Provide a valid unit for Capacitance.")
                 return False
 
         if g_unit is None:
-            g_unit = "pF"
+            g_unit = "mho"
         else:
-            if c_unit not in [
-                "fF",
-                "pF",
-                "nF",
-                "uF",
-                "mF",
-                "F",
+            if g_unit not in [
                 "fSie",
                 "pSie",
                 "nSie",
@@ -556,43 +601,123 @@ class QExtractor(FieldAnalysis3D, object):
                 return False
 
         if freq is None:
-            freq = "0Hz"
-        # CHECK HOW TO GET AVAILABLE FREQS
+            freq = (
+                re.compile(r"(\d+)\s*(\w+)")
+                .match(
+                    self.modeler._odesign.GetChildObject("Analysis")
+                    .GetChildObject(setup_name)
+                    .GetPropValue("Adaptive Freq")
+                )
+                .groups()[0]
+            )
+        else:
+            if freq_unit != self.odesktop.GetDefaultUnit("Frequency") and freq_unit is not None:
+                freq = go.parse_dim_arg("{}{}".format(freq, freq_unit), self.odesktop.GetDefaultUnit("Frequency"))
 
         if export_AC_DC_res is None:
             export_AC_DC_res = False
 
         if precision is None:
             precision = 15
+        else:
+            if not isinstance(precision, int):
+                self.logger.error("Precision type must be integer.")
+                return False
 
         if field_width is None:
             field_width = 20
+        else:
+            if not isinstance(field_width, int):
+                self.logger.error("Field width type must be integer.")
+                return False
 
         if use_sci_notation is None:
-            use_sci_notation = True
+            use_sci_notation = 1
+        else:
+            if use_sci_notation:
+                use_sci_notation = 1
+            else:
+                use_sci_notation = 0
 
-        try:
-            self.odesign.ExportMatrixData(
-                file_name,
-                problem_type,
-                variations,
-                analysis_setup,
-                reduce_matrix,
-                r_unit,
-                l_unit,
-                c_unit,
-                g_unit,
-                freq,
-                matrix_type,
-                export_AC_DC_res,
-                precision,
-                field_width,
-                use_sci_notation,
-            )
-            return True
-        except:
-            self.logger.error("Export matrix data wasn't successful.")
-            return False
+        if self.dim == "2D":
+            if length_settings is None:
+                length_settings = "Distributed"
+            else:
+                if length_settings not in ["Distributed", "Lumped"]:
+                    self.logger.error("Length setting is not valid.")
+                    return False
+            if length is None:
+                length = "1meter"
+            else:
+                if re.compile(r"(\d+)\s*(\w+)").match(length).groups()[1] not in [
+                    "fm",
+                    "pm",
+                    "nm",
+                    "um",
+                    "mm",
+                    "cm",
+                    "dm",
+                    "meter",
+                    "km",
+                    "copper_oz",
+                    "ft",
+                    "in",
+                    "mil",
+                    "mile",
+                    "mileNaut",
+                    "mileTerr",
+                    "uin",
+                    "yd",
+                ]:
+                    self.logger.error("Unit length provided is not valid.")
+                    return False
+            try:
+                self.odesign.ExportMatrixData(
+                    file_name,
+                    problem_type,
+                    variations,
+                    analysis_setup,
+                    reduce_matrix,
+                    r_unit,
+                    l_unit,
+                    c_unit,
+                    g_unit,
+                    freq,
+                    length_settings,
+                    length,
+                    matrix_type,
+                    export_AC_DC_res,
+                    precision,
+                    field_width,
+                    use_sci_notation,
+                )
+                return True
+            except:
+                self.logger.error("Export matrix data wasn't successful.")
+                return False
+        else:
+            try:
+                self.odesign.ExportMatrixData(
+                    file_name,
+                    problem_type,
+                    variations,
+                    analysis_setup,
+                    reduce_matrix,
+                    r_unit,
+                    l_unit,
+                    c_unit,
+                    g_unit,
+                    freq,
+                    matrix_type,
+                    export_AC_DC_res,
+                    precision,
+                    field_width,
+                    use_sci_notation,
+                )
+                return True
+            except:
+                self.logger.error("Export matrix data wasn't successful.")
+                return False
 
 
 class Q3d(QExtractor, object):
