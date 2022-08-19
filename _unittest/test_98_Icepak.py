@@ -252,7 +252,7 @@ class TestClass(BasisTest, object):
         tol = 1e-9
         assert abs(value - 0.5235987755982988) < tol
 
-        assert self.aedtapp.export_summary()
+        assert self.aedtapp.export_summary(output_dir=scratch_path)
 
         box = [i.id for i in self.aedtapp.modeler["box"].faces]
         assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
