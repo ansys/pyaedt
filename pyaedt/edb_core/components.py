@@ -1288,7 +1288,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def set_solder_ball(
-        self, component="", shape="Cylinder", sball_diam="100um", sball_height="150um", sball_mid_diam=None
+        self, component="", sball_diam="100um", sball_height="150um", shape="Cylinder", sball_mid_diam=None
     ):
         """Set cylindrical solder balls on a given component.
 
