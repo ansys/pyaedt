@@ -141,7 +141,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         wave_vertical_extension=3,
         wave_launcher="1mm",
         ref_primitive_name=None,
-        ref_edge_number=0
+        ref_edge_number=0,
     ):
         """Create an edge port.
 
@@ -197,10 +197,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         if ref_primitive_name:
             self.modeler.oeditor.AddRefPort(
                 [a[0]],
-                [
-                    "NAME:Contents",
-                    "edge:=", ["et:=", "pe", "prim:=", ref_primitive_name, "edge:=", ref_edge_number]
-                ])
+                ["NAME:Contents", "edge:=", ["et:=", "pe", "prim:=", ref_primitive_name, "edge:=", ref_edge_number]],
+            )
 
         if len(a) > 0:
             if iswave:
@@ -273,7 +271,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             edge_number,
             wave_horizontal_extension=wave_horizontal_extension,
             wave_vertical_extension=wave_vertical_extension,
-            wave_launcher=wave_launcher
+            wave_launcher=wave_launcher,
         )
         if port_name:
             self.modeler.change_property(
@@ -289,7 +287,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 property_tab="EM Design",
             )
             if "Vertical Extent Factor" in list(
-                    self.modeler.oeditor.GetProperties("EM Design", "Excitations:{}".format(port_name))
+                self.modeler.oeditor.GetProperties("EM Design", "Excitations:{}".format(port_name))
             ):
                 self.modeler.change_property(
                     property_object="Excitations:{}".format(port_name),
