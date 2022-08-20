@@ -183,6 +183,9 @@ class TestClass(BasisTest, object):
         port_wave = self.aedtapp.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
         assert port_wave
         assert self.aedtapp.delete_port(port_wave)
+        port_wave = self.aedtapp.create_wave_port("line1", 3, 6, 4, "2mm")
+        assert port_wave
+        assert self.aedtapp.delete_port(port_wave)
         assert self.aedtapp.create_edge_port("line1", 3, False)
         assert self.aedtapp.create_edge_port("line1", 0, True)
         assert len(self.aedtapp.excitations) > 0
