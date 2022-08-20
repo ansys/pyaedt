@@ -209,6 +209,10 @@ class EDBPrimitives(object):
             return False
         return self.primitive_object.IsVoid()
 
+    @property
+    def id(self):
+        return self.GetId()
+
     @staticmethod
     def _eval_arc_points(p1, p2, h, n=6, tol=1e-12):
         """Get the points of the arc
