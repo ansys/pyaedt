@@ -76,12 +76,7 @@ class EdbHfss(object):
         return self._pedb.edb_value(value)
 
     @pyaedt_function_handler()
-    def _create_edge_terminal(self,
-                              prim_id,
-                              point_on_edge,
-                              terminal_name=None,
-                              is_ref=False
-                              ):
+    def _create_edge_terminal(self, prim_id, point_on_edge, terminal_name=None, is_ref=False):
         """Create an edge terminal.
 
         Parameters
@@ -110,10 +105,8 @@ class EdbHfss(object):
         pos_edge = self._edb.Cell.Terminal.PrimitiveEdge.Create(prim, point_on_edge)
         pos_edge = convert_py_list_to_net_list(pos_edge, self._edb.Cell.Terminal.Edge)
         return self._edb.Cell.Terminal.EdgeTerminal.Create(
-            prim.GetLayout(),
-            prim.GetNet(), terminal_name, pos_edge, isRef=is_ref
+            prim.GetLayout(), prim.GetNet(), terminal_name, pos_edge, isRef=is_ref
         )
-
 
     @pyaedt_function_handler()
     def get_trace_width_for_traces_with_ports(self):
@@ -636,13 +629,13 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def create_edge_port_horizontal(
-            self,
-            prim_id,
-            point_on_edge,
-            ref_prim_id=None,
-            point_on_ref_edge=None,
-            port_name=None,
-            impedance=50,
+        self,
+        prim_id,
+        point_on_edge,
+        ref_prim_id=None,
+        point_on_ref_edge=None,
+        port_name=None,
+        impedance=50,
     ):
         """Create a horizontal edge port.
 
@@ -671,7 +664,7 @@ class EdbHfss(object):
             Name of the port.
         """
         pos_edge_term = self._create_edge_terminal(prim_id, point_on_edge, port_name)
-        neg_edge_term = self._create_edge_terminal(ref_prim_id, point_on_ref_edge, port_name+"_ref", is_ref=True)
+        neg_edge_term = self._create_edge_terminal(ref_prim_id, point_on_ref_edge, port_name + "_ref", is_ref=True)
 
         pos_edge_term.SetImpedance(self._pedb.edb_value(impedance))
         pos_edge_term.SetReferenceTerminal(neg_edge_term)

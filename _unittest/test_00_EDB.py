@@ -1974,12 +1974,13 @@ if not config["skip_edb"]:
 
         def test_118_edb_create_port(self):
             edb = Edb(
-                edbpath=os.path.join(local_path, "example_models", "edge_ports.aedb"),
+                edbpath=os.path.join(local_path, "example_models", "edb_edge_port.aedb"),
                 edbversion=desktop_version,
             )
-            #edb.core_hfss.create_edge_port_vertical(2, ["-66mm", 0], "sig1_p1")
-            #edb.core_hfss.create_edge_port_vertical(2, ["-41mm", 0], "sig1_p2", reference_layer="sig2")
-            edb.save_edb_as(r"C:\Users\hzhou\Downloads\_AEDT_WS\port.aedb")
+            assert edb.core_hfss.create_edge_port_vertical(3, ["-66mm", "-4mm"], "port_ver")
+            assert edb.core_hfss.create_edge_port_horizontal(
+                3, ["-60mm", "-4mm"], 28, ["-59mm", "-4mm"], "port_hori", 30
+            )
             edb.close_edb()
 
         def test_Z_build_hfss_project_from_config_file(self):
