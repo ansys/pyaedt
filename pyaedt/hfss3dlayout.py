@@ -166,7 +166,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Name of the reference primitive to place negative edge port terminal.
             The default is ``None``.
         ref_edge_number : str, int
-            Edge number of reference primitive.The default is ``0``.
+            Edge number of reference primitive. The default is ``0``.
 
         Returns
         -------
