@@ -616,7 +616,7 @@ class EdbHfss(object):
         port_name : str, optional
             Name of the port.
         impedance : int, float, optional
-            Impedance of the port.
+            Impedance of the port. The default value is ``50``.
         reference_layer : str, optional
             The reference layer of the port.
         Returns
@@ -644,6 +644,32 @@ class EdbHfss(object):
             point_on_ref_edge=None,
             impedance=50,
     ):
+        """Create a horizontal edge port.
+
+        Parameters
+        ----------
+        prim_id : int
+            Primitive ID.
+        point_on_edge : list
+            Coordinate of the point to define the edge terminal.
+        The point must be on the target edge but not on the two
+        ends of the edge.
+        port_name : str, optional
+            Name of the port.
+        ref_prim_id : int
+            Reference primitive ID.
+        point_on_ref_edge : list
+            Coordinate of the point to define the referecne edge
+            terminal. The point must be on the target edge but not
+            on the two ends of the edge.
+        impedance : int, float, optional
+            Impedance of the port. The default value is ``50``.
+
+        Returns
+        -------
+        str
+            Name of the port.
+        """
         pos_edge_term = self._create_edge_terminal(prim_id, point_on_edge, port_name)
         neg_edge_term = self._create_edge_terminal(ref_prim_id, point_on_ref_edge, port_name+"_ref", is_ref=True)
 
