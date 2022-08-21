@@ -1972,6 +1972,16 @@ if not config["skip_edb"]:
                 )
             assert mesh_size_factor == 1.9
 
+        def test_118_edb_create_port(self):
+            edb = Edb(
+                edbpath=os.path.join(local_path, "example_models", "edge_ports.aedb"),
+                edbversion=desktop_version,
+            )
+            #edb.core_hfss.create_edge_port_vertical(2, ["-66mm", 0], "sig1_p1")
+            #edb.core_hfss.create_edge_port_vertical(2, ["-41mm", 0], "sig1_p2", reference_layer="sig2")
+            edb.save_edb_as(r"C:\Users\hzhou\Downloads\_AEDT_WS\port.aedb")
+            edb.close_edb()
+
         def test_Z_build_hfss_project_from_config_file(self):
             cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
             with open(cfg_file, "w") as f:

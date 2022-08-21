@@ -639,9 +639,9 @@ class EdbHfss(object):
             self,
             prim_id,
             point_on_edge,
-            port_name=None,
             ref_prim_id=None,
             point_on_ref_edge=None,
+            port_name=None,
             impedance=50,
     ):
         """Create a horizontal edge port.
@@ -654,14 +654,14 @@ class EdbHfss(object):
             Coordinate of the point to define the edge terminal.
         The point must be on the target edge but not on the two
         ends of the edge.
-        port_name : str, optional
-            Name of the port.
         ref_prim_id : int
             Reference primitive ID.
         point_on_ref_edge : list
             Coordinate of the point to define the referecne edge
             terminal. The point must be on the target edge but not
             on the two ends of the edge.
+        port_name : str, optional
+            Name of the port.
         impedance : int, float, optional
             Impedance of the port. The default value is ``50``.
 
