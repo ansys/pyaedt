@@ -256,7 +256,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Vertical port extension factor. The default is ``5``.
         wave_launcher : str, optional
             PEC (perfect electrical conductor) launcher size with units. The
-            default is `"1mm"`.
+            default is ``"1mm"``.
 
         Returns
         -------
