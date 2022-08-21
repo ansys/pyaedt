@@ -242,7 +242,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         wave_vertical_extension=3,
         wave_launcher="1mm",
     ):
-        """Create a single ended wave port.
+        """Create a single-ended wave port.
 
         Parameters
         ----------
