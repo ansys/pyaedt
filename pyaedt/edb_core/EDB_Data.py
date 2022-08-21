@@ -211,6 +211,12 @@ class EDBPrimitives(object):
 
     @property
     def id(self):
+        """Primitive ID.
+
+        Returns
+        -------
+        int
+        """
         return self.GetId()
 
     @staticmethod
