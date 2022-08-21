@@ -650,7 +650,7 @@ class EdbHfss(object):
         ref_prim_id : int
             Reference primitive ID.
         point_on_ref_edge : list
-            Coordinate of the point to define the referecne edge
+            Coordinate of the point to define the reference edge
             terminal. The point must be on the target edge but not
             on the two ends of the edge.
         port_name : str, optional
