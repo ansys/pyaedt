@@ -248,7 +248,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ----------
         primivitive_name : str
             Name of the primitive to create the edge port on.
-        edge_number :
+        edge_number : int
             Edge number to create the edge port on.
         wave_horizontal_extension : float, optional
             Horizontal port extension factor. The default is `5`.
