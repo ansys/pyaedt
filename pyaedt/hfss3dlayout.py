@@ -251,7 +251,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         edge_number : int
             Edge number to create the edge port on.
         wave_horizontal_extension : float, optional
-            Horizontal port extension factor. The default is `5`.
+            Horizontal port extension factor. The default is ``5``.
         wave_vertical_extension : float, optional
             Vertical port extension factor. The default is ``5``.
         wave_launcher : str, optional
