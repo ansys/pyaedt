@@ -423,7 +423,7 @@ class QExtractor(FieldAnalysis3D, object):
             Default value is "nH".
         c_unit : str, optional
             Capacitance unit value.
-            Default value is "pF".
+            Default value is ``"pF"``.
         g_unit : str, optional
             Conductance unit value.
             Default value is "pF".
