@@ -417,7 +417,7 @@ class QExtractor(FieldAnalysis3D, object):
             Default value is "Original".
         r_unit : str, optional
             Resistance unit value.
-            Default value is "ohm".
+            The default value is ``"ohm"``.
         l_unit : str, optional
             Inductance unit value.
             Default value is "nH".
