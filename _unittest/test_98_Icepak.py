@@ -211,7 +211,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.problem_type = "TemperatureAndFlow"
         assert self.aedtapp.problem_type == "TemperatureAndFlow"
         self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
-        self.aedtapp.modeler.create_box([9, 9, 9], [5, 5, 5], "box2", "copper")
+        self.aedtapp.modeler.create_box([12, 12, 12], [5, 5, 5], "box2", "copper")
         self.aedtapp.create_source_block("box", "1W", False)
         setup = self.aedtapp.create_setup("SetupIPK")
         new_props = {"Convergence Criteria - Max Iterations": 3}
@@ -219,7 +219,7 @@ class TestClass(BasisTest, object):
         airfaces = [i.id for i in self.aedtapp.modeler["Region"].faces]
         self.aedtapp.assign_openings(airfaces)
 
-    def test_16_check_priorities(self):
+        # def test_16_check_priorities(self):
         self.aedtapp.assign_priority_on_intersections("box")
 
     def test_16_create_output_variable(self):
@@ -252,7 +252,11 @@ class TestClass(BasisTest, object):
         tol = 1e-9
         assert abs(value - 0.5235987755982988) < tol
 
-        assert self.aedtapp.export_summary(output_dir=os.path.join(scratch_path, "summary"))
+        assert self.aedtapp.export_summary()
+
+        import pdb
+
+        pdb.set_trace()
 
         box = [i.id for i in self.aedtapp.modeler["box"].faces]
         assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
