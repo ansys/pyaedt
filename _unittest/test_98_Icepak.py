@@ -219,7 +219,7 @@ class TestClass(BasisTest, object):
         airfaces = [i.id for i in self.aedtapp.modeler["Region"].faces]
         self.aedtapp.assign_openings(airfaces)
 
-        # def test_16_check_priorities(self):
+    def test_16_check_priorities(self):
         self.aedtapp.assign_priority_on_intersections("box")
 
     def test_16_create_output_variable(self):
