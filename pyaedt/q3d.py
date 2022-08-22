@@ -442,7 +442,7 @@ class QExtractor(FieldAnalysis3D, object):
             Default value is False.
         precision : int, optional
             Precision format.
-            Default value is 15.
+            Default value is ``15``.
         field_width : int, optional
             Field Width.
             Default value is 20.
