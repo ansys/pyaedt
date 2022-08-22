@@ -645,8 +645,8 @@ class EdbHfss(object):
             Primitive ID.
         point_on_edge : list
             Coordinate of the point to define the edge terminal.
-        The point must be on the target edge but not on the two
-        ends of the edge.
+            The point must be on the target edge but not on the two
+            ends of the edge.
         ref_prim_id : int
             Reference primitive ID.
         point_on_ref_edge : list
