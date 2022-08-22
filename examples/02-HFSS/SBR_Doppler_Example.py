@@ -1,7 +1,8 @@
 """
 SBR+: doppler setup
 -------------------
-This example shows how you can use PyAEDT to create a multipart scenario in SBR+ and setup a doppler Analysis.
+This example shows how you can use PyAEDT to create a multipart scenario in HFSS SBR+
+and set up a doppler analysis.
 """
 
 ###############################################################################
@@ -23,18 +24,19 @@ projectname = "MicroDoppler_with_ADP"
 designname = "doppler"
 library_path = examples.download_multiparts()
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
-# Open project
-# ~~~~~~~~~~~~
-# Download the project, open it, and save it to the temporary folder.
+# Download and open project
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# Download and open the project.
 
 project_name = generate_unique_project_name(project_name="doppler")
 
@@ -52,9 +54,9 @@ app = pyaedt.Hfss(
 app.autosave_disable()
 
 ###############################################################################
-# Create design
-# ~~~~~~~~~~~~~
-# Save the project and rename the design.
+# Save project and rename design
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Save the project to the temporary folder and rename the design.
 
 app.save_project()
 app.rename_design(designname)
@@ -85,7 +87,8 @@ prim = app.modeler
 ###############################################################################
 # Place actors
 # ~~~~~~~~~~~~
-# Place actors in the environment. This code places persons, birds, bikes, and cars.
+# Place actors in the environment. This code places persons, birds, bikes, and cars
+# in the environment.
 
 person1 = app.modeler.add_person(
     actor_folder=person_folder, speed=1.0, global_offset=[25, 1.5, 0], yaw=180, actor_name="Massimo"
@@ -128,8 +131,8 @@ radar1 = app.create_sbr_radar_from_json(
 # Create setup
 # ~~~~~~~~~~~~
 # Create setup and validate it. The ``create_sbr_pulse_doppler_setup`` method
-# creates a setup and a parametric sweep on the time variable of the
-# duration of 2 seconds. The step is computed automatically from CPI.
+# creates a setup and a parametric sweep on the time variable with a
+# duration of two seconds. The step is computed automatically from CPI.
 
 setup, sweep = app.create_sbr_pulse_doppler_setup(sweep_time_duration=2)
 app.set_sbr_current_sources_options()

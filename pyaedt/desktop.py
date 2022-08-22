@@ -1158,7 +1158,7 @@ class Desktop:
         ----------
         license_type : str, optional
             Type of the license. The options are ``"Pack"`` and ``"Pool"``.
-            The default is ``"Pool".
+            The default is ``"Pool"``.
 
         Returns
         -------

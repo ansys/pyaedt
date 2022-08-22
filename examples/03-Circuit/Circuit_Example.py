@@ -23,11 +23,15 @@ import os
 
 desktop_version = "2022.2"
 
-##########################################################
+
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
+# The Boolean parameter ``new_thread`` defines whether to create a new instance
+# of AEDT or try to connect to an existing instance of it.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 new_thread = True
@@ -35,9 +39,8 @@ new_thread = True
 ###############################################################################
 # Launch AEDT and Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# The :class:`pyaedt.Desktop` class initializes AEDT and starts the specified version in
-# the specified mode. The Boolean parameter ``new_thread`` defines whether
-# to create a new instance of AEDT or try to connect to an existing instance of it.
+# Launch AEDT and Circuit. The :class:`pyaedt.Desktop` class initializes AEDT and
+# starts the specified version in the specified mode.
 
 desktop = Desktop(desktop_version, non_graphical, new_thread)
 aedt_app = Circuit(projectname=generate_unique_project_name())

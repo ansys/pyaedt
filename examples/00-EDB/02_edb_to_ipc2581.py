@@ -1,16 +1,13 @@
 """
 EDB: IPC2581 export
 -------------------
-This example shows how to use PyAEDT to export an IPC2581 file.
+This example shows how you can use PyAEDT to export an IPC2581 file.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/ipc2581.png'
-
 
 ###############################################################################
-# Import section
-# ~~~~~~~~~~~~~~
-# Import a section.
-
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports, which includes importing a section.
 
 import shutil
 import os
@@ -42,7 +39,7 @@ edb = Edb(edbpath=targetfile, edbversion="2022.2")
 ###############################################################################
 # Parametrize net
 # ~~~~~~~~~~~~~~~
-# Parameterize a net.
+# Parametrize a net.
 
 edb.core_primitives.parametrize_trace_width(
     "A0_N", parameter_name=generate_unique_name("Par"), variable_value="0.4321mm"

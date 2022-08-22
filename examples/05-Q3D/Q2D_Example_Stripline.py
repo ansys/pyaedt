@@ -4,7 +4,7 @@
 This example shows how you can use PyAEDT to create a differential stripline design in
 2D Extractor and run a simulation.
 """
-##########################################################
+###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
@@ -15,14 +15,14 @@ from pyaedt import Q2d
 from pyaedt.generic.general_methods import generate_unique_project_name
 
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
-
 
 project_path = generate_unique_project_name()
 
@@ -36,9 +36,9 @@ q = Q2d(projectname=project_path, designname="differential_stripline",
         specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
-# Create variables
+# Define variables
 # ~~~~~~~~~~~~~~~~
-# Create variables.
+# Define variables.
 
 e_factor = "e_factor"
 sig_w = "sig_bot_w"
@@ -155,9 +155,9 @@ q.assign_single_conductor(
 )
 
 ###############################################################################
-# Reference ground
-# ~~~~~~~~~~~~~~~~
-# Reference the ground.
+# Create reference ground
+# ~~~~~~~~~~~~~~~~~~~~~~~
+# Create a reference ground.
 
 obj = [q.modeler.get_object_from_name(i) for i in ["co_gnd_left", "co_gnd_right", "ref_gnd_u", "ref_gnd_l"]]
 q.assign_single_conductor(
@@ -176,7 +176,7 @@ obj = q.modeler.get_object_from_name("signal_n")
 q.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_" + obj.name)
 
 ###############################################################################
-# Define differnetial pair
+# Define differential pair
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Define the differential pair.
 

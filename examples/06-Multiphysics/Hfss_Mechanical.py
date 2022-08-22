@@ -1,7 +1,8 @@
 """
 Multiphysics: HFSS-Mechanical multiphysics analysis
 ---------------------------------------------------
-This example shows how to use PyAEDT to create a multiphysics workflow that includes Circuit, HFSS, and Mechanical.
+This example shows how you can use PyAEDT to create a multiphysics workflow that
+includes Circuit, HFSS, and Mechanical.
 """
 
 ###############################################################################
@@ -16,11 +17,12 @@ import shutil
 from pyaedt import examples, generate_unique_folder_name
 from pyaedt import Hfss, Circuit, Mechanical
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -52,8 +54,8 @@ hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(hfss)
 ###############################################################################
 # Set up dynamic link options
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Set up the dynamic link options. The argument for ``set_sim_option_on_hfss_subcircuit``
-# can be the component name, component ID, or component object.
+# Set up dynamic link options. The argument for the ``set_sim_option_on_hfss_subcircuit``
+# method can be the component name, component ID, or component object.
 
 circuit.modeler.schematic.refresh_dynamic_link(hfss_comp.composed_name)
 circuit.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp)
