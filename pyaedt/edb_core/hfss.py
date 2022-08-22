@@ -654,7 +654,7 @@ class EdbHfss(object):
             terminal. The point must be on the target edge but not
             on the two ends of the edge.
         port_name : str, optional
-            Name of the port.
+            Name of the port. The default is ``None``.
         impedance : int, float, optional
             Impedance of the port. The default value is ``50``.
 
