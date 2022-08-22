@@ -604,8 +604,8 @@ class EdbHfss(object):
             Primitive ID.
         point_on_edge : list
             Coordinate of the point to define the edge terminal.
-        The point must be on the target edge but not on the two
-        ends of the edge.
+            The point must be on the target edge but not on the two
+            ends of the edge.
         port_name : str, optional
             Name of the port. The default is ``None``.
         impedance : int, float, optional
