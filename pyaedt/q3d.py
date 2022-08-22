@@ -578,7 +578,7 @@ class QExtractor(FieldAnalysis3D, object):
             c_unit = "pF"
         else:
             if c_unit not in ["fF", "pF", "nF", "uF", "mF", "farad"]:
-                self.logger.error("Provide a valid unit for Capacitance.")
+                self.logger.error("Provide a valid unit for capacitance.")
                 return False
 
         if g_unit is None:
