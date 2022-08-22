@@ -647,12 +647,12 @@ class EdbHfss(object):
             Coordinate of the point to define the edge terminal.
             The point must be on the target edge but not on the two
             ends of the edge.
-        ref_prim_id : int
-            Reference primitive ID.
-        point_on_ref_edge : list
+        ref_prim_id : int, optional
+            Reference primitive ID. The default is ``None``.
+        point_on_ref_edge : list, optional
             Coordinate of the point to define the reference edge
             terminal. The point must be on the target edge but not
-            on the two ends of the edge.
+            on the two ends of the edge. The default is ``None``.
         port_name : str, optional
             Name of the port. The default is ``None``.
         impedance : int, float, optional
