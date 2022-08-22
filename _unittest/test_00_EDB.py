@@ -1974,12 +1974,15 @@ if not config["skip_edb"]:
 
         def test_118_edb_create_port(self):
             edb = Edb(
-                edbpath=os.path.join(local_path, "example_models", "edb_edge_port.aedb"),
+                edbpath=os.path.join(local_path, "example_models", "edb_edge_ports.aedb"),
                 edbversion=desktop_version,
             )
-            assert edb.core_hfss.create_edge_port_vertical(3, ["-66mm", "-4mm"], "port_ver")
+            prim_1_id = [i.id for i in edb.core_primitives.primitives if i.net_name=="trace_2"][0]
+            assert edb.core_hfss.create_edge_port_vertical(prim_1_id, ["-66mm", "-4mm"], "port_ver")
+
+            prim_2_id = [i.id for i in edb.core_primitives.primitives if i.net_name == "trace_3"][0]
             assert edb.core_hfss.create_edge_port_horizontal(
-                3, ["-60mm", "-4mm"], 28, ["-59mm", "-4mm"], "port_hori", 30
+                prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30
             )
             edb.close_edb()
 
