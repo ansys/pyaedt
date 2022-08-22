@@ -446,7 +446,7 @@ class QExtractor(FieldAnalysis3D, object):
         field_width : int, optional
             Field Width.
             Default value is 20.
-        use_sci_notation: bool, optional
+        use_sci_notation : bool, optional
             Use sci notation.
             True to use scientific notation. False to use display format.
             Default value is True.
@@ -466,7 +466,7 @@ class QExtractor(FieldAnalysis3D, object):
             self.logger.error("Provided extension is not valid. Available extensions are" " *.m, *.lvl, *.csv, *.txt.")
             return False
 
-        if self.dim == "2D":
+        if not self.modeler._is3d:
             if problem_type is None:
                 problem_type = "CG"
                 if matrix_type is None:
