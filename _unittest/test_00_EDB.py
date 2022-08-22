@@ -1977,7 +1977,7 @@ if not config["skip_edb"]:
                 edbpath=os.path.join(local_path, "example_models", "edb_edge_ports.aedb"),
                 edbversion=desktop_version,
             )
-            prim_1_id = [i.id for i in edb.core_primitives.primitives if i.net_name=="trace_2"][0]
+            prim_1_id = [i.id for i in edb.core_primitives.primitives if i.net_name == "trace_2"][0]
             assert edb.core_hfss.create_edge_port_vertical(prim_1_id, ["-66mm", "-4mm"], "port_ver")
 
             prim_2_id = [i.id for i in edb.core_primitives.primitives if i.net_name == "trace_3"][0]
