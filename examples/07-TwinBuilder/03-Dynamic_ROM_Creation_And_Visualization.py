@@ -69,6 +69,14 @@ shutil.copyfile(os.path.join(source_data_folder ,source_build_conf_file), os.pat
 
 tb = TwinBuilder(projectname=generate_unique_project_name(),specified_version=desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
 
+# Switch current desktop configuration and schematic environment to "Twin Builder"
+# dynamic ROM feature is only available with a twin builder license configuration
+# this and the restoring section at the end is not needed if the desktop is already configured as "Twin Builder"
+current_desktop_config = tb._odesktop.GetDesktopConfiguration()
+current_schematic_environment = tb._odesktop.GetSchematicEnvironment()
+tb._odesktop.SetDesktopConfiguration("Twin Builder")
+tb._odesktop.SetSchematicEnvironment(1)
+
 # Get the dynamic ROM builder object
 romMgr = tb._odesign.GetROMManager()
 dromBuilder = romMgr.GetDynamicROMBuilder()
@@ -160,6 +168,10 @@ plt.show()
 
 # Clean up the downloaded data
 shutil.rmtree(source_data_folder)
+
+# Restore earlier desktop configuration and schematic environment
+tb._odesktop.SetDesktopConfiguration(current_desktop_config)
+tb._odesktop.SetSchematicEnvironment(current_schematic_environment)
 
 if os.name != "posix":
     tb.release_desktop()
