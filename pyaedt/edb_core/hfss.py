@@ -88,7 +88,8 @@ class EdbHfss(object):
             The point must be on the target edge but not on the two
             ends of the edge.
         terminal_name : str, optional
-            Name o the terminal.
+            Name of the terminal. The default is ``None``, in which case the
+            default name is assigned.
         is_ref : bool, optional
             Whether it is a reference terminal. The default is ``False``.
         Returns
