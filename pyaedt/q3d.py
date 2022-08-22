@@ -439,7 +439,7 @@ class QExtractor(FieldAnalysis3D, object):
             Default value is "Maxwell, Spice, Couple".
         export_AC_DC_res : bool, optional
             Whether to add the AC and DC res.
-            Default value is False.
+            Default value is ``False``.
         precision : int, optional
             Precision format.
             Default value is ``15``.
