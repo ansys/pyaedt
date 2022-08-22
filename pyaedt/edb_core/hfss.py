@@ -90,7 +90,7 @@ class EdbHfss(object):
         terminal_name : str, optional
             Name o the terminal.
         is_ref : bool, optional
-            Where it is a reference terminal.
+            Whether it is a reference terminal.
         Returns
         -------
         Edb.Cell.Terminal.EdgeTerminal
