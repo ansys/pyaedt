@@ -611,7 +611,7 @@ class EdbHfss(object):
         impedance : int, float, optional
             Impedance of the port. The default value is ``50``.
         reference_layer : str, optional
-            The reference layer of the port.
+            Reference layer of the port. The default is ``None``.
         Returns
         -------
         str
