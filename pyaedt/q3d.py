@@ -639,7 +639,7 @@ class QExtractor(FieldAnalysis3D, object):
             else:
                 use_sci_notation = 0
 
-        if self.dim == "2D":
+        if not self.modeler._is3d:
             if length_settings is None:
                 length_settings = "Distributed"
             else:
