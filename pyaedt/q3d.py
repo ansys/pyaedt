@@ -406,8 +406,8 @@ class QExtractor(FieldAnalysis3D, object):
             Design variation. The default is ``None``, in which case the
             current nominal variation is used.
         setup_name : str, optional
-            Setup Name.
-            Default value is first analysis setup name.
+            Setup name. The default value is ``None``, in which case the first
+            analysis setup is used.
         sweep : str, optional
             Solution frequency.
             Default value is default adaptive.
