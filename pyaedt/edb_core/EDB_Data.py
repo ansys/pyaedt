@@ -688,7 +688,9 @@ class EDBLayer(object):
             self.update_layers()
 
     @pyaedt_function_handler()
-    def assign_roughness_model_top(self, model_type="huray",  huray_radius="0.5um", huray_surface_ratio="2.9", groisse_roughness="1um"):
+    def assign_roughness_model_top(
+        self, model_type="huray", huray_radius="0.5um", huray_surface_ratio="2.9", groisse_roughness="1um"
+    ):
         """Assign roughness model on conductor top.
 
         Parameters
@@ -706,16 +708,18 @@ class EDBLayer(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if model_type=="huray":
-            self._roughness_model_top=[model_type, huray_radius, huray_surface_ratio]
-        elif model_type=="groisse":
-            self._roughness_model_top=[model_type, groisse_roughness]
+        if model_type == "huray":
+            self._roughness_model_top = [model_type, huray_radius, huray_surface_ratio]
+        elif model_type == "groisse":
+            self._roughness_model_top = [model_type, groisse_roughness]
         else:
-            self._roughness_model_top=None
+            self._roughness_model_top = None
         return self.update_layers()
 
     @pyaedt_function_handler()
-    def assign_roughness_model_bottom(self, model_type="huray",  huray_radius="0.5um", huray_surface_ratio="2.9", groisse_roughness="1um"):
+    def assign_roughness_model_bottom(
+        self, model_type="huray", huray_radius="0.5um", huray_surface_ratio="2.9", groisse_roughness="1um"
+    ):
         """Assign roughness model on conductor bottom.
 
         Parameters
@@ -733,17 +737,18 @@ class EDBLayer(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if model_type=="huray":
-            self._roughness_model_bottom=[model_type, huray_radius, huray_surface_ratio]
+        if model_type == "huray":
+            self._roughness_model_bottom = [model_type, huray_radius, huray_surface_ratio]
         elif model_type == "groisse":
-            self._roughness_model_bottom=[model_type, groisse_roughness]
+            self._roughness_model_bottom = [model_type, groisse_roughness]
         else:
-            self._roughness_model_bottom=None
+            self._roughness_model_bottom = None
         return self.update_layers()
 
     @pyaedt_function_handler()
-    def assign_roughness_model_side(self, model_type="huray", huray_radius="0.5um", huray_surface_ratio="2.9",
-                               groisse_roughness="1um"):
+    def assign_roughness_model_side(
+        self, model_type="huray", huray_radius="0.5um", huray_surface_ratio="2.9", groisse_roughness="1um"
+    ):
         """Assign roughness model on conductor top.
 
         Parameters
@@ -766,7 +771,7 @@ class EDBLayer(object):
         elif model_type == "groisse":
             self._roughness_model_side = [model_type, groisse_roughness]
         else:
-            self._roughness_model_side=None
+            self._roughness_model_side = None
         return self.update_layers()
 
     @property
@@ -972,12 +977,12 @@ class EDBLayer(object):
             newLayer.SetNegative(negativeMap)
         if roughnessMap:
             newLayer.SetRoughnessEnabled(roughnessMap)
-            models = [self._roughness_model_top,
-                      self._roughness_model_bottom,
-                      self._roughness_model_side]
-            regions = [self._edb.Cell.RoughnessModel.Region.Top,
-                       self._edb.Cell.RoughnessModel.Region.Side,
-                       self._edb.Cell.RoughnessModel.Region.Bottom]
+            models = [self._roughness_model_top, self._roughness_model_bottom, self._roughness_model_side]
+            regions = [
+                self._edb.Cell.RoughnessModel.Region.Top,
+                self._edb.Cell.RoughnessModel.Region.Side,
+                self._edb.Cell.RoughnessModel.Region.Bottom,
+            ]
             for mdl, rgn in zip(models, regions):
                 if not mdl:
                     continue
