@@ -254,10 +254,6 @@ class TestClass(BasisTest, object):
 
         assert self.aedtapp.export_summary()
 
-        import pdb
-
-        pdb.set_trace()
-
         box = [i.id for i in self.aedtapp.modeler["box"].faces]
         assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
 
