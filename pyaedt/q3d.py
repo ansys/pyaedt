@@ -400,9 +400,8 @@ class QExtractor(FieldAnalysis3D, object):
             File path to save matrix data.
             Possible file extensions are: *.m, *.lvl, *.csv, *.txt.
         problem_type : str, optional
-            Problem type.
-            Default value is "C".
-            Possible values are: "C", "AC RL", "DC RL".
+            Problem type. The default value is ``None``, in which case ``"C"``
+            is used. Options are ``"C"``, ``"AC RL"``, and ``"DC RL"``.
         variations : str, optional
             Design variation.
             Empty string uses the current nominal variation.
