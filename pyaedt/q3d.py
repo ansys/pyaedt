@@ -389,7 +389,7 @@ class QExtractor(FieldAnalysis3D, object):
         precision=None,
         field_width=None,
         use_sci_notation=True,
-        length_settings=None,
+        length_setting="Distributed",
         length="1meter",
     ):
         """Export matrix data.
@@ -397,8 +397,8 @@ class QExtractor(FieldAnalysis3D, object):
         Parameters
         ----------
         file_name : str
-            File path to save matrix data.
-            Possible file extensions are: *.m, *.lvl, *.csv, *.txt.
+            Full path to save the matrix data to.
+            Options for file extensions are: *.m, *.lvl, *.csv, *.txt.
         problem_type : str, optional
             Problem type. The default value is ``None``, in which case ``"C"``
             is used. Options are ``"C"``, ``"AC RL"``, and ``"DC RL"``.
@@ -449,8 +449,8 @@ class QExtractor(FieldAnalysis3D, object):
             Use sci notation.
             Whether to use scientific notation.
             The default value is ``True``.  When ``False``, the display format is used.
-        length_settings : str, optional
-            Length settings if 2D design.
+        length_setting : str, optional
+            Length setting if the design si 2D.
             The default value is ``"Distributed"``.
         length : str, optional
             Length.
@@ -633,7 +633,7 @@ class QExtractor(FieldAnalysis3D, object):
                 use_sci_notation = 0
 
         if not self.modeler._is3d:
-            if length_settings not in ["Distributed", "Lumped"]:
+            if length_setting not in ["Distributed", "Lumped"]:
                 self.logger.error("Length setting is invalid.")
                 return False
             if length is None:
@@ -673,7 +673,7 @@ class QExtractor(FieldAnalysis3D, object):
                     c_unit,
                     g_unit,
                     freq,
-                    length_settings,
+                    length_setting,
                     length,
                     matrix_type,
                     export_AC_DC_res,
