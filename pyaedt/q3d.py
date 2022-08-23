@@ -706,7 +706,7 @@ class QExtractor(FieldAnalysis3D, object):
                 )
                 return True
             except:
-                self.logger.error("Export matrix data wasn't successful.")
+                self.logger.error("Export of matrix data was unsuccessful.")
                 return False
 
 
