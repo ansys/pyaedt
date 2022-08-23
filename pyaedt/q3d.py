@@ -430,8 +430,8 @@ class QExtractor(FieldAnalysis3D, object):
             Selected frequency.
             The default value is ``"0Hz"``.
         freq_unit : str, optional
-            Frequency unit.
-            Default value is the one set in Default unit.
+            Frequency unit. The default value is ``None``, in which case the
+            default unit is used.
         matrix_type : str, optional
             Matrix Type.
             Possible Values are "Maxwell", "Spice" and "Couple".
