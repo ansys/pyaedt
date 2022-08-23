@@ -413,7 +413,7 @@ class QExtractor(FieldAnalysis3D, object):
             the default adaptive is used.
         reduce_matrix : str, optional
             Name of the matrix to display.
-            Default value is "Original".
+            Default value is ``"Original"``.
         r_unit : str, optional
             Resistance unit value.
             The default value is ``"ohm"``.
