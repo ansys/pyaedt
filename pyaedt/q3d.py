@@ -462,7 +462,7 @@ class QExtractor(FieldAnalysis3D, object):
             ``True`` when successful, ``False`` when failed.
         """
         if os.path.splitext(file_name)[1] not in [".m", ".lvl", ".csv", ".txt"]:
-            self.logger.error("Provided extension is not valid. Available extensions are" " *.m, *.lvl, *.csv, *.txt.")
+            self.logger.error("Extension is invalid. Possible extensions are *.m, *.lvl, *.csv, and *.txt.")
             return False
 
         if not self.modeler._is3d:
