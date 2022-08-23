@@ -425,7 +425,7 @@ class QExtractor(FieldAnalysis3D, object):
             Default value is ``"pF"``.
         g_unit : str, optional
             Conductance unit value.
-            Default value is "pF".
+            The default value is ``"mho"``.
         freq : str, optional
             Selected frequency.
             Default Value is 0Hz.
