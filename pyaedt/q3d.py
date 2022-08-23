@@ -390,7 +390,7 @@ class QExtractor(FieldAnalysis3D, object):
         field_width=None,
         use_sci_notation=True,
         length_settings=None,
-        length=None,
+        length="1meter",
     ):
         """Export Matrix Data.
 
