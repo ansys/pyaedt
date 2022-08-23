@@ -409,8 +409,8 @@ class QExtractor(FieldAnalysis3D, object):
             Setup name. The default value is ``None``, in which case the first
             analysis setup is used.
         sweep : str, optional
-            Solution frequency.
-            Default value is default adaptive.
+            Solution frequency. The default is ``None``, in which case
+            the default adaptive is used.
         reduce_matrix : str, optional
             Name of the matrix to display.
             Default value is "Original".
