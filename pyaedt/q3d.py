@@ -490,7 +490,7 @@ class QExtractor(FieldAnalysis3D, object):
                                 self.logger.error("Spice can't be a matrix type if problem type is RL.")
                                 return False
                 else:
-                    self.logger.error("Invalid problem type. Available values are CG and RL.")
+                    self.logger.error("Invalid problem type. Possible values are CG and RL.")
                     return False
 
         else:
