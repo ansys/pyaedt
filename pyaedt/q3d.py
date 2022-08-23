@@ -451,7 +451,7 @@ class QExtractor(FieldAnalysis3D, object):
             The default value is ``True``.  When ``False``, the display format is used.
         length_settings : str, optional
             Length settings if 2D design.
-            If None default value is Distributed.
+            The default value is ``"Distributed"``.
         length : str, optional
             Length.
             If None default value is 1meter.
