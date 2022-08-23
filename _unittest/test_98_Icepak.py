@@ -248,19 +248,19 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.post.plots) == 1
 
     def test_19_get_output_variable(self):
-        value = self.aedtapp.get_output_variable("OutputVariable1")
-        tol = 1e-9
-        assert abs(value - 0.5235987755982988) < tol
 
         import threading
 
         def task1():
-            assert self.aedtapp.export_summary()
+            value = self.aedtapp.get_output_variable("OutputVariable1")
+            tol = 1e-9
+            assert abs(value - 0.5235987755982988) < tol
 
         t1 = threading.Thread(target=task1, name="t1")
         t1.start()
         t1.join()
 
+        assert self.aedtapp.export_summary()
         box = [i.id for i in self.aedtapp.modeler["box"].faces]
         assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
 
