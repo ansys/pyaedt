@@ -1806,6 +1806,7 @@ if not config["skip_edb"]:
                 negative_node_net="HV_DC+",
             )
             sim_setup.add_current_source(
+                name="I25",
                 positive_node_component="Q5",
                 positive_node_net="SOURCE_HBB_PHASEB",
                 negative_node_component="Q5",
