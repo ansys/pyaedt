@@ -516,7 +516,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         References
         ----------
 
-        >>> oEditor.GetVertexPosition
+        >>> oEditor.GetEdgeLength
 
         """
         try:
