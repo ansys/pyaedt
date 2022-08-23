@@ -388,7 +388,7 @@ class QExtractor(FieldAnalysis3D, object):
         export_AC_DC_res=False,
         precision=None,
         field_width=None,
-        use_sci_notation=None,
+        use_sci_notation=True,
         length_settings=None,
         length=None,
     ):
