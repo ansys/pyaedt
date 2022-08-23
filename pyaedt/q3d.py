@@ -633,12 +633,9 @@ class QExtractor(FieldAnalysis3D, object):
                 use_sci_notation = 0
 
         if not self.modeler._is3d:
-            if length_settings is None:
-                length_settings = "Distributed"
-            else:
-                if length_settings not in ["Distributed", "Lumped"]:
-                    self.logger.error("Length setting is not valid.")
-                    return False
+            if length_settings not in ["Distributed", "Lumped"]:
+                self.logger.error("Length setting is invalid.")
+                return False
             if length is None:
                 length = "1meter"
             else:
