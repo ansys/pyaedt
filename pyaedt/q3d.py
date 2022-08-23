@@ -544,7 +544,7 @@ class QExtractor(FieldAnalysis3D, object):
         else:
             sweep_array = [x.split(": ")[1] for x in self.existing_analysis_sweeps]
             if sweep.replace(" ", "") not in sweep_array:
-                self.logger.error("Sweep is not valid, please provide a valid sweep.")
+                self.logger.error("Sweep is invalid. Provide a valid sweep.")
                 return False
         analysis_setup = setup_name + " : " + sweep.replace(" ", "")
 
