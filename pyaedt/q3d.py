@@ -556,7 +556,7 @@ class QExtractor(FieldAnalysis3D, object):
                     self.logger.error("Matrix doesn't exist. Provide an existing matrix.")
                     return False
             else:
-                self.logger.error("Matrix list parameters is empty, can't export a valid matrix.")
+                self.logger.error("List of matrix parameters is empty. Cannot export a valid matrix.")
                 return False
 
         if r_unit is None:
