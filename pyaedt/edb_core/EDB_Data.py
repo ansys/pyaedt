@@ -689,6 +689,23 @@ class EDBLayer(object):
 
     @pyaedt_function_handler()
     def assign_roughness_model_top(self, model_type="huray",  huray_radius="0.5um", huray_surface_ratio="2.9", groisse_roughness="1um"):
+        """Assign roughness model on conductor top.
+
+        Parameters
+        ----------
+        model_type : str, optional
+            Type of roughness model. The default is ``"huray"``. Options are ``"huray"``, ``"groisse"``.
+        huray_radius : str, optional
+            Radius of huray model. The default is ``"0.5um"``.
+        huray_surface_ratio : str, float, optional.
+            Surface ratio of huray model. The default is ``"2.9"``.
+        groisse_roughness : str, float, optional
+            Roughness of groisse model. The default is ``"1um"``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         if model_type=="huray":
             self._roughness_model_top=[model_type, huray_radius, huray_surface_ratio]
         elif model_type=="groisse":
@@ -699,6 +716,23 @@ class EDBLayer(object):
 
     @pyaedt_function_handler()
     def assign_roughness_model_bottom(self, model_type="huray",  huray_radius="0.5um", huray_surface_ratio="2.9", groisse_roughness="1um"):
+        """Assign roughness model on conductor bottom.
+
+        Parameters
+        ----------
+        model_type : str, optional
+            Type of roughness model. The default is ``"huray"``. Options are ``"huray"``, ``"groisse"``.
+        huray_radius : str, optional
+            Radius of huray model. The default is ``"0.5um"``.
+        huray_surface_ratio : str, float, optional.
+            Surface ratio of huray model. The default is ``"2.9"``.
+        groisse_roughness : str, float, optional
+            Roughness of groisse model. The default is ``"1um"``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         if model_type=="huray":
             self._roughness_model_bottom=[model_type, huray_radius, huray_surface_ratio]
         elif model_type == "groisse":
@@ -710,6 +744,23 @@ class EDBLayer(object):
     @pyaedt_function_handler()
     def assign_roughness_model_side(self, model_type="huray", huray_radius="0.5um", huray_surface_ratio="2.9",
                                groisse_roughness="1um"):
+        """Assign roughness model on conductor top.
+
+        Parameters
+        ----------
+        model_type : str, optional
+            Type of roughness model. The default is ``"huray"``. Options are ``"huray"``, ``"groisse"``.
+        huray_radius : str, optional
+            Radius of huray model. The default is ``"0.5um"``.
+        huray_surface_ratio : str, float, optional.
+            Surface ratio of huray model. The default is ``"2.9"``.
+        groisse_roughness : str, float, optional
+            Roughness of groisse model. The default is ``"1um"``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         if model_type == "huray":
             self._roughness_model_side = [model_type, huray_radius, huray_surface_ratio]
         elif model_type == "groisse":
