@@ -566,12 +566,9 @@ class QExtractor(FieldAnalysis3D, object):
                 self.logger.error("Provide a valid unit for resistor.")
                 return False
 
-        if l_unit is None:
-            l_unit = "nH"
-        else:
-            if not l_unit.endswith("H"):
-                self.logger.error("Provide a valid unit for inductor.")
-                return False
+        if not l_unit.endswith("H"):
+            self.logger.error("Provide a valid unit for inductor.")
+            return False
 
         if c_unit is None:
             c_unit = "pF"
