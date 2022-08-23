@@ -403,8 +403,8 @@ class QExtractor(FieldAnalysis3D, object):
             Problem type. The default value is ``None``, in which case ``"C"``
             is used. Options are ``"C"``, ``"AC RL"``, and ``"DC RL"``.
         variations : str, optional
-            Design variation.
-            Empty string uses the current nominal variation.
+            Design variation. The default is ``None``, in which case the
+            current nominal variation is used.
         setup_name : str, optional
             Setup Name.
             Default value is first analysis setup name.
