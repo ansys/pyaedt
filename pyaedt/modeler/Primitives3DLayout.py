@@ -830,10 +830,12 @@ class Primitives3DLayout(object):
 
         >>> oEditor.CreateRectangle
         """
-        warnings.warn(
-            "`netname` is deprecated. Use `net_name` instead.",
-            DeprecationWarning,
-        )
+        if "netname" in kwargs:
+            warnings.warn(
+                "`netname` is deprecated. Use `net_name` instead.",
+                DeprecationWarning,
+            )
+            net_name=kwargs["netname"]
         if not name:
             name = _uname()
         else:
