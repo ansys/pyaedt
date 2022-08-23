@@ -72,9 +72,12 @@ elif IsWindows:  # pragma: no cover
 
         _com = "pywin32"
     else:
-        raise Exception("Error. No win32com.client or PythonNET modules are found. Install them and try again.")
+        warnings.warn("Clr Module not found. Forcing Aedt Grpc")
+        settings.use_grpc_api = True
+        _com = "pythonnet_v3"
 else:
     _com = "pythonnet_v3"
+    settings.use_grpc_api = True
 
 
 def _check_grpc_port(port, machine_name=""):

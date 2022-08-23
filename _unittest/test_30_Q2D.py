@@ -107,3 +107,64 @@ class TestClass(BasisTest, object):
         conductors = self.aedtapp.get_all_conductors_names()
         assert sorted(conductors) == ["Rectangle1", "Rectangle2"]
         assert self.aedtapp.get_all_dielectrics_names() == ["Rectangle3"]
+
+    def test_14_export_matrix_data(self):
+        q2d = Q2d(self.test_matrix, specified_version=desktop_version)
+        q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Float, "Circle2", "Test1")
+        q2d.matrices[1].name == "Test1"
+        q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.AddGround, "Circle2", "Test2")
+        q2d.matrices[2].name == "Test2"
+        q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.SetReferenceGround, "Circle2", "Test3")
+        q2d.matrices[3].name == "Test3"
+        q2d.analyze_setup(q2d.analysis_setup)
+        q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"))
+        assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="CG")
+        assert q2d.export_matrix_data(
+            os.path.join(self.local_scratch.path, "test_2d.txt"),
+            problem_type="CG",
+            matrix_type="Maxwell, Spice, Couple",
+        )
+        assert not q2d.export_matrix_data(
+            os.path.join(self.local_scratch.path, "test_2d.txt"),
+            problem_type="RL",
+            matrix_type="Maxwell, Spice, Couple",
+        )
+        assert q2d.export_matrix_data(
+            os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="RL", matrix_type="Maxwell, Couple"
+        )
+        assert q2d.export_matrix_data(
+            os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="CG", setup_name="Setup1", sweep="Sweep1"
+        )
+        assert q2d.export_matrix_data(
+            os.path.join(self.local_scratch.path, "test_2d.txt"),
+            problem_type="CG",
+            setup_name="Setup1",
+            sweep="LastAdaptive",
+        )
+        assert q2d.export_matrix_data(
+            os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="CG", reduce_matrix="Test1"
+        )
+        assert q2d.export_matrix_data(
+            os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="CG", reduce_matrix="Test3"
+        )
+        assert not q2d.export_matrix_data(
+            os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="CG", reduce_matrix="Test4"
+        )
+        assert q2d.export_matrix_data(
+            os.path.join(self.local_scratch.path, "test_2d.txt"), precision=16, field_width=22
+        )
+        assert not q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), precision=16.2)
+        assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), freq="1", freq_unit="GHz")
+        assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), freq="3", freq_unit="GHz")
+        assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), freq="3", freq_unit="Hz")
+        assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), use_sci_notation=True)
+        assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), use_sci_notation=False)
+        assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), r_unit="mohm")
+        assert not q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), r_unit="A")
+        assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), l_unit="nH")
+        assert not q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), l_unit="A")
+        assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), c_unit="farad")
+        assert not q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), c_unit="H")
+        assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), g_unit="fSie")
+        assert not q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), g_unit="A")
+        self.aedtapp.close_project(q2d.project_name, False)

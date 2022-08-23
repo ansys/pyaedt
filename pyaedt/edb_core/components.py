@@ -552,7 +552,7 @@ class Components(object):
                 negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group)
                 positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
                 negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
-                term_name = generate_unique_name(source.name)
+                term_name = source.name
                 positive_pin_group_term.SetName(term_name)
                 negative_pin_group_term.SetName("{}_ref".format(term_name))
                 positive_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
@@ -567,7 +567,7 @@ class Components(object):
                 negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group)
                 positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
                 negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
-                term_name = generate_unique_name(source.name)
+                term_name = source.name
                 positive_pin_group_term.SetName(term_name)
                 negative_pin_group_term.SetName("{}_ref".format(term_name))
                 positive_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
