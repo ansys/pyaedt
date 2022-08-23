@@ -1050,7 +1050,10 @@ class Lists(PropsManager, object):
         if list_type == "Object":
             obj_names = [i for i in self._modeler.object_names]
             check = [item for item in object_list if item in obj_names]
-            object_list_new = ",".join(check)
+            if check:
+                object_list_new = ",".join(check)
+            else:
+                return False
 
         elif list_type == "Face":
             object_list_new = []
