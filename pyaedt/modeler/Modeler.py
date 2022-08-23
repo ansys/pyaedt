@@ -936,7 +936,8 @@ class Lists(PropsManager, object):
         """
         # self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.ref_cs]])
         object_list_new = self._list_verification(self.props["List"], self.props["Type"])
-
+        if type == "Object":
+            object_list_new = ",".join(object_list_new)
         argument1 = ["NAME:Selections", "Selections:=", self.name]
         argument2 = [
             "NAME:GeometryEntityListParameters",
@@ -984,15 +985,16 @@ class Lists(PropsManager, object):
         object_list_new = self._list_verification(object_list, type)
 
         if object_list_new:
+            olist = object_list_new
+            if type == "Object":
+                olist = ",".join(object_list_new)
+
             self.name = self._modeler.oeditor.CreateEntityList(
-                ["NAME:GeometryEntityListParameters", "EntityType:=", type, "EntityList:=", object_list_new],
+                ["NAME:GeometryEntityListParameters", "EntityType:=", type, "EntityList:=", olist],
                 ["NAME:Attributes", "Name:=", name],
             )
             props = {}
-            if type == "Object":
-                props["List"] = object_list
-            else:
-                props["List"] = object_list_new
+            props["List"] = object_list_new
 
             props["ID"] = self._modeler.get_entitylist_id(self.name)
             props["Type"] = type
@@ -1046,14 +1048,14 @@ class Lists(PropsManager, object):
 
     def _list_verification(self, object_list, list_type):
         object_list = self._modeler.convert_to_selections(object_list, True)
-        object_list_new = False
+        object_list_new = []
         if list_type == "Object":
             obj_names = [i for i in self._modeler.object_names]
             check = [item for item in object_list if item in obj_names]
             if check:
-                object_list_new = ",".join(check)
+                object_list_new = check
             else:
-                return False
+                return []
 
         elif list_type == "Face":
             object_list_new = []
@@ -1070,7 +1072,7 @@ class Lists(PropsManager, object):
                                         object_list_new.append(f.id)
                                     break
                         else:
-                            return False
+                            return []
                 else:
                     object_list_new.append(int(element))
         return object_list_new
