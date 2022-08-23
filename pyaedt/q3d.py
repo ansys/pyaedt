@@ -385,7 +385,7 @@ class QExtractor(FieldAnalysis3D, object):
         freq=None,
         freq_unit=None,
         matrix_type=None,
-        export_AC_DC_res=None,
+        export_AC_DC_res=False,
         precision=None,
         field_width=None,
         use_sci_notation=None,
