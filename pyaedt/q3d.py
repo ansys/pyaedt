@@ -454,7 +454,7 @@ class QExtractor(FieldAnalysis3D, object):
             The default value is ``"Distributed"``.
         length : str, optional
             Length.
-            If None default value is 1meter.
+            The default value is ``"1meter"``.
 
         Returns
         -------
