@@ -379,7 +379,7 @@ class QExtractor(FieldAnalysis3D, object):
         sweep=None,
         reduce_matrix=None,
         r_unit="ohm",
-        l_unit=None,
+        l_unit="nH",
         c_unit=None,
         g_unit=None,
         freq=None,
