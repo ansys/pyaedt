@@ -1949,7 +1949,7 @@ class Primitives(object):
         new_object_dict = {}
         new_object_id_dict = {}
         all_objects = self.object_names
-        all_unclassified = self.unclassified_objects
+        all_unclassified = self.unclassified_names
         for old_id, obj in self.objects.items():
             if obj.name in all_objects or obj.name in all_unclassified:
                 updated_id = obj.id  # By calling the object property we get the new id
