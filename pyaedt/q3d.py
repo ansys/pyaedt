@@ -590,7 +590,7 @@ class QExtractor(FieldAnalysis3D, object):
                 "perohm",
                 "apV",
             ]:
-                self.logger.error("Provide a valid unit for Conductance.")
+                self.logger.error("Provide a valid unit for conductance.")
                 return False
 
         if freq is None:
