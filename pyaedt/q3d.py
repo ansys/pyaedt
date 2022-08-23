@@ -444,7 +444,7 @@ class QExtractor(FieldAnalysis3D, object):
             Default value is ``15``.
         field_width : int, optional
             Field Width.
-            Default value is 20.
+            The default value is ``20``.
         use_sci_notation : bool, optional
             Use sci notation.
             True to use scientific notation. False to use display format.
