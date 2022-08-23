@@ -82,9 +82,9 @@ static_rom_builder.Build(confpath.replace('\\', '/'))
 # Test if ROM was created sucessfully
 static_rom_path = os.path.join(data_folder,'StaticRom.rom')
 if os.path.exists(static_rom_path):
-	tb.logger.info("path exists: {}".format(static_rom_path.replace('\\', '/')), "")
+	tb.logger.info("Built intermediate rom file sucessfully at: %s", static_rom_path)
 else:
-	tb.logger.error("path does not exist: {}".format(static_rom_path), "")
+	tb.logger.error("Intermediate rom file not found at: %s", static_rom_path)
 
 #Create the ROM component definition in Twin Builder
 rom_manager.CreateROMComponent(static_rom_path.replace('\\', '/'),'staticrom') 
