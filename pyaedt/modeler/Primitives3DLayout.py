@@ -737,7 +737,7 @@ class Primitives3DLayout(object):
         return name
 
     @pyaedt_function_handler()
-    def create_circle(self, layername, x, y, radius, name=None, net_name=None):
+    def create_circle(self, layername, x, y, radius, name=None, net_name=None, **kwargs):
         """Create a circle on a layer.
 
         Parameters
