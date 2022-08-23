@@ -799,7 +799,7 @@ class Primitives3DLayout(object):
         return name
 
     @pyaedt_function_handler()
-    def create_rectangle(self, layername, origin, dimensions, corner_radius=0, angle=0, name=None, net_name=None):
+    def create_rectangle(self, layername, origin, dimensions, corner_radius=0, angle=0, name=None, net_name=None, **kwargs):
         """Create a rectangle on a layer.
 
         Parameters
