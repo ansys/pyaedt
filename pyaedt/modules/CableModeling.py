@@ -7,6 +7,25 @@ from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
 
 class Cable:
+    """Contains all common Cable features.
+
+    Parameters
+    ----------
+    app : :class:`pyaedt.hfss`
+    json_file_name : str , optional
+        Path of the json file where the cable information are saved.
+    working_dir : str , optional
+        Working directory.
+
+    Examples
+    --------
+    >>> from pyaedt import Hfss
+    >>> from pyaedt.modules.CableModeling import Cable
+    >>> hfss = Hfss()
+    >>> cable_class = Cable(hfss)
+
+    """
+
     def __init__(self, app, json_file_name=None, working_dir=None):
         self._app = app
         self._odesign = app.odesign
@@ -53,6 +72,13 @@ class Cable:
             self._init_from_json(json_file_name)
 
     def create_cable(self):
+        """Create a cable.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         if self.cable_type == "bundle":
             try:
                 if self.jacket_type == "insulation":
@@ -180,6 +206,13 @@ class Cable:
                 return False
 
     def update_cable_properties(self):
+        """Update cable properties for all cable types.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         try:
             if self.cable_type == "bundle":
                 if self.jacket_type == "no jacket":
@@ -246,6 +279,13 @@ class Cable:
             return False
 
     def update_shielding(self):
+        """Create jacket type when cable type is bundle and jacket type is braid shield.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         try:
             self._odesign.ChangeProperty(
                 [
@@ -286,6 +326,13 @@ class Cable:
             return False
 
     def remove_cables(self):
+        """Remove a list of cables.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         for cable_to_remove in self.cable_to_remove:
             if cable_to_remove not in itertools.chain(
                 self.existing_bundle_cables_names,
@@ -303,6 +350,13 @@ class Cable:
                     return False
 
     def add_cable_to_bundle(self):
+        """Add a cable to an existing cable bundle.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         if self.cables_to_add_to_bundle in self.existing_straight_wire_cables_names:
             try:
                 self._omodule.AddCableToBundle(
