@@ -659,7 +659,7 @@ class QExtractor(FieldAnalysis3D, object):
                     "uin",
                     "yd",
                 ]:
-                    self.logger.error("Unit length provided is not valid.")
+                    self.logger.error("Unit length is invalid.")
                     return False
             try:
                 self.odesign.ExportMatrixData(
