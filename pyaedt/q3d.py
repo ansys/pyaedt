@@ -448,7 +448,7 @@ class QExtractor(FieldAnalysis3D, object):
         use_sci_notation : bool, optional
             Use sci notation.
             Whether to use scientific notation.
-            The default value is ``True``.  When ``False``, display format is used.
+            The default value is ``True``.  When ``False``, the display format is used.
         length_settings : str, optional
             Length settings if 2D design.
             If None default value is Distributed.
