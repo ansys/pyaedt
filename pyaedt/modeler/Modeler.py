@@ -1048,11 +1048,10 @@ class Lists(PropsManager, object):
         object_list = self._modeler.convert_to_selections(object_list, True)
         object_list_new = False
         if list_type == "Object":
-            check = all(item in self._modeler.object_names for item in object_list)
-            if check:
-                object_list_new = ",".join(object_list)
-            else:
-                return False
+            obj_names = [i for i in self._modeler.object_names]
+            check = [item for item in object_list if item in obj_names]
+            object_list_new = ",".join(check)
+
         elif list_type == "Face":
             object_list_new = []
             for element in object_list:
