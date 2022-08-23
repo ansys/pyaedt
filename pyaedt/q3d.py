@@ -428,7 +428,7 @@ class QExtractor(FieldAnalysis3D, object):
             The default value is ``"mho"``.
         freq : str, optional
             Selected frequency.
-            Default Value is 0Hz.
+            The default value is ``"0Hz"``.
         freq_unit : str, optional
             Frequency unit.
             Default value is the one set in Default unit.
