@@ -252,6 +252,9 @@ class TestClass(BasisTest, object):
         tol = 1e-9
         assert abs(value - 0.5235987755982988) < tol
 
+        import time
+
+        time.sleep(3)
         assert self.aedtapp.export_summary()
 
         box = [i.id for i in self.aedtapp.modeler["box"].faces]
