@@ -537,7 +537,7 @@ class QExtractor(FieldAnalysis3D, object):
         if setup_name is None:
             setup_name = self.analysis_setup
         elif setup_name != self.analysis_setup:
-            self.logger.error("Setup name is not valid, please provide a valid analysis setup name.")
+            self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup_name)
             return False
         if sweep is None:
             sweep = self.design_solutions.default_adaptive
