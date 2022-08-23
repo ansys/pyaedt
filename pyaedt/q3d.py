@@ -515,7 +515,7 @@ class QExtractor(FieldAnalysis3D, object):
                         else:
                             matrix_type_array = matrix_type.split(", ")
                             if [x for x in matrix_type_array if x == "Spice"]:
-                                self.logger.error("Spice can't be a matrix type if problem types are AC RL or DC RL")
+                                self.logger.error("Spice can't be a matrix type if problem type is AC RL or DC RL.")
                                 return False
                 else:
                     self.logger.error("Invalid problem type. Available values are C, AC RL, DC RL")
