@@ -501,7 +501,7 @@ class QExtractor(FieldAnalysis3D, object):
                 else:
                     matrix_type_array = matrix_type.split(", ")
                     if not [x for x in matrix_type_array if x in ["Maxwell", "Spice", "Couple"]]:
-                        self.logger.error("Invalid input matrix type. Possible values are Maxwell, Spice, Couple")
+                        self.logger.error("Invalid input matrix type. Possible values are Maxwell, Spice, and Couple.")
                         return False
             else:
                 problem_type_array = problem_type.split(", ")
