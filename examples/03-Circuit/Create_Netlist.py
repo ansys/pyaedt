@@ -51,7 +51,7 @@ NewThread = True
 
 ###############################################################################
 # Launch AEDT with Circuit
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
 # and starts it on the specified version in the specified graphical mode.
 

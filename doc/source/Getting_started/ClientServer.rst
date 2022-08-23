@@ -1,5 +1,5 @@
 Client-server
--------------
+=============
 You can launch PyAEDT on a remote machine if these conditions are met:
 
 - PyAEDT is installed on client and server machines. (There is no need to have AEDT
@@ -106,7 +106,7 @@ To bypass current IronPython limits, you can launch PyAEDT on a Linux machine:
 
 
 
-.. image:: ./IronPython2Cpython.png
+.. image:: ../Resources/IronPython2Cpython.png
   :width: 800
   :alt: Electronics Desktop Launched
   

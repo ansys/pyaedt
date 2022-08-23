@@ -1,12 +1,12 @@
 .. _contributing_aedt:
 
-============
-Contributing
-============
+==========
+Contribute
+==========
 Overall guidance on contributing to a PyAnsys repository appears in
-`Contributing <https://dev.docs.pyansys.com/overview/contributing.html>`_
+`Contribute <https://dev.docs.pyansys.com/overview/contributing.html>`_
 in the *PyAnsys Developer's Guide*. Ensure that you are thoroughly familiar
-with it, paying particular attention to `Guidelines and Best Practices
+with this guide, paying particular attention to `Guidelines and Best Practices
 <https://dev.docs.pyansys.com/guidelines/index.html>`_, before attempting
 to contribute to PyAEDT.
  
@@ -24,7 +24,7 @@ development mode, run:
     pip install -e .
 
 Post issues
---------------
+-----------
 Use the `PyAEDT Issues <https://github.com/pyansys/pyaedt/issues>`_
 page to submit questions, report bugs, and request new features.
 
