@@ -78,22 +78,22 @@ tb._odesktop.SetDesktopConfiguration("Twin Builder")
 tb._odesktop.SetSchematicEnvironment(1)
 
 # Get the dynamic ROM builder object
-romMgr = tb._odesign.GetROMManager()
-dromBuilder = romMgr.GetDynamicROMBuilder()
+rom_manager = tb._odesign.GetROMManager()
+dynamic_rom_builder = rom_manager.GetDynamicROMBuilder()
 
 # Build the dynamic ROM with specified configuration file
-confpath = os.path.join(data_folder,source_build_conf_file)
-dromBuilder.Build(confpath.replace('\\', '/'))
+conf_file_path = os.path.join(data_folder,source_build_conf_file)
+dynamic_rom_builder.Build(conf_file_path.replace('\\', '/'))
 
 # Test if ROM was created sucessfully
-drompath = os.path.join(data_folder,'DynamicRom.dyn')
-if os.path.exists(drompath):
-	tb._odesign.AddMessage("Info","path exists: {}".format(drompath.replace('\\', '/')), "")
+dynamic_rom_path = os.path.join(data_folder,'DynamicRom.dyn')
+if os.path.exists(dynamic_rom_path):
+	tb._odesign.AddMessage("Info","path exists: {}".format(dynamic_rom_path.replace('\\', '/')), "")
 else:
-	tb._odesign.AddMessage("Info","path does not exist: {}".format(drompath), "")
+	tb._odesign.AddMessage("Info","path does not exist: {}".format(dynamic_rom_path), "")
 
 #Create the ROM component definition in Twin Builder
-romMgr.CreateROMComponent(drompath.replace('\\', '/'),'dynarom') 
+rom_manager.CreateROMComponent(dynamic_rom_path.replace('\\', '/'),'dynarom') 
 
 
 ###############################################################################
@@ -146,13 +146,13 @@ tb.analyze_setup("TR")
 # the values for the voltage on the pulse voltage source and the values for the
 # output of the dynamic ROM.
 
-E_Value = "PULSE1.VAL"
-x = tb.post.get_solution_data(E_Value, "TR", "Time")
-plt.plot(x.intrinsics["Time"], x.data_real(E_Value))
+input_excitation = "PULSE1.VAL"
+x = tb.post.get_solution_data(input_excitation, "TR", "Time")
+plt.plot(x.intrinsics["Time"], x.data_real(input_excitation))
 
-T_Value = "ROM1.Temperature_history"
-x = tb.post.get_solution_data(T_Value, "TR", "Time")
-plt.plot(x.intrinsics["Time"], x.data_real(T_Value))
+output_temperature = "ROM1.Temperature_history"
+x = tb.post.get_solution_data(output_temperature, "TR", "Time")
+plt.plot(x.intrinsics["Time"], x.data_real(output_temperature))
 
 plt.grid()
 plt.xlabel("Time")
