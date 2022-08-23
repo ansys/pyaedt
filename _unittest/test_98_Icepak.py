@@ -252,10 +252,14 @@ class TestClass(BasisTest, object):
         tol = 1e-9
         assert abs(value - 0.5235987755982988) < tol
 
-        import time
+        import threading
 
-        time.sleep(3)
-        assert self.aedtapp.export_summary()
+        def task1():
+            assert self.aedtapp.export_summary()
+
+        t1 = threading.Thread(target=task1, name="t1")
+        t1.start()
+        t1.join()
 
         box = [i.id for i in self.aedtapp.modeler["box"].faces]
         assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
