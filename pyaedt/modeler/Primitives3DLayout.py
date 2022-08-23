@@ -772,7 +772,7 @@ class Primitives3DLayout(object):
                 "`netname` is deprecated. Use `net_name` instead.",
                 DeprecationWarning,
             )
-            net_name=kwargs["netname"]
+            net_name = kwargs["netname"]
         if not name:
             name = _uname()
         else:
@@ -799,7 +799,9 @@ class Primitives3DLayout(object):
         return name
 
     @pyaedt_function_handler()
-    def create_rectangle(self, layername, origin, dimensions, corner_radius=0, angle=0, name=None, net_name=None, **kwargs):
+    def create_rectangle(
+        self, layername, origin, dimensions, corner_radius=0, angle=0, name=None, net_name=None, **kwargs
+    ):
         """Create a rectangle on a layer.
 
         Parameters
@@ -835,7 +837,7 @@ class Primitives3DLayout(object):
                 "`netname` is deprecated. Use `net_name` instead.",
                 DeprecationWarning,
             )
-            net_name=kwargs["netname"]
+            net_name = kwargs["netname"]
         if not name:
             name = _uname()
         else:
@@ -865,7 +867,9 @@ class Primitives3DLayout(object):
         return name
 
     @pyaedt_function_handler()
-    def create_line(self, layername, center_line_list, lw=1, start_style=0, end_style=0, name=None, net_name=None, **kwargs):
+    def create_line(
+        self, layername, center_line_list, lw=1, start_style=0, end_style=0, name=None, net_name=None, **kwargs
+    ):
         """Create a line based on a list of points.
 
         Parameters
@@ -909,7 +913,7 @@ class Primitives3DLayout(object):
                 "`netname` is deprecated. Use `net_name` instead.",
                 DeprecationWarning,
             )
-            net_name=kwargs["netname"]
+            net_name = kwargs["netname"]
         if not name:
             name = _uname()
         else:
