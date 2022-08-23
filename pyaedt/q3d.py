@@ -570,12 +570,9 @@ class QExtractor(FieldAnalysis3D, object):
             self.logger.error("Provide a valid unit for inductor.")
             return False
 
-        if c_unit is None:
-            c_unit = "pF"
-        else:
-            if c_unit not in ["fF", "pF", "nF", "uF", "mF", "farad"]:
-                self.logger.error("Provide a valid unit for capacitance.")
-                return False
+        if c_unit not in ["fF", "pF", "nF", "uF", "mF", "farad"]:
+            self.logger.error("Provide a valid unit for capacitance.")
+            return False
 
         if g_unit is None:
             g_unit = "mho"
