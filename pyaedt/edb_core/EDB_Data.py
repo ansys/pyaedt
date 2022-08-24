@@ -994,7 +994,7 @@ class EDBLayer(object):
                 else:
                     roughness = self._get_edb_value(mdl[1])
                     model = self._edb.Cell.GroisseRoughnessModel(roughness)
-                newLayer.SetRoughnessModel(rgn, model)
+                newLayer.SetRoughnessModel(region, model)
         if isinstance(etchMap, float) and int(layerTypeMap) in [0, 2]:
             etchVal = float(etchMap)
         else:
