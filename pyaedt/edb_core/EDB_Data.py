@@ -749,7 +749,7 @@ class EDBLayer(object):
     def assign_roughness_model_side(
         self, model_type="huray", huray_radius="0.5um", huray_surface_ratio="2.9", groisse_roughness="1um"
     ):
-        """Assign roughness model on conductor top.
+        """Assign roughness model on conductor side.
 
         Parameters
         ----------
