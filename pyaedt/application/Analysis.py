@@ -1232,15 +1232,56 @@ class Analysis(Design, object):
             setuptype = self.design_solutions.default_setup
         name = self.generate_unique_setup_name(setupname)
         setup = Setup(self, setuptype, name)
-        if self.design_type == "HFSS" and not self.excitations and "MaxDeltaS" in setup.props:
-            new_dict = OrderedDict()
-            for k, v in setup.props.items():
-                if k == "MaxDeltaS":
-                    new_dict["MaxDeltaE"] = 0.01
-                else:
-                    new_dict[k] = v
+        if self.design_type == "HFSS":
+            if not self.excitations and "MaxDeltaS" in setup.props:
+                new_dict = OrderedDict()
+                setup.auto_update = False
+                for k, v in setup.props.items():
+                    if k == "MaxDeltaS":
+                        new_dict["MaxDeltaE"] = 0.01
+                    else:
+                        new_dict[k] = v
+                setup.props = new_dict
+                setup.auto_update = True
 
-            setup.props = new_dict
+            for boundary in self.boundaries:
+                if "Type" in boundary.props.keys() and boundary.props["Type"] == "SBR+":
+                    setup.auto_update = False
+                    user_domain = None
+                    if props:
+                        if "RadiationSetup" in props:
+                            user_domain = props["RadiationSetup"]
+                    if self.field_setups:
+                        for field_setup in self.field_setups:
+                            if user_domain and user_domain in field_setup.name:
+                                domain = user_domain
+                                break
+                        if not user_domain and self.field_setups:
+                            domain = self.field_setups[0].name
+                    else:
+                        self.logger.error("Field Observation Domain not defined")
+                        return False
+
+                    default_sbr_setup = {
+                        "RayDensityPerWavelength": 4,
+                        "MaxNumberOfBounces": 5,
+                        "EnableCWRays": False,
+                        "RadiationSetup": domain,
+                        "EnableSBRSelfCoupling": False,
+                        "UseSBRAdvOptionsGOBlockage": False,
+                        "UseSBRAdvOptionsWedges": False,
+                        "PTDUTDSimulationSettings": "None",
+                        "SkipSBRSolveDuringAdaptivePasses": True,
+                        "UseSBREnhancedRadiatedPowerCalculation": False,
+                        "AdaptFEBIWithRadiation": False,
+                    }
+                    new_dict = setup.props
+                    for k, v in default_sbr_setup.items():
+                        new_dict[k] = v
+                    setup.props = new_dict
+                    setup.auto_update = True
+                    break
+
         setup.create()
         if props:
             for el in props:

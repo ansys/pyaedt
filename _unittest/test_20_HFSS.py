@@ -995,3 +995,11 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.set_material_threshold(threshold)
         assert self.aedtapp.set_material_threshold(str(threshold))
         assert not self.aedtapp.set_material_threshold("e")
+
+    def test_53_crate_setup_hybrid_sbr(self):
+        hfss1 = self.aedtapp.insert_design()
+        udp = self.aedtapp.modeler.Position(0, 0, 0)
+        coax_dimension = 200
+        o1 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
+        o2 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
+        self.aedtapp.hybrid = True
