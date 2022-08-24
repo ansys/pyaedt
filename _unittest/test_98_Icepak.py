@@ -241,6 +241,7 @@ class TestClass(BasisTest, object):
 
     def test_17_analyze(self):
         self.aedtapp.analyze_nominal()
+        assert self.aedtapp.export_summary()
 
     def test_18_post_processing(self):
         rep = self.aedtapp.post.reports_by_category.monitor(["monitor_surf.Temperature", "monitor_point.Temperature"])
@@ -249,18 +250,10 @@ class TestClass(BasisTest, object):
 
     def test_19_get_output_variable(self):
 
-        import threading
+        value = self.aedtapp.get_output_variable("OutputVariable1")
+        tol = 1e-9
+        assert abs(value - 0.5235987755982988) < tol
 
-        def task1():
-            value = self.aedtapp.get_output_variable("OutputVariable1")
-            tol = 1e-9
-            assert abs(value - 0.5235987755982988) < tol
-
-        t1 = threading.Thread(target=task1, name="t1")
-        t1.start()
-        t1.join()
-
-        assert self.aedtapp.export_summary()
         box = [i.id for i in self.aedtapp.modeler["box"].faces]
         assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
 
