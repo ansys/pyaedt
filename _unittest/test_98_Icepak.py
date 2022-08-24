@@ -37,8 +37,10 @@ source_fluent = os.path.join(local_path, "example_models", test_subfolder, "Cold
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Icepak)
-        project_path = os.path.join(local_path, "example_models", src_project_name + ".aedt")
+        self.aedtapp = BasisTest.add_app(
+            self, project_name=test_project_name, application=Icepak, subfolder=test_subfolder
+        )
+        project_path = os.path.join(local_path, "example_models", test_subfolder, src_project_name + ".aedt")
         self.local_scratch.copyfile(project_path)
 
     def teardown_class(self):
@@ -387,9 +389,9 @@ class TestClass(BasisTest, object):
 
     def test_34_import_idf(self):
         self.aedtapp.insert_design("IDF")
-        assert self.aedtapp.import_idf(os.path.join(local_path, "example_models", "brd_board.emn"))
+        assert self.aedtapp.import_idf(os.path.join(local_path, "example_models", test_subfolder, "brd_board.emn"))
         assert self.aedtapp.import_idf(
-            os.path.join(local_path, "example_models", "brd_board.emn"),
+            os.path.join(local_path, "example_models", test_subfolder, "brd_board.emn"),
             filter_cap=True,
             filter_ind=True,
             filter_res=True,

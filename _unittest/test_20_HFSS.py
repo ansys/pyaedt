@@ -942,10 +942,10 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=10) == (False, False)
 
     def test_50_set_differential_pair(self):
-        example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
+        example_project = os.path.join(local_path, "example_models", test_subfolder, "differential_pairs.aedt")
         test_project = self.local_scratch.copyfile(example_project)
         self.local_scratch.copyfolder(
-            os.path.join(local_path, "example_models", "differential_pairs.aedb"),
+            os.path.join(local_path, "example_models", test_subfolder, "differential_pairs.aedb"),
             os.path.join(self.local_scratch.path, "differential_pairs.aedb"),
         )
         hfss1 = Hfss(projectname=test_project, designname="Hfss_Terminal", specified_version=desktop_version)

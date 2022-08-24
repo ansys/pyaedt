@@ -529,7 +529,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
     def test_91_load_and_save_diff_pair_file(self):
-        diff_def_file = os.path.join(local_path, "example_models", "differential_pairs_definition.txt")
+        diff_def_file = os.path.join(local_path, "example_models", test_subfolder, "differential_pairs_definition.txt")
         diff_file = self.local_scratch.copyfile(diff_def_file)
         assert self.hfss3dl.load_diff_pairs_from_file(diff_file)
 

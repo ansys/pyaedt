@@ -1649,7 +1649,7 @@ if not config["skip_edb"]:
             target_path = os.path.join(self.local_scratch.path, "output.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
             laminate_edb = Edb(target_path, edbversion=desktop_version)
-            chip_a3dcomp = os.path.join(local_path, "example_models", "chip.a3dcomp")
+            chip_a3dcomp = os.path.join(local_path, "example_models", test_subfolder, "chip.a3dcomp")
             try:
                 layout = laminate_edb.active_layout
                 cell_instances = list(layout.CellInstances)

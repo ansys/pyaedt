@@ -22,7 +22,11 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(
-            self, project_name="Motor_EM_R2019R3", design_name="Basis_Model_For_Test", application=Maxwell2d
+            self,
+            project_name="Motor_EM_R2019R3",
+            design_name="Basis_Model_For_Test",
+            application=Maxwell2d,
+            subfolder=test_subfolder,
         )
 
     def teardown_class(self):
@@ -130,7 +134,7 @@ class TestClass(BasisTest, object):
     def test_14_check_design_preview_image(self):
         jpg_file = os.path.join(self.local_scratch.path, "file.jpg")
         self.aedtapp.export_design_preview_to_jpg(jpg_file)
-        assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", "Motor_EM_R2019R3.jpg"))
+        assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", test_subfolder, "Motor_EM_R2019R3.jpg"))
 
     def test_14a_model_depth(self):
         self.aedtapp.model_depth = 2.0

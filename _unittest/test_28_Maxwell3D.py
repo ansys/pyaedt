@@ -23,7 +23,7 @@ class TestClass(BasisTest, object):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, application=Maxwell3d, solution_type="EddyCurrent")
         core_loss_file = "PlanarTransformer.aedt"
-        example_project = os.path.join(local_path, "example_models", core_loss_file)
+        example_project = os.path.join(local_path, "example_models", test_subfolder, core_loss_file)
         self.file_path = self.local_scratch.copyfile(example_project)
 
     def teardown_class(self):

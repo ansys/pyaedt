@@ -23,10 +23,12 @@ original_project_name = "Galileo_t23"
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name=original_project_name, application=Hfss3dLayout)
+        self.aedtapp = BasisTest.add_app(
+            self, project_name=original_project_name, application=Hfss3dLayout, subfolder=test_subfolder
+        )
         self.tmp = self.aedtapp.modeler.geometries
-        example_project = os.path.join(local_path, "example_models", "Package.aedb")
-        src_file = os.path.join(local_path, "example_models", "Package.aedt")
+        example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
+        src_file = os.path.join(local_path, "example_models", test_subfolder, "Package.aedt")
         dest_file = os.path.join(self.local_scratch.path, "Package_test_40.aedt")
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_40.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)

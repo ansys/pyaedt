@@ -29,12 +29,12 @@ except ImportError:
     ipython_available = False
 
 if config["desktopVersion"] > "2022.2":
+    test_field_name = "Potter_Horn_231"
+    test_project_name = "coax_setup_solved_231"
+else:
     test_field_name = "Potter_Horn"
     test_project_name = "coax_setup_solved"
 
-else:
-    test_field_name = "Potter_Horn_231"
-    test_project_name = "coax_setup_solved_231"
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
 sbr_file = "poc_scat_small"
